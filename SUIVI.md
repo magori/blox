@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 36 / 70 | `██████████░░░░░░░░░░` **51 %** |
+| **Général** | 38 / 70 | `███████████░░░░░░░░░` **54 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -132,13 +132,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   - [x] P1.12b Gravité et verrouillage : `tick(state): GameUpdate`, `Phase.Falling(piece,
     ticksSinceDrop)`, `Phase.EntryDelay(ticksLeft)`, `GameEvent.PieceLocked`, `Rules` reçoit
     `gravityTable` et `entryDelay`. Conforme à la ROM au tick près.
-  - [ ] P1.12c Effacement, score et niveau : `clearFullRows`, `Phase.Clearing(rowsCleared,
-    ticksLeft, délai d'apparition calculé au verrouillage)`, animation de 16 images + images
-    jusqu'au prochain multiple de 4 (17 à 20, compteur d'images de la partie dans `GameState`,
-    **[à vérifier]**), lignes, niveau recalculé, points au nouveau niveau (type `Points`, P1.19 ;
-    `Score` est déjà la partition de `core:music`, renommer dans le langage du domaine de
-    CLAUDE.md), événement `LinesCleared`. Pile en danger recalculée sur le plateau effacé,
-    `StackDanger(on/off)` émis seulement au franchissement (revue de P1.16).
+  - [x] P1.12c Effacement, score et niveau : `Phase.Clearing`, animation de 17 à 20 ticks
+    (compteur de la partie `tickCount`, écart assumé), points au nouveau niveau (`Points`),
+    `LinesCleared`, `StackDanger` au franchissement (à la fin de l'animation s'il y a
+    effacement), « 4 lignes » dans les statistiques. Pour l'écran : le domaine fournira la
+    progression de l'animation (passes faites) quand une tâche la dessinera.
   - [ ] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
     `Release(button)`, place pour `Pause` / `Resume`), touches tenues et appuis depuis le
     dernier tick (A, B et changement de direction à front montant), `AutoRepeat` de
@@ -147,20 +145,26 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     verrouillage. Revue de P1.12b : les touches tenues et l'`AutoRepeat` latéral vivent dans
     `GameState`, pas dans la phase (le DAS doit survivre au verrouillage et rester figé pendant
     le délai). Revue de P2.5 : un appui bref (A pressé puis relâché entre deux ticks) doit
-    tourner la pièce au tick suivant (front montant mémorisé).
-  - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite.
+    tourner la pièce au tick suivant (front montant mémorisé). Revue de P1.12c : le DAS reste
+    figé pendant le délai **et** l'effacement ; tout verrouillage, même par descente rapide, a
+    lieu dans `tick` (sinon l'alignement de l'animation se décale) ; regrouper niveau, lignes,
+    score et statistiques dans un objet « progression » avant d'ajouter les touches à
+    `GameState` ; exposer les règles du moteur en lecture seule, pour retirer le système de
+    rotation passé à part à la fabrique du ViewModel (P2.2).
+  - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite (le tick
+    après la fin est déjà prouvé en P1.12c). La fin de partie n'émet que `GameOver`, jamais
+    `StackDanger(off)` (revue de P1.12c).
 - [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
   `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
 - [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
-  Partie pure faite : `GameStatistics` (« 4 lignes », ticks joués). Reste : pause (`paused` à
-  côté de la phase, `Input` `Pause` / `Resume`, touches tenues vidées à la reprise) et
-  branchement des statistiques dans le moteur (`afterTick` hors pause et après la fin).
-- [ ] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique. Partie pure
-  faite : `Board.stackHeight`, `StackDangerRule` / `ClassicStackDangerRule` (15 / 12). Reste :
-  événement émis par le moteur au franchissement (P1.12c) ; décider si `GameOver` remet le
-  tempo à la normale.
+  Fait : `GameStatistics` (« 4 lignes », branché en P1.12c), durée = `GameState.tickCount`
+  (figé après la fin). Reste : pause (`paused` à côté de la phase, `Input` `Pause` / `Resume`,
+  touches tenues vidées, `tickCount` qui n'avance pas en pause).
+- [x] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique :
+  `Board.stackHeight`, `ClassicStackDangerRule` (15 / 12, **[à vérifier]** en jouant), événement
+  émis par le moteur au franchissement (P1.12c). La fin de partie n'émet pas `StackDanger(off)`.
 - [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
   et d'`EntryDelay.ticksAfterLock`. Revue de P1.12b : une valeur nulle ou négative ne bloque
   rien, elle est confondue en silence avec 1 (descente à chaque tick, apparition au tick
@@ -168,11 +172,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P1.18** Outillage : `ignoreSourceSet` retiré de `dependencyAnalysis`, remplacé par des
   règles par jeu de sources de test (échec, avec exclusion des bibliothèques posées par les
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
-- [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
-  `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
-  moteur (P1.7, P1.12) les exigera. Fait (lot P1.16 / P1.15) : `LineClear`, fourni par
-  `RowsCleared.lineClear`, reçu par `ScoringRule` et `GameStatistics`. Reste : le type des
-  points, nommé `Points` (P1.12c).
+- [x] **P1.19** Types des points et des « lignes d'un coup » pour `ScoringRule` : `LineClear`
+  (lot P1.16 / P1.15) et `Points` (P1.12c, rendu par `ScoringRule`) ; `CLAUDE.md` dit `Points`.
 - [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
   (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
   premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).

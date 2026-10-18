@@ -164,6 +164,19 @@ class GameEngineTickTest {
         assertThat(after.current).isEqualTo(spawned(PieceType.T))
     }
 
+    @Test
+    fun `a tick after the game is over changes nothing, the tick count included`() {
+        // Given a game over on tick 500
+        val over = gameState(tickCount = 500, phase = Phase.GameOver(spawned(PieceType.T)))
+
+        // When
+        val update = engine.tick(over)
+
+        // Then
+        assertThat(update.state).isEqualTo(over)
+        assertThat(update.events).isEmpty()
+    }
+
     private companion object {
         @JvmStatic
         fun piecesThatCannotDrop(): List<Arguments> = listOf(

@@ -92,7 +92,14 @@ La hauteur de pile vaut 20 moins la première ligne occupée (0 si le plateau es
 **entre** en danger quand elle atteint 15 et n'en **sort** qu'en redescendant à 12 ou moins :
 deux seuils, pour que le tempo ne bascule pas à chaque pièce. Valeurs à régler en jouant
 **[à vérifier]**. La hauteur se mesure au verrouillage, sur le plateau **après** effacement des
-lignes ; l'événement n'est émis qu'au franchissement (moteur, P1.12c).
+lignes ; l'événement n'est émis qu'au franchissement, au verrouillage s'il n'y a pas
+d'effacement, sinon à la fin de l'animation, avec `LinesCleared`, pour que le tempo change
+quand la pile baisse à l'écran. La fin de partie n'émet pas `StackDanger(off)` : c'est l'audio
+qui s'arrête sur `GameOver`.
+
+**Tests (moteur) :** `GameEngineStackDangerTest › without a clear, the danger is measured when the piece locks and StackDanger is sent only when it changes`,
+`GameEngineStackDangerTest › four lines locked at height 15 leave the stack 11 rows high, with no danger and no StackDanger`,
+`GameEngineStackDangerTest › with a clear, StackDanger comes at the end of the animation, with LinesCleared, as the stack goes down`.
 
 **Tests :** `BoardStackHeightTest › an empty board has a stack height of 0`,
 `BoardStackHeightTest › the stack height is 20 minus the first filled row`,

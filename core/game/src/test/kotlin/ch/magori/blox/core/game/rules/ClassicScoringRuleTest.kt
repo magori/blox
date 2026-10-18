@@ -2,6 +2,7 @@ package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
+import ch.magori.blox.core.game.model.Points
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -13,7 +14,7 @@ class ClassicScoringRuleTest {
 
     @Test
     fun `clearing no line scores no point`() {
-        assertThat(pointsForClearing(lines = 0, atLevel = 0)).isEqualTo(0)
+        assertThat(pointsForClearing(lines = 0, atLevel = 0)).isEqualTo(Points(0))
     }
 
     @ParameterizedTest(name = "{0} line(s) at level 0 -> {1} points")
@@ -22,7 +23,7 @@ class ClassicScoringRuleTest {
         lines: Int,
         expectedPoints: Int,
     ) {
-        assertThat(pointsForClearing(lines, atLevel = 0)).isEqualTo(expectedPoints)
+        assertThat(pointsForClearing(lines, atLevel = 0)).isEqualTo(Points(expectedPoints))
     }
 
     @ParameterizedTest(name = "{0} line(s) at level {1} -> {2} points")
@@ -32,7 +33,7 @@ class ClassicScoringRuleTest {
         level: Int,
         expectedPoints: Int,
     ) {
-        assertThat(pointsForClearing(lines, atLevel = level)).isEqualTo(expectedPoints)
+        assertThat(pointsForClearing(lines, atLevel = level)).isEqualTo(Points(expectedPoints))
     }
 
     @ParameterizedTest(name = "{0} row(s) soft dropped -> {1} points")
@@ -41,7 +42,7 @@ class ClassicScoringRuleTest {
         rows: Int,
         expectedPoints: Int,
     ) {
-        assertThat(pointsForSoftDropping(rows)).isEqualTo(expectedPoints)
+        assertThat(pointsForSoftDropping(rows)).isEqualTo(Points(expectedPoints))
     }
 
     @Test
@@ -53,8 +54,8 @@ class ClassicScoringRuleTest {
     private fun pointsForClearing(
         lines: Int,
         atLevel: Int,
-    ): Int = scoring.pointsForLinesCleared(LineClear(lines), Level(atLevel))
+    ): Points = scoring.pointsForLinesCleared(LineClear(lines), Level(atLevel))
 
     /** When: the rule scores [rows] dropped while holding down. */
-    private fun pointsForSoftDropping(rows: Int): Int = scoring.pointsForSoftDrop(rows)
+    private fun pointsForSoftDropping(rows: Int): Points = scoring.pointsForSoftDrop(rows)
 }
