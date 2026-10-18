@@ -165,6 +165,20 @@ class GameEngineTickTest {
     }
 
     @Test
+    fun `a piece that appears gives no event`() {
+        // Given the last tick of an entry delay, on an empty board
+        val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.J))
+        val state = gameState(next = PieceType.T, phase = Phase.EntryDelay(ticksLeft = 1))
+
+        // When
+        val appeared = engine.tick(state)
+
+        // Then
+        assertThat(appeared.events).isEmpty()
+        assertThat(appeared.state.phase).isEqualTo(Phase.Falling(spawned(PieceType.T)))
+    }
+
+    @Test
     fun `a tick after the game is over changes nothing, the tick count included`() {
         // Given a game over on tick 500
         val over = gameState(tickCount = 500, phase = Phase.GameOver(spawned(PieceType.T)))
