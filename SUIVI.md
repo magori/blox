@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 40 / 71 | `███████████░░░░░░░░░` **56 %** |
+| **Général** | 41 / 72 | `███████████░░░░░░░░░` **57 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -205,7 +205,12 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   appuis et relâchements arrivés entre deux images sont mis en file et appliqués avant les
   ticks, sans en perdre aucun. Revue de P2.7 : brancher `GameOverScreen` dans `GameScreen` selon
   `GameUiState` (`gameOver: GameOverUiState?`) ; `onMenu` = retour ; `onReplay` remplace la clé
-  de la pile par une nouvelle `GameRoute` (ADR 0011).
+  de la pile par une nouvelle `GameRoute` (ADR 0011). Revue de P2.6 : `GameScreen` met
+  `PauseScreen` **à la place** du jeu (écran opaque, plateau masqué), et `GameTopBar` en haut
+  du jeu ; `BackHandler` « retour = pause » en jeu, désactivé en pause (retour = Reprendre) et
+  en fin de partie ; Menu depuis la pause quitte sans confirmation pour l'instant (une question
+  de confirmation est à trancher au test sur téléphone, P2.8) ; record à 0 tant que
+  `core:data` n'est pas branché (P3.2).
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -224,7 +229,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
   est dans la barre du haut (maquette), pas dans `GameControls`. Revue de P2.7 : un éventuel
   `BackHandler` « retour = pause » est désactivé en fin de partie ; aucun tick n'est donné au
-  moteur pendant la pause, pour que la durée de jeu n'avance pas.
+  moteur pendant la pause, pour que la durée de jeu n'avance pas. Fait : `PauseScreen(onResume,
+  onMenu)`, `GameTopBar(record, onPause)` (pictogramme `pauseBars` au pixel près, record par
+  `topBarTexts`), `TitledScreen` partagé avec la fin de partie, `PanelLabel`,
+  `ScreenSizes.minTouchTarget`. Reste, avec P1.15 et P2.2 : la pause dans le moteur et le
+  branchement.
+- [ ] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
+  en P2.6 (`docs/maquette.md`).
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
   remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
   `LabelledPanel` partagé avec la colonne latérale.
@@ -269,19 +280,25 @@ Référence : [docs/musique.md](docs/musique.md).
   plage de `Pitch` C0..B8.
 - [x] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
   sur la JVM : `Synthesizer`, `mix` dans `core:audio`.
-- [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
+- [x] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
   d'écrire le séquenceur, choisir entre durées entières (sous-unités du temps, par exemple
   48 par noire) et comparaison avec tolérance : les durées sont des `Double` exacts tant qu'il
   n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2). Revue de P4.3 :
   `render(score, tempoFactor)` comme seule entrée publique (`renderVoice` et `mix` deviennent
   internes) ; rendre hors du thread audio (`Dispatchers.Default`), une fois, et garder le
   résultat en cache (environ 2,3 Mo par voix) ; écrire des tranches en `MODE_STREAM` ; éviter la
-  double allocation par note (écrire directement dans le tableau de la voix).
+  double allocation par note (écrire directement dans le tableau de la voix). Fait :
+  `Synthesizer.render`, `LoopCursor`, `AudioSink`, `AudioTrackSink`, `ChiptuneSequencer`
+  (durées restées en `Double`, voir `docs/musique.md`).
 - [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
   passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
-  changerait la hauteur.
+  changerait la hauteur. Revue de P4.4 : le rendu et le cache acceptent déjà le facteur ; lire
+  entre deux tranches un facteur demandé (`StateFlow` ou `@Volatile`) sans rouvrir la sortie ;
+  calculer la position en `Long` ; arrondir au temps suivant (un temps = `len / totalBeats`
+  échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
+  (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la

@@ -39,15 +39,15 @@ import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.ui.ScreenSizes
 
 /**
  * Sizes for a 360 dp wide phone, inside the 24 dp margins of the game screen (312 dp): 3 × 52 +
  * 2 × 8 on the left, 2 × 56 + 8 on the right, 20 dp left between the two groups. Every button is at
- * least [MinTouchTarget], the accessibility minimum.
+ * least [ScreenSizes.minTouchTarget], the accessibility minimum.
  */
-private val MinTouchTarget = 48.dp
-private val DirectionButtonSize = MinTouchTarget + 4.dp
-private val RotationButtonSize = MinTouchTarget + 8.dp
+private val DirectionButtonSize = ScreenSizes.minTouchTarget + 4.dp
+private val RotationButtonSize = ScreenSizes.minTouchTarget + 8.dp
 private val ButtonSpacing = 8.dp
 private val ArrowSize = 20.dp
 private val LetterSize = 20.sp

@@ -17,8 +17,9 @@ class SynthesizerTest {
 
     @Test
     fun `a square wave at 440 Hz alternates plus and minus the volume with a period of about 100 point 2 samples`() {
-        // When: one second of sound
-        val samples = synthesizer.oscillate(Waveform.SQUARE, frequency = 440.0, volume = 0.5, sampleCount = 44_100)
+        // When: the first second of an A4 of 1.25 s, before its envelope fades
+        val samples = synthesizer.renderVoice(oneNote(Pitch.parse("A4"), Waveform.SQUARE, beats = 1.25), bpm = 60.0)
+            .copyOfRange(0, 44_100)
 
         // Then
         assertThat(samples.toSet()).containsOnly(0.5f, -0.5f)
@@ -30,11 +31,11 @@ class SynthesizerTest {
 
     @Test
     fun `a triangle wave starts at 0, reaches the volume at a quarter period and varies linearly`() {
-        // When: at 441 Hz, a period is exactly 100 samples
-        val samples = synthesizer.oscillate(Waveform.TRIANGLE, frequency = 441.0, volume = 0.5, sampleCount = 100)
+        // When: an A4 of one second, a period of 100.23 samples, far from its envelope
+        val samples = synthesizer.renderVoice(oneNote(Pitch.parse("A4"), Waveform.TRIANGLE, beats = 1.0), bpm = 60.0)
 
-        // Then
-        val expected = mapOf(0 to 0.0, 10 to 0.2, 25 to 0.5, 40 to 0.2, 50 to 0.0, 60 to -0.2, 75 to -0.5, 90 to -0.2)
+        // Then: the phase of sample i is i × 440 / 44 100
+        val expected = mapOf(0 to 0.0, 10 to 0.1995465, 25 to 0.4988662, 50 to 0.0022676, 75 to -0.4965986)
         expected.forEach { (index, value) ->
             assertThat(samples[index].toDouble()).describedAs("sample $index").isCloseTo(value, within(1e-6))
         }
@@ -43,7 +44,10 @@ class SynthesizerTest {
     @Test
     fun `a rest only produces zeros`() {
         // When
-        val samples = synthesizer.renderNote(pitch = null, Waveform.SQUARE, volume = 0.5, sampleCount = 1_000)
+        val samples = synthesizer.renderVoice(
+            oneNote(pitch = null, Waveform.SQUARE, beats = 1.0),
+            bpm = ONE_THOUSAND_SAMPLES_A_BEAT,
+        )
 
         // Then
         assertThat(samples.toList()).hasSize(1_000).containsOnly(0f)
@@ -52,7 +56,10 @@ class SynthesizerTest {
     @Test
     fun `the envelope keeps the volume up to 80 percent of the note, fades out up to 95 percent, then is silent`() {
         // Given a square wave, whose absolute value is the volume times the envelope
-        val samples = synthesizer.renderNote(Pitch.parse("A4"), Waveform.SQUARE, volume = 0.5, sampleCount = 1_000)
+        val samples = synthesizer.renderVoice(
+            oneNote(Pitch.parse("A4"), Waveform.SQUARE, beats = 1.0),
+            bpm = ONE_THOUSAND_SAMPLES_A_BEAT,
+        )
 
         // When
         val levels = samples.map { abs(it).toDouble() }
@@ -73,7 +80,7 @@ class SynthesizerTest {
         val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = listOf(Note(Pitch.parse("A4"), beats = 1.0)))
 
         // When
-        val samples = synthesizer.renderVoice(voice, bpm = 150)
+        val samples = synthesizer.renderVoice(voice, bpm = 150.0)
 
         // Then
         assertThat(samples).hasSize(17_640)
@@ -85,7 +92,7 @@ class SynthesizerTest {
         val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = List(18) { Note(Pitch.parse("A4"), beats = 0.5) })
 
         // When
-        val samples = synthesizer.renderVoice(voice, bpm = 132)
+        val samples = synthesizer.renderVoice(voice, bpm = 132.0)
 
         // Then: rounding each note on its own would give 18 × 10 023 = 180 414
         assertThat(samples).hasSize(180_409)
@@ -99,7 +106,7 @@ class SynthesizerTest {
         val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = notes)
 
         // When
-        val samples = synthesizer.renderVoice(voice, bpm = 150)
+        val samples = synthesizer.renderVoice(voice, bpm = 150.0)
 
         // Then
         assertThat(samples[0]).isEqualTo(0.5f)
@@ -121,6 +128,18 @@ class SynthesizerTest {
         val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = listOf(Note(Pitch.parse("A4"), beats = 1.0)))
 
         // When / Then
-        assertThatIllegalArgumentException().isThrownBy { synthesizer.renderVoice(voice, bpm) }
+        assertThatIllegalArgumentException().isThrownBy { synthesizer.renderVoice(voice, bpm.toDouble()) }
+    }
+
+    /** A voice of a single note, at volume 0.5. */
+    private fun oneNote(
+        pitch: Pitch?,
+        waveform: Waveform,
+        beats: Double,
+    ): Voice = Voice(waveform, volume = 0.5, notes = listOf(Note(pitch, beats)))
+
+    private companion object {
+        /** At this tempo, a beat lasts 1 000 samples at 44 100 Hz: 60 × 44 100 / 1 000. */
+        const val ONE_THOUSAND_SAMPLES_A_BEAT = 2_646.0
     }
 }
