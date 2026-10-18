@@ -292,7 +292,25 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 
 **Commandes dans le moteur** (P1.12d, ROM au tick près, même source) :
 
-- `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
+- **Pause** (P1.15) : `Input.Pause` met la partie en pause (`GameState.paused`) et vide les
+  commandes (touches tenues, appuis non encore traités, répétition latérale) ; en pause, `tick`
+  ne change rien, `tickCount` compris (la durée de jeu n'avance pas), et seul `Input.Resume`
+  compte : les appuis et relâchements sont ignorés. `Resume` reprend exactement où la partie
+  s'était arrêtée (gravité, délai, animation). Une touche tenue à travers la pause doit être
+  pressée de nouveau ; la descente rapide en cours est coupée et ses pas ne rapportent rien
+  (son compteur reste visible pendant la pause, il est remis à zéro au premier tick). `Pause`
+  en pause, `Resume` hors pause et `Pause` après la fin sont sans effet. Le masquage du plateau
+  est l'affaire de l'écran (P2.6).
+
+  **Tests :** `GameEnginePauseTest › Pause pauses the game, without changing the phase or sending an event`,
+  `GameEnginePauseTest › while paused a tick changes nothing, the tick count included`,
+  `GameEnginePauseTest › Resume goes on exactly where the game stood`,
+  `GameEnginePauseTest › a press while paused is ignored, so A pressed during the pause does not turn the piece`,
+  `GameEnginePauseTest › the pause forgets the held buttons and the shift repeat, a release during the pause does nothing`,
+  `GameEnginePauseTest › the pause stops the soft drop, which needs a new press of down after the resume`,
+  `GameEnginePauseTest › a press just before the pause is forgotten`,
+  `GameEnginePauseTest › Pause while paused, Resume while playing and Pause after the end change nothing`.
+- Hors pause, `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
   se passe dans `tick`, dans l'ordre de la ROM : **déplacement, rotation, descente**. Un
   verrouillage, même par descente rapide, a donc lieu dans `tick`, avec le même délai, la même
   animation et les mêmes événements que par la gravité.
@@ -398,7 +416,8 @@ tout se déduise de la graine. La différence (1 à 3 images) n'est pas percepti
 `GameEngineClearTest › the clear lasts 16 ticks plus the ticks up to the next multiple of 4 of the game tick count`,
 `GameEngineClearTest › after the clear comes the entry delay computed when the piece locked, then the next piece`,
 `GameEngineClearTest › the ticks between the lock and the end of the clear give no event`,
-`PhaseTest › a clear and the entry delay after it last at least one tick`.
+`PhaseTest › a clear lasts at least one tick`, `TicksTest › a duration of 0 ticks or less is refused`,
+`TicksTest › a duration of 1 tick is the shortest one accepted` (la gravité et le délai d'apparition rendent un `Ticks`, au moins 1).
 
 ## Lignes et score
 
@@ -443,7 +462,12 @@ partie non plus). Un fichier illisible ou corrompu compte comme « pas de record
 `DataStoreHighScoreRepositoryTest › the record flow emits the new record after a submit`,
 `DataStoreHighScoreRepositoryTest › two concurrent submits keep the highest score, the second one seeing the first`,
 `DataStoreHighScoreRepositoryTest › an unreadable records file gives a record of 0, and the next score becomes the record`,
-`DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`.
+`DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
+`GameViewModelTest › at the game over the score is submitted once and the screen gets the final values and the record result`,
+`GameViewModelTest › once the game is over the frames change nothing and the score is not submitted again`,
+`GameViewModelTest › while the score is being submitted the game over waits, then shows once with the answer`,
+`GameViewModelTest › the score is saved even when the view model is cleared while it is being submitted`,
+`GameViewModelTest › when the records cannot be written the game over still shows, without a new record`.
 Vues : V1, V2, V3, V4.
 
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,

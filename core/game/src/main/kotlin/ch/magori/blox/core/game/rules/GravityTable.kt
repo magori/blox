@@ -1,8 +1,9 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Ticks
 
 /** Gravity policy: how many ticks the falling piece waits before dropping one row. */
 public interface GravityTable {
-    public fun ticksPerRow(level: Level): Int
+    public fun ticksPerRow(level: Level): Ticks
 }

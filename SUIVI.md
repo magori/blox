@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 42 / 72 | `████████████░░░░░░░░` **58 %** |
-| **MVP** (jouable sur téléphone) | 33 / 37 | `██████████████████░░` **89 %** |
+| **Général** | 47 / 74 | `█████████████░░░░░░░` **64 %** |
+| **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -67,6 +67,8 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   à 2 Go.
 - [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
+- [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
+  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
   `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
   une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
@@ -164,17 +166,18 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
   `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
-- [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
+- [x] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
   Fait : `GameStatistics` (« 4 lignes », branché en P1.12c), durée = `GameState.tickCount`
-  (figé après la fin). Reste : pause (`paused` à côté de la phase, `Input` `Pause` / `Resume`,
-  touches tenues vidées, `tickCount` qui n'avance pas en pause).
+  (figé après la fin) ; pause : `GameState.paused`, `Input.Pause` / `Input.Resume`, commandes
+  vidées, `tickCount` figé en pause. Pour P2.2 (incrément 3) : `Pause` à l'appui du bouton
+  pause et au retour, `Resume` sur Reprendre ; P5.4 envoie `Pause` à `ON_PAUSE`.
 - [x] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique :
   `Board.stackHeight`, `ClassicStackDangerRule` (15 / 12, **[à vérifier]** en jouant), événement
   émis par le moteur au franchissement (P1.12c). La fin de partie n'émet pas `StackDanger(off)`.
-- [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
+- [x] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
   et d'`EntryDelay.ticksAfterLock`. Revue de P1.12b : une valeur nulle ou négative ne bloque
   rien, elle est confondue en silence avec 1 (descente à chaque tick, apparition au tick
-  suivant) ; les phases refusent déjà ces valeurs (`require`), le type reste à faire.
+  suivant) ; les phases refusent déjà ces valeurs (`require`), le type reste à faire. Fait : `Ticks` (`model`), rendu par `GravityTable` et `EntryDelay`, porté par `Phase.Clearing.entryDelayAfter` ; les compteurs restent en `Int`.
 - [x] **P1.18** Outillage : `ignoreSourceSet` retiré de `dependencyAnalysis`, remplacé par des
   règles par jeu de sources de test (échec, avec exclusion des bibliothèques posées par les
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
@@ -213,6 +216,19 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   en fin de partie ; Menu depuis la pause quitte sans confirmation pour l'instant (une question
   de confirmation est à trancher au test sur téléphone, P2.8) ; record à 0 tant que
   `core:data` n'est pas branché (P3.2).
+  Fait (incrément 1) : `GameViewModel`
+  (moteur créé depuis la `GameRoute`, `onFrame`, `onFramesStarted`), `GameUiState`, horloge dans
+  `repeatOnLifecycle(STARTED)` (ADR 0012 amendé), plateau et colonne latérale branchés
+  (`SidePanel(Level, Lines)`), route ajoutée aux `CreationExtras` par défaut, `GameRoute`
+  refuse un niveau négatif, `AppContainer` et `newGameRoute` dans `app`. Reste (incrément 2) :
+  commandes (après P1.12d), fin de partie et Rejouer (après P1.12e ; `GameOverUiState` construit
+  depuis les types du domaine), pause (après P1.15). Fait (incrément 2) : commandes
+  (`onControl` → `engine.apply`, sans file : `apply` ne fait qu'enregistrer), système de
+  rotation pris dans `engine.rules`, fin de partie (`submit` du score une fois, à l'abri de
+  l'annulation et des erreurs d'écriture, puis `GameOverScreen` à la place du jeu), Rejouer
+  (`replay` dans `app`, sans effet au second appui), `BloxApplication` qui crée
+  l'`AppContainer` (ADR 0007) et le DataStore du record une fois. Reste (incrément 3) : pause
+  (`Input.Pause` / `Resume`, `PauseScreen`, `BackHandler`), `GameTopBar` avec le record.
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -254,16 +270,22 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 ## P3 — Accueil, préférences, records
 
-- [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+- [x] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+  Fait : `UserPreferences`, `ThemeChoice`, `MusicChoice`, `DataStoreUserPreferencesRepository`,
+  fabrique commune `preferencesDataStore` (remplace `recordsDataStore`), `SETTINGS_FILE`. Le
+  niveau de départ n'est borné qu'à 0 et plus : l'accueil (P3.4) borne le choix à la plage du
+  mode. Rien n'est branché (P3.4, P3.5).
 - [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
   du processus), et calculer « nouveau record » contre le record d'avant la partie. Fait :
   `HighScoreRepository`, `DataStoreHighScoreRepository`, `RecordResult`, `recordsDataStore`.
-  Reste au branchement (P2.2, incrément 2) : créer le DataStore dans `AppContainer`
-  (`filesDir/datastore/records.preferences_pb`), `submit` à `GameOver`, record dans la barre
-  du haut et sur V4.
-- [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
+  Branché en P2.2 (incrément 2) : DataStore dans `AppContainer`, `submit` à `GameOver`,
+  « Nouveau record » sur V4. Reste : record dans la barre du haut (P2.2, incrément 3) et à
+  l'accueil (P3.4).
+- [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
+  `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
+  fabrique de l'accueil (P3.4) s'y ajouteront.
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
@@ -309,13 +331,21 @@ Référence : [docs/musique.md](docs/musique.md).
   par le ViewModel. Décider alors si `play` de la partition déjà jouée est sans effet, et
   journaliser l'échec audio attrapé (revue de P4.4).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
+  Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
+  `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
+  plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
   feature traduit via `strings.xml` (revue de P4.2).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
-- [ ] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
+- [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
-  jeu de 1989 plutôt que le chant (revue de P4.2). **[à vérifier]**
+  jeu de 1989 plutôt que le chant (revue de P4.2). Fait : 5 mesures sur 8 s'écartaient du chant ;
+  mélodie remplacée par celle du chant (sources citées dans `docs/musique.md`), basse de la
+  mesure 6 en A2/E3.
+- [ ] **P4.10** Droits : confirmer la mélodie de *Korobeïniki* sur une édition d'époque
+  (Prigojy 1898, recueils de Panina vers 1905, НЭБ) ; les deux sources nettes consultées en P4.9
+  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`.
 
 ## P5 — Finitions
 
@@ -328,7 +358,12 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
-  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu.
+  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu. Revue de P2.2 : le
+  ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
+  test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
+  `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer
+  et Menu ; `MainDispatcherExtension` (tests de `feature:game`) à mutualiser dès qu'un autre
+  module en a besoin.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).

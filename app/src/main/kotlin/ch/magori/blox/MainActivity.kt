@@ -8,12 +8,14 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.navigation.BloxNavDisplay
 
 class MainActivity : ComponentActivity() {
+    private val container get() = (application as BloxApplication).container
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
             BloxTheme {
-                BloxNavDisplay()
+                BloxNavDisplay(gameViewModelFactory = container.gameViewModelFactory)
             }
         }
     }

@@ -38,6 +38,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
             tickCount = 0,
             stackInDanger = false,
             controls = Controls.NONE,
+            paused = false,
         )
         return GameUpdate(state, events = emptyList())
     }
@@ -68,12 +69,13 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      * - When the entry delay is over, the next piece appears, or the game is over if it does not fit. The
      *   held shift stands still from the lock until then, and goes on with the next piece; a down held
      *   through the lock does not soft drop the next piece until it is pressed again.
-     * - Once the game is over, a tick changes nothing, not even [GameState.tickCount].
+     * - Once the game is over, or while it is paused, a tick changes nothing, not even [GameState.tickCount].
      *
      * Not pure: the next piece is drawn from the randomizer (ADR 0014). Pass back only the last state
      * returned; the ViewModel is the only caller (ADR 0012).
      */
     public fun tick(state: GameState): GameUpdate {
+        if (state.paused) return GameUpdate(state, events = emptyList())
         val update = when (val phase = state.phase) {
             is Phase.Falling -> fall(state.counted(), phase)
             is Phase.Clearing -> clear(state.counted(), phase)
@@ -84,15 +86,30 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
     }
 
     /**
-     * Records [input] in the controller of [state]: nothing moves until the next [tick], which reads it.
-     * Gives no event. Once the game is over, an input changes nothing.
+     * Records [input] in [state]: a press or a release goes to the controller, and nothing moves until the
+     * next [tick], which reads it. Gives no event.
+     *
+     * [Input.Pause] pauses the game and forgets the held buttons and the shift repeat, so that nothing
+     * resumes charged: a button still held must be pressed again. While paused, only [Input.Resume] counts,
+     * and the game goes on exactly where it stood. Once the game is over, an input changes nothing.
      */
     public fun apply(
         state: GameState,
         input: Input,
     ): GameUpdate {
-        if (state.phase is Phase.GameOver) return GameUpdate(state, events = emptyList())
-        return GameUpdate(state.copy(controls = state.controls.after(input)), events = emptyList())
+        val applied = when {
+            state.phase is Phase.GameOver -> state
+
+            state.paused -> if (input == Input.Resume) state.copy(paused = false) else state
+
+            else -> when (input) {
+                is Input.Press -> state.copy(controls = state.controls.afterPress(input.button))
+                is Input.Release -> state.copy(controls = state.controls.afterRelease(input.button))
+                Input.Pause -> state.copy(paused = true, controls = Controls.NONE)
+                Input.Resume -> state
+            }
+        }
+        return GameUpdate(applied, events = emptyList())
     }
 
     /** [GameState] with one more tick played. */
@@ -139,7 +156,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         }
         if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
         val ticks = counted.ticksSinceDrop + 1
-        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level)) {
+        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level).value) {
             return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
         }
         return dropOneRow(state, counted) { it }
@@ -234,7 +251,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
                 events = listOf(GameEvent.PieceLocked(piece)),
             )
         }
-        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay), stackInDanger = inDanger)
+        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay.value), stackInDanger = inDanger)
         return GameUpdate(waiting, events = listOf(GameEvent.PieceLocked(piece)) + dangerChange(state, inDanger))
     }
 
@@ -267,7 +284,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
             progress = state.progress.afterClear(lineClear, state.startLevel, rules),
-            phase = Phase.EntryDelay(clearing.entryDelayAfter),
+            phase = Phase.EntryDelay(clearing.entryDelayAfter.value),
             stackInDanger = clearing.stackInDangerAfter,
         )
         val events = listOf(GameEvent.LinesCleared(lineClear)) + dangerChange(state, clearing.stackInDangerAfter)
