@@ -2,6 +2,7 @@ package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Piece
+import ch.magori.blox.core.game.model.Ticks
 
 /**
  * Entry delay of the Classic mode (NES, 1989): 10 ticks when the piece locks in the two bottom
@@ -12,17 +13,18 @@ import ch.magori.blox.core.game.model.Piece
  */
 public object ClassicEntryDelay : EntryDelay {
     /** @throws IllegalArgumentException if the pivot of [lockedPiece] is not in [Board.ROWS_WITH_HIDDEN]. */
-    override fun ticksAfterLock(lockedPiece: Piece): Int {
+    override fun ticksAfterLock(lockedPiece: Piece): Ticks {
         val pivotRow = lockedPiece.pivot.row
         require(pivotRow in Board.ROWS_WITH_HIDDEN) {
             "The pivot row must be in ${Board.ROWS_WITH_HIDDEN}: $pivotRow"
         }
-        return when (pivotRow) {
+        val ticks = when (pivotRow) {
             in 18..19 -> 10
             in 14..17 -> 12
             in 10..13 -> 14
             in 6..9 -> 16
             else -> 18
         }
+        return Ticks(ticks)
     }
 }

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 43 / 72 | `████████████░░░░░░░░` **60 %** |
+| **Général** | 44 / 72 | `████████████░░░░░░░░` **61 %** |
 | **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
 <!-- avancement:fin -->
 
@@ -174,10 +174,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique :
   `Board.stackHeight`, `ClassicStackDangerRule` (15 / 12, **[à vérifier]** en jouant), événement
   émis par le moteur au franchissement (P1.12c). La fin de partie n'émet pas `StackDanger(off)`.
-- [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
+- [x] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
   et d'`EntryDelay.ticksAfterLock`. Revue de P1.12b : une valeur nulle ou négative ne bloque
   rien, elle est confondue en silence avec 1 (descente à chaque tick, apparition au tick
-  suivant) ; les phases refusent déjà ces valeurs (`require`), le type reste à faire.
+  suivant) ; les phases refusent déjà ces valeurs (`require`), le type reste à faire. Fait : `Ticks` (`model`), rendu par `GravityTable` et `EntryDelay`, porté par `Phase.Clearing.entryDelayAfter` ; les compteurs restent en `Int`.
 - [x] **P1.18** Outillage : `ignoreSourceSet` retiré de `dependencyAnalysis`, remplacé par des
   règles par jeu de sources de test (échec, avec exclusion des bibliothèques posées par les
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.

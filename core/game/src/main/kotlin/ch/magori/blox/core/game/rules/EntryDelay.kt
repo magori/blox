@@ -1,6 +1,7 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Piece
+import ch.magori.blox.core.game.model.Ticks
 
 /**
  * Entry delay policy: how many ticks pass between a piece locking and the next one appearing.
@@ -15,5 +16,5 @@ public interface EntryDelay {
      * @throws IllegalArgumentException if [lockedPiece] is not on the board, hidden rows included,
      * as the policy measures it.
      */
-    public fun ticksAfterLock(lockedPiece: Piece): Int
+    public fun ticksAfterLock(lockedPiece: Piece): Ticks
 }
