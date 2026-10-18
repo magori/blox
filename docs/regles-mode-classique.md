@@ -233,7 +233,7 @@ meatfighter.com). Le moteur émet alors `PieceLocked`.
 | ▼ | Descente rapide : une première ligne **2 images** après l'appui, puis une ligne toutes les **2 images**. |
 | A | Rotation horaire. |
 | B | Rotation anti-horaire. |
-| Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
+| Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). Bouton dans la barre du haut ; l'écran de pause (Reprendre, Menu) remplace tout l’écran de jeu. |
 
 **Commandes tactiles** : les cinq boutons de l'écran signalent l'appui et le relâchement, pour
 l'appui maintenu. Plusieurs doigts peuvent tenir plusieurs boutons (◀ tenu pendant un appui sur
@@ -467,7 +467,9 @@ Vues : V1, V2, V3, V4.
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
 `SidePanelTextTest › beyond 999 999 the score shown stays at 999 999`,
 `SidePanelTextTest › the level is shown on at least 2 digits, without a cap`,
-`SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`. Vues : V2, V3.
+`SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`,
+`TopBarTextsTest › the record is shown as the score in the game, capped at 999 999`,
+`TopBarTextsTest › TalkBack reads the real record, without padding zeros nor cap`. Vues : V2, V3.
 
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,

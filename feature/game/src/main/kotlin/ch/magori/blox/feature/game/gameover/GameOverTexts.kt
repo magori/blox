@@ -1,6 +1,9 @@
 package ch.magori.blox.feature.game.gameover
 
 import androidx.compose.runtime.Immutable
+import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Lines
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.TICKS_PER_SECOND
 import ch.magori.blox.feature.game.sidepanel.levelText
 import ch.magori.blox.feature.game.sidepanel.linesText
@@ -43,9 +46,9 @@ internal data class GameOverTexts(
  * the raw values and the duration as a [DurationSpeech].
  */
 internal fun gameOverTexts(state: GameOverUiState): GameOverTexts = GameOverTexts(
-    score = scoreText(state.score),
-    lines = linesText(state.lines),
-    level = levelText(state.level),
+    score = scoreText(Points(state.score)),
+    lines = linesText(Lines(state.lines)),
+    level = levelText(Level(state.level)),
     fourLineClears = state.fourLineClears.toString(),
     duration = durationText(state.ticksPlayed),
     spokenScore = state.score.toString(),

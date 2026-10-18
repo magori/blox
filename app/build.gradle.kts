@@ -28,9 +28,12 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.feature.home)
     implementation(projects.feature.game)
+    implementation(projects.core.game)
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    implementation(libs.androidx.lifecycle.viewmodel)
 }

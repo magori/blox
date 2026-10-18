@@ -11,7 +11,7 @@ import androidx.compose.ui.unit.dp
 data class BloxShapes(
     /** Encarts (score, niveau…) : fond et cadre. */
     val panel: Shape,
-    /** Boutons de commande (◀ ▼ ▶, A, B). */
+    /** Boutons : commandes, boutons des écrans (Reprendre, Menu, Rejouer), bouton pause. */
     val button: Shape,
 )
 

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
@@ -41,7 +42,8 @@ internal fun HomeScreen(
             color = palette.ink,
             style = MaterialTheme.typography.displayMedium,
         )
-        Button(onClick = onPlay) {
+        // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
+        Button(onClick = dropUnlessResumed(block = onPlay)) {
             Text(text = stringResource(R.string.feature_home_play))
         }
     }
