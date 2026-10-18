@@ -1,11 +1,11 @@
 package ch.magori.blox.core.music
 
 /**
- * A piece of music: [voices] of the same length, a whole number of bars of [beatsPerBar] beats, played
- * together at [bpm] beats per minute.
+ * A piece of music, known by its [id]: [voices] of the same length, a whole number of bars of [beatsPerBar]
+ * beats, played together at [bpm] beats per minute.
  */
 public data class Score(
-    public val title: String,
+    public val id: ScoreId,
     public val bpm: Int,
     public val beatsPerBar: Int,
     public val voices: List<Voice>,

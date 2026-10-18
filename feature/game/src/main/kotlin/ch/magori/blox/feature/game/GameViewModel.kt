@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.HighScoreRepository
+import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.engine.Button
@@ -20,7 +21,6 @@ import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.music.NORMAL_TEMPO
-import ch.magori.blox.feature.game.music.scoreFor
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CancellationException
@@ -46,6 +46,7 @@ class GameViewModel internal constructor(
     private val highScores: HighScoreRepository,
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
+    private val scoreOf: (MusicChoice) -> Score?,
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
 
@@ -76,7 +77,7 @@ class GameViewModel internal constructor(
         // The music chosen on the home screen, at the normal tempo.
         viewModelScope.launch {
             val choice = preferences.preferences.catch { emit(UserPreferences.DEFAULT) }.first().music
-            score = scoreFor(choice)
+            score = scoreOf(choice)
             music.setTempoFactor(NORMAL_TEMPO)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
             if (isUnderWay()) playback = score?.let(music::play)
@@ -178,13 +179,15 @@ class GameViewModel internal constructor(
 
     /**
      * Builds the view model of a game. The feature defines it, `app` builds it; the route comes in the
-     * [CreationExtras] under [RouteKey], since only the navigation entry knows it (ADR 0013).
+     * [CreationExtras] under [RouteKey], since only the navigation entry knows it (ADR 0013). [scoreOf]
+     * gives the score of a music choice, null for none; `app` defines it, for the home screen too.
      */
     class Factory(
         private val engineFactory: GameEngineFactory,
         private val highScores: HighScoreRepository,
         private val preferences: UserPreferencesRepository,
         private val music: MusicPlayer,
+        private val scoreOf: (MusicChoice) -> Score?,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
@@ -192,7 +195,7 @@ class GameViewModel internal constructor(
         ): T {
             val route = requireNotNull(extras[RouteKey]) { "The game route is missing from the creation extras" }
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(engineFactory, route, highScores, preferences, music) as T
+            return GameViewModel(engineFactory, route, highScores, preferences, music, scoreOf) as T
         }
     }
 

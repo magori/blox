@@ -1,6 +1,9 @@
 package ch.magori.blox.feature.home.navigation
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -25,14 +28,26 @@ fun EntryProviderScope<NavKey>.homeEntry(
     entry<HomeRoute> {
         val viewModel: HomeViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        // The view model decides what each event of the screen means for the music listened to (tested
+        // there); this observer, without a JVM test, only hands the events over.
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(lifecycle, viewModel) {
+            val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
+            lifecycle.addObserver(observer)
+            onDispose { lifecycle.removeObserver(observer) }
+        }
         // Nothing is shown, and nothing can be played, until the saved settings are read: no theme flashes.
         uiState?.let { loaded ->
             HomeScreen(
                 uiState = loaded,
                 onThemeChosen = viewModel::onThemeChosen,
                 onMusicChosen = viewModel::onMusicChosen,
+                onListen = viewModel::onListen,
                 onStartLevelChosen = viewModel::onStartLevelChosen,
-                onPlay = onPlay,
+                onPlay = { startLevel ->
+                    viewModel.onPlay()
+                    onPlay(startLevel)
+                },
             )
         }
     }
