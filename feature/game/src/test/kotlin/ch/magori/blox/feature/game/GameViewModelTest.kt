@@ -31,6 +31,8 @@ import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -108,6 +110,7 @@ class GameViewModelTest {
                 lines = Lines(0),
                 score = Points(0),
                 rotationSystem = ClassicRotationSystem,
+                record = 100,
             ),
         )
     }
@@ -311,6 +314,146 @@ class GameViewModelTest {
         assertThat(viewModel.uiState.value.rotationSystem).isSameAs(ownRotationSystem)
     }
 
+    @Test
+    fun `on pause the game is paused`() {
+        // Given a game under way
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        viewModel.onPause()
+
+        // Then
+        assertThat(viewModel.uiState.value.paused).isTrue()
+    }
+
+    @Test
+    fun `while paused the frames change nothing, not even the duration of the game`() {
+        // Given a game played for half a second, then paused
+        val final = finalStateOfTheTestGame()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        (0..30).forEach { frame -> viewModel.onFrame(frame * ONE_SIXTIETH_NANOS) }
+        viewModel.onPause()
+        val paused = viewModel.uiState.value
+
+        // When frames keep coming for two seconds
+        (31..150).forEach { frame -> viewModel.onFrame(frame * ONE_SIXTIETH_NANOS) }
+
+        // Then nothing changed; and once resumed, the game lasts as long as without the pause
+        assertThat(viewModel.uiState.value).isEqualTo(paused)
+        viewModel.onResume()
+        playUntil(viewModel, "the screen shows the game over", firstFrame = 151 * ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.gameOver != null
+        }
+        assertThat(viewModel.uiState.value.gameOver?.ticksPlayed).isEqualTo(final.tickCount)
+    }
+
+    @Test
+    fun `the controls received while paused are ignored, also after the game resumes`() {
+        // Given a paused game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onPause()
+
+        // When left is pressed during the pause, then the game resumes and the next frame comes
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+        viewModel.onResume()
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then the piece only fell: left was not pressed for the game
+        assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 1))
+    }
+
+    @Test
+    fun `on resume the game goes on exactly where it stood, without catching up the pause`() {
+        // Given a game that ticked once, then was paused for two seconds of frames
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+        viewModel.onPause()
+        (2..121).forEach { frame -> viewModel.onFrame(frame * ONE_SIXTIETH_NANOS) }
+
+        // When it resumes, and the next frame comes
+        viewModel.onResume()
+        viewModel.onFrame(frameNanos = 122 * ONE_SIXTIETH_NANOS)
+
+        // Then it is no longer paused, and that frame gave one tick, not a catch-up of the pause
+        assertThat(viewModel.uiState.value.paused).isFalse()
+        assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 2))
+    }
+
+    @Test
+    fun `once the game is over a pause does nothing`() {
+        // Given a game over
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilGameOver(viewModel)
+        val over = viewModel.uiState.value
+
+        // When
+        viewModel.onPause()
+
+        // Then
+        assertThat(viewModel.uiState.value).isEqualTo(over)
+    }
+
+    @Test
+    fun `the record shown is the one of the records, its real value, updated when it changes`() = runTest {
+        // Given a record of 100
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        viewModel.uiState.test {
+            assertThat(awaitItem().record).isEqualTo(100)
+
+            // When the record changes, beyond what the screen can show
+            highScores.record.value = 1_234_567
+
+            // Then
+            assertThat(awaitItem().record).isEqualTo(1_234_567)
+        }
+    }
+
+    @Test
+    fun `records that fail while they are read leave the game going, with the last record known`() {
+        // Given records that give 100, then fail
+        highScores.highScoreFlow = flow {
+            emit(100)
+            throw IOException("records unreadable")
+        }
+
+        // When the game goes on
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then
+        assertThat(viewModel.uiState.value.record).isEqualTo(100)
+        assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 1))
+    }
+
+    @Test
+    fun `until the records give it the record is unknown, not 0`() {
+        // Given records that have not answered yet
+        highScores.highScoreFlow = MutableSharedFlow()
+
+        // When
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(viewModel.uiState.value.record).isNull()
+    }
+
+    @Test
+    fun `the record stays shown when the frames move the game`() {
+        // Given a record of 100
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When frames tick the engine
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then
+        assertThat(viewModel.uiState.value.record).isEqualTo(100)
+    }
+
     private fun createViewModel(
         route: GameRoute,
         factory: GameEngineFactory = engineFactory,
@@ -361,8 +504,9 @@ class GameViewModelTest {
     private fun playUntil(
         viewModel: GameViewModel,
         what: String,
+        firstFrame: Long = 0L,
         done: () -> Boolean,
-    ): Long = generateSequence(0L) { it + ONE_SIXTIETH_NANOS }
+    ): Long = generateSequence(firstFrame) { it + ONE_SIXTIETH_NANOS }
         .take(MAX_TICKS)
         .onEach(viewModel::onFrame)
         .firstOrNull { done() }
