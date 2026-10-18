@@ -250,7 +250,17 @@ est **[à vérifier]** ; il revient au moteur (P1.12).
 
 ## Lignes et score
 
-Une ligne pleine est effacée, les lignes au-dessus descendent d'autant.
+Une ligne pleine (ses 10 cellules occupées) est effacée, les lignes au-dessus descendent
+d'autant, et autant de lignes vides apparaissent en haut. Les lignes effacées peuvent ne pas
+être contiguës. L'effacement rend aussi les indices des lignes effacées dans le plateau
+d'avant, du haut vers le bas, pour l'animation.
+
+**Tests :** `BoardClearTest › a full row is cleared and the rows above fall down one row`,
+`BoardClearTest › two three and four contiguous full rows are cleared`,
+`BoardClearTest › with full rows that are not contiguous everything falls to the right place`,
+`BoardClearTest › without a full row the board does not change and no row is cleared`,
+`BoardClearTest › empty rows appear at the top, as many as rows cleared`,
+`BoardClearTest › a full top row is replaced by an empty row`.
 
 | Lignes effacées d'un coup | Points |
 |---|---|
