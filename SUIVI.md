@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 59 / 111 | `███████████░░░░░░░░░` **53 %** |
+| **Général** | 60 / 111 | `███████████░░░░░░░░░` **54 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -315,9 +315,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   déplacer (règle de 2) quand `app` en aura besoin. Fait : `AppTheme` (`StateFlow`, `app`),
   `themeKindOf` déplacé dans `app` (seul utilisateur), `BloxTheme` autour de toute la navigation,
   première image retenue avant la lecture, `WindowBackgroundTest` sur `colors.xml`.
-- [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
+- [x] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
-  `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.
+  `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`. Fait :
+  polices embarquées (ADR 0016), licences dans l'APK, `BloxTypography`, chiffres complétés pour
+  Chakra Petch, taille minimale 8 sp. Reste avec la police agrandie (P2.18) : à ×2 et 8 sp, la
+  police pixel ne tient plus dans l'encart latéral (« SUIVANTE », « NIVEAU », score) ni dans les
+  cases de niveau de l'accueil ; pistes : encart élargi selon la police, niveaux sur deux rangées.
 
 ## P4 — Musique et sons
 

@@ -138,7 +138,31 @@ Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, d
 
 ## Polices
 
-Les deux polices sont sous licence OFL. Deux options, à trancher (voir SUIVI.md) :
-fichiers `.ttf` embarqués dans `core:designsystem/src/main/res/font`, ou polices
-téléchargeables via `ui-text-google-fonts`. En attendant, le squelette utilise la police
-système.
+Polices embarquées (ADR 0016), telles que publiées par `google/fonts` (SIL OFL 1.1), dans
+`core:designsystem/src/main/res/font` ; leurs licences sont dans l'APK
+(`src/main/assets/licenses/<famille>/OFL.txt`). Pas de sous-ensemble : ce serait une version
+modifiée de la police, à renommer.
+
+| Rôle | Original | Couleurs |
+|---|---|---|
+| Titres | Press Start 2P Regular | Chakra Petch Bold |
+| Libellés | Press Start 2P Regular | Chakra Petch Regular |
+| Valeurs (score, niveau, lignes, record) | Press Start 2P Regular | Chakra Petch Bold, chiffres complétés |
+
+En Original, tout reste en Regular, seule graisse de la police pixel (pas de gras synthétisé).
+`BloxTheme.typography` porte la police et la graisse de chaque rôle ; la typographie Material
+en dérive (titres pour display, headline et title, libellés pour le reste). Les chiffres de
+*Chakra Petch* sont proportionnels, sans `tnum` : `valueText()` complète chaque chiffre plus
+étroit par un espacement en em jusqu'à la largeur du plus large (`DigitWidths`) et coupe le
+crénage, pour qu'une valeur ne bouge pas en changeant. Un texte qui rétrécit pour tenir ne
+descend pas sous 8 sp (`MinimumFontSize`). Avec la police du système agrandie, la police pixel
+ne tient plus partout à 8 sp (P2.18).
+
+**Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
+`BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
+`BloxTypographyTest › the Material styles take the font of the titles for headings and of the labels for the rest`,
+`BloxTypographyTest › a text that shrinks to fit its place stays at least 8 sp, to stay readable`,
+`EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
+`ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
+`ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.
+Vues : V1, V2, V3, V4.
