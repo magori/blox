@@ -48,9 +48,13 @@ Options envisagées :
 - **Naviguer, c'est modifier la liste** : `backStack.add(GameRoute)` pour entrer en jeu,
   `backStack.removeLastOrNull()` pour revenir. Le retour système (geste ou bouton) passe par
   `NavDisplay.onBack` et fait la même chose.
-- La pause reste un **état de l'écran de jeu**, pas une entrée. La fin de partie (V4) sera une
-  entrée distincte ou un état de l'écran : à trancher en P2.7 selon ce qui est le plus simple à
-  tester.
+- La pause reste un **état de l'écran de jeu**, pas une entrée. **La fin de partie (V4) aussi**
+  (tranché en P2.7) : le ViewModel de la partie garde la partie terminée et ses statistiques,
+  l'écran de jeu affiche V4 selon son état. **Rejouer remplace la clé du sommet de la pile** par
+  une nouvelle `GameRoute` (même niveau de départ, nouvelle graine), ce qui crée un ViewModel
+  neuf ; le ViewModel ne relance jamais une partie lui-même. Menu, comme le retour système sur
+  V4, dépile `GameRoute`. Après la mort du processus, la clé restaurée rejoue la même partie
+  depuis le début (même graine) : V4 n'est pas restauré.
 
 ## Conséquences
 

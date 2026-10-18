@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 35 / 69 | `██████████░░░░░░░░░░` **51 %** |
-| **MVP** (jouable sur téléphone) | 31 / 37 | `█████████████████░░░` **84 %** |
+| **Général** | 36 / 70 | `██████████░░░░░░░░░░` **51 %** |
+| **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -198,7 +198,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `SidePanel` (P2.4) : le système de rotation vient des règles du moteur ; `levelText` et
   `linesText` accepteront `Level` et `Lines` si `GameUiState` les porte. Revue de P2.5 : les
   appuis et relâchements arrivés entre deux images sont mis en file et appliqués avant les
-  ticks, sans en perdre aucun.
+  ticks, sans en perdre aucun. Revue de P2.7 : brancher `GameOverScreen` dans `GameScreen` selon
+  `GameUiState` (`gameOver: GameOverUiState?`) ; `onMenu` = retour ; `onReplay` remplace la clé
+  de la pile par une nouvelle `GameRoute` (ADR 0011).
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -215,10 +217,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   visuel des boutons de commande retenus en P2.5 (`docs/maquette.md`, V2 et V3).
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
-  est dans la barre du haut (maquette), pas dans `GameControls`.
-- [ ] **P2.7** Écran de fin de partie, Rejouer / Menu. Entrée de pile distincte ou état de
-  l'écran de jeu : trancher, voir ADR 0011. Le score s'affiche par `scoreText` (plafond de
-  999 999, P2.4).
+  est dans la barre du haut (maquette), pas dans `GameControls`. Revue de P2.7 : un éventuel
+  `BackHandler` « retour = pause » est désactivé en fin de partie ; aucun tick n'est donné au
+  moteur pendant la pause, pour que la durée de jeu n'avance pas.
+- [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
+  remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
+  `LabelledPanel` partagé avec la colonne latérale.
+- [ ] **P2.15** Mettre à jour la maquette : confirmer les mesures et couleurs de V4 retenues en
+  P2.7 (`docs/maquette.md`).
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
   Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
   attaché au premier bouton) ; le gérer demande un seul `pointerInput` sur ◀ ▼ ▶, une fonction
@@ -232,7 +238,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
 - [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
-  garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4).
+  garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
+  P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
+  du processus), et calculer « nouveau record » contre le record d'avant la partie.
 - [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
@@ -285,6 +293,7 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
+  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
