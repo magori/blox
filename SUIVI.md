@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 50 / 76 | `█████████████░░░░░░░` **66 %** |
+| **Général** | 51 / 76 | `█████████████░░░░░░░` **67 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -65,8 +65,8 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   retiré (valeur par défaut). ADR 0003 amendé.
 - [x] **P0.11** Mémoire Gradle : `org.gradle.jvmargs` à 4 Go avec ParallelGC, `kotlin.daemon.jvmargs`
   à 2 Go.
-- [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
-  `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
+- [x] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
+  `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI. Fait : Dependabot (`.github/dependabot.yml`), Gradle et GitHub Actions, groupes AGP/Kotlin/Gradle, Compose, DataStore/Okio, tests, ktlint, AndroidX, kotlinx ; règle de fusion dans CLAUDE.md. À vérifier à la première PR : regroupement du wrapper (nom `gradle-wrapper`) et préfixe avec emoji.
 - [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
   helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
