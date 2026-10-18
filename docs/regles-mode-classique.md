@@ -184,6 +184,16 @@ négligeable). Le niveau ne peut pas être négatif.
 `ClassicGravityTableTest › from level 29 onwards the piece falls one row every tick`,
 `LevelTest › a level cannot be negative`, `LevelTest › level 0 is the lowest valid level`.
 
+**Dans le moteur** : à l'apparition, le compteur de gravité part de 0 ; il augmente d'un à
+chaque tick, et la pièce descend quand il atteint la valeur de la table, puis il repart de 0.
+Le tick d'apparition ne compte pas. Au niveau 0, la première descente a donc lieu 48 ticks
+après l'apparition. Source : ROM d'après meatfighter.com (`$98BA` remet `fallTimer` à 0 à
+l'apparition ; descente quand `fallTimer >= dropSpeed`).
+
+**Tests :** `GameEngineTickTest › at level 0 the piece drops one row every 48 ticks, not before`,
+`GameEngineTickTest › at level 29 the piece drops one row on every tick`,
+`PhaseTest › a falling piece cannot have a negative gravity count`.
+
 ## Verrouillage
 
 Pas de délai de verrouillage : quand la gravité devrait faire descendre la pièce et que la
@@ -192,12 +202,16 @@ case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille i
 Verrouiller remplit les cellules de la pièce avec son type, sur un nouveau plateau ; ses
 cellules restées dans les lignes cachées sont perdues. Une pièce qui ne tient pas (hors des
 murs, sous le fond, au-dessus de la ligne −2 ou sur une case occupée) ne peut pas être
-verrouillée. La décision de verrouiller (descente refusée) sera prouvée par le moteur (P1.12).
+verrouillée. La pièce se verrouille sur le tick même où la gravité tente la descente et
+échoue : le « délai de verrouillage » de la NES égale donc le délai de chute (source ROM,
+meatfighter.com). Le moteur émet alors `PieceLocked`.
 
 **Tests :** `BoardLockTest › locking a piece fills its four cells with its type on a new board`,
 `BoardLockTest › cells in the hidden rows are lost, the visible ones join the board`,
 `BoardLockTest › locking a piece that does not fit is refused, even by a cell in a hidden row`,
-`BoardLockTest › the original board does not change`.
+`BoardLockTest › the original board does not change`,
+`GameEngineTickTest › when the drop is refused the piece locks, PieceLocked is sent and the entry delay begins`,
+`GameEngineTickTest › at level 0 a piece on the floor locks on the 48th tick, not before`.
 
 ## Commandes
 
@@ -208,6 +222,25 @@ verrouillée. La décision de verrouiller (descente refusée) sera prouvée par 
 | A | Rotation horaire. |
 | B | Rotation anti-horaire. |
 | Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
+
+**Commandes tactiles** : les cinq boutons de l'écran signalent l'appui et le relâchement, pour
+l'appui maintenu. Plusieurs doigts peuvent tenir plusieurs boutons (◀ tenu pendant un appui sur
+A) ; deux doigts sur le même bouton ne donnent qu'un appui, relâché au départ du dernier ; quand
+les commandes quittent l'écran, tout est relâché ; un doigt qui se pose de nouveau relâche
+d'abord son ancien bouton. L'écran transmet tout fidèlement : les exclusions de la NES (▼ contre
+le latéral, ▶ prioritaire) sont appliquées par le moteur (P1.12d). Un doigt reste attaché au
+bouton qu'il a touché en premier (pas de glissement d'un bouton à l'autre, à revoir en P2.8).
+
+**Tests :** `HeldButtonsTest › a finger put on a button sends a single press`,
+`HeldButtonsTest › lifting that finger sends a release`,
+`HeldButtonsTest › a second finger on another button does not release the first, so left can be held while pressing A`,
+`HeldButtonsTest › leaving the screen releases every held button`,
+`HeldButtonsTest › two fingers on the same button give a single press, and the button is released when the last one lifts`,
+`HeldButtonsTest › leaving the screen releases a button held by two fingers only once`,
+`HeldButtonsTest › the held buttons are the buttons under at least one finger`,
+`HeldButtonsTest › pressing again with a known finger releases its previous button`,
+`HeldButtonsTest › a tap from accessibility services sends a press then a release, and leaves nothing held`.
+Vues : V2, V3.
 
 **Déplacement** : ◀, ▶ et ▼ décalent la pièce d'une case. Le déplacement est refusé si la pièce
 ne tient plus à sa nouvelle place (mur, fond ou case occupée) ; il est accepté dans les lignes
@@ -267,6 +300,17 @@ probablement fidèle à la ROM, **[à vérifier]**. La règle est une politique 
 `ClassicEntryDelayTest › each group of 4 rows higher adds 2 ticks`,
 `ClassicEntryDelayTest › the entry delay is at most 18 ticks`,
 `ClassicEntryDelayTest › a row outside -2 to 19 is refused`.
+
+**Dans le moteur** : le délai se compte à partir du tick qui suit le verrouillage (le tick du
+verrouillage n'en fait pas partie, **[à vérifier]** contre la ROM) ; la pièce suivante apparaît
+au dernier tick du délai, avec son compteur de gravité à 0, et un nouveau tirage prend la
+pièce qui apparaît comme précédente. Un I vertical verrouillé pivot en ligne 18 (cellules 16 à
+19) attend 10 ticks : la hauteur se mesure bien sur le pivot.
+
+**Tests :** `GameEngineTickTest › the next piece appears when the entry delay of the locked piece is over, and a new draw follows it`,
+`GameEngineTickTest › a vertical I locked with its pivot on row 18, cells on rows 16 to 19, waits 10 ticks`,
+`GameEngineTickTest › if the next piece does not fit when it appears, the game is over and the piece stays shown`,
+`PhaseTest › an entry delay lasts at least one tick`.
 
 Quand des lignes sont effacées, l'animation s'ajoute : 5 passes, une toutes les 4 images,
 soit **17 à 20 images** selon l'image du verrouillage (TetrisWiki ; meatfighter.com, « The
