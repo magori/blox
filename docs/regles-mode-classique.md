@@ -115,13 +115,28 @@ Système de rotation de la NES :
 - Il n'y a pas de centre à calculer : chaque orientation est une liste fixe de 4 décalages
   autour d'un pivot, qui fait partie de la pièce et ne bouge pas pendant la rotation. Les 19
   orientations (O 1 ; I, S, Z 2 ; T, J, L 4), dans l'ordre horaire, viennent de la table de la
-  ROM NES ($8A9C, meatfighter.com, même source). Le passage d'une orientation à la suivante
-  (boutons A et B, refus en cas de collision) est l'objet de P1.5.
+  ROM NES ($8A9C, meatfighter.com, même source).
 
   **Tests :** `ClassicRotationSystemTest › every orientation of every piece has 4 distinct cells`,
   `ClassicRotationSystemTest › O has one orientation, I S and Z have two, T J and L have four`,
   `ClassicRotationSystemTest › T turns clockwise through up, right, down and left` (et un test
-  par pièce : J, Z, O, S, L, I), `OrientationTest › an orientation needs exactly four distinct cells`.
+  par pièce : J, Z, O, S, L, I), `ClassicRotationSystemTest › every orientation has its pivot as one of its cells`,
+  `OrientationTest › an orientation needs exactly four distinct cells`.
+- **Tourner** : A passe à l'orientation suivante dans l'ordre horaire, B à la précédente, en
+  boucle ; le pivot ne bouge pas. Le système de rotation propose des candidats dans l'ordre
+  d'essai et le moteur garde le premier qui tient ; le mode Classique n'en propose qu'un. Une
+  orientation qui n'appartient pas au type de la pièce est refusée. Tourner le O ne change rien :
+  faut-il alors émettre l'événement de rotation (son) ? **[à vérifier]**, à trancher en P1.12
+  (par défaut : seulement si la pièce change).
+
+  **Tests :** `ClassicRotationSystemTest › a clockwise rotation gives the next orientation, a counterclockwise one the previous`,
+  `ClassicRotationSystemTest › four clockwise turns bring T J and L back, two are enough for I S and Z, O never changes`,
+  `ClassicRotationSystemTest › a clockwise turn followed by a counterclockwise turn gives back the starting orientation`,
+  `ClassicRotationSystemTest › the pivot does not move during a rotation`,
+  `ClassicRotationSystemTest › an orientation that does not belong to the piece type is refused`,
+  `RotationOnBoardTest › a rotation against a wall is refused, without any kick`,
+  `RotationOnBoardTest › a rotation onto an occupied cell is refused`,
+  `RotationOnBoardTest › a rotation into the hidden rows is accepted, the pivot stays put`.
 
 ## Gravité
 
