@@ -125,7 +125,45 @@ basses.
 
 Quand la pile atteint une hauteur critique, le tempo augmente (par exemple × 1,25), et revient
 à la normale quand elle redescend. Le domaine émet un événement `StackDanger(on/off)`, le
-ViewModel le traduit en `setTempoFactor()`.
+ViewModel le traduira en `setTempoFactor()` (branchement : P4.11).
+
+**Changement de tempo dans le séquenceur** (P4.5) : `ChiptuneSequencer.setTempoFactor(facteur)`
+(positif et fini ; retenu pour le prochain `play` si rien ne joue). Le tampon au nouveau facteur
+est rendu en tâche de fond, une fois par (partition, facteur), ou pris dans le cache ; la sortie
+reste ouverte. Pour ne jamais couper une note en pleine amplitude (clic), la lecture finit le
+temps en cours dans l'ancien tampon et ne bascule qu'au prochain temps où **toutes** les voix
+commencent une note (`switchBeats`), au début de ce temps dans le nouveau tampon, retour au début
+de la boucle compris. Positions calculées en `Long`, arrondies à l'échantillon (`BeatGrid`).
+Jamais de rééchantillonnage : la hauteur ne change pas. Si le rendu n'est pas prêt à la
+frontière, l'ancien tempo continue jusqu'à la suivante ; de deux changements rapides, seul le
+dernier est rendu et joué ; un rendu de tempo qui échoue laisse jouer l'ancien tempo, et un
+`play` après `stop` n'attend pas un rendu en cours.
+
+**Tests (séquenceur) :** `ChiptuneSequencerTempoTest › the tempo factor must be positive and finite`,
+`ChiptuneSequencerTempoTest › a tempo factor set while nothing plays is kept for the next play`,
+`ChiptuneSequencerTempoTest › a tempo change keeps the same sink, and the writing goes on at the new tempo`,
+`ChiptuneSequencerTempoTest › a new tempo is rendered once on the rendering dispatcher, and going back to 1 point 0 renders nothing`,
+`ChiptuneSequencerTempoTest › the tempo changes at the start of the next beat, once the current beat is played`,
+`ChiptuneSequencerTempoTest › a rendering not ready when a beat starts waits for the next beat, the old tempo goes on`,
+`ChiptuneSequencerTempoTest › after the change the samples written are exactly those of the buffer at the new tempo`,
+`ChiptuneSequencerTempoTest › of two quick tempo changes only the last one is applied`,
+`ChiptuneSequencerTempoTest › of two quick tempo changes to new tempos only the last one is rendered and played`,
+`ChiptuneSequencerTempoTest › a stop while a new tempo renders leaves no sink open and throws nothing`,
+`ChiptuneSequencerTempoTest › a note across the next beat delays the change to the next beat where every voice starts a note`,
+`ChiptuneSequencerTempoTest › when the next beat is the end of the buffer, the new tempo starts from its first sample`,
+`ChiptuneSequencerTempoTest › play after stop does not wait for a tempo rendering under way`,
+`ChiptuneSequencerTempoTest › a tempo rendering that fails leaves the music playing at the old tempo`,
+`SwitchBeatsTest › a whole note lets the tempo switch only on beat 0`,
+`SwitchBeatsTest › quarter notes let the tempo switch on every beat`,
+`SwitchBeatsTest › two voices with offset notes let the tempo switch only on the beats they share`,
+`SwitchBeatsTest › eighth notes do not make beats of their own`,
+`BeatGridTest › the next beat of a position inside a beat is the following one`,
+`BeatGridTest › a position on the start of a beat is that beat`,
+`BeatGridTest › the start of a beat is rounded to the nearest sample, and a position on it is that beat`,
+`BeatGridTest › after the last beat comes the end of the loop`,
+`BeatGridTest › near the end of a buffer of 1 point 3 million samples nothing overflows`,
+`LoopCursorTest › a part of a slice can be filled, the rest of it is left as it was`,
+`LoopCursorTest › a position outside the buffer is refused`.
 
 La hauteur de pile vaut 20 moins la première ligne occupée (0 si le plateau est vide). La pile
 **entre** en danger quand elle atteint 15 et n'en **sort** qu'en redescendant à 12 ou moins :

@@ -3,6 +3,8 @@ package ch.magori.blox.core.audio
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class LoopCursorTest {
     private val buffer = floatArrayOf(1f, 2f, 3f, 4f, 5f)
@@ -51,5 +53,26 @@ class LoopCursorTest {
     fun `an empty buffer is refused`() {
         // Given / When / Then
         assertThatIllegalArgumentException().isThrownBy { LoopCursor(FloatArray(0)) }
+    }
+
+    @Test
+    fun `a part of a slice can be filled, the rest of it is left as it was`() {
+        // Given a cursor on the fourth sample
+        val cursor = LoopCursor(buffer, position = 3)
+        val slice = floatArrayOf(-1f, -1f, -1f, -1f)
+
+        // When the second and third samples of the slice are filled
+        val next = cursor.fill(slice, from = 1, until = 3)
+
+        // Then
+        assertThat(slice).containsExactly(-1f, 4f, 5f, -1f)
+        assertThat(next.position).isEqualTo(0)
+    }
+
+    @ParameterizedTest(name = "position {0} is refused")
+    @ValueSource(ints = [-1, 5])
+    fun `a position outside the buffer is refused`(position: Int) {
+        // Given / When / Then: a cursor at the end of the buffer would never move
+        assertThatIllegalArgumentException().isThrownBy { LoopCursor(buffer, position) }
     }
 }
