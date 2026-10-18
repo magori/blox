@@ -6,7 +6,8 @@ import org.gradle.kotlin.dsl.dependencies
 
 /**
  * Module de fonctionnalité (un écran ou un parcours) : bibliothèque Android + Compose,
- * ViewModel, clés et entrées Navigation 3 (ADR 0011), et accès au design system.
+ * clés et entrées Navigation 3 (ADR 0011), et accès au design system. Les dépendances
+ * ViewModel et lifecycle arrivent avec le premier ViewModel (P2.2).
  * Une feature ne dépend jamais d'une autre feature (voir docs/architecture.md).
  */
 class AndroidFeatureConventionPlugin : Plugin<Project> {
@@ -18,12 +19,11 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
 
             dependencies {
                 add("implementation", project(":core:designsystem"))
-                add("implementation", libs.library("androidx-lifecycle-runtime-compose"))
-                add("implementation", libs.library("androidx-lifecycle-viewmodel-compose"))
-                add("implementation", libs.library("androidx-navigation3-runtime"))
-                add("implementation", libs.library("kotlinx-serialization-json"))
+                // `api` : les clés NavKey d'une feature sont lues par app, qui assemble la pile (ADR 0011).
+                add("api", libs.library("androidx-navigation3-runtime"))
+                add("api", libs.library("kotlinx-serialization-core"))
                 add("androidTestImplementation", libs.library("androidx-compose-ui-test-android"))
-                add("debugImplementation", libs.library("androidx-compose-ui-test-manifest"))
+                add("debugRuntimeOnly", libs.library("androidx-compose-ui-test-manifest"))
             }
         }
     }

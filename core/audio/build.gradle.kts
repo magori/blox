@@ -6,7 +6,5 @@ android {
     namespace = "ch.magori.blox.core.audio"
 }
 
-dependencies {
-    api(projects.core.music)
-    implementation(libs.kotlinx.coroutines.android)
-}
+// Dépendances ajoutées quand le code les exigera (P4) : api(projects.core.music) pour exposer
+// les partitions, coroutines pour le séquenceur.

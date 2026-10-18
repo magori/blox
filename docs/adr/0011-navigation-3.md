@@ -1,6 +1,6 @@
 # 0011 — Navigation 3 : la pile de navigation appartient à l'application
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; le point P2.10 (fabriques vers les features) est consigné dans [0013](0013-fabriques-de-viewmodel-par-les-entrees.md)
 - **Date** : 2026-10-18
 
 ## Contexte

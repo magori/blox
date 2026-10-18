@@ -6,7 +6,4 @@ android {
     namespace = "ch.magori.blox.feature.home"
 }
 
-dependencies {
-    implementation(projects.core.data)
-    implementation(projects.core.audio)
-}
+// Dépendances ajoutées quand le code les exigera : core:data en P3, core:audio en P4.

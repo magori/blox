@@ -13,8 +13,8 @@ internal val Project.libs: VersionCatalog
 internal fun VersionCatalog.library(alias: String): Provider<MinimalExternalModuleDependency> =
     findLibrary(alias).orElseThrow { IllegalStateException("Bibliothèque absente du catalogue : $alias") }
 
-internal fun VersionCatalog.intVersion(alias: String): Int =
-    findVersion(alias)
-        .orElseThrow { IllegalStateException("Version absente du catalogue : $alias") }
-        .requiredVersion
-        .toInt()
+internal fun VersionCatalog.version(alias: String): String = findVersion(alias)
+    .orElseThrow { IllegalStateException("Version absente du catalogue : $alias") }
+    .requiredVersion
+
+internal fun VersionCatalog.intVersion(alias: String): Int = version(alias).toInt()

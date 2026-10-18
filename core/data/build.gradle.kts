@@ -6,7 +6,4 @@ android {
     namespace = "ch.magori.blox.core.data"
 }
 
-dependencies {
-    implementation(libs.androidx.datastore.preferences)
-    implementation(libs.kotlinx.coroutines.android)
-}
+// Dépendances ajoutées quand le code les exigera (P3.1) : DataStore Preferences et coroutines.

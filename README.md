@@ -53,7 +53,7 @@ blox/
 ## Pile technique
 
 Kotlin 2.4 · Jetpack Compose (Material 3) · Navigation 3 (ADR [0011](docs/adr/0011-navigation-3.md)) · DataStore ·
-Coroutines · JUnit 5 + AssertJ partout (ADR [0003](docs/adr/0003-domaine-en-kotlin-pur.md)
+Coroutines · ktlint et analyse de dépendances en CI · JUnit 5 + AssertJ partout (ADR [0003](docs/adr/0003-domaine-en-kotlin-pur.md)
 et [0009](docs/adr/0009-junit5-partout.md)) · Gradle 9.8 (ADR [0010](docs/adr/0010-kotlin-integre-agp9.md)),
 catalogue de versions et plugins de convention · `minSdk` 26, `compileSdk` 37, `targetSdk` 36.
 

@@ -35,7 +35,6 @@ internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension) {
     extensions.configure<KotlinAndroidExtension> {
         compilerOptions {
             jvmTarget.set(targetJvm)
-            allWarningsAsErrors.set(false)
         }
     }
 }
@@ -49,7 +48,7 @@ internal fun Project.configureKotlinJvm() {
     }
 
     extensions.configure<KotlinJvmProjectExtension> {
-        explicitApiWarning()
+        explicitApi()
         compilerOptions {
             jvmTarget.set(targetJvm)
         }

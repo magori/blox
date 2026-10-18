@@ -1,5 +1,7 @@
 import ch.magori.blox.buildlogic.configureAndroidTests
+import ch.magori.blox.buildlogic.configureDependencyAnalysis
 import ch.magori.blox.buildlogic.configureKotlinAndroid
+import ch.magori.blox.buildlogic.configureKtlint
 import ch.magori.blox.buildlogic.intVersion
 import ch.magori.blox.buildlogic.libs
 import com.android.build.api.dsl.LibraryExtension
@@ -17,6 +19,8 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
                 testOptions.targetSdk = libs.intVersion("targetSdk")
             }
             configureAndroidTests()
+            configureKtlint()
+            configureDependencyAnalysis()
         }
     }
 }

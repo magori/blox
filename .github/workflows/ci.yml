@@ -24,6 +24,13 @@ jobs:
 
       - uses: gradle/actions/setup-gradle@v4
 
+      # Les vérifications rapides d'abord, pour un retour en quelques secondes.
+      - name: Style Kotlin (ktlint)
+        run: ./gradlew ktlintCheck && ./gradlew -p build-logic ktlintCheck
+
+      - name: Dépendances déclarées (analyse)
+        run: ./gradlew buildHealth
+
       - name: Tests du domaine (Kotlin pur)
         run: ./gradlew :core:game:test :core:music:test
 
