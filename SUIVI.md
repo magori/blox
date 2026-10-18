@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 44 / 72 | `████████████░░░░░░░░` **61 %** |
+| **Général** | 46 / 73 | `█████████████░░░░░░░` **63 %** |
 | **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
 <!-- avancement:fin -->
 
@@ -264,7 +264,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 ## P3 — Accueil, préférences, records
 
-- [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+- [x] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+  Fait : `UserPreferences`, `ThemeChoice`, `MusicChoice`, `DataStoreUserPreferencesRepository`,
+  fabrique commune `preferencesDataStore` (remplace `recordsDataStore`), `SETTINGS_FILE`. Le
+  niveau de départ n'est borné qu'à 0 et plus : l'accueil (P3.4) borne le choix à la plage du
+  mode. Rien n'est branché (P3.4, P3.5).
 - [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
@@ -314,13 +318,21 @@ Référence : [docs/musique.md](docs/musique.md).
   échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
   (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
+  Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
+  `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
+  plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
   feature traduit via `strings.xml` (revue de P4.2).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
-- [ ] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
+- [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
-  jeu de 1989 plutôt que le chant (revue de P4.2). **[à vérifier]**
+  jeu de 1989 plutôt que le chant (revue de P4.2). Fait : 5 mesures sur 8 s'écartaient du chant ;
+  mélodie remplacée par celle du chant (sources citées dans `docs/musique.md`), basse de la
+  mesure 6 en A2/E3.
+- [ ] **P4.10** Droits : confirmer la mélodie de *Korobeïniki* sur une édition d'époque
+  (Prigojy 1898, recueils de Panina vers 1905, НЭБ) ; les deux sources nettes consultées en P4.9
+  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`.
 
 ## P5 — Finitions
 
