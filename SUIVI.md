@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 57 / 109 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 58 / 109 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -448,8 +448,8 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
   parmi les jeux récents) ; ADR 0015 « un moteur, des capacités » qui amende l'ADR 0004 ;
   promesse « sans modifier le moteur » et glossaire (`Hold`, `HardDrop`, `Ghost`, `LockDelay`,
   `Bag`, `TSpin`, `Combo`, `BackToBack`) mis à jour dans `CLAUDE.md`.
-- [ ] **P6.2** Politique `LineClearDelay` : durée de l'effacement des lignes sortie du moteur,
-  valeurs Classique (refactoring).
+- [x] **P6.2** Politique `LineClearDelay` : durée de l'effacement des lignes sortie du moteur,
+  valeurs Classique (refactoring). Fait : `LineClearDelay`, `ClassicLineClearDelay`, `Rules.lineClearDelay` ; au moins 1 tick (décidé).
 - [ ] **P6.3** File de pièces suivantes : `GameState.next` devient une file, `Rules.previewCount`
   (1 en Classique) ; `feature:game` lit la première pièce.
 - [ ] **P6.4** `SevenBagRandomizer` : les sept pièces mélangées, puis un nouveau sac.
