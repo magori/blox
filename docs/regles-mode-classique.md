@@ -44,8 +44,13 @@ Sept pièces de quatre cellules : `I`, `O`, `T`, `S`, `Z`, `J`, `L`.
 **Tests :** `BoardTest › parse reads a dot as an empty cell and a piece letter as a cell filled
 by that piece` (les sept types ; formes à venir en P1.2).
 
-- **Orientation de départ** : pièces « à plat ». Le T apparaît pointe vers le bas.
-  L'orientation exacte de J et L au départ est **[à vérifier]**.
+- **Orientation de départ** : pièces « à plat », aucune cellule au-dessus du pivot. T, J et L
+  apparaissent pointe vers le bas (`TTT/.T.`, `JJJ/..J`, `LLL/L..`), S, Z et I à l'horizontale
+  (`.SS/SS.`, `ZZ./.ZZ`, `IIII`), O en carré. Source : table des orientations de la ROM NES
+  ($8A9C), d'après meatfighter.com, « Applying AI to Nintendo Tetris ».
+
+  **Tests :** `ClassicRotationSystemTest › each piece spawns in its NES orientation around the pivot`,
+  `ClassicRotationSystemTest › no piece spawns with a cell above its pivot`.
 - La pièce suivante est affichée dans un aperçu (une seule).
 
 ## Tirage des pièces
@@ -71,8 +76,16 @@ Système de rotation de la NES :
   rotation est simplement refusée.
 - `O` ne tourne pas. `I`, `S` et `Z` n'ont que **deux états** (ils basculent entre les deux).
   `T`, `J`, `L` ont quatre états.
-- Les centres de rotation exacts de chaque pièce sont **[à vérifier]** : c'est la règle la
-  plus subtile à reproduire fidèlement, elle mérite ses propres tests pièce par pièce.
+- Il n'y a pas de centre à calculer : chaque orientation est une liste fixe de 4 décalages
+  autour d'un pivot, qui fait partie de la pièce et ne bouge pas pendant la rotation. Les 19
+  orientations (O 1 ; I, S, Z 2 ; T, J, L 4), dans l'ordre horaire, viennent de la table de la
+  ROM NES ($8A9C, meatfighter.com, même source). Le passage d'une orientation à la suivante
+  (boutons A et B, refus en cas de collision) est l'objet de P1.5.
+
+  **Tests :** `ClassicRotationSystemTest › every orientation of every piece has 4 distinct cells`,
+  `ClassicRotationSystemTest › O has one orientation, I S and Z have two, T J and L have four`,
+  `ClassicRotationSystemTest › T turns clockwise through up, right, down and left` (et un test
+  par pièce : J, Z, O, S, L, I), `OrientationTest › an orientation needs exactly four distinct cells`.
 
 ## Gravité
 

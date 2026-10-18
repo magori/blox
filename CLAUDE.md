@@ -132,7 +132,7 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 
 | Paquet | Contenu |
 |---|---|
-| `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) |
+| `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) |
 | `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
 
@@ -142,8 +142,9 @@ modifier le moteur.
 ## Conventions de code
 
 - **Code en anglais** (noms, commentaires techniques), **documentation en français**.
-- Langage du domaine : `Board`, `Piece`, `PieceType`, `Rotation`, `Position`, `GameState`,
-  `GameEngine`, `Tick`, `Input`, `Level`, `Score`, `LinesCleared`. Garder ces noms.
+- Langage du domaine : `Board`, `Piece`, `PieceType`, `Orientation` (une forme), `Rotation`
+  (un sens ou un état de rotation), `Position`, `GameState`, `GameEngine`, `Tick`, `Input`,
+  `Level`, `Lines`, `Score`, `LinesCleared`. Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
