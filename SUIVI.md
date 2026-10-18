@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 44 / 73 | `████████████░░░░░░░░` **60 %** |
-| **MVP** (jouable sur téléphone) | 34 / 37 | `██████████████████░░` **92 %** |
+| **Général** | 45 / 73 | `████████████░░░░░░░░` **62 %** |
+| **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -166,10 +166,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
   `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
-- [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
+- [x] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
   Fait : `GameStatistics` (« 4 lignes », branché en P1.12c), durée = `GameState.tickCount`
-  (figé après la fin). Reste : pause (`paused` à côté de la phase, `Input` `Pause` / `Resume`,
-  touches tenues vidées, `tickCount` qui n'avance pas en pause).
+  (figé après la fin) ; pause : `GameState.paused`, `Input.Pause` / `Input.Resume`, commandes
+  vidées, `tickCount` figé en pause. Pour P2.2 (incrément 3) : `Pause` à l'appui du bouton
+  pause et au retour, `Resume` sur Reprendre ; P5.4 envoie `Pause` à `ON_PAUSE`.
 - [x] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique :
   `Board.stackHeight`, `ClassicStackDangerRule` (15 / 12, **[à vérifier]** en jouant), événement
   émis par le moteur au franchissement (P1.12c). La fin de partie n'émet pas `StackDanger(off)`.

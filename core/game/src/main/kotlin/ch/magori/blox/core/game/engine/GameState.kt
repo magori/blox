@@ -22,6 +22,7 @@ import ch.magori.blox.core.game.model.PieceType
  *   rows are being cleared, it keeps its former value and takes the new one when the cleared board is shown.
  * @property controls the state of the controller. It lives here, not in the phase, so that a held button
  *   outlives the lock of a piece.
+ * @property paused whether the game is paused: then a tick changes nothing, not even [tickCount].
  */
 @ConsistentCopyVisibility
 public data class GameState internal constructor(
@@ -33,6 +34,7 @@ public data class GameState internal constructor(
     public val tickCount: Int,
     public val stackInDanger: Boolean,
     public val controls: Controls,
+    public val paused: Boolean,
 ) {
     /** The piece in play, or shown at the end of the game; null when there is none (line clear, entry delay). */
     public val current: Piece?
