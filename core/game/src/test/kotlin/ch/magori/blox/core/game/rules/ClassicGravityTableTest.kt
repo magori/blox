@@ -1,6 +1,7 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Ticks
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -11,7 +12,7 @@ class ClassicGravityTableTest {
 
     @Test
     fun `at level 0 the piece falls one row every 48 ticks`() {
-        assertThat(ticksAt(level = 0)).isEqualTo(48)
+        assertThat(ticksAt(level = 0)).isEqualTo(Ticks(48))
     }
 
     @ParameterizedTest(name = "level {0} -> {1} ticks per row")
@@ -20,7 +21,7 @@ class ClassicGravityTableTest {
         level: Int,
         expectedTicks: Int,
     ) {
-        assertThat(ticksAt(level)).isEqualTo(expectedTicks)
+        assertThat(ticksAt(level)).isEqualTo(Ticks(expectedTicks))
     }
 
     @ParameterizedTest(name = "level {0} -> {1} ticks per row")
@@ -29,15 +30,15 @@ class ClassicGravityTableTest {
         level: Int,
         expectedTicks: Int,
     ) {
-        assertThat(ticksAt(level)).isEqualTo(expectedTicks)
+        assertThat(ticksAt(level)).isEqualTo(Ticks(expectedTicks))
     }
 
     @ParameterizedTest(name = "level {0} -> 1 tick per row")
     @CsvSource("29", "50")
     fun `from level 29 onwards the piece falls one row every tick`(level: Int) {
-        assertThat(ticksAt(level)).isEqualTo(1)
+        assertThat(ticksAt(level)).isEqualTo(Ticks(1))
     }
 
     /** Given a level, when the gravity table is asked for its speed: the ticks per row. */
-    private fun ticksAt(level: Int): Int = gravity.ticksPerRow(Level(level))
+    private fun ticksAt(level: Int): Ticks = gravity.ticksPerRow(Level(level))
 }
