@@ -177,15 +177,80 @@ Inscrites dans [SUIVI.md](../SUIVI.md), P4.13 à P4.22 :
 
 ## Écrans
 
-Le prototype montre deux écrans, dans les quatre thèmes (réglage *theme* des Tweaks) :
+Les écrans existent deux fois : dans la maquette BloX (vues V7 à V18, une rangée par thème,
+voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des quatre thèmes
+(réglage *theme* des Tweaks).
 
-- **Mes musiques** : une carte par musique (écouter, nom, catégorie et tempo, *Utiliser* /
-  *En jeu*, modifier) ; la musique des parties est rappelée en haut. Une seule musique
-  personnelle est jouée à la fois ; sans elle, c'est la musique choisie à l'accueil.
-  Boutons *Au hasard* (ouvre l'éditeur sur une musique générée) et *Nouvelle*.
-- **Éditeur** : le titre se touche pour renommer ; *Enregistrer* ouvre une fenêtre avec le nom
-  (proposé d'après la catégorie, par exemple « Joyeux 2 ») et la case « Jouer cette musique
-  pendant les parties ». Quitter avec des changements non enregistrés demande d'enregistrer,
-  de quitter sans enregistrer ou de continuer.
-- Les notes tenues s'affichent dans une teinte plus claire que leur attaque ; les lignes hors
-  de la gamme de la catégorie ont un libellé estompé.
+### Mes musiques
+
+- Bouton retour vers l'accueil ; en haut, la musique jouée pendant les parties.
+- Une carte par musique : écouter, nom (le toucher ouvre l'éditeur), catégorie et tempo,
+  *Utiliser* / *En jeu*, menu « … » (*Modifier*, *La jouer pendant les parties* ou *Ne plus la
+  jouer*, *Supprimer*). Pendant l'écoute, la carte affiche « Lecture · mesure n sur 8 ».
+- Une seule musique personnelle est jouée à la fois ; sans elle, c'est la musique choisie à
+  l'accueil.
+- Boutons *Au hasard* (ouvre l'éditeur sur une musique générée) et *Nouvelle*.
+
+### Éditeur
+
+De haut en bas :
+
+1. **En-tête** : retour ; titre à toucher pour renommer (icône crayon), avec la ligne d'info
+   (catégorie, « modifiée » ou « non enregistrée ») ; menu « … » (*Renommer*, *Suivre la
+   lecture*, *Montrer l'autre piste en filigrane*, *Supprimer*).
+2. **Onglets** *Mélodie* / *Basse*.
+3. **Barre d'outils** : *Poser* / *Allonger*, *Annuler*, *Copier la mesure*, *Effacer la
+   mesure*. Un bouton sans effet est désactivé (Copier sur la mesure 8, Effacer sur une mesure
+   vide).
+4. **Grille** d'une mesure, sous une ligne « Temps 1 2 3 4 » alignée sur les paires de cases.
+   Les notes sont nommées sans chiffre d'octave (« Sol ») ; un espace sépare les deux octaves,
+   et le lecteur d'écran dit « Sol haut » ou « Sol bas ». Grille vide : « Touche une case pour
+   poser une note ».
+5. **Huit boutons de mesure** ; la mesure jouée porte un repère distinct de la mesure
+   sélectionnée.
+6. **Panneau du bas** : *Au hasard* suivi des catégories (cibles de 44 px, coche sur la
+   catégorie choisie), puis tempo en temps/min, *Écouter* (bouton rond) et *Enregistrer*,
+   coloré et précédé d'un point quand il y a des changements.
+
+### Règles de la grille
+
+- **Poser** : toucher une case pose une croche ; toucher une note l'efface. Poser une note au
+  milieu d'une note longue coupe celle-ci.
+- **Notes longues** : toucher une case puis glisser vers la droite sur la ligne ; la note dure
+  jusqu'à la case où l'on lève le doigt. Sans glisser, le mode *Allonger* donne le même
+  résultat : toucher une case à droite d'une note l'allonge jusque-là, toucher une case tenue
+  la raccourcit, toucher l'attaque la ramène à une case.
+- Les notes tenues sont dessinées en bande au milieu des cases, dans une teinte plus claire que
+  leur attaque.
+- Pendant l'écoute, un contour entoure toute la colonne jouée.
+- **Autre piste en filigrane** (désactivable) : de petits ronds marquent les notes de l'autre
+  piste, sur la ligne du même nom de note.
+- Les lignes hors de la gamme de la catégorie ont un libellé estompé et sont annoncées « hors
+  gamme ».
+- **Suivre la lecture**, activé par défaut : la grille suit la mesure jouée. Toucher une autre
+  mesure pendant l'écoute coupe le suivi, et un message l'explique.
+- **Annuler** (un seul niveau) : le dé, l'effacement et la copie d'une mesure. Chacune de ces
+  actions affiche un message qui rappelle qu'on peut l'annuler. Le dé ne garde pas
+  d'annulation quand la grille était vide.
+
+### Enregistrer
+
+- *Enregistrer* ouvre une fenêtre : le nom (proposé d'après la catégorie, par exemple
+  « Joyeux 2 ») et la case « Jouer cette musique pendant les parties ». Entrée valide.
+- Enregistrer est impossible si la grille est vide, ou si le nom est déjà pris (comparaison
+  sans tenir compte des majuscules, en ignorant la musique en cours) ; un bouton propose alors
+  un nom libre, « Prendre « X 2 » ».
+- Quitter avec des changements non enregistrés demande d'enregistrer, de quitter sans
+  enregistrer ou de continuer. Quitter une nouvelle musique restée vide ne pose pas de
+  question.
+
+### Supprimer
+
+- Depuis le menu « … » de la carte ou de l'éditeur. Une confirmation suit (*Supprimer* ou
+  *Garder la musique*) ; si la musique est jouée pendant les parties, elle prévient que la
+  musique de l'accueil la remplacera.
+- Après la suppression, on revient à *Mes musiques*. Le message « Annuler » reste jusqu'à
+  l'action suivante ou jusqu'à sa croix *Fermer le message* : la musique revient à sa place,
+  avec son choix *En jeu*.
+- Le bouton de suppression prend la couleur `danger` du thème (rouge en Couleurs et Brume,
+  encre en Original, faute de rouge dans sa palette).

@@ -157,6 +157,26 @@ touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (gran
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
 
+## Éditeur de musique (maquette)
+
+Couleurs des pistes de l'éditeur de musique (P4.19), retenues dans la maquette (V7 à V18) et le
+prototype de l'éditeur ; à confirmer quand l'éditeur sera codé. Le thème Brume n'existe pour
+l'instant que dans la maquette (V5, V6, V13 à V18).
+
+| Jeton | Original | Couleurs | Brume clair | Brume sombre |
+|---|---|---|---|---|
+| Mélodie | `#34503A` | `#3FC5E8` | `#6366F1` | `#818CF8` |
+| Mélodie tenue | `#6E8F6A` | `#2A8BA6` | `#8A8DF4` | `#5F67C8` |
+| Basse | `#5F7F5C` | `#EF8D3B` | `#C95F0C` | `#FB923C` |
+| Basse tenue | `#87A67F` | `#A8642A` | `#E89A5C` | `#B0642C` |
+| Libellé hors gamme | `#5F7F5C` | `#7C8193` | `#8B8799` | `#7E7B92` |
+
+- La basse de Brume clair est `#C95F0C` (3,6:1 contre la case) : `#EA7A1E`, la première
+  valeur, restait sous le minimum de 3:1 d'un élément graphique.
+- En Original, les plus petits textes de l'éditeur sont en 8 et 9 px (police pixel).
+- Supprimer prend la couleur `danger` : `#34503A` (Original, faute de rouge), `#E5534B`
+  (Couleurs), `#C2264B` (Brume clair), `#FB7185` (Brume sombre).
+
 ## Polices
 
 Polices embarquées (ADR 0016), telles que publiées par `google/fonts` (SIL OFL 1.1), dans
