@@ -35,7 +35,7 @@ Les modules en vert sont en **Kotlin pur** (aucune dépendance Android).
 
 | Module | Type | Responsabilité |
 |---|---|---|
-| `app` | Application Android | Point d'entrée : `MainActivity`, graphe de navigation, assemblage des dépendances. |
+| `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, rendu du plateau, commandes. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
@@ -48,7 +48,9 @@ Les modules en vert sont en **Kotlin pur** (aucune dépendance Android).
 ### Règles de dépendance
 
 1. **Une feature ne dépend jamais d'une autre feature.** La navigation entre features est
-   assemblée dans `app`, qui seul les connaît toutes.
+   assemblée dans `app`, qui seul les connaît toutes. Chaque feature définit sa clé `NavKey` et
+   expose une extension d'`EntryProviderScope` qui déclare son entrée ; `app` possède la pile et
+   l'affiche avec `NavDisplay` (Navigation 3, [ADR 0011](adr/0011-navigation-3.md)).
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.
 3. **Le domaine ne connaît ni couleur, ni son, ni temps réel.** Un thème, un effet sonore,

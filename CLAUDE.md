@@ -83,7 +83,7 @@ lui-même.
 | Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
-| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem`, navigation, ViewModel) | idem + Compose UI Test |
+| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem`, Navigation 3 (`navigation3-runtime`), ViewModel) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
 
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
@@ -98,7 +98,8 @@ lui-même.
 - `core:game` et `core:music` : **aucune dépendance** (ni Android, ni coroutines). Une nouvelle
   dépendance demande un ADR.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
-  assemblée dans `app`, seul module qui les connaît toutes.
+  assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
+  extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011).
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `feature:game`.
 - Toute configuration Gradle partagée va dans `build-logic`, toute version dans

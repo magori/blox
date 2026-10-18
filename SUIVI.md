@@ -10,7 +10,7 @@ confirmer sur une source avant d'écrire le test.
 
 | Phase | Objectif | État |
 |---|---|---|
-| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 et P0.9 à P0.13 |
+| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 et P0.9 à P0.12 |
 | P1 | Domaine du mode Classique (`core:game`) | À faire |
 | P2 | Écran de jeu jouable (`feature:game`) | À faire |
 | P3 | Accueil, préférences, records | À faire |
@@ -45,9 +45,10 @@ confirmer sur une source avant d'écrire le test.
   `gradle.properties` (AGP 9 + Kotlin 2.4 + Compose sur huit modules).
 - [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
-- [ ] **P0.13** Trancher **Navigation 3** contre Navigation Compose 2.x en routes typées, par ADR,
-  tant qu'il n'y a que deux destinations. Google oriente les nouvelles applications Compose vers
-  Navigation 3 (pile explicite, adaptée à Accueil → Jeu → Pause → Fin de partie).
+- [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
+  `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
+  une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
+  (`BloxNavDisplay`). Skills Android officiels copiés dans `.claude/skills/`.
 
 ## P1 — Domaine du mode Classique (`core:game`)
 
@@ -91,16 +92,20 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P2.1** `GameLoop` à pas fixe : accumulateur testé avec une horloge factice
   (ADR 0006 amendé en P2.9).
 - [ ] **P2.10** **Avant P2.2.** Chemin d'injection de `app` vers les features sans dépendance
-  inverse (ADR 0007) : l'extension `gameScreen(...)` reçoit une `ViewModelProvider.Factory`
-  construite dans `BloxNavHost` (option retenue par défaut), ou un `CompositionLocal` déclaré
-  dans un module partagé expose le conteneur. Consigner dans l'ADR 0007 ; P3.3 s'y conforme.
+  inverse (ADR 0007) : l'extension `gameEntry(...)` reçoit une `ViewModelProvider.Factory`
+  construite dans `BloxNavDisplay` (option retenue par défaut, voir ADR 0011), ou un
+  `CompositionLocal` déclaré dans un module partagé expose le conteneur. Consigner dans
+  l'ADR 0007 ; P3.3 s'y conforme.
 - [ ] **P2.2** `GameViewModel` : `GameUiState`, conversion des actions en `Input`, tests avec
-  coroutines-test et Turbine.
+  coroutines-test et Turbine. Ajouter alors `lifecycle-viewmodel-navigation3` et les deux
+  décorateurs de `NavDisplay` (ADR 0011), et envelopper `onPlay` dans `dropUnlessResumed` côté
+  feature pour qu'un double appui ne crée pas deux parties.
 - [ ] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
 - [ ] **P2.4** Colonne latérale : score, niveau, lignes, pièce suivante.
 - [ ] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu.
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise.
-- [ ] **P2.7** Écran de fin de partie, Rejouer / Menu.
+- [ ] **P2.7** Écran de fin de partie, Rejouer / Menu. Entrée de pile distincte ou état de
+  l'écran de jeu : trancher, voir ADR 0011.
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
 - [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
@@ -140,7 +145,9 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible.
 - [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan.
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test).
-- [ ] **P5.6** Build de release signé pour installation personnelle.
+- [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
+  la pile de navigation après mort du processus en build minifié (règles R8 de
+  kotlinx-serialization, ADR 0011).
 - [ ] **P5.7** Tests de captures d'écran à partir des previews existantes (plugin officiel Compose
   Preview Screenshot Testing), pour les deux thèmes, dans la CI.
 
@@ -163,3 +170,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P0.5 | Premier build local réussi : wrapper Gradle 9.8.1 (somme SHA-256 vérifiée), AGP 9.4.1, Kotlin 2.4.21 compilé par le support intégré d'AGP (plugin `kotlin-android` retiré), coroutines et serialization 1.11.0, AndroidX et BOM Compose 2026.09.00 à jour, `compileSdk` 37. `build-logic` adapté au DSL d'AGP 9 (`CommonExtension` non générique, blocs `defaultConfig` / `compileOptions` / `buildFeatures` devenus propriétés, extension `kotlin` typée `KotlinAndroidExtension`). Domaine, tests unitaires Android, APK debug, lint et cache de configuration verts. ADR 0010. | AGP 9.4.1 exige Gradle ≥ 9.6 (9.5.1 refusé) : AGP et Gradle montent ensemble. Compose 1.12.1 et Navigation 2.10.2 exigent `compileSdk` 37 ; `targetSdk` reste 36. Lint (`app`, avertissements seulement) : `OldTargetApi` (targetSdk 36 < 37), orientation portrait verrouillée (`LockedOrientationActivity`, `DiscouragedApi` : Android 16 ignore l'orientation fixe, à décider en P2.8), `MissingApplicationIcon` (P5.1), `NewerVersionAvailable` junit-bom 6.1.3 (écarté par l'ADR 0009). Dépréciation Gradle 10 (`Configuration.setVisible`) émise par un plugin tiers, hors de notre code. `org.gradle.tooling.parallel=true` ajouté par Android Studio dans `gradle.properties`, conservé. Revue indépendante : remarques écartées — `kotlinx-coroutines-core` gardé au catalogue pour `core:audio` ; `junit-platform-launcher` en `testRuntimeOnly` des modules Android, redondance avec le plugin `android-junit` à vérifier au prochain build ; phrase d'en-tête anglaise de CLAUDE.md imposée par `/init` ; KDoc de `build-logic` en français, exception à trancher. |
 | 2026-10-18 | Analyse d'architecture | Revue de la structure au regard du guide de modularisation Android et de *Now in Android* : fondations conformes, rien à restructurer. Tâches ajoutées : P0.9 à P0.13, P2.9 à P2.11, P5.7 ; P0.6, P2.1 et P3.5 complétés. | Deux décisions documentées à corriger avant le code concerné : boucle de jeu dans `viewModelScope` impossible avec `withFrameNanos` (P2.9) ; aucun chemin d'injection de `app` vers les features (P2.10). Navigation 3 à trancher tant que c'est gratuit (P0.13). |
 | 2026-10-18 | P0.5 (complément) | Version de Java (`java = "17"`) dans le catalogue, lue par `build-logic` (modules et plugins de convention). Toolchain Java déclarée sur l'extension `java` de chaque module ; résolveur `foojay-resolver-convention` 1.0.0 dans les deux `settings.gradle.kts`. | La version du résolveur est écrite en dur dans les settings : les plugins de settings se résolvent avant le catalogue. Le JDK 17 est téléchargé au premier build sur une machine qui n'en a pas. |
+| 2026-10-18 | P0.13 | Navigation 3 retenue, ADR 0011 ; ADR 0001 amendé. Catalogue : `navigation3-runtime` et `navigation3-ui` 1.2.0, Navigation Compose retirée. Plugin `blox.android.feature` : `navigation3-runtime` à la place de `navigation-compose`. `HomeRoute` et `GameRoute` deviennent des `NavKey`, `homeEntry` / `gameEntry` des extensions d'`EntryProviderScope`, `BloxNavHost` devient `BloxNavDisplay` (`rememberNavBackStack` + `NavDisplay`). Skills Android officiels (`navigation-3`, `edge-to-edge`, `testing-setup`, `r8-analyzer`, `jetpack-compose-performance`) copiés dans `.claude/skills/` (révision `5bda39f`). Build, lint (5 avertissements inchangés) et APK verts. | Revue indépendante : commentaire ProGuard corrigé (`navigation3-runtime` n'embarque aucune règle R8, seules celles de kotlinx-serialization comptent ; vérification en build minifié ajoutée à P5.6) ; décorateur ViewModel et `lifecycle-viewmodel-navigation3` retirés jusqu'à P2.2 ; `goBack` factorisé ; `dropUnlessResumed` noté pour P2.2 ; fin de partie (entrée ou état) renvoyée à P2.7. Écarté : renommage `HomeRoute` → `HomeKey`, vocabulaire des recettes officielles gardé et expliqué dans l'ADR. Pas de test JVM possible pour le parcours : preuve = build vert, test instrumenté en P5.5. |

@@ -1,15 +1,17 @@
 package ch.magori.blox.feature.home.navigation
 
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.compose.composable
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.home.HomeScreen
 import kotlinx.serialization.Serializable
 
+/** Clé de l'écran d'accueil (vue V1). */
 @Serializable
-data object HomeRoute
+data object HomeRoute : NavKey
 
-fun NavGraphBuilder.homeScreen(onPlay: () -> Unit) {
-    composable<HomeRoute> {
+/** Déclare l'entrée Accueil dans le fournisseur d'entrées de l'application (ADR 0011). */
+fun EntryProviderScope<NavKey>.homeEntry(onPlay: () -> Unit) {
+    entry<HomeRoute> {
         HomeScreen(onPlay = onPlay)
     }
 }
