@@ -123,9 +123,36 @@ basses.
 
 ## Accélération
 
-Quand la pile atteint une hauteur critique, le tempo augmente (par exemple × 1,25), et revient
-à la normale quand elle redescend. Le domaine émet un événement `StackDanger(on/off)`, le
-ViewModel le traduira en `setTempoFactor()` (branchement : P4.11).
+Quand la pile atteint une hauteur critique, le tempo augmente de **× 1,25**, et revient à la
+normale (× 1,0) quand elle redescend. Le domaine émet un événement `StackDanger(on/off)`, le
+ViewModel le traduit en `setTempoFactor()`.
+
+**Dans le jeu** (P4.11) : un seul lecteur (`MusicPlayer`, implémenté par `ChiptuneSequencer` sur
+`AudioTrackSink`) pour tout le processus, créé par l'`AppContainer`. Au début de la partie, la
+musique choisie à l'accueil est jouée au tempo normal (*Korobeïniki*, *Menuet* ; *Aucune* ne joue
+rien ; *Mon fichier* ne joue rien en attendant P4.6), sauf si la partie est déjà en pause ou
+finie quand les préférences répondent. La pause (bouton, retour système, passage en
+arrière-plan) arrête la musique ; la reprise la rejoue **depuis le début** (le séquenceur ne
+reprend pas où il en était) ; la fin de partie et la sortie de l'écran l'arrêtent. `play` rend
+un jeton (`Playback`) : une partie n'arrête que sa propre musique, si bien qu'après Rejouer
+l'arrêt de l'ancienne partie ne coupe pas la nouvelle. Un échec audio coupe la musique, jamais le
+jeu, et il est journalisé.
+
+**Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
+`MusicScoresTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+`GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
+`GameViewModelTest › with no music chosen nothing plays`,
+`GameViewModelTest › a pause stops the music, and resuming plays it again from its start`,
+`GameViewModelTest › the game over stops the music`,
+`GameViewModelTest › when the stack enters the danger the music speeds up`,
+`GameViewModelTest › when the stack leaves the danger the music goes back to its tempo`,
+`GameViewModelTest › leaving the game screen stops the music`,
+`GameViewModelTest › leaving a game after the next one started leaves the music of the next one playing`,
+`GameViewModelTest › a game paused before the settings answered starts no music once they answer`,
+`GameViewModelTest › resuming a game that is not paused plays nothing again`,
+`GameViewModelTest › resuming once the game is over plays no music`,
+`ChiptuneSequencerTest › stopping a playback that was replaced leaves the new one playing`,
+`ChiptuneSequencerTest › a failure that stops the music is reported, to be logged`.
 
 **Changement de tempo dans le séquenceur** (P4.5) : `ChiptuneSequencer.setTempoFactor(facteur)`
 (positif et fini ; retenu pour le prochain `play` si rien ne joue). Le tampon au nouveau facteur
