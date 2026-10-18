@@ -14,17 +14,12 @@ public data class Controls internal constructor(
     internal val pressedSinceLastTick: Set<Button>,
     internal val shift: AutoRepeat?,
 ) {
-    /** After [input]: a press of a button not held yet holds it, and counts as a new press until the next tick. */
-    internal fun after(input: Input): Controls = when (input) {
-        is Input.Press ->
-            if (input.button in held) {
-                this
-            } else {
-                copy(held = held + input.button, pressedSinceLastTick = pressedSinceLastTick + input.button)
-            }
+    /** After a press of [button]: if it was not held yet, it is held, and counts as a new press until the next tick. */
+    internal fun afterPress(button: Button): Controls =
+        if (button in held) this else copy(held = held + button, pressedSinceLastTick = pressedSinceLastTick + button)
 
-        is Input.Release -> copy(held = held - input.button)
-    }
+    /** After a release of [button]. */
+    internal fun afterRelease(button: Button): Controls = copy(held = held - button)
 
     /** Once a tick has read the new presses. */
     internal fun afterTick(): Controls = copy(pressedSinceLastTick = emptySet())
