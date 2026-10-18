@@ -10,6 +10,25 @@ Le domaine ne connaît que `PieceType`. Un thème associe à chaque type un **st
 couleur de fond, couleur de bordure, et un éventuel carré central. Ajouter un thème ne touche
 jamais au moteur. Voir l'[ADR 0005](adr/0005-themes-hors-du-domaine.md).
 
+Les tailles de la maquette sont données pour une cellule de 24 px ; le code les garde en
+**fraction de la cellule** (2/24, 3/24, 1/24, carré central 8/24), pour que les proportions
+suivent l'écran. Au dessin, la taille de cellule, l'origine du plateau et chaque épaisseur
+sont arrondies au pixel entier, au moins 1 px, pour éviter les joints flous. Le thème courant
+est exposé par `BloxTheme.kind` (`core:designsystem`). Le code est dans `feature:game`,
+paquet `board` (`CellStyles`, `BoardGeometry`, `DisplayedCells`, `BoardCanvas`).
+
+**Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
+`CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
+`CellStylesTest › in the Original theme an empty cell is the board background without border`,
+`CellStylesTest › in the Colorful theme an empty cell has a 1 px border`,
+`BoardGeometryTest › a cell is the smaller of the width over 10 and the height over 20, in whole pixels`,
+`BoardGeometryTest › a cell and the board origin are whole numbers of pixels`,
+`BoardGeometryTest › the board is centred in the available space`,
+`CellPixelsTest › a fraction of the cell is drawn as a whole number of pixels, at least one`,
+`DisplayedCellsTest › without a piece in play the displayed cells are the 200 cells of rows 0 to 19, row by row`,
+`DisplayedCellsTest › the piece in play is drawn over the board, without its cells in the hidden rows`.
+Vues : V2, V3.
+
 ## Thème « Original » — vert sauge pastel
 
 Inspiré des écrans monochromes, adouci : pas de vert fluo. Les pièces se distinguent par leur
@@ -37,7 +56,9 @@ Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
 | J | `#BFD6B6` | `#34503A` | `#87A67F` |
 | L | `#87A67F` | `#34503A` | `#EEF5EA` |
 
-Cellule vide : fond du plateau, sans bordure. Bordure de 2 px sur une cellule de 24 px.
+Cellule vide : fond du plateau, sans bordure. Bordure de 2 px sur une cellule de 24 px. Carré
+central de 8 px sur 24, centré (valeur retenue en P2.3, la maquette ne la donnait pas : à
+vérifier sur la maquette Claude Design).
 
 ## Thème « Couleurs »
 
@@ -67,7 +88,8 @@ Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 | J | `#3F7EE8` | `#93B8F4` | `#1F4FA6` |
 | L | `#EF8D3B` | `#F6C18F` | `#AD5A14` |
 
-Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27`. Bordure biseautée de 3 px.
+Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, dans
+`feature:game` ; à monter dans la palette s'il sert ailleurs). Bordure biseautée de 3 px.
 
 ## Polices
 
