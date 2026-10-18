@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 34 / 68 | `██████████░░░░░░░░░░` **50 %** |
-| **MVP** (jouable sur téléphone) | 30 / 37 | `████████████████░░░░` **81 %** |
+| **Général** | 35 / 69 | `██████████░░░░░░░░░░` **51 %** |
+| **MVP** (jouable sur téléphone) | 31 / 37 | `█████████████████░░░` **84 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -209,7 +209,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `NextPieceCanvas`, `BloxTheme.shapes`.
 - [ ] **P2.13** Mettre à jour la maquette : confirmer les mesures des encarts de la colonne
   latérale (cadre, marges, tailles de texte) retenues en P2.4 (`docs/maquette.md`, V2 et V3).
-- [ ] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu.
+- [x] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu. `HeldButtons`,
+  `GameControls(onChange)`, `BloxShapes.button`. Pas encore branché dans `GameScreen` (P2.2).
+- [ ] **P2.14** Mettre à jour la maquette : confirmer la taille, l'espacement et le retour
+  visuel des boutons de commande retenus en P2.5 (`docs/maquette.md`, V2 et V3).
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
   est dans la barre du haut (maquette), pas dans `GameControls`.
@@ -217,6 +220,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   l'écran de jeu : trancher, voir ADR 0011. Le score s'affiche par `scoreText` (plafond de
   999 999, P2.4).
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
+  Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
+  attaché au premier bouton) ; le gérer demande un seul `pointerInput` sur ◀ ▼ ▶, une fonction
+  pure `buttonAt(position)` et `HeldButtons.move`, testables sur la JVM.
 - [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
   l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la

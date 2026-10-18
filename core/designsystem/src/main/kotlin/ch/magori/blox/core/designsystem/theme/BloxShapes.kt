@@ -11,12 +11,14 @@ import androidx.compose.ui.unit.dp
 data class BloxShapes(
     /** Encarts (score, niveau…) : fond et cadre. */
     val panel: Shape,
+    /** Boutons de commande (◀ ▼ ▶, A, B). */
+    val button: Shape,
 )
 
 object BloxShapeSets {
     /** Thème « Original » : coins carrés. */
-    val Original = BloxShapes(panel = RectangleShape)
+    val Original = BloxShapes(panel = RectangleShape, button = RectangleShape)
 
     /** Thème « Couleurs » : coins arrondis de 10 points. */
-    val Colorful = BloxShapes(panel = RoundedCornerShape(10.dp))
+    val Colorful = BloxShapes(panel = RoundedCornerShape(10.dp), button = RoundedCornerShape(10.dp))
 }
