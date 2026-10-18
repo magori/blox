@@ -47,11 +47,26 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   `BoardCollisionTest › a cell on row 20, below the floor, is a collision`,
   `BoardCollisionTest › a piece touching an edge without crossing it fits`,
   `BoardCollisionTest › a cell on an occupied square is a collision, the same piece just above fits`,
-  `BoardCollisionTest › the hidden rows -1 and -2 are free, row -3 is a collision`. La perte des
-  cellules cachées au verrouillage sera prouvée en P1.6.
-- Les pièces apparaissent centrées en haut du plateau.
+  `BoardCollisionTest › the hidden rows -1 and -2 are free, row -3 is a collision`,
+  `BoardLockTest › cells in the hidden rows are lost, the visible ones join the board`.
+- **Apparition** : la pièce apparaît avec son pivot en colonne 5, ligne 0, dans son
+  orientation de départ (source ROM, meatfighter.com : les pièces apparaissent aux
+  coordonnées (5, 0)). La position fait partie des règles du mode, pas du moteur.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
-  est occupée.
+  est occupée ; elle reste affichée.
+- **Début de partie** : le niveau de départ doit appartenir à la plage du mode (0 à 9) ; la
+  première pièce est tirée sans pièce précédente, la suivante avec la première comme
+  précédente. Une même graine redonne la même partie (un moteur par partie, ADR 0014).
+
+  **Tests :** `GameEngineStartTest › a game started at level 0 has level 0, no line, no point, an empty board and a falling piece`,
+  `GameEngineStartTest › starting a game gives no event`,
+  `GameEngineStartTest › the last starting level of the range is accepted`,
+  `GameEngineStartTest › a starting level outside the range of the level progression is refused`,
+  `GameEngineStartTest › the first piece is drawn with no previous piece, the next one with the first as previous`,
+  `GameEngineStartTest › the piece in play appears with its pivot at (5, 0), in the spawn orientation of the rotation system`,
+  `GameEngineStartTest › if the piece does not fit when it appears, the game is over and the piece stays shown`,
+  `GameEngineFactoryTest › two engines created with the same seed deal the same pieces`,
+  `ClassicLevelProgressionTest › the Classic mode accepts starting levels 0 to 9`.
 
 ## Pièces
 
@@ -174,6 +189,16 @@ négligeable). Le niveau ne peut pas être négatif.
 Pas de délai de verrouillage : quand la gravité devrait faire descendre la pièce et que la
 case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille immédiatement**.
 
+Verrouiller remplit les cellules de la pièce avec son type, sur un nouveau plateau ; ses
+cellules restées dans les lignes cachées sont perdues. Une pièce qui ne tient pas (hors des
+murs, sous le fond, au-dessus de la ligne −2 ou sur une case occupée) ne peut pas être
+verrouillée. La décision de verrouiller (descente refusée) sera prouvée par le moteur (P1.12).
+
+**Tests :** `BoardLockTest › locking a piece fills its four cells with its type on a new board`,
+`BoardLockTest › cells in the hidden rows are lost, the visible ones join the board`,
+`BoardLockTest › locking a piece that does not fit is refused, even by a cell in a hidden row`,
+`BoardLockTest › the original board does not change`.
+
 ## Commandes
 
 | Action | Effet |
@@ -250,7 +275,17 @@ est **[à vérifier]** ; il revient au moteur (P1.12).
 
 ## Lignes et score
 
-Une ligne pleine est effacée, les lignes au-dessus descendent d'autant.
+Une ligne pleine (ses 10 cellules occupées) est effacée, les lignes au-dessus descendent
+d'autant, et autant de lignes vides apparaissent en haut. Les lignes effacées peuvent ne pas
+être contiguës. L'effacement rend aussi les indices des lignes effacées dans le plateau
+d'avant, du haut vers le bas, pour l'animation.
+
+**Tests :** `BoardClearTest › a full row is cleared and the rows above fall down one row`,
+`BoardClearTest › two three and four contiguous full rows are cleared`,
+`BoardClearTest › with full rows that are not contiguous everything falls to the right place`,
+`BoardClearTest › without a full row the board does not change and no row is cleared`,
+`BoardClearTest › empty rows appear at the top, as many as rows cleared`,
+`BoardClearTest › a full top row is replaced by an empty row`.
 
 | Lignes effacées d'un coup | Points |
 |---|---|
