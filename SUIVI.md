@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 51 / 75 | `██████████████░░░░░░` **68 %** |
+| **Général** | 54 / 76 | `██████████████░░░░░░` **71 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -65,8 +65,8 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   retiré (valeur par défaut). ADR 0003 amendé.
 - [x] **P0.11** Mémoire Gradle : `org.gradle.jvmargs` à 4 Go avec ParallelGC, `kotlin.daemon.jvmargs`
   à 2 Go.
-- [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
-  `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
+- [x] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
+  `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI. Fait : Dependabot (`.github/dependabot.yml`), Gradle et GitHub Actions, groupes AGP/Kotlin/Gradle, Compose, DataStore/Okio, tests, ktlint, AndroidX, kotlinx ; règle de fusion dans CLAUDE.md. À vérifier à la première PR : regroupement du wrapper (nom `gradle-wrapper`) et préfixe avec emoji.
 - [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
   helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
@@ -330,7 +330,7 @@ Référence : [docs/musique.md](docs/musique.md).
   double allocation par note (écrire directement dans le tableau de la voix). Fait :
   `Synthesizer.render`, `LoopCursor`, `AudioSink`, `AudioTrackSink`, `ChiptuneSequencer`
   (durées restées en `Double`, voir `docs/musique.md`).
-- [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
+- [x] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
   passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
@@ -339,6 +339,13 @@ Référence : [docs/musique.md](docs/musique.md).
   calculer la position en `Long` ; arrondir au temps suivant (un temps = `len / totalBeats`
   échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
   (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
+  Fait : `setTempoFactor`, `BeatGrid`, `switchBeats`, bascule au prochain temps commun à toutes
+  les voix ; le branchement est la tâche P4.11.
+- [ ] **P4.11** Brancher la musique dans le jeu : `ChiptuneSequencer` et `AudioTrackSink` créés
+  par l'`AppContainer`, partition choisie dans les préférences (P3.1), `play` au début de la
+  partie, `stop` à `GameOver` et en pause, `StackDanger(on/off)` → `setTempoFactor(1,25 / 1,0)`
+  par le ViewModel. Décider alors si `play` de la partition déjà jouée est sans effet, et
+  journaliser l'échec audio attrapé (revue de P4.4).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
@@ -362,17 +369,20 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
-- [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
+- [x] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
   à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012). Revue de P2.2
   (incrément 3) : en pause, les images tournent encore à 60 Hz sans donner de tick ; suspendre
-  la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise.
+  la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise. Fait :
+  `LifecycleEventEffect(ON_PAUSE)` → `onPause()`, boucle suspendue en pause (ADR 0012 amendé).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
   Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu ; retour système (revue
   de P2.2, incrément 3 : en jeu il met en pause sans dépiler, en pause il reprend, en fin de
   partie il revient au menu) ; accueil (revue de P3.4 : record lu en clair, Moderne désactivé,
-  « Jouer » au niveau choisi). Revue de P2.2 : le
+  « Jouer » au niveau choisi) ; cycle de vie (revue de P5.4 : `ON_PAUSE` met en pause avec un
+  `TestLifecycleOwner`, la boucle ne donne aucun tick en pause et reprend sans rattrapage).
+  Revue de P2.2 : le
   ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
   test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
   `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer

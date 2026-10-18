@@ -1,0 +1,75 @@
+# Mises à jour automatiques des dépendances (tâche P0.12), une fois par semaine.
+#
+# Gradle : Dependabot lit gradle/libs.versions.toml (catalogue partagé avec build-logic, qui le
+# lit par `from(files("../gradle/libs.versions.toml"))`), les build.gradle.kts et le wrapper
+# (gradle/wrapper). À surveiller à la main :
+# - les plugins des settings.gradle.kts : la documentation ne garantit pas qu'ils soient lus
+#   (foojay, déclaré deux fois en 1.0.0, à monter ensemble à la racine et dans build-logic) ;
+# - `ktlint` du catalogue : version du moteur lue par build-logic, sans coordonnée Maven.
+#
+# Les groupes sont essayés dans l'ordre du fichier : une dépendance va dans le premier groupe dont
+# un motif la reconnaît. Les plus étroits passent donc avant le groupe AndroidX général.
+version: 2
+updates:
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      # « ⬆️ build(deps): bump … » (gitmoji « mise à jour de dépendance » + Conventional Commits) ;
+      # Dependabot ajoute lui-même le deux-points après la parenthèse.
+      prefix: "⬆️ build(deps)"
+    groups:
+      # AGP, Kotlin (et KSP le jour où il arrive) et le wrapper Gradle montent ensemble : AGP
+      # impose un Gradle minimal, et Kotlin est intégré à AGP (ADR 0010). Une seule PR, à valider
+      # avec tout le build (CLAUDE.md, « État du projet »).
+      agp-kotlin-gradle:
+        patterns:
+          - "com.android.tools.build:*"
+          - "com.android.application*"
+          - "com.android.library*"
+          - "org.jetbrains.kotlin*"
+          - "com.google.devtools.ksp*"
+          - "gradle-wrapper"
+        exclude-patterns:
+          - "org.jetbrains.kotlinx*"
+      compose:
+        patterns:
+          - "androidx.compose*"
+      # Okio suit la version que DataStore embarque (datastore-core-okio) : même PR.
+      datastore-okio:
+        patterns:
+          - "androidx.datastore*"
+          - "com.squareup.okio*"
+      tests:
+        patterns:
+          - "org.junit*"
+          - "org.assertj*"
+          - "app.cash.turbine*"
+          - "de.mannodermaus*"
+          - "androidx.test*"
+      # Le plugin ktlint et sa bibliothèque partagent la version `ktlintGradle`.
+      ktlint:
+        patterns:
+          - "org.jlleitschuh.gradle*"
+      androidx:
+        patterns:
+          - "androidx.*"
+      # coroutines-core et coroutines-test partagent la version `kotlinxCoroutines` du catalogue :
+      # elles restent ensemble, avec la sérialisation.
+      kotlinx:
+        patterns:
+          - "org.jetbrains.kotlinx*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "⬆️ build(deps)"
+    groups:
+      github-actions:
+        patterns:
+          - "*"

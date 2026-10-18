@@ -345,21 +345,6 @@ class ChiptuneSequencerTest {
 
     private data class Rendering(val score: Score, val tempoFactor: Double, val onRenderingDispatcher: Boolean)
 
-    /** A sink whose writes wait for the test to receive them, one slice at a time. */
-    private class FakeSink(val sampleRate: Int) : AudioSink {
-        val written = Channel<FloatArray>()
-        var released = false
-            private set
-
-        override suspend fun write(samples: FloatArray) {
-            written.send(samples.copyOf())
-        }
-
-        override fun release() {
-            released = true
-        }
-    }
-
     private companion object {
         const val SAMPLE_RATE = 22_050
     }

@@ -315,13 +315,19 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   pause remplace tout le jeu (plateau masqué) ; Reprendre reprend sans rattraper le temps passé
   en pause ; Menu quitte la partie. Le retour système met en pause en jeu, reprend en pause, et
   quitte la partie une fois la fin affichée. Aucun tick n'est donné pendant la pause : la durée
-  de jeu n'avance pas.
+  de jeu n'avance pas. Quand l'application passe en arrière-plan (`ON_PAUSE`), la partie se met
+  en pause d'elle-même et y reste au retour, jusqu'à Reprendre (P5.4) ; une recréation de
+  l'activité (thème sombre, langue, taille de fenêtre) fait de même. Pendant la pause, la boucle
+  d'images est suspendue.
 
   **Tests :** `GameViewModelTest › on pause the game is paused`,
   `GameViewModelTest › while paused the frames change nothing, not even the duration of the game`,
   `GameViewModelTest › the controls received while paused are ignored, also after the game resumes`,
   `GameViewModelTest › on resume the game goes on exactly where it stood, without catching up the pause`,
   `GameViewModelTest › once the game is over a pause does nothing`,
+  `GameViewModelTest › pausing a game already paused does nothing`,
+  `GameViewModelTest › after a pause without frames, the frames start again without catching up the time paused`,
+  `GameViewModelTest › frames started again while paused change nothing, the game stays paused until it resumes`,
   `BackActionTest › during the game the system back pauses it`,
   `BackActionTest › while paused the system back resumes the game`,
   `BackActionTest › once the game is over the system back leaves the game, as Menu does`. Vues : V2, V3,
