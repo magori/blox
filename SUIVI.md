@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 55 / 76 | `██████████████░░░░░░` **72 %** |
+| **Général** | 56 / 77 | `███████████████░░░░░` **73 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -341,11 +341,15 @@ Référence : [docs/musique.md](docs/musique.md).
   (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
   Fait : `setTempoFactor`, `BeatGrid`, `switchBeats`, bascule au prochain temps commun à toutes
   les voix ; le branchement est la tâche P4.11.
-- [ ] **P4.11** Brancher la musique dans le jeu : `ChiptuneSequencer` et `AudioTrackSink` créés
+- [x] **P4.11** Brancher la musique dans le jeu : `ChiptuneSequencer` et `AudioTrackSink` créés
   par l'`AppContainer`, partition choisie dans les préférences (P3.1), `play` au début de la
   partie, `stop` à `GameOver` et en pause, `StackDanger(on/off)` → `setTempoFactor(1,25 / 1,0)`
   par le ViewModel. Décider alors si `play` de la partition déjà jouée est sans effet, et
-  journaliser l'échec audio attrapé (revue de P4.4).
+  journaliser l'échec audio attrapé (revue de P4.4). Fait : `MusicPlayer` et `Playback`
+  (`core:audio`), `scoreFor`, `tempoFactorFor` ; la reprise rejoue depuis le début (décidé).
+- [ ] **P4.12** Reprendre la musique là où elle s'était arrêtée après une pause (revue de
+  P4.11) : `stop` garde la position du curseur pour la partition et le tempo en cours, `play` de
+  la même partition repart de là, alignée sur un temps de `switchBeats`.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est

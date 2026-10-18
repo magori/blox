@@ -39,15 +39,19 @@ public class ChiptuneSequencer internal constructor(
     private val renderDispatcher: CoroutineDispatcher,
     private val writeDispatcher: CoroutineDispatcher,
     private val sliceSize: Int,
-) {
+    private val onFailure: (Exception) -> Unit = {},
+) : MusicPlayer {
     /**
      * A sequencer that renders with [synthesizer] on [Dispatchers.Default] and writes to the sinks
-     * [openSink] gives on [Dispatchers.IO], for as long as [scope] lives.
+     * [openSink] gives on [Dispatchers.IO], for as long as [scope] lives. A failure that stops the music
+     * goes to [onFailure], to be logged; it is called on a thread of [Dispatchers.IO], the one the music
+     * is written from, not on the main thread.
      */
     public constructor(
         synthesizer: Synthesizer,
         openSink: (sampleRate: Int) -> AudioSink,
         scope: CoroutineScope,
+        onFailure: (Exception) -> Unit = {},
     ) : this(
         render = synthesizer::render,
         sampleRate = synthesizer.sampleRate,
@@ -56,6 +60,7 @@ public class ChiptuneSequencer internal constructor(
         renderDispatcher = Dispatchers.Default,
         writeDispatcher = Dispatchers.IO,
         sliceSize = SLICE_SIZE,
+        onFailure = onFailure,
     )
 
     /** One mixed buffer per score and tempo factor, not one per voice. */
@@ -67,9 +72,9 @@ public class ChiptuneSequencer internal constructor(
     private var requestedTempo = NORMAL_TEMPO
 
     /** Plays [score] in a loop, in place of the score playing, if any. Call it from the main thread. */
-    public fun play(score: Score) {
+    override fun play(score: Score): Playback {
         val previous = playing
-        playing = scope.launch(writeDispatcher) {
+        val job = scope.launch(writeDispatcher) {
             // The previous loop releases its sink before this one opens its own; the cache is
             // only read and written here, one loop at a time.
             previous?.cancelAndJoin()
@@ -79,8 +84,12 @@ public class ChiptuneSequencer internal constructor(
                 throw cancellation
             } catch (failure: Exception) {
                 // No audio output, a rendering or a write that fails: the music stops, the game goes on.
+                onFailure(failure)
             }
         }
+        playing = job
+        // Only while this loop is the one playing: a game left after the next one started stops nothing.
+        return Playback { if (playing === job) job.cancel() }
     }
 
     /**
@@ -182,7 +191,7 @@ public class ChiptuneSequencer internal constructor(
      * one (the stack danger). Kept for the next play when nothing is playing. Call it from the main
      * thread.
      */
-    public fun setTempoFactor(factor: Double) {
+    override fun setTempoFactor(factor: Double) {
         require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
         requestedTempo = factor
     }
