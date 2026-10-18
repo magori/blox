@@ -30,6 +30,7 @@ Arrête-toi et signale-le si une étape échoue.
 6. **SUIVI.md** : coche la tâche, ajoute les tâches découvertes, ajoute la ligne de journal
    (y compris les remarques de revue écartées).
 
-7. **Commit et push** : propose le message (Conventional Commits, corps qui explique le pourquoi,
-   `Tâche : P…`), commite sur la branche de la tâche, pousse, et donne-moi le lien pour
-   suivre la CI. Ne fusionne pas dans `main` sans mon accord.
+7. **Commit et push** : rédige et crée le commit avec le skill `/commit` (gitmoji +
+   Conventional Commits, corps qui explique le pourquoi, `Tâche : P…`) sur la branche de la
+   tâche, pousse, et donne-moi le lien pour suivre la CI. Ne fusionne pas dans `main` sans
+   mon accord.

@@ -1,15 +1,30 @@
-# CLAUDE.md — conventions de travail sur BloX
+# CLAUDE.md
 
-Ce fichier est lu par Claude Code au début de chaque session. Il décrit comment on travaille
-sur ce dépôt.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+Ce fichier décrit comment on travaille sur BloX, un jeu de blocs Android (Kotlin, Compose) dont le
+mode Classique reproduit les règles de la version NES de 1989. Il complète
+[README.md](README.md), [SUIVI.md](SUIVI.md) et [docs/](docs/).
+
+## État du projet
+
+- Le dépôt a été créé **sans accès réseau** : la structure, la documentation et les ADR sont en
+  place, mais **aucun build n'a encore été exécuté** et aucune règle de jeu n'est implémentée.
+  La tâche **P0.5** de `SUIVI.md` (premier build local, mise à jour des versions du catalogue)
+  passe avant tout le reste.
+- Les versions de `gradle/libs.versions.toml` sont figées à des valeurs plausibles ; les mettre
+  à jour si le build l'exige.
 
 ## Avant de commencer une tâche
 
 1. Lire [SUIVI.md](SUIVI.md) : prendre la **prochaine tâche non cochée** de la phase en cours,
-   sauf demande contraire.
+   sauf demande contraire. Les identifiants (`P1.3`) servent de référence dans les commits.
 2. Lire la documentation qui la concerne (règles, architecture, thèmes, musique).
 3. Si une règle est marquée **[à vérifier]** dans `docs/regles-mode-classique.md`, le signaler
    et proposer la valeur à confirmer **avant** d'écrire le test.
+
+Deux commandes slash encapsulent ce flux : `/prochaine-tache [Px.y]` (reprendre une tâche en
+TDD) et `/revue [branche|fichier]` (revue des changements selon ces conventions).
 
 ## TDD strict
 
@@ -24,6 +39,93 @@ et pour toute logique testable ailleurs :
 Ne jamais écrire de code de production sans test qui l'exige. Proposer la liste des cas de
 test d'une tâche avant de commencer, pour validation.
 
+## Commandes
+
+Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.\gradlew.bat`.
+
+```bash
+./gradlew :core:game:test       # domaine (JUnit 5, JVM, sans émulateur)
+./gradlew :core:music:test      # partitions
+./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
+./gradlew lintDebug             # lint Android
+./gradlew assembleDebug         # APK
+./gradlew installDebug          # installation sur un appareil connecté
+```
+
+Un seul test ou une seule classe :
+
+```bash
+# Module Kotlin pur (JUnit 5) : classe, ou classe + méthode
+./gradlew :core:game:test --tests "ch.magori.blox.core.game.model.BoardTest"
+./gradlew :core:game:test --tests "ch.magori.blox.core.game.model.BoardTest.a full line is cleared*"
+
+# Module Android : la tâche est testDebugUnitTest
+./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
+```
+
+La CI (`.github/workflows/ci.yml`) enchaîne exactement : tests du domaine, `testDebugUnitTest`,
+`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces quatre commandes passe en CI.
+
+## Architecture
+
+Détail dans [docs/architecture.md](docs/architecture.md) et dans les ADR
+([docs/adr/](docs/adr/README.md)). Les points qu'il faut connaître avant de toucher au code :
+
+### Modules et plugins de convention
+
+Un module n'applique qu'un plugin de convention (`build-logic/convention`) et déclare ses
+dépendances propres ; il ne configure jamais `compileSdk`, `minSdk`, JUnit, Compose, etc.
+lui-même.
+
+| Type de module | Plugin(s) à appliquer | Tests fournis par le plugin |
+|---|---|---|
+| Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
+| Bibliothèque Android (`core:audio`, `core:data`) | `blox.android.library` | JUnit 4 + AssertJ + coroutines-test + Turbine |
+| Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
+| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem`, navigation, ViewModel) | idem + Compose UI Test |
+| Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
+
+- Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
+- Les modules Kotlin purs compilent avec `explicitApiWarning()` : ce qui est `public` est un
+  choix, pas un oubli.
+- **JUnit 5 dans les modules purs, JUnit 4 dans les modules Android** : ne pas mélanger
+  (ADR 0003).
+
+### Règles de dépendance (à ne pas enfreindre)
+
+- `core:game` et `core:music` : **aucune dépendance** (ni Android, ni coroutines). Une nouvelle
+  dépendance demande un ADR.
+- Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
+  assemblée dans `app`, seul module qui les connaît toutes.
+- Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
+  l'association « `PieceType` → style de cellule » vit dans `feature:game`.
+- Toute configuration Gradle partagée va dans `build-logic`, toute version dans
+  `gradle/libs.versions.toml`.
+
+### Couches dans une feature
+
+`GameScreen` (Compose, sans logique) → actions → `GameViewModel` → `Input` → `GameEngine`
+(`core:game`) → `GameState` + événements → `GameUiState`. Pas de couche de use cases : le
+moteur *est* le domaine. Les repositories (`core:data`) exposent des `Flow`. Injection
+manuelle via un `AppContainer` dans `app` et des `ViewModelProvider.Factory` (ADR 0007).
+
+### Boucle de jeu et temps
+
+Simulation à **pas fixe** : 1 tick = 1 image = 1/60 s (ADR 0006). Le domaine ne connaît que
+les ticks, jamais de millisecondes ni d'horloge ; l'aléatoire est injecté (`Randomizer`). DAS,
+délai d'apparition, gravité sont comptés en ticks, donc testables sans appareil.
+
+### Organisation prévue de `core:game`
+
+| Paquet | Contenu |
+|---|---|
+| `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) |
+| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune |
+| `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
+
+Le mode Moderne (P6) s'ajoutera par de nouvelles implémentations de ces politiques, sans
+modifier le moteur.
+
 ## Conventions de code
 
 - **Code en anglais** (noms, commentaires techniques), **documentation en français**.
@@ -33,9 +135,8 @@ test d'une tâche avant de commencer, pour validation.
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
   une règle.
-- Politiques interchangeables par interfaces (`RotationSystem`, `Randomizer`…) : le mode Moderne
-  doit pouvoir s'ajouter sans modifier le moteur.
 - **Duplication** : refactoriser dès la deuxième occurrence (« règle de 2 »).
+- Style : `.editorconfig` (4 espaces, 120 colonnes, virgule finale autorisée en Kotlin).
 - Tests : noms en phrases (`` `a full line is cleared and rows above fall down` ``), structure
   Given / When / Then, plateaux décrits en ASCII dans les tests quand c'est plus lisible :
 
@@ -48,32 +149,11 @@ test d'une tâche avant de commencer, pour validation.
   )
   ```
 
-## Règles d'architecture (à ne pas enfreindre)
-
-Détail dans [docs/architecture.md](docs/architecture.md).
-
-- `core:game` et `core:music` : **aucune dépendance** (ni Android, ni coroutines). Une nouvelle
-  dépendance demande un ADR.
-- Une feature **ne dépend jamais** d'une autre feature.
-- Aucune couleur ni son dans le domaine.
-- Toute configuration Gradle partagée va dans `build-logic`, toute version dans
-  `gradle/libs.versions.toml`.
-
 ## Droits
 
 - Ne jamais utiliser le nom, le logo, les visuels ou les sons de la marque du jeu d'origine.
 - Ne jamais retranscrire ni intégrer les arrangements musicaux de 1989. Seules les mélodies
   du domaine public, arrangées pour BloX, sont acceptées (voir `docs/musique.md`).
-
-## Commandes
-
-```bash
-./gradlew :core:game:test       # domaine
-./gradlew :core:music:test      # partitions
-./gradlew testDebugUnitTest     # tous les tests unitaires
-./gradlew lintDebug             # lint Android
-./gradlew assembleDebug         # APK
-```
 
 ## Définition de terminé (après chaque fonctionnalité)
 
@@ -105,8 +185,8 @@ La commande `/fin-de-tache` les déroule.
    dans la bonne phase ; une ligne de journal (ce qui a été fait, décisions, remarques de revue
    écartées, points ouverts).
 7. **Commit, puis push.**
-   - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, créée depuis `main`.
-   - Message en [Conventional Commits](https://www.conventionalcommits.org/fr/)
-     (`feat(core-game): …`, `test(core-game): …`, `docs: …`, `build: …`) dont le **corps explique
-     pourquoi**, avec la référence de la tâche (`Tâche : P1.3`).
+   - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, `build/…`, créée depuis `main`.
+   - Message au format **gitmoji + [Conventional Commits](https://www.conventionalcommits.org/fr/)**
+     (`✨ feat(core-game): …`), corps qui **explique pourquoi**, référence de la tâche
+     (`Tâche : P1.3`). Le skill `/commit` porte la table des gitmoji et rédige le message.
    - Push, attendre que la CI soit verte, puis fusionner dans `main`.
