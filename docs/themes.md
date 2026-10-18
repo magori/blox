@@ -88,6 +88,8 @@ Inspiré des écrans monochromes, adouci : pas de vert fluo. Les pièces se dist
 | `button` | `#5F7F5C` | Boutons de commande |
 | `buttonInk` / `accentInk` | `#EEF5EA` | Pictogrammes sur boutons |
 | `accent` | `#34503A` | Bouton principal (A, Jouer) |
+| `buttonPressed` | `#34503A` | Bouton de commande tenu |
+| `accentPressed` | `#1F3324` | Bouton principal tenu |
 
 Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
 
@@ -103,7 +105,10 @@ Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
 
 Cellule vide : fond du plateau, sans bordure. Bordure de 2 px sur une cellule de 24 px. Carré
 central de 8 px sur 24, centré (valeur retenue en P2.3, la maquette ne la donnait pas : à
-vérifier sur la maquette Claude Design).
+vérifier sur la maquette Claude Design). Chaque cellule de pièce est entourée d'un joint de
+1/24 de cellule (au moins 1 px) de la couleur du fond sur lequel elle est dessinée (plateau ou
+encart), soit 2/24 entre deux cellules : deux cellules en aplat voisines restent distinctes
+(P2.17). Le thème Couleurs n'a pas de joint.
 
 ## Thème « Couleurs »
 
@@ -120,6 +125,8 @@ foncée en bas et à droite).
 | `label` | `#9AA0B4` |
 | `accent` | `#EF8D3B` |
 | `accentInk` | `#12141C` |
+| `buttonPressed` | `#646B87` |
+| `accentPressed` | `#C0651C` |
 
 Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 
@@ -135,6 +142,20 @@ Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 
 Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, dans
 `feature:game` ; à monter dans la palette s'il sert ailleurs). Bordure biseautée de 3 px.
+**Commandes** (P2.17) : une touche tenue prend la teinte « pressée » de sa couleur (`buttonPressed`,
+`accentPressed`) et garde son encre ; elle se distingue de la page (au moins 3:1) et de la même
+touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (grand texte, seuil
+3:1) ; les flèches sont des pictogrammes (3:1).
+
+**Tests :** `KeyColorsTest › a held key stands out from the page, by a contrast of 3 to 1 at least`,
+`KeyColorsTest › a held key looks other than a key not held`,
+`KeyColorsTest › a held key stands out from the same key not held, by a contrast of 1,5 to 1 at least`,
+`KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
+`KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
+`KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
+`CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
+`CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
+Vues : V2, V3.
 
 ## Polices
 
