@@ -2,4 +2,20 @@
 <resources>
     <string name="feature_home_title" translatable="false">BloX</string>
     <string name="feature_home_play">Jouer</string>
+    <!-- Affiché : le record plafonné, sur 6 chiffres. -->
+    <string name="feature_home_record_value">Record %1$s</string>
+    <!-- Lu par TalkBack : la vraie valeur, non plafonnée. -->
+    <string name="feature_home_record_description">Record %1$d</string>
+    <string name="feature_home_mode">Mode de jeu</string>
+    <string name="feature_home_mode_classic">Classique</string>
+    <string name="feature_home_mode_modern">Moderne (bientôt)</string>
+    <string name="feature_home_theme">Thème</string>
+    <string name="feature_home_theme_original">Original</string>
+    <string name="feature_home_theme_colorful">Couleurs</string>
+    <string name="feature_home_start_level">Niveau de départ</string>
+    <string name="feature_home_music">Musique</string>
+    <string name="feature_home_music_korobeiniki">Korobeïniki</string>
+    <string name="feature_home_music_minuet">Menuet</string>
+    <string name="feature_home_music_my_file">Mon fichier</string>
+    <string name="feature_home_music_none">Aucune</string>
 </resources>

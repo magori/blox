@@ -22,4 +22,18 @@ class NewGameRouteTest {
         // Then
         assertThat(route.startLevel).isZero()
     }
+
+    @Test
+    fun `a new game starts at the level chosen on the home screen, each with its own seed`() {
+        // Given
+        val random = Random(7)
+
+        // When
+        val first = newGameRoute(startLevel = 7, random = random)
+        val second = newGameRoute(startLevel = 7, random = random)
+
+        // Then
+        assertThat(first.startLevel).isEqualTo(7)
+        assertThat(second.seed).isNotEqualTo(first.seed)
+    }
 }

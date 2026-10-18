@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 46 / 73 | `█████████████░░░░░░░` **63 %** |
+| **Général** | 47 / 75 | `█████████████░░░░░░░` **63 %** |
 | **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
 <!-- avancement:fin -->
 
@@ -286,10 +286,19 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
   `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
   fabrique de l'accueil (P3.4) s'y ajouteront.
-- [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
+- [x] **P3.4** Écran d'accueil complet, conforme à la maquette. Fait : `HomeViewModel`
+  (préférences, record, niveaux du mode), `HomeUiState`, `homeEntry(onPlay, factory)`,
+  `HomeViewModel.Factory` construite par l'`AppContainer` (DataStore des réglages) ;
+  `scoreText` déplacé dans `core:designsystem`. Écouter : P4.7.
+- [ ] **P3.7** Logo de quatre cellules aux couleurs du thème sur l'accueil (maquette V1, revue
+  de P3.4).
+- [ ] **P3.8** Mettre à jour la maquette : valeurs de l'accueil retenues en P3.4
+  (`docs/maquette.md`, V1).
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
-  commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas.
+  commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas. Revue
+  de P3.4 : la correspondance `ThemeChoice` → `BloxThemeKind` est privée à `feature:home` ; la
+  déplacer (règle de 2) quand `app` en aura besoin.
 - [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
   `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.
@@ -351,7 +360,8 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
-  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu. Revue de P2.2 : le
+  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu ; accueil (revue de
+  P3.4 : record lu en clair, Moderne désactivé, « Jouer » au niveau choisi). Revue de P2.2 : le
   ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
   test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
   `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer

@@ -18,6 +18,7 @@ graph TD
 
     featureHome --> designsystem
     featureHome --> data
+    featureHome --> game
     featureHome --> audio
 
     featureGame --> designsystem
