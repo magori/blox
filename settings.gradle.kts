@@ -13,6 +13,12 @@ pluginManagement {
     }
 }
 
+// Télécharge le JDK de la toolchain s'il manque sur la machine (voir build-logic/convention).
+// Version non lisible depuis le catalogue ici : les plugins de settings se résolvent avant lui.
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {

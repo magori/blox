@@ -9,7 +9,8 @@ ensuite. Deux thèmes : **Original** (vert sauge pastel) et **Couleurs**.
 
 ## Démarrer
 
-Prérequis : Android Studio récent (avec un JDK 17 ou plus), SDK Android 37.
+Prérequis : Android Studio récent, SDK Android 37. Le JDK 17 de compilation est téléchargé par la
+toolchain Gradle s'il manque (résolveur foojay).
 
 ```bash
 ./gradlew :core:game:test      # tests du domaine, sur la JVM

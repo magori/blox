@@ -38,6 +38,11 @@ Options envisagées :
   accepte, seuls `kotlin-android`, `kapt` et `multiplatform` sont refusés.
 - Le plugin Kotlin Gradle reste une dépendance `compileOnly` de `build-logic` : AGP 9
   l'embarque à l'exécution (2.2.10 minimum) et la version du catalogue (2.4.21) prime.
+- La version de Java (17) vit dans le catalogue (`java`). Chaque module déclare une **toolchain**
+  Java de cette version ; le résolveur `org.gradle.toolchains.foojay-resolver-convention` la
+  télécharge si elle manque. Sa version est écrite en dur dans les deux `settings.gradle.kts` :
+  les plugins de settings se résolvent avant le catalogue, c'est la seule exception à « toute
+  version dans le catalogue ».
 
 ## Conséquences
 
@@ -47,4 +52,6 @@ Options envisagées :
   KSP. Avec l'injection manuelle (ADR 0007), le besoin n'existe pas.
 - Les montées de version d'AGP et de Kotlin se font ensemble : AGP impose une version
   minimale de KGP, et le plugin `android-junit` (ADR 0009) doit suivre JUnit et AGP.
-- Le JDK 17 reste la cible de compilation ; le JDK qui exécute Gradle peut être plus récent.
+- Le JDK 17 reste la cible de compilation ; le JDK qui exécute Gradle peut être plus récent. La
+  toolchain garantit le JDK qui compile, en local comme en CI ; `sourceCompatibility`,
+  `targetCompatibility` et `jvmTarget` restent explicites et fixent le bytecode produit.

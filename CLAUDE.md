@@ -102,7 +102,8 @@ lui-même.
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `feature:game`.
 - Toute configuration Gradle partagée va dans `build-logic`, toute version dans
-  `gradle/libs.versions.toml`.
+  `gradle/libs.versions.toml`. Seule exception : les plugins de `settings.gradle.kts`, résolus
+  avant le catalogue (ADR 0010).
 
 ### Couches dans une feature
 
