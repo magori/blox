@@ -10,5 +10,5 @@ package ch.magori.blox.core.game.model
 public data class Piece(public val type: PieceType, public val orientation: Orientation, public val pivot: Position) {
     /** The cells the piece covers: its pivot plus each offset of its orientation. */
     public val cells: Set<Position> =
-        orientation.cells.map { offset -> Position(pivot.column + offset.column, pivot.row + offset.row) }.toSet()
+        orientation.cells.map(pivot::plus).toSet()
 }

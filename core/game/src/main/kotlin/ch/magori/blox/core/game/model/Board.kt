@@ -27,6 +27,16 @@ public class Board private constructor(private val cells: List<Cell>) {
      */
     public fun fits(piece: Piece): Boolean = piece.cells.all(::isFree)
 
+    /**
+     * Moves [piece] one cell in [direction]. Returns the moved piece if it [fits], `null` otherwise
+     * (wall, floor or occupied cell). Moving within the hidden rows is allowed. [piece] itself never
+     * changes. The engine uses a refused move down as the signal to lock (P1.6).
+     */
+    public fun move(
+        piece: Piece,
+        direction: Direction,
+    ): Piece? = piece.copy(pivot = piece.pivot + direction.offset).takeIf(::fits)
+
     private fun isFree(position: Position): Boolean = position.column in 0 until columns &&
         position.row in ROWS_WITH_HIDDEN &&
         (position.row < 0 || this[position] == Cell.Empty)

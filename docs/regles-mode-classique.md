@@ -169,6 +169,16 @@ case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille i
 | B | Rotation anti-horaire. |
 | Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
 
+**Déplacement** : ◀, ▶ et ▼ décalent la pièce d'une case. Le déplacement est refusé si la pièce
+ne tient plus à sa nouvelle place (mur, fond ou case occupée) ; il est accepté dans les lignes
+cachées. Une descente refusée est le signal du verrouillage (P1.6).
+
+**Tests :** `BoardMoveTest › a piece moves one column left, one column right or one row down, the original piece is unchanged`,
+`BoardMoveTest › a move against the left or right wall is refused`,
+`BoardMoveTest › a move down onto the floor is refused`,
+`BoardMoveTest › a move onto an occupied cell is refused`,
+`BoardMoveTest › a move within the hidden rows is accepted`.
+
 **Répétition automatique (DAS)** : après un appui maintenu, premier déplacement immédiat,
 puis attente de **16 images**, puis un déplacement toutes les **6 images**.
 
