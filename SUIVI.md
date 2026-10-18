@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 49 / 75 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 51 / 75 | `██████████████░░░░░░` **68 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -294,15 +294,18 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   (préférences, record, niveaux du mode), `HomeUiState`, `homeEntry(onPlay, factory)`,
   `HomeViewModel.Factory` construite par l'`AppContainer` (DataStore des réglages) ;
   `scoreText` déplacé dans `core:designsystem`. Écouter : P4.7.
-- [ ] **P3.7** Logo de quatre cellules aux couleurs du thème sur l'accueil (maquette V1, revue
-  de P3.4).
+- [x] **P3.7** Logo de quatre cellules aux couleurs du thème sur l'accueil (maquette V1, revue
+  de P3.4). Fait : `HomeLogo`, `logoCells`, jeton `BloxPalette.logoCells` (`LogoColors`), garde-fou
+  `LogoColorsTest` contre la dérive des couleurs des pièces.
 - [ ] **P3.8** Mettre à jour la maquette : valeurs de l'accueil retenues en P3.4
   (`docs/maquette.md`, V1).
-- [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
+- [x] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
   commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas. Revue
   de P3.4 : la correspondance `ThemeChoice` → `BloxThemeKind` est privée à `feature:home` ; la
-  déplacer (règle de 2) quand `app` en aura besoin.
+  déplacer (règle de 2) quand `app` en aura besoin. Fait : `AppTheme` (`StateFlow`, `app`),
+  `themeKindOf` déplacé dans `app` (seul utilisateur), `BloxTheme` autour de toute la navigation,
+  première image retenue avant la lecture, `WindowBackgroundTest` sur `colors.xml`.
 - [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
   `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.

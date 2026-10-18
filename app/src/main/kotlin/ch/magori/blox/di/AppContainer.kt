@@ -11,6 +11,7 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -38,6 +39,9 @@ class AppContainer(filesDir: File) {
     private val userPreferences: UserPreferencesRepository = DataStoreUserPreferencesRepository(
         preferencesDataStore(dataScope) { File(filesDir, "datastore/$SETTINGS_FILE").toOkioPath() },
     )
+
+    /** The theme of the whole application, the one saved in the settings. */
+    val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
 
     /** Classic mode: one engine per game, from the seed of the game route (ADR 0014). */
     val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(ClassicGameEngineFactory, highScores)
