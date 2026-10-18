@@ -6,8 +6,7 @@ package ch.magori.blox.core.game.model
  *
  * Rows -2 and -1 are hidden above the board and always empty. Only [fits] accepts them, so the
  * piece in play may reach them; [get] and [fill] reject them like any position outside the board.
- * [fill] stays strict: when a piece locks (P1.6), the engine ignores its hidden cells, as the NES
- * ROM does.
+ * [fill] stays strict: it is [lock] that drops the hidden cells of a piece, as the NES ROM does.
  */
 public class Board private constructor(private val cells: List<Cell>) {
     public val columns: Int get() = COLUMNS
@@ -33,7 +32,7 @@ public class Board private constructor(private val cells: List<Cell>) {
     /**
      * Moves [piece] one cell in [direction]. Returns the moved piece if it [fits], `null` otherwise
      * (wall, floor or occupied cell). Moving within the hidden rows is allowed. [piece] itself never
-     * changes. The engine uses a refused move down as the signal to lock (P1.6).
+     * changes. The engine uses a refused move down as the signal to [lock] (P1.12).
      */
     public fun move(
         piece: Piece,
@@ -48,7 +47,29 @@ public class Board private constructor(private val cells: List<Cell>) {
     public fun fill(
         position: Position,
         type: PieceType,
-    ): Board = Board(cells.toMutableList().apply { set(cellIndex(position), Cell.Filled(type)) })
+    ): Board = withFilled(listOf(position), type)
+
+    /**
+     * Returns a new board where [piece] has joined the stack: its cells are filled with its type, in
+     * a single copy. Its cells in the hidden rows -2 and -1 are lost and the game goes on, as on the
+     * NES, which only stores rows 0 and below. Rejects a piece that does not [fits] (outside the
+     * walls, below the floor, above row -2, or on an occupied cell). This board never changes;
+     * deciding when to lock belongs to the engine.
+     */
+    public fun lock(piece: Piece): Board {
+        require(fits(piece)) { "$piece does not fit on the board" }
+        val visiblePositions = piece.cells.filter { position -> position.row >= 0 }
+        return withFilled(visiblePositions, piece.type)
+    }
+
+    /** One copy of this board, then [positions] filled with [type]; rejects a position outside the board. */
+    private fun withFilled(
+        positions: Iterable<Position>,
+        type: PieceType,
+    ): Board {
+        val filled = Cell.Filled(type)
+        return Board(cells.toMutableList().apply { positions.forEach { position -> set(cellIndex(position), filled) } })
+    }
 
     /**
      * Clears every full row, that is every row whose 10 cells are filled. The rows above a cleared
