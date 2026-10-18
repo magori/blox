@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 39 / 70 | `███████████░░░░░░░░░` **56 %** |
+| **Général** | 40 / 70 | `███████████░░░░░░░░░` **57 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -237,7 +237,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 ## P3 — Accueil, préférences, records
 
-- [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+- [x] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
+  Fait : `UserPreferences`, `ThemeChoice`, `MusicChoice`, `DataStoreUserPreferencesRepository`,
+  fabrique commune `preferencesDataStore` (remplace `recordsDataStore`), `SETTINGS_FILE`. Le
+  niveau de départ n'est borné qu'à 0 et plus : l'accueil (P3.4) borne le choix à la plage du
+  mode. Rien n'est branché (P3.4, P3.5).
 - [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
@@ -279,6 +283,9 @@ Référence : [docs/musique.md](docs/musique.md).
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
   changerait la hauteur.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
+  Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
+  `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
+  plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
   feature traduit via `strings.xml` (revue de P4.2).

@@ -89,8 +89,16 @@ graph LR
 - **Données (`core:data`)** : repositories exposant des `Flow`. Un fichier DataStore par sujet,
   créé une seule fois par l'`AppContainer` avec la fabrique de `core:data` (stockage Okio,
   fichier corrompu remplacé par des préférences vides, erreur de lecture lue comme vide) : le
-  record (`records.preferences_pb`, `recordsDataStore`) est séparé des préférences (P3.1), pour
-  qu'une remise à zéro des réglages ne le perde pas.
+  record (`RECORDS_FILE`) est séparé des préférences (`SETTINGS_FILE`), pour qu'une remise à
+  zéro des réglages ne le perde pas ; les deux passent par `preferencesDataStore(scope, file)`.
+  Les préférences (`UserPreferencesRepository`) gardent le thème et la musique par le nom de
+  leur enum (`ThemeChoice`, `MusicChoice`, propres à `core:data`), et le niveau de départ sans
+  borne haute : la plage appartient au mode (`LevelProgression`), l'accueil y borne le choix.
+  Une valeur inconnue ou un fichier illisible redonnent les valeurs par défaut (Original,
+  Korobeïniki, niveau 0).
+
+  **Tests :** `DataStoreHighScoreRepositoryTest`, `DataStoreUserPreferencesRepositoryTest`
+  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record »).
 
 ## Boucle de jeu
 

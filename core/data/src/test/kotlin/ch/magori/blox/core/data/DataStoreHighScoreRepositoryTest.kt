@@ -155,5 +155,5 @@ class DataStoreHighScoreRepositoryTest {
 
     /** A repository on the records file of [directory], its DataStore living in [scope], as in production. */
     private fun repositoryIn(scope: CoroutineScope): HighScoreRepository =
-        DataStoreHighScoreRepository(recordsDataStore(scope) { recordsFile.absolutePath.toPath() })
+        DataStoreHighScoreRepository(preferencesDataStore(scope) { recordsFile.absolutePath.toPath() })
 }
