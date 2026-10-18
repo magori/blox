@@ -49,5 +49,12 @@ Options envisagées :
   ViewModel (P2.2) n'ont pas besoin d'horloge virtuelle pour la simulation.
 - La vitesse de jeu reste indépendante de la fréquence d'écran, comme le voulait l'ADR 0006,
   dont le pas fixe est inchangé.
+- **Amendement (P2.2, 2026-10-18).** La boucle d'images est lancée dans
+  `repeatOnLifecycle(Lifecycle.State.STARTED)`, et non directement dans le `LaunchedEffect` :
+  elle s'arrête explicitement à `ON_STOP` au lieu de compter sur la pause de l'horloge du
+  Recomposer, et chaque reprise commence par `viewModel.onFramesStarted()`, qui appelle
+  `GameLoop.reset()`. La première image après un retour à l'écran ne donne donc aucun tick, au
+  lieu du plafond (`GameViewModelTest › when frames start again the game loop is reset and the
+  next frame gives no tick`).
 - Le diagramme de `docs/architecture.md` est mis à jour : l'écran envoie les images, le
   ViewModel envoie les entrées, `GameLoop` envoie les ticks au moteur.

@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.game.topbar
 
 import androidx.compose.runtime.Immutable
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.sidepanel.scoreText
 
 /** The texts of the top bar: the [record] shown, and the [spokenRecord] read by TalkBack. */
@@ -12,6 +13,6 @@ internal data class TopBarTexts(val record: String, val spokenRecord: String)
  * 999 999; read by TalkBack as the real value, without padding zeros nor cap.
  */
 internal fun topBarTexts(record: Int): TopBarTexts = TopBarTexts(
-    record = scoreText(record),
+    record = scoreText(Points(record)),
     spokenRecord = record.toString(),
 )
