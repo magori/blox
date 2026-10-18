@@ -30,7 +30,8 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
 - **Niveau de départ** : 0 à 9, sur une ligne.
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
-  *Écouter* pour les deux mélodies.
+  *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
+  une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
 - Bouton **Jouer**.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
@@ -65,6 +66,12 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
   autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Le tout tient sur 360 dp de large
   avec une marge de 24 dp, sans cible sous 48 dp.
 - Pas de bouton de chute instantanée (absent du mode Classique).
+- Autres formats (P2.11, retenus par le code, pas encore maquettés) : la disposition qui donne le
+  plus grand plateau l'emporte. Portrait comme ci-dessus ; paysage (téléphone couché, tablette) :
+  ◀ ▼ ▶ en bas à gauche, B A en bas à droite, score, niveau et lignes à gauche du plateau, pièce
+  suivante à droite ; fenêtre étroite : B A sous les flèches. La pièce suivante a la même taille
+  de cellule que le plateau. La colonne de score défile si la police agrandie ne tient pas.
+  Une fenêtre trop petite rogne plutôt que de superposer (cellule d'au moins 1 px).
 
 ### V4 — Fin de partie
 - « Partie terminée », badge « Nouveau record » le cas échéant.

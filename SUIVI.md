@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 58 / 112 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 62 / 117 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -67,8 +67,12 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   à 2 Go.
 - [x] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI. Fait : Dependabot (`.github/dependabot.yml`), Gradle et GitHub Actions, groupes AGP/Kotlin/Gradle, Compose, DataStore/Okio, tests, ktlint, AndroidX, kotlinx ; règle de fusion dans CLAUDE.md. À vérifier à la première PR : regroupement du wrapper (nom `gradle-wrapper`) et préfixe avec emoji.
-- [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
-  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
+- [x] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
+  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2). Fait :
+  `ScriptedRandomizer` (strict, et `cycling`) et `spawned` dans `core/game/src/testFixtures`.
+- [ ] **P0.15** Doublures de `core:data` partagées : `FakeUserPreferencesRepository` et
+  `FakeHighScoreRepository` existent dans `feature:game` et `feature:home` ; les placer dans des
+  `testFixtures` de bibliothèque Android (revue de P0.14).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
   `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
   une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
@@ -275,10 +279,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
   attaché au premier bouton) ; le gérer demande un seul `pointerInput` sur ◀ ▼ ▶, une fonction
   pure `buttonAt(position)` et `HeldButtons.move`, testables sur la JVM.
-- [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
+- [x] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
   l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la
-  pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4).
+  pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4). Fait :
+  `gameLayout` (fonction pure, trois dispositions), `PlacedParts`, aperçu à la taille de cellule
+  du plateau ; `screenOrientation="portrait"` gardé jusqu'au test sur téléphone (P2.8).
+- [ ] **P2.20** Fenêtre très étroite (220 dp) : cellule de 4 dp, injouable ; essayer le score
+  au-dessus du plateau (revue de P2.11). À 220 dp et ×2,625, les flèches débordent de 2 px :
+  réduire l'espacement des commandes à cette largeur.
 
 ## P3 — Accueil, préférences, records
 
@@ -314,9 +323,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   déplacer (règle de 2) quand `app` en aura besoin. Fait : `AppTheme` (`StateFlow`, `app`),
   `themeKindOf` déplacé dans `app` (seul utilisateur), `BloxTheme` autour de toute la navigation,
   première image retenue avant la lecture, `WindowBackgroundTest` sur `colors.xml`.
-- [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
+- [x] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
-  `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.
+  `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`. Fait :
+  polices embarquées (ADR 0016), licences dans l'APK, `BloxTypography`, chiffres complétés pour
+  Chakra Petch, taille minimale 8 sp. Reste avec la police agrandie (P2.18) : à ×2 et 8 sp, la
+  police pixel ne tient plus dans l'encart latéral (« SUIVANTE », « NIVEAU », score) ni dans les
+  cases de niveau de l'accueil ; pistes : encart élargi selon la police, niveaux sur deux rangées.
 
 ## P4 — Musique et sons
 
@@ -364,9 +377,17 @@ Référence : [docs/musique.md](docs/musique.md).
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
   plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
-- [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
+- [x] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
-  feature traduit via `strings.xml` (revue de P4.2).
+  feature traduit via `strings.xml` (revue de P4.2). Fait :
+  `ScoreId` remplace `Score.title` (aucun texte affiché dans le domaine), `scoreOf` dans `app`,
+  aperçu dans `HomeViewModel` par le jeton de lecture, `FakeMusicPlayer` dans les testFixtures de
+  `core:audio`.
+- [ ] **P4.13** Aperçu et lecteur en échec : si le séquenceur échoue, l'accueil affiche encore
+  « Arrêter » alors que plus rien ne joue ; `MusicPlayer` n'expose aucun état (revue de P4.7).
+- [ ] **P4.14** Test de contrat `MusicPlayerContractTest` exécuté sur `FakeMusicPlayer` et sur
+  `ChiptuneSequencer` (un jeton remplacé ne coupe rien), pour que le faux suive le vrai.
+- [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
