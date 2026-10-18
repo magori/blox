@@ -7,8 +7,8 @@ android {
 }
 
 dependencies {
-    // L'API publique du synthétiseur reçoit des voix de core:music.
+    // L'API publique reçoit des partitions de core:music, et le séquenceur une portée et des
+    // dispatchers de coroutines.
     api(projects.core.music)
+    api(libs.kotlinx.coroutines.core)
 }
-
-// Dépendance ajoutée quand le code l'exigera (P4.4) : coroutines pour le séquenceur.

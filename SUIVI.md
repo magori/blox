@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 38 / 70 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 39 / 70 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -261,19 +261,25 @@ Référence : [docs/musique.md](docs/musique.md).
   plage de `Pitch` C0..B8.
 - [x] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
   sur la JVM : `Synthesizer`, `mix` dans `core:audio`.
-- [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
+- [x] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
   d'écrire le séquenceur, choisir entre durées entières (sous-unités du temps, par exemple
   48 par noire) et comparaison avec tolérance : les durées sont des `Double` exacts tant qu'il
   n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2). Revue de P4.3 :
   `render(score, tempoFactor)` comme seule entrée publique (`renderVoice` et `mix` deviennent
   internes) ; rendre hors du thread audio (`Dispatchers.Default`), une fois, et garder le
   résultat en cache (environ 2,3 Mo par voix) ; écrire des tranches en `MODE_STREAM` ; éviter la
-  double allocation par note (écrire directement dans le tableau de la voix).
+  double allocation par note (écrire directement dans le tableau de la voix). Fait :
+  `Synthesizer.render`, `LoopCursor`, `AudioSink`, `AudioTrackSink`, `ChiptuneSequencer`
+  (durées restées en `Double`, voir `docs/musique.md`).
 - [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
   passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
-  changerait la hauteur.
+  changerait la hauteur. Revue de P4.4 : le rendu et le cache acceptent déjà le facteur ; lire
+  entre deux tranches un facteur demandé (`StateFlow` ou `@Volatile`) sans rouvrir la sortie ;
+  calculer la position en `Long` ; arrondir au temps suivant (un temps = `len / totalBeats`
+  échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
+  (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
