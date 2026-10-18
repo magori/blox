@@ -12,6 +12,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 enum class BloxThemeKind { ORIGINAL, COLORFUL }
 
 private val LocalBloxPalette = staticCompositionLocalOf { BloxPalettes.Original }
+private val LocalBloxThemeKind = staticCompositionLocalOf { BloxThemeKind.ORIGINAL }
 
 @Composable
 fun BloxTheme(
@@ -22,7 +23,7 @@ fun BloxTheme(
         BloxThemeKind.ORIGINAL -> BloxPalettes.Original
         BloxThemeKind.COLORFUL -> BloxPalettes.Colorful
     }
-    CompositionLocalProvider(LocalBloxPalette provides palette) {
+    CompositionLocalProvider(LocalBloxPalette provides palette, LocalBloxThemeKind provides kind) {
         MaterialTheme(
             colorScheme = palette.toColorScheme(kind),
             content = content,
@@ -35,6 +36,12 @@ object BloxTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalBloxPalette.current
+
+    /** The current theme, for what the palette cannot say (the styles of the pieces, in feature:game). */
+    val kind: BloxThemeKind
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalBloxThemeKind.current
 }
 
 private fun BloxPalette.toColorScheme(kind: BloxThemeKind): ColorScheme = when (kind) {
