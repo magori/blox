@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.repeatOnLifecycle
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -36,7 +37,9 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
+import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.GameControls
+import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 
 /** The 24 dp margins the controls are sized for (P2.5). */
@@ -52,6 +55,7 @@ private val Gap = 16.dp
 internal fun GameScreen(
     viewModel: GameViewModel,
     onBack: () -> Unit,
+    onReplay: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -64,19 +68,34 @@ internal fun GameScreen(
             }
         }
     }
-    GameScreen(uiState = uiState, onBack = onBack, modifier = modifier)
+    // Only while resumed: a second tap during the transition must not act on the next entry.
+    GameScreen(
+        uiState = uiState,
+        onBack = dropUnlessResumed(block = onBack),
+        onReplay = dropUnlessResumed(block = onReplay),
+        onControl = viewModel::onControl,
+        modifier = modifier,
+    )
 }
 
 /**
- * The game screen for [uiState]: the board, the side column and the controls. No logic here; the
- * controls report nothing yet, until the engine takes inputs (P1.12d).
+ * The game screen for [uiState]: the board, the side column and the controls, whose changes go to
+ * [onControl]; once the game is over, the game over screen in their place (ADR 0011), where Menu is
+ * [onBack] and Rejouer is [onReplay]. No logic here.
  */
 @Composable
 internal fun GameScreen(
     uiState: GameUiState,
     onBack: () -> Unit,
+    onReplay: () -> Unit,
+    onControl: (ControlChange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val gameOver = uiState.gameOver
+    if (gameOver != null) {
+        GameOverScreen(state = gameOver, onReplay = onReplay, onMenu = onBack, modifier = modifier)
+        return
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -110,7 +129,7 @@ internal fun GameScreen(
                 modifier = Modifier.width(SidePanelWidth),
             )
         }
-        GameControls(onChange = {}, modifier = Modifier.align(Alignment.CenterHorizontally))
+        GameControls(onChange = onControl, modifier = Modifier.align(Alignment.CenterHorizontally))
     }
 }
 
@@ -136,7 +155,7 @@ private val previewState = GameUiState(
 @Composable
 private fun GameScreenOriginalPreview() {
     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        GameScreen(uiState = previewState, onBack = {})
+        GameScreen(uiState = previewState, onBack = {}, onReplay = {}, onControl = {})
     }
 }
 
@@ -144,6 +163,6 @@ private fun GameScreenOriginalPreview() {
 @Composable
 private fun GameScreenColorfulPreview() {
     BloxTheme(kind = BloxThemeKind.COLORFUL) {
-        GameScreen(uiState = previewState, onBack = {})
+        GameScreen(uiState = previewState, onBack = {}, onReplay = {}, onControl = {})
     }
 }

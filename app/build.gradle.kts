@@ -29,6 +29,10 @@ dependencies {
     implementation(projects.feature.home)
     implementation(projects.feature.game)
     implementation(projects.core.game)
+    implementation(projects.core.data)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.okio)
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.activity.compose)

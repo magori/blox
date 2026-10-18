@@ -26,11 +26,13 @@ data class GameRoute(val startLevel: Int, val seed: Long) : NavKey {
 
 /**
  * Déclare l'entrée Jeu dans le fournisseur d'entrées de l'application (ADR 0011). `app` construit
- * [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). Le décorateur
+ * [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). [onReplay] reçoit la
+ * partie terminée : `app` met une nouvelle clé à sa place (ADR 0011). Le décorateur
  * `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.gameEntry(
     onBack: () -> Unit,
+    onReplay: (finished: GameRoute) -> Unit,
     viewModelFactory: GameViewModel.Factory,
 ) {
     entry<GameRoute> { route ->
@@ -43,6 +45,6 @@ fun EntryProviderScope<NavKey>.gameEntry(
         }
         val viewModel: GameViewModel =
             viewModel(viewModelStoreOwner = owner, factory = viewModelFactory, extras = extras)
-        GameScreen(viewModel = viewModel, onBack = onBack)
+        GameScreen(viewModel = viewModel, onBack = onBack, onReplay = { onReplay(route) })
     }
 }

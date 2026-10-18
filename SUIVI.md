@@ -222,7 +222,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   (`SidePanel(Level, Lines)`), route ajoutée aux `CreationExtras` par défaut, `GameRoute`
   refuse un niveau négatif, `AppContainer` et `newGameRoute` dans `app`. Reste (incrément 2) :
   commandes (après P1.12d), fin de partie et Rejouer (après P1.12e ; `GameOverUiState` construit
-  depuis les types du domaine), pause (après P1.15).
+  depuis les types du domaine), pause (après P1.15). Fait (incrément 2) : commandes
+  (`onControl` → `engine.apply`, sans file : `apply` ne fait qu'enregistrer), système de
+  rotation pris dans `engine.rules`, fin de partie (`submit` du score une fois, à l'abri de
+  l'annulation et des erreurs d'écriture, puis `GameOverScreen` à la place du jeu), Rejouer
+  (`replay` dans `app`, sans effet au second appui), `BloxApplication` qui crée
+  l'`AppContainer` (ADR 0007) et le DataStore du record une fois. Reste (incrément 3) : pause
+  (`Input.Pause` / `Resume`, `PauseScreen`, `BackHandler`), `GameTopBar` avec le record.
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -274,9 +280,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
   du processus), et calculer « nouveau record » contre le record d'avant la partie. Fait :
   `HighScoreRepository`, `DataStoreHighScoreRepository`, `RecordResult`, `recordsDataStore`.
-  Reste au branchement (P2.2, incrément 2) : créer le DataStore dans `AppContainer`
-  (`filesDir/datastore/records.preferences_pb`), `submit` à `GameOver`, record dans la barre
-  du haut et sur V4.
+  Branché en P2.2 (incrément 2) : DataStore dans `AppContainer`, `submit` à `GameOver`,
+  « Nouveau record » sur V4. Reste : record dans la barre du haut (P2.2, incrément 3) et à
+  l'accueil (P3.4).
 - [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
   `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
   fabrique de l'accueil (P3.4) s'y ajouteront.
@@ -347,7 +353,10 @@ Référence : [docs/musique.md](docs/musique.md).
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
   Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu. Revue de P2.2 : le
   ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
-  test JVM possible aujourd'hui.
+  test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
+  `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer
+  et Menu ; `MainDispatcherExtension` (tests de `feature:game`) à mutualiser dès qu'un autre
+  module en a besoin.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
