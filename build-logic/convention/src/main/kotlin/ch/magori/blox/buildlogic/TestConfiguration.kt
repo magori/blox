@@ -20,6 +20,9 @@ internal fun Project.configureJvmTests() {
  * `de.mannodermaus.android-junit` ; AssertJ, coroutines-test et Turbine pour les flux.
  * Le plugin branche lui-même JUnit Platform sur les tâches de test et fournit les
  * extensions d'instrumentation (ActivityScenario, Compose). Voir ADR 0009.
+ *
+ * Toute bibliothèque de test ajoutée ici doit aussi être exclue dans `build.gradle.kts` (bloc
+ * `dependencyAnalysis`, `sourceSet`), sinon `buildHealth` échoue dans les modules sans tests.
  */
 internal fun Project.configureAndroidTests() {
     pluginManager.apply("de.mannodermaus.android-junit")
@@ -29,6 +32,7 @@ internal fun Project.configureAndroidTests() {
         add("testImplementation", libs.library("turbine"))
         add("androidTestImplementation", platform(libs.library("junit-bom")))
         add("androidTestImplementation", libs.library("junit-jupiter-api"))
+        add("androidTestImplementation", libs.library("junit-jupiter-params"))
         add("androidTestImplementation", libs.library("assertj-core"))
         add("androidTestImplementation", libs.library("androidx-test-espresso-core"))
     }
@@ -37,11 +41,21 @@ internal fun Project.configureAndroidTests() {
     }
 }
 
+/**
+ * Les tests compilent contre ce qu'ils importent (`api` pour `@Test`, `params` pour
+ * `@ParameterizedTest`, AssertJ) ; le moteur et le lanceur ne servent qu'à l'exécution. Le BOM,
+ * posé sur `testImplementation`, fixe aussi les versions d'exécution.
+ *
+ * Toute bibliothèque de test ajoutée ici doit aussi être exclue dans `build.gradle.kts` (bloc
+ * `dependencyAnalysis`, `sourceSet`), sinon `buildHealth` échoue dans les modules sans tests.
+ */
 private fun Project.addJUnit5UnitTestDependencies() {
     dependencies {
         add("testImplementation", platform(libs.library("junit-bom")))
-        add("testImplementation", libs.library("junit-jupiter"))
+        add("testImplementation", libs.library("junit-jupiter-api"))
+        add("testImplementation", libs.library("junit-jupiter-params"))
         add("testImplementation", libs.library("assertj-core"))
+        add("testRuntimeOnly", libs.library("junit-jupiter-engine"))
         add("testRuntimeOnly", libs.library("junit-platform-launcher"))
     }
 }
