@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 108 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 56 / 109 | `██████████░░░░░░░░░░` **51 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -386,10 +386,15 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   parallèles avec la mélodie.
 - [ ] **P4.18** Note de qualité et règles éliminatoires ; choix du meilleur candidat.
 - [ ] **P4.19** Éditeur de musique (`feature:composer`) : grille selon la gamme, notes longues,
-  tempo, écoute ; partitions enregistrées dans `core:data` et proposées à l'accueil.
+  tempo, écoute ; enregistrement avec un nom (proposé d'après la catégorie, modifiable),
+  demande avant de quitter sans enregistrer. Aux couleurs des thèmes Original, Couleurs et
+  Brume (clair et sombre), sans couleur propre : `core:designsystem` fournit les jetons.
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
-- [ ] **P4.21** Mettre à jour la maquette : éditeur de musique dans la maquette BloX (V1 → éditeur,
-  thèmes Original et Couleurs), choix de la catégorie.
+- [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
+  la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
+  fois, proposée aussi dans la musique de l'accueil, V1), renommer et supprimer.
+- [ ] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
+  (accès depuis V1), dans les quatre thèmes ; choix de la catégorie, fenêtre d'enregistrement.
 
 ## P5 — Finitions
 

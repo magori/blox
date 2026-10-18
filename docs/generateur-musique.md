@@ -160,7 +160,7 @@ notes identiques de suite.
 
 ## Tâches
 
-Inscrites dans [SUIVI.md](../SUIVI.md), P4.13 à P4.21 :
+Inscrites dans [SUIVI.md](../SUIVI.md), P4.13 à P4.22 :
 
 1. Modèle harmonique : `Scale`, `Chord`, `Progression` (`core:music`).
 2. Catégories : paramètres de chacune, *Surprise*.
@@ -168,7 +168,24 @@ Inscrites dans [SUIVI.md](../SUIVI.md), P4.13 à P4.21 :
 4. Mélodie : degrés conjoints, sauts compensés, notes de l'accord sur les temps forts, arche.
 5. Basse selon la catégorie, passages vers l'accord suivant.
 6. Note de qualité et règles éliminatoires, choix du meilleur candidat.
-7. Éditeur de musique : grille selon la gamme, notes longues, partition enregistrée
-   (`core:data`), choix dans l'accueil.
-8. Bouton *Au hasard* et choix de la catégorie, annulation.
-9. Mettre à jour la maquette : choix de la catégorie dans l'éditeur.
+7. Éditeur de musique (P4.19) : grille selon la gamme, notes longues, enregistrement avec un
+   nom, aux couleurs de chaque thème.
+8. Bouton *Au hasard* et choix de la catégorie, annulation (P4.20).
+9. Liste « Mes musiques » (P4.22) : écouter, modifier, choisir la musique des parties,
+   renommer, supprimer.
+10. Mettre à jour la maquette (P4.21).
+
+## Écrans
+
+Le prototype montre deux écrans, dans les quatre thèmes (réglage *theme* des Tweaks) :
+
+- **Mes musiques** : une carte par musique (écouter, nom, catégorie et tempo, *Utiliser* /
+  *En jeu*, modifier) ; la musique des parties est rappelée en haut. Une seule musique
+  personnelle est jouée à la fois ; sans elle, c'est la musique choisie à l'accueil.
+  Boutons *Au hasard* (ouvre l'éditeur sur une musique générée) et *Nouvelle*.
+- **Éditeur** : le titre se touche pour renommer ; *Enregistrer* ouvre une fenêtre avec le nom
+  (proposé d'après la catégorie, par exemple « Joyeux 2 ») et la case « Jouer cette musique
+  pendant les parties ». Quitter avec des changements non enregistrés demande d'enregistrer,
+  de quitter sans enregistrer ou de continuer.
+- Les notes tenues s'affichent dans une teinte plus claire que leur attaque ; les lignes hors
+  de la gamme de la catégorie ont un libellé estompé.
