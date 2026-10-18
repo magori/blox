@@ -141,8 +141,19 @@ Une ligne pleine est effacée, les lignes au-dessus descendent d'autant.
 | 3 | 300 × (niveau + 1) |
 | 4 | 1200 × (niveau + 1) |
 
-**Descente rapide** : 1 point par ligne descendue en maintenant ▼. C'est une
+Aucune ligne effacée ne rapporte rien ; plus de 4 lignes ou un nombre négatif est refusé.
+
+**Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
+`ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,
+`ClassicScoringRuleTest › the base value is multiplied by the level plus one`,
+`ClassicScoringRuleTest › a number of lines cleared outside 0 to 4 is refused`.
+
+**Descente rapide** : 1 point par ligne descendue en maintenant ▼, compté une fois au
+verrouillage pour les lignes descendues d'affilée par la pièce. C'est une
 simplification assumée : le calcul réel de la NES est plus particulier **[à vérifier]**.
+
+**Tests :** `ClassicScoringRuleTest › a soft drop scores one point per row dropped`,
+`ClassicScoringRuleTest › a negative number of rows soft dropped is refused`.
 
 ## Niveaux
 

@@ -77,7 +77,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
   **[à vérifier]**. Tester avec une source d'aléatoire scriptée.
 - [x] **P1.9** `ClassicGravityTable` : table des ticks par ligne, niveaux 0 à 29+ ; type `Level`.
-- [ ] **P1.10** `ClassicScoringRule` : 40/100/300/1200 × (niveau + 1), points de descente rapide.
+- [x] **P1.10** `ClassicScoringRule` : 40/100/300/1200 × (niveau + 1), points de descente rapide.
 - [ ] **P1.11** `ClassicLevelProgression` : premier passage selon le niveau de départ, puis
   toutes les 10 lignes. Cas : départs 0, 5, 9.
 - [ ] **P1.12** `GameEngine` : machine à états (apparition, chute, verrouillage, délai
@@ -94,7 +94,12 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P1.18** Outillage : retirer `ignoreSourceSet("test", "androidTest")` de `dependencyAnalysis`.
   Essai en P1.1 : `buildHealth` échoue, car les bibliothèques de test posées par les plugins de
   convention sont inutilisées dans les modules sans tests. Voies : sévérité `warn` pour les jeux
-  de sources de test, ou plugins qui ne posent que ce que le module utilise.
+  de sources de test, ou plugins qui ne posent que ce que le module utilise. Depuis P2.1,
+  `buildHealth` conseille aussi (avertissement) de déclarer directement dans `feature:game`
+  `junit-jupiter-params`, `assertj-core` et `junit-jupiter-api`, apportés par le plugin.
+- [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
+  `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
+  moteur (P1.7, P1.12) les exigera.
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
@@ -190,3 +195,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P1.9 | Premier code du domaine, en TDD (agent B, worktree parallèle). `Level` (value class, refuse le négatif), interface `GravityTable.ticksPerRow(Level)`, `ClassicGravityTable` : un `when` qui recopie la table de la spécification. 22 tests. | Revue indépendante : retenu — helper de test (règle de 2), vocabulaire `Tick` au lieu de « frames », `fun interface` retiré (aucun test ne l'exige), table en un seul `when`, nom `Classic` + politique (`ClassicGravityTable` ; P1.10 renommée `ClassicScoringRule`), test de la borne 0 (vert d'emblée, test de borne). Écarté : type `Ticks` dès maintenant, renvoyé à P1.17 quand le moteur l'exigera. |
 | 2026-10-18 | P1.1 | Premier modèle du domaine, en TDD (agent A, worktree parallèle) : `Position(column, row)` (origine en haut à gauche), énumération `PieceType` (sans formes), `Cell` scellé (`Empty`, `Filled(type)`), `Board` immuable 10×20 (liste à plat, `get`, `contains`, `fill`, `equals`, `toString` ASCII, `Board.parse`). 12 tests (32 exécutions). Correction mermaid de `docs/architecture.md` embarquée en commit séparé. | Développement parallèle : trois agents dans des worktrees (`blox-wt/plateau`, `regles`, `boucle`), revue et suivi centralisés. Revue indépendante : retenu — limites vérifiées dans `get` / `fill` (bloquant : `Position(10, 0)` lisait (0, 1)), `toString` ASCII et aller-retour avec `parse` (vert d'emblée, contrôlé par mutation), `argumentSet` pour les tests paramétrés, `columns` / `rows` sans champ, tests de `fill` en ASCII. Écarté : remplissage groupé et refus d'écraser (renvoyés à P1.6), table explicite pour `parse` (les noms d'enum sont des lettres). Retrait d'`ignoreSourceSet` essayé, échec, renvoyé à P1.18. Ouvert : cellules au-dessus de la ligne 0 en P1.3 **[à vérifier]**. |
 | 2026-10-18 | P2.1 | `GameLoop` (`feature:game`, `internal`, sans coroutine ni `core:game`) en TDD (agent C, worktree parallèle) : `advance(frameNanos): Int`, `reset()`, plafond par image en paramètre (4, refusé s'il est nul ou négatif), calcul entier (ns × 60 comparées à 10⁹), fraction de tick gardée après plafonnement, image qui recule sans tick ni dette. 11 tests (12 exécutions). `docs/architecture.md` précisé. | Tests verts d'emblée à cause de l'ordre des cas (trois images à 16,7 ms ; 60 images sans dérive ; plafond en paramètre ; reliquat à 510 ms) : chacun contrôlé par une mutation qui le fait échouer. Revue indépendante : retenu — image qui recule, plafond exigé par un test, reliquat après plafonnement, validation du plafond, `scaledNanos`, KDoc du ralentissement sous 15 images/s, appel à `reset()` noté en P2.2. Écarté : `Long?` boxé (60 allocations/s, négligeable), test à grande origine de temps (vert d'emblée, n'apprend rien). |
+| 2026-10-18 | P1.10 | `ScoringRule` (KDoc du contrat : 0 à 4 lignes ; descente rapide comptée une fois au verrouillage) et `ClassicScoringRule` (`object`, table 40/100/300/1200 × (niveau + 1), 1 point par ligne descendue). 13 tests. | Revue indépendante : retenu — contrat en KDoc, validation par `require` en tête, commentaires Given/When/Then paraphrasants retirés (même style que la gravité), types dédiés renvoyés à P1.19. Écarté : cas « 0 ligne » dans le test paramétré (gardé à part, comme le niveau 0 de la gravité). Points ouverts : le mode Moderne (T-spins, combos, chute instantanée) devra élargir `ScoringRule`, donc le moteur, contrairement à la promesse « sans modifier le moteur » de P6 ; la NES plafonne le score affiché à 999 999, à trancher en P2.4. Descente rapide toujours **[à vérifier]**. |
