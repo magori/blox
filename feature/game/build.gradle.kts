@@ -18,6 +18,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.kotlinx.coroutines.core)
+    // Le retour système de l'écran de jeu (pause, reprise), par le même mécanisme que NavDisplay.
+    implementation(libs.androidx.navigationevent)
+    implementation(libs.androidx.navigationevent.compose)
 }
 
 // Dépendances ajoutées quand le code les exigera : core:audio en P4.

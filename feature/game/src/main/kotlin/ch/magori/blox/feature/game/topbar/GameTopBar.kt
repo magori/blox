@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.res.stringResource
@@ -47,16 +48,18 @@ private object TopBarSizes {
 
 /**
  * The top bar of the game screen (view V2): the pause button, the mode title and the record. No
- * logic here: the record texts come from [topBarTexts], the glyph from [pauseBars].
+ * logic here: the record texts come from [topBarTexts], the glyph from [pauseBars]. A `null` [record]
+ * is not known yet: its value is hidden, in a place of the same size, so that nothing moves when it
+ * comes.
  */
 @Composable
 internal fun GameTopBar(
-    record: Int,
+    record: Int?,
     onPause: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
-    val texts = topBarTexts(record)
+    val texts = topBarTexts(record ?: 0)
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(TopBarSizes.gap),
@@ -75,13 +78,17 @@ internal fun GameTopBar(
                 .semantics { heading() },
         )
         val recordLabel = stringResource(R.string.feature_game_top_record)
-        val description = stringResource(R.string.feature_game_value_description, recordLabel, texts.spokenRecord)
+        val description = if (record == null) {
+            recordLabel
+        } else {
+            stringResource(R.string.feature_game_value_description, recordLabel, texts.spokenRecord)
+        }
         Column(
             horizontalAlignment = Alignment.End,
             modifier = Modifier.clearAndSetSemantics { contentDescription = description },
         ) {
             PanelLabel(text = recordLabel)
-            ValueText(text = texts.record)
+            ValueText(text = texts.record, modifier = Modifier.alpha(if (record == null) 0f else 1f))
         }
     }
 }

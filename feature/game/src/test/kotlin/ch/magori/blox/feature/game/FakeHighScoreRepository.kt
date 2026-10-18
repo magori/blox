@@ -17,7 +17,13 @@ internal class FakeHighScoreRepository(private val result: RecordResult) : HighS
     var gate: CompletableDeferred<Unit>? = null
     var failure: Exception? = null
 
-    override val highScore: Flow<Int> = MutableStateFlow(result.previous)
+    /** The record the repository gives; the test may change it. */
+    val record = MutableStateFlow(result.previous)
+
+    /** What [highScore] gives: [record], unless the test sets another flow before the view model reads it. */
+    var highScoreFlow: Flow<Int> = record
+
+    override val highScore: Flow<Int> get() = highScoreFlow
 
     override suspend fun submit(score: Int): RecordResult {
         submitted += score
