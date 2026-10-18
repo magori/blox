@@ -25,4 +25,7 @@ dependencies {
     // Le retour système de l'écran de jeu (pause, reprise), par le même mécanisme que NavDisplay.
     implementation(libs.androidx.navigationevent)
     implementation(libs.androidx.navigationevent.compose)
+
+    // Doublures de test du domaine (ScriptedRandomizer, spawned), partagées par `core:game`.
+    testImplementation(testFixtures(projects.core.game))
 }
