@@ -25,6 +25,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.R
@@ -47,7 +48,7 @@ private object SidePanelSizes {
  */
 @Composable
 internal fun SidePanel(
-    score: Int,
+    score: Points,
     level: Level,
     lines: Lines,
     next: PieceType?,
@@ -55,7 +56,11 @@ internal fun SidePanel(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ValuePanel(label = stringResource(R.string.feature_game_score), value = scoreText(score), rawValue = score)
+        ValuePanel(
+            label = stringResource(R.string.feature_game_score),
+            value = scoreText(score),
+            rawValue = score.value,
+        )
         ValuePanel(
             label = stringResource(R.string.feature_game_level),
             value = levelText(level),
@@ -107,7 +112,7 @@ private fun SidePanelPreview(
 ) {
     BloxTheme(kind = kind) {
         SidePanel(
-            score = score,
+            score = Points(score),
             level = Level(level),
             lines = Lines(lines),
             next = next,

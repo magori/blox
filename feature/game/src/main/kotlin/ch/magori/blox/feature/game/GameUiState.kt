@@ -7,6 +7,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.RotationSystem
 
 /** What the game screen shows. The domain values pass as they are: the screen draws them. */
@@ -17,7 +18,7 @@ internal data class GameUiState(
     val next: PieceType,
     val level: Level,
     val lines: Lines,
-    val score: Int,
+    val score: Points,
     val rotationSystem: RotationSystem,
 )
 

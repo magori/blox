@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 38 / 70 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 38 / 71 | `███████████░░░░░░░░░` **54 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -67,6 +67,8 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   à 2 Go.
 - [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
+- [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
+  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
   `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
   une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
@@ -201,7 +203,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   appuis et relâchements arrivés entre deux images sont mis en file et appliqués avant les
   ticks, sans en perdre aucun. Revue de P2.7 : brancher `GameOverScreen` dans `GameScreen` selon
   `GameUiState` (`gameOver: GameOverUiState?`) ; `onMenu` = retour ; `onReplay` remplace la clé
-  de la pile par une nouvelle `GameRoute` (ADR 0011).
+  de la pile par une nouvelle `GameRoute` (ADR 0011). Fait (incrément 1) : `GameViewModel`
+  (moteur créé depuis la `GameRoute`, `onFrame`, `onFramesStarted`), `GameUiState`, horloge dans
+  `repeatOnLifecycle(STARTED)` (ADR 0012 amendé), plateau et colonne latérale branchés
+  (`SidePanel(Level, Lines)`), route ajoutée aux `CreationExtras` par défaut, `GameRoute`
+  refuse un niveau négatif, `AppContainer` et `newGameRoute` dans `app`. Reste (incrément 2) :
+  commandes (après P1.12d), fin de partie et Rejouer (après P1.12e ; `GameOverUiState` construit
+  depuis les types du domaine), pause (après P1.15).
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -294,7 +302,9 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
-  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu.
+  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu. Revue de P2.2 : le
+  ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
+  test JVM possible aujourd'hui.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).

@@ -32,6 +32,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
@@ -127,7 +128,7 @@ private val previewState = GameUiState(
     next = PieceType.I,
     level = Level(5),
     lines = Lines(52),
-    score = 12_340,
+    score = Points(12_340),
     rotationSystem = ClassicRotationSystem,
 )
 

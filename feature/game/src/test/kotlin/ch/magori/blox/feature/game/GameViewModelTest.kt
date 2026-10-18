@@ -6,14 +6,19 @@ import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.game.engine.GameEngine
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.model.Board
+import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
+import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.Randomizer
+import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -32,6 +37,43 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `while full rows are cleared the screen shows the locked board and no piece`() {
+        // Given three pieces that fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9
+        val rowFiller = SpawnInTurn(
+            Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
+            Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
+            Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
+        )
+        val factory = GameEngineFactory {
+            GameEngine(
+                ClassicRules.copy(rotationSystem = rowFiller, gravityTable = oneTickPerRow),
+                ScriptedRandomizer(PieceType.I, PieceType.I, PieceType.O),
+            )
+        }
+        val viewModel = GameViewModel(factory, GameRoute(startLevel = 0, seed = 1L), ClassicRotationSystem)
+
+        // When the game is played tick by tick until row 19 is full
+        val clearing = generateSequence(0L) { it + ONE_SIXTIETH_NANOS }
+            .take(MAX_TICKS)
+            .map { frameNanos ->
+                viewModel.onFrame(frameNanos)
+                viewModel.uiState.value
+            }
+            .first { state -> (0..9).all { state.board[Position(it, 19)] is Cell.Filled } }
+
+        // Then the board still holds the full row, and no piece is shown
+        assertThat(clearing.board).isEqualTo(
+            Board.parse(
+                """
+                ........OO
+                IIIIIIIIOO
+                """,
+            ),
+        )
+        assertThat(clearing.piece).isNull()
+    }
+
+    @Test
     fun `on creation the view model starts a game with the seed and start level of the route`() {
         // When
         val viewModel = createViewModel(GameRoute(startLevel = 5, seed = 42L))
@@ -45,7 +87,7 @@ class GameViewModelTest {
                 next = PieceType.I,
                 level = Level(5),
                 lines = Lines(0),
-                score = 0,
+                score = Points(0),
                 rotationSystem = ClassicRotationSystem,
             ),
         )
@@ -111,6 +153,9 @@ class GameViewModelTest {
     private companion object {
         const val ONE_SIXTIETH_NANOS = 16_666_667L
 
+        /** Enough ticks for three pieces to fall 20 rows, with their entry delays. */
+        const val MAX_TICKS = 1_000
+
         val oneTickPerRow = object : GravityTable {
             override fun ticksPerRow(level: Level): Int = 1
         }
@@ -120,6 +165,21 @@ class GameViewModelTest {
     }
 
     private fun Piece.droppedBy(rows: Int): Piece = copy(pivot = Position(pivot.column, pivot.row + rows))
+
+    /** A rotation system for tests: each piece appears in the next of [orientations], in turn. */
+    private class SpawnInTurn(vararg orientations: Orientation) : RotationSystem {
+        private val spawns = orientations.toList()
+        private var spawned = 0
+
+        override fun orientations(type: PieceType): List<Orientation> = spawns
+
+        override fun spawnOrientation(type: PieceType): Orientation = spawns[spawned++ % spawns.size]
+
+        override fun candidates(
+            piece: Piece,
+            rotation: Rotation,
+        ): List<Piece> = emptyList()
+    }
 
     /** Deals [pieces] in turn, again and again. */
     private class ScriptedRandomizer(vararg pieces: PieceType) : Randomizer {
