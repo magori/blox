@@ -77,7 +77,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val update = when (val phase = state.phase) {
             is Phase.Falling -> fall(state.counted(), phase)
             is Phase.Clearing -> clear(state.counted(), phase)
-            is Phase.EntryDelay -> GameUpdate(wait(state.counted(), phase), events = emptyList())
+            is Phase.EntryDelay -> wait(state.counted(), phase)
             is Phase.GameOver -> return GameUpdate(state, events = emptyList())
         }
         return update.copy(state = update.state.copy(controls = update.state.controls.afterTick()))
@@ -242,12 +242,9 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
     private fun dangerChange(
         state: GameState,
         inDanger: Boolean,
-    ): List<GameEvent> = if (inDanger !=
-        state.stackInDanger
-    ) {
-        listOf(GameEvent.StackDanger(on = inDanger))
-    } else {
-        emptyList()
+    ): List<GameEvent> {
+        val changed = inDanger != state.stackInDanger
+        return if (changed) listOf(GameEvent.StackDanger(on = inDanger)) else emptyList()
     }
 
     /**
@@ -280,12 +277,21 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
     private fun wait(
         state: GameState,
         delay: Phase.EntryDelay,
-    ): GameState = if (delay.ticksLeft > 1) state.copy(phase = Phase.EntryDelay(delay.ticksLeft - 1)) else spawn(state)
+    ): GameUpdate {
+        if (delay.ticksLeft > 1) {
+            return GameUpdate(state.copy(phase = delay.copy(ticksLeft = delay.ticksLeft - 1)), events = emptyList())
+        }
+        return spawn(state)
+    }
 
-    /** At the end of the entry delay, the next piece of [state] appears: see [appearance]. */
-    private fun spawn(state: GameState): GameState {
+    /**
+     * At the end of the entry delay, the next piece of [state] appears: see [appearance]. If it does not fit,
+     * the game is over, and [GameEvent.GameOver] is the only event of that tick.
+     */
+    private fun spawn(state: GameState): GameUpdate {
         val appearance = appearance(state.board, type = state.next)
-        return state.copy(next = appearance.next, phase = appearance.phase)
+        val events = if (appearance.phase is Phase.GameOver) listOf(GameEvent.GameOver) else emptyList()
+        return GameUpdate(state.copy(next = appearance.next, phase = appearance.phase), events)
     }
 
     /**
