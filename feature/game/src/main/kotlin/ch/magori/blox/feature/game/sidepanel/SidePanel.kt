@@ -4,14 +4,15 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
@@ -37,14 +38,15 @@ private object SidePanelSizes {
     /** Between two panels. */
     val gap = 8.dp
 
-    /** The preview fits the widest piece: 4 cells wide, 2 cells high. */
-    const val PREVIEW_ASPECT_RATIO = 4f / 2f
+    /** The preview fits the widest piece: 2 cells high. */
+    const val PREVIEW_ROWS = 2
 }
 
 /**
  * The side column of the game screen: score, level, lines and next piece, each in a panel. No
  * logic here: the texts come from [scoreText], [levelText] and [linesText], the preview from
- * [NextPieceCanvas]. [next] is null when the next piece is hidden (pause, option).
+ * [NextPieceCanvas], with cells of [cellSize] pixels, those of the board. [next] is null when the
+ * next piece is hidden (pause, option).
  */
 @Composable
 internal fun SidePanel(
@@ -53,6 +55,21 @@ internal fun SidePanel(
     lines: Lines,
     next: PieceType?,
     rotationSystem: RotationSystem,
+    cellSize: Float,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
+        ScorePanels(score = score, level = level, lines = lines)
+        NextPiecePanel(next = next, rotationSystem = rotationSystem, cellSize = cellSize)
+    }
+}
+
+/** Score, level and lines, each in a panel, one under the other. */
+@Composable
+internal fun ScorePanels(
+    score: Points,
+    level: Level,
+    lines: Lines,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
@@ -71,20 +88,33 @@ internal fun SidePanel(
             value = linesText(lines),
             rawValue = lines.value,
         )
-        val nextLabel = stringResource(R.string.feature_game_next)
-        val nextName = next?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
-        LabelledPanel(
-            label = nextLabel,
-            description = stringResource(R.string.feature_game_value_description, nextLabel, nextName),
-        ) {
-            NextPieceCanvas(
-                type = next,
-                rotationSystem = rotationSystem,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(SidePanelSizes.PREVIEW_ASPECT_RATIO),
-            )
-        }
+    }
+}
+
+/** The next piece in its panel, with cells of [cellSize] pixels, those of the board. */
+@Composable
+internal fun NextPiecePanel(
+    next: PieceType?,
+    rotationSystem: RotationSystem,
+    cellSize: Float,
+    modifier: Modifier = Modifier,
+) {
+    val nextLabel = stringResource(R.string.feature_game_next)
+    val nextName = next?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
+    val previewHeight = with(LocalDensity.current) { (cellSize * SidePanelSizes.PREVIEW_ROWS).toDp() }
+    LabelledPanel(
+        label = nextLabel,
+        description = stringResource(R.string.feature_game_value_description, nextLabel, nextName),
+        modifier = modifier,
+    ) {
+        NextPieceCanvas(
+            type = next,
+            rotationSystem = rotationSystem,
+            cellSize = cellSize,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(previewHeight),
+        )
     }
 }
 
@@ -117,6 +147,7 @@ private fun SidePanelPreview(
             lines = Lines(lines),
             next = next,
             rotationSystem = ClassicRotationSystem,
+            cellSize = with(LocalDensity.current) { 18.dp.roundToPx().toFloat() },
             modifier = Modifier
                 .background(BloxTheme.palette.page)
                 .padding(8.dp)

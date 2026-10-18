@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 99 | `███████████░░░░░░░░░` **57 %** |
+| **Général** | 57 / 100 | `███████████░░░░░░░░░` **57 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -267,10 +267,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
   attaché au premier bouton) ; le gérer demande un seul `pointerInput` sur ◀ ▼ ▶, une fonction
   pure `buttonAt(position)` et `HeldButtons.move`, testables sur la JVM.
-- [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
+- [x] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
   l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la
-  pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4).
+  pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4). Fait :
+  `gameLayout` (fonction pure, trois dispositions), `PlacedParts`, aperçu à la taille de cellule
+  du plateau ; `screenOrientation="portrait"` gardé jusqu'au test sur téléphone (P2.8).
+- [ ] **P2.20** Fenêtre très étroite (220 dp) : cellule de 4 dp, injouable ; essayer le score
+  au-dessus du plateau (revue de P2.11). À 220 dp et ×2,625, les flèches débordent de 2 px :
+  réduire l'espacement des commandes à cette largeur.
 
 ## P3 — Accueil, préférences, records
 
