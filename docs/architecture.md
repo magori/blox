@@ -100,6 +100,11 @@ ne connaît que les ticks, jamais les millisecondes : la vitesse ne dépend pas 
 fréquence d'écran (60, 90 ou 120 Hz). Voir les [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)
 et [0012](adr/0012-horloge-d-images-cote-ecran.md).
 
+`GameLoop` calcule en entiers (nanosecondes × 60), sans dérive. Elle plafonne le nombre de
+ticks par image (4 par défaut) : sous 15 images/s, le jeu ralentit au lieu de rattraper. Une
+image dont le temps recule ne donne aucun tick, et `reset()` repose la référence à la reprise.
+Tests : `GameLoopTest` (`feature:game`).
+
 Les commandes (maintien d'une flèche, répétition automatique) sont aussi comptées en ticks
 dans le domaine. Ainsi le comportement du « DAS » de la NES est testable sans appareil.
 
