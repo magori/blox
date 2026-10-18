@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.RotationSystem
@@ -41,22 +43,29 @@ private object SidePanelSizes {
 /**
  * The side column of the game screen: score, level, lines and next piece, each in a panel. No
  * logic here: the texts come from [scoreText], [levelText] and [linesText], the preview from
- * [NextPieceCanvas]. [next] is null when the next piece is hidden (pause, option). It takes plain
- * values until the game screen has its UI state.
+ * [NextPieceCanvas]. [next] is null when the next piece is hidden (pause, option).
  */
 @Composable
 internal fun SidePanel(
     score: Int,
-    level: Int,
-    lines: Int,
+    level: Level,
+    lines: Lines,
     next: PieceType?,
     rotationSystem: RotationSystem,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         ValuePanel(label = stringResource(R.string.feature_game_score), value = scoreText(score), rawValue = score)
-        ValuePanel(label = stringResource(R.string.feature_game_level), value = levelText(level), rawValue = level)
-        ValuePanel(label = stringResource(R.string.feature_game_lines), value = linesText(lines), rawValue = lines)
+        ValuePanel(
+            label = stringResource(R.string.feature_game_level),
+            value = levelText(level),
+            rawValue = level.value,
+        )
+        ValuePanel(
+            label = stringResource(R.string.feature_game_lines),
+            value = linesText(lines),
+            rawValue = lines.value,
+        )
         val nextLabel = stringResource(R.string.feature_game_next)
         val nextName = next?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
         LabelledPanel(
@@ -99,8 +108,8 @@ private fun SidePanelPreview(
     BloxTheme(kind = kind) {
         SidePanel(
             score = score,
-            level = level,
-            lines = lines,
+            level = Level(level),
+            lines = Lines(lines),
             next = next,
             rotationSystem = ClassicRotationSystem,
             modifier = Modifier

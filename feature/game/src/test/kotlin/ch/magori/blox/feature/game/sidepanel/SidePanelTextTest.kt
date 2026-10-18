@@ -1,5 +1,7 @@
 package ch.magori.blox.feature.game.sidepanel
 
+import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Lines
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -29,7 +31,7 @@ class SidePanelTextTest {
         level: Int,
         expected: String,
     ) {
-        assertThat(levelText(level)).isEqualTo(expected)
+        assertThat(levelText(Level(level))).isEqualTo(expected)
     }
 
     @ParameterizedTest(name = "lines {0} -> {1}")
@@ -38,6 +40,6 @@ class SidePanelTextTest {
         lines: Int,
         expected: String,
     ) {
-        assertThat(linesText(lines)).isEqualTo(expected)
+        assertThat(linesText(Lines(lines))).isEqualTo(expected)
     }
 }

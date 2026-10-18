@@ -6,7 +6,6 @@
     <string name="feature_game_control_right">Déplacer à droite</string>
     <string name="feature_game_control_a">Tourner dans le sens horaire</string>
     <string name="feature_game_control_b">Tourner dans le sens antihoraire</string>
-    <string name="feature_game_placeholder">Le plateau de jeu arrive bientôt.</string>
     <string name="feature_game_back">Retour</string>
     <string name="feature_game_score">Score</string>
     <string name="feature_game_level">Niveau</string>
