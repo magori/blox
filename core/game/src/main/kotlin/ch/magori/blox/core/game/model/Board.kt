@@ -3,17 +3,35 @@ package ch.magori.blox.core.game.model
 /**
  * The immutable playfield: 10 columns × 20 rows, all visible. Row 0 is the top row.
  * Every change returns a new board.
+ *
+ * Rows -2 and -1 are hidden above the board and always empty. Only [fits] accepts them, so the
+ * piece in play may reach them; [get] and [fill] reject them like any position outside the board.
+ * [fill] stays strict: when a piece locks (P1.6), the engine ignores its hidden cells, as the NES
+ * ROM does.
  */
 public class Board private constructor(private val cells: List<Cell>) {
     public val columns: Int get() = COLUMNS
     public val rows: Int get() = ROWS
 
+    /** The cell at [position]; rejects a position outside the board, hidden rows included. */
     public operator fun get(position: Position): Cell = cells[cellIndex(position)]
 
+    /** Whether [position] is on the visible board: columns 0 to 9, rows 0 to 19. */
     public operator fun contains(position: Position): Boolean =
         position.column in 0 until columns && position.row in 0 until rows
 
-    /** Returns a new board where [position] is filled by a cell of [type]. */
+    /**
+     * Whether [piece] fits on the board without collision: every one of its cells is in columns 0
+     * to 9 and rows -2 to 19, and on an empty cell. The hidden rows -2 and -1 are always empty, so
+     * the piece in play may reach them (a vertical I rotated right after spawning).
+     */
+    public fun fits(piece: Piece): Boolean = piece.cells.all(::isFree)
+
+    private fun isFree(position: Position): Boolean = position.column in 0 until columns &&
+        position.row in FIRST_HIDDEN_ROW until rows &&
+        (position.row < 0 || this[position] == Cell.Empty)
+
+    /** Returns a new board where [position] is filled by a cell of [type]; rejects a position outside the board. */
     public fun fill(
         position: Position,
         type: PieceType,
@@ -35,6 +53,7 @@ public class Board private constructor(private val cells: List<Cell>) {
     public companion object {
         private const val COLUMNS = 10
         private const val ROWS = 20
+        private const val FIRST_HIDDEN_ROW = -2
         private const val EMPTY_SYMBOL = '.'
 
         public fun empty(): Board = Board(emptyRows(ROWS))
