@@ -309,6 +309,141 @@ class ChiptuneSequencerTempoTest {
         assertThat(sinks.single().released).isFalse()
     }
 
+    @Test
+    fun `a stopped playback resumes from the start of the beat where it stopped`() = runTest {
+        // Given a score stopped at sample 8, in beat 2 (samples 6 to 8)
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        renderNow()
+        nextSlice()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+
+        // When
+        playback.resume()
+
+        // Then it goes on from the start of beat 2, so that no note is cut
+        assertThat(nextSlice()).containsExactly(106f, 107f, 108f, 109f)
+    }
+
+    @Test
+    fun `a playback resumed then stopped before it wrote anything resumes from the same place`() = runTest {
+        // Given a score stopped at sample 8, in beat 2 (samples 6 to 8), resumed and stopped at once
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        renderNow()
+        nextSlice()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+        val second = playback.resume()
+        second.stop()
+
+        // When
+        second.resume()
+
+        // Then it still goes on from the start of beat 2
+        assertThat(nextSlice()).containsExactly(106f, 107f, 108f, 109f)
+    }
+
+    @Test
+    fun `a whole note stopped in its middle resumes from the start of the loop`() = runTest {
+        // Given a whole note stopped at sample 8 of 12: no beat but the first where no note is cut
+        val sequencer = sequencer()
+        val playback = sequencer.play(wholeNote)
+        renderNow()
+        nextSlice()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+
+        // When
+        playback.resume()
+
+        // Then
+        assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
+    }
+
+    @Test
+    fun `playing the score again, as a new game does, starts from its start`() = runTest {
+        // Given a score stopped at sample 8
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        renderNow()
+        nextSlice()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+
+        // When it is played, not resumed
+        sequencer.play(score)
+
+        // Then
+        assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
+    }
+
+    @Test
+    fun `a playback stopped at the danger tempo resumes at that tempo, where it stood`() = runTest {
+        // Given a score switched to 2.0 on beat 3, stopped at sample 2 of the buffer at 2.0 (beat 1)
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        renderNow()
+        sequencer.setTempoFactor(2.0)
+        nextSlice()
+        runCurrent()
+        renderDispatcher.runAll()
+        nextSlice()
+        assertThat(nextSlice()).containsExactly(108f, 205f, 200f, 201f)
+        playback.stop()
+        runCurrent()
+
+        // When
+        playback.resume()
+
+        // Then it goes on at 2.0, from the start of beat 1 (sample 2)
+        assertThat(nextSlice()).containsExactly(202f, 203f, 204f, 205f)
+    }
+
+    @Test
+    fun `a playback resumed at another tempo resumes at the same place in the score`() = runTest {
+        // Given a score stopped at 1.0 at sample 8 of 12, in beat 2; then the tempo asked for is 2.0
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        renderNow()
+        nextSlice()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+        sequencer.setTempoFactor(2.0)
+
+        // When
+        playback.resume()
+        renderNow()
+
+        // Then sample 8 of 12 is sample 4 of 6, in beat 2, which starts at sample 3
+        assertThat(nextSlice()).containsExactly(203f, 204f, 205f, 200f)
+    }
+
+    @Test
+    fun `a place that falls on the end of the buffer at the new tempo resumes from its start`() = runTest {
+        // Given a score stopped at 1.0 at sample 11 of 12, then asked for 2.0: 11 of 12 is 5.5 of 6, rounded to 6
+        val sequencer = sequencer(sliceSize = 11)
+        val playback = sequencer.play(score)
+        renderNow()
+        nextSlice()
+        playback.stop()
+        runCurrent()
+        sequencer.setTempoFactor(2.0)
+
+        // When
+        playback.resume()
+        renderNow()
+
+        // Then it is brought back into the buffer: the start of the loop
+        assertThat(nextSlice()).startsWith(200f, 201f, 202f)
+    }
+
     /** A sequencer playing [played] at 1.0, its buffer rendered, before its first write is received. */
     private fun TestScope.playing(
         played: Score = score,
@@ -338,10 +473,10 @@ class ChiptuneSequencerTempoTest {
         runCurrent()
     }
 
-    /** The next slice written to the only sink. */
+    /** The next slice written to the last sink opened. */
     private suspend fun TestScope.nextSlice(): List<Float> {
         runCurrent()
-        return sinks.single().written.receive().toList()
+        return sinks.last().written.receive().toList()
     }
 
     /**
