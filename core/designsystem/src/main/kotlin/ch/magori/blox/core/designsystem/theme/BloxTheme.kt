@@ -7,6 +7,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 
 enum class BloxThemeKind { ORIGINAL, COLORFUL }
@@ -24,8 +25,10 @@ fun BloxTheme(
         BloxThemeKind.COLORFUL -> BloxPalettes.Colorful
     }
     CompositionLocalProvider(LocalBloxPalette provides palette, LocalBloxThemeKind provides kind) {
+        val typography = remember(kind) { BloxTypographies.of(kind).toMaterial() }
         MaterialTheme(
             colorScheme = palette.toColorScheme(kind),
+            typography = typography,
             content = content,
         )
     }
@@ -45,6 +48,12 @@ object BloxTheme {
             BloxThemeKind.ORIGINAL -> BloxShapeSets.Original
             BloxThemeKind.COLORFUL -> BloxShapeSets.Colorful
         }
+
+    /** The fonts of the current theme: titles, labels and values (see [BloxTypography.valueText]). */
+    val typography: BloxTypography
+        @Composable
+        @ReadOnlyComposable
+        get() = BloxTypographies.of(LocalBloxThemeKind.current)
 
     /** The current theme, for what the palette cannot say (the styles of the pieces, in feature:game). */
     val kind: BloxThemeKind

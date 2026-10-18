@@ -7,8 +7,10 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import ch.magori.blox.core.game.model.verticalI
+import ch.magori.blox.core.game.rules.LineClearDelay
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -68,6 +70,35 @@ class GameEngineClearTest {
         assertThat(locked.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
             assertThat(clearing.ticksLeft).isEqualTo(expectedTicks)
         }
+    }
+
+    @ParameterizedTest(name = "a clear of {0} ticks")
+    @CsvSource("1", "3")
+    fun `the clear lasts as long as the line clear delay of the rules says`(clearTicks: Int) {
+        // Given rules whose clear lasts [clearTicks] ticks, whatever the tick of the lock, and a T that fills two rows
+        val fixedDelay = object : LineClearDelay {
+            override fun ticksToClear(lockTick: Int): Ticks = Ticks(clearTicks)
+        }
+        val engine = GameEngine(ClassicRules.copy(lineClearDelay = fixedDelay), ScriptedRandomizer())
+        val state = gameState(
+            board = TWO_ROWS_TO_FILL,
+            level = Level(29),
+            phase = Phase.Falling(tPointingDown(at = Position(5, 18))),
+        )
+
+        // When the piece locks, then [clearTicks] ticks pass
+        val locked = engine.tick(state).state
+        val updates = generateSequence(engine.tick(locked)) { engine.tick(it.state) }.take(clearTicks).toList()
+
+        // Then the clear took [clearTicks] ticks: on the last one, the rows are cleared, the entry delay begins
+        assertThat(locked.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
+            assertThat(clearing.ticksLeft).isEqualTo(clearTicks)
+        }
+        assertThat(updates.dropLast(1)).allSatisfy {
+            assertThat(it.state.phase).isInstanceOf(Phase.Clearing::class.java)
+        }
+        assertThat(updates.last().state.phase).isInstanceOf(Phase.EntryDelay::class.java)
+        assertThat(updates.last().events).contains(GameEvent.LinesCleared(LineClear(2)))
     }
 
     @Test

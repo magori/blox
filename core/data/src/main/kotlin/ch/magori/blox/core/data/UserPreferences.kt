@@ -3,7 +3,7 @@ package ch.magori.blox.core.data
 /** The theme chosen on the home screen (V1). The feature maps it to its theme. */
 enum class ThemeChoice { ORIGINAL, COLORFUL }
 
-/** The music chosen on the home screen (V1). The feature maps it to its scores or the file player. */
+/** The music chosen on the home screen (V1). The application maps it to its scores or the file player. */
 enum class MusicChoice { KOROBEINIKI, MINUET, MY_FILE, NONE }
 
 /**

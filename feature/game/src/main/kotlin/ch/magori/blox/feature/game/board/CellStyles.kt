@@ -33,6 +33,12 @@ private val ORIGINAL_PALE = Color(0xFFEEF5EA)
 private const val ORIGINAL_BORDER_WIDTH = 2f / 24
 private const val ORIGINAL_CENTRE_SIZE = 8f / 24
 
+/**
+ * A joint around each cell, 1 px of 24 on each edge, 2 between two cells, in the colour under the cell:
+ * flat cells side by side never merge.
+ */
+private const val ORIGINAL_JOINT_WIDTH = 1f / 24
+
 private fun originalStyle(type: PieceType): CellStyle {
     val (fill, border, centre) = when (type) {
         PieceType.I -> Triple(ORIGINAL_DARK, ORIGINAL_DARK, ORIGINAL_DARK)
@@ -43,7 +49,12 @@ private fun originalStyle(type: PieceType): CellStyle {
         PieceType.J -> Triple(ORIGINAL_LIGHT, ORIGINAL_DARK, ORIGINAL_MEDIUM)
         PieceType.L -> Triple(ORIGINAL_MEDIUM, ORIGINAL_DARK, ORIGINAL_PALE)
     }
-    return CellStyle(fill, CellBorder.Plain(border, ORIGINAL_BORDER_WIDTH), CellCentre(centre, ORIGINAL_CENTRE_SIZE))
+    return CellStyle(
+        fill = fill,
+        border = CellBorder.Plain(border, ORIGINAL_BORDER_WIDTH),
+        centre = CellCentre(centre, ORIGINAL_CENTRE_SIZE),
+        joint = CellJoint(ORIGINAL_JOINT_WIDTH),
+    )
 }
 
 private val COLORFUL_EMPTY_BORDER = Color(0xFF191C27)
