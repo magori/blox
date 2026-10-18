@@ -11,14 +11,14 @@ import ch.magori.blox.core.game.model.Lines
  * the start level until then, and `lines / 10` from then on.
  */
 public object ClassicLevelProgression : LevelProgression {
-    private val startLevels = 0..9
+    override val startLevels: List<Level> = (0..9).map(::Level)
 
     /** @throws IllegalArgumentException if [start] is not one of the [startLevels]. */
     override fun levelFor(
         start: Level,
         lines: Lines,
     ): Level {
-        require(start.value in startLevels) { "The start level must be in $startLevels: ${start.value}" }
+        requireStartLevel(start)
         return Level(maxOf(start.value, lines.value / 10))
     }
 }

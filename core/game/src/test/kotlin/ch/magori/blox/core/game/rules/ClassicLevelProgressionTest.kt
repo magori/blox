@@ -60,4 +60,11 @@ class ClassicLevelProgressionTest {
         lines: Int,
         startingAt: Int,
     ): Level = progression.levelFor(start = Level(startingAt), lines = Lines(lines))
+
+    @Test
+    fun `the Classic mode accepts starting levels 0 to 9`() {
+        assertThat(progression.startLevels.first()).isEqualTo(Level(0))
+        assertThat(progression.startLevels.last()).isEqualTo(Level(9))
+        assertThat(progression.startLevels).isSortedAccordingTo(compareBy(Level::value))
+    }
 }
