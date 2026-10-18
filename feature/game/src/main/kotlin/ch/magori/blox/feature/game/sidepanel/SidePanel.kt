@@ -125,6 +125,8 @@ private fun SidePanelPreview(
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview
 @Composable
 private fun SidePanelOriginalPreview() {
@@ -133,18 +135,18 @@ private fun SidePanelOriginalPreview() {
 
 @Preview
 @Composable
-private fun SidePanelColorfulPreview() {
+internal fun SidePanelColorfulPreview() {
     SidePanelPreview(BloxThemeKind.COLORFUL, score = 1_234_567, level = 19, lines = 190, next = PieceType.I)
 }
 
 @Preview(fontScale = 2f)
 @Composable
-private fun SidePanelLargeFontPreview() {
+internal fun SidePanelLargeFontPreview() {
     SidePanelPreview(BloxThemeKind.ORIGINAL, score = 999_999, level = 29, lines = 1000, next = PieceType.L)
 }
 
 @Preview
 @Composable
-private fun SidePanelNoNextPiecePreview() {
+internal fun SidePanelNoNextPiecePreview() {
     SidePanelPreview(BloxThemeKind.COLORFUL, score = 0, level = 0, lines = 0, next = null)
 }

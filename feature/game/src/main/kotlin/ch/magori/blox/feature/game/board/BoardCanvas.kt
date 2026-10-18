@@ -63,9 +63,11 @@ private val previewPiece = Piece(
     pivot = Position(column = 4, row = 6),
 )
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview
 @Composable
-private fun BoardCanvasOriginalPreview() {
+internal fun BoardCanvasOriginalPreview() {
     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
         BoardCanvas(previewBoard, previewPiece, Modifier.size(240.dp, 480.dp))
     }

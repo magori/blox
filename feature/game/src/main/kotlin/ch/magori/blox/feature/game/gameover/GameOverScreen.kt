@@ -166,32 +166,34 @@ private fun GameOverPreview(
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview
 @Composable
-private fun GameOverOriginalPreview() {
+internal fun GameOverOriginalPreview() {
     GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = false)
 }
 
 @Preview
 @Composable
-private fun GameOverOriginalNewRecordPreview() {
+internal fun GameOverOriginalNewRecordPreview() {
     GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = true)
 }
 
 @Preview
 @Composable
-private fun GameOverColorfulPreview() {
+internal fun GameOverColorfulPreview() {
     GameOverPreview(BloxThemeKind.COLORFUL, newRecord = false)
 }
 
 @Preview
 @Composable
-private fun GameOverColorfulNewRecordPreview() {
+internal fun GameOverColorfulNewRecordPreview() {
     GameOverPreview(BloxThemeKind.COLORFUL, newRecord = true)
 }
 
 @Preview(fontScale = 2f)
 @Composable
-private fun GameOverLargeFontPreview() {
+internal fun GameOverLargeFontPreview() {
     GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = true)
 }

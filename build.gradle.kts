@@ -7,6 +7,7 @@ plugins {
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.android.junit) apply false
+    alias(libs.plugins.android.compose.screenshot) apply false
     alias(libs.plugins.ktlint) apply false
     // Analyse des dépendances déclarées : configurée ici, appliquée dans chaque module par les
     // plugins de convention, rapport `buildHealth` (tâche P0.9).

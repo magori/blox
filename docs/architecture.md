@@ -140,6 +140,7 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 | `core:game`, `core:music` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
 | Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
 | `src/androidTest` | JUnit 5 (extensions `android-junit`), Compose UI Test | Parcours d'écrans, quand l'UI sera stable. |
+| `src/screenshotTest` (`feature:game`, `feature:home`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Tolérance de 0,05 % pour les écarts de lissage entre systèmes. Pas encore dans la CI (P5.8). |
 
 JUnit 5 partout, y compris dans les modules Android grâce au plugin
 `de.mannodermaus.android-junit` appliqué par les plugins de convention. Voir les

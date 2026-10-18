@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.blox.android.feature)
+    alias(libs.plugins.blox.android.screenshot)
 }
 
 android {

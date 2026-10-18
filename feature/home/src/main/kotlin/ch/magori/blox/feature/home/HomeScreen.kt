@@ -241,12 +241,11 @@ private val MusicChoice.label: Int
         MusicChoice.NONE -> R.string.feature_home_music_none
     }
 
-@Preview(widthDp = 360)
 @Composable
-private fun HomeScreenPreview() {
+private fun HomeScreenPreview(theme: ThemeChoice) {
     HomeScreen(
         uiState = HomeUiState(
-            theme = ThemeChoice.ORIGINAL,
+            theme = theme,
             music = MusicChoice.KOROBEINIKI,
             startLevel = 0,
             startLevels = (0..9).toList(),
@@ -257,4 +256,24 @@ private fun HomeScreenPreview() {
         onStartLevelChosen = {},
         onPlay = {},
     )
+}
+
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
+@Preview(widthDp = 360)
+@Composable
+internal fun HomeScreenOriginalPreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+internal fun HomeScreenColorfulPreview() {
+    HomeScreenPreview(ThemeChoice.COLORFUL)
+}
+
+@Preview(widthDp = 360, fontScale = 2f)
+@Composable
+internal fun HomeScreenLargeFontPreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL)
 }

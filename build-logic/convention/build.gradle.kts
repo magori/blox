@@ -18,6 +18,7 @@ dependencies {
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.android.junit.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
+    compileOnly(libs.android.compose.screenshot.gradlePlugin)
 }
 
 gradlePlugin {
@@ -41,6 +42,10 @@ gradlePlugin {
         register("androidFeature") {
             id = libs.plugins.blox.android.feature.get().pluginId
             implementationClass = "AndroidFeatureConventionPlugin"
+        }
+        register("androidScreenshot") {
+            id = libs.plugins.blox.android.screenshot.get().pluginId
+            implementationClass = "AndroidScreenshotConventionPlugin"
         }
         register("jvmLibrary") {
             id = libs.plugins.blox.jvm.library.get().pluginId

@@ -37,20 +37,22 @@ private fun PausePreview(kind: BloxThemeKind) {
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview
 @Composable
-private fun PauseOriginalPreview() {
+internal fun PauseOriginalPreview() {
     PausePreview(BloxThemeKind.ORIGINAL)
 }
 
 @Preview
 @Composable
-private fun PauseColorfulPreview() {
+internal fun PauseColorfulPreview() {
     PausePreview(BloxThemeKind.COLORFUL)
 }
 
 @Preview(fontScale = 2f)
 @Composable
-private fun PauseLargeFontPreview() {
+internal fun PauseLargeFontPreview() {
     PausePreview(BloxThemeKind.ORIGINAL)
 }
