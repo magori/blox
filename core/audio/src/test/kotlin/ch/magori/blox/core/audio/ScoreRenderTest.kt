@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +17,9 @@ class ScoreRenderTest {
 
     private val melody = Voice(Waveform.SQUARE, volume = 0.07, notes = List(4) { Note(Pitch.parse("E5"), beats = 1.0) })
     private val bass = Voice(Waveform.TRIANGLE, volume = 0.16, notes = List(2) { Note(Pitch.parse("E2"), beats = 2.0) })
-    private val score = Score("Test", bpm = 150, beatsPerBar = 4, voices = listOf(melody, bass))
+
+    // A synthetic score: its identifier plays no part here.
+    private val score = Score(ScoreId.KOROBEINIKI, bpm = 150, beatsPerBar = 4, voices = listOf(melody, bass))
 
     @Test
     fun `a score renders as the mix of its voices and lasts as long as the score`() {

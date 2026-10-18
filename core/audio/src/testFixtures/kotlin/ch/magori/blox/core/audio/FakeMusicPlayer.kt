@@ -1,22 +1,21 @@
-package ch.magori.blox.feature.game
+package ch.magori.blox.core.audio
 
-import ch.magori.blox.core.audio.MusicPlayer
-import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 
 /**
- * A music player that notes what it is told, in order (`play <title>`, `stop`, `resume <title>`,
- * `tempo <factor>`), and keeps the title [playing]. As the real one, it plays one score at a time:
- * stopping a playback that was replaced leaves the new one playing.
+ * A music player that notes what it is told, in order (`play <id>`, `stop`, `resume <id>`,
+ * `tempo <factor>`), and keeps the identifier of the score [playing]. As the real one, it plays one
+ * score at a time: stopping a playback that was replaced leaves the new one playing.
  */
-internal class FakeMusicPlayer : MusicPlayer {
+class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
-    var playing: String? = null
+    var playing: ScoreId? = null
         private set
     private var current: Playback? = null
 
     override fun play(score: Score): Playback {
-        calls += "play ${score.title}"
+        calls += "play ${score.id}"
         return start(score)
     }
 
@@ -25,7 +24,7 @@ internal class FakeMusicPlayer : MusicPlayer {
     }
 
     private fun start(score: Score): Playback {
-        playing = score.title
+        playing = score.id
         return object : Playback {
             override fun stop() {
                 calls += "stop"
@@ -33,7 +32,7 @@ internal class FakeMusicPlayer : MusicPlayer {
             }
 
             override fun resume(): Playback {
-                calls += "resume ${score.title}"
+                calls += "resume ${score.id}"
                 return start(score)
             }
         }.also { current = it }

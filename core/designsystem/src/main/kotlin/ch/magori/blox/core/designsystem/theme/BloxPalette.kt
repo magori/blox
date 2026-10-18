@@ -19,8 +19,18 @@ data class BloxPalette(
     val boardBackground: Color,
     val button: Color,
     val buttonInk: Color,
+    /**
+     * A button held down: it stands out from [page] by 3:1 at least, [buttonInk] on it too, and from
+     * [button], the same button at rest, by 1.5:1 at least.
+     */
+    val buttonPressed: Color,
     val accent: Color,
     val accentInk: Color,
+    /**
+     * An accent button held down: it stands out from [page] by 3:1 at least, [accentInk] on it too, and from
+     * [accent], the same button at rest, by 1.5:1 at least.
+     */
+    val accentPressed: Color,
     /** The four cells of the logo of the home screen. */
     val logoCells: LogoColors,
 )
@@ -37,8 +47,10 @@ object BloxPalettes {
         boardBackground = Color(0xFFDCEBD5),
         button = Color(0xFF5F7F5C),
         buttonInk = Color(0xFFEEF5EA),
+        buttonPressed = Color(0xFF34503A),
         accent = Color(0xFF34503A),
         accentInk = Color(0xFFEEF5EA),
+        accentPressed = Color(0xFF1F3324),
         // The four greens of the pieces, the fills of I, O, J and T: dark, medium, light, pale.
         logoCells = LogoColors(
             topLeft = Color(0xFF34503A),
@@ -59,8 +71,11 @@ object BloxPalettes {
         boardBackground = Color(0xFF0B0C12),
         button = Color(0xFF2A2E3E),
         buttonInk = Color(0xFFF1F1F4),
+        buttonPressed = Color(0xFF646B87),
         accent = Color(0xFFEF8D3B),
         accentInk = Color(0xFF12141C),
+        // A darker orange: 1.67:1 from the accent at rest, 4.48:1 from the page and under the ink.
+        accentPressed = Color(0xFFC0651C),
         // The fills of the I, O, Z and S pieces.
         logoCells = LogoColors(
             topLeft = Color(0xFF3FC5E8),
