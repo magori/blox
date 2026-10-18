@@ -13,11 +13,12 @@ class ScoreTest {
         val melody = aVoice()
 
         // When
-        val score = Score("Test", bpm = 150, voices = listOf(melody))
+        val score = Score("Test", bpm = 150, beatsPerBar = 4, voices = listOf(melody))
 
         // Then
         assertThat(score.title).isEqualTo("Test")
         assertThat(score.bpm).isEqualTo(150)
+        assertThat(score.beatsPerBar).isEqualTo(4)
         assertThat(score.voices).containsExactly(melody)
     }
 
@@ -25,12 +26,43 @@ class ScoreTest {
     @ValueSource(ints = [0, -1])
     fun `the tempo must be positive`(bpm: Int) {
         // Given / When / Then
-        assertThatIllegalArgumentException().isThrownBy { Score("Test", bpm, listOf(aVoice())) }
+        assertThatIllegalArgumentException().isThrownBy {
+            Score("Test", bpm, beatsPerBar = 4, voices = listOf(aVoice()))
+        }
     }
 
     @Test
     fun `a score needs at least one voice`() {
         // Given / When / Then
-        assertThatIllegalArgumentException().isThrownBy { Score("Test", bpm = 150, voices = emptyList()) }
+        assertThatIllegalArgumentException().isThrownBy {
+            Score("Test", bpm = 150, beatsPerBar = 4, voices = emptyList())
+        }
+    }
+
+    @Test
+    fun `all voices of a score must have the same length`() {
+        // Given
+        val voices = listOf(aVoice(beats = 4.0), aVoice(beats = 8.0))
+
+        // When / Then
+        assertThatIllegalArgumentException().isThrownBy { Score("Test", bpm = 150, beatsPerBar = 4, voices = voices) }
+    }
+
+    @ParameterizedTest(name = "{0} beats per bar are refused")
+    @ValueSource(ints = [0, -1])
+    fun `the number of beats per bar must be positive`(beatsPerBar: Int) {
+        // Given / When / Then
+        assertThatIllegalArgumentException().isThrownBy {
+            Score("Test", bpm = 150, beatsPerBar = beatsPerBar, voices = listOf(aVoice(beats = 4.0)))
+        }
+    }
+
+    @Test
+    fun `every voice lasts a whole number of bars`() {
+        // Given a voice of 5 beats in 4-4
+        val voices = listOf(aVoice(beats = 5.0))
+
+        // When / Then
+        assertThatIllegalArgumentException().isThrownBy { Score("Test", bpm = 150, beatsPerBar = 4, voices = voices) }
     }
 }

@@ -21,7 +21,8 @@ Voir l'[ADR 0008](adr/0008-musique-domaine-public.md).
 ## Modèle
 
 ```
-Score(title, bpm, voices)            // bpm > 0, au moins une voix
+Score(title, bpm, beatsPerBar, voices)   // bpm > 0, beatsPerBar > 0, au moins une voix,
+                                         // voix de même longueur, nombre entier de mesures
 Voice(waveform: SQUARE | TRIANGLE, volume, notes)   // volume dans [0, 1], au moins une note
 Note(pitch: Pitch?, beats: Double)   // pitch null = silence ; beats > 0 et fini
 Pitch.parse("A4") -> 440 Hz ; midi = 12 × (octave + 1) + demi-ton ; f = 440 × 2^((midi − 69) / 12)
@@ -29,7 +30,9 @@ Pitch.parse("A4") -> 440 Hz ; midi = 12 × (octave + 1) + demi-ton ; f = 440 × 
 
 `Pitch` est un type valeur sur le numéro MIDI : deux hauteurs de même nom sont égales, et une
 hauteur s'affiche par son nom. Notation : lettre majuscule A à G, dièse `#` facultatif (pas de
-bémol), octave 0 à 8 ; tout autre nom est refusé. `TRIANGLE` arrive avec la basse (P4.2).
+bémol), octave 0 à 8 ; tout autre nom est refusé. Le numéro MIDI va de 12 (C0) à 119 (B8),
+pour que toute hauteur se relise depuis son nom. `SQUARE` sert aux mélodies, `TRIANGLE` aux
+basses.
 
 **Tests :** `PitchTest › A4 is 440 Hz`,
 `PitchTest › the MIDI number is 12 times the octave plus one, plus the semitone`,
@@ -41,7 +44,13 @@ bémol), octave 0 à 8 ; tout autre nom est refusé. `TRIANGLE` arrive avec la b
 `VoiceTest › the volume must be between 0 and 1`, `VoiceTest › a volume of 0 or 1 is accepted`,
 `VoiceTest › the total duration is the sum of the durations of the notes`,
 `VoiceTest › a voice needs at least one note`, `ScoreTest › a well-formed score is built`,
-`ScoreTest › the tempo must be positive`, `ScoreTest › a score needs at least one voice`.
+`ScoreTest › the tempo must be positive`, `ScoreTest › a score needs at least one voice`,
+`ScoreTest › all voices of a score must have the same length`,
+`ScoreTest › the number of beats per bar must be positive`,
+`ScoreTest › every voice lasts a whole number of bars`,
+`PitchTest › a MIDI number outside C0 to B8 is refused`,
+`PitchTest › the MIDI numbers of C0 and B8 are accepted`,
+`PitchTest › a pitch at either end of the range reads back from its name`.
 
 Le séquenceur lit les voix en parallèle. Chaque note joue à volume constant pendant 80 % de
 sa durée puis s'éteint en fondu jusqu'à 95 %, pour séparer les notes répétées.
@@ -94,3 +103,24 @@ G2 · B2 · C3 · B2 · A2 · G2 · D3 · D2.
 
 > Les basses sont volontairement simples. Ce sont elles qui font de ces versions des
 > arrangements BloX : on pourra les enrichir.
+
+Les deux partitions sont transcrites dans `Scores` (`core:music`). Les tests vérifient la
+structure (tempo, mesure, ondes, volumes), les durées (aucune note ne chevauche une barre,
+8 mesures complètes), la tonalité (la mineur naturel, sol majeur), la plage de chaque voix
+(mélodies A4..A5 et F#4..G5, basses C2..E3), la première mesure de chaque mélodie et
+l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
+
+**Tests :** `ScoresTest › Korobeiniki is played at 150 bpm in 4-4 with a square melody at 0_07 and a triangle bass at 0_16`,
+`ScoresTest › the minuet is played at 132 bpm in 3-4 with a square melody at 0_07 and a triangle bass at 0_16`,
+`ScoresTest › in every voice no note crosses a bar line and every bar is complete`,
+`ScoresTest › every voice has 8 bars`,
+`ScoresTest › the first bar of the Korobeiniki melody is the one of docs musique md`,
+`ScoresTest › the first bar of the minuet melody is the one of docs musique md`,
+`ScoresTest › the Korobeiniki bass alternates a root and its fifth, octave ignored`,
+`ScoresTest › a melody only uses the pitch classes of its key`,
+`ScoresTest › every voice stays within its range`.
+
+> **[à vérifier] (droits)** : le rythme de la mélodie de *Korobeïniki* ci-dessus (mesure 5 :
+> demi-temps de silence puis syncopes) ressemble à la version popularisée par le jeu de 1989
+> plus qu'au chant populaire, noté en 2/4. La mélodie est du domaine public, l'arrangement du
+> jeu ne l'est pas : comparer à une partition publique du chant et citer la source (P4.9).

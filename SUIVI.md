@@ -161,19 +161,25 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 Référence : [docs/musique.md](docs/musique.md).
 
 - [x] **P4.1** `core:music` : `Pitch` (fréquence), `Note`, `Voice`, `Score`, en TDD.
-- [ ] **P4.2** Partitions *Korobeïniki* et *Menuet* : tests de cohérence (durée de chaque
-  mesure, voix de même longueur). Issu de la revue de P4.1 : `Score` ne connaît pas la mesure
-  (4/4, 3/4) ; « voix de même longueur » en invariant de `Score` ; fabriques plus courtes que
-  `Note(Pitch.parse("E5"), 1.0)` ; réintroduire `Waveform.TRIANGLE` ; plage du constructeur
-  `Pitch(midi)` non vérifiée (C0..B8 = 12..119 ?).
+- [x] **P4.2** Partitions *Korobeïniki* et *Menuet* : tests de cohérence (durée de chaque
+  mesure, voix de même longueur). `Score.beatsPerBar`, invariants de longueur, `TRIANGLE`,
+  plage de `Pitch` C0..B8.
 - [ ] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
   sur la JVM.
-- [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre.
+- [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
+  d'écrire le séquenceur, choisir entre durées entières (sous-unités du temps, par exemple
+  48 par noire) et comparaison avec tolérance : les durées sont des `Double` exacts tant qu'il
+  n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2).
 - [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
-- [ ] **P4.7** Aperçu « Écouter » sur l'accueil.
+- [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
+  domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
+  feature traduit via `strings.xml` (revue de P4.2).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
+- [ ] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
+  publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
+  jeu de 1989 plutôt que le chant (revue de P4.2). **[à vérifier]**
 
 ## P5 — Finitions
 
@@ -220,3 +226,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P4.1 | Modèle musical de `core:music` (agent C, worktree parallèle) : `Pitch` (type valeur sur le numéro MIDI, `Pitch.parse`, fréquence, `toString` = nom), `Note` (silence = hauteur nulle, durée positive et finie), `Waveform` (`SQUARE`), `Voice` (volume dans [0, 1], au moins une note, durée totale), `Score` (tempo positif, au moins une voix). 17 tests (39 exécutions). `docs/musique.md` : notation `F#` (le `♯` Unicode n'était pas lu), règles du modèle, tests. | Verts d'emblée, contrôlés ou justifiés : C4 ≈ 261,63 Hz (mutation), bornes du volume (mutation), cas valide de `Score`, noms déjà refusés par l'analyseur (seul `A9` a donné le rouge de l'octave 0 à 8). Revue indépendante : retenu — égalité de `Pitch` par MIDI, bornes du volume, durée infinie refusée, analyseur strict, `TRIANGLE` retiré jusqu'à P4.2, voix non vide, cas valide et helper de test partagé. Écarté : types `Beats` / `Volume` / `Bpm` (alourdiraient l'écriture des partitions), refus de `E#` / `B#` (justes en hauteur). Notés en P4.2 et P4.5 : mesure, invariant de longueur, fabriques, plage MIDI, tempo. |
 | 2026-10-18 | P1.3 | `Piece` (type, `Orientation`, pivot ; cellules = pivot + décalages) et `Board.fits(piece)` : colonnes 0 à 9, lignes −2 à 19, case vide ; lignes −2 et −1 cachées, toujours vides (ROM). `cellsOf` déplacé dans un fichier de test commun (deuxième paquet). 7 tests (14 exécutions). Spécification : lignes cachées et perte des cellules cachées au verrouillage (ROM), `[à vérifier]` de P1.3 retiré. | Mutants tués : bornes des colonnes dans les lignes cachées, dernière ligne avant le fond, première ligne cachée à −1 ou −3, case occupée ignorée. Revue indépendante : retenu — test « touche le bord sans le dépasser », une seule vérification des colonnes, KDoc de `Board` et de `Piece`, `canHold` renommé `fits`, formes dessinées dans les tests de `model` (plus de dépendance à `rules`), un seul « When » par test. Écarté : un paramètre par ligne pour `Piece` (ktlint `class-signature` impose la forme courte sous 120 colonnes, conforme au choix de P0.6 pour les value objects) ; `Position.plus` attendu en P1.4. |
 | 2026-10-18 | P1.8 | `Randomizer.next(previous)` (KDoc : `previous` = dernière pièce tirée, celle de l'aperçu) et `ClassicRandomizer` (constructeur public par graine, constructeur `internal` sur `kotlin.random.Random` pour les tests) : premier tirage sur 8 valeurs, relance unique sur 7 si « aucune pièce » ou répétition, ordre ROM T, J, Z, O, S, L, I. 21 tests, faux `Random` scripté qui vérifie les bornes. Spécification : `[à vérifier]` retiré (TetrisWiki, ordre d'après la ROM). ADR 0014 : le tirage est le seul état modifiable du domaine. | Règle TetrisWiki retenue ; écart assumé : le biais de la ROM au second tirage n'est pas reproduit. Verts d'emblée, contrôlés par mutation : première pièce, graines identiques ou différentes. Revue indépendante : retenu — test « graines différentes », sens de `previous` en KDoc et test du moteur inscrit en P1.12, constructeur `Random` interne, faux `Random` plus strict, test de l'ordre ROM renommé, `romOrder` une pièce par ligne et constante « aucune pièce », ADR 0014 plutôt qu'une forme pure. Découvert : P1.20 (graine stable entre versions, si une graine est gardée). |
+| 2026-10-18 | P4.2 | Partitions *Korobeïniki* (150 bpm, 4/4) et *Menuet* (132 bpm, 3/4) dans `Scores`, transcrites depuis `docs/musique.md` avec des fabriques privées (`bar`, `melody`, `bass`, `rootAndFifth`). `Score` reçoit `beatsPerBar` et deux invariants (voix de même longueur, nombre entier de mesures) ; `Waveform.TRIANGLE` revient ; `Pitch` limité à C0..B8. Tests de structure, de durées, de tonalité et de plage par voix. 64 exécutions dans `core:music`. | Transcription comparée note à note par la revue indépendante : aucune divergence sur les 32 mesures. Tests de données verts d'emblée par nature, chacun contrôlé par mutation (note à cheval sur une barre, hauteur changée, demi-ton, octave, silence ou cinquième note dans la basse). Revue : retenu — `beatsPerBar > 0`, nombre entier de mesures, plage de `Pitch`, basse à 4 notes sans silence, tests de tonalité et de plage. Écarté ou reporté : tolérance ou durées entières (P4.4), titre remplacé par un identifiant (P4.7), écriture des silences (goût). **Droits** : le rythme de *Korobeïniki* ressemble à la version du jeu de 1989 ; à vérifier contre le chant populaire (P4.9). |
