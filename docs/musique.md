@@ -86,7 +86,21 @@ Le séquenceur (P4.4) lit le résultat en boucle sur `AudioTrack`.
 
 Quand la pile atteint une hauteur critique, le tempo augmente (par exemple × 1,25), et revient
 à la normale quand elle redescend. Le domaine émet un événement `StackDanger(on/off)`, le
-ViewModel le traduit en `setTempoFactor()`. Seuil exact à décider en jouant.
+ViewModel le traduit en `setTempoFactor()`.
+
+La hauteur de pile vaut 20 moins la première ligne occupée (0 si le plateau est vide). La pile
+**entre** en danger quand elle atteint 15 et n'en **sort** qu'en redescendant à 12 ou moins :
+deux seuils, pour que le tempo ne bascule pas à chaque pièce. Valeurs à régler en jouant
+**[à vérifier]**. La hauteur se mesure au verrouillage, sur le plateau **après** effacement des
+lignes ; l'événement n'est émis qu'au franchissement (moteur, P1.12c).
+
+**Tests :** `BoardStackHeightTest › an empty board has a stack height of 0`,
+`BoardStackHeightTest › the stack height is 20 minus the first filled row`,
+`BoardStackHeightTest › an isolated cell high up counts, even above a hole`,
+`ClassicStackDangerRuleTest › out of danger the stack enters danger when its height reaches 15`,
+`ClassicStackDangerRuleTest › in danger the stack leaves danger only when its height falls to 12 or less`,
+`ClassicStackDangerRuleTest › the same height gives a different answer depending on whether the stack was in danger`,
+`ClassicStackDangerRuleTest › a stack height outside 0 to 20 is refused`.
 
 ## Partitions (prototype de la maquette)
 
