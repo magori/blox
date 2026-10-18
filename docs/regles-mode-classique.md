@@ -71,17 +71,37 @@ by that piece` (les sept types ; formes à venir en P1.2).
 
 ## Tirage des pièces
 
-Générateur de la NES, **[à vérifier]** dans le détail :
+Générateur de la NES :
 
-1. Tirer un nombre de 0 à 7.
-2. Si on obtient 7 (« aucune pièce ») ou la même pièce que la précédente, tirer à nouveau
-   **une seule fois** un nombre de 0 à 6, et garder ce résultat quel qu'il soit.
+1. Tirer un nombre de 0 à 7. Les nombres 0 à 6 désignent, dans l'ordre de la ROM, T, J, Z,
+   O, S, L, I ; 7 signifie « aucune pièce ».
+2. Si on obtient 7 ou la même pièce que la précédente, tirer à nouveau **une seule fois** un
+   nombre de 0 à 6, et garder ce résultat quel qu'il soit. Pour la première pièce de la
+   partie, seul le 7 provoque ce second tirage.
+
+La « pièce précédente » est la dernière pièce tirée, celle de l'aperçu, et non celle qui
+vient de se verrouiller.
 
 Conséquence : les répétitions sont rares mais possibles, et il n'y a aucune garantie de
 voir chaque pièce régulièrement (contrairement au « sac de 7 » du mode Moderne).
 
-Le générateur reçoit sa source d'aléatoire en dépendance (`Randomizer` + graine) pour que
-les tests soient déterministes.
+Source : TetrisWiki, *Tetris (NES, Nintendo)* ; ordre des pièces d'après la ROM
+(meatfighter.com, « Applying AI to Nintendo Tetris »). **Écart assumé** : dans la ROM, le
+second tirage ajoute l'identifiant d'orientation de la pièce précédente, d'où des
+probabilités de 13,8 % à 14,7 % ; BloX tire uniformément (14,3 % pour chaque pièce).
+
+Le générateur se crée avec une graine (`ClassicRandomizer(seed)`) ; les tests lui injectent
+une source d'aléatoire scriptée. C'est le seul état modifiable du domaine
+([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)).
+
+**Tests :** `ClassicRandomizerTest › a valid first draw different from the previous piece is kept`,
+`ClassicRandomizerTest › a first draw of 7 is followed by a second draw that is kept`,
+`ClassicRandomizerTest › a first draw equal to the previous piece is followed by a second draw that is kept even if it repeats`,
+`ClassicRandomizerTest › the first draw maps to the pieces in the ROM order T J Z O S L I`,
+`ClassicRandomizerTest › for the first piece of the game a first draw of 7 is followed by a second draw`,
+`ClassicRandomizerTest › the first draw is made among 8 values and the second among 7`,
+`ClassicRandomizerTest › two randomizers created with the same seed draw the same sequence`,
+`ClassicRandomizerTest › two randomizers created with different seeds draw different sequences`.
 
 ## Rotation
 

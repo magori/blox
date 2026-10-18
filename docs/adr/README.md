@@ -19,5 +19,6 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0011](0011-navigation-3.md) | Navigation 3 : la pile de navigation appartient à l'application | Acceptée ; point P2.10 consigné dans 0013 |
 | [0012](0012-horloge-d-images-cote-ecran.md) | L'horloge d'images appartient à l'écran, le ViewModel ne fait qu'avancer | Acceptée |
 | [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) | Les fabriques de ViewModel entrent par les entrées de navigation | Acceptée |
+| [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).
