@@ -113,6 +113,23 @@ class ChiptuneSequencerTest {
     }
 
     @Test
+    fun `stopping a playback that was replaced leaves the new one playing`() = runTest {
+        // Given a score playing, replaced by another one
+        val sequencer = sequencer()
+        val first = sequencer.play(korobeiniki)
+        nextSlice(sink = 0)
+        sequencer.play(minuet)
+        nextSlice(sink = 1)
+
+        // When the first playback is stopped, as its game is left after the next one started
+        first.stop()
+
+        // Then the new one goes on writing, its sink open
+        assertThat(nextSlice(sink = 1)).containsExactly(-3f, -1f)
+        assertThat(sinks[1].released).isFalse()
+    }
+
+    @Test
     fun `stop without play does nothing`() = runTest {
         // Given
         val sequencer = sequencer()
@@ -204,6 +221,21 @@ class ChiptuneSequencerTest {
     }
 
     @Test
+    fun `a failure that stops the music is reported, to be logged`() = runTest {
+        // Given a sequencer whose sink cannot open
+        val failure = IllegalStateException("No audio output")
+        val reported = mutableListOf<Exception>()
+        val sequencer = sequencer(openSink = { throw failure }, onFailure = { reported += it })
+
+        // When
+        sequencer.play(korobeiniki)
+        runCurrent()
+
+        // Then
+        assertThat(reported).containsExactly(failure)
+    }
+
+    @Test
     fun `a write that fails releases the sink and stops the music without a crash`() = runTest {
         // Given a sink whose second write fails
         val sink = BlockingFakeSink(onWrite = { count ->
@@ -249,6 +281,7 @@ class ChiptuneSequencerTest {
     private fun TestScope.sequencer(
         openSink: (Int) -> AudioSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
         onRender: () -> Unit = {},
+        onFailure: (Exception) -> Unit = {},
     ): ChiptuneSequencer {
         val renderDispatcher = WatchedDispatcher(StandardTestDispatcher(testScheduler))
         return ChiptuneSequencer(
@@ -262,6 +295,7 @@ class ChiptuneSequencerTest {
             renderDispatcher = renderDispatcher,
             writeDispatcher = StandardTestDispatcher(testScheduler),
             sliceSize = 2,
+            onFailure = onFailure,
         )
     }
 

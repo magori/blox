@@ -49,9 +49,9 @@ private val MinTouchHeight = 48.dp
 private const val DISABLED_ALPHA = 0.38f
 
 /**
- * The home screen (V1): title and record, mode, theme, start level, music, and the play button. The
- * chosen theme colours this screen at once; the whole application follows it in P3.5. Listening to a
- * music comes in P4.7, the logo later.
+ * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
+ * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
+ * this screen at once. Listening to a music comes in P4.7.
  */
 @Composable
 internal fun HomeScreen(
@@ -62,80 +62,79 @@ internal fun HomeScreen(
     onPlay: (startLevel: Int) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BloxTheme(kind = uiState.theme.kind) {
-        val palette = BloxTheme.palette
-        Column(
-            modifier = modifier
-                .fillMaxSize()
-                .background(palette.page)
-                .safeDrawingPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = stringResource(R.string.feature_home_title),
-                color = palette.ink,
-                style = MaterialTheme.typography.displayMedium,
-                modifier = Modifier.semantics { heading() },
-            )
-            Record(record = uiState.record)
-            Section(title = R.string.feature_home_mode) {
-                ChoiceRow {
-                    // The only mode for now: chosen, with nothing to do on it.
-                    Choice(text = stringResource(R.string.feature_home_mode_classic), selected = true, onClick = null)
-                    // Shown greyed out, and not clickable: the Modern mode comes later (P6).
+    val palette = BloxTheme.palette
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .background(palette.page)
+            .safeDrawingPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        HomeLogo()
+        Text(
+            text = stringResource(R.string.feature_home_title),
+            color = palette.ink,
+            style = MaterialTheme.typography.displayMedium,
+            modifier = Modifier.semantics { heading() },
+        )
+        Record(record = uiState.record)
+        Section(title = R.string.feature_home_mode) {
+            ChoiceRow {
+                // The only mode for now: chosen, with nothing to do on it.
+                Choice(text = stringResource(R.string.feature_home_mode_classic), selected = true, onClick = null)
+                // Shown greyed out, and not clickable: the Modern mode comes later (P6).
+                Choice(
+                    text = stringResource(R.string.feature_home_mode_modern),
+                    selected = false,
+                    enabled = false,
+                    onClick = {},
+                )
+            }
+        }
+        Section(title = R.string.feature_home_theme) {
+            ChoiceRow {
+                ThemeChoice.entries.forEach { theme ->
                     Choice(
-                        text = stringResource(R.string.feature_home_mode_modern),
-                        selected = false,
-                        enabled = false,
-                        onClick = {},
+                        text = stringResource(theme.label),
+                        selected = theme == uiState.theme,
+                        onClick = { onThemeChosen(theme) },
                     )
                 }
             }
-            Section(title = R.string.feature_home_theme) {
-                ChoiceRow {
-                    ThemeChoice.entries.forEach { theme ->
-                        Choice(
-                            text = stringResource(theme.label),
-                            selected = theme == uiState.theme,
-                            onClick = { onThemeChosen(theme) },
-                        )
-                    }
+        }
+        Section(title = R.string.feature_home_start_level) {
+            // 0 to 9 on a single line, as on the mockup: equal cells, as tall as a finger needs.
+            Row(
+                modifier = Modifier.fillMaxWidth().selectableGroup(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                uiState.startLevels.forEach { level ->
+                    Choice(
+                        text = level.toString(),
+                        selected = level == uiState.startLevel,
+                        onClick = { onStartLevelChosen(level) },
+                        modifier = Modifier.weight(1f),
+                    )
                 }
             }
-            Section(title = R.string.feature_home_start_level) {
-                // 0 to 9 on a single line, as on the mockup: equal cells, as tall as a finger needs.
-                Row(
-                    modifier = Modifier.fillMaxWidth().selectableGroup(),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
-                    uiState.startLevels.forEach { level ->
-                        Choice(
-                            text = level.toString(),
-                            selected = level == uiState.startLevel,
-                            onClick = { onStartLevelChosen(level) },
-                            modifier = Modifier.weight(1f),
-                        )
-                    }
+        }
+        Section(title = R.string.feature_home_music) {
+            ChoiceRow {
+                MusicChoice.entries.forEach { music ->
+                    Choice(
+                        text = stringResource(music.label),
+                        selected = music == uiState.music,
+                        onClick = { onMusicChosen(music) },
+                    )
                 }
             }
-            Section(title = R.string.feature_home_music) {
-                ChoiceRow {
-                    MusicChoice.entries.forEach { music ->
-                        Choice(
-                            text = stringResource(music.label),
-                            selected = music == uiState.music,
-                            onClick = { onMusicChosen(music) },
-                        )
-                    }
-                }
-            }
-            // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
-            Button(onClick = dropUnlessResumed { onPlay(uiState.startLevel) }) {
-                Text(text = stringResource(R.string.feature_home_play))
-            }
+        }
+        // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
+        Button(onClick = dropUnlessResumed { onPlay(uiState.startLevel) }) {
+            Text(text = stringResource(R.string.feature_home_play))
         }
     }
 }
@@ -219,12 +218,6 @@ private fun Choice(
     }
 }
 
-private val ThemeChoice.kind: BloxThemeKind
-    get() = when (this) {
-        ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
-        ThemeChoice.COLORFUL -> BloxThemeKind.COLORFUL
-    }
-
 @get:StringRes
 private val ThemeChoice.label: Int
     get() = when (this) {
@@ -243,19 +236,25 @@ private val MusicChoice.label: Int
 
 @Composable
 private fun HomeScreenPreview(theme: ThemeChoice) {
-    HomeScreen(
-        uiState = HomeUiState(
-            theme = theme,
-            music = MusicChoice.KOROBEINIKI,
-            startLevel = 0,
-            startLevels = (0..9).toList(),
-            record = 12_340,
-        ),
-        onThemeChosen = {},
-        onMusicChosen = {},
-        onStartLevelChosen = {},
-        onPlay = {},
-    )
+    val kind = when (theme) {
+        ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
+        ThemeChoice.COLORFUL -> BloxThemeKind.COLORFUL
+    }
+    BloxTheme(kind = kind) {
+        HomeScreen(
+            uiState = HomeUiState(
+                theme = theme,
+                music = MusicChoice.KOROBEINIKI,
+                startLevel = 0,
+                startLevels = (0..9).toList(),
+                record = 12_340,
+            ),
+            onThemeChosen = {},
+            onMusicChosen = {},
+            onStartLevelChosen = {},
+            onPlay = {},
+        )
+    }
 }
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.

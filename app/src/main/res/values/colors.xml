@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- Le fond de la fenêtre, visible avant le premier dessin de Compose : il vaut le `page` du thème
+         Original (BloxPalettes.Original, core:designsystem). WindowBackgroundTest le vérifie. -->
     <color name="blox_window_background">#FFCFE3C8</color>
 </resources>

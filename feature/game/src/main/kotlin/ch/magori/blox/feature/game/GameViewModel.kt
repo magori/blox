@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import ch.magori.blox.core.audio.MusicPlayer
+import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.HighScoreRepository
+import ch.magori.blox.core.data.UserPreferences
+import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.engine.Button
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.GameEvent
@@ -12,8 +16,12 @@ import ch.magori.blox.core.game.engine.GameState
 import ch.magori.blox.core.game.engine.Input
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.music.NORMAL_TEMPO
+import ch.magori.blox.feature.game.music.scoreFor
+import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
@@ -21,6 +29,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,6 +44,8 @@ class GameViewModel internal constructor(
     engineFactory: GameEngineFactory,
     route: GameRoute,
     private val highScores: HighScoreRepository,
+    private val preferences: UserPreferencesRepository,
+    private val music: MusicPlayer,
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
 
@@ -48,6 +59,12 @@ class GameViewModel internal constructor(
 
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
 
+    /** The score of the music of this game, from the settings; null when none is played. */
+    private var score: Score? = null
+
+    /** The music of this game while it plays: stopping it leaves the music of another game alone. */
+    private var playback: Playback? = null
+
     init {
         // The record shown in the top bar: its real value, followed as it changes. Records that fail to be
         // read keep the last record known; the game goes on. The cancellation still goes through.
@@ -55,6 +72,14 @@ class GameViewModel internal constructor(
             highScores.highScore
                 .catch { }
                 .collect { record -> state.update { it.copy(record = record) } }
+        }
+        // The music chosen on the home screen, at the normal tempo.
+        viewModelScope.launch {
+            val choice = preferences.preferences.catch { emit(UserPreferences.DEFAULT) }.first().music
+            score = scoreFor(choice)
+            music.setTempoFactor(NORMAL_TEMPO)
+            // The settings may answer once the game is paused or over: the music then waits, or never comes.
+            if (isUnderWay()) playback = score?.let(music::play)
         }
     }
 
@@ -81,6 +106,7 @@ class GameViewModel internal constructor(
             val update = engine.tick(gameState)
             gameState = update.state
             if (GameEvent.GameOver in update.events) over = true
+            update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
         }
         publish()
         if (over) onGameOver(gameState)
@@ -90,12 +116,17 @@ class GameViewModel internal constructor(
     internal fun onPause() {
         gameState = engine.apply(gameState, Input.Pause).state
         publish()
+        playback?.stop()
     }
 
     /** The player resumes the paused game (Reprendre, system back): it goes on where it stood. */
     internal fun onResume() {
+        val wasPaused = gameState.paused
         gameState = engine.apply(gameState, Input.Resume).state
         publish()
+        // Only when the game really goes on again (not resumed twice, not over): the music goes on where it
+        // stopped, or starts if the game was paused before it started.
+        if (wasPaused && isUnderWay()) playback = playback?.resume() ?: score?.let(music::play)
     }
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
@@ -109,6 +140,7 @@ class GameViewModel internal constructor(
      * new one.
      */
     private fun onGameOver(finalState: GameState) {
+        playback?.stop()
         viewModelScope.launch {
             val gameOver = finalState.toGameOverUiState(isNewRecord(finalState.progress.score.value))
             state.update { it.copy(gameOver = gameOver) }
@@ -128,6 +160,14 @@ class GameViewModel internal constructor(
         false
     }
 
+    /** Whether the game goes on: neither paused nor over. */
+    private fun isUnderWay(): Boolean = !gameState.paused && gameState.phase !is Phase.GameOver
+
+    /** The game screen is left (Menu, Rejouer, system back): its music stops with it. */
+    override fun onCleared() {
+        playback?.stop()
+    }
+
     /**
      * A button of the screen went down or up: the engine records it at once in its controller, and the
      * ticks of the next frame read it. Several changes between two frames are all recorded, in order.
@@ -140,15 +180,19 @@ class GameViewModel internal constructor(
      * Builds the view model of a game. The feature defines it, `app` builds it; the route comes in the
      * [CreationExtras] under [RouteKey], since only the navigation entry knows it (ADR 0013).
      */
-    class Factory(private val engineFactory: GameEngineFactory, private val highScores: HighScoreRepository) :
-        ViewModelProvider.Factory {
+    class Factory(
+        private val engineFactory: GameEngineFactory,
+        private val highScores: HighScoreRepository,
+        private val preferences: UserPreferencesRepository,
+        private val music: MusicPlayer,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T {
             val route = requireNotNull(extras[RouteKey]) { "The game route is missing from the creation extras" }
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(engineFactory, route, highScores) as T
+            return GameViewModel(engineFactory, route, highScores, preferences, music) as T
         }
     }
 

@@ -21,6 +21,8 @@ data class BloxPalette(
     val buttonInk: Color,
     val accent: Color,
     val accentInk: Color,
+    /** The four cells of the logo of the home screen. */
+    val logoCells: LogoColors,
 )
 
 object BloxPalettes {
@@ -37,6 +39,13 @@ object BloxPalettes {
         buttonInk = Color(0xFFEEF5EA),
         accent = Color(0xFF34503A),
         accentInk = Color(0xFFEEF5EA),
+        // The four greens of the pieces, the fills of I, O, J and T: dark, medium, light, pale.
+        logoCells = LogoColors(
+            topLeft = Color(0xFF34503A),
+            topRight = Color(0xFF87A67F),
+            bottomLeft = Color(0xFFBFD6B6),
+            bottomRight = Color(0xFFEEF5EA),
+        ),
     )
 
     /** Thème « Couleurs » : fond sombre, une couleur vive par pièce. */
@@ -52,5 +61,12 @@ object BloxPalettes {
         buttonInk = Color(0xFFF1F1F4),
         accent = Color(0xFFEF8D3B),
         accentInk = Color(0xFF12141C),
+        // The fills of the I, O, Z and S pieces.
+        logoCells = LogoColors(
+            topLeft = Color(0xFF3FC5E8),
+            topRight = Color(0xFFF2C641),
+            bottomLeft = Color(0xFFE5534B),
+            bottomRight = Color(0xFF5BC46A),
+        ),
     )
 }

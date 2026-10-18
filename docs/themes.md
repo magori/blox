@@ -21,6 +21,47 @@ commandes, aux boutons des écrans — Reprendre, Menu, Rejouer — et au bouton
 `DisplayedCells`, `BoardCanvas`) et paquet `sidepanel` (colonne latérale, aperçu de la pièce
 suivante dessiné avec le même `CellPainter`).
 
+**Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
+(accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans
+`BloxTheme(kind)`, et `kind` vient d'`AppTheme` (`app`), un `StateFlow` lu depuis les
+préférences, connu tout de suite après la première lecture (pas de flash à la recréation de
+l'activité). Avant cette lecture, rien n'est composé et la première image est retenue, pour que
+le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
+(`colors.xml`, `blox_window_background`) est celui du thème Original ; un test le compare à
+`BloxPalettes.Original.page`.
+
+**Logo de l'accueil** (P3.7) : quatre cellules en carré 2 × 2, couleurs du jeton
+`BloxPalette.logoCells` (`LogoColors`, exactement quatre couleurs) : en Original, les
+remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S. Ces couleurs répètent celles
+des pièces (`feature:game`) : un test vérifie qu'elles restent égales.
+
+**Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
+`AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
+`AppThemeTest › once read, the theme is known at once to a new collector`,
+`AppThemeTest › changing the music or the start level does not emit the theme again`,
+`WindowBackgroundTest › the window background is the page colour of the Original theme`,
+`HomeLogoTest › in the Original theme the logo is a square of four cells in the four greens of the pieces`,
+`HomeLogoTest › in the Colorful theme the logo is a square of four cells in the colours of I, O, Z and S`,
+`LogoColorsTest › the logo cells of each theme are fills of its pieces`. Vues : V1, V2, V3, V4.
+
+**Icône et écran de démarrage** (P5.1) : icône adaptative (`mipmap-anydpi`, minSdk 26, sans
+`roundIcon`) : fond `blox_window_background` (page Original), premier plan des quatre cellules du
+logo aux couleurs `BloxPalettes.Original.logoCells` (cellules de 22 dp, joint de 2 dp, carré de
+46 dp centré sur 108, dans la zone sûre de 66 dp quel que soit le masque), couche monochrome de
+même forme pour les icônes thématiques. Écran de démarrage d'Android 12 et plus par le thème
+(`values-v31`, `Theme.Blox` héritant de `Base.Theme.Blox`, sans `core-splashscreen`) : fond de
+page Original et icône ; il reste affiché jusqu'à la lecture du thème (première image
+retenue, P3.5). La cellule pâle se distingue peu du fond (contraste d'environ 1,2:1), comme sur
+le logo de l'accueil.
+
+**Tests :** `LauncherIconTest › the four cells of the icon are the logo colours of the Original theme, in reading order`,
+`LauncherIconTest › the adaptive icon has the page of the Original theme behind, the cells in front, and a monochrome layer`,
+`LauncherIconTest › the application has no round icon, as every icon is adaptive from Android 8`,
+`LauncherIconTest › the splash screen of Android 12 shows the page of the Original theme and the icon`,
+`LauncherIconTest › the theme of Android 12 inherits the base theme and only adds the splash screen`,
+`LauncherIconTest › every corner of the cells is in the safe zone of the adaptive icon, whatever the mask`,
+`LauncherIconTest › the monochrome layer has the very shape of the cells in front`.
+
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
