@@ -32,6 +32,8 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -41,7 +43,12 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
 
 private val ArrowSize = 20.dp
-private val LetterSize = 20.sp
+
+/**
+ * The letters A and B: bold and of 20 sp, large text for WCAG 2.1 (14 pt bold, 18.66 sp), so that their ink
+ * needs a contrast of 3:1 on the key, which `button` and `accent` give in both themes, held or not.
+ */
+internal val KeyLetterStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
 
 /**
  * The fingers on the touch controls of V2 and V3, shared by the two groups, [DirectionPad] (◀ ▼ ▶)
@@ -140,15 +147,7 @@ private fun ControlKey(
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
-    val (face, ink) = when (button) {
-        ControlButton.A -> palette.accent to palette.accentInk
-        else -> palette.button to palette.buttonInk
-    }
-    // A held button is drawn with its colours swapped.
-    val held = button in fingers.heldButtons
-    val background = if (held) ink else face
-    val foreground = if (held) face else ink
+    val (background, foreground) = keyColors(BloxTheme.palette, button, held = button in fingers.heldButtons)
     val description = stringResource(descriptionOf(button))
     Box(
         modifier = modifier
@@ -188,9 +187,9 @@ private fun Glyph(
     modifier: Modifier = Modifier,
 ) {
     when (button) {
-        ControlButton.A -> Text(text = "A", modifier = modifier, color = color, fontSize = LetterSize)
+        ControlButton.A -> Text(text = "A", modifier = modifier, color = color, style = KeyLetterStyle)
 
-        ControlButton.B -> Text(text = "B", modifier = modifier, color = color, fontSize = LetterSize)
+        ControlButton.B -> Text(text = "B", modifier = modifier, color = color, style = KeyLetterStyle)
 
         else -> Spacer(
             modifier = modifier

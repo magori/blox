@@ -20,7 +20,7 @@ class CellStylesTest {
         "J, BFD6B6, 34503A, 87A67F",
         "L, 87A67F, 34503A, EEF5EA",
     )
-    fun `in the Original theme a piece has the fill, border and centre of docs themes md`(
+    fun `in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`(
         type: PieceType,
         fill: String,
         border: String,
@@ -29,12 +29,15 @@ class CellStylesTest {
         // When
         val style = cellStyle(BloxThemeKind.ORIGINAL, Cell.Filled(type))
 
-        // Then: a 2 px border and an 8 px centre square on a 24 px cell
+        // Then: on a 24 px cell, a joint of 1 px on each edge, 2 px between two cells, so that two flat cells
+        // side by side never merge; it takes the colour under the cell (CellPainter). Inside it, a 2 px border
+        // and an 8 px centre square
         assertThat(style).isEqualTo(
             CellStyle(
                 fill = rgb(fill),
                 border = CellBorder.Plain(rgb(border), width = 2f / 24),
                 centre = CellCentre(rgb(centre), size = 8f / 24),
+                joint = CellJoint(width = 1f / 24),
             ),
         )
     }

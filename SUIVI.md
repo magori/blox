@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 61 / 114 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 62 / 117 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -262,6 +262,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   faits.
 - [ ] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
   en P2.6 (`docs/maquette.md`).
+- [x] **P2.17** Lisibilité vue sur les captures (P5.7) : touche A enfoncée invisible en thème
+  Couleurs (son fond égalait la page) ; cellules en aplat du thème Original fondues entre elles.
+  Fait : `keyColors`, jetons `buttonPressed` et `accentPressed`, lettres A et B en gras ; joint
+  de 1/24 de la couleur du fond (`cellLayout`, `CellPainter(background)`).
+- [ ] **P2.21** Mettre à jour la maquette : touches tenues (teinte « pressée »), lettres A et B
+  en gras, joint des cellules du thème Original (P2.17).
+- [ ] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
+  `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17).
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
   remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
   `LabelledPanel` partagé avec la colonne latérale.
