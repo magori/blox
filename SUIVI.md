@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 32 / 66 | `██████████░░░░░░░░░░` **48 %** |
-| **MVP** (jouable sur téléphone) | 28 / 37 | `███████████████░░░░░` **76 %** |
+| **Général** | 33 / 67 | `██████████░░░░░░░░░░` **49 %** |
+| **MVP** (jouable sur téléphone) | 29 / 37 | `████████████████░░░░` **78 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -184,8 +184,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   décorateurs de `NavDisplay` (ADR 0011), et envelopper `onPlay` dans `dropUnlessResumed` côté
   feature pour qu'un double appui ne crée pas deux parties. Appeler `GameLoop.reset()` (via le
   ViewModel) en tête du `LaunchedEffect` de l'horloge, sinon la première image après un retour à
-  l'écran rend le plafond de ticks (revue de P2.1).
-- [ ] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
+  l'écran rend le plafond de ticks (revue de P2.1). Brancher `BoardCanvas` (P2.3) dans
+  `GameScreen` : `board` et `piece` du domaine passent tels quels dans `GameUiState`.
+- [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
+  Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
+  Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
+  P2.6 : `BoardCanvas(Board.empty(), piece = null)` masque le plateau.
+- [ ] **P2.12** Mettre à jour la maquette : confirmer la taille du carré central des pièces du
+  thème Original (8 px sur 24 retenu en P2.3) sur la maquette Claude Design.
 - [ ] **P2.4** Colonne latérale : score, niveau, lignes, pièce suivante.
 - [ ] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu.
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise.
@@ -244,7 +250,8 @@ Référence : [docs/musique.md](docs/musique.md).
 
 - [ ] **P5.1** Icône de l'application et écran de démarrage.
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
-- [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible.
+- [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
+  `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
 - [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
   à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
@@ -254,7 +261,9 @@ Référence : [docs/musique.md](docs/musique.md).
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
 - [ ] **P5.7** Tests de captures d'écran à partir des previews existantes (plugin officiel Compose
-  Preview Screenshot Testing), pour les deux thèmes, dans la CI.
+  Preview Screenshot Testing), pour les deux thèmes, dans la CI. Revue de P2.3 : le dessin de
+  `BoardCanvas` n'est vérifié par aucun test ni à l'œil ; ajouter aussi un fichier de
+  configuration de stabilité Compose (`build-logic`) listant `ch.magori.blox.core.game.model.*`.
 
 ## P6 — Mode Moderne (plus tard)
 
