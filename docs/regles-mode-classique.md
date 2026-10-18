@@ -163,7 +163,25 @@ simplification assumée : le calcul réel de la NES est plus particulier **[à v
 - Ensuite, un niveau de plus toutes les **10 lignes**.
 
 Exemples : départ 0 → niveau 1 à 10 lignes ; départ 5 → niveau 6 à 60 lignes ;
-départ 9 → niveau 10 à 100 lignes.
+départ 9 → niveau 10 à 100 lignes. Avant le premier passage, le niveau reste celui de départ
+(départ 5 : niveau 5 de 0 à 59 lignes).
+
+Pour un départ de 0 à 9, la formule vaut toujours `(départ + 1) × 10`, et le niveau est
+`max(départ, lignes ÷ 10)`. La seconde branche (`départ × 10 − 50`) ne sert qu'aux départs 10
+à 19 que la NES propose avec A + Start, absents de BloX. Un départ hors de 0 à 9 est refusé.
+
+**Tests :** `ClassicLevelProgressionTest › starting at level 0 the first level up comes at 10 lines`,
+`ClassicLevelProgressionTest › before the first level up the level stays at the start level`,
+`ClassicLevelProgressionTest › the first level up comes at the start level plus one times 10 lines`,
+`ClassicLevelProgressionTest › after the first level up the level rises every 10 lines`,
+`ClassicLevelProgressionTest › a start level outside 0 to 9 is refused`,
+`LinesTest › a total of lines cannot be negative`, `LinesTest › a total of 0 lines is the lowest valid total`.
+
+**Ordre score / niveau** : quand un effacement fait monter de niveau, le total de lignes et le
+niveau sont mis à jour d'abord, puis les points sont comptés **avec le nouveau niveau**.
+Source : rétro-ingénierie de la ROM, meatfighter.com, « Applying AI to Nintendo Tetris »
+(« After the total lines count and potentially the level are incremented, a value in that list
+is multiplied by level number plus one »). À prouver par un test du moteur (P1.12).
 
 ## Statistiques de fin de partie
 
