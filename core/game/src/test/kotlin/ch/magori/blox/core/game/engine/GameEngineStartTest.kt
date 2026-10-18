@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
@@ -27,7 +28,7 @@ class GameEngineStartTest {
         assertThat(state.startLevel).isEqualTo(Level(0))
         assertThat(state.level).isEqualTo(Level(0))
         assertThat(state.lines).isEqualTo(Lines(0))
-        assertThat(state.score).isEqualTo(0)
+        assertThat(state.score).isEqualTo(Points(0))
         assertThat(state.board).isEqualTo(Board.empty())
         assertThat(state.phase).isInstanceOf(Phase.Falling::class.java)
     }

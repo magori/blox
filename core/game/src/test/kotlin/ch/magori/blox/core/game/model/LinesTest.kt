@@ -14,4 +14,9 @@ class LinesTest {
     fun `a total of 0 lines is the lowest valid total`() {
         assertThat(Lines(0).value).isEqualTo(0)
     }
+
+    @Test
+    fun `the lines cleared at once add to the total`() {
+        assertThat(Lines(9) + LineClear(4)).isEqualTo(Lines(13))
+    }
 }
