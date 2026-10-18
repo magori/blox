@@ -125,17 +125,28 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   l'animation d'effacement, `GameState` garde le plateau verrouillé (non effacé) et le
   `RowsCleared`, et ne publie le plateau effacé qu'à la fin. Découpe validée, une revue et une
   PR par incrément (P1.12 n'est cochée qu'après le dernier) :
-  - [ ] P1.12a État et apparition : `GameState`, `GameEngine.start(niveau de départ, graine)`,
-    validation du départ (plage exposée par `LevelProgression`), deux tirages, apparition pivot
-    en (5, 0) dans l'orientation de départ, fin de partie si la pièce ne tient pas.
-  - [ ] P1.12b Gravité et verrouillage : `tick()`, descente selon `GravityTable`, descente
-    refusée → `lock`, délai d'apparition (`EntryDelay`), apparition de la pièce suivante.
-  - [ ] P1.12c Effacement, score et niveau : `clearFullRows`, animation de 16 images + images
-    jusqu'au prochain multiple de 4 (17 à 20, compteur d'images de la partie, **[à vérifier]**),
-    lignes, niveau recalculé, points au nouveau niveau, événement `LinesCleared`.
-  - [ ] P1.12d Commandes : `apply(Input)` (appui, relâchement), `AutoRepeat` pour le DAS et la
-    descente rapide, rotation, interactions issues de la ROM (ci-dessus), points de descente
-    rapide au verrouillage.
+  - [x] P1.12a État et apparition : `GameState` (constructeur interne, pièce portée par la
+    phase), `Rules` / `ClassicRules` (politiques et position d'apparition), `GameEngine(rules,
+    randomizer)`, `GameEngineFactory.create(seed)` (un moteur par partie, ADR 0014),
+    `start(niveau de départ)`, deux tirages, apparition pivot en (5, 0), fin de partie.
+  - [ ] P1.12b Gravité et verrouillage : `tick(state): GameUpdate`, `Phase.Falling(piece,
+    compteur de gravité)`, descente selon `GravityTable`, descente refusée → `lock`,
+    `Phase.EntryDelay(ticksLeft)`, apparition de la pièce suivante. Réécrire le test de fin de
+    partie via `tick` et rendre `spawn` privé (revue de P1.12a). KDoc : `tick` tire une pièce,
+    il n'est donc pas pur ; un seul écrivain, le ViewModel (ADR 0012).
+  - [ ] P1.12c Effacement, score et niveau : `clearFullRows`, `Phase.Clearing(rowsCleared,
+    ticksLeft, délai d'apparition calculé au verrouillage)`, animation de 16 images + images
+    jusqu'au prochain multiple de 4 (17 à 20, compteur d'images de la partie dans `GameState`,
+    **[à vérifier]**), lignes, niveau recalculé, points au nouveau niveau (type `Points`, P1.19 ;
+    `Score` est déjà la partition de `core:music`, renommer dans le langage du domaine de
+    CLAUDE.md), événement `LinesCleared`. Pile en danger recalculée sur le plateau effacé,
+    `StackDanger(on/off)` émis seulement au franchissement (revue de P1.16).
+  - [ ] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
+    `Release(button)`, place pour `Pause` / `Resume`), touches tenues et appuis depuis le
+    dernier tick (A, B et changement de direction à front montant), `AutoRepeat` de
+    déplacement avec sa direction, recréé quand elle change ; compteur de descente rapide
+    dans `Falling` ; interactions issues de la ROM (ci-dessus) ; points de descente rapide au
+    verrouillage.
   - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite.
 - [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
@@ -247,6 +258,10 @@ Référence : [docs/musique.md](docs/musique.md).
 
 ## P6 — Mode Moderne (plus tard)
 
+Revue de P1.12a : la promesse « sans modifier le moteur » ne tiendra pas entièrement (file de
+plusieurs pièces suivantes, réserve, délai de verrouillage réinitialisable, chute instantanée,
+T-spin et combos demandent de l'état). `Rules` et la position d'apparition sortie du moteur
+limitent l'écart ; à amender dans CLAUDE.md au moment de P6.
 Nouvelles implémentations des politiques de `core:game`, sans modifier le moteur :
 rotation SRS avec décalages, sac de 7, réserve, pièce fantôme, chute instantanée, délai de
 verrouillage, plusieurs pièces suivantes. Règle « lock out » (revue de P1.6) : une pièce
