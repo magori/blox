@@ -13,5 +13,6 @@ Puis :
    ma validation avant d'écrire du code.
 4. Une fois validée, déroule le cycle rouge → vert → refactoring test par test, en lançant
    les tests à chaque étape.
-5. À la fin : mets à jour `SUIVI.md` (case cochée + ligne de journal) et propose un message
-   de commit.
+5. Quand tous les cas de test passent, enchaîne avec la procédure de `/fin-de-tache`.
+
+Travaille sur une branche dédiée créée depuis `main` (`feat/P1.3-collisions` par exemple).

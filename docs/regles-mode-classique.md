@@ -10,6 +10,11 @@ directement testables.
 > pages « Tetris (NES) ») avant d'écrire le test correspondant. Les autres sont des valeurs
 > largement citées et stables.
 
+> Traçabilité : quand une règle est implémentée, ajouter sous elle une ligne
+> **Tests :** `ClasseDeTest › nom du test` (un ou plusieurs) et, si elle se voit à l'écran,
+> **Vues :** `V2`, `V3`… (numéros de [maquette.md](maquette.md)). Une règle sans ligne
+> « Tests » n'est pas encore implémentée.
+
 ## Ce que le mode Classique n'a pas
 
 Pas de réserve (*hold*), pas de pièce fantôme, pas de chute instantanée (*hard drop*),

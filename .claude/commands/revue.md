@@ -1,15 +1,23 @@
 ---
-description: Revue de code des changements en cours
+description: Revue de code indépendante des changements en cours
 ---
 
-Fais une revue des changements non commités (ou de $ARGUMENTS s'il s'agit d'une branche ou
-d'un fichier), selon les conventions de `CLAUDE.md` :
+Lance un **sous-agent** pour une revue indépendante : il ne doit pas avoir le contexte de cette
+conversation, pour juger le code sans connaître les intentions de l'implémentation.
 
-- Respect des règles de dépendance entre modules et de la pureté de `core:game` / `core:music`.
-- Qualité des tests : un comportement par test, noms en phrases, cas limites couverts,
-  pas de test qui duplique un autre.
-- Lisibilité et nommage (langage du domaine), immuabilité, duplication (règle de 2).
-- Conformité aux règles documentées dans `docs/`.
+Donne-lui uniquement :
+- le diff à revoir : $ARGUMENTS s'il s'agit d'une branche, d'un commit ou d'un fichier ;
+  sinon le diff de la branche courante par rapport à `main`, changements non commités compris ;
+- `CLAUDE.md` ;
+- les documents de `docs/` qui concernent les fichiers modifiés.
 
-Classe les remarques par importance (bloquant, à corriger, suggestion) et sois franc.
-Ne modifie aucun fichier sans mon accord.
+Points à examiner :
+- règles de dépendance entre modules, pureté de `core:game` et `core:music` ;
+- conformité au comportement décrit dans la spécification ;
+- qualité des tests : un comportement par test, noms en phrases, cas limites, pas de doublon,
+  pas de test qui teste l'implémentation plutôt que le comportement ;
+- lisibilité, langage du domaine, immuabilité, duplication (règle de 2).
+
+Le sous-agent classe ses remarques en *bloquant*, *à corriger*, *suggestion*, est franc, et ne
+modifie aucun fichier. Rapporte-moi ses remarques telles quelles, puis ta recommandation pour
+chacune.

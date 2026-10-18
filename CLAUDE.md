@@ -75,11 +75,38 @@ Détail dans [docs/architecture.md](docs/architecture.md).
 ./gradlew assembleDebug         # APK
 ```
 
-## Après chaque tâche
+## Définition de terminé (après chaque fonctionnalité)
 
-1. Tous les tests au vert.
-2. **Mettre à jour [SUIVI.md](SUIVI.md)** : cocher la tâche, ajouter une ligne au journal
-   (date, ce qui a été fait, décision prise, point ouvert).
-3. Si une décision structurante a été prise, ajouter un ADR dans `docs/adr/`.
-4. Commit en [Conventional Commits](https://www.conventionalcommits.org/fr/) :
-   `feat(core-game): clear full lines`, `test(core-game): …`, `docs: …`, `build: …`.
+Une tâche de [SUIVI.md](SUIVI.md) n'est terminée qu'après ces étapes, **dans cet ordre**.
+La commande `/fin-de-tache` les déroule.
+
+1. **Tests verts.**
+   `./gradlew :core:game:test :core:music:test testDebugUnitTest`, plus
+   `./gradlew lintDebug assembleDebug` si un module Android a changé.
+   Aucun test désactivé sans raison écrite dans le test et dans le journal.
+2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
+   vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.
+   Chaque remarque retenue est corrigée **test d'abord** (un test qui montre le défaut, puis la
+   correction), et on relance l'étape 1. Les remarques écartées sont notées au journal, avec la
+   raison.
+3. **Spécification à jour** (`docs/regles-mode-classique.md`, `docs/musique.md`,
+   `docs/themes.md`…). Pour chaque règle touchée :
+   - la règle telle qu'elle est implémentée ;
+   - le ou les tests qui la prouvent, sous la forme `ClasseDeTest › nom du test` ;
+   - les vues de maquette concernées (`V1`, `V2`…) ;
+   - le marqueur **[à vérifier]** retiré si la valeur a été confirmée, **avec la source**.
+4. **Maquette à jour**, si un écran a changé. Les vues sont numérotées dans
+   [docs/maquette.md](docs/maquette.md) ; en cas de renumérotation, mettre à jour toutes les
+   références (spécification, SUIVI). La maquette Claude Design (planche et prototype) se
+   modifie depuis claude.ai, pas depuis Claude Code : ajouter alors une tâche
+   « Mettre à jour la maquette : … » dans SUIVI.md.
+5. **Décision consignée.** Un ADR dans `docs/adr/` si une décision structurante a été prise.
+6. **SUIVI.md à jour** : cocher la tâche ; ajouter les tâches découvertes, avec un identifiant,
+   dans la bonne phase ; une ligne de journal (ce qui a été fait, décisions, remarques de revue
+   écartées, points ouverts).
+7. **Commit, puis push.**
+   - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, créée depuis `main`.
+   - Message en [Conventional Commits](https://www.conventionalcommits.org/fr/)
+     (`feat(core-game): …`, `test(core-game): …`, `docs: …`, `build: …`) dont le **corps explique
+     pourquoi**, avec la référence de la tâche (`Tâche : P1.3`).
+   - Push, attendre que la CI soit verte, puis fusionner dans `main`.

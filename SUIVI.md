@@ -30,6 +30,8 @@ confirmer sur une source avant d'écrire le test.
   été compilé. Ouvrir dans Android Studio, lancer `./gradlew assembleDebug testDebugUnitTest`,
   corriger ce qui doit l'être, et mettre à jour les versions de `libs.versions.toml` si
   Android Studio en propose de plus récentes (AGP, Kotlin, BOM Compose).
+- [x] **P0.7** Définition de terminé (`CLAUDE.md`), commande `/fin-de-tache`, revue
+  indépendante par sous-agent, vues de maquette numérotées V1 à V4.
 - [ ] **P0.6** Ajouter une analyse statique : ktlint (via le plugin Gradle) ou detekt, branchée
   dans `build-logic` et dans la CI.
 
@@ -125,3 +127,4 @@ verrouillage, plusieurs pièces suivantes.
 | Date | Tâche | Ce qui a été fait | Décisions / points ouverts |
 |---|---|---|---|
 | 2026-10-18 | P0.1 – P0.4 | Structure Gradle (8 modules, `build-logic`, catalogue), squelette Compose, documentation, ADR 0001 à 0008, CI. | Créé sans accès réseau : **aucun build exécuté**, à faire en P0.5. Versions figées à des valeurs connues de fin 2025, à mettre à jour. Identifiant d'application `ch.magori.blox`. |
+| 2026-10-18 | P0.7 | Procédure de fin de fonctionnalité reprise d'un autre projet et adaptée : modules BloX, lint et APK, revue sans contexte, remarques écartées tracées, sources des valeurs confirmées, ADR, branche par tâche. | La maquette Claude Design ne se modifie que depuis claude.ai : Claude Code ajoute une tâche au suivi au lieu de la mettre à jour. |

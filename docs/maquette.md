@@ -6,9 +6,24 @@ propriétaire du projet).
 
 Format de référence : téléphone en portrait, 390 × 844 points.
 
+## Vues numérotées
+
+Les numéros de vue servent de référence dans la spécification et le suivi. Ils suivent l'ordre
+de la planche, de gauche à droite. Toute renumérotation doit être reportée partout
+(voir la définition de terminé dans `CLAUDE.md`).
+
+| Vue | Écran | Planche de la maquette |
+|---|---|---|
+| V1 | Accueil | « V1 · Accueil » |
+| V2 | Jeu, thème Original | « V2 · Jeu · thème Original » |
+| V3 | Jeu, thème Couleurs | « V3 · Jeu · thème Couleurs » |
+| V4 | Fin de partie | « V4 · Fin de partie » |
+
+Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 → V1, V2 ou V3.
+
 ## Écrans
 
-### Accueil
+### V1 — Accueil
 - Titre **BloX**, avec un logo de quatre cellules aux couleurs du thème, et le record.
 - **Mode de jeu** : *Classique* (règles 1989, sans réserve ni pièce fantôme) ; *Moderne*
   affiché grisé, « bientôt ».
@@ -18,7 +33,8 @@ Format de référence : téléphone en portrait, 390 × 844 points.
   *Écouter* pour les deux mélodies.
 - Bouton **Jouer**.
 
-### Jeu
+### V2 et V3 — Jeu (thèmes Original et Couleurs)
+- Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
 - Barre du haut : bouton pause, « MODE CLASSIQUE », record.
 - Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
   pièce suivante.
@@ -26,7 +42,7 @@ Format de référence : téléphone en portrait, 390 × 844 points.
   décalés comme sur une console portable.
 - Pas de bouton de chute instantanée (absent du mode Classique).
 
-### Fin de partie
+### V4 — Fin de partie
 - « Partie terminée », badge « Nouveau record » le cas échéant.
 - Score en grand, puis lignes, niveau, nombre de « 4 lignes », durée.
 - Boutons **Rejouer** et **Menu**.
