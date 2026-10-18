@@ -164,7 +164,7 @@ case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille i
 | Action | Effet |
 |---|---|
 | ◀ / ▶ | Déplacement d'une colonne. Maintenu : répétition automatique (DAS). |
-| ▼ | Descente rapide : la pièce descend d'une ligne toutes les **2 images** **[à vérifier]**. |
+| ▼ | Descente rapide : une première ligne **2 images** après l'appui, puis une ligne toutes les **2 images**. |
 | A | Rotation horaire. |
 | B | Rotation anti-horaire. |
 | Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
@@ -179,8 +179,34 @@ cachées. Une descente refusée est le signal du verrouillage (P1.6).
 `BoardMoveTest › a move onto an occupied cell is refused`,
 `BoardMoveTest › a move within the hidden rows is accepted`.
 
-**Répétition automatique (DAS)** : après un appui maintenu, premier déplacement immédiat,
-puis attente de **16 images**, puis un déplacement toutes les **6 images**.
+**Répétition automatique (DAS)** : l'appui (image 0) déplace aussitôt ; maintenu, la pièce se
+déplace de nouveau **16 images** après l'appui, puis toutes les **6 images**. Quand un mur ou
+une case occupée bloque le déplacement, le DAS reste **chargé** : la pièce repart dès que la
+place se libère, puis toutes les 6 images.
+
+**Descente rapide** : l'appui de ▼ ne descend pas tout de suite ; la première ligne tombe
+2 images après l'appui (la 3ᵉ image en comptant celle de l'appui), puis une ligne toutes les
+2 images. Relâcher ▼ arrête aussitôt.
+
+Les deux commandes suivent le même mécanisme (`AutoRepeat`), réglé par une politique
+(`InputRepeat`, valeurs NES dans `ClassicInputRepeat`).
+
+Sources : TetrisWiki, *Tetris (NES, Nintendo)* (« DAS initial delay is 16 frames, and then
+every 6 frames », « Soft drop speed is 1/2G ») ; ROM d'après meatfighter.com, « Applying AI to
+Nintendo Tetris » : `autorepeatY = 1` à l'appui de ▼ (`$8934`), descente quand il atteint 3
+puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement refusé (`$8A05`).
+
+**Tests :** `AutoRepeatTest › on the first press the piece shifts at once`,
+`AutoRepeatTest › while the shift is held nothing happens for 15 ticks then the piece shifts 16 ticks after the press`,
+`AutoRepeatTest › then the held shift moves the piece every 6 ticks`,
+`AutoRepeatTest › after a release a new press shifts at once and the count starts again`,
+`AutoRepeatTest › a held soft drop moves the piece down a first row 2 ticks after the press then every 2 ticks`,
+`AutoRepeatTest › releasing the soft drop stops it at once`,
+`AutoRepeatTest › a shift charged against a wall moves at once when the way is free, then every 6 ticks`,
+`RepeatTimingTest › a repeat interval of 0 is refused`, `RepeatTimingTest › a first repeat before the press is refused`.
+
+Interactions entre commandes (ROM, même source) : ▼ maintenu bloque le déplacement latéral, ◀ ou
+▶ maintenu empêche la descente rapide ; ▶ est testé avant ◀. Elles relèvent du moteur (P1.12).
 
 ## Délai d'apparition
 

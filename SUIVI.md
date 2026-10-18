@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 26 / 66 | `████████░░░░░░░░░░░░` **39 %** |
-| **MVP** (jouable sur téléphone) | 24 / 37 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 27 / 66 | `████████░░░░░░░░░░░░` **41 %** |
+| **MVP** (jouable sur téléphone) | 25 / 37 | `██████████████░░░░░░` **68 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -120,9 +120,20 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   première pièce). Un test du moteur le prouve. Issu de P1.14 : le moteur ajoute au délai
   d'apparition l'animation d'effacement (5 passes, une toutes les 4 images, 17 à 20 images
   selon l'image du verrouillage, **[à vérifier]**) ; un test du moteur fige le cas du I
-  vertical verrouillé pivot en ligne 18 (cellules 16 à 19) : 10 images.
-- [ ] **P1.13** Commandes maintenues : DAS 16/6, descente rapide **[à vérifier : 1 ligne toutes
-  les 2 images]**.
+  vertical verrouillé pivot en ligne 18 (cellules 16 à 19) : 10 images. Issu de P1.13 (ROM,
+  meatfighter.com), un test du moteur par point : un seul `AutoRepeat` pour ◀ et ▶, recréé
+  quand la direction change (tout nouvel appui remet le compteur à zéro), un autre pour ▼ ;
+  ▶ l'emporte si ◀ et ▶ sont appuyés ensemble ; ▼ maintenu bloque le déplacement latéral, ◀ ou ▶
+  maintenu empêche la descente rapide et remet à zéro son compteur et ses points ; au plus une
+  descente par image, un pas de descente rapide remet la gravité à zéro ; points de descente
+  rapide = pas réellement faits d'affilée, passés à `pointsForSoftDrop` au verrouillage (le pas
+  refusé qui verrouille compte-t-il ? **[à vérifier]**) ; `AutoRepeat.charged()` après un
+  déplacement latéral refusé ; DAS figé pendant le délai d'apparition, compteur de descente
+  rapide remis à zéro à l'apparition. Revue de P1.5 : rotation par
+  `rotationSystem.candidates(piece, rotation).firstNotNullOfOrNull(board::place)` ; événement
+  de rotation seulement si la pièce change (O) **[à vérifier]**.
+- [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
+  (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
   `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
 - [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
