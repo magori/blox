@@ -187,5 +187,12 @@ Le prototype montre deux écrans, dans les quatre thèmes (réglage *theme* des 
   (proposé d'après la catégorie, par exemple « Joyeux 2 ») et la case « Jouer cette musique
   pendant les parties ». Quitter avec des changements non enregistrés demande d'enregistrer,
   de quitter sans enregistrer ou de continuer.
+- **Suppression** : pour une musique déjà enregistrée, la fenêtre d'enregistrement propose
+  *Supprimer cette musique*. Une confirmation suit (*Supprimer* ou *Garder la musique*) ; si
+  la musique est jouée pendant les parties, elle prévient que la musique de l'accueil la
+  remplacera. Après la suppression, on revient à *Mes musiques*, et un message propose
+  *Annuler* pendant 6 secondes : la musique revient à sa place, avec son choix *En jeu*. Le
+  bouton de suppression prend la couleur `danger` du thème (rouge en Couleurs et Brume, encre
+  en Original, faute de rouge dans sa palette).
 - Les notes tenues s'affichent dans une teinte plus claire que leur attaque ; les lignes hors
   de la gamme de la catégorie ont un libellé estompé.
