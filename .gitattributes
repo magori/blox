@@ -1,0 +1,3 @@
+# Scripts shell en LF, sinon bash échoue sous Windows (core.autocrlf=true).
+*.sh text eol=lf
+gradlew text eol=lf

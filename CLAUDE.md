@@ -4,7 +4,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Ce fichier décrit comment on travaille sur BloX, un jeu de blocs Android (Kotlin, Compose) dont le
 mode Classique reproduit les règles de la version NES de 1989. Il complète
-[README.md](README.md), [SUIVI.md](SUIVI.md) et [docs/](docs/).
+[README.md](README.md), [SUIVI.md](SUIVI.md) (tâches et avancement), [JOURNAL.md](JOURNAL.md)
+(ce qui a été fait et décidé, tâche par tâche) et [docs/](docs/).
 
 ## État du projet
 
@@ -178,12 +179,12 @@ La commande `/fin-de-tache` les déroule.
    `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug` si un module Android a changé.
-   Aucun test désactivé sans raison écrite dans le test et dans le journal.
+   Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
    vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.
    Chaque remarque retenue est corrigée **test d'abord** (un test qui montre le défaut, puis la
-   correction), et on relance l'étape 1. Les remarques écartées sont notées au journal, avec la
-   raison.
+   correction), et on relance l'étape 1. Les remarques écartées sont notées dans `JOURNAL.md`,
+   avec la raison.
 3. **Spécification à jour** (`docs/regles-mode-classique.md`, `docs/musique.md`,
    `docs/themes.md`…). Pour chaque règle touchée :
    - la règle telle qu'elle est implémentée ;
@@ -196,9 +197,10 @@ La commande `/fin-de-tache` les déroule.
    modifie depuis claude.ai, pas depuis Claude Code : ajouter alors une tâche
    « Mettre à jour la maquette : … » dans SUIVI.md.
 5. **Décision consignée.** Un ADR dans `docs/adr/` si une décision structurante a été prise.
-6. **SUIVI.md à jour** : cocher la tâche ; ajouter les tâches découvertes, avec un identifiant,
-   dans la bonne phase ; une ligne de journal (ce qui a été fait, décisions, remarques de revue
-   écartées, points ouverts).
+6. **SUIVI.md et JOURNAL.md à jour** : dans `SUIVI.md`, cocher la tâche, ajouter les tâches
+   découvertes, avec un identifiant, dans la bonne phase, puis recalculer l'avancement avec
+   `scripts/avancement.sh` ; dans `JOURNAL.md`, ajouter une ligne (ce qui a été fait,
+   décisions, remarques de revue écartées, points ouverts).
 7. **Commit, puis push.**
    - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, `build/…`, créée depuis `main`.
    - Message au format **gitmoji + [Conventional Commits](https://www.conventionalcommits.org/fr/)**

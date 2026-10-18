@@ -28,8 +28,11 @@ Arrête-toi et signale-le si une étape échoue.
 
 5. **ADR** si une décision structurante a été prise.
 
-6. **SUIVI.md** : coche la tâche, ajoute les tâches découvertes, ajoute la ligne de journal
-   (y compris les remarques de revue écartées).
+6. **SUIVI.md et JOURNAL.md** : dans `SUIVI.md`, coche la tâche et ajoute les tâches
+   découvertes, puis lance `scripts/avancement.sh` (Git Bash) pour recalculer les pourcentages
+   général et MVP ; si une tâche découverte est nécessaire pour jouer, propose de l'ajouter à
+   la liste `<!-- mvp: … -->`. Dans `JOURNAL.md`, ajoute la ligne de la tâche (y compris les
+   remarques de revue écartées).
 
 7. **Commit et push** : rédige et crée le commit avec le skill `/commit` (gitmoji +
    Conventional Commits, corps qui explique le pourquoi, `Tâche : P…`) sur la branche de la
