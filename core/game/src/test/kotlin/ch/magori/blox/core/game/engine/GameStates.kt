@@ -26,13 +26,11 @@ internal fun gameState(
     board = board,
     next = next,
     startLevel = Level(0),
-    level = level,
-    lines = lines,
-    score = Points(0),
+    progress = GameProgress(level = level, lines = lines, score = Points(0), statistics = GameStatistics()),
     phase = phase,
     tickCount = tickCount,
     stackInDanger = stackInDanger,
-    statistics = GameStatistics(),
+    controls = Controls.NONE,
 )
 
 /** A piece of [type] as it appears in the Classic mode: pivot at (5, 0), in its spawn orientation. */
@@ -43,3 +41,9 @@ internal fun GameEngine.ticks(
     state: GameState,
     count: Int,
 ): GameState = (1..count).fold(state) { current, _ -> tick(current).state }
+
+/** The state once [buttons] are pressed, in turn, from [state]. */
+internal fun GameEngine.press(
+    state: GameState,
+    vararg buttons: Button,
+): GameState = buttons.fold(state) { current, button -> apply(current, Input.Press(button)).state }
