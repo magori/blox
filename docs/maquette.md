@@ -54,6 +54,12 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - « Partie terminée », badge « Nouveau record » le cas échéant.
 - Score en grand, puis lignes, niveau, nombre de « 4 lignes », durée.
 - Boutons **Rejouer** et **Menu**.
+- Valeurs retenues en P2.7, à confirmer sur la maquette (P2.15) : titre en 22 sp, score dans un
+  encart en 40 sp au plus, statistiques « libellé – valeur » (libellé 11 sp, valeur 18 sp), marges
+  de 24, 16 et 8 dp ; badge en `accent` sur `accentInk` ; Rejouer plein (`accent`), Menu en
+  contour (`panelBorder`, encre `ink`) ; lignes et niveau avec leurs zéros, comme en jeu. L'écran
+  défile si la police est agrandie. TalkBack annonce l'écran et lit la durée « 1 minute et
+  5 secondes ».
 
 ## Pas encore maquetté
 

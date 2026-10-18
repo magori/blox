@@ -16,7 +16,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0008](0008-musique-domaine-public.md) | Musique : domaine public et séquenceur maison | Acceptée |
 | [0009](0009-junit5-partout.md) | JUnit 5 pour tous les tests, modules Android compris | Acceptée |
 | [0010](0010-kotlin-integre-agp9.md) | Gradle 9, AGP 9 et Kotlin compilé par le support intégré d'AGP | Acceptée |
-| [0011](0011-navigation-3.md) | Navigation 3 : la pile de navigation appartient à l'application | Acceptée ; point P2.10 consigné dans 0013 |
+| [0011](0011-navigation-3.md) | Navigation 3 : la pile de navigation appartient à l'application | Acceptée ; point P2.10 consigné dans 0013 ; fin de partie tranchée en P2.7 |
 | [0012](0012-horloge-d-images-cote-ecran.md) | L'horloge d'images appartient à l'écran, le ViewModel ne fait qu'avancer | Acceptée |
 | [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) | Les fabriques de ViewModel entrent par les entrées de navigation | Acceptée |
 | [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée |
