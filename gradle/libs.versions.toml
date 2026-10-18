@@ -8,6 +8,9 @@ kotlinxSerialization = "1.11.0"
 androidxActivity = "1.13.0"
 androidxNavigation3 = "1.2.0"
 androidxComposeBom = "2026.09.00"
+androidxDatastore = "1.2.1"
+# Okio suit la version que DataStore embarque (datastore-core-okio) : les monter ensemble.
+okio = "3.9.1"
 
 junit5 = "5.14.4"
 assertj = "3.27.7"
@@ -28,6 +31,9 @@ dependencyAnalysis = "3.19.2"
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidxActivity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "androidxDatastore" }
+androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }
+androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidxDatastore" }
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "androidxNavigation3" }
 androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "androidxNavigation3" }
 
@@ -39,6 +45,7 @@ androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "u
 androidx-compose-ui-test-android = { group = "androidx.compose.ui", name = "ui-test-android" }
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "kotlinxCoroutines" }
 kotlinx-serialization-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 
@@ -49,6 +56,7 @@ junit-jupiter-params = { group = "org.junit.jupiter", name = "junit-jupiter-para
 junit-platform-launcher = { group = "org.junit.platform", name = "junit-platform-launcher" }
 assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "assertj" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
+okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 
 # Dépendances des plugins de convention (build-logic)
