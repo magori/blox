@@ -166,6 +166,19 @@ class BoardClearTest {
         )
     }
 
+    @Test
+    fun `the result gives the number of lines cleared at once`() {
+        val result = clearing(
+            """
+            .T........
+            IIIIOOJJLL
+            SSZZTTTIII
+            """,
+        )
+
+        assertThat(result.lineClear).isEqualTo(LineClear(2))
+    }
+
     private companion object {
         /** When: the full rows of the board drawn in [before] are cleared. */
         fun clearing(before: String): RowsCleared = Board.parse(before).clearFullRows()

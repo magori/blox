@@ -1,6 +1,7 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.LineClear
 
 /**
  * Scoring of the Classic mode (NES, 1989): a base value per number of lines cleared at once,
@@ -11,24 +12,21 @@ import ch.magori.blox.core.game.model.Level
  */
 public object ClassicScoringRule : ScoringRule {
     override fun pointsForLinesCleared(
-        linesCleared: Int,
+        lineClear: LineClear,
         level: Level,
-    ): Int {
-        require(linesCleared in 0..4) { "Between 0 and 4 lines can be cleared at once: $linesCleared" }
-        return baseValue(linesCleared) * (level.value + 1)
-    }
+    ): Int = baseValue(lineClear) * (level.value + 1)
 
     override fun pointsForSoftDrop(rowsDropped: Int): Int {
         require(rowsDropped >= 0) { "Rows soft dropped cannot be negative: $rowsDropped" }
         return rowsDropped
     }
 
-    private fun baseValue(linesCleared: Int): Int = when (linesCleared) {
+    private fun baseValue(lineClear: LineClear): Int = when (lineClear.count) {
         0 -> 0
         1 -> 40
         2 -> 100
         3 -> 300
         4 -> 1200
-        else -> error("unreachable")
+        else -> error("unreachable: LineClear holds 0 to 4 lines")
     }
 }

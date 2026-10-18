@@ -1,16 +1,13 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.LineClear
 
 /** Scoring policy: the points earned by the player's actions. */
 public interface ScoringRule {
-    /**
-     * Points for [linesCleared] lines cleared at once at [level].
-     *
-     * @throws IllegalArgumentException if [linesCleared] is not between 0 and 4.
-     */
+    /** Points for the lines cleared at once in [lineClear], at [level]. */
     public fun pointsForLinesCleared(
-        linesCleared: Int,
+        lineClear: LineClear,
         level: Level,
     ): Int
 

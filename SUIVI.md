@@ -153,7 +153,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
   `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
 - [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
-- [ ] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique.
+  Partie pure faite : `GameStatistics` (« 4 lignes », ticks joués). Reste : pause (`paused` à
+  côté de la phase, `Input` `Pause` / `Resume`, touches tenues vidées à la reprise) et
+  branchement des statistiques dans le moteur (`afterTick` hors pause et après la fin).
+- [ ] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique. Partie pure
+  faite : `Board.stackHeight`, `StackDangerRule` / `ClassicStackDangerRule` (15 / 12). Reste :
+  événement émis par le moteur au franchissement (P1.12c) ; décider si `GameOver` remet le
+  tempo à la normale.
 - [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
   et d'`EntryDelay.ticksAfterLock`, quand le moteur (P1.12) l'exigera : une table qui rendrait 0
   bloquerait la gravité.
@@ -162,8 +168,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
   `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
-  moteur (P1.7, P1.12) les exigera. Revue de P1.7 : `RowsCleared` donnera alors ce type par
-  une propriété calculée (`clearedRows.size` validé 0 à 4), pour `ScoringRule` et `Lines`.
+  moteur (P1.7, P1.12) les exigera. Fait (lot P1.16 / P1.15) : `LineClear`, fourni par
+  `RowsCleared.lineClear`, reçu par `ScoringRule` et `GameStatistics`. Reste : le type des
+  points, nommé `Points` (P1.12c).
 - [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
   (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
   premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).
