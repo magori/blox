@@ -383,9 +383,9 @@ Référence : [docs/musique.md](docs/musique.md).
   `ScoreId` remplace `Score.title` (aucun texte affiché dans le domaine), `scoreOf` dans `app`,
   aperçu dans `HomeViewModel` par le jeton de lecture, `FakeMusicPlayer` dans les testFixtures de
   `core:audio`.
-- [ ] **P4.13** Aperçu et lecteur en échec : si le séquenceur échoue, l'accueil affiche encore
+- [ ] **P4.23** Aperçu et lecteur en échec : si le séquenceur échoue, l'accueil affiche encore
   « Arrêter » alors que plus rien ne joue ; `MusicPlayer` n'expose aucun état (revue de P4.7).
-- [ ] **P4.14** Test de contrat `MusicPlayerContractTest` exécuté sur `FakeMusicPlayer` et sur
+- [ ] **P4.24** Test de contrat `MusicPlayerContractTest` exécuté sur `FakeMusicPlayer` et sur
   `ChiptuneSequencer` (un jeton remplacé ne coupe rien), pour que le faux suive le vrai.
 - [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
