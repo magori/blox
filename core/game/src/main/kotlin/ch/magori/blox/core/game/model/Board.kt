@@ -28,7 +28,7 @@ public class Board private constructor(private val cells: List<Cell>) {
     public fun fits(piece: Piece): Boolean = piece.cells.all(::isFree)
 
     private fun isFree(position: Position): Boolean = position.column in 0 until columns &&
-        position.row in FIRST_HIDDEN_ROW until rows &&
+        position.row in ROWS_WITH_HIDDEN &&
         (position.row < 0 || this[position] == Cell.Empty)
 
     /** Returns a new board where [position] is filled by a cell of [type]; rejects a position outside the board. */
@@ -55,6 +55,9 @@ public class Board private constructor(private val cells: List<Cell>) {
         private const val ROWS = 20
         private const val FIRST_HIDDEN_ROW = -2
         private const val EMPTY_SYMBOL = '.'
+
+        /** Rows a piece may occupy: the hidden rows -2 and -1 above the board, then the visible rows 0 to 19. */
+        public val ROWS_WITH_HIDDEN: IntRange = FIRST_HIDDEN_ROW until ROWS
 
         public fun empty(): Board = Board(emptyRows(ROWS))
 
