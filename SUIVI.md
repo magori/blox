@@ -129,11 +129,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     phase), `Rules` / `ClassicRules` (politiques et position d'apparition), `GameEngine(rules,
     randomizer)`, `GameEngineFactory.create(seed)` (un moteur par partie, ADR 0014),
     `start(niveau de départ)`, deux tirages, apparition pivot en (5, 0), fin de partie.
-  - [ ] P1.12b Gravité et verrouillage : `tick(state): GameUpdate`, `Phase.Falling(piece,
-    compteur de gravité)`, descente selon `GravityTable`, descente refusée → `lock`,
-    `Phase.EntryDelay(ticksLeft)`, apparition de la pièce suivante. Réécrire le test de fin de
-    partie via `tick` et rendre `spawn` privé (revue de P1.12a). KDoc : `tick` tire une pièce,
-    il n'est donc pas pur ; un seul écrivain, le ViewModel (ADR 0012).
+  - [x] P1.12b Gravité et verrouillage : `tick(state): GameUpdate`, `Phase.Falling(piece,
+    ticksSinceDrop)`, `Phase.EntryDelay(ticksLeft)`, `GameEvent.PieceLocked`, `Rules` reçoit
+    `gravityTable` et `entryDelay`. Conforme à la ROM au tick près.
   - [ ] P1.12c Effacement, score et niveau : `clearFullRows`, `Phase.Clearing(rowsCleared,
     ticksLeft, délai d'apparition calculé au verrouillage)`, animation de 16 images + images
     jusqu'au prochain multiple de 4 (17 à 20, compteur d'images de la partie dans `GameState`,
@@ -146,7 +144,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     dernier tick (A, B et changement de direction à front montant), `AutoRepeat` de
     déplacement avec sa direction, recréé quand elle change ; compteur de descente rapide
     dans `Falling` ; interactions issues de la ROM (ci-dessus) ; points de descente rapide au
-    verrouillage.
+    verrouillage. Revue de P1.12b : les touches tenues et l'`AutoRepeat` latéral vivent dans
+    `GameState`, pas dans la phase (le DAS doit survivre au verrouillage et rester figé pendant
+    le délai). Revue de P2.5 : un appui bref (A pressé puis relâché entre deux ticks) doit
+    tourner la pièce au tick suivant (front montant mémorisé).
   - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite.
 - [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
@@ -161,8 +162,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   événement émis par le moteur au franchissement (P1.12c) ; décider si `GameOver` remet le
   tempo à la normale.
 - [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
-  et d'`EntryDelay.ticksAfterLock`, quand le moteur (P1.12) l'exigera : une table qui rendrait 0
-  bloquerait la gravité.
+  et d'`EntryDelay.ticksAfterLock`. Revue de P1.12b : une valeur nulle ou négative ne bloque
+  rien, elle est confondue en silence avec 1 (descente à chaque tick, apparition au tick
+  suivant) ; les phases refusent déjà ces valeurs (`require`), le type reste à faire.
 - [x] **P1.18** Outillage : `ignoreSourceSet` retiré de `dependencyAnalysis`, remplacé par des
   règles par jeu de sources de test (échec, avec exclusion des bibliothèques posées par les
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
@@ -194,7 +196,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   l'écran rend le plafond de ticks (revue de P2.1). Brancher `BoardCanvas` (P2.3) dans
   `GameScreen` : `board` et `piece` du domaine passent tels quels dans `GameUiState`. Brancher
   `SidePanel` (P2.4) : le système de rotation vient des règles du moteur ; `levelText` et
-  `linesText` accepteront `Level` et `Lines` si `GameUiState` les porte.
+  `linesText` accepteront `Level` et `Lines` si `GameUiState` les porte. Revue de P2.5 : les
+  appuis et relâchements arrivés entre deux images sont mis en file et appliqués avant les
+  ticks, sans en perdre aucun.
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
@@ -206,7 +210,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P2.13** Mettre à jour la maquette : confirmer les mesures des encarts de la colonne
   latérale (cadre, marges, tailles de texte) retenues en P2.4 (`docs/maquette.md`, V2 et V3).
 - [ ] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu.
-- [ ] **P2.6** Écran de pause (plateau masqué) et reprise.
+- [ ] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
+  moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
+  est dans la barre du haut (maquette), pas dans `GameControls`.
 - [ ] **P2.7** Écran de fin de partie, Rejouer / Menu. Entrée de pile distincte ou état de
   l'écran de jeu : trancher, voir ADR 0011. Le score s'affiche par `scoreText` (plafond de
   999 999, P2.4).
