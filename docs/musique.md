@@ -80,7 +80,46 @@ basses.
 `MixTest › mixing adds the voices sample by sample`, `MixTest › the mix is clipped to -1 and 1`,
 `MixTest › mixing no track is refused`, `MixTest › mixing tracks of different lengths is refused`.
 
-Le séquenceur (P4.4) lit le résultat en boucle sur `AudioTrack`.
+## Lecture en boucle
+
+- **Rendu** : `Synthesizer.render(score, tempoFactor = 1.0)` est la seule entrée publique ; il
+  mixe toutes les voix et dure exactement la partition. Le tempo est un `Double`
+  (150 × 1,25 = 187,5 accepté) ; le facteur doit être positif et fini. Les durées restent en
+  `Double` : le tampon est rendu une fois puis rejoué, rien ne se cumule sur la boucle.
+- **Séquenceur** : `ChiptuneSequencer(synthesizer, openSink, scope)`, `play(score)` et `stop()`,
+  appelés depuis le fil principal. Le rendu se fait hors du fil audio (`Dispatchers.Default`),
+  une fois par partition et par facteur de tempo (cache, environ 2,3 Mo pour 8 mesures à
+  44 100 Hz) ; l'écriture, sur `Dispatchers.IO`, par tranches de 1 024 échantillons qui font le
+  tour du tampon sans trou (`LoopCursor`). La sortie s'ouvre à la fréquence du synthétiseur.
+- **Arrêt** : `stop()` arrête l'écriture à la tranche suivante, même si la sortie bloque au lieu
+  de suspendre, et libère la sortie ; un nouveau `play` n'ouvre sa sortie qu'une fois
+  l'ancienne libérée (jamais deux à la fois). Une sortie qui ne s'ouvre pas ou une écriture qui
+  échoue arrête la musique sans faire planter le jeu.
+- **Sortie** : `AudioTrackSink`, `AudioTrack` en `MODE_STREAM`, mono, échantillons flottants,
+  écriture bloquante ; tampon de 4 fois le minimum (au moins deux tranches) ; une écriture en
+  erreur lève une exception ; arrêt par `pause`, `flush`, `release`. Sans test JVM.
+
+**Tests :** `ScoreRenderTest › a score renders as the mix of its voices and lasts as long as the score`,
+`ScoreRenderTest › a tempo factor of 2 halves the duration`,
+`ScoreRenderTest › the tempo may become fractional, 150 bpm times 1 point 25 is 187 point 5 bpm`,
+`ScoreRenderTest › the tempo factor must be positive and finite`,
+`LoopCursorTest › slices follow one another from the start of the buffer`,
+`LoopCursorTest › a slice across the end of the buffer goes on from its start, without a gap`,
+`LoopCursorTest › a slice longer than the buffer goes round it as many times as needed`,
+`LoopCursorTest › an empty buffer is refused`,
+`ChiptuneSequencerTest › play renders the score on the rendering dispatcher, then writes it`,
+`ChiptuneSequencerTest › a score is rendered once, then played again from the cache`,
+`ChiptuneSequencerTest › the slices are written in order, round the loop`,
+`ChiptuneSequencerTest › stop ends the writing and releases the sink`,
+`ChiptuneSequencerTest › playing another score replaces the one playing, without leaving two loops`,
+`ChiptuneSequencerTest › stop without play does nothing`,
+`ChiptuneSequencerTest › the sink opens at the sample rate of the rendering`,
+`ChiptuneSequencerTest › a sink that blocks instead of suspending still stops at the next slice`,
+`ChiptuneSequencerTest › stop then play opens the new sink only once the old one is released`,
+`ChiptuneSequencerTest › play then play opens the new sink only once the old one is released`,
+`ChiptuneSequencerTest › a sink that cannot open stops the music without a crash`,
+`ChiptuneSequencerTest › a write that fails releases the sink and stops the music without a crash`,
+`ChiptuneSequencerTest › a stop during the rendering opens no sink`.
 
 ## Accélération
 
