@@ -21,6 +21,7 @@ internal fun gameState(
     lines: Lines = Lines(0),
     tickCount: Int = 0,
     stackInDanger: Boolean = false,
+    paused: Boolean = false,
     phase: Phase = Phase.Falling(tPointingDown(at = Position(5, 0))),
 ): GameState = GameState(
     board = board,
@@ -31,6 +32,7 @@ internal fun gameState(
     tickCount = tickCount,
     stackInDanger = stackInDanger,
     controls = Controls.NONE,
+    paused = paused,
 )
 
 /** A piece of [type] as it appears in the Classic mode: pivot at (5, 0), in its spawn orientation. */

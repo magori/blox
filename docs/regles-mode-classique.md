@@ -292,7 +292,25 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 
 **Commandes dans le moteur** (P1.12d, ROM au tick près, même source) :
 
-- `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
+- **Pause** (P1.15) : `Input.Pause` met la partie en pause (`GameState.paused`) et vide les
+  commandes (touches tenues, appuis non encore traités, répétition latérale) ; en pause, `tick`
+  ne change rien, `tickCount` compris (la durée de jeu n'avance pas), et seul `Input.Resume`
+  compte : les appuis et relâchements sont ignorés. `Resume` reprend exactement où la partie
+  s'était arrêtée (gravité, délai, animation). Une touche tenue à travers la pause doit être
+  pressée de nouveau ; la descente rapide en cours est coupée et ses pas ne rapportent rien
+  (son compteur reste visible pendant la pause, il est remis à zéro au premier tick). `Pause`
+  en pause, `Resume` hors pause et `Pause` après la fin sont sans effet. Le masquage du plateau
+  est l'affaire de l'écran (P2.6).
+
+  **Tests :** `GameEnginePauseTest › Pause pauses the game, without changing the phase or sending an event`,
+  `GameEnginePauseTest › while paused a tick changes nothing, the tick count included`,
+  `GameEnginePauseTest › Resume goes on exactly where the game stood`,
+  `GameEnginePauseTest › a press while paused is ignored, so A pressed during the pause does not turn the piece`,
+  `GameEnginePauseTest › the pause forgets the held buttons and the shift repeat, a release during the pause does nothing`,
+  `GameEnginePauseTest › the pause stops the soft drop, which needs a new press of down after the resume`,
+  `GameEnginePauseTest › a press just before the pause is forgotten`,
+  `GameEnginePauseTest › Pause while paused, Resume while playing and Pause after the end change nothing`.
+- Hors pause, `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
   se passe dans `tick`, dans l'ordre de la ROM : **déplacement, rotation, descente**. Un
   verrouillage, même par descente rapide, a donc lieu dans `tick`, avec le même délai, la même
   animation et les mêmes événements que par la gravité.
