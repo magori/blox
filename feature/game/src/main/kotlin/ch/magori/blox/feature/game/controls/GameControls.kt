@@ -1,0 +1,264 @@
+package ch.magori.blox.feature.game.controls
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.game.R
+
+/**
+ * Sizes for a 360 dp wide phone, inside the 24 dp margins of the game screen (312 dp): 3 × 52 +
+ * 2 × 8 on the left, 2 × 56 + 8 on the right, 20 dp left between the two groups. Every button is at
+ * least [MinTouchTarget], the accessibility minimum.
+ */
+private val MinTouchTarget = 48.dp
+private val DirectionButtonSize = MinTouchTarget + 4.dp
+private val RotationButtonSize = MinTouchTarget + 8.dp
+private val ButtonSpacing = 8.dp
+private val ArrowSize = 20.dp
+private val LetterSize = 20.sp
+
+/** B sits lower than A, as on a handheld console. */
+private val RotationStagger = 24.dp
+
+/**
+ * The touch controls of V2 and V3: ◀ ▼ ▶ on the left, B and A on the right. No logic here: the
+ * fingers are followed by [HeldButtons]; this only reports when a button goes down or comes back up
+ * ([onChange]), so that a held button can repeat (DAS) in the engine.
+ */
+@Composable
+internal fun GameControls(
+    onChange: (ControlChange) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val currentOnChange by rememberUpdatedState(onChange)
+    val fingers = remember { FingerTracker { change -> currentOnChange(change) } }
+    DisposableEffect(fingers) {
+        onDispose { fingers.cancel() }
+    }
+    ControlPad(fingers, modifier)
+}
+
+/** Applies the events of the fingers to [HeldButtons], reports the changes, and shows the held buttons. */
+@Stable
+private class FingerTracker(private val onChange: (ControlChange) -> Unit) {
+    private var held = HeldButtons()
+
+    /** The buttons under a finger, read by the composition to draw them pressed. */
+    var heldButtons: Set<ControlButton> by mutableStateOf(emptySet())
+        private set
+
+    fun press(
+        finger: Long,
+        button: ControlButton,
+    ) = report(held.press(finger, button))
+
+    fun lift(finger: Long) = report(held.lift(finger))
+
+    fun tap(button: ControlButton) = report(held.tap(button))
+
+    fun cancel() = report(held.cancel())
+
+    private fun report(step: HeldButtons.Step) {
+        held = step.held
+        heldButtons = step.held.heldButtons
+        step.changes.forEach(onChange)
+    }
+}
+
+@Composable
+private fun ControlPad(
+    fingers: FingerTracker,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top,
+    ) {
+        Row(horizontalArrangement = Arrangement.spacedBy(ButtonSpacing)) {
+            ControlKey(ControlButton.LEFT, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
+            ControlKey(ControlButton.DOWN, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
+            ControlKey(ControlButton.RIGHT, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(ButtonSpacing)) {
+            ControlKey(ControlButton.B, fingers, RotationButtonSize, Modifier.padding(top = RotationStagger))
+            ControlKey(ControlButton.A, fingers, RotationButtonSize)
+        }
+    }
+}
+
+@Composable
+private fun ControlKey(
+    button: ControlButton,
+    fingers: FingerTracker,
+    size: Dp,
+    modifier: Modifier = Modifier,
+) {
+    val palette = BloxTheme.palette
+    val (face, ink) = when (button) {
+        ControlButton.A -> palette.accent to palette.accentInk
+        else -> palette.button to palette.buttonInk
+    }
+    // A held button is drawn with its colours swapped.
+    val held = button in fingers.heldButtons
+    val background = if (held) ink else face
+    val foreground = if (held) face else ink
+    val description = stringResource(descriptionOf(button))
+    Box(
+        modifier = modifier
+            .size(size)
+            .clip(BloxTheme.shapes.button)
+            .background(background)
+            .clearAndSetSemantics {
+                contentDescription = description
+                role = Role.Button
+                onClick {
+                    fingers.tap(button)
+                    true
+                }
+            }
+            .pointerInput(button, fingers) {
+                awaitPointerEventScope {
+                    while (true) {
+                        awaitPointerEvent().changes.forEach { change ->
+                            if (change.changedToDownIgnoreConsumed()) fingers.press(change.id.value, button)
+                            if (change.changedToUpIgnoreConsumed()) fingers.lift(change.id.value)
+                            change.consume()
+                        }
+                    }
+                }
+            },
+        contentAlignment = Alignment.Center,
+    ) {
+        Glyph(button, foreground)
+    }
+}
+
+/** The arrows are drawn, not typed: a Unicode arrow may be shown as an emoji. */
+@Composable
+private fun Glyph(
+    button: ControlButton,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    when (button) {
+        ControlButton.A -> Text(text = "A", modifier = modifier, color = color, fontSize = LetterSize)
+
+        ControlButton.B -> Text(text = "B", modifier = modifier, color = color, fontSize = LetterSize)
+
+        else -> Spacer(
+            modifier = modifier
+                .size(ArrowSize)
+                .drawWithCache {
+                    val arrow = arrowPath(button, size.width, size.height)
+                    onDrawBehind { drawPath(arrow, color) }
+                },
+        )
+    }
+}
+
+/** A triangle pointing the way of [button] (left, down or right), filling [width] × [height]. */
+private fun arrowPath(
+    button: ControlButton,
+    width: Float,
+    height: Float,
+): Path = Path().apply {
+    when (button) {
+        ControlButton.LEFT -> {
+            moveTo(0f, height / 2)
+            lineTo(width, 0f)
+            lineTo(width, height)
+        }
+
+        ControlButton.RIGHT -> {
+            moveTo(width, height / 2)
+            lineTo(0f, 0f)
+            lineTo(0f, height)
+        }
+
+        else -> {
+            moveTo(width / 2, height)
+            lineTo(0f, 0f)
+            lineTo(width, 0f)
+        }
+    }
+    close()
+}
+
+private fun descriptionOf(button: ControlButton): Int = when (button) {
+    ControlButton.LEFT -> R.string.feature_game_control_left
+    ControlButton.DOWN -> R.string.feature_game_control_down
+    ControlButton.RIGHT -> R.string.feature_game_control_right
+    ControlButton.A -> R.string.feature_game_control_a
+    ControlButton.B -> R.string.feature_game_control_b
+}
+
+/** The controls as in the game screen: a 360 dp wide phone, with its 24 dp margins. */
+@Composable
+private fun ControlsPreview(
+    kind: BloxThemeKind,
+    fingers: FingerTracker = remember { FingerTracker {} },
+) {
+    BloxTheme(kind = kind) {
+        ControlPad(fingers, Modifier.background(BloxTheme.palette.page).padding(24.dp))
+    }
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun GameControlsOriginalPreview() {
+    ControlsPreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun GameControlsColorfulPreview() {
+    ControlsPreview(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun GameControlsHeldPreview() {
+    val fingers = remember {
+        FingerTracker {}.apply {
+            press(finger = 1, ControlButton.LEFT)
+            press(finger = 2, ControlButton.A)
+        }
+    }
+    ControlsPreview(BloxThemeKind.COLORFUL, fingers)
+}
