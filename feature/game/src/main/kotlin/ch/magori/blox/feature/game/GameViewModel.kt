@@ -124,9 +124,9 @@ class GameViewModel internal constructor(
         val wasPaused = gameState.paused
         gameState = engine.apply(gameState, Input.Resume).state
         publish()
-        // Only when the game really goes on again (not resumed twice, not over). From the start of the
-        // score: the sequencer does not keep where it stood (enough for the MVP).
-        if (wasPaused && isUnderWay()) playback = score?.let(music::play)
+        // Only when the game really goes on again (not resumed twice, not over): the music goes on where it
+        // stopped, or starts if the game was paused before it started.
+        if (wasPaused && isUnderWay()) playback = playback?.resume() ?: score?.let(music::play)
     }
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */

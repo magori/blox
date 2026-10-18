@@ -590,7 +590,7 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `a pause stops the music, and resuming plays it again from its start`() {
+    fun `a pause stops the music, and resuming goes on where it stopped`() {
         // Given a game playing Korobeiniki
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
         music.calls.clear()
@@ -599,7 +599,7 @@ class GameViewModelTest {
         viewModel.onPause()
         assertThat(music.calls).containsExactly("stop")
         viewModel.onResume()
-        assertThat(music.calls).containsExactly("stop", "play ${Scores.korobeiniki.title}")
+        assertThat(music.calls).containsExactly("stop", "resume ${Scores.korobeiniki.title}")
     }
 
     @Test
@@ -626,7 +626,23 @@ class GameViewModelTest {
         viewModel.onResume()
 
         // Then
-        assertThat(music.calls).noneMatch { it.startsWith("play") }
+        assertThat(music.calls).isEmpty()
+    }
+
+    @Test
+    fun `a game paused before its music started starts it from the start when it resumes`() {
+        // Given a game paused before the settings answered, which then answer
+        preferences.state.value = null
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onPause()
+        preferences.state.value = UserPreferences.DEFAULT
+        music.calls.clear()
+
+        // When
+        viewModel.onResume()
+
+        // Then
+        assertThat(music.calls).containsExactly("play ${Scores.korobeiniki.title}")
     }
 
     @Test
@@ -640,7 +656,7 @@ class GameViewModelTest {
         preferences.state.value = UserPreferences.DEFAULT
 
         // Then
-        assertThat(music.calls).noneMatch { it.startsWith("play") }
+        assertThat(music.calls).noneMatch { it.startsWith("play") || it.startsWith("resume") }
     }
 
     @Test

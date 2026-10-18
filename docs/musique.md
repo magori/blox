@@ -135,8 +135,13 @@ ViewModel le traduit en `setTempoFactor()`.
 musique choisie à l'accueil est jouée au tempo normal (*Korobeïniki*, *Menuet* ; *Aucune* ne joue
 rien ; *Mon fichier* ne joue rien en attendant P4.6), sauf si la partie est déjà en pause ou
 finie quand les préférences répondent. La pause (bouton, retour système, passage en
-arrière-plan) arrête la musique ; la reprise la rejoue **depuis le début** (le séquenceur ne
-reprend pas où il en était) ; la fin de partie et la sortie de l'écran l'arrêtent. `play` rend
+arrière-plan) arrête la musique ; la reprise la fait **repartir où elle s'était arrêtée**
+(P4.12 : `Playback.resume()`, au début du dernier temps où toutes les voix commencent une note,
+au tempo en cours, position ramenée au tampon de ce tempo ; une partition pas encore lancée part
+du début) ; la fin de partie et la sortie de l'écran l'arrêtent ; une nouvelle partie et
+Rejouer repartent du début. La position gardée est un peu en avance sur ce qu'on a entendu (le
+tampon d'`AudioTrack`, 100 à 350 ms, est vidé à l'arrêt) : le recul au temps le compense le plus
+souvent, au pire la reprise saute un fragment jamais entendu. `play` rend
 un jeton (`Playback`) : une partie n'arrête que sa propre musique, si bien qu'après Rejouer
 l'arrêt de l'ancienne partie ne coupe pas la nouvelle. Un échec audio coupe la musique, jamais le
 jeu, et il est journalisé.
@@ -145,7 +150,6 @@ jeu, et il est journalisé.
 `MusicScoresTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
 `GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
 `GameViewModelTest › with no music chosen nothing plays`,
-`GameViewModelTest › a pause stops the music, and resuming plays it again from its start`,
 `GameViewModelTest › the game over stops the music`,
 `GameViewModelTest › when the stack enters the danger the music speeds up`,
 `GameViewModelTest › when the stack leaves the danger the music goes back to its tempo`,
@@ -155,7 +159,20 @@ jeu, et il est journalisé.
 `GameViewModelTest › resuming a game that is not paused plays nothing again`,
 `GameViewModelTest › resuming once the game is over plays no music`,
 `ChiptuneSequencerTest › stopping a playback that was replaced leaves the new one playing`,
-`ChiptuneSequencerTest › a failure that stops the music is reported, to be logged`.
+`ChiptuneSequencerTest › a failure that stops the music is reported, to be logged`,
+`ChiptuneSequencerTempoTest › a stopped playback resumes from the start of the beat where it stopped`,
+`ChiptuneSequencerTempoTest › a playback resumed then stopped before it wrote anything resumes from the same place`,
+`ChiptuneSequencerTempoTest › a whole note stopped in its middle resumes from the start of the loop`,
+`ChiptuneSequencerTempoTest › playing the score again, as a new game does, starts from its start`,
+`ChiptuneSequencerTempoTest › a playback stopped at the danger tempo resumes at that tempo, where it stood`,
+`ChiptuneSequencerTempoTest › a playback resumed at another tempo resumes at the same place in the score`,
+`ChiptuneSequencerTempoTest › a place that falls on the end of the buffer at the new tempo resumes from its start`,
+`ResumePositionTest › a whole note resumes from the start of the loop`,
+`ResumePositionTest › a place in a beat where a note goes on resumes from the last beat where every note starts`,
+`ResumePositionTest › a place rounded onto the end of the new buffer resumes from its start`,
+`ResumePositionTest › the start of the loop stays the start of the loop`,
+`GameViewModelTest › a pause stops the music, and resuming goes on where it stopped`,
+`GameViewModelTest › a game paused before its music started starts it from the start when it resumes`.
 
 **Changement de tempo dans le séquenceur** (P4.5) : `ChiptuneSequencer.setTempoFactor(facteur)`
 (positif et fini ; retenu pour le prochain `play` si rien ne joue). Le tampon au nouveau facteur
@@ -285,6 +302,15 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 > elle a été remplacée en P4.9 par la mélodie du chant ci-dessus. Les deux sources nettes
 > consultées sont des notations modernes, probablement de la même main ; une troisième
 > ([a-pesni.org](http://a-pesni.org/popular20/ojpolna.htm), recueil de romances, sol mineur)
-> confirme le rythme sans être lisible note à note. Pour retirer la mention, comparer à une
-> édition d'époque (Prigojy, 1898 ; recueils de Panina vers 1905), par exemple à la
-> Bibliothèque nationale de Russie (НЭБ).
+> confirme le rythme sans être lisible note à note.
+>
+> Éditions d'époque trouvées en P4.10 : A. Tchesnokov, *Variations sur le thème du chant russe
+> « Korobotchka »*, op. 4, Moscou, P. Jurgenson, cotage 32220, [1907], Thème, p. 3
+> ([archive.org](https://archive.org/details/imslp-on-korobotchka-op4-chesnokov-aleksandr)) ;
+> M. I. Nikolaïevski, *Fantaisie sur « Ой, полна, полна коробушка » (Коробейники)*, 5ᵉ éd.,
+> Moscou, A. Seywang, [avant 1918], p. 2 (RGB, notice 01004477157). Elles confirment le rythme
+> pointé et les mesures 3 à 8 (Tchesnokov met D5 au lieu de F5 en 2ᵉ note de la mesure 6). Les
+> mesures 1 et 2 ne sont pas attestées note à note : absentes chez Tchesnokov, variante plus
+> resserrée chez Nikolaïevski (fin de m1 B4 1½ · G#4 ½ ; m2 A4 1½ · B4 ½ · C5 1 · B4 ½ · A4 ½).
+> La mention reste, par décision du développeur ; non trouvés : Prigojy (1898), Panina (vers
+> 1905), НЭБ inaccessible.

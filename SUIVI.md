@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 109 | `██████████░░░░░░░░░░` **51 %** |
+| **Général** | 57 / 109 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -347,9 +347,11 @@ Référence : [docs/musique.md](docs/musique.md).
   par le ViewModel. Décider alors si `play` de la partition déjà jouée est sans effet, et
   journaliser l'échec audio attrapé (revue de P4.4). Fait : `MusicPlayer` et `Playback`
   (`core:audio`), `scoreFor`, `tempoFactorFor` ; la reprise rejoue depuis le début (décidé).
-- [ ] **P4.12** Reprendre la musique là où elle s'était arrêtée après une pause (revue de
-  P4.11) : `stop` garde la position du curseur pour la partition et le tempo en cours, `play` de
-  la même partition repart de là, alignée sur un temps de `switchBeats`.
+- [x] **P4.12** Reprendre la musique là où elle s'était arrêtée après une pause (revue de
+  P4.11). Fait autrement que prévu : `Playback.resume()` sur le jeton (`play` repart toujours du
+  début), position mise à l'échelle du tempo en cours puis reculée au dernier temps de
+  `switchBeats` (`resumePosition`). Position exacte de ce qui a été entendu
+  (`playbackHeadPosition`) non lue : écart accepté (`docs/musique.md`).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
@@ -365,7 +367,9 @@ Référence : [docs/musique.md](docs/musique.md).
   mesure 6 en A2/E3.
 - [ ] **P4.10** Droits : confirmer la mélodie de *Korobeïniki* sur une édition d'époque
   (Prigojy 1898, recueils de Panina vers 1905, НЭБ) ; les deux sources nettes consultées en P4.9
-  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`.
+  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`. Recherche faite
+  (P4.10, voir `docs/musique.md`) : deux éditions d'époque confirment le rythme et les mesures 3 à 8,
+  pas les mesures 1 et 2 ; mention gardée par décision du développeur, tâche laissée ouverte.
 
 Musiques composées dans l'application, à la main ou par le générateur : spécification dans
 [docs/generateur-musique.md](docs/generateur-musique.md), prototype dans la maquette
