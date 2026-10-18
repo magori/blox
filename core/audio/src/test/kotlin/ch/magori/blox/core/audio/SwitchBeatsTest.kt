@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import org.assertj.core.api.Assertions.assertThat
@@ -45,8 +46,9 @@ class SwitchBeatsTest {
         assertThat(switchBeats(score)).containsExactly(0, 2)
     }
 
+    // A synthetic score: its identifier plays no part here.
     private fun scoreOf(vararg voices: Voice): Score =
-        Score(title = "Test", bpm = 150, beatsPerBar = 4, voices = voices.toList())
+        Score(id = ScoreId.KOROBEINIKI, bpm = 150, beatsPerBar = 4, voices = voices.toList())
 
     private fun voiceOf(vararg beats: Double): Voice =
         Voice(Waveform.SQUARE, volume = 0.07, notes = beats.map { Note(Pitch.parse("E5"), it) })
