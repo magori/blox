@@ -2,6 +2,7 @@ package ch.magori.blox.core.music
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
+import org.assertj.core.api.Assertions.assertThatNoException
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -82,5 +83,29 @@ class PitchTest {
 
         // When / Then
         assertThat(pitch.toString()).isEqualTo(name)
+    }
+
+    @ParameterizedTest(name = "MIDI number {0} is refused")
+    @ValueSource(ints = [11, 120])
+    fun `a MIDI number outside C0 to B8 is refused`(midi: Int) {
+        // Given / When / Then
+        assertThatIllegalArgumentException().isThrownBy { Pitch(midi) }
+    }
+
+    @ParameterizedTest(name = "MIDI number {0} is accepted")
+    @ValueSource(ints = [12, 119])
+    fun `the MIDI numbers of C0 and B8 are accepted`(midi: Int) {
+        // Given / When / Then
+        assertThatNoException().isThrownBy { Pitch(midi) }
+    }
+
+    @ParameterizedTest(name = "MIDI number {0}")
+    @ValueSource(ints = [12, 119])
+    fun `a pitch at either end of the range reads back from its name`(midi: Int) {
+        // Given
+        val pitch = Pitch(midi)
+
+        // When / Then
+        assertThat(Pitch.parse(pitch.toString())).isEqualTo(pitch)
     }
 }
