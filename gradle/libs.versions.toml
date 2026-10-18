@@ -7,6 +7,8 @@ kotlinxSerialization = "1.11.0"
 
 androidxActivity = "1.13.0"
 androidxNavigation3 = "1.2.0"
+# navigationevent suit la version que Navigation 3 embarque (NavDisplay passe par lui pour le retour).
+androidxNavigationEvent = "1.1.1"
 # lifecycle-viewmodel-navigation3 suit les versions de Lifecycle ; 2.11.0 va avec Navigation 3 1.2.0 (guide de migration).
 androidxLifecycle = "2.11.0"
 androidxComposeBom = "2026.09.00"
@@ -41,6 +43,8 @@ androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidxDatastore" }
 androidx-navigation3-runtime = { group = "androidx.navigation3", name = "navigation3-runtime", version.ref = "androidxNavigation3" }
 androidx-navigation3-ui = { group = "androidx.navigation3", name = "navigation3-ui", version.ref = "androidxNavigation3" }
+androidx-navigationevent = { group = "androidx.navigationevent", name = "navigationevent", version.ref = "androidxNavigationEvent" }
+androidx-navigationevent-compose = { group = "androidx.navigationevent", name = "navigationevent-compose", version.ref = "androidxNavigationEvent" }
 androidx-lifecycle-common = { group = "androidx.lifecycle", name = "lifecycle-common", version.ref = "androidxLifecycle" }
 androidx-lifecycle-runtime = { group = "androidx.lifecycle", name = "lifecycle-runtime", version.ref = "androidxLifecycle" }
 androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "androidxLifecycle" }

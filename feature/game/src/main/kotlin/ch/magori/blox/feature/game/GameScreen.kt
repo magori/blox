@@ -10,15 +10,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -26,6 +23,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Board
@@ -40,7 +40,9 @@ import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.GameControls
 import ch.magori.blox.feature.game.gameover.GameOverScreen
+import ch.magori.blox.feature.game.pause.PauseScreen
 import ch.magori.blox.feature.game.sidepanel.SidePanel
+import ch.magori.blox.feature.game.topbar.GameTopBar
 
 /** The 24 dp margins the controls are sized for (P2.5). */
 private val ScreenMargin = 24.dp
@@ -49,7 +51,9 @@ private val Gap = 16.dp
 
 /**
  * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): each time it is
- * started, it tells the view model that frames start again, then hands it every frame.
+ * started, it tells the view model that frames start again, then hands it every frame. The system
+ * back follows [backAction]: it pauses the game, resumes it, or, once the game is over, leaves it as
+ * the navigation does.
  */
 @Composable
 internal fun GameScreen(
@@ -68,20 +72,35 @@ internal fun GameScreen(
             }
         }
     }
+    val backAction = backAction(uiState)
+    NavigationBackHandler(
+        state = rememberNavigationEventState(NavigationEventInfo.None),
+        isBackEnabled = backAction != BackAction.LEAVE,
+        onBackCompleted = {
+            when (backAction) {
+                BackAction.PAUSE -> viewModel.onPause()
+                BackAction.RESUME -> viewModel.onResume()
+                BackAction.LEAVE -> Unit
+            }
+        },
+    )
     // Only while resumed: a second tap during the transition must not act on the next entry.
     GameScreen(
         uiState = uiState,
         onBack = dropUnlessResumed(block = onBack),
         onReplay = dropUnlessResumed(block = onReplay),
         onControl = viewModel::onControl,
+        onPause = viewModel::onPause,
+        onResume = viewModel::onResume,
         modifier = modifier,
     )
 }
 
 /**
- * The game screen for [uiState]: the board, the side column and the controls, whose changes go to
- * [onControl]; once the game is over, the game over screen in their place (ADR 0011), where Menu is
- * [onBack] and Rejouer is [onReplay]. No logic here.
+ * The game screen for [uiState]: the top bar ([onPause], the record), the board, the side column and
+ * the controls, whose changes go to [onControl]. Paused, the pause screen in their place, the board
+ * hidden: Reprendre is [onResume], Menu is [onBack]. Once the game is over, the game over screen,
+ * which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
  */
 @Composable
 internal fun GameScreen(
@@ -89,13 +108,26 @@ internal fun GameScreen(
     onBack: () -> Unit,
     onReplay: () -> Unit,
     onControl: (ControlChange) -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val gameOver = uiState.gameOver
-    if (gameOver != null) {
-        GameOverScreen(state = gameOver, onReplay = onReplay, onMenu = onBack, modifier = modifier)
-        return
+    when {
+        gameOver != null -> GameOverScreen(state = gameOver, onReplay = onReplay, onMenu = onBack, modifier = modifier)
+        uiState.paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = modifier)
+        else -> Game(uiState = uiState, onControl = onControl, onPause = onPause, modifier = modifier)
     }
+}
+
+/** The game under way: the top bar, the board, the side column and the controls. */
+@Composable
+private fun Game(
+    uiState: GameUiState,
+    onControl: (ControlChange) -> Unit,
+    onPause: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -104,9 +136,7 @@ internal fun GameScreen(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(Gap),
     ) {
-        TextButton(onClick = onBack) {
-            Text(text = stringResource(R.string.feature_game_back), color = BloxTheme.palette.ink)
-        }
+        GameTopBar(record = uiState.record, onPause = onPause)
         Row(
             modifier = Modifier
                 .weight(1f)
@@ -133,7 +163,7 @@ internal fun GameScreen(
     }
 }
 
-/** A game under way, for the previews: a stack, a T falling, an I next. */
+/** A game under way, for the previews: a stack, a T falling, an I next, a record. */
 private val previewState = GameUiState(
     board = Board.parse(
         """
@@ -149,20 +179,33 @@ private val previewState = GameUiState(
     lines = Lines(52),
     score = Points(12_340),
     rotationSystem = ClassicRotationSystem,
+    record = 98_760,
 )
 
-@Preview(widthDp = 360, heightDp = 760)
 @Composable
-private fun GameScreenOriginalPreview() {
-    BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        GameScreen(uiState = previewState, onBack = {}, onReplay = {}, onControl = {})
+private fun GameScreenPreview(
+    kind: BloxThemeKind,
+    uiState: GameUiState,
+) {
+    BloxTheme(kind = kind) {
+        GameScreen(uiState = uiState, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
     }
 }
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
+private fun GameScreenOriginalPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
 private fun GameScreenColorfulPreview() {
-    BloxTheme(kind = BloxThemeKind.COLORFUL) {
-        GameScreen(uiState = previewState, onBack = {}, onReplay = {}, onControl = {})
-    }
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenPausedPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(paused = true))
 }

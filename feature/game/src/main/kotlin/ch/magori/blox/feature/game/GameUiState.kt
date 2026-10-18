@@ -24,6 +24,8 @@ internal data class GameUiState(
     val lines: Lines,
     val score: Points,
     val rotationSystem: RotationSystem,
+    val paused: Boolean = false,
+    val record: Int? = null,
     val gameOver: GameOverUiState? = null,
 )
 
@@ -39,6 +41,7 @@ internal fun GameState.toUiState(rotationSystem: RotationSystem): GameUiState = 
     lines = progress.lines,
     score = progress.score,
     rotationSystem = rotationSystem,
+    paused = paused,
 )
 
 /** The game over screen state of [this] final state, whose score made a [newRecord] or not. */

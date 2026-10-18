@@ -310,6 +310,22 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   `GameEnginePauseTest › the pause stops the soft drop, which needs a new press of down after the resume`,
   `GameEnginePauseTest › a press just before the pause is forgotten`,
   `GameEnginePauseTest › Pause while paused, Resume while playing and Pause after the end change nothing`.
+
+  **À l'écran** (P2.2, P2.6) : le bouton pause de la barre du haut met en pause ; l'écran de
+  pause remplace tout le jeu (plateau masqué) ; Reprendre reprend sans rattraper le temps passé
+  en pause ; Menu quitte la partie. Le retour système met en pause en jeu, reprend en pause, et
+  quitte la partie une fois la fin affichée. Aucun tick n'est donné pendant la pause : la durée
+  de jeu n'avance pas.
+
+  **Tests :** `GameViewModelTest › on pause the game is paused`,
+  `GameViewModelTest › while paused the frames change nothing, not even the duration of the game`,
+  `GameViewModelTest › the controls received while paused are ignored, also after the game resumes`,
+  `GameViewModelTest › on resume the game goes on exactly where it stood, without catching up the pause`,
+  `GameViewModelTest › once the game is over a pause does nothing`,
+  `BackActionTest › during the game the system back pauses it`,
+  `BackActionTest › while paused the system back resumes the game`,
+  `BackActionTest › once the game is over the system back leaves the game, as Menu does`. Vues : V2, V3,
+  pause (pas encore maquettée, P2.16).
 - Hors pause, `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
   se passe dans `tick`, dans l'ordre de la ROM : **déplacement, rotation, descente**. Un
   verrouillage, même par descente rapide, a donc lieu dans `tick`, avec le même délai, la même
@@ -467,7 +483,11 @@ partie non plus). Un fichier illisible ou corrompu compte comme « pas de record
 `GameViewModelTest › once the game is over the frames change nothing and the score is not submitted again`,
 `GameViewModelTest › while the score is being submitted the game over waits, then shows once with the answer`,
 `GameViewModelTest › the score is saved even when the view model is cleared while it is being submitted`,
-`GameViewModelTest › when the records cannot be written the game over still shows, without a new record`.
+`GameViewModelTest › when the records cannot be written the game over still shows, without a new record`,
+`GameViewModelTest › the record shown is the one of the records, its real value, updated when it changes`,
+`GameViewModelTest › the record stays shown when the frames move the game`,
+`GameViewModelTest › until the records give it the record is unknown, not 0`,
+`GameViewModelTest › records that fail while they are read leave the game going, with the last record known`.
 Vues : V1, V2, V3, V4.
 
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
