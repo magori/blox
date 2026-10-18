@@ -18,8 +18,32 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V2 | Jeu, thème Original | « V2 · Jeu · thème Original » |
 | V3 | Jeu, thème Couleurs | « V3 · Jeu · thème Couleurs » |
 | V4 | Fin de partie | « V4 · Fin de partie » |
+| V5 | Jeu, thème Brume clair | « V5 · Jeu · thème Brume clair » |
+| V6 | Jeu, thème Brume sombre | « V6 · Jeu · thème Brume sombre » |
+| V7 | Mes musiques, thème Original | « V7 · Mes musiques · thème Original » |
+| V8 | Éditeur de musique, thème Original | « V8 · Éditeur de musique · thème Original » |
+| V9 | Enregistrer la musique, thème Original | « V9 · Enregistrer la musique · thème Original » |
+| V10 | Mes musiques, thème Couleurs | « V10 · Mes musiques · thème Couleurs » |
+| V11 | Éditeur de musique, thème Couleurs | « V11 · Éditeur de musique · thème Couleurs » |
+| V12 | Enregistrer la musique, thème Couleurs | « V12 · Enregistrer la musique · thème Couleurs » |
+| V13 | Mes musiques, thème Brume clair | « V13 · Mes musiques · thème Brume clair » |
+| V14 | Éditeur de musique, thème Brume clair | « V14 · Éditeur de musique · thème Brume clair » |
+| V15 | Enregistrer la musique, thème Brume clair | « V15 · Enregistrer la musique · thème Brume clair » |
+| V16 | Mes musiques, thème Brume sombre | « V16 · Mes musiques · thème Brume sombre » |
+| V17 | Éditeur de musique, thème Brume sombre | « V17 · Éditeur de musique · thème Brume sombre » |
+| V18 | Enregistrer la musique, thème Brume sombre | « V18 · Enregistrer la musique · thème Brume sombre » |
 
-Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 → V1, V2 ou V3.
+Les vues V7 à V18 sont rangées sous le titre « Musique — Mes musiques et éditeur », une rangée
+par thème. Elles viennent toutes d'un seul fichier, `Musique.dc.html` (V7), que les autres
+importent avec leur thème et leur vue.
+
+Le prototype (mode Play) relie V1 → V2, V3 ou V5 selon le thème choisi, V4 → V1, V2 ou V3, et
+V1 → Mes musiques du thème en cours (V7, V10, V13 ou V16). Les liens ne transmettent pas
+l'état : une musique choisie « En jeu » dans V7 ne change pas V1.
+
+Le prototype à part [Éditeur de musique BloX](https://claude.ai/artifact/M91HH7KRJWTMHeDvLaV8wz)
+(lien privé) reste le banc d'essai des écrans de musique dans les quatre thèmes. Leur
+spécification est dans [generateur-musique.md](generateur-musique.md), section Écrans.
 
 ## Écrans
 
@@ -32,6 +56,17 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
   *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
   une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
+- **Musiques personnelles** (maquette, P4.21 ; à coder en P4.22) :
+  - le choix de musique passe en grille de 3 colonnes : *Korobeïniki*, *Menuet*, *Mon fichier*,
+    puis la musique personnelle « En jeu » (icône de note, sur deux colonnes ; « Thème du soir »
+    dans la maquette, choisie par défaut et qu'on peut écouter) et *Aucune*. Choisir une autre
+    musique retire la musique personnelle des parties ;
+  - un lien **MES MUSIQUES** dans l'en-tête de la section mène à la liste du thème en cours
+    (V7, V10, V13 ou V16) ;
+  - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 px, icône note et crayon, cadre à
+    l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
+  - pour tenir dans 844 px, les espacements sont resserrés : 10 px entre sections au lieu de
+    16, 6 px sous les titres de section au lieu de 8.
 - Bouton **Jouer**.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
