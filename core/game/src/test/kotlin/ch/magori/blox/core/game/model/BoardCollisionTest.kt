@@ -1,6 +1,5 @@
 package ch.magori.blox.core.game.model
 
-import ch.magori.blox.core.game.cellsOf
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -99,29 +98,6 @@ class BoardCollisionTest {
     }
 
     private companion object {
-        val T_DOWN = Orientation(
-            cellsOf(
-                """
-                T@T
-                .T.
-                """,
-            ),
-        )
-        val I_VERTICAL = Orientation(
-            cellsOf(
-                """
-                I
-                I
-                @
-                I
-                """,
-            ),
-        )
-
-        fun tPointingDown(at: Position): Piece = Piece(PieceType.T, T_DOWN, at)
-
-        fun verticalI(at: Position): Piece = Piece(PieceType.I, I_VERTICAL, at)
-
         @JvmStatic
         fun piecesTouchingAnEdge(): List<Arguments> = listOf(
             argumentSet("vertical I against the left wall, up to row -2", verticalI(at = Position(0, 0))),

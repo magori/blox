@@ -8,13 +8,31 @@ confirmer sur une source avant d'écrire le test.
 
 ## Vue d'ensemble
 
+<!-- avancement:debut -->
+| Avancement | Tâches | % |
+|---|---|---|
+| **Général** | 26 / 66 | `████████░░░░░░░░░░░░` **39 %** |
+| **MVP** (jouable sur téléphone) | 24 / 37 | `█████████████░░░░░░░` **65 %** |
+<!-- avancement:fin -->
+
+Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
+politique. Ils sont recalculés par `scripts/avancement.sh` à chaque fin de tâche, ne pas les
+modifier à la main.
+
+**MVP** : une partie complète jouable sur le téléphone, mode Classique, thème par défaut, sans
+musique ni records. Fondations (P0, sauf P0.12), domaine jusqu'à la pause (P1.1 à P1.15),
+écran de jeu (P2.1 à P2.7, P2.9, P2.10), injection (P3.3). Le test sur téléphone qui ouvre la
+phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci-dessous.
+
+<!-- mvp: P0.1 P0.2 P0.3 P0.4 P0.5 P0.6 P0.7 P0.8 P0.9 P0.10 P0.11 P0.13 P1.1 P1.2 P1.3 P1.4 P1.5 P1.6 P1.7 P1.8 P1.9 P1.10 P1.11 P1.12 P1.13 P1.14 P1.15 P2.1 P2.2 P2.3 P2.4 P2.5 P2.6 P2.7 P2.9 P2.10 P3.3 -->
+
 | Phase | Objectif | État |
 |---|---|---|
 | P0 | Structure du projet et documentation | Build local validé ; reste P0.12 |
-| P1 | Domaine du mode Classique (`core:game`) | À faire |
-| P2 | Écran de jeu jouable (`feature:game`) | À faire |
+| P1 | Domaine du mode Classique (`core:game`) | En cours : reste la rotation, les commandes maintenues et le moteur |
+| P2 | Écran de jeu jouable (`feature:game`) | En cours : `GameLoop` fait |
 | P3 | Accueil, préférences, records | À faire |
-| P4 | Musique et sons | À faire |
+| P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
 
@@ -65,12 +83,17 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Orientations de départ confirmées par la ROM (table $8A9C).
 - [x] **P1.3** Placement d'une pièce : collision avec les bords, le fond et les cellules occupées.
   Lignes cachées −2 et −1 libres (source ROM) ; `Piece`, `Board.fits(piece)`.
-- [ ] **P1.4** Déplacements gauche / droite / bas, refusés en cas de collision.
+- [x] **P1.4** Déplacements gauche / droite / bas, refusés en cas de collision. `Direction`,
+  `Board.move(piece, direction): Piece?`, `Position.plus`.
 - [ ] **P1.5** `ClassicRotationSystem` : rotations horaire et anti-horaire, refus sans décalage,
   un jeu de tests par pièce. Les formes et leur ordre horaire existent (P1.2). `Piece` garde
   son `Orientation` (revue de P1.3) : la rotation la retrouve dans la liste circulaire du
-  système, par exemple `rotate(type, orientation, direction): Orientation`, avec un `require`
-  si l'orientation n'appartient pas au type.
+  système, par exemple `rotate(type, orientation, rotation): Orientation`, avec un `require`
+  si l'orientation n'appartient pas au type. Revue de P1.4 : pas de `Board.rotate` (`model`
+  dépendrait de `rules`, cycle de paquets) ; séparer la transformation (`piece.moved`,
+  `rotationSystem.rotate`) du contrôle (`board.place(candidat): Piece? = candidat.takeIf(::fits)`),
+  `move` devenant `place(piece.moved(direction))` ; le sens de rotation s'appelle `Rotation`
+  (`CLOCKWISE`, `COUNTERCLOCKWISE`), distinct de `Direction`.
 - [ ] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
   Si un test l'exige : remplir les quatre cellules en une seule copie, refuser d'écraser une
   cellule occupée (revue de P1.1). Les cellules restées dans les lignes cachées sont perdues,
@@ -94,15 +117,19 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   voir la spécification). Issu de la revue de P1.8 : le moteur possède le `Randomizer` (ADR 0014)
   et le crée depuis la graine ; à l'apparition, la pièce suivante est tirée avec `previous` =
   la pièce qui vient d'apparaître ; une partie commence par deux tirages (`null`, puis la
-  première pièce). Un test du moteur le prouve.
+  première pièce). Un test du moteur le prouve. Issu de P1.14 : le moteur ajoute au délai
+  d'apparition l'animation d'effacement (5 passes, une toutes les 4 images, 17 à 20 images
+  selon l'image du verrouillage, **[à vérifier]**) ; un test du moteur fige le cas du I
+  vertical verrouillé pivot en ligne 18 (cellules 16 à 19) : 10 images.
 - [ ] **P1.13** Commandes maintenues : DAS 16/6, descente rapide **[à vérifier : 1 ligne toutes
   les 2 images]**.
-- [ ] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur)
-  **[à vérifier]**.
+- [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
+  `EntryDelay`, `ClassicEntryDelay`, `Board.ROWS_WITH_HIDDEN`.
 - [ ] **P1.15** Pause (l'état ne change plus pendant la pause) et statistiques de fin de partie.
 - [ ] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique.
-- [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`,
-  quand le moteur (P1.12) l'exigera : une table qui rendrait 0 bloquerait la gravité.
+- [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
+  et d'`EntryDelay.ticksAfterLock`, quand le moteur (P1.12) l'exigera : une table qui rendrait 0
+  bloquerait la gravité.
 - [ ] **P1.18** Outillage : retirer `ignoreSourceSet("test", "androidTest")` de `dependencyAnalysis`.
   Essai en P1.1 : `buildHealth` échoue, car les bibliothèques de test posées par les plugins de
   convention sont inutilisées dans les modules sans tests. Voies : sévérité `warn` pour les jeux
@@ -238,3 +265,6 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P1.3 | `Piece` (type, `Orientation`, pivot ; cellules = pivot + décalages) et `Board.fits(piece)` : colonnes 0 à 9, lignes −2 à 19, case vide ; lignes −2 et −1 cachées, toujours vides (ROM). `cellsOf` déplacé dans un fichier de test commun (deuxième paquet). 7 tests (14 exécutions). Spécification : lignes cachées et perte des cellules cachées au verrouillage (ROM), `[à vérifier]` de P1.3 retiré. | Mutants tués : bornes des colonnes dans les lignes cachées, dernière ligne avant le fond, première ligne cachée à −1 ou −3, case occupée ignorée. Revue indépendante : retenu — test « touche le bord sans le dépasser », une seule vérification des colonnes, KDoc de `Board` et de `Piece`, `canHold` renommé `fits`, formes dessinées dans les tests de `model` (plus de dépendance à `rules`), un seul « When » par test. Écarté : un paramètre par ligne pour `Piece` (ktlint `class-signature` impose la forme courte sous 120 colonnes, conforme au choix de P0.6 pour les value objects) ; `Position.plus` attendu en P1.4. |
 | 2026-10-18 | P1.8 | `Randomizer.next(previous)` (KDoc : `previous` = dernière pièce tirée, celle de l'aperçu) et `ClassicRandomizer` (constructeur public par graine, constructeur `internal` sur `kotlin.random.Random` pour les tests) : premier tirage sur 8 valeurs, relance unique sur 7 si « aucune pièce » ou répétition, ordre ROM T, J, Z, O, S, L, I. 21 tests, faux `Random` scripté qui vérifie les bornes. Spécification : `[à vérifier]` retiré (TetrisWiki, ordre d'après la ROM). ADR 0014 : le tirage est le seul état modifiable du domaine. | Règle TetrisWiki retenue ; écart assumé : le biais de la ROM au second tirage n'est pas reproduit. Verts d'emblée, contrôlés par mutation : première pièce, graines identiques ou différentes. Revue indépendante : retenu — test « graines différentes », sens de `previous` en KDoc et test du moteur inscrit en P1.12, constructeur `Random` interne, faux `Random` plus strict, test de l'ordre ROM renommé, `romOrder` une pièce par ligne et constante « aucune pièce », ADR 0014 plutôt qu'une forme pure. Découvert : P1.20 (graine stable entre versions, si une graine est gardée). |
 | 2026-10-18 | P4.2 | Partitions *Korobeïniki* (150 bpm, 4/4) et *Menuet* (132 bpm, 3/4) dans `Scores`, transcrites depuis `docs/musique.md` avec des fabriques privées (`bar`, `melody`, `bass`, `rootAndFifth`). `Score` reçoit `beatsPerBar` et deux invariants (voix de même longueur, nombre entier de mesures) ; `Waveform.TRIANGLE` revient ; `Pitch` limité à C0..B8. Tests de structure, de durées, de tonalité et de plage par voix. 64 exécutions dans `core:music`. | Transcription comparée note à note par la revue indépendante : aucune divergence sur les 32 mesures. Tests de données verts d'emblée par nature, chacun contrôlé par mutation (note à cheval sur une barre, hauteur changée, demi-ton, octave, silence ou cinquième note dans la basse). Revue : retenu — `beatsPerBar > 0`, nombre entier de mesures, plage de `Pitch`, basse à 4 notes sans silence, tests de tonalité et de plage. Écarté ou reporté : tolérance ou durées entières (P4.4), titre remplacé par un identifiant (P4.7), écriture des silences (goût). **Droits** : le rythme de *Korobeïniki* ressemble à la version du jeu de 1989 ; à vérifier contre le chant populaire (P4.9). |
+| 2026-10-18 | P1.4 | `Direction` (`LEFT`, `RIGHT`, `DOWN`, décalage interne), `Board.move(piece, direction): Piece?` (la pièce déplacée si elle tient, sinon `null`), `Position.plus` introduit au refactoring (deuxième addition de positions). Pièces de test partagées (`TestPieces.kt`). 5 tests (10 exécutions). Spécification : règle de déplacement. | Rouge de `takeIf(::fits)` donné par le test du mur ; fond, case occupée et lignes cachées verts d'emblée (`move` s'appuie sur `fits`), contrôlés par 5 mutants. « La pièce d'origine est inchangée » ne peut pas échouer (garanti par le type), gardé comme cas validé. Revue indépendante : retenu — pièces de test partagées (règle de 2), KDoc de `move` centrée sur le plateau, `Piece.cells` simplifié ; pour P1.5, pas de `Board.rotate` (cycle `model` / `rules`), transformation et contrôle séparés, sens nommé `Rotation`. Écarté : `Position.plus` et `move` en `internal` (l'API du modèle reste publique, comme `fits`). |
+| 2026-10-18 | P1.14 | `EntryDelay.ticksAfterLock(lockedPiece)` et `ClassicEntryDelay` : 10 images dans les deux lignes du bas, +2 par groupe de 4 lignes, au plus 18, mesuré sur la ligne du pivot ; `when` par plages comme la gravité. `Board.ROWS_WITH_HIDDEN` (−2..19) partagé par `Board.isFree` et la politique. 16 tests. Spécification : règle, table, source TetrisWiki ; animation d'effacement (17 à 20 images) renvoyée au moteur. | Écart TDD noté : KDoc `@throws` et une constante écrites un cycle avant le test qui les exige. Mutants tués (taille du groupe du bas, lignes par groupe). Revue indépendante : retenu — bornes de lignes partagées avec `Board` (règle de 2), la pièce plutôt qu'un numéro de ligne (le choix de la cellule appartient à la politique, le mode Moderne pourra le changer sans toucher au moteur), `when` par plages, message d'erreur vérifié, P1.17 élargi, test du I vertical inscrit en P1.12. Non confirmé : mesure par le pivot dans la ROM (cherché dans meatfighter, absent), gardé **[à vérifier]**. |
+| 2026-10-18 | Suivi | Deux pourcentages en tête du suivi (général et MVP), recalculés par `scripts/avancement.sh` (awk, Git Bash) à partir des cases cochées ; `/fin-de-tache` le lance à l'étape 6. Périmètre MVP : partie complète jouable sur téléphone (P0 sauf P0.12, P1.1 à P1.15, P2.1 à P2.7, P2.9, P2.10, P3.3), liste modifiable dans le commentaire `mvp`. | Pourcentages en nombre de tâches, pas en effort : le moteur P1.12 pèse plus lourd qu'une politique. P2.8 (test sur téléphone) n'est pas dans le MVP : c'est le premier usage du MVP. |

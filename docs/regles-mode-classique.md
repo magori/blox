@@ -169,15 +169,43 @@ case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille i
 | B | Rotation anti-horaire. |
 | Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
 
+**Déplacement** : ◀, ▶ et ▼ décalent la pièce d'une case. Le déplacement est refusé si la pièce
+ne tient plus à sa nouvelle place (mur, fond ou case occupée) ; il est accepté dans les lignes
+cachées. Une descente refusée est le signal du verrouillage (P1.6).
+
+**Tests :** `BoardMoveTest › a piece moves one column left, one column right or one row down, the original piece is unchanged`,
+`BoardMoveTest › a move against the left or right wall is refused`,
+`BoardMoveTest › a move down onto the floor is refused`,
+`BoardMoveTest › a move onto an occupied cell is refused`,
+`BoardMoveTest › a move within the hidden rows is accepted`.
+
 **Répétition automatique (DAS)** : après un appui maintenu, premier déplacement immédiat,
 puis attente de **16 images**, puis un déplacement toutes les **6 images**.
 
 ## Délai d'apparition
 
 Entre le verrouillage d'une pièce et l'apparition de la suivante, la NES attend de
-**10 à 18 images** selon la hauteur à laquelle la pièce s'est verrouillée, plus la durée de
-l'animation quand des lignes sont effacées **[à vérifier]**. Ces valeurs seront des
-paramètres de la règle, pour pouvoir les ajuster.
+**10 à 18 images** selon la hauteur à laquelle la pièce s'est verrouillée : 10 images dans
+les deux lignes du bas, puis 2 de plus par groupe de 4 lignes au-dessus, au plus 18.
+
+| Ligne du pivot | 19 – 18 | 17 – 14 | 13 – 10 | 9 – 6 | 5 et au-dessus (lignes cachées comprises) |
+|---|---|---|---|---|---|
+| Images | 10 | 12 | 14 | 16 | 18 |
+
+Source : TetrisWiki, *Tetris (NES, Nintendo)* (« ARE is 10~18 frames depending on the height
+at which the piece locked »). La hauteur se mesure sur la ligne du pivot : simplification,
+probablement fidèle à la ROM, **[à vérifier]**. La règle est une politique interchangeable
+(`EntryDelay`), dont `ClassicEntryDelay` porte les valeurs NES.
+
+**Tests :** `ClassicEntryDelayTest › a piece locked in the two bottom rows waits 10 ticks before the next one appears`,
+`ClassicEntryDelayTest › each group of 4 rows higher adds 2 ticks`,
+`ClassicEntryDelayTest › the entry delay is at most 18 ticks`,
+`ClassicEntryDelayTest › a row outside -2 to 19 is refused`.
+
+Quand des lignes sont effacées, l'animation s'ajoute : 5 passes, une toutes les 4 images,
+soit **17 à 20 images** selon l'image du verrouillage (TetrisWiki ; meatfighter.com, « The
+clearing animation requires 5 passes », une toutes les quatre images). Le détail du calcul
+est **[à vérifier]** ; il revient au moteur (P1.12).
 
 ## Lignes et score
 
