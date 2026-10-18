@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.params.ParameterizedTest
@@ -16,7 +17,7 @@ class ClassicEntryDelayTest {
     @ParameterizedTest(name = "pivot locked on row {0} -> 10 ticks")
     @CsvSource("19", "18")
     fun `a piece locked in the two bottom rows waits 10 ticks before the next one appears`(pivotRow: Int) {
-        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(10)
+        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(Ticks(10))
     }
 
     @ParameterizedTest(name = "pivot locked on row {0} -> {1} ticks")
@@ -25,13 +26,13 @@ class ClassicEntryDelayTest {
         pivotRow: Int,
         expectedTicks: Int,
     ) {
-        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(expectedTicks)
+        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(Ticks(expectedTicks))
     }
 
     @ParameterizedTest(name = "pivot locked on row {0} -> 18 ticks")
     @CsvSource("1", "0", "-1", "-2")
     fun `the entry delay is at most 18 ticks`(pivotRow: Int) {
-        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(18)
+        assertThat(ticksAfterLockOn(pivotRow)).isEqualTo(Ticks(18))
     }
 
     @ParameterizedTest(name = "pivot on row {0} is refused")
@@ -43,7 +44,7 @@ class ClassicEntryDelayTest {
     }
 
     /** When: a piece locks with its pivot on [pivotRow]; the ticks before the next piece appears. */
-    private fun ticksAfterLockOn(pivotRow: Int): Int = entryDelay.ticksAfterLock(pieceWithPivotOn(pivotRow))
+    private fun ticksAfterLockOn(pivotRow: Int): Ticks = entryDelay.ticksAfterLock(pieceWithPivotOn(pivotRow))
 
     private companion object {
         val T_UP = Orientation(

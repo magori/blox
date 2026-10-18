@@ -432,7 +432,8 @@ tout se déduise de la graine. La différence (1 à 3 images) n'est pas percepti
 `GameEngineClearTest › the clear lasts 16 ticks plus the ticks up to the next multiple of 4 of the game tick count`,
 `GameEngineClearTest › after the clear comes the entry delay computed when the piece locked, then the next piece`,
 `GameEngineClearTest › the ticks between the lock and the end of the clear give no event`,
-`PhaseTest › a clear and the entry delay after it last at least one tick`.
+`PhaseTest › a clear lasts at least one tick`, `TicksTest › a duration of 0 ticks or less is refused`,
+`TicksTest › a duration of 1 tick is the shortest one accepted` (la gravité et le délai d'apparition rendent un `Ticks`, au moins 1).
 
 ## Lignes et score
 
