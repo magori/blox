@@ -1,13 +1,16 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Ticks
 
 /**
  * Gravity of the Classic mode (NES, 1989): levels 0 to 9 each have their own speed, then
  * levels share a speed by tier, down to one row every tick from level 29 onwards.
  */
 public object ClassicGravityTable : GravityTable {
-    override fun ticksPerRow(level: Level): Int = when (level.value) {
+    override fun ticksPerRow(level: Level): Ticks = Ticks(ticksPerRowAt(level))
+
+    private fun ticksPerRowAt(level: Level): Int = when (level.value) {
         0 -> 48
         1 -> 43
         2 -> 38

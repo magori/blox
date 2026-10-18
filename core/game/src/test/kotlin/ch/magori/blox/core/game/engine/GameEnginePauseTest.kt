@@ -7,6 +7,7 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -156,7 +157,7 @@ class GameEnginePauseTest {
                 Phase.Clearing(
                     rowsCleared = Board.parse("IIIIIIIIII").clearFullRows(),
                     ticksLeft = 12,
-                    entryDelayAfter = 10,
+                    entryDelayAfter = Ticks(10),
                     stackInDangerAfter = false,
                 ),
             ),

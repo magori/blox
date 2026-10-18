@@ -2,6 +2,7 @@ package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.RowsCleared
+import ch.magori.blox.core.game.model.Ticks
 
 /** Where the game stands. */
 public sealed interface Phase {
@@ -41,12 +42,11 @@ public sealed interface Phase {
     public data class Clearing(
         public val rowsCleared: RowsCleared,
         public val ticksLeft: Int,
-        public val entryDelayAfter: Int,
+        public val entryDelayAfter: Ticks,
         public val stackInDangerAfter: Boolean,
     ) : Phase {
         init {
             require(ticksLeft >= 1) { "ticksLeft must be at least 1: $ticksLeft" }
-            require(entryDelayAfter >= 1) { "entryDelayAfter must be at least 1: $entryDelayAfter" }
         }
     }
 
