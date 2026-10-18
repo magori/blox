@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 49 / 75 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 50 / 75 | `█████████████░░░░░░░` **67 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -359,17 +359,20 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
-- [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
+- [x] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
   à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012). Revue de P2.2
   (incrément 3) : en pause, les images tournent encore à 60 Hz sans donner de tick ; suspendre
-  la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise.
+  la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise. Fait :
+  `LifecycleEventEffect(ON_PAUSE)` → `onPause()`, boucle suspendue en pause (ADR 0012 amendé).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
   Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu ; retour système (revue
   de P2.2, incrément 3 : en jeu il met en pause sans dépiler, en pause il reprend, en fin de
   partie il revient au menu) ; accueil (revue de P3.4 : record lu en clair, Moderne désactivé,
-  « Jouer » au niveau choisi). Revue de P2.2 : le
+  « Jouer » au niveau choisi) ; cycle de vie (revue de P5.4 : `ON_PAUSE` met en pause avec un
+  `TestLifecycleOwner`, la boucle ne donne aucun tick en pause et reprend sans rattrapage).
+  Revue de P2.2 : le
   ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
   test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
   `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer

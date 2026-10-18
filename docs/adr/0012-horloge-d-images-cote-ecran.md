@@ -56,5 +56,14 @@ Options envisagées :
   `GameLoop.reset()`. La première image après un retour à l'écran ne donne donc aucun tick, au
   lieu du plafond (`GameViewModelTest › when frames start again the game loop is reset and the
   next frame gives no tick`).
+- **Amendement (P5.4, 2026-10-18).** La phrase « en pause, les images arrivent mais le moteur ne
+  change pas d'état » n'est plus exacte : la boucle d'images suit `paused`
+  (`collectLatest` sur l'état) et se **suspend** pendant la pause, pour ne pas tourner à 60 Hz
+  sans rien donner ; chaque reprise repasse par `onFramesStarted()`, si bien que la première
+  image ne rattrape pas le temps passé en pause. La pause automatique est faite : `ON_PAUSE`
+  appelle `viewModel.onPause()` (le moteur ignore la pause en fin de partie ou déjà en pause),
+  et la partie reste en pause au retour, jusqu'à Reprendre. Une recréation de l'activité (thème
+  sombre, langue, taille de fenêtre) passe par `ON_PAUSE` et met donc aussi la partie en pause,
+  ce qui est voulu.
 - Le diagramme de `docs/architecture.md` est mis à jour : l'écran envoie les images, le
   ViewModel envoie les entrées, `GameLoop` envoie les ticks au moteur.
