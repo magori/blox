@@ -32,6 +32,8 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
   *Écouter* pour les deux mélodies.
 - Bouton **Jouer**.
+- Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
+  lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).

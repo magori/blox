@@ -3,13 +3,10 @@ package ch.magori.blox.core.data
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import java.io.IOException
 
 /**
  * The record kept in [dataStore], DataStore Preferences. The DataStore is created once, by the
@@ -18,10 +15,9 @@ import java.io.IOException
 class DataStoreHighScoreRepository(private val dataStore: DataStore<Preferences>) : HighScoreRepository {
     /**
      * The record; 0 while the file cannot be read (an unreadable file is replaced by an empty one, see
-     * [recordsDataStore]). [distinctUntilChanged] is a defence: the records file holds nothing else.
+     * [preferencesDataStore]). [distinctUntilChanged] is a defence: the records file holds nothing else.
      */
-    override val highScore: Flow<Int> = dataStore.data
-        .catch { failure -> if (failure is IOException) emit(emptyPreferences()) else throw failure }
+    override val highScore: Flow<Int> = dataStore.readOrEmpty()
         .map { it[HIGH_SCORE] ?: 0 }
         .distinctUntilChanged()
 
