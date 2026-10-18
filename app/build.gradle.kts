@@ -47,21 +47,30 @@ dependencies {
 }
 
 /**
- * Donne aux tests le chemin de colors.xml, que WindowBackgroundTest compare à la palette Original. Le
- * fichier est une entrée de la tâche : le modifier relance le test, y compris depuis le cache de build.
+ * Donne aux tests le répertoire res et le manifeste de l'application : WindowBackgroundTest et
+ * LauncherIconTest y comparent des ressources (fond de fenêtre, icône, écran de démarrage) à la palette
+ * Original. Ce sont des entrées de la tâche : les modifier relance les tests, y compris depuis le cache de build.
  */
-abstract class ColorsXmlArgument : CommandLineArgumentProvider {
+abstract class AppSourcesArgument : CommandLineArgumentProvider {
+    @get:InputDirectory
+    @get:PathSensitive(PathSensitivity.RELATIVE)
+    abstract val resDir: DirectoryProperty
+
     @get:InputFile
     @get:PathSensitive(PathSensitivity.RELATIVE)
-    abstract val colorsXml: RegularFileProperty
+    abstract val manifest: RegularFileProperty
 
-    override fun asArguments(): Iterable<String> = listOf("-Dblox.colorsXml=${colorsXml.get().asFile.absolutePath}")
+    override fun asArguments(): Iterable<String> = listOf(
+        "-Dblox.resDir=${resDir.get().asFile.absolutePath}",
+        "-Dblox.manifest=${manifest.get().asFile.absolutePath}",
+    )
 }
 
-val colorsXmlArgument = objects.newInstance<ColorsXmlArgument>().apply {
-    colorsXml.set(layout.projectDirectory.file("src/main/res/values/colors.xml"))
+val appSourcesArgument = objects.newInstance<AppSourcesArgument>().apply {
+    resDir.set(layout.projectDirectory.dir("src/main/res"))
+    manifest.set(layout.projectDirectory.file("src/main/AndroidManifest.xml"))
 }
 
 tasks.withType<Test>().configureEach {
-    jvmArgumentProviders.add(colorsXmlArgument)
+    jvmArgumentProviders.add(appSourcesArgument)
 }
