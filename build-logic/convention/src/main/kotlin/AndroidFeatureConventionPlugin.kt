@@ -22,6 +22,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 // `api` : les clés NavKey d'une feature sont lues par app, qui assemble la pile (ADR 0011).
                 add("api", libs.library("androidx-navigation3-runtime"))
                 add("api", libs.library("kotlinx-serialization-core"))
+                // Exclue aussi dans `build.gradle.kts` (dependencyAnalysis, sourceSet("androidTest")).
                 add("androidTestImplementation", libs.library("androidx-compose-ui-test-android"))
                 add("debugRuntimeOnly", libs.library("androidx-compose-ui-test-manifest"))
             }
