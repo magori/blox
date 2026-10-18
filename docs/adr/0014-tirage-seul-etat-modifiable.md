@@ -21,8 +21,12 @@ Aucune tâche ne demande de sauvegarder ni de reprendre une partie en cours.
 ## Décision
 
 Le générateur de pièces garde son état aléatoire : c'est le **seul état modifiable du
-domaine**. Il appartient au moteur (P1.12), qui le crée à partir de la graine de la partie.
-Un état de partie ne se reconstruit qu'en rejouant depuis la graine.
+domaine**. Il appartient au moteur (P1.12), et **un moteur joue une seule partie** : une
+fabrique (`GameEngineFactory.create(seed)`) crée le moteur et son générateur depuis la graine
+de la partie. On ne repasse au moteur que le dernier état qu'il a rendu. Un état de partie ne
+se reconstruit qu'en rejouant depuis la graine. (Précisé en P1.12a : un premier jet injectait
+le générateur dans un moteur réutilisable, si bien qu'une deuxième partie continuait le
+tirage de la première.)
 
 ## Conséquences
 
