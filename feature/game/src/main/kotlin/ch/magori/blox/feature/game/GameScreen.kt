@@ -2,21 +2,29 @@ package ch.magori.blox.feature.game
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
@@ -39,19 +47,23 @@ import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
-import ch.magori.blox.feature.game.controls.GameControls
+import ch.magori.blox.feature.game.controls.DirectionPad
+import ch.magori.blox.feature.game.controls.RotationPad
+import ch.magori.blox.feature.game.controls.rememberControlFingers
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
+import ch.magori.blox.feature.game.sidepanel.NextPiecePanel
+import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 import ch.magori.blox.feature.game.topbar.GameTopBar
+import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlin.math.roundToInt
 
 /** The 24 dp margins the controls are sized for (P2.5). */
 private val ScreenMargin = 24.dp
-private val SidePanelWidth = 112.dp
-private val Gap = 16.dp
 
 /**
  * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): while it is started
@@ -154,34 +166,95 @@ private fun Game(
             .background(BloxTheme.palette.page)
             .safeDrawingPadding()
             .padding(ScreenMargin),
-        verticalArrangement = Arrangement.spacedBy(Gap),
+        verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
         GameTopBar(record = uiState.record, onPause = onPause)
-        Row(
+        BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(Gap),
         ) {
-            BoardCanvas(
-                board = uiState.board,
-                piece = uiState.piece,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-            )
+            val density = LocalDensity.current.density
+            val width = constraints.maxWidth.toFloat()
+            val height = constraints.maxHeight.toFloat()
+            val layout = remember(width, height, density) { gameLayout(width, height, density) }
+            Play(uiState = uiState, layout = layout, onControl = onControl, modifier = Modifier.fillMaxSize())
+        }
+    }
+}
+
+/**
+ * The board, the side column and the controls, each where [layout] puts it. The score column scrolls
+ * when its panels do not fit, as with an enlarged font, rather than pass under the screen or over the
+ * controls.
+ */
+@Composable
+private fun Play(
+    uiState: GameUiState,
+    layout: GameLayout,
+    onControl: (ControlChange) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val fingers = rememberControlFingers(onControl)
+    val scoreScroll = rememberScrollState()
+    PlacedParts(modifier = modifier) {
+        BoardCanvas(board = uiState.board, piece = uiState.piece, modifier = Modifier.placedAt(layout.board))
+        val nextPiece = layout.nextPiece
+        if (nextPiece == null) {
             SidePanel(
                 score = uiState.score,
                 level = uiState.level,
                 lines = uiState.lines,
                 next = uiState.next,
                 rotationSystem = uiState.rotationSystem,
-                modifier = Modifier.width(SidePanelWidth),
+                cellSize = layout.cellSize,
+                modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
+            )
+        } else {
+            ScorePanels(
+                score = uiState.score,
+                level = uiState.level,
+                lines = uiState.lines,
+                modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
+            )
+            NextPiecePanel(
+                next = uiState.next,
+                rotationSystem = uiState.rotationSystem,
+                cellSize = layout.cellSize,
+                modifier = Modifier.placedAt(nextPiece).wrapContentHeight(Alignment.Top),
             )
         }
-        GameControls(onChange = onControl, modifier = Modifier.align(Alignment.CenterHorizontally))
+        DirectionPad(fingers = fingers, modifier = Modifier.placedAt(layout.directions))
+        RotationPad(fingers = fingers, modifier = Modifier.placedAt(layout.rotations))
     }
 }
+
+/**
+ * Each part of [content] exactly in the rectangle its [placedAt] gives, in pixels of this space: the
+ * part takes the size of the rectangle, and is placed at its position.
+ */
+@Composable
+private fun PlacedParts(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Layout(content = content, modifier = modifier) { measurables, constraints ->
+        val parts = measurables.map { measurable ->
+            val rect = measurable.layoutId as Rect
+            val left = rect.left.roundToInt()
+            val top = rect.top.roundToInt()
+            val width = (rect.right.roundToInt() - left).coerceAtLeast(0)
+            val height = (rect.bottom.roundToInt() - top).coerceAtLeast(0)
+            measurable.measure(Constraints.fixed(width, height)) to IntOffset(left, top)
+        }
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            parts.forEach { (placeable, position) -> placeable.place(position) }
+        }
+    }
+}
+
+/** Where [PlacedParts] puts this part: [rect], in pixels of its space. */
+private fun Modifier.placedAt(rect: Rect): Modifier = layoutId(rect)
 
 /** A game under way, for the previews: a stack, a T falling, an I next, a record. */
 private val previewState = GameUiState(
@@ -236,4 +309,28 @@ internal fun GameScreenPausedPreview() {
 @Composable
 internal fun GameScreenLargeFontPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
+@Preview(widthDp = 800, heightDp = 360)
+@Composable
+private fun GameScreenLandscapePreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
+@Preview(widthDp = 1280, heightDp = 800)
+@Composable
+private fun GameScreenTabletPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+@Preview(widthDp = 800, heightDp = 1280)
+@Composable
+private fun GameScreenTabletPortraitPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
+@Preview(widthDp = 220, heightDp = 640)
+@Composable
+private fun GameScreenNarrowPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
 }

@@ -62,10 +62,11 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      *   board once cleared.
      * - Without a full row, [GameEvent.StackDanger] follows at once if the danger changed, then the entry
      *   delay computed when the piece locked.
-     * - With full rows, they are cleared after an animation, without any event: the board shown keeps
-     *   them until then. At the end, the cleared board is shown, the lines and the level go up, the
-     *   points are counted at the new level ([GameEvent.LinesCleared]), then [GameEvent.StackDanger] if
-     *   the danger changed, so that it changes as the stack goes down on screen. The entry delay follows.
+     * - With full rows, they are cleared after an animation, as long as [Rules.lineClearDelay] says,
+     *   without any event: the board shown keeps them until then. At the end, the cleared board is shown,
+     *   the lines and the level go up, the points are counted at the new level ([GameEvent.LinesCleared]),
+     *   then [GameEvent.StackDanger] if the danger changed, so that it changes as the stack goes down on
+     *   screen. The entry delay follows.
      * - When the entry delay is over, the next piece appears, or the game is over if it does not fit. The
      *   held shift stands still from the lock until then, and goes on with the next piece; a down held
      *   through the lock does not soft drop the next piece until it is pressed again.
@@ -242,7 +243,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         if (rowsCleared.clearedRows.isNotEmpty()) {
             val clearing = Phase.Clearing(
                 rowsCleared,
-                ticksLeft = clearDuration(state.tickCount),
+                ticksLeft = rules.lineClearDelay.ticksToClear(lockTick = state.tickCount).value,
                 entryDelayAfter = entryDelay,
                 stackInDangerAfter = inDanger,
             )
@@ -263,12 +264,6 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val changed = inDanger != state.stackInDanger
         return if (changed) listOf(GameEvent.StackDanger(on = inDanger)) else emptyList()
     }
-
-    /**
-     * The line clear animation: 16 ticks, plus the ticks up to the next multiple of 4 of [lockTick], the
-     * number of the tick the piece locked on (1 to 4 ticks): 17 to 20 ticks in all. [to be checked]
-     */
-    private fun clearDuration(lockTick: Int): Int = CLEAR_ANIMATION_TICKS + (CLEAR_STEP - lockTick % CLEAR_STEP)
 
     private fun clear(
         state: GameState,
@@ -327,12 +322,4 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
 
     /** What an appearance gives: the [phase] that follows, and the [next] piece drawn. */
     private data class Appearance(val phase: Phase, val next: PieceType)
-
-    private companion object {
-        /** The fixed part of the line clear animation, in ticks. */
-        const val CLEAR_ANIMATION_TICKS = 16
-
-        /** The animation ends on a multiple of this number of ticks. */
-        const val CLEAR_STEP = 4
-    }
 }

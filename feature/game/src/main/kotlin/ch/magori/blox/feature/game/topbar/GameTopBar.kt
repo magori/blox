@@ -25,11 +25,11 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
@@ -44,6 +44,9 @@ private object TopBarSizes {
 
     /** The pause glyph inside its button. */
     val glyph = 24.dp
+
+    /** The mode title: CLASSIQUE, 9 letters of 1 em in the pixel font, fits beside a record of 6 digits on 360 dp. */
+    val title = 14.sp
 }
 
 /**
@@ -69,7 +72,8 @@ internal fun GameTopBar(
         Text(
             text = stringResource(R.string.feature_game_top_title).uppercase(),
             color = palette.ink,
-            fontWeight = FontWeight.Bold,
+            fontSize = TopBarSizes.title,
+            style = BloxTheme.typography.title,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
@@ -85,7 +89,10 @@ internal fun GameTopBar(
         }
         Column(
             horizontalAlignment = Alignment.End,
-            modifier = Modifier.clearAndSetSemantics { contentDescription = description },
+            // At most as wide as the title: with an enlarged font, the record shrinks rather than the title.
+            modifier = Modifier
+                .weight(1f, fill = false)
+                .clearAndSetSemantics { contentDescription = description },
         ) {
             PanelLabel(text = recordLabel)
             ValueText(text = texts.record, modifier = Modifier.alpha(if (record == null) 0f else 1f))

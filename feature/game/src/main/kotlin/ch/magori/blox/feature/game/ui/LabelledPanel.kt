@@ -14,12 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
 /** The sizes shared by the panels and values of the game screens, in one place. */
 internal object PanelSizes {
@@ -66,26 +65,32 @@ internal fun LabelledPanel(
     }
 }
 
-/** A value of the game screens: monospace digits on one line, shrinking from [maxFontSize] if needed. */
+/**
+ * A value of the game screens: in the value font of the theme, every digit as wide as the others, on one
+ * line, shrinking from [maxFontSize] if needed.
+ */
 @Composable
 internal fun ValueText(
     text: String,
     modifier: Modifier = Modifier,
     maxFontSize: TextUnit = PanelSizes.value,
 ) {
+    val typography = BloxTheme.typography
     Text(
-        text = text,
+        text = typography.valueText(text),
         modifier = modifier,
         color = BloxTheme.palette.ink,
-        fontFamily = FontFamily.Monospace,
-        fontWeight = FontWeight.Bold,
+        style = typography.value,
         maxLines = 1,
         softWrap = false,
-        autoSize = TextAutoSize.StepBased(maxFontSize = maxFontSize),
+        autoSize = TextAutoSize.StepBased(minFontSize = BloxTypographies.MinimumFontSize, maxFontSize = maxFontSize),
     )
 }
 
-/** The label of a panel or of a value: in capitals, in the theme label colour, on one line. */
+/**
+ * The label of a panel or of a value: in capitals, in the theme label colour and font, on one line, shrinking
+ * if needed.
+ */
 @Composable
 internal fun PanelLabel(
     text: String,
@@ -95,7 +100,12 @@ internal fun PanelLabel(
         text = text.uppercase(),
         modifier = modifier,
         color = BloxTheme.palette.label,
-        fontSize = PanelSizes.label,
+        style = BloxTheme.typography.label,
         maxLines = 1,
+        softWrap = false,
+        autoSize = TextAutoSize.StepBased(
+            minFontSize = BloxTypographies.MinimumFontSize,
+            maxFontSize = PanelSizes.label,
+        ),
     )
 }

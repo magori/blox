@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -18,8 +19,9 @@ import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 
 /**
- * Draws [board] and the [piece] in play in [theme]. No logic here: the cells come from
- * [displayedCells], their place from [BoardGeometry], their look from the [CellPainter]s of [paintersFor].
+ * Draws [board] and the [piece] in play in [theme], on [background], the colour of the joints. No logic
+ * here: the cells come from [displayedCells], their place from [BoardGeometry], their look from the
+ * [CellPainter]s of [paintersFor].
  * Everything that depends on the size is built once per size; a frame only reads and draws.
  */
 @Composable
@@ -28,6 +30,7 @@ internal fun BoardCanvas(
     piece: Piece?,
     modifier: Modifier = Modifier,
     theme: BloxThemeKind = BloxTheme.kind,
+    background: Color = BloxTheme.palette.boardBackground,
 ) {
     val cells = remember(board, piece) { displayedCells(board, piece) }
     val columns = board.columns
@@ -35,7 +38,7 @@ internal fun BoardCanvas(
     Spacer(
         modifier = modifier.drawWithCache {
             val geometry = BoardGeometry.fit(size.width, size.height, columns, rows)
-            val painters = paintersFor(theme, geometry.cellSize)
+            val painters = paintersFor(theme, geometry.cellSize, background)
             onDrawBehind {
                 for (index in cells.indices) {
                     val left = geometry.origin.x + index % columns * geometry.cellSize

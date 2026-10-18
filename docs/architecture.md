@@ -15,16 +15,19 @@ graph TD
     app --> designsystem[core:designsystem]
     app --> data[core:data]
     app --> audio[core:audio]
+    app --> music
 
     featureHome --> designsystem
     featureHome --> data
     featureHome --> game
     featureHome --> audio
+    featureHome --> music
 
     featureGame --> designsystem
     featureGame --> game[core:game]
     featureGame --> data
     featureGame --> audio
+    featureGame --> music
 
     audio --> music[core:music]
 

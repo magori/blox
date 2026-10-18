@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CoroutineDispatcher
@@ -300,7 +301,8 @@ class ChiptuneSequencerTest {
     }
 
     private fun scoreOf(pitch: Pitch): Score = Score(
-        title = pitch.toString(),
+        // A synthetic score: its identifier plays no part here, the scores differ by their notes.
+        id = ScoreId.KOROBEINIKI,
         bpm = 150,
         beatsPerBar = 4,
         voices = listOf(Voice(Waveform.SQUARE, volume = 0.07, notes = listOf(Note(pitch, beats = 4.0)))),

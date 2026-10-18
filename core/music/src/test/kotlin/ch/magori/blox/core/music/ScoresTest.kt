@@ -11,6 +11,13 @@ import org.junit.jupiter.params.provider.MethodSource
 
 class ScoresTest {
     @Test
+    fun `each arrangement is known by its own identifier`() {
+        // Given / When / Then
+        assertThat(Scores.korobeiniki.id).isEqualTo(ScoreId.KOROBEINIKI)
+        assertThat(Scores.minuet.id).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
     fun `Korobeiniki is played at 150 bpm in 4-4 with a square melody at 0_07 and a triangle bass at 0_16`() {
         // Given
         val score = Scores.korobeiniki

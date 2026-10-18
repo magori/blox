@@ -12,6 +12,8 @@ dependencies {
     // du record, et GameViewModel est un ViewModel.
     api(projects.core.game)
     api(projects.core.data)
+    // `api` : la fabrique reçoit de app la partition de chaque choix de musique, (MusicChoice) -> Score?.
+    api(projects.core.music)
     // La fabrique reçoit aussi le lecteur de musique.
     api(projects.core.audio)
     api(libs.androidx.lifecycle.viewmodel)
@@ -21,9 +23,12 @@ dependencies {
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.kotlinx.coroutines.core)
-    // Les partitions que le ViewModel donne au lecteur.
-    implementation(projects.core.music)
     // Le retour système de l'écran de jeu (pause, reprise), par le même mécanisme que NavDisplay.
     implementation(libs.androidx.navigationevent)
     implementation(libs.androidx.navigationevent.compose)
+    // Le faux lecteur de musique, partagé avec l'autre feature.
+    testImplementation(testFixtures(projects.core.audio))
+
+    // Doublures de test du domaine (ScriptedRandomizer, spawned), partagées par `core:game`.
+    testImplementation(testFixtures(projects.core.game))
 }

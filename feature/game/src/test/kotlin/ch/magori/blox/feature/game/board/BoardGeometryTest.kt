@@ -58,6 +58,24 @@ class BoardGeometryTest {
         assertThat(bottomRightCell).isEqualTo(Offset(lastX, lastY))
     }
 
+    @ParameterizedTest(name = "{0} × {1}: cell (0, 0) at ({2}, {3})")
+    @CsvSource("200, 50, 52, 1", "201.5, 61, 53, 7")
+    fun `with the cell size of the board, a preview of 4 × 2 keeps it, centred from a whole pixel`(
+        width: Float,
+        height: Float,
+        firstX: Float,
+        firstY: Float,
+    ) {
+        // Given the cells of a board of 24 px, a preview of 4 × 2 cells
+
+        // When
+        val geometry = BoardGeometry.centred(width, height, columns = 4, rows = 2, cellSize = 24f)
+
+        // Then
+        assertThat(geometry.cellSize).isEqualTo(24f)
+        assertThat(geometry.cellTopLeft(Position(column = 0, row = 0))).isEqualTo(Offset(firstX, firstY))
+    }
+
     private companion object {
         const val COLUMNS = 10
         const val ROWS = 20

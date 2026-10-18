@@ -18,6 +18,37 @@ Voir l'[ADR 0008](adr/0008-musique-domaine-public.md).
 
 *Korobeïniki* · *Menuet* · *Mon fichier* · *Aucune*
 
+**Écouter** (P4.7) : sous *Korobeïniki* et *Menuet* (les choix qui ont une partition BloX), un
+bouton Écouter / Arrêter joue un aperçu de la partition, par le même lecteur que le jeu. Un seul
+aperçu à la fois : écouter une autre musique arrête le précédent, la réécouter l'arrête ;
+choisir une autre musique l'arrête, choisir celle qu'on écoute la laisse jouer. L'aperçu
+s'arrête à Jouer, quand l'accueil passe en arrière-plan (`ON_STOP`, donc aussi à une recréation
+de l'activité) et quand on quitte l'accueil ; il continue derrière un dialogue. L'arrêt passe
+par le jeton de lecture : il ne coupe jamais la musique d'une partie lancée entre-temps. La
+correspondance choix → partition (`scoreOf`) vit dans `app` ; une partition est désignée par
+un identifiant (`ScoreId`), plus par un titre. Le focus audio n'est pas géré (un appel ne coupe
+pas la musique).
+
+**Tests :** `MusicScoresTest › each music choice plays its score, or none`,
+`HomeViewModelTest › only the musics with a score can be listened to`,
+`HomeViewModelTest › listening to a music plays its score and shows it as previewed`,
+`HomeViewModelTest › listening again to the music being previewed stops it`,
+`HomeViewModelTest › listening to another music stops the preview and plays the other`,
+`HomeViewModelTest › a music without a BloX score cannot be listened to`,
+`HomeViewModelTest › choosing another music stops the preview`,
+`HomeViewModelTest › choosing the music being previewed lets it play on`,
+`HomeViewModelTest › playing stops the preview`,
+`HomeViewModelTest › the preview stops when the screen goes to the background, never the music of a game started since`,
+`HomeViewModelTest › the preview plays on while the screen is still visible`,
+`HomeViewModelTest › leaving the home screen stops the preview`,
+`HomeViewModelTest › leaving the home screen with no music listened to lets the music of the game play, without any stop`,
+`ListenButtonTest › a music not being previewed offers to listen to it, and TalkBack says which`,
+`ListenButtonTest › the music being previewed offers to stop it, and TalkBack says which`,
+`ScoresTest › each arrangement is known by its own identifier`. Vue : V1.
+
+Prévu : des musiques composées dans l'application, à la main ou par le générateur
+(bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
+
 ## Modèle
 
 ```
