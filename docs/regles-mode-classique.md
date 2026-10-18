@@ -85,7 +85,13 @@ La pièce descend d'une ligne toutes les *N* images, selon le niveau :
 | 29 et plus | 1 |
 
 1 image = 1 tick = 1/60 s (la NES tourne en réalité à environ 60,1 images/s, l'écart est
-négligeable).
+négligeable). Le niveau ne peut pas être négatif.
+
+**Tests :** `ClassicGravityTableTest › at level 0 the piece falls one row every 48 ticks`,
+`ClassicGravityTableTest › from level 1 to 9 each level has its own speed`,
+`ClassicGravityTableTest › from level 10 to 28 levels share the same speed by tier`,
+`ClassicGravityTableTest › from level 29 onwards the piece falls one row every tick`,
+`LevelTest › a level cannot be negative`, `LevelTest › level 0 is the lowest valid level`.
 
 ## Verrouillage
 
