@@ -461,7 +461,12 @@ partie non plus). Un fichier illisible ou corrompu compte comme « pas de record
 `DataStoreHighScoreRepositoryTest › the record flow emits the new record after a submit`,
 `DataStoreHighScoreRepositoryTest › two concurrent submits keep the highest score, the second one seeing the first`,
 `DataStoreHighScoreRepositoryTest › an unreadable records file gives a record of 0, and the next score becomes the record`,
-`DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`.
+`DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
+`GameViewModelTest › at the game over the score is submitted once and the screen gets the final values and the record result`,
+`GameViewModelTest › once the game is over the frames change nothing and the score is not submitted again`,
+`GameViewModelTest › while the score is being submitted the game over waits, then shows once with the answer`,
+`GameViewModelTest › the score is saved even when the view model is cleared while it is being submitted`,
+`GameViewModelTest › when the records cannot be written the game over still shows, without a new record`.
 Vues : V1, V2, V3, V4.
 
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
