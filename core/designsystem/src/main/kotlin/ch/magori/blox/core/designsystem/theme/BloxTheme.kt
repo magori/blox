@@ -46,6 +46,7 @@ private fun BloxPalette.toColorScheme(kind: BloxThemeKind): ColorScheme = when (
         surface = panel,
         onSurface = ink,
     )
+
     BloxThemeKind.COLORFUL -> darkColorScheme(
         primary = accent,
         onPrimary = accentInk,

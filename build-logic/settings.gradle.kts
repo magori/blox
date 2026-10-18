@@ -7,6 +7,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        gradlePluginPortal() // plugin ktlint, absent de Maven Central
     }
     versionCatalogs {
         create("libs") {

@@ -1,5 +1,6 @@
 plugins {
     `kotlin-dsl`
+    alias(libs.plugins.ktlint)
 }
 
 group = "ch.magori.blox.buildlogic"
@@ -16,6 +17,7 @@ dependencies {
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
     compileOnly(libs.android.junit.gradlePlugin)
+    compileOnly(libs.ktlint.gradlePlugin)
 }
 
 gradlePlugin {
@@ -45,4 +47,9 @@ gradlePlugin {
             implementationClass = "JvmLibraryConventionPlugin"
         }
     }
+}
+
+// Même ktlint que les modules du projet : `./gradlew -p build-logic ktlintCheck`.
+ktlint {
+    version.set(libs.versions.ktlint.get())
 }

@@ -1,6 +1,6 @@
 # 0006 — Boucle de jeu à pas fixe de 60 ticks/s
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; le point « coroutine dans le scope du ViewModel » est remplacé par [0012](0012-horloge-d-images-cote-ecran.md)
 - **Date** : 2026-10-18
 
 ## Contexte

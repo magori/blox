@@ -31,7 +31,9 @@ graph TD
     class game,music pure
 ```
 
-Les modules en vert sont en **Kotlin pur** (aucune dépendance Android).
+Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Le graphe montre la
+cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, car `buildHealth`
+(plugin d'analyse de dépendances, tâche P0.9) refuse une dépendance sans usage.
 
 | Module | Type | Responsabilité |
 |---|---|---|
@@ -67,9 +69,11 @@ graph LR
     subgraph feature:game
         Screen[GameScreen<br/>Compose] -- actions --> VM[GameViewModel]
         VM -- GameUiState --> Screen
-        Loop[GameLoop<br/>60 Hz] -- tick --> VM
+        Screen -- onFrame(nanos) --> VM
+        VM -- temps d'image --> Loop[GameLoop<br/>nombre de ticks dus]
+        Loop -- n --> VM
     end
-    VM -- tick / Input --> Engine[GameEngine<br/>core:game]
+    VM -- Input, puis tick ×n --> Engine[GameEngine<br/>core:game]
     Engine -- GameState + événements --> VM
     VM --> Repo[HighScoreRepository<br/>core:data]
     VM --> Music[MusicPlayer<br/>core:audio]
@@ -86,11 +90,15 @@ graph LR
 
 ## Boucle de jeu
 
-Le jeu est simulé à **pas fixe** : 1 tick = 1 image = 1/60 s, comme sur la NES. La boucle
-(une coroutine dans le scope du ViewModel, cadencée par `withFrameNanos`) accumule le temps
-réel écoulé et appelle `tick()` autant de fois que nécessaire. Le domaine ne connaît que
-les ticks, jamais les millisecondes : la vitesse ne dépend pas de la fréquence d'écran
-(60, 90 ou 120 Hz). Voir l'[ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md).
+Le jeu est simulé à **pas fixe** : 1 tick = 1 image = 1/60 s, comme sur la NES. L'écran
+possède l'horloge d'images : un `LaunchedEffect` de `GameScreen` appelle
+`viewModel.onFrame(nanos)` à chaque image via `withFrameNanos` ; Compose met cette horloge en pause
+à `ON_STOP`. Le ViewModel délègue à une classe pure `GameLoop`, qui
+accumule le temps réel écoulé et rend le nombre de ticks dus ; le ViewModel applique les entrées
+puis ces ticks au moteur, dont il est le seul écrivain. Le domaine
+ne connaît que les ticks, jamais les millisecondes : la vitesse ne dépend pas de la
+fréquence d'écran (60, 90 ou 120 Hz). Voir les [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)
+et [0012](adr/0012-horloge-d-images-cote-ecran.md).
 
 Les commandes (maintien d'une flèche, répétition automatique) sont aussi comptées en ticks
 dans le domaine. Ainsi le comportement du « DAS » de la NES est testable sans appareil.
@@ -101,6 +109,10 @@ Manuelle pour l'instant : un `AppContainer` dans `app` construit les repositorie
 lecteur de musique, et les ViewModels les reçoivent via une `ViewModelProvider.Factory`.
 Hilt reste la recommandation officielle pour les projets plus gros : la migration est simple
 tant que les constructeurs reçoivent leurs dépendances. Voir l'[ADR 0007](adr/0007-injection-manuelle.md).
+
+Une feature ne voit jamais `AppContainer` : elle définit la fabrique de son ViewModel, avec ses
+dépendances en paramètres, et `app` la construit puis la passe à l'entrée de navigation
+(`gameEntry(onBack, viewModelFactory)`). Voir l'[ADR 0013](adr/0013-fabriques-de-viewmodel-par-les-entrees.md).
 
 ## Tests
 

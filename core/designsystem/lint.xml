@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Règles Compose de Slack : la palette du design system est un CompositionLocal volontaire,
+     comme MaterialTheme. Toute autre création reste signalée. -->
+<lint>
+    <issue id="ComposeCompositionLocalUsage">
+        <option name="allowed-composition-locals" value="LocalBloxPalette" />
+    </issue>
+</lint>

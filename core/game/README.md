@@ -20,7 +20,7 @@ Règles de référence : [docs/regles-mode-classique.md](../../docs/regles-mode-
 - **Aucune couleur, aucun son** : le domaine ne connaît que `PieceType.T`, jamais « violet ».
 - **Le temps est discret** : une image = un `tick` (60 par seconde). Le moteur ne lit jamais
   d'horloge, c'est l'application qui l'appelle.
-- **API explicite** : le mode `explicitApi` est activé en avertissement. Ce qui est public
+- **API explicite** : le mode `explicitApi` est activé en mode strict. Ce qui est public
   est un choix, pas un oubli.
 
 ## Tests

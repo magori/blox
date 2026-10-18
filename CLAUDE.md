@@ -48,7 +48,10 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew :core:game:test       # domaine (JUnit 5, JVM, sans émulateur)
 ./gradlew :core:music:test      # partitions
 ./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
-./gradlew lintDebug             # lint Android
+./gradlew ktlintCheck           # style Kotlin (ktlintFormat corrige)
+./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
+./gradlew buildHealth           # dépendances déclarées sans usage ou mal déclarées
+./gradlew lintDebug             # lint Android, règles Compose de Slack comprises
 ./gradlew assembleDebug         # APK
 ./gradlew installDebug          # installation sur un appareil connecté
 ```
@@ -64,8 +67,9 @@ Un seul test ou une seule classe :
 ./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
 ```
 
-La CI (`.github/workflows/ci.yml`) enchaîne exactement : tests du domaine, `testDebugUnitTest`,
-`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces quatre commandes passe en CI.
+La CI (`.github/workflows/ci.yml`) enchaîne exactement : `ktlintCheck` (projet et `build-logic`),
+`buildHealth`, tests du domaine, `testDebugUnitTest`,
+`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces six commandes passe en CI.
 
 ## Architecture
 
@@ -83,11 +87,11 @@ lui-même.
 | Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
-| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem`, Navigation 3 (`navigation3-runtime`), ViewModel) | idem + Compose UI Test |
+| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
 
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
-- Les modules Kotlin purs compilent avec `explicitApiWarning()` : ce qui est `public` est un
+- Les modules Kotlin purs compilent avec `explicitApi()` strict : ce qui est `public` est un
   choix, pas un oubli.
 - **JUnit 5 partout**, tests unitaires et instrumentés (ADR 0009). Jamais de `junit:junit`
   ni de `ui-test-junit4` ; pour Compose, `createComposeExtension()` avec
@@ -103,21 +107,26 @@ lui-même.
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `feature:game`.
 - Toute configuration Gradle partagée va dans `build-logic`, toute version dans
-  `gradle/libs.versions.toml`. Seule exception : les plugins de `settings.gradle.kts`, résolus
-  avant le catalogue (ADR 0010).
+  `gradle/libs.versions.toml`. Deux exceptions : les plugins de `settings.gradle.kts`, résolus
+  avant le catalogue (ADR 0010), et le bloc `dependencyAnalysis {}` du `build.gradle.kts` racine, que
+  le plugin impose à cet endroit.
 
 ### Couches dans une feature
 
 `GameScreen` (Compose, sans logique) → actions → `GameViewModel` → `Input` → `GameEngine`
 (`core:game`) → `GameState` + événements → `GameUiState`. Pas de couche de use cases : le
 moteur *est* le domaine. Les repositories (`core:data`) exposent des `Flow`. Injection
-manuelle via un `AppContainer` dans `app` et des `ViewModelProvider.Factory` (ADR 0007).
+manuelle via un `AppContainer` dans `app` et des `ViewModelProvider.Factory` (ADR 0007) ; la
+feature définit sa fabrique, `app` la construit et la passe à l'entrée de navigation (ADR 0013).
 
 ### Boucle de jeu et temps
 
 Simulation à **pas fixe** : 1 tick = 1 image = 1/60 s (ADR 0006). Le domaine ne connaît que
 les ticks, jamais de millisecondes ni d'horloge ; l'aléatoire est injecté (`Randomizer`). DAS,
-délai d'apparition, gravité sont comptés en ticks, donc testables sans appareil.
+délai d'apparition, gravité sont comptés en ticks, donc testables sans appareil. L'horloge
+d'images appartient à l'écran (`withFrameNanos` dans un `LaunchedEffect`), jamais au ViewModel :
+`viewModelScope` n'a pas de `MonotonicFrameClock` (ADR 0012). Une classe pure `GameLoop` rend le nombre
+de ticks dus ; le ViewModel les applique au moteur après les entrées.
 
 ### Organisation prévue de `core:game`
 
@@ -165,7 +174,8 @@ Une tâche de [SUIVI.md](SUIVI.md) n'est terminée qu'après ces étapes, **dans
 La commande `/fin-de-tache` les déroule.
 
 1. **Tests verts.**
-   `./gradlew :core:game:test :core:music:test testDebugUnitTest`, plus
+   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
+   `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug` si un module Android a changé.
    Aucun test désactivé sans raison écrite dans le test et dans le journal.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas

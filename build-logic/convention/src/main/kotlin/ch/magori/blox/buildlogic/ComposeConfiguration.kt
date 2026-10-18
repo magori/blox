@@ -20,5 +20,6 @@ internal fun Project.configureAndroidCompose(commonExtension: CommonExtension) {
         add("androidTestImplementation", platform(bom))
         add("implementation", libs.library("androidx-compose-ui-tooling-preview"))
         add("debugImplementation", libs.library("androidx-compose-ui-tooling"))
+        add("lintChecks", libs.library("slack-compose-lint-checks"))
     }
 }

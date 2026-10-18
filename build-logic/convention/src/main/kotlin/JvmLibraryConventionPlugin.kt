@@ -1,5 +1,7 @@
+import ch.magori.blox.buildlogic.configureDependencyAnalysis
 import ch.magori.blox.buildlogic.configureJvmTests
 import ch.magori.blox.buildlogic.configureKotlinJvm
+import ch.magori.blox.buildlogic.configureKtlint
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -12,6 +14,8 @@ class JvmLibraryConventionPlugin : Plugin<Project> {
         with(target) {
             pluginManager.apply("org.jetbrains.kotlin.jvm")
             configureKotlinJvm()
+            configureKtlint()
+            configureDependencyAnalysis()
             configureJvmTests()
         }
     }

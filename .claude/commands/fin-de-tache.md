@@ -6,7 +6,8 @@ Clôture la tâche en cours ($ARGUMENTS si un identifiant est donné) en suivant
 « Définition de terminé » de `CLAUDE.md`, étape par étape, sans en sauter aucune.
 Arrête-toi et signale-le si une étape échoue.
 
-1. **Tests verts** : lance `./gradlew :core:game:test :core:music:test testDebugUnitTest`, et
+1. **Tests verts** : lance `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
+   `./gradlew -p build-logic ktlintCheck`, et
    `./gradlew lintDebug assembleDebug` si un module Android a changé. Montre le résultat.
 
 2. **Revue indépendante** : lance un sous-agent qui n'a pas le contexte de cette conversation.

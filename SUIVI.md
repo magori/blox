@@ -10,7 +10,7 @@ confirmer sur une source avant d'écrire le test.
 
 | Phase | Objectif | État |
 |---|---|---|
-| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 et P0.9 à P0.12 |
+| P0 | Structure du projet et documentation | Build local validé ; reste P0.12 |
 | P1 | Domaine du mode Classique (`core:game`) | À faire |
 | P2 | Écran de jeu jouable (`feature:game`) | À faire |
 | P3 | Accueil, préférences, records | À faire |
@@ -29,20 +29,24 @@ confirmer sur une source avant d'écrire le test.
 - [x] **P0.5** **Premier build local.** Wrapper Gradle 9.8.1, catalogue mis à jour (AGP 9.4.1,
   Kotlin 2.4.21, BOM Compose 2026.09.00, `compileSdk` 37), `build-logic` adapté au DSL d'AGP 9
   et au Kotlin intégré (ADR 0010). Tests, APK debug et lint verts.
-- [ ] **P0.6** Ajouter une analyse statique : ktlint (via le plugin Gradle) ou detekt, branchée
-  dans `build-logic` et dans la CI, plus les règles lint Compose de Slack
-  (`com.slack.lint.compose:compose-lint-checks`) sur les modules Compose.
+- [x] **P0.6** Analyse statique : ktlint 1.8 (plugin `org.jlleitschuh.gradle.ktlint` 14.2) appliqué par
+  les plugins de convention, réglé dans `.editorconfig` (style IntelliJ, composables en
+  PascalCase, paramètres sur plusieurs lignes dès deux) ; règles lint Compose de Slack 1.6.1
+  (`lintChecks`) sur les modules Compose ; `ktlintCheck` en CI.
 - [x] **P0.7** Définition de terminé (`CLAUDE.md`), commande `/fin-de-tache`, revue
   indépendante par sous-agent, vues de maquette numérotées V1 à V4.
 - [x] **P0.8** JUnit 5 partout : plugin `de.mannodermaus.android-junit` dans les plugins de
   convention, JUnit 4 retiré du catalogue, ADR 0009.
-- [ ] **P0.9** Plugin `dependency-analysis` (autonomousapps) branché dans `build-logic` et la CI,
-  puis retrait des dépendances déclarées sans usage : `feature:home` → `core:audio`, `core:data` ;
-  `app` → `core:audio`, `core:data`. Elles reviennent quand le code les exige (P3, P4).
-- [ ] **P0.10** `explicitApi()` strict (au lieu de `explicitApiWarning()`) sur les modules Kotlin
-  purs, tant qu'ils sont vides ; retirer `allWarningsAsErrors.set(false)` (valeur par défaut).
-- [ ] **P0.11** Mémoire Gradle : `org.gradle.jvmargs` à 4 Go et `kotlin.daemon.jvmargs` dans
-  `gradle.properties` (AGP 9 + Kotlin 2.4 + Compose sur huit modules).
+- [x] **P0.9** Plugin `dependency-analysis` 3.19.2 configuré à la racine, appliqué par les plugins de
+  convention, `buildHealth` en CI : une dépendance de production sans usage fait échouer le
+  build (sources de test ignorées, Compose regroupé). Retirées : `feature:home` → `core:audio`,
+  `core:data` ; `feature:game` → `core:game`, `core:audio`, `core:data` ; `app` → `core:audio`,
+  `core:data`, `core-ktx` ; `core:audio` → `core:music` ; `core:data` → DataStore ; coroutines
+  partout. Elles reviennent quand le code les exige. `serialization-json` remplacé par `-core`.
+- [x] **P0.10** `explicitApi()` strict sur les modules Kotlin purs ; `allWarningsAsErrors.set(false)`
+  retiré (valeur par défaut). ADR 0003 amendé.
+- [x] **P0.11** Mémoire Gradle : `org.gradle.jvmargs` à 4 Go avec ParallelGC, `kotlin.daemon.jvmargs`
+  à 2 Go.
 - [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
@@ -84,20 +88,17 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
-- [ ] **P2.9** **Avant P2.1.** Amender l'ADR 0006 : `withFrameNanos` exige un `MonotonicFrameClock`
-  absent de `viewModelScope`, la boucle ne peut pas tourner dans le ViewModel. L'horloge d'images
-  vit côté Compose (`LaunchedEffect` qui appelle `viewModel.onFrame(nanos)`), le ViewModel délègue
-  à une classe `GameLoop` pure. Le jeu se suspend de lui-même quand l'écran n'est plus affiché
-  (couvre en partie P5.4). Mettre `docs/architecture.md` à jour.
+- [x] **P2.9** ADR 0012 : l'horloge d'images appartient à l'écran (`LaunchedEffect` + `withFrameNanos`
+  → `viewModel.onFrame(nanos)`), le ViewModel délègue à une classe pure `GameLoop`. `viewModelScope`
+  n'a pas de `MonotonicFrameClock`. ADR 0006 amendé, `docs/architecture.md` et CLAUDE.md à jour.
 - [ ] **P2.1** `GameLoop` à pas fixe : accumulateur testé avec une horloge factice
-  (ADR 0006 amendé en P2.9).
-- [ ] **P2.10** **Avant P2.2.** Chemin d'injection de `app` vers les features sans dépendance
-  inverse (ADR 0007) : l'extension `gameEntry(...)` reçoit une `ViewModelProvider.Factory`
-  construite dans `BloxNavDisplay` (option retenue par défaut, voir ADR 0011), ou un
-  `CompositionLocal` déclaré dans un module partagé expose le conteneur. Consigner dans
-  l'ADR 0007 ; P3.3 s'y conforme.
+  (ADR 0006 et 0012).
+- [x] **P2.10** ADR 0013 : la feature définit la fabrique de son ViewModel (dépendances en
+  paramètres), `app` la construit depuis `AppContainer` et la passe à l'entrée de navigation
+  (`gameEntry(onBack, viewModelFactory)`). Pas de `CompositionLocal`. ADR 0007 précisé.
 - [ ] **P2.2** `GameViewModel` : `GameUiState`, conversion des actions en `Input`, tests avec
-  coroutines-test et Turbine. Ajouter alors `lifecycle-viewmodel-navigation3` et les deux
+  coroutines-test et Turbine. Ajouter alors `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`,
+  `lifecycle-viewmodel-navigation3` (catalogue et plugin de feature) et les deux
   décorateurs de `NavDisplay` (ADR 0011), et envelopper `onPlay` dans `dropUnlessResumed` côté
   feature pour qu'un double appui ne crée pas deux parties.
 - [ ] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
@@ -115,7 +116,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
 - [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record.
-- [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007).
+- [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
@@ -143,7 +144,8 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.1** Icône de l'application et écran de démarrage.
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible.
-- [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan.
+- [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
+  à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012).
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test).
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
@@ -171,3 +173,5 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | Analyse d'architecture | Revue de la structure au regard du guide de modularisation Android et de *Now in Android* : fondations conformes, rien à restructurer. Tâches ajoutées : P0.9 à P0.13, P2.9 à P2.11, P5.7 ; P0.6, P2.1 et P3.5 complétés. | Deux décisions documentées à corriger avant le code concerné : boucle de jeu dans `viewModelScope` impossible avec `withFrameNanos` (P2.9) ; aucun chemin d'injection de `app` vers les features (P2.10). Navigation 3 à trancher tant que c'est gratuit (P0.13). |
 | 2026-10-18 | P0.5 (complément) | Version de Java (`java = "17"`) dans le catalogue, lue par `build-logic` (modules et plugins de convention). Toolchain Java déclarée sur l'extension `java` de chaque module ; résolveur `foojay-resolver-convention` 1.0.0 dans les deux `settings.gradle.kts`. | La version du résolveur est écrite en dur dans les settings : les plugins de settings se résolvent avant le catalogue. Le JDK 17 est téléchargé au premier build sur une machine qui n'en a pas. |
 | 2026-10-18 | P0.13 | Navigation 3 retenue, ADR 0011 ; ADR 0001 amendé. Catalogue : `navigation3-runtime` et `navigation3-ui` 1.2.0, Navigation Compose retirée. Plugin `blox.android.feature` : `navigation3-runtime` à la place de `navigation-compose`. `HomeRoute` et `GameRoute` deviennent des `NavKey`, `homeEntry` / `gameEntry` des extensions d'`EntryProviderScope`, `BloxNavHost` devient `BloxNavDisplay` (`rememberNavBackStack` + `NavDisplay`). Skills Android officiels (`navigation-3`, `edge-to-edge`, `testing-setup`, `r8-analyzer`, `jetpack-compose-performance`) copiés dans `.claude/skills/` (révision `5bda39f`). Build, lint (5 avertissements inchangés) et APK verts. | Revue indépendante : commentaire ProGuard corrigé (`navigation3-runtime` n'embarque aucune règle R8, seules celles de kotlinx-serialization comptent ; vérification en build minifié ajoutée à P5.6) ; décorateur ViewModel et `lifecycle-viewmodel-navigation3` retirés jusqu'à P2.2 ; `goBack` factorisé ; `dropUnlessResumed` noté pour P2.2 ; fin de partie (entrée ou état) renvoyée à P2.7. Écarté : renommage `HomeRoute` → `HomeKey`, vocabulaire des recettes officielles gardé et expliqué dans l'ADR. Pas de test JVM possible pour le parcours : preuve = build vert, test instrumenté en P5.5. |
+| 2026-10-18 | P0.6, P0.9, P0.10, P0.11 | Outillage sur une seule branche. ktlint 1.8 (plugin 14.2) appliqué par les plugins de convention et à `build-logic`, réglé dans `.editorconfig` (clés IDE et ktlint alignées : style IntelliJ, paramètres un par ligne dès deux, composables en PascalCase) ; règles Compose de Slack 1.6.1 en `lintChecks`, `LocalBloxPalette` autorisé par `core/designsystem/lint.xml`. Plugin `dependency-analysis` 3.19.2 : configuré à la racine, appliqué par les plugins de convention, échec sur dépendance de production sans usage, sources de test ignorées, Compose regroupé ; dépendances anticipées retirées de `app`, `feature:*`, `core:audio`, `core:data` ; `serialization-json` → `-core` ; `navigation3-runtime` et `serialization-core` en `api` dans le plugin de feature ; `androidx.activity` déclaré dans `app`. `explicitApi()` strict, `allWarningsAsErrors` retiré. Mémoire Gradle 4 Go + daemon Kotlin 2 Go. CI : `ktlintCheck` (projet et `build-logic`), `buildHealth`. | Revue indépendante : retenu 1 à 7, 9 à 13 et 15 — mécanisme d'arrêt de l'horloge corrigé dans l'ADR 0012 ; `CreationExtras` dans l'ADR 0013 ; ktlint sur `build-logic` ; commentaires racine ; `.editorconfig` fusionné avec clés IDE ; `lifecycle-*` retiré du plugin de feature jusqu'à P2.2 et exclusions réduites à `ui-tooling-preview` ; commentaires des modules vidés allégés ; `GameLoop` ne rend que le nombre de ticks, le ViewModel seul écrit le moteur ; renvoi ADR 0011 → 0013 ; vérifications rapides en tête de CI ; seconde exception racine dans CLAUDE.md ; catalogue réduit aux entrées utilisées (coroutines, DataStore, lifecycle reviennent avec leur tâche, ce qui annule la décision « garder » du journal P0.5). Écartées : `ignoreSourceSet` par source set (réglage global plus simple, tâche de retrait notée) ; seuil de signature pour les constructeurs (value objects du domaine sur une ligne, voulu). À surveiller : plugin d'analyse « connu jusqu'à AGP 9.3.1 » avec AGP 9.4.1 ; retirer `ignoreSourceSet` au premier test (P1.1) et les exclusions `lifecycle-*` en P2.2 ; mémoire CI 4 Go + 2 Go sur ubuntu-latest. |
+| 2026-10-18 | P2.9, P2.10 | ADR 0012 : l'horloge d'images appartient à l'écran (`LaunchedEffect` + `withFrameNanos` → `onFrame(nanos)`), `GameLoop` pure qui rend le nombre de ticks dus, le ViewModel seul écrivain du moteur, plafond de ticks par image obligatoire ; ADR 0006 amendé. ADR 0013 : fabrique définie par la feature, construite par `app`, passée à l'entrée, arguments de route via `CreationExtras` ; ADR 0007 précisé. `docs/architecture.md` (diagramme et sections) et CLAUDE.md à jour. | Pause automatique (P5.4) à déclencher sur `ON_PAUSE`, l'horloge ne s'arrêtant qu'à `ON_STOP`. Fin de partie entrée ou état : toujours P2.7. |

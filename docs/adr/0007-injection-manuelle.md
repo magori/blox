@@ -1,6 +1,6 @@
 # 0007 — Injection de dépendances manuelle
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; précisée par [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) pour le passage des fabriques aux features
 - **Date** : 2026-10-18
 
 ## Contexte

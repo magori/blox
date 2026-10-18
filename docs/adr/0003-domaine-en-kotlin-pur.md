@@ -1,6 +1,6 @@
 # 0003 — Domaine en Kotlin pur, développé en TDD
 
-- **Statut** : Acceptée ; le point « JUnit 4 côté Android » est remplacé par [0009](0009-junit5-partout.md)
+- **Statut** : Acceptée ; le point « JUnit 4 côté Android » est remplacé par [0009](0009-junit5-partout.md) ; `explicitApi` passé en mode strict (P0.10)
 - **Date** : 2026-10-18
 
 ## Contexte
