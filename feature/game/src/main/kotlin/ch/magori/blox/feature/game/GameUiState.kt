@@ -30,8 +30,8 @@ internal fun GameState.toUiState(rotationSystem: RotationSystem): GameUiState = 
     board = board,
     piece = current,
     next = next,
-    level = level,
-    lines = lines,
-    score = score,
+    level = progress.level,
+    lines = progress.lines,
+    score = progress.score,
     rotationSystem = rotationSystem,
 )
