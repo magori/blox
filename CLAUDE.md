@@ -145,7 +145,8 @@ modifier le moteur.
 - **Code en anglais** (noms, commentaires techniques), **documentation en français**.
 - Langage du domaine : `Board`, `Piece`, `PieceType`, `Orientation` (une forme), `Rotation`
   (un sens ou un état de rotation), `Position`, `GameState`, `GameEngine`, `Tick`, `Input`,
-  `Level`, `Lines`, `Score`, `LinesCleared`. Garder ces noms.
+  `Level`, `Lines`, `LineClear` (lignes effacées d'un coup), `Points` (le score de la partie ;
+  `Score` est la partition de `core:music`), `LinesCleared`, `StackDanger`. Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
