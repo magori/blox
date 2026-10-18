@@ -10,7 +10,7 @@ confirmer sur une source avant d'écrire le test.
 
 | Phase | Objectif | État |
 |---|---|---|
-| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 |
+| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 et P0.9 à P0.13 |
 | P1 | Domaine du mode Classique (`core:game`) | À faire |
 | P2 | Écran de jeu jouable (`feature:game`) | À faire |
 | P3 | Accueil, préférences, records | À faire |
@@ -30,12 +30,24 @@ confirmer sur une source avant d'écrire le test.
   Kotlin 2.4.21, BOM Compose 2026.09.00, `compileSdk` 37), `build-logic` adapté au DSL d'AGP 9
   et au Kotlin intégré (ADR 0010). Tests, APK debug et lint verts.
 - [ ] **P0.6** Ajouter une analyse statique : ktlint (via le plugin Gradle) ou detekt, branchée
-  dans `build-logic` et dans la CI.
+  dans `build-logic` et dans la CI, plus les règles lint Compose de Slack
+  (`com.slack.lint.compose:compose-lint-checks`) sur les modules Compose.
 - [x] **P0.7** Définition de terminé (`CLAUDE.md`), commande `/fin-de-tache`, revue
   indépendante par sous-agent, vues de maquette numérotées V1 à V4.
 - [x] **P0.8** JUnit 5 partout : plugin `de.mannodermaus.android-junit` dans les plugins de
   convention, JUnit 4 retiré du catalogue, ADR 0009.
-
+- [ ] **P0.9** Plugin `dependency-analysis` (autonomousapps) branché dans `build-logic` et la CI,
+  puis retrait des dépendances déclarées sans usage : `feature:home` → `core:audio`, `core:data` ;
+  `app` → `core:audio`, `core:data`. Elles reviennent quand le code les exige (P3, P4).
+- [ ] **P0.10** `explicitApi()` strict (au lieu de `explicitApiWarning()`) sur les modules Kotlin
+  purs, tant qu'ils sont vides ; retirer `allWarningsAsErrors.set(false)` (valeur par défaut).
+- [ ] **P0.11** Mémoire Gradle : `org.gradle.jvmargs` à 4 Go et `kotlin.daemon.jvmargs` dans
+  `gradle.properties` (AGP 9 + Kotlin 2.4 + Compose sur huit modules).
+- [ ] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
+  `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI.
+- [ ] **P0.13** Trancher **Navigation 3** contre Navigation Compose 2.x en routes typées, par ADR,
+  tant qu'il n'y a que deux destinations. Google oriente les nouvelles applications Compose vers
+  Navigation 3 (pile explicite, adaptée à Accueil → Jeu → Pause → Fin de partie).
 
 ## P1 — Domaine du mode Classique (`core:game`)
 
@@ -71,8 +83,17 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
+- [ ] **P2.9** **Avant P2.1.** Amender l'ADR 0006 : `withFrameNanos` exige un `MonotonicFrameClock`
+  absent de `viewModelScope`, la boucle ne peut pas tourner dans le ViewModel. L'horloge d'images
+  vit côté Compose (`LaunchedEffect` qui appelle `viewModel.onFrame(nanos)`), le ViewModel délègue
+  à une classe `GameLoop` pure. Le jeu se suspend de lui-même quand l'écran n'est plus affiché
+  (couvre en partie P5.4). Mettre `docs/architecture.md` à jour.
 - [ ] **P2.1** `GameLoop` à pas fixe : accumulateur testé avec une horloge factice
-  (ADR 0006).
+  (ADR 0006 amendé en P2.9).
+- [ ] **P2.10** **Avant P2.2.** Chemin d'injection de `app` vers les features sans dépendance
+  inverse (ADR 0007) : l'extension `gameScreen(...)` reçoit une `ViewModelProvider.Factory`
+  construite dans `BloxNavHost` (option retenue par défaut), ou un `CompositionLocal` déclaré
+  dans un module partagé expose le conteneur. Consigner dans l'ADR 0007 ; P3.3 s'y conforme.
 - [ ] **P2.2** `GameViewModel` : `GameUiState`, conversion des actions en `Input`, tests avec
   coroutines-test et Turbine.
 - [ ] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
@@ -81,6 +102,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise.
 - [ ] **P2.7** Écran de fin de partie, Rejouer / Menu.
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
+- [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
+  `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
+  l'attribut reste dans le manifeste.
 
 ## P3 — Accueil, préférences, records
 
@@ -88,7 +112,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record.
 - [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
-- [ ] **P3.5** Changement de thème appliqué à toute l'application.
+- [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
+  (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
+  commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas.
 - [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner.
 
@@ -115,6 +141,8 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan.
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test).
 - [ ] **P5.6** Build de release signé pour installation personnelle.
+- [ ] **P5.7** Tests de captures d'écran à partir des previews existantes (plugin officiel Compose
+  Preview Screenshot Testing), pour les deux thèmes, dans la CI.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -133,4 +161,5 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P0.7 (complément) | Skill `/commit` (`.claude/skills/commit/SKILL.md`) : gitmoji + Conventional Commits, corps « pourquoi », pied `Tâche : Px.y` ; `/fin-de-tache` y renvoie ; CLAUDE.md sans doublons (commandes, règles d'architecture). | `/commit` ne pousse que sur demande ; `/fin-de-tache` est le demandeur. |
 | 2026-10-18 | P0.8 | Tests des modules Android passés sur JUnit 5 (unitaires et instrumentés) via `de.mannodermaus.android-junit` 2.0.2, appliqué par `blox.android.library` et `blox.android.application`. `junit4`, `androidx-test-ext-junit` et `ui-test-junit4` retirés du catalogue, remplacés par `junit-jupiter-api` et `ui-test-android`. JUnit BOM 5.14.4. ADR 0009, ADR 0003 amendé. | JUnit 4 ne subsiste que par transitivité dans le lanceur AndroidX. JUnit 6 écarté : API 35 requise sur l'appareil. |
 | 2026-10-18 | P0.5 | Premier build local réussi : wrapper Gradle 9.8.1 (somme SHA-256 vérifiée), AGP 9.4.1, Kotlin 2.4.21 compilé par le support intégré d'AGP (plugin `kotlin-android` retiré), coroutines et serialization 1.11.0, AndroidX et BOM Compose 2026.09.00 à jour, `compileSdk` 37. `build-logic` adapté au DSL d'AGP 9 (`CommonExtension` non générique, blocs `defaultConfig` / `compileOptions` / `buildFeatures` devenus propriétés, extension `kotlin` typée `KotlinAndroidExtension`). Domaine, tests unitaires Android, APK debug, lint et cache de configuration verts. ADR 0010. | AGP 9.4.1 exige Gradle ≥ 9.6 (9.5.1 refusé) : AGP et Gradle montent ensemble. Compose 1.12.1 et Navigation 2.10.2 exigent `compileSdk` 37 ; `targetSdk` reste 36. Lint (`app`, avertissements seulement) : `OldTargetApi` (targetSdk 36 < 37), orientation portrait verrouillée (`LockedOrientationActivity`, `DiscouragedApi` : Android 16 ignore l'orientation fixe, à décider en P2.8), `MissingApplicationIcon` (P5.1), `NewerVersionAvailable` junit-bom 6.1.3 (écarté par l'ADR 0009). Dépréciation Gradle 10 (`Configuration.setVisible`) émise par un plugin tiers, hors de notre code. `org.gradle.tooling.parallel=true` ajouté par Android Studio dans `gradle.properties`, conservé. Revue indépendante : remarques écartées — `kotlinx-coroutines-core` gardé au catalogue pour `core:audio` ; `junit-platform-launcher` en `testRuntimeOnly` des modules Android, redondance avec le plugin `android-junit` à vérifier au prochain build ; phrase d'en-tête anglaise de CLAUDE.md imposée par `/init` ; KDoc de `build-logic` en français, exception à trancher. |
+| 2026-10-18 | Analyse d'architecture | Revue de la structure au regard du guide de modularisation Android et de *Now in Android* : fondations conformes, rien à restructurer. Tâches ajoutées : P0.9 à P0.13, P2.9 à P2.11, P5.7 ; P0.6, P2.1 et P3.5 complétés. | Deux décisions documentées à corriger avant le code concerné : boucle de jeu dans `viewModelScope` impossible avec `withFrameNanos` (P2.9) ; aucun chemin d'injection de `app` vers les features (P2.10). Navigation 3 à trancher tant que c'est gratuit (P0.13). |
 | 2026-10-18 | P0.5 (complément) | Version de Java (`java = "17"`) dans le catalogue, lue par `build-logic` (modules et plugins de convention). Toolchain Java déclarée sur l'extension `java` de chaque module ; résolveur `foojay-resolver-convention` 1.0.0 dans les deux `settings.gradle.kts`. | La version du résolveur est écrite en dur dans les settings : les plugins de settings se résolvent avant le catalogue. Le JDK 17 est téléchargé au premier build sur une machine qui n'en a pas. |
