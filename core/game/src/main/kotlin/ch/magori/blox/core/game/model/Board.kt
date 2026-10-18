@@ -71,13 +71,30 @@ public class Board private constructor(private val cells: List<Cell>) {
         return Board(cells.toMutableList().apply { positions.forEach { position -> set(cellIndex(position), filled) } })
     }
 
+    /**
+     * Clears every full row, that is every row whose 10 cells are filled. The rows above a cleared
+     * row fall down by as many rows, and as many empty rows appear at the top. Returns the new board
+     * and the rows cleared, as indices in this board; without a full row, this very board and no row.
+     * This board never changes.
+     */
+    public fun clearFullRows(): RowsCleared {
+        val cellRows = cellRows()
+        val fullRows = cellRows.indices.filter { index -> cellRows[index].none { it == Cell.Empty } }
+        if (fullRows.isEmpty()) return RowsCleared(this, emptyList())
+        val kept = cellRows.filterIndexed { index, _ -> index !in fullRows }
+        return RowsCleared(Board(emptyRows(fullRows.size) + kept.flatten()), fullRows)
+    }
+
     override fun equals(other: Any?): Boolean = other is Board && cells == other.cells
 
     override fun hashCode(): Int = cells.hashCode()
 
     /** The board in the [parse] format: one line per row, `.` for an empty cell, a piece letter otherwise. */
     override fun toString(): String =
-        cells.chunked(COLUMNS).joinToString("\n") { row -> row.joinToString("", transform = ::symbolOf) }
+        cellRows().joinToString("\n") { row -> row.joinToString("", transform = ::symbolOf) }
+
+    /** The cells, row by row from the top. */
+    private fun cellRows(): List<List<Cell>> = cells.chunked(COLUMNS)
 
     private fun cellIndex(position: Position): Int {
         require(position in this) { "$position is outside the board" }

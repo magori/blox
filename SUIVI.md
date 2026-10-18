@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 31 / 66 | `█████████░░░░░░░░░░░` **47 %** |
-| **MVP** (jouable sur téléphone) | 27 / 37 | `███████████████░░░░░` **73 %** |
+| **Général** | 32 / 66 | `██████████░░░░░░░░░░` **48 %** |
+| **MVP** (jouable sur téléphone) | 28 / 37 | `███████████████░░░░░` **76 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -89,8 +89,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `Rotation`, `RotationSystem.candidates`, `Board.place`.
 - [x] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
   `Board.lock(piece)` : cellules cachées perdues (ROM), refus d'une pièce qui ne tient pas.
-- [ ] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
-  supérieures.
+- [x] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
+  supérieures. `Board.clearFullRows(): RowsCleared`.
 - [x] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
   (règle TetrisWiki, ordre ROM, biais de la ROM non reproduit). Source d'aléatoire scriptée
   dans les tests. ADR 0014.
@@ -151,7 +151,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
   `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
-  moteur (P1.7, P1.12) les exigera.
+  moteur (P1.7, P1.12) les exigera. Revue de P1.7 : `RowsCleared` donnera alors ce type par
+  une propriété calculée (`clearedRows.size` validé 0 à 4), pour `ScoringRule` et `Lines`.
 - [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
   (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
   premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).
