@@ -396,6 +396,26 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `pausing a game already paused does nothing`() = runTest {
+        // Given a paused game
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onPause()
+
+        viewModel.uiState.test {
+            val paused = awaitItem()
+
+            // When it is paused again (the screen leaves the front during the pause)
+            viewModel.onPause()
+
+            // Then nothing is published, and the game is still paused
+            expectNoEvents()
+            assertThat(viewModel.uiState.value).isEqualTo(paused)
+            assertThat(paused.paused).isTrue()
+        }
+    }
+
+    @Test
     fun `the record shown is the one of the records, its real value, updated when it changes`() = runTest {
         // Given a record of 100
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
@@ -452,6 +472,43 @@ class GameViewModelTest {
 
         // Then
         assertThat(viewModel.uiState.value.record).isEqualTo(100)
+    }
+
+    @Test
+    fun `after a pause without frames, the frames start again without catching up the time paused`() {
+        // Given a game that ticked once, paused for ten seconds without any frame (the screen stops them)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+        viewModel.onPause()
+
+        // When the player resumes, the screen starts its frames again, and they come
+        viewModel.onResume()
+        viewModel.onFramesStarted()
+        viewModel.onFrame(frameNanos = 10_000_000_000L)
+        val afterFirstFrame = viewModel.uiState.value.piece
+        viewModel.onFrame(frameNanos = 10_000_000_000L + ONE_SIXTIETH_NANOS)
+
+        // Then the first frame gave no tick, the next one a single tick
+        assertThat(afterFirstFrame).isEqualTo(spawnedT.droppedBy(rows = 1))
+        assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 2))
+    }
+
+    @Test
+    fun `frames started again while paused change nothing, the game stays paused until it resumes`() {
+        // Given a paused game, whose screen stopped then started again (ON_STOP, then ON_START)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onPause()
+        val paused = viewModel.uiState.value
+
+        // When frames come again
+        viewModel.onFramesStarted()
+        (1..60).forEach { frame -> viewModel.onFrame(10_000_000_000L + frame * ONE_SIXTIETH_NANOS) }
+
+        // Then
+        assertThat(viewModel.uiState.value).isEqualTo(paused)
+        assertThat(viewModel.uiState.value.paused).isTrue()
     }
 
     private fun createViewModel(

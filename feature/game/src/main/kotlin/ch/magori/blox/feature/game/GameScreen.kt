@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -43,6 +44,9 @@ import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 import ch.magori.blox.feature.game.topbar.GameTopBar
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 
 /** The 24 dp margins the controls are sized for (P2.5). */
 private val ScreenMargin = 24.dp
@@ -50,10 +54,16 @@ private val SidePanelWidth = 112.dp
 private val Gap = 16.dp
 
 /**
- * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): each time it is
- * started, it tells the view model that frames start again, then hands it every frame. The system
- * back follows [backAction]: it pauses the game, resumes it, or, once the game is over, leaves it as
- * the navigation does.
+ * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): while it is started
+ * and the game is not paused, it hands the view model every frame, after telling it that frames
+ * start again.
+ *
+ * When the screen is no longer in front (`ON_PAUSE`), the game pauses and stays paused until the
+ * player resumes it. A recreation of the activity (dark theme, language, window size) goes through
+ * `ON_PAUSE` too, and so pauses the game: this is intended.
+ *
+ * The system back follows [backAction]: it pauses the game, resumes it, or, once the game is over,
+ * leaves it as the navigation does.
  */
 @Composable
 internal fun GameScreen(
@@ -66,12 +76,22 @@ internal fun GameScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            viewModel.onFramesStarted()
-            while (true) {
-                withFrameNanos(viewModel::onFrame)
-            }
+            // No frames while paused: the loop starts again, from scratch, when the game resumes.
+            viewModel.uiState
+                .map { it.paused }
+                .distinctUntilChanged()
+                .collectLatest { paused ->
+                    if (!paused) {
+                        viewModel.onFramesStarted()
+                        while (true) {
+                            withFrameNanos(viewModel::onFrame)
+                        }
+                    }
+                }
         }
     }
+    // A game over or a game already paused ignores the pause.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
     val backAction = backAction(uiState)
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
