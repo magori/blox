@@ -21,6 +21,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.Randomizer
@@ -329,7 +330,7 @@ class GameViewModelTest {
         const val MAX_TICKS = 5_000
 
         val oneTickPerRow = object : GravityTable {
-            override fun ticksPerRow(level: Level): Int = 1
+            override fun ticksPerRow(level: Level): Ticks = Ticks(1)
         }
 
         /** The T as it appears: pivot at (5, 0), spawn orientation. */

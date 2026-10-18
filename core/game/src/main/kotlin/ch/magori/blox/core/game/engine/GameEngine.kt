@@ -156,7 +156,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         }
         if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
         val ticks = counted.ticksSinceDrop + 1
-        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level)) {
+        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level).value) {
             return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
         }
         return dropOneRow(state, counted) { it }
@@ -251,7 +251,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
                 events = listOf(GameEvent.PieceLocked(piece)),
             )
         }
-        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay), stackInDanger = inDanger)
+        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay.value), stackInDanger = inDanger)
         return GameUpdate(waiting, events = listOf(GameEvent.PieceLocked(piece)) + dangerChange(state, inDanger))
     }
 
@@ -284,7 +284,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
             progress = state.progress.afterClear(lineClear, state.startLevel, rules),
-            phase = Phase.EntryDelay(clearing.entryDelayAfter),
+            phase = Phase.EntryDelay(clearing.entryDelayAfter.value),
             stackInDanger = clearing.stackInDangerAfter,
         )
         val events = listOf(GameEvent.LinesCleared(lineClear)) + dangerChange(state, clearing.stackInDangerAfter)
