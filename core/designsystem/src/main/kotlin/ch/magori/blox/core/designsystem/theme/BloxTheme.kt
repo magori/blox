@@ -37,6 +37,15 @@ object BloxTheme {
         @ReadOnlyComposable
         get() = LocalBloxPalette.current
 
+    /** The shapes of the current theme. */
+    val shapes: BloxShapes
+        @Composable
+        @ReadOnlyComposable
+        get() = when (LocalBloxThemeKind.current) {
+            BloxThemeKind.ORIGINAL -> BloxShapeSets.Original
+            BloxThemeKind.COLORFUL -> BloxShapeSets.Colorful
+        }
+
     /** The current theme, for what the palette cannot say (the styles of the pieces, in feature:game). */
     val kind: BloxThemeKind
         @Composable
