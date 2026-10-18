@@ -43,7 +43,11 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
   cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 10 dp
   (Couleurs). Score sur 6 chiffres, niveau sur 2 et lignes sur 3 au moins.
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
-  décalés comme sur une console portable.
+  décalés comme sur une console portable. Valeurs retenues en P2.5, à confirmer sur la
+  maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
+  B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres ; A en `accent`, les
+  autres en `button` ; un bouton tenu inverse fond et encre. Le tout tient sur 360 dp de large
+  avec une marge de 24 dp, sans cible sous 48 dp.
 - Pas de bouton de chute instantanée (absent du mode Classique).
 
 ### V4 — Fin de partie

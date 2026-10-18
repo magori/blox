@@ -223,6 +223,25 @@ meatfighter.com). Le moteur émet alors `PieceLocked`.
 | B | Rotation anti-horaire. |
 | Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
 
+**Commandes tactiles** : les cinq boutons de l'écran signalent l'appui et le relâchement, pour
+l'appui maintenu. Plusieurs doigts peuvent tenir plusieurs boutons (◀ tenu pendant un appui sur
+A) ; deux doigts sur le même bouton ne donnent qu'un appui, relâché au départ du dernier ; quand
+les commandes quittent l'écran, tout est relâché ; un doigt qui se pose de nouveau relâche
+d'abord son ancien bouton. L'écran transmet tout fidèlement : les exclusions de la NES (▼ contre
+le latéral, ▶ prioritaire) sont appliquées par le moteur (P1.12d). Un doigt reste attaché au
+bouton qu'il a touché en premier (pas de glissement d'un bouton à l'autre, à revoir en P2.8).
+
+**Tests :** `HeldButtonsTest › a finger put on a button sends a single press`,
+`HeldButtonsTest › lifting that finger sends a release`,
+`HeldButtonsTest › a second finger on another button does not release the first, so left can be held while pressing A`,
+`HeldButtonsTest › leaving the screen releases every held button`,
+`HeldButtonsTest › two fingers on the same button give a single press, and the button is released when the last one lifts`,
+`HeldButtonsTest › leaving the screen releases a button held by two fingers only once`,
+`HeldButtonsTest › the held buttons are the buttons under at least one finger`,
+`HeldButtonsTest › pressing again with a known finger releases its previous button`,
+`HeldButtonsTest › a tap from accessibility services sends a press then a release, and leaves nothing held`.
+Vues : V2, V3.
+
 **Déplacement** : ◀, ▶ et ▼ décalent la pièce d'une case. Le déplacement est refusé si la pièce
 ne tient plus à sa nouvelle place (mur, fond ou case occupée) ; il est accepté dans les lignes
 cachées. Une descente refusée est le signal du verrouillage (P1.6).
