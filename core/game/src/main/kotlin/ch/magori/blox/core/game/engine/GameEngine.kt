@@ -1,6 +1,7 @@
 package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Board
+import ch.magori.blox.core.game.model.Direction
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
@@ -38,10 +39,49 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
     }
 
     /**
-     * Makes the next piece of [state] appear on its board, and draws the following one, as [appear]
-     * does. It will end the entry delay (P1.12b).
+     * Advances [state] by one tick (1/60 s). A falling piece drops one row when the ticks per row of
+     * the level have passed; if it cannot drop, it locks on the board ([GameEvent.PieceLocked]) and the
+     * entry delay of the rules begins. When the delay is over, the next piece appears, or the game is
+     * over if it does not fit.
+     *
+     * Not pure: the next piece is drawn from the randomizer (ADR 0014). Pass back only the last state
+     * returned; the ViewModel is the only caller (ADR 0012).
      */
-    internal fun spawn(state: GameState): GameState = appear(
+    public fun tick(state: GameState): GameUpdate = when (val phase = state.phase) {
+        is Phase.Falling -> fall(state, phase)
+        is Phase.EntryDelay -> GameUpdate(wait(state, phase), events = emptyList())
+        is Phase.GameOver -> GameUpdate(state, events = emptyList())
+    }
+
+    private fun fall(
+        state: GameState,
+        falling: Phase.Falling,
+    ): GameUpdate {
+        val ticks = falling.ticksSinceDrop + 1
+        if (ticks < rules.gravityTable.ticksPerRow(state.level)) {
+            return GameUpdate(state.copy(phase = falling.copy(ticksSinceDrop = ticks)), events = emptyList())
+        }
+        val dropped = state.board.move(falling.piece, Direction.DOWN)
+            ?: return GameUpdate(
+                state.copy(
+                    board = state.board.lock(falling.piece),
+                    phase = Phase.EntryDelay(rules.entryDelay.ticksAfterLock(falling.piece)),
+                ),
+                events = listOf(GameEvent.PieceLocked(falling.piece)),
+            )
+        return GameUpdate(state.copy(phase = Phase.Falling(dropped)), events = emptyList())
+    }
+
+    private fun wait(
+        state: GameState,
+        delay: Phase.EntryDelay,
+    ): GameState = if (delay.ticksLeft > 1) state.copy(phase = Phase.EntryDelay(delay.ticksLeft - 1)) else spawn(state)
+
+    /**
+     * At the end of the entry delay, the next piece of [state] appears and the following one is drawn:
+     * see [appear].
+     */
+    private fun spawn(state: GameState): GameState = appear(
         board = state.board,
         type = state.next,
         startLevel = state.startLevel,

@@ -33,5 +33,6 @@ public data class GameState internal constructor(
         get() = when (phase) {
             is Phase.Falling -> phase.piece
             is Phase.GameOver -> phase.piece
+            is Phase.EntryDelay -> null
         }
 }
