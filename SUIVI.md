@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 77 | `███████████████░░░░░` **73 %** |
+| **Général** | 57 / 77 | `███████████████░░░░░` **74 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -373,7 +373,8 @@ Référence : [docs/musique.md](docs/musique.md).
 
 ## P5 — Finitions
 
-- [ ] **P5.1** Icône de l'application et écran de démarrage.
+- [x] **P5.1** Icône de l'application et écran de démarrage. Fait : icône adaptative aux couleurs du
+  logo, couche monochrome, écran de démarrage d'Android 12 par le thème (`docs/themes.md`).
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).

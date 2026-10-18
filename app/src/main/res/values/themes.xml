@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Thème de la fenêtre uniquement : l'interface est entièrement dessinée en Compose. -->
-    <style name="Theme.Blox" parent="android:Theme.Material.Light.NoActionBar">
+    <!--
+        Thème de la fenêtre uniquement : l'interface est entièrement dessinée en Compose. Le fond de fenêtre
+        est déclaré ici une seule fois ; values-v31/themes.xml n'ajoute que l'écran de démarrage.
+    -->
+    <style name="Base.Theme.Blox" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/blox_window_background</item>
     </style>
+
+    <style name="Theme.Blox" parent="Base.Theme.Blox" />
 </resources>
