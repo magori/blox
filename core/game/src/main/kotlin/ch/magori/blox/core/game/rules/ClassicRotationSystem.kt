@@ -1,15 +1,25 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Orientation
+import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 
 /**
  * Orientations of the Classic mode, read from the NES ROM orientation table at $8A9C
  * (meatfighter.com, "Applying AI to Nintendo Tetris"). Offsets are (column, row) around the
  * pivot, rows growing downwards; each piece lists its orientations in clockwise order.
+ *
+ * A rotation has a single candidate: the same pivot, the next or previous orientation. There is no
+ * kick: if that candidate does not fit, the rotation is refused.
  */
 public object ClassicRotationSystem : RotationSystem {
+    override fun candidates(
+        piece: Piece,
+        rotation: Rotation,
+    ): List<Piece> = listOf(piece.copy(orientation = rotate(piece.type, piece.orientation, rotation)))
+
     private val t = PieceOrientations(
         spawnIndex = 2,
         orientation(-1 to 0, 0 to 0, 1 to 0, 0 to -1), // up
