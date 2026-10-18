@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 49 / 75 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 50 / 76 | `█████████████░░░░░░░` **66 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -327,7 +327,7 @@ Référence : [docs/musique.md](docs/musique.md).
   double allocation par note (écrire directement dans le tableau de la voix). Fait :
   `Synthesizer.render`, `LoopCursor`, `AudioSink`, `AudioTrackSink`, `ChiptuneSequencer`
   (durées restées en `Double`, voir `docs/musique.md`).
-- [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
+- [x] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
   passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
@@ -336,6 +336,13 @@ Référence : [docs/musique.md](docs/musique.md).
   calculer la position en `Long` ; arrondir au temps suivant (un temps = `len / totalBeats`
   échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
   (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
+  Fait : `setTempoFactor`, `BeatGrid`, `switchBeats`, bascule au prochain temps commun à toutes
+  les voix ; le branchement est la tâche P4.11.
+- [ ] **P4.11** Brancher la musique dans le jeu : `ChiptuneSequencer` et `AudioTrackSink` créés
+  par l'`AppContainer`, partition choisie dans les préférences (P3.1), `play` au début de la
+  partie, `stop` à `GameOver` et en pause, `StackDanger(on/off)` → `setTempoFactor(1,25 / 1,0)`
+  par le ViewModel. Décider alors si `play` de la partition déjà jouée est sans effet, et
+  journaliser l'échec audio attrapé (revue de P4.4).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
