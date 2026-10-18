@@ -10,7 +10,7 @@ confirmer sur une source avant d'écrire le test.
 
 | Phase | Objectif | État |
 |---|---|---|
-| P0 | Structure du projet et documentation | Terminée (à valider par un build local) |
+| P0 | Structure du projet et documentation | Build local validé ; reste P0.6 |
 | P1 | Domaine du mode Classique (`core:game`) | À faire |
 | P2 | Écran de jeu jouable (`feature:game`) | À faire |
 | P3 | Accueil, préférences, records | À faire |
@@ -26,14 +26,14 @@ confirmer sur une source avant d'écrire le test.
 - [x] **P0.2** Squelette d'application : activité unique, navigation Accueil → Jeu, thème BloX.
 - [x] **P0.3** Documentation : architecture, règles, thèmes, musique, maquette, ADR 0001 à 0008.
 - [x] **P0.4** CI GitHub Actions (tests, lint, APK debug).
-- [ ] **P0.5** **Premier build local.** Le projet a été créé sans accès au réseau : rien n'a encore
-  été compilé. Ouvrir dans Android Studio, lancer `./gradlew assembleDebug testDebugUnitTest`,
-  corriger ce qui doit l'être, et mettre à jour les versions de `libs.versions.toml` si
-  Android Studio en propose de plus récentes (AGP, Kotlin, BOM Compose).
-- [x] **P0.7** Définition de terminé (`CLAUDE.md`), commande `/fin-de-tache`, revue
-  indépendante par sous-agent, vues de maquette numérotées V1 à V4.
+- [x] **P0.5** **Premier build local.** Wrapper Gradle 9.8.1, catalogue mis à jour (AGP 9.4.1,
+  Kotlin 2.4.21, BOM Compose 2026.09.00, `compileSdk` 37), `build-logic` adapté au DSL d'AGP 9
+  et au Kotlin intégré (ADR 0010). Tests, APK debug et lint verts.
 - [ ] **P0.6** Ajouter une analyse statique : ktlint (via le plugin Gradle) ou detekt, branchée
   dans `build-logic` et dans la CI.
+- [x] **P0.7** Définition de terminé (`CLAUDE.md`), commande `/fin-de-tache`, revue
+  indépendante par sous-agent, vues de maquette numérotées V1 à V4.
+
 
 ## P1 — Domaine du mode Classique (`core:game`)
 
@@ -129,3 +129,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P0.1 – P0.4 | Structure Gradle (8 modules, `build-logic`, catalogue), squelette Compose, documentation, ADR 0001 à 0008, CI. | Créé sans accès réseau : **aucun build exécuté**, à faire en P0.5. Versions figées à des valeurs connues de fin 2025, à mettre à jour. Identifiant d'application `ch.magori.blox`. |
 | 2026-10-18 | P0.7 | Procédure de fin de fonctionnalité reprise d'un autre projet et adaptée : modules BloX, lint et APK, revue sans contexte, remarques écartées tracées, sources des valeurs confirmées, ADR, branche par tâche. | La maquette Claude Design ne se modifie que depuis claude.ai : Claude Code ajoute une tâche au suivi au lieu de la mettre à jour. |
 | 2026-10-18 | P0.7 (complément) | Skill `/commit` (`.claude/skills/commit/SKILL.md`) : gitmoji + Conventional Commits, corps « pourquoi », pied `Tâche : Px.y` ; `/fin-de-tache` y renvoie ; CLAUDE.md sans doublons (commandes, règles d'architecture). | `/commit` ne pousse que sur demande ; `/fin-de-tache` est le demandeur. |
+| 2026-10-18 | P0.5 | Premier build local réussi : wrapper Gradle 9.8.1 (somme SHA-256 vérifiée), AGP 9.4.1, Kotlin 2.4.21 compilé par le support intégré d'AGP (plugin `kotlin-android` retiré), coroutines et serialization 1.11.0, AndroidX et BOM Compose 2026.09.00 à jour, `compileSdk` 37. `build-logic` adapté au DSL d'AGP 9 (`CommonExtension` non générique, blocs `defaultConfig` / `compileOptions` / `buildFeatures` devenus propriétés, extension `kotlin` typée `KotlinAndroidExtension`). Domaine, tests unitaires Android, APK debug, lint et cache de configuration verts. ADR 0010. | AGP 9.4.1 exige Gradle ≥ 9.6 (9.5.1 refusé) : AGP et Gradle montent ensemble. Compose 1.12.1 et Navigation 2.10.2 exigent `compileSdk` 37 ; `targetSdk` reste 36. Lint (`app`, avertissements seulement) : `OldTargetApi` (targetSdk 36 < 37), orientation portrait verrouillée (`LockedOrientationActivity`, `DiscouragedApi` : Android 16 ignore l'orientation fixe, à décider en P2.8), `MissingApplicationIcon` (P5.1), `NewerVersionAvailable` junit-bom 6.1.3 (écarté par l'ADR 0009). Dépréciation Gradle 10 (`Configuration.setVisible`) émise par un plugin tiers, hors de notre code. `org.gradle.tooling.parallel=true` ajouté par Android Studio dans `gradle.properties`, conservé. Revue indépendante : remarques écartées — `kotlinx-coroutines-core` gardé au catalogue pour `core:audio` ; `junit-platform-launcher` en `testRuntimeOnly` des modules Android, redondance avec le plugin `android-junit` à vérifier au prochain build ; phrase d'en-tête anglaise de CLAUDE.md imposée par `/init` ; KDoc de `build-logic` en français, exception à trancher. |

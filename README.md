@@ -4,12 +4,12 @@ Jeu de blocs pour Android, à usage personnel. Premier mode : **Classique**, fid
 de la version NES de 1989. Un mode **Moderne** (réserve, pièce fantôme, sac de 7) viendra
 ensuite. Deux thèmes : **Original** (vert sauge pastel) et **Couleurs**.
 
-> **Statut** : structure du projet et documentation en place, aucune règle de jeu encore
+> **Statut** : structure du projet, documentation et chaîne de build en place, aucune règle de jeu encore
 > implémentée. L'avancement est suivi dans [SUIVI.md](SUIVI.md).
 
 ## Démarrer
 
-Prérequis : Android Studio récent (avec un JDK 17 ou plus), SDK Android 36.
+Prérequis : Android Studio récent (avec un JDK 17 ou plus), SDK Android 37.
 
 ```bash
 ./gradlew :core:game:test      # tests du domaine, sur la JVM
@@ -51,9 +51,9 @@ blox/
 
 ## Pile technique
 
-Kotlin 2.2 · Jetpack Compose (Material 3) · Navigation Compose typée · DataStore ·
-Coroutines · JUnit 5 + AssertJ (domaine) · JUnit 4 (modules Android) · Gradle 8.14,
-catalogue de versions et plugins de convention · `minSdk` 26, `targetSdk` 36.
+Kotlin 2.4 · Jetpack Compose (Material 3) · Navigation Compose typée · DataStore ·
+Coroutines · JUnit 5 + AssertJ (domaine) · JUnit 4 (modules Android) · Gradle 9.8 (ADR [0010](docs/adr/0010-kotlin-integre-agp9.md)),
+catalogue de versions et plugins de convention · `minSdk` 26, `compileSdk` 37, `targetSdk` 36.
 
 ## Droits
 

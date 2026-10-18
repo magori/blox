@@ -8,12 +8,13 @@ mode Classique reproduit les règles de la version NES de 1989. Il complète
 
 ## État du projet
 
-- Le dépôt a été créé **sans accès réseau** : la structure, la documentation et les ADR sont en
-  place, mais **aucun build n'a encore été exécuté** et aucune règle de jeu n'est implémentée.
-  La tâche **P0.5** de `SUIVI.md` (premier build local, mise à jour des versions du catalogue)
-  passe avant tout le reste.
-- Les versions de `gradle/libs.versions.toml` sont figées à des valeurs plausibles ; les mettre
-  à jour si le build l'exige.
+- Premier build local validé le 2026-10-18 (P0.5) : Gradle 9.8.1, AGP 9.4.1, Kotlin 2.4.21,
+  `compileSdk` 37, `targetSdk` 36, `minSdk` 26. Aucune règle de jeu n'est encore implémentée :
+  le travail commence en P1 (`core:game`).
+- Toutes les versions vivent dans `gradle/libs.versions.toml`. AGP et Gradle montent ensemble (AGP
+  impose un Gradle minimal), AGP et Kotlin aussi (Kotlin intégré, ADR 0010). Les bibliothèques
+  AndroidX récentes imposent un `compileSdk` minimal via leurs métadonnées AAR : si
+  `checkDebugAarMetadata` échoue après une montée de version, c'est ce réglage qu'il faut relever.
 
 ## Avant de commencer une tâche
 

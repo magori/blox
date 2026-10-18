@@ -14,5 +14,6 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0006](0006-boucle-de-jeu-a-pas-fixe.md) | Boucle de jeu à pas fixe de 60 ticks/s | Acceptée |
 | [0007](0007-injection-manuelle.md) | Injection de dépendances manuelle | Acceptée |
 | [0008](0008-musique-domaine-public.md) | Musique : domaine public et séquenceur maison | Acceptée |
+| [0010](0010-kotlin-integre-agp9.md) | Gradle 9, AGP 9 et Kotlin compilé par le support intégré d'AGP | Acceptée |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).
