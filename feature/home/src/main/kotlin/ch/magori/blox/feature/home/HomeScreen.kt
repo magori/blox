@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
 /** The smallest height of a choice, so that a finger can hit it. */
 private val MinTouchHeight = 48.dp
@@ -210,10 +212,18 @@ private fun Choice(
             .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
+        // On one line, shrinking if needed: a start level cell is narrower than a digit of the pixel font.
+        val style = MaterialTheme.typography.labelLarge
         Text(
             text = text,
             color = if (selected) palette.accentInk else palette.buttonInk,
-            style = MaterialTheme.typography.labelLarge,
+            style = style,
+            maxLines = 1,
+            softWrap = false,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = BloxTypographies.MinimumFontSize,
+                maxFontSize = style.fontSize,
+            ),
         )
     }
 }
