@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 38 / 71 | `███████████░░░░░░░░░` **54 %** |
-| **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
+| **Général** | 39 / 71 | `███████████░░░░░░░░░` **55 %** |
+| **MVP** (jouable sur téléphone) | 33 / 37 | `██████████████████░░` **89 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -250,7 +250,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
   du processus), et calculer « nouveau record » contre le record d'avant la partie.
-- [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
+- [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
+  `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
+  fabrique de l'accueil (P3.4) s'y ajouteront.
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
