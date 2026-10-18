@@ -72,14 +72,21 @@ public class ChiptuneSequencer internal constructor(
     private var requestedTempo = NORMAL_TEMPO
 
     /** Plays [score] in a loop, in place of the score playing, if any. Call it from the main thread. */
-    override fun play(score: Score): Playback {
+    override fun play(score: Score): Playback = start(score, from = null)
+
+    /** Plays [score] in a loop from the start, or from where [from] stood, in place of the score playing. */
+    private fun start(
+        score: Score,
+        from: Place?,
+    ): Playback {
+        val playback = SequencerPlayback(score, from)
         val previous = playing
         val job = scope.launch(writeDispatcher) {
             // The previous loop releases its sink before this one opens its own; the cache is
             // only read and written here, one loop at a time.
             previous?.cancelAndJoin()
             try {
-                loop(score)
+                loop(score, playback, from)
             } catch (cancellation: CancellationException) {
                 throw cancellation
             } catch (failure: Exception) {
@@ -87,16 +94,42 @@ public class ChiptuneSequencer internal constructor(
                 onFailure(failure)
             }
         }
+        playback.job = job
         playing = job
+        return playback
+    }
+
+    /** Where a loop stood: a [position] in a buffer of [length] samples. */
+    private class Place(val position: Int, val length: Int)
+
+    /** A score played by this sequencer, which keeps where its loop stood, to [resume] from there. */
+    private inner class SequencerPlayback(private val score: Score, from: Place?) : Playback {
+        lateinit var job: Job
+
+        /**
+         * Where the loop stood after its last slice written, or, before it wrote anything, where it
+         * started from: a playback resumed then stopped at once keeps its place. Read on the main thread.
+         */
+        @Volatile
+        var place: Place? = from
+
         // Only while this loop is the one playing: a game left after the next one started stops nothing.
-        return Playback { if (playing === job) job.cancel() }
+        override fun stop() {
+            if (playing === job) job.cancel()
+        }
+
+        override fun resume(): Playback = start(score, from = place)
     }
 
     /**
      * Renders [score] at the tempo asked for, or takes it from the cache, then writes it in a loop
      * until cancelled. A new tempo is rendered meanwhile, and played from the next beat once ready.
      */
-    private suspend fun loop(score: Score) {
+    private suspend fun loop(
+        score: Score,
+        playback: SequencerPlayback,
+        from: Place?,
+    ) {
         val beats = score.voices.first().beats.roundToInt()
         // The beats where no note is cut, then the end of the buffer, where the loop starts again.
         val switches = switchBeats(score) + beats
@@ -107,7 +140,10 @@ public class ChiptuneSequencer internal constructor(
         // Detached from the loop: a tempo rendering under way never holds back a stop, nor the next play.
         val renderings = CoroutineScope(SupervisorJob() + renderDispatcher)
         try {
-            var cursor = LoopCursor(buffer)
+            var cursor = LoopCursor(
+                buffer,
+                from?.let { resumePosition(it.position, it.length, buffer.size, switches, beats) } ?: 0,
+            )
             var pending: PendingTempo? = null
             val slice = FloatArray(sliceSize)
             while (true) {
@@ -133,6 +169,7 @@ public class ChiptuneSequencer internal constructor(
                     }
                 }
                 cursor = cursor.fill(slice, from = written)
+                playback.place = Place(cursor.position, buffer.size)
                 sink.write(slice)
             }
         } finally {
@@ -206,3 +243,21 @@ public class ChiptuneSequencer internal constructor(
 
 /** Samples per slice: about 23 ms at 44 100 Hz, short enough to stop quickly, long enough to keep the sink fed. */
 internal const val SLICE_SIZE: Int = 1_024
+
+/**
+ * Where a loop stopped at [position] in a buffer of [length] samples resumes in a buffer of [newLength]
+ * samples of [beats] beats: the same place in the score, `position × newLength / length` rounded and
+ * brought back into the buffer, then back to the start of the beat of [switchBeats] it is in, so that
+ * no note is cut. Computed on [Long].
+ */
+internal fun resumePosition(
+    position: Int,
+    length: Int,
+    newLength: Int,
+    switchBeats: List<Int>,
+    beats: Int,
+): Int {
+    val scaled = ((2L * position * newLength + length) / (2L * length) % newLength).toInt()
+    val grid = BeatGrid(newLength, beats)
+    return grid.startOf(switchBeats.last { grid.startOf(it) <= scaled })
+}
