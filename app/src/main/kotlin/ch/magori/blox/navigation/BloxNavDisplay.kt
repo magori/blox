@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
+import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
 
@@ -23,6 +24,7 @@ import ch.magori.blox.feature.home.navigation.homeEntry
  */
 @Composable
 fun BloxNavDisplay(
+    homeViewModelFactory: HomeViewModel.Factory,
     gameViewModelFactory: GameViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
@@ -37,7 +39,10 @@ fun BloxNavDisplay(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
-            homeEntry(onPlay = { backStack.add(newGameRoute()) })
+            homeEntry(
+                onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
+                viewModelFactory = homeViewModelFactory,
+            )
             gameEntry(
                 onBack = goBack,
                 onReplay = { finished -> replay(backStack, finished) },

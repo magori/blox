@@ -13,6 +13,8 @@ androidxNavigationEvent = "1.1.1"
 androidxLifecycle = "2.11.0"
 androidxComposeBom = "2026.09.00"
 androidxDatastore = "1.2.1"
+# Celle que Compose et Lifecycle apportent déjà : la déclarer directement ne la change pas.
+androidxAnnotation = "1.9.1"
 # Okio suit la version que DataStore embarque (datastore-core-okio) : les monter ensemble.
 okio = "3.9.1"
 
@@ -35,6 +37,7 @@ dependencyAnalysis = "3.19.2"
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidxActivity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "androidxDatastore" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }
 androidx-datastore-preferences-core = { group = "androidx.datastore", name = "datastore-preferences-core", version.ref = "androidxDatastore" }
