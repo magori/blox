@@ -416,6 +416,24 @@ garde la vraie valeur, seul l'affichage plafonne, partout où le score est montr
 de partie, record) **[à vérifier]**. Le niveau et les lignes ne sont pas plafonnés (ce que fait
 la NES au-delà de 999 lignes est **[à vérifier]**).
 
+**Record** : le meilleur score, gardé avec sa vraie valeur (sans plafond), vaut 0 avant la
+première partie. Il est enregistré dès la fin de partie. Un score devient un **nouveau record**
+s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
+partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
+
+**Tests :** `DataStoreHighScoreRepositoryTest › without a saved record the record is 0`,
+`DataStoreHighScoreRepositoryTest › a higher score becomes the record, and submit tells it is a new record and the previous one`,
+`DataStoreHighScoreRepositoryTest › a lower or equal score leaves the record and is not a new record`,
+`DataStoreHighScoreRepositoryTest › a score of 0 in the first game is not a new record`,
+`DataStoreHighScoreRepositoryTest › a first positive score is a new record against 0`,
+`DataStoreHighScoreRepositoryTest › a negative score is refused and leaves the record at 0`,
+`DataStoreHighScoreRepositoryTest › the record survives a new repository on the same file`,
+`DataStoreHighScoreRepositoryTest › the record flow emits the new record after a submit`,
+`DataStoreHighScoreRepositoryTest › two concurrent submits keep the highest score, the second one seeing the first`,
+`DataStoreHighScoreRepositoryTest › an unreadable records file gives a record of 0, and the next score becomes the record`,
+`DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`.
+Vues : V1, V2, V3, V4.
+
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
 `SidePanelTextTest › beyond 999 999 the score shown stays at 999 999`,
 `SidePanelTextTest › the level is shown on at least 2 digits, without a cap`,
