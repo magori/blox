@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 57 / 109 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 58 / 109 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -455,8 +455,8 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 - [ ] **P6.4** `SevenBagRandomizer` : les sept pièces mélangées, puis un nouveau sac.
 - [ ] **P6.5** `SrsRotationSystem` : quatre états par pièce, tables de décalage, table propre au I,
   O fixe.
-- [ ] **P6.6** Position de chute d'une pièce (`Board`), base de la pièce fantôme et de la chute
-  instantanée.
+- [x] **P6.6** Position de chute d'une pièce (`Board`), base de la pièce fantôme et de la chute
+  instantanée. Fait : `Board.landing(piece)` (nom retenu à la place de `dropPosition`).
 - [ ] **P6.7** Chute instantanée : bouton, capacité dans `Rules` (absente en Classique), points
   par ligne descendue.
 - [ ] **P6.8** Politique `LockDelay` : temps au sol, réinitialisations limitées par déplacement
