@@ -21,11 +21,27 @@ Voir l'[ADR 0008](adr/0008-musique-domaine-public.md).
 ## Modèle
 
 ```
-Score(title, bpm, voices)
-Voice(waveform: SQUARE | TRIANGLE, volume, notes)
-Note(pitch: Pitch?, beats: Double)   // pitch null = silence
-Pitch("A4") -> 440 Hz ; midi = 12 × (octave + 1) + demi-ton ; f = 440 × 2^((midi − 69) / 12)
+Score(title, bpm, voices)            // bpm > 0, au moins une voix
+Voice(waveform: SQUARE | TRIANGLE, volume, notes)   // volume dans [0, 1], au moins une note
+Note(pitch: Pitch?, beats: Double)   // pitch null = silence ; beats > 0 et fini
+Pitch.parse("A4") -> 440 Hz ; midi = 12 × (octave + 1) + demi-ton ; f = 440 × 2^((midi − 69) / 12)
 ```
+
+`Pitch` est un type valeur sur le numéro MIDI : deux hauteurs de même nom sont égales, et une
+hauteur s'affiche par son nom. Notation : lettre majuscule A à G, dièse `#` facultatif (pas de
+bémol), octave 0 à 8 ; tout autre nom est refusé. `TRIANGLE` arrive avec la basse (P4.2).
+
+**Tests :** `PitchTest › A4 is 440 Hz`,
+`PitchTest › the MIDI number is 12 times the octave plus one, plus the semitone`,
+`PitchTest › one octave higher doubles the frequency and one octave lower halves it`,
+`PitchTest › middle C is about 261 point 63 Hz`, `PitchTest › an invalid name is refused`,
+`PitchTest › two pitches with the same name are equal, and so are two identical notes`,
+`PitchTest › a pitch prints as its name`, `NoteTest › the duration of a note must be positive and finite`,
+`NoteTest › a note without pitch is a rest`, `NoteTest › a note with a pitch is not a rest`,
+`VoiceTest › the volume must be between 0 and 1`, `VoiceTest › a volume of 0 or 1 is accepted`,
+`VoiceTest › the total duration is the sum of the durations of the notes`,
+`VoiceTest › a voice needs at least one note`, `ScoreTest › a well-formed score is built`,
+`ScoreTest › the tempo must be positive`, `ScoreTest › a score needs at least one voice`.
 
 Le séquenceur lit les voix en parallèle. Chaque note joue à volume constant pendant 80 % de
 sa durée puis s'éteint en fondu jusqu'à 95 %, pour séparer les notes répétées.
@@ -66,11 +82,11 @@ Mélodie, onde carrée, volume 0,07 :
 |---|---|
 | 1 | D5 1 · G4 ½ · A4 ½ · B4 ½ · C5 ½ |
 | 2 | D5 1 · G4 1 · G4 1 |
-| 3 | E5 1 · C5 ½ · D5 ½ · E5 ½ · F♯5 ½ |
+| 3 | E5 1 · C5 ½ · D5 ½ · E5 ½ · F#5 ½ |
 | 4 | G5 1 · G4 1 · G4 1 |
 | 5 | C5 1 · D5 ½ · C5 ½ · B4 ½ · A4 ½ |
 | 6 | B4 1 · C5 ½ · B4 ½ · A4 ½ · G4 ½ |
-| 7 | F♯4 1 · G4 ½ · A4 ½ · B4 ½ · G4 ½ |
+| 7 | F#4 1 · G4 ½ · A4 ½ · B4 ½ · G4 ½ |
 | 8 | A4 3 |
 
 Basse maison, onde triangle, volume 0,16, une blanche pointée par mesure :
