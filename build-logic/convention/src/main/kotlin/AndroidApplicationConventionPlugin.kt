@@ -1,4 +1,4 @@
-import ch.magori.blox.buildlogic.configureAndroidUnitTests
+import ch.magori.blox.buildlogic.configureAndroidTests
 import ch.magori.blox.buildlogic.configureKotlinAndroid
 import ch.magori.blox.buildlogic.intVersion
 import ch.magori.blox.buildlogic.libs
@@ -16,7 +16,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = libs.intVersion("targetSdk")
             }
-            configureAndroidUnitTests()
+            configureAndroidTests()
         }
     }
 }

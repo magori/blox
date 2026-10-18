@@ -105,8 +105,9 @@ tant que les constructeurs reçoivent leurs dépendances. Voir l'[ADR 0007](adr/
 | Où | Outils | Ce qu'on teste |
 |---|---|---|
 | `core:game`, `core:music` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
-| Modules Android (`src/test`) | JUnit 4, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
-| `src/androidTest` | Compose UI Test | Parcours d'écrans, quand l'UI sera stable. |
+| Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
+| `src/androidTest` | JUnit 5 (extensions `android-junit`), Compose UI Test | Parcours d'écrans, quand l'UI sera stable. |
 
-JUnit 4 côté Android parce qu'AGP le supporte nativement ; JUnit 5 côté Kotlin pur pour ses
-tests paramétrés et imbriqués. Voir l'[ADR 0003](adr/0003-domaine-en-kotlin-pur.md).
+JUnit 5 partout, y compris dans les modules Android grâce au plugin
+`de.mannodermaus.android-junit` appliqué par les plugins de convention. Voir les
+[ADR 0003](adr/0003-domaine-en-kotlin-pur.md) et [0009](adr/0009-junit5-partout.md).

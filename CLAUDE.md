@@ -81,7 +81,7 @@ lui-même.
 | Type de module | Plugin(s) à appliquer | Tests fournis par le plugin |
 |---|---|---|
 | Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
-| Bibliothèque Android (`core:audio`, `core:data`) | `blox.android.library` | JUnit 4 + AssertJ + coroutines-test + Turbine |
+| Bibliothèque Android (`core:audio`, `core:data`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
 | Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem`, navigation, ViewModel) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
@@ -89,8 +89,9 @@ lui-même.
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
 - Les modules Kotlin purs compilent avec `explicitApiWarning()` : ce qui est `public` est un
   choix, pas un oubli.
-- **JUnit 5 dans les modules purs, JUnit 4 dans les modules Android** : ne pas mélanger
-  (ADR 0003).
+- **JUnit 5 partout**, tests unitaires et instrumentés (ADR 0009). Jamais de `junit:junit`
+  ni de `ui-test-junit4` ; pour Compose, `createComposeExtension()` avec
+  `@RegisterExtension`.
 
 ### Règles de dépendance (à ne pas enfreindre)
 

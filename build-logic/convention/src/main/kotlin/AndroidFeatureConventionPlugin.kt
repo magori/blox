@@ -22,7 +22,7 @@ class AndroidFeatureConventionPlugin : Plugin<Project> {
                 add("implementation", libs.library("androidx-lifecycle-viewmodel-compose"))
                 add("implementation", libs.library("androidx-navigation-compose"))
                 add("implementation", libs.library("kotlinx-serialization-json"))
-                add("androidTestImplementation", libs.library("androidx-compose-ui-test-junit4"))
+                add("androidTestImplementation", libs.library("androidx-compose-ui-test-android"))
                 add("debugImplementation", libs.library("androidx-compose-ui-test-manifest"))
             }
         }
