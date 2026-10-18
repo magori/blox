@@ -81,11 +81,11 @@ class GameEngineClearTest {
 
         // Then
         assertThat(after19.board).isEqualTo(locked.board)
-        assertThat(after19.lines).isEqualTo(Lines(9))
+        assertThat(after19.progress.lines).isEqualTo(Lines(9))
         assertThat(tick20.state.board).isEqualTo(Board.parse("..O......."))
-        assertThat(tick20.state.lines).isEqualTo(Lines(13))
-        assertThat(tick20.state.level).isEqualTo(Level(1))
-        assertThat(tick20.state.score).isEqualTo(Points(2400))
+        assertThat(tick20.state.progress.lines).isEqualTo(Lines(13))
+        assertThat(tick20.state.progress.level).isEqualTo(Level(1))
+        assertThat(tick20.state.progress.score).isEqualTo(Points(2400))
         assertThat(tick20.events).containsExactly(GameEvent.LinesCleared(LineClear(4)))
     }
 
@@ -114,8 +114,8 @@ class GameEngineClearTest {
         val cleared = engine.ticks(locked, 20)
 
         // Then
-        assertThat(locked.statistics.fourLineClears).isEqualTo(0)
-        assertThat(cleared.statistics.fourLineClears).isEqualTo(1)
+        assertThat(locked.progress.statistics.fourLineClears).isEqualTo(0)
+        assertThat(cleared.progress.statistics.fourLineClears).isEqualTo(1)
     }
 
     @Test

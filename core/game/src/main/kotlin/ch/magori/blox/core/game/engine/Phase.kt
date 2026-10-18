@@ -7,12 +7,21 @@ import ch.magori.blox.core.game.model.RowsCleared
 public sealed interface Phase {
     /**
      * [piece] is in play and falls. [ticksSinceDrop] counts the ticks since it appeared or last
-     * dropped: it drops when that count reaches the ticks per row of the level. The soft drop counter
-     * will join it (P1.12d).
+     * dropped: it drops when that count reaches the ticks per row of the level. [softDrop] is the repeat
+     * of the soft drop, null when none is going on: only a new press of down starts it. [softDropRows] is
+     * the rows it dropped the piece in a row, which score when the piece locks. A piece appears with
+     * neither.
      */
-    public data class Falling(public val piece: Piece, public val ticksSinceDrop: Int = 0) : Phase {
+    @ConsistentCopyVisibility
+    public data class Falling internal constructor(
+        public val piece: Piece,
+        public val ticksSinceDrop: Int = 0,
+        internal val softDrop: AutoRepeat? = null,
+        public val softDropRows: Int = 0,
+    ) : Phase {
         init {
             require(ticksSinceDrop >= 0) { "ticksSinceDrop cannot be negative: $ticksSinceDrop" }
+            require(softDropRows >= 0) { "softDropRows cannot be negative: $softDropRows" }
         }
     }
 
