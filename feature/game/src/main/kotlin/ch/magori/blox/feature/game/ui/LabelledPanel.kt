@@ -61,7 +61,7 @@ internal fun LabelledPanel(
         verticalArrangement = Arrangement.spacedBy(PanelSizes.labelGap),
         horizontalAlignment = contentAlignment,
     ) {
-        Text(text = label.uppercase(), color = palette.label, fontSize = PanelSizes.label, maxLines = 1)
+        PanelLabel(text = label)
         content()
     }
 }
@@ -82,5 +82,20 @@ internal fun ValueText(
         maxLines = 1,
         softWrap = false,
         autoSize = TextAutoSize.StepBased(maxFontSize = maxFontSize),
+    )
+}
+
+/** The label of a panel or of a value: in capitals, in the theme label colour, on one line. */
+@Composable
+internal fun PanelLabel(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text.uppercase(),
+        modifier = modifier,
+        color = BloxTheme.palette.label,
+        fontSize = PanelSizes.label,
+        maxLines = 1,
     )
 }
