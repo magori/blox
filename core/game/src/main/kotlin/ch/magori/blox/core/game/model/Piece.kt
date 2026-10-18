@@ -11,4 +11,7 @@ public data class Piece(public val type: PieceType, public val orientation: Orie
     /** The cells the piece covers: its pivot plus each offset of its orientation. */
     public val cells: Set<Position> =
         orientation.cells.map(pivot::plus).toSet()
+
+    /** This piece one cell further in [direction], wherever that lands: [Board.move] checks it. */
+    public fun moved(direction: Direction): Piece = copy(pivot = pivot + direction.offset)
 }
