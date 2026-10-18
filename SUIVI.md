@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 29 / 66 | `█████████░░░░░░░░░░░` **44 %** |
+| **Général** | 30 / 66 | `█████████░░░░░░░░░░░` **45 %** |
 | **MVP** (jouable sur téléphone) | 26 / 37 | `██████████████░░░░░░` **70 %** |
 <!-- avancement:fin -->
 
@@ -135,16 +135,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`
   et d'`EntryDelay.ticksAfterLock`, quand le moteur (P1.12) l'exigera : une table qui rendrait 0
   bloquerait la gravité.
-- [ ] **P1.18** Outillage : retirer `ignoreSourceSet("test", "androidTest")` de `dependencyAnalysis`.
-  Essai en P1.1 : `buildHealth` échoue, car les bibliothèques de test posées par les plugins de
-  convention sont inutilisées dans les modules sans tests. Voies : sévérité `warn` pour les jeux
-  de sources de test, ou plugins qui ne posent que ce que le module utilise. Depuis P2.1,
-  `buildHealth` conseille aussi (avertissement) de déclarer directement dans `feature:game`
-  `junit-jupiter-params`, `assertj-core` et `junit-jupiter-api`, apportés par le plugin ; même
-  avis sur `core:audio` depuis P4.3. Cause probable (revue de P4.3) : le plugin de convention
-  pose l'agrégat `junit-jupiter` en `testImplementation` (`build-logic/.../TestConfiguration.kt`)
-  au lieu de `junit-jupiter-api` / `-params`, le moteur en `testRuntimeOnly`. Corriger dans
-  `build-logic`, pas dans les modules.
+- [x] **P1.18** Outillage : `ignoreSourceSet` retiré de `dependencyAnalysis`, remplacé par des
+  règles par jeu de sources de test (échec, avec exclusion des bibliothèques posées par les
+  conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
   `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
   moteur (P1.7, P1.12) les exigera.
@@ -231,7 +224,9 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible.
 - [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
   à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012).
-- [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test).
+- [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
+  instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
+  (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
