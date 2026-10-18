@@ -75,8 +75,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   cellule occupée (revue de P1.1).
 - [ ] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
   supérieures.
-- [ ] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
-  **[à vérifier]**. Tester avec une source d'aléatoire scriptée.
+- [x] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
+  (règle TetrisWiki, ordre ROM, biais de la ROM non reproduit). Source d'aléatoire scriptée
+  dans les tests. ADR 0014.
 - [x] **P1.9** `ClassicGravityTable` : table des ticks par ligne, niveaux 0 à 29+ ; type `Level`.
 - [x] **P1.10** `ClassicScoringRule` : 40/100/300/1200 × (niveau + 1), points de descente rapide.
 - [x] **P1.11** `ClassicLevelProgression` : premier passage selon le niveau de départ, puis
@@ -87,7 +88,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   et la partie valide le départ une seule fois, à sa création (l'écran de choix lira la même
   plage) ; `GameState` garde le niveau de départ, le niveau est recalculé à chaque effacement ;
   `Lines` reçoit son addition ; points comptés avec le niveau **après** la montée (source ROM,
-  voir la spécification).
+  voir la spécification). Issu de la revue de P1.8 : le moteur possède le `Randomizer` (ADR 0014)
+  et le crée depuis la graine ; à l'apparition, la pièce suivante est tirée avec `previous` =
+  la pièce qui vient d'apparaître ; une partie commence par deux tirages (`null`, puis la
+  première pièce). Un test du moteur le prouve.
 - [ ] **P1.13** Commandes maintenues : DAS 16/6, descente rapide **[à vérifier : 1 ligne toutes
   les 2 images]**.
 - [ ] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur)
@@ -105,6 +109,9 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
   `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
   moteur (P1.7, P1.12) les exigera.
+- [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
+  (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
+  premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
@@ -208,3 +215,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P1.11 | `Lines` (value class, total cumulé, refuse le négatif), `LevelProgression.levelFor(start, lines)` et `ClassicLevelProgression` (`object`, départ 0 à 9, niveau = `max(départ, lignes ÷ 10)`, formule NES complète citée en KDoc). 16 tests. Spécification : ordre score / niveau tranché par la source ROM (points comptés avec le nouveau niveau). | TDD : les cas validés du premier passage étaient verts avec `lignes ÷ 10` ; deux cas « 0 ligne → niveau de départ » ajoutés pour obtenir le rouge. Test « +1 toutes les 10 lignes » vert d'emblée, contrôlé par mutation. Revue indépendante : retenu — test du premier passage découpé (avant / au seuil, cas intermédiaire 5 → 30 lignes), plage dans le message d'erreur, borne `Lines(0)`, validation du départ et état du moteur inscrits en P1.12. Écarté : oracle exhaustif contre la formule NES (réécrirait la règle dans le test). |
 | 2026-10-18 | P1.2 | `Orientation` (ensemble de 4 décalages autour du pivot, invariant vérifié), `RotationSystem` (contrat en KDoc : ordre horaire circulaire, départ inclus, index 0 ≠ départ) et `ClassicRotationSystem` : les 19 orientations de la ROM NES ($8A9C, meatfighter.com) en `when` exhaustif, orientations de départ T, J, L pointe en bas, S, Z, I à plat. Helper de test `cellsOf` (dessin ASCII, `@` = pivot) et ses propres tests. `[à vérifier]` retirés : orientations de départ et formes de rotation, avec la source. `Orientation` et `Lines` ajoutés au langage du domaine (CLAUDE.md). | Table vérifiée cellule par cellule par la revue indépendante, aucune erreur. Verts d'emblée : « aucune cellule au-dessus du pivot » (contrôlé par mutation : départ du T à l'index 0) et la table de O. Revue : retenu — contrat de `RotationSystem`, `Orientation` en `Set` avec invariant, dessins de départ en constantes (règle de 2), `cellsOf` strict, `when` exhaustif, table en paires. Écarté pour l'instant : déplacer `cellsOf` dans un fichier commun (quand un deuxième paquet en aura besoin). Pas de type `Rotation` avant P1.5. |
 | 2026-10-18 | P4.1 | Modèle musical de `core:music` (agent C, worktree parallèle) : `Pitch` (type valeur sur le numéro MIDI, `Pitch.parse`, fréquence, `toString` = nom), `Note` (silence = hauteur nulle, durée positive et finie), `Waveform` (`SQUARE`), `Voice` (volume dans [0, 1], au moins une note, durée totale), `Score` (tempo positif, au moins une voix). 17 tests (39 exécutions). `docs/musique.md` : notation `F#` (le `♯` Unicode n'était pas lu), règles du modèle, tests. | Verts d'emblée, contrôlés ou justifiés : C4 ≈ 261,63 Hz (mutation), bornes du volume (mutation), cas valide de `Score`, noms déjà refusés par l'analyseur (seul `A9` a donné le rouge de l'octave 0 à 8). Revue indépendante : retenu — égalité de `Pitch` par MIDI, bornes du volume, durée infinie refusée, analyseur strict, `TRIANGLE` retiré jusqu'à P4.2, voix non vide, cas valide et helper de test partagé. Écarté : types `Beats` / `Volume` / `Bpm` (alourdiraient l'écriture des partitions), refus de `E#` / `B#` (justes en hauteur). Notés en P4.2 et P4.5 : mesure, invariant de longueur, fabriques, plage MIDI, tempo. |
+| 2026-10-18 | P1.8 | `Randomizer.next(previous)` (KDoc : `previous` = dernière pièce tirée, celle de l'aperçu) et `ClassicRandomizer` (constructeur public par graine, constructeur `internal` sur `kotlin.random.Random` pour les tests) : premier tirage sur 8 valeurs, relance unique sur 7 si « aucune pièce » ou répétition, ordre ROM T, J, Z, O, S, L, I. 21 tests, faux `Random` scripté qui vérifie les bornes. Spécification : `[à vérifier]` retiré (TetrisWiki, ordre d'après la ROM). ADR 0014 : le tirage est le seul état modifiable du domaine. | Règle TetrisWiki retenue ; écart assumé : le biais de la ROM au second tirage n'est pas reproduit. Verts d'emblée, contrôlés par mutation : première pièce, graines identiques ou différentes. Revue indépendante : retenu — test « graines différentes », sens de `previous` en KDoc et test du moteur inscrit en P1.12, constructeur `Random` interne, faux `Random` plus strict, test de l'ordre ROM renommé, `romOrder` une pièce par ligne et constante « aucune pièce », ADR 0014 plutôt qu'une forme pure. Découvert : P1.20 (graine stable entre versions, si une graine est gardée). |

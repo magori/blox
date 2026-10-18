@@ -1,0 +1,36 @@
+# 0014 — Le tirage des pièces est le seul état modifiable du domaine
+
+- **Statut** : Acceptée
+- **Date** : 2026-10-18
+
+## Contexte
+
+Le domaine est immuable : `Board`, `Piece`, `Level`, `Lines` et les politiques sont des valeurs,
+et chaque opération renvoie un nouvel état (CLAUDE.md, [ADR 0003](0003-domaine-en-kotlin-pur.md)).
+Le tirage des pièces (P1.8) a besoin d'une source d'aléatoire, qui change à chaque tirage.
+
+Deux options :
+
+- **Forme pure** : `next(previous, rngState): Pair<PieceType, RngState>`, l'état du générateur
+  rangé dans `GameState`. Un état de partie se capture et se restaure tel quel.
+- **Générateur à état** : `ClassicRandomizer(seed)` garde un `kotlin.random.Random` privé,
+  `next(previous)` le fait avancer.
+
+Aucune tâche ne demande de sauvegarder ni de reprendre une partie en cours.
+
+## Décision
+
+Le générateur de pièces garde son état aléatoire : c'est le **seul état modifiable du
+domaine**. Il appartient au moteur (P1.12), qui le crée à partir de la graine de la partie.
+Un état de partie ne se reconstruit qu'en rejouant depuis la graine.
+
+## Conséquences
+
+- L'API reste simple (`next(previous)`) et la pièce précédente est passée en paramètre, sans
+  état caché au-delà de la source d'aléatoire. Un sac de 7 (mode Moderne, P6) aura lui aussi
+  un état et suivra la même règle.
+- On ne peut pas capturer un `GameState` puis le restaurer à l'identique. Si une sauvegarde ou
+  une reprise de partie devient un besoin, passer à la forme pure, et remplacer cet ADR.
+- La suite de `kotlin.random.Random(seed)` n'est pas un contrat entre versions de Kotlin : le
+  jour où une graine est gardée ou partagée (partie rejouée, défi du jour), il faudra un
+  générateur maison et un test qui fige les premières pièces d'une graine (tâche P1.20).
