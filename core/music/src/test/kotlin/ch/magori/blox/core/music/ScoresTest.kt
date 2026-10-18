@@ -56,18 +56,38 @@ class ScoresTest {
     }
 
     @Test
-    fun `the first bar of the Korobeiniki melody is the one of docs musique md`() {
+    fun `the Korobeiniki melody is the folk song of docs musique md, its 8 bars in full, with its dotted rhythm`() {
         // When
-        val firstBar = barsOf(Scores.korobeiniki.voices.first(), beatsPerBar = 4).first()
+        val bars = barsOf(Scores.korobeiniki.voices.first(), beatsPerBar = 4)
 
         // Then
-        assertThat(firstBar).containsExactly(
-            note("E5", 1.0),
-            note("B4", 0.5),
-            note("C5", 0.5),
-            note("D5", 1.0),
-            note("C5", 0.5),
-            note("B4", 0.5),
+        assertThat(bars).containsExactly(
+            listOf(note("E4", 1.5), note("G#4", 0.5), note("B4", 1.0), note("G#4", 0.5), note("E4", 0.5)),
+            listOf(note("A4", 1.5), note("C5", 0.5), note("E5", 1.0), note("D5", 0.5), note("C5", 0.5)),
+            listOf(note("B4", 1.5), note("C5", 0.5), note("D5", 1.0), note("E5", 1.0)),
+            listOf(note("C5", 1.0), note("A4", 1.0), note("A4", 2.0)),
+            listOf(note("F5", 1.5), note("G5", 0.5), note("A5", 1.0), note("G5", 0.5), note("F5", 0.5)),
+            listOf(note("E5", 1.5), note("F5", 0.5), note("E5", 1.0), note("D5", 0.5), note("C5", 0.5)),
+            listOf(note("B4", 1.5), note("C5", 0.5), note("D5", 1.0), note("E5", 1.0)),
+            listOf(note("C5", 1.0), note("A4", 1.0), note("A4", 2.0)),
+        )
+    }
+
+    @Test
+    fun `the Korobeiniki bass is the one of docs musique md, its 8 bars in full`() {
+        // When
+        val bars = barsOf(Scores.korobeiniki.voices.last(), beatsPerBar = 4)
+
+        // Then: root and fifth of E, A, E, A, D, A, E, A
+        assertThat(bars).containsExactly(
+            rootAndFifth("E2", "B2"),
+            rootAndFifth("A2", "E3"),
+            rootAndFifth("E2", "B2"),
+            rootAndFifth("A2", "E3"),
+            rootAndFifth("D2", "A2"),
+            rootAndFifth("A2", "E3"),
+            rootAndFifth("E2", "B2"),
+            rootAndFifth("A2", "E3"),
         )
     }
 
@@ -136,6 +156,12 @@ class ScoresTest {
 
     private fun pitchesOf(voice: Voice): List<Pitch> = voice.notes.mapNotNull { it.pitch }
 
+    /** A bar of four quarter notes: root, fifth, root, fifth. */
+    private fun rootAndFifth(
+        root: String,
+        fifth: String,
+    ): List<Note> = listOf(note(root, 1.0), note(fifth, 1.0), note(root, 1.0), note(fifth, 1.0))
+
     private fun note(
         pitch: String,
         beats: Double,
@@ -164,18 +190,18 @@ class ScoresTest {
         @JvmStatic
         fun melodyKeys(): List<Arguments> = listOf(
             argumentSet(
-                "Korobeiniki in A natural minor",
+                "Korobeiniki in A minor, G# as the leading note of the harmonic minor",
                 Scores.korobeiniki.voices.first(),
-                setOf("A", "B", "C", "D", "E", "F", "G"),
+                setOf("A", "B", "C", "D", "E", "F", "G", "G#"),
             ),
             argumentSet("minuet in G major", Scores.minuet.voices.first(), setOf("G", "A", "B", "C", "D", "E", "F#")),
         )
 
         @JvmStatic
         fun voiceRanges(): List<Arguments> = listOf(
-            argumentSet("Korobeiniki melody", Scores.korobeiniki.voices.first(), "A4", "A5"),
+            argumentSet("Korobeiniki melody", Scores.korobeiniki.voices.first(), "E4", "A5"),
             argumentSet("minuet melody", Scores.minuet.voices.first(), "F#4", "G5"),
-            argumentSet("Korobeiniki bass", Scores.korobeiniki.voices.last(), "C2", "E3"),
+            argumentSet("Korobeiniki bass", Scores.korobeiniki.voices.last(), "D2", "E3"),
             argumentSet("minuet bass", Scores.minuet.voices.last(), "C2", "E3"),
         )
     }

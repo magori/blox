@@ -115,21 +115,24 @@ Durées en temps (1 = noire, 0,5 = croche). Notation anglo-saxonne (A4 = la 440 
 
 ### Korobeïniki — 150 temps/min, 4/4
 
-Mélodie, onde carrée, volume 0,07 :
+Mélodie du chant populaire, onde carrée, volume 0,07, d'après deux notations publiques du
+chant (« Russian Folk Song, 19th Century ») : [Wikimedia Commons, Korobeiniki_Music.png](https://commons.wikimedia.org/wiki/File:Korobeiniki_Music.png)
+et [Wikipédia, Korobeiniki, section Melody](https://en.wikipedia.org/wiki/Korobeiniki).
+Les deux sources reprennent les mesures 5 à 8 ; BloX ne joue que les 8 mesures, en boucle.
 
 | Mesure | Notes |
 |---|---|
-| 1 | E5 1 · B4 ½ · C5 ½ · D5 1 · C5 ½ · B4 ½ |
-| 2 | A4 1 · A4 ½ · C5 ½ · E5 1 · D5 ½ · C5 ½ |
+| 1 | E4 1½ · G#4 ½ · B4 1 · G#4 ½ · E4 ½ |
+| 2 | A4 1½ · C5 ½ · E5 1 · D5 ½ · C5 ½ |
 | 3 | B4 1½ · C5 ½ · D5 1 · E5 1 |
-| 4 | C5 1 · A4 1 · A4 1 · silence 1 |
-| 5 | silence ½ · D5 1 · F5 ½ · A5 1 · G5 ½ · F5 ½ |
-| 6 | E5 1½ · C5 ½ · E5 1 · D5 ½ · C5 ½ |
-| 7 | B4 1 · B4 ½ · C5 ½ · D5 1 · E5 1 |
-| 8 | C5 1 · A4 1 · A4 1 · silence 1 |
+| 4 | C5 1 · A4 1 · A4 2 |
+| 5 | F5 1½ · G5 ½ · A5 1 · G5 ½ · F5 ½ |
+| 6 | E5 1½ · F5 ½ · E5 1 · D5 ½ · C5 ½ |
+| 7 | B4 1½ · C5 ½ · D5 1 · E5 1 |
+| 8 | C5 1 · A4 1 · A4 2 |
 
 Basse maison, onde triangle, volume 0,16, en noires « fondamentale – quinte – fondamentale –
-quinte » : E2/B2 · A2/E3 · E2/B2 · A2/E3 · D2/A2 · C3/G2 · E2/B2 · A2/E3.
+quinte » : E2/B2 · A2/E3 · E2/B2 · A2/E3 · D2/A2 · A2/E3 · E2/B2 · A2/E3.
 
 ### Menuet en sol — 132 temps/min, 3/4
 
@@ -154,21 +157,27 @@ G2 · B2 · C3 · B2 · A2 · G2 · D3 · D2.
 
 Les deux partitions sont transcrites dans `Scores` (`core:music`). Les tests vérifient la
 structure (tempo, mesure, ondes, volumes), les durées (aucune note ne chevauche une barre,
-8 mesures complètes), la tonalité (la mineur naturel, sol majeur), la plage de chaque voix
-(mélodies A4..A5 et F#4..G5, basses C2..E3), la première mesure de chaque mélodie et
-l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
+8 mesures complètes), la tonalité (la mineur avec G# comme sensible du mineur harmonique,
+sol majeur), la plage de chaque voix (mélodies E4..A5 et F#4..G5, basses D2..E3 et C2..E3), les 8 mesures
+entières de la mélodie de *Korobeïniki* (rythme pointé du chant compris), la première mesure du
+Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 
 **Tests :** `ScoresTest › Korobeiniki is played at 150 bpm in 4-4 with a square melody at 0_07 and a triangle bass at 0_16`,
 `ScoresTest › the minuet is played at 132 bpm in 3-4 with a square melody at 0_07 and a triangle bass at 0_16`,
 `ScoresTest › in every voice no note crosses a bar line and every bar is complete`,
 `ScoresTest › every voice has 8 bars`,
-`ScoresTest › the first bar of the Korobeiniki melody is the one of docs musique md`,
+`ScoresTest › the Korobeiniki melody is the folk song of docs musique md, its 8 bars in full, with its dotted rhythm`,
 `ScoresTest › the first bar of the minuet melody is the one of docs musique md`,
 `ScoresTest › the Korobeiniki bass alternates a root and its fifth, octave ignored`,
+`ScoresTest › the Korobeiniki basse is the one of docs musique md, its 8 bars in full`,
 `ScoresTest › a melody only uses the pitch classes of its key`,
 `ScoresTest › every voice stays within its range`.
 
-> **[à vérifier] (droits)** : le rythme de la mélodie de *Korobeïniki* ci-dessus (mesure 5 :
-> demi-temps de silence puis syncopes) ressemble à la version popularisée par le jeu de 1989
-> plus qu'au chant populaire, noté en 2/4. La mélodie est du domaine public, l'arrangement du
-> jeu ne l'est pas : comparer à une partition publique du chant et citer la source (P4.9).
+> **[à vérifier] (droits)** : la première version de cette partition (syncope en mesure 5,
+> notes répétées, rythme pointé perdu) ressemblait à la version popularisée par le jeu de 1989 ;
+> elle a été remplacée en P4.9 par la mélodie du chant ci-dessus. Les deux sources nettes
+> consultées sont des notations modernes, probablement de la même main ; une troisième
+> ([a-pesni.org](http://a-pesni.org/popular20/ojpolna.htm), recueil de romances, sol mineur)
+> confirme le rythme sans être lisible note à note. Pour retirer la mention, comparer à une
+> édition d'époque (Prigojy, 1898 ; recueils de Panina vers 1905), par exemple à la
+> Bibliothèque nationale de Russie (НЭБ).
