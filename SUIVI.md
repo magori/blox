@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 39 / 71 | `███████████░░░░░░░░░` **55 %** |
+| **Général** | 41 / 71 | `████████████░░░░░░░░` **58 %** |
 | **MVP** (jouable sur téléphone) | 33 / 37 | `██████████████████░░` **89 %** |
 <!-- avancement:fin -->
 
@@ -139,7 +139,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     `LinesCleared`, `StackDanger` au franchissement (à la fin de l'animation s'il y a
     effacement), « 4 lignes » dans les statistiques. Pour l'écran : le domaine fournira la
     progression de l'animation (passes faites) quand une tâche la dessinera.
-  - [ ] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
+  - [x] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
     `Release(button)`, place pour `Pause` / `Resume`), touches tenues et appuis depuis le
     dernier tick (A, B et changement de direction à front montant), `AutoRepeat` de
     déplacement avec sa direction, recréé quand elle change ; compteur de descente rapide
@@ -152,7 +152,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     lieu dans `tick` (sinon l'alignement de l'animation se décale) ; regrouper niveau, lignes,
     score et statistiques dans un objet « progression » avant d'ajouter les touches à
     `GameState` ; exposer les règles du moteur en lecture seule, pour retirer le système de
-    rotation passé à part à la fabrique du ViewModel (P2.2).
+    rotation passé à part à la fabrique du ViewModel (P2.2). Fait : `Input`, `Button`,
+    `Controls`, `GameProgress`, `GameEngine.rules`, `Rules.inputRepeat`. Revue : un seul
+    `AutoRepeat` latéral relancé seulement par un nouvel appui (la ROM continue le compteur
+    quand la direction change sans appui, contrairement à la note de P1.13). Pour P2.2 : lire
+    `state.progress`, prendre le système de rotation dans `engine.rules`.
   - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite (le tick
     après la fin est déjà prouvé en P1.12c). La fin de partie n'émet que `GameOver`, jamais
     `StackDanger(off)` (revue de P1.12c).
@@ -246,10 +250,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 ## P3 — Accueil, préférences, records
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
-- [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
+- [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
-  du processus), et calculer « nouveau record » contre le record d'avant la partie.
+  du processus), et calculer « nouveau record » contre le record d'avant la partie. Fait :
+  `HighScoreRepository`, `DataStoreHighScoreRepository`, `RecordResult`, `recordsDataStore`.
+  Reste au branchement (P2.2, incrément 2) : créer le DataStore dans `AppContainer`
+  (`filesDir/datastore/records.preferences_pb`), `submit` à `GameOver`, record dans la barre
+  du haut et sur V4.
 - [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
   `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
   fabrique de l'accueil (P3.4) s'y ajouteront.
@@ -271,19 +279,25 @@ Référence : [docs/musique.md](docs/musique.md).
   plage de `Pitch` C0..B8.
 - [x] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
   sur la JVM : `Synthesizer`, `mix` dans `core:audio`.
-- [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
+- [x] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
   d'écrire le séquenceur, choisir entre durées entières (sous-unités du temps, par exemple
   48 par noire) et comparaison avec tolérance : les durées sont des `Double` exacts tant qu'il
   n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2). Revue de P4.3 :
   `render(score, tempoFactor)` comme seule entrée publique (`renderVoice` et `mix` deviennent
   internes) ; rendre hors du thread audio (`Dispatchers.Default`), une fois, et garder le
   résultat en cache (environ 2,3 Mo par voix) ; écrire des tranches en `MODE_STREAM` ; éviter la
-  double allocation par note (écrire directement dans le tableau de la voix).
+  double allocation par note (écrire directement dans le tableau de la voix). Fait :
+  `Synthesizer.render`, `LoopCursor`, `AudioSink`, `AudioTrackSink`, `ChiptuneSequencer`
+  (durées restées en `Double`, voir `docs/musique.md`).
 - [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
   séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
   passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
   frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
-  changerait la hauteur.
+  changerait la hauteur. Revue de P4.4 : le rendu et le cache acceptent déjà le facteur ; lire
+  entre deux tranches un facteur demandé (`StateFlow` ou `@Volatile`) sans rouvrir la sortie ;
+  calculer la position en `Long` ; arrondir au temps suivant (un temps = `len / totalBeats`
+  échantillons). Au branchement, décider si `play` de la partition déjà jouée est sans effet
+  (utile si le ViewModel rappelle `play` à la reprise), et journaliser l'échec audio attrapé.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la

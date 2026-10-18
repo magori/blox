@@ -86,7 +86,11 @@ graph LR
 - **Domaine (`core:game`)** : joue le rôle de la couche domaine. Il n'y a pas de module
   `core:domain` séparé avec des use cases : ici le moteur *est* le domaine, et une couche de
   use cases qui ne ferait que déléguer serait de la cérémonie.
-- **Données (`core:data`)** : repositories exposant des `Flow`.
+- **Données (`core:data`)** : repositories exposant des `Flow`. Un fichier DataStore par sujet,
+  créé une seule fois par l'`AppContainer` avec la fabrique de `core:data` (stockage Okio,
+  fichier corrompu remplacé par des préférences vides, erreur de lecture lue comme vide) : le
+  record (`records.preferences_pb`, `recordsDataStore`) est séparé des préférences (P3.1), pour
+  qu'une remise à zéro des réglages ne le perde pas.
 
 ## Boucle de jeu
 

@@ -1,0 +1,63 @@
+package ch.magori.blox.core.audio
+
+import android.media.AudioAttributes
+import android.media.AudioFormat
+import android.media.AudioTrack
+
+/**
+ * An [AudioSink] on an [AudioTrack] in stream mode: mono, 32-bit float samples at [sampleRate].
+ * [write] blocks while the track buffer is full, which paces the sequencer. Kept thin on purpose: it
+ * has no JVM test, the sequencer is tested with fake sinks.
+ */
+public class AudioTrackSink(sampleRate: Int) : AudioSink {
+    private val track: AudioTrack = AudioTrack.Builder()
+        .setAudioAttributes(
+            AudioAttributes.Builder()
+                .setUsage(AudioAttributes.USAGE_GAME)
+                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+                .build(),
+        ).setAudioFormat(
+            AudioFormat.Builder()
+                .setEncoding(ENCODING)
+                .setSampleRate(sampleRate)
+                .setChannelMask(CHANNELS)
+                .build(),
+        ).setTransferMode(AudioTrack.MODE_STREAM)
+        .setBufferSizeInBytes(bufferSizeInBytes(sampleRate))
+        .build()
+
+    init {
+        try {
+            track.play()
+        } catch (failure: IllegalStateException) {
+            track.release()
+            throw failure
+        }
+    }
+
+    override suspend fun write(samples: FloatArray) {
+        val result = track.write(samples, 0, samples.size, AudioTrack.WRITE_BLOCKING)
+        check(result >= 0) { "The AudioTrack refused the samples, error $result" }
+    }
+
+    override fun release() {
+        track.pause()
+        track.flush()
+        track.release()
+    }
+
+    private companion object {
+        const val ENCODING = AudioFormat.ENCODING_PCM_FLOAT
+        const val CHANNELS = AudioFormat.CHANNEL_OUT_MONO
+
+        /**
+         * Four times the minimum the device asks for, and at least two slices of the sequencer, so that
+         * a slice is always written while the previous one plays.
+         */
+        fun bufferSizeInBytes(sampleRate: Int): Int {
+            val minimum = AudioTrack.getMinBufferSize(sampleRate, CHANNELS, ENCODING)
+            require(minimum > 0) { "This device cannot play mono float samples at $sampleRate Hz, error $minimum" }
+            return maxOf(4 * minimum, 2 * SLICE_SIZE * Float.SIZE_BYTES)
+        }
+    }
+}
