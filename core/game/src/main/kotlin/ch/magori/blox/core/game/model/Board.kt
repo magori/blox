@@ -53,6 +53,20 @@ public class Board private constructor(private val cells: List<Cell>) {
         position.row in ROWS_WITH_HIDDEN &&
         (position.row < 0 || this[position] == Cell.Empty)
 
+    private fun requireFits(piece: Piece) = require(fits(piece)) { "$piece does not fit on the board" }
+
+    /**
+     * [piece] where it would land: straight below, as low as it [fits], [move]d down until the floor
+     * or a filled cell refuses it, so it never goes through a cell, even above a hole. A piece already
+     * resting is returned as it is; from the hidden rows, it lands in the visible board. The piece is
+     * not locked: this is where the ghost piece is drawn, and where a hard drop locks it. Rejects a
+     * piece that does not [fits], as [lock] does. Neither the board nor [piece] changes.
+     */
+    public fun landing(piece: Piece): Piece {
+        requireFits(piece)
+        return generateSequence(piece) { move(it, Direction.DOWN) }.last()
+    }
+
     /** Returns a new board where [position] is filled by a cell of [type]; rejects a position outside the board. */
     public fun fill(
         position: Position,
@@ -67,7 +81,7 @@ public class Board private constructor(private val cells: List<Cell>) {
      * deciding when to lock belongs to the engine.
      */
     public fun lock(piece: Piece): Board {
-        require(fits(piece)) { "$piece does not fit on the board" }
+        requireFits(piece)
         val visiblePositions = piece.cells.filter { position -> position.row >= 0 }
         return withFilled(visiblePositions, piece.type)
     }
