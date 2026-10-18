@@ -39,43 +39,29 @@ import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
-import ch.magori.blox.feature.game.ui.ScreenSizes
 
-/**
- * Sizes for a 360 dp wide phone, inside the 24 dp margins of the game screen (312 dp): 3 × 52 +
- * 2 × 8 on the left, 2 × 56 + 8 on the right, 20 dp left between the two groups. Every button is at
- * least [ScreenSizes.minTouchTarget], the accessibility minimum.
- */
-private val DirectionButtonSize = ScreenSizes.minTouchTarget + 4.dp
-private val RotationButtonSize = ScreenSizes.minTouchTarget + 8.dp
-private val ButtonSpacing = 8.dp
 private val ArrowSize = 20.dp
 private val LetterSize = 20.sp
 
-/** B sits lower than A, as on a handheld console. */
-private val RotationStagger = 24.dp
-
 /**
- * The touch controls of V2 and V3: ◀ ▼ ▶ on the left, B and A on the right. No logic here: the
- * fingers are followed by [HeldButtons]; this only reports when a button goes down or comes back up
- * ([onChange]), so that a held button can repeat (DAS) in the engine.
+ * The fingers on the touch controls of V2 and V3, shared by the two groups, [DirectionPad] (◀ ▼ ▶)
+ * and [RotationPad] (B A), wherever the layout puts them. No logic here: the fingers are followed by
+ * [HeldButtons]; this only reports when a button goes down or comes back up ([onChange]), so that a
+ * held button can repeat (DAS) in the engine. The buttons still held are released when it leaves.
  */
 @Composable
-internal fun GameControls(
-    onChange: (ControlChange) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+internal fun rememberControlFingers(onChange: (ControlChange) -> Unit): FingerTracker {
     val currentOnChange by rememberUpdatedState(onChange)
     val fingers = remember { FingerTracker { change -> currentOnChange(change) } }
     DisposableEffect(fingers) {
         onDispose { fingers.cancel() }
     }
-    ControlPad(fingers, modifier)
+    return fingers
 }
 
 /** Applies the events of the fingers to [HeldButtons], reports the changes, and shows the held buttons. */
 @Stable
-private class FingerTracker(private val onChange: (ControlChange) -> Unit) {
+internal class FingerTracker(private val onChange: (ControlChange) -> Unit) {
     private var held = HeldButtons()
 
     /** The buttons under a finger, read by the composition to draw them pressed. */
@@ -100,6 +86,38 @@ private class FingerTracker(private val onChange: (ControlChange) -> Unit) {
     }
 }
 
+/** ◀ ▼ ▶, half as low as B: [ControlSizes.directionsWidth] × [ControlSizes.directionsHeight]. */
+@Composable
+internal fun DirectionPad(
+    fingers: FingerTracker,
+    modifier: Modifier = Modifier,
+) {
+    val keyModifier = Modifier.padding(top = ControlSizes.rotationStagger / 2)
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing)) {
+        ControlKey(ControlButton.LEFT, fingers, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.DOWN, fingers, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.RIGHT, fingers, ControlSizes.directionButton, keyModifier)
+    }
+}
+
+/** B and A, B lower: [ControlSizes.rotationsWidth] × [ControlSizes.rotationsHeight]. */
+@Composable
+internal fun RotationPad(
+    fingers: FingerTracker,
+    modifier: Modifier = Modifier,
+) {
+    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing)) {
+        ControlKey(
+            ControlButton.B,
+            fingers,
+            ControlSizes.rotationButton,
+            Modifier.padding(top = ControlSizes.rotationStagger),
+        )
+        ControlKey(ControlButton.A, fingers, ControlSizes.rotationButton)
+    }
+}
+
+/** Both groups on one row, as on a 360 dp wide phone, for the previews. */
 @Composable
 private fun ControlPad(
     fingers: FingerTracker,
@@ -110,15 +128,8 @@ private fun ControlPad(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
-        Row(horizontalArrangement = Arrangement.spacedBy(ButtonSpacing)) {
-            ControlKey(ControlButton.LEFT, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
-            ControlKey(ControlButton.DOWN, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
-            ControlKey(ControlButton.RIGHT, fingers, DirectionButtonSize, Modifier.padding(top = RotationStagger / 2))
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(ButtonSpacing)) {
-            ControlKey(ControlButton.B, fingers, RotationButtonSize, Modifier.padding(top = RotationStagger))
-            ControlKey(ControlButton.A, fingers, RotationButtonSize)
-        }
+        DirectionPad(fingers)
+        RotationPad(fingers)
     }
 }
 
