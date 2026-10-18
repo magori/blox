@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 38 / 70 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 39 / 70 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -242,10 +242,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 ## P3 — Accueil, préférences, records
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
-- [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
+- [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
-  du processus), et calculer « nouveau record » contre le record d'avant la partie.
+  du processus), et calculer « nouveau record » contre le record d'avant la partie. Fait :
+  `HighScoreRepository`, `DataStoreHighScoreRepository`, `RecordResult`, `recordsDataStore`.
+  Reste au branchement (P2.2, incrément 2) : créer le DataStore dans `AppContainer`
+  (`filesDir/datastore/records.preferences_pb`), `submit` à `GameOver`, record dans la barre
+  du haut et sur V4.
 - [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
