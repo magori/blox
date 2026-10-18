@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 65 / 117 | `███████████░░░░░░░░░` **56 %** |
+| **Général** | 66 / 117 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -426,7 +426,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
   fois, proposée aussi dans la musique de l'accueil, V1), renommer et supprimer.
-- [ ] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
+- [x] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
   (accès depuis V1), dans les quatre thèmes ; choix de la catégorie, fenêtre d'enregistrement.
 
 ## P5 — Finitions
