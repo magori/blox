@@ -1,0 +1,86 @@
+package ch.magori.blox.feature.game.ui
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.TextAutoSize
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxTheme
+
+/** The sizes shared by the panels and values of the game screens, in one place. */
+internal object PanelSizes {
+    /** The frame of a panel, and of an outlined button. */
+    val border = 2.dp
+
+    /** Inside a panel, around its content. */
+    val padding = 8.dp
+
+    /** Between the label and the content of a panel. */
+    val labelGap = 4.dp
+    val label = 11.sp
+
+    /** The largest size of a value; it shrinks to stay on one line. */
+    val value = 18.sp
+}
+
+/**
+ * A panel of the game screens: the theme panel background, frame and shape, its [label] in capitals
+ * above its [content]. TalkBack reads it as one [description].
+ */
+@Composable
+internal fun LabelledPanel(
+    label: String,
+    description: String,
+    modifier: Modifier = Modifier,
+    contentAlignment: Alignment.Horizontal = Alignment.Start,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val palette = BloxTheme.palette
+    val shape = BloxTheme.shapes.panel
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clearAndSetSemantics { contentDescription = description }
+            .background(palette.panel, shape)
+            .border(PanelSizes.border, palette.panelBorder, shape)
+            .padding(PanelSizes.padding),
+        verticalArrangement = Arrangement.spacedBy(PanelSizes.labelGap),
+        horizontalAlignment = contentAlignment,
+    ) {
+        Text(text = label.uppercase(), color = palette.label, fontSize = PanelSizes.label, maxLines = 1)
+        content()
+    }
+}
+
+/** A value of the game screens: monospace digits on one line, shrinking from [maxFontSize] if needed. */
+@Composable
+internal fun ValueText(
+    text: String,
+    modifier: Modifier = Modifier,
+    maxFontSize: TextUnit = PanelSizes.value,
+) {
+    Text(
+        text = text,
+        modifier = modifier,
+        color = BloxTheme.palette.ink,
+        fontFamily = FontFamily.Monospace,
+        fontWeight = FontWeight.Bold,
+        maxLines = 1,
+        softWrap = false,
+        autoSize = TextAutoSize.StepBased(maxFontSize = maxFontSize),
+    )
+}

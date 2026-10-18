@@ -26,19 +26,13 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.ui.LabelledPanel
+import ch.magori.blox.feature.game.ui.ValueText
 
 /** The sizes of the side column, in one place. */
 private object SidePanelSizes {
-    /** Between two panels, and inside a panel around its content. */
+    /** Between two panels. */
     val gap = 8.dp
-
-    /** Between the label and the value of a panel. */
-    val labelGap = 4.dp
-    val border = 2.dp
-    val label = 11.sp
-
-    /** The largest size of a value; it shrinks to stay on one line. */
-    val value = 18.sp
 
     /** The preview fits the widest piece: 4 cells wide, 2 cells high. */
     const val PREVIEW_ASPECT_RATIO = 4f / 2f
@@ -65,7 +59,7 @@ internal fun SidePanel(
         ValuePanel(label = stringResource(R.string.feature_game_lines), value = linesText(lines), rawValue = lines)
         val nextLabel = stringResource(R.string.feature_game_next)
         val nextName = next?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
-        Panel(
+        LabelledPanel(
             label = nextLabel,
             description = stringResource(R.string.feature_game_value_description, nextLabel, nextName),
         ) {
@@ -86,42 +80,11 @@ private fun ValuePanel(
     value: String,
     rawValue: Int,
 ) {
-    Panel(
+    LabelledPanel(
         label = label,
         description = stringResource(R.string.feature_game_value_description, label, rawValue.toString()),
     ) {
-        Text(
-            text = value,
-            color = BloxTheme.palette.ink,
-            fontFamily = FontFamily.Monospace,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
-            softWrap = false,
-            autoSize = TextAutoSize.StepBased(maxFontSize = SidePanelSizes.value),
-        )
-    }
-}
-
-/** A panel: a [label] above its [content]; TalkBack reads it as one [description]. */
-@Composable
-private fun Panel(
-    label: String,
-    description: String,
-    content: @Composable () -> Unit,
-) {
-    val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.panel
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clearAndSetSemantics { contentDescription = description }
-            .background(palette.panel, shape)
-            .border(SidePanelSizes.border, palette.panelBorder, shape)
-            .padding(SidePanelSizes.gap),
-        verticalArrangement = Arrangement.spacedBy(SidePanelSizes.labelGap),
-    ) {
-        Text(text = label.uppercase(), color = palette.label, fontSize = SidePanelSizes.label, maxLines = 1)
-        content()
+        ValueText(text = value)
     }
 }
 

@@ -15,4 +15,22 @@
     <string name="feature_game_piece_z">pièce Z</string>
     <string name="feature_game_piece_j">pièce J</string>
     <string name="feature_game_piece_l">pièce L</string>
+    <string name="feature_game_over_title">Partie terminée</string>
+    <string name="feature_game_over_new_record">Nouveau record</string>
+    <string name="feature_game_over_four_lines">4 lignes</string>
+    <string name="feature_game_over_duration">Durée</string>
+    <string name="feature_game_over_replay">Rejouer</string>
+    <string name="feature_game_over_menu">Menu</string>
+    <string name="feature_game_over_four_lines_description">Nombre de 4 lignes : %s</string>
+    <string name="feature_game_over_duration_both">%1$s et %2$s</string>
+    <plurals name="feature_game_over_minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="many">%d minutes</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
+    <plurals name="feature_game_over_seconds">
+        <item quantity="one">%d seconde</item>
+        <item quantity="many">%d secondes</item>
+        <item quantity="other">%d secondes</item>
+    </plurals>
 </resources>

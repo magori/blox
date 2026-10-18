@@ -1,5 +1,8 @@
 package ch.magori.blox.feature.game
 
+/** Simulation ticks per second: 1 tick = 1 frame = 1/60 s (ADR 0006). */
+internal const val TICKS_PER_SECOND: Int = 60
+
 /**
  * Turns frame times into fixed simulation ticks of 1/60 s (ADR 0006 and 0012).
  *
@@ -38,7 +41,6 @@ internal class GameLoop(private val maxTicksPerFrame: Int = 4) {
     }
 
     private companion object {
-        const val TICKS_PER_SECOND = 60
         const val NANOS_PER_SECOND = 1_000_000_000L
     }
 }
