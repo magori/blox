@@ -58,16 +58,20 @@ confirmer sur une source avant d'écrire le test.
 
 Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). Tout en TDD.
 
-- [ ] **P1.1** `Position`, `Board` immuable 10×20 : cellule vide/occupée, hors limites,
+- [x] **P1.1** `Position`, `Board` immuable 10×20 : cellule vide/occupée, hors limites,
   `Board.parse(ascii)` pour les tests.
-- [ ] **P1.2** `PieceType` et formes des 7 pièces dans chaque orientation.
+- [ ] **P1.2** Formes des 7 pièces dans chaque orientation (l'énumération `PieceType` existe depuis P1.1).
   Cas : nombre de cellules, nombre d'états par pièce (O : 1 ; I, S, Z : 2 ; T, J, L : 4).
   Orientations de départ **[à vérifier]**.
 - [ ] **P1.3** Placement d'une pièce : collision avec les bords, le fond et les cellules occupées.
+  Une cellule au-dessus de la ligne 0 (rotation juste après l'apparition) compte-t-elle comme
+  libre ? **[à vérifier]** ; `Board.get` refuse hors plateau, la règle ira dans une méthode dédiée.
 - [ ] **P1.4** Déplacements gauche / droite / bas, refusés en cas de collision.
 - [ ] **P1.5** `ClassicRotationSystem` : rotations horaire et anti-horaire, refus sans décalage.
   Centres de rotation **[à vérifier]**, un jeu de tests par pièce.
 - [ ] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
+  Si un test l'exige : remplir les quatre cellules en une seule copie, refuser d'écraser une
+  cellule occupée (revue de P1.1).
 - [ ] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
   supérieures.
 - [ ] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
@@ -87,6 +91,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P1.16** Événement `StackDanger` (pile proche du sommet), pour la musique.
 - [ ] **P1.17** Type `Ticks` (strictement positif) pour le résultat de `GravityTable.ticksPerRow`,
   quand le moteur (P1.12) l'exigera : une table qui rendrait 0 bloquerait la gravité.
+- [ ] **P1.18** Outillage : retirer `ignoreSourceSet("test", "androidTest")` de `dependencyAnalysis`.
+  Essai en P1.1 : `buildHealth` échoue, car les bibliothèques de test posées par les plugins de
+  convention sont inutilisées dans les modules sans tests. Voies : sévérité `warn` pour les jeux
+  de sources de test, ou plugins qui ne posent que ce que le module utilise.
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
@@ -178,3 +186,4 @@ verrouillage, plusieurs pièces suivantes.
 | 2026-10-18 | P0.6, P0.9, P0.10, P0.11 | Outillage sur une seule branche. ktlint 1.8 (plugin 14.2) appliqué par les plugins de convention et à `build-logic`, réglé dans `.editorconfig` (clés IDE et ktlint alignées : style IntelliJ, paramètres un par ligne dès deux, composables en PascalCase) ; règles Compose de Slack 1.6.1 en `lintChecks`, `LocalBloxPalette` autorisé par `core/designsystem/lint.xml`. Plugin `dependency-analysis` 3.19.2 : configuré à la racine, appliqué par les plugins de convention, échec sur dépendance de production sans usage, sources de test ignorées, Compose regroupé ; dépendances anticipées retirées de `app`, `feature:*`, `core:audio`, `core:data` ; `serialization-json` → `-core` ; `navigation3-runtime` et `serialization-core` en `api` dans le plugin de feature ; `androidx.activity` déclaré dans `app`. `explicitApi()` strict, `allWarningsAsErrors` retiré. Mémoire Gradle 4 Go + daemon Kotlin 2 Go. CI : `ktlintCheck` (projet et `build-logic`), `buildHealth`. | Revue indépendante : retenu 1 à 7, 9 à 13 et 15 — mécanisme d'arrêt de l'horloge corrigé dans l'ADR 0012 ; `CreationExtras` dans l'ADR 0013 ; ktlint sur `build-logic` ; commentaires racine ; `.editorconfig` fusionné avec clés IDE ; `lifecycle-*` retiré du plugin de feature jusqu'à P2.2 et exclusions réduites à `ui-tooling-preview` ; commentaires des modules vidés allégés ; `GameLoop` ne rend que le nombre de ticks, le ViewModel seul écrit le moteur ; renvoi ADR 0011 → 0013 ; vérifications rapides en tête de CI ; seconde exception racine dans CLAUDE.md ; catalogue réduit aux entrées utilisées (coroutines, DataStore, lifecycle reviennent avec leur tâche, ce qui annule la décision « garder » du journal P0.5). Écartées : `ignoreSourceSet` par source set (réglage global plus simple, tâche de retrait notée) ; seuil de signature pour les constructeurs (value objects du domaine sur une ligne, voulu). À surveiller : plugin d'analyse « connu jusqu'à AGP 9.3.1 » avec AGP 9.4.1 ; retirer `ignoreSourceSet` au premier test (P1.1) et les exclusions `lifecycle-*` en P2.2 ; mémoire CI 4 Go + 2 Go sur ubuntu-latest. |
 | 2026-10-18 | P2.9, P2.10 | ADR 0012 : l'horloge d'images appartient à l'écran (`LaunchedEffect` + `withFrameNanos` → `onFrame(nanos)`), `GameLoop` pure qui rend le nombre de ticks dus, le ViewModel seul écrivain du moteur, plafond de ticks par image obligatoire ; ADR 0006 amendé. ADR 0013 : fabrique définie par la feature, construite par `app`, passée à l'entrée, arguments de route via `CreationExtras` ; ADR 0007 précisé. `docs/architecture.md` (diagramme et sections) et CLAUDE.md à jour. | Pause automatique (P5.4) à déclencher sur `ON_PAUSE`, l'horloge ne s'arrêtant qu'à `ON_STOP`. Fin de partie entrée ou état : toujours P2.7. |
 | 2026-10-18 | P1.9 | Premier code du domaine, en TDD (agent B, worktree parallèle). `Level` (value class, refuse le négatif), interface `GravityTable.ticksPerRow(Level)`, `ClassicGravityTable` : un `when` qui recopie la table de la spécification. 22 tests. | Revue indépendante : retenu — helper de test (règle de 2), vocabulaire `Tick` au lieu de « frames », `fun interface` retiré (aucun test ne l'exige), table en un seul `when`, nom `Classic` + politique (`ClassicGravityTable` ; P1.10 renommée `ClassicScoringRule`), test de la borne 0 (vert d'emblée, test de borne). Écarté : type `Ticks` dès maintenant, renvoyé à P1.17 quand le moteur l'exigera. |
+| 2026-10-18 | P1.1 | Premier modèle du domaine, en TDD (agent A, worktree parallèle) : `Position(column, row)` (origine en haut à gauche), énumération `PieceType` (sans formes), `Cell` scellé (`Empty`, `Filled(type)`), `Board` immuable 10×20 (liste à plat, `get`, `contains`, `fill`, `equals`, `toString` ASCII, `Board.parse`). 12 tests (32 exécutions). Correction mermaid de `docs/architecture.md` embarquée en commit séparé. | Développement parallèle : trois agents dans des worktrees (`blox-wt/plateau`, `regles`, `boucle`), revue et suivi centralisés. Revue indépendante : retenu — limites vérifiées dans `get` / `fill` (bloquant : `Position(10, 0)` lisait (0, 1)), `toString` ASCII et aller-retour avec `parse` (vert d'emblée, contrôlé par mutation), `argumentSet` pour les tests paramétrés, `columns` / `rows` sans champ, tests de `fill` en ASCII. Écarté : remplissage groupé et refus d'écraser (renvoyés à P1.6), table explicite pour `parse` (les noms d'enum sont des lettres). Retrait d'`ignoreSourceSet` essayé, échec, renvoyé à P1.18. Ouvert : cellules au-dessus de la ligne 0 en P1.3 **[à vérifier]**. |
