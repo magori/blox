@@ -38,7 +38,11 @@ fun BloxNavDisplay(
         ),
         entryProvider = entryProvider {
             homeEntry(onPlay = { backStack.add(newGameRoute()) })
-            gameEntry(onBack = goBack, viewModelFactory = gameViewModelFactory)
+            gameEntry(
+                onBack = goBack,
+                onReplay = { finished -> replay(backStack, finished) },
+                viewModelFactory = gameViewModelFactory,
+            )
         },
     )
 }

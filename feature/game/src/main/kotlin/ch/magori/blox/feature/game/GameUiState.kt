@@ -9,8 +9,12 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.RotationSystem
+import ch.magori.blox.feature.game.gameover.GameOverUiState
 
-/** What the game screen shows. The domain values pass as they are: the screen draws them. */
+/**
+ * What the game screen shows. The domain values pass as they are: the screen draws them. [gameOver] is
+ * set once the game is over and its score submitted to the records: the screen then shows the game over.
+ */
 @Immutable
 internal data class GameUiState(
     val board: Board,
@@ -20,6 +24,7 @@ internal data class GameUiState(
     val lines: Lines,
     val score: Points,
     val rotationSystem: RotationSystem,
+    val gameOver: GameOverUiState? = null,
 )
 
 /**
@@ -34,4 +39,14 @@ internal fun GameState.toUiState(rotationSystem: RotationSystem): GameUiState = 
     lines = progress.lines,
     score = progress.score,
     rotationSystem = rotationSystem,
+)
+
+/** The game over screen state of [this] final state, whose score made a [newRecord] or not. */
+internal fun GameState.toGameOverUiState(newRecord: Boolean): GameOverUiState = GameOverUiState(
+    score = progress.score.value,
+    lines = progress.lines.value,
+    level = progress.level.value,
+    fourLineClears = progress.statistics.fourLineClears,
+    ticksPlayed = tickCount,
+    newRecord = newRecord,
 )
