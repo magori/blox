@@ -66,6 +66,12 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
   autres en `button` ; un bouton tenu inverse fond et encre. Le tout tient sur 360 dp de large
   avec une marge de 24 dp, sans cible sous 48 dp.
 - Pas de bouton de chute instantanée (absent du mode Classique).
+- Autres formats (P2.11, retenus par le code, pas encore maquettés) : la disposition qui donne le
+  plus grand plateau l'emporte. Portrait comme ci-dessus ; paysage (téléphone couché, tablette) :
+  ◀ ▼ ▶ en bas à gauche, B A en bas à droite, score, niveau et lignes à gauche du plateau, pièce
+  suivante à droite ; fenêtre étroite : B A sous les flèches. La pièce suivante a la même taille
+  de cellule que le plateau. La colonne de score défile si la police agrandie ne tient pas.
+  Une fenêtre trop petite rogne plutôt que de superposer (cellule d'au moins 1 px).
 
 ### V4 — Fin de partie
 - « Partie terminée », badge « Nouveau record » le cas échéant.

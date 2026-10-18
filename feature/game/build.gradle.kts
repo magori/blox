@@ -27,4 +27,7 @@ dependencies {
     implementation(libs.androidx.navigationevent.compose)
     // Le faux lecteur de musique, partagé avec l'autre feature.
     testImplementation(testFixtures(projects.core.audio))
+
+    // Doublures de test du domaine (ScriptedRandomizer, spawned), partagées par `core:game`.
+    testImplementation(testFixtures(projects.core.game))
 }

@@ -21,14 +21,15 @@ import ch.magori.blox.feature.game.board.CellPainter
 import ch.magori.blox.feature.game.board.cellStyle
 
 /**
- * Draws the next piece of [type] in [theme], with the same cells as the board, centred in the space
- * given to it; nothing when [type] is null. No logic here: the cells come from [nextPieceCells],
- * their place from [BoardGeometry], their look from [CellPainter].
+ * Draws the next piece of [type] in [theme], with the cells of the board, of [cellSize] pixels,
+ * centred in the space given to it; nothing when [type] is null. No logic here: the cells come from
+ * [nextPieceCells], their place from [BoardGeometry], their look from [CellPainter].
  */
 @Composable
 internal fun NextPieceCanvas(
     type: PieceType?,
     rotationSystem: RotationSystem,
+    cellSize: Float,
     modifier: Modifier = Modifier,
     theme: BloxThemeKind = BloxTheme.kind,
 ) {
@@ -39,7 +40,7 @@ internal fun NextPieceCanvas(
             .semantics { contentDescription = description }
             .drawWithCache {
                 if (type == null || next == null) return@drawWithCache onDrawBehind {}
-                val geometry = BoardGeometry.fit(size.width, size.height, next.columns, next.rows)
+                val geometry = BoardGeometry.centred(size.width, size.height, next.columns, next.rows, cellSize)
                 val painter = CellPainter(cellStyle(theme, Cell.Filled(type)), geometry.cellSize)
                 onDrawBehind {
                     for (cell in next.cells) {

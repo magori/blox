@@ -14,6 +14,8 @@ import ch.magori.blox.core.game.engine.GameEngine
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.engine.GameState
+import ch.magori.blox.core.game.engine.ScriptedRandomizer
+import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.Level
@@ -27,7 +29,6 @@ import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.GravityTable
-import ch.magori.blox.core.game.rules.Randomizer
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
@@ -71,7 +72,7 @@ class GameViewModelTest {
         seeds += seed
         GameEngine(
             ClassicRules.copy(gravityTable = oneTickPerRow),
-            ScriptedRandomizer(PieceType.T, PieceType.I, PieceType.O),
+            ScriptedRandomizer.cycling(PieceType.T, PieceType.I, PieceType.O),
         )
     }
 
@@ -86,7 +87,8 @@ class GameViewModelTest {
         val factory = GameEngineFactory {
             GameEngine(
                 ClassicRules.copy(rotationSystem = rowFiller, gravityTable = oneTickPerRow),
-                ScriptedRandomizer(PieceType.I, PieceType.I, PieceType.O),
+                // The three pieces, plus the next one shown while the third falls.
+                ScriptedRandomizer(PieceType.I, PieceType.I, PieceType.O, PieceType.I),
             )
         }
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
@@ -322,7 +324,11 @@ class GameViewModelTest {
         // Given an engine whose rules have their own rotation system
         val ownRotationSystem = SpawnInTurn(ClassicRotationSystem.spawnOrientation(PieceType.T))
         val factory = GameEngineFactory {
-            GameEngine(ClassicRules.copy(rotationSystem = ownRotationSystem), ScriptedRandomizer(PieceType.T))
+            GameEngine(
+                ClassicRules.copy(rotationSystem = ownRotationSystem),
+                // The piece that appears, and the next one shown.
+                ScriptedRandomizer(PieceType.T, PieceType.T),
+            )
         }
 
         // When
@@ -557,7 +563,8 @@ class GameViewModelTest {
                     rotationSystem = SpawnInTurn(*columns.map(::upright).toTypedArray()),
                     gravityTable = oneTickPerRow,
                 ),
-                ScriptedRandomizer(PieceType.I),
+                // One I per column, plus the next piece shown while the last one falls.
+                ScriptedRandomizer(*Array(columns.size + 1) { PieceType.I }),
             )
         }
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
@@ -743,7 +750,7 @@ class GameViewModelTest {
         }
 
         /** The T as it appears: pivot at (5, 0), spawn orientation. */
-        val spawnedT = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(5, 0))
+        val spawnedT = spawned(PieceType.T)
     }
 
     private fun Piece.droppedBy(rows: Int): Piece = copy(pivot = Position(pivot.column, pivot.row + rows))
@@ -791,13 +798,5 @@ class GameViewModelTest {
             piece: Piece,
             rotation: Rotation,
         ): List<Piece> = emptyList()
-    }
-
-    /** Deals [pieces] in turn, again and again. */
-    private class ScriptedRandomizer(vararg pieces: PieceType) : Randomizer {
-        private val deck = pieces.toList()
-        private var drawn = 0
-
-        override fun next(previous: PieceType?): PieceType = deck[drawn++ % deck.size]
     }
 }
