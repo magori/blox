@@ -108,7 +108,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   convention sont inutilisées dans les modules sans tests. Voies : sévérité `warn` pour les jeux
   de sources de test, ou plugins qui ne posent que ce que le module utilise. Depuis P2.1,
   `buildHealth` conseille aussi (avertissement) de déclarer directement dans `feature:game`
-  `junit-jupiter-params`, `assertj-core` et `junit-jupiter-api`, apportés par le plugin.
+  `junit-jupiter-params`, `assertj-core` et `junit-jupiter-api`, apportés par le plugin ; même
+  avis sur `core:audio` depuis P4.3. Cause probable (revue de P4.3) : le plugin de convention
+  pose l'agrégat `junit-jupiter` en `testImplementation` (`build-logic/.../TestConfiguration.kt`)
+  au lieu de `junit-jupiter-api` / `-params`, le moteur en `testRuntimeOnly`. Corriger dans
+  `build-logic`, pas dans les modules.
 - [ ] **P1.19** Types `Score` (points) et « lignes d'un coup » (0 à 4, nom autre que
   `LinesCleared`, réservé à l'événement, par exemple `LineClear`) pour `ScoringRule`, quand le
   moteur (P1.7, P1.12) les exigera.
@@ -164,14 +168,21 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.2** Partitions *Korobeïniki* et *Menuet* : tests de cohérence (durée de chaque
   mesure, voix de même longueur). `Score.beatsPerBar`, invariants de longueur, `TRIANGLE`,
   plage de `Pitch` C0..B8.
-- [ ] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
-  sur la JVM.
+- [x] **P4.3** Générateur d'échantillons pur (onde carrée, triangle, enveloppe, mixage), testé
+  sur la JVM : `Synthesizer`, `mix` dans `core:audio`.
 - [ ] **P4.4** `ChiptuneSequencer` sur `AudioTrack`, lecture en boucle, arrêt propre. Avant
   d'écrire le séquenceur, choisir entre durées entières (sous-unités du temps, par exemple
   48 par noire) et comparaison avec tolérance : les durées sont des `Double` exacts tant qu'il
-  n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2).
+  n'y a ni triolet ni position cumulée sur une boucle infinie (revue de P4.2). Revue de P4.3 :
+  `render(score, tempoFactor)` comme seule entrée publique (`renderVoice` et `mix` deviennent
+  internes) ; rendre hors du thread audio (`Dispatchers.Default`), une fois, et garder le
+  résultat en cache (environ 2,3 Mo par voix) ; écrire des tranches en `MODE_STREAM` ; éviter la
+  double allocation par note (écrire directement dans le tableau de la voix).
 - [ ] **P4.5** Accélération du tempo sur `StackDanger`. Le facteur s'applique dans le
-  séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5).
+  séquenceur, sans recréer de `Score` (`bpm` entier : 150 × 1,25 = 187,5). Revue de P4.3 :
+  passer le tempo du rendu en `Double`, rendre les deux tempos à l'avance et basculer à une
+  frontière de temps (`pos' = round(pos × len' / len)`) ; ne jamais rééchantillonner, ce qui
+  changerait la hauteur.
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
 - [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la

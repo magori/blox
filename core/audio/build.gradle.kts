@@ -6,5 +6,9 @@ android {
     namespace = "ch.magori.blox.core.audio"
 }
 
-// Dépendances ajoutées quand le code les exigera (P4) : api(projects.core.music) pour exposer
-// les partitions, coroutines pour le séquenceur.
+dependencies {
+    // L'API publique du synthétiseur reçoit des voix de core:music.
+    api(projects.core.music)
+}
+
+// Dépendance ajoutée quand le code l'exigera (P4.4) : coroutines pour le séquenceur.

@@ -52,8 +52,35 @@ basses.
 `PitchTest › the MIDI numbers of C0 and B8 are accepted`,
 `PitchTest › a pitch at either end of the range reads back from its name`.
 
-Le séquenceur lit les voix en parallèle. Chaque note joue à volume constant pendant 80 % de
-sa durée puis s'éteint en fondu jusqu'à 95 %, pour séparer les notes répétées.
+## Synthèse
+
+`Synthesizer` (`core:audio`, code pur testé sur la JVM) transforme une voix en échantillons
+`Float` dans [−1, 1], à une fréquence d'échantillonnage donnée :
+
+- **Ondes** : carrée (+volume sur la première moitié de la période, −volume sur la seconde) et
+  triangle (part de 0, +volume au quart de la période, linéaire). La phase se calcule depuis
+  l'indice de l'échantillon, sans accumulation, et repart de 0 à chaque note.
+- **Enveloppe** : chaque note joue à volume constant pendant 80 % de sa durée, puis s'éteint en
+  fondu linéaire jusqu'à 95 %, pour séparer les notes répétées ; elle est muette ensuite.
+- **Durée** : une note dure `temps × 60 / bpm × fréquence` échantillons ; les bornes de chaque
+  note se calculent depuis le temps cumulé, si bien qu'une voix entière dure exactement sa
+  durée totale, sans dérive d'arrondi.
+- **Mixage** : `mix` additionne les voix, échantillon par échantillon, puis écrête à [−1, 1].
+  Les voix doivent avoir la même longueur (garanti par `Score`).
+- La fréquence d'échantillonnage et le tempo doivent être positifs.
+
+**Tests :** `SynthesizerTest › a square wave at 440 Hz alternates plus and minus the volume with a period of about 100 point 2 samples`,
+`SynthesizerTest › a triangle wave starts at 0, reaches the volume at a quarter period and varies linearly`,
+`SynthesizerTest › a rest only produces zeros`,
+`SynthesizerTest › the envelope keeps the volume up to 80 percent of the note, fades out up to 95 percent, then is silent`,
+`SynthesizerTest › a note lasts its beats times 60 over the tempo times the sample rate`,
+`SynthesizerTest › a whole voice lasts exactly its total beats, without drift from rounding each note`,
+`SynthesizerTest › each note starts at the sample of its cumulated beats`,
+`SynthesizerTest › the sample rate must be positive`, `SynthesizerTest › rendering a voice needs a positive tempo`,
+`MixTest › mixing adds the voices sample by sample`, `MixTest › the mix is clipped to -1 and 1`,
+`MixTest › mixing no track is refused`, `MixTest › mixing tracks of different lengths is refused`.
+
+Le séquenceur (P4.4) lit le résultat en boucle sur `AudioTrack`.
 
 ## Accélération
 
