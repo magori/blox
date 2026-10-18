@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 26 / 66 | `████████░░░░░░░░░░░░` **39 %** |
-| **MVP** (jouable sur téléphone) | 24 / 37 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 27 / 66 | `████████░░░░░░░░░░░░` **41 %** |
+| **MVP** (jouable sur téléphone) | 25 / 37 | `██████████████░░░░░░` **68 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -85,20 +85,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Lignes cachées −2 et −1 libres (source ROM) ; `Piece`, `Board.fits(piece)`.
 - [x] **P1.4** Déplacements gauche / droite / bas, refusés en cas de collision. `Direction`,
   `Board.move(piece, direction): Piece?`, `Position.plus`.
-- [ ] **P1.5** `ClassicRotationSystem` : rotations horaire et anti-horaire, refus sans décalage,
-  un jeu de tests par pièce. Les formes et leur ordre horaire existent (P1.2). `Piece` garde
-  son `Orientation` (revue de P1.3) : la rotation la retrouve dans la liste circulaire du
-  système, par exemple `rotate(type, orientation, rotation): Orientation`, avec un `require`
-  si l'orientation n'appartient pas au type. Revue de P1.4 : pas de `Board.rotate` (`model`
-  dépendrait de `rules`, cycle de paquets) ; séparer la transformation (`piece.moved`,
-  `rotationSystem.rotate`) du contrôle (`board.place(candidat): Piece? = candidat.takeIf(::fits)`),
-  `move` devenant `place(piece.moved(direction))` ; le sens de rotation s'appelle `Rotation`
-  (`CLOCKWISE`, `COUNTERCLOCKWISE`), distinct de `Direction`.
+- [x] **P1.5** `ClassicRotationSystem` : rotations horaire et anti-horaire, refus sans décalage.
+  `Rotation`, `RotationSystem.candidates`, `Board.place`.
 - [ ] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
   Si un test l'exige : remplir les quatre cellules en une seule copie, refuser d'écraser une
   cellule occupée (revue de P1.1). Les cellules restées dans les lignes cachées sont perdues,
   la partie continue (source ROM, voir Plateau) ; `fill` reste strict, c'est le verrouillage
-  qui les ignore. Introduire `Position.plus` quand l'addition apparaît une deuxième fois (P1.4).
+  qui les ignore. Ne pas appeler le verrouillage « place » : `Board.place` est le contrôle d'un
+  candidat (revue de P1.5).
 - [ ] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
   supérieures.
 - [x] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
