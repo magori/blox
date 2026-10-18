@@ -9,7 +9,7 @@ public object Scores {
     private const val BASS_VOLUME = 0.16
 
     public val korobeiniki: Score = Score(
-        title = "Korobeïniki",
+        id = ScoreId.KOROBEINIKI,
         bpm = 150,
         beatsPerBar = 4,
         voices = listOf(
@@ -37,7 +37,7 @@ public object Scores {
     )
 
     public val minuet: Score = Score(
-        title = "Menuet en sol",
+        id = ScoreId.MINUET,
         bpm = 132,
         beatsPerBar = 3,
         voices = listOf(

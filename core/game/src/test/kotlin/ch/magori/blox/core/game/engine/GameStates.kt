@@ -3,12 +3,10 @@ package ch.magori.blox.core.game.engine
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
-import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.tPointingDown
-import ch.magori.blox.core.game.rules.ClassicRotationSystem
 
 /**
  * A game state for tests: an empty board, a T falling high on it, at level 0, unless told otherwise.
@@ -34,9 +32,6 @@ internal fun gameState(
     controls = Controls.NONE,
     paused = paused,
 )
-
-/** A piece of [type] as it appears in the Classic mode: pivot at (5, 0), in its spawn orientation. */
-internal fun spawned(type: PieceType): Piece = Piece(type, ClassicRotationSystem.spawnOrientation(type), Position(5, 0))
 
 /** The state after [count] ticks from [state]. */
 internal fun GameEngine.ticks(

@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.rules.ClassicEntryDelay
 import ch.magori.blox.core.game.rules.ClassicGravityTable
 import ch.magori.blox.core.game.rules.ClassicInputRepeat
 import ch.magori.blox.core.game.rules.ClassicLevelProgression
+import ch.magori.blox.core.game.rules.ClassicLineClearDelay
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.ClassicScoringRule
 import ch.magori.blox.core.game.rules.ClassicStackDangerRule
@@ -12,6 +13,7 @@ import ch.magori.blox.core.game.rules.EntryDelay
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.InputRepeat
 import ch.magori.blox.core.game.rules.LevelProgression
+import ch.magori.blox.core.game.rules.LineClearDelay
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.game.rules.StackDangerRule
@@ -24,6 +26,7 @@ import ch.magori.blox.core.game.rules.StackDangerRule
  * @property spawnPivot where the pivot of a new piece appears.
  * @property gravityTable how many ticks the falling piece waits, at each level, before dropping one row.
  * @property entryDelay how many ticks pass between a piece locking and the next one appearing.
+ * @property lineClearDelay how many ticks the line clear animation lasts, before the entry delay.
  * @property scoringRule the points earned by clearing lines and by soft dropping.
  * @property stackDangerRule whether the stack is high enough to be in danger.
  * @property inputRepeat how a held shift (DAS) and a held soft drop repeat.
@@ -34,6 +37,7 @@ public data class Rules(
     public val spawnPivot: Position,
     public val gravityTable: GravityTable,
     public val entryDelay: EntryDelay,
+    public val lineClearDelay: LineClearDelay,
     public val scoringRule: ScoringRule,
     public val stackDangerRule: StackDangerRule,
     public val inputRepeat: InputRepeat,
@@ -46,6 +50,7 @@ public val ClassicRules: Rules = Rules(
     spawnPivot = Position(5, 0),
     gravityTable = ClassicGravityTable,
     entryDelay = ClassicEntryDelay,
+    lineClearDelay = ClassicLineClearDelay,
     scoringRule = ClassicScoringRule,
     stackDangerRule = ClassicStackDangerRule,
     inputRepeat = ClassicInputRepeat,

@@ -88,6 +88,8 @@ Inspiré des écrans monochromes, adouci : pas de vert fluo. Les pièces se dist
 | `button` | `#5F7F5C` | Boutons de commande |
 | `buttonInk` / `accentInk` | `#EEF5EA` | Pictogrammes sur boutons |
 | `accent` | `#34503A` | Bouton principal (A, Jouer) |
+| `buttonPressed` | `#34503A` | Bouton de commande tenu |
+| `accentPressed` | `#1F3324` | Bouton principal tenu |
 
 Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
 
@@ -103,7 +105,10 @@ Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
 
 Cellule vide : fond du plateau, sans bordure. Bordure de 2 px sur une cellule de 24 px. Carré
 central de 8 px sur 24, centré (valeur retenue en P2.3, la maquette ne la donnait pas : à
-vérifier sur la maquette Claude Design).
+vérifier sur la maquette Claude Design). Chaque cellule de pièce est entourée d'un joint de
+1/24 de cellule (au moins 1 px) de la couleur du fond sur lequel elle est dessinée (plateau ou
+encart), soit 2/24 entre deux cellules : deux cellules en aplat voisines restent distinctes
+(P2.17). Le thème Couleurs n'a pas de joint.
 
 ## Thème « Couleurs »
 
@@ -120,6 +125,8 @@ foncée en bas et à droite).
 | `label` | `#9AA0B4` |
 | `accent` | `#EF8D3B` |
 | `accentInk` | `#12141C` |
+| `buttonPressed` | `#646B87` |
+| `accentPressed` | `#C0651C` |
 
 Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 
@@ -135,10 +142,48 @@ Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 
 Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, dans
 `feature:game` ; à monter dans la palette s'il sert ailleurs). Bordure biseautée de 3 px.
+**Commandes** (P2.17) : une touche tenue prend la teinte « pressée » de sa couleur (`buttonPressed`,
+`accentPressed`) et garde son encre ; elle se distingue de la page (au moins 3:1) et de la même
+touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (grand texte, seuil
+3:1) ; les flèches sont des pictogrammes (3:1).
+
+**Tests :** `KeyColorsTest › a held key stands out from the page, by a contrast of 3 to 1 at least`,
+`KeyColorsTest › a held key looks other than a key not held`,
+`KeyColorsTest › a held key stands out from the same key not held, by a contrast of 1,5 to 1 at least`,
+`KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
+`KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
+`KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
+`CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
+`CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
+Vues : V2, V3.
 
 ## Polices
 
-Les deux polices sont sous licence OFL. Deux options, à trancher (voir SUIVI.md) :
-fichiers `.ttf` embarqués dans `core:designsystem/src/main/res/font`, ou polices
-téléchargeables via `ui-text-google-fonts`. En attendant, le squelette utilise la police
-système.
+Polices embarquées (ADR 0016), telles que publiées par `google/fonts` (SIL OFL 1.1), dans
+`core:designsystem/src/main/res/font` ; leurs licences sont dans l'APK
+(`src/main/assets/licenses/<famille>/OFL.txt`). Pas de sous-ensemble : ce serait une version
+modifiée de la police, à renommer.
+
+| Rôle | Original | Couleurs |
+|---|---|---|
+| Titres | Press Start 2P Regular | Chakra Petch Bold |
+| Libellés | Press Start 2P Regular | Chakra Petch Regular |
+| Valeurs (score, niveau, lignes, record) | Press Start 2P Regular | Chakra Petch Bold, chiffres complétés |
+
+En Original, tout reste en Regular, seule graisse de la police pixel (pas de gras synthétisé).
+`BloxTheme.typography` porte la police et la graisse de chaque rôle ; la typographie Material
+en dérive (titres pour display, headline et title, libellés pour le reste). Les chiffres de
+*Chakra Petch* sont proportionnels, sans `tnum` : `valueText()` complète chaque chiffre plus
+étroit par un espacement en em jusqu'à la largeur du plus large (`DigitWidths`) et coupe le
+crénage, pour qu'une valeur ne bouge pas en changeant. Un texte qui rétrécit pour tenir ne
+descend pas sous 8 sp (`MinimumFontSize`). Avec la police du système agrandie, la police pixel
+ne tient plus partout à 8 sp (P2.18).
+
+**Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
+`BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
+`BloxTypographyTest › the Material styles take the font of the titles for headings and of the labels for the rest`,
+`BloxTypographyTest › a text that shrinks to fit its place stays at least 8 sp, to stay readable`,
+`EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
+`ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
+`ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.
+Vues : V1, V2, V3, V4.

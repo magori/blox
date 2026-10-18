@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -41,6 +42,7 @@ import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
 /** The smallest height of a choice, so that a finger can hit it. */
 private val MinTouchHeight = 48.dp
@@ -51,13 +53,14 @@ private const val DISABLED_ALPHA = 0.38f
 /**
  * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
  * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
- * this screen at once. Listening to a music comes in P4.7.
+ * this screen at once. A music with a BloX score may be listened to before playing.
  */
 @Composable
 internal fun HomeScreen(
     uiState: HomeUiState,
     onThemeChosen: (ThemeChoice) -> Unit,
     onMusicChosen: (MusicChoice) -> Unit,
+    onListen: (MusicChoice) -> Unit,
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -124,11 +127,18 @@ internal fun HomeScreen(
         Section(title = R.string.feature_home_music) {
             ChoiceRow {
                 MusicChoice.entries.forEach { music ->
-                    Choice(
-                        text = stringResource(music.label),
-                        selected = music == uiState.music,
-                        onClick = { onMusicChosen(music) },
-                    )
+                    // A music with a BloX score may be listened to: its button stands under its choice.
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        val name = stringResource(music.label)
+                        Choice(text = name, selected = music == uiState.music, onClick = { onMusicChosen(music) })
+                        if (music in uiState.listenable) {
+                            ListenButton(
+                                musicName = name,
+                                previewed = music == uiState.previewing,
+                                onClick = { onListen(music) },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -210,10 +220,18 @@ private fun Choice(
             .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
+        // On one line, shrinking if needed: a start level cell is narrower than a digit of the pixel font.
+        val style = MaterialTheme.typography.labelLarge
         Text(
             text = text,
             color = if (selected) palette.accentInk else palette.buttonInk,
-            style = MaterialTheme.typography.labelLarge,
+            style = style,
+            maxLines = 1,
+            softWrap = false,
+            autoSize = TextAutoSize.StepBased(
+                minFontSize = BloxTypographies.MinimumFontSize,
+                maxFontSize = style.fontSize,
+            ),
         )
     }
 }
@@ -259,9 +277,12 @@ private fun HomeScreenPreview(
                 startLevel = 0,
                 startLevels = (0..9).toList(),
                 record = 12_340,
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
+                previewing = null,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
+            onListen = {},
             onStartLevelChosen = {},
             onPlay = {},
         )

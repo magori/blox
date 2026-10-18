@@ -16,6 +16,7 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.music.scoreOf
 import ch.magori.blox.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -49,9 +50,10 @@ class AppContainer(filesDir: File) {
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
 
     /**
-     * The music of the games: a single sequencer for the whole life of the process, rendering on
-     * [Dispatchers.Default] and writing to an [AudioTrackSink] on [Dispatchers.IO]. A failure stops the
-     * music, never the game; it is logged here, the only place that knows Android.
+     * The music of the games and of the preview on the home screen: a single sequencer for the whole life
+     * of the process, so that one music plays at a time, rendering on [Dispatchers.Default] and writing to
+     * an [AudioTrackSink] on [Dispatchers.IO]. A failure stops the music, never the game; it is logged
+     * here, the only place that knows Android.
      */
     private val music: MusicPlayer = ChiptuneSequencer(
         synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
@@ -60,13 +62,16 @@ class AppContainer(filesDir: File) {
         onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
     )
 
-    /** Classic mode: one engine per game, from the seed of the game route (ADR 0014). */
+    /** Classic mode: one engine per game, from the seed of the game route (ADR 0014); the chosen music. */
     val gameViewModelFactory: GameViewModel.Factory =
-        GameViewModel.Factory(ClassicGameEngineFactory, highScores, userPreferences, music)
+        GameViewModel.Factory(ClassicGameEngineFactory, highScores, userPreferences, music, ::scoreOf)
 
-    /** The settings and the record kept on the device; the start levels of the Classic mode. */
+    /**
+     * The settings and the record kept on the device; the start levels of the Classic mode; the music
+     * player of the games and the scores of the music choices, for the preview.
+     */
     val homeViewModelFactory: HomeViewModel.Factory =
-        HomeViewModel.Factory(userPreferences, highScores, ClassicRules.levelProgression)
+        HomeViewModel.Factory(userPreferences, highScores, ClassicRules.levelProgression, music, ::scoreOf)
 }
 
 private const val TAG = "BloX"

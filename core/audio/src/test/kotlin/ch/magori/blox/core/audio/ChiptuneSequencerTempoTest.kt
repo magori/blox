@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CompletableDeferred
@@ -454,7 +455,8 @@ class ChiptuneSequencerTempoTest {
     }
 
     private fun scoreOf(vararg beats: Double): Score = Score(
-        title = "Test",
+        // A synthetic score: its identifier plays no part here.
+        id = ScoreId.KOROBEINIKI,
         bpm = 150,
         beatsPerBar = 4,
         voices = listOf(Voice(Waveform.SQUARE, volume = 0.07, notes = beats.map { Note(Pitch.parse("E5"), it) })),

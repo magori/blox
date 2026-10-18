@@ -3,8 +3,8 @@ package ch.magori.blox.feature.game.board
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Offset
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.feature.game.ui.roundToPixel
 import kotlin.math.floor
-import kotlin.math.roundToInt
 
 /**
  * Where the board is drawn: square cells of [cellSize], the top-left corner of the board at
@@ -22,14 +22,23 @@ internal data class BoardGeometry(val cellSize: Float, val origin: Offset) {
             height: Float,
             columns: Int,
             rows: Int,
+        ): BoardGeometry =
+            centred(width, height, columns, rows, cellSize = floor(minOf(width / columns, height / rows)))
+
+        /**
+         * [columns] × [rows] cells of [cellSize], whole pixels, centred in [width] × [height]: the preview of
+         * the next piece, with the cells of the board.
+         */
+        fun centred(
+            width: Float,
+            height: Float,
+            columns: Int,
+            rows: Int,
+            cellSize: Float,
         ): BoardGeometry {
-            val cellSize = floor(minOf(width / columns, height / rows))
             val left = ((width - columns * cellSize) / 2).roundToPixel()
             val top = ((height - rows * cellSize) / 2).roundToPixel()
-            val origin = Offset(left, top)
-            return BoardGeometry(cellSize, origin)
+            return BoardGeometry(cellSize, Offset(left, top))
         }
     }
 }
-
-private fun Float.roundToPixel(): Float = roundToInt().toFloat()
