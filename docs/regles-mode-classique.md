@@ -53,7 +53,19 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   orientation de départ (source ROM, meatfighter.com : les pièces apparaissent aux
   coordonnées (5, 0)). La position fait partie des règles du mode, pas du moteur.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
-  est occupée ; elle reste affichée.
+  est occupée ; elle reste affichée. Le moteur émet alors `GameOver`, une seule fois, seul
+  événement de ce tick (le verrouillage et l'effacement ont eu lieu aux ticks d'avant, le
+  délai d'apparition durant au moins un tick) ; ensuite, ni tick ni entrée ne changent plus
+  l'état ni n'émettent rien. La fin n'est jamais précédée de `StackDanger(off)` : une apparition
+  bloquée laisse une pile d'au moins 19 lignes, et la pile ne sort du danger qu'à 12 ou moins
+  (garantie liée aux seuils de `ClassicStackDangerRule`). Le score, les lignes, le niveau, les
+  statistiques et la durée se lisent dans l'état final.
+
+  **Tests :** `GameEngineGameOverTest › GameOver is sent once, on the tick where the next piece cannot appear`,
+  `GameEngineGameOverTest › the last events are PieceLocked, then LinesCleared if any, then GameOver, and never StackDanger(off)`,
+  `GameEngineTickTest › a piece that appears gives no event`,
+  `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
+  `GameEngineControlsTest › once the game is over, an input changes nothing`. Vue : V4.
 - **Début de partie** : le niveau de départ doit appartenir à la plage du mode (0 à 9) ; la
   première pièce est tirée sans pièce précédente, la suivante avec la première comme
   précédente. Une même graine redonne la même partie (un moteur par partie, ADR 0014).
