@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 63 / 117 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 64 / 117 | `███████████░░░░░░░░░` **55 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -481,7 +481,7 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
   valeurs Classique (refactoring). Fait : `LineClearDelay`, `ClassicLineClearDelay`, `Rules.lineClearDelay` ; au moins 1 tick (décidé).
 - [ ] **P6.3** File de pièces suivantes : `GameState.next` devient une file, `Rules.previewCount`
   (1 en Classique) ; `feature:game` lit la première pièce.
-- [ ] **P6.4** `SevenBagRandomizer` : les sept pièces mélangées, puis un nouveau sac.
+- [x] **P6.4** `SevenBagRandomizer` : les sept pièces mélangées, puis un nouveau sac. Fait : `SevenBagRandomizer` (ordre de base I J L O S T Z, suite de référence par graine).
 - [ ] **P6.5** `SrsRotationSystem` : quatre états par pièce, tables de décalage, table propre au I,
   O fixe.
 - [ ] **P6.6** Position de chute d'une pièce (`Board`), base de la pièce fantôme et de la chute
