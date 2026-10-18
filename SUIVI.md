@@ -367,7 +367,9 @@ Référence : [docs/musique.md](docs/musique.md).
   mesure 6 en A2/E3.
 - [ ] **P4.10** Droits : confirmer la mélodie de *Korobeïniki* sur une édition d'époque
   (Prigojy 1898, recueils de Panina vers 1905, НЭБ) ; les deux sources nettes consultées en P4.9
-  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`.
+  sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`. Recherche faite
+  (P4.10, voir `docs/musique.md`) : deux éditions d'époque confirment le rythme et les mesures 3 à 8,
+  pas les mesures 1 et 2 ; mention gardée par décision du développeur, tâche laissée ouverte.
 
 ## P5 — Finitions
 

@@ -299,6 +299,15 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 > elle a été remplacée en P4.9 par la mélodie du chant ci-dessus. Les deux sources nettes
 > consultées sont des notations modernes, probablement de la même main ; une troisième
 > ([a-pesni.org](http://a-pesni.org/popular20/ojpolna.htm), recueil de romances, sol mineur)
-> confirme le rythme sans être lisible note à note. Pour retirer la mention, comparer à une
-> édition d'époque (Prigojy, 1898 ; recueils de Panina vers 1905), par exemple à la
-> Bibliothèque nationale de Russie (НЭБ).
+> confirme le rythme sans être lisible note à note.
+>
+> Éditions d'époque trouvées en P4.10 : A. Tchesnokov, *Variations sur le thème du chant russe
+> « Korobotchka »*, op. 4, Moscou, P. Jurgenson, cotage 32220, [1907], Thème, p. 3
+> ([archive.org](https://archive.org/details/imslp-on-korobotchka-op4-chesnokov-aleksandr)) ;
+> M. I. Nikolaïevski, *Fantaisie sur « Ой, полна, полна коробушка » (Коробейники)*, 5ᵉ éd.,
+> Moscou, A. Seywang, [avant 1918], p. 2 (RGB, notice 01004477157). Elles confirment le rythme
+> pointé et les mesures 3 à 8 (Tchesnokov met D5 au lieu de F5 en 2ᵉ note de la mesure 6). Les
+> mesures 1 et 2 ne sont pas attestées note à note : absentes chez Tchesnokov, variante plus
+> resserrée chez Nikolaïevski (fin de m1 B4 1½ · G#4 ½ ; m2 A4 1½ · B4 ½ · C5 1 · B4 ½ · A4 ½).
+> La mention reste, par décision du développeur ; non trouvés : Prigojy (1898), Panina (vers
+> 1905), НЭБ inaccessible.
