@@ -42,7 +42,8 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
   dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
   entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
   valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la
-  vraie valeur) ; 8 dp entre les trois éléments.
+  vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
+  entre les trois éléments.
 - Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
   pièce suivante. Valeurs retenues en P2.4, à confirmer sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
