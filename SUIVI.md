@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 57 / 109 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 58 / 109 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -444,10 +444,10 @@ les tests du Classique verts ; les refactorings passent avant les ajouts. Décis
 au-dessus du plateau perdues comme sur la NES (option de les garder plus tard), départ au
 niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au sol.
 
-- [ ] **P6.1** Spécification `docs/regles-mode-moderne.md`, valeurs sourcées (les plus répandues
+- [x] **P6.1** Spécification `docs/regles-mode-moderne.md`, valeurs sourcées (les plus répandues
   parmi les jeux récents) ; ADR 0015 « un moteur, des capacités » qui amende l'ADR 0004 ;
   promesse « sans modifier le moteur » et glossaire (`Hold`, `HardDrop`, `Ghost`, `LockDelay`,
-  `Bag`, `TSpin`, `Combo`, `BackToBack`) mis à jour dans `CLAUDE.md`.
+  `Bag`, `TSpin`, `Combo`, `BackToBack`) mis à jour dans `CLAUDE.md`. Fait : `docs/regles-mode-moderne.md` (18 valeurs [à vérifier]), ADR 0015, glossaire.
 - [ ] **P6.2** Politique `LineClearDelay` : durée de l'effacement des lignes sortie du moteur,
   valeurs Classique (refactoring).
 - [ ] **P6.3** File de pièces suivantes : `GameState.next` devient une file, `Rules.previewCount`

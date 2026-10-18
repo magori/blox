@@ -441,6 +441,16 @@ tout se déduise de la graine. La différence (1 à 3 images) n'est pas percepti
 `PhaseTest › a clear lasts at least one tick`, `TicksTest › a duration of 0 ticks or less is refused`,
 `TicksTest › a duration of 1 tick is the shortest one accepted` (la gravité et le délai d'apparition rendent un `Ticks`, au moins 1).
 
+**Durée de l'effacement, politique des règles** (P6.2) : la durée de l'effacement n'est plus
+écrite dans le moteur. C'est une politique, `LineClearDelay`, que le mode Classique fournit avec
+`ClassicLineClearDelay` (16 ticks, plus les ticks jusqu'au multiple de 4 suivant du tick du
+verrouillage). Un effacement dure au moins 1 tick, dans les deux modes.
+
+**Tests :** `ClassicLineClearDelayTest › the clear lasts 16 ticks plus the ticks up to the next multiple of 4 of the lock tick`,
+`ClassicLineClearDelayTest › a negative lock tick is refused`,
+`RulesTest › the Classic rules clear lines with the line clear delay of the NES`,
+`GameEngineClearTest › the clear lasts as long as the line clear delay of the rules says`.
+
 ## Lignes et score
 
 Une ligne pleine (ses 10 cellules occupées) est effacée, les lignes au-dessus descendent

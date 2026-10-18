@@ -55,19 +55,19 @@ environ 0,7 : au-delà du niveau 13, la pièce doit descendre de plusieurs ligne
 | Niveaux | `LevelProgression` | `startLevels` et `levelFor` suffisent. La NES commence à 0 et le Moderne à 1 : soit le mode propose `startLevels` à partir de 1, soit l'écran affiche `n + 1`. À trancher. |
 | Danger de la pile | `StackDangerRule` | Seuils propres au mode. La garantie « jamais off avant GameOver » tient aux seuils Classique (P1.12e) et sera à revérifier. |
 | DAS et répétition | `InputRepeat`, `RepeatTiming` | Valeurs différentes, même forme. Un ARR de 0 (déplacement instantané jusqu'au mur) n'est pas exprimable (`interval ≥ 1`) : on garde 1 tick au plus vite. |
-| Pièce fantôme | Fonction pure | Elle se déduit du plateau et de la pièce (descendre tant que `Board.move` réussit). Pas d'état : une fonction du domaine (`Board.dropPosition`) que la chute instantanée réutilise. |
+| Pièce fantôme | Fonction pure | Elle se déduit du plateau et de la pièce (descendre tant que `Board.move` réussit). Pas d'état : une fonction du domaine (`Board.landing(piece)`, P6.6) que la chute instantanée réutilise. |
+| Effacement des lignes | `LineClearDelay` (P6.2) | La durée (16 ticks + alignement sur 4 en Classique) est devenue une politique des règles. Un effacement dure au moins 1 tick, dans les deux modes : décision prise en P6.2. |
 
 ## Ce qui oblige à modifier le moteur
 
 | Élément | Changement | Ampleur |
 |---|---|---|
 | File de pièces suivantes | `GameState.next: PieceType` devient une file ; `Rules.previewCount` (1 en Classique). `GameScreen` et le panneau latéral lisent la première pièce. | Moyenne : touche l'interface publique et `feature:game`. |
-| Effacement des lignes | La durée (16 ticks + alignement sur 4) est codée dans le moteur : la sortir dans une politique (`LineClearDelay`). | Faible, refactoring pur. |
 | Chute instantanée | Nouveau bouton, capacité dans `Rules` (absente en Classique), `ScoringRule.pointsForHardDrop`. | Faible. |
 | Délai de verrouillage | Aujourd'hui, une descente refusée verrouille aussitôt. Il faut une politique `LockDelay` (0 en Classique, pour un comportement identique) et dans `Phase.Falling` : ticks au sol, réinitialisations restantes, ligne la plus basse atteinte. | Forte : cœur de `drop` et `lock`. |
 | Réserve | Nouveau bouton, `GameState.hold` (pièce réservée et « déjà utilisée pour cette pièce ») ; l'échange fait apparaître une pièce sans passer par le délai d'apparition. Capacité absente en Classique. | Moyenne. |
 | Commandes | Les règles de la manette NES sont dans `shift` et `drop` : ▼ bloque le déplacement, droite gagne sur gauche, descente rapide seulement sur une nouvelle pression. Les sortir dans une politique `ControlScheme`, Classique et Moderne. | Forte : c'est la partie la plus fine du moteur, et la plus testée. |
-| Gravité rapide | `GravityTable.ticksPerRow` ne peut pas descendre sous 1 tick. Contrat à revoir (lignes par tick en fraction, comme les sous-lignes de la NES), ou niveaux du Moderne plafonnés à 13. | Moyenne, ou nulle avec le plafond. |
+| Gravité rapide | `GravityTable.ticksPerRow` ne peut pas descendre sous 1 tick. Contrat à revoir (lignes par tick en fraction exacte, en millionièmes, d'après la table de la spécification), ou niveaux du Moderne plafonnés à 13. | Moyenne, ou nulle avec le plafond. |
 | Score contextuel | `pointsForLinesCleared(lineClear, level)` ne voit ni le T-spin, ni le combo, ni l'enchaînement. Il faut un contexte de verrouillage (dernière action = rotation, décalage utilisé, coins occupés) et, dans `GameProgress`, un compteur de combo et un indicateur d'enchaînement. Le contrat de `ScoringRule` change (noté au journal en P1.10). Le niveau de calcul diffère aussi : la NES compte au niveau atteint, le Moderne au niveau d'avant. | Forte. |
 | Lock out | Une pièce verrouillée entièrement dans les lignes cachées termine la partie. Politique `TopOutRule` ; en Classique, c'est impossible (P1.6). Le Moderne garde-t-il les cellules partiellement cachées ? Cela demanderait de stocker les lignes cachées dans `Board`. | Faible à forte selon la décision. |
 | Événements | `PieceHeld`, `HardDropped`, `TSpin`, `Combo`, `BackToBack`, `PerfectClear` pour l'écran et les sons. `GameEvent` est scellé : chaque `when` exhaustif devra traiter les nouveaux cas. | Faible. |

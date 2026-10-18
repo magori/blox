@@ -9,7 +9,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0001](0001-kotlin-compose-activite-unique.md) | Kotlin, Jetpack Compose, activité unique | Acceptée ; point « Navigation Compose » remplacé par 0011 |
 | [0002](0002-modularisation.md) | Modularisation `app` / `core` / `feature` et plugins de convention | Acceptée |
 | [0003](0003-domaine-en-kotlin-pur.md) | Domaine en Kotlin pur, développé en TDD | Acceptée ; point « JUnit 4 côté Android » remplacé par 0009 |
-| [0004](0004-regles-nes-comme-reference.md) | Règles de la NES comme référence du mode Classique | Acceptée |
+| [0004](0004-regles-nes-comme-reference.md) | Règles de la NES comme référence du mode Classique | Acceptée ; la promesse « Moderne sans toucher au moteur » est amendée par [0015](0015-un-moteur-des-capacites.md) |
 | [0005](0005-themes-hors-du-domaine.md) | Les thèmes restent hors du domaine | Acceptée |
 | [0006](0006-boucle-de-jeu-a-pas-fixe.md) | Boucle de jeu à pas fixe de 60 ticks/s | Acceptée ; point « coroutine dans le ViewModel » remplacé par 0012 |
 | [0007](0007-injection-manuelle.md) | Injection de dépendances manuelle | Acceptée ; précisée par 0013 |
@@ -20,5 +20,6 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0012](0012-horloge-d-images-cote-ecran.md) | L'horloge d'images appartient à l'écran, le ViewModel ne fait qu'avancer | Acceptée |
 | [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) | Les fabriques de ViewModel entrent par les entrées de navigation | Acceptée |
 | [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée |
+| [0015](0015-un-moteur-des-capacites.md) | Mode Moderne : un moteur, des capacités | Acceptée ; amende 0004 |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).

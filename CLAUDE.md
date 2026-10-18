@@ -141,8 +141,11 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 | `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
 
-Le mode Moderne (P6) s'ajoutera par de nouvelles implémentations de ces politiques, sans
-modifier le moteur.
+Le mode Moderne (P6, règles dans [docs/regles-mode-moderne.md](docs/regles-mode-moderne.md))
+s'ajoute au même moteur, dont les capacités sont déclarées dans `Rules` (réserve, chute
+instantanée, pièces suivantes). Les comportements codés en dur deviennent des politiques
+(`ControlScheme`, `LockDelay`, `LineClearDelay`, `TopOutRule`), extraites d'abord sous les tests
+du Classique, qui doit rester vert (ADR 0015).
 
 ## Conventions de code
 
@@ -150,7 +153,10 @@ modifier le moteur.
 - Langage du domaine : `Board`, `Piece`, `PieceType`, `Orientation` (une forme), `Rotation`
   (un sens ou un état de rotation), `Position`, `GameState`, `GameEngine`, `Tick`, `Input`,
   `Level`, `Lines`, `LineClear` (lignes effacées d'un coup), `Points` (le score de la partie ;
-  `Score` est la partition de `core:music`), `LinesCleared`, `StackDanger`. Garder ces noms.
+  `Score` est la partition de `core:music`), `LinesCleared`, `StackDanger`. Mode Moderne :
+  `Hold` (réserve), `HardDrop` (chute instantanée), `Ghost` (pièce fantôme), `LockDelay` (délai
+  de verrouillage), `Bag` (sac de 7), `TSpin`, `Combo`, `BackToBack` (enchaînement de coups
+  difficiles). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
