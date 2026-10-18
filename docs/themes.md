@@ -44,6 +44,24 @@ des pièces (`feature:game`) : un test vérifie qu'elles restent égales.
 `HomeLogoTest › in the Colorful theme the logo is a square of four cells in the colours of I, O, Z and S`,
 `LogoColorsTest › the logo cells of each theme are fills of its pieces`. Vues : V1, V2, V3, V4.
 
+**Icône et écran de démarrage** (P5.1) : icône adaptative (`mipmap-anydpi`, minSdk 26, sans
+`roundIcon`) : fond `blox_window_background` (page Original), premier plan des quatre cellules du
+logo aux couleurs `BloxPalettes.Original.logoCells` (cellules de 22 dp, joint de 2 dp, carré de
+46 dp centré sur 108, dans la zone sûre de 66 dp quel que soit le masque), couche monochrome de
+même forme pour les icônes thématiques. Écran de démarrage d'Android 12 et plus par le thème
+(`values-v31`, `Theme.Blox` héritant de `Base.Theme.Blox`, sans `core-splashscreen`) : fond de
+page Original et icône ; il reste affiché jusqu'à la lecture du thème (première image
+retenue, P3.5). La cellule pâle se distingue peu du fond (contraste d'environ 1,2:1), comme sur
+le logo de l'accueil.
+
+**Tests :** `LauncherIconTest › the four cells of the icon are the logo colours of the Original theme, in reading order`,
+`LauncherIconTest › the adaptive icon has the page of the Original theme behind, the cells in front, and a monochrome layer`,
+`LauncherIconTest › the application has no round icon, as every icon is adaptive from Android 8`,
+`LauncherIconTest › the splash screen of Android 12 shows the page of the Original theme and the icon`,
+`LauncherIconTest › the theme of Android 12 inherits the base theme and only adds the splash screen`,
+`LauncherIconTest › every corner of the cells is in the safe zone of the adaptive icon, whatever the mask`,
+`LauncherIconTest › the monochrome layer has the very shape of the cells in front`.
+
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,

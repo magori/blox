@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Premier plan de l'icône : les quatre cellules du logo de l'accueil (HomeLogo), aux couleurs de
+    BloxPalettes.Original.logoCells, dans l'ordre de lecture. Un carré de 46 dp (de 31 à 77) centré sur 108 dp, dont
+    chaque coin reste dans le cercle sûr de 66 dp ; cellules de 22 dp, joint de 2 dp. LauncherIconTest le vérifie
+    et compare les couleurs à la palette.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#FF34503A"
+        android:pathData="M31,31h22v22h-22z" />
+    <path
+        android:fillColor="#FF87A67F"
+        android:pathData="M55,31h22v22h-22z" />
+    <path
+        android:fillColor="#FFBFD6B6"
+        android:pathData="M31,55h22v22h-22z" />
+    <path
+        android:fillColor="#FFEEF5EA"
+        android:pathData="M55,55h22v22h-22z" />
+</vector>
