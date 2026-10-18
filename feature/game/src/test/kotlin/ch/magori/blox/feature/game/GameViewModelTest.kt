@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import app.cash.turbine.test
+import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.RecordResult
+import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.game.engine.GameEngine
 import ch.magori.blox.core.game.engine.GameEngineFactory
@@ -26,6 +28,8 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.Randomizer
 import ch.magori.blox.core.game.rules.RotationSystem
+import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.Scores
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.gameover.GameOverUiState
@@ -37,6 +41,10 @@ import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.argumentSet
+import org.junit.jupiter.params.provider.MethodSource
 import java.io.IOException
 
 class GameViewModelTest {
@@ -47,6 +55,11 @@ class GameViewModelTest {
 
     /** The record before the game: the fake answers with it, as a new record, to every submit. */
     private val highScores = FakeHighScoreRepository(RecordResult(previous = 100, isNewRecord = true))
+
+    /** The settings of the player: Korobeiniki, unless a test chooses another music. */
+    private val preferences = FakeUserPreferencesRepository()
+
+    private val music = FakeMusicPlayer()
 
     /** Real engines with rules made for tests: pieces T, I, O, … in turn, and one tick per row. */
     private val engineFactory = GameEngineFactory { seed ->
@@ -286,7 +299,7 @@ class GameViewModelTest {
         val store = ViewModelStore()
         val viewModel = ViewModelProvider.create(
             store,
-            GameViewModel.Factory(engineFactory, highScores),
+            GameViewModel.Factory(engineFactory, highScores, preferences, music),
             routeExtras(GameRoute(startLevel = 0, seed = 1L)),
         )[GameViewModel::class]
         playUntilSubmitted(viewModel)
@@ -474,6 +487,174 @@ class GameViewModelTest {
         assertThat(viewModel.uiState.value.record).isEqualTo(100)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("scoresOfChoices")
+    fun `at the start of the game the music of the settings plays, at the normal tempo`(
+        choice: MusicChoice,
+        expected: Score,
+    ) {
+        // Given the music chosen on the home screen
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = choice)
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(music.calls).containsExactly("tempo 1.0", "play ${expected.title}")
+    }
+
+    @Test
+    fun `leaving a game after the next one started leaves the music of the next one playing`() {
+        // Given a game playing Korobeiniki, then the next game (Rejouer) playing the minuet
+        val store = ViewModelStore()
+        ViewModelProvider.create(
+            store,
+            GameViewModel.Factory(engineFactory, highScores, preferences, music),
+            routeExtras(GameRoute(startLevel = 0, seed = 1L)),
+        )[GameViewModel::class]
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
+        createViewModel(GameRoute(startLevel = 0, seed = 2L))
+
+        // When the first game leaves the stack
+        store.clear()
+
+        // Then the music of the next game still plays
+        assertThat(music.playing).isEqualTo(Scores.minuet.title)
+    }
+
+    @Test
+    fun `leaving the game screen stops the music`() {
+        // Given a game playing Korobeiniki, in a view model store like the navigation entry's
+        val store = ViewModelStore()
+        ViewModelProvider.create(
+            store,
+            GameViewModel.Factory(engineFactory, highScores, preferences, music),
+            routeExtras(GameRoute(startLevel = 0, seed = 1L)),
+        )[GameViewModel::class]
+        music.calls.clear()
+
+        // When the entry leaves the stack
+        store.clear()
+
+        // Then
+        assertThat(music.calls).containsExactly("stop")
+    }
+
+    @Test
+    fun `when the stack leaves the danger the music goes back to its tempo`() {
+        // Given upright I pieces: four in column 0 make the stack 16 high (danger), then one in each of
+        // columns 1 to 9 fills the four bottom rows, which are cleared: the stack falls to 12 (no danger)
+        fun upright(column: Int) = Orientation((0..3).map { row -> Position(column - 5, row) }.toSet())
+        val columns = listOf(0, 0, 0, 0) + (1..9)
+        val factory = GameEngineFactory {
+            GameEngine(
+                ClassicRules.copy(
+                    rotationSystem = SpawnInTurn(*columns.map(::upright).toTypedArray()),
+                    gravityTable = oneTickPerRow,
+                ),
+                ScriptedRandomizer(PieceType.I),
+            )
+        }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
+        val tempos = { music.calls.filter { it.startsWith("tempo") } }
+
+        // When the game is played until the stack left the danger
+        playUntil(viewModel, "the stack left the danger") { tempos().size == 3 }
+
+        // Then
+        assertThat(tempos()).containsExactly("tempo 1.0", "tempo 1.25", "tempo 1.0")
+    }
+
+    @Test
+    fun `when the stack enters the danger the music speeds up`() {
+        // Given a game whose stack grows until it is over, through the danger
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then: the normal tempo at the start, the danger tempo once the stack is high
+        assertThat(music.calls.filter { it.startsWith("tempo") }).containsExactly("tempo 1.0", "tempo 1.25")
+    }
+
+    @Test
+    fun `the game over stops the music`() {
+        // Given a game playing Korobeiniki
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then
+        assertThat(music.calls.last()).isEqualTo("stop")
+    }
+
+    @Test
+    fun `a pause stops the music, and resuming plays it again from its start`() {
+        // Given a game playing Korobeiniki
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.calls.clear()
+
+        // When / Then
+        viewModel.onPause()
+        assertThat(music.calls).containsExactly("stop")
+        viewModel.onResume()
+        assertThat(music.calls).containsExactly("stop", "play ${Scores.korobeiniki.title}")
+    }
+
+    @Test
+    fun `resuming a game that is not paused plays nothing again`() {
+        // Given a game playing Korobeiniki, never paused
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.calls.clear()
+
+        // When
+        viewModel.onResume()
+
+        // Then
+        assertThat(music.calls).isEmpty()
+    }
+
+    @Test
+    fun `resuming once the game is over plays no music`() {
+        // Given a game over
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilGameOver(viewModel)
+        music.calls.clear()
+
+        // When
+        viewModel.onResume()
+
+        // Then
+        assertThat(music.calls).noneMatch { it.startsWith("play") }
+    }
+
+    @Test
+    fun `a game paused before the settings answered starts no music once they answer`() {
+        // Given settings that have not answered yet
+        preferences.state.value = null
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the game is paused, then the settings answer
+        viewModel.onPause()
+        preferences.state.value = UserPreferences.DEFAULT
+
+        // Then
+        assertThat(music.calls).noneMatch { it.startsWith("play") }
+    }
+
+    @Test
+    fun `with no music chosen nothing plays`() {
+        // Given
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.NONE)
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(music.calls).noneMatch { it.startsWith("play") }
+    }
+
     @Test
     fun `after a pause without frames, the frames start again without catching up the time paused`() {
         // Given a game that ticked once, paused for ten seconds without any frame (the screen stops them)
@@ -514,7 +695,7 @@ class GameViewModelTest {
     private fun createViewModel(
         route: GameRoute,
         factory: GameEngineFactory = engineFactory,
-    ): GameViewModel = GameViewModel.Factory(factory, highScores).create(
+    ): GameViewModel = GameViewModel.Factory(factory, highScores, preferences, music).create(
         GameViewModel::class,
         routeExtras(route),
     )
@@ -525,6 +706,13 @@ class GameViewModelTest {
 
     private companion object {
         const val ONE_SIXTIETH_NANOS = 16_666_667L
+
+        /** The score each music choice plays, written out: not computed by the code under test. */
+        @JvmStatic
+        fun scoresOfChoices(): List<Arguments> = listOf(
+            argumentSet("Korobeiniki", MusicChoice.KOROBEINIKI, Scores.korobeiniki),
+            argumentSet("the minuet", MusicChoice.MINUET, Scores.minuet),
+        )
 
         /** Enough ticks for the test game to fill the board and end, entry delays included. */
         const val MAX_TICKS = 5_000

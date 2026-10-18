@@ -30,6 +30,7 @@ dependencies {
     implementation(projects.feature.game)
     implementation(projects.core.game)
     implementation(projects.core.data)
+    implementation(projects.core.audio)
     implementation(libs.androidx.datastore.core)
     implementation(libs.kotlinx.coroutines.core)
     implementation(libs.okio)
