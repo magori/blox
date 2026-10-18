@@ -7,7 +7,6 @@ package ch.magori.blox.core.music
 public object Scores {
     private const val MELODY_VOLUME = 0.07
     private const val BASS_VOLUME = 0.16
-    private val REST: String? = null
 
     public val korobeiniki: Score = Score(
         title = "Korobeïniki",
@@ -15,14 +14,14 @@ public object Scores {
         beatsPerBar = 4,
         voices = listOf(
             melody(
-                bar("E5" to 1.0, "B4" to 0.5, "C5" to 0.5, "D5" to 1.0, "C5" to 0.5, "B4" to 0.5),
-                bar("A4" to 1.0, "A4" to 0.5, "C5" to 0.5, "E5" to 1.0, "D5" to 0.5, "C5" to 0.5),
+                bar("E4" to 1.5, "G#4" to 0.5, "B4" to 1.0, "G#4" to 0.5, "E4" to 0.5),
+                bar("A4" to 1.5, "C5" to 0.5, "E5" to 1.0, "D5" to 0.5, "C5" to 0.5),
                 bar("B4" to 1.5, "C5" to 0.5, "D5" to 1.0, "E5" to 1.0),
-                bar("C5" to 1.0, "A4" to 1.0, "A4" to 1.0, REST to 1.0),
-                bar(REST to 0.5, "D5" to 1.0, "F5" to 0.5, "A5" to 1.0, "G5" to 0.5, "F5" to 0.5),
-                bar("E5" to 1.5, "C5" to 0.5, "E5" to 1.0, "D5" to 0.5, "C5" to 0.5),
-                bar("B4" to 1.0, "B4" to 0.5, "C5" to 0.5, "D5" to 1.0, "E5" to 1.0),
-                bar("C5" to 1.0, "A4" to 1.0, "A4" to 1.0, REST to 1.0),
+                bar("C5" to 1.0, "A4" to 1.0, "A4" to 2.0),
+                bar("F5" to 1.5, "G5" to 0.5, "A5" to 1.0, "G5" to 0.5, "F5" to 0.5),
+                bar("E5" to 1.5, "F5" to 0.5, "E5" to 1.0, "D5" to 0.5, "C5" to 0.5),
+                bar("B4" to 1.5, "C5" to 0.5, "D5" to 1.0, "E5" to 1.0),
+                bar("C5" to 1.0, "A4" to 1.0, "A4" to 2.0),
             ),
             bass(
                 rootAndFifth("E2", "B2"),
@@ -30,7 +29,7 @@ public object Scores {
                 rootAndFifth("E2", "B2"),
                 rootAndFifth("A2", "E3"),
                 rootAndFifth("D2", "A2"),
-                rootAndFifth("C3", "G2"),
+                rootAndFifth("A2", "E3"),
                 rootAndFifth("E2", "B2"),
                 rootAndFifth("A2", "E3"),
             ),
@@ -69,9 +68,9 @@ public object Scores {
 
     private fun bass(vararg bars: List<Note>): Voice = Voice(Waveform.TRIANGLE, BASS_VOLUME, bars.flatMap { it })
 
-    /** A bar of (pitch name, beats) pairs; a [REST] name is a rest. */
-    private fun bar(vararg notes: Pair<String?, Double>): List<Note> =
-        notes.map { (name, beats) -> Note(name?.let(Pitch::parse), beats) }
+    /** A bar of (pitch name, beats) pairs. */
+    private fun bar(vararg notes: Pair<String, Double>): List<Note> =
+        notes.map { (name, beats) -> Note(Pitch.parse(name), beats) }
 
     /** A bar of four quarter notes: root, fifth, root, fifth. */
     private fun rootAndFifth(
