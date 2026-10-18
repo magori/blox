@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 41 / 72 | `███████████░░░░░░░░░` **57 %** |
-| **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
+| **Général** | 42 / 72 | `████████████░░░░░░░░` **58 %** |
+| **MVP** (jouable sur téléphone) | 33 / 37 | `██████████████████░░` **89 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -98,7 +98,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P1.10** `ClassicScoringRule` : 40/100/300/1200 × (niveau + 1), points de descente rapide.
 - [x] **P1.11** `ClassicLevelProgression` : premier passage selon le niveau de départ, puis
   toutes les 10 lignes. Cas : départs 0, 5, 9. Type `Lines`.
-- [ ] **P1.12** `GameEngine` : machine à états (apparition, chute, verrouillage, délai
+- [x] **P1.12** `GameEngine` : machine à états (apparition, chute, verrouillage, délai
   d'apparition, effacement, fin de partie). `tick()` et `apply(Input)` renvoient un nouvel état
   et des événements. Issu de la revue de P1.11 : `LevelProgression` expose sa plage de départ
   et la partie valide le départ une seule fois, à sa création (l'écran de choix lira la même
@@ -155,9 +155,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     `AutoRepeat` latéral relancé seulement par un nouvel appui (la ROM continue le compteur
     quand la direction change sans appui, contrairement à la note de P1.13). Pour P2.2 : lire
     `state.progress`, prendre le système de rotation dans `engine.rules`.
-  - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite (le tick
+  - [x] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite (le tick
     après la fin est déjà prouvé en P1.12c). La fin de partie n'émet que `GameOver`, jamais
-    `StackDanger(off)` (revue de P1.12c).
+    `StackDanger(off)` (revue de P1.12c). Fait : `GameEvent.GameOver` sans données ; l'écran lit
+    le reste dans `GameState`. Pour le mode Moderne (P6) : la garantie « jamais off » tient aux
+    seuils de `ClassicStackDangerRule`, une autre règle pourrait émettre `off` au verrouillage.
 - [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
