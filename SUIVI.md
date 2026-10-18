@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 77 | `███████████████░░░░░` **73 %** |
+| **Général** | 57 / 78 | `███████████████░░░░░` **73 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -67,8 +67,12 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   à 2 Go.
 - [x] **P0.12** Mises à jour automatiques de dépendances : Dependabot ou Renovate configuré pour
   `gradle/libs.versions.toml` et le wrapper, PR vérifiées par la CI. Fait : Dependabot (`.github/dependabot.yml`), Gradle et GitHub Actions, groupes AGP/Kotlin/Gradle, Compose, DataStore/Okio, tests, ktlint, AndroidX, kotlinx ; règle de fusion dans CLAUDE.md. À vérifier à la première PR : regroupement du wrapper (nom `gradle-wrapper`) et préfixe avec emoji.
-- [ ] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
-  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2).
+- [x] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
+  helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2). Fait :
+  `ScriptedRandomizer` (strict, et `cycling`) et `spawned` dans `core/game/src/testFixtures`.
+- [ ] **P0.15** Doublures de `core:data` partagées : `FakeUserPreferencesRepository` et
+  `FakeHighScoreRepository` existent dans `feature:game` et `feature:home` ; les placer dans des
+  `testFixtures` de bibliothèque Android (revue de P0.14).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
   `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
   une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
