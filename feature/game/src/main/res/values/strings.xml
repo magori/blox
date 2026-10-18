@@ -2,4 +2,17 @@
 <resources>
     <string name="feature_game_placeholder">Le plateau de jeu arrive bientôt.</string>
     <string name="feature_game_back">Retour</string>
+    <string name="feature_game_score">Score</string>
+    <string name="feature_game_level">Niveau</string>
+    <string name="feature_game_lines">Lignes</string>
+    <string name="feature_game_next">Suivante</string>
+    <string name="feature_game_value_description">%1$s : %2$s</string>
+    <string name="feature_game_next_none">aucune</string>
+    <string name="feature_game_piece_i">pièce I</string>
+    <string name="feature_game_piece_o">pièce O</string>
+    <string name="feature_game_piece_t">pièce T</string>
+    <string name="feature_game_piece_s">pièce S</string>
+    <string name="feature_game_piece_z">pièce Z</string>
+    <string name="feature_game_piece_j">pièce J</string>
+    <string name="feature_game_piece_l">pièce L</string>
 </resources>

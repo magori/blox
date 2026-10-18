@@ -1,0 +1,22 @@
+package ch.magori.blox.core.designsystem.theme
+
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Immutable
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.dp
+
+/** Jetons de forme de l'interface. Les valeurs viennent de la maquette, voir docs/themes.md. */
+@Immutable
+data class BloxShapes(
+    /** Encarts (score, niveau…) : fond et cadre. */
+    val panel: Shape,
+)
+
+object BloxShapeSets {
+    /** Thème « Original » : coins carrés. */
+    val Original = BloxShapes(panel = RectangleShape)
+
+    /** Thème « Couleurs » : coins arrondis de 10 points. */
+    val Colorful = BloxShapes(panel = RoundedCornerShape(10.dp))
+}

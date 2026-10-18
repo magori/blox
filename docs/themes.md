@@ -14,8 +14,11 @@ Les tailles de la maquette sont données pour une cellule de 24 px ; le code les
 **fraction de la cellule** (2/24, 3/24, 1/24, carré central 8/24), pour que les proportions
 suivent l'écran. Au dessin, la taille de cellule, l'origine du plateau et chaque épaisseur
 sont arrondies au pixel entier, au moins 1 px, pour éviter les joints flous. Le thème courant
-est exposé par `BloxTheme.kind` (`core:designsystem`). Le code est dans `feature:game`,
-paquet `board` (`CellStyles`, `BoardGeometry`, `DisplayedCells`, `BoardCanvas`).
+est exposé par `BloxTheme.kind` (`core:designsystem`), la forme des encarts par
+`BloxTheme.shapes` (coins carrés en Original, arrondis de 10 dp en Couleurs). Le code est dans
+`feature:game` : paquet `board` (`CellStyles`, `CellPainter`, `BoardGeometry`,
+`DisplayedCells`, `BoardCanvas`) et paquet `sidepanel` (colonne latérale, aperçu de la pièce
+suivante dessiné avec le même `CellPainter`).
 
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
