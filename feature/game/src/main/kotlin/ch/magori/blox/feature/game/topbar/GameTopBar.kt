@@ -1,0 +1,145 @@
+package ch.magori.blox.feature.game.topbar
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.ui.PanelLabel
+import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.ValueText
+
+/** The sizes of the top bar, in one place; the touch target is [ScreenSizes.minTouchTarget]. */
+private object TopBarSizes {
+    /** Between the pause button, the title and the record. */
+    val gap = 8.dp
+
+    /** The pause glyph inside its button. */
+    val glyph = 24.dp
+}
+
+/**
+ * The top bar of the game screen (view V2): the pause button, the mode title and the record. No
+ * logic here: the record texts come from [topBarTexts], the glyph from [pauseBars].
+ */
+@Composable
+internal fun GameTopBar(
+    record: Int,
+    onPause: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val palette = BloxTheme.palette
+    val texts = topBarTexts(record)
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(TopBarSizes.gap),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PauseButton(onPause = onPause)
+        Text(
+            text = stringResource(R.string.feature_game_top_title).uppercase(),
+            color = palette.ink,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() },
+        )
+        val recordLabel = stringResource(R.string.feature_game_top_record)
+        val description = stringResource(R.string.feature_game_value_description, recordLabel, texts.spokenRecord)
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.clearAndSetSemantics { contentDescription = description },
+        ) {
+            PanelLabel(text = recordLabel)
+            ValueText(text = texts.record)
+        }
+    }
+}
+
+/** The pause button: a drawn glyph, not a Unicode character, on a touch target of at least 48 dp. */
+@Composable
+private fun PauseButton(onPause: () -> Unit) {
+    val palette = BloxTheme.palette
+    val description = stringResource(R.string.feature_game_top_pause)
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .sizeIn(minWidth = ScreenSizes.minTouchTarget, minHeight = ScreenSizes.minTouchTarget)
+            .clip(BloxTheme.shapes.button)
+            .background(palette.button)
+            .clickable(role = Role.Button, onClick = onPause)
+            .semantics { contentDescription = description },
+    ) {
+        val ink = palette.buttonInk
+        Spacer(
+            modifier = Modifier
+                .size(TopBarSizes.glyph)
+                .drawWithCache {
+                    val bars = pauseBars(size)
+                    onDrawBehind { bars.forEach { bar -> drawRect(ink, topLeft = bar.topLeft, size = bar.size) } }
+                },
+        )
+    }
+}
+
+@Composable
+private fun TopBarPreview(kind: BloxThemeKind) {
+    BloxTheme(kind = kind) {
+        GameTopBar(
+            record = 123_450,
+            onPause = {},
+            modifier = Modifier
+                .width(360.dp)
+                .background(BloxTheme.palette.page)
+                .padding(TopBarSizes.gap),
+        )
+    }
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun GameTopBarOriginalPreview() {
+    TopBarPreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+private fun GameTopBarColorfulPreview() {
+    TopBarPreview(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360, fontScale = 2f)
+@Composable
+private fun GameTopBarLargeFontPreview() {
+    TopBarPreview(BloxThemeKind.ORIGINAL)
+}

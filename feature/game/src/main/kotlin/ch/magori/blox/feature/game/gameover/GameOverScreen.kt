@@ -1,20 +1,11 @@
 package ch.magori.blox.feature.game.gameover
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
@@ -24,8 +15,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,22 +25,16 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.PanelSizes
+import ch.magori.blox.feature.game.ui.PrimaryButton
+import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.SecondaryButton
+import ch.magori.blox.feature.game.ui.TitledScreen
 import ch.magori.blox.feature.game.ui.ValueText
 
 /** The sizes of the game over screen, in one place; those shared with the side column are in [PanelSizes]. */
 private object GameOverSizes {
-    /** Around the screen. */
-    val screenPadding = 24.dp
-
-    /** Between two blocks of the screen, and around the badge text horizontally. */
-    val gap = 16.dp
-
-    /** Around the badge text, vertically. */
+    /** Around the badge text, vertically; horizontally, it is [ScreenSizes.gap]. */
     val smallGap = 8.dp
-
-    /** The smallest touch target of a button (accessibility). */
-    val buttonMinHeight = 48.dp
-    val title = 22.sp
 
     /** The largest size of the score; it shrinks to stay on one line. */
     val score = 40.sp
@@ -71,26 +54,7 @@ internal fun GameOverScreen(
     modifier: Modifier = Modifier,
 ) {
     val texts = gameOverTexts(state)
-    val palette = BloxTheme.palette
-    val title = stringResource(R.string.feature_game_over_title)
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .semantics { paneTitle = title }
-            .background(palette.page)
-            .safeDrawingPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(GameOverSizes.screenPadding),
-        verticalArrangement = Arrangement.spacedBy(GameOverSizes.gap, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Text(
-            text = title,
-            color = palette.ink,
-            fontSize = GameOverSizes.title,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.semantics { heading() },
-        )
+    TitledScreen(title = stringResource(R.string.feature_game_over_title), modifier = modifier) {
         if (state.newRecord) NewRecordBadge()
         val scoreLabel = stringResource(R.string.feature_game_score)
         LabelledPanel(
@@ -127,27 +91,8 @@ internal fun GameOverScreen(
                 spokenDuration(texts.spokenDuration),
             ),
         )
-        Button(
-            onClick = onReplay,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = GameOverSizes.buttonMinHeight),
-            shape = BloxTheme.shapes.panel,
-            colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
-        ) {
-            Text(text = stringResource(R.string.feature_game_over_replay))
-        }
-        OutlinedButton(
-            onClick = onMenu,
-            modifier = Modifier
-                .fillMaxWidth()
-                .heightIn(min = GameOverSizes.buttonMinHeight),
-            shape = BloxTheme.shapes.panel,
-            border = BorderStroke(PanelSizes.border, palette.panelBorder),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),
-        ) {
-            Text(text = stringResource(R.string.feature_game_over_menu))
-        }
+        PrimaryButton(text = stringResource(R.string.feature_game_over_replay), onClick = onReplay)
+        SecondaryButton(text = stringResource(R.string.feature_game_over_menu), onClick = onMenu)
     }
 }
 
@@ -161,7 +106,7 @@ private fun NewRecordBadge() {
         fontWeight = FontWeight.Bold,
         modifier = Modifier
             .background(palette.accent, BloxTheme.shapes.panel)
-            .padding(horizontal = GameOverSizes.gap, vertical = GameOverSizes.smallGap),
+            .padding(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
     )
 }
 
