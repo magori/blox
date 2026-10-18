@@ -38,4 +38,12 @@
         <item quantity="many">%d secondes</item>
         <item quantity="other">%d secondes</item>
     </plurals>
+    <!-- Pause et barre du haut (P2.6) -->
+    <string name="feature_game_pause_title">Pause</string>
+    <string name="feature_game_pause_resume">Reprendre</string>
+    <!-- Quitte la partie en cours. -->
+    <string name="feature_game_pause_menu">Menu</string>
+    <string name="feature_game_top_title">Mode classique</string>
+    <string name="feature_game_top_pause">Mettre en pause</string>
+    <string name="feature_game_top_record">Record</string>
 </resources>

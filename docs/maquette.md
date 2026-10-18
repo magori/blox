@@ -35,7 +35,12 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
-- Barre du haut : bouton pause, « MODE CLASSIQUE », record.
+- Barre du haut : bouton pause, « MODE CLASSIQUE », record. Valeurs retenues en P2.6, à
+  confirmer sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button`, pictogramme
+  dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
+  entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
+  valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la
+  vraie valeur) ; 8 dp entre les trois éléments.
 - Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
   pièce suivante. Valeurs retenues en P2.4, à confirmer sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
@@ -63,7 +68,10 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 
 ## Pas encore maquetté
 
-- **Pause** : le plateau doit être masqué.
+- **Pause** : le plateau doit être masqué. Écran retenu en P2.6, à dessiner sur la maquette
+  (P2.16) : fond `page` opaque qui remplace tout l'écran de jeu, titre « Pause » en 22 sp,
+  boutons **Reprendre** (plein, `accent`) et **Menu** (contour, `panelBorder`), même mise en
+  page que V4 (marges de 24 et 16 dp, cibles de 48 dp au moins). TalkBack annonce l'écran.
 - **Réglages** (si les options se multiplient : volume, effets sonores, vibrations,
   sensibilité des commandes).
 

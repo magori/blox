@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 42 / 71 | `████████████░░░░░░░░` **59 %** |
+| **Général** | 42 / 72 | `████████████░░░░░░░░` **58 %** |
 | **MVP** (jouable sur téléphone) | 34 / 37 | `██████████████████░░` **92 %** |
 <!-- avancement:fin -->
 
@@ -209,7 +209,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   appuis et relâchements arrivés entre deux images sont mis en file et appliqués avant les
   ticks, sans en perdre aucun. Revue de P2.7 : brancher `GameOverScreen` dans `GameScreen` selon
   `GameUiState` (`gameOver: GameOverUiState?`) ; `onMenu` = retour ; `onReplay` remplace la clé
-  de la pile par une nouvelle `GameRoute` (ADR 0011). Fait (incrément 1) : `GameViewModel`
+  de la pile par une nouvelle `GameRoute` (ADR 0011). Revue de P2.6 : `GameScreen` met
+  `PauseScreen` **à la place** du jeu (écran opaque, plateau masqué), et `GameTopBar` en haut
+  du jeu ; `BackHandler` « retour = pause » en jeu, désactivé en pause (retour = Reprendre) et
+  en fin de partie ; Menu depuis la pause quitte sans confirmation pour l'instant (une question
+  de confirmation est à trancher au test sur téléphone, P2.8) ; record à 0 tant que
+  `core:data` n'est pas branché (P3.2).
+  Fait (incrément 1) : `GameViewModel`
   (moteur créé depuis la `GameRoute`, `onFrame`, `onFramesStarted`), `GameUiState`, horloge dans
   `repeatOnLifecycle(STARTED)` (ADR 0012 amendé), plateau et colonne latérale branchés
   (`SidePanel(Level, Lines)`), route ajoutée aux `CreationExtras` par défaut, `GameRoute`
@@ -234,7 +240,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
   est dans la barre du haut (maquette), pas dans `GameControls`. Revue de P2.7 : un éventuel
   `BackHandler` « retour = pause » est désactivé en fin de partie ; aucun tick n'est donné au
-  moteur pendant la pause, pour que la durée de jeu n'avance pas.
+  moteur pendant la pause, pour que la durée de jeu n'avance pas. Fait : `PauseScreen(onResume,
+  onMenu)`, `GameTopBar(record, onPause)` (pictogramme `pauseBars` au pixel près, record par
+  `topBarTexts`), `TitledScreen` partagé avec la fin de partie, `PanelLabel`,
+  `ScreenSizes.minTouchTarget`. Reste, avec P1.15 et P2.2 : la pause dans le moteur et le
+  branchement.
+- [ ] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
+  en P2.6 (`docs/maquette.md`).
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
   remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
   `LabelledPanel` partagé avec la colonne latérale.
