@@ -21,6 +21,29 @@ commandes, aux boutons des écrans — Reprendre, Menu, Rejouer — et au bouton
 `DisplayedCells`, `BoardCanvas`) et paquet `sidepanel` (colonne latérale, aperçu de la pièce
 suivante dessiné avec le même `CellPainter`).
 
+**Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
+(accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans
+`BloxTheme(kind)`, et `kind` vient d'`AppTheme` (`app`), un `StateFlow` lu depuis les
+préférences, connu tout de suite après la première lecture (pas de flash à la recréation de
+l'activité). Avant cette lecture, rien n'est composé et la première image est retenue, pour que
+le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
+(`colors.xml`, `blox_window_background`) est celui du thème Original ; un test le compare à
+`BloxPalettes.Original.page`.
+
+**Logo de l'accueil** (P3.7) : quatre cellules en carré 2 × 2, couleurs du jeton
+`BloxPalette.logoCells` (`LogoColors`, exactement quatre couleurs) : en Original, les
+remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S. Ces couleurs répètent celles
+des pièces (`feature:game`) : un test vérifie qu'elles restent égales.
+
+**Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
+`AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
+`AppThemeTest › once read, the theme is known at once to a new collector`,
+`AppThemeTest › changing the music or the start level does not emit the theme again`,
+`WindowBackgroundTest › the window background is the page colour of the Original theme`,
+`HomeLogoTest › in the Original theme the logo is a square of four cells in the four greens of the pieces`,
+`HomeLogoTest › in the Colorful theme the logo is a square of four cells in the colours of I, O, Z and S`,
+`LogoColorsTest › the logo cells of each theme are fills of its pieces`. Vues : V1, V2, V3, V4.
+
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
