@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Thème de la fenêtre uniquement : l'interface est entièrement dessinée en Compose. -->
+    <style name="Theme.Blox" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@color/blox_window_background</item>
+    </style>
+</resources>

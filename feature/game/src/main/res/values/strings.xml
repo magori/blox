@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_game_placeholder">Le plateau de jeu arrive bientôt.</string>
+    <string name="feature_game_back">Retour</string>
+</resources>

@@ -1,0 +1,29 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+.kotlin/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+local.properties
+captures/
+.externalNativeBuild/
+.cxx/
+
+# Fichiers générés et signatures
+*.apk
+*.aab
+*.keystore
+*.jks
+
+# Musique personnelle : jamais versionnée (voir docs/musique.md)
+app/src/main/assets/music/
+
+# Système
+.DS_Store
+Thumbs.db
+
+# Claude Code : réglages locaux propres à chaque machine
+.claude/settings.local.json

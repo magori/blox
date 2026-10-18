@@ -1,0 +1,44 @@
+# Maquette
+
+La maquette interactive a été réalisée avec Claude Design :
+[Maquette BloX](https://claude.ai/artifact/SUpVjCbfxfphc9hbFAvaj5) (lien privé, accessible au
+propriétaire du projet).
+
+Format de référence : téléphone en portrait, 390 × 844 points.
+
+## Écrans
+
+### Accueil
+- Titre **BloX**, avec un logo de quatre cellules aux couleurs du thème, et le record.
+- **Mode de jeu** : *Classique* (règles 1989, sans réserve ni pièce fantôme) ; *Moderne*
+  affiché grisé, « bientôt ».
+- **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
+- **Niveau de départ** : 0 à 9, sur une ligne.
+- **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
+  *Écouter* pour les deux mélodies.
+- Bouton **Jouer**.
+
+### Jeu
+- Barre du haut : bouton pause, « MODE CLASSIQUE », record.
+- Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
+  pièce suivante.
+- Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
+  décalés comme sur une console portable.
+- Pas de bouton de chute instantanée (absent du mode Classique).
+
+### Fin de partie
+- « Partie terminée », badge « Nouveau record » le cas échéant.
+- Score en grand, puis lignes, niveau, nombre de « 4 lignes », durée.
+- Boutons **Rejouer** et **Menu**.
+
+## Pas encore maquetté
+
+- **Pause** : le plateau doit être masqué.
+- **Réglages** (si les options se multiplient : volume, effets sonores, vibrations,
+  sensibilité des commandes).
+
+## Points ouverts
+
+- Boutons tactiles ou gestes (glisser pour déplacer, taper pour tourner) : à tester sur
+  téléphone. Le maintien de ▼ et la répétition automatique sont plus délicats au doigt.
+- Rendu du thème Original pastel sur un écran OLED.
