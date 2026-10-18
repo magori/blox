@@ -34,6 +34,13 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - Bouton **Jouer**.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
+- Valeurs retenues en P3.4, à confirmer sur la maquette (P3.8) : rien n'est affiché tant que
+  les réglages ne sont pas lus (pas de thème qui clignote, pas de « Jouer » au mauvais niveau) ;
+  choix en boutons radio groupés (TalkBack), *Classique* sélectionné sans action, *Moderne*
+  désactivé ; niveaux 0 à 9 sur une ligne en cellules égales d'au moins 48 dp de haut (360 dp) ;
+  record affiché comme le score (6 chiffres, plafond 999 999), lu en clair par TalkBack. Le
+  logo n'est pas encore dessiné (P3.7). Les niveaux proposés sont ceux du mode
+  (`LevelProgression`) ; un niveau enregistré hors de la liste s'affiche comme le plus proche.
 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
@@ -42,7 +49,8 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
   dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
   entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
   valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la
-  vraie valeur) ; 8 dp entre les trois éléments.
+  vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
+  entre les trois éléments.
 - Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
   pièce suivante. Valeurs retenues en P2.4, à confirmer sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule

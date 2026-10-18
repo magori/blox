@@ -20,6 +20,7 @@ import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,6 +48,16 @@ class GameViewModel internal constructor(
 
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
 
+    init {
+        // The record shown in the top bar: its real value, followed as it changes. Records that fail to be
+        // read keep the last record known; the game goes on. The cancellation still goes through.
+        viewModelScope.launch {
+            highScores.highScore
+                .catch { }
+                .collect { record -> state.update { it.copy(record = record) } }
+        }
+    }
+
     /**
      * The screen starts drawing frames again (first display, back from another screen or from the
      * background): the time spent away is not played; the next frame only sets the time reference.
@@ -62,6 +73,8 @@ class GameViewModel internal constructor(
     internal fun onFrame(frameNanos: Long) {
         if (gameState.phase is Phase.GameOver) return
         val ticks = loop.advance(frameNanos)
+        // Paused, the clock keeps its time reference, so that resuming does not catch up the pause; the
+        // engine changes nothing then, not even the duration of the game.
         if (ticks == 0) return
         var over = false
         repeat(ticks) {
@@ -69,8 +82,25 @@ class GameViewModel internal constructor(
             gameState = update.state
             if (GameEvent.GameOver in update.events) over = true
         }
-        state.value = gameState.toUiState(rotationSystem)
+        publish()
         if (over) onGameOver(gameState)
+    }
+
+    /** The player pauses the game (pause button, system back): nothing moves until it resumes. */
+    internal fun onPause() {
+        gameState = engine.apply(gameState, Input.Pause).state
+        publish()
+    }
+
+    /** The player resumes the paused game (Reprendre, system back): it goes on where it stood. */
+    internal fun onResume() {
+        gameState = engine.apply(gameState, Input.Resume).state
+        publish()
+    }
+
+    /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
+    private fun publish() {
+        state.update { gameState.toUiState(rotationSystem).copy(record = it.record, gameOver = it.gameOver) }
     }
 
     /**

@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 47 / 74 | `█████████████░░░░░░░` **64 %** |
-| **MVP** (jouable sur téléphone) | 35 / 37 | `███████████████████░` **95 %** |
+| **Général** | 50 / 76 | `█████████████░░░░░░░` **66 %** |
+| **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -197,7 +197,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P2.10** ADR 0013 : la feature définit la fabrique de son ViewModel (dépendances en
   paramètres), `app` la construit depuis `AppContainer` et la passe à l'entrée de navigation
   (`gameEntry(onBack, viewModelFactory)`). Pas de `CompositionLocal`. ADR 0007 précisé.
-- [ ] **P2.2** `GameViewModel` : `GameUiState`, conversion des actions en `Input`, tests avec
+- [x] **P2.2** `GameViewModel` : `GameUiState`, conversion des actions en `Input`, tests avec
   coroutines-test et Turbine. Ajouter alors `lifecycle-viewmodel-compose`, `lifecycle-runtime-compose`,
   `lifecycle-viewmodel-navigation3` (catalogue et plugin de feature) et les deux
   décorateurs de `NavDisplay` (ADR 0011), et envelopper `onPlay` dans `dropUnlessResumed` côté
@@ -227,7 +227,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   rotation pris dans `engine.rules`, fin de partie (`submit` du score une fois, à l'abri de
   l'annulation et des erreurs d'écriture, puis `GameOverScreen` à la place du jeu), Rejouer
   (`replay` dans `app`, sans effet au second appui), `BloxApplication` qui crée
-  l'`AppContainer` (ADR 0007) et le DataStore du record une fois. Reste (incrément 3) : pause
+  l'`AppContainer` (ADR 0007) et le DataStore du record une fois. Fait (incrément 3) :
+  `onPause` / `onResume` vers le moteur, `PauseScreen` à la place du jeu, `GameTopBar` avec le
+  record suivi (inconnu tant qu'il n'est pas lu, sans plantage si la lecture échoue), retour
+  système décidé par `backAction` (pause, reprise, sortie) et appliqué par
+  `NavigationBackHandler`. Note de l'incrément 2, « Reste (incrément 3) » : pause
   (`Input.Pause` / `Resume`, `PauseScreen`, `BackHandler`), `GameTopBar` avec le record.
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
@@ -243,15 +247,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `GameControls(onChange)`, `BloxShapes.button`. Pas encore branché dans `GameScreen` (P2.2).
 - [ ] **P2.14** Mettre à jour la maquette : confirmer la taille, l'espacement et le retour
   visuel des boutons de commande retenus en P2.5 (`docs/maquette.md`, V2 et V3).
-- [ ] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
+- [x] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
   est dans la barre du haut (maquette), pas dans `GameControls`. Revue de P2.7 : un éventuel
   `BackHandler` « retour = pause » est désactivé en fin de partie ; aucun tick n'est donné au
   moteur pendant la pause, pour que la durée de jeu n'avance pas. Fait : `PauseScreen(onResume,
   onMenu)`, `GameTopBar(record, onPause)` (pictogramme `pauseBars` au pixel près, record par
   `topBarTexts`), `TitledScreen` partagé avec la fin de partie, `PanelLabel`,
-  `ScreenSizes.minTouchTarget`. Reste, avec P1.15 et P2.2 : la pause dans le moteur et le
-  branchement.
+  `ScreenSizes.minTouchTarget`. Pause du moteur (P1.15) et branchement (P2.2, incrément 3)
+  faits.
 - [ ] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
   en P2.6 (`docs/maquette.md`).
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
@@ -286,10 +290,19 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013). Fait avec P2.2 :
   `AppContainer` construit `GameViewModel.Factory` ; les repositories (P3.1, P3.2) et la
   fabrique de l'accueil (P3.4) s'y ajouteront.
-- [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
+- [x] **P3.4** Écran d'accueil complet, conforme à la maquette. Fait : `HomeViewModel`
+  (préférences, record, niveaux du mode), `HomeUiState`, `homeEntry(onPlay, factory)`,
+  `HomeViewModel.Factory` construite par l'`AppContainer` (DataStore des réglages) ;
+  `scoreText` déplacé dans `core:designsystem`. Écouter : P4.7.
+- [ ] **P3.7** Logo de quatre cellules aux couleurs du thème sur l'accueil (maquette V1, revue
+  de P3.4).
+- [ ] **P3.8** Mettre à jour la maquette : valeurs de l'accueil retenues en P3.4
+  (`docs/maquette.md`, V1).
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
-  commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas.
+  commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas. Revue
+  de P3.4 : la correspondance `ThemeChoice` → `BloxThemeKind` est privée à `feature:home` ; la
+  déplacer (règle de 2) quand `app` en aura besoin.
 - [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
   téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
   `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.
@@ -354,11 +367,16 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
 - [ ] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
-  à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012).
+  à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012). Revue de P2.2
+  (incrément 3) : en pause, les images tournent encore à 60 Hz sans donner de tick ; suspendre
+  la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise.
 - [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
-  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu. Revue de P2.2 : le
+  Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu ; retour système (revue
+  de P2.2, incrément 3 : en jeu il met en pause sans dépiler, en pause il reprend, en fin de
+  partie il revient au menu) ; accueil (revue de P3.4 : record lu en clair, Moderne désactivé,
+  « Jouer » au niveau choisi). Revue de P2.2 : le
   ViewModel du jeu garde les `CreationExtras` par défaut (`SavedStateHandle` disponible), sans
   test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
   `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer

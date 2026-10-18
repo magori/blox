@@ -15,7 +15,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             BloxTheme {
-                BloxNavDisplay(gameViewModelFactory = container.gameViewModelFactory)
+                BloxNavDisplay(
+                    homeViewModelFactory = container.homeViewModelFactory,
+                    gameViewModelFactory = container.gameViewModelFactory,
+                )
             }
         }
     }
