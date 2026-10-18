@@ -1,5 +1,6 @@
 package ch.magori.blox.core.game.engine
 
+import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.tPointingDown
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -18,5 +19,16 @@ class PhaseTest {
         assertThatIllegalArgumentException()
             .isThrownBy { Phase.EntryDelay(ticksLeft = 0) }
             .withMessageContaining("ticksLeft")
+    }
+
+    @Test
+    fun `a clear and the entry delay after it last at least one tick`() {
+        val rowsCleared = Board.parse("IIIIIIIIII").clearFullRows()
+        assertThatIllegalArgumentException()
+            .isThrownBy { Phase.Clearing(rowsCleared, ticksLeft = 0, entryDelayAfter = 10, stackInDangerAfter = false) }
+            .withMessageContaining("ticksLeft")
+        assertThatIllegalArgumentException()
+            .isThrownBy { Phase.Clearing(rowsCleared, ticksLeft = 17, entryDelayAfter = 0, stackInDangerAfter = false) }
+            .withMessageContaining("entryDelayAfter")
     }
 }
