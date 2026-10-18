@@ -66,7 +66,7 @@ Le schéma recommandé par Android, appliqué à l'écran de jeu :
 
 ```mermaid
 graph LR
-    subgraph feature:game
+    subgraph featureGame [feature:game]
         Screen[GameScreen<br/>Compose] -- actions --> VM[GameViewModel]
         VM -- GameUiState --> Screen
         Screen -- onFrame(nanos) --> VM

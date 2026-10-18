@@ -23,7 +23,16 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
 
 ## Plateau
 
-- Grille de **10 colonnes × 20 lignes**, toutes visibles.
+- Grille de **10 colonnes × 20 lignes**, toutes visibles. Origine en haut à gauche : la
+  colonne va de 0 à 9 de gauche à droite, la ligne de 0 à 19 de haut en bas. Une cellule est
+  vide ou occupée par un type de pièce ; lire ou remplir une cellule hors du plateau est refusé.
+
+  **Tests :** `BoardTest › an empty board has 10 columns and 20 rows`,
+  `BoardTest › every cell of an empty board is empty`,
+  `BoardTest › a position outside columns 0 to 9 or rows 0 to 19 is outside the board`,
+  `BoardTest › the four corners are inside the board`,
+  `BoardTest › reading or filling a cell outside the board is rejected`,
+  `BoardTest › filling a cell returns a new board and leaves the original unchanged`.
 - Les pièces apparaissent centrées en haut du plateau.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
   est occupée.
@@ -31,6 +40,9 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
 ## Pièces
 
 Sept pièces de quatre cellules : `I`, `O`, `T`, `S`, `Z`, `J`, `L`.
+
+**Tests :** `BoardTest › parse reads a dot as an empty cell and a piece letter as a cell filled
+by that piece` (les sept types ; formes à venir en P1.2).
 
 - **Orientation de départ** : pièces « à plat ». Le T apparaît pointe vers le bas.
   L'orientation exacte de J et L au départ est **[à vérifier]**.
@@ -85,7 +97,13 @@ La pièce descend d'une ligne toutes les *N* images, selon le niveau :
 | 29 et plus | 1 |
 
 1 image = 1 tick = 1/60 s (la NES tourne en réalité à environ 60,1 images/s, l'écart est
-négligeable).
+négligeable). Le niveau ne peut pas être négatif.
+
+**Tests :** `ClassicGravityTableTest › at level 0 the piece falls one row every 48 ticks`,
+`ClassicGravityTableTest › from level 1 to 9 each level has its own speed`,
+`ClassicGravityTableTest › from level 10 to 28 levels share the same speed by tier`,
+`ClassicGravityTableTest › from level 29 onwards the piece falls one row every tick`,
+`LevelTest › a level cannot be negative`, `LevelTest › level 0 is the lowest valid level`.
 
 ## Verrouillage
 
