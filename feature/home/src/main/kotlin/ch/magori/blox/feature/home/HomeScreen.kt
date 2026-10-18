@@ -51,13 +51,14 @@ private const val DISABLED_ALPHA = 0.38f
 /**
  * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
  * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
- * this screen at once. Listening to a music comes in P4.7.
+ * this screen at once. A music with a BloX score may be listened to before playing.
  */
 @Composable
 internal fun HomeScreen(
     uiState: HomeUiState,
     onThemeChosen: (ThemeChoice) -> Unit,
     onMusicChosen: (MusicChoice) -> Unit,
+    onListen: (MusicChoice) -> Unit,
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -124,11 +125,18 @@ internal fun HomeScreen(
         Section(title = R.string.feature_home_music) {
             ChoiceRow {
                 MusicChoice.entries.forEach { music ->
-                    Choice(
-                        text = stringResource(music.label),
-                        selected = music == uiState.music,
-                        onClick = { onMusicChosen(music) },
-                    )
+                    // A music with a BloX score may be listened to: its button stands under its choice.
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        val name = stringResource(music.label)
+                        Choice(text = name, selected = music == uiState.music, onClick = { onMusicChosen(music) })
+                        if (music in uiState.listenable) {
+                            ListenButton(
+                                musicName = name,
+                                previewed = music == uiState.previewing,
+                                onClick = { onListen(music) },
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -259,9 +267,12 @@ private fun HomeScreenPreview(
                 startLevel = 0,
                 startLevels = (0..9).toList(),
                 record = 12_340,
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
+                previewing = null,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
+            onListen = {},
             onStartLevelChosen = {},
             onPlay = {},
         )

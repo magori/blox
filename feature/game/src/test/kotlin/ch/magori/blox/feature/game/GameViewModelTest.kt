@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import app.cash.turbine.test
+import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.RecordResult
 import ch.magori.blox.core.data.UserPreferences
@@ -60,6 +61,10 @@ class GameViewModelTest {
     private val preferences = FakeUserPreferencesRepository()
 
     private val music = FakeMusicPlayer()
+
+    /** The scores of the music choices, as `app` gives them: Korobeiniki and the minuet, nothing else. */
+    private val testScores: (MusicChoice) -> Score? =
+        mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)::get
 
     /** Real engines with rules made for tests: pieces T, I, O, … in turn, and one tick per row. */
     private val engineFactory = GameEngineFactory { seed ->
@@ -299,7 +304,7 @@ class GameViewModelTest {
         val store = ViewModelStore()
         val viewModel = ViewModelProvider.create(
             store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music),
+            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
             routeExtras(GameRoute(startLevel = 0, seed = 1L)),
         )[GameViewModel::class]
         playUntilSubmitted(viewModel)
@@ -500,7 +505,7 @@ class GameViewModelTest {
         createViewModel(GameRoute(startLevel = 0, seed = 1L))
 
         // Then
-        assertThat(music.calls).containsExactly("tempo 1.0", "play ${expected.title}")
+        assertThat(music.calls).containsExactly("tempo 1.0", "play ${expected.id}")
     }
 
     @Test
@@ -509,7 +514,7 @@ class GameViewModelTest {
         val store = ViewModelStore()
         ViewModelProvider.create(
             store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music),
+            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
             routeExtras(GameRoute(startLevel = 0, seed = 1L)),
         )[GameViewModel::class]
         preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
@@ -519,7 +524,7 @@ class GameViewModelTest {
         store.clear()
 
         // Then the music of the next game still plays
-        assertThat(music.playing).isEqualTo(Scores.minuet.title)
+        assertThat(music.playing).isEqualTo(Scores.minuet.id)
     }
 
     @Test
@@ -528,7 +533,7 @@ class GameViewModelTest {
         val store = ViewModelStore()
         ViewModelProvider.create(
             store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music),
+            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
             routeExtras(GameRoute(startLevel = 0, seed = 1L)),
         )[GameViewModel::class]
         music.calls.clear()
@@ -599,7 +604,7 @@ class GameViewModelTest {
         viewModel.onPause()
         assertThat(music.calls).containsExactly("stop")
         viewModel.onResume()
-        assertThat(music.calls).containsExactly("stop", "resume ${Scores.korobeiniki.title}")
+        assertThat(music.calls).containsExactly("stop", "resume ${Scores.korobeiniki.id}")
     }
 
     @Test
@@ -642,7 +647,7 @@ class GameViewModelTest {
         viewModel.onResume()
 
         // Then
-        assertThat(music.calls).containsExactly("play ${Scores.korobeiniki.title}")
+        assertThat(music.calls).containsExactly("play ${Scores.korobeiniki.id}")
     }
 
     @Test
@@ -711,7 +716,7 @@ class GameViewModelTest {
     private fun createViewModel(
         route: GameRoute,
         factory: GameEngineFactory = engineFactory,
-    ): GameViewModel = GameViewModel.Factory(factory, highScores, preferences, music).create(
+    ): GameViewModel = GameViewModel.Factory(factory, highScores, preferences, music, testScores).create(
         GameViewModel::class,
         routeExtras(route),
     )

@@ -30,7 +30,8 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
 - **Niveau de départ** : 0 à 9, sur une ligne.
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
-  *Écouter* pour les deux mélodies.
+  *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
+  une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
 - Bouton **Jouer**.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).

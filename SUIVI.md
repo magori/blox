@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 57 / 109 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 58 / 112 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -356,9 +356,17 @@ Référence : [docs/musique.md](docs/musique.md).
   Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
   `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
   plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
-- [ ] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
+- [x] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
-  feature traduit via `strings.xml` (revue de P4.2).
+  feature traduit via `strings.xml` (revue de P4.2). Fait :
+  `ScoreId` remplace `Score.title` (aucun texte affiché dans le domaine), `scoreOf` dans `app`,
+  aperçu dans `HomeViewModel` par le jeton de lecture, `FakeMusicPlayer` dans les testFixtures de
+  `core:audio`.
+- [ ] **P4.13** Aperçu et lecteur en échec : si le séquenceur échoue, l'accueil affiche encore
+  « Arrêter » alors que plus rien ne joue ; `MusicPlayer` n'expose aucun état (revue de P4.7).
+- [ ] **P4.14** Test de contrat `MusicPlayerContractTest` exécuté sur `FakeMusicPlayer` et sur
+  `ChiptuneSequencer` (un jeton remplacé ne coupe rien), pour que le faux suive le vrai.
+- [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du

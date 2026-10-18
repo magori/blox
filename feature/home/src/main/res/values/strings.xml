@@ -18,4 +18,9 @@
     <string name="feature_home_music_minuet">Menuet</string>
     <string name="feature_home_music_my_file">Mon fichier</string>
     <string name="feature_home_music_none">Aucune</string>
+    <!-- Aperçu d'une musique avant de jouer : le bouton dit l'action, TalkBack dit aussi la musique. -->
+    <string name="feature_home_listen">Écouter</string>
+    <string name="feature_home_listen_description">Écouter %1$s</string>
+    <string name="feature_home_stop">Arrêter</string>
+    <string name="feature_home_stop_description">Arrêter %1$s</string>
 </resources>
