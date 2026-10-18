@@ -1,0 +1,115 @@
+package ch.magori.blox.feature.game.ui
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxTheme
+
+/** The sizes shared by the screens shown over the game (game over, pause), in one place. */
+internal object ScreenSizes {
+    /** Around the screen. */
+    val padding = 24.dp
+
+    /** Between two blocks of the screen. */
+    val gap = 16.dp
+
+    /** The smallest touch target (accessibility). */
+    val minTouchTarget = 48.dp
+    val title = 22.sp
+}
+
+/**
+ * A screen shown over the game: the page background, its [title] as a heading, then its [content],
+ * centred. TalkBack announces it by its pane title; it scrolls when the font is enlarged.
+ */
+@Composable
+internal fun TitledScreen(
+    title: String,
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val palette = BloxTheme.palette
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .semantics { paneTitle = title }
+            .background(palette.page)
+            .safeDrawingPadding()
+            .verticalScroll(rememberScrollState())
+            .padding(ScreenSizes.padding),
+        verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap, Alignment.CenterVertically),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = title,
+            color = palette.ink,
+            fontSize = ScreenSizes.title,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.semantics { heading() },
+        )
+        content()
+    }
+}
+
+/** The main action of a screen: a full-width button in the theme accent. */
+@Composable
+internal fun PrimaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val palette = BloxTheme.palette
+    Button(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ScreenSizes.minTouchTarget),
+        shape = BloxTheme.shapes.button,
+        colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
+    ) {
+        Text(text = text)
+    }
+}
+
+/** A secondary action of a screen: a full-width outlined button in the theme colours. */
+@Composable
+internal fun SecondaryButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val palette = BloxTheme.palette
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = ScreenSizes.minTouchTarget),
+        shape = BloxTheme.shapes.button,
+        border = BorderStroke(PanelSizes.border, palette.panelBorder),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),
+    ) {
+        Text(text = text)
+    }
+}

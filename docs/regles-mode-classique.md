@@ -53,7 +53,19 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   orientation de départ (source ROM, meatfighter.com : les pièces apparaissent aux
   coordonnées (5, 0)). La position fait partie des règles du mode, pas du moteur.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
-  est occupée ; elle reste affichée.
+  est occupée ; elle reste affichée. Le moteur émet alors `GameOver`, une seule fois, seul
+  événement de ce tick (le verrouillage et l'effacement ont eu lieu aux ticks d'avant, le
+  délai d'apparition durant au moins un tick) ; ensuite, ni tick ni entrée ne changent plus
+  l'état ni n'émettent rien. La fin n'est jamais précédée de `StackDanger(off)` : une apparition
+  bloquée laisse une pile d'au moins 19 lignes, et la pile ne sort du danger qu'à 12 ou moins
+  (garantie liée aux seuils de `ClassicStackDangerRule`). Le score, les lignes, le niveau, les
+  statistiques et la durée se lisent dans l'état final.
+
+  **Tests :** `GameEngineGameOverTest › GameOver is sent once, on the tick where the next piece cannot appear`,
+  `GameEngineGameOverTest › the last events are PieceLocked, then LinesCleared if any, then GameOver, and never StackDanger(off)`,
+  `GameEngineTickTest › a piece that appears gives no event`,
+  `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
+  `GameEngineControlsTest › once the game is over, an input changes nothing`. Vue : V4.
 - **Début de partie** : le niveau de départ doit appartenir à la plage du mode (0 à 9) ; la
   première pièce est tirée sans pièce précédente, la suivante avec la première comme
   précédente. Une même graine redonne la même partie (un moteur par partie, ADR 0014).
@@ -221,7 +233,7 @@ meatfighter.com). Le moteur émet alors `PieceLocked`.
 | ▼ | Descente rapide : une première ligne **2 images** après l'appui, puis une ligne toutes les **2 images**. |
 | A | Rotation horaire. |
 | B | Rotation anti-horaire. |
-| Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). |
+| Pause | Met en pause et **masque le plateau** (sinon la pause sert à réfléchir). Bouton dans la barre du haut ; l'écran de pause (Reprendre, Menu) remplace tout l’écran de jeu. |
 
 **Commandes tactiles** : les cinq boutons de l'écran signalent l'appui et le relâchement, pour
 l'appui maintenu. Plusieurs doigts peuvent tenir plusieurs boutons (◀ tenu pendant un appui sur
@@ -278,8 +290,65 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 `AutoRepeatTest › a shift charged against a wall moves at once when the way is free, then every 6 ticks`,
 `RepeatTimingTest › a repeat interval of 0 is refused`, `RepeatTimingTest › a first repeat before the press is refused`.
 
-Interactions entre commandes (ROM, même source) : ▼ maintenu bloque le déplacement latéral, ◀ ou
-▶ maintenu empêche la descente rapide ; ▶ est testé avant ◀. Elles relèvent du moteur (P1.12).
+**Commandes dans le moteur** (P1.12d, ROM au tick près, même source) :
+
+- `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
+  se passe dans `tick`, dans l'ordre de la ROM : **déplacement, rotation, descente**. Un
+  verrouillage, même par descente rapide, a donc lieu dans `tick`, avec le même délai, la même
+  animation et les mêmes événements que par la gravité.
+- **Appuis** : un appui compte sur front montant ; un appui de moins d'une image (pressé puis
+  relâché entre deux ticks) compte quand même au tick suivant (écart assumé : sur NES, un appui
+  dure au moins une image) ; presser une touche déjà tenue n'est pas un nouvel appui. Un appui
+  fait pendant l'effacement ou le délai d'apparition est perdu, comme dans la ROM (le
+  déplacement, la rotation et la descente n'y sont pas appelés).
+- **Déplacement** : ▶ l'emporte sur ◀ ; ▼ tenu bloque le déplacement et fige le DAS, qui reprend
+  où il en était (`$89B2`). Seul un **nouvel appui** de ◀ ou ▶ relance le DAS, quelle que soit
+  la direction (`$89B8`) ; un changement de direction sans nouvel appui (◀ et ▶ tenus puis ▶
+  relâché) continue le compteur, sans pas immédiat. Le DAS survit au verrouillage et reste figé
+  pendant l'effacement et le délai d'apparition.
+- **Rotation** : A (horaire) l'emporte sur B s'ils sont pressés ensemble (`$88B4`) ; la pièce
+  prend le premier candidat du système de rotation qui tient, sinon elle ne bouge pas.
+- **Descente rapide** : elle démarre sur un **nouvel appui de ▼**, sans appui de ◀ ou ▶ dans le
+  même tick (`$892A` à `$892E`) ; A ou B pressé avec ▼ ne l'empêche pas. Elle continue tant que
+  ▼ est tenu seul ; ◀ ou ▶ tenu, ou ▼ relâché, l'arrête et remet ses pas à zéro, et il faut un
+  nouvel appui de ▼ (`$8939` à `$8945`). Un ▼ tenu à travers le verrouillage ne fait donc pas
+  descendre la pièce suivante. Un pas de descente rapide remet la gravité à zéro (`$8958`) ; au
+  plus une descente par tick.
+- **Points de descente rapide** : les pas faits d'affilée, comptés au verrouillage. Le pas
+  refusé qui verrouille ne compte pas : la ROM l'ajoute à `holdDownPoints` puis retire 1 au
+  score (`holdDownPoints − 1` si au moins 2, d'après le désassemblage de `$9BFE`, cité de
+  mémoire) ; le résultat net est le même. Deux nuances non reproduites, **[à vérifier]** sur
+  le désassemblage : un verrouillage par la gravité pendant une descente rapide (niveaux 19 et
+  plus) donnerait un point de moins dans la ROM, et l'addition BCD peut être fausse pour les
+  grandes valeurs.
+
+**Tests :** `GameEngineControlsTest › pressing left moves nothing at once, the piece shifts one column on the next tick`,
+`GameEngineControlsTest › a held left shifts on the first tick, then 16 ticks after the press, then every 6 ticks`,
+`GameEngineControlsTest › when left and right are held together, right wins`,
+`GameEngineControlsTest › a new press of left or right starts the shift repeat again, so the piece shifts at once`,
+`GameEngineControlsTest › a change of direction without a new press goes on with the shift repeat, with no shift at once`,
+`GameEngineControlsTest › a shift refused by the stack charges the repeat, so the piece shifts as soon as the way is free`,
+`GameEngineControlsTest › A turns the piece clockwise and B counterclockwise, on the next tick`,
+`GameEngineControlsTest › a held A turns the piece once, a short tap between two ticks turns it too`,
+`GameEngineControlsTest › a held down drops the piece a first row 2 ticks after the press, then every 2 ticks`,
+`GameEngineControlsTest › a soft drop step starts the gravity count again`,
+`GameEngineControlsTest › the piece drops at most one row per tick, even when the soft drop and the gravity both fall due`,
+`GameEngineControlsTest › a held down blocks the shift`,
+`GameEngineControlsTest › a held shift stops the soft drop and its points, and down must be pressed again to soft drop`,
+`GameEngineControlsTest › down released and pressed again between two ticks starts the soft drop again`,
+`GameEngineControlsTest › the rows soft dropped score when the piece locks, the refused step that locks it does not count`,
+`GameEngineControlsTest › only the rows soft dropped in a row score, a release of down starts them again`,
+`GameEngineControlsTest › a lock by soft drop goes the way of a lock by gravity, line clear, entry delay and events included`,
+`GameEngineControlsTest › the held shift outlives the lock and stands still during the line clear and the entry delay`,
+`GameEngineControlsTest › a down held through the lock does not drop the next piece until it is pressed again`,
+`GameEngineControlsTest › a press of a button already held is not a new press`,
+`GameEngineControlsTest › a press of down starts the soft drop unless left or right is pressed on the same tick`,
+`GameEngineControlsTest › the shift comes before the rotation in a tick`,
+`GameEngineControlsTest › the rotation comes before the drop in a tick`,
+`GameEngineControlsTest › a rotation against the wall is refused, and a new press of B on the next tick turns the piece back`,
+`GameEngineControlsTest › A and B pressed together turn the piece once, clockwise`,
+`GameEngineControlsTest › a held down freezes the shift repeat, which goes on where it stood when down is released`,
+`GameEngineControlsTest › once the game is over, an input changes nothing`. Vues : V2, V3.
 
 ## Délai d'apparition
 
@@ -380,7 +449,9 @@ Vues : V1, V2, V3, V4.
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
 `SidePanelTextTest › beyond 999 999 the score shown stays at 999 999`,
 `SidePanelTextTest › the level is shown on at least 2 digits, without a cap`,
-`SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`. Vues : V2, V3.
+`SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`,
+`TopBarTextsTest › the record is shown as the score in the game, capped at 999 999`,
+`TopBarTextsTest › TalkBack reads the real record, without padding zeros nor cap`. Vues : V2, V3.
 
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,

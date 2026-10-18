@@ -3,10 +3,9 @@ package ch.magori.blox.core.game.engine
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Direction
 import ch.magori.blox.core.game.model.Level
-import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
-import ch.magori.blox.core.game.model.Points
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.Randomizer
 
 /**
@@ -18,7 +17,7 @@ import ch.magori.blox.core.game.rules.Randomizer
  * belongs to that game: give the engine back only the last state it returned, and create a new
  * engine, with a [GameEngineFactory], for each new game.
  */
-public class GameEngine(private val rules: Rules, private val randomizer: Randomizer) {
+public class GameEngine(public val rules: Rules, private val randomizer: Randomizer) {
     /**
      * Starts the game at [startLevel]: an empty board, no line, no point, and a first piece in play.
      * Two pieces are drawn: the piece in play, with no previous piece, then the next one, with the
@@ -34,13 +33,11 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
             board = board,
             next = appearance.next,
             startLevel = startLevel,
-            level = startLevel,
-            lines = Lines(0),
-            score = Points(0),
+            progress = GameProgress.startingAt(startLevel),
             phase = appearance.phase,
             tickCount = 0,
             stackInDanger = false,
-            statistics = GameStatistics(),
+            controls = Controls.NONE,
         )
         return GameUpdate(state, events = emptyList())
     }
@@ -48,47 +45,179 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
     /**
      * Advances [state] by one tick (1/60 s), counted in [GameState.tickCount].
      *
-     * - A falling piece drops one row when the ticks per row of the level have passed. If it cannot drop,
-     *   it locks on the board ([GameEvent.PieceLocked]), and the stack danger is measured on the board
-     *   once cleared.
+     * - The piece in play reads the controller, in the order of the NES: the shift first, then the
+     *   rotation, then the drop.
+     *   - Shift: right wins over left; a held shift repeats ([Rules.inputRepeat]), and a new press or a
+     *     change of direction starts the repeat again; a shift refused by a wall or the stack charges it,
+     *     so the piece moves as soon as the way is free. A held down blocks the shift.
+     *   - Rotation: A turns clockwise, B counterclockwise, once per press, even a press released before the
+     *     tick; the first candidate of the rotation system that fits wins.
+     *   - Drop: at most one row per tick. A new press of down starts the soft drop ([Rules.inputRepeat]),
+     *     which goes on while down is held alone and starts the gravity count again at each step. A held
+     *     left or right, or a release of down, stops it and its points; it then needs a new press of down.
+     *     Otherwise the piece drops one row when the ticks per row of the level have passed.
+     * - A piece that cannot drop locks on the board ([GameEvent.PieceLocked]), whether the soft drop or the
+     *   gravity moved it; the rows it soft dropped in a row score. The stack danger is measured on the
+     *   board once cleared.
      * - Without a full row, [GameEvent.StackDanger] follows at once if the danger changed, then the entry
      *   delay computed when the piece locked.
      * - With full rows, they are cleared after an animation, without any event: the board shown keeps
      *   them until then. At the end, the cleared board is shown, the lines and the level go up, the
      *   points are counted at the new level ([GameEvent.LinesCleared]), then [GameEvent.StackDanger] if
      *   the danger changed, so that it changes as the stack goes down on screen. The entry delay follows.
-     * - When the entry delay is over, the next piece appears, or the game is over if it does not fit.
+     * - When the entry delay is over, the next piece appears, or the game is over if it does not fit. The
+     *   held shift stands still from the lock until then, and goes on with the next piece; a down held
+     *   through the lock does not soft drop the next piece until it is pressed again.
      * - Once the game is over, a tick changes nothing, not even [GameState.tickCount].
      *
      * Not pure: the next piece is drawn from the randomizer (ADR 0014). Pass back only the last state
      * returned; the ViewModel is the only caller (ADR 0012).
      */
-    public fun tick(state: GameState): GameUpdate = when (val phase = state.phase) {
-        is Phase.Falling -> fall(state.counted(), phase)
-        is Phase.Clearing -> clear(state.counted(), phase)
-        is Phase.EntryDelay -> GameUpdate(wait(state.counted(), phase), events = emptyList())
-        is Phase.GameOver -> GameUpdate(state, events = emptyList())
+    public fun tick(state: GameState): GameUpdate {
+        val update = when (val phase = state.phase) {
+            is Phase.Falling -> fall(state.counted(), phase)
+            is Phase.Clearing -> clear(state.counted(), phase)
+            is Phase.EntryDelay -> wait(state.counted(), phase)
+            is Phase.GameOver -> return GameUpdate(state, events = emptyList())
+        }
+        return update.copy(state = update.state.copy(controls = update.state.controls.afterTick()))
+    }
+
+    /**
+     * Records [input] in the controller of [state]: nothing moves until the next [tick], which reads it.
+     * Gives no event. Once the game is over, an input changes nothing.
+     */
+    public fun apply(
+        state: GameState,
+        input: Input,
+    ): GameUpdate {
+        if (state.phase is Phase.GameOver) return GameUpdate(state, events = emptyList())
+        return GameUpdate(state.copy(controls = state.controls.after(input)), events = emptyList())
     }
 
     /** [GameState] with one more tick played. */
     private fun GameState.counted(): GameState = copy(tickCount = tickCount + 1)
 
+    /** A tick of the piece in play: the shift, then the rotation, then the drop, as the NES reads them. */
     private fun fall(
         state: GameState,
         falling: Phase.Falling,
     ): GameUpdate {
-        val ticks = falling.ticksSinceDrop + 1
-        if (ticks < rules.gravityTable.ticksPerRow(state.level)) {
-            return GameUpdate(state.copy(phase = falling.copy(ticksSinceDrop = ticks)), events = emptyList())
-        }
-        val dropped = state.board.move(falling.piece, Direction.DOWN) ?: return lock(state, falling.piece)
-        return GameUpdate(state.copy(phase = Phase.Falling(dropped)), events = emptyList())
+        val (controls, shifted) = shift(state.board, state.controls, falling.piece)
+        val turned = falling.copy(piece = rotate(state.board, controls, shifted))
+        return drop(state.copy(controls = controls), turned)
     }
 
-    private fun lock(
+    /**
+     * The drop on this tick, one row at most: a soft drop step if one is due, else the gravity.
+     *
+     * As in the ROM (meatfighter.com, `autorepeatY`), the soft drop starts only on a new press of down,
+     * and goes on while down is held without left or right. Anything else stops it and its points; it
+     * then needs a new press of down, so a down held through a lock does not drop the next piece.
+     */
+    private fun drop(
         state: GameState,
-        piece: Piece,
+        falling: Phase.Falling,
     ): GameUpdate {
+        val held = state.controls.held
+        val downOnly = Button.DOWN in held && Button.LEFT !in held && Button.RIGHT !in held
+        val repeat = when {
+            !downOnly -> null
+
+            state.controls.pressedSinceLastTick.let {
+                Button.DOWN in it && Button.LEFT !in it && Button.RIGHT !in it
+            } ->
+                AutoRepeat(rules.inputRepeat.softDrop)
+
+            else -> falling.softDrop
+        }
+        val softDrop = repeat?.tick(pressed = true)
+        val counted = if (softDrop == null) {
+            falling.copy(softDrop = null, softDropRows = 0)
+        } else {
+            falling.copy(softDrop = softDrop.next)
+        }
+        if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
+        val ticks = counted.ticksSinceDrop + 1
+        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level)) {
+            return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
+        }
+        return dropOneRow(state, counted) { it }
+    }
+
+    /**
+     * The piece of [falling] drops one row, which starts the gravity count again, then [afterDrop] counts
+     * the drop; if it cannot drop, it locks.
+     */
+    private fun dropOneRow(
+        state: GameState,
+        falling: Phase.Falling,
+        afterDrop: (Phase.Falling) -> Phase.Falling,
+    ): GameUpdate {
+        val dropped = state.board.move(falling.piece, Direction.DOWN) ?: return lock(state, falling)
+        return GameUpdate(
+            state.copy(phase = afterDrop(falling.copy(piece = dropped, ticksSinceDrop = 0))),
+            events = emptyList(),
+        )
+    }
+
+    /**
+     * The shift on this tick: the controls with the repeat moved on, and the piece, shifted if a step is due.
+     *
+     * As in the ROM (meatfighter.com, `$89B8`): a held down blocks the shift and freezes its repeat; right
+     * wins over left; a single repeat serves both directions, and only a new press of left or right starts
+     * it again, so a change of direction without a new press goes on with the count. A refused step
+     * charges the repeat.
+     */
+    private fun shift(
+        board: Board,
+        controls: Controls,
+        piece: Piece,
+    ): Pair<Controls, Piece> {
+        if (Button.DOWN in controls.held) return controls to piece
+        val direction = when {
+            Button.RIGHT in controls.held -> Direction.RIGHT
+            Button.LEFT in controls.held -> Direction.LEFT
+            else -> return controls to piece
+        }
+        val newPress = Button.LEFT in controls.pressedSinceLastTick || Button.RIGHT in controls.pressedSinceLastTick
+        val repeat = when {
+            newPress -> AutoRepeat(rules.inputRepeat.shift)
+            else -> controls.shift ?: AutoRepeat(rules.inputRepeat.shift).tick(pressed = true).next
+        }.tick(pressed = true)
+        if (!repeat.step) return controls.copy(shift = repeat.next) to piece
+        val shifted = board.move(piece, direction) ?: return controls.copy(shift = repeat.next.charged()) to piece
+        return controls.copy(shift = repeat.next) to shifted
+    }
+
+    /**
+     * The rotation on this tick, on a new press only: A turns [piece] clockwise, else B counterclockwise.
+     * The first candidate of the rotation system that fits wins; if none fits, the piece stays as it was.
+     */
+    private fun rotate(
+        board: Board,
+        controls: Controls,
+        piece: Piece,
+    ): Piece {
+        val rotation = when {
+            Button.A in controls.pressedSinceLastTick -> Rotation.CLOCKWISE
+            Button.B in controls.pressedSinceLastTick -> Rotation.COUNTERCLOCKWISE
+            else -> return piece
+        }
+        return rules.rotationSystem.candidates(piece, rotation).firstNotNullOfOrNull(board::place) ?: piece
+    }
+
+    /**
+     * The piece of [falling] could not drop: it locks on the board, and the rows it soft dropped in a row
+     * score. Then comes the line clear, if it fills rows, or the entry delay.
+     */
+    private fun lock(
+        stateBeforeLock: GameState,
+        falling: Phase.Falling,
+    ): GameUpdate {
+        val piece = falling.piece
+        val softDropPoints = rules.scoringRule.pointsForSoftDrop(falling.softDropRows)
+        val state = stateBeforeLock.copy(progress = stateBeforeLock.progress.withPoints(softDropPoints))
         val locked = state.board.lock(piece)
         val rowsCleared = locked.clearFullRows()
         val entryDelay = rules.entryDelay.ticksAfterLock(piece)
@@ -113,12 +242,9 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
     private fun dangerChange(
         state: GameState,
         inDanger: Boolean,
-    ): List<GameEvent> = if (inDanger !=
-        state.stackInDanger
-    ) {
-        listOf(GameEvent.StackDanger(on = inDanger))
-    } else {
-        emptyList()
+    ): List<GameEvent> {
+        val changed = inDanger != state.stackInDanger
+        return if (changed) listOf(GameEvent.StackDanger(on = inDanger)) else emptyList()
     }
 
     /**
@@ -138,16 +264,11 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
             )
         }
         val lineClear = clearing.rowsCleared.lineClear
-        val lines = state.lines + lineClear
-        val level = rules.levelProgression.levelFor(state.startLevel, lines)
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
-            lines = lines,
-            level = level,
-            score = state.score + rules.scoringRule.pointsForLinesCleared(lineClear, level),
+            progress = state.progress.afterClear(lineClear, state.startLevel, rules),
             phase = Phase.EntryDelay(clearing.entryDelayAfter),
             stackInDanger = clearing.stackInDangerAfter,
-            statistics = state.statistics.afterClear(lineClear),
         )
         val events = listOf(GameEvent.LinesCleared(lineClear)) + dangerChange(state, clearing.stackInDangerAfter)
         return GameUpdate(cleared, events)
@@ -156,12 +277,21 @@ public class GameEngine(private val rules: Rules, private val randomizer: Random
     private fun wait(
         state: GameState,
         delay: Phase.EntryDelay,
-    ): GameState = if (delay.ticksLeft > 1) state.copy(phase = Phase.EntryDelay(delay.ticksLeft - 1)) else spawn(state)
+    ): GameUpdate {
+        if (delay.ticksLeft > 1) {
+            return GameUpdate(state.copy(phase = delay.copy(ticksLeft = delay.ticksLeft - 1)), events = emptyList())
+        }
+        return spawn(state)
+    }
 
-    /** At the end of the entry delay, the next piece of [state] appears: see [appearance]. */
-    private fun spawn(state: GameState): GameState {
+    /**
+     * At the end of the entry delay, the next piece of [state] appears: see [appearance]. If it does not fit,
+     * the game is over, and [GameEvent.GameOver] is the only event of that tick.
+     */
+    private fun spawn(state: GameState): GameUpdate {
         val appearance = appearance(state.board, type = state.next)
-        return state.copy(next = appearance.next, phase = appearance.phase)
+        val events = if (appearance.phase is Phase.GameOver) listOf(GameEvent.GameOver) else emptyList()
+        return GameUpdate(state.copy(next = appearance.next, phase = appearance.phase), events)
     }
 
     /**
