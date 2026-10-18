@@ -20,6 +20,16 @@ public class Board private constructor(private val cells: List<Cell>) {
         position.column in 0 until columns && position.row in 0 until rows
 
     /**
+     * The height of the stack, in rows: [rows] minus the first row holding a filled cell, whatever lies
+     * below it, holes included; 0 on an empty board.
+     */
+    public val stackHeight: Int
+        get() {
+            val firstFilledRow = cellRows().indexOfFirst { row -> row.any { it != Cell.Empty } }
+            return if (firstFilledRow == -1) 0 else ROWS - firstFilledRow
+        }
+
+    /**
      * Whether [piece] fits on the board without collision: every one of its cells is in columns 0
      * to 9 and rows -2 to 19, and on an empty cell. The hidden rows -2 and -1 are always empty, so
      * the piece in play may reach them (a vertical I rotated right after spawning).

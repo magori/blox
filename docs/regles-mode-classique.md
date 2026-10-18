@@ -338,4 +338,18 @@ is multiplied by level number plus one »). À prouver par un test du moteur (P1
 
 ## Statistiques de fin de partie
 
-Score, lignes, niveau atteint, nombre de « 4 lignes » d'un coup, durée de la partie.
+Score, lignes, niveau atteint, nombre de « 4 lignes » d'un coup, durée de la partie. Score,
+lignes et niveau viennent de l'état de la partie ; les statistiques ajoutent le nombre de
+« 4 lignes » d'un coup et la durée en **ticks joués** (chaque tick qui fait avancer la partie,
+délais et animations compris, jamais en pause ni après la fin). La conversion en minutes et
+secondes appartient à l'écran : le domaine ne connaît que les ticks.
+
+Un effacement compte de 0 à 4 lignes d'un coup ; toute autre valeur est refusée.
+
+**Tests :** `GameStatisticsTest › a game starts with no four-line clear and no tick played`,
+`GameStatisticsTest › only a clear of 4 lines at once counts as a four-line clear`,
+`GameStatisticsTest › four-line clears add up over the game`,
+`GameStatisticsTest › each tick played adds 1 to the ticks played`,
+`LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`,
+`LineClearTest › only 4 lines cleared at once make four lines`,
+`BoardClearTest › the result gives the number of lines cleared at once`.

@@ -1,6 +1,7 @@
 package ch.magori.blox.core.game.rules
 
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.LineClear
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -34,12 +35,6 @@ class ClassicScoringRuleTest {
         assertThat(pointsForClearing(lines, atLevel = level)).isEqualTo(expectedPoints)
     }
 
-    @ParameterizedTest(name = "{0} lines cleared at once is refused")
-    @CsvSource("-1", "5")
-    fun `a number of lines cleared outside 0 to 4 is refused`(lines: Int) {
-        assertThatIllegalArgumentException().isThrownBy { pointsForClearing(lines, atLevel = 0) }
-    }
-
     @ParameterizedTest(name = "{0} row(s) soft dropped -> {1} points")
     @CsvSource("0, 0", "5, 5")
     fun `a soft drop scores one point per row dropped`(
@@ -58,7 +53,7 @@ class ClassicScoringRuleTest {
     private fun pointsForClearing(
         lines: Int,
         atLevel: Int,
-    ): Int = scoring.pointsForLinesCleared(lines, Level(atLevel))
+    ): Int = scoring.pointsForLinesCleared(LineClear(lines), Level(atLevel))
 
     /** When: the rule scores [rows] dropped while holding down. */
     private fun pointsForSoftDropping(rows: Int): Int = scoring.pointsForSoftDrop(rows)
