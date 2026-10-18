@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 39 / 71 | `███████████░░░░░░░░░` **55 %** |
+| **Général** | 40 / 71 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 32 / 37 | `█████████████████░░░` **86 %** |
 <!-- avancement:fin -->
 
@@ -137,7 +137,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     `LinesCleared`, `StackDanger` au franchissement (à la fin de l'animation s'il y a
     effacement), « 4 lignes » dans les statistiques. Pour l'écran : le domaine fournira la
     progression de l'animation (passes faites) quand une tâche la dessinera.
-  - [ ] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
+  - [x] P1.12d Commandes : `apply(state, input): GameUpdate`, `Input` scellé (`Press(button)`,
     `Release(button)`, place pour `Pause` / `Resume`), touches tenues et appuis depuis le
     dernier tick (A, B et changement de direction à front montant), `AutoRepeat` de
     déplacement avec sa direction, recréé quand elle change ; compteur de descente rapide
@@ -150,7 +150,11 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
     lieu dans `tick` (sinon l'alignement de l'animation se décale) ; regrouper niveau, lignes,
     score et statistiques dans un objet « progression » avant d'ajouter les touches à
     `GameState` ; exposer les règles du moteur en lecture seule, pour retirer le système de
-    rotation passé à part à la fabrique du ViewModel (P2.2).
+    rotation passé à part à la fabrique du ViewModel (P2.2). Fait : `Input`, `Button`,
+    `Controls`, `GameProgress`, `GameEngine.rules`, `Rules.inputRepeat`. Revue : un seul
+    `AutoRepeat` latéral relancé seulement par un nouvel appui (la ROM continue le compteur
+    quand la direction change sans appui, contrairement à la note de P1.13). Pour P2.2 : lire
+    `state.progress`, prendre le système de rotation dans `engine.rules`.
   - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite (le tick
     après la fin est déjà prouvé en P1.12c). La fin de partie n'émet que `GameOver`, jamais
     `StackDanger(off)` (revue de P1.12c).
@@ -238,10 +242,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 ## P3 — Accueil, préférences, records
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
-- [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
+- [x] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
   garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4). Revue de
   P2.7 : enregistrer le record dès l'événement `GameOver` (V4 n'est pas restauré après la mort
-  du processus), et calculer « nouveau record » contre le record d'avant la partie.
+  du processus), et calculer « nouveau record » contre le record d'avant la partie. Fait :
+  `HighScoreRepository`, `DataStoreHighScoreRepository`, `RecordResult`, `recordsDataStore`.
+  Reste au branchement (P2.2, incrément 2) : créer le DataStore dans `AppContainer`
+  (`filesDir/datastore/records.preferences_pb`), `submit` à `GameOver`, record dans la barre
+  du haut et sur V4.
 - [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre

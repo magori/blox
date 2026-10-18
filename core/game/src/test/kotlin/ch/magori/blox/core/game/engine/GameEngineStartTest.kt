@@ -26,9 +26,9 @@ class GameEngineStartTest {
 
         // Then
         assertThat(state.startLevel).isEqualTo(Level(0))
-        assertThat(state.level).isEqualTo(Level(0))
-        assertThat(state.lines).isEqualTo(Lines(0))
-        assertThat(state.score).isEqualTo(Points(0))
+        assertThat(state.progress.level).isEqualTo(Level(0))
+        assertThat(state.progress.lines).isEqualTo(Lines(0))
+        assertThat(state.progress.score).isEqualTo(Points(0))
         assertThat(state.board).isEqualTo(Board.empty())
         assertThat(state.phase).isInstanceOf(Phase.Falling::class.java)
     }
@@ -55,7 +55,7 @@ class GameEngineStartTest {
 
         // Then
         assertThat(state.startLevel).isEqualTo(Level(9))
-        assertThat(state.level).isEqualTo(Level(9))
+        assertThat(state.progress.level).isEqualTo(Level(9))
     }
 
     @ParameterizedTest(name = "level {0}")
