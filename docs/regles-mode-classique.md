@@ -314,8 +314,22 @@ pièce qui apparaît comme précédente. Un I vertical verrouillé pivot en lign
 
 Quand des lignes sont effacées, l'animation s'ajoute : 5 passes, une toutes les 4 images,
 soit **17 à 20 images** selon l'image du verrouillage (TetrisWiki ; meatfighter.com, « The
-clearing animation requires 5 passes », une toutes les quatre images). Le détail du calcul
-est **[à vérifier]** ; il revient au moteur (P1.12).
+clearing animation requires 5 passes », une toutes les quatre images).
+
+**Dans le moteur** : un verrouillage qui complète des lignes ouvre l'animation ; le plateau
+affiché reste celui d'avant l'effacement. Si le verrouillage a lieu au tick N de la partie,
+l'animation dure `16 + (4 − N mod 4)` ticks (17 à 20) ; elle finit donc toujours sur un
+multiple de 4, à la 5ᵉ passe. Le délai d'apparition, calculé au verrouillage, ne commence
+qu'ensuite. Aucun événement n'est émis pendant l'animation. **Écart assumé** : la NES aligne
+l'animation sur un compteur d'images global, qui tourne depuis l'allumage ; BloX utilise le
+compteur de la partie (`GameState.tickCount`, arrêté en pause et en fin de partie), pour que
+tout se déduise de la graine. La différence (1 à 3 images) n'est pas perceptible.
+
+**Tests :** `GameEngineClearTest › a lock that fills rows starts the clear, the board shown still holds the full rows`,
+`GameEngineClearTest › the clear lasts 16 ticks plus the ticks up to the next multiple of 4 of the game tick count`,
+`GameEngineClearTest › after the clear comes the entry delay computed when the piece locked, then the next piece`,
+`GameEngineClearTest › the ticks between the lock and the end of the clear give no event`,
+`PhaseTest › a clear and the entry delay after it last at least one tick`.
 
 ## Lignes et score
 
@@ -388,22 +402,30 @@ Pour un départ de 0 à 9, la formule vaut toujours `(départ + 1) × 10`, et le
 niveau sont mis à jour d'abord, puis les points sont comptés **avec le nouveau niveau**.
 Source : rétro-ingénierie de la ROM, meatfighter.com, « Applying AI to Nintendo Tetris »
 (« After the total lines count and potentially the level are incremented, a value in that list
-is multiplied by level number plus one »). À prouver par un test du moteur (P1.12).
+is multiplied by level number plus one »). Dans le moteur, cela se passe à la fin de
+l'animation d'effacement, avec l'événement `LinesCleared` ; le score est un type `Points`, jamais
+négatif.
+
+**Tests :** `GameEngineClearTest › when the clear is over the cleared board is shown, lines and level go up, points use the new level`,
+`PointsTest › points cannot be negative`, `PointsTest › points add up`,
+`LinesTest › the lines cleared at once add to the total`.
 
 ## Statistiques de fin de partie
 
 Score, lignes, niveau atteint, nombre de « 4 lignes » d'un coup, durée de la partie. Score,
 lignes et niveau viennent de l'état de la partie ; les statistiques ajoutent le nombre de
-« 4 lignes » d'un coup et la durée en **ticks joués** (chaque tick qui fait avancer la partie,
-délais et animations compris, jamais en pause ni après la fin). La conversion en minutes et
-secondes appartient à l'écran : le domaine ne connaît que les ticks.
+« 4 lignes » d'un coup, compté à la fin de l'animation d'effacement. La durée est le compteur
+de ticks de la partie (`GameState.tickCount`) : chaque tick qui fait avancer la partie, délais
+et animations compris ; il ne bouge plus après la fin (et pas en pause, P1.15). La conversion
+en minutes et secondes appartient à l'écran : le domaine ne connaît que les ticks.
 
 Un effacement compte de 0 à 4 lignes d'un coup ; toute autre valeur est refusée.
 
-**Tests :** `GameStatisticsTest › a game starts with no four-line clear and no tick played`,
+**Tests :** `GameStatisticsTest › a game starts with no four-line clear`,
 `GameStatisticsTest › only a clear of 4 lines at once counts as a four-line clear`,
 `GameStatisticsTest › four-line clears add up over the game`,
-`GameStatisticsTest › each tick played adds 1 to the ticks played`,
+`GameEngineClearTest › a four-line clear counts in the statistics of the game`,
+`GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
 `LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`,
 `LineClearTest › only 4 lines cleared at once make four lines`,
 `BoardClearTest › the result gives the number of lines cleared at once`.
