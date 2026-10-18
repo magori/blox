@@ -1,5 +1,6 @@
 package ch.magori.blox.core.game.rules
 
+import ch.magori.blox.core.game.cellsOf
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test

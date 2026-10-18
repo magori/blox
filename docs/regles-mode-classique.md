@@ -33,6 +33,22 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   `BoardTest › the four corners are inside the board`,
   `BoardTest › reading or filling a cell outside the board is rejected`,
   `BoardTest › filling a cell returns a new board and leaves the original unchanged`.
+- **Lignes cachées** : deux lignes, −2 et −1, prolongent le plateau vers le haut. Elles sont
+  invisibles et toujours vides ; la pièce en jeu peut s'y trouver (par exemple un I tourné à
+  la verticale juste après son apparition). Une pièce tient si chacune de ses cellules est dans
+  les colonnes 0 à 9, les lignes −2 à 19, et sur une case vide. Au verrouillage, les cellules
+  restées dans les lignes cachées sont perdues et la partie continue. Source : ROM NES, d'après
+  meatfighter.com, « Applying AI to Nintendo Tetris » (validité de −2 à 19 ; seules les
+  lignes 0 et suivantes sont stockées au verrouillage).
+
+  **Tests :** `PieceTest › the cells of a piece are its pivot plus the offsets of its orientation`,
+  `BoardCollisionTest › a piece on an empty board touches nothing`,
+  `BoardCollisionTest › a cell in column -1 or 10 is a collision, even in a hidden row`,
+  `BoardCollisionTest › a cell on row 20, below the floor, is a collision`,
+  `BoardCollisionTest › a piece touching an edge without crossing it fits`,
+  `BoardCollisionTest › a cell on an occupied square is a collision, the same piece just above fits`,
+  `BoardCollisionTest › the hidden rows -1 and -2 are free, row -3 is a collision`. La perte des
+  cellules cachées au verrouillage sera prouvée en P1.6.
 - Les pièces apparaissent centrées en haut du plateau.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
   est occupée.

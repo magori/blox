@@ -1,4 +1,4 @@
-package ch.magori.blox.core.game.rules
+package ch.magori.blox.core.game
 
 import ch.magori.blox.core.game.model.Position
 
