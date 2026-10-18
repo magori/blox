@@ -1,6 +1,6 @@
 # 0001 — Kotlin, Jetpack Compose, activité unique
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; le point « Navigation Compose » est remplacé par [0011](0011-navigation-3.md)
 - **Date** : 2026-10-18
 
 ## Contexte

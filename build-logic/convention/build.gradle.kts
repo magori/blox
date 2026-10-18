@@ -1,19 +1,13 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     `kotlin-dsl`
 }
 
 group = "ch.magori.blox.buildlogic"
 
+// Même version de Java que les modules du projet, lue dans le catalogue (ADR 0010).
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
-kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_17)
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(libs.versions.java.get()))
     }
 }
 
@@ -21,6 +15,7 @@ dependencies {
     compileOnly(libs.android.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.compose.gradlePlugin)
+    compileOnly(libs.android.junit.gradlePlugin)
 }
 
 gradlePlugin {

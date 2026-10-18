@@ -5,11 +5,11 @@ import org.gradle.api.Project
 import org.gradle.kotlin.dsl.dependencies
 
 /** Active Compose et ajoute les dépendances minimales communes. */
-internal fun Project.configureAndroidCompose(commonExtension: CommonExtension<*, *, *, *, *, *>) {
+internal fun Project.configureAndroidCompose(commonExtension: CommonExtension) {
     pluginManager.apply("org.jetbrains.kotlin.plugin.compose")
 
     commonExtension.apply {
-        buildFeatures {
+        buildFeatures.apply {
             compose = true
         }
     }

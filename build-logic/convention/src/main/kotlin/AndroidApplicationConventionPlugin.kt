@@ -1,4 +1,4 @@
-import ch.magori.blox.buildlogic.configureAndroidUnitTests
+import ch.magori.blox.buildlogic.configureAndroidTests
 import ch.magori.blox.buildlogic.configureKotlinAndroid
 import ch.magori.blox.buildlogic.intVersion
 import ch.magori.blox.buildlogic.libs
@@ -11,14 +11,12 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             pluginManager.apply("com.android.application")
-            pluginManager.apply("org.jetbrains.kotlin.android")
 
             extensions.configure<ApplicationExtension> {
                 configureKotlinAndroid(this)
                 defaultConfig.targetSdk = libs.intVersion("targetSdk")
-                testOptions.animationsDisabled = true
             }
-            configureAndroidUnitTests()
+            configureAndroidTests()
         }
     }
 }

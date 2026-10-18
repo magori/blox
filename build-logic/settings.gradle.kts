@@ -1,3 +1,8 @@
+// Même résolveur de toolchain que le build principal (voir settings.gradle.kts à la racine).
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
 dependencyResolutionManagement {
     repositories {
         google()
