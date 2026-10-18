@@ -5,8 +5,8 @@ Module **Android** : couche de données au sens des recommandations Android
 
 ## Contenu prévu
 
-- `UserPreferencesRepository` : thème, musique choisie, dernier niveau de départ,
-  préférences de commandes. Stocké avec DataStore Preferences.
+- `UserPreferencesRepository` : thème, musique choisie, dernier niveau de départ. Stocké avec
+  DataStore Preferences.
 - `HighScoreRepository` : meilleur score, et plus tard un tableau des records par mode.
 
 Les modèles exposés sont des classes simples propres à ce module. Les features les
