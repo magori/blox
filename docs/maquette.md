@@ -37,7 +37,11 @@ Le prototype (mode Play) relie V1 → V2 ou V3 selon le thème choisi, et V4 →
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
 - Barre du haut : bouton pause, « MODE CLASSIQUE », record.
 - Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
-  pièce suivante.
+  pièce suivante. Valeurs retenues en P2.4, à confirmer sur la maquette (P2.13) : encarts
+  avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
+  ligne, réduite si la police du système est agrandie) ; aperçu de la pièce suivante dans un
+  cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 10 dp
+  (Couleurs). Score sur 6 chiffres, niveau sur 2 et lignes sur 3 au moins.
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
   décalés comme sur une console portable.
 - Pas de bouton de chute instantanée (absent du mode Classique).

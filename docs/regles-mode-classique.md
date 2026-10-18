@@ -296,6 +296,16 @@ d'avant, du haut vers le bas, pour l'animation.
 
 Aucune ligne effacée ne rapporte rien ; plus de 4 lignes ou un nombre négatif est refusé.
 
+**Affichage du score** : sur 6 chiffres, plafonné à 999 999 comme sur la NES ; le domaine
+garde la vraie valeur, seul l'affichage plafonne, partout où le score est montré (jeu, fin
+de partie, record) **[à vérifier]**. Le niveau et les lignes ne sont pas plafonnés (ce que fait
+la NES au-delà de 999 lignes est **[à vérifier]**).
+
+**Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
+`SidePanelTextTest › beyond 999 999 the score shown stays at 999 999`,
+`SidePanelTextTest › the level is shown on at least 2 digits, without a cap`,
+`SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`. Vues : V2, V3.
+
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,
 `ClassicScoringRuleTest › the base value is multiplied by the level plus one`,
