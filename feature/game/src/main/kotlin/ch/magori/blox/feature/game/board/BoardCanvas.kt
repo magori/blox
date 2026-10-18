@@ -19,7 +19,7 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 
 /**
  * Draws [board] and the [piece] in play in [theme]. No logic here: the cells come from
- * [displayedCells], their place from [BoardGeometry], their look from [cellStyle] and [pixelsOf].
+ * [displayedCells], their place from [BoardGeometry], their look from the [CellPainter]s of [paintersFor].
  * Everything that depends on the size is built once per size; a frame only reads and draws.
  */
 @Composable

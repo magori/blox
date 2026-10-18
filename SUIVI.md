@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 33 / 67 | `██████████░░░░░░░░░░` **49 %** |
-| **MVP** (jouable sur téléphone) | 29 / 37 | `████████████████░░░░` **78 %** |
+| **Général** | 34 / 68 | `██████████░░░░░░░░░░` **50 %** |
+| **MVP** (jouable sur téléphone) | 30 / 37 | `████████████████░░░░` **81 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -192,34 +192,43 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   feature pour qu'un double appui ne crée pas deux parties. Appeler `GameLoop.reset()` (via le
   ViewModel) en tête du `LaunchedEffect` de l'horloge, sinon la première image après un retour à
   l'écran rend le plafond de ticks (revue de P2.1). Brancher `BoardCanvas` (P2.3) dans
-  `GameScreen` : `board` et `piece` du domaine passent tels quels dans `GameUiState`.
+  `GameScreen` : `board` et `piece` du domaine passent tels quels dans `GameUiState`. Brancher
+  `SidePanel` (P2.4) : le système de rotation vient des règles du moteur ; `levelText` et
+  `linesText` accepteront `Level` et `Lines` si `GameUiState` les porte.
 - [x] **P2.3** Rendu du plateau en `Canvas`, styles de cellules par thème (`docs/themes.md`).
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
   P2.6 : `BoardCanvas(Board.empty(), piece = null)` masque le plateau.
 - [ ] **P2.12** Mettre à jour la maquette : confirmer la taille du carré central des pièces du
   thème Original (8 px sur 24 retenu en P2.3) sur la maquette Claude Design.
-- [ ] **P2.4** Colonne latérale : score, niveau, lignes, pièce suivante.
+- [x] **P2.4** Colonne latérale : score, niveau, lignes, pièce suivante. `SidePanel`,
+  `NextPieceCanvas`, `BloxTheme.shapes`.
+- [ ] **P2.13** Mettre à jour la maquette : confirmer les mesures des encarts de la colonne
+  latérale (cadre, marges, tailles de texte) retenues en P2.4 (`docs/maquette.md`, V2 et V3).
 - [ ] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu.
 - [ ] **P2.6** Écran de pause (plateau masqué) et reprise.
 - [ ] **P2.7** Écran de fin de partie, Rejouer / Menu. Entrée de pile distincte ou état de
-  l'écran de jeu : trancher, voir ADR 0011.
+  l'écran de jeu : trancher, voir ADR 0011. Le score s'affiche par `scoreText` (plafond de
+  999 999, P2.4).
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
 - [ ] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
-  l'attribut reste dans le manifeste.
+  l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la
+  pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4).
 
 ## P3 — Accueil, préférences, records
 
 - [ ] **P3.1** `UserPreferencesRepository` (DataStore) : thème, musique, niveau de départ.
-- [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record.
+- [ ] **P3.2** `HighScoreRepository` : meilleur score, détection d'un nouveau record. Le record
+  garde la vraie valeur ; il s'affiche par `scoreText` (plafond de 999 999, P2.4).
 - [ ] **P3.3** `AppContainer` et fabriques de ViewModels (ADR 0007 et 0013).
 - [ ] **P3.4** Écran d'accueil complet, conforme à la maquette.
 - [ ] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
   commentaire croisé ou dériver l'une de l'autre pour qu'elles ne se désynchronisent pas.
 - [ ] **P3.6** Polices : embarquer *Press Start 2P* et *Chakra Petch* (OFL) ou utiliser les polices
-  téléchargeables. Décider et consigner.
+  téléchargeables. Décider et consigner. Les chiffres de la colonne latérale sont en
+  `FontFamily.Monospace` en attendant (P2.4) ; les tailles sont regroupées dans `SidePanelSizes`.
 
 ## P4 — Musique et sons
 
