@@ -16,6 +16,10 @@ mode Classique reproduit les règles de la version NES de 1989. Il complète
   impose un Gradle minimal), AGP et Kotlin aussi (Kotlin intégré, ADR 0010). Les bibliothèques
   AndroidX récentes imposent un `compileSdk` minimal via leurs métadonnées AAR : si
   `checkDebugAarMetadata` échoue après une montée de version, c'est ce réglage qu'il faut relever.
+- Les PR Dependabot (`.github/dependabot.yml`, hebdomadaires, groupées) passent par la même CI. On ne
+  fusionne la PR du groupe `agp-kotlin-gradle` qu'avec AGP, Kotlin et le wrapper montés ensemble et
+  un build complet vert ; une PR qui monte DataStore emporte Okio. Foojay et la version du moteur
+  ktlint se surveillent à la main.
 
 ## Avant de commencer une tâche
 
