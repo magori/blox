@@ -47,8 +47,8 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   `BoardCollisionTest › a cell on row 20, below the floor, is a collision`,
   `BoardCollisionTest › a piece touching an edge without crossing it fits`,
   `BoardCollisionTest › a cell on an occupied square is a collision, the same piece just above fits`,
-  `BoardCollisionTest › the hidden rows -1 and -2 are free, row -3 is a collision`. La perte des
-  cellules cachées au verrouillage sera prouvée en P1.6.
+  `BoardCollisionTest › the hidden rows -1 and -2 are free, row -3 is a collision`,
+  `BoardLockTest › cells in the hidden rows are lost, the visible ones join the board`.
 - Les pièces apparaissent centrées en haut du plateau.
 - **Fin de partie** : la nouvelle pièce ne peut pas apparaître parce que sa position de départ
   est occupée.
@@ -173,6 +173,16 @@ négligeable). Le niveau ne peut pas être négatif.
 
 Pas de délai de verrouillage : quand la gravité devrait faire descendre la pièce et que la
 case en dessous est occupée (ou que c'est le fond), la pièce **se verrouille immédiatement**.
+
+Verrouiller remplit les cellules de la pièce avec son type, sur un nouveau plateau ; ses
+cellules restées dans les lignes cachées sont perdues. Une pièce qui ne tient pas (hors des
+murs, sous le fond, au-dessus de la ligne −2 ou sur une case occupée) ne peut pas être
+verrouillée. La décision de verrouiller (descente refusée) sera prouvée par le moteur (P1.12).
+
+**Tests :** `BoardLockTest › locking a piece fills its four cells with its type on a new board`,
+`BoardLockTest › cells in the hidden rows are lost, the visible ones join the board`,
+`BoardLockTest › locking a piece that does not fit is refused, even by a cell in a hidden row`,
+`BoardLockTest › the original board does not change`.
 
 ## Commandes
 

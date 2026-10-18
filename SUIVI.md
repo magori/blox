@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 30 / 66 | `█████████░░░░░░░░░░░` **45 %** |
-| **MVP** (jouable sur téléphone) | 26 / 37 | `██████████████░░░░░░` **70 %** |
+| **Général** | 31 / 66 | `█████████░░░░░░░░░░░` **47 %** |
+| **MVP** (jouable sur téléphone) | 27 / 37 | `███████████████░░░░░` **73 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -87,12 +87,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `Board.move(piece, direction): Piece?`, `Position.plus`.
 - [x] **P1.5** `ClassicRotationSystem` : rotations horaire et anti-horaire, refus sans décalage.
   `Rotation`, `RotationSystem.candidates`, `Board.place`.
-- [ ] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
-  Si un test l'exige : remplir les quatre cellules en une seule copie, refuser d'écraser une
-  cellule occupée (revue de P1.1). Les cellules restées dans les lignes cachées sont perdues,
-  la partie continue (source ROM, voir Plateau) ; `fill` reste strict, c'est le verrouillage
-  qui les ignore. Ne pas appeler le verrouillage « place » : `Board.place` est le contrôle d'un
-  candidat (revue de P1.5).
+- [x] **P1.6** Verrouillage : la pièce rejoint le plateau quand elle ne peut plus descendre.
+  `Board.lock(piece)` : cellules cachées perdues (ROM), refus d'une pièce qui ne tient pas.
 - [ ] **P1.7** Effacement des lignes : 1 à 4 lignes, lignes non contiguës, chute des lignes
   supérieures.
 - [x] **P1.8** `ClassicRandomizer` avec graine : un seul nouveau tirage si 7 ou répétition
@@ -125,7 +121,22 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   déplacement latéral refusé ; DAS figé pendant le délai d'apparition, compteur de descente
   rapide remis à zéro à l'apparition. Revue de P1.5 : rotation par
   `rotationSystem.candidates(piece, rotation).firstNotNullOfOrNull(board::place)` ; événement
-  de rotation seulement si la pièce change (O) **[à vérifier]**.
+  de rotation seulement si la pièce change (O) **[à vérifier]**. Revue de P1.7 : pendant
+  l'animation d'effacement, `GameState` garde le plateau verrouillé (non effacé) et le
+  `RowsCleared`, et ne publie le plateau effacé qu'à la fin. Découpe validée, une revue et une
+  PR par incrément (P1.12 n'est cochée qu'après le dernier) :
+  - [ ] P1.12a État et apparition : `GameState`, `GameEngine.start(niveau de départ, graine)`,
+    validation du départ (plage exposée par `LevelProgression`), deux tirages, apparition pivot
+    en (5, 0) dans l'orientation de départ, fin de partie si la pièce ne tient pas.
+  - [ ] P1.12b Gravité et verrouillage : `tick()`, descente selon `GravityTable`, descente
+    refusée → `lock`, délai d'apparition (`EntryDelay`), apparition de la pièce suivante.
+  - [ ] P1.12c Effacement, score et niveau : `clearFullRows`, animation de 16 images + images
+    jusqu'au prochain multiple de 4 (17 à 20, compteur d'images de la partie, **[à vérifier]**),
+    lignes, niveau recalculé, points au nouveau niveau, événement `LinesCleared`.
+  - [ ] P1.12d Commandes : `apply(Input)` (appui, relâchement), `AutoRepeat` pour le DAS et la
+    descente rapide, rotation, interactions issues de la ROM (ci-dessus), points de descente
+    rapide au verrouillage.
+  - [ ] P1.12e Fin de partie : événement `GameOver`, l'état ne change plus ensuite.
 - [x] **P1.13** Commandes maintenues : DAS 16/6, descente rapide 2/2, DAS chargé contre un mur
   (sources ROM) ; `AutoRepeat`, `InputRepeat`, `ClassicInputRepeat`.
 - [x] **P1.14** Délai d'apparition paramétrable (10 à 18 images selon la hauteur) :
@@ -237,7 +248,9 @@ Référence : [docs/musique.md](docs/musique.md).
 
 Nouvelles implémentations des politiques de `core:game`, sans modifier le moteur :
 rotation SRS avec décalages, sac de 7, réserve, pièce fantôme, chute instantanée, délai de
-verrouillage, plusieurs pièces suivantes.
+verrouillage, plusieurs pièces suivantes. Règle « lock out » (revue de P1.6) : une pièce
+verrouillée entièrement au-dessus du plateau met fin à la partie, en politique ; impossible
+en mode Classique, où toute pièce apparaît avec des cellules en ligne 0 ou plus bas.
 
 
 ---
