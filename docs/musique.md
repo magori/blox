@@ -18,6 +18,9 @@ Voir l'[ADR 0008](adr/0008-musique-domaine-public.md).
 
 *Korobeïniki* · *Menuet* · *Mon fichier* · *Aucune*
 
+Prévu : des musiques composées dans l'application, à la main ou par le générateur
+(bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
+
 ## Modèle
 
 ```

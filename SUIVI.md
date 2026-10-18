@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 56 / 99 | `███████████░░░░░░░░░` **57 %** |
+| **Général** | 56 / 108 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -366,6 +366,30 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P4.10** Droits : confirmer la mélodie de *Korobeïniki* sur une édition d'époque
   (Prigojy 1898, recueils de Panina vers 1905, НЭБ) ; les deux sources nettes consultées en P4.9
   sont des notations modernes. Retirer alors « [à vérifier] (droits) » de `docs/musique.md`.
+
+Musiques composées dans l'application, à la main ou par le générateur : spécification dans
+[docs/generateur-musique.md](docs/generateur-musique.md), prototype dans la maquette
+[Éditeur de musique BloX](https://claude.ai/artifact/M91HH7KRJWTMHeDvLaV8wz). Le générateur
+compose selon des règles d'écriture (accords éprouvés, motif repris, degrés conjoints, notes de
+l'accord sur les temps forts) et garde le meilleur de plusieurs candidats ; le hasard ne choisit
+qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
+
+- [ ] **P4.13** Modèle harmonique dans `core:music` : `Scale` (majeure, mineures naturelle et
+  harmonique, dorienne, mixolydienne, pentatonique), `Chord`, `Progression`.
+- [ ] **P4.14** Catégories du générateur (Joyeux, Calme, Épique, Mélancolique, Mystérieux,
+  Rétro, Danse, Surprise) : gamme, tempo, suites d'accords, rythmes, basse de chacune.
+- [ ] **P4.15** Forme : motif d'une mesure, plan `A A' B A''` sur 8 mesures, cadences
+  suspendues aux mesures 4 et 8 pour la boucle ; même graine, même musique.
+- [ ] **P4.16** Mélodie : degrés conjoints, sauts compensés, notes de l'accord sur les temps
+  forts, courbe en arche, fins de phrase longues.
+- [ ] **P4.17** Basse selon la catégorie, passage vers l'accord suivant, sans quintes ni octaves
+  parallèles avec la mélodie.
+- [ ] **P4.18** Note de qualité et règles éliminatoires ; choix du meilleur candidat.
+- [ ] **P4.19** Éditeur de musique (`feature:composer`) : grille selon la gamme, notes longues,
+  tempo, écoute ; partitions enregistrées dans `core:data` et proposées à l'accueil.
+- [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
+- [ ] **P4.21** Mettre à jour la maquette : éditeur de musique dans la maquette BloX (V1 → éditeur,
+  thèmes Original et Couleurs), choix de la catégorie.
 
 ## P5 — Finitions
 
