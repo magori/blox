@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 26 / 66 | `████████░░░░░░░░░░░░` **39 %** |
+| **Général** | 27 / 66 | `████████░░░░░░░░░░░░` **41 %** |
 | **MVP** (jouable sur téléphone) | 24 / 37 | `█████████████░░░░░░░` **65 %** |
 <!-- avancement:fin -->
 
