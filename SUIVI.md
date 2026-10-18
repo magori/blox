@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 54 / 76 | `██████████████░░░░░░` **71 %** |
+| **Général** | 54 / 98 | `███████████░░░░░░░░░` **55 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -398,15 +398,61 @@ Référence : [docs/musique.md](docs/musique.md).
 
 ## P6 — Mode Moderne (plus tard)
 
-Revue de P1.12a : la promesse « sans modifier le moteur » ne tiendra pas entièrement (file de
-plusieurs pièces suivantes, réserve, délai de verrouillage réinitialisable, chute instantanée,
-T-spin et combos demandent de l'état). `Rules` et la position d'apparition sortie du moteur
-limitent l'écart ; à amender dans CLAUDE.md au moment de P6.
-Nouvelles implémentations des politiques de `core:game`, sans modifier le moteur :
-rotation SRS avec décalages, sac de 7, réserve, pièce fantôme, chute instantanée, délai de
-verrouillage, plusieurs pièces suivantes. Règle « lock out » (revue de P1.6) : une pièce
-verrouillée entièrement au-dessus du plateau met fin à la partie, en politique ; impossible
-en mode Classique, où toute pièce apparaît avec des cellules en ligne 0 ou plus bas.
+Analyse : [docs/analyse-mode-moderne.md](docs/analyse-mode-moderne.md). Un seul moteur pour
+les deux modes : `Rules` déclare ce que le mode permet, les comportements codés en dur
+deviennent des politiques, et le Classique leur donne des valeurs neutres. Chaque tâche laisse
+les tests du Classique verts ; les refactorings passent avant les ajouts. Décisions prises :
+3 pièces suivantes par défaut (réglable), commandes par boutons ou gestes (réglable), cellules
+au-dessus du plateau perdues comme sur la NES (option de les garder plus tard), départ au
+niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au sol.
+
+- [ ] **P6.1** Spécification `docs/regles-mode-moderne.md`, valeurs sourcées (les plus répandues
+  parmi les jeux récents) ; ADR 0015 « un moteur, des capacités » qui amende l'ADR 0004 ;
+  promesse « sans modifier le moteur » et glossaire (`Hold`, `HardDrop`, `Ghost`, `LockDelay`,
+  `Bag`, `TSpin`, `Combo`, `BackToBack`) mis à jour dans `CLAUDE.md`.
+- [ ] **P6.2** Politique `LineClearDelay` : durée de l'effacement des lignes sortie du moteur,
+  valeurs Classique (refactoring).
+- [ ] **P6.3** File de pièces suivantes : `GameState.next` devient une file, `Rules.previewCount`
+  (1 en Classique) ; `feature:game` lit la première pièce.
+- [ ] **P6.4** `SevenBagRandomizer` : les sept pièces mélangées, puis un nouveau sac.
+- [ ] **P6.5** `SrsRotationSystem` : quatre états par pièce, tables de décalage, table propre au I,
+  O fixe.
+- [ ] **P6.6** Position de chute d'une pièce (`Board`), base de la pièce fantôme et de la chute
+  instantanée.
+- [ ] **P6.7** Chute instantanée : bouton, capacité dans `Rules` (absente en Classique), points
+  par ligne descendue.
+- [ ] **P6.8** Politique `LockDelay` : temps au sol, réinitialisations limitées par déplacement
+  ou rotation (0 en Classique, comportement identique).
+- [ ] **P6.9** Réserve : bouton, pièce réservée dans `GameState`, une fois par pièce ; capacité
+  absente en Classique.
+- [ ] **P6.10** Politique `ControlScheme` : règles de la manette NES sorties de `shift` et `drop`
+  (refactoring), puis schéma Moderne (dernier sens pressé gagnant, déplacement pendant la
+  descente rapide). À découper en incréments.
+- [ ] **P6.11** Gravité de plus d'une ligne par tick (contrat de `GravityTable`), courbe Moderne
+  jusqu'à la chute immédiate au sol.
+- [ ] **P6.12** Contexte de verrouillage et détection du T-spin (règle des 3 coins, mini).
+- [ ] **P6.13** Score Moderne : nouveau contrat de `ScoringRule` (T-spin, combos,
+  enchaînements, niveau d'avant l'effacement), nouveaux événements et statistiques. À découper
+  en incréments.
+- [ ] **P6.14** Fin de partie Moderne : pièce verrouillée entièrement au-dessus du plateau
+  (revue de P1.6), apparition décalée d'une ligne ; cellules au-dessus du plateau perdues comme
+  sur la NES.
+- [ ] **P6.15** `ModernRules`, `ModernGameEngineFactory`, progression Moderne (départ au
+  niveau 1, un niveau toutes les 10 lignes).
+- [ ] **P6.16** Choix du mode : mode enregistré dans les préférences, *Moderne* activé dans V1,
+  fabrique du moteur choisie par `app` ; records par mode.
+- [ ] **P6.17** Écran Réglages : nombre de pièces suivantes (3 par défaut), commandes par
+  boutons ou par gestes ; enregistrés dans `core:data`.
+- [ ] **P6.18** Écran de jeu Moderne : réserve, file de pièces suivantes, pièce fantôme
+  (style par thème), boutons de chute instantanée et de réserve.
+- [ ] **P6.19** Commandes par gestes : glisser pour déplacer, taper pour tourner, glisser vers
+  le bas pour la chute instantanée.
+- [ ] **P6.20** Fin de partie Moderne : statistiques (T-spins, plus long combo) dans V4 ; sons
+  des nouveaux événements.
+- [ ] **P6.21** Option « garder les cellules au-dessus du plateau » : zone cachée stockée dans
+  `Board`, réglable dans l'écran Réglages.
+- [ ] **P6.22** Mettre à jour la maquette : écran de jeu et fin de partie du mode Moderne,
+  écran Réglages.
 
 
 ---
