@@ -146,7 +146,7 @@ internal fun HomeScreen(
                         val name = stringResource(music.label)
                         val selected = music == uiState.selectedMusic
                         Choice(text = name, selected = selected, onClick = { onMusicChosen(music) })
-                        // Beside it, or under it when room is short, « Mon fichier » with a file offers to change that file.
+                        // Beside it, or under it when short of room, « Mon fichier » with a file offers to change it.
                         ChoiceActions {
                             if (music in uiState.listenable) {
                                 ListenButton(
