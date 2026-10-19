@@ -9,11 +9,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -27,6 +30,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -37,6 +42,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -129,6 +135,7 @@ internal fun HomeScreen(
                         text = level.toString(),
                         selected = level == uiState.startLevel,
                         onClick = { onStartLevelChosen(level) },
+                        checkInCorner = true,
                         modifier = Modifier.weight(1f).testTag(START_LEVEL_TAG),
                     )
                 }
@@ -257,7 +264,8 @@ private fun ChoiceActions(content: @Composable () -> Unit) {
 /**
  * A choice, read by TalkBack as a radio button. With [onClick] null, it is shown and announced as
  * selected, without an action: there is nothing else to choose. TalkBack reads [description] instead of [text], if
- * given. [text] takes one line, or up to [maxLines], shrinking if needed.
+ * given. [text] takes one line, or up to [maxLines], shrinking if needed. A selected choice bears a check before its
+ * label, or in its top corner if [checkInCorner].
  */
 @Composable
 private fun Choice(
@@ -268,6 +276,7 @@ private fun Choice(
     enabled: Boolean = true,
     description: String? = null,
     maxLines: Int = 1,
+    checkInCorner: Boolean = false,
 ) {
     val colors = choiceColors(BloxTheme.palette, selected)
     // A choice is a button, framed as the secondary buttons of the game screens: square corners in Original.
@@ -289,29 +298,81 @@ private fun Choice(
             .background(colors.background, shape)
             .border(BloxBorders.frame, colors.frame, shape)
             .then(interaction)
-            .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier)
-            .padding(horizontal = 8.dp),
+            .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier),
         contentAlignment = Alignment.Center,
     ) {
-        // On one line, shrinking if needed: a start level cell is narrower than a digit of the pixel font.
         val style = MaterialTheme.typography.labelLarge
-        Text(
-            text = text,
-            // With a description, TalkBack reads it alone, not the text after it.
-            modifier = if (description != null) Modifier.clearAndSetSemantics {} else Modifier,
-            color = colors.ink,
-            style = style,
-            textAlign = if (maxLines > 1) TextAlign.Center else null,
-            overflow = if (maxLines > 1) TextOverflow.Ellipsis else TextOverflow.Clip,
-            maxLines = maxLines,
-            softWrap = maxLines > 1,
-            autoSize = TextAutoSize.StepBased(
-                minFontSize = BloxTypographies.MinimumFontSize,
-                maxFontSize = style.fontSize,
-            ),
-        )
+        // With a description, TalkBack reads it alone, not the text after it.
+        val readLabel = description == null
+        if (checkInCorner) {
+            // A cell too narrow to give room to a check beside its digit: the check stands in its top corner, above
+            // the digit. Every cell keeps that room above and under its digit, selected or not, so the check never
+            // touches it, even in a large font, and the cells stay as tall as one another (48 dp in a normal font).
+            val room = CORNER_CHECK_INSET + CORNER_CHECK_SIZE
+            ChoiceLabel(
+                text = text,
+                color = colors.ink,
+                style = style,
+                maxLines = maxLines,
+                read = readLabel,
+                modifier = Modifier.padding(horizontal = CHOICE_PADDING, vertical = room),
+            )
+            colors.check?.let {
+                ChoiceCheck(it, Modifier.align(Alignment.TopEnd).padding(CORNER_CHECK_INSET).size(CORNER_CHECK_SIZE))
+            }
+        } else {
+            // Before the label, as large as its letters up to a limit, so it grows with the font, centred on the label,
+            // even on two lines.
+            val label = with(LocalDensity.current) { style.fontSize.toDp() }
+            val insets = choiceInsets(selected = selected, label = label)
+            Row(
+                modifier = Modifier.padding(start = insets.start, end = insets.end),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                colors.check?.let {
+                    ChoiceCheck(it, Modifier.size(insets.check))
+                    Spacer(Modifier.width(insets.gap))
+                }
+                ChoiceLabel(text, colors.ink, style, maxLines, readLabel)
+            }
+        }
     }
 }
+
+/**
+ * The label of a choice, [text] in [color], on one line or up to [maxLines], shrinking if needed: a start level cell
+ * is narrower than a digit of the pixel font. TalkBack reads it if [read].
+ */
+@Composable
+private fun ChoiceLabel(
+    text: String,
+    color: Color,
+    style: TextStyle,
+    maxLines: Int,
+    read: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        modifier = if (read) modifier else modifier.clearAndSetSemantics {},
+        color = color,
+        style = style,
+        textAlign = if (maxLines > 1) TextAlign.Center else null,
+        overflow = if (maxLines > 1) TextOverflow.Ellipsis else TextOverflow.Clip,
+        maxLines = maxLines,
+        softWrap = maxLines > 1,
+        autoSize = TextAutoSize.StepBased(
+            minFontSize = BloxTypographies.MinimumFontSize,
+            maxFontSize = style.fontSize,
+        ),
+    )
+}
+
+/** The check of a start level, in its top corner: small, as the cell is narrow. */
+private val CORNER_CHECK_SIZE = 10.dp
+
+/** The room between the check of a start level and the edges of its cell, frame included. */
+private val CORNER_CHECK_INSET = 4.dp
 
 @get:StringRes
 private val ThemeChoice.label: Int
