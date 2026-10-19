@@ -115,3 +115,4 @@ blox-android-library-compose = { id = "blox.android.library.compose" }
 blox-android-feature = { id = "blox.android.feature" }
 blox-android-screenshot = { id = "blox.android.screenshot" }
 blox-jvm-library = { id = "blox.jvm.library" }
+blox-test-fixtures = { id = "blox.test.fixtures" }

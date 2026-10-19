@@ -20,110 +20,13 @@ import org.junit.jupiter.api.io.TempDir
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
-import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
-import org.junit.jupiter.params.provider.ValueSource
 import java.io.File
 
-class DataStoreUserPreferencesRepositoryTest {
+/** The contract of the settings, on a DataStore file, and what is proper to a file: it is kept, its errors, its keys. */
+class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract() {
     @TempDir
     lateinit var directory: File
-
-    @Test
-    fun `without saved preferences the defaults are the Original theme, Korobeiniki and level 0`() = runTest {
-        // Given
-        val repository = repositoryIn(backgroundScope)
-
-        // When
-        val preferences = repository.preferences.first()
-
-        // Then
-        assertThat(preferences).isEqualTo(
-            UserPreferences(theme = ThemeChoice.ORIGINAL, music = MusicChoice.KOROBEINIKI, startLevel = 0),
-        )
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @EnumSource(ThemeChoice::class)
-    fun `a saved theme is read back`(theme: ThemeChoice) = runTest {
-        // Given
-        val repository = repositoryIn(backgroundScope)
-
-        // When
-        repository.setTheme(theme)
-
-        // Then
-        assertThat(repository.preferences.first().theme).isEqualTo(theme)
-    }
-
-    @ParameterizedTest(name = "{0}")
-    @EnumSource(MusicChoice::class)
-    fun `a saved music is read back`(music: MusicChoice) = runTest {
-        // Given
-        val repository = repositoryIn(backgroundScope)
-
-        // When
-        repository.setMusic(music)
-
-        // Then
-        assertThat(repository.preferences.first().music).isEqualTo(music)
-    }
-
-    @ParameterizedTest(name = "level {0}")
-    @ValueSource(ints = [0, 5, 9])
-    fun `a saved start level is read back`(startLevel: Int) = runTest {
-        // Given
-        val repository = repositoryIn(backgroundScope)
-
-        // When
-        repository.setStartLevel(startLevel)
-
-        // Then
-        assertThat(repository.preferences.first().startLevel).isEqualTo(startLevel)
-    }
-
-    @Test
-    fun `changing one preference leaves the others`() = runTest {
-        // Given all three preferences saved
-        val repository = repositoryIn(backgroundScope)
-        repository.setTheme(ThemeChoice.COLORFUL)
-        repository.setMusic(MusicChoice.MINUET)
-        repository.setStartLevel(7)
-
-        // When the theme changes
-        repository.setTheme(ThemeChoice.ORIGINAL)
-
-        // Then the music and the start level are kept
-        assertThat(repository.preferences.first()).isEqualTo(
-            UserPreferences(theme = ThemeChoice.ORIGINAL, music = MusicChoice.MINUET, startLevel = 7),
-        )
-    }
-
-    @Test
-    fun `a start level of 15 is read back as is`() = runTest {
-        // Given: the range of the start levels belongs to the game mode, not to the settings
-        val repository = repositoryIn(backgroundScope)
-
-        // When
-        repository.setStartLevel(15)
-
-        // Then
-        assertThat(repository.preferences.first().startLevel).isEqualTo(15)
-    }
-
-    @Test
-    fun `a negative start level is refused and nothing is saved`() = runTest {
-        // Given a start level of 5 saved
-        val repository = repositoryIn(backgroundScope)
-        repository.setStartLevel(5)
-
-        // When
-        val failure = runCatching { repository.setStartLevel(-1) }.exceptionOrNull()
-
-        // Then
-        assertThat(failure).isInstanceOf(IllegalArgumentException::class.java)
-        assertThat(repository.preferences.first().startLevel).isEqualTo(5)
-    }
 
     @Test
     fun `an unknown value in the file gives the default of that preference`() = runTest {
@@ -176,29 +79,6 @@ class DataStoreUserPreferencesRepositoryTest {
 
         // Then
         assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage("a bug")
-    }
-
-    @Test
-    fun `the preferences flow emits each change once, and nothing when a value is saved again`() = runTest {
-        // Given
-        val repository = repositoryIn(backgroundScope)
-
-        repository.preferences.test {
-            assertThat(awaitItem()).isEqualTo(UserPreferences.DEFAULT)
-
-            // When the theme changes, then is saved again unchanged, then the music changes
-            repository.setTheme(ThemeChoice.COLORFUL)
-            val afterTheme = awaitItem()
-            repository.setTheme(ThemeChoice.COLORFUL)
-            repository.setMusic(MusicChoice.MINUET)
-
-            // Then
-            assertThat(afterTheme.theme).isEqualTo(ThemeChoice.COLORFUL)
-            assertThat(
-                awaitItem(),
-            ).isEqualTo(UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, music = MusicChoice.MINUET))
-            expectNoEvents()
-        }
     }
 
     @Test
@@ -264,6 +144,8 @@ class DataStoreUserPreferencesRepositoryTest {
         // When / Then
         assertThat(repositoryIn(backgroundScope).preferences.first().music).isEqualTo(music)
     }
+
+    override fun emptyRepository(scope: CoroutineScope): UserPreferencesRepository = repositoryIn(scope)
 
     /** Writes the settings file with a DataStore of its own, closed before the test goes on. */
     private suspend fun TestScope.writeSettingsFile(write: (MutablePreferences) -> Unit) = inScopeClosedAfter { scope ->

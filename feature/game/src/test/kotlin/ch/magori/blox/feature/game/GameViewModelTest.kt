@@ -7,8 +7,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.data.FakeHighScoreRepository
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicChoice
-import ch.magori.blox.core.data.RecordResult
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.game.engine.GameEngine
@@ -29,8 +31,10 @@ import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.ClassicScoringRule
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.RotationSystem
+import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
 import ch.magori.blox.feature.game.controls.ControlButton
@@ -59,8 +63,8 @@ class GameViewModelTest {
 
     private val seeds = mutableListOf<Long>()
 
-    /** The record before the game: the fake answers with it, as a new record, to every submit. */
-    private val highScores = FakeHighScoreRepository(RecordResult(previous = 100, isNewRecord = true))
+    /** The record before the game: 100, which the test game beats (see [hundredPointsPerLock]). */
+    private val highScores = FakeHighScoreRepository(initial = 100)
 
     /** The settings of the player: Korobeiniki, unless a test chooses another music. */
     private val preferences = FakeUserPreferencesRepository()
@@ -71,11 +75,14 @@ class GameViewModelTest {
     private val testScores: (MusicChoice) -> Score? =
         mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)::get
 
-    /** Real engines with rules made for tests: pieces T, I, O, … in turn, and one tick per row. */
+    /**
+     * Real engines with rules made for tests: pieces T, I, O, … in turn, one tick per row, and 100 points per
+     * piece locked, so that the test game, which clears no line, beats the record.
+     */
     private val engineFactory = GameEngineFactory { seed ->
         seeds += seed
         GameEngine(
-            ClassicRules.copy(gravityTable = oneTickPerRow),
+            ClassicRules.copy(gravityTable = oneTickPerRow, scoringRule = hundredPointsPerLock),
             ScriptedRandomizer.cycling(PieceType.T, PieceType.I, PieceType.O),
         )
     }
@@ -255,6 +262,21 @@ class GameViewModelTest {
         // Then
         assertThat(viewModel.uiState.value).isEqualTo(over)
         assertThat(highScores.submitted).hasSize(1)
+    }
+
+    @Test
+    fun `a game over below the record shows no new record`() {
+        // Given a record that no game can beat
+        val unbeatable = FakeHighScoreRepository(initial = Int.MAX_VALUE)
+        val final = finalStateOfTheTestGame()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), records = unbeatable)
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then the score was submitted, and the screen shows no new record
+        assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
+        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
     }
 
     @Test
@@ -944,7 +966,8 @@ class GameViewModelTest {
         route: GameRoute,
         factory: GameEngineFactory = engineFactory,
         savedState: SavedStateHandle = SavedStateHandle(),
-    ): GameViewModel = GameViewModel(factory, route, highScores, preferences, music, testScores, savedState)
+        records: FakeHighScoreRepository = highScores,
+    ): GameViewModel = GameViewModel(factory, route, records, preferences, music, testScores, savedState)
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
     private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })
@@ -978,6 +1001,15 @@ class GameViewModelTest {
 
         val oneTickPerRow = object : GravityTable {
             override fun ticksPerRow(level: Level): Ticks = Ticks(1)
+        }
+
+        /**
+         * The classic scoring, plus 100 points for each piece that locks. The engine calls
+         * [ScoringRule.pointsForSoftDrop] once per lock, soft drop or not: that call is the hook used here, so that
+         * the test game, which neither clears a line nor soft drops, still scores.
+         */
+        val hundredPointsPerLock = object : ScoringRule by ClassicScoringRule {
+            override fun pointsForSoftDrop(rowsDropped: Int): Points = Points(100)
         }
 
         /** The T as it appears: pivot at (5, 0), spawn orientation. */

@@ -47,6 +47,10 @@ gradlePlugin {
             id = libs.plugins.blox.android.screenshot.get().pluginId
             implementationClass = "AndroidScreenshotConventionPlugin"
         }
+        register("testFixtures") {
+            id = libs.plugins.blox.test.fixtures.get().pluginId
+            implementationClass = "TestFixturesConventionPlugin"
+        }
         register("jvmLibrary") {
             id = libs.plugins.blox.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"
