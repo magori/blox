@@ -9,7 +9,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.StateRestorationTester
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.runAndroidComposeUiTest
+import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
