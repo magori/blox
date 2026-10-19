@@ -13,7 +13,7 @@ public enum class Category(
     public val harmonies: List<Harmony>,
     public val tempo: TempoRange,
     public val rhythms: List<RhythmCell>,
-    public val bass: BassStyle,
+    internal val bass: BassStyle,
     public val allowsChromaticPassingNotes: Boolean = false,
     internal val melody: MelodyTraits = MelodyTraits.NEUTRAL,
     ownPhraseEnds: List<RhythmCell> = emptyList(),
@@ -23,7 +23,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.MAJOR, "I–V–vi–IV", "I–IV–V–I")),
         tempo = TempoRange(120, 150),
         rhythms = cells("0.5 0.5 0.5 0.5 1 1", "0.75 0.25 0.75 0.25 1 1", "1 0.5 0.5 0.75 0.25 1", "0.5 1 0.5 1 1"),
-        bass = BassStyle.BOUNCING_OCTAVES,
+        bass = BassStyle(BassMotif.OCTAVES, beats = 1.0),
         ownPhraseEnds = cells("0.5 0.5 1 2", "0.75 0.25 1 2"),
     ),
 
@@ -32,7 +32,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.MAJOR_PENTATONIC, "I–vi–IV–V", "I–IV")),
         tempo = TempoRange(70, 95),
         rhythms = cells("2 2", "1 1 2", "2 1 r1", "1 r1 2"),
-        bass = BassStyle.WHOLE_AND_HALF_NOTES,
+        bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 2.0),
     ),
 
     /** Strong quarter notes, struck on every beat, and leaps of a fifth. */
@@ -40,7 +40,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.NATURAL_MINOR, "i–VI–III–VII", "i–VII–VI–VII")),
         tempo = TempoRange(110, 140),
         rhythms = cells("1 1 1 1", "1 0.5 0.5 1 1", "0.5 0.5 1 1 1", "1 1 0.5 0.5 1"),
-        bass = BassStyle.GALLOP,
+        bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 0.5),
         melody = MelodyTraits(fifths = 8.0),
         ownPhraseEnds = cells("1 1 2", "1 1 1 r1"),
     ),
@@ -50,7 +50,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.NATURAL_MINOR, "i–VI–iv–v", "i–iv–VII–III")),
         tempo = TempoRange(80, 100),
         rhythms = cells("2 2", "3 1", "1 1 2", "1.5 0.5 2"),
-        bass = BassStyle.ROOT_AND_FIFTH,
+        bass = BassStyle(BassMotif.ROOT_AND_FIFTH, beats = 1.0),
         melody = MelodyTraits(descents = 3.0),
     ),
 
@@ -59,7 +59,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.DORIAN, "i–IV"), on(ScaleType.HARMONIC_MINOR, "i–♭VII–VI–V")),
         tempo = TempoRange(90, 110),
         rhythms = cells("4", "3 1", "2 2", "3 0.5 0.5"),
-        bass = BassStyle.HELD_NOTES,
+        bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 4.0),
         allowsChromaticPassingNotes = true,
     ),
 
@@ -79,7 +79,7 @@ public enum class Category(
             "0.25 0.25 0.25 0.25 0.5 0.5 0.25 0.25 0.25 0.25 1",
             "0.5 1 0.5 0.5 0.5 1",
         ),
-        bass = BassStyle.FAST_OCTAVES,
+        bass = BassStyle(BassMotif.OCTAVES, beats = 0.5),
         melody = MelodyTraits(arpeggios = 4.0),
         ownPhraseEnds = cells("0.5 0.5 0.5 0.5 2", "0.25 0.25 0.25 0.25 0.5 0.5 2"),
     ),
@@ -89,7 +89,7 @@ public enum class Category(
         harmonies = listOf(on(ScaleType.HARMONIC_MINOR, "i–iv–V–i")),
         tempo = TempoRange(130, 160),
         rhythms = cells("1 0.5 0.5 1 0.5 0.5", "1 0.5 0.5 1 1", "0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5", "1 1 1 0.5 0.5"),
-        bass = BassStyle.MARKED_ROOT_AND_FIFTH,
+        bass = BassStyle(BassMotif.ROOT_AND_FIFTH, beats = 0.5),
         ownPhraseEnds = cells("1 0.5 0.5 2", "1 0.5 0.5 1 r1"),
     ),
     ;

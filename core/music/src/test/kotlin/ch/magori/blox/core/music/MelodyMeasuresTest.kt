@@ -99,13 +99,3 @@ class MelodyMeasuresTest {
         val C_MAJOR = Scale(Pitch.parse("C4"), ScaleType.MAJOR)
     }
 }
-
-/** A melody written bar by bar, as notes such as `"C4 1"` separated by commas, `r` marking a rest. */
-private fun melodyOf(vararg bars: String): Melody = Melody(
-    bars.map { bar ->
-        bar.split(", ").map { note ->
-            val (pitch, beats) = note.split(" ")
-            Note(if (pitch == "r") null else Pitch.parse(pitch), beats.toDouble())
-        }
-    },
-)
