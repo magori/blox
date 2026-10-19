@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.composer.model
 
-/** Ticks per second: 1 tick = 1 frame = 1/60 s (ADR 0006). */
-internal const val TICKS_PER_SECOND: Int = 60
+import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 
 /**
  * Where the music listened to stands: the [cell] being played. It counts in ticks, never in milliseconds (ADR 0006):

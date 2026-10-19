@@ -956,7 +956,7 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
   musique qui s'arrête d'elle-même (focus refusé ou perdu, sortie audio en échec), même aussitôt
   lancée, ramène le bouton à « Écouter ».
 - **Colonne jouée** : `Playback` ne dit pas sa position ; l'écran envoie ses images
-  (`withFrameNanos`, ADR 0012), `FrameTicks` les convertit en ticks entiers (sans dérive, tous les
+  (`withFrameNanos`, ADR 0012), `FrameTicks` (`core:designsystem`, partagée avec le jeu, sans plafond ici) les convertit en ticks entiers (sans dérive, tous les
   ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `PlayHead` avance de
   ticks × bpm (une case par croche, 15 ticks à 120 temps par minute), boucle après la mesure 8 et
   suit un changement de tempo depuis l'endroit où elle se trouve. La colonne porte un contour en

@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
+import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.EditMode
@@ -198,6 +199,8 @@ class ComposerViewModel(private val music: MusicPlayer) : ViewModel() {
      * itself, the [frames] of the screen turned into ticks, and the [head] they moved on.
      */
     private class Listening(val playback: Playback, val playedTempo: Tempo, val watch: Job) {
+        // No cap per frame, unlike a game: the music goes on in real time while frames are skipped, and the play head
+        // catches up every tick to follow it.
         val frames = FrameTicks()
         var head = PlayHead.START
     }
