@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game.controls
 
+import androidx.compose.ui.input.key.Key
 import ch.magori.blox.feature.game.controls.ControlChange.Pressed
 import ch.magori.blox.feature.game.controls.ControlChange.Released
 import org.assertj.core.api.Assertions.assertThat
@@ -130,5 +131,49 @@ class HeldButtonsTest {
         // Then
         assertThat(step.changes).containsExactly(Pressed(ControlButton.A), Released(ControlButton.A))
         assertThat(step.held.heldButtons).isEmpty()
+    }
+
+    @Test
+    fun `a key holds its button as a finger does, pressed going down and released coming back up`() {
+        // When
+        val down = HeldButtons().pressKey(Key.DirectionLeft, ControlButton.LEFT)
+        val up = down.held.liftKey(Key.DirectionLeft)
+
+        // Then
+        assertThat(down.changes).containsExactly(Pressed(ControlButton.LEFT))
+        assertThat(down.held.heldButtons).containsExactly(ControlButton.LEFT)
+        assertThat(up.changes).containsExactly(Released(ControlButton.LEFT))
+    }
+
+    @Test
+    fun `a key and a finger are never taken for each other, even when the key code is the pointer id`() {
+        // Given finger 1 on left
+        val held = HeldButtons().press(finger = 1, ControlButton.LEFT).held
+
+        // When the key of code 1 goes down on A, then back up
+        val down = held.pressKey(Key(keyCode = 1), ControlButton.A)
+        val up = down.held.liftKey(Key(keyCode = 1))
+
+        // Then left stays held by the finger
+        assertThat(down.changes).containsExactly(Pressed(ControlButton.A))
+        assertThat(down.held.heldButtons).containsExactlyInAnyOrder(ControlButton.LEFT, ControlButton.A)
+        assertThat(up.changes).containsExactly(Released(ControlButton.A))
+        assertThat(up.held.heldButtons).containsExactly(ControlButton.LEFT)
+    }
+
+    @Test
+    fun `a finger and a key on the same button press it once, and release it when the last one lets go`() {
+        // Given a finger on left
+        val touched = HeldButtons().press(finger = 1, ControlButton.LEFT)
+
+        // When the left arrow also goes down, then the finger lifts, then the arrow comes back up
+        val keyDown = touched.held.pressKey(Key.DirectionLeft, ControlButton.LEFT)
+        val fingerLifts = keyDown.held.lift(finger = 1)
+        val keyUp = fingerLifts.held.liftKey(Key.DirectionLeft)
+
+        // Then
+        assertThat(keyDown.changes).isEmpty()
+        assertThat(fingerLifts.changes).isEmpty()
+        assertThat(keyUp.changes).containsExactly(Released(ControlButton.LEFT))
     }
 }

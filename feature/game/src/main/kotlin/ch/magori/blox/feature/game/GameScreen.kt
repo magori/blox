@@ -17,14 +17,26 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.focusTarget
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -51,8 +63,12 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
+import ch.magori.blox.feature.game.controls.HeldControls
+import ch.magori.blox.feature.game.controls.Menu
 import ch.magori.blox.feature.game.controls.RotationPad
-import ch.magori.blox.feature.game.controls.rememberControlFingers
+import ch.magori.blox.feature.game.controls.keySourceOf
+import ch.magori.blox.feature.game.controls.menuKey
+import ch.magori.blox.feature.game.controls.rememberHeldControls
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
 import ch.magori.blox.feature.game.sidepanel.NextPieceCells
@@ -173,24 +189,71 @@ internal fun GameScreen(
 ) {
     val gameOver = rememberPart(uiState) { it.gameOver }.value
     val paused by rememberPart(uiState) { it.paused }
+    // Each of the three screens takes the focus as it shows, so that the keys of a keyboard or a pad reach it.
+    val focus = remember { FocusRequester() }
+    val menu = when {
+        gameOver != null -> Menu.GAME_OVER
+        paused -> Menu.PAUSE
+        else -> null
+    }
+    LaunchedEffect(menu) { focus.requestFocus() }
+    val focusManager = LocalFocusManager.current
+    // Whether the menu itself holds the focus, none of its buttons: an arrow then moves it into the buttons.
+    var menuFocused by remember { mutableStateOf(false) }
+    val menuModifier = { shown: Menu ->
+        modifier
+            .onFocusChanged { menuFocused = it.isFocused }
+            .takingKeys(focus) {
+                val repeatCount = it.nativeKeyEvent.repeatCount
+                menuKey(shown, it.key, it.type, repeatCount, menuFocused, onResume) {
+                    focusManager.moveFocus(FocusDirection.Enter)
+                }
+            }
+    }
     when {
-        gameOver != null -> GameOverScreen(state = gameOver, onReplay = onReplay, onMenu = onBack, modifier = modifier)
-        paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = modifier)
-        else -> Game(uiState = uiState, onControl = onControl, onPause = onPause, modifier = modifier)
+        gameOver != null -> GameOverScreen(
+            state = gameOver,
+            onReplay = onReplay,
+            onMenu = onBack,
+            modifier = menuModifier(Menu.GAME_OVER),
+        )
+
+        paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = menuModifier(Menu.PAUSE))
+
+        else -> Game(uiState = uiState, onControl = onControl, onPause = onPause, focus = focus, modifier = modifier)
     }
 }
 
-/** The game under way: the top bar, the board, the side column and the controls. */
+/**
+ * This part takes the keys that reach it once [focus] gives it the focus: [onKey] says whether it kept one
+ * from the system.
+ */
+private fun Modifier.takingKeys(
+    focus: FocusRequester,
+    onKey: (KeyEvent) -> Boolean,
+): Modifier = onKeyEvent(onKey).focusRequester(focus).focusTarget()
+
+/**
+ * The game under way: the top bar, the board, the side column and the controls. Given the focus by
+ * [focus], it plays the keys of a keyboard or a pad as the controls ([HeldControls.key]), their pause key
+ * being [onPause]. The other keys are left to the system: Tab moves the focus, for instance.
+ */
 @Composable
 private fun Game(
     uiState: () -> GameUiState,
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
+    focus: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
     val record by rememberPart(uiState) { it.record }
+    val controls = rememberHeldControls(onControl)
     Column(
         modifier = modifier
+            .takingKeys(focus) {
+                val source = keySourceOf(it.nativeKeyEvent.source)
+                controls.key(it.key, it.type, it.nativeKeyEvent.repeatCount, source, onPause)
+            }
             .fillMaxSize()
             .background(BloxTheme.palette.page)
             .safeDrawingPadding()
@@ -207,7 +270,7 @@ private fun Game(
             val width = constraints.maxWidth.toFloat()
             val height = constraints.maxHeight.toFloat()
             val layout = remember(width, height, density) { gameLayout(width, height, density) }
-            Play(uiState = uiState, layout = layout, onControl = onControl, modifier = Modifier.fillMaxSize())
+            Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -219,18 +282,17 @@ private data class SideColumn(val score: Points, val level: Level, val lines: Li
 private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next)
 
 /**
- * The board, the side column and the controls, each where [layout] puts it. The score column scrolls
- * when its panels do not fit, as with an enlarged font, rather than pass under the screen or over the
- * controls. The board reads the board and the piece only while drawing.
+ * The board, the side column and the touch controls of [controls], each where [layout] puts it. The score column
+ * scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or over
+ * the controls. The board reads the board and the piece only while drawing.
  */
 @Composable
 private fun Play(
     uiState: () -> GameUiState,
     layout: GameLayout,
-    onControl: (ControlChange) -> Unit,
+    controls: HeldControls,
     modifier: Modifier = Modifier,
 ) {
-    val fingers = rememberControlFingers(onControl)
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
     PlacedParts(modifier = modifier) {
@@ -262,8 +324,8 @@ private fun Play(
                 modifier = Modifier.placedAt(nextPiece).wrapContentHeight(Alignment.Top),
             )
         }
-        DirectionPad(fingers = fingers, modifier = Modifier.placedAt(layout.directions))
-        RotationPad(fingers = fingers, modifier = Modifier.placedAt(layout.rotations))
+        DirectionPad(controls = controls, modifier = Modifier.placedAt(layout.directions))
+        RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations))
     }
 }
 
