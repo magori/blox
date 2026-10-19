@@ -19,9 +19,11 @@ import ch.magori.blox.core.game.engine.Input
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
@@ -53,6 +55,7 @@ class GameViewModel internal constructor(
     private val highScores: HighScoreRepository,
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
+    private val haptics: Haptics,
     private val scoreOf: (MusicChoice) -> Score?,
     private val gameMusic: suspend () -> Score?,
     savedState: SavedStateHandle,
@@ -96,6 +99,12 @@ class GameViewModel internal constructor(
      */
     private var musicWatch: Job? = null
 
+    /**
+     * Whether the game vibrates on the lines cleared and at the game over, from the settings; false until they
+     * answer, so that a game never vibrates against the choice of the player.
+     */
+    private var vibrations = false
+
     init {
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
         // process dies, unlike this view model. A configuration change keeps the view model, and so the game.
@@ -114,6 +123,10 @@ class GameViewModel internal constructor(
             // The musics or the settings may answer once the game is paused or over: the music then waits, or never
             // comes.
             if (gameState.isUnderWay) play(playMusic())
+        }
+        // Whether the game vibrates, from the settings, read apart: the music of the player does not wait for them.
+        viewModelScope.launch {
+            vibrations = preferences.preferences.first().vibrations
         }
     }
 
@@ -182,6 +195,7 @@ class GameViewModel internal constructor(
             gameState = update.state
             if (GameEvent.GameOver in update.events) over = true
             update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
+            if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
         }
         publish()
         if (over) onGameOver(gameState)
@@ -259,6 +273,7 @@ class GameViewModel internal constructor(
         private val highScores: HighScoreRepository,
         private val preferences: UserPreferencesRepository,
         private val music: MusicPlayer,
+        private val haptics: Haptics,
         private val scoreOf: (MusicChoice) -> Score?,
         private val gameMusic: suspend () -> Score?,
     ) : ViewModelProvider.Factory {
@@ -277,6 +292,7 @@ class GameViewModel internal constructor(
                 highScores,
                 preferences,
                 music,
+                haptics,
                 scoreOf,
                 gameMusic,
                 savedState,

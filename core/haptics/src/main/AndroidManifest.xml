@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- SystemHaptics fait vibrer l'appareil : permission normale, accordée à l'installation. -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+</manifest>

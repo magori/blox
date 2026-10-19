@@ -20,18 +20,24 @@ abstract class UserPreferencesRepositoryContract {
     protected abstract fun emptyRepository(scope: CoroutineScope): UserPreferencesRepository
 
     @Test
-    fun `without saved preferences the defaults are the Original theme, Korobeiniki and level 0`() = runTest {
-        // Given
-        val repository = emptyRepository(backgroundScope)
+    fun `without saved preferences the defaults are the Original theme, Korobeiniki, level 0 and vibrations off`() =
+        runTest {
+            // Given
+            val repository = emptyRepository(backgroundScope)
 
-        // When
-        val preferences = repository.preferences.first()
+            // When
+            val preferences = repository.preferences.first()
 
-        // Then
-        assertThat(preferences).isEqualTo(
-            UserPreferences(theme = ThemeChoice.ORIGINAL, music = MusicChoice.KOROBEINIKI, startLevel = 0),
-        )
-    }
+            // Then
+            assertThat(preferences).isEqualTo(
+                UserPreferences(
+                    theme = ThemeChoice.ORIGINAL,
+                    music = MusicChoice.KOROBEINIKI,
+                    startLevel = 0,
+                    vibrations = false,
+                ),
+            )
+        }
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(ThemeChoice::class)
@@ -72,20 +78,40 @@ abstract class UserPreferencesRepositoryContract {
         assertThat(repository.preferences.first().startLevel).isEqualTo(startLevel)
     }
 
+    @ParameterizedTest(name = "vibrations {0}")
+    @ValueSource(booleans = [false, true])
+    fun `a saved vibrations choice is read back`(vibrations: Boolean) = runTest {
+        // Given the vibrations saved the other way first, so that the choice read back is not there by chance
+        val repository = emptyRepository(backgroundScope)
+        repository.setVibrations(!vibrations)
+
+        // When
+        repository.setVibrations(vibrations)
+
+        // Then
+        assertThat(repository.preferences.first().vibrations).isEqualTo(vibrations)
+    }
+
     @Test
     fun `changing one preference leaves the others`() = runTest {
-        // Given all three preferences saved
+        // Given all four preferences saved, none at its default
         val repository = emptyRepository(backgroundScope)
         repository.setTheme(ThemeChoice.COLORFUL)
         repository.setMusic(MusicChoice.MINUET)
         repository.setStartLevel(7)
+        repository.setVibrations(true)
 
         // When the theme changes
         repository.setTheme(ThemeChoice.ORIGINAL)
 
-        // Then the music and the start level are kept
+        // Then the music, the start level and the vibrations are kept
         assertThat(repository.preferences.first()).isEqualTo(
-            UserPreferences(theme = ThemeChoice.ORIGINAL, music = MusicChoice.MINUET, startLevel = 7),
+            UserPreferences(
+                theme = ThemeChoice.ORIGINAL,
+                music = MusicChoice.MINUET,
+                startLevel = 7,
+                vibrations = true,
+            ),
         )
     }
 

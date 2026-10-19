@@ -35,6 +35,8 @@ import ch.magori.blox.core.game.rules.ClassicScoringRule
 import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
+import ch.magori.blox.core.haptics.FakeHaptics
+import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
@@ -67,10 +69,15 @@ class GameViewModelTest {
     /** The record before the game: 100, which the test game beats (see [hundredPointsPerLock]). */
     private val highScores = FakeHighScoreRepository(initial = 100)
 
-    /** The settings of the player: Korobeiniki, unless a test chooses another music. */
-    private val preferences = FakeUserPreferencesRepository()
+    /**
+     * The settings of the player: Korobeiniki, unless a test chooses another music, and the vibrations turned on
+     * (they are off by default), unless a test turns them off.
+     */
+    private val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(vibrations = true))
 
     private val music = FakeMusicPlayer()
+
+    private val haptics = FakeHaptics()
 
     /** The scores of the music choices, as `app` gives them: Korobeiniki and the minuet, nothing else. */
     private val testScores: (MusicChoice) -> Score? =
@@ -94,19 +101,7 @@ class GameViewModelTest {
     @Test
     fun `while full rows are cleared the screen shows the locked board and no piece`() {
         // Given three pieces that fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9
-        val rowFiller = SpawnAs(
-            PieceType.I to Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
-            PieceType.J to Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
-            PieceType.O to Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
-        )
-        val factory = GameEngineFactory {
-            GameEngine(
-                ClassicRules.copy(rotationSystem = rowFiller, gravityTable = oneTickPerRow),
-                // The three pieces, plus the next one shown while the third falls.
-                ScriptedRandomizer(PieceType.I, PieceType.J, PieceType.O, PieceType.I),
-            )
-        }
-        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
 
         // When the game is played tick by tick until row 19 is full
         val clearing = generateSequence(0L) { it + ONE_SIXTIETH_NANOS }
@@ -1123,6 +1118,83 @@ class GameViewModelTest {
         assertThat(highScores.submitted).hasSize(1)
     }
 
+    @Test
+    fun `clearing one line vibrates the short pulse`() {
+        // Given a game whose first three pieces fill row 19
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+
+        // When the game is played until something vibrates
+        playUntil(viewModel, "something vibrates") { haptics.played.isNotEmpty() }
+
+        // Then it is the pulse of one to three lines, once
+        assertThat(haptics.played).containsExactly(Haptic.LINES_CLEARED)
+    }
+
+    @Test
+    fun `clearing four lines at once vibrates the stronger pulse`() {
+        // Given a game whose first ten pieces fill rows 16 to 19, the last one completing all four
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), fourLinesGame)
+
+        // When the game is played until something vibrates
+        playUntil(viewModel, "something vibrates") { haptics.played.isNotEmpty() }
+
+        // Then it is the pulse of four lines, once
+        assertThat(haptics.played).containsExactly(Haptic.FOUR_LINES_CLEARED)
+    }
+
+    @Test
+    fun `the game over vibrates its pattern once, and the frames after it nothing more`() {
+        // Given a game played until its game over shows: the test game clears no line
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val lastFrame = playUntilGameOver(viewModel)
+
+        // When frames still come
+        repeat(10) { viewModel.onFrame(lastFrame + (it + 1) * ONE_SIXTIETH_NANOS) }
+
+        // Then
+        assertThat(haptics.played).containsExactly(Haptic.GAME_OVER)
+    }
+
+    @Test
+    fun `with the vibrations turned off in the settings nothing vibrates`() {
+        // Given the vibrations turned off on the home screen
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = false)
+
+        // When a game clears a line, then another one is played until it is over
+        val clearing = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+        playUntil(clearing, "a line is cleared") { clearing.uiState.value.lines == Lines(1) }
+        playUntilGameOver(createViewModel(GameRoute(startLevel = 0, seed = 1L)))
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `until the settings answer nothing vibrates`() {
+        // Given settings that never answer
+        val silentPreferences = FakeUserPreferencesRepository(initial = null)
+
+        // When a game is played until it is over
+        playUntilGameOver(createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = silentPreferences))
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `a game recreated paused after the process died vibrates nothing while it stays paused`() {
+        // Given a game recreated, paused, after its process died
+        val savedState = SavedStateHandle()
+        createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState)
+        val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
+
+        // When frames come for longer than the whole test game lasts
+        generateSequence(0L) { it + ONE_SIXTIETH_NANOS }.take(MAX_TICKS).forEach(recreated::onFrame)
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
     /**
      * A game view model built with test doubles, as the factory would, but without its creation extras: the
      * route and [savedState] (empty by default, as for a new navigation entry) are given directly. The factory
@@ -1134,7 +1206,9 @@ class GameViewModelTest {
         factory: GameEngineFactory = engineFactory,
         savedState: SavedStateHandle = SavedStateHandle(),
         records: FakeHighScoreRepository = highScores,
-    ): GameViewModel = GameViewModel(factory, route, records, preferences, music, testScores, gameMusic, savedState)
+        userPreferences: FakeUserPreferencesRepository = preferences,
+    ): GameViewModel =
+        GameViewModel(factory, route, records, userPreferences, music, haptics, testScores, gameMusic, savedState)
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
     private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })
@@ -1193,6 +1267,72 @@ class GameViewModelTest {
 
         /** The T as it appears: pivot at (5, 0), spawn orientation. */
         val spawnedT = spawned(PieceType.T)
+
+        /**
+         * Engines whose pieces appear as [rotationSystem] says, without turning, and drop one row per tick,
+         * [pieces] in turn.
+         */
+        fun scriptedGame(
+            rotationSystem: RotationSystem,
+            vararg pieces: PieceType,
+        ) = GameEngineFactory {
+            GameEngine(
+                ClassicRules.copy(rotationSystem = rotationSystem, gravityTable = oneTickPerRow),
+                ScriptedRandomizer.cycling(*pieces),
+            )
+        }
+
+        /** A game whose first three pieces fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9. */
+        val oneLineGame = scriptedGame(
+            SpawnAs(
+                PieceType.I to Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
+                PieceType.J to Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
+                PieceType.O to Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
+            ),
+            PieceType.I,
+            PieceType.J,
+            PieceType.O,
+        )
+
+        /**
+         * A game whose first ten pieces fill rows 16 to 19 together: two-by-two squares stacked in pairs on columns
+         * 0-1 (T), 2-3 (J), 4-5 (L) and 7-8 (O), a vertical bar on column 9 (I), and last a vertical bar on column 6
+         * (S), which completes the four rows at once.
+         */
+        val fourLinesGame = scriptedGame(
+            SpawnAs(
+                PieceType.T to square(column = 0),
+                PieceType.J to square(column = 2),
+                PieceType.L to square(column = 4),
+                PieceType.S to bar(column = 6),
+                PieceType.O to square(column = 7),
+                PieceType.I to bar(column = 9),
+            ),
+            PieceType.I,
+            PieceType.O,
+            PieceType.O,
+            PieceType.T,
+            PieceType.T,
+            PieceType.J,
+            PieceType.J,
+            PieceType.L,
+            PieceType.L,
+            PieceType.S,
+        )
+
+        /** A two-by-two square whose left column is [column] on the board, the pivot appearing on column 5. */
+        fun square(column: Int): Orientation {
+            val left = column - SPAWN_COLUMN
+            return Orientation(
+                setOf(Position(left, 0), Position(left + 1, 0), Position(left, 1), Position(left + 1, 1)),
+            )
+        }
+
+        /** A vertical bar of four cells on [column] of the board, the pivot appearing on column 5. */
+        fun bar(column: Int): Orientation = Orientation((0..3).map { Position(column - SPAWN_COLUMN, it) }.toSet())
+
+        /** The column the pivot of every piece appears on. */
+        const val SPAWN_COLUMN = 5
     }
 
     private fun Piece.droppedBy(rows: Int): Piece = copy(pivot = Position(pivot.column, pivot.row + rows))

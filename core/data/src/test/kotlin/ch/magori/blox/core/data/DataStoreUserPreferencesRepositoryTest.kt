@@ -1,6 +1,7 @@
 package ch.magori.blox.core.data
 
 import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -42,9 +43,44 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
         val preferences = repository.preferences.first()
 
         // Then
+        assertThat(preferences).isEqualTo(UserPreferences.DEFAULT)
+    }
+
+    @Test
+    fun `settings saved before the vibrations existed keep their choices, with vibrations off`() = runTest {
+        // Given a file written by a version without the vibrations setting
+        writeSettingsFile {
+            it[stringPreferencesKey("theme")] = "COLORFUL"
+            it[stringPreferencesKey("music")] = "MINUET"
+            it[intPreferencesKey("start_level")] = 7
+        }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
         assertThat(preferences).isEqualTo(
-            UserPreferences(theme = ThemeChoice.ORIGINAL, music = MusicChoice.KOROBEINIKI, startLevel = 0),
+            UserPreferences(
+                theme = ThemeChoice.COLORFUL,
+                music = MusicChoice.MINUET,
+                startLevel = 7,
+                vibrations = false,
+            ),
         )
+    }
+
+    @Test
+    fun `the vibrations are stored as a boolean under a key that must not change`() = runTest {
+        // Given a file whose vibrations were turned on by an earlier version
+        writeSettingsFile { it[booleanPreferencesKey("vibrations")] = true }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences.vibrations).isTrue()
     }
 
     @Test
@@ -107,6 +143,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 setTheme(ThemeChoice.COLORFUL)
                 setMusic(MusicChoice.MY_FILE)
                 setStartLevel(9)
+                setVibrations(true)
             }
         }
 
@@ -115,7 +152,12 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
 
         // Then
         assertThat(reopened.preferences.first()).isEqualTo(
-            UserPreferences(theme = ThemeChoice.COLORFUL, music = MusicChoice.MY_FILE, startLevel = 9),
+            UserPreferences(
+                theme = ThemeChoice.COLORFUL,
+                music = MusicChoice.MY_FILE,
+                startLevel = 9,
+                vibrations = true,
+            ),
         )
     }
 

@@ -36,6 +36,7 @@ include(":app")
 include(":core:game")
 include(":core:music")
 include(":core:audio")
+include(":core:haptics")
 include(":core:data")
 include(":core:designsystem")
 
