@@ -128,9 +128,12 @@ lui-même.
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
 
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
-- Exception à « un seul plugin de convention » : `java-test-fixtures`, plugin du cœur de Gradle sans
-  réglage, est appliqué dans le module qui publie des doublures de test (`core:game`) ; il passera
-  dans une convention au deuxième module qui en publiera.
+- Un module qui publie des doublures de test (`src/testFixtures` : `core:game`, `core:audio`,
+  `core:data`, `core:designsystem`) applique en plus `blox.test.fixtures`, dans n'importe quel ordre :
+  `java-test-fixtures` pour un module Kotlin pur, les testFixtures d'AGP pour une bibliothèque Android.
+  Les autres modules les consomment avec `testImplementation(testFixtures(projects.core.data))`. Les
+  faux dépôts de `core:data` passent le même contrat que les vrais (`HighScoreRepositoryContract`,
+  `UserPreferencesRepositoryContract`), et `MainDispatcherExtension` y est partagée.
 - Les modules Kotlin purs compilent avec `explicitApi()` strict : ce qui est `public` est un
   choix, pas un oubli.
 - **JUnit 5 partout**, tests unitaires et instrumentés (ADR 0009). Jamais de `junit:junit`

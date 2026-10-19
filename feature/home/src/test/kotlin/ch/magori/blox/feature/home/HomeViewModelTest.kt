@@ -5,6 +5,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.data.FakeHighScoreRepository
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
@@ -55,7 +58,7 @@ class HomeViewModelTest {
             assertThat(awaitItem()).isNull()
 
             // When they are read
-            preferences.store(UserPreferences(ThemeChoice.COLORFUL, MusicChoice.MINUET, 5))
+            preferences.state.value = UserPreferences(ThemeChoice.COLORFUL, MusicChoice.MINUET, 5)
 
             // Then
             assertThat(awaitItem()).isEqualTo(
@@ -86,7 +89,7 @@ class HomeViewModelTest {
             viewModel.onStartLevelChosen(7)
 
             // Then
-            assertThat(preferences.saved).isEqualTo(UserPreferences(ThemeChoice.COLORFUL, MusicChoice.NONE, 7))
+            assertThat(preferences.state.value).isEqualTo(UserPreferences(ThemeChoice.COLORFUL, MusicChoice.NONE, 7))
             val shown = expectMostRecentItem()
             assertThat(shown?.theme).isEqualTo(ThemeChoice.COLORFUL)
             assertThat(shown?.music).isEqualTo(MusicChoice.NONE)
@@ -119,7 +122,7 @@ class HomeViewModelTest {
     fun `unreadable records show 0 and the home screen goes on`() = runTest {
         // Given unreadable records: as the contract says, they give 0, once, and the flow then ends
         val preferences = FakeUserPreferencesRepository()
-        val highScores = FakeHighScoreRepository(initial = 12_345, reads = flowOf(0))
+        val highScores = FakeHighScoreRepository(initial = 12_345).apply { highScoreFlow = flowOf(0) }
         val viewModel = HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores)
 
         viewModel.uiState.test {
@@ -139,7 +142,7 @@ class HomeViewModelTest {
     fun `a programming error while the records are read is not swallowed`() {
         // Given records whose reading fails with a bug, not with an unreadable file
         val bug = IllegalStateException("a bug in the records")
-        val highScores = FakeHighScoreRepository(reads = flow { throw bug })
+        val highScores = FakeHighScoreRepository().apply { highScoreFlow = flow { throw bug } }
 
         // When the home screen is shown; runTest reports the uncaught exceptions of viewModelScope
         val failure = runCatching {
@@ -170,7 +173,7 @@ class HomeViewModelTest {
         viewModel.onStartLevelChosen(12)
 
         // Then
-        assertThat(preferences.saved?.startLevel).isEqualTo(0)
+        assertThat(preferences.state.value?.startLevel).isEqualTo(0)
     }
 
     @ParameterizedTest(name = "saved level {0} -> shown level {1}")

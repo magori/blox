@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.blox.jvm.library)
     // Doublures de test partagées (`src/testFixtures`) : `feature:game` les consomme avec
-    // `testImplementation(testFixtures(projects.core.game))`. Plugin du cœur de Gradle, sans réglage.
-    `java-test-fixtures`
+    // `testImplementation(testFixtures(projects.core.game))`.
+    alias(libs.plugins.blox.test.fixtures)
 }
 
 // Domaine du jeu : aucune dépendance, ni Android ni coroutines.

@@ -28,6 +28,8 @@ dependencies {
     implementation(libs.androidx.annotation)
     // Le faux lecteur de musique, partagé avec l'autre feature.
     testImplementation(testFixtures(projects.core.audio))
+    // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec l'autre feature.
+    testImplementation(testFixtures(projects.core.data))
     // Le contraste de WCAG et les palettes nommées, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.designsystem))
 }

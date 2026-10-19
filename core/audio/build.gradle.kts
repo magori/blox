@@ -1,14 +1,11 @@
 plugins {
     alias(libs.plugins.blox.android.library)
+    // Le faux lecteur de musique (FakeMusicPlayer), partagé par les tests des features qui jouent de la musique.
+    alias(libs.plugins.blox.test.fixtures)
 }
 
 android {
     namespace = "ch.magori.blox.core.audio"
-
-    // Le faux lecteur de musique (FakeMusicPlayer), partagé par les tests des features qui jouent de la musique.
-    testFixtures {
-        enable = true
-    }
 }
 
 dependencies {

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 88 / 143 | `████████████░░░░░░░░` **62 %** |
+| **Général** | 89 / 144 | `████████████░░░░░░░░` **62 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -70,7 +70,7 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
 - [x] **P0.14** Doublures de test partagées : `testFixtures` de `core:game` (`ScriptedRandomizer`,
   helpers d'état) pour que `feature:game` ne les recopie pas (revue de P2.2). Fait :
   `ScriptedRandomizer` (strict, et `cycling`) et `spawned` dans `core/game/src/testFixtures`.
-- [ ] **P0.15** Doublures de `core:data` partagées : `FakeUserPreferencesRepository` et
+- [x] **P0.15** Doublures de `core:data` partagées : `FakeUserPreferencesRepository` et
   `FakeHighScoreRepository` existent dans `feature:game` et `feature:home` ; les placer dans des
   `testFixtures` de bibliothèque Android (revue de P0.14). Revue qualité (B9) : une seule
   `MainDispatcherExtension` partagée, et un test de contrat `HighScoreRepositoryContract`
@@ -549,6 +549,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
   ou non cacheable (revue P5.24).
+- [ ] **P5.32** Doublures des tests instrumentés : `GameViewModelDoubles.kt` (`NoRecords`,
+  `DefaultSettings`) recopie encore les faux de `core:data`, et `NoRecords` ne respecte pas le
+  contrat ; passer par `androidTestImplementation(testFixtures(projects.core.data))` (revue P0.15).
 
 ## P6 — Mode Moderne (plus tard)
 
