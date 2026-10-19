@@ -64,6 +64,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
 ./gradlew buildHealth           # dépendances déclarées sans usage ou mal déclarées
 ./gradlew lintDebug             # lint Android, règles Compose de Slack comprises
+./gradlew compileDebugKotlin -Pblox.composeReports=true --rerun   # rapports de stabilité Compose (build/compose-reports) ; types stables : compose-stability.conf
 ./gradlew assembleDebug         # APK
 ./gradlew assembleRelease       # APK release minifié (R8), non signé ; lance aussi lintVitalRelease
 ./gradlew assembleDebugAndroidTest   # compile les tests instrumentés (androidTest) de tous les modules Android
