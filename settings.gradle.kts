@@ -41,3 +41,6 @@ include(":core:designsystem")
 
 include(":feature:home")
 include(":feature:game")
+
+// Mesures (Macrobenchmark) et génération du profil de référence de l'application (P5.17).
+include(":benchmark")

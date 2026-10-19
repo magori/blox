@@ -7,6 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.navigation.BloxNavDisplay
@@ -27,6 +30,9 @@ class MainActivity : ComponentActivity() {
                     BloxNavDisplay(
                         homeViewModelFactory = container.homeViewModelFactory,
                         gameViewModelFactory = container.gameViewModelFactory,
+                        // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
+                        // finds the play button, the keys and the pause by them, whatever the language.
+                        modifier = Modifier.semantics { testTagsAsResourceId = true },
                     )
                 }
             }

@@ -68,6 +68,11 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew assembleRelease       # APK release minifié (R8), non signé ; lance aussi lintVitalRelease
 ./gradlew assembleDebugAndroidTest   # compile les tests instrumentés (androidTest) de tous les modules Android
 ./gradlew installDebug          # installation sur un appareil connecté
+./gradlew :benchmark:assemble   # compile les mesures Macrobenchmark (CI)
+./gradlew :app:generateBaselineProfile   # régénère le profil de référence (appareil Android 13+), à versionner
+./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest   # mesures, sur un téléphone de préférence
+#   sur émulateur : -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.skipOnEmulator=false
+#                   -Pandroid.testInstrumentationRunnerArguments.androidx.benchmark.suppressErrors=EMULATOR
 scripts/verifier-tracabilite.sh # chaque `Classe › nom du test` des docs désigne un test existant
 ```
 
@@ -86,7 +91,7 @@ La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-trac
 `wrapper-validation` (avant même l'installation du JDK), `ktlintCheck` (projet et `build-logic`),
 `buildHealth`, tests du domaine, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease` (R8 et
 `lintVitalRelease`), `assembleDebugAndroidTest` et `compileDebugScreenshotTestKotlin` (compilation
-seule des tests instrumentés et des tests de captures, pas d'émulateur). Ce qui passe
+seule des tests instrumentés et des tests de captures, pas d'émulateur), puis `:benchmark:assemble`. Ce qui passe
 localement avec ces commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
 comme artefact `rapports`. Les actions sont épinglées par SHA (tag en commentaire, tenus à jour par
 Dependabot `github-actions`) et le jeton est en lecture seule ; un second job, sur `push` vers
@@ -126,6 +131,7 @@ lui-même.
 | Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
 | Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
+| Mesures (`benchmark`, `com.android.test`) | `blox.android.benchmark` | JUnit 5 branché à la main, règles Macrobenchmark par l'adaptateur `RuleExtension` (amendement de l'ADR 0009) |
 
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
 - Un module qui publie des doublures de test (`src/testFixtures` : `core:game`, `core:audio`,

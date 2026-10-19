@@ -30,6 +30,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -154,7 +155,8 @@ internal fun HomeScreen(
             }
         }
         // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
-        Button(onClick = dropUnlessResumed { onPlay(uiState.startLevel) }) {
+        // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
+        Button(onClick = dropUnlessResumed { onPlay(uiState.startLevel) }, modifier = Modifier.testTag("home_play")) {
             Text(text = stringResource(R.string.feature_home_play))
         }
     }

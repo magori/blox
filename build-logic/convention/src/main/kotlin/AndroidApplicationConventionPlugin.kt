@@ -1,5 +1,6 @@
 import ch.magori.blox.buildlogic.configureAndroidLint
 import ch.magori.blox.buildlogic.configureAndroidTests
+import ch.magori.blox.buildlogic.configureBaselineProfileConsumer
 import ch.magori.blox.buildlogic.configureDependencyAnalysis
 import ch.magori.blox.buildlogic.configureKotlinAndroid
 import ch.magori.blox.buildlogic.configureKtlint
@@ -23,6 +24,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
             configureAndroidTests()
             configureKtlint()
             configureDependencyAnalysis()
+            configureBaselineProfileConsumer()
         }
     }
 }

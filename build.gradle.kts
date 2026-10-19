@@ -3,6 +3,8 @@
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.android.test) apply false
+    alias(libs.plugins.androidx.baselineprofile) apply false
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.compose) apply false
     alias(libs.plugins.kotlin.serialization) apply false
@@ -84,6 +86,11 @@ dependencyAnalysis {
                 exclude("androidx.compose.ui:ui-tooling-preview")
             }
             onRuntimeOnly { severity("warn") }
+        }
+        // Le module de mesure adapte les règles JUnit 4 de Macrobenchmark à JUnit 5 (RuleExtension,
+        // P5.17) : JUnit 4 y reste transitif, par benchmark-macro-junit4, et n'est pas déclaré (ADR 0009).
+        project(":benchmark") {
+            onUsedTransitiveDependencies { exclude("junit:junit") }
         }
     }
 }

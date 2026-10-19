@@ -45,6 +45,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     // `collectAsStateWithLifecycle` lit le `LifecycleOwner` courant : il faut lifecycle-common à la compilation.
     implementation(libs.androidx.lifecycle.common)
+
+    // Le module qui produit le profil de référence (blox.android.benchmark, P5.17).
+    baselineProfile(projects.benchmark)
 }
 
 /**

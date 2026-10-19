@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -161,6 +162,12 @@ private fun ControlPad(
     }
 }
 
+/**
+ * The tag of a key (`control_left`, `control_a`…), the same in every language: the measured journey of
+ * `:benchmark` finds the keys by it (`By.res`, with `testTagsAsResourceId` set by `app`).
+ */
+internal fun controlTestTag(button: ControlButton): String = "control_${button.name.lowercase()}"
+
 @Composable
 private fun ControlKey(
     button: ControlButton,
@@ -172,6 +179,7 @@ private fun ControlKey(
     val description = stringResource(descriptionOf(button))
     Box(
         modifier = modifier
+            .testTag(controlTestTag(button))
             .size(size)
             .clip(BloxTheme.shapes.button)
             .background(background)

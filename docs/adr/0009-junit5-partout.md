@@ -42,3 +42,14 @@ Options envisagées :
   (`androidJunit`), à suivre lors des mises à jour d'AGP et de JUnit.
 - JUnit 6 n'est pas retenu pour l'instant : il demande Android 15 (API 35) sur l'appareil
   pour les tests instrumentés.
+- **Amendement (P5.17, 2026-10-19).** Une exception, limitée au module de mesures
+  `:benchmark` (`com.android.test`). Le plugin `android-junit` ne prend pas en charge ce type
+  de module : la convention `blox.android.benchmark` branche JUnit 5 à la main (lanceur
+  `AndroidJUnitFrameworkBuilder`, moteur Jupiter). Macrobenchmark n'expose que des règles
+  JUnit 4 (`MacrobenchmarkRule`, `BaselineProfileRule`) : un adaptateur Jupiter
+  (`RuleExtension`, un `InvocationInterceptor`) les exécute, et notre code compile donc contre
+  `TestRule`, `Description` et `AssumptionViolatedException` de JUnit 4, toujours transitif par
+  `benchmark-macro-junit4` et jamais déclaré ; `buildHealth` l'accepte pour ce seul module. Les
+  `@BeforeEach`/`@AfterEach` ne sont pas enveloppés par la règle, les tests paramétrés ne sont
+  pas pris en charge. À retirer dès qu'androidx.benchmark offrira une API Jupiter ; toute montée
+  de version de benchmark se vérifie sur un appareil.

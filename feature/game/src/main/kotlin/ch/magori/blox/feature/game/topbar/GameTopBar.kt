@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -108,6 +109,8 @@ private fun PauseButton(onPause: () -> Unit) {
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
+            // Read by the measured journey of `:benchmark` (`By.res`), whatever the language.
+            .testTag("game_pause")
             .sizeIn(minWidth = ScreenSizes.minTouchTarget, minHeight = ScreenSizes.minTouchTarget)
             .clip(BloxTheme.shapes.button)
             .background(palette.button)
