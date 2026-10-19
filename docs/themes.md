@@ -62,7 +62,7 @@ le logo de l'accueil.
 `LauncherIconTest › every corner of the cells is in the safe zone of the adaptive icon, whatever the mask`,
 `LauncherIconTest › the monochrome layer has the very shape of the cells in front`.
 
-**Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md`,
+**Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
 `CellStylesTest › in the Colorful theme an empty cell has a 1 px border`,
