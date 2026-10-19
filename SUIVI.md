@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 68 / 122 | `███████████░░░░░░░░░` **56 %** |
+| **Général** | 68 / 121 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -270,8 +270,6 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   en gras, joint des cellules du thème Original (P2.17).
 - [ ] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
   `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17).
-- [ ] **P2.17** Lisibilité vue sur les captures (P5.7) : touche A enfoncée invisible en thème
-  Couleurs (son fond égale la page) ; cellules en aplat du thème Original fondues entre elles.
 - [ ] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
   tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre.
 - [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
