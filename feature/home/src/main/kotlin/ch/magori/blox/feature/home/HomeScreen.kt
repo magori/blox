@@ -27,10 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -42,7 +38,6 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
@@ -53,10 +48,6 @@ import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxTypographies
-
-/** The underline of a selected choice: as thick as a stroke of the pixel font, a little below its label. */
-private val UnderlineThickness = 2.dp
-private val UnderlineGap = 2.dp
 
 /** The tag of each start level, the same in every language, read by the tests. */
 internal const val START_LEVEL_TAG = "home_start_level"
@@ -253,9 +244,8 @@ private fun Choice(
             .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
-        // On one line, shrinking if needed: a start level cell is narrower than a digit of the pixel font. Without
-        // the leading of a paragraph, the label is as tall as its letters, even shrunk: the underline stays under them.
-        val style = MaterialTheme.typography.labelLarge.copy(lineHeight = TextUnit.Unspecified)
+        // On one line, shrinking if needed: a start level cell is narrower than a digit of the pixel font.
+        val style = MaterialTheme.typography.labelLarge
         Text(
             text = text,
             color = colors.ink,
@@ -266,29 +256,9 @@ private fun Choice(
                 minFontSize = BloxTypographies.MinimumFontSize,
                 maxFontSize = style.fontSize,
             ),
-            modifier = Modifier.underlinedIf(selected, colors.ink),
         )
     }
 }
-
-/**
- * Underlines a label in [color] when [underlined]: the cue of a selected choice that is not its colour. Every
- * label keeps the room of the underline, above and below, so that it stays centred and every choice keeps its
- * size, selected or not.
- */
-private fun Modifier.underlinedIf(
-    underlined: Boolean,
-    color: Color,
-): Modifier = padding(vertical = UnderlineGap + UnderlineThickness)
-    .drawBehind {
-        if (underlined) {
-            drawRect(
-                color = color,
-                topLeft = Offset(0f, size.height + UnderlineGap.toPx()),
-                size = Size(size.width, UnderlineThickness.toPx()),
-            )
-        }
-    }
 
 @get:StringRes
 private val ThemeChoice.label: Int

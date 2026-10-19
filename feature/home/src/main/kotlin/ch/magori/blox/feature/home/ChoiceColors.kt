@@ -11,8 +11,8 @@ internal data class ChoiceColors(val background: Color, val frame: Color, val in
 /**
  * The colours of a choice in [palette], [selected] or not. A selected choice is filled in `accent`, as the
  * play button; an unselected one is drawn as a panel of the game screen, `panel` framed in `panelBorder`, with
- * its label in `ink`. The two stand out from each other by 3:1 at least in every theme; colour is not the only
- * cue, as the selected choice is also underlined.
+ * its label in `ink`. Colour is not the only cue (WCAG 2.1, 1.4.1): in every theme the two states differ by 3:1
+ * at least in luminance, not in hue only, and the unselected choice is framed, the selected one filled.
  */
 internal fun choiceColors(
     palette: BloxPalette,
