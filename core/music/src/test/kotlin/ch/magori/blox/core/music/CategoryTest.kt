@@ -271,6 +271,51 @@ class CategoryTest {
         assertThat(Category.RETRO.tempo.fastest).isEqualTo(Category.entries.maxOf { it.tempo.fastest })
     }
 
+    @ParameterizedTest(name = "{0}: {1} of steps, {2} points")
+    @CsvSource(
+        "JOYFUL, 0.69, 85.5",
+        "CALM, 0.69, 84.5",
+        "EPIC, 0.69, 80.5",
+        "MELANCHOLIC, 0.63, 87.5",
+        "MYSTERIOUS, 0.59, 88.5",
+        "RETRO, 0.63, 78.0",
+        "DANCE, 0.61, 83.5",
+    )
+    fun `each category aims at the share of steps of its melodies, and stops at the 15th percentile of its best ones`(
+        category: Category,
+        ideal: Double,
+        threshold: Double,
+    ) {
+        // When
+        val profile = category.quality
+
+        // Then the share of steps its melodies make with their traits, and about the 15th percentile of the best of a
+        // first round, both measured over the seeds
+        assertThat(profile.idealStepShare).isEqualTo(ideal)
+        assertThat(profile.threshold).isEqualTo(threshold)
+    }
+
+    @Test
+    fun `the categories whose melody leans aim at a share of those moves, about the 90th percentile of candidates`() {
+        // When
+        val leanings = Category.entries.associateWith { it.quality.leaning }
+
+        // Then epic by fifths, melancholic down and retro by arpeggios, as their traits lean, and the others no way
+        assertThat(leanings).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+                Category.JOYFUL to null,
+                Category.CALM to null,
+                Category.EPIC to Leaning(Lean.FIFTHS, 0.10),
+                Category.MELANCHOLIC to Leaning(Lean.DESCENTS, 0.70),
+                Category.MYSTERIOUS to null,
+                Category.RETRO to Leaning(Lean.ARPEGGIOS, 0.33),
+                Category.DANCE to null,
+            ),
+        )
+        assertThat(Category.entries.filter { it.quality.leaning != null })
+            .containsExactlyInAnyOrderElementsOf(Category.entries.filter { it.melody != MelodyTraits.NEUTRAL })
+    }
+
     private fun notesIn(cell: RhythmCell): Int = cell.steps.count { !it.isRest }
 
     /** Times in beats, from the start of the bar, at which [cell] strikes a note. */

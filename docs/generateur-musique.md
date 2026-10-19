@@ -270,16 +270,14 @@ l'écoute.
 - **Reproductible et borné** : les tirages suivent ceux de la forme sur le même tirage
   (recherches abandonnées d'abord, puis la recherche qui aboutit, puis les notes
   chromatiques). La recherche repart de zéro toutes les 1 000 étapes et s'arrête à 50 000 :
-  une forme qu'aucune mélodie ne peut remplir est refusée. Pire temps mesuré : 32 ms à froid,
-  6 ms à chaud sur la JVM.
+  une forme qu'aucune mélodie ne peut remplir ne donne aucune mélodie (`null`, comme la basse).
+  Pire temps mesuré : 32 ms à froid, 6 ms à chaud sur la JVM.
   `MelodyTest › the same form and the same draw give the same melody`,
   `MelodyTest › the seed 42 on joyful gives this melody, which pins the order of the draws after the form`,
   `MelodyTest › the seed 1 on mysterious gives this melody in D dorian, which passes through D sharp and C sharp`,
-  `MelodyTest › a form that no melody fits is refused in good time, rather than searched for ever`.
+  `MelodyTest › a form that no melody fits leaves no melody, found in good time rather than searched for ever`.
 
-Ouverts pour P4.18 : notes étrangères approchées et quittées par degré (aujourd'hui une
-tendance, non mesurée) ; renversement du motif en A'' non fait. Aucune vue de maquette n'est
-concernée.
+Ouvert : renversement du motif en A'' non fait. Aucune vue de maquette n'est concernée.
 
 ### Rythme
 
@@ -465,6 +463,105 @@ mélodiques de la table sont des paramètres (`MelodyTraits`, P4.16) ; les style
 Chaque candidat reçoit une note sur 100. On garde le meilleur, et on recommence si aucun
 n'atteint un seuil (par exemple 70).
 
+### Note de qualité (implémentée, P4.18)
+
+`MusicGenerator.generate(choix, graine)` (public, pour l'éditeur) compose 20 candidats par tour
+(forme, mélodie, basse), garde le meilleur et recommence, trois tours au plus, tant qu'aucun
+n'atteint le seuil de la catégorie ; à défaut, il garde le meilleur obtenu. Il rend une
+`GeneratedMusic` : la partition à deux voix (mélodie en onde carrée, basse en onde triangle,
+mêmes ondes et volumes que les arrangements, 8 mesures de 4 temps, tempo de la forme), la
+catégorie tirée, la gamme, le choix et la graine. Le « code » d'une musique est le couple
+(choix, graine) : Surprise consomme un tirage de plus. Coût mesuré : 22 ms en moyenne, 126 ms au
+pire, 188 ms au premier appel sur la JVM ; l'appel se fait hors du thread principal. Un
+candidat sans mélodie ou sans basse est écarté (`null`, sans exception) ; 60 candidats écartés de
+suite lèveraient une `IllegalStateException`, invariant inatteignable en pratique.
+
+Les critères garantis par construction (notes de l'accord sur les temps forts, sauts compensés,
+répétition fixée par la forme) ne départageraient rien : la note ne retient que des critères qui
+varient d'un candidat à l'autre (mesurés à l'intérieur d'un tour). Valeurs **[à vérifier]** à
+l'écoute.
+
+| Critère | Mesure | Valeur | Poids |
+|---|---|---|---|
+| Secondes | part des secondes parmi les mouvements | 1 à la part visée par la catégorie, 0 à 30 points de là | 25 |
+| Notes préparées | notes étrangères non atteintes et non quittées par degré (répétitions sautées, boucle comprise) | 1 − n/16, 0 au moins | 25 |
+| Motif | part des mouvements des mesures du motif qui suivent ceux de la mesure 1, en degrés | la part (1 sans mouvement) | 15 |
+| Conduite de basse | part des changements d'accord faits par une quarte au plus, boucle comprise | la part (1 sans changement) | 15 |
+| Penchant | part des mouvements que la catégorie favorise (quintes, descentes, arpèges) | min(1, part / visée) ; 1 sans penchant | 10 |
+| Étendue | de la note la plus grave à la plus aiguë | 1 de 12 à 16 demi-tons, 0 une quarte au-delà | 5 |
+| Arche (garde-fou) | sommet frappé une fois, mesure 5 ou 6 | 1 ou 0 | 5 |
+
+Chaque catégorie porte son profil (part de secondes visée, seuil vers le 15e centile du meilleur
+d'un premier tour, penchant) : sans penchant, la sélection choisissait l'Épique aux moins de
+quintes et le Rétro aux moins d'arpèges. Un second tour se fait dans environ 19 % des
+générations.
+
+| Catégorie | Secondes visées | Seuil | Penchant (visée) |
+|---|---|---|---|
+| Joyeux | 0,69 | 85,5 | — |
+| Calme | 0,69 | 84,5 | — |
+| Épique | 0,69 | 80,5 | quintes (0,10) |
+| Mélancolique | 0,63 | 87,5 | descentes (0,70) |
+| Mystérieux | 0,59 | 88,5 | — |
+| Rétro | 0,63 | 78,0 | arpèges (0,33) |
+| Danse | 0,61 | 83,5 | — |
+
+Le motif vise 100 % de mouvements gardés : la bande de 50 à 75 % de la spécification porte sur
+la part des mesures qui reprennent le motif, fixée à 5 sur 8 par la forme. Ces visées et seuils
+sont des constantes mesurées : un changement des traits ou des cellules oblige à les remesurer,
+ce que les tests signalent.
+
+- **Note** : `QualityTest › a candidate meeting every criterion in full scores 100, the weights of the criteria adding up to it`,
+  `QualityTest › the points grow by the weight of a criterion as far as it is better met, the others staying`,
+  `QualityTest › a criterion met less than not at all, more than in full, or by a share that is not a number, is refused`,
+  `QualityTest › a quality that leaves a criterion out is refused`,
+  `QualityTest › the steps are met in full at the share the category aims at, and not at all 30 points away or more`,
+  `QualityTest › each unprepared note costs a sixteenth of the prepared notes, down to not at all from sixteen of them`,
+  `QualityTest › a melody leans as its category does in full from the share of moves it aims at, and in part below it`,
+  `QualityTest › a melody of retro leans as far as its share of arpeggios goes towards the third of its moves retro aims at`,
+  `QualityTest › the span is met in full from an octave to a major tenth, and not at all a fourth further either way`,
+  `QualityTest › the arch is met by a highest note struck once, in bar 5 or 6, and not at all otherwise`,
+  `QualityTest › the quality of a candidate reads each criterion off the measures of its melody and its bass`,
+  `QualityTest › under the same melody, a bass leaping less from chord to chord scores higher, by that criterion alone`,
+  `QualityProfileTest › a share of steps to aim at outside 0 to 1 is refused`,
+  `QualityProfileTest › a leaning that aims at no move, or at more than all of them, is refused`,
+  `QualityProfileTest › a leaning may aim at all the moves`,
+  `CategoryTest › each category aims at the share of steps of its melodies, and stops at the 15th percentile of its best ones`,
+  `CategoryTest › the categories whose melody leans aim at a share of those moves, about the 90th percentile of candidates`,
+  `MelodyTest › over the seeds, a melody goes by step about as much as its category aims at, within 5 points`.
+- **Mesures** : `MelodyMeasuresTest › a melody that never moves makes no move of any kind, rather than a share that is not a number`,
+  `MelodyMeasuresTest › a melody that strikes no note has no peak, rather than failing`,
+  `MelodyMeasuresTest › the span of a melody counts the semitones from its lowest note to its highest, none without a note`,
+  `MelodyMeasuresTest › the unprepared notes are the notes out of the chord in place not both reached and left by step`,
+  `MelodyMeasuresTest › a note out of the chord that opens the music is reached from the last note, as the music loops`,
+  `MelodyMeasuresTest › a melody striking only notes of the chord leaves none unprepared`,
+  `MelodyMeasuresTest › a note out of the chord struck again is prepared when reached and left by step, the repeat in between`,
+  `MelodyMeasuresTest › the share of the motif kept counts the moves of the bars taking it up that follow bar 1, in degrees`,
+  `MelodyMeasuresTest › a motif of a single note keeps its contour whole, as it has no move to lose`,
+  `BassMeasuresTest › the share of smooth changes counts the changes of chord the bass makes by a fourth at most, loop included`,
+  `BassMeasuresTest › a bass under a single chord makes no change to leap at, so all of its changes are smooth`.
+- **Générateur** : `CandidateTest › a form that no melody fits leaves no candidate, rather than an error`,
+  `CandidateTest › over the seeds, a candidate of mysterious ruled out has a melody, but no bass that fits it`,
+  `MusicGeneratorTest › over the seeds and the categories, the generator keeps the best of the candidates it composes`,
+  `MusicGeneratorTest › over the seeds, a round composes twenty candidates, each from a draw of its own derived from the seed`,
+  `MusicGeneratorTest › while no candidate reaches the threshold, a new round is composed, three at most, and the best one is kept`,
+  `MusicGeneratorTest › a first round whose best candidate reaches the threshold exactly is the last one`,
+  `MusicGeneratorTest › among candidates of equal points, the first one composed is kept`,
+  `MusicGeneratorTest › over the seeds and the categories, a second round makes up for the weakest first rounds, about one in six`,
+  `MusicGeneratorTest › over the seeds, the chosen melody leans as its category does no less than the candidates it is chosen from`,
+  `MusicGeneratorTest › surprise gives back the category it drew from the seed, played by all the candidates, and the scale chosen`,
+  `MusicGeneratorTest › a generated score plays the best melody on the wave and at the volume of the arrangements, over the best bass`,
+  `MusicGeneratorTest › over the seeds, a generated score plays two voices of eight bars of four beats, at a tempo of its category`,
+  `MusicGeneratorTest › the same choice and the same seed give the same music, surprise included, and other seeds other musics`,
+  `MusicGeneratorTest › the seed 42 on joyful gives this music, which pins the derivation of the draws, the note and the threshold`,
+  `MusicGeneratorTest › rounds whose candidates were all ruled out leave no best one, an error sixty ruled out in a row would make`.
+
+Une musique générée porte pour l'instant `ScoreId.GENERATED`, la même pour toutes : les
+musiques enregistrées auront leur propre identité (P4.22). Aucune vue de maquette n'est
+concernée.
+
+Spécification d'origine, pour mémoire :
+
 | Critère | Mesure | Poids |
 |---|---|---|
 | Notes de l'accord sur les temps forts | part des temps forts sur une note de l'accord | élevé |
@@ -483,7 +580,7 @@ qualité n'a plus qu'à écarter les candidats sans basse.
 
 ## Conséquences sur le code
 
-- **`core:music`** reçoit `MusicGenerator` (catégorie, tirage) → `Score`, avec des types
+- **`core:music`** reçoit `MusicGenerator` (choix, graine) → `GeneratedMusic` (partition, catégorie, gamme), avec des types
   `Scale`, `Chord`, `Progression`, `Category`. Il reste en Kotlin pur et sans dépendance : le
   tirage vient de `kotlin.random.Random`, de la bibliothèque standard.
 - **`Pitch`** n'a pas de bémols : les gammes qui en demandent (fa majeur, mixolydien) s'écrivent

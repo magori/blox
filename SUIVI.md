@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 99 / 147 | `█████████████░░░░░░░` **67 %** |
+| **Général** | 100 / 147 | `██████████████░░░░░░` **68 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -435,7 +435,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   de quinte, descentes, arpèges) ; tessiture des voix.
 - [x] **P4.17** Basse selon la catégorie, passage vers l'accord suivant, sans quintes ni octaves
   parallèles avec la mélodie ; styles de basse ramenés aux motifs de la spécification.
-- [ ] **P4.18** Note de qualité et règles éliminatoires ; choix du meilleur candidat. Revue de P4.16 :
+- [x] **P4.18** Note de qualité et règles éliminatoires ; choix du meilleur candidat. Revue de P4.16 :
   mesurer les notes étrangères approchées et quittées par degré ; mesures homogènes (sur la
   forme), sans NaN pour une mélodie sans mouvement. Revue de P4.17 : écarter les candidats sans
   basse (Mystérieux environ 28 %) ; harmoniser l'échec de `Melody` (exception) et de `Bass`
@@ -447,7 +447,8 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
-  fois, proposée aussi dans la musique de l'accueil, V1), renommer et supprimer.
+  fois, proposée aussi dans la musique de l'accueil, V1), renommer et supprimer. Revue de P4.18 : une identité propre par musique enregistrée (`ScoreId`
+  scellé, intégré ou personnel), qui remplace `ScoreId.GENERATED`.
 - [x] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
   (accès depuis V1), dans les quatre thèmes ; choix de la catégorie, fenêtre d'enregistrement.
 

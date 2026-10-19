@@ -5,9 +5,6 @@ package ch.magori.blox.core.music
  * Durations are in beats (1 = quarter note, 0.5 = eighth note).
  */
 public object Scores {
-    private const val MELODY_VOLUME = 0.07
-    private const val BASS_VOLUME = 0.16
-
     public val korobeiniki: Score = Score(
         id = ScoreId.KOROBEINIKI,
         bpm = 150,
@@ -64,9 +61,9 @@ public object Scores {
         ),
     )
 
-    private fun melody(vararg bars: List<Note>): Voice = Voice(Waveform.SQUARE, MELODY_VOLUME, bars.flatMap { it })
+    private fun melody(vararg bars: List<Note>): Voice = melodyVoice(bars.flatMap { it })
 
-    private fun bass(vararg bars: List<Note>): Voice = Voice(Waveform.TRIANGLE, BASS_VOLUME, bars.flatMap { it })
+    private fun bass(vararg bars: List<Note>): Voice = bassVoice(bars.flatMap { it })
 
     /** A bar of (pitch name, beats) pairs. */
     private fun bar(vararg notes: Pair<String, Double>): List<Note> =
