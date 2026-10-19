@@ -112,7 +112,10 @@ graph LR
   rattrape (un plantage visible plutôt qu'une erreur silencieuse).
 
   **Tests :** `DataStoreHighScoreRepositoryTest`, `DataStoreUserPreferencesRepositoryTest`
-  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record ») ;
+  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record »). Le
+  comportement commun à un dépôt et à son faux est un contrat, une classe de tests abstraite
+  que les deux exécutent (`HighScoreRepositoryContract`, `UserPreferencesRepositoryContract`) :
+  les faux partagés des `testFixtures` de `core:data` ne peuvent plus s'écarter du vrai dépôt ;
   erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
   `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
   `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
