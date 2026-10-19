@@ -111,6 +111,7 @@ Inspiré des écrans monochromes, adouci : pas de vert fluo. Les pièces se dist
 | `buttonInk` / `accentInk` | `#EEF5EA` | Pictogrammes sur boutons |
 | `accent` | `#34503A` | Bouton principal (A, Jouer) |
 | `buttonPressed` | `#34503A` | Bouton de commande tenu |
+| `buttonOutline` | `#5F7F5C` | Cadre des boutons de commande (égal à `button`, donc invisible) |
 | `accentPressed` | `#1F3324` | Bouton principal tenu |
 
 Police : pixel (*Press Start 2P* dans la maquette, licence OFL), coins carrés.
@@ -147,7 +148,7 @@ foncée en bas et à droite).
 | `label` | `#9AA0B4` |
 | `accent` | `#EF8D3B` |
 | `accentInk` | `#12141C` |
-| `buttonPressed` | `#646B87` |
+| `buttonPressed`, `buttonOutline` | `#646B87` |
 | `accentPressed` | `#C0651C` |
 
 Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
@@ -169,12 +170,23 @@ Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, d
 touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (grand texte, seuil
 3:1) ; les flèches sont des pictogrammes (3:1).
 
+**Cadre des touches** (P2.22) : chaque touche au repos est entourée d'un cadre de 2 dp
+(`BloxBorders.frame`) en `buttonOutline`, qui la détache de la page d'au moins 3:1 (WCAG 1.4.11,
+composant non textuel). Dans le thème Couleurs, le fond `button` ne se détachait de la page qu'à
+1,36:1 ; le cadre `#646B87` donne 3,50:1. Une touche tenue est remplie de sa teinte pressée
+jusqu'au bord, cadre compris. La touche A n'a pas de cadre propre : l'accent se détache déjà de la
+page. Dans le thème Original, le cadre a la couleur du bouton (3,31:1 contre la page) : rien ne
+change à l'œil. Le cadre partage sa teinte avec `buttonPressed` dans Couleurs ; le test le garde à
+3:1 si l'une des deux change. Le bouton pause de la barre du haut garde ce défaut (P2.23).
+
 **Tests :** `KeyColorsTest › a held key stands out from the page, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
 `KeyColorsTest › a held key stands out from the same key not held, by a contrast of 1,5 to 1 at least`,
 `KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
+`KeyColorsTest › a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`,
+`KeyColorsTest › a held key is filled with its pressed shade up to its edge`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.

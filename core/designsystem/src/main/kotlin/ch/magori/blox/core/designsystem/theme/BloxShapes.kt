@@ -25,6 +25,6 @@ object BloxShapeSets {
 
 /** Épaisseurs de trait de l'interface, les mêmes dans les deux thèmes. */
 object BloxBorders {
-    /** Cadre d'un encart, d'un bouton secondaire et d'un choix de l'accueil. */
+    /** Cadre d'un encart, d'un bouton secondaire, d'un choix de l'accueil et d'une touche de commande. */
     val frame = 2.dp
 }

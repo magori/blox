@@ -101,7 +101,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   décalés comme sur une console portable. Valeurs retenues en P2.5, à confirmer sur la
   maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
   B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres ; A en `accent`, les
-  autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Le tout tient sur 360 dp de large
+  autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Un bouton au repos
+  est entouré d'un cadre de 2 dp en `buttonOutline`, `#646B87` en thème Couleurs, invisible en
+  Original (P2.22, contraste de 3:1 avec la page). Le tout tient sur 360 dp de large
   avec une marge de 24 dp, sans cible sous 48 dp.
 - Pas de bouton de chute instantanée (absent du mode Classique).
 - Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (64 dp) et B A (80 dp), sont

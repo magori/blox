@@ -12,6 +12,34 @@ import org.junit.jupiter.params.provider.MethodSource
 
 internal class KeyColorsTest {
     @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("allKeys")
+    fun `a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`(
+        theme: String,
+        button: ControlButton,
+        palette: BloxPalette,
+    ) {
+        // When
+        val colors = keyColors(palette, button, held = false)
+
+        // Then (WCAG 2.1, 1.4.11: the edge of the key, drawn over its face, tells where the key is)
+        assertThat(contrast(colors.outline, palette.page)).isGreaterThanOrEqualTo(3.0)
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("keys")
+    fun `a held key is filled with its pressed shade up to its edge`(
+        theme: String,
+        button: ControlButton,
+        palette: BloxPalette,
+    ) {
+        // When
+        val colors = keyColors(palette, button, held = true)
+
+        // Then the outline of the key at rest is gone: pressing fills the key
+        assertThat(colors.outline).isEqualTo(colors.background)
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
     @MethodSource("keys")
     fun `a held key stands out from the page, by a contrast of 3 to 1 at least`(
         theme: String,
@@ -102,6 +130,12 @@ internal class KeyColorsTest {
         @JvmStatic
         fun keysHeldOrNot(): List<Arguments> = keys().flatMap { key ->
             listOf(true, false).map { Arguments.of(*key.get(), it) }
+        }
+
+        /** Every key, in each theme. */
+        @JvmStatic
+        fun allKeys(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
+            ControlButton.entries.map { Arguments.of(theme, it, palette) }
         }
 
         /** The keys with a letter, A and B, held or not, in each theme. */

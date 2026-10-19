@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 110 / 158 | `██████████████░░░░░░` **70 %** |
+| **Général** | 111 / 161 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
@@ -272,9 +272,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Fait : `keyColors`, jetons `buttonPressed` et `accentPressed`, lettres A et B en gras ; joint
   de 1/24 de la couleur du fond (`cellLayout`, `CellPainter(background)`).
 - [ ] **P2.21** Mettre à jour la maquette : touches tenues (teinte « pressée »), lettres A et B
-  en gras, joint des cellules du thème Original (P2.17).
-- [ ] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
-  `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17).
+  en gras, joint des cellules du thème Original (P2.17) ; cadre `buttonOutline` `#646B87` des
+  touches au repos en thème Couleurs, V3 (P2.22).
+- [x] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
+  `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17). Fait : jeton
+  `buttonOutline`, cadre de 2 dp autour des touches au repos (3,50:1).
+- [ ] **P2.23** Contraste du bouton pause en thème Couleurs : même défaut que les flèches (1,36:1
+  contre la page) ; lui donner le cadre `buttonOutline` (`topbar/GameTopBar.kt`, `PauseButton`).
 - [ ] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
   tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre.
 - [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
@@ -605,7 +609,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sans couper la partie (revue de P4.23).
 - [ ] **P5.37** Mettre à jour la maquette : interrupteur « Vibrations » (accueil V1 ou écran de
   réglages), puis le brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
-  sa valeur par défaut (désactivé en attendant, P5.2).
+  sa valeur par défaut : désactivé (décision du développeur, 2026-10-19 ; P5.2).
 - [ ] **P5.38** Mettre à jour la maquette : action « Changer » (Changer de fichier) sous « Mon
   fichier », à côté d'« Écouter », et le nom du fichier retenu, à afficher ensuite
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
@@ -616,6 +620,14 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.40** Mettre à jour la maquette de l'éditeur (V8, V11, V14, V17) selon le code de P4.19b :
   onglets à la couleur de la piste en Couleurs, noms de ligne hors gamme en italique, hauteur
   minimale des lignes (26 dp), bouton « COMPOSER UNE MUSIQUE » de l'accueil en capitales avec icône.
+- [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
+  (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
+  l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
+  de l'éditeur (déjà relevés) ; tests de contraste (`PaletteContrastTest`, `KeyColorsTest`,
+  `ChoiceColorsTest`, `TrackColorsTest`) et captures dans les deux variantes.
+- [ ] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
+  une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
+  police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30).
 
 ## P6 — Mode Moderne (plus tard)
 
