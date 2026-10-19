@@ -7,7 +7,7 @@ import kotlin.random.Random
  * all, so adding a category leaves it unchanged. [harmonies] gives its scales, each with the progressions that suit
  * it, [tempo] the tempos it allows, [rhythms] the rhythm cells its melody draws its bars from, [bass] the way its
  * bass goes, and [allowsChromaticPassingNotes] whether its melody may pass through a note out of the scale, on a
- * weak beat. [harmonicRhythm] tells how often its chord changes.
+ * weak beat.
  */
 public enum class Category(
     public val harmonies: List<Harmony>,
@@ -15,7 +15,7 @@ public enum class Category(
     public val rhythms: List<RhythmCell>,
     public val bass: BassStyle,
     public val allowsChromaticPassingNotes: Boolean = false,
-    public val harmonicRhythm: HarmonicRhythm = HarmonicRhythm.ONE_CHORD_PER_BAR,
+    ownPhraseEnds: List<RhythmCell> = emptyList(),
 ) : CategoryChoice {
     /** Eighth notes and dotted eighths that skip along. */
     JOYFUL(
@@ -23,11 +23,12 @@ public enum class Category(
         tempo = TempoRange(120, 150),
         rhythms = cells("0.5 0.5 0.5 0.5 1 1", "0.75 0.25 0.75 0.25 1 1", "1 0.5 0.5 0.75 0.25 1", "0.5 1 0.5 1 1"),
         bass = BassStyle.BOUNCING_OCTAVES,
+        ownPhraseEnds = cells("0.5 0.5 1 2", "0.75 0.25 1 2"),
     ),
 
     /** Half and quarter notes, with air between them. */
     CALM(
-        harmonies = listOf(on(ScaleType.MAJOR_PENTATONIC, "I–vi–IV–V", "IV–I")),
+        harmonies = listOf(on(ScaleType.MAJOR_PENTATONIC, "I–vi–IV–V", "I–IV")),
         tempo = TempoRange(70, 95),
         rhythms = cells("2 2", "1 1 2", "2 1 r1", "1 r1 2"),
         bass = BassStyle.WHOLE_AND_HALF_NOTES,
@@ -39,6 +40,7 @@ public enum class Category(
         tempo = TempoRange(110, 140),
         rhythms = cells("1 1 1 1", "1 0.5 0.5 1 1", "0.5 0.5 1 1 1", "1 1 0.5 0.5 1"),
         bass = BassStyle.GALLOP,
+        ownPhraseEnds = cells("1 1 2", "1 1 1 r1"),
     ),
 
     /** Long notes. */
@@ -63,7 +65,10 @@ public enum class Category(
      * itself, written `VII`.
      */
     RETRO(
-        harmonies = listOf(on(ScaleType.MAJOR, "I–V–vi–IV"), on(ScaleType.MIXOLYDIAN, "I–VII–IV–I")),
+        harmonies = listOf(
+            on(ScaleType.MAJOR, "I–V–vi–IV", harmonicRhythm = HarmonicRhythm.TWO_CHORDS_PER_BAR),
+            on(ScaleType.MIXOLYDIAN, "I–VII–IV–I", harmonicRhythm = HarmonicRhythm.TWO_CHORDS_PER_BAR),
+        ),
         tempo = TempoRange(140, 170),
         rhythms = cells(
             "0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.25 0.5 0.5 1",
@@ -72,7 +77,7 @@ public enum class Category(
             "0.5 1 0.5 0.5 0.5 1",
         ),
         bass = BassStyle.FAST_OCTAVES,
-        harmonicRhythm = HarmonicRhythm.TWO_CHORDS_PER_BAR,
+        ownPhraseEnds = cells("0.5 0.5 0.5 0.5 2", "0.25 0.25 0.25 0.25 0.5 0.5 2"),
     ),
 
     /** Eighth notes, beats 1 and 3 marked. */
@@ -81,8 +86,15 @@ public enum class Category(
         tempo = TempoRange(130, 160),
         rhythms = cells("1 0.5 0.5 1 0.5 0.5", "1 0.5 0.5 1 1", "0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5", "1 1 1 0.5 0.5"),
         bass = BassStyle.MARKED_ROOT_AND_FIFTH,
+        ownPhraseEnds = cells("1 0.5 0.5 2", "1 0.5 0.5 1 r1"),
     ),
     ;
+
+    /**
+     * The cells that end a phrase, at bars 4 and 8, on a long note or a silence: the [rhythms] that breathe, plus the
+     * phrase-end cells of the category's own.
+     */
+    internal val phraseEnds: List<RhythmCell> = rhythms.filter(RhythmCell::breathes) + ownPhraseEnds
 
     /** A category chosen by the player is played as it is. */
     override fun resolve(random: Random): Category = this
@@ -96,6 +108,7 @@ public enum class Category(
 private fun on(
     scaleType: ScaleType,
     vararg progressions: String,
-): Harmony = Harmony(scaleType, progressions.map(Progression::parse))
+    harmonicRhythm: HarmonicRhythm = HarmonicRhythm.ONE_CHORD_PER_BAR,
+): Harmony = Harmony(scaleType, progressions.map(Progression::parse), harmonicRhythm)
 
 private fun cells(vararg cells: String): List<RhythmCell> = cells.map(RhythmCell::parse)

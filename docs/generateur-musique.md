@@ -117,6 +117,69 @@ Aucune vue de maquette n'est concernée.
 - **Répéter, mais pas trop** : au moins la moitié des mesures reprend le rythme du motif ;
   aucune mesure n'est la copie exacte de la précédente.
 
+### Forme (implémentée, P4.15)
+
+`Form.compose(catégorie, tirage)` (interne à `core:music`) donne le squelette que la mélodie
+(P4.16) et la basse (P4.17) rempliront : tonique, gamme et suite (une `Harmony` de la
+catégorie), tempo, motif, et pour chacune des 8 mesures sa section, son rôle, ses accords et
+son rythme. Choix de conception, **[à vérifier]** à l'écoute.
+
+- **Plan des rythmes.** Les lettres `A A' B A''` vont par deux mesures. Rôles : motif aux
+  mesures 1, 2, 3, 6 et 7 ; fin de phrase aux mesures 4 et 8 ; contraste à la mesure 5. La
+  réponse s'ouvre donc sur un contraste (B) et revient au motif dès la mesure 6, plutôt que de
+  reprendre le début de la question : la phrase ci-dessus est tranchée ainsi. Le motif occupe
+  5 mesures sur 8 ; il ne revient pour l'instant que par son rythme, ses transformations
+  (transposé, renversé) viendront avec la mélodie (P4.16). La fin de phrase est tirée parmi les
+  cellules qui respirent, hors motif ; le contraste parmi les autres cellules du répertoire,
+  hors motif et hors fin de la mesure 4.
+  `FormTest › a form spans eight bars in sections A A' B A'', one letter for each pair of bars`,
+  `FormTest › bars 1, 2, 3, 6 and 7 take up the motif, bar 5 departs from it, bars 4 and 8 end the phrases`,
+  `FormTest › the phrase ends depart from the motif, so that the motif fills five bars out of eight`,
+  `FormTest › bar 5 departs from the phrase end of bar 4 too, so that B never takes up the end of the question`,
+  `FormTest › over the seeds, bar 5 draws every cell but the motif and the phrase end before it`,
+  `FormTest › over the seeds, bars 4 and 8 draw every phrase end but the motif`,
+  `CategoryTest › whatever its motif, a category keeps a phrase end apart from it, and a contrast apart from both`.
+- **Respirer.** Une cellule respire si elle finit sur une note de 2 temps au moins ou sur un
+  silence. Joyeux, Épique, Rétro et Danse reçoivent des cellules de fin propres (`0.5 0.5 1 2`,
+  `0.75 0.25 1 2` ; `1 1 2`, `1 1 1 r1` ; `0.5 0.5 0.5 0.5 2`, `0.25 0.25 0.25 0.25 0.5 0.5 2` ;
+  `1 0.5 0.5 2`, `1 0.5 0.5 1 r1`) ; les autres finissent sur les cellules de leur répertoire
+  qui respirent.
+  `FormTest › each phrase breathes at its end, bars 4 and 8 closing on a long note or a silence`,
+  `RhythmCellTest › a cell breathes when it ends on a long note, a half note at least, or on a silence`,
+  `RhythmCellTest › a cell that ends on a note shorter than a half note does not breathe`,
+  `CategoryTest › every category has cells to end its phrases on, that breathe after striking a chord note on beat 1`.
+- **Accords et cadences.** Chaque mesure joue l'accord suivant de la suite ; Rétro en change à
+  chaque demi-mesure (temps 1-2, puis 3-4). Toute suite commence sur la tonique, et les mesures
+  4 et 8 finissent sur l'accord du 5e degré de la gamme d'harmonie, qui appelle le I de la
+  mesure 1 : V en majeur, en mineure harmonique et en pentatonique, v (demi-cadence modale)
+  en mineure naturelle, en dorien et en mixolydien. En Rétro, seule la dernière demi-mesure
+  change. Calme joue donc `I–IV` (et non plus `IV–I`).
+  `FormTest › outside the cadences, each bar plays the next chord of the progression, one chord a bar`,
+  `FormTest › retro moves on to the next chord of the progression every half bar, beats 1 and 2 then 3 and 4`,
+  `FormTest › bars 4 and 8 end on the chord of the fifth degree of the scale, a half cadence that calls back bar 1`,
+  `FormTest › bar 1 of every form plays the tonic chord of its scale, which the half cadence of bar 8 calls back`,
+  `ScaleTest › the triad on the fifth degree stacks two thirds of the scale, major V or minor v, major V for a pentatonic`,
+  `HarmonyTest › a progression that does not start on the tonic is refused, as the half cadence of bar 8 calls it back`.
+- **Pas de copie.** Une mesure copie la précédente si elle a le même rythme et les mêmes
+  accords (boucle comprise : la mesure 1 après la mesure 8). Une `Harmony` refuse une suite
+  qui jouerait les mêmes accords deux mesures de suite hors cadences, selon son rythme
+  harmonique (porté par l'`Harmony`) ; la part qui dépend des hauteurs viendra avec la
+  mélodie et la note de qualité.
+  `FormTest › no bar copies the one before it, rhythm and chords alike, not even bar 1 after bar 8 in the loop`,
+  `HarmonyTest › a progression that plays the same chords in two bars running, outside the cadences, is refused`,
+  `HarmonyTest › a progression may come back to its tonic on bar 4, as the half cadence plays the fifth there`.
+- **Reproductible.** Tirages dans cet ordre : catégorie (Surprise), harmonie, tonique, suite,
+  tempo, motif, puis les cellules de chaque mesure ; la mélodie et la basse tireront après. Une
+  caractérisation fige cet ordre (graine 42, Joyeux : do majeur, `I–IV–V–I`, 133 temps/min).
+  `FormTest › a form plays in one of the keys, on one of the harmonies and at a tempo of its category`,
+  `FormTest › the same category and the same seed give the same form, surprise included`,
+  `FormTest › surprise draws its category first, from the same draw as the rest of the form`,
+  `FormTest › different seeds end up giving different forms, in their key, tempo, motif and bars`,
+  `FormTest › the seed 42 on joyful gives this form, which pins the order of the draws`.
+
+L'algorithme de `kotlin.random.Random(graine)` n'est pas garanti d'une version de Kotlin à
+l'autre : la caractérisation le signalera. Aucune vue de maquette n'est concernée.
+
 ### Mélodie
 
 - **Surtout par degrés conjoints** : environ 70 % des intervalles sont d'une seconde, le reste
@@ -158,7 +221,7 @@ elle-même au hasard.
 | Catégorie | Gamme | Tempo (temps/min) | Suites d'accords | Rythme de la mélodie | Basse |
 |---|---|---|---|---|---|
 | **Joyeux** | majeure | 120–150 | I–V–vi–IV, I–IV–V–I | croches, croches pointées, sautillant | bondissante (octaves) |
-| **Calme** | pentatonique majeure | 70–95 | I–vi–IV–V, IV–I | blanches et noires, beaucoup d'air | rondes ou blanches |
+| **Calme** | pentatonique majeure | 70–95 | I–vi–IV–V, I–IV | blanches et noires, beaucoup d'air | rondes ou blanches |
 | **Épique** | mineure naturelle | 110–140 | i–VI–III–VII, i–VII–VI–VII | noires fortes, sauts de quinte | galop (croches répétées) |
 | **Mélancolique** | mineure naturelle | 80–100 | i–VI–iv–v, i–iv–VII–III | notes longues, descentes | fondamentale et quinte |
 | **Mystérieux** | dorienne ou mineure harmonique | 90–110 | i–IV (dorien), i–♭VII–VI–V (harmonique) | notes tenues, chromatisme de passage | notes tenues |
@@ -233,7 +296,8 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   `CategoryTest › melancholic and mysterious hold a long note, a half note at least, in every bar`.
 - **Basse, chromatisme, rythme harmonique** : un style de basse par catégorie (table), le
   chromatisme de passage pour Mystérieux seulement, deux accords par mesure pour Rétro
-  seulement (la lecture d'une demi-mesure viendra avec la forme, P4.15). Danse est à 4 temps,
+  seulement (le rythme harmonique est porté par chaque `Harmony` ; lecture par demi-mesure
+  dans la forme, P4.15). Danse est à 4 temps,
   ses « 2 temps marqués » étant les temps 1 et 3.
   `CategoryTest › each category has the bass of its character`,
   `CategoryTest › only mysterious lets its melody pass through a note out of the scale`,
@@ -243,8 +307,7 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   `CategoryChoiceTest › surprise draws the same category from the same seed`,
   `CategoryChoiceTest › a category chosen by the player is played as it is, whatever the draw`.
 
-Points ouverts : l'accord qui ferme la boucle **[à vérifier]** dans les gammes dont le V est
-mineur ou absent des suites (mineure naturelle, dorien, mixolydien ; P4.15) ; les traits
+Points ouverts : l'accord qui ferme la boucle est tranché par la forme (P4.15, ci-dessus) ; les traits
 mélodiques de la table (sauts de quinte, descentes, arpèges) ne sont pas encore des
 paramètres (P4.16) ; les sept styles de basse pourront se réduire aux motifs de la section
 Basse (P4.17). Aucune vue de maquette n'est concernée.

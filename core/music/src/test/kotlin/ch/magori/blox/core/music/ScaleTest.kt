@@ -33,6 +33,30 @@ class ScaleTest {
         assertThat(pitches.joinToString(" ")).isEqualTo(expected)
     }
 
+    @ParameterizedTest(name = "{0}: {1} {2}")
+    @CsvSource(
+        "MAJOR, G4, MAJOR",
+        "HARMONIC_MINOR, G4, MAJOR",
+        "MAJOR_PENTATONIC, G4, MAJOR",
+        "NATURAL_MINOR, G4, MINOR",
+        "DORIAN, G4, MINOR",
+        "MIXOLYDIAN, G4, MINOR",
+    )
+    fun `the triad on the fifth degree stacks two thirds of the scale, major V or minor v, major V for a pentatonic`(
+        type: ScaleType,
+        root: String,
+        quality: ChordQuality,
+    ) {
+        // Given
+        val scale = Scale(Pitch.parse("C4"), type)
+
+        // When
+        val fifth = scale.fifthTriad()
+
+        // Then
+        assertThat(fifth).isEqualTo(Chord(Pitch.parse(root), quality))
+    }
+
     @ParameterizedTest(name = "{0}")
     @EnumSource(ScaleType::class)
     fun `every scale type spans exactly one octave, so the degree after the last one is the tonic an octave up`(

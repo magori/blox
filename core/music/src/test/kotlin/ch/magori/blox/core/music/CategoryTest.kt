@@ -33,7 +33,7 @@ class CategoryTest {
         delimiter = ';',
         value = [
             "JOYFUL; MAJOR; I–V–vi–IV, I–IV–V–I",
-            "CALM; MAJOR_PENTATONIC; I–vi–IV–V, IV–I",
+            "CALM; MAJOR_PENTATONIC; I–vi–IV–V, I–IV",
             "EPIC; NATURAL_MINOR; i–VI–III–VII, i–VII–VI–VII",
             "MELANCHOLIC; NATURAL_MINOR; i–VI–iv–v, i–iv–VII–III",
             "MYSTERIOUS; DORIAN; i–IV",
@@ -110,6 +110,39 @@ class CategoryTest {
         assertThat(cells).allSatisfy { cell ->
             assertThat(cell.restsOnStrongBeat).isFalse()
             assertThat(cell.syncopations).isLessThanOrEqualTo(1)
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Category::class)
+    fun `every category has cells to end its phrases on, that breathe after striking a chord note on beat 1`(
+        category: Category,
+    ) {
+        // When
+        val cells = category.phraseEnds
+
+        // Then
+        assertThat(cells).isNotEmpty().allSatisfy { cell ->
+            assertThat(cell.breathes).isTrue()
+            assertThat(cell.steps.first().isRest).isFalse()
+            assertThat(cell.syncopations).isLessThanOrEqualTo(1)
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Category::class)
+    fun `whatever its motif, a category keeps a phrase end apart from it, and a contrast apart from both`(
+        category: Category,
+    ) {
+        // When
+        val motifs = category.rhythms
+
+        // Then
+        assertThat(motifs).allSatisfy { motif ->
+            val ends = category.phraseEnds - motif
+            assertThat(ends).isNotEmpty().allSatisfy { end ->
+                assertThat(category.rhythms - setOf(motif, end)).isNotEmpty()
+            }
         }
     }
 
@@ -204,10 +237,15 @@ class CategoryTest {
     @Test
     fun `only retro, the fastest category, changes chord twice a bar`() {
         // When
-        val twice = Category.entries.filter { it.harmonicRhythm == HarmonicRhythm.TWO_CHORDS_PER_BAR }
+        val twice = Category.entries.filter { category ->
+            category.harmonies.any { it.harmonicRhythm == HarmonicRhythm.TWO_CHORDS_PER_BAR }
+        }
 
         // Then
         assertThat(twice).containsExactly(Category.RETRO)
+        assertThat(Category.RETRO.harmonies).allSatisfy {
+            assertThat(it.harmonicRhythm).isEqualTo(HarmonicRhythm.TWO_CHORDS_PER_BAR)
+        }
         assertThat(Category.RETRO.tempo.fastest).isEqualTo(Category.entries.maxOf { it.tempo.fastest })
     }
 
