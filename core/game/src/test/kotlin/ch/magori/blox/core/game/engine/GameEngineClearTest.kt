@@ -22,14 +22,12 @@ class GameEngineClearTest {
     @Test
     fun `a lock that fills rows starts the clear, the board shown still holds the full rows`() {
         // Given a T about to lock with its pivot on row 18, filling rows 18 and 19
-        val board = Board.parse(
-            """
-            IIII...III
-            IIIII.IIII
-            """,
-        )
         val state =
-            gameState(board = board, level = Level(29), phase = Phase.Falling(tPointingDown(at = Position(5, 18))))
+            gameState(
+                board = TWO_ROWS_TO_FILL,
+                level = Level(29),
+                phase = Phase.Falling(tPointingDown(at = Position(5, 18))),
+            )
 
         // When
         val locked = engine.tick(state).state
@@ -181,14 +179,6 @@ class GameEngineClearTest {
             lines = Lines(9),
             tickCount = 3,
             phase = Phase.Falling(verticalI(at = Position(0, 18)), ticksSinceDrop = 47),
-        )
-
-        /** Rows 18 and 19, which a T pointing down with its pivot at (5, 18) fills. */
-        val TWO_ROWS_TO_FILL = Board.parse(
-            """
-            IIII...III
-            IIIII.IIII
-            """,
         )
     }
 }

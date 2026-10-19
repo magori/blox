@@ -340,12 +340,20 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   relâché entre deux ticks) compte quand même au tick suivant (écart assumé : sur NES, un appui
   dure au moins une image) ; presser une touche déjà tenue n'est pas un nouvel appui. Un appui
   fait pendant l'effacement ou le délai d'apparition est perdu, comme dans la ROM (le
-  déplacement, la rotation et la descente n'y sont pas appelés).
+  déplacement, la rotation et la descente n'y sont pas appelés) : chaque tick efface les appuis
+  qu'il n'a pas lus, quelle que soit la phase. Un bouton pressé à ce moment et encore tenu est
+  seulement tenu pour la pièce suivante : A ou B ne la tourne pas, ▼ ne la fait pas descendre,
+  et ◀ ou ▶ ne relance pas le DAS : le déplacement reprend son compteur où il en était (un DAS
+  chargé déplace la pièce dès son premier tick de chute), ou part de 0 s'il n'y en a pas encore.
 - **Déplacement** : ▶ l'emporte sur ◀ ; ▼ tenu bloque le déplacement et fige le DAS, qui reprend
   où il en était (`$89B2`). Seul un **nouvel appui** de ◀ ou ▶ relance le DAS, quelle que soit
   la direction (`$89B8`) ; un changement de direction sans nouvel appui (◀ et ▶ tenus puis ▶
   relâché) continue le compteur, sans pas immédiat. Le DAS survit au verrouillage et reste figé
-  pendant l'effacement et le délai d'apparition.
+  pendant l'effacement et le délai d'apparition. Sans déplacement plus tôt dans la partie, un ◀
+  ou ▶ tenu sans nouvel appui part d'un compteur à 0 (`autorepeatX`, `$0046`) : premier
+  déplacement au 16ᵉ tick de chute, puis tous les 6 ticks (`$89C4` à `$89CE`, meatfighter.com).
+  **[à vérifier]** : la valeur 0 suppose une RAM effacée en début de partie ; la source ne dit
+  pas ce que contient `autorepeatX` avant le premier déplacement.
 - **Rotation** : A (horaire) l'emporte sur B s'ils sont pressés ensemble (`$88B4`) ; la pièce
   prend le premier candidat du système de rotation qui tient, sinon elle ne bouge pas.
 - **Descente rapide** : elle démarre sur un **nouvel appui de ▼**, sans appui de ◀ ou ▶ dans le
@@ -388,7 +396,12 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 `GameEngineControlsTest › a rotation against the wall is refused, and a new press of B on the next tick turns the piece back`,
 `GameEngineControlsTest › A and B pressed together turn the piece once, clockwise`,
 `GameEngineControlsTest › a held down freezes the shift repeat, which goes on where it stood when down is released`,
-`GameEngineControlsTest › once the game is over, an input changes nothing`. Vues : V2, V3.
+`GameEngineControlsTest › once the game is over, an input changes nothing`,
+`GameEngineControlsTest › A or B pressed before the next piece is lost, it appears unturned`,
+`GameEngineControlsTest › left or right pressed before the next piece, with no shift repeat yet, shifts it on its 16th tick of fall`,
+`GameEngineControlsTest › left or right pressed before the next piece, with a charged shift repeat, shifts it on its first tick of fall`,
+`GameEngineControlsTest › down pressed before the next piece does not soft drop it until it is pressed again`,
+`GameEngineControlsTest › A or left pressed on the last tick of the entry delay is lost, the next piece neither turns nor shifts`. Vues : V2, V3.
 
 ## Délai d'apparition
 
