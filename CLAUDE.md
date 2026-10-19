@@ -59,6 +59,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew lintDebug             # lint Android, règles Compose de Slack comprises
 ./gradlew assembleDebug         # APK
 ./gradlew installDebug          # installation sur un appareil connecté
+scripts/verifier-tracabilite.sh # chaque `Classe › nom du test` des docs désigne un test existant
 ```
 
 Un seul test ou une seule classe :
@@ -72,9 +73,10 @@ Un seul test ou une seule classe :
 ./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
 ```
 
-La CI (`.github/workflows/ci.yml`) enchaîne exactement : `ktlintCheck` (projet et `build-logic`),
-`buildHealth`, tests du domaine, `testDebugUnitTest`,
-`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces six commandes passe en CI.
+La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-tracabilite.sh` (avant
+même l'installation du JDK), `ktlintCheck` (projet et `build-logic`), `buildHealth`, tests du
+domaine, `testDebugUnitTest`,
+`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces sept commandes passe en CI.
 
 ## Architecture
 
@@ -204,7 +206,8 @@ La commande `/fin-de-tache` les déroule.
    - la règle telle qu'elle est implémentée ;
    - le ou les tests qui la prouvent, sous la forme `ClasseDeTest › nom du test` ;
    - les vues de maquette concernées (`V1`, `V2`…) ;
-   - le marqueur **[à vérifier]** retiré si la valeur a été confirmée, **avec la source**.
+   - le marqueur **[à vérifier]** retiré si la valeur a été confirmée, **avec la source** ;
+   - `scripts/verifier-tracabilite.sh` vert.
 4. **Maquette à jour**, si un écran a changé. Les vues sont numérotées dans
    [docs/maquette.md](docs/maquette.md) ; en cas de renumérotation, mettre à jour toutes les
    références (spécification, SUIVI). La maquette Claude Design (planche et prototype) se

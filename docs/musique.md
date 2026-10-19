@@ -178,7 +178,7 @@ finie ou quittée en danger (fin de partie, Pause puis Menu). La reprise après 
 tempo en cours, × 1,25 si la pile est en danger.
 
 **Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
-`MusicScoresTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+`MusicTempoTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
 `GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
 `GameViewModelTest › with no music chosen nothing plays`,
 `GameViewModelTest › the game over stops the music`,
@@ -329,7 +329,7 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 `ScoresTest › the Korobeiniki melody is the folk song of docs musique md, its 8 bars in full, with its dotted rhythm`,
 `ScoresTest › the first bar of the minuet melody is the one of docs musique md`,
 `ScoresTest › the Korobeiniki bass alternates a root and its fifth, octave ignored`,
-`ScoresTest › the Korobeiniki basse is the one of docs musique md, its 8 bars in full`,
+`ScoresTest › the Korobeiniki bass is the one of docs musique md, its 8 bars in full`,
 `ScoresTest › a melody only uses the pitch classes of its key`,
 `ScoresTest › every voice stays within its range`.
 
