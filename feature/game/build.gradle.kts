@@ -31,4 +31,6 @@ dependencies {
 
     // Doublures de test du domaine (ScriptedRandomizer, spawned), partagées par `core:game`.
     testImplementation(testFixtures(projects.core.game))
+    // Le contraste de WCAG et les palettes nommées, partagés avec l'autre feature.
+    testImplementation(testFixtures(projects.core.designsystem))
 }

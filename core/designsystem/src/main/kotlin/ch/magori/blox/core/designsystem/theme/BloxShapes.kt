@@ -22,3 +22,9 @@ object BloxShapeSets {
     /** Thème « Couleurs » : coins arrondis de 10 points. */
     val Colorful = BloxShapes(panel = RoundedCornerShape(10.dp), button = RoundedCornerShape(10.dp))
 }
+
+/** Épaisseurs de trait de l'interface, les mêmes dans les deux thèmes. */
+object BloxBorders {
+    /** Cadre d'un encart, d'un bouton secondaire et d'un choix de l'accueil. */
+    val frame = 2.dp
+}
