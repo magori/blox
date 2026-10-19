@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 75 / 143 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 76 / 143 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -487,7 +487,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 
 - [x] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
   quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1). Fait : `play` part toujours au tempo normal, `resume` garde le tempo en cours (`docs/musique.md`).
-- [ ] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
+- [x] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
   taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
   chaque mouvement de la pièce (A2, A7).
 - [ ] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
