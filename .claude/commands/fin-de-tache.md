@@ -33,8 +33,8 @@ Arrête-toi et signale-le si une étape échoue.
 
 6. **SUIVI.md et JOURNAL.md** : dans `SUIVI.md`, coche la tâche et ajoute les tâches
    découvertes, puis lance `scripts/avancement.sh` (Git Bash) pour recalculer les pourcentages
-   général et MVP ; si une tâche découverte est nécessaire pour jouer, propose de l'ajouter à
-   la liste `<!-- mvp: … -->`. Dans `JOURNAL.md`, ajoute la ligne de la tâche (y compris les
+   général et MVP audio ; si une tâche découverte est nécessaire au MVP audio, propose de l'ajouter à
+   la liste `<!-- mvp-audio: … -->`. Dans `JOURNAL.md`, ajoute la ligne de la tâche (y compris les
    remarques de revue écartées).
 
 7. **Commit et push** : rédige et crée le commit avec le skill `/commit` (gitmoji +
