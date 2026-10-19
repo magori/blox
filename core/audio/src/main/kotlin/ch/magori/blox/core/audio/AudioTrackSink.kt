@@ -1,6 +1,5 @@
 package ch.magori.blox.core.audio
 
-import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
 
@@ -11,12 +10,8 @@ import android.media.AudioTrack
  */
 public class AudioTrackSink(sampleRate: Int) : AudioSink {
     private val track: AudioTrack = AudioTrack.Builder()
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-                .build(),
-        ).setAudioFormat(
+        .setAudioAttributes(MUSIC_ATTRIBUTES)
+        .setAudioFormat(
             AudioFormat.Builder()
                 .setEncoding(ENCODING)
                 .setSampleRate(sampleRate)
