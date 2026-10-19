@@ -58,3 +58,10 @@ gradlePlugin {
 ktlint {
     version.set(libs.versions.ktlint.get())
 }
+
+// Même parade que `keepKtlintCacheInsideCheckout` (KtlintConfiguration.kt, P5.31) : la sortie en
+// cache des tâches ktlint cite des chemins absolus, la clé doit donc dépendre de la copie du dépôt.
+val checkoutPath: String = layout.projectDirectory.asFile.absolutePath
+tasks.withType<org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask>().configureEach {
+    inputs.property("projectDirectoryAbsolutePath", checkoutPath)
+}
