@@ -224,3 +224,16 @@ il n'y a aucun avertissement Kotlin ni lint.
 - La CI compile aussi les tests instrumentés et les tests de captures
   (`assembleDebugAndroidTest`, `compileDebugScreenshotTestKotlin`), pour que leurs avertissements
   comptent ; elle ne les exécute pas.
+
+## Stabilité Compose
+
+Les types de `core:game` sont compilés sans le plugin Compose : le compilateur ne peut pas les
+inférer stables. `compose-stability.conf`, à la racine, les déclare stables pour tous les
+modules Compose (convention `configureComposeCompiler` de `build-logic`) : aujourd'hui le seul
+paquet `ch.magori.blox.core.game.model.*`, dont les types sont immuables (`val`, collections en
+lecture seule jamais modifiées après construction). `ModelImmutabilityTest › every instance field of the model package is final`
+refuse un `var` ajouté plus tard à ce paquet. C'est une mesure préventive (P5.9) : aucun
+composable ne prend encore ces types en paramètre (le plateau les reçoit par des fonctions,
+P5.11), seuls `board` et `piece` de `GameUiState` passent de « unstable » à « stable » dans les
+rapports. Le fichier est déclaré en entrée des compilations Kotlin, que le plugin ne suit pas
+(KGP 2.4.21). Rapports du compilateur : `./gradlew compileDebugKotlin -Pblox.composeReports=true --rerun`.
