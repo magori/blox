@@ -182,3 +182,31 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 JUnit 5 partout, y compris dans les modules Android grâce au plugin
 `de.mannodermaus.android-junit` appliqué par les plugins de convention. Voir les
 [ADR 0003](adr/0003-domaine-en-kotlin-pur.md) et [0009](adr/0009-junit5-partout.md).
+
+## Avertissements
+
+Un avertissement est une erreur (P5.25) : les plugins de convention compilent Kotlin avec
+`allWarningsAsErrors`, en production comme en tests, et lint en `warningsAsErrors`. Sur `main`,
+il n'y a aucun avertissement Kotlin ni lint.
+
+- **Opt-in des coroutines** : `ExperimentalCoroutinesApi` (`runCurrent`, `runTest`) est
+  autorisé par la convention, sur les seules compilations de tests unitaires des modules
+  Android (`target.compilations` du Kotlin intégré d'AGP 9) ; ni la production, ni les tests
+  instrumentés, ni les modules Kotlin purs, qui n'ont pas les coroutines (un opt-in vers un
+  marqueur introuvable serait lui-même un avertissement).
+- **Base de lint par module** : `lint-baseline.xml` n'est branchée que si le fichier existe,
+  pour qu'un module sans base n'en crée pas une en échouant. Seule `app` en a une : `OldTargetApi`
+  (`targetSdk` 36 sous `compileSdk` 37, que les métadonnées AAR d'AndroidX imposent ; on monte
+  après un test). Pour en créer une : fichier vide, puis `./gradlew :<module>:updateLintBaseline`.
+- **Règles désactivées** : `GradleDependency`, `NewerVersionAvailable` et
+  `AndroidGradlePluginVersion` comparent au dépôt Maven distant, donc leur verdict change sans
+  que le code change ; Dependabot propose ces montées.
+- **Avertissements tus à la source** : `LockedOrientationActivity` et `DiscouragedApi` sur
+  l'activité (`tools:ignore` dans le manifeste), portrait forcé en attendant P2.8.
+- **Une PR Dependabot qui casse sur une nouvelle dépréciation** : corriger l'appel ; sinon
+  `@Suppress("DEPRECATION")` au plus près, avec sa raison ; en dernier recours, un assouplissement
+  ciblé et temporaire dans `build-logic` (`-Xwarning-level=<NOM>:warning`), avec une tâche au
+  suivi pour le retirer.
+- La CI compile aussi les tests instrumentés et les tests de captures
+  (`assembleDebugAndroidTest`, `compileDebugScreenshotTestKotlin`), pour que leurs avertissements
+  comptent ; elle ne les exécute pas.

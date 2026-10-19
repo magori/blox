@@ -8,6 +8,7 @@ import org.gradle.jvm.toolchain.JavaLanguageVersion
 import org.gradle.kotlin.dsl.configure
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmCompilerOptions
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 /**
@@ -33,9 +34,8 @@ internal fun Project.configureKotlinAndroid(commonExtension: CommonExtension) {
     }
 
     extensions.configure<KotlinAndroidExtension> {
-        compilerOptions {
-            jvmTarget.set(targetJvm)
-        }
+        compilerOptions.configureCommonKotlinOptions(targetJvm)
+        optInExperimentalCoroutinesInUnitTests()
     }
 }
 
@@ -49,8 +49,38 @@ internal fun Project.configureKotlinJvm() {
 
     extensions.configure<KotlinJvmProjectExtension> {
         explicitApi()
-        compilerOptions {
-            jvmTarget.set(targetJvm)
+        compilerOptions.configureCommonKotlinOptions(targetJvm)
+    }
+}
+
+/**
+ * Options du compilateur communes aux modules Android et Kotlin purs.
+ *
+ * Production et tests, un avertissement du compilateur Kotlin est une erreur (`allWarningsAsErrors`,
+ * P5.25) : rien ne passe la CI sans être vu. Un avertissement assumé se fait taire au plus près,
+ * `@Suppress("…")` avec sa raison (voir CLAUDE.md, « Zéro avertissement »).
+ */
+private fun KotlinJvmCompilerOptions.configureCommonKotlinOptions(target: JvmTarget) {
+    jvmTarget.set(target)
+    allWarningsAsErrors.set(true)
+}
+
+/**
+ * `runCurrent`, `advanceUntilIdle`, `UnconfinedTestDispatcher`, `Dispatchers.setMain` : des outils
+ * de base de kotlinx-coroutines-test restent marqués `@ExperimentalCoroutinesApi`. Les compilations
+ * de tests unitaires Android (`debugUnitTest`, `releaseUnitTest`…), où la convention pose
+ * coroutines-test (TestConfiguration.kt), y consentent toutes d'un coup ; ni le code de production,
+ * ni les tests instrumentés, ni les tests de captures ne le font.
+ *
+ * Pas dans les modules Kotlin purs : `core:game` et `core:music` n'ont pas les coroutines, et un
+ * marqueur d'opt-in introuvable est un avertissement, donc une erreur (`allWarningsAsErrors`).
+ * Le Kotlin intégré d'AGP 9 (ADR 0010) expose les compilations par variante (`target.compilations`),
+ * chacune avec sa tâche ; seuls les `kotlin.sourceSets` y sont vides.
+ */
+private fun KotlinAndroidExtension.optInExperimentalCoroutinesInUnitTests() {
+    target.compilations.matching { it.name.endsWith("UnitTest") }.configureEach {
+        compileTaskProvider.configure {
+            compilerOptions.optIn.add("kotlinx.coroutines.ExperimentalCoroutinesApi")
         }
     }
 }

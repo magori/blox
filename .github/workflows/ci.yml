@@ -66,9 +66,11 @@ jobs:
         run: ./gradlew assembleRelease
 
       # Compile les sources androidTest de tous les modules Android (APK de test), sans les
-      # exécuter : il n'y a pas d'émulateur en CI.
-      - name: Compilation des tests instrumentés
-        run: ./gradlew assembleDebugAndroidTest
+      # exécuter : il n'y a pas d'émulateur en CI. Compile aussi les tests de captures
+      # (src/screenshotTest), qu'aucune autre étape ne compile : un avertissement Kotlin y est une
+      # erreur comme ailleurs (P5.25). Les captures elles-mêmes ne sont pas comparées ici.
+      - name: Compilation des tests instrumentés et des tests de captures
+        run: ./gradlew assembleDebugAndroidTest compileDebugScreenshotTestKotlin
 
       - name: Rapports en cas d'échec
         if: failure()
