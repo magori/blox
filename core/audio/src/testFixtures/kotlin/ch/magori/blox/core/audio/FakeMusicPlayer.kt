@@ -5,22 +5,27 @@ import ch.magori.blox.core.music.ScoreId
 
 /**
  * A music player that notes what it is told, in order (`play <id>`, `stop`, `resume <id>`,
- * `tempo <factor>`), and keeps the identifier of the score [playing]. As the real one, it plays one
- * score at a time: stopping a playback that was replaced leaves the new one playing.
+ * `tempo <factor>`), and keeps the identifier of the score [playing] and the [tempo] it plays at. As the
+ * real one, it plays one score at a time: stopping a playback that was replaced leaves the new one
+ * playing; a new play starts at the normal tempo, a resume goes on at the tempo asked for.
  */
 class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
     var playing: ScoreId? = null
         private set
+    var tempo: Double = 1.0
+        private set
     private var current: Playback? = null
 
     override fun play(score: Score): Playback {
         calls += "play ${score.id}"
+        tempo = 1.0
         return start(score)
     }
 
     override fun setTempoFactor(factor: Double) {
         calls += "tempo $factor"
+        tempo = factor
     }
 
     private fun start(score: Score): Playback {

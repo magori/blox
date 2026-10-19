@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 69 / 141 | `██████████░░░░░░░░░░` **49 %** |
+| **Général** | 70 / 141 | `██████████░░░░░░░░░░` **50 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -485,8 +485,8 @@ Revue qualité du 2026-10-19 (Android et performance, qualité logicielle, sécu
 accessibilité, build et CI) : constats et raisons des écarts dans
 [docs/revue-qualite.md](docs/revue-qualite.md). Chaque tâche cite ses constats (A1, B2, C3…).
 
-- [ ] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
-  quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1).
+- [x] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
+  quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1). Fait : `play` part toujours au tempo normal, `resume` garde le tempo en cours (`docs/musique.md`).
 - [ ] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
   taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
   chaque mouvement de la pièce (A2, A7).

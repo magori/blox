@@ -304,11 +304,7 @@ class GameViewModelTest {
         highScores.gate = writing
         val final = finalStateOfTheTestGame()
         val store = ViewModelStore()
-        val viewModel = ViewModelProvider.create(
-            store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
-            routeExtras(GameRoute(startLevel = 0, seed = 1L)),
-        )[GameViewModel::class]
+        val viewModel = createViewModelIn(store)
         playUntilSubmitted(viewModel)
 
         // When the entry leaves the stack before the records answer, then they answer
@@ -504,25 +500,24 @@ class GameViewModelTest {
         choice: MusicChoice,
         expected: Score,
     ) {
-        // Given the music chosen on the home screen
+        // Given the music chosen on the home screen, and a previous game that ended in danger, the music faster
         preferences.state.value = UserPreferences.DEFAULT.copy(music = choice)
+        music.setTempoFactor(1.25)
+        music.calls.clear()
 
         // When
         createViewModel(GameRoute(startLevel = 0, seed = 1L))
 
         // Then
-        assertThat(music.calls).containsExactly("tempo 1.0", "play ${expected.id}")
+        assertThat(music.calls).containsExactly("play ${expected.id}")
+        assertThat(music.tempo).isEqualTo(1.0)
     }
 
     @Test
     fun `leaving a game after the next one started leaves the music of the next one playing`() {
         // Given a game playing Korobeiniki, then the next game (Rejouer) playing the minuet
         val store = ViewModelStore()
-        ViewModelProvider.create(
-            store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
-            routeExtras(GameRoute(startLevel = 0, seed = 1L)),
-        )[GameViewModel::class]
+        createViewModelIn(store)
         preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
         createViewModel(GameRoute(startLevel = 0, seed = 2L))
 
@@ -537,11 +532,7 @@ class GameViewModelTest {
     fun `leaving the game screen stops the music`() {
         // Given a game playing Korobeiniki, in a view model store like the navigation entry's
         val store = ViewModelStore()
-        ViewModelProvider.create(
-            store,
-            GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
-            routeExtras(GameRoute(startLevel = 0, seed = 1L)),
-        )[GameViewModel::class]
+        createViewModelIn(store)
         music.calls.clear()
 
         // When the entry leaves the stack
@@ -571,10 +562,10 @@ class GameViewModelTest {
         val tempos = { music.calls.filter { it.startsWith("tempo") } }
 
         // When the game is played until the stack left the danger
-        playUntil(viewModel, "the stack left the danger") { tempos().size == 3 }
+        playUntil(viewModel, "the stack left the danger") { tempos().size == 2 }
 
         // Then
-        assertThat(tempos()).containsExactly("tempo 1.0", "tempo 1.25", "tempo 1.0")
+        assertThat(tempos()).containsExactly("tempo 1.25", "tempo 1.0")
     }
 
     @Test
@@ -585,8 +576,8 @@ class GameViewModelTest {
         // When
         playUntilGameOver(viewModel)
 
-        // Then: the normal tempo at the start, the danger tempo once the stack is high
-        assertThat(music.calls.filter { it.startsWith("tempo") }).containsExactly("tempo 1.0", "tempo 1.25")
+        // Then: the danger tempo once the stack is high (the play at the start is at the normal tempo)
+        assertThat(music.calls.filter { it.startsWith("tempo") }).containsExactly("tempo 1.25")
     }
 
     @Test
@@ -599,6 +590,35 @@ class GameViewModelTest {
 
         // Then
         assertThat(music.calls.last()).isEqualTo("stop")
+    }
+
+    @Test
+    fun `the next game after a game over in danger plays its music at the normal tempo`() {
+        // Given a game over in danger, its stack high: the music was asked to go a quarter faster
+        val first = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilGameOver(first)
+        assertThat(music.tempo).isEqualTo(1.25)
+
+        // When the player starts the next game (Rejouer)
+        createViewModel(GameRoute(startLevel = 0, seed = 2L))
+
+        // Then its music plays, at the normal tempo
+        assertThat(music.calls.last()).isEqualTo("play ${Scores.korobeiniki.id}")
+        assertThat(music.tempo).isEqualTo(1.0)
+    }
+
+    @Test
+    fun `a game paused in danger goes on at the danger tempo when it resumes`() {
+        // Given a game paused while its stack is in danger
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilInDanger(viewModel)
+        viewModel.onPause()
+
+        // When
+        viewModel.onResume()
+
+        // Then
+        assertThat(music.tempo).isEqualTo(1.25)
     }
 
     @Test
@@ -728,6 +748,13 @@ class GameViewModelTest {
         routeExtras(route),
     )
 
+    /** A game view model kept in [store], as the navigation entry keeps it: cleared when the store is. */
+    private fun createViewModelIn(store: ViewModelStore): GameViewModel = ViewModelProvider.create(
+        store,
+        GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
+        routeExtras(GameRoute(startLevel = 0, seed = 1L)),
+    )[GameViewModel::class]
+
     /** The creation extras a navigation entry gives: the [route] of the game. */
     private fun routeExtras(route: GameRoute): CreationExtras =
         MutableCreationExtras().apply { set(GameViewModel.RouteKey, route) }
@@ -769,6 +796,10 @@ class GameViewModelTest {
     /** Gives [viewModel] one frame per tick until its screen shows the game over; the time of that last frame. */
     private fun playUntilGameOver(viewModel: GameViewModel): Long =
         playUntil(viewModel, "the screen shows the game over") { viewModel.uiState.value.gameOver != null }
+
+    /** Gives [viewModel] one frame per tick until its stack is in danger, the music faster; the time of that frame. */
+    private fun playUntilInDanger(viewModel: GameViewModel): Long =
+        playUntil(viewModel, "the stack is in danger") { music.tempo == 1.25 }
 
     /** Gives [viewModel] one frame per tick until it submitted the score; the time of that last frame. */
     private fun playUntilSubmitted(viewModel: GameViewModel): Long =
