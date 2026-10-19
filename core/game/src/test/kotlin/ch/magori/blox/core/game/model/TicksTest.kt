@@ -19,4 +19,14 @@ class TicksTest {
     fun `a duration of 1 tick is the shortest one accepted`() {
         assertThat(Ticks(1).value).isEqualTo(1)
     }
+
+    @Test
+    fun `a duration of 1 tick is over after one tick`() {
+        assertThat(Ticks(1).afterOneTick()).isNull()
+    }
+
+    @Test
+    fun `a longer duration has one tick less left after one tick`() {
+        assertThat(Ticks(10).afterOneTick()).isEqualTo(Ticks(9))
+    }
 }

@@ -15,6 +15,8 @@ import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -111,6 +113,50 @@ class HomeViewModelTest {
             assertThat(shown?.music).isEqualTo(MusicChoice.KOROBEINIKI)
             assertThat(shown?.startLevel).isEqualTo(0)
         }
+    }
+
+    @Test
+    fun `unreadable records show 0 and the home screen goes on`() = runTest {
+        // Given unreadable records: as the contract says, they give 0, once, and the flow then ends
+        val preferences = FakeUserPreferencesRepository()
+        val highScores = FakeHighScoreRepository(initial = 12_345, reads = flowOf(0))
+        val viewModel = HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores)
+
+        viewModel.uiState.test {
+            assertThat(expectMostRecentItem()?.record).isEqualTo(0)
+
+            // When the player goes on choosing
+            viewModel.onThemeChosen(ThemeChoice.COLORFUL)
+
+            // Then the home screen follows, with a record of 0
+            val shown = awaitItem()
+            assertThat(shown?.theme).isEqualTo(ThemeChoice.COLORFUL)
+            assertThat(shown?.record).isEqualTo(0)
+        }
+    }
+
+    @Test
+    fun `a programming error while the records are read is not swallowed`() {
+        // Given records whose reading fails with a bug, not with an unreadable file
+        val bug = IllegalStateException("a bug in the records")
+        val highScores = FakeHighScoreRepository(reads = flow { throw bug })
+
+        // When the home screen is shown; runTest reports the uncaught exceptions of viewModelScope
+        val failure = runCatching {
+            runTest {
+                val viewModel = HomeViewModel(
+                    FakeUserPreferencesRepository(),
+                    highScores,
+                    ClassicLevelProgression,
+                    music,
+                    testScores,
+                )
+                viewModel.uiState.test { cancelAndIgnoreRemainingEvents() }
+            }
+        }
+
+        // Then the bug reaches the uncaught exceptions, as it would crash the application
+        assertThat(failure.exceptionOrNull()).isInstanceOf(IllegalStateException::class.java).hasMessage(bug.message)
     }
 
     @Test

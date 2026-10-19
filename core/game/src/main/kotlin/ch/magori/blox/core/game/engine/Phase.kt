@@ -27,29 +27,24 @@ public sealed interface Phase {
     }
 
     /** No piece is in play: the next one appears in [ticksLeft] ticks, at least one. */
-    public data class EntryDelay(public val ticksLeft: Int) : Phase {
-        init {
-            require(ticksLeft >= 1) { "ticksLeft must be at least 1: $ticksLeft" }
-        }
-    }
+    @ConsistentCopyVisibility
+    public data class EntryDelay internal constructor(public val ticksLeft: Ticks) : Phase
 
     /**
      * Full rows are being cleared: [rowsCleared] holds the rows and the board once cleared, which the
-     * state publishes when the animation is over, [ticksLeft] ticks from now. The entry delay that
-     * follows, [entryDelayAfter] ticks, and the stack danger once cleared, [stackInDangerAfter], were
+     * state publishes when the animation is over, [ticksLeft] ticks from now, at least one. The entry delay
+     * that follows, [entryDelayAfter] ticks, and the stack danger once cleared, [stackInDangerAfter], were
      * computed when the piece locked; the state takes them when the animation is over.
      */
-    public data class Clearing(
+    @ConsistentCopyVisibility
+    public data class Clearing internal constructor(
         public val rowsCleared: RowsCleared,
-        public val ticksLeft: Int,
+        public val ticksLeft: Ticks,
         public val entryDelayAfter: Ticks,
         public val stackInDangerAfter: Boolean,
-    ) : Phase {
-        init {
-            require(ticksLeft >= 1) { "ticksLeft must be at least 1: $ticksLeft" }
-        }
-    }
+    ) : Phase
 
     /** The game is over: [piece] did not fit where it appears, and stays shown, as on the NES. */
-    public data class GameOver(public val piece: Piece) : Phase
+    @ConsistentCopyVisibility
+    public data class GameOver internal constructor(public val piece: Piece) : Phase
 }

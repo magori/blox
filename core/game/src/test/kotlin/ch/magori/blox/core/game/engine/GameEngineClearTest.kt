@@ -66,7 +66,7 @@ class GameEngineClearTest {
         // Then
         assertThat(locked.tickCount).isEqualTo(lockTick)
         assertThat(locked.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
-            assertThat(clearing.ticksLeft).isEqualTo(expectedTicks)
+            assertThat(clearing.ticksLeft).isEqualTo(Ticks(expectedTicks))
         }
     }
 
@@ -90,7 +90,7 @@ class GameEngineClearTest {
 
         // Then the clear took [clearTicks] ticks: on the last one, the rows are cleared, the entry delay begins
         assertThat(locked.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
-            assertThat(clearing.ticksLeft).isEqualTo(clearTicks)
+            assertThat(clearing.ticksLeft).isEqualTo(Ticks(clearTicks))
         }
         assertThat(updates.dropLast(1)).allSatisfy {
             assertThat(it.state.phase).isInstanceOf(Phase.Clearing::class.java)
@@ -156,7 +156,7 @@ class GameEngineClearTest {
         val after10 = engine.tick(after9).state
 
         // Then
-        assertThat(cleared.phase).isEqualTo(Phase.EntryDelay(10))
+        assertThat(cleared.phase).isEqualTo(Phase.EntryDelay(Ticks(10)))
         assertThat(after9.current).isNull()
         assertThat(after10.current).isEqualTo(spawned(PieceType.J))
     }

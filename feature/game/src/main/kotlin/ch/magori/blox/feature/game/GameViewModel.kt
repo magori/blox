@@ -8,7 +8,6 @@ import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
-import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.engine.Button
 import ch.magori.blox.core.game.engine.GameEngineFactory
@@ -22,16 +21,15 @@ import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.IOException
 import kotlin.reflect.KClass
 
 /**
@@ -66,16 +64,15 @@ class GameViewModel internal constructor(
     private var playback: Playback? = null
 
     init {
-        // The record shown in the top bar: its real value, followed as it changes. Records that fail to be
-        // read keep the last record known; the game goes on. The cancellation still goes through.
+        // The record shown in the top bar: its real value, followed as it changes. Unreadable records are
+        // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
-            highScores.highScore
-                .catch { }
-                .collect { record -> state.update { it.copy(record = record) } }
+            highScores.highScore.collect { record -> state.update { it.copy(record = record) } }
         }
-        // The music chosen on the home screen, at the normal tempo, as every new play of the player.
+        // The music chosen on the home screen, at the normal tempo, as every new play of the player. Unreadable
+        // settings give the defaults (the contract of the repository).
         viewModelScope.launch {
-            val choice = preferences.preferences.catch { emit(UserPreferences.DEFAULT) }.first().music
+            val choice = preferences.preferences.first().music
             score = scoreOf(choice)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
             if (isUnderWay()) playback = score?.let(music::play)
@@ -92,13 +89,16 @@ class GameViewModel internal constructor(
 
     /**
      * A frame was drawn at [frameNanos]: the engine plays the ticks due since the previous frame. Once
-     * the game is over, a frame does nothing: the game over screen state is published once, apart.
+     * the game is over, a frame does nothing: the game over screen state is published once, apart. While the
+     * game is paused, the screen hands no frame, and resuming starts the loop again ([onFramesStarted]); a
+     * frame that comes anyway plays its ticks, which change nothing, not even the duration of the game, and
+     * only moves the time reference on.
      */
     internal fun onFrame(frameNanos: Long) {
         if (gameState.phase is Phase.GameOver) return
         val ticks = loop.advance(frameNanos)
-        // Paused, the clock keeps its time reference, so that resuming does not catch up the pause; the
-        // engine changes nothing then, not even the duration of the game.
+        // No tick due on this frame (the first one, which only sets the time reference, or one that comes before
+        // a whole tick has passed): the game has not changed, there is nothing to publish.
         if (ticks == 0) return
         var over = false
         repeat(ticks) {
@@ -147,15 +147,14 @@ class GameViewModel internal constructor(
     }
 
     /**
-     * Submits [score] to the records: whether it is a new record. Records that cannot be written do not
-     * stop the game over from showing, without a new record.
+     * Submits [score] to the records: whether it is a new record. Records that cannot be written (an
+     * [IOException], the contract of the repository) do not stop the game over from showing, without a new
+     * record; any other failure is a bug, and is not swallowed here.
      */
     private suspend fun isNewRecord(score: Int): Boolean = try {
         // Not cancellable: the score is saved even if the view model is cleared while it is being written.
         withContext(NonCancellable) { highScores.submit(score) }.isNewRecord
-    } catch (cancellation: CancellationException) {
-        throw cancellation
-    } catch (failure: Exception) {
+    } catch (_: IOException) {
         false
     }
 
