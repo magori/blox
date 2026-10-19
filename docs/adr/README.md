@@ -22,5 +22,6 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée |
 | [0015](0015-un-moteur-des-capacites.md) | Mode Moderne : un moteur, des capacités | Acceptée ; amende 0004 |
 | [0016](0016-polices-embarquees.md) | Polices embarquées, chiffres à chasse fixe | Acceptée |
+| [0017](0017-format-des-musiques-enregistrees.md) | Format des musiques enregistrées | Acceptée |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).
