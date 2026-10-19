@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 74 / 142 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 75 / 143 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -521,7 +521,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans
   `RotationSystem` dans `GameUiState` (B8, B11).
-- [ ] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
+- [x] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
   cas d'échec, `permissions: contents: read`, actions épinglées par SHA, soumission du graphe de
   dépendances sur `main` (C1, C7, C9).
 - [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
@@ -538,6 +538,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
   choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
+- [ ] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
+  rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
+  trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
+  ou non cacheable (revue P5.24).
 
 ## P6 — Mode Moderne (plus tard)
 
