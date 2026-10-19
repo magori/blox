@@ -43,3 +43,12 @@ déjà.
 - Si le projet passe à Hilt un jour, `viewModel(factory = …)` devient `hiltViewModel()` dans
   l'entrée, et la fabrique disparaît : les ViewModels ne changent pas.
 - La tâche P3.3 (`AppContainer`) applique ce schéma ; la tâche P2.2 crée la première fabrique.
+
+## Amendement (P5.13, 2026-10-19)
+
+La fabrique de `GameViewModel` tire aussi des `CreationExtras` le `SavedStateHandle` de l'entrée
+(`extras.createSavedStateHandle()`), pour y ranger un marqueur « partie commencée ». L'entrée doit
+donc partir des `defaultViewModelCreationExtras` du propriétaire fourni par
+`rememberViewModelStoreNavEntryDecorator` et y ajouter la route, sans les remplacer ; et ce
+décorateur doit suivre `rememberSaveableStateHolderNavEntryDecorator`, qui fournit le registre
+d'état propre à l'entrée.

@@ -1,9 +1,10 @@
 package ch.magori.blox.feature.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.MutableCreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.MusicChoice
@@ -803,13 +804,76 @@ class GameViewModelTest {
         assertThat(viewModel.uiState.value.paused).isTrue()
     }
 
+    @Test
+    fun `a game recreated after the process died starts paused, with no music`() {
+        // Given a game under way, whose process dies: only its saved state is left
+        val savedState = SavedStateHandle()
+        createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState)
+        music.calls.clear()
+
+        // When the navigation restores its entry: a new view model, with what was saved
+        val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
+
+        // Then the game waits for the player, paused, and no music plays
+        assertThat(recreated.uiState.value.paused).isTrue()
+        assertThat(music.calls).isEmpty()
+    }
+
+    @Test
+    fun `a first game, with nothing saved, is not paused and plays its music`() {
+        // When a game starts with the empty saved state of a new navigation entry
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = SavedStateHandle())
+
+        // Then
+        assertThat(viewModel.uiState.value.paused).isFalse()
+        assertThat(music.playing).isEqualTo(Scores.korobeiniki.id)
+    }
+
+    @Test
+    fun `a game recreated after the process died plays its music from the start when the player resumes it`() {
+        // Given a game recreated, paused, after its process died
+        val savedState = SavedStateHandle()
+        createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState)
+        val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
+        music.calls.clear()
+
+        // When the player resumes it
+        recreated.onResume()
+
+        // Then it goes on, and its music starts
+        assertThat(recreated.uiState.value.paused).isFalse()
+        assertThat(music.calls).containsExactly("play ${Scores.korobeiniki.id}")
+    }
+
+    @Test
+    fun `a game over whose process died comes back as a new game, paused, its score not submitted again`() {
+        // Given a game over, whose process dies
+        val savedState = SavedStateHandle()
+        playUntilGameOver(createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState))
+
+        // When the navigation restores its entry
+        val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
+
+        // Then a new game waits for the player, paused, and the records got the score once
+        assertThat(recreated.uiState.value.paused).isTrue()
+        assertThat(recreated.uiState.value.gameOver).isNull()
+        assertThat(highScores.submitted).hasSize(1)
+    }
+
+    /**
+     * A game view model built with test doubles, as the factory would, but without its creation extras: the
+     * route and [savedState] (empty by default, as for a new navigation entry) are given directly. The factory
+     * itself, which takes them from the creation extras, is covered only by the instrumented tests
+     * (`GameViewModelFactoryTest`, `GameEntryRestorationTest`).
+     */
     private fun createViewModel(
         route: GameRoute,
         factory: GameEngineFactory = engineFactory,
-    ): GameViewModel = GameViewModel.Factory(factory, highScores, preferences, music, testScores).create(
-        GameViewModel::class,
-        routeExtras(route),
-    )
+        savedState: SavedStateHandle = SavedStateHandle(),
+    ): GameViewModel = GameViewModel(factory, route, highScores, preferences, music, testScores, savedState)
+
+    /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
+    private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })
 
     /**
      * The exception left uncaught when a game view model is created, or null. `runTest` reports the
@@ -822,13 +886,8 @@ class GameViewModelTest {
     /** A game view model kept in [store], as the navigation entry keeps it: cleared when the store is. */
     private fun createViewModelIn(store: ViewModelStore): GameViewModel = ViewModelProvider.create(
         store,
-        GameViewModel.Factory(engineFactory, highScores, preferences, music, testScores),
-        routeExtras(GameRoute(startLevel = 0, seed = 1L)),
+        viewModelFactory { initializer { createViewModel(GameRoute(startLevel = 0, seed = 1L)) } },
     )[GameViewModel::class]
-
-    /** The creation extras a navigation entry gives: the [route] of the game. */
-    private fun routeExtras(route: GameRoute): CreationExtras =
-        MutableCreationExtras().apply { set(GameViewModel.RouteKey, route) }
 
     private companion object {
         const val ONE_SIXTIETH_NANOS = 16_666_667L
