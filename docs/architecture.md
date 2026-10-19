@@ -49,7 +49,16 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel. |
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. |
+| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie) et génération du profil de référence de `app` (P5.17). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
+
+**Profil de référence.** `app` embarque un profil de référence généré par `:benchmark`
+(`app/src/main/generated/baselineProfiles/baseline-prof.txt`, versionné) et
+`profileinstaller`. Les types de build de mesure (`nonMinifiedRelease`, `benchmarkRelease`)
+installent `ch.magori.blox.perf`, pour ne pas effacer l'application installée. Le parcours
+mesuré repère ses éléments par des `testTag` exposés comme identifiants de ressource, pas par
+leur texte. Commandes dans `CLAUDE.md` ; à régénérer quand le parcours ou l'écran de jeu
+changent beaucoup.
 
 ### Règles de dépendance
 

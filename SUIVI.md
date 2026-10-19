@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 91 / 144 | `█████████████░░░░░░░` **63 %** |
+| **Général** | 92 / 145 | `█████████████░░░░░░░` **63 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -510,7 +510,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
 - [x] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes
   (A10).
-- [ ] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
+- [x] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
   partie (A9). Demande un émulateur ou un téléphone pour générer le profil.
 - [x] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
   `docs/regles-mode-classique.md` et `docs/musique.md`, puis un script dans `scripts/` qui vérifie
@@ -554,6 +554,13 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.32** Doublures des tests instrumentés : `GameViewModelDoubles.kt` (`NoRecords`,
   `DefaultSettings`) recopie encore les faux de `core:data`, et `NoRecords` ne respecte pas le
   contrat ; passer par `androidTestImplementation(testFixtures(projects.core.data))` (revue P0.15).
+- [ ] **P5.33** Mesures sur téléphone (suite de P5.17) : `GameBenchmark` n'a jamais rendu de durée
+  d'image (sur émulateur, aucune image, puis `home_play` introuvable en `benchmarkRelease` :
+  lenteur ou tags perdus par R8, à vérifier par `uiautomator dump`, `UI_TIMEOUT` à 10 s) ;
+  remesurer le démarrage à froid avec et sans profil sur un appareil non partagé ; lancer
+  `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
+  recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
+  écrits en `<failure>` vide dans les XML d'AGP.
 
 ## P6 — Mode Moderne (plus tard)
 
