@@ -46,4 +46,6 @@ dependencies {
     androidTestImplementation(libs.androidx.lifecycle.viewmodel.navigation3)
     // Son activité vide (ComponentActivity) porte le test de restauration.
     androidTestImplementation(libs.androidx.activity)
+    // L'instrumentation, qui envoie une touche par le système, avec les replis d'Android (B de la manette en retour).
+    androidTestImplementation(libs.androidx.test.monitor)
 }
