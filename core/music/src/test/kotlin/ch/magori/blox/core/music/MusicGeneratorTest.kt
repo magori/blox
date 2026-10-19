@@ -84,7 +84,7 @@ class MusicGeneratorTest {
     @Test
     fun `surprise gives back the category it drew from the seed, played by all the candidates, and the scale chosen`() {
         // When
-        val musics = fewSeeds().associateWith { seed -> MusicGenerator.generate(Surprise, seed) }
+        val musics = fewSeeds().associateWith { seed -> MusicGenerator.generate(Surprise, seed, AN_ID) }
 
         // Then
         assertThat(musics).allSatisfy { seed, music ->
@@ -101,19 +101,19 @@ class MusicGeneratorTest {
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(Category::class)
-    fun `a generated score plays the best melody on the wave and at the volume of the arrangements, over the best bass`(
+    fun `a generated score, known by the id it is given, plays the best melody and bass as the arrangements do`(
         category: Category,
     ) {
         // Given
         val generation = GENERATIONS.getValue(category).first()
 
         // When
-        val music = MusicGenerator.assemble(generation, category, seed = 0)
+        val music = MusicGenerator.assemble(generation, category, seed = 0, id = AN_ID)
 
         // Then
         val best = generation.best
         val (melody, bass) = Scores.korobeiniki.voices
-        assertThat(music.score.id).isEqualTo(ScoreId.GENERATED)
+        assertThat(music.score.id).isEqualTo(AN_ID)
         assertThat(music.score.bpm).isEqualTo(best.form.tempo)
         assertThat(music.score.beatsPerBar).isEqualTo(GENERATED_BEATS_PER_BAR)
         assertThat(music.score.voices).containsExactly(
@@ -133,9 +133,9 @@ class MusicGeneratorTest {
         val choices = Category.entries + Surprise
 
         // When
-        val first = choices.map { MusicGenerator.generate(it, seed) }
-        val again = choices.map { MusicGenerator.generate(it, seed) }
-        val next = choices.map { MusicGenerator.generate(it, seed + 1) }
+        val first = choices.map { MusicGenerator.generate(it, seed, AN_ID) }
+        val again = choices.map { MusicGenerator.generate(it, seed, AN_ID) }
+        val next = choices.map { MusicGenerator.generate(it, seed + 1, AN_ID) }
 
         // Then
         assertThat(again).isEqualTo(first)
@@ -148,7 +148,9 @@ class MusicGeneratorTest {
         category: Category,
     ) {
         // When
-        val scores = GENERATIONS.getValue(category).map { MusicGenerator.assemble(it, category, seed = 0).score }
+        val scores = GENERATIONS.getValue(category).map {
+            MusicGenerator.assemble(it, category, seed = 0, id = AN_ID).score
+        }
 
         // Then each voice strikes a note on every bar line, none held across it
         val barLines = (0..BARS).map { it * 4.0 }
@@ -195,7 +197,7 @@ class MusicGeneratorTest {
     fun `the seed 42 on joyful gives this music, which pins the derivation of the draws, the note and the threshold`() {
         // When
         val generation = MusicGenerator.choose(Category.JOYFUL, 42)
-        val music = MusicGenerator.generate(Category.JOYFUL, 42)
+        val music = MusicGenerator.generate(Category.JOYFUL, 42, AN_ID)
 
         // Then a first round whose best, 84.7 points, falls under the threshold of joyful, 85.5, then a second round
         // whose best, 90.4 points, plays in A major at 146 beats per minute
@@ -226,6 +228,9 @@ class MusicGeneratorTest {
         /** The share of the generations that compose a second round: their first round falls under the threshold. */
         const val LEAST_SECOND_ROUNDS = 0.05
         const val MOST_SECOND_ROUNDS = 0.3
+
+        /** The identity of the generated musics: the one the music editor gives a music it opens. */
+        val AN_ID = ScoreId.Personal("a-music")
 
         /** The bars of a generated music. */
         const val BARS = 8

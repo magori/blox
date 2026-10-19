@@ -1,5 +1,6 @@
 package ch.magori.blox.di
 
+import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
 import ch.magori.blox.theme.ANDROID_NAMESPACE
@@ -26,7 +27,7 @@ class BackupRulesTest {
     }
 
     @Test
-    fun `from Android 12, the cloud backup and the device transfer keep only the record and the settings`() {
+    fun `from Android 12, the cloud backup and the device transfer keep only the record, the settings, the musics`() {
         // Given
         val rules = appResource("xml/data_extraction_rules.xml")
 
@@ -39,7 +40,7 @@ class BackupRulesTest {
     }
 
     @Test
-    fun `before Android 12, the backup keeps only the record and the settings`() {
+    fun `before Android 12, the backup keeps only the record, the settings, the musics`() {
         // Given
         val rules = appResource("xml/backup_rules.xml")
 
@@ -59,7 +60,7 @@ class BackupRulesTest {
 
     private companion object {
         /** The DataStore files of core:data, where the application creates them, relative to its files directory. */
-        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE).map { name ->
+        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE, MUSICS_FILE).map { name ->
             val filesDir = File("files")
             "file:" + dataStoreFile(filesDir, name).toFile().relativeTo(filesDir).invariantSeparatorsPath
         }

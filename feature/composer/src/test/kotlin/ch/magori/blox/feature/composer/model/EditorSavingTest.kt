@@ -69,14 +69,14 @@ class EditorSavingTest {
 
     @Test
     fun `an empty grid cannot be saved`() {
-        assertThat(EditorState.new().saveProblem("Joyeux 1", MusicNames(emptyList()))).isEqualTo(SaveProblem.EMPTY_GRID)
+        assertThat(EditorState.new().saveProblem("Joyeux 1", emptyList())).isEqualTo(SaveProblem.EMPTY_GRID)
     }
 
     @Test
     fun `a music cannot be saved under the name of another music, and can under a free name`() {
         // Given a music with a note
         val written = EditorState.new().touch(pitch("E4"), eighth = 0)
-        val names = MusicNames(listOf("Joyeux 1"))
+        val names = listOf(savedMusic("Joyeux 1"))
 
         // Then
         assertThat(written.saveProblem("joyeux 1", names)).isEqualTo(SaveProblem.NAME_TAKEN)
@@ -89,6 +89,6 @@ class EditorSavingTest {
         val written = EditorState.new().touch(pitch("E4"), eighth = 0)
 
         // Then
-        assertThat(written.saveProblem("  ", MusicNames(emptyList()))).isEqualTo(SaveProblem.BLANK_NAME)
+        assertThat(written.saveProblem("  ", emptyList())).isEqualTo(SaveProblem.BLANK_NAME)
     }
 }

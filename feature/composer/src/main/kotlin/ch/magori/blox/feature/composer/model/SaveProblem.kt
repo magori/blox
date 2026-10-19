@@ -5,7 +5,7 @@ internal enum class SaveProblem {
     /** Neither grid has a note. */
     EMPTY_GRID,
 
-    /** Another music has that name; the dialog offers a free one, [MusicNames.free]. */
+    /** Another music has that name; the dialog offers a free one, `freeName` (core:data). */
     NAME_TAKEN,
 
     /** The name is empty, or only spaces. */

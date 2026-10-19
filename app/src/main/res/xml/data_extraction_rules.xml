@@ -4,8 +4,8 @@
     change both together; BackupRulesTest checks them against the file names of core:data.
 
     A list of includes: only these files leave the device, anything else stays. Keep it so: a file
-    that holds content URIs (a file of the user, a saved music) must never be listed here, as its
-    persistable permission (takePersistableUriPermission) does not move to another device.
+    that holds content URIs (a file of the user, as the music file of the home screen) must never be
+    listed here, as its persistable permission (takePersistableUriPermission) does not move to another device.
 -->
 <data-extraction-rules>
     <cloud-backup>
@@ -13,11 +13,15 @@
         <include domain="file" path="datastore/records.preferences_pb" />
         <!-- The settings (SETTINGS_FILE): theme, music, start level. -->
         <include domain="file" path="datastore/settings.preferences_pb" />
+        <!-- The saved musics (MUSICS_FILE): scores the player wrote, without a content URI. -->
+        <include domain="file" path="datastore/musics.bin" />
     </cloud-backup>
     <device-transfer>
         <!-- The record (RECORDS_FILE), apart from the settings. -->
         <include domain="file" path="datastore/records.preferences_pb" />
         <!-- The settings (SETTINGS_FILE): theme, music, start level. -->
         <include domain="file" path="datastore/settings.preferences_pb" />
+        <!-- The saved musics (MUSICS_FILE): scores the player wrote, without a content URI. -->
+        <include domain="file" path="datastore/musics.bin" />
     </device-transfer>
 </data-extraction-rules>

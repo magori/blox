@@ -1,6 +1,9 @@
 package ch.magori.blox.feature.composer.model
 
+import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.data.isNameTaken
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.ScoreId
 
 /**
  * The state of the editor: the [draft] being written and its [saved] version, `null` for a music never saved, the
@@ -102,14 +105,18 @@ internal data class EditorState(
     /** *Undo*: the draft as it was before the last change that can be undone. It can be undone once only. */
     fun undo(): EditorState = changed(checkNotNull(undoable) { "Nothing to undo" })
 
-    /** Why the music cannot be saved under [name], given the [names] of the saved musics; `null` when it can. */
+    /**
+     * Why the music cannot be saved under [name], given the saved [musics], the one being edited, known by [apartFrom],
+     * left out (null for a music never saved); `null` when it can.
+     */
     fun saveProblem(
         name: String,
-        names: MusicNames,
+        musics: List<SavedMusic>,
+        apartFrom: ScoreId.Personal? = null,
     ): SaveProblem? = when {
         draft.isEmpty -> SaveProblem.EMPTY_GRID
         name.isBlank() -> SaveProblem.BLANK_NAME
-        names.isTaken(name) -> SaveProblem.NAME_TAKEN
+        musics.isNameTaken(name, apartFrom) -> SaveProblem.NAME_TAKEN
         else -> null
     }
 

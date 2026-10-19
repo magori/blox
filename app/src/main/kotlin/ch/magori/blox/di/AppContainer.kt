@@ -9,8 +9,11 @@ import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
+import ch.magori.blox.core.data.DataStoreMusicLibrary
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
 import ch.magori.blox.core.data.HighScoreRepository
+import ch.magori.blox.core.data.MUSICS_FILE
+import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -51,6 +54,13 @@ class AppContainer(context: Context) {
     private val userPreferences: UserPreferencesRepository = DataStoreUserPreferencesRepository(
         preferencesDataStore(dataScope) { dataStoreFile(filesDir, SETTINGS_FILE) },
     )
+
+    /**
+     * The musics of the player, « Mes musiques », in `files/datastore/musics.bin`, and the one played during the
+     * games.
+     * Built here, once for the process; the screens that list and edit them (P4.19, P4.22) will receive it.
+     */
+    val musicLibrary: MusicLibrary = DataStoreMusicLibrary(dataScope) { dataStoreFile(filesDir, MUSICS_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
