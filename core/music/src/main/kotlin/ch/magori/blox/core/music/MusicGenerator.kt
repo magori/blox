@@ -16,8 +16,9 @@ public object MusicGenerator {
     internal const val ROUNDS: Int = 3
 
     /**
-     * The music of [choice] composed from [seed]. The code of a music is the pair of its choice and its seed: the same
-     * choice and the same seed give the same music, so that the pair finds it again. The call is costly, up to some
+     * The music of [choice] composed from [seed], its score known by [id], the identity the music editor gives the
+     * music it opens. The code of a music is the pair of its choice and its seed: the same choice and the same seed
+     * give the same music, so that the pair finds it again. The call is costly, up to some
      * tens of milliseconds on the JVM and more on a phone, as it composes and notes twenty candidates or more: make it
      * off the main thread.
      *
@@ -28,23 +29,25 @@ public object MusicGenerator {
     public fun generate(
         choice: CategoryChoice,
         seed: Long,
+        id: ScoreId.Personal,
     ): GeneratedMusic {
         val generation = choose(choice, seed)
-        return assemble(generation, choice, seed)
+        return assemble(generation, choice, seed, id)
     }
 
     /**
      * The music of the best candidate of [generation], composed from [choice] and [seed]: its melody and its bass on the
-     * waves and at the volumes of the arrangements, eight bars of four beats at the tempo of its form.
+     * waves and at the volumes of the arrangements, known by [id], eight bars of four beats at the tempo of its form.
      */
     internal fun assemble(
         generation: Generation,
         choice: CategoryChoice,
         seed: Long,
+        id: ScoreId.Personal,
     ): GeneratedMusic {
         val best = generation.best
         val score = Score(
-            id = ScoreId.GENERATED,
+            id = id,
             bpm = best.form.tempo,
             beatsPerBar = GENERATED_BEATS_PER_BAR,
             voices = listOf(melodyVoice(best.melody.bars.flatten()), bassVoice(best.bass.bars.flatten())),

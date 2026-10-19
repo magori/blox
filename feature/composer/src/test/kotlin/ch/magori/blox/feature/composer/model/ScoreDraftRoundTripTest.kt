@@ -5,6 +5,7 @@ import ch.magori.blox.core.music.MusicGenerator
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ class ScoreDraftRoundTripTest {
     fun `every music of the generator opens on its scale and comes back unchanged`(category: Category) {
         (1L..5L).forEach { seed ->
             // Given
-            val generated = MusicGenerator.generate(category, seed)
+            val generated = MusicGenerator.generate(category, seed, ScoreId.Personal("generated"))
 
             // When
             val reopened = ScoreDraft.fromScore(generated.score, generated.scale, generated.category)

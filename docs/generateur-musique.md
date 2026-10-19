@@ -550,15 +550,14 @@ ce que les tests signalent.
   `MusicGeneratorTest › over the seeds and the categories, a second round makes up for the weakest first rounds, about one in six`,
   `MusicGeneratorTest › over the seeds, the chosen melody leans as its category does no less than the candidates it is chosen from`,
   `MusicGeneratorTest › surprise gives back the category it drew from the seed, played by all the candidates, and the scale chosen`,
-  `MusicGeneratorTest › a generated score plays the best melody on the wave and at the volume of the arrangements, over the best bass`,
+  `MusicGeneratorTest › a generated score, known by the id it is given, plays the best melody and bass as the arrangements do`,
   `MusicGeneratorTest › over the seeds, a generated score plays two voices of eight bars of four beats, at a tempo of its category`,
   `MusicGeneratorTest › the same choice and the same seed give the same music, surprise included, and other seeds other musics`,
   `MusicGeneratorTest › the seed 42 on joyful gives this music, which pins the derivation of the draws, the note and the threshold`,
   `MusicGeneratorTest › rounds whose candidates were all ruled out leave no best one, an error sixty ruled out in a row would make`.
 
-Une musique générée porte pour l'instant `ScoreId.GENERATED`, la même pour toutes : les
-musiques enregistrées auront leur propre identité (P4.22). Aucune vue de maquette n'est
-concernée.
+Une musique générée porte l'identité personnelle (`ScoreId.Personal`) que lui donne celui qui
+l'ouvre, l'éditeur ou la bibliothèque (P4.22). Aucune vue de maquette n'est concernée.
 
 Spécification d'origine, pour mémoire :
 
@@ -636,6 +635,85 @@ voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des
   l'accueil.
 - Boutons *Au hasard* (ouvre l'éditeur sur une musique générée) et *Nouvelle*.
 
+
+### Mes musiques : stockage (implémenté, P4.22 tranche 1)
+
+`MusicLibrary` (`core:data`, instance dans `AppContainer`) garde les musiques enregistrées,
+sans écran encore. Chaque musique (`SavedMusic`) a une identité personnelle
+(`ScoreId.Personal`, clé tirée par `newId()`), un nom de 40 caractères au plus sans espaces
+autour, une catégorie (nulle pour une musique faite à la main), une gamme et sa partition (qui
+porte le tempo). Le dépôt garde l'ordre de la liste, enregistre (crée ou remplace à sa place),
+renomme, supprime en rendant de quoi restaurer à sa place (`DeletedMusic`, avec l'état « en
+jeu »), et retient la musique jouée pendant les parties, une au plus, effacée par sa
+suppression et rétablie par la restauration. Les règles de nom (`MusicNames`, une seule source
+pour le dépôt et l'éditeur) : un nom est pris sans tenir compte de la casse ni des espaces, la
+musique en cours exceptée par son identité ; nom proposé « Catégorie n » (premier n libre) ;
+nom libre « X 2 », ou le nombre suivant si le nom finit par un nombre. Le dépôt refuse un nom
+pris (précondition vérifiée par l'appelant). La musique choisie pour les parties n'est pas
+encore jouée : tranche suivante. Format du fichier : [ADR 0017](adr/0017-format-des-musiques-enregistrees.md).
+
+`MusicLibraryContract › without a saved music the list is empty and no music is played during the games`,
+`MusicLibraryContract › a new music saved goes after the others`,
+`MusicLibraryContract › a music saved again replaces the saved one at its place`,
+`MusicLibraryContract › a music whose name another one has, the case ignored, is refused and nothing is saved`,
+`MusicLibraryContract › a music saved again may keep its name, in another case`,
+`MusicLibraryContract › a renamed music keeps its place and its score`,
+`MusicLibraryContract › a music cannot be renamed with the name of another one, the case ignored`,
+`MusicLibraryContract › a music may be renamed with its own name in another case`,
+`MusicLibraryContract › renaming a music that is not saved is refused`,
+`MusicLibraryContract › the music chosen for the games is played during the games, as it is saved now`,
+`MusicLibraryContract › no music chosen for the games plays the music of the home screen again`,
+`MusicLibraryContract › a music that is not saved cannot be chosen for the games`,
+`MusicLibraryContract › a deleted music leaves the list, and what is deleted tells its place`,
+`MusicLibraryContract › the music played during the games, once deleted, is no longer played, and what is deleted tells it was`,
+`MusicLibraryContract › deleting another music leaves the one played during the games`,
+`MusicLibraryContract › deleting a music that is not saved gives nothing back and changes nothing`,
+`MusicLibraryContract › a deleted music restored comes back at its place`,
+`MusicLibraryContract › the music played during the games, restored, is played during the games again`,
+`MusicLibraryContract › a music restored after the musics before it were deleted comes back at the end of the list`,
+`MusicLibraryContract › a music restored twice is in the list once`,
+`MusicLibraryContract › a music whose name was taken since its deletion cannot be restored`,
+`MusicLibraryContract › each new identity is another one`,
+`MusicLibraryContract › saving another music emits nothing on the music played during the games`,
+`MusicLibraryContract › the list emits each change once`,
+`MusicLibraryContract › restoring a music that was not played during the games leaves the one that is`,
+`MusicLibraryContract › a new identity is none of the saved musics`,
+`DataStoreMusicLibraryTest › the musics and the one played during the games survive a new library on the same file`,
+`DataStoreMusicLibraryTest › a corrupted musics file gives an empty list, and a new music is saved`,
+`DataStoreMusicLibraryTest › a musics file of version 1 is read as it was written, a format that must not change`,
+`DataStoreMusicLibraryTest › a musics file of a later version gives an empty list, and is kept for that version`,
+`DataStoreMusicLibraryTest › a musics file that counts billions of musics gives an empty list, without allocating them`,
+`DataStoreMusicLibraryTest › a musics file that cannot be read gives an empty list and no music for the games`,
+`DataStoreMusicLibraryTest › a failure other than an IOException while the musics are read is not absorbed`,
+`DataStoreMusicLibraryTest › a music whose name is too long is refused and the saved musics are kept`,
+`DataStoreMusicLibraryTest › a music the file cannot hold is refused before a byte is written, and the saved musics are kept`,
+`DataStoreMusicLibraryTest › the names of the enums written in the musics file do not change`,
+`DataStoreMusicLibraryTest › a music of a category the file does not know is read without a category`,
+`DataStoreMusicLibraryTest › a musics file cut short in the middle of a music gives an empty list, and a new music is saved`,
+`DataStoreMusicLibraryTest › a musics file of a version below 1 is corrupted, and gives an empty list`,
+`DataStoreMusicLibraryTest › a corrupted musics file is copied aside before the list starts again empty`,
+`DataStoreMusicLibraryTest › a music for the games the file does not hold is forgotten, even when a music of its identity is saved`,
+`DataStoreMusicLibraryTest › a musics file holding two musics of the same identity is corrupted, and gives an empty list`,
+`DataStoreMusicLibraryTest › a musics file of version 1 with a music for the games, written by hand, is read as it was written`,
+`MusicNamesTest › a name is taken by a music of the same name, the case ignored`,
+`MusicNamesTest › a name no music has is free`,
+`MusicNamesTest › the music being saved does not take its own name, in another case or not`,
+`MusicNamesTest › the spaces around a name do not make it another one`,
+`MusicNamesTest › a free name is the name wanted when no music has it`,
+`MusicNamesTest › a taken name is followed by the first number from 2 that makes it free`,
+`MusicNamesTest › the music being saved keeps its own name as a free one`,
+`MusicNamesTest › a taken name that ends with a number counts on from it`,
+`MusicNamesTest › a free name leaves out the spaces around the name wanted`,
+`MusicNamesTest › a taken name ending with a number too big to count on is followed by 2`,
+`MusicNamesTest › the proposed name numbers the category, the first number from 1 that no music has`,
+`MusicNamesTest › a name is taken whatever its case, its accents in capitals and the spaces around it`,
+`MusicNamesTest › a taken name is offered free with the next number that no music has, the case of the name wanted kept`,
+`MusicNamesTest › the music being saved keeps its own proposed name`,
+`SavedMusicTest › a saved music is known by the identity of its score`,
+`SavedMusicTest › a saved music has a name that is not blank`,
+`SavedMusicTest › a saved music has no spaces around its name`,
+`ScoreIdTest › a personal score is not known by a blank key`,
+(contrat joué par `FakeMusicLibraryTest` et `DataStoreMusicLibraryTest`). Vues : V7, V10, V13, V16 (pas encore d'écran).
 ### Éditeur
 
 De haut en bas :
@@ -741,11 +819,6 @@ suivantes. Choix de conception, **[à vérifier]** à l'essai :
 `EditorUndoTest › the dice keeps no undo when the grid was empty`,
 `EditorUndoTest › the dice on an emptied grid takes away the undo left by clearing it`,
 `GridNoteTest › a note lasts at least a sixteenth note`,
-`MusicNamesTest › the proposed name numbers the category, the first number that no music has`,
-`MusicNamesTest › a name is taken by another music whatever its case and the spaces around it`,
-`MusicNamesTest › the name of the music being edited is not taken by it`,
-`MusicNamesTest › a taken name is offered free with the first number from 2 that no music has`,
-`MusicNamesTest › a taken name that ends with a number is offered free with the next number not taken`,
 `ScoreDraftOpeningTest › a score opens with its long notes, its rests and its two voices, on its scale, category and tempo`,
 `ScoreDraftOpeningTest › a score in three beats a bar, such as the Minuet, does not open`,
 `ScoreDraftOpeningTest › a score of other than eight bars does not open`,

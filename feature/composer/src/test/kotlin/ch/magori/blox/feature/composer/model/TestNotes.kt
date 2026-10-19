@@ -1,7 +1,10 @@
 package ch.magori.blox.feature.composer.model
 
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Scale
+import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.bassVoice
@@ -38,3 +41,13 @@ internal fun score(
 
 /** Eight bars of silence. */
 internal fun silence(): List<Note> = thenSilence(emptyList(), bars = 8)
+
+/** A saved music called [name], known by the key [key], eight bars of silence in C major. */
+internal fun savedMusic(
+    name: String,
+    key: String = name,
+): SavedMusic {
+    val id = ScoreId.Personal(key)
+    val score = Score(id, bpm = 120, beatsPerBar = 4, voices = listOf(melodyVoice(silence()), bassVoice(silence())))
+    return SavedMusic(id, name, category = null, scale = Scale(pitch("C4"), ScaleType.MAJOR), score = score)
+}

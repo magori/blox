@@ -9,7 +9,6 @@ import androidx.datastore.preferences.core.PreferencesSerializer
 import androidx.datastore.preferences.core.emptyPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import okio.FileSystem
 import okio.Path
 import java.io.IOException
@@ -40,5 +39,4 @@ fun preferencesDataStore(
  * The preferences of [this] DataStore. If the file cannot be read (an [IOException]): empty preferences,
  * once, and the flow then ends, the contract of the repositories. Any other failure is a bug and goes through.
  */
-internal fun DataStore<Preferences>.readOrEmpty(): Flow<Preferences> =
-    data.catch { failure -> if (failure is IOException) emit(emptyPreferences()) else throw failure }
+internal fun DataStore<Preferences>.readOrEmpty(): Flow<Preferences> = readOr(emptyPreferences())

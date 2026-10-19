@@ -664,7 +664,7 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
          */
         override suspend fun heard(): Heard? {
             val code = listen()?.roundToInt() ?: return null
-            return Heard(ScoreId.entries[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0)
+            return Heard(CODED[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0)
         }
 
         /** The only open sink refuses its next write, as a track in an error state: the music stops. */
@@ -708,10 +708,13 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
             const val SLICES_HEARD = 6
             const val SCORE_CODE = 1_000
 
+            /** The scores the samples may tell, coded by their place in this list. */
+            val CODED: List<ScoreId> = listOf(ScoreId.KOROBEINIKI, ScoreId.MINUET)
+
             fun codeOf(
                 score: ScoreId,
                 tempoFactor: Double,
-            ): Float = ((score.ordinal + 1) * SCORE_CODE + (tempoFactor * 100).roundToInt()).toFloat()
+            ): Float = ((CODED.indexOf(score) + 1) * SCORE_CODE + (tempoFactor * 100).roundToInt()).toFloat()
         }
     }
 

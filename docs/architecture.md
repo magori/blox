@@ -137,7 +137,9 @@ graph LR
   `GameViewModelTest › a programming error while the score is submitted is not swallowed`.
 
   **Sauvegarde Android** (P5.28) : Auto Backup et le transfert d'appareil ne prennent que
-  `files/datastore/records.preferences_pb` et `files/datastore/settings.preferences_pb`. Les
+  `files/datastore/records.preferences_pb`, `files/datastore/settings.preferences_pb` et
+  `files/datastore/musics.bin` (les musiques créées par le joueur, sans URI de contenu ;
+  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)). Les
   règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
   `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
@@ -147,8 +149,8 @@ graph LR
   `SETTINGS_FILE` (`core:data`).
 
   **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
-  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record and the settings`,
-  `BackupRulesTest › before Android 12, the backup keeps only the record and the settings`.
+  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record, the settings, the musics`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics`.
 
 ## Boucle de jeu
 
