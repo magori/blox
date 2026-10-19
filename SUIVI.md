@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 75 / 143 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 78 / 143 | `███████████░░░░░░░░░` **55 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -487,7 +487,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 
 - [x] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
   quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1). Fait : `play` part toujours au tempo normal, `resume` garde le tempo en cours (`docs/musique.md`).
-- [ ] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
+- [x] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
   taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
   chaque mouvement de la pièce (A2, A7).
 - [ ] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
@@ -512,11 +512,11 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).
-- [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
+- [x] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
   partagé entre effacement et délai d'apparition ; `AutoRepeat`, `GameState.controls` et les
   constructeurs de `Clearing` et `EntryDelay` en `internal` ; KDoc de `GameEvent.StackDanger`,
   `GameUiState` et du ViewModel (B4, B5, B7).
-- [ ] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
+- [x] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
   `IOException` absorbée, même traitement à l'accueil et en jeu (B6).
 - [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans

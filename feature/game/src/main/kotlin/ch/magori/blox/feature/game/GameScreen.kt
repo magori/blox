@@ -12,7 +12,10 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
@@ -45,6 +48,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
@@ -84,7 +88,10 @@ internal fun GameScreen(
     onReplay: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    // The state itself, never its value: this root reads only what the system back needs, and so does
+    // not recompose at each move of the piece.
+    val uiStateHolder = viewModel.uiState.collectAsStateWithLifecycle()
+    val uiState = remember(uiStateHolder) { { uiStateHolder.value } }
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -104,7 +111,7 @@ internal fun GameScreen(
     }
     // A game over or a game already paused ignores the pause.
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
-    val backAction = backAction(uiState)
+    val backAction by rememberPart(uiState, ::backAction)
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
         isBackEnabled = backAction != BackAction.LEAVE,
@@ -129,14 +136,29 @@ internal fun GameScreen(
 }
 
 /**
- * The game screen for [uiState]: the top bar ([onPause], the record), the board, the side column and
- * the controls, whose changes go to [onControl]. Paused, the pause screen in their place, the board
- * hidden: Reprendre is [onResume], Menu is [onBack]. Once the game is over, the game over screen,
- * which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
+ * The part of the state given by [uiState] that [part] picks, as a state that changes only when that
+ * part changes: the composable that reads it recomposes for that part only, not at each move of the
+ * piece. [part] is not a key: the first one given is kept, so it must capture nothing, as a property
+ * of [GameUiState] or a function of it alone.
+ */
+@Composable
+private fun <T> rememberPart(
+    uiState: () -> GameUiState,
+    part: (GameUiState) -> T,
+): State<T> = remember(uiState) { derivedStateOf { part(uiState()) } }
+
+/**
+ * The game screen for the state given by [uiState]: the top bar ([onPause], the record), the board, the
+ * side column and the controls, whose changes go to [onControl]. Paused, the pause screen in their
+ * place, the board hidden: Reprendre is [onResume], Menu is [onBack]. Once the game is over, the game
+ * over screen, which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
+ *
+ * Each part of the screen reads only the part of the state it shows: a move of the piece draws the
+ * board again, and recomposes nothing.
  */
 @Composable
 internal fun GameScreen(
-    uiState: GameUiState,
+    uiState: () -> GameUiState,
     onBack: () -> Unit,
     onReplay: () -> Unit,
     onControl: (ControlChange) -> Unit,
@@ -144,10 +166,11 @@ internal fun GameScreen(
     onResume: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val gameOver = uiState.gameOver
+    val gameOver = rememberPart(uiState) { it.gameOver }.value
+    val paused by rememberPart(uiState) { it.paused }
     when {
         gameOver != null -> GameOverScreen(state = gameOver, onReplay = onReplay, onMenu = onBack, modifier = modifier)
-        uiState.paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = modifier)
+        paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = modifier)
         else -> Game(uiState = uiState, onControl = onControl, onPause = onPause, modifier = modifier)
     }
 }
@@ -155,11 +178,12 @@ internal fun GameScreen(
 /** The game under way: the top bar, the board, the side column and the controls. */
 @Composable
 private fun Game(
-    uiState: GameUiState,
+    uiState: () -> GameUiState,
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val record by rememberPart(uiState) { it.record }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -168,7 +192,7 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(record = uiState.record, onPause = onPause)
+        GameTopBar(record = record, onPause = onPause)
         BoxWithConstraints(
             modifier = Modifier
                 .weight(1f)
@@ -183,43 +207,60 @@ private fun Game(
     }
 }
 
+/** What the side column shows: it changes when a piece locks, not when it moves. */
+@Immutable
+private data class SideColumn(
+    val score: Points,
+    val level: Level,
+    val lines: Lines,
+    val next: PieceType,
+    val rotationSystem: RotationSystem,
+)
+
+private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, rotationSystem)
+
 /**
  * The board, the side column and the controls, each where [layout] puts it. The score column scrolls
  * when its panels do not fit, as with an enlarged font, rather than pass under the screen or over the
- * controls.
+ * controls. The board reads the board and the piece only while drawing.
  */
 @Composable
 private fun Play(
-    uiState: GameUiState,
+    uiState: () -> GameUiState,
     layout: GameLayout,
     onControl: (ControlChange) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val fingers = rememberControlFingers(onControl)
     val scoreScroll = rememberScrollState()
+    val side by rememberPart(uiState, GameUiState::sideColumn)
     PlacedParts(modifier = modifier) {
-        BoardCanvas(board = uiState.board, piece = uiState.piece, modifier = Modifier.placedAt(layout.board))
+        BoardCanvas(
+            board = { uiState().board },
+            piece = { uiState().piece },
+            modifier = Modifier.placedAt(layout.board),
+        )
         val nextPiece = layout.nextPiece
         if (nextPiece == null) {
             SidePanel(
-                score = uiState.score,
-                level = uiState.level,
-                lines = uiState.lines,
-                next = uiState.next,
-                rotationSystem = uiState.rotationSystem,
+                score = side.score,
+                level = side.level,
+                lines = side.lines,
+                next = side.next,
+                rotationSystem = side.rotationSystem,
                 cellSize = layout.cellSize,
                 modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
             )
         } else {
             ScorePanels(
-                score = uiState.score,
-                level = uiState.level,
-                lines = uiState.lines,
+                score = side.score,
+                level = side.level,
+                lines = side.lines,
                 modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
             )
             NextPiecePanel(
-                next = uiState.next,
-                rotationSystem = uiState.rotationSystem,
+                next = side.next,
+                rotationSystem = side.rotationSystem,
                 cellSize = layout.cellSize,
                 modifier = Modifier.placedAt(nextPiece).wrapContentHeight(Alignment.Top),
             )
@@ -281,7 +322,7 @@ private fun GameScreenPreview(
     uiState: GameUiState,
 ) {
     BloxTheme(kind = kind) {
-        GameScreen(uiState = uiState, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
+        GameScreen(uiState = { uiState }, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
     }
 }
 

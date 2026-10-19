@@ -43,13 +43,15 @@ class FakeUserPreferencesRepository(
     }
 }
 
-/** A record kept in memory. */
-class FakeHighScoreRepository(initial: Int = 0) : HighScoreRepository {
-    override val highScore: MutableStateFlow<Int> = MutableStateFlow(initial)
+/** A record kept in memory; [reads], when given, is what the record flow gives instead, for reads that go wrong. */
+class FakeHighScoreRepository(initial: Int = 0, reads: Flow<Int>? = null) : HighScoreRepository {
+    private val record = MutableStateFlow(initial)
+
+    override val highScore: Flow<Int> = reads ?: record
 
     override suspend fun submit(score: Int): RecordResult {
-        val previous = highScore.value
-        if (score > previous) highScore.value = score
+        val previous = record.value
+        if (score > previous) record.value = score
         return RecordResult(previous, isNewRecord = score > previous)
     }
 }

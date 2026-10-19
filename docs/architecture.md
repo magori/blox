@@ -101,8 +101,28 @@ graph LR
   Une valeur inconnue ou un fichier illisible redonnent les valeurs par défaut (Original,
   Korobeïniki, niveau 0).
 
+  **Erreurs de lecture** (P5.22) : les flux de lecture (`HighScoreRepository.highScore`,
+  `UserPreferencesRepository.preferences`) ne lèvent jamais d'`IOException` ; un fichier
+  illisible donne la valeur par défaut (record 0, `UserPreferences.DEFAULT`) une fois, puis le
+  flux se termine ; les collecteurs gardent cette valeur (`combine` le fait de lui-même). Les
+  écritures (`submit`, `setTheme`, `setMusic`, `setStartLevel`) échouent avec une
+  `IOException` si le fichier ne peut pas être écrit : les ViewModels ne rattrapent que
+  celle-ci (la partie montre son écran de fin sans nouveau record, l'accueil garde les réglages
+  enregistrés). Toute autre exception est un bug : elle se propage, et aucun ViewModel ne la
+  rattrape (un plantage visible plutôt qu'une erreur silencieuse).
+
   **Tests :** `DataStoreHighScoreRepositoryTest`, `DataStoreUserPreferencesRepositoryTest`
-  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record »).
+  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record ») ;
+  erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
+  `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
+  `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
+  `DataStoreUserPreferencesRepositoryTest › a failure other than an IOException while the settings are read is not absorbed`,
+  `HomeViewModelTest › unreadable records show 0 and the home screen goes on`,
+  `HomeViewModelTest › a programming error while the records are read is not swallowed`,
+  `GameViewModelTest › unreadable records show 0 and the game goes on`,
+  `GameViewModelTest › a programming error while the records are read is not swallowed`,
+  `GameViewModelTest › a programming error while the settings are read is not swallowed`,
+  `GameViewModelTest › a programming error while the score is submitted is not swallowed`.
 
 ## Boucle de jeu
 
@@ -142,7 +162,7 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 |---|---|---|
 | `core:game`, `core:music` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
 | Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
-| `src/androidTest` | JUnit 5 (extensions `android-junit`), Compose UI Test | Parcours d'écrans, quand l'UI sera stable. |
+| `src/androidTest` (`feature:game`, `feature:home`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, soulignement des choix de l'accueil (`HomeScreenTest`). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; pas encore exécutés en CI (P5.5). |
 | `src/screenshotTest` (`feature:game`, `feature:home`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Tolérance de 0,05 % pour les écarts de lissage entre systèmes. Pas encore dans la CI (P5.8). |
 
 JUnit 5 partout, y compris dans les modules Android grâce au plugin

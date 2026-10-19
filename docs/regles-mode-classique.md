@@ -288,7 +288,10 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 `AutoRepeatTest › a held soft drop moves the piece down a first row 2 ticks after the press then every 2 ticks`,
 `AutoRepeatTest › releasing the soft drop stops it at once`,
 `AutoRepeatTest › a shift charged against a wall moves at once when the way is free, then every 6 ticks`,
-`RepeatTimingTest › a repeat interval of 0 is refused`, `RepeatTimingTest › a first repeat before the press is refused`.
+`RepeatTimingTest › a repeat interval of 0 is refused`, `RepeatTimingTest › a first repeat before the press is refused`,
+`RepeatTimingTest › without a step on the press, no step is due on the tick of the press`,
+`RepeatTimingTest › a first repeat and an interval of 1 tick give a step on every tick after the press`,
+`RepeatTimingTest › no step is due on the tick just before the first repeat`.
 
 **Commandes dans le moteur** (P1.12d, ROM au tick près, même source) :
 
@@ -452,7 +455,12 @@ tout se déduise de la graine. La différence (1 à 3 images) n'est pas percepti
 `GameEngineClearTest › after the clear comes the entry delay computed when the piece locked, then the next piece`,
 `GameEngineClearTest › the ticks between the lock and the end of the clear give no event`,
 `PhaseTest › a clear lasts at least one tick`, `TicksTest › a duration of 0 ticks or less is refused`,
-`TicksTest › a duration of 1 tick is the shortest one accepted` (la gravité et le délai d'apparition rendent un `Ticks`, au moins 1).
+`TicksTest › a duration of 1 tick is the shortest one accepted`,
+`TicksTest › a duration of 1 tick is over after one tick`,
+`TicksTest › a longer duration has one tick less left after one tick` (la gravité et le délai
+d'apparition rendent un `Ticks`, au moins 1 ; les décomptes de l'effacement et du délai
+d'apparition, et les délais de répétition des commandes, sont aussi des `Ticks`, et
+l'effacement comme le délai d'apparition se décomptent de la même façon, P5.21).
 
 **Durée de l'effacement, politique des règles** (P6.2) : la durée de l'effacement n'est plus
 écrite dans le moteur. C'est une politique, `LineClearDelay`, que le mode Classique fournit avec
@@ -518,7 +526,7 @@ partie non plus). Un fichier illisible ou corrompu compte comme « pas de record
 `GameViewModelTest › the record shown is the one of the records, its real value, updated when it changes`,
 `GameViewModelTest › the record stays shown when the frames move the game`,
 `GameViewModelTest › until the records give it the record is unknown, not 0`,
-`GameViewModelTest › records that fail while they are read leave the game going, with the last record known`.
+`GameViewModelTest › unreadable records show 0 and the game goes on`.
 Vues : V1, V2, V3, V4.
 
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,

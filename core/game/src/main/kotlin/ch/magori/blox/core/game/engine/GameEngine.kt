@@ -6,6 +6,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Rotation
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.Randomizer
 
 /**
@@ -81,8 +82,12 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         if (state.paused) return GameUpdate(state, events = emptyList())
         val update = when (val phase = state.phase) {
             is Phase.Falling -> fall(state.counted(), phase)
-            is Phase.Clearing -> clear(state.counted(), phase)
-            is Phase.EntryDelay -> wait(state.counted(), phase)
+
+            is Phase.Clearing ->
+                countDown(state.counted(), phase.ticksLeft, { phase.copy(ticksLeft = it) }) { endClear(it, phase) }
+
+            is Phase.EntryDelay -> countDown(state.counted(), phase.ticksLeft, { phase.copy(ticksLeft = it) }, ::spawn)
+
             is Phase.GameOver -> return GameUpdate(state, events = emptyList())
         }
         return update.copy(state = update.state.copy(controls = update.state.controls.afterTick()))
@@ -245,7 +250,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         if (rowsCleared.clearedRows.isNotEmpty()) {
             val clearing = Phase.Clearing(
                 rowsCleared,
-                ticksLeft = rules.lineClearDelay.ticksToClear(lockTick = state.tickCount).value,
+                ticksLeft = rules.lineClearDelay.ticksToClear(lockTick = state.tickCount),
                 entryDelayAfter = entryDelay,
                 stackInDangerAfter = inDanger,
             )
@@ -254,7 +259,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
                 events = listOf(GameEvent.PieceLocked(piece)),
             )
         }
-        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay.value), stackInDanger = inDanger)
+        val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay), stackInDanger = inDanger)
         return GameUpdate(waiting, events = listOf(GameEvent.PieceLocked(piece)) + dangerChange(state, inDanger))
     }
 
@@ -267,35 +272,37 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         return if (changed) listOf(GameEvent.StackDanger(on = inDanger)) else emptyList()
     }
 
-    private fun clear(
+    /**
+     * A tick of a wait with [ticksLeft] to go, the line clear or the entry delay: on its last tick, [over]
+     * ends it; before, nothing happens but the wait going on, in the phase [waiting] gives for what is left.
+     */
+    private inline fun countDown(
+        state: GameState,
+        ticksLeft: Ticks,
+        waiting: (Ticks) -> Phase,
+        over: (GameState) -> GameUpdate,
+    ): GameUpdate {
+        val left = ticksLeft.afterOneTick() ?: return over(state)
+        return GameUpdate(state.copy(phase = waiting(left)), events = emptyList())
+    }
+
+    /**
+     * The last tick of the line clear of [clearing]: the cleared board is shown, the lines, the level and the
+     * points are counted, the stack danger changes if it must, and the entry delay begins.
+     */
+    private fun endClear(
         state: GameState,
         clearing: Phase.Clearing,
     ): GameUpdate {
-        if (clearing.ticksLeft > 1) {
-            return GameUpdate(
-                state.copy(phase = clearing.copy(ticksLeft = clearing.ticksLeft - 1)),
-                events = emptyList(),
-            )
-        }
         val lineClear = clearing.rowsCleared.lineClear
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
             progress = state.progress.afterClear(lineClear, rules),
-            phase = Phase.EntryDelay(clearing.entryDelayAfter.value),
+            phase = Phase.EntryDelay(clearing.entryDelayAfter),
             stackInDanger = clearing.stackInDangerAfter,
         )
         val events = listOf(GameEvent.LinesCleared(lineClear)) + dangerChange(state, clearing.stackInDangerAfter)
         return GameUpdate(cleared, events)
-    }
-
-    private fun wait(
-        state: GameState,
-        delay: Phase.EntryDelay,
-    ): GameUpdate {
-        if (delay.ticksLeft > 1) {
-            return GameUpdate(state.copy(phase = delay.copy(ticksLeft = delay.ticksLeft - 1)), events = emptyList())
-        }
-        return spawn(state)
     }
 
     /**

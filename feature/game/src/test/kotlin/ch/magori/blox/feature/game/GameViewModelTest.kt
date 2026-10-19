@@ -39,6 +39,7 @@ import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -269,6 +270,20 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a programming error while the score is submitted is not swallowed`() {
+        // Given records whose writing fails with a bug, not with a file that cannot be written
+        highScores.failure = IllegalStateException("a bug in the records")
+
+        // When the game is played until its score is submitted
+        val failure = runCatching {
+            runTest { playUntilSubmitted(createViewModel(GameRoute(startLevel = 0, seed = 1L))) }
+        }.exceptionOrNull()
+
+        // Then the bug reaches the uncaught exceptions, as it would crash the application
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage("a bug in the records")
+    }
+
+    @Test
     fun `while the score is being submitted the game over waits, then shows once with the answer`() = runTest {
         // Given records that take their time to write
         val writing = CompletableDeferred<Unit>()
@@ -452,12 +467,9 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `records that fail while they are read leave the game going, with the last record known`() {
-        // Given records that give 100, then fail
-        highScores.highScoreFlow = flow {
-            emit(100)
-            throw IOException("records unreadable")
-        }
+    fun `unreadable records show 0 and the game goes on`() {
+        // Given unreadable records: as the contract says, they give 0, once, and the flow then ends
+        highScores.highScoreFlow = flowOf(0)
 
         // When the game goes on
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
@@ -465,8 +477,34 @@ class GameViewModelTest {
         viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
 
         // Then
-        assertThat(viewModel.uiState.value.record).isEqualTo(100)
+        assertThat(viewModel.uiState.value.record).isEqualTo(0)
         assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 1))
+    }
+
+    @Test
+    fun `a programming error while the records are read is not swallowed`() {
+        // Given records whose reading fails with a bug, not with an unreadable file
+        val bug = IllegalStateException("a bug in the records")
+        highScores.highScoreFlow = flow { throw bug }
+
+        // When
+        val failure = uncaughtFailureOfCreation()
+
+        // Then the bug reaches the uncaught exceptions, as it would crash the application
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage(bug.message)
+    }
+
+    @Test
+    fun `a programming error while the settings are read is not swallowed`() {
+        // Given settings whose reading fails with a bug, not with an unreadable file
+        val bug = IllegalStateException("a bug in the settings")
+        preferences.preferencesFlow = flow { throw bug }
+
+        // When
+        val failure = uncaughtFailureOfCreation()
+
+        // Then the bug reaches the uncaught exceptions, as it would crash the application
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage(bug.message)
     }
 
     @Test
@@ -747,6 +785,14 @@ class GameViewModelTest {
         GameViewModel::class,
         routeExtras(route),
     )
+
+    /**
+     * The exception left uncaught when a game view model is created, or null. `runTest` reports the
+     * uncaught exceptions of every coroutine, those of `viewModelScope` included, as the application
+     * would crash with them.
+     */
+    private fun uncaughtFailureOfCreation(): Throwable? =
+        runCatching { runTest { createViewModel(GameRoute(startLevel = 0, seed = 1L)) } }.exceptionOrNull()
 
     /** A game view model kept in [store], as the navigation entry keeps it: cleared when the store is. */
     private fun createViewModelIn(store: ViewModelStore): GameViewModel = ViewModelProvider.create(
