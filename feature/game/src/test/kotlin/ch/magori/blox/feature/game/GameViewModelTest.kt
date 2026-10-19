@@ -652,6 +652,19 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the music of a new game is not stopped by the earlier game whose music it replaced`() {
+        // Given a game playing Korobeiniki, still alive
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
+
+        // When the next game (Rejouer) plays the minuet in its place: the playback of the first one no longer plays
+        createViewModel(GameRoute(startLevel = 0, seed = 2L))
+
+        // Then the music of the next game still plays
+        assertThat(music.playing).isEqualTo(Scores.minuet.id)
+    }
+
+    @Test
     fun `leaving the game screen stops the music`() {
         // Given a game playing Korobeiniki, in a view model store like the navigation entry's
         val store = ViewModelStore()
@@ -767,6 +780,73 @@ class GameViewModelTest {
         assertThat(music.calls).containsExactly("stop")
         viewModel.onResume()
         assertThat(music.calls).containsExactly("stop", "resume ${Scores.korobeiniki.id}")
+    }
+
+    @Test
+    fun `a music that stops by itself is stopped, to give the audio focus back, and the game goes on`() {
+        // Given a game playing Korobeiniki
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.calls.clear()
+
+        // When its music stops by itself (the sequencer fails)
+        music.fail()
+
+        // Then its playback is stopped, which gives the focus back, and the game still runs
+        assertThat(music.calls).containsExactly("failure", "stop")
+        assertThat(viewModel.uiState.value.running).isTrue()
+    }
+
+    @Test
+    fun `a music that stopped by itself plays again when the game resumes after a pause`() {
+        // Given a game whose music stopped by itself, then paused
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.fail()
+        viewModel.onPause()
+        music.calls.clear()
+
+        // When
+        viewModel.onResume()
+
+        // Then the music tries again, where it stopped
+        assertThat(music.calls).containsExactly("resume ${Scores.korobeiniki.id}")
+        assertThat(music.playing).isEqualTo(Scores.korobeiniki.id)
+    }
+
+    @Test
+    fun `a music that stopped by itself again after the resume is stopped again`() {
+        // Given a game whose music stopped by itself, played again by a pause and a resume
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.fail()
+        viewModel.onPause()
+        viewModel.onResume()
+        music.calls.clear()
+
+        // When the music stops by itself once more
+        music.fail()
+
+        // Then its new playback is stopped too, which gives the focus back
+        assertThat(music.calls).containsExactly("failure", "stop")
+    }
+
+    @Test
+    fun `entering the danger while the music is stopped by itself plays nothing, and the resume is faster`() {
+        // Given a game whose music stopped by itself
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        music.fail()
+        music.calls.clear()
+
+        // When its stack enters the danger
+        playUntilInDanger(viewModel)
+
+        // Then the danger tempo is kept for later, and no music plays
+        assertThat(music.calls).containsExactly("tempo 1.25")
+        assertThat(music.playing).isNull()
+
+        // And once the game is paused and resumed, the music plays again at the danger tempo
+        viewModel.onPause()
+        viewModel.onResume()
+        assertThat(music.playing).isEqualTo(Scores.korobeiniki.id)
+        assertThat(music.tempo).isEqualTo(1.25)
     }
 
     @Test
@@ -929,7 +1009,13 @@ class GameViewModelTest {
     fun `a game recreated after the process died plays its music from the start when the player resumes it`() {
         // Given a game recreated, paused, after its process died
         val savedState = SavedStateHandle()
-        createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState)
+        val store = ViewModelStore()
+        createViewModelIn(store, savedState)
+        // The process dies: its view model, and so the following of its music, goes with it. Clearing the store calls
+        // onCleared, which a real death of the process does not; but there the music player dies too, while here it
+        // is shared: a view model left alive would still follow its music, and stop it once the recreated game
+        // replaced it, a stop the fake notes.
+        store.clear()
         val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
         music.calls.clear()
 
@@ -981,9 +1067,14 @@ class GameViewModelTest {
         runCatching { runTest { createViewModel(GameRoute(startLevel = 0, seed = 1L)) } }.exceptionOrNull()
 
     /** A game view model kept in [store], as the navigation entry keeps it: cleared when the store is. */
-    private fun createViewModelIn(store: ViewModelStore): GameViewModel = ViewModelProvider.create(
+    private fun createViewModelIn(
+        store: ViewModelStore,
+        savedState: SavedStateHandle = SavedStateHandle(),
+    ): GameViewModel = ViewModelProvider.create(
         store,
-        viewModelFactory { initializer { createViewModel(GameRoute(startLevel = 0, seed = 1L)) } },
+        viewModelFactory {
+            initializer { createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState) }
+        },
     )[GameViewModel::class]
 
     private companion object {

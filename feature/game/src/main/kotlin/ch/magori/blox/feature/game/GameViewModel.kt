@@ -26,6 +26,7 @@ import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.sidepanel.nextPieceCells
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -81,12 +82,18 @@ class GameViewModel internal constructor(
     private var score: Score? = null
 
     /**
-     * The music of this game while it plays: stopping it leaves the music of another game alone. Its
-     * [Playback.isPlaying] is not followed: a music that stops by itself (an audio output that fails) leaves
-     * the game going on in silence, its audio focus held until the game is paused (the resume tries again)
-     * or over.
+     * The music of this game, playing or stopped: stopping it leaves the music of another game alone. Kept
+     * once stopped, so that the resume goes on where it stopped. Its [Playback.isPlaying] is followed
+     * ([musicWatch]): a music that stops by itself (an audio output that fails) is stopped, which gives the
+     * audio focus back, and the game goes on in silence; the resume after a pause tries again.
      */
     private var playback: Playback? = null
+
+    /**
+     * The following of the [playback] last played, to stop it once its music stopped by itself; cancelled when
+     * it is stopped on purpose. Null until a music plays.
+     */
+    private var musicWatch: Job? = null
 
     init {
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
@@ -103,8 +110,40 @@ class GameViewModel internal constructor(
             val choice = preferences.preferences.first().music
             score = scoreOf(choice)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
-            if (gameState.isUnderWay) playback = playMusic()
+            if (gameState.isUnderWay) play(playMusic())
         }
+    }
+
+    /**
+     * [started] is the music of this game from now on, followed until it stops; null when the game has no music.
+     * A music plays only at the start of the game or when it resumes, once the following of the one before
+     * was cancelled by the pause, or ended with its music: there is none to cancel here.
+     */
+    private fun play(started: Playback?) {
+        playback = started
+        musicWatch = started?.let { viewModelScope.launch { watch(it) } }
+    }
+
+    /**
+     * Waits for [started] to stop by itself (the audio output fails; with the audio focus, the focus lost for
+     * good or the headphones unplugged; a score has no natural end, it loops), then stops it, which gives the
+     * audio focus back. The game goes on in silence. Changes of tempo are still given to the player, which
+     * keeps them for the resume and plays nothing: the music comes back only with the resume after a pause,
+     * once the audio output may have come back.
+     */
+    private suspend fun watch(started: Playback) {
+        started.isPlaying.first { !it }
+        started.stop()
+    }
+
+    /**
+     * Stops the music of this game, if any, without taking its stop for a music that stopped by itself. After
+     * a music that stopped by itself, its playback is stopped again: it was already, which does nothing (the
+     * contract of [Playback.stop]).
+     */
+    private fun stopMusic() {
+        musicWatch?.cancel()
+        playback?.stop()
     }
 
     /**
@@ -149,7 +188,7 @@ class GameViewModel internal constructor(
     internal fun onPause() {
         gameState = engine.apply(gameState, Input.Pause).state
         publish()
-        playback?.stop()
+        stopMusic()
     }
 
     /** The player resumes the paused game (Reprendre, system back): it goes on where it stood. */
@@ -159,7 +198,7 @@ class GameViewModel internal constructor(
         publish()
         // Only when the game really goes on again (not resumed twice, not over): the music goes on where it
         // stopped, or starts if the game was paused before it started.
-        if (wasPaused && gameState.isUnderWay) playback = playback?.resume() ?: playMusic()
+        if (wasPaused && gameState.isUnderWay) play(playback?.resume() ?: playMusic())
     }
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
@@ -173,7 +212,7 @@ class GameViewModel internal constructor(
      * new one.
      */
     private fun onGameOver(finalState: GameState) {
-        playback?.stop()
+        stopMusic()
         viewModelScope.launch {
             val gameOver = finalState.toGameOverUiState(isNewRecord(finalState.progress.score.value))
             state.update { it.copy(gameOver = gameOver) }
@@ -194,7 +233,7 @@ class GameViewModel internal constructor(
 
     /** The game screen is left (Menu, Rejouer, system back): its music stops with it. */
     override fun onCleared() {
-        playback?.stop()
+        stopMusic()
     }
 
     /**
