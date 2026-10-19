@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.systemGestureExclusion
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -100,7 +101,7 @@ internal fun DirectionPad(
     modifier: Modifier = Modifier,
 ) {
     val keyModifier = Modifier.padding(top = ControlSizes.rotationStagger / 2)
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing)) {
+    ControlGroup(modifier = modifier) {
         ControlKey(ControlButton.LEFT, fingers, ControlSizes.directionButton, keyModifier)
         ControlKey(ControlButton.DOWN, fingers, ControlSizes.directionButton, keyModifier)
         ControlKey(ControlButton.RIGHT, fingers, ControlSizes.directionButton, keyModifier)
@@ -113,7 +114,7 @@ internal fun RotationPad(
     fingers: FingerTracker,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing)) {
+    ControlGroup(modifier = modifier) {
         ControlKey(
             ControlButton.B,
             fingers,
@@ -122,6 +123,26 @@ internal fun RotationPad(
         )
         ControlKey(ControlButton.A, fingers, ControlSizes.rotationButton)
     }
+}
+
+/**
+ * The keys of a group in a row, [ControlSizes.spacing] apart. The group is excluded from the system
+ * gestures (API 29 and above): in gesture navigation, the zone of the Back gesture can be wider than
+ * the margins of the screen, and a thumb sliding from ◀ to ▼ would otherwise go back, which cancels
+ * the fingers and pauses the game. The system honours 200 dp of exclusion per edge, which the groups
+ * fit: ◀ ▼ ▶ is [ControlSizes.directionsHeight] high, B A [ControlSizes.rotationsHeight], and both
+ * together would still fit on one edge.
+ */
+@Composable
+private fun ControlGroup(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Row(
+        modifier = modifier.systemGestureExclusion(),
+        horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing),
+        content = { content() },
+    )
 }
 
 /** Both groups on one row, as on a 360 dp wide phone, for the previews. */
