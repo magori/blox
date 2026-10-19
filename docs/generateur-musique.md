@@ -103,8 +103,7 @@ de Wikipédia) ; ils ne sont plus **[à vérifier]**.
   `ProgressionTest › a progression without chords is refused`,
   `ProgressionTest › bars are counted from 0, so a negative bar is refused`.
 
-Aucune vue de maquette n'est concernée. Deux accords par mesure restent à faire avec les
-catégories (P4.14).
+Aucune vue de maquette n'est concernée.
 
 ### Forme
 
@@ -163,13 +162,92 @@ elle-même au hasard.
 | **Épique** | mineure naturelle | 110–140 | i–VI–III–VII, i–VII–VI–VII | noires fortes, sauts de quinte | galop (croches répétées) |
 | **Mélancolique** | mineure naturelle | 80–100 | i–VI–iv–v, i–iv–VII–III | notes longues, descentes | fondamentale et quinte |
 | **Mystérieux** | dorienne ou mineure harmonique | 90–110 | i–IV (dorien), i–♭VII–VI–V (harmonique) | notes tenues, chromatisme de passage | notes tenues |
-| **Rétro** | majeure ou mixolydienne | 140–170 | I–♭VII–IV–I, I–V–vi–IV | doubles croches, arpèges rapides | octaves rapides |
+| **Rétro** | majeure ou mixolydienne | 140–170 | I–VII–IV–I (mixolydien), I–V–vi–IV (majeur) | doubles croches, arpèges rapides | octaves rapides |
 | **Danse** | mineure harmonique | 130–160 | i–iv–V–i | 2 temps marqués, croches | fondamentale et quinte, marquée |
 | **Surprise** | une des catégories ci-dessus, tirée au hasard | | | | |
 
 Chaque catégorie est un jeu de paramètres, pas un code à part : un seul générateur, des
 catégories interchangeables, comme les politiques de `core:game`. Ajouter une catégorie ne
 modifie pas le générateur.
+
+### Catégories implémentées (P4.14)
+
+`Category` (`core:music`) porte les paramètres de la table, sans rien générer. Les tempos,
+les suites et les cellules sont des choix de conception du projet, sans source : ils restent
+**[à vérifier]** à l'écoute.
+
+- **Gammes et suites.** Chaque gamme d'une catégorie vient avec ses suites (`Harmony`) :
+  Mystérieux joue `i–IV` en dorien et `i–♭VII–VI–V` en mineure harmonique, Rétro `I–VII–IV–I`
+  en mixolydien et `I–V–vi–IV` en majeur. Le chiffrage compte les degrés de la gamme jouée : le
+  VII du mixolydien est déjà le si♭ de do, et une mélodie mixolydienne garde son si♭ partout.
+  Une suite ne s'accepte que si chaque accord sans altération se construit dans la gamme (pour
+  la pentatonique, dans la majeure de même tonique) ; une altération doit signaler un vrai
+  emprunt, dont la fondamentale sort de la gamme.
+  `CategoryTest › each category plays on the scales of its character`,
+  `CategoryTest › each scale of a category comes with the progressions that suit it`,
+  `HarmonyTest › a scale without a progression to play on it is refused`,
+  `HarmonyTest › a progression with a chord out of the scale, though written without an accidental, is refused`,
+  `HarmonyTest › a numeral with an accidental borrows a chord whose root is out of the scale`,
+  `HarmonyTest › a progression on a pentatonic scale may hold the chords of the major scale, not only its five notes`,
+  `HarmonyTest › an accidental that lands the root on another degree of the scale is refused, as it would name that degree`.
+- **Tempo** : un intervalle par catégorie (table ci-dessus), le tempo tiré dedans, bornes
+  comprises.
+  `CategoryTest › each category plays within its own range of tempos, in beats per minute`,
+  `TempoRangeTest › a drawn tempo stays within the range and may be either end`,
+  `TempoRangeTest › a range that is not a positive tempo up to a faster or equal one is refused`,
+  `TempoRangeTest › a range of a single tempo always draws that tempo`.
+- **Toniques** : do, ré, fa, sol, la (octave 4), communes à toutes les catégories. Aucune
+  tessiture n'est encore définie dans le code : la règle « tient dans les tessitures » sera
+  vérifiée avec la mélodie (P4.16).
+  `CategoryTest › every category may be played in C, D, F, G or A`.
+- **Cellules rythmiques** (`RhythmCell`, durées en temps, `r` pour un silence) : une mesure de
+  4 temps exactement, des durées positives. Une cellule sait si elle se tait sur un temps fort
+  (1 ou 3) et compte ses syncopes : une note attaquée ailleurs que sur un temps fort et tenue
+  au-delà du temps suivant. Le répertoire des catégories ne se tait jamais sur 1 et 3 et a une
+  syncope au plus ; une cellule de respiration (`2 r2`) reste possible pour les fins de phrase.
+  `RhythmCellTest › a cell is read as durations in beats separated by spaces, r marking a rest`,
+  `RhythmCellTest › a cell that does not fill exactly one bar of four beats is refused`,
+  `RhythmCellTest › a step that is not a positive number of beats is refused, even if the bar adds up`,
+  `RhythmCellTest › a cell that is silent on beat 1 or 3 rests on a strong beat`,
+  `RhythmCellTest › a cell silent only on the weak beats does not rest on a strong beat`,
+  `RhythmCellTest › a cell counts its syncopations, notes struck off the strong beats and held over the next beat`,
+  `RhythmCellTest › a phrase may end by resting from beat 3, to breathe`,
+  `CategoryTest › every cell of a category plays a chord note on beats 1 and 3, and holds one light syncopation at most`.
+
+  | Catégorie | Cellules |
+  |---|---|
+  | Joyeux | `0.5 0.5 0.5 0.5 1 1` · `0.75 0.25 0.75 0.25 1 1` · `1 0.5 0.5 0.75 0.25 1` · `0.5 1 0.5 1 1` |
+  | Calme | `2 2` · `1 1 2` · `2 1 r1` · `1 r1 2` |
+  | Épique | `1 1 1 1` · `1 0.5 0.5 1 1` · `0.5 0.5 1 1 1` · `1 1 0.5 0.5 1` |
+  | Mélancolique | `2 2` · `3 1` · `1 1 2` · `1.5 0.5 2` |
+  | Mystérieux | `4` · `3 1` · `2 2` · `3 0.5 0.5` |
+  | Rétro | huit doubles croches puis `0.5 0.5 1` · huit croches · `0.25×4 0.5 0.5 0.25×4 1` · `0.5 1 0.5 0.5 0.5 1` |
+  | Danse | `1 0.5 0.5 1 0.5 0.5` · `1 0.5 0.5 1 1` · huit croches · `1 1 1 0.5 0.5` |
+
+  Le caractère de chaque catégorie est vérifié sur ces cellules :
+  `CategoryTest › calm leaves air, in half and quarter notes and some rests`,
+  `CategoryTest › the busiest bar of calm holds fewer notes than the sparsest bar of retro`,
+  `CategoryTest › retro runs a whole beat of sixteenth notes, for its fast arpeggios`,
+  `CategoryTest › joyful skips along on a dotted eighth and a sixteenth`,
+  `CategoryTest › epic strikes a strong note on every beat, and dance marks beats 1 and 3`,
+  `CategoryTest › melancholic and mysterious hold a long note, a half note at least, in every bar`.
+- **Basse, chromatisme, rythme harmonique** : un style de basse par catégorie (table), le
+  chromatisme de passage pour Mystérieux seulement, deux accords par mesure pour Rétro
+  seulement (la lecture d'une demi-mesure viendra avec la forme, P4.15). Danse est à 4 temps,
+  ses « 2 temps marqués » étant les temps 1 et 3.
+  `CategoryTest › each category has the bass of its character`,
+  `CategoryTest › only mysterious lets its melody pass through a note out of the scale`,
+  `CategoryTest › only retro, the fastest category, changes chord twice a bar`.
+- **Surprise** tire une des sept catégories, jamais elle-même ; même graine, même catégorie.
+  `CategoryChoiceTest › surprise may draw every category`,
+  `CategoryChoiceTest › surprise draws the same category from the same seed`,
+  `CategoryChoiceTest › a category chosen by the player is played as it is, whatever the draw`.
+
+Points ouverts : l'accord qui ferme la boucle **[à vérifier]** dans les gammes dont le V est
+mineur ou absent des suites (mineure naturelle, dorien, mixolydien ; P4.15) ; les traits
+mélodiques de la table (sauts de quinte, descentes, arpèges) ne sont pas encore des
+paramètres (P4.16) ; les sept styles de basse pourront se réduire aux motifs de la section
+Basse (P4.17). Aucune vue de maquette n'est concernée.
 
 ## Note de qualité
 
