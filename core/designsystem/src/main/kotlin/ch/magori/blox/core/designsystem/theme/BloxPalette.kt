@@ -18,6 +18,12 @@ data class BloxPalette(
     val frame: Color,
     val boardBackground: Color,
     val button: Color,
+    /**
+     * The edge of a button at rest, drawn over its [button] face: it stands out from [page] by 3:1 at least
+     * (WCAG 1.4.11), as `KeyColorsTest` (feature:game) checks for every theme. In Original it is [button] on
+     * purpose: the face already stands out from the page, so no outline shows.
+     */
+    val buttonOutline: Color,
     val buttonInk: Color,
     /**
      * A button held down: it stands out from [page] by 3:1 at least, [buttonInk] on it too, and from
@@ -46,6 +52,8 @@ object BloxPalettes {
         frame = Color(0xFF34503A),
         boardBackground = Color(0xFFDCEBD5),
         button = Color(0xFF5F7F5C),
+        // The face, 3.31:1 from the page: no outline to see.
+        buttonOutline = Color(0xFF5F7F5C),
         buttonInk = Color(0xFFEEF5EA),
         buttonPressed = Color(0xFF34503A),
         accent = Color(0xFF34503A),
@@ -70,6 +78,8 @@ object BloxPalettes {
         frame = Color(0xFF2A2E3E),
         boardBackground = Color(0xFF0B0C12),
         button = Color(0xFF2A2E3E),
+        // The face, 1.36:1 from the page, is lost in it: a rim in the held shade, 3.50:1, draws the key.
+        buttonOutline = Color(0xFF646B87),
         buttonInk = Color(0xFFF1F1F4),
         buttonPressed = Color(0xFF646B87),
         accent = Color(0xFFEF8D3B),
