@@ -208,6 +208,19 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `a preview plays at the normal tempo, though a game left in danger had sped the music up`() {
+        // Given a game left while its stack was in danger: the music was asked to go a quarter faster
+        music.setTempoFactor(1.25)
+        val viewModel = homeViewModel()
+
+        // When
+        viewModel.onListen(MusicChoice.MINUET)
+
+        // Then
+        assertThat(music.tempo).isEqualTo(1.0)
+    }
+
+    @Test
     fun `listening again to the music being previewed stops it`() = runTest {
         // Given
         val viewModel = homeViewModel()
