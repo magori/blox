@@ -167,7 +167,9 @@ du Classique, qui doit rester vert (ADR 0015).
 - **Duplication** : refactoriser dès la deuxième occurrence (« règle de 2 »).
 - Style : `.editorconfig` (4 espaces, 120 colonnes, virgule finale autorisée en Kotlin).
 - Tests : noms en phrases (`` `a full line is cleared and rows above fall down` ``), structure
-  Given / When / Then, plateaux décrits en ASCII dans les tests quand c'est plus lisible :
+  Given / When / Then (en `src/androidTest`, la phrase va dans `@DisplayName` : le dex refuse
+  les espaces dans les noms de méthodes sous l'API 30), plateaux décrits en ASCII dans les tests
+  quand c'est plus lisible :
 
   ```kotlin
   val board = Board.parse(
@@ -192,7 +194,9 @@ La commande `/fin-de-tache` les déroule.
 1. **Tests verts.**
    `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
-   `./gradlew lintDebug assembleDebug` si un module Android a changé.
+   `./gradlew lintDebug assembleDebug` si un module Android a changé ; si une interface a
+   changé, `./gradlew validateDebugScreenshotTest` et, sur un émulateur ou un téléphone,
+   `./gradlew connectedDebugAndroidTest` (ni l'un ni l'autre ne tourne encore en CI).
    Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
    vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.
