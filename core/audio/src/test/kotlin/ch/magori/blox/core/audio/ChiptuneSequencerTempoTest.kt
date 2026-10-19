@@ -19,10 +19,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
 import kotlin.coroutines.CoroutineContext
@@ -50,28 +47,8 @@ class ChiptuneSequencerTempoTest {
     private val sinks = mutableListOf<FakeSink>()
     private val renderDispatcher = ManualDispatcher()
 
-    @ParameterizedTest(name = "a tempo factor of {0} is refused")
-    @ValueSource(doubles = [0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY])
-    fun `the tempo factor must be positive and finite`(factor: Double) = runTest {
-        // Given
-        val sequencer = sequencer()
-
-        // When / Then
-        assertThatIllegalArgumentException().isThrownBy { sequencer.setTempoFactor(factor) }
-    }
-
-    @ParameterizedTest(name = "a tempo factor of {0} prepared is refused")
-    @ValueSource(doubles = [0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY])
-    fun `the tempo factor prepared must be positive and finite`(factor: Double) = runTest {
-        // Given
-        val sequencer = sequencer()
-
-        // When / Then
-        assertThatIllegalArgumentException().isThrownBy { sequencer.prepareTempo(factor) }
-    }
-
     @Test
-    fun `a new play starts at the normal tempo, though the music played before was faster`() = runTest {
+    fun `a new play after a faster music starts from the start of the score at the normal tempo`() = runTest {
         // Given a score sped up to 2.0 (a game in danger), then stopped (the game over)
         val sequencer = sequencer()
         stoppedAtDoubleTempo(sequencer)
@@ -84,7 +61,7 @@ class ChiptuneSequencerTempoTest {
     }
 
     @Test
-    fun `a tempo factor set while nothing plays is not kept for the next play`() = runTest {
+    fun `a play after a tempo factor set while nothing plays renders only the normal tempo`() = runTest {
         // Given
         val sequencer = sequencer()
         sequencer.setTempoFactor(2.0)
@@ -116,7 +93,7 @@ class ChiptuneSequencerTempoTest {
         }
 
     @Test
-    fun `a new play forgets the tempos prepared before, as a preview prepares no other tempo`() = runTest {
+    fun `a new play after a game renders only the normal tempo, as a preview prepares no other tempo`() = runTest {
         // Given a score played by a game, its danger tempo prepared, then stopped
         val sequencer = sequencer()
         sequencer.play(score)

@@ -8,7 +8,8 @@ import ch.magori.blox.core.music.ScoreId
  * `tempo <factor>`), and keeps the identifier of the score [playing], the [tempo] it plays at and the
  * tempos [prepared]. As the real one, it plays one score at a time: stopping a playback that was replaced
  * leaves the new one playing; a new play starts at the normal tempo and forgets the tempos prepared, a
- * resume goes on at the tempo asked for, with the tempos prepared.
+ * resume goes on at the tempo asked for, with the tempos prepared; a tempo factor that is not positive and
+ * finite is refused. It keeps the contract of the real one (`MusicPlayerContract`).
  */
 class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
@@ -28,11 +29,13 @@ class FakeMusicPlayer : MusicPlayer {
     }
 
     override fun setTempoFactor(factor: Double) {
+        requireValidTempo(factor)
         calls += "tempo $factor"
         tempo = factor
     }
 
     override fun prepareTempo(factor: Double) {
+        requireValidTempo(factor)
         prepared = prepared + factor
     }
 
@@ -49,5 +52,9 @@ class FakeMusicPlayer : MusicPlayer {
                 return start(score)
             }
         }.also { current = it }
+    }
+
+    private fun requireValidTempo(factor: Double) {
+        require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
     }
 }

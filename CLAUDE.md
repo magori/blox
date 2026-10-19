@@ -139,7 +139,8 @@ lui-même.
   `java-test-fixtures` pour un module Kotlin pur, les testFixtures d'AGP pour une bibliothèque Android.
   Les autres modules les consomment avec `testImplementation(testFixtures(projects.core.data))`. Les
   faux dépôts de `core:data` passent le même contrat que les vrais (`HighScoreRepositoryContract`,
-  `UserPreferencesRepositoryContract`), et `MainDispatcherExtension` y est partagée.
+  `UserPreferencesRepositoryContract`), et `MainDispatcherExtension` y est partagée. De même, le faux
+  lecteur de `core:audio` passe le contrat du séquenceur (`MusicPlayerContract`).
 - Les modules Kotlin purs compilent avec `explicitApi()` strict : ce qui est `public` est un
   choix, pas un oubli.
 - **JUnit 5 partout**, tests unitaires et instrumentés (ADR 0009). Jamais de `junit:junit`

@@ -143,9 +143,10 @@ public class ChiptuneSequencer internal constructor(
         @Volatile
         var place: Place? = from
 
-        // Only while this loop is the one playing: a game left after the next one started stops nothing.
+        // Stops this loop only: a play or a resume cancels the loop it replaces, so the job of a playback
+        // replaced is cancelled already, and a game left after the next one started stops nothing.
         override fun stop() {
-            if (playing === job) job.cancel()
+            job.cancel()
         }
 
         override fun resume(): Playback = start(score, from = place)
