@@ -463,13 +463,14 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   - [x] **P4.22a** Stockage dans `core:data` : `ScoreId` scellé (intégré ou personnel),
     `SavedMusic`, dépôt `MusicLibrary` (enregistrer, renommer, supprimer et restaurer, musique
     des parties), règles de nom en une seule source, format `musics.bin` (ADR 0017), sauvegarde.
-  - [ ] **P4.22b** Jouer pendant les parties la musique choisie (`gameMusic`), à la place du
+  - [x] **P4.22b** Jouer pendant les parties la musique choisie (`gameMusic`), à la place du
     choix de l'accueil : source suspendue dans la fabrique de `GameViewModel`, construite dans
     `app`.
   - [ ] **P4.22c** Écran « Mes musiques » (V7, V10, V13, V16) : liste, écoute « mesure n sur 8 »,
     Utiliser / En jeu, menu « … », suppression avec confirmation et annulation, *Au hasard* et
     *Nouvelle*, navigation depuis l'accueil.
-  - [ ] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1).
+  - [ ] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1). Revue de P4.22b : choisir une autre musique à l'accueil (Aucune comprise) retire
+    la musique personnelle des parties (`setGameMusic(null)`), test de `HomeViewModel`.
 - [x] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
   (accès depuis V1), dans les quatre thèmes ; choix de la catégorie, fenêtre d'enregistrement.
 

@@ -279,7 +279,10 @@ ViewModel le traduit en `setTempoFactor()`.
 
 **Dans le jeu** (P4.11) : un seul lecteur (`MusicPlayer`, implémenté par `ChiptuneSequencer` sur
 `AudioTrackSink`) pour tout le processus, créé par l'`AppContainer`. Au début de la partie, la
-musique choisie à l'accueil est jouée au tempo normal (*Korobeïniki*, *Menuet* ; *Aucune* ne joue
+musique personnelle choisie pour les parties (« Mes musiques », P4.22b), lue une fois par
+partie, est jouée en priorité, même si l'accueil est sur *Aucune* : dans la maquette (V1), elle
+est un choix de l'accueil exclusif des autres. Sans elle, la musique choisie à l'accueil est
+jouée au tempo normal (*Korobeïniki*, *Menuet* ; *Aucune* ne joue
 rien ; *Mon fichier* ne joue rien en attendant P4.6), sauf si la partie est déjà en pause ou
 finie quand les préférences répondent. La pause (bouton, retour système, passage en
 arrière-plan) arrête la musique ; la reprise la fait **repartir où elle s'était arrêtée**
@@ -297,6 +300,13 @@ finie ou quittée en danger (fin de partie, Pause puis Menu). La reprise après 
 tempo en cours, × 1,25 si la pile est en danger.
 
 **Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
+`GameViewModelTest › at the start of the game the music of the player chosen for the games plays instead of the home screen's`,
+`GameViewModelTest › without a music of the player chosen for the games the music of the home screen plays`,
+`GameViewModelTest › the music of the player chosen for the games plays without waiting for the settings`,
+`GameViewModelTest › a game paused before the music of the player was read plays it, its danger tempo prepared, when it resumes`,
+`GameViewModelTest › a programming error while the music of the player chosen for the games is read is not swallowed`,
+`GameMusicScoreTest › without a music chosen for the games no score is read`,
+`GameMusicScoreTest › the score read is the one of the music chosen for the games`,
 `MusicTempoTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
 `GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
 `GameViewModelTest › with no music chosen nothing plays`,
