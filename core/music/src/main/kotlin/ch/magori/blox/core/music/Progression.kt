@@ -19,6 +19,19 @@ public data class Progression(public val numerals: List<RomanNumeral>) {
         return scale.chord(numerals[bar % numerals.size])
     }
 
+    /**
+     * The chords of [bar], counted from 0, in [scale], at the pace of [harmonicRhythm]: the progression moves on to its
+     * next chord every share of the bar, so that two chords a bar play beats 1 and 2, then beats 3 and 4.
+     */
+    internal fun chordsOfBar(
+        bar: Int,
+        scale: Scale,
+        harmonicRhythm: HarmonicRhythm,
+    ): List<Chord> {
+        val count = harmonicRhythm.chordsPerBar
+        return List(count) { chordAt(bar * count + it, scale) }
+    }
+
     public companion object {
         private val SEPARATORS = arrayOf("-", "–")
 

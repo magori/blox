@@ -85,4 +85,24 @@ class RhythmCellTest {
         // Given / When / Then
         assertThatCode { RhythmCell.parse("2 r2") }.doesNotThrowAnyException()
     }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = ["2 2", "1 1 2", "4", "2 r2", "1 1 1 r1", "1 r1 2"])
+    fun `a cell breathes when it ends on a long note, a half note at least, or on a silence`(steps: String) {
+        // When
+        val cell = RhythmCell.parse(steps)
+
+        // Then
+        assertThat(cell.breathes).isTrue()
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @ValueSource(strings = ["3 1", "2 1 1", "2 1.5 0.5", "r2 1 1"])
+    fun `a cell that ends on a note shorter than a half note does not breathe`(steps: String) {
+        // When
+        val cell = RhythmCell.parse(steps)
+
+        // Then
+        assertThat(cell.breathes).isFalse()
+    }
 }

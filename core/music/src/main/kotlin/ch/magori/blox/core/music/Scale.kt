@@ -57,6 +57,26 @@ public data class Scale(public val tonic: Pitch, public val type: ScaleType) {
         return Chord(Pitch(root.midi + numeral.accidental.semitones), numeral.quality)
     }
 
+    /**
+     * The triad that stacks two thirds of the scale on its fifth degree, for the half cadence: the major V of the major
+     * and harmonic minor scales, the minor v of the natural minor, dorian and mixolydian ones. Like the numerals, it
+     * counts the degrees of the major scale on the same tonic for a pentatonic scale. The fifth of that triad is
+     * perfect in every [ScaleType], so its third alone sets its quality.
+     */
+    internal fun fifthTriad(): Chord {
+        val harmony = Scale(tonic, type.harmony)
+        val root = harmony.degree(FIFTH)
+        val third = harmony.degree(FIFTH + 2).midi - root.midi
+        return Chord(root, if (third == MAJOR_THIRD) ChordQuality.MAJOR else ChordQuality.MINOR)
+    }
+
     /** Whether [pitch] is one of the degrees, in any octave. */
     public operator fun contains(pitch: Pitch): Boolean = pitch.semitonesAboveInOctave(tonic) in type.offsets
+
+    private companion object {
+        const val FIFTH = 5
+
+        /** Semitones in a major third. */
+        const val MAJOR_THIRD = 4
+    }
 }

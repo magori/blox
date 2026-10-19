@@ -37,6 +37,9 @@ public data class RhythmCell(public val steps: List<RhythmStep>) {
      */
     public val syncopations: Int get() = spans.count(Span::isSyncopation)
 
+    /** Whether the cell ends on a long note, a half note at least, or on a silence: a phrase ending on it breathes. */
+    internal val breathes: Boolean get() = steps.last().let { it.isRest || it.beats >= HALF_NOTE }
+
     /** A [step] struck at [onset] beats from the start of the bar. */
     private data class Span(val step: RhythmStep, val onset: Double) {
         private val end: Double get() = onset + step.beats
@@ -49,6 +52,9 @@ public data class RhythmCell(public val steps: List<RhythmStep>) {
 
     public companion object {
         private const val REST = "r"
+
+        /** The shortest note a phrase may end on to breathe, in beats. */
+        private const val HALF_NOTE = 2.0
 
         /** Strong beats 1 and 3, as times in beats from the start of the bar. */
         private val STRONG_BEATS = listOf(0.0, 2.0)
