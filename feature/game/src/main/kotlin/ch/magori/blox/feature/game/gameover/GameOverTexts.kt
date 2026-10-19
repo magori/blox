@@ -14,9 +14,9 @@ private const val SECONDS_PER_MINUTE = 60
 /** What the game over screen gets: the final values of the game, and whether they make a [newRecord]. */
 @Immutable
 internal data class GameOverUiState(
-    val score: Int,
-    val lines: Int,
-    val level: Int,
+    val score: Points,
+    val lines: Lines,
+    val level: Level,
     val fourLineClears: Int,
     val ticksPlayed: Int,
     val newRecord: Boolean,
@@ -46,14 +46,14 @@ internal data class GameOverTexts(
  * the raw values and the duration as a [DurationSpeech].
  */
 internal fun gameOverTexts(state: GameOverUiState): GameOverTexts = GameOverTexts(
-    score = scoreText(Points(state.score)),
-    lines = linesText(Lines(state.lines)),
-    level = levelText(Level(state.level)),
+    score = scoreText(state.score),
+    lines = linesText(state.lines),
+    level = levelText(state.level),
     fourLineClears = state.fourLineClears.toString(),
     duration = durationText(state.ticksPlayed),
-    spokenScore = state.score.toString(),
-    spokenLines = state.lines.toString(),
-    spokenLevel = state.level.toString(),
+    spokenScore = state.score.value.toString(),
+    spokenLines = state.lines.value.toString(),
+    spokenLevel = state.level.value.toString(),
     spokenFourLineClears = state.fourLineClears.toString(),
     spokenDuration = durationSpeech(durationParts(state.ticksPlayed)),
 )

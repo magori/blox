@@ -7,6 +7,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,11 +15,10 @@ class BackActionTest {
     private val playing = GameUiState(
         board = Board.empty(),
         piece = null,
-        next = PieceType.T,
+        next = nextPieceCells(PieceType.T, ClassicRotationSystem),
         level = Level(0),
         lines = Lines(0),
         score = Points(0),
-        rotationSystem = ClassicRotationSystem,
     )
 
     @Test
@@ -35,9 +35,9 @@ class BackActionTest {
     fun `once the game is over the system back leaves the game, as Menu does`() {
         // Given a game over, even one paused when it ended
         val over = GameOverUiState(
-            score = 0,
-            lines = 0,
-            level = 0,
+            score = Points(0),
+            lines = Lines(0),
+            level = Level(0),
             fourLineClears = 0,
             ticksPlayed = 0,
             newRecord = false,

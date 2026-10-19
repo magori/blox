@@ -14,7 +14,11 @@ public interface RotationSystem {
      */
     public fun orientations(type: PieceType): List<Orientation>
 
-    /** The orientation [type] spawns in; it is one of [orientations]. */
+    /**
+     * The orientation [type] spawns in; it is one of [orientations]. It depends on [type] alone: the same
+     * orientation for the same type, however often and whenever it is asked. The engine asks it when a
+     * piece spawns, the screen to draw the pieces to come.
+     */
     public fun spawnOrientation(type: PieceType): Orientation
 
     /**

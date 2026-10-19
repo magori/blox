@@ -25,7 +25,7 @@ class NextPieceCellsTest {
         type: PieceType,
         drawing: String,
     ) {
-        assertThat(nextPieceCells(type, ClassicRotationSystem)).isEqualTo(cellsDrawn(drawing))
+        assertThat(nextPieceCells(type, ClassicRotationSystem)).isEqualTo(cellsDrawn(type, drawing))
     }
 
     @Test
@@ -35,15 +35,21 @@ class NextPieceCellsTest {
                 ClassicRotationSystem.orientations(PieceType.I).first()
         }
 
-        assertThat(nextPieceCells(PieceType.I, verticalI)).isEqualTo(cellsDrawn("I|I|I|I"))
+        assertThat(nextPieceCells(PieceType.I, verticalI)).isEqualTo(cellsDrawn(PieceType.I, "I|I|I|I"))
     }
 
-    /** The cells drawn in [drawing], rows separated by `|`: `.` for an empty cell, a letter for a cell of the piece. */
-    private fun cellsDrawn(drawing: String): NextPieceCells {
+    /**
+     * The cells of a piece of [type] drawn in [drawing], rows separated by `|`: `.` for an empty cell, a
+     * letter for a cell of the piece.
+     */
+    private fun cellsDrawn(
+        type: PieceType,
+        drawing: String,
+    ): NextPieceCells {
         val rows = drawing.split('|')
         val cells = rows.flatMapIndexed { row, line ->
             line.mapIndexedNotNull { column, symbol -> Position(column, row).takeIf { symbol != '.' } }
         }.toSet()
-        return NextPieceCells(cells, columns = rows.first().length, rows = rows.size)
+        return NextPieceCells(type, cells, columns = rows.first().length, rows = rows.size)
     }
 }

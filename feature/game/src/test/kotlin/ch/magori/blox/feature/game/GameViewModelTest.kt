@@ -37,6 +37,8 @@ import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.sidepanel.NextPieceCells
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
@@ -81,16 +83,16 @@ class GameViewModelTest {
     @Test
     fun `while full rows are cleared the screen shows the locked board and no piece`() {
         // Given three pieces that fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9
-        val rowFiller = SpawnInTurn(
-            Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
-            Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
-            Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
+        val rowFiller = SpawnAs(
+            PieceType.I to Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
+            PieceType.J to Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
+            PieceType.O to Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
         )
         val factory = GameEngineFactory {
             GameEngine(
                 ClassicRules.copy(rotationSystem = rowFiller, gravityTable = oneTickPerRow),
                 // The three pieces, plus the next one shown while the third falls.
-                ScriptedRandomizer(PieceType.I, PieceType.I, PieceType.O, PieceType.I),
+                ScriptedRandomizer(PieceType.I, PieceType.J, PieceType.O, PieceType.I),
             )
         }
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
@@ -109,7 +111,7 @@ class GameViewModelTest {
             Board.parse(
                 """
                 ........OO
-                IIIIIIIIOO
+                IIIIJJJJOO
                 """,
             ),
         )
@@ -127,11 +129,10 @@ class GameViewModelTest {
             GameUiState(
                 board = Board.empty(),
                 piece = spawnedT,
-                next = PieceType.I,
+                next = nextPieceCells(PieceType.I, ClassicRotationSystem),
                 level = Level(5),
                 lines = Lines(0),
                 score = Points(0),
-                rotationSystem = ClassicRotationSystem,
                 record = 100,
             ),
         )
@@ -231,9 +232,9 @@ class GameViewModelTest {
         assertThat(highScores.submitted).containsExactly(final.progress.score.value)
         assertThat(viewModel.uiState.value.gameOver).isEqualTo(
             GameOverUiState(
-                score = final.progress.score.value,
-                lines = final.progress.lines.value,
-                level = final.progress.level.value,
+                score = final.progress.score,
+                lines = final.progress.lines,
+                level = final.progress.level,
                 fourLineClears = final.progress.statistics.fourLineClears,
                 ticksPlayed = final.tickCount,
                 newRecord = true,
@@ -332,22 +333,48 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `the screen draws with the rotation system of the rules of the engine`() {
-        // Given an engine whose rules have their own rotation system
-        val ownRotationSystem = SpawnInTurn(ClassicRotationSystem.spawnOrientation(PieceType.T))
+    fun `the screen gets the cells of the next piece in its spawn orientation`() {
+        // Given an engine whose rules spawn the I upright, unlike the classic rules
+        val uprightI = SpawnAs(
+            PieceType.T to ClassicRotationSystem.spawnOrientation(PieceType.T),
+            PieceType.I to ClassicRotationSystem.orientations(PieceType.I).first(),
+        )
         val factory = GameEngineFactory {
             GameEngine(
-                ClassicRules.copy(rotationSystem = ownRotationSystem),
+                ClassicRules.copy(rotationSystem = uprightI),
                 // The piece that appears, and the next one shown.
-                ScriptedRandomizer(PieceType.T, PieceType.T),
+                ScriptedRandomizer(PieceType.T, PieceType.I),
             )
         }
 
         // When
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
 
-        // Then
-        assertThat(viewModel.uiState.value.rotationSystem).isSameAs(ownRotationSystem)
+        // Then the next I is drawn upright, its cells brought to the origin
+        assertThat(viewModel.uiState.value.next).isEqualTo(
+            NextPieceCells(
+                type = PieceType.I,
+                cells = (0..3).map { row -> Position(column = 0, row = row) }.toSet(),
+                columns = 1,
+                rows = 4,
+            ),
+        )
+    }
+
+    @Test
+    fun `the next piece shown is the same instance from one frame to the next while it does not change`() {
+        // Given a game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+        val before = viewModel.uiState.value
+
+        // When the next frame moves the piece down, the next piece staying the same
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then the screen state changed, but not the next piece: it was not computed again
+        val after = viewModel.uiState.value
+        assertThat(after.piece).isNotEqualTo(before.piece)
+        assertThat(after.next).isSameAs(before.next)
     }
 
     @Test
@@ -583,18 +610,30 @@ class GameViewModelTest {
 
     @Test
     fun `when the stack leaves the danger the music goes back to its tempo`() {
-        // Given upright I pieces: four in column 0 make the stack 16 high (danger), then one in each of
-        // columns 1 to 9 fills the four bottom rows, which are cleared: the stack falls to 12 (no danger)
+        // Given four upright I in column 0, which make the stack 16 high (danger), then four flat J in columns 1
+        // to 4, four flat L in columns 5 to 8 and an upright O in column 9, which fill the four bottom rows,
+        // cleared: the stack falls to 12 (no danger)
         fun upright(column: Int) = Orientation((0..3).map { row -> Position(column - 5, row) }.toSet())
-        val columns = listOf(0, 0, 0, 0) + (1..9)
+        fun flat(firstColumn: Int) = Orientation((firstColumn..firstColumn + 3).map { Position(it - 5, 0) }.toSet())
         val factory = GameEngineFactory {
             GameEngine(
                 ClassicRules.copy(
-                    rotationSystem = SpawnInTurn(*columns.map(::upright).toTypedArray()),
+                    rotationSystem = SpawnAs(
+                        PieceType.I to upright(0),
+                        PieceType.J to flat(1),
+                        PieceType.L to flat(5),
+                        PieceType.O to upright(9),
+                    ),
                     gravityTable = oneTickPerRow,
                 ),
-                // One I per column, plus the next piece shown while the last one falls.
-                ScriptedRandomizer(*Array(columns.size + 1) { PieceType.I }),
+                // The pieces, plus the next one shown while the last one falls.
+                ScriptedRandomizer(
+                    *Array(4) { PieceType.I },
+                    *Array(4) { PieceType.J },
+                    *Array(4) { PieceType.L },
+                    PieceType.O,
+                    PieceType.I,
+                ),
             )
         }
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), factory)
@@ -946,14 +985,17 @@ class GameViewModelTest {
         .firstOrNull { done() }
         ?: error("Not done within $MAX_TICKS frames: $what")
 
-    /** A rotation system for tests: each piece appears in the next of [orientations], in turn. */
-    private class SpawnInTurn(vararg orientations: Orientation) : RotationSystem {
-        private val spawns = orientations.toList()
-        private var spawned = 0
+    /**
+     * A rotation system for tests: each type of [spawns] appears in its own orientation, the others in their classic
+     * one, and none turns. It answers the same however often it is asked, for every type, as the contract says.
+     */
+    private class SpawnAs(vararg spawns: Pair<PieceType, Orientation>) : RotationSystem {
+        private val spawns = spawns.toMap()
 
-        override fun orientations(type: PieceType): List<Orientation> = spawns
+        override fun orientations(type: PieceType): List<Orientation> = listOf(spawnOrientation(type))
 
-        override fun spawnOrientation(type: PieceType): Orientation = spawns[spawned++ % spawns.size]
+        override fun spawnOrientation(type: PieceType): Orientation =
+            spawns[type] ?: ClassicRotationSystem.spawnOrientation(type)
 
         override fun candidates(
             piece: Piece,
