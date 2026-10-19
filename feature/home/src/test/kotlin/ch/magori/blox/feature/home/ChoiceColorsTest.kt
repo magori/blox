@@ -53,6 +53,21 @@ internal class ChoiceColorsTest {
         assertThat(selected.frame).isEqualTo(selected.background)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("themes")
+    fun `a selected choice is checked in the ink of its label, an unselected one is not checked`(
+        theme: String,
+        palette: BloxPalette,
+    ) {
+        // When
+        val selected = choiceColors(palette, selected = true)
+        val unselected = choiceColors(palette, selected = false)
+
+        // Then a cue other than colour (WCAG 2.1, 1.4.1), as legible as the label on its background
+        assertThat(selected.check).isEqualTo(palette.accentInk)
+        assertThat(unselected.check).isNull()
+    }
+
     companion object {
         @JvmStatic
         fun themes(): List<Arguments> = namedPalettes.map { (theme, palette) -> Arguments.of(theme, palette) }

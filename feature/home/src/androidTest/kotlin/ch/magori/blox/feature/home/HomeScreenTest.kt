@@ -5,13 +5,17 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertAll
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -58,6 +62,30 @@ internal class HomeScreenTest {
         onNodeWithText("5").assertIsSelected()
         onNodeWithText("4").assertIsNotSelected()
         onNodeWithText("Menuet").assertIsSelected()
+    }
+
+    @Test
+    @DisplayName("each selected choice bears a check, the others none, and TalkBack does not read it")
+    fun eachSelectedChoiceBearsACheckThatTalkBackDoesNotRead() = extension.use {
+        // Given « Classique », « Couleurs », 5 and the music of the player for the games, which has a description
+        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
+
+        // Then a cue other than colour (WCAG 2.1, 1.4.1), in the selected choices only
+        val checks = onAllNodes(hasTestTag(CHOICE_CHECK_TAG), useUnmergedTree = true)
+        assertThat(checks.fetchSemanticsNodes()).hasSize(4)
+        onAllNodes(hasTestTag(CHOICE_CHECK_TAG) and hasParent(isSelected()), useUnmergedTree = true)
+            .assertCountEquals(4)
+        // And decorative: TalkBack already says « sélectionné », it reads nothing more
+        checks.assertAll(
+            SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription) and
+                SemanticsMatcher.keyNotDefined(SemanticsProperties.Text),
+        )
+        // nor adds anything to the description of a selected choice
+        onNodeWithContentDescription("Thème du soir, en jeu")
+            .assertIsSelected()
+            .assert(
+                SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Thème du soir, en jeu")),
+            )
     }
 
     @Test
