@@ -54,6 +54,7 @@ class GameViewModel internal constructor(
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
     private val scoreOf: (MusicChoice) -> Score?,
+    private val gameMusic: suspend () -> Score?,
     savedState: SavedStateHandle,
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
@@ -104,12 +105,14 @@ class GameViewModel internal constructor(
         viewModelScope.launch {
             highScores.highScore.collect { record -> state.update { it.copy(record = record) } }
         }
-        // The music chosen on the home screen, at the normal tempo, as every new play of the player. Unreadable
-        // settings give the defaults (the contract of the repository).
+        // The music of the player chosen for the games (« Mes musiques »), which plays instead of the one chosen on the
+        // home screen, even when that one is none; the settings are read only without it. At the normal tempo, as every
+        // new play of the player. Unreadable musics give none, unreadable settings the defaults (the contracts of the
+        // repositories).
         viewModelScope.launch {
-            val choice = preferences.preferences.first().music
-            score = scoreOf(choice)
-            // The settings may answer once the game is paused or over: the music then waits, or never comes.
+            score = gameMusic() ?: scoreOf(preferences.preferences.first().music)
+            // The musics or the settings may answer once the game is paused or over: the music then waits, or never
+            // comes.
             if (gameState.isUnderWay) play(playMusic())
         }
     }
@@ -247,7 +250,9 @@ class GameViewModel internal constructor(
     /**
      * Builds the view model of a game. The feature defines it, `app` builds it; the route comes in the
      * [CreationExtras] under [RouteKey], since only the navigation entry knows it (ADR 0013). [scoreOf]
-     * gives the score of a music choice, null for none; `app` defines it, for the home screen too.
+     * gives the score of a music choice, null for none; `app` defines it, for the home screen too. [gameMusic] reads
+     * the score of the music of the player chosen for the games, null for none; `app` reads it from its musics, under
+     * the contract of `MusicLibrary.gameMusic`: never an [IOException], unreadable musics give none.
      */
     class Factory(
         private val engineFactory: GameEngineFactory,
@@ -255,6 +260,7 @@ class GameViewModel internal constructor(
         private val preferences: UserPreferencesRepository,
         private val music: MusicPlayer,
         private val scoreOf: (MusicChoice) -> Score?,
+        private val gameMusic: suspend () -> Score?,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
@@ -265,7 +271,16 @@ class GameViewModel internal constructor(
             // after the process died, with the mark that the game had started.
             val savedState = extras.createSavedStateHandle()
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(engineFactory, route, highScores, preferences, music, scoreOf, savedState) as T
+            return GameViewModel(
+                engineFactory,
+                route,
+                highScores,
+                preferences,
+                music,
+                scoreOf,
+                gameMusic,
+                savedState,
+            ) as T
         }
     }
 

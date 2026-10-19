@@ -22,6 +22,7 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.scoreOf
 import ch.magori.blox.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
@@ -58,7 +59,8 @@ class AppContainer(context: Context) {
     /**
      * The musics of the player, « Mes musiques », in `files/datastore/musics.bin`, and the one played during the
      * games.
-     * Built here, once for the process; the screens that list and edit them (P4.19, P4.22) will receive it.
+     * Built here, once for the process; the games read the music chosen for them from it, and the screens that list
+     * and edit them (P4.19, P4.22) will receive it.
      */
     val musicLibrary: MusicLibrary = DataStoreMusicLibrary(dataScope) { dataStoreFile(filesDir, MUSICS_FILE) }
 
@@ -82,9 +84,18 @@ class AppContainer(context: Context) {
         focus = SystemAudioFocus(context),
     )
 
-    /** Classic mode: one engine per game, from the seed of the game route (ADR 0014); the chosen music. */
-    val gameViewModelFactory: GameViewModel.Factory =
-        GameViewModel.Factory(ClassicGameEngineFactory, highScores, userPreferences, music, ::scoreOf)
+    /**
+     * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for
+     * the games, else the one chosen on the home screen.
+     */
+    val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(
+        ClassicGameEngineFactory,
+        highScores,
+        userPreferences,
+        music,
+        ::scoreOf,
+        musicLibrary::gameMusicScore,
+    )
 
     /**
      * The settings and the record kept on the device; the start levels of the Classic mode; the music
