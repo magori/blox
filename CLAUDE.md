@@ -85,11 +85,28 @@ Un seul test ou une seule classe :
 La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-tracabilite.sh` et
 `wrapper-validation` (avant même l'installation du JDK), `ktlintCheck` (projet et `build-logic`),
 `buildHealth`, tests du domaine, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease` (R8 et
-`lintVitalRelease`), `assembleDebugAndroidTest` (compilation seule, pas d'émulateur). Ce qui passe
-localement avec ces neuf commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
+`lintVitalRelease`), `assembleDebugAndroidTest` et `compileDebugScreenshotTestKotlin` (compilation
+seule des tests instrumentés et des tests de captures, pas d'émulateur). Ce qui passe
+localement avec ces commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
 comme artefact `rapports`. Les actions sont épinglées par SHA (tag en commentaire, tenus à jour par
 Dependabot `github-actions`) et le jeton est en lecture seule ; un second job, sur `push` vers
 `main` seulement, soumet le graphe des dépendances Gradle (`contents: write`).
+
+**Zéro avertissement** (P5.25, `build-logic`) : un avertissement fait échouer le build.
+- Kotlin : `allWarningsAsErrors` partout, production et tests (`KotlinConfiguration.kt`). Les tests
+  unitaires Android consentent à `ExperimentalCoroutinesApi` (`runCurrent`, `setMain`…) par la
+  convention : pas d'`@OptIn` local pour ça. Un avertissement assumé se tait au plus près, par
+  `@Suppress("…")` avec sa raison.
+- Une PR Dependabot qui casse sur une nouvelle dépréciation : 1. corriger l'appel ; 2. sinon,
+  `@Suppress("DEPRECATION")` au plus près, avec sa raison ; 3. en dernier recours, un assouplissement
+  ciblé et temporaire dans `build-logic`, `-Xwarning-level=<NOM>:warning` (préférable à
+  `-Xsuppress-warning`, qui masque tout à fait), avec une tâche dans `SUIVI.md` pour le retirer.
+- Lint : `warningsAsErrors` dans tous les modules Android (`LintConfiguration.kt`). Un avertissement
+  assumé se traite à la source (`tools:ignore`, `@Suppress`, `lint.xml` du module) avec sa raison ;
+  sinon dans la base `lint-baseline.xml` du module (seul `app` en a une, pour `OldTargetApi`), dont la
+  raison est aussi écrite dans `LintConfiguration.kt`, car `updateLintBaseline` efface les commentaires.
+  `GradleDependency`, `NewerVersionAvailable` et `AndroidGradlePluginVersion` sont désactivées :
+  Dependabot propose les montées, et ces règles feraient échouer `main` à chaque nouvelle version.
 
 ## Architecture
 

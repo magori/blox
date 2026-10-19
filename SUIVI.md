@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 83 / 143 | `████████████░░░░░░░░` **58 %** |
+| **Général** | 84 / 143 | `████████████░░░░░░░░` **59 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -527,7 +527,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
   cas d'échec, `permissions: contents: read`, actions épinglées par SHA, soumission du graphe de
   dépendances sur `main` (C1, C7, C9).
-- [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
+- [x] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
   avertissements Kotlin en erreurs, lint en erreurs avec une base des avertissements assumés,
   chacun avec sa raison (C8).
 - [x] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
