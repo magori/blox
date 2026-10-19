@@ -37,6 +37,9 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.semantics.isTraversalGroup
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
@@ -299,7 +302,7 @@ private fun Play(
         BoardCanvas(
             board = { uiState().board },
             piece = { uiState().piece },
-            modifier = Modifier.placedAt(layout.board),
+            modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
         )
         val nextPiece = layout.nextPiece
         if (nextPiece == null) {
@@ -309,36 +312,37 @@ private fun Play(
                 lines = side.lines,
                 next = side.next,
                 cellSize = layout.cellSize,
-                modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
+                modifier = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll),
             )
         } else {
             ScorePanels(
                 score = side.score,
                 level = side.level,
                 lines = side.lines,
-                modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
+                modifier = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll),
             )
             NextPiecePanel(
                 next = side.next,
                 cellSize = layout.cellSize,
-                modifier = Modifier.placedAt(nextPiece).wrapContentHeight(Alignment.Top),
+                modifier = Modifier.placedAt(nextPiece, ReadingOrder.NEXT).wrapContentHeight(Alignment.Top),
             )
         }
-        DirectionPad(controls = controls, modifier = Modifier.placedAt(layout.directions))
-        RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations))
+        DirectionPad(controls = controls, modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS))
+        RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS))
     }
 }
 
 /**
  * Each part of [content] exactly in the rectangle its [placedAt] gives, in pixels of this space: the
- * part takes the size of the rectangle, and is placed at its position.
+ * part takes the size of the rectangle, and is placed at its position. TalkBack reads the parts in
+ * their [ReadingOrder].
  */
 @Composable
 private fun PlacedParts(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    Layout(content = content, modifier = modifier) { measurables, constraints ->
+    Layout(content = content, modifier = modifier.semantics { isTraversalGroup = true }) { measurables, constraints ->
         val parts = measurables.map { measurable ->
             val rect = measurable.layoutId as Rect
             val left = rect.left.roundToInt()
@@ -353,8 +357,33 @@ private fun PlacedParts(
     }
 }
 
-/** Where [PlacedParts] puts this part: [rect], in pixels of its space. */
-private fun Modifier.placedAt(rect: Rect): Modifier = layoutId(rect)
+/**
+ * The order in which TalkBack reads the parts of the game, whatever their place: in landscape the arrows
+ * are on the left, beside the score, and by their place alone they would be read first.
+ */
+private enum class ReadingOrder {
+    BOARD,
+    SCORES,
+    NEXT,
+    DIRECTIONS,
+    ROTATIONS,
+    ;
+
+    /** From 1: the parts left at the default index, 0, would come first. */
+    val index: Float get() = ordinal + 1f
+}
+
+/**
+ * Where [PlacedParts] puts this part: [rect], in pixels of its space. TalkBack reads it as a whole, at its
+ * place in [order].
+ */
+private fun Modifier.placedAt(
+    rect: Rect,
+    order: ReadingOrder,
+): Modifier = layoutId(rect).semantics {
+    isTraversalGroup = true
+    traversalIndex = order.index
+}
 
 /** A game under way, for the previews: a stack, a T falling, an I next, a record. */
 private val previewState = GameUiState(

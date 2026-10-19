@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
@@ -39,7 +39,7 @@ internal fun ListenButton(
     TextButton(
         onClick = onClick,
         modifier = modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = BloxSizes.minTouchTarget)
             .semantics { contentDescription = description },
     ) {
         Text(

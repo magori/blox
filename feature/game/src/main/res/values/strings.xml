@@ -45,4 +45,11 @@
     <string name="feature_game_top_title">Mode classique</string>
     <string name="feature_game_top_pause">Mettre en pause</string>
     <string name="feature_game_top_record">Record</string>
+    <!-- Plateau, lu par TalkBack (P5.3) : la hauteur de la pile en rangées (pas « lignes », le compteur de lignes effacées), qui ne change qu'au verrouillage ou à l'effacement. -->
+    <string name="feature_game_board_empty">Plateau : vide</string>
+    <plurals name="feature_game_board_stack">
+        <item quantity="one">Plateau : pile de %1$d rangée sur %2$d</item>
+        <item quantity="many">Plateau : pile de %1$d rangées sur %2$d</item>
+        <item quantity="other">Plateau : pile de %1$d rangées sur %2$d</item>
+    </plurals>
 </resources>

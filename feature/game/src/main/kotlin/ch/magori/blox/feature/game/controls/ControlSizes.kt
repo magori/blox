@@ -1,16 +1,16 @@
 package ch.magori.blox.feature.game.controls
 
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 
 /**
  * The sizes of the controls, in one place: 3 × 52 + 2 × 8 for ◀ ▼ ▶, 2 × 56 + 8 for B and A, which
  * fit a 360 dp wide phone inside its 24 dp margins (312 dp). Every button is at least
- * [ScreenSizes.minTouchTarget], the accessibility minimum.
+ * [BloxSizes.minTouchTarget], the accessibility minimum.
  */
 internal object ControlSizes {
-    val directionButton = ScreenSizes.minTouchTarget + 4.dp
-    val rotationButton = ScreenSizes.minTouchTarget + 8.dp
+    val directionButton = BloxSizes.minTouchTarget + 4.dp
+    val rotationButton = BloxSizes.minTouchTarget + 8.dp
     val spacing = 8.dp
 
     /** B sits lower than A, as on a handheld console; ◀ ▼ ▶ half as low. */
