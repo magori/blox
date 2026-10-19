@@ -146,8 +146,8 @@ internal fun HomeScreen(
                         val name = stringResource(music.label)
                         val selected = music == uiState.selectedMusic
                         Choice(text = name, selected = selected, onClick = { onMusicChosen(music) })
-                        // Beside it, « Mon fichier » with a file offers to change that file.
-                        Row {
+                        // Beside it, or under it when short of room, « Mon fichier » with a file offers to change it.
+                        ChoiceActions {
                             if (music in uiState.listenable) {
                                 ListenButton(
                                     musicName = name,
@@ -240,6 +240,16 @@ private fun ChoiceRow(content: @Composable () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) { content() }
+}
+
+/**
+ * The actions under a choice, side by side, or one under the other when they do not fit (a large font): a label is
+ * never cut in the middle of a word.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ChoiceActions(content: @Composable () -> Unit) {
+    FlowRow(horizontalArrangement = Arrangement.Center) { content() }
 }
 
 /**

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 108 / 157 | `██████████████░░░░░░` **69 %** |
+| **Général** | 109 / 157 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 22 / 27 | `████████████████░░░░` **81 %** |
 <!-- avancement:fin -->
 
@@ -609,7 +609,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
-- [ ] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
+- [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
   trois lignes (captures de P4.22d) : la faire tenir (libellé, mise en page ou retour à la ligne).
 
 ## P6 — Mode Moderne (plus tard)
