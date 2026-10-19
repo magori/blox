@@ -9,6 +9,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.composer.navigation.ComposerRoute
+import ch.magori.blox.feature.composer.navigation.composerEntry
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
@@ -26,6 +29,7 @@ import ch.magori.blox.feature.home.navigation.homeEntry
 fun BloxNavDisplay(
     homeViewModelFactory: HomeViewModel.Factory,
     gameViewModelFactory: GameViewModel.Factory,
+    composerViewModelFactory: ComposerViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
 ) {
@@ -43,6 +47,8 @@ fun BloxNavDisplay(
         entryProvider = entryProvider {
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
+                // Point d'entrée de l'éditeur, une musique neuve (V1) ; « Mes musiques » viendra avec P4.22.
+                onCompose = { backStack.add(ComposerRoute) },
                 viewModelFactory = homeViewModelFactory,
             )
             gameEntry(
@@ -50,6 +56,7 @@ fun BloxNavDisplay(
                 onReplay = { finished -> replay(backStack, finished) },
                 viewModelFactory = gameViewModelFactory,
             )
+            composerEntry(onBack = goBack, viewModelFactory = composerViewModelFactory)
         },
     )
 }

@@ -4,6 +4,7 @@ import androidx.benchmark.macro.MacrobenchmarkScope
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.BySelector
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.StaleObjectException
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -35,10 +36,32 @@ internal fun MacrobenchmarkScope.launchFromHomeScreen() {
     startActivityAndWait()
 }
 
-/** Depuis l'accueil de BloX, lance une partie et attend l'écran de jeu. */
+/**
+ * Depuis l'accueil de BloX, lance une partie et attend l'écran de jeu. « Jouer » est le dernier élément de l'accueil,
+ * qui défile : sur un petit écran, il est sous le bord, et l'accueil défile d'abord jusqu'en bas.
+ */
 internal fun MacrobenchmarkScope.startGame() {
+    device.scrollHomeToPlay()
     device.clickWhenReady(By.res(PLAY))
     device.awaitObject(By.res(PAUSE))
+}
+
+/**
+ * Attend l'accueil, puis le fait défiler jusqu'en bas s'il défile : « Jouer » est alors visible. Un accueil qui tient
+ * dans l'écran ne défile pas, et « Jouer » y est déjà visible.
+ */
+private fun UiDevice.scrollHomeToPlay() {
+    val start = TimeSource.Monotonic.markNow()
+    while (true) {
+        val home = findObject(By.scrollable(true))
+        if (home != null) {
+            home.scrollUntil(Direction.DOWN, Until.scrollFinished(Direction.DOWN))
+            return
+        }
+        if (hasObject(By.res(PLAY))) return
+        check(start.elapsedNow() < UI_TIMEOUT) { "Accueil introuvable après $UI_TIMEOUT" }
+        Thread.sleep(POLL_INTERVAL.inWholeMilliseconds)
+    }
 }
 
 /**
@@ -106,3 +129,6 @@ private val COMMANDS = listOf(
 
 private val COMMAND_INTERVAL = 250.milliseconds
 private val UI_TIMEOUT = 5.seconds
+
+/** Entre deux recherches de l'accueil, le temps qu'il s'affiche. */
+private val POLL_INTERVAL = 100.milliseconds

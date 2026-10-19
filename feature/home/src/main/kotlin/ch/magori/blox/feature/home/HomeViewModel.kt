@@ -181,6 +181,9 @@ class HomeViewModel(
     /** The player starts a game: the music being listened to stops, the game plays its own. */
     internal fun onPlay() = stopPreview()
 
+    /** The player opens the music editor: the music being listened to stops, the editor plays its own. */
+    internal fun onCompose() = stopPreview()
+
     /**
      * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
      * the background, or a game in front), the music being listened to stops. A pause alone, behind a

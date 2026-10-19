@@ -92,18 +92,5 @@ dependencyAnalysis {
         project(":benchmark") {
             onUsedTransitiveDependencies { exclude("junit:junit") }
         }
-        // L'éditeur de musique n'a encore que son modèle, sans écran ni navigation (première tranche de
-        // P4.19) : les bibliothèques que pose le plugin de feature n'y servent pas encore. À retirer avec
-        // l'écran de l'éditeur.
-        project(":feature:composer") {
-            onUnusedDependencies {
-                exclude(
-                    libs.androidx.navigation3.runtime,
-                    libs.kotlinx.serialization.core,
-                    libs.androidx.lifecycle.runtime.compose,
-                )
-                exclude(":core:designsystem")
-            }
-        }
     }
 }
