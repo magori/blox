@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 85 / 143 | `████████████░░░░░░░░` **59 %** |
+| **Général** | 86 / 143 | `████████████░░░░░░░░` **60 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -521,7 +521,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `GameUiState` et du ViewModel (B4, B5, B7).
 - [x] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
   `IOException` absorbée, même traitement à l'accueil et en jeu (B6).
-- [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
+- [x] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans
   `RotationSystem` dans `GameUiState` (B8, B11).
 - [x] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en

@@ -18,12 +18,14 @@ import ch.magori.blox.core.game.engine.GameState
 import ch.magori.blox.core.game.engine.Input
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -55,8 +57,11 @@ class GameViewModel internal constructor(
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
 
-    /** The rotation system of the rules of the engine, which the screen draws the pieces with. */
-    private val rotationSystem = engine.rules.rotationSystem
+    /**
+     * The cells of the next piece shown, for each type, in the spawn orientation of the rules of the engine:
+     * computed once, so that a frame neither computes them again nor hands the screen a new instance.
+     */
+    private val nextPieces = PieceType.entries.associateWith { nextPieceCells(it, engine.rules.rotationSystem) }
     private val loop = GameLoop()
 
     /**
@@ -68,7 +73,7 @@ class GameViewModel internal constructor(
     private var gameState: GameState = engine.start(Level(route.startLevel)).state.let { started ->
         if (savedState.contains(STARTED_KEY)) engine.apply(started, Input.Pause).state else started
     }
-    private val state = MutableStateFlow(gameState.toUiState(rotationSystem))
+    private val state = MutableStateFlow(gameState.toUiState(nextPieces::getValue))
 
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
 
@@ -154,7 +159,7 @@ class GameViewModel internal constructor(
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
     private fun publish() {
-        state.update { gameState.toUiState(rotationSystem).copy(record = it.record, gameOver = it.gameOver) }
+        state.update { gameState.toUiState(nextPieces::getValue).copy(record = it.record, gameOver = it.gameOver) }
     }
 
     /**

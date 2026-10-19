@@ -48,7 +48,6 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
-import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
@@ -56,9 +55,11 @@ import ch.magori.blox.feature.game.controls.RotationPad
 import ch.magori.blox.feature.game.controls.rememberControlFingers
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
+import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 import ch.magori.blox.feature.game.sidepanel.NextPiecePanel
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import ch.magori.blox.feature.game.topbar.GameTopBar
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest
@@ -209,15 +210,9 @@ private fun Game(
 
 /** What the side column shows: it changes when a piece locks, not when it moves. */
 @Immutable
-private data class SideColumn(
-    val score: Points,
-    val level: Level,
-    val lines: Lines,
-    val next: PieceType,
-    val rotationSystem: RotationSystem,
-)
+private data class SideColumn(val score: Points, val level: Level, val lines: Lines, val next: NextPieceCells)
 
-private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, rotationSystem)
+private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next)
 
 /**
  * The board, the side column and the controls, each where [layout] puts it. The score column scrolls
@@ -247,7 +242,6 @@ private fun Play(
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
-                rotationSystem = side.rotationSystem,
                 cellSize = layout.cellSize,
                 modifier = Modifier.placedAt(layout.sidePanel).verticalScroll(scoreScroll),
             )
@@ -260,7 +254,6 @@ private fun Play(
             )
             NextPiecePanel(
                 next = side.next,
-                rotationSystem = side.rotationSystem,
                 cellSize = layout.cellSize,
                 modifier = Modifier.placedAt(nextPiece).wrapContentHeight(Alignment.Top),
             )
@@ -308,11 +301,10 @@ private val previewState = GameUiState(
         """,
     ),
     piece = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(column = 4, row = 6)),
-    next = PieceType.I,
+    next = nextPieceCells(PieceType.I, ClassicRotationSystem),
     level = Level(5),
     lines = Lines(52),
     score = Points(12_340),
-    rotationSystem = ClassicRotationSystem,
     record = 98_760,
 )
 

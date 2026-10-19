@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Lines
+import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.PanelSizes
@@ -147,9 +150,9 @@ private fun spokenDuration(speech: DurationSpeech): String {
 }
 
 private val previewState = GameOverUiState(
-    score = 123_450,
-    lines = 87,
-    level = 8,
+    score = Points(123_450),
+    lines = Lines(87),
+    level = Level(8),
     fourLineClears = 3,
     ticksPlayed = 45_300,
     newRecord = false,

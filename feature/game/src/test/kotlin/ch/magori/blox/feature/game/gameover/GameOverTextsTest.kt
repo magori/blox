@@ -1,5 +1,8 @@
 package ch.magori.blox.feature.game.gameover
 
+import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.Lines
+import ch.magori.blox.core.game.model.Points
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -85,9 +88,9 @@ class GameOverTextsTest {
         ticksPlayed: Int = 0,
     ): GameOverTexts = gameOverTexts(
         GameOverUiState(
-            score = score,
-            lines = lines,
-            level = level,
+            score = Points(score),
+            lines = Lines(lines),
+            level = Level(level),
             fourLineClears = fourLineClears,
             ticksPlayed = ticksPlayed,
             newRecord = false,

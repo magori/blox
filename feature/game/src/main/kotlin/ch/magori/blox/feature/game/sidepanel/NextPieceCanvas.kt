@@ -3,7 +3,6 @@ package ch.magori.blox.feature.game.sidepanel
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
@@ -15,36 +14,33 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
-import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.board.BoardGeometry
 import ch.magori.blox.feature.game.board.CellPainter
 import ch.magori.blox.feature.game.board.cellStyle
 
 /**
- * Draws the next piece of [type] in [theme], with the cells of the board, of [cellSize] pixels, on
+ * Draws the [next] piece in [theme], with the cells of the board, of [cellSize] pixels, on
  * [background], the colour of their joints (the panel of the next piece), centred in the space given
- * to it; nothing when [type] is null. No logic here: the cells come from [nextPieceCells], their place
- * from [BoardGeometry], their look from [CellPainter].
+ * to it; nothing when [next] is null. No logic here: the cells come from the screen state
+ * ([nextPieceCells]), their place from [BoardGeometry], their look from [CellPainter].
  */
 @Composable
 internal fun NextPieceCanvas(
-    type: PieceType?,
-    rotationSystem: RotationSystem,
+    next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     theme: BloxThemeKind = BloxTheme.kind,
     background: Color = BloxTheme.palette.panel,
 ) {
-    val next = remember(type, rotationSystem) { type?.let { nextPieceCells(it, rotationSystem) } }
-    val description = type?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
+    val description = nextPieceName(next)
     Spacer(
         modifier = modifier
             .semantics { contentDescription = description }
             .drawWithCache {
-                if (type == null || next == null) return@drawWithCache onDrawBehind {}
+                if (next == null) return@drawWithCache onDrawBehind {}
                 val geometry = BoardGeometry.centred(size.width, size.height, next.columns, next.rows, cellSize)
-                val painter = CellPainter(cellStyle(theme, Cell.Filled(type)), geometry.cellSize, background)
+                val painter = CellPainter(cellStyle(theme, Cell.Filled(next.type)), geometry.cellSize, background)
                 onDrawBehind {
                     for (cell in next.cells) {
                         val topLeft = geometry.cellTopLeft(cell)
@@ -54,6 +50,12 @@ internal fun NextPieceCanvas(
             },
     )
 }
+
+/** The name of the [next] piece for TalkBack, or that there is none when it is hidden. */
+@Composable
+@ReadOnlyComposable
+internal fun nextPieceName(next: NextPieceCells?): String =
+    next?.let { pieceName(it.type) } ?: stringResource(R.string.feature_game_next_none)
 
 /** The name of a piece, for TalkBack. */
 @Composable

@@ -26,7 +26,6 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
-import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.ValueText
@@ -51,14 +50,13 @@ internal fun SidePanel(
     score: Points,
     level: Level,
     lines: Lines,
-    next: PieceType?,
-    rotationSystem: RotationSystem,
+    next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         ScorePanels(score = score, level = level, lines = lines)
-        NextPiecePanel(next = next, rotationSystem = rotationSystem, cellSize = cellSize)
+        NextPiecePanel(next = next, cellSize = cellSize)
     }
 }
 
@@ -92,13 +90,12 @@ internal fun ScorePanels(
 /** The next piece in its panel, with cells of [cellSize] pixels, those of the board. */
 @Composable
 internal fun NextPiecePanel(
-    next: PieceType?,
-    rotationSystem: RotationSystem,
+    next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
 ) {
     val nextLabel = stringResource(R.string.feature_game_next)
-    val nextName = next?.let { pieceName(it) } ?: stringResource(R.string.feature_game_next_none)
+    val nextName = nextPieceName(next)
     val previewHeight = with(LocalDensity.current) { (cellSize * SidePanelSizes.PREVIEW_ROWS).toDp() }
     LabelledPanel(
         label = nextLabel,
@@ -106,8 +103,7 @@ internal fun NextPiecePanel(
         modifier = modifier,
     ) {
         NextPieceCanvas(
-            type = next,
-            rotationSystem = rotationSystem,
+            next = next,
             cellSize = cellSize,
             modifier = Modifier
                 .fillMaxWidth()
@@ -143,8 +139,7 @@ private fun SidePanelPreview(
             score = Points(score),
             level = Level(level),
             lines = Lines(lines),
-            next = next,
-            rotationSystem = ClassicRotationSystem,
+            next = next?.let { nextPieceCells(it, ClassicRotationSystem) },
             cellSize = with(LocalDensity.current) { 18.dp.roundToPx().toFloat() },
             modifier = Modifier
                 .background(BloxTheme.palette.page)

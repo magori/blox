@@ -25,6 +25,8 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.sidepanel.NextPieceCells
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import ch.magori.blox.feature.game.sidepanel.pieceName
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -59,11 +61,10 @@ internal class GameScreenTest {
                 ClassicRotationSystem.spawnOrientation(PieceType.T),
                 Position(column = 4, row = 2),
             ),
-            next = PieceType.I,
+            next = nextPieceCells(PieceType.I, ClassicRotationSystem),
             level = Level(5),
             lines = Lines(52),
             score = Points(12_340),
-            rotationSystem = ClassicRotationSystem,
         ),
     )
 
@@ -116,6 +117,23 @@ internal class GameScreenTest {
     }
 
     @Test
+    @DisplayName("the side column does not recompose while the piece moves")
+    fun theSideColumnDoesNotRecomposeWhileThePieceMoves() = extension.use {
+        // Given the screen of a game under way
+        showGameScreen()
+
+        // When the piece moves, each state bringing an equal but new next piece, as a state computed afresh would
+        movePiece(times = 10) {
+            moveDown()
+            val next = uiState.next
+            uiState = uiState.copy(next = NextPieceCells(next.type, next.cells.toSet(), next.columns, next.rows))
+        }
+
+        // Then
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
     @DisplayName("a moved piece is drawn on the screen as on a screen drawn with it from the start")
     fun aMovedPieceIsDrawnAsOnAScreenDrawnWithItFromTheStart() = extension.use {
         showGameScreen()
@@ -128,7 +146,7 @@ internal class GameScreenTest {
         SCORE(R.string.feature_game_score, { it.copy(score = Points(12_380)) }),
         LEVEL(R.string.feature_game_level, { it.copy(level = Level(6)) }),
         LINES(R.string.feature_game_lines, { it.copy(lines = Lines(60)) }),
-        NEXT(R.string.feature_game_next, { it.copy(next = PieceType.O) }),
+        NEXT(R.string.feature_game_next, { it.copy(next = nextPieceCells(PieceType.O, ClassicRotationSystem)) }),
 
         /** Read from the records once the game has started: null at first. */
         RECORD(R.string.feature_game_top_record, { it.copy(record = 98_760) }),
@@ -180,9 +198,9 @@ internal class GameScreenTest {
             uiState = uiState.copy(
                 piece = null,
                 gameOver = GameOverUiState(
-                    score = 12_340,
-                    lines = 52,
-                    level = 5,
+                    score = Points(12_340),
+                    lines = Lines(52),
+                    level = Level(5),
                     fourLineClears = 1,
                     ticksPlayed = 3_600,
                     newRecord = false,

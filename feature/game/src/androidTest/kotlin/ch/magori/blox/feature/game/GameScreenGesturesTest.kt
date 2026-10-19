@@ -17,6 +17,7 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import de.mannodermaus.junit5.condition.EnabledOnSdkVersion
@@ -52,11 +53,10 @@ internal class GameScreenGesturesTest {
             """,
         ),
         piece = null,
-        next = PieceType.I,
+        next = nextPieceCells(PieceType.I, ClassicRotationSystem),
         level = Level(0),
         lines = Lines(0),
         score = Points(0),
-        rotationSystem = ClassicRotationSystem,
     )
 
     private lateinit var view: View

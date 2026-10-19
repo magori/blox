@@ -54,6 +54,20 @@ class ClassicRotationSystemTest {
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(PieceType::class)
+    fun `the spawn orientation of a type is the same however often it is asked`(type: PieceType) {
+        // Given the spawn orientation of the other types asked in between
+        val first = rotationSystem.spawnOrientation(type)
+        PieceType.entries.forEach(rotationSystem::spawnOrientation)
+
+        // When
+        val again = rotationSystem.spawnOrientation(type)
+
+        // Then
+        assertThat(again).isEqualTo(first)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(PieceType::class)
     fun `no piece spawns with a cell above its pivot`(type: PieceType) {
         // When
         val spawn = rotationSystem.spawnOrientation(type)

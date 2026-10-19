@@ -8,48 +8,48 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
-import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 
 /**
- * What the game screen shows. The domain values pass as they are: the screen draws them. [gameOver] is
- * set once the game is over and its score submitted to the records: the screen then shows the game over.
+ * What the game screen shows. The domain values pass as they are: the screen draws them. The [next] piece
+ * comes as its cells, so that the screen needs no rule to draw it. [gameOver] is set once the game is over
+ * and its score submitted to the records: the screen then shows the game over.
  */
 @Immutable
 internal data class GameUiState(
     val board: Board,
     val piece: Piece?,
-    val next: PieceType,
+    val next: NextPieceCells,
     val level: Level,
     val lines: Lines,
     val score: Points,
-    val rotationSystem: RotationSystem,
     val paused: Boolean = false,
     val record: Int? = null,
     val gameOver: GameOverUiState? = null,
 )
 
 /**
- * The screen state of [this] game state, drawn with the pieces of [rotationSystem]: the screen never reads
- * [GameState] itself. The view model reads it too (whether the game is paused or over, the score it submits
- * to the records), and the game over screen state comes from [toGameOverUiState].
+ * The screen state of [this] game state, its next piece drawn with the cells [nextPiece] gives for its type: the
+ * screen never reads [GameState] itself, nor the rules. The view model reads it too (whether the game is
+ * paused or over, the score it submits to the records), and the game over screen state comes from
+ * [toGameOverUiState].
  */
-internal fun GameState.toUiState(rotationSystem: RotationSystem): GameUiState = GameUiState(
+internal fun GameState.toUiState(nextPiece: (PieceType) -> NextPieceCells): GameUiState = GameUiState(
     board = board,
     piece = current,
-    next = next,
+    next = nextPiece(next),
     level = progress.level,
     lines = progress.lines,
     score = progress.score,
-    rotationSystem = rotationSystem,
     paused = paused,
 )
 
 /** The game over screen state of [this] final state, whose score made a [newRecord] or not. */
 internal fun GameState.toGameOverUiState(newRecord: Boolean): GameOverUiState = GameOverUiState(
-    score = progress.score.value,
-    lines = progress.lines.value,
-    level = progress.level.value,
+    score = progress.score,
+    lines = progress.lines,
+    level = progress.level,
     fourLineClears = progress.statistics.fourLineClears,
     ticksPlayed = tickCount,
     newRecord = newRecord,
