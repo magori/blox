@@ -18,8 +18,8 @@ class PhaseTest {
     @Test
     fun `an entry delay lasts at least one tick`() {
         assertThatIllegalArgumentException()
-            .isThrownBy { Phase.EntryDelay(ticksLeft = 0) }
-            .withMessageContaining("ticksLeft")
+            .isThrownBy { Phase.EntryDelay(ticksLeft = Ticks(0)) }
+            .withMessageContaining("at least 1 tick")
     }
 
     @Test
@@ -27,8 +27,13 @@ class PhaseTest {
         val rowsCleared = Board.parse("IIIIIIIIII").clearFullRows()
         assertThatIllegalArgumentException()
             .isThrownBy {
-                Phase.Clearing(rowsCleared, ticksLeft = 0, entryDelayAfter = Ticks(10), stackInDangerAfter = false)
+                Phase.Clearing(
+                    rowsCleared,
+                    ticksLeft = Ticks(0),
+                    entryDelayAfter = Ticks(10),
+                    stackInDangerAfter = false,
+                )
             }
-            .withMessageContaining("ticksLeft")
+            .withMessageContaining("at least 1 tick")
     }
 }

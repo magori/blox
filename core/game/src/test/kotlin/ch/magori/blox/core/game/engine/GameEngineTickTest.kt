@@ -4,6 +4,7 @@ import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import ch.magori.blox.core.game.model.verticalI
 import org.assertj.core.api.Assertions.assertThat
@@ -152,7 +153,7 @@ class GameEngineTickTest {
                 """,
             ),
             next = PieceType.T,
-            phase = Phase.EntryDelay(ticksLeft = 1),
+            phase = Phase.EntryDelay(ticksLeft = Ticks(1)),
         )
 
         // When
@@ -167,7 +168,7 @@ class GameEngineTickTest {
     fun `a piece that appears gives no event`() {
         // Given the last tick of an entry delay, on an empty board
         val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.J))
-        val state = gameState(next = PieceType.T, phase = Phase.EntryDelay(ticksLeft = 1))
+        val state = gameState(next = PieceType.T, phase = Phase.EntryDelay(ticksLeft = Ticks(1)))
 
         // When
         val appeared = engine.tick(state)
@@ -203,7 +204,7 @@ class GameEngineTickTest {
                     .....T....
                     """,
                 ),
-                Phase.EntryDelay(10),
+                Phase.EntryDelay(Ticks(10)),
             ),
             argumentSet(
                 "a T on the stack",
@@ -220,7 +221,7 @@ class GameEngineTickTest {
                     .....O....
                     """,
                 ),
-                Phase.EntryDelay(12),
+                Phase.EntryDelay(Ticks(12)),
             ),
         )
     }

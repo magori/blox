@@ -34,7 +34,7 @@ public data class GameState internal constructor(
     public val phase: Phase,
     public val tickCount: Int,
     public val stackInDanger: Boolean,
-    public val controls: Controls,
+    internal val controls: Controls,
     public val paused: Boolean,
 ) {
     init {
