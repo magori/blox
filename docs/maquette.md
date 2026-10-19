@@ -104,6 +104,16 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Le tout tient sur 360 dp de large
   avec une marge de 24 dp, sans cible sous 48 dp.
 - Pas de bouton de chute instantanée (absent du mode Classique).
+- Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (64 dp) et B A (80 dp), sont
+  exclus des gestes système à partir d'Android 10. En navigation par gestes, un glissement qui
+  part du bord sur une commande ne déclenche donc plus Retour, qui annulait les doigts et mettait
+  la partie en pause, même quand la zone du geste dépasse les marges de 24 dp. Chaque groupe
+  tient sur son bord dans les 200 dp que le système retient par bord ; le bas de l'écran (geste
+  Accueil) ne peut pas être exclu. À vérifier au doigt sur un téléphone, sensibilité du geste
+  Retour au maximum.
+
+  **Tests :** `GameScreenGesturesTest › every control is excluded from the system gestures, by rectangles of 200 dp high at most that the system honours`,
+  `GameLayoutTest › each group of controls holds to its edge, within the 200 dp of gesture exclusion honoured per edge`.
 - Autres formats (P2.11, retenus par le code, pas encore maquettés) : la disposition qui donne le
   plus grand plateau l'emporte. Portrait comme ci-dessus ; paysage (téléphone couché, tablette) :
   ◀ ▼ ▶ en bas à gauche, B A en bas à droite, score, niveau et lignes à gauche du plateau, pièce

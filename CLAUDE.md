@@ -20,6 +20,13 @@ mode Classique reproduit les règles de la version NES de 1989. Il complète
   fusionne la PR du groupe `agp-kotlin-gradle` qu'avec AGP, Kotlin et le wrapper montés ensemble et
   un build complet vert ; une PR qui monte DataStore emporte Okio. Foojay et la version du moteur
   ktlint se surveillent à la main.
+- Les worktrees (`blox-wt/…`) partagent le cache de build local. La sortie des tâches ktlint cite
+  des chemins absolus (plugin 14.2.0, issues #532 et #1041) : `build-logic` lie leur clé de cache au
+  chemin du module (P5.31), si bien qu'un worktree neuf réanalyse tout une fois (environ 7 s). Si
+  `ktlintCheck` signale les fichiers d'un autre dossier, la parade a sauté :
+  `./gradlew ktlintCheck --rerun-tasks` remet la sortie au propre, et
+  `scripts/verifier-cache-ktlint.sh` reproduit le défaut (code 0 si corrigé, 1 sinon). À chaque
+  montée du plugin, relancer ce script sans la parade, et la retirer s'il passe.
 
 ## Avant de commencer une tâche
 
@@ -175,7 +182,9 @@ du Classique, qui doit rester vert (ADR 0015).
 - **Duplication** : refactoriser dès la deuxième occurrence (« règle de 2 »).
 - Style : `.editorconfig` (4 espaces, 120 colonnes, virgule finale autorisée en Kotlin).
 - Tests : noms en phrases (`` `a full line is cleared and rows above fall down` ``), structure
-  Given / When / Then, plateaux décrits en ASCII dans les tests quand c'est plus lisible :
+  Given / When / Then (en `src/androidTest`, la phrase va dans `@DisplayName` : le dex refuse
+  les espaces dans les noms de méthodes sous l'API 30), plateaux décrits en ASCII dans les tests
+  quand c'est plus lisible :
 
   ```kotlin
   val board = Board.parse(
@@ -201,7 +210,9 @@ La commande `/fin-de-tache` les déroule.
    `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
-   ou une dépendance a changé.
+   ou une dépendance a changé ; si une interface a
+   changé, `./gradlew validateDebugScreenshotTest` et, sur un émulateur ou un téléphone,
+   `./gradlew connectedDebugAndroidTest` (ni l'un ni l'autre ne tourne encore en CI).
    Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
    vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.

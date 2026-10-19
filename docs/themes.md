@@ -21,6 +21,28 @@ commandes, aux boutons des écrans — Reprendre, Menu, Rejouer — et au bouton
 `DisplayedCells`, `BoardCanvas`) et paquet `sidepanel` (colonne latérale, aperçu de la pièce
 suivante dessiné avec le même `CellPainter`).
 
+**Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
+peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
+la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
+redessiner le plateau, sans recomposer ni lui ni l'écran de jeu. L'écran reçoit l'état comme un
+fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affiche, par un
+état dérivé (`rememberPart`). Les recompositions se mesurent sur appareil avec un traceur de
+composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
+version).
+
+**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
+`BoardCanvasTest › nothing recomposes while the piece moves`,
+`BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
+`BoardCanvasTest › the painters are built again when the size changes`,
+`BoardCanvasTest › the painters are built again when the theme changes`,
+`BoardCanvasTest › the painters are built again when the background changes`,
+`GameScreenTest › nothing on the screen recomposes when only the piece moves`,
+`GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
+`GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
+`GameScreenTest › the pause screen takes the place of the game while it is paused`,
+`GameScreenTest › the game over screen takes the place of the game once it is over`.
+Vues : V2, V3.
+
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
 (accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans
 `BloxTheme(kind)`, et `kind` vient d'`AppTheme` (`app`), un `StateFlow` lu depuis les

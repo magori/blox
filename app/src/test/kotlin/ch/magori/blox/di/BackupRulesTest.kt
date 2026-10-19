@@ -1,0 +1,67 @@
+package ch.magori.blox.di
+
+import ch.magori.blox.core.data.RECORDS_FILE
+import ch.magori.blox.core.data.SETTINGS_FILE
+import ch.magori.blox.theme.ANDROID_NAMESPACE
+import ch.magori.blox.theme.appManifest
+import ch.magori.blox.theme.appResource
+import ch.magori.blox.theme.element
+import ch.magori.blox.theme.elements
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.w3c.dom.Document
+import java.io.File
+
+class BackupRulesTest {
+    @Test
+    fun `the manifest gives the backup rules of Android 12 and those of the older versions`() {
+        // Given
+        val application = element(appManifest(), "/manifest/application")
+
+        // Then
+        assertThat(application.getAttributeNS(ANDROID_NAMESPACE, "dataExtractionRules"))
+            .isEqualTo("@xml/data_extraction_rules")
+        assertThat(application.getAttributeNS(ANDROID_NAMESPACE, "fullBackupContent"))
+            .isEqualTo("@xml/backup_rules")
+    }
+
+    @Test
+    fun `from Android 12, the cloud backup and the device transfer keep only the record and the settings`() {
+        // Given
+        val rules = appResource("xml/data_extraction_rules.xml")
+
+        // Then
+        listOf("cloud-backup", "device-transfer").forEach { section ->
+            assertThat(included(rules, "/data-extraction-rules/$section"))
+                .withFailMessage { "The $section of data_extraction_rules.xml does not keep exactly $DATASTORE_FILES" }
+                .containsExactlyInAnyOrderElementsOf(DATASTORE_FILES)
+        }
+    }
+
+    @Test
+    fun `before Android 12, the backup keeps only the record and the settings`() {
+        // Given
+        val rules = appResource("xml/backup_rules.xml")
+
+        // Then
+        assertThat(included(rules, "/full-backup-content"))
+            .withFailMessage { "backup_rules.xml does not keep exactly $DATASTORE_FILES" }
+            .containsExactlyInAnyOrderElementsOf(DATASTORE_FILES)
+    }
+
+    /** The files that the rules under [section] include, as `domain:path`. */
+    private fun included(
+        rules: Document,
+        section: String,
+    ): List<String> = elements(rules, "$section/include").map { include ->
+        "${include.getAttribute("domain")}:${include.getAttribute("path")}"
+    }
+
+    private companion object {
+        /** The DataStore files of core:data, where the application creates them, relative to its files directory. */
+        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE).map { name ->
+            val filesDir = File("files")
+            "file:" + dataStoreFile(filesDir, name).toFile().relativeTo(filesDir).invariantSeparatorsPath
+        }
+    }
+}

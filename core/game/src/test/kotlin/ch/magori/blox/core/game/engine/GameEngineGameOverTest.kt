@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import ch.magori.blox.core.game.model.verticalI
 import org.assertj.core.api.Assertions.assertThat
@@ -20,7 +21,7 @@ class GameEngineGameOverTest {
     @Test
     fun `GameOver is sent once, on the tick where the next piece cannot appear`() {
         // Given the last tick of an entry delay, and a stack where a T cannot appear
-        val state = gameState(board = TOWER, next = PieceType.T, phase = Phase.EntryDelay(ticksLeft = 1))
+        val state = gameState(board = TOWER, next = PieceType.T, phase = Phase.EntryDelay(ticksLeft = Ticks(1)))
 
         // When
         val over = engine.tick(state)
