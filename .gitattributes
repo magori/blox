@@ -1,3 +1,7 @@
 # Scripts shell en LF, sinon bash échoue sous Windows (core.autocrlf=true).
 *.sh text eol=lf
 gradlew text eol=lf
+
+# Profil de référence généré par `./gradlew :app:generateBaselineProfile` (P5.17) : replié dans les
+# revues et les diffs, compté comme généré par GitHub.
+app/src/main/generated/** linguist-generated=true -diff

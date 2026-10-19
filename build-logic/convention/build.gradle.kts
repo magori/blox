@@ -19,6 +19,7 @@ dependencies {
     compileOnly(libs.android.junit.gradlePlugin)
     compileOnly(libs.ktlint.gradlePlugin)
     compileOnly(libs.android.compose.screenshot.gradlePlugin)
+    compileOnly(libs.androidx.baselineprofile.gradlePlugin)
 }
 
 gradlePlugin {
@@ -50,6 +51,10 @@ gradlePlugin {
         register("testFixtures") {
             id = libs.plugins.blox.test.fixtures.get().pluginId
             implementationClass = "TestFixturesConventionPlugin"
+        }
+        register("androidBenchmark") {
+            id = libs.plugins.blox.android.benchmark.get().pluginId
+            implementationClass = "AndroidBenchmarkConventionPlugin"
         }
         register("jvmLibrary") {
             id = libs.plugins.blox.jvm.library.get().pluginId
