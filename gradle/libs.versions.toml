@@ -18,7 +18,7 @@ androidxAnnotation = "1.9.1"
 # Celle que Lifecycle apporte déjà (le SavedStateHandle des ViewModels) : la déclarer directement ne la change pas.
 androidxSavedState = "1.4.0"
 # Okio suit la version que DataStore embarque (datastore-core-okio) : les monter ensemble.
-okio = "3.9.1"
+okio = "3.18.2"
 # Profil de référence et Macrobenchmark (P5.17), vérifiées le 2026-10-19 : dernières stables. Le plugin
 # `androidx.baselineprofile` et `benchmark-macro-junit4` sortent ensemble, d'où une seule version.
 # 1.5.0 accepte AGP 8.0 à 9.x (son plafond recommandé est 10.0.0-alpha01) : à revoir avec AGP 10.
