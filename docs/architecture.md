@@ -15,6 +15,7 @@ graph TD
     app --> designsystem[core:designsystem]
     app --> data[core:data]
     app --> audio[core:audio]
+    app --> haptics[core:haptics]
     app --> music
 
     featureHome --> designsystem
@@ -28,6 +29,7 @@ graph TD
     featureGame --> data
     featureGame --> audio
     featureGame --> music
+    featureGame --> haptics
 
     audio --> music[core:music]
 
@@ -47,6 +49,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo. Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel. |
+| `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. |
 | `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie) et génération du profil de référence de `app` (P5.17). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |

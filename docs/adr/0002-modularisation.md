@@ -30,3 +30,10 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   (par exemple un `feature:settings`).
 - Le mode Moderne n'aura pas de module dédié : ce sont d'autres implémentations des politiques
   de `core:game` (rotation, tirage, verrouillage).
+- **Amendement (P5.2, 2026-10-19).** Module `core:haptics` (bibliothèque Android, doublures en
+  testFixtures) pour les vibrations : un autre service système (`Vibrator`) et une autre
+  permission (`VIBRATE`) que la musique, un réglage indépendant ; le garder hors de `core:audio`
+  évite qu'un module qui ne fait que vibrer tire `AudioTrack` et le séquenceur. La traduction
+  des événements du jeu en vibrations vit dans `feature:game` (`hapticFor`), comme le tempo de
+  la musique : `core:haptics` ne connaît pas le domaine. (De même, `feature:composer` et
+  `benchmark` se sont ajoutés depuis, voir `docs/architecture.md`.)
