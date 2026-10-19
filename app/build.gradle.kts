@@ -50,7 +50,8 @@ dependencies {
 /**
  * Donne aux tests le répertoire res et le manifeste de l'application : WindowBackgroundTest et
  * LauncherIconTest y comparent des ressources (fond de fenêtre, icône, écran de démarrage) à la palette
- * Original. Ce sont des entrées de la tâche : les modifier relance les tests, y compris depuis le cache de build.
+ * Original ; BackupRulesTest compare les règles de sauvegarde aux fichiers DataStore de core:data. Ce sont
+ * des entrées de la tâche : les modifier relance les tests, y compris depuis le cache de build.
  */
 abstract class AppSourcesArgument : CommandLineArgumentProvider {
     @get:InputDirectory

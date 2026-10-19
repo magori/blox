@@ -35,6 +35,9 @@ minSdk = "26"
 java = "17"
 
 ktlint = "1.8.0"
+# Plugin ktlint-gradle : sa sortie en cache cite des chemins absolus (issues #532 et #1041), d'où la
+# parade `keepKtlintCacheInsideCheckout` (build-logic, KtlintConfiguration.kt, P5.31). À chaque
+# montée du plugin, relancer `scripts/verifier-cache-ktlint.sh` sans la parade : s'il passe, la retirer.
 ktlintGradle = "14.2.0"
 composeLintChecks = "1.6.1"
 dependencyAnalysis = "3.19.2"
