@@ -2,6 +2,9 @@ package ch.magori.blox.core.music
 
 import kotlin.math.pow
 
+/** Semitones in an octave, in equal temperament: shared by pitches, scales and chords. */
+internal const val SEMITONES_PER_OCTAVE: Int = 12
+
 /**
  * A pitch from C0 to B8, identified by its MIDI note number (A4 is 69, C0 is 12, B8 is 119). Names are
  * read with [parse], in English notation: a letter from C to B, an optional sharp, an octave from 0 to 8
@@ -16,11 +19,15 @@ public value class Pitch(public val midi: Int) {
     /** Equal temperament frequency in hertz: 440 × 2^((midi − 69) / 12). */
     public val frequency: Double get() = A4_HZ * 2.0.pow((midi - A4_MIDI) / SEMITONES_PER_OCTAVE.toDouble())
 
+    private val pitchClass: Int get() = midi.mod(SEMITONES_PER_OCTAVE)
+
+    /** Semitones from [base] up to this pitch, octaves left out: from 0 to 11, 0 for the same note in any octave. */
+    internal fun semitonesAboveInOctave(base: Pitch): Int = (midi - base.midi).mod(SEMITONES_PER_OCTAVE)
+
     /** The name of the pitch, written with sharps only: `"A4"`, `"F#5"`. */
-    override fun toString(): String = NAMES[midi.mod(SEMITONES_PER_OCTAVE)] + (midi.floorDiv(SEMITONES_PER_OCTAVE) - 1)
+    override fun toString(): String = NAMES[pitchClass] + (midi.floorDiv(SEMITONES_PER_OCTAVE) - 1)
 
     public companion object {
-        private const val SEMITONES_PER_OCTAVE = 12
         private const val A4_MIDI = 69
         private const val C0_MIDI = 12
         private const val B8_MIDI = 119
