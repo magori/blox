@@ -27,4 +27,6 @@
     <string name="feature_home_stop_description">Arrêter %1$s</string>
     <string name="feature_home_change_file">Changer</string>
     <string name="feature_home_change_file_description">Changer de fichier</string>
+    <!-- Ouvre l'éditeur de musique sur une musique neuve. -->
+    <string name="feature_home_compose">Composer une musique</string>
 </resources>

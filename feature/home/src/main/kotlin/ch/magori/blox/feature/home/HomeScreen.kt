@@ -45,6 +45,7 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.text.scoreText
+import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -54,14 +55,12 @@ import ch.magori.blox.core.designsystem.theme.BloxTypographies
 /** The tag of each start level, the same in every language, read by the tests. */
 internal const val START_LEVEL_TAG = "home_start_level"
 
-/** The alpha of a choice that cannot be made yet. */
-private const val DISABLED_ALPHA = 0.38f
-
 /**
  * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
  * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
  * this screen at once. A music with a BloX score may be listened to before playing. A music of the player chosen
- * for the games is the music selected, among the others.
+ * for the games is the music selected, among the others. « Composer une musique » opens the music editor on a new
+ * music, through [onCompose].
  */
 @Composable
 internal fun HomeScreen(
@@ -73,6 +72,7 @@ internal fun HomeScreen(
     onChangeMusicFile: () -> Unit,
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
+    onCompose: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -162,6 +162,8 @@ internal fun HomeScreen(
                     }
                 }
             }
+            // Under the choice of music: opens the editor on a new music.
+            ComposeMusicButton(onClick = dropUnlessResumed { onCompose() })
         }
         // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
         // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
@@ -283,7 +285,7 @@ private fun Choice(
     Box(
         modifier = modifier
             .heightIn(min = BloxSizes.minTouchTarget)
-            .alpha(if (enabled) 1f else DISABLED_ALPHA)
+            .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
             .background(colors.background, shape)
             .border(BloxBorders.frame, colors.frame, shape)
             .then(interaction)
@@ -357,6 +359,7 @@ private fun HomeScreenPreview(
             onChangeMusicFile = {},
             onStartLevelChosen = {},
             onPlay = {},
+            onCompose = {},
         )
     }
 }

@@ -15,6 +15,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -131,9 +132,25 @@ internal class HomeScreenTest {
         onNodeWithContentDescription("Écouter Thème du soir").assertDoesNotExist()
     }
 
+    @Test
+    @DisplayName("the button Composer une musique, shown in capitals and read as written, opens the music editor")
+    fun composeButtonOpensTheEditor() = extension.use {
+        // Given
+        var composing = 0
+        showHomeScreen(onCompose = { composing++ })
+
+        // When
+        onNodeWithText("COMPOSER UNE MUSIQUE").assertExists()
+        onNodeWithContentDescription("Composer une musique").performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(composing).isEqualTo(1) }
+    }
+
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,
         onListenGameMusic: () -> Unit = {},
+        onCompose: () -> Unit = {},
     ) {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
@@ -146,6 +163,7 @@ internal class HomeScreenTest {
                     onChangeMusicFile = {},
                     onStartLevelChosen = {},
                     onPlay = {},
+                    onCompose = onCompose,
                 )
             }
         }

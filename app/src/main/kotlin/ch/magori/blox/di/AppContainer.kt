@@ -28,6 +28,7 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
@@ -144,6 +145,9 @@ class AppContainer(context: Context) {
         musicFiles,
         musicLibrary,
     )
+
+    /** The music editor: a new music, nothing to read or play yet (listening and saving come later, P4.19). */
+    val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory()
 }
 
 private const val TAG = "BloX"
