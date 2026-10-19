@@ -8,8 +8,8 @@ import ch.magori.blox.core.game.engine.GameEngineFactory
 
 /**
  * The factory of the game view model, with [engineFactory], the shared fakes of core:data (no record, the
- * default settings) and no music: the factory answers no score for every music choice, so the fake player
- * is never asked to play.
+ * default settings) and no music: the factory answers no score for every music choice, and no music of the
+ * player for the games, so the fake player is never asked to play.
  */
 internal fun silentGameViewModelFactory(
     engineFactory: GameEngineFactory = ClassicGameEngineFactory,
@@ -18,4 +18,6 @@ internal fun silentGameViewModelFactory(
     FakeHighScoreRepository(),
     FakeUserPreferencesRepository(),
     FakeMusicPlayer(),
-) { null }
+    scoreOf = { null },
+    gameMusic = { null },
+)

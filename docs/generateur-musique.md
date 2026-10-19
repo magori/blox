@@ -649,8 +649,8 @@ suppression et rétablie par la restauration. Les règles de nom (`MusicNames`, 
 pour le dépôt et l'éditeur) : un nom est pris sans tenir compte de la casse ni des espaces, la
 musique en cours exceptée par son identité ; nom proposé « Catégorie n » (premier n libre) ;
 nom libre « X 2 », ou le nombre suivant si le nom finit par un nombre. Le dépôt refuse un nom
-pris (précondition vérifiée par l'appelant). La musique choisie pour les parties n'est pas
-encore jouée : tranche suivante. Format du fichier : [ADR 0017](adr/0017-format-des-musiques-enregistrees.md).
+pris (précondition vérifiée par l'appelant). La musique choisie pour les parties est jouée
+à chaque partie à la place du choix de l'accueil (P4.22b, voir musique.md). Format du fichier : [ADR 0017](adr/0017-format-des-musiques-enregistrees.md).
 
 `MusicLibraryContract › without a saved music the list is empty and no music is played during the games`,
 `MusicLibraryContract › a new music saved goes after the others`,

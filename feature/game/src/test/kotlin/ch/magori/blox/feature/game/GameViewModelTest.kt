@@ -36,6 +36,7 @@ import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
@@ -74,6 +75,9 @@ class GameViewModelTest {
     /** The scores of the music choices, as `app` gives them: Korobeiniki and the minuet, nothing else. */
     private val testScores: (MusicChoice) -> Score? =
         mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)::get
+
+    /** The score of the music of the player chosen for the games, as `app` reads it: none, unless a test chooses one. */
+    private var gameMusic: suspend () -> Score? = { null }
 
     /**
      * Real engines with rules made for tests: pieces T, I, O, … in turn, one tick per row, and 100 points per
@@ -636,6 +640,83 @@ class GameViewModelTest {
         assertThat(music.tempo).isEqualTo(1.0)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("homeChoices")
+    fun `at the start of the game the music of the player chosen for the games plays instead of the home screen's`(
+        choice: MusicChoice,
+    ) {
+        // Given a music of the player chosen for the games, and any music chosen on the home screen, even none
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = choice)
+        gameMusic = { personalScore }
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(music.calls).containsExactly("play ${personalScore.id}")
+    }
+
+    @Test
+    fun `without a music of the player chosen for the games the music of the home screen plays`() {
+        // Given the minuet chosen on the home screen, and no music of the player chosen for the games
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
+        gameMusic = { null }
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(music.calls).containsExactly("play ${Scores.minuet.id}")
+    }
+
+    @Test
+    fun `the music of the player chosen for the games plays without waiting for the settings`() {
+        // Given settings that do not answer, and a music of the player chosen for the games
+        preferences.state.value = null
+        gameMusic = { personalScore }
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(music.calls).containsExactly("play ${personalScore.id}")
+    }
+
+    @Test
+    fun `a game paused before the music of the player was read plays it, its danger tempo prepared, when it resumes`() {
+        // Given a game whose music of the player for the games has not been read yet
+        val read = CompletableDeferred<Score?>()
+        gameMusic = { read.await() }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the game is paused, then the music is read
+        viewModel.onPause()
+        read.complete(personalScore)
+
+        // Then nothing plays
+        assertThat(music.calls).noneMatch { it.startsWith("play") || it.startsWith("resume") }
+
+        // When the game resumes
+        viewModel.onResume()
+
+        // Then the music of the player plays, its danger tempo prepared
+        assertThat(music.calls).containsExactly("play ${personalScore.id}")
+        assertThat(music.prepared).containsExactly(1.25)
+    }
+
+    @Test
+    fun `a programming error while the music of the player chosen for the games is read is not swallowed`() {
+        // Given a music of the player whose reading fails with a bug, not with an unreadable file
+        val bug = IllegalStateException("a bug in the musics")
+        gameMusic = { throw bug }
+
+        // When
+        val failure = uncaughtFailureOfCreation()
+
+        // Then the bug reaches the uncaught exceptions, as it would crash the application
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage(bug.message)
+    }
+
     @Test
     fun `leaving a game after the next one started leaves the music of the next one playing`() {
         // Given a game playing Korobeiniki, then the next game (Rejouer) playing the minuet
@@ -1053,7 +1134,7 @@ class GameViewModelTest {
         factory: GameEngineFactory = engineFactory,
         savedState: SavedStateHandle = SavedStateHandle(),
         records: FakeHighScoreRepository = highScores,
-    ): GameViewModel = GameViewModel(factory, route, records, preferences, music, testScores, savedState)
+    ): GameViewModel = GameViewModel(factory, route, records, preferences, music, testScores, gameMusic, savedState)
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
     private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })
@@ -1086,6 +1167,13 @@ class GameViewModelTest {
             argumentSet("Korobeiniki", MusicChoice.KOROBEINIKI, Scores.korobeiniki),
             argumentSet("the minuet", MusicChoice.MINUET, Scores.minuet),
         )
+
+        /** Every music the home screen may choose, none included: the music of the player plays instead of any. */
+        @JvmStatic
+        fun homeChoices(): List<MusicChoice> = MusicChoice.entries
+
+        /** A music of the player, « Mes musiques »: the minuet, under a personal identity. */
+        val personalScore: Score = Scores.minuet.copy(id = ScoreId.Personal("mine"))
 
         /** Enough ticks for the test game to fill the board and end, entry delays included. */
         const val MAX_TICKS = 5_000
