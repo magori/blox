@@ -36,6 +36,9 @@ fun preferencesDataStore(
     scope = scope,
 )
 
-/** The preferences of [this] DataStore; empty ones while the file cannot be read (an [IOException]). */
+/**
+ * The preferences of [this] DataStore. If the file cannot be read (an [IOException]): empty preferences,
+ * once, and the flow then ends, the contract of the repositories. Any other failure is a bug and goes through.
+ */
 internal fun DataStore<Preferences>.readOrEmpty(): Flow<Preferences> =
     data.catch { failure -> if (failure is IOException) emit(emptyPreferences()) else throw failure }

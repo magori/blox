@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 76 / 143 | `███████████░░░░░░░░░` **53 %** |
+| **Général** | 77 / 143 | `███████████░░░░░░░░░` **54 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -516,7 +516,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   partagé entre effacement et délai d'apparition ; `AutoRepeat`, `GameState.controls` et les
   constructeurs de `Clearing` et `EntryDelay` en `internal` ; KDoc de `GameEvent.StackDanger`,
   `GameUiState` et du ViewModel (B4, B5, B7).
-- [ ] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
+- [x] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
   `IOException` absorbée, même traitement à l'accueil et en jeu (B6).
 - [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans

@@ -526,7 +526,7 @@ partie non plus). Un fichier illisible ou corrompu compte comme « pas de record
 `GameViewModelTest › the record shown is the one of the records, its real value, updated when it changes`,
 `GameViewModelTest › the record stays shown when the frames move the game`,
 `GameViewModelTest › until the records give it the record is unknown, not 0`,
-`GameViewModelTest › records that fail while they are read leave the game going, with the last record known`.
+`GameViewModelTest › unreadable records show 0 and the game goes on`.
 Vues : V1, V2, V3, V4.
 
 **Tests :** `SidePanelTextTest › the score is shown on 6 digits padded with zeros`,
