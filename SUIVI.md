@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 77 / 143 | `███████████░░░░░░░░░` **54 %** |
+| **Général** | 78 / 143 | `███████████░░░░░░░░░` **55 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -538,7 +538,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
   choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
-- [ ] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
+- [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
   ou non cacheable (revue P5.24).
