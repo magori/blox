@@ -249,6 +249,8 @@ private fun ControlsPreview(
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview(widthDp = 360)
 @Composable
 private fun GameControlsOriginalPreview() {
@@ -263,7 +265,7 @@ private fun GameControlsColorfulPreview() {
 
 @Preview(widthDp = 360)
 @Composable
-private fun GameControlsHeldPreview() {
+internal fun GameControlsHeldPreview() {
     val fingers = remember {
         FingerTracker {}.apply {
             press(finger = 1, ControlButton.LEFT)

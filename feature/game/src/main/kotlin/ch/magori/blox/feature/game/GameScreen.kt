@@ -285,22 +285,30 @@ private fun GameScreenPreview(
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
-private fun GameScreenOriginalPreview() {
+internal fun GameScreenOriginalPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
 }
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
-private fun GameScreenColorfulPreview() {
+internal fun GameScreenColorfulPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
 }
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
-private fun GameScreenPausedPreview() {
+internal fun GameScreenPausedPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(paused = true))
+}
+
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+internal fun GameScreenLargeFontPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
 }
 
 @Preview(widthDp = 800, heightDp = 360)

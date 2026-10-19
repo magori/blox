@@ -140,6 +140,8 @@ private fun TopBarPreview(kind: BloxThemeKind) {
     }
 }
 
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
 @Preview(widthDp = 360)
 @Composable
 private fun GameTopBarOriginalPreview() {
@@ -154,6 +156,6 @@ private fun GameTopBarColorfulPreview() {
 
 @Preview(widthDp = 360, fontScale = 2f)
 @Composable
-private fun GameTopBarLargeFontPreview() {
+internal fun GameTopBarLargeFontPreview() {
     TopBarPreview(BloxThemeKind.ORIGINAL)
 }

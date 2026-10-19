@@ -23,6 +23,9 @@ assertj = "3.27.7"
 turbine = "1.2.1"
 androidJunit = "2.0.2"
 androidxEspresso = "3.7.0"
+# Compose Preview Screenshot Testing (expérimental). AGP 9.5 le remplace par les « test suites » :
+# à revoir en montant AGP (developer.android.com/studio/preview/compose-screenshot-testing).
+screenshot = "0.0.1-alpha16"
 
 compileSdk = "37"
 targetSdk = "36"
@@ -73,6 +76,7 @@ assertj-core = { group = "org.assertj", name = "assertj-core", version.ref = "as
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
+screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot" }
 
 # Dépendances des plugins de convention (build-logic)
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
@@ -80,6 +84,7 @@ kotlin-gradlePlugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-pl
 compose-gradlePlugin = { group = "org.jetbrains.kotlin", name = "compose-compiler-gradle-plugin", version.ref = "kotlin" }
 android-junit-gradlePlugin = { group = "de.mannodermaus.gradle.plugins", name = "android-junit5", version.ref = "androidJunit" }
 ktlint-gradlePlugin = { group = "org.jlleitschuh.gradle", name = "ktlint-gradle", version.ref = "ktlintGradle" }
+android-compose-screenshot-gradlePlugin = { group = "com.android.compose.screenshot", name = "screenshot-test-gradle-plugin", version.ref = "screenshot" }
 
 # Règles lint supplémentaires
 slack-compose-lint-checks = { group = "com.slack.lint.compose", name = "compose-lint-checks", version.ref = "composeLintChecks" }
@@ -91,6 +96,7 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 android-junit = { id = "de.mannodermaus.android-junit", version.ref = "androidJunit" }
+android-compose-screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
 ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlintGradle" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 
@@ -100,4 +106,5 @@ blox-android-application-compose = { id = "blox.android.application.compose" }
 blox-android-library = { id = "blox.android.library" }
 blox-android-library-compose = { id = "blox.android.library.compose" }
 blox-android-feature = { id = "blox.android.feature" }
+blox-android-screenshot = { id = "blox.android.screenshot" }
 blox-jvm-library = { id = "blox.jvm.library" }

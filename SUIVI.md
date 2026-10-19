@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 67 / 117 | `███████████░░░░░░░░░` **57 %** |
+| **Général** | 68 / 122 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -270,6 +270,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   en gras, joint des cellules du thème Original (P2.17).
 - [ ] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
   `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17).
+- [ ] **P2.17** Lisibilité vue sur les captures (P5.7) : touche A enfoncée invisible en thème
+  Couleurs (son fond égale la page) ; cellules en aplat du thème Original fondues entre elles.
+- [ ] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
+  tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre.
+- [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
+  contre 24 points sur la maquette (marges de 24 dp et colonne de 112 dp) ; grands vides au-dessus
+  et en dessous à 360 × 760. Trancher entre une colonne plus étroite, des marges réduites ou la
+  maquette (revues de P5.7 et P2.11).
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
   remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
   `LabelledPanel` partagé avec la colonne latérale.
@@ -458,10 +466,17 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
-- [ ] **P5.7** Tests de captures d'écran à partir des previews existantes (plugin officiel Compose
+- [x] **P5.7** Tests de captures d'écran à partir des previews existantes (plugin officiel Compose
   Preview Screenshot Testing), pour les deux thèmes, dans la CI. Revue de P2.3 : le dessin de
   `BoardCanvas` n'est vérifié par aucun test ni à l'œil ; ajouter aussi un fichier de
   configuration de stabilité Compose (`build-logic`) listant `ch.magori.blox.core.game.model.*`.
+  Fait : plugin `com.android.compose.screenshot` 0.0.1-alpha16 par la convention
+  `blox.android.screenshot`, 21 captures (`docs/architecture.md`, Tests). Reste en P5.8 et P5.9.
+- [ ] **P5.8** Captures dans la CI : générer les références sous Linux (job ou conteneur) puis
+  ajouter `validateDebugScreenshotTest` à `.github/workflows/ci.yml` ; revoir le plugin à la
+  prochaine montée d'AGP (déconseillé à partir d'AGP 9.5 au profit des « test suites »).
+- [ ] **P5.9** Fichier de configuration de stabilité Compose (`build-logic`) listant
+  `ch.magori.blox.core.game.model.*` (revue de P2.3).
 
 ## P6 — Mode Moderne (plus tard)
 

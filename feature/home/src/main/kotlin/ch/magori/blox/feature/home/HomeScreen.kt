@@ -252,23 +252,12 @@ private val MusicChoice.label: Int
         MusicChoice.NONE -> R.string.feature_home_music_none
     }
 
-@Preview(widthDp = 360)
 @Composable
-private fun HomeScreenOriginalPreview() {
-    HomeScreenPreview(BloxThemeKind.ORIGINAL, ThemeChoice.ORIGINAL)
-}
-
-@Preview(widthDp = 360)
-@Composable
-private fun HomeScreenColorfulPreview() {
-    HomeScreenPreview(BloxThemeKind.COLORFUL, ThemeChoice.COLORFUL)
-}
-
-@Composable
-private fun HomeScreenPreview(
-    kind: BloxThemeKind,
-    theme: ThemeChoice,
-) {
+private fun HomeScreenPreview(theme: ThemeChoice) {
+    val kind = when (theme) {
+        ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
+        ThemeChoice.COLORFUL -> BloxThemeKind.COLORFUL
+    }
     BloxTheme(kind = kind) {
         HomeScreen(
             uiState = HomeUiState(
@@ -287,4 +276,24 @@ private fun HomeScreenPreview(
             onPlay = {},
         )
     }
+}
+
+// `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
+
+@Preview(widthDp = 360)
+@Composable
+internal fun HomeScreenOriginalPreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+internal fun HomeScreenColorfulPreview() {
+    HomeScreenPreview(ThemeChoice.COLORFUL)
+}
+
+@Preview(widthDp = 360, fontScale = 2f)
+@Composable
+internal fun HomeScreenLargeFontPreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
