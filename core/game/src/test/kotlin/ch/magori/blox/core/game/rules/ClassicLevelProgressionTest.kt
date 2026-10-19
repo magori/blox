@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.ValueSource
 
 class ClassicLevelProgressionTest {
     private val progression: LevelProgression = ClassicLevelProgression
@@ -53,6 +54,17 @@ class ClassicLevelProgressionTest {
     @Test
     fun `a start level outside 0 to 9 is refused`() {
         assertThatIllegalArgumentException().isThrownBy { levelAfter(lines = 0, startingAt = 10) }
+    }
+
+    @ParameterizedTest(name = "start {0}")
+    @ValueSource(ints = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+    fun `the level never goes below the start level, and never goes down as lines are cleared`(start: Int) {
+        // When the level is computed for every total of lines from 0 to 300
+        val levels = (0..300).map { lines -> levelAfter(lines, startingAt = start).value }
+
+        // Then
+        assertThat(levels).allSatisfy { assertThat(it).isGreaterThanOrEqualTo(start) }
+        assertThat(levels).isSorted()
     }
 
     /** When: the rule computes the level after [lines] lines in a game started at level [startingAt]. */

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 73 / 142 | `██████████░░░░░░░░░░` **51 %** |
+| **Général** | 74 / 142 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -509,7 +509,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
   perdu » (A, B, ◀ dans `EntryDelay` et `Clearing`), compteur de déplacement de départ nommé et
   sourcé, ou marqué **[à vérifier]** (B2). Fait : 5 tests (A, B, ◀, ▶, ▼, dernier tick du délai, DAS chargé), `AutoRepeat.heldWithoutPress` sourcé (`autorepeatX`), valeur 0 **[à vérifier]**.
-- [ ] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
+- [x] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).
 - [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte

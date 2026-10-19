@@ -1,7 +1,6 @@
 package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
@@ -20,7 +19,7 @@ class GameEngineTickTest {
     @Test
     fun `at level 0 the piece drops one row every 48 ticks, not before`() {
         // Given a T just appeared, pivot on row 0
-        val state = gameState(level = Level(0), phase = Phase.Falling(tPointingDown(at = Position(5, 0))))
+        val state = gameState(phase = Phase.Falling(tPointingDown(at = Position(5, 0))))
 
         // When
         val after47 = engine.ticks(state, 47)
@@ -38,7 +37,7 @@ class GameEngineTickTest {
     @Test
     fun `at level 29 the piece drops one row on every tick`() {
         // Given
-        val state = gameState(level = Level(29), phase = Phase.Falling(tPointingDown(at = Position(5, 0))))
+        val state = gameState(lines = LINES_TO_LEVEL_29, phase = Phase.Falling(tPointingDown(at = Position(5, 0))))
 
         // When
         val rows = (1..3).map { ticks -> engine.ticks(state, ticks).current?.pivot?.row }
@@ -56,7 +55,7 @@ class GameEngineTickTest {
         expectedPhase: Phase,
     ) {
         // Given a piece that cannot drop, at a level where it tries on every tick
-        val state = gameState(board = board, level = Level(29), phase = Phase.Falling(piece))
+        val state = gameState(board = board, lines = LINES_TO_LEVEL_29, phase = Phase.Falling(piece))
 
         // When
         val update = engine.tick(state)
@@ -71,7 +70,7 @@ class GameEngineTickTest {
     fun `at level 0 a piece on the floor locks on the 48th tick, not before`() {
         // Given a T just appeared on the floor, pivot on row 18
         val piece = tPointingDown(at = Position(5, 18))
-        val state = gameState(level = Level(0), phase = Phase.Falling(piece))
+        val state = gameState(phase = Phase.Falling(piece))
 
         // When
         val after47 = engine.ticks(state, 47)
@@ -92,7 +91,7 @@ class GameEngineTickTest {
         val locked = engine.tick(
             gameState(
                 next = PieceType.J,
-                level = Level(29),
+                lines = LINES_TO_LEVEL_29,
                 phase = Phase.Falling(tPointingDown(at = Position(5, 18))),
             ),
         ).state
@@ -113,7 +112,7 @@ class GameEngineTickTest {
         // Given
         val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.S))
         val locked = engine.tick(
-            gameState(level = Level(29), phase = Phase.Falling(verticalI(at = Position(4, 18)))),
+            gameState(lines = LINES_TO_LEVEL_29, phase = Phase.Falling(verticalI(at = Position(4, 18)))),
         ).state
 
         // When
