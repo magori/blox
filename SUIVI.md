@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 106 / 155 | `██████████████░░░░░░` **68 %** |
+| **Général** | 107 / 156 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 21 / 27 | `████████████████░░░░` **78 %** |
 <!-- avancement:fin -->
 
@@ -575,8 +575,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
 - [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
-- [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
-  choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
+- [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
+  soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3).
 - [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
@@ -606,6 +606,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.38** Mettre à jour la maquette : action « Changer » (Changer de fichier) sous « Mon
   fichier », à côté d'« Écouter », et le nom du fichier retenu, à afficher ensuite
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
+- [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
+  développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 
 ## P6 — Mode Moderne (plus tard)
 

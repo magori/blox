@@ -19,7 +19,8 @@ internal class ChoiceColorsTest {
         val selected = choiceColors(palette, selected = true)
         val unselected = choiceColors(palette, selected = false)
 
-        // Then (WCAG 2.1, 1.4.11: the state of a user interface component)
+        // Then (WCAG 2.1, 1.4.11: the state of a user interface component; and 1.4.1: the two states differ in
+        // luminance, not in hue only)
         assertThat(contrast(selected.background, unselected.background)).isGreaterThanOrEqualTo(3.0)
     }
 
@@ -33,7 +34,7 @@ internal class ChoiceColorsTest {
         // When
         val colors = choiceColors(palette, selected)
 
-        // Then (WCAG 2.1, 1.4.3: text; the underline of a selected choice, drawn in its ink, asks for 3:1)
+        // Then (WCAG 2.1, 1.4.3: text)
         assertThat(contrast(colors.ink, colors.background)).isGreaterThanOrEqualTo(4.5)
     }
 
