@@ -948,6 +948,72 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `HomeViewModelTest › opening the music editor stops the preview`,
 `HomeScreenTest › the button Composer une musique, shown in capitals and read as written, opens the music editor`.
 
+### Éditeur : écoute (implémentée, P4.19c)
+
+- **Écouter / Arrêter** : bouton rond à droite du tempo (triangle ou carré, 48 dp), lu « Écouter » ou
+  « Arrêter ». Il joue la musique en cours par `MusicPlayer`, depuis la première case ; un seul
+  aperçu à la fois, comme à l'accueil (P4.7). Désactivé tant qu'aucune piste n'a de note. Une
+  musique qui s'arrête d'elle-même (focus refusé ou perdu, sortie audio en échec), même aussitôt
+  lancée, ramène le bouton à « Écouter ».
+- **Colonne jouée** : `Playback` ne dit pas sa position ; l'écran envoie ses images
+  (`withFrameNanos`, ADR 0012), `FrameTicks` les convertit en ticks entiers (sans dérive, tous les
+  ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `PlayHead` avance de
+  ticks × bpm (une case par croche, 15 ticks à 120 temps par minute), boucle après la mesure 8 et
+  suit un changement de tempo depuis l'endroit où elle se trouve. La colonne porte un contour en
+  deux traits, une ligne `ink` de 2 dp et un halo intérieur `boardBackground` de 1 dp : aucune
+  couleur unique ne se détache à 3:1 à la fois des cases claires et des notes foncées du thème
+  Original. Il est dessiné par-dessus la grille, sans recomposer les lignes. La mesure jouée porte
+  un trait sous son numéro et TalkBack la lit « en lecture ».
+- **Suivre la lecture**, activé par défaut, dans le menu « … » : la grille montre la mesure jouée.
+  Toucher une autre mesure pendant l'écoute coupe le suivi ; un message en bas de la grille le dit
+  (« La grille ne suit plus la lecture. Menu « … » pour la suivre à nouveau. »), sans recouvrir
+  Arrêter. Coupé ainsi, le suivi revient au prochain *Écouter* ; décoché dans le menu, il le reste.
+- Choix **[à vérifier]** à l'essai :
+  - modifier les notes pendant l'écoute (toucher, glisser, copier, effacer, annuler) arrête la
+    musique, pour ne jamais entendre une version périmée ;
+  - changer le tempo laisse la musique jouer au nouveau tempo (`setTempoFactor`) ; les onglets, le
+    mode et le filigrane aussi ;
+  - la musique s'arrête quand l'éditeur passe en arrière-plan (`ON_STOP`, donc aussi à une
+    rotation) et quand on le quitte ; elle continue derrière un dialogue.
+- Limites connues : la colonne part à la première image, avant le son (rendu de la partition,
+  latence du tampon de 100 à 350 ms, attente du focus) ; après un changement de tempo, le
+  séquenceur ne bascule qu'au temps suivant (décalage d'un temps au plus, sans cumul) ; une perte
+  passagère du focus (assistant vocal) met le son en pause mais pas la colonne. Un `Playback` qui
+  exposerait sa position les supprimerait (P4.25).
+- La partition jouée a l'identité provisoire `Personal("editor")` ; P4.19d donnera celle de la
+  musique enregistrée.
+
+**Tests :** `PlayHeadTest › the play head starts on the first cell of the first bar`,
+`PlayHeadTest › the play head moves on a cell each eighth note, 15 ticks at 120 beats per minute`,
+`PlayHeadTest › the play head comes back to the first cell after the eighth bar, as the music loops`,
+`PlayHeadTest › after a change of tempo, the play head moves on at the new tempo from where it stood`,
+`FrameTicksTest › the first frame only sets the time reference`,
+`FrameTicksTest › each frame gives the whole ticks of 1 60th of a second since the frame before, the rest carried over`,
+`FrameTicksTest › a frame time going back takes no tick away, and the ticks go on from it`,
+`ComposerUiStateTest › Listen is disabled while neither track has a note, as there is nothing to hear`,
+`ComposerViewModelTest › listening plays the music being edited, from its first cell`,
+`ComposerViewModelTest › listening again stops the music, and no cell is played`,
+`ComposerViewModelTest › the played cell follows the frames of the screen, a cell each eighth note at the tempo of the music`,
+`ComposerViewModelTest › following the playback, as it does at first, the grid shows the bar being played`,
+`ComposerViewModelTest › choosing another bar than the one played stops following the playback, and a message says so`,
+`ComposerViewModelTest › following stopped by choosing another bar comes back with the next listening, unlike following unchecked`,
+`ComposerViewModelTest › a message shown goes away`,
+`ComposerViewModelTest › the menu stops following the playback, and follows it again from the bar played`,
+`ComposerViewModelTest › changing the notes while listening stops the music, never playing a version gone`,
+`ComposerViewModelTest › the tabs, the mode and the watermark leave the music playing`,
+`ComposerViewModelTest › changing the tempo while listening plays the music on, at the new tempo`,
+`ComposerViewModelTest › after a change of tempo while listening, the played cell moves on at the new tempo`,
+`ComposerViewModelTest › Listen, disabled on an empty music, plays nothing when it comes all the same`,
+`ComposerViewModelTest › the music stops when the editor goes to the background, and plays on behind a dialog`,
+`ComposerViewModelTest › leaving the editor stops the music`,
+`ComposerViewModelTest › a music that stops by itself, as the audio output fails, offers to listen again`,
+`ComposerViewModelTest › a music that stops as soon as it is played, as when the audio focus is refused, offers to listen again`,
+`TrackColorsTest › the outline of the column played stands out from the cells, empty or filled, and the page by 3 to 1 at least`,
+`ComposerScreenTest › Listen plays the music being edited, disabled while it has no note, and Stop stops it`,
+`ComposerScreenTest › the bar played is read as such; choosing another stops following the playback, as the menu shows`,
+`ComposerScreenTest › Stop stays within reach while the message about following the playback shows`.
+Vues : V8, V11, V14, V17.
+
 ### Enregistrer
 
 - *Enregistrer* ouvre une fenêtre : le nom (proposé d'après la catégorie, par exemple
