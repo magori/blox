@@ -98,7 +98,7 @@ class GameViewModel internal constructor(
             val choice = preferences.preferences.first().music
             score = scoreOf(choice)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
-            if (isUnderWay()) playback = playMusic()
+            if (gameState.isUnderWay) playback = playMusic()
         }
     }
 
@@ -117,11 +117,11 @@ class GameViewModel internal constructor(
     }
 
     /**
-     * A frame was drawn at [frameNanos]: the engine plays the ticks due since the previous frame. Once
-     * the game is over, a frame does nothing: the game over screen state is published once, apart. While the
-     * game is paused, the screen hands no frame, and resuming starts the loop again ([onFramesStarted]); a
-     * frame that comes anyway plays its ticks, which change nothing, not even the duration of the game, and
-     * only moves the time reference on.
+     * A frame was drawn at [frameNanos]: the engine plays the ticks due since the previous frame. The
+     * screen hands frames only while the game runs ([GameUiState.running]). Once the game is over, a frame
+     * that comes anyway does nothing: the game over screen state is published once, apart. While the game is
+     * paused, resuming starts the loop again ([onFramesStarted]); a frame that comes anyway plays its ticks,
+     * which change nothing, not even the duration of the game, and only moves the time reference on.
      */
     internal fun onFrame(frameNanos: Long) {
         if (gameState.phase is Phase.GameOver) return
@@ -154,7 +154,7 @@ class GameViewModel internal constructor(
         publish()
         // Only when the game really goes on again (not resumed twice, not over): the music goes on where it
         // stopped, or starts if the game was paused before it started.
-        if (wasPaused && isUnderWay()) playback = playback?.resume() ?: playMusic()
+        if (wasPaused && gameState.isUnderWay) playback = playback?.resume() ?: playMusic()
     }
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
@@ -186,9 +186,6 @@ class GameViewModel internal constructor(
     } catch (_: IOException) {
         false
     }
-
-    /** Whether the game goes on: neither paused nor over. */
-    private fun isUnderWay(): Boolean = !gameState.paused && gameState.phase !is Phase.GameOver
 
     /** The game screen is left (Menu, Rejouer, system back): its music stops with it. */
     override fun onCleared() {

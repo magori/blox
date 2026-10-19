@@ -72,8 +72,9 @@ private val ScreenMargin = 24.dp
 
 /**
  * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): while it is started
- * and the game is not paused, it hands the view model every frame, after telling it that frames
- * start again.
+ * and the game runs ([GameUiState.running]: neither paused nor over), it hands the view model every frame,
+ * after telling it that frames start again. While it shows, paused or over included, it asks the display for 60 Hz
+ * ([GameDisplayModeEffect]), the rate of the simulation.
  *
  * When the screen is no longer in front (`ON_PAUSE`), the game pauses and stays paused until the
  * player resumes it. A recreation of the activity (dark theme, language, window size) goes through
@@ -96,12 +97,13 @@ internal fun GameScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     LaunchedEffect(viewModel, lifecycleOwner) {
         lifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-            // No frames while paused: the loop starts again, from scratch, when the game resumes.
+            // Frames only while the game runs: none while paused, none once it is over. The loop starts again,
+            // from scratch, when the game resumes.
             viewModel.uiState
-                .map { it.paused }
+                .map { it.running }
                 .distinctUntilChanged()
-                .collectLatest { paused ->
-                    if (!paused) {
+                .collectLatest { running ->
+                    if (running) {
                         viewModel.onFramesStarted()
                         while (true) {
                             withFrameNanos(viewModel::onFrame)
@@ -110,6 +112,8 @@ internal fun GameScreen(
                 }
         }
     }
+    // The simulation runs at 60 Hz: so does the display, while the game screen shows, paused or over included.
+    GameDisplayModeEffect()
     // A game over or a game already paused ignores the pause.
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
     val backAction by rememberPart(uiState, ::backAction)

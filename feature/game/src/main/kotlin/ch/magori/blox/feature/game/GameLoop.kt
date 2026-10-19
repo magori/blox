@@ -11,7 +11,9 @@ internal const val TICKS_PER_SECOND: Int = 60
  * computed with integers, so there is no drift. A frame never gives more than
  * [maxTicksPerFrame] ticks: after a long pause (application in the background), the surplus
  * is dropped instead of being caught up. Below 15 frames per second (60 / 4), the cap therefore
- * makes the game run slower instead of catching up, which is intended (ADR 0006).
+ * makes the game run slower instead of catching up, which is intended (ADR 0006). Above 60 Hz, the ticks
+ * would fall unevenly on the frames (one or none in turn at 90 Hz): the game screen asks the display for
+ * 60 Hz while it shows ([gameDisplayMode]).
  */
 internal class GameLoop(private val maxTicksPerFrame: Int = 4) {
     init {
