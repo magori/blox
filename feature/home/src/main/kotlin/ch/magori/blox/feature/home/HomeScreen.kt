@@ -67,7 +67,8 @@ internal const val START_LEVEL_TAG = "home_start_level"
  * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
  * this screen at once. A music with a BloX score may be listened to before playing. A music of the player chosen
  * for the games is the music selected, among the others. « Composer une musique » opens the music editor on a new
- * music, through [onCompose].
+ * music, through [onCompose]; « Mes musiques », in the header of the music section, opens the list of the musics of
+ * the player, through [onMyMusics].
  */
 @Composable
 internal fun HomeScreen(
@@ -80,6 +81,7 @@ internal fun HomeScreen(
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
     onCompose: () -> Unit,
+    onMyMusics: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -150,7 +152,10 @@ internal fun HomeScreen(
                 }
             }
         }
-        Section(title = R.string.feature_home_music) {
+        Section(
+            title = R.string.feature_home_music,
+            action = { MyMusicsLink(onClick = dropUnlessResumed { onMyMusics() }) },
+        ) {
             ChoiceRow {
                 MusicChoice.entries.forEach { music ->
                     // The music of the player chosen for the games stands before « Aucune », as on the mockup.
@@ -232,19 +237,28 @@ private fun Record(record: Int) {
     )
 }
 
-/** A titled group of choices. */
+/** A titled group of choices, with an [action] beside its title, if any. */
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Section(
     @StringRes title: Int,
+    action: (@Composable () -> Unit)? = null,
     content: @Composable () -> Unit,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(
-            text = stringResource(title),
-            color = BloxTheme.palette.label,
-            style = MaterialTheme.typography.labelLarge,
-            modifier = Modifier.semantics { heading() },
-        )
+        // The action of the section beside its title, or under it when short of room.
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            itemVerticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(title),
+                color = BloxTheme.palette.label,
+                style = MaterialTheme.typography.labelLarge,
+                modifier = Modifier.semantics { heading() },
+            )
+            action?.invoke()
+        }
         content()
     }
 }
@@ -434,6 +448,7 @@ private fun HomeScreenPreview(
             onStartLevelChosen = {},
             onPlay = {},
             onCompose = {},
+            onMyMusics = {},
         )
     }
 }

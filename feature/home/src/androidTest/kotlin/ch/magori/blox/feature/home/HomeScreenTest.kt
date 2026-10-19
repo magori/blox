@@ -272,12 +272,28 @@ internal class HomeScreenTest {
         assertThat(widths.max() - widths.min()).isLessThanOrEqualTo(1.dp)
     }
 
+    @Test
+    @DisplayName("the link MES MUSIQUES, in the header of the music section, read as written, opens my musics")
+    fun myMusicsLinkOpensMyMusics() = extension.use {
+        // Given
+        var opened = 0
+        showHomeScreen(onMyMusics = { opened++ })
+
+        // When
+        onNodeWithText("MES MUSIQUES").assertExists()
+        onNodeWithContentDescription("Mes musiques").performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(opened).isEqualTo(1) }
+    }
+
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
         onListenGameMusic: () -> Unit = {},
         onCompose: () -> Unit = {},
+        onMyMusics: () -> Unit = {},
     ) {
         setContent {
             val density = LocalDensity.current
@@ -294,6 +310,7 @@ internal class HomeScreenTest {
                         onStartLevelChosen = {},
                         onPlay = {},
                         onCompose = onCompose,
+                        onMyMusics = onMyMusics,
                     )
                 }
             }

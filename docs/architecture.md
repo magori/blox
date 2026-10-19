@@ -12,6 +12,8 @@ volontairement modeste : un module n'existe que s'il porte une responsabilité c
 graph TD
     app --> featureHome[feature:home]
     app --> featureGame[feature:game]
+    app --> featureComposer[feature:composer]
+    app --> featureMusics[feature:musics]
     app --> designsystem[core:designsystem]
     app --> data[core:data]
     app --> audio[core:audio]
@@ -31,6 +33,16 @@ graph TD
     featureGame --> music
     featureGame --> haptics
 
+    featureComposer --> designsystem
+    featureComposer --> data
+    featureComposer --> audio
+    featureComposer --> music
+
+    featureMusics --> designsystem
+    featureMusics --> data
+    featureMusics --> audio
+    featureMusics --> music
+
     audio --> music[core:music]
 
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
@@ -46,6 +58,8 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, rendu du plateau, commandes. |
+| `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
+| `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo. Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel. |

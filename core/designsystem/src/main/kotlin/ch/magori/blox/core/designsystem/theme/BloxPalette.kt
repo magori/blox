@@ -45,6 +45,12 @@ data class BloxPalette(
     val bass: TrackColors,
     /** The name of a line of the music editor out of the scale: dimmer than [label], still readable on [page]. */
     val outOfScale: Color,
+    /**
+     * What deletes: the confirmation button, filled in it, its label in [dangerInk], and the item of a menu, its label in
+     * it on [panel]. Red where the palette has one; [ink] in Original, which has none.
+     */
+    val danger: Color,
+    val dangerInk: Color,
 )
 
 object BloxPalettes {
@@ -89,6 +95,9 @@ object BloxPalettes {
         ),
         // #5F7F5C in the mockup, 3.3:1 on the page, too faint for a text: 4.6:1, still dimmer than the label.
         outOfScale = Color(0xFF486848),
+        // No red in the greens of the screen: the ink, as the mockup does.
+        danger = Color(0xFF34503A),
+        dangerInk = Color(0xFFEEF5EA),
     )
 
     /** Thème « Couleurs » : fond sombre, une couleur vive par pièce. */
@@ -130,5 +139,9 @@ object BloxPalettes {
             tabInk = Color(0xFF12141C),
         ),
         outOfScale = Color(0xFF7C8193),
+        // #E5534B in the mockup, the red of the Z piece, 4.43:1 on the panel, where a menu offers to delete: a lighter
+        // red, 5.29:1 there, 5.93:1 under the ink.
+        danger = Color(0xFFEB6A62),
+        dangerInk = Color(0xFF12141C),
     )
 }

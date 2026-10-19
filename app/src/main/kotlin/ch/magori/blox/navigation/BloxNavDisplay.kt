@@ -17,6 +17,9 @@ import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
+import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
+import ch.magori.blox.feature.musics.navigation.myMusicsEntry
 
 /**
  * Pile de navigation de l'application (ADR 0011). C'est le seul endroit qui connaît
@@ -30,6 +33,7 @@ fun BloxNavDisplay(
     homeViewModelFactory: HomeViewModel.Factory,
     gameViewModelFactory: GameViewModel.Factory,
     composerViewModelFactory: ComposerViewModel.Factory,
+    myMusicsViewModelFactory: MyMusicsViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
 ) {
@@ -47,8 +51,9 @@ fun BloxNavDisplay(
         entryProvider = entryProvider {
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
-                // Point d'entrée de l'éditeur, une musique neuve (V1) ; « Mes musiques » viendra avec P4.22.
+                // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).
                 onCompose = { backStack.add(ComposerRoute) },
+                onMyMusics = { backStack.add(MyMusicsRoute) },
                 viewModelFactory = homeViewModelFactory,
             )
             gameEntry(
@@ -57,6 +62,14 @@ fun BloxNavDisplay(
                 viewModelFactory = gameViewModelFactory,
             )
             composerEntry(onBack = goBack, viewModelFactory = composerViewModelFactory)
+            myMusicsEntry(
+                onBack = goBack,
+                // L'éditeur ne s'ouvre pas encore sur une musique tirée au hasard (P4.20) : *Au hasard* l'ouvre sur une
+                // musique neuve, comme *Nouvelle*, en attendant.
+                onRandom = { backStack.add(ComposerRoute) },
+                onNew = { backStack.add(ComposerRoute) },
+                viewModelFactory = myMusicsViewModelFactory,
+            )
         },
     )
 }

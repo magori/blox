@@ -14,7 +14,8 @@ internal class PaletteContrastTest {
     /**
      * A text colour on a background it is drawn on: titles, values and secondary buttons in `ink`, labels of the
      * panels and sections in `label`, on the page or in a panel; the main buttons and the new record badge in
-     * `accentInk` on `accent`.
+     * `accentInk` on `accent`; a deletion confirmed in `dangerInk` on `danger`, and offered in `danger` in a menu, on
+     * `panel`.
      */
     internal enum class TextPair(val text: (BloxPalette) -> Color, val background: (BloxPalette) -> Color) {
         INK_ON_PAGE(BloxPalette::ink, BloxPalette::page),
@@ -22,6 +23,8 @@ internal class PaletteContrastTest {
         INK_ON_PANEL(BloxPalette::ink, BloxPalette::panel),
         LABEL_ON_PANEL(BloxPalette::label, BloxPalette::panel),
         ACCENT_INK_ON_ACCENT(BloxPalette::accentInk, BloxPalette::accent),
+        DANGER_INK_ON_DANGER(BloxPalette::dangerInk, BloxPalette::danger),
+        DANGER_ON_PANEL(BloxPalette::danger, BloxPalette::panel),
     }
 
     @ParameterizedTest(name = "{0}, {1}")

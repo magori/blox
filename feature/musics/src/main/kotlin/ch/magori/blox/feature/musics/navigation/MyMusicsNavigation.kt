@@ -1,0 +1,96 @@
+package ch.magori.blox.feature.musics.navigation
+
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
+import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.feature.musics.MyMusicsActions
+import ch.magori.blox.feature.musics.MyMusicsScreen
+import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.feature.musics.NameProblem
+import kotlinx.serialization.Serializable
+
+/** Clé de « Mes musiques » (vues V7 et V10). */
+@Serializable
+data object MyMusicsRoute : NavKey
+
+/**
+ * Déclare l'entrée « Mes musiques » dans le fournisseur d'entrées de l'application (ADR 0011). `app` construit
+ * [viewModelFactory] (ADR 0013) ; [onBack] revient à l'accueil ; [onNew] ouvre l'éditeur sur une musique neuve et
+ * [onRandom] sur une musique tirée au hasard : l'éditeur est une autre feature, que la liste ne connaît pas.
+ */
+fun EntryProviderScope<NavKey>.myMusicsEntry(
+    onBack: () -> Unit,
+    onRandom: () -> Unit,
+    onNew: () -> Unit,
+    viewModelFactory: MyMusicsViewModel.Factory,
+) {
+    entry<MyMusicsRoute> {
+        val viewModel: MyMusicsViewModel = viewModel(factory = viewModelFactory)
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        // The view model decides what each event of the screen means for the music listened to (tested there); this
+        // observer, without a JVM test, only hands the events over.
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(lifecycle, viewModel) {
+            val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
+            lifecycle.addObserver(observer)
+            onDispose { lifecycle.removeObserver(observer) }
+        }
+        // Taps that leave count only while this screen is resumed: once the editor is on its way, a second does nothing.
+        val goBack = dropUnlessResumed { onBack() }
+        val openRandom = dropUnlessResumed { onRandom() }
+        val openNew = dropUnlessResumed { onNew() }
+        val actions = remember(viewModel, goBack, openRandom, openNew) {
+            EntryActions(viewModel, goBack = goBack, openRandom = openRandom, openNew = openNew)
+        }
+        // Nothing is shown until the musics are read: no empty list flashes.
+        uiState?.let { loaded -> MyMusicsScreen(uiState = loaded, actions = actions) }
+    }
+}
+
+/** The actions of the screen: to the [viewModel], and to the navigation of `app` for the editor and home. */
+private class EntryActions(
+    private val viewModel: MyMusicsViewModel,
+    private val goBack: () -> Unit,
+    private val openRandom: () -> Unit,
+    private val openNew: () -> Unit,
+) : MyMusicsActions {
+    override fun onBack() = goBack()
+
+    override fun onListen(id: ScoreId.Personal) = viewModel.onListen(id)
+
+    override fun onUse(id: ScoreId.Personal) = viewModel.onUse(id)
+
+    override fun onRename(id: ScoreId.Personal) = viewModel.onRename(id)
+
+    override fun renameProblem(name: String): NameProblem? = viewModel.renameProblem(name)
+
+    override fun onRenamed(name: String) = viewModel.onRenamed(name)
+
+    override fun onDelete(id: ScoreId.Personal) = viewModel.onDelete(id)
+
+    override fun onDeleteConfirmed() = viewModel.onDeleteConfirmed()
+
+    override fun onDialogDismissed() = viewModel.onDialogDismissed()
+
+    override fun onUndo() = viewModel.onUndo()
+
+    override fun onUndoDismissed() = viewModel.onUndoDismissed()
+
+    override fun onRandom() {
+        viewModel.onEditorOpened()
+        openRandom()
+    }
+
+    override fun onNew() {
+        viewModel.onEditorOpened()
+        openNew()
+    }
+}

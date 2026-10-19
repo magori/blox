@@ -635,6 +635,91 @@ voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des
   l'accueil.
 - Boutons *Au hasard* (ouvre l'éditeur sur une musique générée) et *Nouvelle*.
 
+### Mes musiques : écran (implémenté, P4.22c)
+
+Module `feature:musics` (amendement de l'ADR 0002) ; on y arrive par le lien **MES MUSIQUES** de
+l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
+
+- **Liste** : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché avant la lecture.
+  En-tête fixe (Retour, titre, « Pendant les parties : X » ou « la musique choisie à l'accueil »,
+  deux lignes au plus). Chaque carte : nom, « Catégorie · n temps/min » ou « Composée à la main ».
+- **Écoute** : par le lecteur partagé, une musique à la fois ; la toucher à nouveau l'arrête. La
+  carte écoutée affiche « Lecture · mesure n sur 8 », calculée d'après le tempo, sans dérive.
+  L'écoute s'arrête quand le lecteur s'arrête de lui-même, en arrière-plan (`ON_STOP`), en
+  quittant la liste, en ouvrant l'éditeur et quand on supprime la musique écoutée ; elle continue
+  derrière un dialogue. Comme dans l'éditeur, l'indication peut devancer le son (tampon audio,
+  perte passagère du focus : P4.25).
+- ***Utiliser* / *En jeu*** : un interrupteur pour TalkBack (« X pendant les parties »), activé pour
+  la musique jouée pendant les parties ; *Utiliser* la choisit, *En jeu* touché rend la musique de
+  l'accueil.
+- **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
+  - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
+    `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.
+  - *Supprimer* : confirmation (*Supprimer* ou *Garder la musique*), qui prévient si la musique est
+    en jeu que celle de l'accueil la remplacera. Puis « « X » est supprimée. » avec *Annuler* et une
+    croix, jusqu'à l'action suivante (une action faite pendant l'écriture empêche le message).
+    *Annuler* remet la musique à sa place, en jeu si elle l'était, sous un nom libre (`freeName`)
+    si le sien a été pris entre-temps.
+  - Une écriture qui échoue ne change rien : le dialogue ou le message reste, avec
+    « L'enregistrement a échoué. ».
+- *Au hasard* et *Nouvelle* ouvrent l'éditeur vierge : la génération (P4.20) et l'ouverture d'une
+  musique enregistrée (P4.19d, toucher du nom et *Modifier*) viendront ensuite.
+- Écarts avec V7 et V10 : *Utiliser* sous le nom et non à côté (la police pixel et la police ×2 ne
+  laissaient que quelques lettres au nom) ; menu déroulant comme celui de l'éditeur, pas de feuille
+  en bas d'écran ; pas de nom de gamme dans la ligne d'info ; pas de message après *Utiliser* ;
+  *Renommer* dans le menu de la carte (P4.26, maquette).
+
+**Tests :** `MyMusicsViewModelTest › the list shows the saved musics in their order, by their name, category and tempo`,
+`MyMusicsViewModelTest › the music played during the games is in game, and named at the top, the others are not`,
+`MyMusicsViewModelTest › without a music for the games, none is in game and the top names none`,
+`MyMusicsViewModelTest › Utiliser plays the music during the games, in place of the one played so far`,
+`MyMusicsViewModelTest › En jeu touched plays the music chosen on the home screen during the games again`,
+`MyMusicsViewModelTest › a music listened to plays its score, and its card shows the first bar of eight`,
+`MyMusicsViewModelTest › the bar shown follows the tempo of the music, and comes back to the first after the last`,
+`MyMusicsViewModelTest › a tempo whose bars last no whole number of milliseconds does not drift`,
+`MyMusicsViewModelTest › a music listened to again stops, and another one listened to takes its place`,
+`MyMusicsViewModelTest › a music that stops by itself offers to listen to it again`,
+`MyMusicsViewModelTest › leaving the list stops the music listened to`,
+`MyMusicsViewModelTest › the music listened to stops once the list is no longer seen`,
+`MyMusicsViewModelTest › a pause of the list alone, behind a dialog or in a split screen, lets the music listened to play on`,
+`MyMusicsViewModelTest › Renommer opens the dialog on the name of the music`,
+`MyMusicsViewModelTest › a name is refused when blank, taken by another music, the case and the spaces ignored, or too long`,
+`MyMusicsViewModelTest › a free name renames the music, without the spaces around it, and closes the dialog`,
+`MyMusicsViewModelTest › a name refused renames nothing, and leaves the dialog open`,
+`MyMusicsViewModelTest › the dialog closed renames nothing`,
+`MyMusicsViewModelTest › Supprimer asks to confirm, telling whether the music is played during the games`,
+`MyMusicsViewModelTest › Garder la musique deletes nothing`,
+`MyMusicsViewModelTest › the deletion confirmed deletes the music, and offers to undo it`,
+`MyMusicsViewModelTest › deleting the music listened to stops it, deleting another one lets it play`,
+`MyMusicsViewModelTest › Annuler puts the music deleted back at its place, played during the games again if it was`,
+`MyMusicsViewModelTest › Annuler touched twice puts the music back once`,
+`MyMusicsViewModelTest › the next action, or the message closed, ends the chance to undo the deletion`,
+`MyMusicsViewModelTest › an action made while the deletion is being written ends the chance to undo it before it is offered`,
+`MyMusicsViewModelTest › a music whose name another one took since its deletion comes back under a free name`,
+`MyMusicsViewModelTest › a music that cannot be put back keeps its message, to try again`,
+`MyMusicsViewModelTest › a rename that cannot be written leaves the dialog open, telling it failed`,
+`MyMusicsViewModelTest › a deletion that cannot be written leaves the confirmation open, telling it failed, and offers no undo`,
+`MyMusicsViewModelTest › a choice for the games that cannot be written changes nothing`,
+`CategoryLabelTest › each category has a label of its own, and a music written by hand another one`,
+`MyMusicsScreenTest › each card tells the name, the category and the tempo of its music, or the bar played while listened`,
+`MyMusicsScreenTest › Utiliser and En jeu are read as a switch, on for the music played during the games, and choose it`,
+`MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
+`MyMusicsScreenTest › the dialog Renommer refuses a name taken, saying why, and renames with a free one`,
+`MyMusicsScreenTest › a name too long is refused with the most characters a name may have`,
+`MyMusicsScreenTest › the confirmation of a deletion warns that the music of the home screen replaces the one in game`,
+`MyMusicsScreenTest › Supprimer, in the confirmation, deletes the music`,
+`MyMusicsScreenTest › Garder la musique, in the confirmation, keeps it`,
+`MyMusicsScreenTest › a rename or a deletion that could not be written is told in its dialog, still open`,
+`MyMusicsScreenTest › after a deletion, Annuler puts the music back, and the cross closes the message`,
+`MyMusicsScreenTest › Au hasard and Nouvelle open the editor, and the back button goes back home`,
+`MyMusicsScreenTest › the back button and the title stay in place when the list scrolls`,
+`MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Composée à la main`,
+`MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
+`MyMusicsScreenTest › every button is 48 dp wide and high at least`,
+`HomeViewModelTest › opening my musics stops the preview`,
+`HomeScreenTest › the link MES MUSIQUES, in the header of the music section, read as written, opens my musics`.
+Vues : V1, V7, V10.
+
 
 ### Mes musiques : stockage (implémenté, P4.22 tranche 1)
 

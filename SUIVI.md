@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 117 / 164 | `██████████████░░░░░░` **71 %** |
-| **MVP audio** | 24 / 27 | `██████████████████░░` **89 %** |
+| **Général** | 118 / 166 | `██████████████░░░░░░` **71 %** |
+| **MVP audio** | 25 / 27 | `███████████████████░` **93 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -414,7 +414,11 @@ Référence : [docs/musique.md](docs/musique.md).
 - [ ] **P4.25** Position de lecture exposée par `Playback` : la colonne jouée de l'éditeur est
   calculée à partir du temps ; elle part avant le son, change de tempo un temps trop tôt et
   continue pendant une perte passagère du focus. Le séquenceur dirait où il en est, et l'éditeur
-  le suivrait (revue de P4.19c, à faire si l'écart s'entend sur téléphone).
+  le suivrait (revue de P4.19c, à faire si l'écart s'entend sur téléphone). La liste « Mes
+  musiques » calcule de même sa « mesure n sur 8 » (P4.22c).
+- [ ] **P4.26** Mettre à jour la maquette : « Mes musiques » telle que codée (V7, V10, V13, V16) :
+  *Utiliser* / *En jeu* sous le nom, menu déroulant, *Renommer* dans le menu de la carte, pas de
+  message après *Utiliser*, lien « MES MUSIQUES » souligné à l'accueil (P4.22c).
 - [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
@@ -480,9 +484,11 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   - [x] **P4.22b** Jouer pendant les parties la musique choisie (`gameMusic`), à la place du
     choix de l'accueil : source suspendue dans la fabrique de `GameViewModel`, construite dans
     `app`.
-  - [ ] **P4.22c** Écran « Mes musiques » (V7, V10, V13, V16) : liste, écoute « mesure n sur 8 »,
+  - [x] **P4.22c** Écran « Mes musiques » (V7, V10, V13, V16) : liste, écoute « mesure n sur 8 »,
     Utiliser / En jeu, menu « … », suppression avec confirmation et annulation, *Au hasard* et
-    *Nouvelle*, navigation depuis l'accueil.
+    *Nouvelle*, navigation depuis l'accueil. Fait : module `feature:musics` ; *Au hasard* et
+    *Nouvelle* ouvrent l'éditeur vierge, ouvrir une musique enregistrée attend P4.19d (toucher du
+    nom, *Modifier*) et la génération P4.20.
   - [x] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1). Revue de P4.22b : choisir une autre musique à l'accueil (Aucune comprise) retire
     la musique personnelle des parties (`setGameMusic(null)`), test de `HomeViewModel`. Choisir
     un fichier à l'accueil la retire aussi (revue de P4.6).
@@ -643,6 +649,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
   `GameLoop` (`feature:game`) à son plafond de ticks par image près ; la monter dans un module
   partagé avec un plafond en paramètre (revue de P4.19c, règle de 2). Fait : `FrameTicks` dans `core:designsystem` (ADR 0012 amendé).
+- [ ] **P5.45** Doublons laissés par P4.22c (règle de 2) : `ComposerHeader` garde ses copies
+  privées de `GlyphButton`, `drawBack` et `drawDots`, à remplacer par `GlyphButton` et `Glyphs` de
+  `core:designsystem` ; `NameProblem` de la liste et `SaveProblem` de l'éditeur (nom vide, pris,
+  trop long) à réunir dans `core:data` (`MusicNames`). Après P4.19d.
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -21,11 +21,13 @@ data object HomeRoute : NavKey
 /**
  * Déclare l'entrée Accueil dans le fournisseur d'entrées de l'application (ADR 0011). `app` construit
  * [viewModelFactory] (ADR 0013) et reçoit, par [onPlay], le niveau de départ choisi : c'est `app` qui
- * crée la clé de la partie, avec sa graine. [onCompose] ouvre l'éditeur de musique, que l'accueil ne connaît pas.
+ * crée la clé de la partie, avec sa graine. [onCompose] ouvre l'éditeur de musique et [onMyMusics] la liste « Mes
+ * musiques », que l'accueil ne connaît pas.
  */
 fun EntryProviderScope<NavKey>.homeEntry(
     onPlay: (startLevel: Int) -> Unit,
     onCompose: () -> Unit,
+    onMyMusics: () -> Unit,
     viewModelFactory: HomeViewModel.Factory,
 ) {
     entry<HomeRoute> {
@@ -66,6 +68,10 @@ fun EntryProviderScope<NavKey>.homeEntry(
                 onCompose = {
                     viewModel.onCompose()
                     onCompose()
+                },
+                onMyMusics = {
+                    viewModel.onMyMusics()
+                    onMyMusics()
                 },
             )
         }

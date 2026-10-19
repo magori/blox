@@ -495,6 +495,23 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `opening my musics stops the preview`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When
+            viewModel.onMyMusics()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
     fun `the preview stops when the screen goes to the background, never the music of a game started since`() =
         runTest {
             // Given the minuet listened to, then a game that starts with Korobeiniki
