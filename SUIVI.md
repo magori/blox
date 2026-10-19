@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 100 / 147 | `██████████████░░░░░░` **68 %** |
+| **Général** | 101 / 147 | `██████████████░░░░░░` **69 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -479,7 +479,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 - [x] **P5.1** Icône de l'application et écran de démarrage. Fait : icône adaptative aux couleurs du
   logo, couche monochrome, écran de démarrage d'Android 12 par le thème (`docs/themes.md`).
 - [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
-- [ ] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
+- [x] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
 - [x] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
   à `ON_PAUSE` (l'horloge d'images ne s'arrête qu'à `ON_STOP`, ADR 0012). Revue de P2.2
@@ -573,7 +573,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
-  choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
+  choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
+  bouton « Jouer » de 48 dp de haut et en `accent` (P5.3).
 - [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
@@ -587,7 +588,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   remesurer le démarrage à froid avec et sans profil sur un appareil non partagé ; lancer
   `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
   recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
-  écrits en `<failure>` vide dans les XML d'AGP.
+  écrits en `<failure>` vide dans les XML d'AGP. Passe complète de `GameScreenTest` et
+  `BoardCanvasTest` sur un émulateur peu chargé (P5.3 : chaque test passé seul, jamais une passe
+  sans erreur « PixelCopy ») ; essai de TalkBack sur téléphone (ordre de lecture, plateau).
 - [ ] **P5.34** Commandes tenables via TalkBack et Switch Access (suite de C4) : action sémantique
   « Maintenir / Relâcher » ou appui long, annonce de l'état tenu, relâchement à la pause et en fin
   de partie, lien avec le DAS ; essai sur appareil, maquette si besoin (revue de P5.27).

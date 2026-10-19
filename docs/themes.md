@@ -207,6 +207,25 @@ Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`),
 `HomeScreenTest › TalkBack reads the selected start level as selected, and the others as not selected`.
 Vues : V1.
 
+
+## Accessibilité : contrastes et tailles de cible (P5.3)
+
+Tout texte se détache de son fond d'au moins 4,5:1 dans chaque thème codé (Original,
+Couleurs) : `ink` et `label` sur `page` et sur `panel`, `accentInk` sur `accent` (badge de
+record, `PrimaryButton`, choix sélectionné, bouton « Jouer », qui reçoit ces couleurs
+explicitement). Aucune couleur n'a changé. Brume n'existe que dans la maquette : il entrera dans
+ces tests quand il sera codé.
+
+Toute cible (bouton, choix, touche) fait au moins **48 dp visibles** de large et de haut
+(`BloxSizes.minTouchTarget`, une seule constante) : c'est une règle de BloX, plus stricte que
+WCAG 2.2 (2.5.8, 24 px) et qu'Android (qui accepte une zone tactile plus grande que le dessin).
+« Jouer » passe ainsi de 40 à 48 dp de haut. Exception en attente de décision : la largeur des
+niveaux de départ (P5.29) ; leur hauteur fait bien 48 dp.
+
+**Tests :** `PaletteContrastTest › a text stands out from its background by a contrast of 4,5 to 1 at least`,
+`HomeScreenTest › every button and choice is 48 dp wide and high at least, but the start levels`,
+`HomeScreenTest › every start level is 48 dp high at least`,
+`GameScreenTest › every button of the screen is 48 dp wide and high at least`. Vues : V1 à V4.
 ## Éditeur de musique (maquette)
 
 Couleurs des pistes de l'éditeur de musique (P4.19), retenues dans la maquette (V7 à V18) et le

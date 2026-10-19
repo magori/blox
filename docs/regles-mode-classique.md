@@ -104,6 +104,23 @@ by that piece` (les sept types ; formes à venir en P1.2).
   `GameViewModelTest › the next piece shown is the same instance from one frame to the next while it does not change`,
   `GameScreenTest › the side column does not recompose while the piece moves` (V2).
 
+
+**Lecture par TalkBack** (P5.3) : le plateau dit la hauteur de la pile, trous compris (« Plateau :
+vide », « Plateau : pile de 4 rangées sur 20 »). Elle ne change qu'au verrouillage ou à
+l'effacement et dit le danger ; la pièce en jeu n'y est pas, car elle bouge plusieurs fois par
+seconde et relancerait TalkBack (et le dessin, P5.11). Pas de région annoncée d'office : une
+annonce à chaque verrouillage couperait TalkBack en pleine partie. L'écran se lit toujours dans
+le même ordre, en portrait comme en paysage : plateau, scores, pièce suivante, flèches, puis B
+et A, chaque partie d'un bloc.
+`BoardSpeechTest › TalkBack says the height of the stack, holes included, out of the rows of the board`,
+`BoardSpeechTest › TalkBack says an empty board is empty, rather than a stack of no row`,
+`BoardCanvasTest › TalkBack reads the height of the stack on the board, in rows`,
+`BoardCanvasTest › TalkBack reads a stack of one row in the singular`,
+`BoardCanvasTest › TalkBack reads an empty board as empty`,
+`BoardCanvasTest › TalkBack reads the new height of the stack once a piece locks on top of it`,
+`BoardCanvasTest › the painters are not built again when a piece locks and the stack grows`,
+`GameScreenTest › TalkBack reads the board, the score, the next piece, the arrows, then B and A, each part as a whole`.
+Vues : V2, V3. À essayer avec TalkBack sur un téléphone.
 ## Tirage des pièces
 
 Générateur de la NES :
