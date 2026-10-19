@@ -1,7 +1,9 @@
 package ch.magori.blox.feature.game
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
@@ -37,6 +39,10 @@ import kotlin.reflect.KClass
  * The game of one [GameRoute]: one engine, created for this game from its seed (ADR 0014), started
  * at its level. The only writer of the game state (ADR 0012): the screen gives it the frames, it
  * turns them into ticks of the engine.
+ *
+ * A game is never taken up where it stood (ADR 0014): once its process died, the navigation restores
+ * its entry and a new view model plays the game of the route again, paused, so that nothing moves nor
+ * plays before the player chooses to resume it.
  */
 class GameViewModel internal constructor(
     engineFactory: GameEngineFactory,
@@ -45,6 +51,7 @@ class GameViewModel internal constructor(
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
     private val scoreOf: (MusicChoice) -> Score?,
+    savedState: SavedStateHandle,
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
 
@@ -52,8 +59,15 @@ class GameViewModel internal constructor(
     private val rotationSystem = engine.rules.rotationSystem
     private val loop = GameLoop()
 
-    /** The last state the engine returned: the only one it is given back (ADR 0014). */
-    private var gameState: GameState = engine.start(Level(route.startLevel)).state
+    /**
+     * The last state the engine returned: the only one it is given back (ADR 0014). A game whose process
+     * died while it was under way (its [savedState] says it had started) is not taken up where it stood,
+     * which the engine cannot do: it starts again from its route, paused, until the player resumes it or
+     * leaves it.
+     */
+    private var gameState: GameState = engine.start(Level(route.startLevel)).state.let { started ->
+        if (savedState.contains(STARTED_KEY)) engine.apply(started, Input.Pause).state else started
+    }
     private val state = MutableStateFlow(gameState.toUiState(rotationSystem))
 
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
@@ -65,6 +79,9 @@ class GameViewModel internal constructor(
     private var playback: Playback? = null
 
     init {
+        // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
+        // process dies, unlike this view model. A configuration change keeps the view model, and so the game.
+        savedState[STARTED_KEY] = true
         // The record shown in the top bar: its real value, followed as it changes. Unreadable records are
         // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
@@ -198,14 +215,20 @@ class GameViewModel internal constructor(
             extras: CreationExtras,
         ): T {
             val route = requireNotNull(extras[RouteKey]) { "The game route is missing from the creation extras" }
+            // The saved state of the entry, from its owner (the decorator of Navigation 3): the system gives it back
+            // after the process died, with the mark that the game had started.
+            val savedState = extras.createSavedStateHandle()
             @Suppress("UNCHECKED_CAST")
-            return GameViewModel(engineFactory, route, highScores, preferences, music, scoreOf) as T
+            return GameViewModel(engineFactory, route, highScores, preferences, music, scoreOf, savedState) as T
         }
     }
 
     companion object {
         /** Where the navigation entry puts the [GameRoute] for [Factory]. */
         val RouteKey: CreationExtras.Key<GameRoute> = object : CreationExtras.Key<GameRoute> {}
+
+        /** The key, in the saved state of the entry, of the mark that its game has started. */
+        private const val STARTED_KEY = "ch.magori.blox.feature.game.started"
     }
 }
 

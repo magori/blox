@@ -335,6 +335,23 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   `BackActionTest › while paused the system back resumes the game`,
   `BackActionTest › once the game is over the system back leaves the game, as Menu does`. Vues : V2, V3,
   pause (pas encore maquettée, P2.16).
+
+  **Après la mort du processus** (P5.13) : quand le système tue le processus d'une partie (en
+  jeu, en pause ou sur l'écran de fin), la pile de navigation restaure la partie, qui revient
+  **en pause et sans musique**, rejouée depuis sa route (même graine, même niveau de départ) :
+  l'état du moteur n'est jamais sauvé (ADR 0014). Reprendre la lance et joue sa musique depuis
+  le début ; Menu revient à l'accueil. L'écran de fin n'est pas restauré, mais le score avait
+  déjà été enregistré et ne l'est pas une seconde fois. Seul un marqueur « partie commencée »
+  passe par le `SavedStateHandle` de l'entrée de navigation (ADR 0013).
+
+  **Tests :** `GameViewModelTest › a game recreated after the process died starts paused, with no music`,
+  `GameViewModelTest › a first game, with nothing saved, is not paused and plays its music`,
+  `GameViewModelTest › a game recreated after the process died plays its music from the start when the player resumes it`,
+  `GameViewModelTest › a game over whose process died comes back as a new game, paused, its score not submitted again`,
+  `GameViewModelFactoryTest › a new entry gives the game of its route, not paused`,
+  `GameViewModelFactoryTest › an entry restored after the process died gives the game of its route, paused`,
+  `GameEntryRestorationTest › a game entry restored after the process died shows its game paused`.
+  Vue : pause.
 - Hors pause, `apply(state, input)` n'enregistre que les touches (`Press`, `Release` de ◀ ▶ ▼ A B) ; tout
   se passe dans `tick`, dans l'ordre de la ROM : **déplacement, rotation, descente**. Un
   verrouillage, même par descente rapide, a donc lieu dans `tick`, avec le même délai, la même

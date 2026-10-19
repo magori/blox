@@ -22,6 +22,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.runtime)
+    // Le SavedStateHandle de la partie, tiré des CreationExtras de son entrée de navigation (P5.13).
+    implementation(libs.androidx.lifecycle.viewmodel.savedstate)
     implementation(libs.kotlinx.coroutines.core)
     // Le retour système de l'écran de jeu (pause, reprise), par le même mécanisme que NavDisplay.
     implementation(libs.androidx.navigationevent)
@@ -35,4 +37,11 @@ dependencies {
     testImplementation(testFixtures(projects.core.designsystem))
     // Les tests instrumentés emploient ses annotations (ce que buildHealth demande de déclarer).
     androidTestImplementation(libs.androidx.annotation)
+    // Le test de la fabrique sauve puis restaure l'état d'une entrée, comme après la mort du processus.
+    androidTestImplementation(libs.androidx.savedstate)
+    // Le test de restauration compose l'entrée Jeu dans un NavDisplay décoré comme dans app.
+    androidTestImplementation(libs.androidx.navigation3.ui)
+    androidTestImplementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    // Son activité vide (ComponentActivity) porte le test de restauration.
+    androidTestImplementation(libs.androidx.activity)
 }

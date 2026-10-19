@@ -38,3 +38,11 @@ tirage de la première.)
 - La suite de `kotlin.random.Random(seed)` n'est pas un contrat entre versions de Kotlin : le
   jour où une graine est gardée ou partagée (partie rejouée, défi du jour), il faudra un
   générateur maison et un test qui fige les premières pièces d'une graine (tâche P1.20).
+
+## Amendement (P5.13, 2026-10-19)
+
+Une partie ne survit pas à la mort du processus : la pile de navigation restaure la `GameRoute`,
+et un ViewModel neuf rejoue la partie de la route depuis sa graine, en pause et sans musique,
+d'après un simple marqueur « partie commencée » rangé dans le `SavedStateHandle` de l'entrée.
+Aucun état du moteur n'est sauvé ; le score d'une partie terminée l'a été dès la fin de partie,
+et n'est pas soumis à nouveau. L'écran de fin n'est pas restauré.

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 82 / 143 | `███████████░░░░░░░░░` **57 %** |
+| **Général** | 83 / 143 | `████████████░░░░░░░░` **58 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -495,7 +495,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   chaque mouvement de la pièce (A2, A7).
 - [ ] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
   partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
-- [ ] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
+- [x] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
   « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
 - [x] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
   quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur

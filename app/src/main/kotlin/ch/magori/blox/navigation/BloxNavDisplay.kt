@@ -35,6 +35,8 @@ fun BloxNavDisplay(
         modifier = modifier,
         onBack = goBack,
         entryDecorators = listOf(
+            // L'ordre compte : le décorateur saveable fournit le registre d'état propre à l'entrée, d'où le décorateur
+            // de ViewModel tire le SavedStateHandle de la partie (P5.13).
             rememberSaveableStateHolderNavEntryDecorator(),
             rememberViewModelStoreNavEntryDecorator(),
         ),
