@@ -8,6 +8,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -21,7 +24,8 @@ import kotlin.math.roundToInt
  * to a sink in slices, the sink paces the loop. Playing another score replaces the one playing: there is
  * never more than one loop, nor more than one open sink. A sink that dies ([DeadSinkException]) is
  * released and another one opened ([ReopeningSink]): the music goes on where it stood. Any other failure
- * (no audio output, a write refused, a sink that keeps dying) stops the music, never the game.
+ * (no audio output, a write refused, a sink that keeps dying) stops the music, never the game: its
+ * [Playback.isPlaying] tells it.
  *
  * As soon as a score plays, its normal tempo and the tempos prepared for it ([prepareTempo], the danger
  * tempo of a game) are rendered in the background, if not cached yet, so that a change of tempo later
@@ -71,7 +75,9 @@ public class ChiptuneSequencer internal constructor(
      * loop, under [sinkLock].
      */
     private var cache: TempoBuffers? = null
-    private var playing: Job? = null
+
+    /** The playback of the score played last, stopped or not. Only used on the main thread. */
+    private var current: SequencerPlayback? = null
 
     /** The tempo factor asked for, read by the loop between two slices. */
     @Volatile
@@ -108,7 +114,7 @@ public class ChiptuneSequencer internal constructor(
     ): Playback {
         val playback = SequencerPlayback(score, from)
         // Stopped at once: the loop playing writes no more slice, nor sees the tempos of the next score.
-        playing?.cancel()
+        current?.stop()
         val job = scope.launch(writeDispatcher) {
             // One loop at a time: this one opens its sink once the one before has released its own, in
             // the order of the plays; a loop stopped while it waits never gets it. The cache is only used
@@ -124,8 +130,10 @@ public class ChiptuneSequencer internal constructor(
                 }
             }
         }
+        // However the loop ends (a stop, another score, a failure), its playback no longer plays.
+        job.invokeOnCompletion { playback.stopped() }
         playback.job = job
-        playing = job
+        current = playback
         return playback
     }
 
@@ -135,6 +143,11 @@ public class ChiptuneSequencer internal constructor(
     /** A score played by this sequencer, which keeps where its loop stood, to [resume] from there. */
     private inner class SequencerPlayback(private val score: Score, from: Place?) : Playback {
         lateinit var job: Job
+
+        /** Whether this playback plays: false for good once stopped, replaced, or once its loop failed. */
+        private val playing = MutableStateFlow(true)
+
+        override val isPlaying: Flow<Boolean> = playing.asStateFlow()
 
         /**
          * Where the loop stood after its last slice written, or, before it wrote anything, where it
@@ -147,6 +160,12 @@ public class ChiptuneSequencer internal constructor(
         // replaced is cancelled already, and a game left after the next one started stops nothing.
         override fun stop() {
             job.cancel()
+            stopped()
+        }
+
+        /** The loop ended, or is about to: called from the main thread, or from the thread of the loop. */
+        fun stopped() {
+            playing.value = false
         }
 
         override fun resume(): Playback = start(score, from = place)
@@ -230,7 +249,7 @@ public class ChiptuneSequencer internal constructor(
      * the main thread.
      */
     public fun stop() {
-        playing?.cancel()
+        current?.stop()
     }
 
     /**

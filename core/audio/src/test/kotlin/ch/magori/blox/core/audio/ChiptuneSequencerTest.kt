@@ -9,6 +9,7 @@ import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
@@ -308,6 +309,33 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
 
         // Then
         assertThat(reported).containsExactly(failure)
+    }
+
+    @Test
+    fun `a failure that stops the music tells its playback no longer plays`() = runTest {
+        // Given a sequencer whose sink cannot open
+        val sequencer = sequencer(openSink = { throw IllegalStateException("No audio output") })
+
+        // When
+        val playback = sequencer.play(korobeiniki)
+        assertThat(playback.isPlaying.first()).isTrue()
+        runCurrent()
+
+        // Then the home screen, which listens to it, may offer to listen again
+        assertThat(playback.isPlaying.first()).isFalse()
+    }
+
+    @Test
+    fun `a sink that keeps dying stops the playback`() = runTest {
+        // Given sinks that all die on their first write
+        val sequencer = sequencer(openSink = { sampleRate -> FakeSink(sampleRate, diesOnWrite = 1) })
+
+        // When
+        val playback = sequencer.play(korobeiniki)
+        runCurrent()
+
+        // Then after the reopenings, the music stops and its playback says so
+        assertThat(playback.isPlaying.first()).isFalse()
     }
 
     @Test
@@ -637,6 +665,16 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
         override suspend fun heard(): Heard? {
             val code = listen()?.roundToInt() ?: return null
             return Heard(ScoreId.entries[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0)
+        }
+
+        /** The only open sink refuses its next write, as a track in an error state: the music stops. */
+        override suspend fun fail() {
+            test.runCurrent()
+            val open = sinks.filterNot { it.released }.single()
+            open.refusesWrites = true
+            // Lets the write under way through: the next one fails.
+            open.written.tryReceive()
+            test.runCurrent()
         }
 
         /**

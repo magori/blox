@@ -1,11 +1,13 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Score
+import kotlinx.coroutines.flow.Flow
 
 /**
  * What a game needs of the music: play a score in a loop, change its tempo. Its failures never reach
- * the caller: the music stops, the game goes on. [ChiptuneSequencer] is the player of the app; it reports
- * its failures to its `onFailure`, called on a thread of `Dispatchers.IO`, not on the main thread.
+ * the caller: the music stops, the game goes on, and [Playback.isPlaying] tells it. [ChiptuneSequencer]
+ * is the player of the app; it reports its failures to its `onFailure`, called on a thread of
+ * `Dispatchers.IO`, not on the main thread.
  */
 public interface MusicPlayer {
     /**
@@ -33,6 +35,18 @@ public interface MusicPlayer {
 
 /** A score played by a [MusicPlayer]. */
 public interface Playback {
+    /**
+     * Whether this score still plays: true from [MusicPlayer.play] or [resume], false for good once it is
+     * stopped, replaced by another score, or once the music stops by itself (the sequencer fails; with
+     * [FocusedMusicPlayer], the focus lost for good or the headphones unplugged). A score has no natural
+     * end: it loops. With [FocusedMusicPlayer], a score waiting for the focus plays (true): the music comes
+     * back by itself with the focus; a score refused the focus is false at once. A state: it gives the
+     * current value at once, then each change, possibly from another thread (the sequencer tells a failure
+     * from a thread of `Dispatchers.IO`). Follow it on the main thread: [FocusedMusicPlayer] tells no
+     * passing `false` (a pause of the focus, a resume) only to a follower on that thread.
+     */
+    public val isPlaying: Flow<Boolean>
+
     /** Stops this score; does nothing if it was replaced by another one, or stopped already. */
     public fun stop()
 
