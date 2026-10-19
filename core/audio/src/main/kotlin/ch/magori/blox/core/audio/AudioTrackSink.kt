@@ -32,13 +32,18 @@ public class AudioTrackSink(sampleRate: Int) : AudioSink {
 
     override suspend fun write(samples: FloatArray) {
         val result = track.write(samples, 0, samples.size, AudioTrack.WRITE_BLOCKING)
+        if (result == AudioTrack.ERROR_DEAD_OBJECT) throw DeadSinkException("The AudioTrack died, error $result")
         check(result >= 0) { "The AudioTrack refused the samples, error $result" }
     }
 
+    /** Released even when dead: a track whose pause fails still frees its resources. */
     override fun release() {
-        track.pause()
-        track.flush()
-        track.release()
+        try {
+            track.pause()
+            track.flush()
+        } finally {
+            track.release()
+        }
     }
 
     private companion object {
