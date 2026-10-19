@@ -44,4 +44,6 @@ private object Silence : MusicPlayer {
     override fun play(score: Score): Playback = error("No music is played in these tests")
 
     override fun setTempoFactor(factor: Double) = Unit
+
+    override fun prepareTempo(factor: Double) = Unit
 }
