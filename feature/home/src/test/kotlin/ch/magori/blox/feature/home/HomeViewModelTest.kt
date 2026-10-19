@@ -7,10 +7,13 @@ import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
+import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.MusicFileRepository
+import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.game.model.Level
@@ -18,12 +21,16 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.rules.ClassicLevelProgression
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Scale
+import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -34,6 +41,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
+import java.io.IOException
 
 class HomeViewModelTest {
     @JvmField
@@ -41,6 +49,8 @@ class HomeViewModelTest {
     val mainDispatcher = MainDispatcherExtension()
 
     private val musicFiles = FakeMusicFileRepository()
+
+    private val library = FakeMusicLibrary()
 
     private val myFile = MusicFile("content://com.android.providers.media.documents/document/audio%3A42")
 
@@ -62,6 +72,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -98,6 +109,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -129,6 +141,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -150,7 +163,8 @@ class HomeViewModelTest {
         // Given unreadable records: as the contract says, they give 0, once, and the flow then ends
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository(initial = 12_345).apply { highScoreFlow = flowOf(0) }
-        val viewModel = HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores, musicFiles)
+        val viewModel =
+            HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores, musicFiles, library)
 
         viewModel.uiState.test {
             assertThat(expectMostRecentItem()?.record).isEqualTo(0)
@@ -181,6 +195,7 @@ class HomeViewModelTest {
                     music,
                     testScores,
                     musicFiles,
+                    library,
                 )
                 viewModel.uiState.test { cancelAndIgnoreRemainingEvents() }
             }
@@ -202,6 +217,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         // When
@@ -220,7 +236,15 @@ class HomeViewModelTest {
         // Given a mode that starts at levels 3 to 5
         val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(startLevel = savedLevel))
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(3, 4, 5), music, testScores, musicFiles)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                startingAt(3, 4, 5),
+                music,
+                testScores,
+                musicFiles,
+                library,
+            )
 
         // When / Then
         viewModel.uiState.test {
@@ -239,7 +263,15 @@ class HomeViewModelTest {
         // Given a mode that starts at levels 0, 5 and 10
         val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(startLevel = savedLevel))
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(0, 5, 10), music, testScores, musicFiles)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                startingAt(0, 5, 10),
+                music,
+                testScores,
+                musicFiles,
+                library,
+            )
 
         // When / Then
         viewModel.uiState.test {
@@ -258,6 +290,7 @@ class HomeViewModelTest {
                     music,
                     testScores,
                     musicFiles,
+                    library,
                 )
             }
             .withMessageContaining("start level")
@@ -531,6 +564,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 unread,
+                library,
             )
 
             viewModel.uiState.test {
@@ -591,6 +625,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -616,6 +651,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -689,6 +725,7 @@ class HomeViewModelTest {
                 music,
                 testScores,
                 musicFiles,
+                library,
             )
 
         viewModel.uiState.test {
@@ -726,7 +763,15 @@ class HomeViewModelTest {
         val preferences = FakeUserPreferencesRepository()
         val files = FakeMusicFileRepository(failWrites = true)
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), ClassicLevelProgression, music, testScores, files)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                files,
+                library,
+            )
 
         viewModel.uiState.test {
             // When
@@ -736,6 +781,293 @@ class HomeViewModelTest {
             assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.KOROBEINIKI)
             assertThat(expectMostRecentItem()?.music).isEqualTo(MusicChoice.KOROBEINIKI)
         }
+    }
+
+    @Test
+    fun `a music of the player played during the games is shown by its name, as the only music selected`() = runTest {
+        // Given Korobeiniki chosen on the home screen, and a music of the player chosen for the games
+        val evening = aGameMusic()
+        val viewModel = homeViewModel()
+
+        // When / Then
+        viewModel.uiState.test {
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic).isEqualTo(GameMusicUi(name = "Thème du soir", previewed = false))
+            assertThat(shown?.selectedMusic).isNull()
+        }
+    }
+
+    @Test
+    fun `without a music of the player for the games, the music chosen on the home screen is selected`() = runTest {
+        // Given a music of the player saved, but none chosen for the games
+        aSavedMusic("Thème du soir")
+        val viewModel = homeViewModel()
+
+        // When / Then
+        viewModel.uiState.test {
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic).isNull()
+            assertThat(shown?.selectedMusic).isEqualTo(MusicChoice.KOROBEINIKI)
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(names = ["KOROBEINIKI", "MINUET", "NONE"])
+    fun `choosing another music on the home screen leaves the music of the player and chooses it`(
+        choice: MusicChoice,
+    ) = runTest {
+        // Given the minuet chosen on the home screen, and a music of the player chosen for the games
+        val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET))
+        aGameMusic()
+        val viewModel = homeViewModelWith(preferences)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(choice)
+
+            // Then the games play the music chosen, even the one chosen before, or none
+            assertThat(library.gameMusic.first()).isNull()
+            assertThat(preferences.state.value?.music).isEqualTo(choice)
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic).isNull()
+            assertThat(shown?.selectedMusic).isEqualTo(choice)
+        }
+    }
+
+    @Test
+    fun `choosing my file with a music file kept leaves the music of the player`() = runTest {
+        // Given a music file kept, and a music of the player chosen for the games
+        musicFiles.state.value = myFile
+        val preferences = FakeUserPreferencesRepository()
+        aGameMusic()
+        val viewModel = homeViewModelWith(preferences)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(MusicChoice.MY_FILE)
+
+            // Then
+            assertThat(library.gameMusic.first()).isNull()
+            assertThat(expectMostRecentItem()?.selectedMusic).isEqualTo(MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `choosing a music file leaves the music of the player`() = runTest {
+        // Given a music of the player chosen for the games
+        val preferences = FakeUserPreferencesRepository()
+        aGameMusic()
+        val viewModel = homeViewModelWith(preferences)
+
+        viewModel.uiState.test {
+            // When the player picks a file in the picker of the system
+            viewModel.onMusicFileChosen(myFile.uri)
+
+            // Then
+            assertThat(library.gameMusic.first()).isNull()
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.MY_FILE)
+            assertThat(expectMostRecentItem()?.selectedMusic).isEqualTo(MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `choosing my file without a music file leaves the music of the player only once a file is picked`() = runTest {
+        // Given no music file, and a music of the player chosen for the games
+        aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When the player chooses « Mon fichier », and the picker opens
+            viewModel.onMusicChosen(MusicChoice.MY_FILE)
+
+            // Then the music of the player stays, as a picker cancelled leaves everything as it was
+            assertThat(library.gameMusic.first()).isNotNull()
+            assertThat(expectMostRecentItem()?.gameMusic).isNotNull()
+        }
+    }
+
+    @Test
+    fun `a music of the player that cannot be left stays selected, without crashing`() = runTest {
+        // Given a music of the player chosen for the games, in a library that can no longer be written
+        aGameMusic()
+        val unwritable = object : MusicLibrary by library {
+            override suspend fun setGameMusic(id: ScoreId.Personal?) = throw IOException("The disk is full")
+        }
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel = homeViewModelWith(preferences, musics = unwritable)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(MusicChoice.NONE)
+
+            // Then the music of the home screen is saved already, the first write; but the games still play the music of
+            // the player, and the screen shows it as before
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.NONE)
+            assertThat(library.gameMusic.first()?.name).isEqualTo("Thème du soir")
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic?.name).isEqualTo("Thème du soir")
+            assertThat(shown?.selectedMusic).isNull()
+        }
+    }
+
+    @Test
+    fun `a music that cannot be chosen leaves the music of the player for the games`() = runTest {
+        // Given a music of the player chosen for the games, and settings that can no longer be written
+        aGameMusic()
+        val viewModel = homeViewModelWith(FakeUserPreferencesRepository(failWrites = true))
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(MusicChoice.NONE)
+
+            // Then nothing changes
+            assertThat(library.gameMusic.first()?.name).isEqualTo("Thème du soir")
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic?.name).isEqualTo("Thème du soir")
+            assertThat(shown?.music).isEqualTo(MusicChoice.KOROBEINIKI)
+        }
+    }
+
+    @Test
+    fun `listening to the music of the player plays its score and shows it as previewed`() = runTest {
+        // Given a music of the player chosen for the games
+        val evening = aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onListenGameMusic()
+
+            // Then
+            assertThat(music.playing).isEqualTo(evening.id)
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic?.previewed).isTrue()
+            assertThat(shown?.previewing).isNull()
+        }
+    }
+
+    @Test
+    fun `listening again to the music of the player stops it`() = runTest {
+        // Given the music of the player listened to
+        aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListenGameMusic()
+
+            // When
+            viewModel.onListenGameMusic()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(music.calls.last()).isEqualTo("stop")
+            assertThat(expectMostRecentItem()?.gameMusic?.previewed).isFalse()
+        }
+    }
+
+    @Test
+    fun `listening to a music of the home screen stops the music of the player listened to`() = runTest {
+        // Given the music of the player listened to
+        aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListenGameMusic()
+
+            // When
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // Then
+            assertThat(music.playing).isEqualTo(ScoreId.MINUET)
+            val shown = expectMostRecentItem()
+            assertThat(shown?.gameMusic?.previewed).isFalse()
+            assertThat(shown?.previewing).isEqualTo(MusicChoice.MINUET)
+        }
+    }
+
+    @Test
+    fun `choosing another music stops the music of the player listened to`() = runTest {
+        // Given the music of the player listened to
+        aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListenGameMusic()
+
+            // When
+            viewModel.onMusicChosen(MusicChoice.MINUET)
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(LeavingTheGames::class)
+    fun `a music of the player listened to stops once it is no longer played during the games`(
+        leaving: LeavingTheGames,
+    ) = runTest {
+        // Given the music of the player listened to
+        val evening = aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListenGameMusic()
+
+            // When another screen deletes it, or chooses another music for the games
+            leaving.leave(library, evening)
+
+            // Then
+            assertThat(music.playing).isNotEqualTo(evening.id)
+            assertThat(music.calls.last()).isEqualTo("stop")
+            assertThat(expectMostRecentItem()?.gameMusic?.previewed ?: false).isFalse()
+        }
+    }
+
+    @Test
+    fun `without a music of the player for the games, there is nothing of it to listen to`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onListenGameMusic()
+
+            // Then
+            assertThat(music.calls).isEmpty()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    /** A music of the player called [name], saved in the library: the minuet, under a new personal identity. */
+    private suspend fun aSavedMusic(name: String): SavedMusic {
+        val id = library.newId()
+        val saved = SavedMusic(id, name, null, Scale(Pitch.parse("C4"), ScaleType.MAJOR), Scores.minuet.copy(id = id))
+        library.save(saved)
+        return saved
+    }
+
+    /** A music of the player called « Thème du soir », saved in the library and chosen for the games. */
+    private suspend fun aGameMusic(): SavedMusic = aSavedMusic("Thème du soir").also { library.setGameMusic(it.id) }
+
+    /** The ways a music of the player stops being played during the games, from another screen. */
+    enum class LeavingTheGames(val leave: suspend (FakeMusicLibrary, SavedMusic) -> Unit) {
+        DELETED({ library, music -> library.delete(music.id) }),
+        NO_LONGER_CHOSEN({ library, _ -> library.setGameMusic(null) }),
+        REPLACED({ library, _ ->
+            val id = library.newId()
+            library.save(
+                SavedMusic(
+                    id,
+                    "Autre",
+                    null,
+                    Scale(Pitch.parse("C4"), ScaleType.MAJOR),
+                    Scores.korobeiniki.copy(id = id),
+                ),
+            )
+            library.setGameMusic(id)
+        }),
     }
 
     /** The ways the player leaves the home screen. */
@@ -753,17 +1085,26 @@ class HomeViewModelTest {
             music,
             testScores,
             musicFiles,
+            library,
         )
         return ViewModelProvider.create(store, factory)[HomeViewModel::class]
     }
 
-    private fun homeViewModel(scoreOf: (MusicChoice) -> Score? = testScores): HomeViewModel = HomeViewModel(
-        FakeUserPreferencesRepository(),
+    private fun homeViewModel(scoreOf: (MusicChoice) -> Score? = testScores): HomeViewModel =
+        homeViewModelWith(scoreOf = scoreOf)
+
+    private fun homeViewModelWith(
+        preferences: FakeUserPreferencesRepository = FakeUserPreferencesRepository(),
+        musics: MusicLibrary = library,
+        scoreOf: (MusicChoice) -> Score? = testScores,
+    ): HomeViewModel = HomeViewModel(
+        preferences,
         FakeHighScoreRepository(),
         ClassicLevelProgression,
         music,
         scoreOf,
         musicFiles,
+        musics,
     )
 
     /** A mode whose games may start at [levels] only. */

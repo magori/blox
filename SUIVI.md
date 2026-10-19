@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 107 / 156 | `██████████████░░░░░░` **69 %** |
-| **MVP audio** | 21 / 27 | `████████████████░░░░` **78 %** |
+| **Général** | 108 / 157 | `██████████████░░░░░░` **69 %** |
+| **MVP audio** | 22 / 27 | `████████████████░░░░` **81 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -471,7 +471,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   - [ ] **P4.22c** Écran « Mes musiques » (V7, V10, V13, V16) : liste, écoute « mesure n sur 8 »,
     Utiliser / En jeu, menu « … », suppression avec confirmation et annulation, *Au hasard* et
     *Nouvelle*, navigation depuis l'accueil.
-  - [ ] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1). Revue de P4.22b : choisir une autre musique à l'accueil (Aucune comprise) retire
+  - [x] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1). Revue de P4.22b : choisir une autre musique à l'accueil (Aucune comprise) retire
     la musique personnelle des parties (`setGameMusic(null)`), test de `HomeViewModel`. Choisir
     un fichier à l'accueil la retire aussi (revue de P4.6).
 - [x] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
@@ -577,7 +577,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
-  bouton « Jouer » de 48 dp de haut et en `accent` (P5.3).
+  bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
+  musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher.
 - [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
@@ -591,7 +592,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   remesurer le démarrage à froid avec et sans profil sur un appareil non partagé ; lancer
   `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
   recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
-  écrits en `<failure>` vide dans les XML d'AGP. Passe complète de `GameScreenTest` et
+  écrits en `<failure>` vide dans les XML d'AGP. Passe complète de `HomeScreenTest` (P5.36, P4.22d), de `GameScreenTest` et
   `BoardCanvasTest` sur un émulateur peu chargé (P5.3 : chaque test passé seul, jamais une passe
   sans erreur « PixelCopy ») ; essai de TalkBack sur téléphone (ordre de lecture, plateau).
 - [ ] **P5.34** Commandes tenables via TalkBack et Switch Access (suite de C4) : action sémantique
@@ -608,6 +609,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
+- [ ] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
+  trois lignes (captures de P4.22d) : la faire tenir (libellé, mise en page ou retour à la ligne).
 
 ## P6 — Mode Moderne (plus tard)
 

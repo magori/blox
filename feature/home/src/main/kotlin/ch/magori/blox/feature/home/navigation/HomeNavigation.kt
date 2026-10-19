@@ -55,6 +55,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
                 onThemeChosen = viewModel::onThemeChosen,
                 onMusicChosen = viewModel::onMusicChosen,
                 onListen = viewModel::onListen,
+                onListenGameMusic = viewModel::onListenGameMusic,
                 onChangeMusicFile = viewModel::onChangeMusicFile,
                 onStartLevelChosen = viewModel::onStartLevelChosen,
                 onPlay = { startLevel ->

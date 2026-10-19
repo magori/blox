@@ -7,7 +7,7 @@ import ch.magori.blox.core.data.ThemeChoice
  * What the home screen shows (V1).
  *
  * @property theme the chosen theme.
- * @property music the chosen music.
+ * @property music the music chosen on the home screen, the one the games play when no [gameMusic] is chosen.
  * @property startLevel the chosen start level, always one of [startLevels].
  * @property startLevels the levels the mode lets a game start at, in increasing order.
  * @property record the best score, its real value: the screen caps what it shows.
@@ -15,6 +15,8 @@ import ch.magori.blox.core.data.ThemeChoice
  *   fichier » once a music file is picked.
  * @property previewing the music being listened to, one of [listenable]; null when none is.
  * @property hasMusicFile whether a music file is picked for « Mon fichier »: it may then be changed.
+ * @property gameMusic the music of the player played during the games (« Mes musiques »), instead of [music]; null
+ *   when there is none.
  */
 internal data class HomeUiState(
     val theme: ThemeChoice,
@@ -25,4 +27,17 @@ internal data class HomeUiState(
     val listenable: List<MusicChoice>,
     val previewing: MusicChoice?,
     val hasMusicFile: Boolean = false,
-)
+    val gameMusic: GameMusicUi? = null,
+) {
+    /**
+     * The music choice shown selected: [music], unless a music of the player is played during the games, then the only
+     * music selected.
+     */
+    val selectedMusic: MusicChoice? get() = music.takeIf { gameMusic == null }
+}
+
+/**
+ * The music of the player played during the games, shown among the music choices of the home screen: its [name], and
+ * whether it is being listened to, [previewed].
+ */
+internal data class GameMusicUi(val name: String, val previewed: Boolean)

@@ -1,13 +1,20 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -82,7 +89,52 @@ internal class HomeScreenTest {
         repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsAtLeast(BloxSizes.minTouchTarget) }
     }
 
-    private fun ComposeContext.showHomeScreen(state: HomeUiState = uiState) {
+    @Test
+    @DisplayName("a music of the player for the games is read as such, the only music selected, a 48 dp radio button")
+    fun theMusicOfThePlayerIsTheOnlyMusicSelected() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
+
+        // Then TalkBack says it is the music of the games, not only its name
+        onNodeWithContentDescription("Thème du soir, en jeu")
+            .assertIsSelected()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        onNodeWithText("Menuet").assertIsNotSelected()
+    }
+
+    @Test
+    @DisplayName("listening to the music of the player for the games calls for it")
+    fun listeningToTheMusicOfThePlayerCallsForIt() = extension.use {
+        // Given
+        var listened = 0
+        showHomeScreen(
+            uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)),
+            onListenGameMusic = { listened++ },
+        )
+
+        // When
+        onNodeWithContentDescription("Écouter Thème du soir").performClick()
+
+        // Then
+        assertThat(listened).isEqualTo(1)
+    }
+
+    @Test
+    @DisplayName("the music of the player being listened to offers to stop it")
+    fun theMusicOfThePlayerBeingListenedToOffersToStopIt() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = true)))
+
+        // Then
+        onNodeWithContentDescription("Arrêter Thème du soir").assertHasClickAction()
+        onNodeWithContentDescription("Écouter Thème du soir").assertDoesNotExist()
+    }
+
+    private fun ComposeContext.showHomeScreen(
+        state: HomeUiState = uiState,
+        onListenGameMusic: () -> Unit = {},
+    ) {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 HomeScreen(
@@ -90,6 +142,7 @@ internal class HomeScreenTest {
                     onThemeChosen = {},
                     onMusicChosen = {},
                     onListen = {},
+                    onListenGameMusic = onListenGameMusic,
                     onChangeMusicFile = {},
                     onStartLevelChosen = {},
                     onPlay = {},

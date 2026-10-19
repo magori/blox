@@ -10,6 +10,8 @@ import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.MusicFileRepository
+import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -17,6 +19,7 @@ import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -25,7 +28,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -39,7 +41,8 @@ import kotlin.reflect.KClass
  * listen to a music with a BloX score before playing (« Écouter »), on the [music] player the game
  * plays on too; [scoreOf] gives the score of a music choice, null for none (`app` defines it). « Mon
  * fichier » plays the music file the player picked in the picker of the system, kept in [musicFiles]; it
- * may be listened to once there is one.
+ * may be listened to once there is one. A music of the player chosen for the games in [library] (« Mes musiques ») is
+ * shown as the music selected, the games playing it; choosing another music leaves it.
  */
 class HomeViewModel(
     private val preferences: UserPreferencesRepository,
@@ -48,18 +51,20 @@ class HomeViewModel(
     private val music: MusicPlayer,
     private val scoreOf: (MusicChoice) -> Score?,
     private val musicFiles: MusicFileRepository,
+    private val library: MusicLibrary,
 ) : ViewModel() {
     private val startLevels: List<Int> = levelProgression.startLevels.map { it.value }
 
     /**
-     * The music file the player picked, the only reading of [musicFiles], followed for as long as the screen lives;
-     * null until it is read.
+     * The music file the player picked and the music of the player chosen for the games, the only readings of
+     * [musicFiles] and of [library], followed for as long as the screen lives; null until both are read.
      */
-    private val keptFile: StateFlow<KeptFile?> =
-        musicFiles.musicFile.map(::KeptFile).stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
+    private val sources: StateFlow<MusicSources?> =
+        combine(musicFiles.musicFile, library.gameMusic, ::MusicSources)
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = null)
 
     /** The music file the player picked, once read; null while there is none, or before it is read. */
-    private val musicFile: MusicFile? get() = keptFile.value?.file
+    private val musicFile: MusicFile? get() = sources.value?.file
 
     private val pickerRequested = MutableStateFlow(false)
 
@@ -70,7 +75,7 @@ class HomeViewModel(
     internal val musicFilePickerRequested: StateFlow<Boolean> = pickerRequested.asStateFlow()
 
     /** The music being listened to, if any. */
-    private val previewing = MutableStateFlow<MusicChoice?>(null)
+    private val previewing = MutableStateFlow<Previewed?>(null)
 
     /** The playback of the music being listened to: stopping it never stops a music started since. */
     private var preview: Playback? = null
@@ -80,14 +85,22 @@ class HomeViewModel(
 
     init {
         require(startLevels.isNotEmpty()) { "A mode offers at least one start level" }
+        // A music of the player listened to stops once it is no longer the one of the games: deleted, or replaced,
+        // from another screen. The home screen no longer shows it, nor its button to stop it.
+        viewModelScope.launch {
+            sources.filterNotNull().collect { current ->
+                val listened = previewing.value
+                if (listened is Previewed.Personal && listened.id != current.gameMusic?.id) stopPreview()
+            }
+        }
     }
 
     /**
-     * What the screen shows; null while the saved settings and the music file are not read yet, so that nothing
-     * flashes, nor a listen button shows up late.
+     * What the screen shows; null while the saved settings, the music file and the music for the games are not read
+     * yet, so that nothing flashes, nor a listen button or a choice shows up late.
      */
     internal val uiState: StateFlow<HomeUiState?> =
-        combine(preferences.preferences, highScores.highScore, previewing, keptFile.filterNotNull(), ::toUiState)
+        combine(preferences.preferences, highScores.highScore, previewing, sources.filterNotNull(), ::toUiState)
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
@@ -97,16 +110,17 @@ class HomeViewModel(
     internal fun onThemeChosen(theme: ThemeChoice) = save { setTheme(theme) }
 
     /**
-     * Saves [music]; the music being listened to, if another one, stops. « Mon fichier » without a music file
-     * opens the picker instead: it is chosen once a file is picked.
+     * Saves [music], which the games play from now on instead of the music of the player chosen for them, if any; the
+     * music being listened to, if another one, stops. « Mon fichier » without a music file opens the picker instead: it
+     * is chosen once a file is picked.
      */
     internal fun onMusicChosen(music: MusicChoice) {
         if (music == MusicChoice.MY_FILE && musicFile == null) {
             pickerRequested.value = true
             return
         }
-        if (music != previewing.value) stopPreview()
-        save { setMusic(music) }
+        if (Previewed.Choice(music) != previewing.value) stopPreview()
+        save { choose(music) }
     }
 
     /** Saves [startLevel] if the mode offers it; any other level is ignored. */
@@ -116,14 +130,14 @@ class HomeViewModel(
 
     /**
      * The player picked [uri] in the picker of the system, opened by « Mon fichier »: the file is kept, then
-     * « Mon fichier » chosen; the music being listened to stops, the file being another music. A file that
-     * cannot be kept leaves the music chosen before. A picker cancelled tells nothing: the choice stays.
+     * « Mon fichier » chosen, as [onMusicChosen] does; the music being listened to stops, the file being another music.
+     * A file that cannot be kept leaves the music chosen before. A picker cancelled tells nothing: the choice stays.
      */
     internal fun onMusicFileChosen(uri: String) {
         stopPreview()
         save {
             musicFiles.setMusicFile(MusicFile(uri))
-            setMusic(MusicChoice.MY_FILE)
+            choose(MusicChoice.MY_FILE)
         }
     }
 
@@ -140,6 +154,20 @@ class HomeViewModel(
     /** The player listens to [listened], before playing. */
     internal fun onListen(listened: MusicChoice) {
         val listenedMusic = listenedMusicOf(listened, musicFile) ?: return
+        listen(Previewed.Choice(listened), listenedMusic)
+    }
+
+    /** The player listens to the music of the player chosen for the games, its score, before playing; if there is one. */
+    internal fun onListenGameMusic() {
+        val gameMusic = sources.value?.gameMusic ?: return
+        listen(Previewed.Personal(gameMusic.id), gameMusic.score)
+    }
+
+    /** Plays [listenedMusic], known on the screen as [listened]; or stops it, if it is being listened to already. */
+    private fun listen(
+        listened: Previewed,
+        listenedMusic: Music,
+    ) {
         val again = previewing.value == listened
         stopPreview()
         if (!again) {
@@ -198,20 +226,31 @@ class HomeViewModel(
         }
     }
 
+    /**
+     * Chooses [music] on the home screen, and leaves the music of the player chosen for the games: in the mockup (V1), it
+     * is one of the music choices, of which one only is selected. The home screen music is saved first: if the library
+     * then fails to be written, the music of the player stays selected, as before.
+     */
+    private suspend fun choose(music: MusicChoice) {
+        preferences.setMusic(music)
+        library.setGameMusic(null)
+    }
+
     private fun toUiState(
         saved: UserPreferences,
         record: Int,
-        previewed: MusicChoice?,
-        kept: KeptFile,
+        previewed: Previewed?,
+        sources: MusicSources,
     ): HomeUiState = HomeUiState(
         theme = saved.theme,
         music = saved.music,
         startLevel = startLevels.minBy { abs(it - saved.startLevel) },
         startLevels = startLevels,
         record = record,
-        listenable = MusicChoice.entries.filter { listenedMusicOf(it, kept.file) != null },
-        previewing = previewed,
-        hasMusicFile = kept.file != null,
+        listenable = MusicChoice.entries.filter { listenedMusicOf(it, sources.file) != null },
+        previewing = (previewed as? Previewed.Choice)?.choice,
+        hasMusicFile = sources.file != null,
+        gameMusic = sources.gameMusic?.let { GameMusicUi(it.name, previewed = previewed == Previewed.Personal(it.id)) },
     )
 
     /**
@@ -234,18 +273,29 @@ class HomeViewModel(
         private val music: MusicPlayer,
         private val scoreOf: (MusicChoice) -> Score?,
         private val musicFiles: MusicFileRepository,
+        private val library: MusicLibrary,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return HomeViewModel(preferences, highScores, levelProgression, music, scoreOf, musicFiles) as T
+            return HomeViewModel(preferences, highScores, levelProgression, music, scoreOf, musicFiles, library) as T
         }
     }
 
-    /** The music file read from the repository: [file] is null when the player has picked none. */
-    private data class KeptFile(val file: MusicFile?)
+    /**
+     * The music [file] the player picked, null when there is none, and the music of the player played during the games,
+     * [gameMusic], null when the games play the music chosen on the home screen.
+     */
+    private data class MusicSources(val file: MusicFile?, val gameMusic: SavedMusic?)
+
+    /** A music being listened to: a [Choice] of the home screen, or the music of the player of [Personal] identity. */
+    private sealed interface Previewed {
+        data class Choice(val choice: MusicChoice) : Previewed
+
+        data class Personal(val id: ScoreId.Personal) : Previewed
+    }
 
     private companion object {
         /** Keeps the settings flowing across a configuration change, as the Android guidance advises. */

@@ -85,6 +85,33 @@ pause de focus).
 Vue : V1. À vérifier sur téléphone : casque Bluetooth débranché, podcast lancé, assistant vocal
 pendant l'aperçu.
 
+**Musique personnelle à l'accueil** (P4.22d) : la musique de « Mes musiques » retenue pour les
+parties apparaît parmi les choix de musique, sous son nom (sur deux lignes au besoin), comme le
+seul choix sélectionné ; TalkBack la lit « nom, en jeu ». Elle s'écoute (*Écouter*) comme les
+autres. Elle n'a pas d'action : choisir une autre musique de l'accueil (Korobeïniki, Menuet,
+Aucune, Mon fichier) la retire des parties (la musique de l'accueil est enregistrée d'abord), et
+elle disparaît de l'accueil ; on la retrouvera dans « Mes musiques » (P4.22c). Son aperçu
+s'arrête si elle n'est plus la musique des parties. Écart avec la maquette V1 : ni icône de note
+ni grille de trois colonnes (P5.30).
+
+**Tests :** `HomeViewModelTest › a music of the player played during the games is shown by its name, as the only music selected`,
+`HomeViewModelTest › without a music of the player for the games, the music chosen on the home screen is selected`,
+`HomeViewModelTest › choosing another music on the home screen leaves the music of the player and chooses it`,
+`HomeViewModelTest › choosing my file with a music file kept leaves the music of the player`,
+`HomeViewModelTest › choosing a music file leaves the music of the player`,
+`HomeViewModelTest › choosing my file without a music file leaves the music of the player only once a file is picked`,
+`HomeViewModelTest › a music of the player that cannot be left stays selected, without crashing`,
+`HomeViewModelTest › a music that cannot be chosen leaves the music of the player for the games`,
+`HomeViewModelTest › listening to the music of the player plays its score and shows it as previewed`,
+`HomeViewModelTest › listening again to the music of the player stops it`,
+`HomeViewModelTest › listening to a music of the home screen stops the music of the player listened to`,
+`HomeViewModelTest › choosing another music stops the music of the player listened to`,
+`HomeViewModelTest › a music of the player listened to stops once it is no longer played during the games`,
+`HomeViewModelTest › without a music of the player for the games, there is nothing of it to listen to`,
+`HomeScreenTest › a music of the player for the games is read as such, the only music selected, a 48 dp radio button`,
+`HomeScreenTest › listening to the music of the player for the games calls for it`,
+`HomeScreenTest › the music of the player being listened to offers to stop it`. Vue : V1.
+
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 
