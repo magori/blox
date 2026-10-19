@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * A music player that notes what it is told, in order (`play <id>`, `play file <uri>`, `stop`, `resume <id>`,
- * `resume file <uri>`, `tempo <factor>`), and keeps the identifier of the score [playing] or the music file
+ * `resume file <uri>`, `tempo <factor>`), the scores it was told to play ([playedScores]), and keeps the identifier of the score [playing] or the music file
  * [playingFile], the [tempo] it plays at and the tempos [prepared]. As the real one, it plays one music at a time:
  * stopping a playback that was replaced leaves the new one playing; a new play starts at the normal tempo and forgets
  * the tempos prepared, a resume goes on at the tempo asked for, with the tempos prepared; a tempo factor that is not
@@ -18,6 +18,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
  */
 class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
+
+    /** The scores played ([play], not resumed), in order: what they hold, which [calls] does not tell. */
+    val playedScores = mutableListOf<Score>()
     var playing: ScoreId? = null
         private set
     var playingFile: MusicFile? = null
@@ -30,6 +33,7 @@ class FakeMusicPlayer : MusicPlayer {
 
     override fun play(music: Music): Playback {
         calls += "play ${music.noted}"
+        if (music is Score) playedScores += music
         tempo = 1.0
         prepared = emptySet()
         return start(music)

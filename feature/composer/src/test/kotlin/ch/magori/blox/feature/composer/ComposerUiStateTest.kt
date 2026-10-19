@@ -36,6 +36,20 @@ class ComposerUiStateTest {
         assertThat(bass.isTrackEmpty).isTrue()
     }
 
+    @Test
+    fun `Listen is disabled while neither track has a note, as there is nothing to hear`() {
+        // When
+        val empty = ComposerUiState(EditorState.new(), showOtherTrack = true)
+        val bassOnly = ComposerUiState(
+            EditorState.new().copy(track = Track.BASS).touch(pitch("C3"), eighth = 0),
+            showOtherTrack = true,
+        )
+
+        // Then
+        assertThat(empty.canListen).isFalse()
+        assertThat(bassOnly.canListen).isTrue()
+    }
+
     private fun uiState(tempo: Tempo) =
         ComposerUiState(EditorState(ScoreDraft.new(tempo = tempo)), showOtherTrack = true)
 }

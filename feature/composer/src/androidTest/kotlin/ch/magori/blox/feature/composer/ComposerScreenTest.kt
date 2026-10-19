@@ -29,6 +29,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -56,7 +57,8 @@ internal class ComposerScreenTest {
     @RegisterExtension
     val recompositions = RecompositionRecorder()
 
-    private val viewModel = ComposerViewModel()
+    private val music = FakeMusicPlayer()
+    private val viewModel = ComposerViewModel(music)
 
     @Test
     @DisplayName("touching an empty cell places a note, and touching it again erases it")
@@ -227,6 +229,7 @@ internal class ComposerScreenTest {
                     uiState = ComposerUiState(opened, showOtherTrack = true),
                     onBack = {},
                     onOtherTrackShown = {},
+                    onFollowPlayback = {},
                     onTrackChosen = {},
                     onModeChosen = {},
                     onUndo = {},
@@ -237,6 +240,8 @@ internal class ComposerScreenTest {
                     onBarChosen = {},
                     onSlower = {},
                     onFaster = {},
+                    onListen = {},
+                    onMessageShown = {},
                 )
             }
         }
@@ -296,6 +301,80 @@ internal class ComposerScreenTest {
         repeat(8) { index -> bars[index].assertHeightIsAtLeast(BloxSizes.minTouchTarget) }
     }
 
+    @Test
+    @DisplayName("Listen plays the music being edited, disabled while it has no note, and Stop stops it")
+    fun listenPlaysThenStops() = extension.use {
+        // Given a new music, with nothing to hear
+        showEditor()
+        onNodeWithContentDescription("Écouter").assertIsNotEnabled()
+        cell("Mi bas, temps 1").performClick()
+        // The play head moves on at each frame while the music plays: the clock is moved by hand.
+        waitForIdle()
+        mainClock.autoAdvance = false
+
+        // When
+        onNodeWithContentDescription("Écouter").assertIsEnabled().performClick()
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        assertThat(music.playing).isEqualTo(EDITED_SCORE_ID)
+
+        // When
+        onNodeWithContentDescription("Arrêter").performClick()
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        assertThat(music.playing).isNull()
+        onNodeWithContentDescription("Écouter").assertExists()
+    }
+
+    @Test
+    @DisplayName("the bar played is read as such; choosing another stops following the playback, as the menu shows")
+    fun theBarPlayedAndFollowingThePlayback() = extension.use {
+        // Given a music listened to, in its first bar
+        showEditor()
+        cell("Mi bas, temps 1").performClick()
+        waitForIdle()
+        mainClock.autoAdvance = false
+        onNodeWithContentDescription("Écouter").performClick()
+        mainClock.advanceTimeByFrame()
+        onNodeWithContentDescription("Mesure 1").assertState("en lecture").assertIsSelected()
+
+        // When
+        onNodeWithContentDescription("Mesure 3").performClick()
+        // The message comes in with an animation.
+        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
+
+        // Then
+        onNodeWithContentDescription("Mesure 3").assertIsSelected()
+        onNodeWithText("La grille ne suit plus la lecture", substring = true).assertExists()
+        onNodeWithContentDescription("Plus d'options").performClick()
+        mainClock.advanceTimeByFrame()
+        onNodeWithText("Suivre la lecture").assertIsOff()
+    }
+
+    @Test
+    @DisplayName("Stop stays within reach while the message about following the playback shows")
+    fun stopStaysWithinReachUnderTheMessage() = extension.use {
+        // Given a music listened to, and the message shown by choosing another bar
+        showEditor()
+        cell("Mi bas, temps 1").performClick()
+        waitForIdle()
+        mainClock.autoAdvance = false
+        onNodeWithContentDescription("Écouter").performClick()
+        mainClock.advanceTimeByFrame()
+        onNodeWithContentDescription("Mesure 3").performClick()
+        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
+        onNodeWithText("La grille ne suit plus la lecture", substring = true).assertExists()
+
+        // When
+        onNodeWithContentDescription("Arrêter").performTouchInput { click() }
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        assertThat(music.playing).isNull()
+    }
+
     private fun ComposeContext.showEditor(
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         modifier: Modifier = Modifier,
@@ -317,6 +396,7 @@ internal class ComposerScreenTest {
 
     private companion object {
         const val SLIDE_STEPS = 10
+        const val MESSAGE_SHOWN_MILLIS = 500L
         const val BAR_TAG = "composer_bar"
         const val CELL_TAG = "composer_cell"
         val NARROWEST_PHONE = 360.dp

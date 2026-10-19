@@ -146,8 +146,8 @@ class AppContainer(context: Context) {
         musicLibrary,
     )
 
-    /** The music editor: a new music, nothing to read or play yet (listening and saving come later, P4.19). */
-    val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory()
+    /** The music editor: a new music, listened to by the music player of the games (saving comes later, P4.19d). */
+    val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music)
 }
 
 private const val TAG = "BloX"
