@@ -24,8 +24,8 @@ import kotlinx.coroutines.flow.onEach
  * notification or a navigation voice, without a word (Android 8 and later).
  *
  * A music that stops by itself (the player it wraps fails) does not give the focus back: the one who
- * follows [Playback.isPlaying] stops the playback, which gives it back (the home screen does). A game does
- * not follow it: its focus stays held, in silence, until the game is paused or over.
+ * follows [Playback.isPlaying] stops the playback, which gives it back: the home screen does, and so does a
+ * game, which goes on in silence until it is paused, then resumed (the music tries again).
  *
  * Call it from the main thread, the one [focus] reports on, and follow [Playback.isPlaying] there too.
  */

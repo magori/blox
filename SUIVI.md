@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 98 / 147 | `█████████████░░░░░░░` **67 %** |
+| **Général** | 99 / 147 | `█████████████░░░░░░░` **67 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -568,7 +568,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.34** Commandes tenables via TalkBack et Switch Access (suite de C4) : action sémantique
   « Maintenir / Relâcher » ou appui long, annonce de l'état tenu, relâchement à la pause et en fin
   de partie, lien avec le DAS ; essai sur appareil, maquette si besoin (revue de P5.27).
-- [ ] **P5.35** En jeu, une musique morte (séquenceur en échec) garde le focus audio jusqu'à la
+- [x] **P5.35** En jeu, une musique morte (séquenceur en échec) garde le focus audio jusqu'à la
   pause ou la fin : `GameViewModel` pourrait suivre `Playback.isPlaying` et rendre le focus,
   sans couper la partie (revue de P4.23).
 
