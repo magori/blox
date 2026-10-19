@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 116 / 164 | `██████████████░░░░░░` **71 %** |
+| **Général** | 117 / 164 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 24 / 27 | `██████████████████░░` **89 %** |
 <!-- avancement:fin -->
 
@@ -640,9 +640,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
   qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
   `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18). Vu en P5.42 : « COMPOSER UNE MUSIQUE » coupé en « COMPOSER UNE MU » à ×2 (P4.19b).
-- [ ] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
+- [x] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
   `GameLoop` (`feature:game`) à son plafond de ticks par image près ; la monter dans un module
-  partagé avec un plafond en paramètre (revue de P4.19c, règle de 2).
+  partagé avec un plafond en paramètre (revue de P4.19c, règle de 2). Fait : `FrameTicks` dans `core:designsystem` (ADR 0012 amendé).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -176,7 +176,7 @@ Simulation à **pas fixe** : 1 tick = 1 image = 1/60 s (ADR 0006). Le domaine ne
 les ticks, jamais de millisecondes ni d'horloge ; l'aléatoire est injecté (`Randomizer`). DAS,
 délai d'apparition, gravité sont comptés en ticks, donc testables sans appareil. L'horloge
 d'images appartient à l'écran (`withFrameNanos` dans un `LaunchedEffect`), jamais au ViewModel :
-`viewModelScope` n'a pas de `MonotonicFrameClock` (ADR 0012). Une classe pure `GameLoop` rend le nombre
+`viewModelScope` n'a pas de `MonotonicFrameClock` (ADR 0012). Une classe pure `FrameTicks` (`core:designsystem`) rend le nombre
 de ticks dus ; le ViewModel les applique au moteur après les entrées.
 
 ### Organisation prévue de `core:game`

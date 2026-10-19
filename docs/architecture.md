@@ -86,7 +86,7 @@ graph LR
         Screen[GameScreen<br/>Compose] -- actions --> VM[GameViewModel]
         VM -- GameUiState --> Screen
         Screen -- onFrame(nanos) --> VM
-        VM -- temps d'image --> Loop[GameLoop<br/>nombre de ticks dus]
+        VM -- temps d'image --> Loop[FrameTicks<br/>nombre de ticks dus]
         Loop -- n --> VM
     end
     VM -- Input, puis tick ×n --> Engine[GameEngine<br/>core:game]
@@ -161,9 +161,9 @@ graph LR
 
 Le jeu est simulé à **pas fixe** : 1 tick = 1 image = 1/60 s, comme sur la NES. L'écran
 possède l'horloge d'images : un `LaunchedEffect` de `GameScreen` lance, dans
-`repeatOnLifecycle(STARTED)`, `viewModel.onFramesStarted()` (qui remet `GameLoop` à zéro) puis
+`repeatOnLifecycle(STARTED)`, `viewModel.onFramesStarted()` (qui remet son horloge à zéro) puis
 une boucle qui appelle `viewModel.onFrame(nanos)` à chaque image via `withFrameNanos`. Le
-ViewModel délègue à une classe pure `GameLoop`, qui
+ViewModel délègue à une classe pure `FrameTicks` (`core:designsystem`, partagée avec l'éditeur de musique), qui
 accumule le temps réel écoulé et rend le nombre de ticks dus ; le ViewModel applique les entrées
 puis ces ticks au moteur, dont il est le seul écrivain. Le domaine
 ne connaît que les ticks, jamais les millisecondes : la vitesse ne dépend pas de la
@@ -172,10 +172,10 @@ mode à 60 Hz, ou à défaut 120 Hz, pour que chaque tick tombe sur un nombre en
 la boucle s'arrête en pause et en fin de partie (P5.12). Voir les [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)
 et [0012](adr/0012-horloge-d-images-cote-ecran.md).
 
-`GameLoop` calcule en entiers (nanosecondes × 60), sans dérive. Elle plafonne le nombre de
-ticks par image (4 par défaut) : sous 15 images/s, le jeu ralentit au lieu de rattraper. Une
+`FrameTicks` calcule en entiers (nanosecondes × 60), sans dérive. Elle plafonne le nombre de
+ticks par image si on le lui demande : 4 pour le jeu, qui ralentit sous 15 images/s au lieu de rattraper ; aucun pour la tête de lecture de l'éditeur, qui suit une musique jouée en temps réel (P5.44). Une
 image dont le temps recule ne donne aucun tick, et `reset()` repose la référence à la reprise.
-Tests : `GameLoopTest` (`feature:game`).
+Tests : `FrameTicksTest` (`core:designsystem`).
 
 Les commandes (maintien d'une flèche, répétition automatique) sont aussi comptées en ticks
 dans le domaine. Ainsi le comportement du « DAS » de la NES est testable sans appareil.

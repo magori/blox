@@ -97,3 +97,14 @@ Options envisagées :
   clignotement, chute régulière, retour à la fréquence d'origine sur l'accueil.
 - Le diagramme de `docs/architecture.md` est mis à jour : l'écran envoie les images, le
   ViewModel envoie les entrées, `GameLoop` envoie les ticks au moteur.
+
+## Amendement (P5.44, 2026-10-20)
+
+`GameLoop` devient `FrameTicks` (`core:designsystem`, paquet `frame`), partagée par le jeu et
+l'éditeur de musique, dont la tête de lecture (P4.19c) en avait une copie. Le plafond de ticks par
+image est un paramètre : 4 pour le jeu (la raison ci-dessus ne change pas), aucun pour l'éditeur,
+qui suit une musique jouée en temps réel et doit rattraper tous les ticks. `GameLoop.reset()`
+devient `FrameTicks.reset()`. La classe reste pure (sans coroutine ni horloge), testée sur la JVM
+(`FrameTicksTest`) ; elle vit dans `core:designsystem` parce que les deux features en dépendent
+déjà et que le domaine ne doit pas connaître le temps réel (ADR 0006). `TICKS_PER_SECOND` y est
+public.
