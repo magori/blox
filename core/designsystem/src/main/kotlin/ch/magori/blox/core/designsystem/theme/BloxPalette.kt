@@ -39,6 +39,12 @@ data class BloxPalette(
     val accentPressed: Color,
     /** The four cells of the logo of the home screen. */
     val logoCells: LogoColors,
+    /** The notes of the melody in the music editor. */
+    val melody: TrackColors,
+    /** The notes of the bass in the music editor. */
+    val bass: TrackColors,
+    /** The name of a line of the music editor out of the scale: dimmer than [label], still readable on [page]. */
+    val outOfScale: Color,
 )
 
 object BloxPalettes {
@@ -66,6 +72,23 @@ object BloxPalettes {
             bottomLeft = Color(0xFFBFD6B6),
             bottomRight = Color(0xFFEEF5EA),
         ),
+        // The held tints of the mockup, #6E8F6A and #87A67F, stood out from the cells by 2.9:1 and 2.2:1 only: one
+        // darker green, 3.1:1, for both, paler than both attacks.
+        // The open tab is filled in the accent, as every selected choice of this palette.
+        melody = TrackColors(
+            note = Color(0xFF34503A),
+            held = Color(0xFF6A8A66),
+            tab = Color(0xFF34503A),
+            tabInk = Color(0xFFEEF5EA),
+        ),
+        bass = TrackColors(
+            note = Color(0xFF5F7F5C),
+            held = Color(0xFF6A8A66),
+            tab = Color(0xFF34503A),
+            tabInk = Color(0xFFEEF5EA),
+        ),
+        // #5F7F5C in the mockup, 3.3:1 on the page, too faint for a text: 4.6:1, still dimmer than the label.
+        outOfScale = Color(0xFF486848),
     )
 
     /** Thème « Couleurs » : fond sombre, une couleur vive par pièce. */
@@ -93,5 +116,19 @@ object BloxPalettes {
             bottomLeft = Color(0xFFE5534B),
             bottomRight = Color(0xFF5BC46A),
         ),
+        // The open tab takes the colour of its notes, the label in the ink of the page.
+        melody = TrackColors(
+            note = Color(0xFF3FC5E8),
+            held = Color(0xFF2A8BA6),
+            tab = Color(0xFF3FC5E8),
+            tabInk = Color(0xFF12141C),
+        ),
+        bass = TrackColors(
+            note = Color(0xFFEF8D3B),
+            held = Color(0xFFA8642A),
+            tab = Color(0xFFEF8D3B),
+            tabInk = Color(0xFF12141C),
+        ),
+        outOfScale = Color(0xFF7C8193),
     )
 }

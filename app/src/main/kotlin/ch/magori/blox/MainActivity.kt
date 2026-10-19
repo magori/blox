@@ -30,6 +30,7 @@ class MainActivity : ComponentActivity() {
                     BloxNavDisplay(
                         homeViewModelFactory = container.homeViewModelFactory,
                         gameViewModelFactory = container.gameViewModelFactory,
+                        composerViewModelFactory = container.composerViewModelFactory,
                         // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
                         // finds the play button, the keys and the pause by them, whatever the language.
                         modifier = Modifier.semantics { testTagsAsResourceId = true },

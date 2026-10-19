@@ -16,4 +16,8 @@ import ch.magori.blox.core.music.melodyVoice
 internal enum class Track(val range: PitchRange, val voice: (List<Note>) -> Voice) {
     MELODY(MELODY_RANGE, ::melodyVoice),
     BASS(BASS_RANGE, ::bassVoice),
+    ;
+
+    /** The track of the other tab: the bass for the melody, the melody for the bass. */
+    val other: Track get() = if (this == MELODY) BASS else MELODY
 }

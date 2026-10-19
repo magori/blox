@@ -28,6 +28,7 @@ dependencies {
     implementation(projects.core.designsystem)
     implementation(projects.feature.home)
     implementation(projects.feature.game)
+    implementation(projects.feature.composer)
     implementation(projects.core.game)
     implementation(projects.core.data)
     implementation(projects.core.audio)

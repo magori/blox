@@ -445,6 +445,12 @@ private fun GameScreenLandscapePreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
 }
 
+@Preview(widthDp = 800, heightDp = 360, fontScale = 2f)
+@Composable
+internal fun GameScreenLandscapeLargeFontPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
 @Preview(widthDp = 1280, heightDp = 800)
 @Composable
 private fun GameScreenTabletPreview() {

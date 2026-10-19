@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 111 / 160 | `██████████████░░░░░░` **69 %** |
-| **MVP audio** | 22 / 27 | `████████████████░░░░` **81 %** |
+| **Général** | 113 / 162 | `██████████████░░░░░░` **70 %** |
+| **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -279,8 +279,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `buttonOutline`, cadre de 2 dp autour des touches au repos (3,50:1).
 - [x] **P2.23** Contraste du bouton pause en thème Couleurs : même défaut que les flèches (1,36:1
   contre la page) ; lui donner le cadre `buttonOutline` (`topbar/GameTopBar.kt`, `PauseButton`). Fait : `pauseButtonColors`, couleurs d'une touche au repos (3,50:1).
-- [ ] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
-  tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre.
+- [x] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
+  tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre. Fait : plancher d'un texte
+  qui rétrécit au plus petit de 8 sp et de sa taille en police normale (`shrinkFloor`) ; l'aperçu
+  n'était pas écrasé (pièce I).
 - [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
   contre 24 points sur la maquette (marges de 24 dp et colonne de 112 dp) ; grands vides au-dessus
   et en dessous à 360 × 760. Trancher entre une colonne plus étroite, des marges réduites ou la
@@ -453,14 +455,16 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   Découpée en tranches :
   - [x] **P4.19a** Modèle de l'éditeur, sans écran : grille, gestes, barre d'outils, annuler,
     tempo, « modifiée », noms, conversions partition ↔ brouillon.
-  - [ ] **P4.19b** Écran de l'éditeur (V8, V11, V14, V17) : `ComposerViewModel`, clé `NavKey` et
+  - [x] **P4.19b** Écran de l'éditeur (V8, V11, V14, V17) : `ComposerViewModel`, clé `NavKey` et
     entrée dans `app`, grille d'une mesure avec ses gestes, onglets, barre d'outils, boutons de
     mesure, noms de notes pour le lecteur d'écran, filigrane de l'autre piste, cases à deux
     doubles croches, captures des thèmes ; retirer l'exclusion `buildHealth` de `feature:composer`.
   - [ ] **P4.19c** Écoute dans l'éditeur : *Écouter* par `MusicPlayer`, colonne jouée, *Suivre la
     lecture*.
   - [ ] **P4.19d** Enregistrer, quitter, renommer, supprimer, avec le stockage de P4.22 : fenêtre
-    d'enregistrement sur `MusicNames`, question en quittant.
+    d'enregistrement sur `MusicNames`, question en quittant. Reportés de la revue de P4.19b : garder
+    le brouillon dans `SavedStateHandle` (rotation, mort du processus), Retour qui demande avant de
+    quitter une musique modifiée, aperçu du glissé (cases traversées surlignées).
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
@@ -577,8 +581,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [x] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
-- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
-  sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
+- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large, en deux lignes de 5
+  (décision du développeur, 2026-10-19, plutôt qu'un sélecteur − / +) ; maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
@@ -615,6 +619,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 - [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
   trois lignes (captures de P4.22d) : la faire tenir (libellé, mise en page ou retour à la ligne).
+- [ ] **P5.40** Mettre à jour la maquette de l'éditeur (V8, V11, V14, V17) selon le code de P4.19b :
+  onglets à la couleur de la piste en Couleurs, noms de ligne hors gamme en italique, hauteur
+  minimale des lignes (26 dp), bouton « COMPOSER UNE MUSIQUE » de l'accueil en capitales avec icône.
 - [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
@@ -623,6 +630,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
   police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30).
+- [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
+  qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
+  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18).
 
 ## P6 — Mode Moderne (plus tard)
 

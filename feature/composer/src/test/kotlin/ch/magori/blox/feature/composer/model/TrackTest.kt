@@ -11,4 +11,10 @@ class TrackTest {
         assertThat(Track.MELODY.range).isEqualTo(MELODY_RANGE)
         assertThat(Track.BASS.range).isEqualTo(BASS_RANGE)
     }
+
+    @Test
+    fun `the other track of the melody is the bass, and of the bass the melody`() {
+        assertThat(Track.MELODY.other).isEqualTo(Track.BASS)
+        assertThat(Track.BASS.other).isEqualTo(Track.MELODY)
+    }
 }

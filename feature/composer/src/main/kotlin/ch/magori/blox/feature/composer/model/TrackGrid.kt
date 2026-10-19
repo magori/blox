@@ -70,10 +70,17 @@ internal data class TrackGrid(val rows: List<GridRow>, val notes: List<GridNote>
     fun lengthen(
         pitch: Pitch,
         cell: Cell,
-    ): TrackGrid {
-        val start = notesOf(pitch).map { it.start }.filter { it in cell.barStart until cell.end }.maxOrNull()
-        return withNote(pitch, start ?: cell.start, cell.end)
-    }
+    ): TrackGrid = withNote(pitch, noteToLengthen(pitch, cell)?.start ?: cell.start, cell.end)
+
+    /**
+     * The note that touching [cell] on the line of [pitch] in the Lengthen mode lengthens, shortens or brings back to
+     * one cell: the one of that pitch that starts closest on the left of the end of [cell] in its bar; `null` when
+     * none does, and an eighth note is placed.
+     */
+    fun noteToLengthen(
+        pitch: Pitch,
+        cell: Cell,
+    ): GridNote? = notesOf(pitch).filter { it.start in cell.barStart until cell.end }.maxByOrNull { it.start }
 
     /**
      * The grid with [bar], counted from 0, left silent, and only that bar: a note that comes into it from the bar before

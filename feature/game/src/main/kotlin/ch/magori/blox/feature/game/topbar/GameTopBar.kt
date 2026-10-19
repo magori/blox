@@ -39,6 +39,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.shrinkToFit
 
 /** The sizes of the top bar, in one place; the touch target is [BloxSizes.minTouchTarget]. */
 private object TopBarSizes {
@@ -72,14 +73,16 @@ internal fun GameTopBar(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         PauseButton(onPause = onPause)
+        // On two lines, shrinking if needed: with an enlarged font, back to its size with the normal font, where
+        // CLASSIQUE fits whole, rather than cut.
         Text(
             text = stringResource(R.string.feature_game_top_title).uppercase(),
             color = palette.ink,
-            fontSize = TopBarSizes.title,
             style = BloxTheme.typography.title,
             textAlign = TextAlign.Center,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis,
+            autoSize = shrinkToFit(TopBarSizes.title),
             modifier = Modifier
                 .weight(1f)
                 .semantics { heading() },

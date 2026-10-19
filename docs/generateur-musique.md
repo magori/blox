@@ -869,7 +869,85 @@ suivantes. Choix de conception, **[à vérifier]** à l'essai :
 `TrackGridTest › a grid holds its notes within the eight bars, one at a time`,
 `TrackTest › each track spans the range in which the generator writes its voice`.
 
-Vues : V8, V11, V14, V17 (pas encore d'écran).
+Vues : V8, V11, V14, V17 (écran : section suivante).
+
+### Éditeur : écran (implémenté, P4.19b)
+
+Le bouton « COMPOSER UNE MUSIQUE » de l'accueil (sous les choix de musique) ouvre l'éditeur sur
+une musique neuve ; ouvrir l'éditeur arrête l'aperçu. L'écran (`ComposerScreen`, sans logique)
+porte l'en-tête et son menu (*Montrer l'autre piste en filigrane*), les onglets *Mélodie* /
+*Basse* (l'onglet choisi prend la couleur de sa piste en Couleurs), la barre d'outils (*Poser* /
+*Allonger*, *Annuler*, *Copier*, *Effacer*, désactivés quand ils sont sans effet), la grille d'une
+mesure, les huit boutons de mesure et le tempo (− / +, ne font rien aux bornes). La grille : une
+ligne par note, de la plus haute à la plus basse, un espace entre les octaves, au moins 26 dp de
+haut (elle défile si la place manque) ; une case partagée en deux doubles croches dessinée en
+deux moitiés, une note tenue en bande plus pâle, le filigrane de l'autre piste en rond par-dessus
+(une note de l'autre piste sans ligne correspondante n'est pas marquée) ; les lignes hors gamme
+estompées et en italique. Gestes : toucher pose ou efface, glisser sur la ligne allonge ; un geste
+annulé par le système, un doigt revenu sur sa case ou un mouvement vertical (défilement) ne
+modifient rien. TalkBack lit chaque case par sa note, son octave et son temps (« Sol haut, temps 2
+et demi »), son état et l'action qu'un toucher ferait (poser, effacer, allonger, raccourcir,
+ramener à une case) ; onglets et mesures en onglets, modes en boutons radio, tempo annoncé à
+chaque changement. Les cases n'atteignent pas 48 dp de large sur un téléphone de 360 dp (huit par
+ligne) ; elles font au moins 24 dp en tout sens, et le mode *Allonger* et l'action TalkBack de
+chaque case compensent. L'enregistrement, l'écoute et le dé viennent ensuite (P4.19c, P4.19d,
+P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
+
+**Tests :**
+`ComposerUiStateTest › a tempo button is disabled at the end of the tempos, where it has no effect`,
+`ComposerUiStateTest › the hint of an empty grid shows while the open track has no note, whatever the other track holds`,
+`ComposerViewModelTest › the editor opens a new music, with the other track shown in watermark`,
+`ComposerViewModelTest › touching a cell or sliding along a line edits the open track, in the selected bar`,
+`ComposerViewModelTest › the tabs, the bar buttons and the mode choose what the grid shows and what a touch does`,
+`ComposerViewModelTest › the toolbar copies the bar, clears it, and undoes the last of them`,
+`ComposerViewModelTest › a toolbar action without effect, its button disabled, does nothing when it comes all the same`,
+`ComposerViewModelTest › the tempo buttons speed the music up and slow it down`,
+`ComposerViewModelTest › the fastest tempo button, disabled, does nothing when it comes all the same, and keeps the undo`,
+`ComposerViewModelTest › the slowest tempo button, disabled, does nothing when it comes all the same, and keeps the undo`,
+`ComposerViewModelTest › the menu hides the other track in watermark, and shows it again`,
+`ComposerViewModelTest › the factory that app builds makes an editor on a new music`,
+`BeatTest › the eight cells of a bar are the four beats and their halves, two cells a beat`,
+`CellActionTest › in Place mode touching a cell places a note on an empty cell, and erases the note it shows otherwise`,
+`CellActionTest › in Lengthen mode a touch places, brings back to one cell, shortens or lengthens, as the model does`,
+`CellActionTest › in Lengthen mode a note of the bar before is not lengthened, a note is placed`,
+`CellGestureTest › a finger lifted without sliding farther than the touch slop touches its cell`,
+`CellGestureTest › a finger slid along the line slides from its cell to the cell where it is lifted`,
+`CellGestureTest › a finger slid then brought back to its cell does nothing, neither a touch nor a slide`,
+`CellGestureTest › a cancelled gesture does nothing`,
+`CellGestureTest › a finger moved up or down before sliding is left to the scroll of the grid, and does nothing`,
+`CellGestureTest › a slide past the ends of the line stops at its first or last cell`,
+`CellViewTest › a cell shows the attack of a note, its held part, or nothing`,
+`CellViewTest › a cell is split in two sixteenth notes when its halves do not show one note`,
+`GridRowsTest › the lines of the open track are shown from the highest down`,
+`GridRowsTest › a space separates the octaves of the grid`,
+`GridRowsTest › each line shows the eight cells of the selected bar of the open track`,
+`GridRowsTest › the notes of the other track mark the cells where they sound, on the line of the same name and octave`,
+`GridRowsTest › a line out of the scale is shown as such`,
+`GridRowsTest › a note of the other track whose line the open track does not have is not marked`,
+`GridRowsTest › each cell tells what touching it does, in the mode of the toolbar`,
+`RowNameTest › a line is named after its note without octave, low in the first octave of the track and high in the second`,
+`RowNameTest › the twelve notes of an octave are named with sharps, as the pitches are written`,
+`RowNameTest › the top of the range, a third octave, is very high, and a note opened below the range very low`,
+`TrackColorsTest › the attack and the held part of a note stand out from the cell by a contrast of 3 to 1 at least`,
+`TrackColorsTest › the held part of a note is paler than its attack, standing out less from the cell`,
+`TrackColorsTest › the selected tab of a track stands out from the unselected one, its label readable on it`,
+`TrackColorsTest › the name of a line out of the scale is dimmer than the others, and still readable by a contrast of 4,5 to 1`,
+`TrackTest › the other track of the melody is the bass, and of the bass the melody`,
+`ComposerScreenTest › touching an empty cell places a note, and touching it again erases it`,
+`ComposerScreenTest › a touch cancelled by the system, as the back gesture does, places no note`,
+`ComposerScreenTest › on a small phone with the largest font, every cell is 24 dp wide and high at least`,
+`ComposerScreenTest › sliding along a line places a note held up to the cell where the finger is lifted`,
+`ComposerScreenTest › the tabs open the grid of the bass or of the melody, with the notes of the other track in watermark`,
+`ComposerScreenTest › the menu hides the watermark of the other track`,
+`ComposerScreenTest › a toolbar button without effect is disabled`,
+`ComposerScreenTest › TalkBack names each cell by its note, its octave and its beat, and says what touching it does`,
+`ComposerScreenTest › TalkBack says a line out of the scale, and two sixteenth notes in a cell`,
+`ComposerScreenTest › touching a cell recomposes its line only, not the whole grid`,
+`ComposerScreenTest › the tempo buttons change the tempo shown`,
+`ComposerScreenTest › every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars`,
+`HomeViewModelTest › opening the music editor stops the preview`,
+`HomeScreenTest › the button Composer une musique, shown in capitals and read as written, opens the music editor`.
+
 ### Enregistrer
 
 - *Enregistrer* ouvre une fenêtre : le nom (proposé d'après la catégorie, par exemple

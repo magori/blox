@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- En-tête -->
+    <string name="feature_composer_back">Retour</string>
+    <string name="feature_composer_title_new">Nouvelle musique</string>
+    <string name="feature_composer_status_not_saved">non enregistrée</string>
+    <string name="feature_composer_status_modified">modifiée</string>
+    <string name="feature_composer_menu">Plus d\'options</string>
+    <string name="feature_composer_menu_other_track">Montrer l\'autre piste en filigrane</string>
+
+    <!-- Onglets -->
+    <string name="feature_composer_tab_melody">Mélodie</string>
+    <string name="feature_composer_tab_bass">Basse</string>
+
+    <!-- Barre d'outils : libellé court affiché, action complète lue par TalkBack. -->
+    <string name="feature_composer_tool_place">Poser</string>
+    <string name="feature_composer_tool_lengthen">Allonger</string>
+    <string name="feature_composer_tool_undo">Annuler</string>
+    <string name="feature_composer_tool_copy">Copier</string>
+    <string name="feature_composer_tool_copy_description">Copier la mesure</string>
+    <string name="feature_composer_tool_clear">Effacer</string>
+    <string name="feature_composer_tool_clear_description">Effacer la mesure</string>
+
+    <!-- Grille -->
+    <string name="feature_composer_beats">Temps</string>
+    <string name="feature_composer_empty_grid">Touche une case pour poser une note</string>
+    <string name="feature_composer_note_do">Do</string>
+    <string name="feature_composer_note_re">Ré</string>
+    <string name="feature_composer_note_mi">Mi</string>
+    <string name="feature_composer_note_fa">Fa</string>
+    <string name="feature_composer_note_sol">Sol</string>
+    <string name="feature_composer_note_la">La</string>
+    <string name="feature_composer_note_si">Si</string>
+    <!-- Affiché : une note diésée, « Fa# ». -->
+    <string name="feature_composer_note_sharp">%1$s#</string>
+    <!-- Lu par TalkBack : « Fa dièse ». -->
+    <string name="feature_composer_note_sharp_spoken">%1$s dièse</string>
+    <string name="feature_composer_register_very_low">très bas</string>
+    <string name="feature_composer_register_low">bas</string>
+    <string name="feature_composer_register_high">haut</string>
+    <string name="feature_composer_register_very_high">très haut</string>
+    <!-- Lu par TalkBack : la note et son octave, « Sol haut ». -->
+    <string name="feature_composer_row">%1$s %2$s</string>
+    <string name="feature_composer_row_out_of_scale">%1$s, hors gamme</string>
+    <!-- Lu par TalkBack : une case, par sa ligne et son temps. -->
+    <string name="feature_composer_cell">%1$s, temps %2$d</string>
+    <string name="feature_composer_cell_half">%1$s, temps %2$d et demi</string>
+    <!-- Lu par TalkBack : ce que montre une case, entière ou partagée en deux doubles croches. -->
+    <string name="feature_composer_cell_empty">vide</string>
+    <string name="feature_composer_cell_note">note</string>
+    <string name="feature_composer_cell_held">note tenue</string>
+    <string name="feature_composer_part_silent">silence</string>
+    <string name="feature_composer_part_note">note</string>
+    <string name="feature_composer_part_held">tenue</string>
+    <string name="feature_composer_cell_split">double croche : %1$s puis %2$s</string>
+    <string name="feature_composer_cell_other_track">%1$s, note de l\'autre piste</string>
+    <!-- Lu par TalkBack : ce que fait toucher la case. -->
+    <string name="feature_composer_action_place">poser une note</string>
+    <string name="feature_composer_action_erase">effacer la note</string>
+    <string name="feature_composer_action_lengthen">allonger jusqu\'ici</string>
+    <string name="feature_composer_action_shorten">raccourcir jusqu\'ici</string>
+    <string name="feature_composer_action_one_cell">ramener la note à une case</string>
+
+    <!-- Mesures -->
+    <string name="feature_composer_bar">Mesure %1$d</string>
+
+    <!-- Panneau du bas -->
+    <plurals name="feature_composer_tempo">
+        <item quantity="one">%1$d temps/min</item>
+        <item quantity="many">%1$d temps/min</item>
+        <item quantity="other">%1$d temps/min</item>
+    </plurals>
+    <string name="feature_composer_slower_glyph" translatable="false">−</string>
+    <string name="feature_composer_faster_glyph" translatable="false">+</string>
+    <string name="feature_composer_slower">Ralentir</string>
+    <string name="feature_composer_faster">Accélérer</string>
+</resources>
