@@ -299,6 +299,71 @@ concernée.
 - Pas de quintes ni d'octaves parallèles entre la mélodie et la basse (règle d'écriture
   classique, qui évite l'effet « creux »).
 
+### Basse (implémentée, P4.17)
+
+`Bass.compose(forme, mélodie, tirage)` (interne à `core:music`) écrit la basse par une recherche
+avec retour arrière et mémoire des impasses, bornée par un budget (10 000 étapes, partagé entre
+les octaves de la première note). Quand aucune basse ne convient, elle rend `null` : c'est une
+règle éliminatoire de la note de qualité (P4.18), jamais une basse fautive. Valeurs **[à vérifier]**
+à l'écoute.
+
+- **Trois motifs** au lieu de sept styles : fondamentale et quinte, octaves, fondamentale
+  répétée, chacun avec sa valeur de note ; le motif repart à chaque changement d'accord et se
+  joue depuis la fondamentale réellement placée (octave ou quinte au-dessus, en dessous si elle
+  sort de la tessiture). Joyeux : octaves en noires ; Calme : fondamentale en blanches ;
+  Épique : fondamentale en croches (galop) ; Mélancolique : fondamentale et quinte en noires ;
+  Mystérieux : fondamentale en rondes ; Rétro : octaves en croches ; Danse : fondamentale et
+  quinte en croches.
+  `CategoryTest › each category has the bass of its character, a motif of the specification at a note value of its own`,
+  `BassStyleTest › a bass style whose notes do not last a positive, finite number of beats is refused`,
+  `BassTest › a bass strikes a note at each value of its style, starting anew on each change of chord, without a rest`,
+  `BassTest › under a melody that never moves, a bass plays the motif of its category, each root nearest the note before`.
+- **Règles dures**, vérifiées sur les graines et toutes les catégories, boucle comprise :
+  - la fondamentale sur le temps 1 de chaque mesure, et sur le temps 3 quand l'accord y change ;
+  - toutes les notes dans l'accord en place, sauf la note de passage ;
+  - tessiture **do2 à do4**, toujours sous la note de mélodie qui sonne ;
+  - aucun saut de plus d'une octave ; triton évité (aucun mesuré sur 671 basses) ;
+  - aucune quinte ni octave parallèle : une verticale à chaque attaque de l'une ou l'autre voix,
+    chaque voix tenant sa note jusqu'à la suivante ; deux verticales successives où les deux
+    voix ont bougé dans le même sens, à la quinte ou à l'octave (unisson et redoublements
+    compris), sont parallèles. Les quintes et octaves cachées (mouvement direct vers un
+    intervalle juste) ne sont pas vérifiées.
+
+  `BassTest › a bass strikes the root of the chord on beat 1 of every bar, and on beat 3 when the chord changes there`,
+  `BassTest › every bass note is a note of the chord in place, but a passing note on the last weak beat before a new chord`,
+  `BassTest › a bass keeps from C2 to C4, below every note of the melody sounding with it`,
+  `BassTest › a bass goes under a melody that comes down into its range, even if it leaves its motif`,
+  `BassTest › a bass never leaps past an octave, not even from bar 8 back to bar 1`,
+  `BassTest › a bass never moves in parallel fifths or octaves with the melody, not even from bar 8 back to bar 1`,
+  `BassTest › where its motif would move in parallel fifths with the melody, a bass takes another note of the chord`,
+  `BassTest › where its root on beat 1 would move in parallel octaves with the melody, a bass strikes it an octave up`,
+  `BassTest › a bass avoids the octaves the melody reaches while it holds, before both move on together`,
+  `ParallelsTest › two voices struck together a fifth apart, then a fifth apart again, both going up, make parallel fifths`,
+  `ParallelsTest › octaves and unisons in turn, both voices going the same way, make parallel octaves, compound ones too`,
+  `ParallelsTest › fifths or octaves in contrary or oblique motion, or struck again on the same notes, are not parallel`,
+  `ParallelsTest › each vertical moves to the next one where both voices have moved, whichever voice struck its notes`,
+  `ParallelsTest › the music loops, so the last notes struck together lead to the first ones, and may move in parallel too`,
+  `ParallelsTest › a voice reaching an octave while the other holds, then both moving together, makes parallel octaves`.
+- **Note de passage** : sur le dernier temps faible avant un nouvel accord, tirée une fois sur
+  deux, à un degré d'une fondamentale suivante, la plus proche de la note précédente ; hors
+  accord, abordée par une quarte au plus, résolue par degré, et sans seconde, septième ni
+  triton avec la mélodie qui sonne. Mesuré : 48 à 78 % d'approches par degré avec, 23 à 65 %
+  sans. Calme et Mystérieux n'en ont pas.
+  `BassTest › a bass trying a passing note plays, on the last weak beat before a new chord, a step from its root`,
+  `BassTest › a note out of the chord is consonant with the melody sounding with it, and reached by a fourth at most`,
+  `BassTest › over the seeds, a bass leads by step to the next root more often than a bass that never tries a passing note`.
+- **Échecs et bornes** : Mystérieux (rondes, fondamentales imposées) n'a pas de basse sur environ
+  28 % des graines, Calme sur 1 %, les autres jamais. Pire temps mesuré : 51 ms sur la JVM.
+  `BassTest › over the seeds, a bass fits nearly every melody, but fewer of mysterious, whose held roots leave it no choice`,
+  `BassTest › a melody that no bass fits leaves no bass, found in good time rather than searched for ever`,
+  `BassTest › a dead end that shows only in the last bar is found in good time, each dead end searched once`,
+  `BassTest › a search past its budget gives up, leaving no bass, even where one fits`.
+- **Reproductible** : un tirage par place de note de passage, après ceux de la mélodie.
+  `BassTest › the same form, the same melody and the same draw give the same bass`,
+  `BassTest › the seed 42 on joyful gives this bass, which pins the order of the draws after the melody`.
+
+Aucune vue de maquette n'est concernée.
+
 ## Catégories
 
 L'utilisateur choisit une catégorie avant de lancer le dé. *Surprise* tire la catégorie
@@ -307,12 +372,12 @@ elle-même au hasard.
 | Catégorie | Gamme | Tempo (temps/min) | Suites d'accords | Rythme de la mélodie | Basse |
 |---|---|---|---|---|---|
 | **Joyeux** | majeure | 120–150 | I–V–vi–IV, I–IV–V–I | croches, croches pointées, sautillant | bondissante (octaves) |
-| **Calme** | pentatonique majeure | 70–95 | I–vi–IV–V, I–IV | blanches et noires, beaucoup d'air | rondes ou blanches |
+| **Calme** | pentatonique majeure | 70–95 | I–vi–IV–V, I–IV | blanches et noires, beaucoup d'air | fondamentale en blanches |
 | **Épique** | mineure naturelle | 110–140 | i–VI–III–VII, i–VII–VI–VII | noires fortes, sauts de quinte | galop (croches répétées) |
 | **Mélancolique** | mineure naturelle | 80–100 | i–VI–iv–v, i–iv–VII–III | notes longues, descentes | fondamentale et quinte |
 | **Mystérieux** | dorienne ou mineure harmonique | 90–110 | i–IV (dorien), i–♭VII–VI–V (harmonique) | notes tenues, chromatisme de passage | notes tenues |
 | **Rétro** | majeure ou mixolydienne | 140–170 | I–VII–IV–I (mixolydien), I–V–vi–IV (majeur) | doubles croches, arpèges rapides | octaves rapides |
-| **Danse** | mineure harmonique | 130–160 | i–iv–V–i | 2 temps marqués, croches | fondamentale et quinte, marquée |
+| **Danse** | mineure harmonique | 130–160 | i–iv–V–i | 2 temps marqués, croches | fondamentale et quinte en croches |
 | **Surprise** | une des catégories ci-dessus, tirée au hasard | | | | |
 
 Chaque catégorie est un jeu de paramètres, pas un code à part : un seul générateur, des
@@ -384,7 +449,7 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   seulement (le rythme harmonique est porté par chaque `Harmony` ; lecture par demi-mesure
   dans la forme, P4.15). Danse est à 4 temps,
   ses « 2 temps marqués » étant les temps 1 et 3.
-  `CategoryTest › each category has the bass of its character`,
+  `CategoryTest › each category has the bass of its character, a motif of the specification at a note value of its own`,
   `CategoryTest › only mysterious lets its melody pass through a note out of the scale`,
   `CategoryTest › only retro, the fastest category, changes chord twice a bar`.
 - **Surprise** tire une des sept catégories, jamais elle-même ; même graine, même catégorie.
@@ -393,8 +458,7 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   `CategoryChoiceTest › a category chosen by the player is played as it is, whatever the draw`.
 
 Points ouverts : l'accord qui ferme la boucle est tranché par la forme (P4.15, ci-dessus) ; les traits
-mélodiques de la table sont des paramètres (`MelodyTraits`, P4.16) ; les sept styles de basse pourront se réduire aux motifs de la section
-Basse (P4.17). Aucune vue de maquette n'est concernée.
+mélodiques de la table sont des paramètres (`MelodyTraits`, P4.16) ; les styles de basse sont ramenés à trois motifs (P4.17). Aucune vue de maquette n'est concernée.
 
 ## Note de qualité
 
@@ -409,11 +473,13 @@ n'atteint un seuil (par exemple 70).
 | Courbe | sommet unique, vers les deux tiers | moyen |
 | Répétition | part des mesures qui reprennent le motif, entre 50 et 75 % | moyen |
 | Tessiture | étendue entre une octave et une dixième | faible |
-| Écriture à deux voix | aucune quinte ni octave parallèle | faible |
 
 Règles **éliminatoires** : une note hors de la gamme (hors chromatisme permis), un saut de
 plus d'une octave, un triton, une boucle qui ne finit pas sur l'accord de V, plus de trois
-notes identiques de suite.
+notes identiques de suite, une quinte ou une octave parallèle entre la mélodie et la basse,
+une mélodie sans basse possible. Depuis P4.16 et P4.17, la mélodie et la basse les
+garantissent par construction (la basse rend `null` plutôt qu'une basse fautive) : la note de
+qualité n'a plus qu'à écarter les candidats sans basse.
 
 ## Conséquences sur le code
 
