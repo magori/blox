@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 86 / 143 | `████████████░░░░░░░░` **60 %** |
+| **Général** | 87 / 143 | `████████████░░░░░░░░` **61 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -421,14 +421,16 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 
 - [x] **P4.13** Modèle harmonique dans `core:music` : `Scale` (majeure, mineures naturelle et
   harmonique, dorienne, mixolydienne, pentatonique), `Chord`, `Progression`.
-- [ ] **P4.14** Catégories du générateur (Joyeux, Calme, Épique, Mélancolique, Mystérieux,
+- [x] **P4.14** Catégories du générateur (Joyeux, Calme, Épique, Mélancolique, Mystérieux,
   Rétro, Danse, Surprise) : gamme, tempo, suites d'accords, rythmes, basse de chacune.
 - [ ] **P4.15** Forme : motif d'une mesure, plan `A A' B A''` sur 8 mesures, cadences
-  suspendues aux mesures 4 et 8 pour la boucle ; même graine, même musique.
+  suspendues aux mesures 4 et 8 pour la boucle ; même graine, même musique. Accord de cadence
+  à choisir quand le V de la gamme est mineur ou absent ; deux accords par mesure (Rétro).
 - [ ] **P4.16** Mélodie : degrés conjoints, sauts compensés, notes de l'accord sur les temps
-  forts, courbe en arche, fins de phrase longues.
+  forts, courbe en arche, fins de phrase longues ; traits de la catégorie en paramètres (sauts
+  de quinte, descentes, arpèges) ; tessiture des voix.
 - [ ] **P4.17** Basse selon la catégorie, passage vers l'accord suivant, sans quintes ni octaves
-  parallèles avec la mélodie.
+  parallèles avec la mélodie ; styles de basse ramenés aux motifs de la spécification.
 - [ ] **P4.18** Note de qualité et règles éliminatoires ; choix du meilleur candidat.
 - [ ] **P4.19** Éditeur de musique (`feature:composer`) : grille selon la gamme, notes longues,
   tempo, écoute ; enregistrement avec un nom (proposé d'après la catégorie, modifiable),
