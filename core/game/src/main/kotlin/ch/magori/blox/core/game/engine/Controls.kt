@@ -8,23 +8,18 @@ package ch.magori.blox.core.game.engine
  * a short tap between two ticks still counts), and the repeat of the shift. As in the ROM, there is a single
  * shift repeat for left and right, which only a new press of left or right starts again.
  */
-@ConsistentCopyVisibility
-public data class Controls internal constructor(
-    internal val held: Set<Button>,
-    internal val pressedSinceLastTick: Set<Button>,
-    internal val shift: AutoRepeat?,
-) {
+internal data class Controls(val held: Set<Button>, val pressedSinceLastTick: Set<Button>, val shift: AutoRepeat?) {
     /** After a press of [button]: if it was not held yet, it is held, and counts as a new press until the next tick. */
-    internal fun afterPress(button: Button): Controls =
+    fun afterPress(button: Button): Controls =
         if (button in held) this else copy(held = held + button, pressedSinceLastTick = pressedSinceLastTick + button)
 
     /** After a release of [button]. */
-    internal fun afterRelease(button: Button): Controls = copy(held = held - button)
+    fun afterRelease(button: Button): Controls = copy(held = held - button)
 
     /** Once a tick has read the new presses. */
-    internal fun afterTick(): Controls = copy(pressedSinceLastTick = emptySet())
+    fun afterTick(): Controls = copy(pressedSinceLastTick = emptySet())
 
-    internal companion object {
+    companion object {
         /** No button held. */
         val NONE: Controls = Controls(held = emptySet(), pressedSinceLastTick = emptySet(), shift = null)
     }

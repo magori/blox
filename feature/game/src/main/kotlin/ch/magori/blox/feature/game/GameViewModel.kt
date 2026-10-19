@@ -92,13 +92,16 @@ class GameViewModel internal constructor(
 
     /**
      * A frame was drawn at [frameNanos]: the engine plays the ticks due since the previous frame. Once
-     * the game is over, a frame does nothing: the game over screen state is published once, apart.
+     * the game is over, a frame does nothing: the game over screen state is published once, apart. While the
+     * game is paused, the screen hands no frame, and resuming starts the loop again ([onFramesStarted]); a
+     * frame that comes anyway plays its ticks, which change nothing, not even the duration of the game, and
+     * only moves the time reference on.
      */
     internal fun onFrame(frameNanos: Long) {
         if (gameState.phase is Phase.GameOver) return
         val ticks = loop.advance(frameNanos)
-        // Paused, the clock keeps its time reference, so that resuming does not catch up the pause; the
-        // engine changes nothing then, not even the duration of the game.
+        // No tick due on this frame (the first one, which only sets the time reference, or one that comes before
+        // a whole tick has passed): the game has not changed, there is nothing to publish.
         if (ticks == 0) return
         var over = false
         repeat(ticks) {

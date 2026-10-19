@@ -156,12 +156,12 @@ class GameEnginePauseTest {
                 "clearing, 12 ticks left",
                 Phase.Clearing(
                     rowsCleared = Board.parse("IIIIIIIIII").clearFullRows(),
-                    ticksLeft = 12,
+                    ticksLeft = Ticks(12),
                     entryDelayAfter = Ticks(10),
                     stackInDangerAfter = false,
                 ),
             ),
-            argumentSet("entry delay, 5 ticks left", Phase.EntryDelay(ticksLeft = 5)),
+            argumentSet("entry delay, 5 ticks left", Phase.EntryDelay(ticksLeft = Ticks(5))),
         )
 
         @JvmStatic

@@ -11,7 +11,12 @@ public sealed interface GameEvent {
     /** The full rows of [lineClear] were cleared, once their animation was over. */
     public data class LinesCleared(public val lineClear: LineClear) : GameEvent
 
-    /** The stack entered the danger ([on] true) or left it ([on] false), when a piece locked. */
+    /**
+     * The stack entered the danger ([on] true) or left it ([on] false), as measured when a piece locked, on
+     * the board once its full rows are cleared. Without a full row, it follows [PieceLocked] on the tick of
+     * the lock; with full rows, it follows [LinesCleared] at the end of their animation, when the cleared
+     * board is shown.
+     */
     public data class StackDanger(public val on: Boolean) : GameEvent
 
     /**
