@@ -58,6 +58,8 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew buildHealth           # dépendances déclarées sans usage ou mal déclarées
 ./gradlew lintDebug             # lint Android, règles Compose de Slack comprises
 ./gradlew assembleDebug         # APK
+./gradlew assembleRelease       # APK release minifié (R8), non signé ; lance aussi lintVitalRelease
+./gradlew assembleDebugAndroidTest   # compile les tests instrumentés (androidTest) de tous les modules Android
 ./gradlew installDebug          # installation sur un appareil connecté
 scripts/verifier-tracabilite.sh # chaque `Classe › nom du test` des docs désigne un test existant
 ```
@@ -73,10 +75,14 @@ Un seul test ou une seule classe :
 ./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
 ```
 
-La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-tracabilite.sh` (avant
-même l'installation du JDK), `ktlintCheck` (projet et `build-logic`), `buildHealth`, tests du
-domaine, `testDebugUnitTest`,
-`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces sept commandes passe en CI.
+La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-tracabilite.sh` et
+`wrapper-validation` (avant même l'installation du JDK), `ktlintCheck` (projet et `build-logic`),
+`buildHealth`, tests du domaine, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease` (R8 et
+`lintVitalRelease`), `assembleDebugAndroidTest` (compilation seule, pas d'émulateur). Ce qui passe
+localement avec ces neuf commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
+comme artefact `rapports`. Les actions sont épinglées par SHA (tag en commentaire, tenus à jour par
+Dependabot `github-actions`) et le jeton est en lecture seule ; un second job, sur `push` vers
+`main` seulement, soumet le graphe des dépendances Gradle (`contents: write`).
 
 ## Architecture
 
@@ -194,7 +200,8 @@ La commande `/fin-de-tache` les déroule.
 1. **Tests verts.**
    `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
-   `./gradlew lintDebug assembleDebug` si un module Android a changé.
+   `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
+   ou une dépendance a changé.
    Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
    vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.
