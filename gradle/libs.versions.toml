@@ -8,13 +8,13 @@ kotlinxSerialization = "1.11.0"
 androidxActivity = "1.13.0"
 androidxNavigation3 = "1.2.0"
 # navigationevent suit la version que Navigation 3 embarque (NavDisplay passe par lui pour le retour).
-androidxNavigationEvent = "1.1.1"
+androidxNavigationEvent = "1.2.0"
 # lifecycle-viewmodel-navigation3 suit les versions de Lifecycle ; 2.11.0 va avec Navigation 3 1.2.0 (guide de migration).
 androidxLifecycle = "2.11.0"
 androidxComposeBom = "2026.09.00"
 androidxDatastore = "1.2.1"
 # Celle que Compose et Lifecycle apportent déjà : la déclarer directement ne la change pas.
-androidxAnnotation = "1.9.1"
+androidxAnnotation = "1.11.0"
 # Celle que Lifecycle apporte déjà (le SavedStateHandle des ViewModels) : la déclarer directement ne la change pas.
 androidxSavedState = "1.4.0"
 # Okio suit la version que DataStore embarque (datastore-core-okio) : les monter ensemble.
