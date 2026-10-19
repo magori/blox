@@ -51,6 +51,13 @@ private fun GameScreenPaused() = GameScreenPausedPreview()
 @Composable
 private fun GameScreenLargeFont() = GameScreenLargeFontPreview()
 
+// Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
+
+@PreviewTest
+@Preview(widthDp = 800, heightDp = 360, fontScale = 2f)
+@Composable
+private fun GameScreenLandscapeLargeFont() = GameScreenLandscapeLargeFontPreview()
+
 // The board alone, larger than on the screen: the cells of the Original theme in detail.
 
 @PreviewTest
