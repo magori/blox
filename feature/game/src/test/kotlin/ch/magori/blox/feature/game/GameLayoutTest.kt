@@ -211,6 +211,27 @@ class GameLayoutTest {
         assertThat(layout.rotations.height / density).isGreaterThanOrEqualTo(48f)
     }
 
+    @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
+    @MethodSource("windows")
+    fun `each group of controls holds to its edge, within the 200 dp of gesture exclusion honoured per edge`(
+        widthDp: Int,
+        heightDp: Int,
+        density: Float,
+    ) {
+        // Given
+        val (width, height) = available(widthDp, heightDp, density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then ◀ ▼ ▶ on the left edge, B A on the right one, in every layout, each excluded whole from the
+        // system gestures (Back): the system ignores what goes past 200 dp on an edge
+        assertThat(layout.directions.left).isEqualTo(0f)
+        assertThat(layout.directions.height / density).isLessThanOrEqualTo(200f)
+        assertThat(layout.rotations.right).isEqualTo(width)
+        assertThat(layout.rotations.height / density).isLessThanOrEqualTo(200f)
+    }
+
     /**
      * The space a window of [widthDp] × [heightDp] leaves to [gameLayout], in pixels: without the 24 dp
      * margins, the top bar (48 dp, its pause button) and the 16 dp under it. Whole pixels, rounded down,
