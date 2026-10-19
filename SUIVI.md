@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 89 / 144 | `████████████░░░░░░░░` **62 %** |
+| **Général** | 90 / 144 | `█████████████░░░░░░░` **63 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -425,7 +425,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   harmonique, dorienne, mixolydienne, pentatonique), `Chord`, `Progression`.
 - [x] **P4.14** Catégories du générateur (Joyeux, Calme, Épique, Mélancolique, Mystérieux,
   Rétro, Danse, Surprise) : gamme, tempo, suites d'accords, rythmes, basse de chacune.
-- [ ] **P4.15** Forme : motif d'une mesure, plan `A A' B A''` sur 8 mesures, cadences
+- [x] **P4.15** Forme : motif d'une mesure, plan `A A' B A''` sur 8 mesures, cadences
   suspendues aux mesures 4 et 8 pour la boucle ; même graine, même musique. Accord de cadence
   à choisir quand le V de la gamme est mineur ou absent ; deux accords par mesure (Rétro).
 - [ ] **P4.16** Mélodie : degrés conjoints, sauts compensés, notes de l'accord sur les temps
