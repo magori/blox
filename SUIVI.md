@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 87 / 143 | `████████████░░░░░░░░` **61 %** |
+| **Général** | 88 / 143 | `████████████░░░░░░░░` **62 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -288,6 +288,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
   attaché au premier bouton) ; le gérer demande un seul `pointerInput` sur ◀ ▼ ▶, une fonction
   pure `buttonAt(position)` et `HeldButtons.move`, testables sur la JVM.
+  P5.12 : sur un écran à 90 ou 120 Hz, vérifier le passage à 60 Hz sans clignotement, la chute
+  régulière et le retour à la fréquence d'origine sur l'accueil (`adb shell dumpsys display`).
 - [x] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
   l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la
@@ -495,7 +497,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
   taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
   chaque mouvement de la pièce (A2, A7).
-- [ ] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
+- [x] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
   partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
 - [x] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
   « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
