@@ -157,6 +157,34 @@ touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (gran
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
 
+## Choix de l'accueil
+
+Un choix sélectionné (mode, thème, niveau de départ, musique) ne se distingue pas que par sa
+couleur (WCAG 1.4.1) : il est rempli en `accent`, son libellé en `accentInk`, et **souligné**
+(2 dp d'épaisseur, 2 dp sous les lettres, dans l'encre du libellé, sur la largeur du texte). Un
+choix non sélectionné est dessiné comme un encart du jeu : `panel`, cadre de 2 dp en
+`panelBorder` (`BloxBorders.frame`, partagé avec les encarts et `SecondaryButton`), libellé en `ink`, forme
+`button` (carrée en Original) ; le choix sélectionné porte un cadre de sa propre couleur, pour
+que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 (WCAG 1.4.11), le
+libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Le libellé n'a pas
+d'interligne, pour que le soulignement reste sous les lettres même réduites en police agrandie.
+Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
+`keyColors`.
+
+| | Original | Couleurs |
+|---|---|---|
+| Sélectionné / non sélectionné (`accent` / `panel`) | 5,7:1 (avant 1,99:1) | 6,7:1 (avant 5,48:1) |
+| Libellé sélectionné (`accentInk` sur `accent`) | 8,0:1 | 7,5:1 |
+| Libellé non sélectionné (`ink` sur `panel`) | 5,7:1 (avant 4,0:1) | 14,6:1 |
+
+**Tests :** `ChoiceColorsTest › in every theme a selected choice stands out from an unselected one by a contrast of 3 to 1 at least`,
+`ChoiceColorsTest › the label of a choice stands out from its background by a contrast of 4,5 to 1 at least`,
+`ChoiceColorsTest › an unselected choice is framed as a panel, a selected one in its own background`,
+`HomeScreenTest › the selected theme and music are underlined, their unselected neighbours are not` (pixels du soulignement),
+`ContrastTest › black on white has the greatest contrast, 21 to 1, whatever the order`,
+`HomeScreenTest › TalkBack reads the selected start level as selected, and the others as not selected`.
+Vues : V1.
+
 ## Éditeur de musique (maquette)
 
 Couleurs des pistes de l'éditeur de musique (P4.19), retenues dans la maquette (V7 à V18) et le
