@@ -181,16 +181,16 @@ Vues : V2, V3.
 
 ## Choix de l'accueil
 
-Un choix sélectionné (mode, thème, niveau de départ, musique) ne se distingue pas que par sa
-couleur (WCAG 1.4.1) : il est rempli en `accent`, son libellé en `accentInk`, et **souligné**
-(2 dp d'épaisseur, 2 dp sous les lettres, dans l'encre du libellé, sur la largeur du texte). Un
+Un choix sélectionné (mode, thème, niveau de départ, musique) est rempli en `accent`, son
+libellé en `accentInk`. Il ne se distingue pas que par la teinte (WCAG 1.4.1) : les deux états
+diffèrent d'au moins 3:1 en luminance, et le choix non sélectionné est cadré quand le
+sélectionné est plein. Le soulignement ajouté en P5.26 est retiré à la demande du développeur
+(P5.36). Un
 choix non sélectionné est dessiné comme un encart du jeu : `panel`, cadre de 2 dp en
 `panelBorder` (`BloxBorders.frame`, partagé avec les encarts et `SecondaryButton`), libellé en `ink`, forme
 `button` (carrée en Original) ; le choix sélectionné porte un cadre de sa propre couleur, pour
 que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 (WCAG 1.4.11), le
-libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Le libellé n'a pas
-d'interligne, pour que le soulignement reste sous les lettres même réduites en police agrandie.
-Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
+libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
 `keyColors`.
 
 | | Original | Couleurs |
@@ -202,9 +202,8 @@ Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`),
 **Tests :** `ChoiceColorsTest › in every theme a selected choice stands out from an unselected one by a contrast of 3 to 1 at least`,
 `ChoiceColorsTest › the label of a choice stands out from its background by a contrast of 4,5 to 1 at least`,
 `ChoiceColorsTest › an unselected choice is framed as a panel, a selected one in its own background`,
-`HomeScreenTest › the selected theme and music are underlined, their unselected neighbours are not` (pixels du soulignement),
 `ContrastTest › black on white has the greatest contrast, 21 to 1, whatever the order`,
-`HomeScreenTest › TalkBack reads the selected start level as selected, and the others as not selected`.
+`HomeScreenTest › TalkBack reads each selected choice as selected, and the others as not selected`.
 Vues : V1.
 
 
