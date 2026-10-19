@@ -284,6 +284,12 @@ couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4
 - En Original, les plus petits textes de l'éditeur sont en 8 et 9 px (police pixel).
 - Supprimer prend la couleur `danger` : `#34503A` (Original, faute de rouge), `#E5534B`
   (Couleurs), `#C2264B` (Brume clair), `#FB7185` (Brume sombre).
+- **Valeurs codées (P4.22c, « Mes musiques »)** : jetons `danger` et `dangerInk` de `BloxPalette`.
+  Original : `#34503A` sur `#EEF5EA` (le danger vaut l'encre : « Supprimer » ne se distingue que
+  par son libellé, comme dans la maquette). Couleurs : `#EB6A62` sur `#12141C`, au lieu du
+  `#E5534B` de la maquette, qui ne donnait que 4,43:1 sur `panel` ; `#EB6A62` en donne 5,29.
+  **Tests :** `PaletteContrastTest › a text stands out from its background by a contrast of 4,5 to 1 at least`
+  (couples `DANGER_INK_ON_DANGER` et `DANGER_ON_PANEL`).
 
 ## Polices
 

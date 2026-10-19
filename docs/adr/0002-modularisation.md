@@ -37,3 +37,10 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   des événements du jeu en vibrations vit dans `feature:game` (`hapticFor`), comme le tempo de
   la musique : `core:haptics` ne connaît pas le domaine. (De même, `feature:composer` et
   `benchmark` se sont ajoutés depuis, voir `docs/architecture.md`.)
+- **Amendement (P4.22c, 2026-10-20).** Module `feature:musics` pour la liste « Mes musiques »,
+  sur le patron des features existantes : un autre écran, avec son ViewModel, que l'accueil et
+  l'éditeur ouvrent sans le connaître. Le mettre dans `feature:composer` aurait mêlé deux écrans
+  dans un module ; une feature ne dépendant d'aucune autre, la liste ouvre l'éditeur par `app`
+  (ADR 0011), qui passe les rappels à son entrée. `feature:home`, `feature:composer` et
+  `feature:musics` partagent le même lecteur de musique, construit une fois dans `AppContainer` :
+  un seul aperçu joue à la fois dans toute l'app.
