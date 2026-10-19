@@ -2,7 +2,6 @@ package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.cellsOf
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
@@ -185,7 +184,7 @@ class GameEngineControlsTest {
     @Test
     fun `the piece drops at most one row per tick, even when the soft drop and the gravity both fall due`() {
         // Given down held at level 29, where the gravity drops the piece on every tick
-        val pressed = engine.press(gameState(level = Level(29), phase = Phase.Falling(T_AT_5_10)), Button.DOWN)
+        val pressed = engine.press(gameState(lines = LINES_TO_LEVEL_29, phase = Phase.Falling(T_AT_5_10)), Button.DOWN)
 
         // When
         val rows = generateSequence(pressed) { engine.tick(it).state }.take(7).map { it.current?.pivot?.row }.toList()

@@ -1,10 +1,9 @@
 package ch.magori.blox.feature.game.controls
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.font.FontWeight
 import ch.magori.blox.core.designsystem.theme.BloxPalette
-import ch.magori.blox.core.designsystem.theme.BloxPalettes
+import ch.magori.blox.core.designsystem.theme.contrast
+import ch.magori.blox.core.designsystem.theme.namedPalettes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -93,22 +92,10 @@ internal class KeyColorsTest {
         assertThat(KeyLetterStyle.fontSize.value).isGreaterThanOrEqualTo(18.66f)
     }
 
-    /** The contrast ratio of WCAG 2.1, from 1 (the same) to 21 (black on white). */
-    private fun contrast(
-        first: Color,
-        second: Color,
-    ): Double {
-        val lighter = maxOf(first.luminance(), second.luminance())
-        val darker = minOf(first.luminance(), second.luminance())
-        return (lighter + 0.05) / (darker + 0.05)
-    }
-
     companion object {
-        private val palettes = listOf("Original" to BloxPalettes.Original, "Couleurs" to BloxPalettes.Colorful)
-
         /** A key drawn in `button`, the one drawn in `accent`, in each theme. */
         @JvmStatic
-        fun keys(): List<Arguments> = palettes.flatMap { (theme, palette) ->
+        fun keys(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
             listOf(ControlButton.LEFT, ControlButton.A).map { Arguments.of(theme, it, palette) }
         }
 
@@ -119,7 +106,7 @@ internal class KeyColorsTest {
 
         /** The keys with a letter, A and B, held or not, in each theme. */
         @JvmStatic
-        fun lettersHeldOrNot(): List<Arguments> = palettes.flatMap { (theme, palette) ->
+        fun lettersHeldOrNot(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
             listOf(ControlButton.A, ControlButton.B).flatMap { button ->
                 listOf(true, false).map { Arguments.of(theme, button, palette, it) }
             }

@@ -1,7 +1,6 @@
 package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.tPointingDown
@@ -23,7 +22,7 @@ class GameEngineStackDangerTest {
         // Given a T about to lock at height 15
         val state = gameState(
             board = TOWER,
-            level = Level(29),
+            lines = LINES_TO_LEVEL_29,
             stackInDanger = wasInDanger,
             phase = Phase.Falling(T_ON_TOWER),
         )
@@ -43,8 +42,11 @@ class GameEngineStackDangerTest {
     @Test
     fun `four lines locked at height 15 leave the stack 11 rows high, with no danger and no StackDanger`() {
         // Given
-        val state =
-            gameState(board = FOUR_LINES_UNDER_A_TOWER, level = Level(29), phase = Phase.Falling(I_FOR_FOUR_LINES))
+        val state = gameState(
+            board = FOUR_LINES_UNDER_A_TOWER,
+            lines = LINES_TO_LEVEL_29,
+            phase = Phase.Falling(I_FOR_FOUR_LINES),
+        )
 
         // When
         val lock = engine.tick(state)
@@ -61,7 +63,7 @@ class GameEngineStackDangerTest {
         // Given a stack in danger, and four lines that bring it down to 11 rows
         val state = gameState(
             board = FOUR_LINES_UNDER_A_TOWER,
-            level = Level(29),
+            lines = LINES_TO_LEVEL_29,
             stackInDanger = true,
             phase = Phase.Falling(I_FOR_FOUR_LINES),
         )

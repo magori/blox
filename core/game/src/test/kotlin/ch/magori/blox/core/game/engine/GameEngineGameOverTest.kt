@@ -1,7 +1,6 @@
 package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
@@ -49,7 +48,7 @@ class GameEngineGameOverTest {
         val state = gameState(
             board = board,
             next = PieceType.T,
-            level = Level(29),
+            lines = LINES_TO_LEVEL_29,
             stackInDanger = wasInDanger,
             phase = Phase.Falling(lastPiece),
         )

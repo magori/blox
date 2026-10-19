@@ -18,6 +18,10 @@ public interface LevelProgression {
     /**
      * Level reached in a game started at [start] once [lines] lines have been cleared in total.
      *
+     * The level is never below [start], and never goes down as [lines] go up, so that it never goes down
+     * during a game. The progress of a game refuses a level below its start level, and a clear that lowers
+     * its level.
+     *
      * @throws IllegalArgumentException if [start] is not one of the [startLevels].
      */
     public fun levelFor(

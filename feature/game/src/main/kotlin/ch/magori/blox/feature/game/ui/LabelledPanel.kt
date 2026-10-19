@@ -17,14 +17,12 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
-/** The sizes shared by the panels and values of the game screens, in one place. */
+/** The sizes shared by the panels and values of the game screens, in one place; their frame is `BloxBorders.frame`. */
 internal object PanelSizes {
-    /** The frame of a panel, and of an outlined button. */
-    val border = 2.dp
-
     /** Inside a panel, around its content. */
     val padding = 8.dp
 
@@ -55,7 +53,7 @@ internal fun LabelledPanel(
             .fillMaxWidth()
             .clearAndSetSemantics { contentDescription = description }
             .background(palette.panel, shape)
-            .border(PanelSizes.border, palette.panelBorder, shape)
+            .border(BloxBorders.frame, palette.panelBorder, shape)
             .padding(PanelSizes.padding),
         verticalArrangement = Arrangement.spacedBy(PanelSizes.labelGap),
         horizontalAlignment = contentAlignment,

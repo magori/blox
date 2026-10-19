@@ -32,8 +32,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val state = GameState(
             board = board,
             next = appearance.next,
-            startLevel = startLevel,
-            progress = GameProgress.startingAt(startLevel),
+            progress = GameProgress.startingAt(startLevel, rules.levelProgression),
             phase = appearance.phase,
             tickCount = 0,
             stackInDanger = false,
@@ -281,7 +280,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val lineClear = clearing.rowsCleared.lineClear
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
-            progress = state.progress.afterClear(lineClear, state.startLevel, rules),
+            progress = state.progress.afterClear(lineClear, rules),
             phase = Phase.EntryDelay(clearing.entryDelayAfter.value),
             stackInDanger = clearing.stackInDangerAfter,
         )
