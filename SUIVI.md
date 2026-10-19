@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 85 / 143 | `████████████░░░░░░░░` **59 %** |
+| **Général** | 86 / 143 | `████████████░░░░░░░░` **60 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -419,7 +419,7 @@ compose selon des règles d'écriture (accords éprouvés, motif repris, degrés
 l'accord sur les temps forts) et garde le meilleur de plusieurs candidats ; le hasard ne choisit
 qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 
-- [ ] **P4.13** Modèle harmonique dans `core:music` : `Scale` (majeure, mineures naturelle et
+- [x] **P4.13** Modèle harmonique dans `core:music` : `Scale` (majeure, mineures naturelle et
   harmonique, dorienne, mixolydienne, pentatonique), `Chord`, `Progression`.
 - [ ] **P4.14** Catégories du générateur (Joyeux, Calme, Épique, Mélancolique, Mystérieux,
   Rétro, Danse, Surprise) : gamme, tempo, suites d'accords, rythmes, basse de chacune.

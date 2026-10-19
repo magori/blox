@@ -7,8 +7,10 @@ qui rendent une mélodie agréable et facile à retenir. Le hasard choisit seule
 possibilités qui sonnent toutes juste. L'utilisateur choisit une **catégorie** (Joyeux,
 Calme, Épique…), qui fixe le caractère de la musique.
 
-Rien n'est encore implémenté. Les valeurs et les sources sont **[à vérifier]** : elles
-viennent de mémoire et doivent être confirmées avant d'écrire le test correspondant.
+Seul le modèle harmonique est implémenté (P4.13, section
+[Modèle harmonique](#modèle-harmonique-implémenté)). Les autres valeurs et les sources sont
+**[à vérifier]** : elles viennent de mémoire et doivent être confirmées avant d'écrire le test
+correspondant.
 
 ## Principe
 
@@ -48,6 +50,61 @@ Les règles retenues, regroupées par dimension. Chacune deviendra un test.
   la première : elle finit sur l'accord de V (cadence suspendue), qui appelle le I du début.
   La mesure 4 finit elle aussi sur une cadence suspendue, pour couper la musique en deux
   phrases.
+
+### Modèle harmonique (implémenté)
+
+Types de `core:music` (P4.13), sans couleur ni son. Les intervalles des gammes et des
+triades sont ceux de la théorie standard (source : définition des modes et des accords
+parfaits, par exemple W. Piston, *Harmony*, et l'article « Mode (musique) »
+de Wikipédia) ; ils ne sont plus **[à vérifier]**.
+
+- **Gamme** (`Scale(tonique, ScaleType)`), en demi-tons entre degrés : majeure 2-2-1-2-2-2-1,
+  mineure naturelle 2-1-2-2-1-2-2, mineure harmonique 2-1-2-2-1-3-1, dorienne 2-1-2-2-2-1-2,
+  mixolydienne 2-2-1-2-2-1-2, pentatonique majeure 2-2-3-2-3. Chaque type couvre exactement
+  une octave.
+  `ScaleTest › each scale type stacks its own steps above the tonic`,
+  `ScaleTest › every scale type spans exactly one octave, so the degree after the last one is the tonic an octave up`.
+- **Degrés** comptés depuis 1 ; ils continuent dans les octaves au-dessus et sous la tonique
+  (0 est le degré juste en dessous), pour la marche par degrés de la mélodie. Une note hors de
+  do0..si8 est refusée ; l'appartenance à la gamme se juge par classe de hauteur, dans toutes
+  les octaves.
+  `ScaleTest › degrees past the seventh go on in the octaves above`,
+  `ScaleTest › degrees below the first go down under the tonic, degree 0 being the one just below`,
+  `ScaleTest › a scale holds the pitches of its degrees in every octave and no other`,
+  `ScaleTest › a scale on the highest pitch still knows its degrees, though they go past B8`,
+  `ScaleTest › a degree past B8 or under C0 is refused, and so are the pitches of a scale that goes past B8`.
+- **Accord** (`Chord(fondamentale, ChordQuality)`) : triade par tierces, majeure (4 + 3),
+  mineure (3 + 4) ou diminuée (3 + 3).
+  `ChordTest › a triad stacks two thirds on its root, major then minor, minor then major, or two minor`,
+  `ChordTest › a chord holds the pitches of its root, third and fifth in every octave and no other`,
+  `ChordTest › a chord on the highest pitch still knows its notes, though its fifth goes past B8`,
+  `ChordTest › the pitches of a chord whose fifth goes past B8 are refused`.
+- **Chiffrage romain** (`RomanNumeral.parse`) : I à VII, capitales pour majeur, minuscules
+  pour mineur, minuscules suivies de `°` pour diminué ; une altération `♭` ou `#` au plus,
+  en tête, déplace la fondamentale d'un demi-ton. La qualité vient du chiffrage, pas de la
+  gamme : le V majeur d'une gamme mineure s'écrit `V`. Les suites s'écrivent avec `-` ou `–`.
+  `RomanNumeralTest › a numeral names the root degree, in capitals if major, small if minor, small with a ring if diminished`,
+  `RomanNumeralTest › a flat or a sharp before the numeral moves its root a semitone from the degree`,
+  `RomanNumeralTest › a name that is not one numeral from I to VII in one case, after one flat or sharp at most, is refused`,
+  `RomanNumeralTest › a degree outside 1 to 7 is refused`,
+  `ScaleTest › a numeral builds its chord on the matching degree of the scale`,
+  `ScaleTest › the case of the numeral sets the chord, even with a note outside the scale like the major V in minor`,
+  `ScaleTest › a flat numeral builds its chord a semitone under the degree of the scale`,
+  `ScaleTest › a sharp numeral builds its chord a semitone above the degree of the scale`.
+- **Pentatonique** : ses accords sont ceux de la gamme majeure sur la même tonique (le IV de
+  Calme), sa mélodie garde ses cinq notes.
+  `ScaleTest › a pentatonic scale takes its chords from the major scale on its tonic, but keeps its own five notes`,
+  `ProgressionTest › a progression over a pentatonic scale plays the chords of the major scale on its tonic`.
+- **Progression** : un accord par mesure, en boucle ; les mesures sont comptées depuis 0 dans
+  le code (les mesures 4 et 8 de la forme sont `chordAt(3)` et `chordAt(7)`).
+  `ProgressionTest › each bar holds the next chord of the progression`,
+  `ProgressionTest › after its last chord the progression starts again, so four chords fill eight bars twice over`,
+  `ProgressionTest › numerals may be separated by en dashes, as the specification writes them`,
+  `ProgressionTest › a progression without chords is refused`,
+  `ProgressionTest › bars are counted from 0, so a negative bar is refused`.
+
+Aucune vue de maquette n'est concernée. Deux accords par mesure restent à faire avec les
+catégories (P4.14).
 
 ### Forme
 
@@ -104,8 +161,8 @@ elle-même au hasard.
 | **Joyeux** | majeure | 120–150 | I–V–vi–IV, I–IV–V–I | croches, croches pointées, sautillant | bondissante (octaves) |
 | **Calme** | pentatonique majeure | 70–95 | I–vi–IV–V, IV–I | blanches et noires, beaucoup d'air | rondes ou blanches |
 | **Épique** | mineure naturelle | 110–140 | i–VI–III–VII, i–VII–VI–VII | noires fortes, sauts de quinte | galop (croches répétées) |
-| **Mélancolique** | mineure naturelle | 80–100 | vi–IV–I–V, i–iv–VII–III | notes longues, descentes | fondamentale et quinte |
-| **Mystérieux** | dorienne ou mineure harmonique | 90–110 | i–IV (dorien), i–VII–VI–V | notes tenues, chromatisme de passage | notes tenues |
+| **Mélancolique** | mineure naturelle | 80–100 | i–VI–iv–v, i–iv–VII–III | notes longues, descentes | fondamentale et quinte |
+| **Mystérieux** | dorienne ou mineure harmonique | 90–110 | i–IV (dorien), i–♭VII–VI–V (harmonique) | notes tenues, chromatisme de passage | notes tenues |
 | **Rétro** | majeure ou mixolydienne | 140–170 | I–♭VII–IV–I, I–V–vi–IV | doubles croches, arpèges rapides | octaves rapides |
 | **Danse** | mineure harmonique | 130–160 | i–iv–V–i | 2 temps marqués, croches | fondamentale et quinte, marquée |
 | **Surprise** | une des catégories ci-dessus, tirée au hasard | | | | |
