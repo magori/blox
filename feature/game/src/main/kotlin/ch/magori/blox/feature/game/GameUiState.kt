@@ -2,6 +2,7 @@ package ch.magori.blox.feature.game
 
 import androidx.compose.runtime.Immutable
 import ch.magori.blox.core.game.engine.GameState
+import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
@@ -14,7 +15,10 @@ import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 /**
  * What the game screen shows. The domain values pass as they are: the screen draws them. The [next] piece
  * comes as its cells, so that the screen needs no rule to draw it. [gameOver] is set once the game is over
- * and its score submitted to the records: the screen then shows the game over.
+ * and its score submitted to the records: the screen then shows the game over. [running] says whether the
+ * game runs, neither paused nor over: the screen hands frames only then (ADR 0012), and draws none for nothing
+ * on the pause or the game over screen; it turns false as soon as the engine ends the game, before the records
+ * answer.
  */
 @Immutable
 internal data class GameUiState(
@@ -25,6 +29,7 @@ internal data class GameUiState(
     val lines: Lines,
     val score: Points,
     val paused: Boolean = false,
+    val running: Boolean = !paused,
     val record: Int? = null,
     val gameOver: GameOverUiState? = null,
 )
@@ -43,7 +48,11 @@ internal fun GameState.toUiState(nextPiece: (PieceType) -> NextPieceCells): Game
     lines = progress.lines,
     score = progress.score,
     paused = paused,
+    running = isUnderWay,
 )
+
+/** Whether [this] game goes on: neither paused nor over. */
+internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.GameOver
 
 /** The game over screen state of [this] final state, whose score made a [newRecord] or not. */
 internal fun GameState.toGameOverUiState(newRecord: Boolean): GameOverUiState = GameOverUiState(

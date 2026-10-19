@@ -148,7 +148,9 @@ ViewModel délègue à une classe pure `GameLoop`, qui
 accumule le temps réel écoulé et rend le nombre de ticks dus ; le ViewModel applique les entrées
 puis ces ticks au moteur, dont il est le seul écrivain. Le domaine
 ne connaît que les ticks, jamais les millisecondes : la vitesse ne dépend pas de la
-fréquence d'écran (60, 90 ou 120 Hz). Voir les [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)
+fréquence d'écran (60, 90 ou 120 Hz). Pendant la partie, l'écran de jeu demande pourtant le
+mode à 60 Hz, ou à défaut 120 Hz, pour que chaque tick tombe sur un nombre entier d'images ;
+la boucle s'arrête en pause et en fin de partie (P5.12). Voir les [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)
 et [0012](adr/0012-horloge-d-images-cote-ecran.md).
 
 `GameLoop` calcule en entiers (nanosecondes × 60), sans dérive. Elle plafonne le nombre de

@@ -65,5 +65,35 @@ Options envisagées :
   et la partie reste en pause au retour, jusqu'à Reprendre. Une recréation de l'activité (thème
   sombre, langue, taille de fenêtre) passe par `ON_PAUSE` et met donc aussi la partie en pause,
   ce qui est voulu.
+- **Amendement (P5.12, 2026-10-19).** La boucle suit `running` (ni en pause, ni finie, une seule
+  règle : `GameState.isUnderWay`) et s'arrête donc aussi dès le dernier tick de la partie, avant
+  même la réponse des records : l'écran de fin ne demande plus d'images. Pendant tout l'écran de
+  jeu, pause et fin comprises, `GameDisplayModeEffect` demande à la fenêtre le mode d'affichage
+  à 60 Hz (`WindowManager.LayoutParams.preferredDisplayModeId`, disponible dès l'API 23, donc
+  sans repli pour `minSdk` 26) : à 90 Hz la chute était irrégulière, à 120 Hz une image sur deux
+  ne servait à rien. Choix du mode, à la résolution courante : le plus lent qui donne un nombre
+  entier d'images par tick, 60 Hz puis 120 Hz, 60 préféré à 59,94 ; aucun sinon. Un compteur par
+  fenêtre rend la valeur d'avant au départ du dernier écran de jeu, car deux écrans coexistent
+  pendant la transition de « Rejouer ». Écartés : `Modifier.preferredFrameRate` et
+  `View.setRequestedFrameRate` (API 35, simple vote), `Surface.setFrameRate` (pas de `Surface`
+  accessible sous Compose), `preferredRefreshRate` (ignoré si un mode est demandé). Le système
+  n'honore la demande que pour la fenêtre au premier plan.
+  `GameViewModelTest › a game under way asks the screen for frames`,
+  `GameViewModelTest › a paused game asks the screen for no frame`,
+  `GameViewModelTest › once the game is over the screen is asked for no frame, even before the records answered`,
+  `GameScreenFramesTest › the game over screen asks for no frame: Compose becomes idle`,
+  `DisplayModeTest › on a 120 Hz screen the game asks for the 60 Hz mode`,
+  `DisplayModeTest › the game never asks for a mode of another resolution`,
+  `DisplayModeTest › the game never asks for a mode of the same width but another height`,
+  `DisplayModeTest › the game never asks for a mode of the same height but another width`,
+  `DisplayModeTest › a mode slower than 60 Hz is never asked for, a tick would then miss its frame`,
+  `DisplayModeTest › a mode the screen reports a hair under 60 Hz counts as 60 Hz`,
+  `DisplayModeTest › between a mode at 59,94 Hz and one at 60 Hz the game asks for 60 Hz`,
+  `DisplayModeTest › without a 60 Hz mode the game asks for 120 Hz rather than 90 Hz, two frames for each tick`,
+  `DisplayModeTest › a screen with no mode at a multiple of 60 Hz is asked for nothing`,
+  `GameScreenFramesTest › the game screen asks for the 60 Hz mode of the display, and gives the previous one back once left`,
+  `GameScreenFramesTest › two game screens shown together, as while Rejouer goes on, keep the mode until both are gone`.
+  À vérifier sur un téléphone à 90 ou 120 Hz (l'émulateur n'a qu'un mode) : passage sans
+  clignotement, chute régulière, retour à la fréquence d'origine sur l'accueil.
 - Le diagramme de `docs/architecture.md` est mis à jour : l'écran envoie les images, le
   ViewModel envoie les entrées, `GameLoop` envoie les ticks au moteur.

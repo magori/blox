@@ -378,6 +378,41 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a game under way asks the screen for frames`() {
+        // When
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(viewModel.uiState.value.running).isTrue()
+    }
+
+    @Test
+    fun `a paused game asks the screen for no frame`() {
+        // Given a game under way
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        viewModel.onPause()
+
+        // Then
+        assertThat(viewModel.uiState.value.running).isFalse()
+    }
+
+    @Test
+    fun `once the game is over the screen is asked for no frame, even before the records answered`() {
+        // Given records that take their time to write
+        highScores.gate = CompletableDeferred()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the game is played until it is over, its score being submitted
+        playUntilSubmitted(viewModel)
+
+        // Then no frame is asked for, while the game over screen waits for the records
+        assertThat(viewModel.uiState.value.gameOver).isNull()
+        assertThat(viewModel.uiState.value.running).isFalse()
+    }
+
+    @Test
     fun `on pause the game is paused`() {
         // Given a game under way
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
