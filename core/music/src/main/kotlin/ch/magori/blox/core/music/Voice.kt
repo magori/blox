@@ -18,7 +18,13 @@ private const val MELODY_VOLUME = 0.07
 private const val BASS_VOLUME = 0.16
 
 /** A melody of [notes], on the wave and at the volume of every melody of BloX. */
-internal fun melodyVoice(notes: List<Note>): Voice = Voice(Waveform.SQUARE, MELODY_VOLUME, notes)
+public fun melodyVoice(notes: List<Note>): Voice = Voice(Waveform.SQUARE, MELODY_VOLUME, notes)
 
 /** A bass of [notes], on the wave and at the volume of every bass of BloX. */
-internal fun bassVoice(notes: List<Note>): Voice = Voice(Waveform.TRIANGLE, BASS_VOLUME, notes)
+public fun bassVoice(notes: List<Note>): Voice = Voice(Waveform.TRIANGLE, BASS_VOLUME, notes)
+
+/** The range of every melody of BloX: the two octaves from C4 to C6, where the generator writes it. */
+public val MELODY_RANGE: PitchRange = PitchRange(Pitch.parse("C4"), Pitch.parse("C6"))
+
+/** The range of every bass of BloX: the two octaves from C2 to C4, where the generator writes it. */
+public val BASS_RANGE: PitchRange = PitchRange(Pitch.parse("C2"), Pitch.parse("C4"))

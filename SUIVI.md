@@ -444,6 +444,17 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   tempo, écoute ; enregistrement avec un nom (proposé d'après la catégorie, modifiable),
   demande avant de quitter sans enregistrer. Aux couleurs des thèmes Original, Couleurs et
   Brume (clair et sombre), sans couleur propre : `core:designsystem` fournit les jetons.
+  Découpée en tranches :
+  - [x] **P4.19a** Modèle de l'éditeur, sans écran : grille, gestes, barre d'outils, annuler,
+    tempo, « modifiée », noms, conversions partition ↔ brouillon.
+  - [ ] **P4.19b** Écran de l'éditeur (V8, V11, V14, V17) : `ComposerViewModel`, clé `NavKey` et
+    entrée dans `app`, grille d'une mesure avec ses gestes, onglets, barre d'outils, boutons de
+    mesure, noms de notes pour le lecteur d'écran, filigrane de l'autre piste, cases à deux
+    doubles croches, captures des thèmes ; retirer l'exclusion `buildHealth` de `feature:composer`.
+  - [ ] **P4.19c** Écoute dans l'éditeur : *Écouter* par `MusicPlayer`, colonne jouée, *Suivre la
+    lecture*.
+  - [ ] **P4.19d** Enregistrer, quitter, renommer, supprimer, avec le stockage de P4.22 : fenêtre
+    d'enregistrement sur `MusicNames`, question en quittant.
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la

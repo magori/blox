@@ -678,6 +678,125 @@ De haut en bas :
   actions affiche un message qui rappelle qu'on peut l'annuler. Le dé ne garde pas
   d'annulation quand la grille était vide.
 
+
+### Éditeur : modèle (implémenté, P4.19 tranche 1)
+
+Le modèle de l'éditeur vit dans `feature:composer` (paquet `model`, interne, sans Android,
+testé sur la JVM) ; l'écran, l'écoute et l'enregistrement viendront dans les tranches
+suivantes. Choix de conception, **[à vérifier]** à l'essai :
+
+- **Grille** : 8 mesures de 8 cases (une croche par case) par piste ; les notes sont gardées à
+  la double croche, deux par case, pour qu'une musique générée (doubles croches de Rétro,
+  croches pointées de Joyeux) s'ouvre et revienne à l'identique ; un geste agit toujours sur
+  une case entière. Lignes : les notes de la gamme dans la tessiture du générateur (mélodie do4
+  à do6, basse do2 à do4, une seule source dans `core:music`) ; une note ouverte hors gamme ou
+  hors tessiture reçoit sa propre ligne, marquée hors gamme. Musique neuve : do majeur, sans
+  catégorie, 120 temps/min.
+- **Poser** : toucher une case pose une croche ; toucher une note, son attaque ou sa partie
+  tenue, l'efface entière ; poser au milieu d'une note longue la coupe. **Glisser** allonge
+  jusqu'à la case levée, sans dépasser la barre. **Allonger** : une case à droite allonge
+  (en recouvrant les notes d'autres lignes), une case tenue raccourcit, l'attaque ramène la note
+  à la fin de sa case.
+- **Barre d'outils** : copier la mesure sur la suivante (refusé en mesure 8), effacer la mesure
+  (refusé sur une mesure vide ; la queue d'une note qui déborde sur la mesure suivante reste).
+  **Annuler** (un niveau) couvre le dé, l'effacement et la copie ; toute autre modification le
+  retire, et le dé sur une grille vide n'en garde pas.
+- **Tempo** de 60 à 200 temps/min, par pas de 10 (toutes les catégories, Korobeïniki et le
+  Menuet y tiennent).
+- **Enregistrement** : « modifiée » compare le contenu à la version enregistrée ; une musique
+  neuve restée vide se quitte sans question. Nom proposé « Catégorie n » (premier n libre),
+  nom unique sans tenir compte de la casse ni des espaces, la musique en cours exceptée ; un nom
+  pris est proposé libre avec le numéro suivant (« Thème 2 » donne « Thème 3 »).
+- **Conversions** : une partition s'ouvre avec sa gamme et sa catégorie (fournies par le
+  générateur ou la musique enregistrée) si elle est en 4/4, sur 8 mesures, à une ou deux voix,
+  en doubles croches entières et au tempo de l'éditeur ; sinon elle ne s'ouvre pas (le Menuet,
+  en 3/4). Elle revient avec les ondes et volumes des partitions ; les silences sont réécrits
+  un par mesure (même musique entendue).
+
+`CellTest › a cell lies in one of the eight bars, on one of their eight eighth notes`,
+`EditorSavingTest › a new music is not saved`,
+`EditorSavingTest › an opened music is saved until it is changed, then modified`,
+`EditorSavingTest › a music changed back to its saved version is saved again`,
+`EditorSavingTest › once saved, the music is saved, and changes are counted from there`,
+`EditorSavingTest › leaving a new music asks first, unless it was left empty`,
+`EditorSavingTest › leaving a saved music asks first only when it was changed, even if it was emptied`,
+`EditorSavingTest › an empty grid cannot be saved`,
+`EditorSavingTest › a music cannot be saved under the name of another music, and can under a free name`,
+`EditorSavingTest › a music cannot be saved without a name`,
+`EditorStateTest › touching a cell places a note in the selected bar of the selected track`,
+`EditorStateTest › in Lengthen mode, touching a cell lengthens the note on its left`,
+`EditorStateTest › sliding along a line places a long note in the selected bar of the selected track`,
+`EditorStateTest › copying the bar copies it over the next one, on the open track only, and shows the next bar`,
+`EditorStateTest › Copy the bar is disabled on the eighth bar, which has no bar after it`,
+`EditorStateTest › copying the eighth bar is refused`,
+`EditorStateTest › clearing the bar silences it on the open track only`,
+`EditorStateTest › Clear the bar is disabled on a bar of the open track where no note sounds`,
+`EditorStateTest › the tempo buttons speed the music up or slow it down, and take the undo away`,
+`EditorStateTest › the editor shows one of the eight bars`,
+`EditorStateTest › clearing a bar where no note sounds is refused`,
+`EditorUndoTest › clearing the bar can be undone, once`,
+`EditorUndoTest › copying the bar can be undone`,
+`EditorUndoTest › touching or sliding a note takes the undo away, as touching the cell again undoes it`,
+`EditorUndoTest › the dice replaces the music, shows its first bar, and can be undone`,
+`EditorUndoTest › the dice keeps no undo when the grid was empty`,
+`EditorUndoTest › the dice on an emptied grid takes away the undo left by clearing it`,
+`GridNoteTest › a note lasts at least a sixteenth note`,
+`MusicNamesTest › the proposed name numbers the category, the first number that no music has`,
+`MusicNamesTest › a name is taken by another music whatever its case and the spaces around it`,
+`MusicNamesTest › the name of the music being edited is not taken by it`,
+`MusicNamesTest › a taken name is offered free with the first number from 2 that no music has`,
+`MusicNamesTest › a taken name that ends with a number is offered free with the next number not taken`,
+`ScoreDraftOpeningTest › a score opens with its long notes, its rests and its two voices, on its scale, category and tempo`,
+`ScoreDraftOpeningTest › a score in three beats a bar, such as the Minuet, does not open`,
+`ScoreDraftOpeningTest › a score of other than eight bars does not open`,
+`ScoreDraftOpeningTest › a score with a note shorter than a sixteenth or off the sixteenth grid, such as a triplet, does not open`,
+`ScoreDraftOpeningTest › a score of a single voice opens as a melody without bass`,
+`ScoreDraftOpeningTest › a score of more than two voices does not open`,
+`ScoreDraftOpeningTest › a note out of the scale, such as a chromatic passing note, opens on a line of its own, out of the scale`,
+`ScoreDraftOpeningTest › a note out of the range of its track opens on a line of its own, once`,
+`ScoreDraftOpeningTest › a score whose tempo is out of the tempos of the editor does not open`,
+`ScoreDraftOpeningTest › a score in two beats a bar, sixteen bars long, does not open`,
+`ScoreDraftRoundTripTest › every music of the generator opens on its scale and comes back unchanged`,
+`ScoreDraftRoundTripTest › a generated music with sixteenth notes, dotted eighths and rests comes back unchanged`,
+`ScoreDraftRoundTripTest › the arranged Korobeiniki opens and comes back unchanged`,
+`ScoreDraftRoundTripTest › a score comes back with its silences written one rest per bar, the music heard unchanged`,
+`ScoreDraftTest › an empty draft plays as eight bars of silence on the melody and bass sounds of the scores, at its tempo`,
+`ScoreDraftTest › the notes of a track play with their length, the silences between them as rests that stop at the bar lines`,
+`ScoreDraftTest › a draft is empty while neither track has a note`,
+`TempoTest › a tempo is refused outside 60 to 200 beats per minute`,
+`TempoTest › a tempo of 60 or 200 beats per minute is accepted`,
+`TempoTest › speeding up adds 10 beats per minute, up to 200`,
+`TempoTest › slowing down takes 10 beats per minute away, down to 60`,
+`TrackGridBarsTest › clearing a bar silences it and leaves the other bars as they were`,
+`TrackGridBarsTest › a bar is empty when no note sounds in it, even held from the bar before`,
+`TrackGridBarsTest › copying a bar replaces the next bar with its notes`,
+`TrackGridBarsTest › a note held over the bar line is copied up to the bar line only`,
+`TrackGridBarsTest › clearing a bar leaves the next bar the tail of a note held over the bar line`,
+`TrackGridBarsTest › clearing a bar that a long note crosses keeps the note before and after the bar`,
+`TrackGridTest › the melody rows are the notes of the scale from C4 to C6`,
+`TrackGridTest › the bass rows are the notes of the scale from C2 to C4, a pentatonic scale leaving out its missing degrees`,
+`TrackGridTest › a note is placed only on a line of the grid`,
+`TrackGridTest › touching an empty cell places an eighth note`,
+`TrackGridTest › touching a note erases it`,
+`TrackGridTest › placing a note in the middle of a long note cuts the long note there`,
+`TrackGridTest › placing a note where another pitch starts replaces that note, even the part held after the cell`,
+`TrackGridTest › sliding to the right from an empty cell places a note that lasts until the cell where the finger is lifted`,
+`TrackGridTest › sliding from a note of the same line lengthens that note from its attack`,
+`TrackGridTest › a note slid past the end of its bar stops at the bar line`,
+`TrackGridTest › sliding to the left places an eighth note`,
+`TrackGridTest › a slid note covers the notes it passes over`,
+`TrackGridTest › in Lengthen mode, touching a cell to the right of a note lengthens the note up to there`,
+`TrackGridTest › in Lengthen mode, touching a held cell shortens the note to end there`,
+`TrackGridTest › in Lengthen mode, touching the attack of a note brings it back to one cell`,
+`TrackGridTest › in Lengthen mode, touching a cell with no note of its line on its left in the bar places an eighth note`,
+`TrackGridTest › touching the held part of a note erases the whole note`,
+`TrackGridTest › touching one of two notes that share a cell erases that note only, and a held note whole`,
+`TrackGridTest › in Lengthen mode, a lengthened note covers the notes of other lines between it and the cell`,
+`TrackGridTest › in Lengthen mode, touching an attack in the middle of a cell brings the note back to the end of that cell`,
+`TrackGridTest › a grid holds its notes within the eight bars, one at a time`,
+`TrackTest › each track spans the range in which the generator writes its voice`.
+
+Vues : V8, V11, V14, V17 (pas encore d'écran).
 ### Enregistrer
 
 - *Enregistrer* ouvre une fenêtre : le nom (proposé d'après la catégorie, par exemple
