@@ -77,25 +77,26 @@ class CategoryTest {
         assertThat(tempo).isEqualTo(TempoRange(slowest, fastest))
     }
 
-    @ParameterizedTest(name = "{0}: {1}")
+    @ParameterizedTest(name = "{0}: {1} in notes of {2} beats")
     @CsvSource(
-        "JOYFUL, BOUNCING_OCTAVES",
-        "CALM, WHOLE_AND_HALF_NOTES",
-        "EPIC, GALLOP",
-        "MELANCHOLIC, ROOT_AND_FIFTH",
-        "MYSTERIOUS, HELD_NOTES",
-        "RETRO, FAST_OCTAVES",
-        "DANCE, MARKED_ROOT_AND_FIFTH",
+        "JOYFUL, OCTAVES, 1.0",
+        "CALM, REPEATED_ROOT, 2.0",
+        "EPIC, REPEATED_ROOT, 0.5",
+        "MELANCHOLIC, ROOT_AND_FIFTH, 1.0",
+        "MYSTERIOUS, REPEATED_ROOT, 4.0",
+        "RETRO, OCTAVES, 0.5",
+        "DANCE, ROOT_AND_FIFTH, 0.5",
     )
-    fun `each category has the bass of its character`(
+    internal fun `each category has the bass of its character, a motif of the specification at a note value of its own`(
         category: Category,
-        bass: BassStyle,
+        motif: BassMotif,
+        beats: Double,
     ) {
         // When
         val style = category.bass
 
         // Then
-        assertThat(style).isEqualTo(bass)
+        assertThat(style).isEqualTo(BassStyle(motif, beats))
     }
 
     @ParameterizedTest(name = "{0}")

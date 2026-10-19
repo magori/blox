@@ -14,11 +14,7 @@ import kotlin.random.Random
  */
 internal data class Melody(val bars: List<List<Note>>) {
     /** The notes struck, rests left out, in the order they are played. */
-    val struck: List<StruckNote>
-        get() = bars.flatMapIndexed { bar, notes ->
-            val onsets = notes.runningFold(0.0) { onset, note -> onset + note.beats }
-            notes.zip(onsets).mapNotNull { (note, onset) -> note.pitch?.let { StruckNote(bar, onset, it) } }
-        }
+    val struck: List<StruckNote> get() = struckIn(bars)
 
     companion object {
         /** The range of the melody voice. */
@@ -50,9 +46,6 @@ internal data class Melody(val bars: List<List<Note>>) {
         ): Melody = MelodyComposer(form, random, traits, range, archedSearchBudget).compose()
     }
 }
-
-/** A note of [pitch] struck in [bar], counted from 0, at [onset] beats from the start of the bar. */
-internal data class StruckNote(val bar: Int, val onset: Double, val pitch: Pitch)
 
 /** A note to strike in [bar], counted from 0, at [onset] beats from its start, under [chord]. */
 private data class Slot(val bar: Int, val onset: Double, val chord: Chord) {
