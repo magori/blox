@@ -20,7 +20,6 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
-import ch.magori.blox.feature.game.music.NORMAL_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CancellationException
@@ -74,11 +73,10 @@ class GameViewModel internal constructor(
                 .catch { }
                 .collect { record -> state.update { it.copy(record = record) } }
         }
-        // The music chosen on the home screen, at the normal tempo.
+        // The music chosen on the home screen, at the normal tempo, as every new play of the player.
         viewModelScope.launch {
             val choice = preferences.preferences.catch { emit(UserPreferences.DEFAULT) }.first().music
             score = scoreOf(choice)
-            music.setTempoFactor(NORMAL_TEMPO)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
             if (isUnderWay()) playback = score?.let(music::play)
         }

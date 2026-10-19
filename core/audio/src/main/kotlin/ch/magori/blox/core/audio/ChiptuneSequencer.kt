@@ -71,8 +71,14 @@ public class ChiptuneSequencer internal constructor(
     @Volatile
     private var requestedTempo = NORMAL_TEMPO
 
-    /** Plays [score] in a loop, in place of the score playing, if any. Call it from the main thread. */
-    override fun play(score: Score): Playback = start(score, from = null)
+    /**
+     * Plays [score] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
+     * for before is forgotten. Call it from the main thread.
+     */
+    override fun play(score: Score): Playback {
+        requestedTempo = NORMAL_TEMPO
+        return start(score, from = null)
+    }
 
     /** Plays [score] in a loop from the start, or from where [from] stood, in place of the score playing. */
     private fun start(
@@ -225,8 +231,8 @@ public class ChiptuneSequencer internal constructor(
 
     /**
      * Sets the tempo factor of the music: 1.0 is the tempo of the score, the caller chooses another
-     * one (the stack danger). Kept for the next play when nothing is playing. Call it from the main
-     * thread.
+     * one (the stack danger). Kept for the next resume when nothing is playing; the next [play] starts
+     * at 1.0 again. Call it from the main thread.
      */
     override fun setTempoFactor(factor: Double) {
         require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
