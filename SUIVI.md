@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 112 / 162 | `██████████████░░░░░░` **69 %** |
+| **Général** | 113 / 162 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
@@ -586,7 +586,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
-  musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher.
+  musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher. Coche du choix sélectionné (P5.42).
 - [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
@@ -627,12 +627,12 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
   de l'éditeur (déjà relevés) ; tests de contraste (`PaletteContrastTest`, `KeyColorsTest`,
   `ChoiceColorsTest`, `TrackColorsTest`) et captures dans les deux variantes.
-- [ ] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
+- [x] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
-  police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30).
+  police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30). Fait : coche dessinée avant le libellé (1 em, 24 dp au plus), dans le coin pour les niveaux.
 - [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
   qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
-  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18).
+  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18). Vu en P5.42 : « COMPOSER UNE MUSIQUE » coupé en « COMPOSER UNE MU » à ×2 (P4.19b).
 
 ## P6 — Mode Moderne (plus tard)
 

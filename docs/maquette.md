@@ -73,7 +73,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Valeurs retenues en P3.4, à confirmer sur la maquette (P3.8) : rien n'est affiché tant que
   les réglages ne sont pas lus (pas de thème qui clignote, pas de « Jouer » au mauvais niveau) ;
   choix en boutons radio groupés (TalkBack), *Classique* sélectionné sans action, *Moderne*
-  désactivé ; choix sélectionné rempli en `accent`, sans soulignement (retiré en P5.36), les
+  désactivé ; choix sélectionné rempli en `accent`, sans soulignement (retiré en P5.36) et marqué d'une coche (P5.42), les
   autres en encart (`panel`, cadre de 2 dp `panelBorder`, libellé `ink`) (P5.26,
   `docs/themes.md`, Choix de l'accueil) ;
   niveaux 0 à 9 sur une ligne en cellules égales d'au moins 48 dp de haut (360 dp) ;

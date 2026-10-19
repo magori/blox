@@ -205,6 +205,18 @@ que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 
 libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
 `keyColors`.
 
+**Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
+dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
+pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp
+au plus) et à 0,25 em de lui (4 dp au moins) ; pour les niveaux de départ, trop étroits, dans le
+coin en haut à droite (10 dp, à 4 dp des bords), et chaque niveau garde 14 dp au-dessus et
+au-dessous du chiffre pour que la coche ne le touche pas (cellules plus hautes que 48 dp en
+police agrandie). Seul le choix sélectionné réserve la place de sa coche : une rangée ne s'élargit
+que d'une coche et passe à la ligne au même endroit ; elle se décale de quelques dp quand le choix
+change. La coche est décorative : TalkBack annonce déjà « sélectionné ». En police ×2, le nom de
+40 caractères d'une musique personnelle est coupé un mot plus tôt qu'avant (« une longue
+soir… ») ; TalkBack le lit en entier. Code : `ChoiceCheck.kt` (`checkStroke`, `choiceInsets`).
+
 | | Original | Couleurs |
 |---|---|---|
 | Sélectionné / non sélectionné (`accent` / `panel`) | 5,7:1 (avant 1,99:1) | 6,7:1 (avant 5,48:1) |
@@ -215,7 +227,12 @@ libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). 
 `ChoiceColorsTest › the label of a choice stands out from its background by a contrast of 4,5 to 1 at least`,
 `ChoiceColorsTest › an unselected choice is framed as a panel, a selected one in its own background`,
 `ContrastTest › black on white has the greatest contrast, 21 to 1, whatever the order`,
-`HomeScreenTest › TalkBack reads each selected choice as selected, and the others as not selected`.
+`HomeScreenTest › TalkBack reads each selected choice as selected, and the others as not selected`,
+`ChoiceColorsTest › a selected choice is checked in the ink of its label, an unselected one is not checked`,
+`ChoiceCheckTest › the check is a stroke down then up, drawn wholly within its square`,
+`ChoiceCheckTest › only a selected choice makes room for its check and its gap before its label`,
+`ChoiceCheckTest › the check is as large as its label, 24 dp at most, a quarter of the label away from it, 4 dp at least`,
+`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`.
 Vues : V1.
 
 
