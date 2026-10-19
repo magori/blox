@@ -12,8 +12,9 @@ dependencies {
     // lecteur de musique de core:audio (écoute depuis la liste) ; MyMusicsViewModel est un ViewModel.
     api(projects.core.audio)
     api(projects.core.data)
-    // Les partitions écoutées (Score) et les catégories des musiques (Category).
-    implementation(projects.core.music)
+    // Les partitions écoutées (Score), les catégories (Category) et l'identité d'une musique à modifier
+    // (ScoreId.Personal), dans le rappel public onEdit.
+    api(projects.core.music)
     api(libs.androidx.lifecycle.viewmodel)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)

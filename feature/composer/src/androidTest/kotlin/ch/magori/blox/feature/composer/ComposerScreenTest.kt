@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer
 
+import android.view.KeyEvent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
@@ -22,25 +23,41 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.SavedStateHandle
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
+import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.data.FakeMusicLibrary
+import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.EditorState
 import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -58,7 +75,8 @@ internal class ComposerScreenTest {
     val recompositions = RecompositionRecorder()
 
     private val music = FakeMusicPlayer()
-    private val viewModel = ComposerViewModel(music)
+    private val library = FakeMusicLibrary()
+    private val viewModel = ComposerViewModel(music, library, musicKey = null, SavedStateHandle())
 
     @Test
     @DisplayName("touching an empty cell places a note, and touching it again erases it")
@@ -103,7 +121,12 @@ internal class ComposerScreenTest {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
                 BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                    ComposerScreen(viewModel = viewModel, onBack = {}, modifier = Modifier.size(360.dp, 640.dp))
+                    ComposerScreen(
+                        viewModel = viewModel,
+                        onBack = {},
+                        onDeleted = {},
+                        modifier = Modifier.size(360.dp, 640.dp),
+                    )
                 }
             }
         }
@@ -228,6 +251,8 @@ internal class ComposerScreenTest {
                 ComposerContent(
                     uiState = ComposerUiState(opened, showOtherTrack = true),
                     onBack = {},
+                    onRename = {},
+                    onDelete = {},
                     onOtherTrackShown = {},
                     onFollowPlayback = {},
                     onTrackChosen = {},
@@ -241,7 +266,9 @@ internal class ComposerScreenTest {
                     onSlower = {},
                     onFaster = {},
                     onListen = {},
+                    onSave = {},
                     onMessageShown = {},
+                    dialogActions = DialogActions.None,
                 )
             }
         }
@@ -317,7 +344,7 @@ internal class ComposerScreenTest {
         mainClock.advanceTimeByFrame()
 
         // Then
-        assertThat(music.playing).isEqualTo(EDITED_SCORE_ID)
+        assertThat(music.playing).isEqualTo(ScoreId.Personal("music-1"))
 
         // When
         onNodeWithContentDescription("Arrêter").performClick()
@@ -375,13 +402,96 @@ internal class ComposerScreenTest {
         assertThat(music.playing).isNull()
     }
 
+    @Test
+    @DisplayName("Save opens the window on the name proposed, which saves the music under the name typed")
+    fun saveSavesTheMusicUnderTheNameTyped() = extension.use {
+        // Given a new music with a note
+        showEditor()
+        cell("Mi bas, temps 1").performClick()
+
+        // When
+        onNodeWithContentDescription("Enregistrer les changements").performClick()
+        onNodeWithText("Ma musique 1").assertExists()
+        onNode(hasSetTextAction()).performTextReplacement("Thème du soir")
+        onNodeWithText("Jouer cette musique pendant les parties").performClick()
+        onNodeWithText("Enregistrer").performClick()
+        waitForIdle()
+
+        // Then
+        val saved = runBlocking { library.musics.first() }
+        assertThat(saved.map { it.name }).containsExactly("Thème du soir")
+        assertThat(runBlocking { library.gameMusic.first() }?.name).isEqualTo("Thème du soir")
+        onNodeWithText("Enregistrer la musique").assertDoesNotExist()
+        onNodeWithText("Thème du soir").assertExists()
+        onNodeWithText("non enregistrée").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the back gesture on a changed music asks first: Continue stays, Leave without saving leaves")
+    fun theBackGestureAsksBeforeLeavingAChangedMusic() = extension.use {
+        // Given a new music with a note
+        var left = 0
+        showEditor(onBack = { left++ })
+        cell("Mi bas, temps 1").performClick()
+
+        // When the system goes back
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+
+        // Then
+        onNodeWithText("Quitter sans enregistrer ?").assertExists()
+
+        // When
+        onNodeWithText("Continuer").performClick()
+
+        // Then
+        onNodeWithText("Quitter sans enregistrer ?").assertDoesNotExist()
+        assertThat(left).isZero()
+
+        // When the back button asks again, and the answer is to leave
+        onNodeWithContentDescription("Retour").performClick()
+        onNodeWithText("Quitter sans enregistrer").performClick()
+        waitForIdle()
+
+        // Then
+        assertThat(left).isEqualTo(1)
+    }
+
+    @Test
+    @DisplayName("before its music is read, the back gesture leaves the editor, as the navigation would")
+    fun theBackGestureLeavesBeforeTheMusicIsRead() = extension.use {
+        // Given an editor on a saved music whose musics are never read
+        val unread = object : MusicLibrary by library {
+            override val musics: Flow<List<SavedMusic>> = flow { awaitCancellation() }
+        }
+        val opening = ComposerViewModel(music, unread, musicKey = "joyeux", SavedStateHandle())
+        var backs = 0
+        setContent {
+            // The system back, as the navigation handles it, under the editor.
+            NavigationBackHandler(
+                state = rememberNavigationEventState(NavigationEventInfo.None),
+                onBackCompleted = { backs++ },
+            )
+            BloxTheme {
+                ComposerScreen(viewModel = opening, onBack = {}, onDeleted = {})
+            }
+        }
+        waitForIdle()
+
+        // When
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+
+        // Then
+        runOnIdle { assertThat(backs).isEqualTo(1) }
+    }
+
     private fun ComposeContext.showEditor(
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         modifier: Modifier = Modifier,
+        onBack: () -> Unit = {},
     ) {
         setContent {
             BloxTheme(kind = kind) {
-                ComposerScreen(viewModel = viewModel, onBack = {}, modifier = modifier)
+                ComposerScreen(viewModel = viewModel, onBack = onBack, onDeleted = {}, modifier = modifier)
             }
         }
     }

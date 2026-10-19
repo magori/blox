@@ -87,4 +87,29 @@ class CellGestureTest {
         assertThat(left.lift()).isEqualTo(CellGesture.Slide(fromEighth = 2, toEighth = 0))
         assertThat(right.lift()).isEqualTo(CellGesture.Slide(fromEighth = 2, toEighth = 7))
     }
+
+    @Test
+    fun `while a finger slides to the right, the cells from its cell to the finger are crossed, none otherwise`() {
+        // Given
+        val gesture = gesture()
+        val pressed = gesture.crossed
+
+        // When it slides to the sixth cell
+        gesture.move(x = 57f, y = 5f)
+        val right = gesture.crossed
+        // then back to its own cell, where lifting it does nothing
+        gesture.move(x = 26f, y = 5f)
+        val back = gesture.crossed
+        // then to the left, where lifting it places an eighth note in its own cell
+        gesture.move(x = 5f, y = 5f)
+        val left = gesture.crossed
+        gesture.cancel()
+
+        // Then
+        assertThat(pressed).isNull()
+        assertThat(right).isEqualTo(2..5)
+        assertThat(back).isNull()
+        assertThat(left).isEqualTo(2..2)
+        assertThat(gesture.crossed).isNull()
+    }
 }

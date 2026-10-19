@@ -37,7 +37,8 @@ fun BloxNavDisplay(
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
 ) {
-    val goBack: () -> Unit = { backStack.removeLastOrNull() }
+    // Never below the first screen, whatever asks to go back once more.
+    val goBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() }
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -52,7 +53,7 @@ fun BloxNavDisplay(
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).
-                onCompose = { backStack.add(ComposerRoute) },
+                onCompose = { backStack.add(ComposerRoute()) },
                 onMyMusics = { backStack.add(MyMusicsRoute) },
                 viewModelFactory = homeViewModelFactory,
             )
@@ -61,13 +62,19 @@ fun BloxNavDisplay(
                 onReplay = { finished -> replay(backStack, finished) },
                 viewModelFactory = gameViewModelFactory,
             )
-            composerEntry(onBack = goBack, viewModelFactory = composerViewModelFactory)
+            composerEntry(
+                onBack = goBack,
+                // « Mes musiques » n'offre pas encore d'annuler une suppression faite dans l'éditeur : il se ferme.
+                onDeleted = { goBack() },
+                viewModelFactory = composerViewModelFactory,
+            )
             myMusicsEntry(
                 onBack = goBack,
                 // L'éditeur ne s'ouvre pas encore sur une musique tirée au hasard (P4.20) : *Au hasard* l'ouvre sur une
                 // musique neuve, comme *Nouvelle*, en attendant.
-                onRandom = { backStack.add(ComposerRoute) },
-                onNew = { backStack.add(ComposerRoute) },
+                onRandom = { backStack.add(ComposerRoute()) },
+                onNew = { backStack.add(ComposerRoute()) },
+                onEdit = { id -> backStack.add(ComposerRoute(musicKey = id.key)) },
                 viewModelFactory = myMusicsViewModelFactory,
             )
         },
