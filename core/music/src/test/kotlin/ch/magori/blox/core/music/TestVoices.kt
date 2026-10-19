@@ -5,3 +5,13 @@ internal fun aVoice(
     volume: Double = 0.07,
     beats: Double = 4.0,
 ): Voice = Voice(Waveform.SQUARE, volume, listOf(Note(Pitch.parse("E5"), beats)))
+
+/** A melody written bar by bar, as notes such as `"C4 1"` separated by commas, `r` marking a rest. */
+internal fun melodyOf(vararg bars: String): Melody = Melody(
+    bars.map { bar ->
+        bar.split(", ").map { note ->
+            val (pitch, beats) = note.split(" ")
+            Note(if (pitch == "r") null else Pitch.parse(pitch), beats.toDouble())
+        }
+    },
+)
