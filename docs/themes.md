@@ -228,8 +228,16 @@ niveaux de départ (P5.29) ; leur hauteur fait bien 48 dp.
 ## Éditeur de musique (maquette)
 
 Couleurs des pistes de l'éditeur de musique (P4.19), retenues dans la maquette (V7 à V18) et le
-prototype de l'éditeur ; à confirmer quand l'éditeur sera codé. Le thème Brume n'existe pour
-l'instant que dans la maquette (V5, V6, V13 à V18).
+prototype de l'éditeur. Le thème Brume n'existe pour l'instant que dans la maquette (V5, V6,
+V13 à V18).
+
+**Valeurs codées** (P4.19b, `BloxPalette.melody`, `bass`, `outOfScale`, `TrackColors`) : Couleurs
+reprend la maquette ; Original fonce deux teintes, trop pâles pour leur contraste : note tenue
+`#6A8A66` (mélodie et basse, 3,1:1 contre la case) et libellé hors gamme `#486848` (4,6:1 sur la
+page, toujours plus estompé que les autres libellés ; il est aussi en italique, pour ne pas
+dépendre de la couleur). L'onglet de piste choisi est rempli en `accent` en Original et dans la
+couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4,5:1 au moins.
+`TrackColorsTest` (`feature:composer`) vérifie ces contrastes dans les deux thèmes codés.
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|
