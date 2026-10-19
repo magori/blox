@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game
 
+import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import kotlin.math.abs
 import kotlin.math.roundToInt
 

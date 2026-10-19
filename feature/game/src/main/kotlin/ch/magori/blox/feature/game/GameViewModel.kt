@@ -11,6 +11,7 @@ import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.UserPreferencesRepository
+import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.game.engine.Button
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.GameEvent
@@ -68,7 +69,15 @@ class GameViewModel internal constructor(
      * computed once, so that a frame neither computes them again nor hands the screen a new instance.
      */
     private val nextPieces = PieceType.entries.associateWith { nextPieceCells(it, engine.rules.rotationSystem) }
-    private val loop = GameLoop()
+
+    /**
+     * The frames of the screen turned into ticks of 1/60 s (ADR 0006 and 0012). A frame never gives more than
+     * [MAX_TICKS_PER_FRAME] ticks: after a long pause (application in the background), the surplus is dropped
+     * instead of being caught up. Below 15 frames per second (60 / 4), the cap therefore makes the game run slower
+     * instead of catching up, which is intended (ADR 0006). Above 60 Hz, the ticks would fall unevenly on the frames
+     * (one or none in turn at 90 Hz): the game screen asks the display for 60 Hz while it shows ([gameDisplayMode]).
+     */
+    private val frames = FrameTicks(maxTicksPerFrame = MAX_TICKS_PER_FRAME)
 
     /**
      * The last state the engine returned: the only one it is given back (ADR 0014). A game whose process
@@ -177,7 +186,7 @@ class GameViewModel internal constructor(
      * background): the time spent away is not played; the next frame only sets the time reference.
      */
     internal fun onFramesStarted() {
-        loop.reset()
+        frames.reset()
     }
 
     /**
@@ -189,7 +198,7 @@ class GameViewModel internal constructor(
      */
     internal fun onFrame(frameNanos: Long) {
         if (gameState.phase is Phase.GameOver) return
-        val ticks = loop.advance(frameNanos)
+        val ticks = frames.advance(frameNanos)
         // No tick due on this frame (the first one, which only sets the time reference, or one that comes before
         // a whole tick has passed): the game has not changed, there is nothing to publish.
         if (ticks == 0) return
@@ -311,6 +320,9 @@ class GameViewModel internal constructor(
 
         /** The key, in the saved state of the entry, of the mark that its game has started. */
         private const val STARTED_KEY = "ch.magori.blox.feature.game.started"
+
+        /** The most ticks a frame gives: the game is never caught up by more than 4 / 60 s at once. */
+        private const val MAX_TICKS_PER_FRAME = 4
     }
 }
 
