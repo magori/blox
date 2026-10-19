@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 81 / 143 | `███████████░░░░░░░░░` **57 %** |
+| **Général** | 82 / 143 | `███████████░░░░░░░░░` **57 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -500,7 +500,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
   quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur
   débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4). Fait : décorateur `FocusedMusicPlayer` (`core:audio`), `SystemAudioFocus` sans test JVM ; une perte passagère met en pause (`docs/musique.md`).
-- [ ] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
+- [x] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
   tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
 - [x] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes
   (A10).
