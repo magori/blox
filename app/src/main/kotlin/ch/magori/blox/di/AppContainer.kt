@@ -132,7 +132,8 @@ class AppContainer(context: Context) {
 
     /**
      * The settings and the record kept on the device; the start levels of the Classic mode; the music
-     * player of the games and the scores of the music choices, for the preview; the music file of « Mon fichier ».
+     * player of the games and the scores of the music choices, for the preview; the music file of « Mon fichier »;
+     * the musics of the player, for the one chosen for the games.
      */
     val homeViewModelFactory: HomeViewModel.Factory = HomeViewModel.Factory(
         userPreferences,
@@ -141,6 +142,7 @@ class AppContainer(context: Context) {
         music,
         ::scoreOf,
         musicFiles,
+        musicLibrary,
     )
 }
 

@@ -37,6 +37,8 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -58,7 +60,8 @@ private const val DISABLED_ALPHA = 0.38f
 /**
  * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
  * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
- * this screen at once. A music with a BloX score may be listened to before playing.
+ * this screen at once. A music with a BloX score may be listened to before playing. A music of the player chosen
+ * for the games is the music selected, among the others.
  */
 @Composable
 internal fun HomeScreen(
@@ -66,6 +69,7 @@ internal fun HomeScreen(
     onThemeChosen: (ThemeChoice) -> Unit,
     onMusicChosen: (MusicChoice) -> Unit,
     onListen: (MusicChoice) -> Unit,
+    onListenGameMusic: () -> Unit,
     onChangeMusicFile: () -> Unit,
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
@@ -133,10 +137,15 @@ internal fun HomeScreen(
         Section(title = R.string.feature_home_music) {
             ChoiceRow {
                 MusicChoice.entries.forEach { music ->
+                    // The music of the player chosen for the games stands before « Aucune », as on the mockup.
+                    if (music == MusicChoice.NONE) {
+                        uiState.gameMusic?.let { GameMusicChoice(gameMusic = it, onListen = onListenGameMusic) }
+                    }
                     // A music with a BloX score may be listened to: its button stands under its choice.
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         val name = stringResource(music.label)
-                        Choice(text = name, selected = music == uiState.music, onClick = { onMusicChosen(music) })
+                        val selected = music == uiState.selectedMusic
+                        Choice(text = name, selected = selected, onClick = { onMusicChosen(music) })
                         // Beside it, « Mon fichier » with a file offers to change that file.
                         Row {
                             if (music in uiState.listenable) {
@@ -167,6 +176,29 @@ internal fun HomeScreen(
         ) {
             Text(text = stringResource(R.string.feature_home_play))
         }
+    }
+}
+
+/**
+ * The music of the player played during the games, [gameMusic], selected among the music choices: shown by its name,
+ * and announced as selected, without an action. It stays until another music is chosen, then leaves the home screen:
+ * « Mes musiques » chooses it again. Its score may be listened to.
+ */
+@Composable
+private fun GameMusicChoice(
+    gameMusic: GameMusicUi,
+    onListen: () -> Unit,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        // Its name on two lines if needed: a name of 40 characters, shrunk to one line, could no longer be read.
+        Choice(
+            text = gameMusic.name,
+            selected = true,
+            onClick = null,
+            description = stringResource(R.string.feature_home_music_game_description, gameMusic.name),
+            maxLines = 2,
+        )
+        ListenButton(musicName = gameMusic.name, previewed = gameMusic.previewed, onClick = onListen)
     }
 }
 
@@ -212,7 +244,8 @@ private fun ChoiceRow(content: @Composable () -> Unit) {
 
 /**
  * A choice, read by TalkBack as a radio button. With [onClick] null, it is shown and announced as
- * selected, without an action: there is nothing else to choose.
+ * selected, without an action: there is nothing else to choose. TalkBack reads [description] instead of [text], if
+ * given. [text] takes one line, or up to [maxLines], shrinking if needed.
  */
 @Composable
 private fun Choice(
@@ -221,6 +254,8 @@ private fun Choice(
     onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    description: String? = null,
+    maxLines: Int = 1,
 ) {
     val colors = choiceColors(BloxTheme.palette, selected)
     // A choice is a button, framed as the secondary buttons of the game screens: square corners in Original.
@@ -228,7 +263,8 @@ private fun Choice(
     val interaction = if (onClick != null) {
         Modifier.selectable(selected = selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
     } else {
-        Modifier.semantics {
+        // Merged with its text, as `selectable` does: TalkBack reads the choice and its state as one radio button.
+        Modifier.semantics(mergeDescendants = true) {
             this.selected = selected
             role = Role.RadioButton
             if (!enabled) disabled()
@@ -241,6 +277,7 @@ private fun Choice(
             .background(colors.background, shape)
             .border(BloxBorders.frame, colors.frame, shape)
             .then(interaction)
+            .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier)
             .padding(horizontal = 8.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -248,10 +285,14 @@ private fun Choice(
         val style = MaterialTheme.typography.labelLarge
         Text(
             text = text,
+            // With a description, TalkBack reads it alone, not the text after it.
+            modifier = if (description != null) Modifier.clearAndSetSemantics {} else Modifier,
             color = colors.ink,
             style = style,
-            maxLines = 1,
-            softWrap = false,
+            textAlign = if (maxLines > 1) TextAlign.Center else null,
+            overflow = if (maxLines > 1) TextOverflow.Ellipsis else TextOverflow.Clip,
+            maxLines = maxLines,
+            softWrap = maxLines > 1,
             autoSize = TextAutoSize.StepBased(
                 minFontSize = BloxTypographies.MinimumFontSize,
                 maxFontSize = style.fontSize,
@@ -277,7 +318,10 @@ private val MusicChoice.label: Int
     }
 
 @Composable
-private fun HomeScreenPreview(theme: ThemeChoice) {
+private fun HomeScreenPreview(
+    theme: ThemeChoice,
+    gameMusic: GameMusicUi? = null,
+) {
     val kind = when (theme) {
         ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
         ThemeChoice.COLORFUL -> BloxThemeKind.COLORFUL
@@ -294,10 +338,12 @@ private fun HomeScreenPreview(theme: ThemeChoice) {
                 listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
                 previewing = null,
                 hasMusicFile = true,
+                gameMusic = gameMusic,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
             onListen = {},
+            onListenGameMusic = {},
             onChangeMusicFile = {},
             onStartLevelChosen = {},
             onPlay = {},
@@ -323,4 +369,26 @@ internal fun HomeScreenColorfulPreview() {
 @Composable
 internal fun HomeScreenLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
+}
+
+@Preview(widthDp = 360)
+@Composable
+internal fun HomeScreenGameMusicPreview() {
+    // A music of the player chosen for the games: the only music selected, which may be listened to.
+    HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = "Thème du soir", previewed = false))
+}
+
+/** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
+private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
+
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+internal fun HomeScreenGameMusicLongNamePreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
+}
+
+@Preview(widthDp = 360, heightDp = 1450, fontScale = 2f)
+@Composable
+internal fun HomeScreenGameMusicLongNameLargeFontPreview() {
+    HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
 }

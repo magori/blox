@@ -18,6 +18,8 @@
     <string name="feature_home_music_minuet">Menuet</string>
     <string name="feature_home_music_my_file">Mon fichier</string>
     <string name="feature_home_music_none">Aucune</string>
+    <!-- La musique personnelle choisie pour les parties, lue par TalkBack : son nom, puis « en jeu ». -->
+    <string name="feature_home_music_game_description">%1$s, en jeu</string>
     <!-- Aperçu d'une musique avant de jouer : le bouton dit l'action, TalkBack dit aussi la musique. -->
     <string name="feature_home_listen">Écouter</string>
     <string name="feature_home_listen_description">Écouter %1$s</string>
