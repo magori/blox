@@ -27,6 +27,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -125,19 +126,27 @@ internal fun HomeScreen(
             }
         }
         Section(title = R.string.feature_home_start_level) {
-            // 0 to 9 on a single line, as on the mockup: equal cells, as tall as a finger needs.
-            Row(
+            // 0 to 4 above 5 to 9: on 360 dp, ten cells side by side would be 28 dp wide, five are 59 dp. One group of
+            // radio buttons, read from 0 to 9: the rows only lay the cells out. Every row holds as many slots, so the
+            // cells are all as wide, and a last row of fewer levels stands under the first cells of the row above.
+            Column(
                 modifier = Modifier.fillMaxWidth().selectableGroup(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(START_LEVEL_SPACING),
             ) {
-                uiState.startLevels.forEach { level ->
-                    Choice(
-                        text = level.toString(),
-                        selected = level == uiState.startLevel,
-                        onClick = { onStartLevelChosen(level) },
-                        checkInCorner = true,
-                        modifier = Modifier.weight(1f).testTag(START_LEVEL_TAG),
-                    )
+                val rows = remember(uiState.startLevels) { uiState.startLevelRows }
+                rows.forEach { row ->
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(START_LEVEL_SPACING)) {
+                        row.forEach { level ->
+                            Choice(
+                                text = level.toString(),
+                                selected = level == uiState.startLevel,
+                                onClick = { onStartLevelChosen(level) },
+                                checkInCorner = true,
+                                modifier = Modifier.weight(1f).testTag(START_LEVEL_TAG),
+                            )
+                        }
+                        repeat(START_LEVELS_PER_ROW - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
                 }
             }
         }
@@ -305,9 +314,10 @@ private fun Choice(
         // With a description, TalkBack reads it alone, not the text after it.
         val readLabel = description == null
         if (checkInCorner) {
-            // A cell too narrow to give room to a check beside its digit: the check stands in its top corner, above
-            // the digit. Every cell keeps that room above and under its digit, selected or not, so the check never
-            // touches it, even in a large font, and the cells stay as tall as one another (48 dp in a normal font).
+            // A start level: the check stands in its top corner, beside the digit rather than before it, so the digit
+            // stays in the middle of its cell, under the digits of the other row. Every cell keeps that room on both
+            // sides of its digit, selected or not, so the check never touches it, even in a large font, and the cells
+            // stay as tall as the other choices: 48 dp at least.
             val room = CORNER_CHECK_INSET + CORNER_CHECK_SIZE
             ChoiceLabel(
                 text = text,
@@ -315,7 +325,7 @@ private fun Choice(
                 style = style,
                 maxLines = maxLines,
                 read = readLabel,
-                modifier = Modifier.padding(horizontal = CHOICE_PADDING, vertical = room),
+                modifier = Modifier.padding(horizontal = room),
             )
             colors.check?.let {
                 ChoiceCheck(it, Modifier.align(Alignment.TopEnd).padding(CORNER_CHECK_INSET).size(CORNER_CHECK_SIZE))
@@ -340,8 +350,8 @@ private fun Choice(
 }
 
 /**
- * The label of a choice, [text] in [color], on one line or up to [maxLines], shrinking if needed: a start level cell
- * is narrower than a digit of the pixel font. TalkBack reads it if [read].
+ * The label of a choice, [text] in [color], on one line or up to [maxLines], shrinking if needed: in a large font, on a
+ * narrow phone, a label may be wider than its choice. TalkBack reads it if [read].
  */
 @Composable
 private fun ChoiceLabel(
@@ -368,11 +378,14 @@ private fun ChoiceLabel(
     )
 }
 
-/** The check of a start level, in its top corner: small, as the cell is narrow. */
+/** The check of a start level, in its top corner: small, so that it fits beside the digit. */
 private val CORNER_CHECK_SIZE = 10.dp
 
 /** The room between the check of a start level and the edges of its cell, frame included. */
 private val CORNER_CHECK_INSET = 4.dp
+
+/** The room between two start level cells, side by side or one under the other. */
+private val START_LEVEL_SPACING = 4.dp
 
 @get:StringRes
 private val ThemeChoice.label: Int
@@ -427,25 +440,25 @@ private fun HomeScreenPreview(
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1000)
 @Composable
 internal fun HomeScreenOriginalPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1000)
 @Composable
 internal fun HomeScreenColorfulPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL)
 }
 
-@Preview(widthDp = 360, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
 @Composable
 internal fun HomeScreenLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1090)
 @Composable
 internal fun HomeScreenGameMusicPreview() {
     // A music of the player chosen for the games: the only music selected, which may be listened to.
@@ -455,13 +468,13 @@ internal fun HomeScreenGameMusicPreview() {
 /** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
 private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
 
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1090)
 @Composable
 internal fun HomeScreenGameMusicLongNamePreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
 }
 
-@Preview(widthDp = 360, heightDp = 1450, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
 @Composable
 internal fun HomeScreenGameMusicLongNameLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))

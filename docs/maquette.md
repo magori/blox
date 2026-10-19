@@ -52,7 +52,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - **Mode de jeu** : *Classique* (règles 1989, sans réserve ni pièce fantôme) ; *Moderne*
   affiché grisé, « bientôt ».
 - **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
-- **Niveau de départ** : 0 à 9, sur une ligne.
+- **Niveau de départ** : 0 à 9, sur deux lignes de 5 (P5.29).
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
   *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
   une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
@@ -76,7 +76,16 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   désactivé ; choix sélectionné rempli en `accent`, sans soulignement (retiré en P5.36) et marqué d'une coche (P5.42), les
   autres en encart (`panel`, cadre de 2 dp `panelBorder`, libellé `ink`) (P5.26,
   `docs/themes.md`, Choix de l'accueil) ;
-  niveaux 0 à 9 sur une ligne en cellules égales d'au moins 48 dp de haut (360 dp) ;
+  niveaux en deux lignes de 5 (0 à 4, puis 5 à 9 ; P5.29, décision du développeur), en cellules
+  égales d'au moins 48 dp de large et de haut à 360 dp, écart de 4 dp ; une dernière ligne
+  incomplète s'aligne sous les colonnes du dessus ; un seul groupe de boutons radio, lu de 0 à 9
+  (`HomeUiStateTest › the start levels 0 to 9 stand on two rows of five, 0 to 4 then 5 to 9`,
+  `HomeUiStateTest › a last row of fewer than five start levels holds those left, in order`,
+  `HomeUiStateTest › five start levels stand on a single full row`,
+  `HomeUiStateTest › eleven start levels stand on three rows, the last holding a single level`,
+  `HomeScreenTest › the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another`,
+  `HomeScreenTest › a last row of fewer than five start levels is aligned on the cells of the row above, as wide`,
+  `HomeScreenTest › TalkBack reads the start levels as one group of radio buttons, from 0 to 9`) ;
   record affiché comme le score (6 chiffres, plafond 999 999), lu en clair par TalkBack. Logo
   (P3.7) : 2 × 2 cellules de 20 dp, joint fin, couleurs des pièces du thème
   (`docs/themes.md`), décoratif pour TalkBack. Les niveaux proposés sont ceux du mode

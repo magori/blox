@@ -11,31 +11,31 @@ import com.android.tools.screenshot.PreviewTest
  */
 
 @PreviewTest
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1000)
 @Composable
 private fun HomeOriginal() = HomeScreenOriginalPreview()
 
 @PreviewTest
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1000)
 @Composable
 private fun HomeColorful() = HomeScreenColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
 @Composable
 private fun HomeLargeFont() = HomeScreenLargeFontPreview()
 
 @PreviewTest
-@Preview(widthDp = 360)
+@Preview(widthDp = 360, heightDp = 1090)
 @Composable
 private fun HomeGameMusic() = HomeScreenGameMusicPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1090)
 @Composable
 private fun HomeGameMusicLongName() = HomeScreenGameMusicLongNamePreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1450, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
 @Composable
 private fun HomeGameMusicLongNameLargeFont() = HomeScreenGameMusicLongNameLargeFontPreview()

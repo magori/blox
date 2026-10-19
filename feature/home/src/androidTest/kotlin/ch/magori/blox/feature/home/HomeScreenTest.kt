@@ -1,5 +1,9 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -9,17 +13,24 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -89,16 +100,16 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("every button and choice is 48 dp wide and high at least, but the start levels")
+    @DisplayName("every button and choice, start levels included, is 48 dp wide and high at least on 360 dp")
     fun everyTargetIsLargeEnough() = extension.use {
-        // Given a music that may be listened to, with its button
-        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.KOROBEINIKI)))
+        // Given a music that may be listened to, with its button, on a phone of 360 dp, the width of the mockup
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.KOROBEINIKI)), width = NARROW_PHONE)
 
         // Then: 48 dp visible, a rule of BloX, stricter than WCAG 2.2 (2.5.8, 24 px) and than Android, whose
-        // 48 dp is a touch area that may pass beyond what is drawn. The width of the start levels is left to P5.29
-        val targets = onAllNodes(hasClickAction() and !hasTestTag(START_LEVEL_TAG))
+        // 48 dp is a touch area that may pass beyond what is drawn
+        val targets = onAllNodes(hasClickAction())
         val count = targets.fetchSemanticsNodes().size
-        assertThat(count).isGreaterThan(1)
+        onAllNodes(hasClickAction() and hasTestTag(START_LEVEL_TAG)).assertCountEquals(uiState.startLevels.size)
         repeat(count) { index ->
             targets[index].assertWidthIsAtLeast(
                 BloxSizes.minTouchTarget,
@@ -107,15 +118,80 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("every start level is 48 dp high at least")
-    fun everyStartLevelIsHighEnough() = extension.use {
+    @DisplayName("the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another")
+    fun theStartLevelsStandOnTwoRowsOfFive() = extension.use {
         // Given
-        showHomeScreen()
+        showHomeScreen(width = NARROW_PHONE)
 
-        // Then: their width is left to P5.29, not their height (48 dp visible, a rule of BloX)
+        // Then
+        val cells = startLevelCells()
+        assertThat(cells.map { it.text }).containsExactly("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+        val (first, second) = cells.chunked(5)
+        assertThat(first.map { it.bounds.top }.distinct()).hasSize(1)
+        assertThat(second.map { it.bounds.top }.distinct()).hasSize(1)
+        assertThat(second.first().bounds.top).isGreaterThanOrEqualTo(first.first().bounds.bottom)
+        assertThat(second.map { it.bounds.left }).isEqualTo(first.map { it.bounds.left })
+        assertCellsAsWideAsOneAnother(cells)
+    }
+
+    @Test
+    @DisplayName("a last row of fewer than five start levels is aligned on the cells of the row above, as wide")
+    fun aShortLastRowIsAlignedOnTheRowAbove() = extension.use {
+        // Given a mode of 8 start levels
+        showHomeScreen(uiState.copy(startLevels = (0..7).toList()), width = NARROW_PHONE)
+
+        // Then 5, 6 and 7 stand under 0, 1 and 2, in cells as wide
+        val cells = startLevelCells()
+        assertThat(cells.map { it.text }).containsExactly("0", "1", "2", "3", "4", "5", "6", "7")
+        assertThat(cells.drop(5).map { it.bounds.left }).isEqualTo(cells.take(3).map { it.bounds.left })
+        assertThat(cells[5].bounds.top).isGreaterThanOrEqualTo(cells[0].bounds.bottom)
+        assertCellsAsWideAsOneAnother(cells)
+    }
+
+    @Test
+    @DisplayName("in a normal font, every start level is 48 dp high, no more")
+    fun inANormalFontEveryStartLevelIs48DpHigh() = extension.use {
+        // Given level 5 selected, on 360 dp
+        showHomeScreen(width = NARROW_PHONE)
+
+        // Then the cells take no room above or under their digit beyond the 48 dp of a finger
         val levels = onAllNodes(hasTestTag(START_LEVEL_TAG))
-        assertThat(levels.fetchSemanticsNodes()).hasSize(uiState.startLevels.size)
-        repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsAtLeast(BloxSizes.minTouchTarget) }
+        repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsEqualTo(BloxSizes.minTouchTarget) }
+    }
+
+    @Test
+    @DisplayName("in a large font, every start level is as tall as the other choices, its check clear of its digit")
+    fun inALargeFontEveryStartLevelIsAsTallAsTheOtherChoices() = extension.use {
+        // Given level 5 selected, in a font twice as large, on 360 dp
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f)
+
+        // Then the cells, selected (5) or not (4), take no more height than their digit needs, as the other choices
+        val level = onNode(hasTestTag(START_LEVEL_TAG) and hasText("5")).getUnclippedBoundsInRoot()
+        val choice = onNodeWithText("Original").getUnclippedBoundsInRoot()
+        assertThat(level.bottom - level.top).isEqualTo(choice.bottom - choice.top)
+        val unselected = onNode(hasTestTag(START_LEVEL_TAG) and hasText("4")).getUnclippedBoundsInRoot()
+        assertThat(level.bottom - level.top).isEqualTo(unselected.bottom - unselected.top)
+        // And the check, in the corner, touches neither the digit nor the frame
+        val inLevel = hasParent(hasTestTag(START_LEVEL_TAG))
+        val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val digit = onNode(hasText("5") and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(check.left).isGreaterThanOrEqualTo(digit.right)
+        assertThat(check.right).isLessThan(level.right)
+        assertThat(check.top).isGreaterThan(level.top)
+    }
+
+    @Test
+    @DisplayName("TalkBack reads the start levels as one group of radio buttons, from 0 to 9")
+    fun theStartLevelsAreOneGroupOfRadioButtons() = extension.use {
+        // Given
+        showHomeScreen(width = NARROW_PHONE)
+
+        // Then every level is a child of the same selectable group, in order, read as a radio button
+        val group = SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)
+        val levels = onAllNodes(hasTestTag(START_LEVEL_TAG) and hasParent(group)).fetchSemanticsNodes()
+        assertThat(levels.map { it.config[SemanticsProperties.Text].joinToString() })
+            .containsExactly("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
+        assertThat(levels.map { it.config[SemanticsProperties.Role] }).containsOnly(Role.RadioButton)
     }
 
     @Test
@@ -175,25 +251,55 @@ internal class HomeScreenTest {
         runOnIdle { assertThat(composing).isEqualTo(1) }
     }
 
+    /** A start level cell: its digit, and where it stands. */
+    private data class Cell(val text: String, val bounds: DpRect)
+
+    /** The start level cells, in the order of the tree, the order TalkBack reads them in. */
+    private fun ComposeContext.startLevelCells(): List<Cell> {
+        val nodes = onAllNodes(hasTestTag(START_LEVEL_TAG))
+        return List(nodes.fetchSemanticsNodes().size) { index ->
+            val node = nodes[index]
+            Cell(
+                text = node.fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(),
+                bounds = node.getUnclippedBoundsInRoot(),
+            )
+        }
+    }
+
+    /** All [cells] as wide as one another, but for the rounding to a pixel. */
+    private fun assertCellsAsWideAsOneAnother(cells: List<Cell>) {
+        val widths = cells.map { it.bounds.right - it.bounds.left }
+        assertThat(widths.max() - widths.min()).isLessThanOrEqualTo(1.dp)
+    }
+
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,
+        width: Dp = Dp.Unspecified,
+        fontScale: Float = 1f,
         onListenGameMusic: () -> Unit = {},
         onCompose: () -> Unit = {},
     ) {
         setContent {
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                HomeScreen(
-                    uiState = state,
-                    onThemeChosen = {},
-                    onMusicChosen = {},
-                    onListen = {},
-                    onListenGameMusic = onListenGameMusic,
-                    onChangeMusicFile = {},
-                    onStartLevelChosen = {},
-                    onPlay = {},
-                    onCompose = onCompose,
-                )
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+                BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                    HomeScreen(
+                        modifier = Modifier.width(width),
+                        uiState = state,
+                        onThemeChosen = {},
+                        onMusicChosen = {},
+                        onListen = {},
+                        onListenGameMusic = onListenGameMusic,
+                        onChangeMusicFile = {},
+                        onStartLevelChosen = {},
+                        onPlay = {},
+                        onCompose = onCompose,
+                    )
+                }
             }
         }
     }
 }
+
+/** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
+private val NARROW_PHONE = 360.dp
