@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 68 / 121 | `███████████░░░░░░░░░` **56 %** |
+| **Général** | 69 / 141 | `██████████░░░░░░░░░░` **49 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -72,7 +72,10 @@ phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci
   `ScriptedRandomizer` (strict, et `cycling`) et `spawned` dans `core/game/src/testFixtures`.
 - [ ] **P0.15** Doublures de `core:data` partagées : `FakeUserPreferencesRepository` et
   `FakeHighScoreRepository` existent dans `feature:game` et `feature:home` ; les placer dans des
-  `testFixtures` de bibliothèque Android (revue de P0.14).
+  `testFixtures` de bibliothèque Android (revue de P0.14). Revue qualité (B9) : une seule
+  `MainDispatcherExtension` partagée, et un test de contrat `HighScoreRepositoryContract`
+  exécuté sur le faux et sur `DataStoreHighScoreRepository` (le faux du jeu ne refuse pas un score
+  négatif et ne met pas le record à jour).
 - [x] **P0.13** **Navigation 3** retenue (ADR 0011) : `navigation3-runtime` / `navigation3-ui` 1.2.0 et
   `lifecycle-viewmodel-navigation3` au catalogue, Navigation Compose retirée. Chaque feature expose
   une clé `NavKey` et une extension d'`EntryProviderScope` ; `app` possède la pile
@@ -473,8 +476,66 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 - [ ] **P5.8** Captures dans la CI : générer les références sous Linux (job ou conteneur) puis
   ajouter `validateDebugScreenshotTest` à `.github/workflows/ci.yml` ; revoir le plugin à la
   prochaine montée d'AGP (déconseillé à partir d'AGP 9.5 au profit des « test suites »).
+  Revue qualité (C2) : tant que Dependabot fusionne sur CI verte, une montée de Compose peut
+  changer le rendu sans signal.
 - [ ] **P5.9** Fichier de configuration de stabilité Compose (`build-logic`) listant
   `ch.magori.blox.core.game.model.*` (revue de P2.3).
+
+Revue qualité du 2026-10-19 (Android et performance, qualité logicielle, sécurité,
+accessibilité, build et CI) : constats et raisons des écarts dans
+[docs/revue-qualite.md](docs/revue-qualite.md). Chaque tâche cite ses constats (A1, B2, C3…).
+
+- [x] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
+  quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1). Fait : `play` part toujours au tempo normal, `resume` garde le tempo en cours (`docs/musique.md`).
+- [ ] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
+  taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
+  chaque mouvement de la pièce (A2, A7).
+- [ ] **P5.12** Boucle d'images arrêtée sur l'écran de fin de partie ; 60 Hz demandés pendant la
+  partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
+- [ ] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
+  « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
+- [ ] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
+  quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur
+  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4).
+- [ ] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
+  tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
+- [ ] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes
+  (A10).
+- [ ] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
+  partie (A9). Demande un émulateur ou un téléphone pour générer le profil.
+- [ ] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
+  `docs/regles-mode-classique.md` et `docs/musique.md`, puis un script dans `scripts/` qui vérifie
+  chaque `Classe › nom` des docs, lancé en CI (B1).
+- [ ] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
+  perdu » (A, B, ◀ dans `EntryDelay` et `Clearing`), compteur de déplacement de départ nommé et
+  sourcé, ou marqué **[à vérifier]** (B2).
+- [ ] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
+  (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
+  jamais après un effacement », KDoc de `GameState` (B3, B7).
+- [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
+  partagé entre effacement et délai d'apparition ; `AutoRepeat`, `GameState.controls` et les
+  constructeurs de `Clearing` et `EntryDelay` en `internal` ; KDoc de `GameEvent.StackDanger`,
+  `GameUiState` et du ViewModel (B4, B5, B7).
+- [ ] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
+  `IOException` absorbée, même traitement à l'accueil et en jeu (B6).
+- [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
+  `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans
+  `RotationSystem` dans `GameUiState` (B8, B11).
+- [ ] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
+  cas d'échec, `permissions: contents: read`, actions épinglées par SHA, soumission du graphe de
+  dépendances sur `main` (C1, C7, C9).
+- [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
+  avertissements Kotlin en erreurs, lint en erreurs avec une base des avertissements assumés,
+  chacun avec sa raison (C8).
+- [ ] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
+  au moins 3:1 entre les deux états dans chaque thème ; fonction `choiceColors` testée comme
+  `keyColors` (C3).
+- [ ] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
+  appuis et relâchements tenus, Échap ou Start pour la pause (C4).
+- [ ] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
+  `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
+- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
+  sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -208,7 +208,10 @@ tampon d'`AudioTrack`, 100 à 350 ms, est vidé à l'arrêt) : le recul au temps
 souvent, au pire la reprise saute un fragment jamais entendu. `play` rend
 un jeton (`Playback`) : une partie n'arrête que sa propre musique, si bien qu'après Rejouer
 l'arrêt de l'ancienne partie ne coupe pas la nouvelle. Un échec audio coupe la musique, jamais le
-jeu, et il est journalisé.
+jeu, et il est journalisé. Toute nouvelle lecture (`play`) part au tempo normal (P5.10) : l'aperçu
+*Écouter* de l'accueil, une nouvelle partie et Rejouer ne sont jamais accélérés par une partie
+finie ou quittée en danger (fin de partie, Pause puis Menu). La reprise après une pause garde le
+tempo en cours, × 1,25 si la pile est en danger.
 
 **Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
 `MusicScoresTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
@@ -236,10 +239,14 @@ jeu, et il est journalisé.
 `ResumePositionTest › a place rounded onto the end of the new buffer resumes from its start`,
 `ResumePositionTest › the start of the loop stays the start of the loop`,
 `GameViewModelTest › a pause stops the music, and resuming goes on where it stopped`,
-`GameViewModelTest › a game paused before its music started starts it from the start when it resumes`.
+`GameViewModelTest › a game paused before its music started starts it from the start when it resumes`,
+`GameViewModelTest › the next game after a game over in danger plays its music at the normal tempo`,
+`GameViewModelTest › a game paused in danger goes on at the danger tempo when it resumes`,
+`HomeViewModelTest › a preview plays at the normal tempo, though a game left in danger had sped the music up`.
 
 **Changement de tempo dans le séquenceur** (P4.5) : `ChiptuneSequencer.setTempoFactor(facteur)`
-(positif et fini ; retenu pour le prochain `play` si rien ne joue). Le tampon au nouveau facteur
+(positif et fini ; retenu pour la prochaine reprise, `resume`, si rien ne joue ; un `play` repart
+toujours à 1,0, P5.10). Le tampon au nouveau facteur
 est rendu en tâche de fond, une fois par (partition, facteur), ou pris dans le cache ; la sortie
 reste ouverte. Pour ne jamais couper une note en pleine amplitude (clic), la lecture finit le
 temps en cours dans l'ancien tampon et ne bascule qu'au prochain temps où **toutes** les voix
@@ -251,7 +258,8 @@ dernier est rendu et joué ; un rendu de tempo qui échoue laisse jouer l'ancien
 `play` après `stop` n'attend pas un rendu en cours.
 
 **Tests (séquenceur) :** `ChiptuneSequencerTempoTest › the tempo factor must be positive and finite`,
-`ChiptuneSequencerTempoTest › a tempo factor set while nothing plays is kept for the next play`,
+`ChiptuneSequencerTempoTest › a new play starts at the normal tempo, though the music played before was faster`,
+`ChiptuneSequencerTempoTest › a tempo factor set while nothing plays is not kept for the next play`,
 `ChiptuneSequencerTempoTest › a tempo change keeps the same sink, and the writing goes on at the new tempo`,
 `ChiptuneSequencerTempoTest › a new tempo is rendered once on the rendering dispatcher, and going back to 1 point 0 renders nothing`,
 `ChiptuneSequencerTempoTest › the tempo changes at the start of the next beat, once the current beat is played`,

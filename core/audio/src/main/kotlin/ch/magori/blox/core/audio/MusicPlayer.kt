@@ -9,12 +9,17 @@ import ch.magori.blox.core.music.Score
  */
 public interface MusicPlayer {
     /**
-     * Plays [score] in a loop, from its start, in place of the score playing, if any. The [Playback]
-     * stops this score only: once another one replaced it, stopping it does nothing.
+     * Plays [score] in a loop, from its start and at its tempo (1.0), in place of the score playing, if
+     * any: a tempo asked for before is forgotten, so that a music played anew (a preview, a new game) is
+     * never left faster by the one before. The [Playback] stops this score only: once another one
+     * replaced it, stopping it does nothing.
      */
     public fun play(score: Score): Playback
 
-    /** Sets the tempo factor of the music: 1.0 is the tempo of the score. Kept for the next play. */
+    /**
+     * Sets the tempo factor of the music: 1.0 is the tempo of the score. Kept, when nothing plays, for
+     * the next [Playback.resume], not for the next [play].
+     */
     public fun setTempoFactor(factor: Double)
 }
 
