@@ -14,20 +14,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # Sans JDK ni Gradle : quelques secondes, avant tout le reste.
       - name: Traçabilité règle → test (docs)
         run: bash scripts/verifier-tracabilite.sh
 
-      - uses: gradle/actions/wrapper-validation@v4
+      - uses: gradle/actions/wrapper-validation@v6
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       # Les vérifications rapides d'abord, pour un retour en quelques secondes.
       - name: Style Kotlin (ktlint)
