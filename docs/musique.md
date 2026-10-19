@@ -180,9 +180,9 @@ basses.
 `ChiptuneSequencerTest › a sink that dies while the music stops is not reopened`,
 `ChiptuneSequencerTest › a dead sink whose release fails is released only once, and the music stops, reported`,
 `ReopeningSinkTest › deaths far apart from one another are each reopened, beyond three`,
-`ChiptuneSequencerTempoTest › the tempo factor prepared must be positive and finite`,
+`MusicPlayerContract › the tempo factor prepared must be positive and finite`,
 `ChiptuneSequencerTempoTest › the danger tempo prepared is rendered as soon as the score plays, without holding back its first slice`,
-`ChiptuneSequencerTempoTest › a new play forgets the tempos prepared before, as a preview prepares no other tempo`,
+`MusicPlayerContract › a new play forgets the tempos prepared before, as a preview prepares no other tempo`,
 `ChiptuneSequencerTempoTest › a pause during the preparation of the danger tempo does not render it twice`,
 `ChiptuneSequencerTempoTest › playing another score abandons the preparations of the one before`,
 `ChiptuneSequencerTempoTest › a danger tempo prepared stays in the cache when the score is resumed`,
@@ -269,7 +269,7 @@ tempo en cours, × 1,25 si la pile est en danger.
 `GameViewModelTest › a game paused before the settings answered starts no music once they answer`,
 `GameViewModelTest › resuming a game that is not paused plays nothing again`,
 `GameViewModelTest › resuming once the game is over plays no music`,
-`ChiptuneSequencerTest › stopping a playback that was replaced leaves the new one playing`,
+`MusicPlayerContract › stopping a playback that was replaced leaves the new one playing` (contrat commun au séquenceur, au faux et au lecteur à focus : `ChiptuneSequencerTest`, `FakeMusicPlayerTest`, `FocusedMusicPlayerContractTest`),
 `ChiptuneSequencerTest › a failure that stops the music is reported, to be logged`,
 `ChiptuneSequencerTempoTest › a stopped playback resumes from the start of the beat where it stopped`,
 `ChiptuneSequencerTempoTest › a playback resumed then stopped before it wrote anything resumes from the same place`,
@@ -302,9 +302,9 @@ frontière, l'ancien tempo continue jusqu'à la suivante ; de deux changements r
 dernier est rendu et joué ; un rendu de tempo qui échoue laisse jouer l'ancien tempo, et un
 `play` après `stop` n'attend pas un rendu en cours.
 
-**Tests (séquenceur) :** `ChiptuneSequencerTempoTest › the tempo factor must be positive and finite`,
-`ChiptuneSequencerTempoTest › a new play starts at the normal tempo, though the music played before was faster`,
-`ChiptuneSequencerTempoTest › a tempo factor set while nothing plays is not kept for the next play`,
+**Tests (séquenceur) :** `MusicPlayerContract › the tempo factor must be positive and finite`,
+`MusicPlayerContract › a new play starts at the normal tempo, though the music played before was faster`,
+`MusicPlayerContract › a tempo factor set while nothing plays is not kept for the next play`,
 `ChiptuneSequencerTempoTest › a tempo change keeps the same sink, and the writing goes on at the new tempo`,
 `ChiptuneSequencerTempoTest › a new tempo is rendered once on the rendering dispatcher, and going back to 1 point 0 renders nothing`,
 `ChiptuneSequencerTempoTest › the tempo changes at the start of the next beat, once the current beat is played`,

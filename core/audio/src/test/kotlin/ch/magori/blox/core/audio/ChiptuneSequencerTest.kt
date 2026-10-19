@@ -19,8 +19,12 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.junit.jupiter.api.Test
 import kotlin.coroutines.CoroutineContext
+import kotlin.math.roundToInt
 
-class ChiptuneSequencerTest {
+/** The contract of the players, and what is proper to the sequencer: its renderings, its sinks, its failures. */
+class ChiptuneSequencerTest : MusicPlayerContract() {
+    override fun playerUnderTest(scope: TestScope): PlayerUnderTest = ListenedSequencer(scope)
+
     private val korobeiniki = scoreOf(Pitch.parse("E5"))
     private val minuet = scoreOf(Pitch.parse("D5"))
 
@@ -198,23 +202,6 @@ class ChiptuneSequencerTest {
         assertThat(nextSlice(sink = 1)).containsExactly(-1f, -2f)
         assertThat(sinks[0].released).isTrue()
         assertThat(sinks[0].written.tryReceive().isSuccess).isFalse()
-    }
-
-    @Test
-    fun `stopping a playback that was replaced leaves the new one playing`() = runTest {
-        // Given a score playing, replaced by another one
-        val sequencer = sequencer()
-        val first = sequencer.play(korobeiniki)
-        nextSlice(sink = 0)
-        sequencer.play(minuet)
-        nextSlice(sink = 1)
-
-        // When the first playback is stopped, as its game is left after the next one started
-        first.stop()
-
-        // Then the new one goes on writing, its sink open
-        assertThat(nextSlice(sink = 1)).containsExactly(-3f, -1f)
-        assertThat(sinks[1].released).isFalse()
     }
 
     @Test
@@ -619,6 +606,74 @@ class ChiptuneSequencerTest {
 
         private companion object {
             const val MAX_WRITES = 10
+        }
+    }
+
+    /**
+     * A sequencer whose renderings give, in every sample, a code of their score and tempo factor: what its
+     * only open sink is given tells what is heard.
+     */
+    private class ListenedSequencer(private val test: TestScope) : PlayerUnderTest {
+        private val sinks = mutableListOf<FakeSink>()
+        private val rendered = mutableListOf<Pair<ScoreId, Double>>()
+
+        override val player = ChiptuneSequencer(
+            render = { score, tempoFactor ->
+                rendered += score.id to tempoFactor
+                FloatArray(BUFFER_SIZE) { codeOf(score.id, tempoFactor) }
+            },
+            sampleRate = SAMPLE_RATE,
+            openSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
+            scope = test.backgroundScope,
+            renderDispatcher = StandardTestDispatcher(test.testScheduler),
+            writeDispatcher = StandardTestDispatcher(test.testScheduler),
+            sliceSize = 2,
+        )
+
+        /**
+         * The last sample of a few slices written to the only open sink, enough for a tempo asked for to be
+         * rendered and switched to; null when no sink is open.
+         */
+        override suspend fun heard(): Heard? {
+            val code = listen()?.roundToInt() ?: return null
+            return Heard(ScoreId.entries[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0)
+        }
+
+        /**
+         * The tempo factors other than 1.0 rendered at least once for [score]: a tempo prepared is rendered
+         * by the loop between two slices, so a few slices are listened to first, if a sink is open.
+         */
+        override fun prepared(score: ScoreId): Set<Double> {
+            listen()
+            return rendered.filter { (scoreId, tempoFactor) -> scoreId == score && tempoFactor != 1.0 }
+                .map { (_, tempoFactor) -> tempoFactor }
+                .toSet()
+        }
+
+        /** The last sample of a few slices written to the only open sink, once the work due has run; null if none. */
+        private fun listen(): Float? {
+            test.runCurrent()
+            val open = sinks.filterNot { it.released }
+            if (open.isEmpty()) return null
+            assertThat(open).describedAs("open sinks").hasSize(1)
+            var last = 0f
+            repeat(SLICES_HEARD) {
+                test.runCurrent()
+                last = open.single().written.tryReceive().getOrThrow().last()
+            }
+            return last
+        }
+
+        private companion object {
+            /** Four beats of two samples, a slice each: a new tempo plays from the next slice. */
+            const val BUFFER_SIZE = 8
+            const val SLICES_HEARD = 6
+            const val SCORE_CODE = 1_000
+
+            fun codeOf(
+                score: ScoreId,
+                tempoFactor: Double,
+            ): Float = ((score.ordinal + 1) * SCORE_CODE + (tempoFactor * 100).roundToInt()).toFloat()
         }
     }
 

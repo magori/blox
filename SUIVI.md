@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 92 / 145 | `█████████████░░░░░░░` **63 %** |
+| **Général** | 93 / 145 | `█████████████░░░░░░░` **64 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -399,7 +399,7 @@ Référence : [docs/musique.md](docs/musique.md).
   `core:audio`.
 - [ ] **P4.23** Aperçu et lecteur en échec : si le séquenceur échoue, l'accueil affiche encore
   « Arrêter » alors que plus rien ne joue ; `MusicPlayer` n'expose aucun état (revue de P4.7).
-- [ ] **P4.24** Test de contrat `MusicPlayerContractTest` exécuté sur `FakeMusicPlayer` et sur
+- [x] **P4.24** Test de contrat `MusicPlayerContract` exécuté sur `FakeMusicPlayer` et sur
   `ChiptuneSequencer` (un jeton remplacé ne coupe rien), pour que le faux suive le vrai.
 - [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
