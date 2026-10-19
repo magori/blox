@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 111 / 161 | `██████████████░░░░░░` **69 %** |
+| **Général** | 112 / 162 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
@@ -279,8 +279,10 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `buttonOutline`, cadre de 2 dp autour des touches au repos (3,50:1).
 - [ ] **P2.23** Contraste du bouton pause en thème Couleurs : même défaut que les flèches (1,36:1
   contre la page) ; lui donner le cadre `buttonOutline` (`topbar/GameTopBar.kt`, `PauseButton`).
-- [ ] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
-  tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre.
+- [x] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
+  tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre. Fait : plancher d'un texte
+  qui rétrécit au plus petit de 8 sp et de sa taille en police normale (`shrinkFloor`) ; l'aperçu
+  n'était pas écrasé (pièce I).
 - [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
   contre 24 points sur la maquette (marges de 24 dp et colonne de 112 dp) ; grands vides au-dessus
   et en dessous à 360 × 760. Trancher entre une colonne plus étroite, des marges réduites ou la
@@ -579,8 +581,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [x] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
-- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
-  sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
+- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large, en deux lignes de 5
+  (décision du développeur, 2026-10-19, plutôt qu'un sélecteur − / +) ; maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
@@ -628,6 +630,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
   police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30).
+- [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
+  qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
+  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18).
 
 ## P6 — Mode Moderne (plus tard)
 

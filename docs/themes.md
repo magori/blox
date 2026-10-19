@@ -284,13 +284,28 @@ en dérive (titres pour display, headline et title, libellés pour le reste). Le
 *Chakra Petch* sont proportionnels, sans `tnum` : `valueText()` complète chaque chiffre plus
 étroit par un espacement en em jusqu'à la largeur du plus large (`DigitWidths`) et coupe le
 crénage, pour qu'une valeur ne bouge pas en changeant. Un texte qui rétrécit pour tenir ne
-descend pas sous 8 sp (`MinimumFontSize`). Avec la police du système agrandie, la police pixel
-ne tient plus partout à 8 sp (P2.18).
+descend pas sous 8 sp (`MinimumFontSize`).
+
+Police du système agrandie (P2.18, écran de jeu) : à ×2, 8 sp font 16 dp par lettre et la police
+pixel ne tenait plus (« SUIVANTE » rogné, titre « CLASSI… »). Le plancher d'un texte qui rétrécit
+(`shrinkFloor`, `shrinkToFit` dans `feature:game`) est donc le plus petit de 8 sp et de la taille
+du texte en police normale, jamais au-dessus de sa taille maximale : un joueur qui agrandit la
+police ne voit jamais un texte plus petit qu'en police normale (à ×2, un libellé de 11 sp peut
+revenir à 11 dp), et la règle des 8 sp reste entière à ×1. Le calcul passe par `toSp()`, donc par
+la mise à l'échelle non linéaire d'Android 14 et plus, que les tests JVM n'exercent pas (ils sont
+linéaires). Il sert aux libellés et valeurs des encarts et au titre de la barre du haut (deux
+lignes au plus). L'aperçu de la pièce suivante n'était pas écrasé : la barre des captures est la
+pièce I. L'accueil n'en profite pas encore (P5.43). Captures : `GameScreenLargeFont`,
+`TopBarLargeFont`, `SidePanelLargeFont`, `GameScreenLandscapeLargeFont`.
 
 **Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
 `BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
 `BloxTypographyTest › the Material styles take the font of the titles for headings and of the labels for the rest`,
 `BloxTypographyTest › a text that shrinks to fit its place stays at least 8 sp, to stay readable`,
+`ShrinkFloorTest › the floor is never above the largest size of the text`,
+`ShrinkFloorTest › the floor is never smaller on screen than 8 sp or than the text with the normal font, whichever is smaller`,
+`ShrinkFloorTest › with a font enlarged twice a label of 11 sp may shrink back to its 11 dp with the normal font`,
+`ShrinkFloorTest › with a font made smaller a text smaller than 8 sp never gets a floor above its largest size`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
 `ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.

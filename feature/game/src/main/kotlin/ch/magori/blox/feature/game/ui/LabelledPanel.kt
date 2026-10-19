@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -19,7 +18,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
 /** The sizes shared by the panels and values of the game screens, in one place; their frame is `BloxBorders.frame`. */
 internal object PanelSizes {
@@ -65,7 +63,7 @@ internal fun LabelledPanel(
 
 /**
  * A value of the game screens: in the value font of the theme, every digit as wide as the others, on one
- * line, shrinking from [maxFontSize] if needed.
+ * line, shrinking from [maxFontSize] if needed, down to [shrinkFloor].
  */
 @Composable
 internal fun ValueText(
@@ -81,13 +79,13 @@ internal fun ValueText(
         style = typography.value,
         maxLines = 1,
         softWrap = false,
-        autoSize = TextAutoSize.StepBased(minFontSize = BloxTypographies.MinimumFontSize, maxFontSize = maxFontSize),
+        autoSize = shrinkToFit(maxFontSize),
     )
 }
 
 /**
  * The label of a panel or of a value: in capitals, in the theme label colour and font, on one line, shrinking
- * if needed.
+ * if needed, down to [shrinkFloor]: with an enlarged font, « SUIVANTE » stays whole.
  */
 @Composable
 internal fun PanelLabel(
@@ -101,9 +99,6 @@ internal fun PanelLabel(
         style = BloxTheme.typography.label,
         maxLines = 1,
         softWrap = false,
-        autoSize = TextAutoSize.StepBased(
-            minFontSize = BloxTypographies.MinimumFontSize,
-            maxFontSize = PanelSizes.label,
-        ),
+        autoSize = shrinkToFit(PanelSizes.label),
     )
 }
