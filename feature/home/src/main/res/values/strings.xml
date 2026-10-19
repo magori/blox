@@ -23,4 +23,6 @@
     <string name="feature_home_listen_description">Écouter %1$s</string>
     <string name="feature_home_stop">Arrêter</string>
     <string name="feature_home_stop_description">Arrêter %1$s</string>
+    <string name="feature_home_change_file">Changer</string>
+    <string name="feature_home_change_file_description">Changer de fichier</string>
 </resources>

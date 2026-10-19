@@ -9,11 +9,14 @@ android {
 }
 
 dependencies {
-    // L'API publique reçoit des partitions de core:music, et le séquenceur une portée et des
-    // dispatchers de coroutines.
+    // L'API publique reçoit des musiques de core:music (partitions, fichiers du joueur), et le séquenceur une
+    // portée et des dispatchers de coroutines.
     api(projects.core.music)
     api(libs.kotlinx.coroutines.core)
 
-    // Le faux lecteur reçoit et note des partitions de core:music.
+    // Le faux lecteur reçoit et note des musiques de core:music.
     testFixturesApi(projects.core.music)
+
+    // Le test instrumenté de MediaPlayer lit le contexte de l'application testée (InstrumentationRegistry).
+    androidTestImplementation(libs.androidx.test.monitor)
 }

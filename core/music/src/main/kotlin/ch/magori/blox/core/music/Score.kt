@@ -9,7 +9,7 @@ public data class Score(
     public val bpm: Int,
     public val beatsPerBar: Int,
     public val voices: List<Voice>,
-) {
+) : Music {
     init {
         require(bpm > 0) { "The tempo is a positive number of beats per minute, was $bpm" }
         require(beatsPerBar > 0) { "A bar holds a positive number of beats, was $beatsPerBar" }

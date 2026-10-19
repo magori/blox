@@ -37,6 +37,8 @@ import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.haptics.FakeHaptics
 import ch.magori.blox.core.haptics.Haptic
+import ch.magori.blox.core.music.Music
+import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
@@ -79,9 +81,13 @@ class GameViewModelTest {
 
     private val haptics = FakeHaptics()
 
-    /** The scores of the music choices, as `app` gives them: Korobeiniki and the minuet, nothing else. */
-    private val testScores: (MusicChoice) -> Score? =
-        mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)::get
+    /**
+     * The music of each choice, as `app` gives it: Korobeiniki and the minuet, nothing else, unless a test chooses
+     * otherwise.
+     */
+    private var musicOf: suspend (MusicChoice) -> Music? = { choice ->
+        mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)[choice]
+    }
 
     /** The score of the music of the player chosen for the games, as `app` reads it: none, unless a test chooses one. */
     private var gameMusic: suspend () -> Score? = { null }
@@ -665,6 +671,21 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `with my file chosen on the home screen the music file of the player plays, its tempo left to the player`() {
+        // Given « Mon fichier » chosen on the home screen, with a file
+        val myFile = MusicFile("content://music/my-file")
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MY_FILE)
+        musicOf = { choice -> myFile.takeIf { choice == MusicChoice.MY_FILE } }
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then the file plays; the danger tempo goes to the player as for a score, which plays a file at its speed
+        assertThat(music.calls).containsExactly("play file ${myFile.uri}")
+        assertThat(music.playingFile).isEqualTo(myFile)
+    }
+
+    @Test
     fun `the music of the player chosen for the games plays without waiting for the settings`() {
         // Given settings that do not answer, and a music of the player chosen for the games
         preferences.state.value = null
@@ -1208,7 +1229,7 @@ class GameViewModelTest {
         records: FakeHighScoreRepository = highScores,
         userPreferences: FakeUserPreferencesRepository = preferences,
     ): GameViewModel =
-        GameViewModel(factory, route, records, userPreferences, music, haptics, testScores, gameMusic, savedState)
+        GameViewModel(factory, route, records, userPreferences, music, haptics, musicOf, gameMusic, savedState)
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
     private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })

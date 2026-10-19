@@ -6,18 +6,24 @@ import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeHighScoreRepository
+import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.rules.ClassicLevelProgression
 import ch.magori.blox.core.game.rules.LevelProgression
+import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -33,6 +39,10 @@ class HomeViewModelTest {
     @JvmField
     @RegisterExtension
     val mainDispatcher = MainDispatcherExtension()
+
+    private val musicFiles = FakeMusicFileRepository()
+
+    private val myFile = MusicFile("content://com.android.providers.media.documents/document/audio%3A42")
 
     private val music = FakeMusicPlayer()
 
@@ -51,6 +61,7 @@ class HomeViewModelTest {
                 ClassicLevelProgression,
                 music,
                 testScores,
+                musicFiles,
             )
 
         viewModel.uiState.test {
@@ -80,7 +91,14 @@ class HomeViewModelTest {
         // Given
         val preferences = FakeUserPreferencesRepository()
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), ClassicLevelProgression, music, testScores)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
 
         viewModel.uiState.test {
             // When
@@ -104,7 +122,14 @@ class HomeViewModelTest {
         // Given a disk that refuses every write
         val preferences = FakeUserPreferencesRepository(failWrites = true)
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), ClassicLevelProgression, music, testScores)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
 
         viewModel.uiState.test {
             // When
@@ -125,7 +150,7 @@ class HomeViewModelTest {
         // Given unreadable records: as the contract says, they give 0, once, and the flow then ends
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository(initial = 12_345).apply { highScoreFlow = flowOf(0) }
-        val viewModel = HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores)
+        val viewModel = HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores, musicFiles)
 
         viewModel.uiState.test {
             assertThat(expectMostRecentItem()?.record).isEqualTo(0)
@@ -155,6 +180,7 @@ class HomeViewModelTest {
                     ClassicLevelProgression,
                     music,
                     testScores,
+                    musicFiles,
                 )
                 viewModel.uiState.test { cancelAndIgnoreRemainingEvents() }
             }
@@ -169,7 +195,14 @@ class HomeViewModelTest {
         // Given
         val preferences = FakeUserPreferencesRepository()
         val viewModel =
-            HomeViewModel(preferences, FakeHighScoreRepository(), ClassicLevelProgression, music, testScores)
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
 
         // When
         viewModel.onStartLevelChosen(12)
@@ -186,7 +219,8 @@ class HomeViewModelTest {
     ) = runTest {
         // Given a mode that starts at levels 3 to 5
         val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(startLevel = savedLevel))
-        val viewModel = HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(3, 4, 5), music, testScores)
+        val viewModel =
+            HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(3, 4, 5), music, testScores, musicFiles)
 
         // When / Then
         viewModel.uiState.test {
@@ -204,7 +238,8 @@ class HomeViewModelTest {
     ) = runTest {
         // Given a mode that starts at levels 0, 5 and 10
         val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(startLevel = savedLevel))
-        val viewModel = HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(0, 5, 10), music, testScores)
+        val viewModel =
+            HomeViewModel(preferences, FakeHighScoreRepository(), startingAt(0, 5, 10), music, testScores, musicFiles)
 
         // When / Then
         viewModel.uiState.test {
@@ -222,6 +257,7 @@ class HomeViewModelTest {
                     startingAt(),
                     music,
                     testScores,
+                    musicFiles,
                 )
             }
             .withMessageContaining("start level")
@@ -478,6 +514,230 @@ class HomeViewModelTest {
         assertThat(music.playing).isEqualTo(ScoreId.KOROBEINIKI)
     }
 
+    @Test
+    fun `the home screen is loading until the music file is read, so that its listen button never shows up late`() =
+        runTest {
+            // Given a music file not read yet
+            val reading = MutableStateFlow<MusicFile?>(null)
+            val unread = object : MusicFileRepository {
+                override val musicFile: Flow<MusicFile?> = reading.drop(1)
+
+                override suspend fun setMusicFile(file: MusicFile) = Unit
+            }
+            val viewModel = HomeViewModel(
+                FakeUserPreferencesRepository(),
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                unread,
+            )
+
+            viewModel.uiState.test {
+                // Then nothing is shown before it is read
+                assertThat(awaitItem()).isNull()
+
+                // When it is read
+                reading.value = myFile
+
+                // Then « Mon fichier » may be listened to from the first state shown
+                assertThat(awaitItem()?.listenable).contains(MusicChoice.MY_FILE)
+            }
+        }
+
+    @Test
+    fun `my file can be listened to once a music file is chosen, in the order of the choices`() = runTest {
+        // Given no music file yet
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            assertThat(expectMostRecentItem()?.listenable).containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET)
+
+            // When a music file is chosen
+            musicFiles.state.value = myFile
+
+            // Then
+            assertThat(awaitItem()?.listenable)
+                .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `listening to my file plays the music file chosen and shows it as previewed`() = runTest {
+        // Given a music file chosen
+        musicFiles.state.value = myFile
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onListen(MusicChoice.MY_FILE)
+
+            // Then
+            assertThat(music.calls).containsExactly("play file ${myFile.uri}")
+            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `choosing my file with a music file kept chooses it without opening the picker`() = runTest {
+        // Given a music file kept, and Korobeiniki chosen
+        musicFiles.state.value = myFile
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel =
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(MusicChoice.MY_FILE)
+
+            // Then
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.MY_FILE)
+            assertThat(viewModel.musicFilePickerRequested.value).isFalse()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `choosing my file without a music file opens the picker, and chooses nothing yet`() = runTest {
+        // Given no music file, and Korobeiniki chosen
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel =
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicChosen(MusicChoice.MY_FILE)
+
+            // Then the choice waits for a file, which a picker cancelled never gives
+            assertThat(viewModel.musicFilePickerRequested.value).isTrue()
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.KOROBEINIKI)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `changing the music file opens the picker`() = runTest {
+        // Given a music file kept
+        musicFiles.state.value = myFile
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onChangeMusicFile()
+
+            // Then
+            assertThat(viewModel.musicFilePickerRequested.value).isTrue()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `the picker once opened is no longer asked for`() = runTest {
+        // Given the picker asked for
+        val viewModel = homeViewModel()
+        viewModel.uiState.test {
+            viewModel.onChangeMusicFile()
+
+            // When the screen opens it
+            viewModel.onMusicFilePickerOpened()
+
+            // Then
+            assertThat(viewModel.musicFilePickerRequested.value).isFalse()
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `a music file kept is shown, so that it may be changed`() = runTest {
+        // Given no music file
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            assertThat(expectMostRecentItem()?.hasMusicFile).isFalse()
+
+            // When one is kept
+            musicFiles.state.value = myFile
+
+            // Then
+            assertThat(awaitItem()?.hasMusicFile).isTrue()
+        }
+    }
+
+    @Test
+    fun `choosing a music file keeps it and chooses my file`() = runTest {
+        // Given Korobeiniki chosen
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel =
+            HomeViewModel(
+                preferences,
+                FakeHighScoreRepository(),
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+            )
+
+        viewModel.uiState.test {
+            // When the player picks a file in the picker of the system
+            viewModel.onMusicFileChosen(myFile.uri)
+
+            // Then
+            assertThat(musicFiles.state.value).isEqualTo(myFile)
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.MY_FILE)
+            assertThat(expectMostRecentItem()?.music).isEqualTo(MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `choosing a music file stops the preview, even that of the file before`() = runTest {
+        // Given my file chosen and previewed
+        musicFiles.state.value = myFile
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MY_FILE)
+
+            // When another file is picked
+            viewModel.onMusicFileChosen("content://music/other")
+
+            // Then
+            assertThat(music.calls).containsExactly("play file ${myFile.uri}", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
+    fun `a music file that cannot be kept leaves the music chosen before`() = runTest {
+        // Given Korobeiniki chosen, and a disk that refuses to keep the file
+        val preferences = FakeUserPreferencesRepository()
+        val files = FakeMusicFileRepository(failWrites = true)
+        val viewModel =
+            HomeViewModel(preferences, FakeHighScoreRepository(), ClassicLevelProgression, music, testScores, files)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onMusicFileChosen(myFile.uri)
+
+            // Then
+            assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.KOROBEINIKI)
+            assertThat(expectMostRecentItem()?.music).isEqualTo(MusicChoice.KOROBEINIKI)
+        }
+    }
+
     /** The ways the player leaves the home screen. */
     enum class Leaving(val leave: (HomeViewModel, ViewModelStore) -> Unit) {
         PLAY({ viewModel, _ -> viewModel.onPlay() }),
@@ -492,6 +752,7 @@ class HomeViewModelTest {
             ClassicLevelProgression,
             music,
             testScores,
+            musicFiles,
         )
         return ViewModelProvider.create(store, factory)[HomeViewModel::class]
     }
@@ -502,6 +763,7 @@ class HomeViewModelTest {
         ClassicLevelProgression,
         music,
         scoreOf,
+        musicFiles,
     )
 
     /** A mode whose games may start at [levels] only. */

@@ -44,7 +44,7 @@ public class ChiptuneSequencer internal constructor(
     private val writeDispatcher: CoroutineDispatcher,
     private val sliceSize: Int,
     private val onFailure: (Exception) -> Unit = {},
-) : MusicPlayer {
+) : Player<Score> {
     /**
      * A sequencer that renders with [synthesizer] on [Dispatchers.Default] and writes to the sinks
      * [openSink] gives on [Dispatchers.IO], for as long as [scope] lives. A failure that stops the music
@@ -88,13 +88,13 @@ public class ChiptuneSequencer internal constructor(
     private var preparedTempos: Set<Double> = emptySet()
 
     /**
-     * Plays [score] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
+     * Plays [music] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
      * for before is forgotten, and so are the tempos prepared. Call it from the main thread.
      */
-    override fun play(score: Score): Playback {
+    override fun play(music: Score): Playback {
         requestedTempo = NORMAL_TEMPO
         preparedTempos = emptySet()
-        return start(score, from = null)
+        return start(music, from = null)
     }
 
     /**

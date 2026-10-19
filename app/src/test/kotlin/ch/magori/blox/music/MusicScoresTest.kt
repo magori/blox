@@ -1,15 +1,22 @@
 package ch.magori.blox.music
 
+import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
 
 class MusicScoresTest {
+    private val myFile = MusicFile("content://com.android.providers.media.documents/document/audio%3A42")
+
     @ParameterizedTest(name = "{argumentSetName}")
     @MethodSource("choices")
     fun `each music choice plays its score, or none`(
@@ -20,13 +27,49 @@ class MusicScoresTest {
         assertThat(scoreOf(choice)).isEqualTo(expected)
     }
 
+    @Test
+    fun `my file plays the music file chosen`() {
+        // When / Then
+        assertThat(musicOf(MusicChoice.MY_FILE, myFile)).isEqualTo(myFile)
+    }
+
+    @Test
+    fun `my file without a file chosen plays Korobeiniki, as on another device the settings were restored on`() {
+        // When / Then
+        assertThat(musicOf(MusicChoice.MY_FILE, file = null)).isEqualTo(Scores.korobeiniki)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(names = ["KOROBEINIKI", "MINUET", "NONE"])
+    fun `the other choices play their score, or none, whatever the file chosen`(choice: MusicChoice) {
+        // When / Then
+        assertThat(musicOf(choice, myFile)).isEqualTo(scoreOf(choice))
+    }
+
+    @Test
+    fun `a music file that cannot be played falls back on the score of my file without a file`() {
+        // When / Then: the fallback of the player (MusicSwitch) is the one of the settings restored without their file
+        assertThat(FALLBACK_SCORE).isEqualTo(musicOf(MusicChoice.MY_FILE, file = null))
+    }
+
+    @Test
+    fun `the music of a choice is read with the music file kept`() = runTest {
+        // Given a music file kept
+        val files = FakeMusicFileRepository(initial = myFile)
+
+        // When / Then
+        assertThat(files.musicOf(MusicChoice.MY_FILE)).isEqualTo(myFile)
+        assertThat(FakeMusicFileRepository().musicOf(MusicChoice.MY_FILE)).isEqualTo(Scores.korobeiniki)
+        assertThat(files.musicOf(MusicChoice.MINUET)).isEqualTo(Scores.minuet)
+    }
+
     private companion object {
         @JvmStatic
         fun choices(): List<Arguments> = listOf(
             argumentSet("Korobeiniki", MusicChoice.KOROBEINIKI, Scores.korobeiniki),
             argumentSet("the minuet", MusicChoice.MINUET, Scores.minuet),
             argumentSet("no music", MusicChoice.NONE, null),
-            argumentSet("my file, not played yet (P4.6)", MusicChoice.MY_FILE, null),
+            argumentSet("my file, a file and not a score", MusicChoice.MY_FILE, null),
         )
     }
 }
