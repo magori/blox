@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 93 / 145 | `█████████████░░░░░░░` **64 %** |
+| **Général** | 94 / 146 | `█████████████░░░░░░░` **64 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -290,6 +290,8 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   pure `buttonAt(position)` et `HeldButtons.move`, testables sur la JVM.
   P5.12 : sur un écran à 90 ou 120 Hz, vérifier le passage à 60 Hz sans clignotement, la chute
   régulière et le retour à la fréquence d'origine sur l'accueil (`adb shell dumpsys display`).
+  P5.27 : manette réelle (croix en axe HAT, boutons A/B/X selon le modèle), clavier Bluetooth
+  avec le toucher, relâchement annulé quand la fenêtre perd le focus, Échap et B en pause.
 - [x] **P2.11** Mise en page tolérante au paysage dès le rendu du plateau : Android 16 ignore
   `screenOrientation="portrait"` sur grands écrans (lint `DiscouragedApi`). Décider avec P2.8 si
   l'attribut reste dans le manifeste. Passer la taille de cellule du plateau à l'aperçu de la
@@ -539,7 +541,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
   au moins 3:1 entre les deux états dans chaque thème ; fonction `choiceColors` testée comme
   `keyColors` (C3). Fait : soulignement et choix non sélectionnés en encart, 5,7:1 au moins ; contraste en `testFixtures` de `core:designsystem` (`docs/themes.md`, Choix de l'accueil).
-- [ ] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
+- [x] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [x] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
@@ -561,6 +563,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
   recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
   écrits en `<failure>` vide dans les XML d'AGP.
+- [ ] **P5.34** Commandes tenables via TalkBack et Switch Access (suite de C4) : action sémantique
+  « Maintenir / Relâcher » ou appui long, annonce de l'état tenu, relâchement à la pause et en fin
+  de partie, lien avec le DAS ; essai sur appareil, maquette si besoin (revue de P5.27).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -262,6 +262,65 @@ bouton qu'il a touché en premier (pas de glissement d'un bouton à l'autre, à 
 `HeldButtonsTest › a tap from accessibility services sends a press then a release, and leaves nothing held`.
 Vues : V2, V3.
 
+**Clavier et manette** (P5.27) : une touche tient son bouton comme un doigt, de l'appui au
+relâchement ; un doigt et une touche sur le même bouton ne donnent qu'un appui. Les répétitions
+du clavier sont ignorées (le moteur répète lui-même, DAS). Seul l'écran de jeu en cours écoute
+les touches, et un toucher sur une commande ne lui retire pas le focus.
+
+| Bouton | Touches |
+|---|---|
+| ◀ | flèche gauche (= croix de la manette), Q (ZQSD), A (WASD) |
+| ▼ | flèche bas, S |
+| ▶ | flèche droite, D |
+| A, horaire | flèche haut du **clavier**, X, K, bouton A de la manette |
+| B, anti-horaire | Z, W, Y (QWERTZ), J, Ctrl, boutons B et X de la manette (X est à gauche de A, comme B sur la NES) |
+| Pause | Échap, P, Start |
+
+Le haut de la croix d'une manette ne fait rien, comme sur la NES. Les touches du jeu sont
+consommées : Android ne les replie pas en « retour ». En pause, Start, Échap et P reprennent la
+partie ; les autres touches servent à passer d'un bouton à l'autre. En fin de partie, B, Échap
+et les touches de jeu sont consommées sans effet (un joueur qui martèle la rotation ne quitte
+pas l'écran de fin) ; les flèches, la croix et le bouton A restent au système pour atteindre
+Menu et Rejouer. Les diagonales de croix (télécommandes) ne sont pas liées.
+
+**Tests :** `KeyActionTest › the arrows and the cross of a pad, ZQSD and WASD hold left, down and right`,
+`KeyActionTest › the up arrow, X, K and the A button of a pad hold A, the clockwise rotation`,
+`KeyActionTest › Z, W and Y, J, Ctrl and the B and X buttons of a pad hold B, the counterclockwise rotation`,
+`KeyActionTest › Escape, P and the Start button of a pad pause the game as they go down`,
+`KeyActionTest › a pause key coming back up or repeated is kept from the system and does nothing`,
+`KeyActionTest › a key event neither down nor up does nothing`,
+`KeyActionTest › the repeats of a held key are kept from the system and do nothing, the engine repeats a held button (DAS)`,
+`KeyActionTest › another key does nothing in the game, and is left to the system`,
+`KeyActionTest › the up of the cross of a pad does nothing, as on the NES, and is kept from the system`,
+`KeyActionTest › the other directions and buttons of a pad play as on a keyboard`,
+`KeySourceTest › a keyboard, with or without arrows, is a keyboard`,
+`KeySourceTest › a gamepad or a joystick is a pad, even when it also says it is a keyboard`,
+`HeldControlsTest › a key of the game is kept from the system, another key is left to it`,
+`HeldControlsTest › the pause is asked once, as Escape goes down, never as it comes back up`,
+`HeldControlsTest › a key going down then up presses then releases its button`,
+`HeldControlsTest › the up of the cross of a pad is kept from the system and holds nothing`,
+`HeldButtonsTest › a key holds its button as a finger does, pressed going down and released coming back up`,
+`HeldButtonsTest › a key and a finger are never taken for each other, even when the key code is the pointer id`,
+`HeldButtonsTest › a finger and a key on the same button press it once, and release it when the last one lets go`,
+`MenuKeyActionTest › in pause, Start, Escape and P resume the game as they go down`,
+`MenuKeyActionTest › in pause, a resume key coming back up or repeated is kept from the system and does nothing`,
+`MenuKeyActionTest › in pause, any other key is left to the system, to move between the buttons and press them`,
+`MenuKeyActionTest › once the game is over, B, Escape and the other keys of the game are kept from the system and do nothing`,
+`MenuKeyActionTest › once the game is over, the arrows, the A button of a pad and the keys of the menus are left to the system`,
+`MenuKeyActionTest › a key of a menu asks the resume once and is kept from the system, another key is left to it`,
+`MenuKeyActionTest › while the menu itself holds the focus, an arrow going down moves the focus into its buttons`,
+`MenuKeyActionTest › an arrow on a menu holding the focus itself moves the focus into the buttons, and is kept from the system`,
+`GameScreenKeysTest › a key held down holds its button, once despite the repeats of the keyboard, until it comes back up`,
+`GameScreenKeysTest › Escape pauses the game, and the keys still held are released with the controls`,
+`GameScreenKeysTest › a key held across the pause does nothing once the game resumes`,
+`GameScreenKeysTest › once the game resumes, the screen takes the focus again and the keys play`,
+`GameScreenKeysTest › after a touch on a control, the keys still play`,
+`GameScreenKeysTest › in pause, Start resumes the game`,
+`GameScreenKeysTest › in pause, the cross sent by the system still moves the focus to a button`,
+`GameScreenKeysTest › once the game is over, B and Escape hammered through the system neither go back nor leave the screen`.
+Vues : V2, V3 (jeu), pause et fin de partie. Rendre un bouton tenable via TalkBack ou Switch
+Access reste à faire (P5.34) ; à vérifier sur une vraie manette et un vrai clavier (P2.8).
+
 **Déplacement** : ◀, ▶ et ▼ décalent la pièce d'une case. Le déplacement est refusé si la pièce
 ne tient plus à sa nouvelle place (mur, fond ou case occupée) ; il est accepté dans les lignes
 cachées. Une descente refusée est le signal du verrouillage (P1.6).
