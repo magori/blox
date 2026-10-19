@@ -7,7 +7,8 @@ import ch.magori.blox.core.game.rules.RepeatTiming
  * whether a step is due. It knows nothing of the board: the engine applies the step.
  *
  * Immutable: [tick] gives the state for the next tick. A release resets it, so the next press
- * starts again from tick 0. Its state can only come from [tick], never be forged.
+ * starts again from tick 0. Its state can only come from the public constructor, [tick], [charged] or
+ * [heldWithoutPress], never be forged.
  */
 @ConsistentCopyVisibility
 public data class AutoRepeat private constructor(private val timing: RepeatTiming, private val ticksHeld: Int?) {
@@ -27,6 +28,27 @@ public data class AutoRepeat private constructor(private val timing: RepeatTimin
         if (!pressed) return AutoRepeatTick(next = copy(ticksHeld = null), step = false)
         val tick = ticksHeld?.plus(1) ?: 0
         return AutoRepeatTick(next = copy(ticksHeld = tick), step = timing.stepsOn(tick))
+    }
+
+    internal companion object {
+        /**
+         * The repeat of an input found held with no press seen and no count yet, such as left pressed during
+         * the entry delay before any shift of the game: its count stands at 0, as just after a press, but
+         * without the step of the press. The first held tick counts 1, so the first step comes on the
+         * [RepeatTiming.firstRepeat]-th held tick (the 16th for the Classic shift), then every
+         * [RepeatTiming.interval] ticks.
+         *
+         * It stands for the DAS counter of the ROM, `autorepeatX` (`$0046`), at 0 (meatfighter.com,
+         * "Applying AI to Nintendo Tetris"): only a new press of left or right sets it to 0 and shifts
+         * (`$89B8`, `$89D3`); otherwise a held left or right increments it (`$89C4`) and shifts once it
+         * reaches 16 (`$89C6` to `$89CE`). The routine is not called during the line clear or the entry
+         * delay, so a press made then is lost and the held button goes on with the counter.
+         *
+         * Not confirmed: the source does not say what `autorepeatX` holds before the first shift of a game
+         * (power-on, reset or game start); 0 supposes a cleared RAM. Once a shift has run, the engine keeps
+         * its repeat instead, as the ROM keeps its counter.
+         */
+        fun heldWithoutPress(timing: RepeatTiming): AutoRepeat = AutoRepeat(timing, ticksHeld = 0)
     }
 }
 

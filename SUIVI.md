@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 69 / 141 | `██████████░░░░░░░░░░` **49 %** |
+| **Général** | 72 / 141 | `██████████░░░░░░░░░░` **51 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -494,21 +494,21 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
 - [ ] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
   « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
-- [ ] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
+- [x] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
   quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur
-  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4).
+  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4). Fait : décorateur `FocusedMusicPlayer` (`core:audio`), `SystemAudioFocus` sans test JVM ; une perte passagère met en pause (`docs/musique.md`).
 - [ ] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
   tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
 - [ ] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes
   (A10).
 - [ ] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
   partie (A9). Demande un émulateur ou un téléphone pour générer le profil.
-- [ ] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
+- [x] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
   `docs/regles-mode-classique.md` et `docs/musique.md`, puis un script dans `scripts/` qui vérifie
-  chaque `Classe › nom` des docs, lancé en CI (B1).
-- [ ] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
+  chaque `Classe › nom` des docs, lancé en CI (B1). Fait : cinq références corrigées (une de plus, `CellStylesTest`), `scripts/verifier-tracabilite.sh` en tête de la CI. Reste hors script : les classes citées seules dans `docs/architecture.md`.
+- [x] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
   perdu » (A, B, ◀ dans `EntryDelay` et `Clearing`), compteur de déplacement de départ nommé et
-  sourcé, ou marqué **[à vérifier]** (B2).
+  sourcé, ou marqué **[à vérifier]** (B2). Fait : 5 tests (A, B, ◀, ▶, ▼, dernier tick du délai, DAS chargé), `AutoRepeat.heldWithoutPress` sourcé (`autorepeatX`), valeur 0 **[à vérifier]**.
 - [ ] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).

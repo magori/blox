@@ -1,0 +1,296 @@
+package ch.magori.blox.core.audio
+
+import ch.magori.blox.core.music.Note
+import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.Voice
+import ch.magori.blox.core.music.Waveform
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class FocusedMusicPlayerTest {
+    private val player = FakeMusicPlayer()
+    private val focus = FakeAudioFocus(log = player.calls)
+    private val music = FocusedMusicPlayer(player, focus)
+
+    @Test
+    fun `playing requests the audio focus, then plays`() {
+        // When
+        music.play(korobeiniki)
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request", "play KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `a focus refused plays nothing`() {
+        // Given another app that keeps the focus, as a phone call
+        focus.granted = false
+
+        // When
+        music.play(korobeiniki)
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `stopping abandons the audio focus`() {
+        // Given a score playing
+        val playback = music.play(korobeiniki)
+
+        // When
+        playback.stop()
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request", "play KOROBEINIKI", "stop", "focus abandon")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `stopping a playback that was replaced keeps the focus`() {
+        // Given a score playing, replaced by another one
+        val first = music.play(korobeiniki)
+        music.play(minuet)
+        player.calls.clear()
+
+        // When the first playback is stopped, as its game is left after the next one started
+        first.stop()
+
+        // Then the new one plays on, with the focus
+        assertThat(player.calls).doesNotContain("focus abandon")
+        assertThat(player.playing).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
+    fun `playing another score keeps the focus without asking for it again`() {
+        // Given a score playing
+        music.play(korobeiniki)
+
+        // When another one is played in its place
+        music.play(minuet)
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request", "play KOROBEINIKI", "play MINUET")
+        assertThat(player.playing).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
+    fun `resuming requests the audio focus again, then resumes`() {
+        // Given a score stopped, as a game paused
+        val playback = music.play(korobeiniki)
+        playback.stop()
+        player.calls.clear()
+
+        // When
+        playback.resume()
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request", "resume KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `a playback refused the focus plays from its start once resumed with it`() {
+        // Given a score refused the focus, as during a phone call
+        focus.granted = false
+        val playback = music.play(korobeiniki)
+        focus.granted = true
+        player.calls.clear()
+
+        // When it is resumed once the call is over, as a game resumed
+        playback.resume()
+
+        // Then it plays from its start: it never played
+        assertThat(player.calls).containsExactly("focus request", "play KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `losing the focus for good stops the music and abandons the focus`() {
+        // Given a score playing
+        music.play(korobeiniki)
+        player.calls.clear()
+
+        // When another app takes the focus for good, as a podcast started
+        focus.send(FocusEvent.LOSS)
+
+        // Then
+        assertThat(player.calls).containsExactly("stop", "focus abandon")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `losing the focus for a while pauses the music, waiting for the focus to come back`() {
+        // Given a score playing
+        music.play(korobeiniki)
+        player.calls.clear()
+
+        // When another app takes the focus for a while, as a voice assistant
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+
+        // Then the music stops, but the focus is kept, to hear when it comes back
+        assertThat(player.calls).containsExactly("stop")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `getting the focus back resumes the music where it paused`() {
+        // Given a score paused by a focus lost for a while
+        music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        player.calls.clear()
+
+        // When the focus comes back
+        focus.send(FocusEvent.GAIN)
+
+        // Then the music goes on
+        assertThat(player.calls).containsExactly("resume KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `a playback resumed by the focus still gives it back when stopped`() {
+        // Given a score paused by a focus lost for a while, then resumed by its return
+        val playback = music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        focus.send(FocusEvent.GAIN)
+        player.calls.clear()
+
+        // When the game stops it
+        playback.stop()
+
+        // Then the resumed music stops, and the focus is given back
+        assertThat(player.calls).containsExactly("stop", "focus abandon")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `playing another score while the focus is lost for a while waits for the focus to come back`() {
+        // Given a score paused by a focus lost for a while
+        music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        player.calls.clear()
+
+        // When another score is played
+        music.play(minuet)
+
+        // Then nothing plays over the other app
+        assertThat(player.calls).isEmpty()
+        assertThat(player.playing).isNull()
+
+        // When the focus comes back
+        focus.send(FocusEvent.GAIN)
+
+        // Then the new score plays
+        assertThat(player.calls).containsExactly("play MINUET")
+        assertThat(player.playing).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
+    fun `resuming while the focus is lost for a while waits for the focus to come back`() {
+        // Given a score paused by a focus lost for a while
+        val playback = music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        player.calls.clear()
+
+        // When it is resumed, without being stopped first
+        playback.resume()
+
+        // Then nothing plays over the other app
+        assertThat(player.calls).isEmpty()
+        assertThat(player.playing).isNull()
+
+        // When the focus comes back
+        focus.send(FocusEvent.GAIN)
+
+        // Then the score goes on, once
+        assertThat(player.calls).containsExactly("resume KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `pausing the game while the focus is lost for a while gives it back, and its return resumes nothing`() {
+        // Given a score paused by a focus lost for a while
+        val playback = music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        player.calls.clear()
+
+        // When the game is paused, then the focus comes back
+        playback.stop()
+        focus.send(FocusEvent.GAIN)
+
+        // Then the focus is given back, and nothing plays
+        assertThat(player.calls).containsExactly("focus abandon")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `a playback stopped by a loss of the focus asks for it again when the game resumes`() {
+        // Given a score stopped by a focus lost for good, then by the game paused
+        val playback = music.play(korobeiniki)
+        focus.send(FocusEvent.LOSS)
+        playback.stop()
+        player.calls.clear()
+
+        // When the game resumes
+        playback.resume()
+
+        // Then
+        assertThat(player.calls).containsExactly("focus request", "resume KOROBEINIKI")
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `getting the focus while playing changes nothing`() {
+        // Given a score playing, the system having ducked it for a notification, without a word
+        music.play(korobeiniki)
+        player.calls.clear()
+
+        // When the system tells the focus is back
+        focus.send(FocusEvent.GAIN)
+
+        // Then the music plays on, not resumed from an older place
+        assertThat(player.calls).isEmpty()
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `the headphones being unplugged stops the music and abandons the focus`() {
+        // Given a score playing in headphones
+        music.play(korobeiniki)
+        player.calls.clear()
+
+        // When they are unplugged: the music would go on through the speaker
+        focus.send(FocusEvent.BECOMING_NOISY)
+
+        // Then
+        assertThat(player.calls).containsExactly("stop", "focus abandon")
+        assertThat(player.playing).isNull()
+    }
+
+    @Test
+    fun `setting the tempo, as a game without music does, asks for no focus`() {
+        // When a game whose music is « Aucune » sets the tempo, and plays nothing
+        music.setTempoFactor(1.5)
+
+        // Then the tempo goes to the player, and the focus is left to the other apps
+        assertThat(player.calls).containsExactly("tempo 1.5")
+    }
+
+    private companion object {
+        val note = Note(Pitch.parse("E5"), beats = 4.0)
+        val korobeiniki = scoreOf(ScoreId.KOROBEINIKI)
+        val minuet = scoreOf(ScoreId.MINUET)
+
+        fun scoreOf(id: ScoreId): Score = Score(
+            id = id,
+            bpm = 150,
+            beatsPerBar = 4,
+            voices = listOf(Voice(Waveform.SQUARE, volume = 0.07, notes = listOf(note))),
+        )
+    }
+}

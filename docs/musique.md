@@ -26,8 +26,8 @@ s'arrête à Jouer, quand l'accueil passe en arrière-plan (`ON_STOP`, donc auss
 de l'activité) et quand on quitte l'accueil ; il continue derrière un dialogue. L'arrêt passe
 par le jeton de lecture : il ne coupe jamais la musique d'une partie lancée entre-temps. La
 correspondance choix → partition (`scoreOf`) vit dans `app` ; une partition est désignée par
-un identifiant (`ScoreId`), plus par un titre. Le focus audio n'est pas géré (un appel ne coupe
-pas la musique).
+un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio comme le jeu
+(voir Focus audio).
 
 **Tests :** `MusicScoresTest › each music choice plays its score, or none`,
 `HomeViewModelTest › only the musics with a score can be listened to`,
@@ -152,6 +152,43 @@ basses.
 `ChiptuneSequencerTest › a write that fails releases the sink and stops the music without a crash`,
 `ChiptuneSequencerTest › a stop during the rendering opens no sink`.
 
+## Focus audio
+
+La musique ne joue qu'avec le focus audio (P5.14) : `FocusedMusicPlayer`, décorateur du
+lecteur dans `core:audio`, le demande (`AUDIOFOCUS_GAIN`, attributs jeu et musique) quand une
+partition démarre ou reprend, et l'abandonne à son arrêt. Rejouer une autre partition garde le
+focus sans le redemander. Refusé (un appel en cours), le focus ne fait rien jouer, et la reprise
+suivante le redemande. Une perte durable (un podcast qui démarre) ou le casque débranché
+(`ACTION_AUDIO_BECOMING_NOISY`) arrêtent la musique et abandonnent le focus ; elle revient à la
+reprise de la partie. Une perte passagère (assistant vocal, voix de navigation) met la musique en
+pause, et elle reprend là où elle était au retour du focus ; une partition jouée ou reprise pendant
+cette perte attend le retour du focus. Pour une notification ou une voix de navigation, le système
+baisse lui-même le volume (Android 8 et plus) ; une demande de baisser le volume adressée à
+l'application (seulement quand le système ne peut pas la faire lui-même, par exemple pour une
+application qui vise une version antérieure à Android 8) est traitée comme une perte passagère.
+Une partie sans musique (*Aucune*) ne demande jamais le focus.
+L'implémentation Android (`SystemAudioFocus`) reste fine, sans test JVM,
+comme `AudioTrackSink`.
+
+**Tests :** `FocusedMusicPlayerTest › playing requests the audio focus, then plays`,
+`FocusedMusicPlayerTest › a focus refused plays nothing`,
+`FocusedMusicPlayerTest › stopping abandons the audio focus`,
+`FocusedMusicPlayerTest › stopping a playback that was replaced keeps the focus`,
+`FocusedMusicPlayerTest › playing another score keeps the focus without asking for it again`,
+`FocusedMusicPlayerTest › resuming requests the audio focus again, then resumes`,
+`FocusedMusicPlayerTest › a playback refused the focus plays from its start once resumed with it`,
+`FocusedMusicPlayerTest › losing the focus for good stops the music and abandons the focus`,
+`FocusedMusicPlayerTest › losing the focus for a while pauses the music, waiting for the focus to come back`,
+`FocusedMusicPlayerTest › getting the focus back resumes the music where it paused`,
+`FocusedMusicPlayerTest › a playback resumed by the focus still gives it back when stopped`,
+`FocusedMusicPlayerTest › playing another score while the focus is lost for a while waits for the focus to come back`,
+`FocusedMusicPlayerTest › resuming while the focus is lost for a while waits for the focus to come back`,
+`FocusedMusicPlayerTest › pausing the game while the focus is lost for a while gives it back, and its return resumes nothing`,
+`FocusedMusicPlayerTest › a playback stopped by a loss of the focus asks for it again when the game resumes`,
+`FocusedMusicPlayerTest › getting the focus while playing changes nothing`,
+`FocusedMusicPlayerTest › the headphones being unplugged stops the music and abandons the focus`,
+`FocusedMusicPlayerTest › setting the tempo, as a game without music does, asks for no focus`.
+
 ## Accélération
 
 Quand la pile atteint une hauteur critique, le tempo augmente de **× 1,25**, et revient à la
@@ -178,7 +215,7 @@ finie ou quittée en danger (fin de partie, Pause puis Menu). La reprise après 
 tempo en cours, × 1,25 si la pile est en danger.
 
 **Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
-`MusicScoresTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+`MusicTempoTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
 `GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
 `GameViewModelTest › with no music chosen nothing plays`,
 `GameViewModelTest › the game over stops the music`,
@@ -329,7 +366,7 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 `ScoresTest › the Korobeiniki melody is the folk song of docs musique md, its 8 bars in full, with its dotted rhythm`,
 `ScoresTest › the first bar of the minuet melody is the one of docs musique md`,
 `ScoresTest › the Korobeiniki bass alternates a root and its fifth, octave ignored`,
-`ScoresTest › the Korobeiniki basse is the one of docs musique md, its 8 bars in full`,
+`ScoresTest › the Korobeiniki bass is the one of docs musique md, its 8 bars in full`,
 `ScoresTest › a melody only uses the pitch classes of its key`,
 `ScoresTest › every voice stays within its range`.
 
