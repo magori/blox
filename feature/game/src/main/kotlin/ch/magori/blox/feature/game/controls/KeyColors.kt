@@ -19,13 +19,19 @@ internal fun keyColors(
     held: Boolean,
 ): KeyColors {
     val accent = button == ControlButton.A
+    if (!accent && !held) return keyAtRestColors(palette)
     val face = when {
         accent && held -> palette.accentPressed
         accent -> palette.accent
-        held -> palette.buttonPressed
-        else -> palette.button
+        else -> palette.buttonPressed
     }
-    // A has no frame of its own: the accent already stands out from the page by 3:1.
-    val outline = if (held || accent) face else palette.buttonOutline
-    return KeyColors(face, outline, if (accent) palette.accentInk else palette.buttonInk)
+    // No frame of its own: the accent already stands out from the page by 3:1, a held key is filled to its edge.
+    return KeyColors(face, face, if (accent) palette.accentInk else palette.buttonInk)
 }
+
+/**
+ * The colours of a key drawn in `button`, not held: its face in `button`, framed by `buttonOutline`, which
+ * stands out from the page by 3:1 (WCAG 1.4.11). The pause button of the top bar wears the same.
+ */
+internal fun keyAtRestColors(palette: BloxPalette): KeyColors =
+    KeyColors(palette.button, palette.buttonOutline, palette.buttonInk)

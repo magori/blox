@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 113 / 162 | `██████████████░░░░░░` **70 %** |
+| **Général** | 114 / 162 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
@@ -273,12 +273,12 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   de 1/24 de la couleur du fond (`cellLayout`, `CellPainter(background)`).
 - [ ] **P2.21** Mettre à jour la maquette : touches tenues (teinte « pressée »), lettres A et B
   en gras, joint des cellules du thème Original (P2.17) ; cadre `buttonOutline` `#646B87` des
-  touches au repos en thème Couleurs, V3 (P2.22).
+  touches au repos et du bouton pause en thème Couleurs, V3 (P2.22, P2.23).
 - [x] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
   `#12141C` ne fait que 1,36:1, sous le 3:1 des composants (revue de P2.17). Fait : jeton
   `buttonOutline`, cadre de 2 dp autour des touches au repos (3,50:1).
-- [ ] **P2.23** Contraste du bouton pause en thème Couleurs : même défaut que les flèches (1,36:1
-  contre la page) ; lui donner le cadre `buttonOutline` (`topbar/GameTopBar.kt`, `PauseButton`).
+- [x] **P2.23** Contraste du bouton pause en thème Couleurs : même défaut que les flèches (1,36:1
+  contre la page) ; lui donner le cadre `buttonOutline` (`topbar/GameTopBar.kt`, `PauseButton`). Fait : `pauseButtonColors`, couleurs d'une touche au repos (3,50:1).
 - [x] **P2.18** Police ×2 vue sur les captures (P5.7) : « SUIVANTE » rogné en « SUIVANT », titre
   tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre. Fait : plancher d'un texte
   qui rétrécit au plus petit de 8 sp et de sa taille en police normale (`shrinkFloor`) ; l'aperçu

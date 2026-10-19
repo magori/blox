@@ -85,7 +85,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
 - Barre du haut : bouton pause, « MODE CLASSIQUE », record. Valeurs retenues en P2.6, à
-  confirmer sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button`, pictogramme
+  confirmer sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button` avec le cadre `buttonOutline` des touches (P2.23), pictogramme
   dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
   entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
   valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la

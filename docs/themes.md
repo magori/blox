@@ -177,7 +177,7 @@ composant non textuel). Dans le thème Couleurs, le fond `button` ne se détacha
 jusqu'au bord, cadre compris. La touche A n'a pas de cadre propre : l'accent se détache déjà de la
 page. Dans le thème Original, le cadre a la couleur du bouton (3,31:1 contre la page) : rien ne
 change à l'œil. Le cadre partage sa teinte avec `buttonPressed` dans Couleurs ; le test le garde à
-3:1 si l'une des deux change. Le bouton pause de la barre du haut garde ce défaut (P2.23).
+3:1 si l'une des deux change. Le bouton pause de la barre du haut porte les couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`) : 3,50:1 en Couleurs.
 
 **Tests :** `KeyColorsTest › a held key stands out from the page, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
@@ -187,6 +187,8 @@ change à l'œil. Le cadre partage sa teinte avec `buttonPressed` dans Couleurs 
 `KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
 `KeyColorsTest › a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key is filled with its pressed shade up to its edge`,
+`PauseButtonColorsTest › the pause button stands out from the page by its outline, by a contrast of 3 to 1 at least`,
+`PauseButtonColorsTest › the pause button has the face and the ink of a button, its glyph standing out by 3 to 1 at least`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
