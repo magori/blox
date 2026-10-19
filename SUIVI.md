@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 69 / 141 | `██████████░░░░░░░░░░` **49 %** |
+| **Général** | 70 / 141 | `██████████░░░░░░░░░░` **50 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -494,9 +494,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
 - [ ] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
   « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
-- [ ] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
+- [x] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
   quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur
-  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4).
+  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4). Fait : décorateur `FocusedMusicPlayer` (`core:audio`), `SystemAudioFocus` sans test JVM ; une perte passagère met en pause (`docs/musique.md`).
 - [ ] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
   tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
 - [ ] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes

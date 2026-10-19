@@ -165,8 +165,9 @@ pause, et elle reprend là où elle était au retour du focus ; une partition jo
 cette perte attend le retour du focus. Pour une notification ou une voix de navigation, le système
 baisse lui-même le volume (Android 8 et plus) ; une demande de baisser le volume adressée à
 l'application (seulement quand le système ne peut pas la faire lui-même, par exemple pour une
-application qui vise une version antérieure à Android 8) est traitée comme une perte passagère. Une partie sans musique (*Aucune*) ne
-demande jamais le focus. L'implémentation Android (`SystemAudioFocus`) reste fine, sans test JVM,
+application qui vise une version antérieure à Android 8) est traitée comme une perte passagère.
+Une partie sans musique (*Aucune*) ne demande jamais le focus.
+L'implémentation Android (`SystemAudioFocus`) reste fine, sans test JVM,
 comme `AudioTrackSink`.
 
 **Tests :** `FocusedMusicPlayerTest › playing requests the audio focus, then plays`,
