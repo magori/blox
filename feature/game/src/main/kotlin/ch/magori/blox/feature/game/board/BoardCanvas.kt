@@ -3,7 +3,6 @@ package ch.magori.blox.feature.game.board
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
@@ -18,32 +17,40 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 
+/** Every board has the same columns and rows: the size of the board does not depend on its cells. */
+private val BoardShape = Board.empty()
+
 /**
- * Draws [board] and the [piece] in play in [theme], on [background], the colour of the joints. No logic
- * here: the cells come from [displayedCells], their place from [BoardGeometry], their look from the
- * [CellPainter]s of [paintersFor].
- * Everything that depends on the size is built once per size; a frame only reads and draws.
+ * Draws the [board] and the [piece] in play in [theme], on [background], the colour of the joints. No
+ * logic here: the cells come from [displayedCells], their place from [BoardGeometry], their look from
+ * the [CellPainter]s built by [painters].
+ *
+ * The geometry and the painters, with their paths, are built once per size, theme and background.
+ * [board] and [piece] are read only while drawing: a move of the piece draws the board again, without
+ * recomposing it nor building anything but its cells. Both must stay the same lambdas from one
+ * composition to the next, reading a state rather than capturing a value: a new lambda changes the
+ * modifier, and the geometry and the painters are built again.
  */
 @Composable
 internal fun BoardCanvas(
-    board: Board,
-    piece: Piece?,
+    board: () -> Board,
+    piece: () -> Piece?,
     modifier: Modifier = Modifier,
     theme: BloxThemeKind = BloxTheme.kind,
     background: Color = BloxTheme.palette.boardBackground,
+    painters: PaintersFactory = ::paintersFor,
 ) {
-    val cells = remember(board, piece) { displayedCells(board, piece) }
-    val columns = board.columns
-    val rows = board.rows
     Spacer(
         modifier = modifier.drawWithCache {
-            val geometry = BoardGeometry.fit(size.width, size.height, columns, rows)
-            val painters = paintersFor(theme, geometry.cellSize, background)
+            val columns = BoardShape.columns
+            val geometry = BoardGeometry.fit(size.width, size.height, columns, BoardShape.rows)
+            val cellPainters = painters(theme, geometry.cellSize, background)
             onDrawBehind {
+                val cells = displayedCells(board(), piece())
                 for (index in cells.indices) {
                     val left = geometry.origin.x + index % columns * geometry.cellSize
                     val top = geometry.origin.y + index / columns * geometry.cellSize
-                    translate(left, top) { painters.getValue(cells[index]).draw(this) }
+                    translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
                 }
             }
         },
@@ -72,7 +79,7 @@ private val previewPiece = Piece(
 @Composable
 internal fun BoardCanvasOriginalPreview() {
     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        BoardCanvas(previewBoard, previewPiece, Modifier.size(240.dp, 480.dp))
+        BoardCanvas({ previewBoard }, { previewPiece }, Modifier.size(240.dp, 480.dp))
     }
 }
 
@@ -80,6 +87,6 @@ internal fun BoardCanvasOriginalPreview() {
 @Composable
 private fun BoardCanvasColorfulPreview() {
     BloxTheme(kind = BloxThemeKind.COLORFUL) {
-        BoardCanvas(previewBoard, previewPiece, Modifier.size(240.dp, 480.dp))
+        BoardCanvas({ previewBoard }, { previewPiece }, Modifier.size(240.dp, 480.dp))
     }
 }

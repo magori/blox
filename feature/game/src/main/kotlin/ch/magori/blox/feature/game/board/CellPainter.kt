@@ -11,6 +11,13 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
+/** What builds the painters of every cell, for a theme, a cell size in pixels and a background: [paintersFor]. */
+internal typealias PaintersFactory = (
+    theme: BloxThemeKind,
+    cellSize: Float,
+    background: Color,
+) -> Map<Cell, CellPainter>
+
 /** A painter for each cell that can be drawn on [background]: the empty cell and a cell of each piece. */
 internal fun paintersFor(
     theme: BloxThemeKind,
