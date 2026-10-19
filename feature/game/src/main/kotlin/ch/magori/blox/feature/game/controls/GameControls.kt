@@ -24,6 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
@@ -54,26 +56,30 @@ internal val KeyLetterStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeigh
 
 /**
  * The fingers on the touch controls of V2 and V3, shared by the two groups, [DirectionPad] (◀ ▼ ▶)
- * and [RotationPad] (B A), wherever the layout puts them. No logic here: the fingers are followed by
+ * and [RotationPad] (B A), wherever the layout puts them, and the keys of a keyboard or a pad. No logic
+ * here: the fingers and the keys are followed by
  * [HeldButtons]; this only reports when a button goes down or comes back up ([onChange]), so that a
  * held button can repeat (DAS) in the engine. The buttons still held are released when it leaves.
  */
 @Composable
-internal fun rememberControlFingers(onChange: (ControlChange) -> Unit): FingerTracker {
+internal fun rememberHeldControls(onChange: (ControlChange) -> Unit): HeldControls {
     val currentOnChange by rememberUpdatedState(onChange)
-    val fingers = remember { FingerTracker { change -> currentOnChange(change) } }
-    DisposableEffect(fingers) {
-        onDispose { fingers.cancel() }
+    val controls = remember { HeldControls { change -> currentOnChange(change) } }
+    DisposableEffect(controls) {
+        onDispose { controls.cancel() }
     }
-    return fingers
+    return controls
 }
 
-/** Applies the events of the fingers to [HeldButtons], reports the changes, and shows the held buttons. */
+/**
+ * Applies the events of the fingers and of the keys to [HeldButtons], reports the changes, and shows the
+ * held buttons.
+ */
 @Stable
-internal class FingerTracker(private val onChange: (ControlChange) -> Unit) {
+internal class HeldControls(private val onChange: (ControlChange) -> Unit) {
     private var held = HeldButtons()
 
-    /** The buttons under a finger, read by the composition to draw them pressed. */
+    /** The buttons under a finger or held by a key, read by the composition to draw them pressed. */
     var heldButtons: Set<ControlButton> by mutableStateOf(emptySet())
         private set
 
@@ -85,6 +91,28 @@ internal class FingerTracker(private val onChange: (ControlChange) -> Unit) {
     fun lift(finger: Long) = report(held.lift(finger))
 
     fun tap(button: ControlButton) = report(held.tap(button))
+
+    /**
+     * A key event of the game under way, [key] going down or up ([type]) after [repeatCount] repeats:
+     * what [keyAction] makes of it, the pause given to [onPause]. True when the key is of the game, so
+     * that the system does not act on it too; false for another key, left to the system.
+     */
+    fun key(
+        key: Key,
+        type: KeyEventType,
+        repeatCount: Int,
+        source: KeySource,
+        onPause: () -> Unit,
+    ): Boolean {
+        when (val action = keyAction(key, type, repeatCount, source)) {
+            null -> return false
+            is KeyAction.Press -> report(held.pressKey(key, action.button))
+            KeyAction.Release -> report(held.liftKey(key))
+            KeyAction.Pause -> onPause()
+            KeyAction.Ignored -> Unit
+        }
+        return true
+    }
 
     fun cancel() = report(held.cancel())
 
@@ -98,31 +126,31 @@ internal class FingerTracker(private val onChange: (ControlChange) -> Unit) {
 /** ◀ ▼ ▶, half as low as B: [ControlSizes.directionsWidth] × [ControlSizes.directionsHeight]. */
 @Composable
 internal fun DirectionPad(
-    fingers: FingerTracker,
+    controls: HeldControls,
     modifier: Modifier = Modifier,
 ) {
     val keyModifier = Modifier.padding(top = ControlSizes.rotationStagger / 2)
     ControlGroup(modifier = modifier) {
-        ControlKey(ControlButton.LEFT, fingers, ControlSizes.directionButton, keyModifier)
-        ControlKey(ControlButton.DOWN, fingers, ControlSizes.directionButton, keyModifier)
-        ControlKey(ControlButton.RIGHT, fingers, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.LEFT, controls, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.DOWN, controls, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.RIGHT, controls, ControlSizes.directionButton, keyModifier)
     }
 }
 
 /** B and A, B lower: [ControlSizes.rotationsWidth] × [ControlSizes.rotationsHeight]. */
 @Composable
 internal fun RotationPad(
-    fingers: FingerTracker,
+    controls: HeldControls,
     modifier: Modifier = Modifier,
 ) {
     ControlGroup(modifier = modifier) {
         ControlKey(
             ControlButton.B,
-            fingers,
+            controls,
             ControlSizes.rotationButton,
             Modifier.padding(top = ControlSizes.rotationStagger),
         )
-        ControlKey(ControlButton.A, fingers, ControlSizes.rotationButton)
+        ControlKey(ControlButton.A, controls, ControlSizes.rotationButton)
     }
 }
 
@@ -149,7 +177,7 @@ private fun ControlGroup(
 /** Both groups on one row, as on a 360 dp wide phone, for the previews. */
 @Composable
 private fun ControlPad(
-    fingers: FingerTracker,
+    controls: HeldControls,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -157,8 +185,8 @@ private fun ControlPad(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
-        DirectionPad(fingers)
-        RotationPad(fingers)
+        DirectionPad(controls)
+        RotationPad(controls)
     }
 }
 
@@ -171,11 +199,11 @@ internal fun controlTestTag(button: ControlButton): String = "control_${button.n
 @Composable
 private fun ControlKey(
     button: ControlButton,
-    fingers: FingerTracker,
+    controls: HeldControls,
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val (background, foreground) = keyColors(BloxTheme.palette, button, held = button in fingers.heldButtons)
+    val (background, foreground) = keyColors(BloxTheme.palette, button, held = button in controls.heldButtons)
     val description = stringResource(descriptionOf(button))
     Box(
         modifier = modifier
@@ -187,16 +215,16 @@ private fun ControlKey(
                 contentDescription = description
                 role = Role.Button
                 onClick {
-                    fingers.tap(button)
+                    controls.tap(button)
                     true
                 }
             }
-            .pointerInput(button, fingers) {
+            .pointerInput(button, controls) {
                 awaitPointerEventScope {
                     while (true) {
                         awaitPointerEvent().changes.forEach { change ->
-                            if (change.changedToDownIgnoreConsumed()) fingers.press(change.id.value, button)
-                            if (change.changedToUpIgnoreConsumed()) fingers.lift(change.id.value)
+                            if (change.changedToDownIgnoreConsumed()) controls.press(change.id.value, button)
+                            if (change.changedToUpIgnoreConsumed()) controls.lift(change.id.value)
                             change.consume()
                         }
                     }
@@ -271,10 +299,10 @@ private fun descriptionOf(button: ControlButton): Int = when (button) {
 @Composable
 private fun ControlsPreview(
     kind: BloxThemeKind,
-    fingers: FingerTracker = remember { FingerTracker {} },
+    controls: HeldControls = remember { HeldControls {} },
 ) {
     BloxTheme(kind = kind) {
-        ControlPad(fingers, Modifier.background(BloxTheme.palette.page).padding(24.dp))
+        ControlPad(controls, Modifier.background(BloxTheme.palette.page).padding(24.dp))
     }
 }
 
@@ -295,11 +323,11 @@ private fun GameControlsColorfulPreview() {
 @Preview(widthDp = 360)
 @Composable
 internal fun GameControlsHeldPreview() {
-    val fingers = remember {
-        FingerTracker {}.apply {
+    val controls = remember {
+        HeldControls {}.apply {
             press(finger = 1, ControlButton.LEFT)
             press(finger = 2, ControlButton.A)
         }
     }
-    ControlsPreview(BloxThemeKind.COLORFUL, fingers)
+    ControlsPreview(BloxThemeKind.COLORFUL, controls)
 }

@@ -13,6 +13,8 @@ import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.game.controls.ControlButton
+import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.navigation.GameRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assumptions.assumeTrue
@@ -26,25 +28,35 @@ internal class GameScreenFramesTest {
     @DisplayName("the game over screen asks for no frame: Compose becomes idle")
     fun theGameOverScreenAsksForNoFrame() {
         runAndroidComposeUiTest<ComponentActivity> {
-            // Given a game at the fastest start level, its frames handed one by one
+            // Given a game at the fastest start level (9, the last the rules allow), its frames handed one by one
             val activity = checkNotNull(activity)
             val replay = activity.getString(R.string.feature_game_over_replay)
             val extras = MutableCreationExtras(activity.defaultViewModelCreationExtras).apply {
                 set(GameViewModel.RouteKey, GameRoute(startLevel = 9, seed = 1L))
             }
             mainClock.autoAdvance = false
+            lateinit var game: GameViewModel
             setContent {
                 val viewModel: GameViewModel = viewModel(factory = silentGameViewModelFactory(), extras = extras)
+                game = viewModel
                 BloxTheme(kind = BloxThemeKind.ORIGINAL) {
                     GameScreen(viewModel = viewModel, onBack = {}, onReplay = {})
                 }
             }
 
-            // When it is played until its game over screen shows
+            // When it is played until its game over screen shows, each piece dropped fast (▼ pressed again every
+            // FRAMES_BETWEEN_CHECKS frames, since a new piece needs a new press): the shortest way to the end. The
+            // clock plays each frame of an advance in turn, without waiting for Compose to be idle after each one,
+            // and the screen is searched only between two presses: on a loaded emulator, the test has a minute.
             var frames = 0
             while (onAllNodesWithText(replay).fetchSemanticsNodes().isEmpty()) {
-                check(++frames <= MAX_FRAMES) { "No game over after $MAX_FRAMES frames" }
-                mainClock.advanceTimeByFrame()
+                check(frames < MAX_FRAMES) { "No game over after $MAX_FRAMES frames" }
+                runOnUiThread {
+                    game.onControl(ControlChange.Released(ControlButton.DOWN))
+                    game.onControl(ControlChange.Pressed(ControlButton.DOWN))
+                }
+                mainClock.advanceTimeBy(FRAMES_BETWEEN_CHECKS * FRAME_MILLIS)
+                frames += FRAMES_BETWEEN_CHECKS
             }
 
             // Then, the clock left to run on its own, Compose has no frame left to draw: it becomes idle
@@ -127,6 +139,12 @@ internal class GameScreenFramesTest {
     private companion object {
         /** Two minutes of play: far more than a game at level 9 lasts without a single move. */
         const val MAX_FRAMES = 7_200
+
+        /** The frames between two presses of ▼ and two searches of the game over screen. */
+        const val FRAMES_BETWEEN_CHECKS = 10
+
+        /** The duration of a frame of the clock of the test, which plays each frame of an advance in turn. */
+        const val FRAME_MILLIS = 16L
 
         /** A mode the activity asked for before the game: any id, the window keeps it as it is given. */
         const val EARLIER_MODE = 4_242
