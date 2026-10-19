@@ -25,7 +25,7 @@ class GameEngineStartTest {
         val state = engine.start(Level(0)).state
 
         // Then
-        assertThat(state.startLevel).isEqualTo(Level(0))
+        assertThat(state.progress.startLevel).isEqualTo(Level(0))
         assertThat(state.progress.level).isEqualTo(Level(0))
         assertThat(state.progress.lines).isEqualTo(Lines(0))
         assertThat(state.progress.score).isEqualTo(Points(0))
@@ -54,7 +54,7 @@ class GameEngineStartTest {
         val state = engine.start(Level(9)).state
 
         // Then
-        assertThat(state.startLevel).isEqualTo(Level(9))
+        assertThat(state.progress.startLevel).isEqualTo(Level(9))
         assertThat(state.progress.level).isEqualTo(Level(9))
     }
 

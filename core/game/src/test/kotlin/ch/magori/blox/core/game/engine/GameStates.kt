@@ -4,7 +4,6 @@ import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.PieceType
-import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.tPointingDown
 
@@ -17,13 +16,20 @@ internal val TWO_ROWS_TO_FILL: Board = Board.parse(
 )
 
 /**
- * A game state for tests: an empty board, a T falling high on it, at level 0, unless told otherwise.
- * The start level stays 0.
+ * The lines that bring a game started at level 0 to level 29 in the Classic mode, where the piece drops one
+ * row on every tick.
+ */
+internal val LINES_TO_LEVEL_29: Lines = Lines(290)
+
+/**
+ * A game state for tests: an empty board, a T falling high on it, in a game started at level 0 with no line,
+ * unless told otherwise. The level is the one the Classic level progression gives for [startLevel] and
+ * [lines], so that the state is one a game can reach.
  */
 internal fun gameState(
     board: Board = Board.empty(),
     next: PieceType = PieceType.T,
-    level: Level = Level(0),
+    startLevel: Level = Level(0),
     lines: Lines = Lines(0),
     tickCount: Int = 0,
     stackInDanger: Boolean = false,
@@ -32,8 +38,7 @@ internal fun gameState(
 ): GameState = GameState(
     board = board,
     next = next,
-    startLevel = Level(0),
-    progress = GameProgress(level = level, lines = lines, score = Points(0), statistics = GameStatistics()),
+    progress = GameProgress.of(startLevel, lines, ClassicRules.levelProgression),
     phase = phase,
     tickCount = tickCount,
     stackInDanger = stackInDanger,

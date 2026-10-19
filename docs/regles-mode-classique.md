@@ -560,6 +560,19 @@ Pour un départ de 0 à 9, la formule vaut toujours `(départ + 1) × 10`, et le
 `ClassicLevelProgressionTest › a start level outside 0 to 9 is refused`,
 `LinesTest › a total of lines cannot be negative`, `LinesTest › a total of 0 lines is the lowest valid total`.
 
+**Niveau dérivé** (P5.20) : le niveau d'une partie n'est jamais fourni, il est toujours celui
+que la progression du mode donne pour le niveau de départ et les lignes (`GameProgress`, qui
+porte le niveau de départ). Il ne passe jamais sous le niveau de départ (refusé à la
+construction) et ne baisse jamais au fil des effacements : un effacement qui le ferait baisser
+est refusé, contre une progression fautive d'un autre mode. Les tests du moteur partent donc
+d'états atteignables : « niveau 29 » veut dire départ 0 et 290 lignes.
+
+**Tests :** `GameProgressTest › the level is the one the level progression gives for the start level and the lines`,
+`GameProgressTest › a progression that gives a level below the start level is refused`,
+`GameProgressTest › a clear with a progression whose level goes down is refused`,
+`ClassicLevelProgressionTest › the level never goes below the start level, and never goes down as lines are cleared`,
+`GameEngineClearTest › the level never goes down after a clear`.
+
 **Ordre score / niveau** : quand un effacement fait monter de niveau, le total de lignes et le
 niveau sont mis à jour d'abord, puis les points sont comptés **avec le nouveau niveau**.
 Source : rétro-ingénierie de la ROM, meatfighter.com, « Applying AI to Nintendo Tetris »
@@ -588,6 +601,7 @@ Un effacement compte de 0 à 4 lignes d'un coup ; toute autre valeur est refusé
 `GameStatisticsTest › four-line clears add up over the game`,
 `GameEngineClearTest › a four-line clear counts in the statistics of the game`,
 `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
+`GameStateTest › a negative tick count is refused`,
 `LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`,
 `LineClearTest › only 4 lines cleared at once make four lines`,
 `BoardClearTest › the result gives the number of lines cleared at once`.
