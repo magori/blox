@@ -94,7 +94,15 @@ by that piece` (les sept types ; formes à venir en P1.2).
 
   **Tests :** `ClassicRotationSystemTest › each piece spawns in its NES orientation around the pivot`,
   `ClassicRotationSystemTest › no piece spawns with a cell above its pivot`.
-- La pièce suivante est affichée dans un aperçu (une seule).
+  L'orientation de départ ne dépend que du type, quel que soit le moment ou le nombre de
+  demandes : l'écran s'en sert aussi pour dessiner la pièce suivante.
+  `ClassicRotationSystemTest › the spawn orientation of a type is the same however often it is asked`.
+- La pièce suivante est affichée dans un aperçu (une seule), dans son orientation de départ
+  selon les règles du moteur. Ses cellules sont calculées une fois par type, pas à chaque
+  image, et la colonne latérale ne se redessine pas quand seule la pièce bouge.
+  `GameViewModelTest › the screen gets the cells of the next piece in its spawn orientation`,
+  `GameViewModelTest › the next piece shown is the same instance from one frame to the next while it does not change`,
+  `GameScreenTest › the side column does not recompose while the piece moves` (V2).
 
 ## Tirage des pièces
 
