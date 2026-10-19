@@ -31,6 +31,7 @@ import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.musicOf
@@ -78,8 +79,8 @@ class AppContainer(context: Context) {
     /**
      * The musics of the player, « Mes musiques », in `files/datastore/musics.bin`, and the one played during the
      * games.
-     * Built here, once for the process; the games read the music chosen for them from it, and the screens that list
-     * and edit them (P4.19, P4.22) will receive it.
+     * Built here, once for the process; the games read the music chosen for them from it, the home screen shows it, the
+     * list « Mes musiques » shows and changes them all; the editor will receive it (P4.19d).
      */
     val musicLibrary: MusicLibrary = DataStoreMusicLibrary(dataScope) { dataStoreFile(filesDir, MUSICS_FILE) }
 
@@ -148,6 +149,12 @@ class AppContainer(context: Context) {
 
     /** The music editor: a new music, listened to by the music player of the games (saving comes later, P4.19d). */
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music)
+
+    /**
+     * « Mes musiques »: the musics of the player, and the music player of the games and of the home screen, to listen to
+     * them from the list.
+     */
+    val myMusicsViewModelFactory: MyMusicsViewModel.Factory = MyMusicsViewModel.Factory(musicLibrary, music)
 }
 
 private const val TAG = "BloX"

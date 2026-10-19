@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- En-tête -->
+    <string name="feature_musics_back">Retour à l\'accueil</string>
+    <string name="feature_musics_title">Mes musiques</string>
+    <string name="feature_musics_game_music">Pendant les parties : %1$s</string>
+    <string name="feature_musics_game_music_home">la musique choisie à l\'accueil</string>
+
+    <!-- Cartes -->
+    <!-- PluralsCandidate : « temps/min » est une unité, invariable ; « sur » (mesure 3 sur 8), une préposition. -->
+    <string name="feature_musics_info" tools:ignore="PluralsCandidate">%1$s · %2$d temps/min</string>
+    <string name="feature_musics_listening" tools:ignore="PluralsCandidate">Lecture · mesure %1$d sur %2$d</string>
+    <string name="feature_musics_hand_made">Composée à la main</string>
+    <string name="feature_musics_category_joyful">Joyeux</string>
+    <string name="feature_musics_category_calm">Calme</string>
+    <string name="feature_musics_category_epic">Épique</string>
+    <string name="feature_musics_category_melancholic">Mélancolique</string>
+    <string name="feature_musics_category_mysterious">Mystérieux</string>
+    <string name="feature_musics_category_retro">Rétro</string>
+    <string name="feature_musics_category_dance">Danse</string>
+    <string name="feature_musics_listen_description">Écouter %1$s</string>
+    <string name="feature_musics_stop_description">Arrêter %1$s</string>
+    <string name="feature_musics_use">Utiliser</string>
+    <!-- Lu par TalkBack sur l'interrupteur Utiliser / En jeu, avec son état (activé ou non). -->
+    <string name="feature_musics_use_description">%1$s pendant les parties</string>
+    <string name="feature_musics_in_game">En jeu</string>
+    <string name="feature_musics_empty">Aucune musique pour l\'instant. Compose la tienne, ou laisse le dé t\'en proposer une.</string>
+
+    <!-- Menu « … » d'une carte -->
+    <string name="feature_musics_menu_description">Plus d\'actions pour %1$s</string>
+    <string name="feature_musics_menu_rename">Renommer</string>
+    <string name="feature_musics_menu_use">La jouer pendant les parties</string>
+    <string name="feature_musics_menu_stop_using">Ne plus la jouer pendant les parties</string>
+    <string name="feature_musics_menu_delete">Supprimer</string>
+
+    <!-- Renommer -->
+    <string name="feature_musics_rename_title">Renommer « %1$s »</string>
+    <string name="feature_musics_rename_field">Nom</string>
+    <string name="feature_musics_rename_confirm">Renommer</string>
+    <string name="feature_musics_rename_cancel">Annuler</string>
+    <string name="feature_musics_name_blank">Donne-lui un nom.</string>
+    <string name="feature_musics_name_taken">Une autre musique porte déjà ce nom.</string>
+    <plurals name="feature_musics_name_too_long">
+        <item quantity="one">%1$d caractère au plus.</item>
+        <item quantity="many">%1$d caractères au plus.</item>
+        <item quantity="other">%1$d caractères au plus.</item>
+    </plurals>
+    <string name="feature_musics_write_failed">L\'enregistrement a échoué.</string>
+
+    <!-- Supprimer -->
+    <string name="feature_musics_delete_title">Supprimer « %1$s » ?</string>
+    <string name="feature_musics_delete_note">Elle disparaîtra de Mes musiques. Tu pourras annuler juste après.</string>
+    <string name="feature_musics_delete_note_in_game">Elle est jouée pendant les parties : la musique choisie à l\'accueil la remplacera. Tu pourras annuler juste après.</string>
+    <string name="feature_musics_delete_confirm">Supprimer</string>
+    <string name="feature_musics_delete_keep">Garder la musique</string>
+    <string name="feature_musics_deleted">« %1$s » est supprimée.</string>
+    <string name="feature_musics_undo">Annuler</string>
+    <string name="feature_musics_close_message">Fermer le message</string>
+
+    <!-- Boutons du bas -->
+    <string name="feature_musics_random">Au hasard</string>
+    <string name="feature_musics_new">Nouvelle</string>
+</resources>
