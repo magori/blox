@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.game.controls
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
@@ -203,14 +205,17 @@ private fun ControlKey(
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val (background, foreground) = keyColors(BloxTheme.palette, button, held = button in controls.heldButtons)
+    val (background, outline, foreground) =
+        keyColors(BloxTheme.palette, button, held = button in controls.heldButtons)
     val description = stringResource(descriptionOf(button))
+    val shape = BloxTheme.shapes.button
     Box(
         modifier = modifier
             .testTag(controlTestTag(button))
             .size(size)
-            .clip(BloxTheme.shapes.button)
+            .clip(shape)
             .background(background)
+            .border(BloxBorders.frame, outline, shape)
             .clearAndSetSemantics {
                 contentDescription = description
                 role = Role.Button
