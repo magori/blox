@@ -211,9 +211,9 @@ libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). 
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
 pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp
 au plus) et à 0,25 em de lui (4 dp au moins) ; pour les niveaux de départ, trop étroits, dans le
-coin en haut à droite (10 dp, à 4 dp des bords), et chaque niveau garde 14 dp au-dessus et
-au-dessous du chiffre pour que la coche ne le touche pas (cellules plus hautes que 48 dp en
-police agrandie). Seul le choix sélectionné réserve la place de sa coche : une rangée ne s'élargit
+coin en haut à droite (10 dp, à 4 dp des bords), et chaque niveau garde 14 dp de chaque côté du
+chiffre pour que la coche ne le touche pas : le chiffre reste centré et la cellule a la hauteur
+des autres choix, même en police agrandie (P5.29). Seul le choix sélectionné réserve la place de sa coche : une rangée ne s'élargit
 que d'une coche et passe à la ligne au même endroit ; elle se décale de quelques dp quand le choix
 change. La coche est décorative : TalkBack annonce déjà « sélectionné ». En police ×2, le nom de
 40 caractères d'une musique personnelle est coupé un mot plus tôt qu'avant (« une longue
@@ -234,7 +234,9 @@ soir… ») ; TalkBack le lit en entier. Code : `ChoiceCheck.kt` (`checkStroke`,
 `ChoiceCheckTest › the check is a stroke down then up, drawn wholly within its square`,
 `ChoiceCheckTest › only a selected choice makes room for its check and its gap before its label`,
 `ChoiceCheckTest › the check is as large as its label, 24 dp at most, a quarter of the label away from it, 4 dp at least`,
-`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`.
+`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`,
+`HomeScreenTest › in a normal font, every start level is 48 dp high, no more`,
+`HomeScreenTest › in a large font, every start level is as tall as the other choices, its check clear of its digit`.
 Vues : V1.
 
 
@@ -249,12 +251,11 @@ ces tests quand il sera codé.
 Toute cible (bouton, choix, touche) fait au moins **48 dp visibles** de large et de haut
 (`BloxSizes.minTouchTarget`, une seule constante) : c'est une règle de BloX, plus stricte que
 WCAG 2.2 (2.5.8, 24 px) et qu'Android (qui accepte une zone tactile plus grande que le dessin).
-« Jouer » passe ainsi de 40 à 48 dp de haut. Exception en attente de décision : la largeur des
-niveaux de départ (P5.29) ; leur hauteur fait bien 48 dp.
+« Jouer » passe ainsi de 40 à 48 dp de haut. Les niveaux de départ, en deux lignes de 5 depuis
+P5.29 (décision du développeur), font 59 dp de large à 360 dp : il n'y a plus d'exception.
 
 **Tests :** `PaletteContrastTest › a text stands out from its background by a contrast of 4,5 to 1 at least`,
-`HomeScreenTest › every button and choice is 48 dp wide and high at least, but the start levels`,
-`HomeScreenTest › every start level is 48 dp high at least`,
+`HomeScreenTest › every button and choice, start levels included, is 48 dp wide and high at least on 360 dp`,
 `GameScreenTest › every button of the screen is 48 dp wide and high at least`. Vues : V1 à V4.
 ## Éditeur de musique (maquette)
 

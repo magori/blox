@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 114 / 162 | `██████████████░░░░░░` **70 %** |
+| **Général** | 115 / 162 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
 <!-- avancement:fin -->
 
@@ -581,12 +581,12 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [x] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
-- [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large, en deux lignes de 5
-  (décision du développeur, 2026-10-19, plutôt qu'un sélecteur − / +) ; maquette à mettre à jour (C5).
+- [x] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large, en deux lignes de 5
+  (décision du développeur, 2026-10-19, plutôt qu'un sélecteur − / +) ; maquette à mettre à jour (C5). Fait : cellules de 59 dp à 360 dp, coche dans le coin, maquette dans P5.30.
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
-  musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher. Coche du choix sélectionné (P5.42).
+  musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher. Coche du choix sélectionné (P5.42) ; niveaux de départ sur deux lignes de 5, 52 dp de plus en hauteur (P5.29).
 - [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
