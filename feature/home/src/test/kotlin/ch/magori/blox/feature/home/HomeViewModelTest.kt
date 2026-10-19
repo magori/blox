@@ -301,6 +301,28 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `a preview whose music stops by itself, as the audio output fails, offers to listen again`() = runTest {
+        // Given a music being listened to
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.MINUET)
+
+            // When the music stops by itself
+            music.fail()
+
+            // Then the screen offers « Écouter » again, and listening plays the music again
+            assertThat(viewModel.uiState.value?.previewing).isNull()
+            // and the preview is stopped, which gives the audio focus back
+            assertThat(music.calls).containsExactly("play MINUET", "failure", "stop")
+            viewModel.onListen(MusicChoice.MINUET)
+            assertThat(music.playing).isEqualTo(ScoreId.MINUET)
+            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.MINUET)
+        }
+    }
+
+    @Test
     fun `listening to another music stops the preview and plays the other`() = runTest {
         // Given
         val viewModel = homeViewModel()

@@ -5,7 +5,8 @@ import kotlinx.coroutines.channels.Channel
 /**
  * A sink whose writes wait for the test to receive them, one slice at a time. Its write number
  * [diesOnWrite], if any, fails as an output that died: a restart of the audio server, a new output.
- * With [releaseFails], its release throws, after being counted, as that of a track in a bad state.
+ * With [releaseFails], its release throws, after being counted, as that of a track in a bad state. Once it
+ * [refusesWrites], its writes fail, as those of a track in an error state: a failure, not a death.
  */
 internal class FakeSink(
     val sampleRate: Int,
@@ -20,8 +21,12 @@ internal class FakeSink(
     val released: Boolean get() = releases > 0
     private var writes = 0
 
+    /** Whether its writes fail from now on. */
+    var refusesWrites = false
+
     override suspend fun write(samples: FloatArray) {
         writes++
+        check(!refusesWrites) { "The write was refused" }
         if (writes == diesOnWrite) throw DeadSinkException("The audio output died")
         written.send(samples.copyOf())
     }

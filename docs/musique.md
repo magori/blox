@@ -46,6 +46,37 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `ListenButtonTest › the music being previewed offers to stop it, and TalkBack says which`,
 `ScoresTest › each arrangement is known by its own identifier`. Vue : V1.
 
+**Aperçu qui s'arrête de lui-même** (P4.23) : chaque lecture expose son état
+(`Playback.isPlaying`), vrai dès qu'elle joue ou attend le focus, faux pour de bon quand elle
+est arrêtée, remplacée, refusée par le focus, quand le séquenceur échoue, que le focus est perdu
+pour de bon ou que le casque est débranché. Une interruption brève (assistant vocal) laisse la
+lecture « en cours » : la musique reprend seule. L'accueil suit son aperçu : quand il s'arrête de
+lui-même, le bouton redevient « Écouter » et le focus est rendu. Une lecture morte ne redevient
+jamais « en cours ». En jeu, l'état n'est pas suivi : la partie continue en silence, et le focus
+reste pris jusqu'à la pause ou la fin, où la reprise relance la musique. L'état se suit sur le
+thread principal (sinon un « faux » passager peut apparaître pendant une pause de focus).
+
+**Tests :** `HomeViewModelTest › a preview whose music stops by itself, as the audio output fails, offers to listen again`,
+`MusicPlayerContract › a playback plays as soon as its score is played`,
+`MusicPlayerContract › a stopped playback no longer plays`,
+`MusicPlayerContract › a playback replaced by another play no longer plays, the new one does`,
+`MusicPlayerContract › a resumed playback plays, the playback it resumes stays stopped`,
+`MusicPlayerContract › a playback whose music stops by itself, as the audio output fails, no longer plays`,
+`MusicPlayerContract › the playing state of a playback follows it, from its start to its end`
+(contrat joué par `ChiptuneSequencerTest`, `FakeMusicPlayerTest` et `FocusedMusicPlayerContractTest`),
+`ChiptuneSequencerTest › a failure that stops the music tells its playback no longer plays`,
+`ChiptuneSequencerTest › a sink that keeps dying stops the playback`,
+`FocusedMusicPlayerTest › a playback stopped by a loss of the focus or unplugged headphones no longer plays`,
+`FocusedMusicPlayerTest › a playback paused by a focus lost for a while still plays, waiting for the focus`,
+`FocusedMusicPlayerTest › a playback paused then resumed by the focus never tells it stopped`,
+`FocusedMusicPlayerTest › a stopped playback tells it stopped once, and nothing more`,
+`FocusedMusicPlayerTest › a playback resumed by the focus that comes back plays, and follows the music resumed`,
+`FocusedMusicPlayerTest › a playback refused the focus does not play`,
+`FocusedMusicPlayerTest › a playback whose music stopped by itself never plays again with the focus going and coming back`,
+`FocusedMusicPlayerTest › a playback waiting for the focus no longer plays once another score replaces it`.
+Vue : V1. À vérifier sur téléphone : casque Bluetooth débranché, podcast lancé, assistant vocal
+pendant l'aperçu.
+
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 

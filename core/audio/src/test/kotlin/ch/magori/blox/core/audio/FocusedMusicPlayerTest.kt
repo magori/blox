@@ -1,13 +1,18 @@
 package ch.magori.blox.core.audio
 
+import app.cash.turbine.test
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 class FocusedMusicPlayerTest {
     private val player = FakeMusicPlayer()
@@ -324,6 +329,124 @@ class FocusedMusicPlayerTest {
 
         // Then
         assertThat(player.prepared).isEmpty()
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(names = ["LOSS", "BECOMING_NOISY"])
+    fun `a playback stopped by a loss of the focus or unplugged headphones no longer plays`(event: FocusEvent) =
+        runTest {
+            // Given a score playing
+            val playback = music.play(korobeiniki)
+
+            // When another app takes the focus for good, or the headphones are unplugged
+            focus.send(event)
+
+            // Then the home screen, which listens to it, may offer to listen again
+            assertThat(playback.isPlaying.first()).isFalse()
+        }
+
+    @Test
+    fun `a playback paused by a focus lost for a while still plays, waiting for the focus`() = runTest {
+        // Given a score playing
+        val playback = music.play(korobeiniki)
+
+        // When another app takes the focus for a while, as a voice assistant
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+
+        // Then the music comes back by itself with the focus: the playback is not over
+        assertThat(playback.isPlaying.first()).isTrue()
+    }
+
+    @Test
+    fun `a playback paused then resumed by the focus never tells it stopped`() = runTest {
+        // Given a score playing, its state followed
+        val playback = music.play(korobeiniki)
+
+        playback.isPlaying.test {
+            assertThat(awaitItem()).isTrue()
+
+            // When the focus goes away for a while, then comes back
+            focus.send(FocusEvent.TRANSIENT_LOSS)
+            focus.send(FocusEvent.GAIN)
+
+            // Then the home screen, which listens to it, keeps offering to stop it
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `a stopped playback tells it stopped once, and nothing more`() = runTest {
+        // Given a score playing, its state followed
+        val playback = music.play(korobeiniki)
+
+        playback.isPlaying.test {
+            assertThat(awaitItem()).isTrue()
+
+            // When
+            playback.stop()
+
+            // Then
+            assertThat(awaitItem()).isFalse()
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `a playback resumed by the focus that comes back plays, and follows the music resumed`() = runTest {
+        // Given a score paused by a focus lost for a while, then back
+        val playback = music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        focus.send(FocusEvent.GAIN)
+
+        // When the music resumed stops by itself
+        player.fail()
+
+        // Then
+        assertThat(playback.isPlaying.first()).isFalse()
+    }
+
+    @Test
+    fun `a playback refused the focus does not play`() = runTest {
+        // Given another app that keeps the focus, as a phone call
+        focus.granted = false
+
+        // When
+        val playback = music.play(korobeiniki)
+
+        // Then
+        assertThat(playback.isPlaying.first()).isFalse()
+    }
+
+    @Test
+    fun `a playback whose music stopped by itself never plays again with the focus going and coming back`() = runTest {
+        // Given a score whose music stopped by itself, its state followed
+        val playback = music.play(korobeiniki)
+
+        playback.isPlaying.test {
+            assertThat(awaitItem()).isTrue()
+            player.fail()
+            assertThat(awaitItem()).isFalse()
+
+            // When the focus goes away for a while, then comes back
+            focus.send(FocusEvent.TRANSIENT_LOSS)
+            focus.send(FocusEvent.GAIN)
+
+            // Then the playback stays over: the home screen keeps offering to listen again
+            expectNoEvents()
+        }
+    }
+
+    @Test
+    fun `a playback waiting for the focus no longer plays once another score replaces it`() = runTest {
+        // Given a score paused by a focus lost for a while
+        val first = music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+
+        // When another score is played in its place, waiting for the focus too
+        music.play(minuet)
+
+        // Then
+        assertThat(first.isPlaying.first()).isFalse()
     }
 
     private companion object {

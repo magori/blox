@@ -80,7 +80,12 @@ class GameViewModel internal constructor(
     /** The score of the music of this game, from the settings; null when none is played. */
     private var score: Score? = null
 
-    /** The music of this game while it plays: stopping it leaves the music of another game alone. */
+    /**
+     * The music of this game while it plays: stopping it leaves the music of another game alone. Its
+     * [Playback.isPlaying] is not followed: a music that stops by itself (an audio output that fails) leaves
+     * the game going on in silence, its audio focus held until the game is paused (the resume tries again)
+     * or over.
+     */
     private var playback: Playback? = null
 
     init {

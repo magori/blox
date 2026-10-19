@@ -1,11 +1,13 @@
 package ch.magori.blox.core.audio
 
+import app.cash.turbine.test
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +18,8 @@ import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * The contract of [MusicPlayer] and [Playback], what every player does, the real one and the fake shared by
- * the tests of the features alike: which score is heard, at which tempo, and which tempos are ready ahead.
+ * the tests of the features alike: which score is heard, at which tempo, which tempos are ready ahead, and
+ * whether a playback still plays.
  * A subclass gives a player and tells what is heard of it; what is proper to a player (its sinks, its
  * renderings, the place it resumes from) is tested in the subclass.
  */
@@ -36,6 +39,12 @@ abstract class MusicPlayerContract {
          * sequencer, those rendered at least once for it; for the fake, those prepared for the score playing.
          */
         fun prepared(score: ScoreId): Set<Double>
+
+        /**
+         * Makes the music playing stop by itself, as an audio output that fails, once the work due has run:
+         * for the sequencer, a write refused; for the fake, [FakeMusicPlayer.fail].
+         */
+        suspend fun fail()
     }
 
     /** A new player, whatever it needs to live in [scope] (the sequencer does). */
@@ -54,6 +63,8 @@ abstract class MusicPlayerContract {
         override suspend fun heard(): Heard? = fake.playing?.let { Heard(it, fake.tempo) }
 
         override fun prepared(score: ScoreId): Set<Double> = if (fake.playing == score) fake.prepared else emptySet()
+
+        override suspend fun fail() = fake.fail()
     }
 
     private val korobeiniki = scoreOf(ScoreId.KOROBEINIKI, Pitch.parse("E5"))
@@ -180,6 +191,100 @@ abstract class MusicPlayerContract {
 
         // Then
         assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0))
+    }
+
+    @Test
+    fun `a playback plays as soon as its score is played`() = runTest {
+        // Given
+        val subject = playerUnderTest(this)
+
+        // When
+        val playback = subject.player.play(korobeiniki)
+
+        // Then
+        assertThat(playback.isPlaying.first()).isTrue()
+        subject.heard()
+        assertThat(playback.isPlaying.first()).isTrue()
+    }
+
+    @Test
+    fun `a stopped playback no longer plays`() = runTest {
+        // Given a score playing
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+
+        // When
+        playback.stop()
+
+        // Then
+        assertThat(playback.isPlaying.first()).isFalse()
+    }
+
+    @Test
+    fun `a playback replaced by another play no longer plays, the new one does`() = runTest {
+        // Given a score playing
+        val subject = playerUnderTest(this)
+        val first = subject.player.play(korobeiniki)
+        subject.heard()
+
+        // When
+        val second = subject.player.play(minuet)
+
+        // Then
+        assertThat(first.isPlaying.first()).isFalse()
+        assertThat(second.isPlaying.first()).isTrue()
+    }
+
+    @Test
+    fun `a resumed playback plays, the playback it resumes stays stopped`() = runTest {
+        // Given a score stopped, as a game paused
+        val subject = playerUnderTest(this)
+        val first = subject.player.play(korobeiniki)
+        subject.heard()
+        first.stop()
+
+        // When
+        val resumed = first.resume()
+
+        // Then
+        assertThat(resumed.isPlaying.first()).isTrue()
+        assertThat(first.isPlaying.first()).isFalse()
+    }
+
+    @Test
+    fun `a playback whose music stops by itself, as the audio output fails, no longer plays`() = runTest {
+        // Given a score playing
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+
+        // When the music stops by itself
+        subject.fail()
+
+        // Then its playback says so, and nothing is heard
+        assertThat(playback.isPlaying.first()).isFalse()
+        assertThat(subject.heard()).isNull()
+    }
+
+    @Test
+    fun `the playing state of a playback follows it, from its start to its end`() = runTest {
+        // Given a score playing, its state followed
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+
+        playback.isPlaying.test {
+            assertThat(awaitItem()).isTrue()
+
+            // When the music stops by itself
+            subject.fail()
+
+            // Then the end is told once, and nothing more
+            assertThat(awaitItem()).isFalse()
+            subject.heard()
+            expectNoEvents()
+        }
     }
 
     @Test

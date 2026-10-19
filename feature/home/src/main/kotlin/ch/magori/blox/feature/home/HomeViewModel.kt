@@ -14,10 +14,12 @@ import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.Score
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.IOException
@@ -48,6 +50,9 @@ class HomeViewModel(
 
     /** The playback of the music being listened to: stopping it never stops a music started since. */
     private var preview: Playback? = null
+
+    /** Follows the [preview], to offer to listen again once it stops by itself. */
+    private var previewWatch: Job? = null
 
     init {
         require(startLevels.isNotEmpty()) { "A mode offers at least one start level" }
@@ -81,8 +86,10 @@ class HomeViewModel(
         val again = previewing.value == listened
         stopPreview()
         if (!again) {
-            preview = music.play(score)
+            val playback = music.play(score)
+            preview = playback
             previewing.value = listened
+            previewWatch = viewModelScope.launch { watch(playback) }
         }
     }
 
@@ -101,8 +108,20 @@ class HomeViewModel(
     /** The home screen leaves the stack: the music being listened to stops with it. */
     override fun onCleared() = stopPreview()
 
+    /**
+     * Waits for [playback] to stop by itself (the audio output fails, the audio focus is lost for good, the
+     * headphones are unplugged; a score has no natural end, it loops), then offers to listen again: the
+     * screen shows « Écouter » once more.
+     */
+    private suspend fun watch(playback: Playback) {
+        playback.isPlaying.first { !it }
+        stopPreview()
+    }
+
     /** Stops the music being listened to, if any, and only it: a music started since keeps playing. */
     private fun stopPreview() {
+        previewWatch?.cancel()
+        previewWatch = null
         preview?.stop()
         preview = null
         previewing.value = null
