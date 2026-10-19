@@ -63,6 +63,7 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
 
   **Tests :** `GameEngineGameOverTest › GameOver is sent once, on the tick where the next piece cannot appear`,
   `GameEngineGameOverTest › the last events are PieceLocked, then LinesCleared if any, then GameOver, and never StackDanger(off)`,
+  `GameEngineTickTest › if the next piece does not fit when it appears, the game is over and the piece stays shown`,
   `GameEngineTickTest › a piece that appears gives no event`,
   `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
   `GameEngineControlsTest › once the game is over, an input changes nothing`. Vue : V4.
@@ -76,7 +77,6 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   `GameEngineStartTest › a starting level outside the range of the level progression is refused`,
   `GameEngineStartTest › the first piece is drawn with no previous piece, the next one with the first as previous`,
   `GameEngineStartTest › the piece in play appears with its pivot at (5, 0), in the spawn orientation of the rotation system`,
-  `GameEngineStartTest › if the piece does not fit when it appears, the game is over and the piece stays shown`,
   `GameEngineFactoryTest › two engines created with the same seed deal the same pieces`,
   `ClassicLevelProgressionTest › the Classic mode accepts starting levels 0 to 9`.
 
@@ -485,7 +485,9 @@ d'avant, du haut vers le bas, pour l'animation.
 | 3 | 300 × (niveau + 1) |
 | 4 | 1200 × (niveau + 1) |
 
-Aucune ligne effacée ne rapporte rien ; plus de 4 lignes ou un nombre négatif est refusé.
+Aucune ligne effacée ne rapporte rien. Le nombre de lignes effacées d'un coup est un `LineClear`, qui
+porte la borne 0 à 4 : plus de 4 lignes ou un nombre négatif est refusé dès sa construction, avant
+le calcul des points (voir « Statistiques de fin de partie » plus bas).
 
 **Affichage du score** : sur 6 chiffres, plafonné à 999 999 comme sur la NES ; le domaine
 garde la vraie valeur, seul l'affichage plafonne, partout où le score est montré (jeu, fin
@@ -529,7 +531,7 @@ Vues : V1, V2, V3, V4.
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,
 `ClassicScoringRuleTest › the base value is multiplied by the level plus one`,
-`ClassicScoringRuleTest › a number of lines cleared outside 0 to 4 is refused`.
+`LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`.
 
 **Descente rapide** : 1 point par ligne descendue en maintenant ▼, compté une fois au
 verrouillage pour les lignes descendues d'affilée par la pièce. C'est une

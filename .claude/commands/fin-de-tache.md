@@ -20,7 +20,8 @@ Arrête-toi et signale-le si une étape échoue.
 
 3. **Spécification** : mets à jour les règles touchées, avec les tests qui les prouvent
    (`ClasseDeTest › nom du test`), les vues de maquette (`V…`), et retire les [à vérifier]
-   confirmés en citant la source.
+   confirmés en citant la source. Lance ensuite `scripts/verifier-tracabilite.sh` (Git Bash) :
+   chaque référence citée doit désigner un test existant. Montre le résultat.
 
 4. **Maquette** : si un écran a changé, mets à jour `docs/maquette.md` (renumérote si besoin, et
    reporte les nouveaux numéros partout) et ajoute dans `SUIVI.md` une tâche
