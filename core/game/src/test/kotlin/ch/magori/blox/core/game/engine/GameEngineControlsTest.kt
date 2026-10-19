@@ -8,6 +8,7 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -289,10 +290,10 @@ class GameEngineControlsTest {
         // Then the clear lasts 17 ticks (lock on tick 7), then comes the entry delay of a lock on row 18
         assertThat(lock.events).containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18))))
         assertThat(lock.state.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
-            assertThat(clearing.ticksLeft).isEqualTo(17)
+            assertThat(clearing.ticksLeft).isEqualTo(Ticks(17))
         }
         assertThat(clearEnd.events).containsExactly(GameEvent.LinesCleared(LineClear(2)))
-        assertThat(clearEnd.state.phase).isEqualTo(Phase.EntryDelay(10))
+        assertThat(clearEnd.state.phase).isEqualTo(Phase.EntryDelay(Ticks(10)))
     }
 
     @ParameterizedTest(name = "{argumentSetName}")
@@ -421,7 +422,7 @@ class GameEngineControlsTest {
         button: Button,
     ) {
         // Given the J due to appear on the next tick, and the button pressed and held
-        val pressed = nextPieceEngine.press(gameState(next = PieceType.J, phase = Phase.EntryDelay(1)), button)
+        val pressed = nextPieceEngine.press(gameState(next = PieceType.J, phase = Phase.EntryDelay(Ticks(1))), button)
 
         // When the J appears, then falls one tick
         val spawned = firstStateWithTheNextPiece(pressed)

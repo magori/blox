@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.map
  */
 class DataStoreHighScoreRepository(private val dataStore: DataStore<Preferences>) : HighScoreRepository {
     /**
-     * The record; 0 while the file cannot be read (an unreadable file is replaced by an empty one, see
-     * [preferencesDataStore]). [distinctUntilChanged] is a defence: the records file holds nothing else.
+     * The record; 0, once, if the file cannot be read, and the flow then ends (an unreadable file is replaced
+     * by an empty one, see [preferencesDataStore]). [distinctUntilChanged] is a defence: the records file
+     * holds nothing else.
      */
     override val highScore: Flow<Int> = dataStore.readOrEmpty()
         .map { it[HIGH_SCORE] ?: 0 }

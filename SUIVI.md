@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 74 / 142 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 77 / 143 | `███████████░░░░░░░░░` **54 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -512,16 +512,16 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).
-- [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
+- [x] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
   partagé entre effacement et délai d'apparition ; `AutoRepeat`, `GameState.controls` et les
   constructeurs de `Clearing` et `EntryDelay` en `internal` ; KDoc de `GameEvent.StackDanger`,
   `GameUiState` et du ViewModel (B4, B5, B7).
-- [ ] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
+- [x] **P5.22** Erreurs de lecture des records : contrat écrit dans `HighScoreRepository`, seule
   `IOException` absorbée, même traitement à l'accueil et en jeu (B6).
 - [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans
   `RotationSystem` dans `GameUiState` (B8, B11).
-- [ ] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
+- [x] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
   cas d'échec, `permissions: contents: read`, actions épinglées par SHA, soumission du graphe de
   dépendances sur `main` (C1, C7, C9).
 - [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
@@ -538,6 +538,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
   choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
+- [ ] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
+  rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
+  trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
+  ou non cacheable (revue P5.24).
 
 ## P6 — Mode Moderne (plus tard)
 

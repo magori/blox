@@ -8,7 +8,8 @@ Arrête-toi et signale-le si une étape échoue.
 
 1. **Tests verts** : lance `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, et
-   `./gradlew lintDebug assembleDebug` si un module Android a changé. Montre le résultat.
+   `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
+   ou une dépendance a changé. Montre le résultat.
 
 2. **Revue indépendante** : lance un sous-agent qui n'a pas le contexte de cette conversation.
    Donne-lui uniquement : le diff de la tâche par rapport à `main`, `CLAUDE.md`, et les documents

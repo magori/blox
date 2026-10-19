@@ -30,8 +30,9 @@ internal data class GameUiState(
 )
 
 /**
- * The screen state of [this] game state. The only place that reads [GameState]: a change of the
- * engine (P1.12c: points, phases) is adapted here.
+ * The screen state of [this] game state, drawn with the pieces of [rotationSystem]: the screen never reads
+ * [GameState] itself. The view model reads it too (whether the game is paused or over, the score it submits
+ * to the records), and the game over screen state comes from [toGameOverUiState].
  */
 internal fun GameState.toUiState(rotationSystem: RotationSystem): GameUiState = GameUiState(
     board = board,
