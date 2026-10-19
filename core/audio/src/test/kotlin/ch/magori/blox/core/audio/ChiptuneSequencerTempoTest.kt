@@ -8,7 +8,10 @@ import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -57,6 +60,16 @@ class ChiptuneSequencerTempoTest {
         assertThatIllegalArgumentException().isThrownBy { sequencer.setTempoFactor(factor) }
     }
 
+    @ParameterizedTest(name = "a tempo factor of {0} prepared is refused")
+    @ValueSource(doubles = [0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY])
+    fun `the tempo factor prepared must be positive and finite`(factor: Double) = runTest {
+        // Given
+        val sequencer = sequencer()
+
+        // When / Then
+        assertThatIllegalArgumentException().isThrownBy { sequencer.prepareTempo(factor) }
+    }
+
     @Test
     fun `a new play starts at the normal tempo, though the music played before was faster`() = runTest {
         // Given a score sped up to 2.0 (a game in danger), then stopped (the game over)
@@ -84,6 +97,208 @@ class ChiptuneSequencerTempoTest {
         assertThat(rendered).containsExactly(1.0 to true)
         assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
     }
+
+    @Test
+    fun `the danger tempo prepared is rendered as soon as the score plays, without holding back its first slice`() =
+        runTest {
+            // Given
+            val sequencer = sequencer()
+
+            // When a score plays, its danger tempo prepared, as a game does
+            sequencer.play(score)
+            sequencer.prepareTempo(1.25)
+            renderNow()
+
+            // Then it plays at once at its tempo, and the danger tempo is rendered meanwhile, before any danger
+            assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
+            renderDispatcher.runAll()
+            assertThat(rendered).containsExactly(1.0 to true, 1.25 to true)
+        }
+
+    @Test
+    fun `a new play forgets the tempos prepared before, as a preview prepares no other tempo`() = runTest {
+        // Given a score played by a game, its danger tempo prepared, then stopped
+        val sequencer = sequencer()
+        sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+        renderDispatcher.runAll()
+        sequencer.stop()
+        runCurrent()
+        rendered.clear()
+
+        // When another score plays, as the preview of the home screen
+        sequencer.play(wholeNote)
+        renderNow()
+        nextSlice()
+        renderDispatcher.runAll()
+
+        // Then only its normal tempo is rendered
+        assertThat(rendered).containsExactly(1.0 to true)
+    }
+
+    @Test
+    fun `a pause during the preparation of the danger tempo does not render it twice`() = runTest {
+        // Given a score playing, its danger tempo prepared, and the game paused while that rendering runs
+        lateinit var sequencer: ChiptuneSequencer
+        var paused = false
+        sequencer = sequencer(render = { factor ->
+            if (factor == 1.25 && !paused) {
+                paused = true
+                sequencer.stop()
+            }
+            buffers.getValue(factor).also { rendered += factor to renderDispatcher.running }
+        })
+        val playback = sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+        renderDispatcher.runAll()
+        runCurrent()
+
+        // When the game resumes
+        playback.resume()
+        renderNow()
+        nextSlice()
+        renderDispatcher.runAll()
+
+        // Then the danger tempo rendered during the pause is kept, not rendered again
+        assertThat(rendered).containsExactly(1.0 to true, 1.25 to true)
+    }
+
+    @Test
+    fun `playing another score abandons the preparations of the one before`() = runTest {
+        // Given a score playing, its danger tempo being prepared
+        val sequencer = sequencer()
+        sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+
+        // When another score plays before that rendering could run
+        sequencer.play(wholeNote)
+        renderNow()
+        renderDispatcher.runAll()
+
+        // Then the danger tempo of the first score is never rendered
+        assertThat(rendered).containsExactly(1.0 to true, 1.0 to true)
+    }
+
+    @Test
+    fun `the renderings under way end with the scope of the sequencer`() = runTest {
+        // Given a sequencer living in its own scope, a score playing, its danger tempo being prepared
+        val sequencerScope = CoroutineScope(Job())
+        val sequencer = sequencer(scope = sequencerScope)
+        sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+
+        // When that scope ends, then the rendering could run
+        sequencerScope.cancel()
+        runCurrent()
+        renderDispatcher.runAll()
+
+        // Then the danger tempo is never rendered
+        assertThat(rendered).containsExactly(1.0 to true)
+    }
+
+    @Test
+    fun `the danger tempo prepared plays from the next beat, without being rendered again`() = runTest {
+        // Given a score playing, its danger tempo prepared
+        val sequencer = sequencer()
+        sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+        renderDispatcher.runAll()
+
+        // When the stack enters the danger, the first slice written already
+        sequencer.setTempoFactor(1.25)
+        val slices = List(3) { nextSlice() }
+
+        // Then the danger tempo plays from the next beat, beat 2 (sample 6 at 1.0, sample 5 at 1.25), with
+        // no rendering left to run
+        assertThat(slices).containsExactly(
+            listOf(100f, 101f, 102f, 103f),
+            listOf(104f, 105f, 305f, 306f),
+            listOf(307f, 308f, 300f, 301f),
+        )
+        assertThat(rendered).containsExactly(1.0 to true, 1.25 to true)
+    }
+
+    @Test
+    fun `leaving the danger before its tempo is prepared keeps the preparation for the next danger`() = runTest {
+        // Given a score playing, its danger tempo still being prepared, asked for then given up
+        val sequencer = sequencer()
+        sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+        sequencer.setTempoFactor(1.25)
+        nextSlice()
+        runCurrent()
+        sequencer.setTempoFactor(1.0)
+        nextSlice()
+        runCurrent()
+        renderDispatcher.runAll()
+
+        // When the stack enters the danger again, the slice of samples 8 to 11 written already
+        sequencer.setTempoFactor(1.25)
+        val slices = List(3) { nextSlice() }
+
+        // Then the danger tempo plays from the next beat, the start of the loop, rendered only once
+        assertThat(slices).containsExactly(
+            listOf(108f, 109f, 110f, 111f),
+            listOf(300f, 301f, 302f, 303f),
+            listOf(304f, 305f, 306f, 307f),
+        )
+        assertThat(rendered).containsExactly(1.0 to true, 1.25 to true)
+    }
+
+    @Test
+    fun `a danger tempo prepared stays in the cache when the score is resumed`() = runTest {
+        // Given a score that played a while, its danger tempo prepared, then stopped (a pause)
+        val sequencer = sequencer()
+        val playback = sequencer.play(score)
+        sequencer.prepareTempo(1.25)
+        renderNow()
+        renderDispatcher.runAll()
+        repeat(2) { nextSlice() }
+        playback.stop()
+        runCurrent()
+
+        // When it is resumed
+        playback.resume()
+        renderNow()
+        nextSlice()
+
+        // Then nothing is rendered again
+        assertThat(rendered).containsExactly(1.0 to true, 1.25 to true)
+    }
+
+    @Test
+    fun `a playback resumed at the danger tempo, once another score emptied the cache, prepares the normal tempo`() =
+        runTest {
+            // Given a score stopped, another one played since, then the danger tempo asked for
+            val sequencer = sequencer()
+            val playback = sequencer.play(score)
+            renderNow()
+            nextSlice()
+            playback.stop()
+            sequencer.play(wholeNote)
+            renderNow()
+            renderDispatcher.runAll()
+            nextSlice()
+            sequencer.stop()
+            runCurrent()
+            sequencer.setTempoFactor(1.25)
+            rendered.clear()
+
+            // When the first score is resumed
+            playback.resume()
+            renderNow()
+            nextSlice()
+            renderDispatcher.runAll()
+
+            // Then it plays at the danger tempo, and its normal tempo is rendered meanwhile, for the end of the danger
+            assertThat(rendered).containsExactly(1.25 to true, 1.0 to true)
+        }
 
     @Test
     fun `a tempo change keeps the same sink, and the writing goes on at the new tempo`() = runTest {
@@ -509,6 +724,7 @@ class ChiptuneSequencerTempoTest {
      */
     private fun TestScope.sequencer(
         sliceSize: Int = 4,
+        scope: CoroutineScope = backgroundScope,
         renderOn: CoroutineDispatcher = renderDispatcher,
         render: (tempoFactor: Double) -> FloatArray = { tempoFactor ->
             buffers.getValue(tempoFactor).also { rendered += tempoFactor to renderDispatcher.running }
@@ -517,7 +733,7 @@ class ChiptuneSequencerTempoTest {
         render = { _, tempoFactor -> render(tempoFactor) },
         sampleRate = 22_050,
         openSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
-        scope = backgroundScope,
+        scope = scope,
         renderDispatcher = renderOn,
         writeDispatcher = StandardTestDispatcher(testScheduler),
         sliceSize = sliceSize,

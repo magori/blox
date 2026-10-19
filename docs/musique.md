@@ -118,17 +118,33 @@ basses.
   (150 × 1,25 = 187,5 accepté) ; le facteur doit être positif et fini. Les durées restent en
   `Double` : le tampon est rendu une fois puis rejoué, rien ne se cumule sur la boucle.
 - **Séquenceur** : `ChiptuneSequencer(synthesizer, openSink, scope)`, `play(score)` et `stop()`,
-  appelés depuis le fil principal. Le rendu se fait hors du fil audio (`Dispatchers.Default`),
-  une fois par partition et par facteur de tempo (cache, environ 2,3 Mo pour 8 mesures à
-  44 100 Hz) ; l'écriture, sur `Dispatchers.IO`, par tranches de 1 024 échantillons qui font le
-  tour du tampon sans trou (`LoopCursor`). La sortie s'ouvre à la fréquence du synthétiseur.
+  appelés depuis le fil principal. Le rendu se fait hors du fil audio (`Dispatchers.Default`) ;
+  l'écriture, sur `Dispatchers.IO`, par tranches de 1 024 échantillons qui font le tour du tampon
+  sans trou (`LoopCursor`). La sortie s'ouvre à la fréquence du synthétiseur.
+- **Cache** (P5.15) : `TempoBuffers` ne garde que la partition en cours, un tampon par facteur
+  de tempo (environ 2,3 Mo pour 8 mesures à 44 100 Hz ; en pratique le tempo normal et celui
+  du danger) ; une autre partition le vide, et abandonne ses rendus, avant d'être rendue.
+  `prepareTempo(facteur)`, appelé par la partie juste après `play` (l'aperçu de l'accueil n'en
+  appelle aucun), fait rendre ce tempo en tâche de fond dès le lancement, sans retarder la
+  première tranche, au lieu de le rendre à l'entrée en danger ; il est gardé pour `resume` et
+  oublié par le `play` suivant. Les rendus survivent à une pause et s'arrêtent avec le scope du
+  séquenceur.
 - **Arrêt** : `stop()` arrête l'écriture à la tranche suivante, même si la sortie bloque au lieu
-  de suspendre, et libère la sortie ; un nouveau `play` n'ouvre sa sortie qu'une fois
-  l'ancienne libérée (jamais deux à la fois). Une sortie qui ne s'ouvre pas ou une écriture qui
-  échoue arrête la musique sans faire planter le jeu.
+  de suspendre, et libère la sortie. Un nouveau `play` arrête aussitôt la boucle en cours, puis
+  attend la sortie sous un verrou, dans l'ordre des lectures : jamais deux sorties à la fois,
+  même pour un `play` arrêté avant d'avoir démarré. Une sortie qui ne s'ouvre pas ou une
+  écriture qui échoue arrête la musique sans faire planter le jeu, et l'échec est journalisé.
+- **Sortie morte** (P5.15) : une écriture qui rend `ERROR_DEAD_OBJECT` (redémarrage du serveur
+  audio) lève `DeadSinkException` ; `ReopeningSink` libère la sortie morte, en ouvre une autre et
+  y réécrit la tranche, si bien que la musique reprend où elle en était. Au plus une réouverture
+  par écriture, et 3 par fenêtre de 2 048 tranches (environ 48 s) ; jamais pendant un arrêt.
+  Au-delà, ou si la sortie rouverte meurt aussitôt, la musique s'arrête, journalisée. Sur un
+  Android récent, un changement de sortie Bluetooth est le plus souvent rerouté sans cette
+  erreur.
 - **Sortie** : `AudioTrackSink`, `AudioTrack` en `MODE_STREAM`, mono, échantillons flottants,
   écriture bloquante ; tampon de 4 fois le minimum (au moins deux tranches) ; une écriture en
-  erreur lève une exception ; arrêt par `pause`, `flush`, `release`. Sans test JVM.
+  erreur lève une exception ; arrêt par `pause`, `flush`, `release`, la piste étant libérée même
+  si `pause` échoue. Sans test JVM.
 
 **Tests :** `ScoreRenderTest › a score renders as the mix of its voices and lasts as long as the score`,
 `ScoreRenderTest › a tempo factor of 2 halves the duration`,
@@ -150,7 +166,31 @@ basses.
 `ChiptuneSequencerTest › play then play opens the new sink only once the old one is released`,
 `ChiptuneSequencerTest › a sink that cannot open stops the music without a crash`,
 `ChiptuneSequencerTest › a write that fails releases the sink and stops the music without a crash`,
-`ChiptuneSequencerTest › a stop during the rendering opens no sink`.
+`ChiptuneSequencerTest › a stop during the rendering opens no sink`,
+`ChiptuneSequencerTest › only the score playing stays in the cache`,
+`ChiptuneSequencerTest › a play stopped before it starts still stops the score playing before it`,
+`ChiptuneSequencerTest › a play after a play stopped before it starts waits for the first sink to be released`,
+`ChiptuneSequencerTest › a play of a cached score stopped before it starts opens no sink`,
+`ChiptuneSequencerTest › the tempo prepared for a new score is never rendered for the score it replaces`,
+`ChiptuneSequencerTest › a sink that dies once is reopened and the music goes on where it stood`,
+`ChiptuneSequencerTest › a sink reopened that dies at once stops the music, reported, without a crash`,
+`ChiptuneSequencerTest › a sink that dies again after playing a while is reopened again`,
+`ChiptuneSequencerTest › a sink that dies and cannot be reopened stops the music, reported, released once`,
+`ChiptuneSequencerTest › a sink that keeps dying stops the music, reported`,
+`ChiptuneSequencerTest › a sink that dies while the music stops is not reopened`,
+`ChiptuneSequencerTest › a dead sink whose release fails is released only once, and the music stops, reported`,
+`ReopeningSinkTest › deaths far apart from one another are each reopened, beyond three`,
+`ChiptuneSequencerTempoTest › the tempo factor prepared must be positive and finite`,
+`ChiptuneSequencerTempoTest › the danger tempo prepared is rendered as soon as the score plays, without holding back its first slice`,
+`ChiptuneSequencerTempoTest › a new play forgets the tempos prepared before, as a preview prepares no other tempo`,
+`ChiptuneSequencerTempoTest › a pause during the preparation of the danger tempo does not render it twice`,
+`ChiptuneSequencerTempoTest › playing another score abandons the preparations of the one before`,
+`ChiptuneSequencerTempoTest › a danger tempo prepared stays in the cache when the score is resumed`,
+`ChiptuneSequencerTempoTest › a playback resumed at the danger tempo, once another score emptied the cache, prepares the normal tempo`,
+`ChiptuneSequencerTempoTest › the renderings under way end with the scope of the sequencer`,
+`GameViewModelTest › at the start of the game the music prepares the danger tempo`,
+`GameViewModelTest › a game paused before its music started prepares the danger tempo when its music starts`,
+`HomeViewModelTest › a preview prepares no other tempo`.
 
 ## Focus audio
 
@@ -187,7 +227,10 @@ comme `AudioTrackSink`.
 `FocusedMusicPlayerTest › a playback stopped by a loss of the focus asks for it again when the game resumes`,
 `FocusedMusicPlayerTest › getting the focus while playing changes nothing`,
 `FocusedMusicPlayerTest › the headphones being unplugged stops the music and abandons the focus`,
-`FocusedMusicPlayerTest › setting the tempo, as a game without music does, asks for no focus`.
+`FocusedMusicPlayerTest › setting the tempo, as a game without music does, asks for no focus`,
+`FocusedMusicPlayerTest › preparing a tempo asks for no focus, and goes to the player`,
+`FocusedMusicPlayerTest › a tempo prepared while the focus is refused is prepared once the score plays`,
+`FocusedMusicPlayerTest › a new play forgets the tempos prepared for the score refused the focus`.
 
 ## Accélération
 
@@ -247,8 +290,9 @@ tempo en cours, × 1,25 si la pile est en danger.
 
 **Changement de tempo dans le séquenceur** (P4.5) : `ChiptuneSequencer.setTempoFactor(facteur)`
 (positif et fini ; retenu pour la prochaine reprise, `resume`, si rien ne joue ; un `play` repart
-toujours à 1,0, P5.10). Le tampon au nouveau facteur
-est rendu en tâche de fond, une fois par (partition, facteur), ou pris dans le cache ; la sortie
+toujours à 1,0, P5.10). Le tampon au nouveau facteur est pris dans le cache de la partition en
+cours, où le tempo du danger a déjà été préparé dès le lancement (`prepareTempo`, P5.15), ou
+rendu en tâche de fond ; la sortie
 reste ouverte. Pour ne jamais couper une note en pleine amplitude (clic), la lecture finit le
 temps en cours dans l'ancien tampon et ne bascule qu'au prochain temps où **toutes** les voix
 commencent une note (`switchBeats`), au début de ce temps dans le nouveau tampon, retour au début

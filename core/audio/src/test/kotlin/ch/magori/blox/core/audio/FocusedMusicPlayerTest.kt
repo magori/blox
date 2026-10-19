@@ -281,6 +281,51 @@ class FocusedMusicPlayerTest {
         assertThat(player.calls).containsExactly("tempo 1.5")
     }
 
+    @Test
+    fun `preparing a tempo asks for no focus, and goes to the player`() {
+        // Given a score playing
+        music.play(korobeiniki)
+        player.calls.clear()
+
+        // When a game prepares its danger tempo
+        music.prepareTempo(1.25)
+
+        // Then
+        assertThat(player.prepared).containsExactly(1.25)
+        assertThat(player.calls).isEmpty()
+    }
+
+    @Test
+    fun `a tempo prepared while the focus is refused is prepared once the score plays`() {
+        // Given a score refused the focus, its danger tempo prepared
+        focus.granted = false
+        val playback = music.play(korobeiniki)
+        music.prepareTempo(1.25)
+
+        // When it is resumed with the focus, and plays at last
+        focus.granted = true
+        playback.resume()
+
+        // Then the player, which forgets the tempos prepared on play, has it prepared
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+        assertThat(player.prepared).containsExactly(1.25)
+    }
+
+    @Test
+    fun `a new play forgets the tempos prepared for the score refused the focus`() {
+        // Given a score refused the focus, its danger tempo prepared
+        focus.granted = false
+        music.play(korobeiniki)
+        music.prepareTempo(1.25)
+
+        // When another score plays with the focus, as a preview
+        focus.granted = true
+        music.play(minuet)
+
+        // Then
+        assertThat(player.prepared).isEmpty()
+    }
+
     private companion object {
         val note = Note(Pitch.parse("E5"), beats = 4.0)
         val korobeiniki = scoreOf(ScoreId.KOROBEINIKI)

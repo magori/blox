@@ -24,9 +24,23 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
     /** Whether the focus held is away for a while: the playback holding it waits for its return. */
     private var focusAway = false
 
-    override fun play(score: Score): Playback = start { player.play(score) }
+    /**
+     * The tempos prepared for the score played last: the player forgets them when it plays, which may come
+     * later, once the focus is granted or back; they are prepared again then.
+     */
+    private var prepared: Set<Double> = emptySet()
+
+    override fun play(score: Score): Playback {
+        prepared = emptySet()
+        return start { player.play(score).also { prepared.forEach(player::prepareTempo) } }
+    }
 
     override fun setTempoFactor(factor: Double): Unit = player.setTempoFactor(factor)
+
+    override fun prepareTempo(factor: Double) {
+        prepared = prepared + factor
+        player.prepareTempo(factor)
+    }
 
     /**
      * Asks for the focus, unless it is held already by the playback [begin] replaces, then [begin]s

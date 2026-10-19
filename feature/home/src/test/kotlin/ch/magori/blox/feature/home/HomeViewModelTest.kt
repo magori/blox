@@ -221,6 +221,19 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `a preview prepares no other tempo`() {
+        // Given a game that prepared its danger tempo, then left
+        music.prepareTempo(1.25)
+        val viewModel = homeViewModel()
+
+        // When
+        viewModel.onListen(MusicChoice.MINUET)
+
+        // Then the preview renders its music at its tempo only
+        assertThat(music.prepared).isEmpty()
+    }
+
+    @Test
     fun `listening again to the music being previewed stops it`() = runTest {
         // Given
         val viewModel = homeViewModel()
