@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 75 / 143 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 76 / 143 | `███████████░░░░░░░░░` **53 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -512,7 +512,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).
-- [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
+- [x] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
   partagé entre effacement et délai d'apparition ; `AutoRepeat`, `GameState.controls` et les
   constructeurs de `Clearing` et `EntryDelay` en `internal` ; KDoc de `GameEvent.StackDanger`,
   `GameUiState` et du ViewModel (B4, B5, B7).
