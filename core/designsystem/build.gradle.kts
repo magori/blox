@@ -5,6 +5,12 @@ plugins {
 
 android {
     namespace = "ch.magori.blox.core.designsystem"
+
+    // Le calcul du contraste de WCAG et la liste des palettes nommées, partagés par les tests de contraste des
+    // features (ChoiceColorsTest, KeyColorsTest).
+    testFixtures {
+        enable = true
+    }
 }
 
 dependencies {

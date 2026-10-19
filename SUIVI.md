@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 73 / 141 | `██████████░░░░░░░░░░` **52 %** |
+| **Général** | 74 / 142 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -527,15 +527,17 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
   avertissements Kotlin en erreurs, lint en erreurs avec une base des avertissements assumés,
   chacun avec sa raison (C8).
-- [ ] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
+- [x] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
   au moins 3:1 entre les deux états dans chaque thème ; fonction `choiceColors` testée comme
-  `keyColors` (C3).
+  `keyColors` (C3). Fait : soulignement et choix non sélectionnés en encart, 5,7:1 au moins ; contraste en `testFixtures` de `core:designsystem` (`docs/themes.md`, Choix de l'accueil).
 - [ ] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [ ] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
 - [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
+- [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
+  choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
 
 ## P6 — Mode Moderne (plus tard)
 

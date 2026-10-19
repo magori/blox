@@ -24,6 +24,7 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /** The sizes shared by the screens shown over the game (game over, pause), in one place. */
@@ -106,7 +107,7 @@ internal fun SecondaryButton(
             .fillMaxWidth()
             .heightIn(min = ScreenSizes.minTouchTarget),
         shape = BloxTheme.shapes.button,
-        border = BorderStroke(PanelSizes.border, palette.panelBorder),
+        border = BorderStroke(BloxBorders.frame, palette.panelBorder),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),
     ) {
         Text(text = text)

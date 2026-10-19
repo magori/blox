@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.feature.game.controls.ControlSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
@@ -146,7 +147,7 @@ private class Sizes(density: Float) {
     val controlsHeight = maxOf(directionsHeight, rotationsHeight)
 
     /** Around the preview of the next piece: the frame and the padding of its panel, on both sides. */
-    private val nextInsets = (PanelSizes.border + PanelSizes.padding).px() * 2
+    private val nextInsets = (BloxBorders.frame + PanelSizes.padding).px() * 2
 
     /**
      * The largest cell, in whole pixels, for a board of [height] and, beside it in [width], the

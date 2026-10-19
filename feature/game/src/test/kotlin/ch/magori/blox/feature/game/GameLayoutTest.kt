@@ -2,6 +2,7 @@ package ch.magori.blox.feature.game
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Density
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.feature.game.controls.ControlSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import org.assertj.core.api.Assertions.assertThat
@@ -173,7 +174,7 @@ class GameLayoutTest {
 
         // Then: 4 cells, and on each side the frame and the padding of the panel
         val panel = layout.nextPiece ?: layout.sidePanel
-        val insets = 2 * (PanelSizes.border + PanelSizes.padding).value * density
+        val insets = 2 * (BloxBorders.frame + PanelSizes.padding).value * density
         assertThat(panel.width).isGreaterThanOrEqualTo(4 * layout.cellSize + insets)
     }
 
