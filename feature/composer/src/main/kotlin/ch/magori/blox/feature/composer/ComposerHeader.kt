@@ -52,14 +52,16 @@ private const val DOT_RADIUS = 0.09f
 
 /**
  * The header of the editor: the back button, the title with its info line ([status] of the music), and the menu
- * « … », which only holds *Montrer l'autre piste en filigrane* for now.
+ * « … », which holds *Suivre la lecture* and *Montrer l'autre piste en filigrane* for now.
  */
 @Composable
 internal fun ComposerHeader(
     status: SaveStatus,
     showOtherTrack: Boolean,
+    followPlayback: Boolean,
     onBack: () -> Unit,
     onOtherTrackShown: (Boolean) -> Unit,
+    onFollowPlayback: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -84,32 +86,55 @@ internal fun ComposerHeader(
                 drawDots(it)
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.feature_composer_menu_other_track)) },
-                    trailingIcon = {
-                        Checkbox(
-                            checked = showOtherTrack,
-                            onCheckedChange = null,
-                            colors = CheckboxDefaults.colors(
-                                checkedColor = palette.accent,
-                                checkmarkColor = palette.accentInk,
-                                uncheckedColor = palette.ink,
-                            ),
-                        )
-                    },
-                    onClick = {
-                        onOtherTrackShown(!showOtherTrack)
+                CheckItem(
+                    text = stringResource(R.string.feature_composer_menu_follow),
+                    checked = followPlayback,
+                    onChecked = {
+                        onFollowPlayback(it)
                         expanded = false
                     },
-                    // Read by TalkBack as the check box it shows, ticked or not.
-                    modifier = Modifier.semantics {
-                        role = Role.Checkbox
-                        toggleableState = ToggleableState(showOtherTrack)
+                )
+                CheckItem(
+                    text = stringResource(R.string.feature_composer_menu_other_track),
+                    checked = showOtherTrack,
+                    onChecked = {
+                        onOtherTrackShown(it)
+                        expanded = false
                     },
                 )
             }
         }
     }
+}
+
+/** An item of the menu « … » that is [checked] or not, with its check box; touching it calls [onChecked] with the other. */
+@Composable
+private fun CheckItem(
+    text: String,
+    checked: Boolean,
+    onChecked: (Boolean) -> Unit,
+) {
+    val palette = BloxTheme.palette
+    DropdownMenuItem(
+        text = { Text(text) },
+        trailingIcon = {
+            Checkbox(
+                checked = checked,
+                onCheckedChange = null,
+                colors = CheckboxDefaults.colors(
+                    checkedColor = palette.accent,
+                    checkmarkColor = palette.accentInk,
+                    uncheckedColor = palette.ink,
+                ),
+            )
+        },
+        onClick = { onChecked(!checked) },
+        // Read by TalkBack as the check box it shows, ticked or not.
+        modifier = Modifier.semantics {
+            role = Role.Checkbox
+            toggleableState = ToggleableState(checked)
+        },
+    )
 }
 
 /** The info line: « non enregistrée » for a new music, « modifiée » for a saved one changed, nothing once saved. */

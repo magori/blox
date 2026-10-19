@@ -23,7 +23,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -77,6 +79,10 @@ private object GridSizes {
 
     /** The outline of the watermark, so that it shows on a note of the open track too. */
     val echoOutline = 1.5.dp
+
+    /** The outline of the column played, over the cells: its line, and the halo inside it. */
+    val playedLine = 2.dp
+    val playedHalo = 1.dp
 }
 
 /** The held part of a note: a band across the middle of the cell, of this part of its height. */
@@ -98,13 +104,15 @@ private data class CellColors(val background: Color, val note: Color, val held: 
  * allows but [GridSizes.minRowHeight] at least, scrolling when they do not fit. Touching a cell calls [onTouch] with
  * its line and its cell, counted from 0; touching a cell and sliding along the line calls [onSlide] once the finger is
  * lifted. While the open track is [empty], a hint says how to place a note. Each line is skipped when it did not
- * change: a touch recomposes the lines it changed only.
+ * change: a touch recomposes the lines it changed only. While the music is listened to, an outline surrounds the
+ * column played, the [playedEighth] cell of the bar, if it is the bar shown; drawn over the lines, it recomposes none.
  */
 @Composable
 internal fun NoteGrid(
     lines: GridLines,
     track: Track,
     empty: Boolean,
+    playedEighth: Int?,
     onTouch: (pitch: Pitch, eighth: Int) -> Unit,
     onSlide: (pitch: Pitch, fromEighth: Int, toEighth: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -112,11 +120,20 @@ internal fun NoteGrid(
     val palette = BloxTheme.palette
     val notes = trackColors(palette, track)
     val colors = CellColors(palette.boardBackground, notes.note, notes.held, trackColors(palette, track.other).note)
+    val outline = playedOutline(palette)
     Column(modifier = modifier) {
         BeatLine()
         BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
             val rowHeight = rowHeight(lines, if (constraints.hasBoundedHeight) maxHeight else null)
-            Column(modifier = Modifier.fillMaxWidth().verticalScroll(rememberScrollState())) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .drawWithContent {
+                        drawContent()
+                        if (playedEighth != null) drawPlayedColumn(playedEighth, outline)
+                    },
+            ) {
                 lines.rows.forEach { row ->
                     GridLine(
                         row = row,
@@ -290,6 +307,40 @@ private suspend fun PointerInputScope.detectCellGestures(
         // Once the finger slides along the line, the slide is its own: the scroll of the grid no longer takes it.
         if (gesture.isSliding) change.consume()
     }
+}
+
+/**
+ * The outline of the column of the [eighth] cell, over the lines: its line, then its halo just inside it. Each cell
+ * takes an eighth of the width left by the names of the lines, the gap before it included, as the cells of [GridLine]
+ * do.
+ */
+private fun DrawScope.drawPlayedColumn(
+    eighth: Int,
+    outline: PlayedOutline,
+) {
+    val label = GridSizes.labelWidth.toPx()
+    val slot = (size.width - label) / CELLS_PER_BAR
+    val gap = gapBefore(eighth).toPx()
+    val column = Rect(Offset(label + eighth * slot + gap, 0f), Size(slot - gap, size.height))
+    val line = GridSizes.playedLine.toPx()
+    val halo = GridSizes.playedHalo.toPx()
+    drawFrame(column, inset = line / 2, width = line, color = outline.line)
+    drawFrame(column, inset = line + halo / 2, width = halo, color = outline.halo)
+}
+
+/** A frame of [width] in [color], its middle [inset] inside [bounds]. */
+private fun DrawScope.drawFrame(
+    bounds: Rect,
+    inset: Float,
+    width: Float,
+    color: Color,
+) {
+    drawRect(
+        color = color,
+        topLeft = Offset(bounds.left + inset, bounds.top + inset),
+        size = Size(bounds.width - 2 * inset, bounds.height - 2 * inset),
+        style = Stroke(width = width),
+    )
 }
 
 /**

@@ -12,10 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -63,7 +67,8 @@ internal fun ToolButton(
  * A choice of the editor among others (a tab, the mode of the touches, a bar), read by TalkBack with its [role]: a
  * selected one is filled in [selectedColor], `accent` unless told otherwise, its label in [selectedInk]; an unselected
  * one is framed, as on the home screen. In every theme the two differ by 3:1 at least in luminance (`ChoiceColorsTest`
- * of the home screen, `TrackColorsTest` for the tabs), so that hue is not their only cue.
+ * of the home screen, `TrackColorsTest` for the tabs), so that hue is not their only cue. A choice with a [mark] (the
+ * bar played) shows a line under its label, in the colour of the label, and TalkBack reads the mark as its state.
  */
 @Composable
 internal fun ChoiceButton(
@@ -73,21 +78,48 @@ internal fun ChoiceButton(
     role: Role,
     modifier: Modifier = Modifier,
     description: String? = null,
+    mark: String? = null,
     selectedColor: Color = BloxTheme.palette.accent,
     selectedInk: Color = BloxTheme.palette.accentInk,
 ) {
     val palette = BloxTheme.palette
     val background = if (selected) selectedColor else palette.panel
+    val ink = if (selected) selectedInk else palette.ink
     ButtonBox(
         background = background,
         frame = if (selected) background else palette.panelBorder,
         modifier = modifier
             .selectable(selected = selected, role = role, onClick = onClick)
-            .described(description),
+            .described(description)
+            .marked(mark, ink),
     ) {
-        ButtonLabel(text = text, color = if (selected) selectedInk else palette.ink)
+        ButtonLabel(text = text, color = ink)
     }
 }
+
+/** The line of a [mark] under the label, in [ink], and the mark read by TalkBack as the state of the button. */
+private fun Modifier.marked(
+    mark: String?,
+    ink: Color,
+): Modifier = if (mark == null) {
+    this
+} else {
+    semantics { stateDescription = mark }.drawWithContent {
+        drawContent()
+        val width = size.width * MARK_WIDTH
+        val height = MarkHeight.toPx()
+        drawRect(
+            color = ink,
+            topLeft = Offset((size.width - width) / 2, size.height - height - MarkInset.toPx()),
+            size = Size(width, height),
+        )
+    }
+}
+
+/** The line of a mark: this part of the width of the button, this high, this far above its bottom edge. */
+private const val MARK_WIDTH = 0.5f
+private val MarkHeight = 3.dp
+private val MarkInset = 6.dp
 
 @Composable
 private fun ButtonBox(
