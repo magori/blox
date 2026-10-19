@@ -46,6 +46,9 @@ dependencies {
     // `collectAsStateWithLifecycle` lit le `LifecycleOwner` courant : il faut lifecycle-common à la compilation.
     implementation(libs.androidx.lifecycle.common)
 
+    // Le faux dépôt des réglages, partagé avec les features : AppThemeTest y lit le thème choisi.
+    testImplementation(testFixtures(projects.core.data))
+
     // Le module qui produit le profil de référence (blox.android.benchmark, P5.17).
     baselineProfile(projects.benchmark)
 }

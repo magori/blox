@@ -138,7 +138,7 @@ lui-même.
 - Un module qui publie des doublures de test (`src/testFixtures` : `core:game`, `core:audio`,
   `core:data`, `core:designsystem`) applique en plus `blox.test.fixtures`, dans n'importe quel ordre :
   `java-test-fixtures` pour un module Kotlin pur, les testFixtures d'AGP pour une bibliothèque Android.
-  Les autres modules les consomment avec `testImplementation(testFixtures(projects.core.data))`. Les
+  Les autres modules les consomment avec `testImplementation(testFixtures(projects.core.data))` (ou `androidTestImplementation(...)` pour les tests instrumentés). Les
   faux dépôts de `core:data` passent le même contrat que les vrais (`HighScoreRepositoryContract`,
   `UserPreferencesRepositoryContract`), et `MainDispatcherExtension` y est partagée. De même, le faux
   lecteur de `core:audio` passe le contrat du séquenceur (`MusicPlayerContract`).
