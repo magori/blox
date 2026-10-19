@@ -7,7 +7,8 @@ import kotlin.random.Random
  * all, so adding a category leaves it unchanged. [harmonies] gives its scales, each with the progressions that suit
  * it, [tempo] the tempos it allows, [rhythms] the rhythm cells its melody draws its bars from, [bass] the way its
  * bass goes, [allowsChromaticPassingNotes] whether its melody may pass through a note out of the scale, on a weak
- * beat, and [melody] the way its melody leans: by fifths, down, or by arpeggios.
+ * beat, [melody] the way its melody leans: by fifths, down, or by arpeggios, and [quality] what the note of quality
+ * expects of it.
  */
 public enum class Category(
     public val harmonies: List<Harmony>,
@@ -16,6 +17,7 @@ public enum class Category(
     internal val bass: BassStyle,
     public val allowsChromaticPassingNotes: Boolean = false,
     internal val melody: MelodyTraits = MelodyTraits.NEUTRAL,
+    internal val quality: QualityProfile,
     ownPhraseEnds: List<RhythmCell> = emptyList(),
 ) : CategoryChoice {
     /** Eighth notes and dotted eighths that skip along. */
@@ -24,6 +26,7 @@ public enum class Category(
         tempo = TempoRange(120, 150),
         rhythms = cells("0.5 0.5 0.5 0.5 1 1", "0.75 0.25 0.75 0.25 1 1", "1 0.5 0.5 0.75 0.25 1", "0.5 1 0.5 1 1"),
         bass = BassStyle(BassMotif.OCTAVES, beats = 1.0),
+        quality = QualityProfile(idealStepShare = 0.69, threshold = 85.5),
         ownPhraseEnds = cells("0.5 0.5 1 2", "0.75 0.25 1 2"),
     ),
 
@@ -33,6 +36,7 @@ public enum class Category(
         tempo = TempoRange(70, 95),
         rhythms = cells("2 2", "1 1 2", "2 1 r1", "1 r1 2"),
         bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 2.0),
+        quality = QualityProfile(idealStepShare = 0.69, threshold = 84.5),
     ),
 
     /** Strong quarter notes, struck on every beat, and leaps of a fifth. */
@@ -41,6 +45,11 @@ public enum class Category(
         tempo = TempoRange(110, 140),
         rhythms = cells("1 1 1 1", "1 0.5 0.5 1 1", "0.5 0.5 1 1 1", "1 1 0.5 0.5 1"),
         bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 0.5),
+        quality = QualityProfile(
+            idealStepShare = 0.69,
+            threshold = 80.5,
+            leaning = Leaning(Lean.FIFTHS, target = 0.10),
+        ),
         melody = MelodyTraits(fifths = 8.0),
         ownPhraseEnds = cells("1 1 2", "1 1 1 r1"),
     ),
@@ -51,6 +60,11 @@ public enum class Category(
         tempo = TempoRange(80, 100),
         rhythms = cells("2 2", "3 1", "1 1 2", "1.5 0.5 2"),
         bass = BassStyle(BassMotif.ROOT_AND_FIFTH, beats = 1.0),
+        quality = QualityProfile(
+            idealStepShare = 0.63,
+            threshold = 87.5,
+            leaning = Leaning(Lean.DESCENTS, target = 0.70),
+        ),
         melody = MelodyTraits(descents = 3.0),
     ),
 
@@ -60,6 +74,7 @@ public enum class Category(
         tempo = TempoRange(90, 110),
         rhythms = cells("4", "3 1", "2 2", "3 0.5 0.5"),
         bass = BassStyle(BassMotif.REPEATED_ROOT, beats = 4.0),
+        quality = QualityProfile(idealStepShare = 0.59, threshold = 88.5),
         allowsChromaticPassingNotes = true,
     ),
 
@@ -80,6 +95,11 @@ public enum class Category(
             "0.5 1 0.5 0.5 0.5 1",
         ),
         bass = BassStyle(BassMotif.OCTAVES, beats = 0.5),
+        quality = QualityProfile(
+            idealStepShare = 0.63,
+            threshold = 78.0,
+            leaning = Leaning(Lean.ARPEGGIOS, target = 0.33),
+        ),
         melody = MelodyTraits(arpeggios = 4.0),
         ownPhraseEnds = cells("0.5 0.5 0.5 0.5 2", "0.25 0.25 0.25 0.25 0.5 0.5 2"),
     ),
@@ -90,6 +110,7 @@ public enum class Category(
         tempo = TempoRange(130, 160),
         rhythms = cells("1 0.5 0.5 1 0.5 0.5", "1 0.5 0.5 1 1", "0.5 0.5 0.5 0.5 0.5 0.5 0.5 0.5", "1 1 1 0.5 0.5"),
         bass = BassStyle(BassMotif.ROOT_AND_FIFTH, beats = 0.5),
+        quality = QualityProfile(idealStepShare = 0.61, threshold = 83.5),
         ownPhraseEnds = cells("1 0.5 0.5 2", "1 0.5 0.5 1 r1"),
     ),
     ;

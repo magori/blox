@@ -23,14 +23,14 @@ internal data class Melody(val bars: List<List<Note>>) {
         /** The steps a search for an arched melody may take before giving up for a melody without an arch. */
         const val ARCHED_SEARCH_BUDGET: Int = 5_000
 
-        /** The steps a search for a melody without an arch may take before refusing the form, which no melody fits. */
+        /** The steps a search for a melody without an arch may take before giving up on the form, which no melody fits. */
         const val SEARCH_BUDGET: Int = 50_000
 
         /**
          * The melody of [form], leaning as [traits] say, within [range], drawn with [random] after the form: the same
-         * form and the same draw give the same melody. The melody arches up to its highest note, struck once on a strong
-         * beat of bar 5; a search that gives up past [archedSearchBudget] steps leaves a melody without the arch, and a
-         * form that no melody fits within [SEARCH_BUDGET] more steps is refused with an `IllegalStateException`.
+         * form and the same draw give the same melody, or `null` if no melody fits the form, as no bass may fit a melody.
+         * The melody arches up to its highest note, struck once on a strong beat of bar 5; a search that gives up past
+         * [archedSearchBudget] steps leaves a melody without the arch, and one without it gives up past [SEARCH_BUDGET] more.
          *
          * The draws come in this order: the order in which the strong beats of bar 5 are tried for the peak; then, for
          * each search, the notes of the bars that do not take up the motif, note after note as it goes. A search starts
@@ -43,7 +43,7 @@ internal data class Melody(val bars: List<List<Note>>) {
             traits: MelodyTraits = form.category.melody,
             range: PitchRange = RANGE,
             archedSearchBudget: Int = ARCHED_SEARCH_BUDGET,
-        ): Melody = MelodyComposer(form, random, traits, range, archedSearchBudget).compose()
+        ): Melody? = MelodyComposer(form, random, traits, range, archedSearchBudget).compose()
     }
 }
 
@@ -107,10 +107,10 @@ private class MelodyComposer(
         Peak(slot, window.last { it in slots[slot].chord })
     }
 
-    fun compose(): Melody {
+    fun compose(): Melody? {
         val arched = peaks.asSequence().flatMap { attempts(it, archedSearchBudget / peaks.size) }
         val searches = arched + attempts(peak = null, Melody.SEARCH_BUDGET)
-        val pitches = (searches.firstNotNullOfOrNull { it.run() } ?: error("No melody fits $form")).iterator()
+        val pitches = (searches.firstNotNullOfOrNull { it.run() } ?: return null).iterator()
         return Melody(
             form.bars.map { bar ->
                 bar.rhythm.steps.map { step -> Note(if (step.isRest) null else pitches.next(), step.beats) }

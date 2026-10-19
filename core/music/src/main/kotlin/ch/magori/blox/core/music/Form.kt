@@ -42,6 +42,9 @@ internal data class Form(
     val motif: RhythmCell,
     val bars: List<Bar>,
 ) {
+    /** The chord in place under [note], struck in its bar. */
+    fun chordUnder(note: StruckNote): Chord = bars[note.bar].chordAt(note.onset)
+
     companion object {
         /**
          * The two bars of each section: A states the motif, A' takes it up again and ends the question, B departs from

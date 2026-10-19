@@ -368,7 +368,7 @@ class BassTest {
     ): Composed? {
         val random = Random(seed)
         val form = Form.compose(category, random)
-        val melody = Melody.compose(form, random)
+        val melody = checkNotNull(Melody.compose(form, random))
         return Bass.compose(form, melody, random, passingChance)?.let { Composed(form, melody, it) }
     }
 
@@ -382,11 +382,6 @@ class BassTest {
     ): Form = Form.compose(category, Random(0)).let { form ->
         form.copy(bars = form.bars.zip(chords) { bar, chord -> bar.copy(chords = listOf(chordOf(chord))) })
     }
-
-    private fun chordOf(name: String): Chord = Chord(
-        Pitch.parse(name.removeSuffix("m") + "4"),
-        if (name.endsWith("m")) ChordQuality.MINOR else ChordQuality.MAJOR,
-    )
 
     /**
      * The share of the last weak beats before a new chord where the basses of [category], composed from the seeds and
