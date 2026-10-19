@@ -16,7 +16,7 @@ internal data class Bass(val bars: List<List<Note>>) {
 
     companion object {
         /** The range of the bass voice, two octaves, so that every root may be played in two octaves. */
-        val RANGE: PitchRange = PitchRange(Pitch.parse("C2"), Pitch.parse("C4"))
+        val RANGE: PitchRange = BASS_RANGE
 
         /** The steps a search for the bass may take before giving up on the form and melody. */
         const val SEARCH_BUDGET: Int = 10_000

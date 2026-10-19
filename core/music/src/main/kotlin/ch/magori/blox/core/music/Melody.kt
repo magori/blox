@@ -18,7 +18,7 @@ internal data class Melody(val bars: List<List<Note>>) {
 
     companion object {
         /** The range of the melody voice. */
-        val RANGE: PitchRange = PitchRange(Pitch.parse("C4"), Pitch.parse("C6"))
+        val RANGE: PitchRange = MELODY_RANGE
 
         /** The steps a search for an arched melody may take before giving up for a melody without an arch. */
         const val ARCHED_SEARCH_BUDGET: Int = 5_000
