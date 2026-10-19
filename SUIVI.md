@@ -11,20 +11,22 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 101 / 147 | `██████████████░░░░░░` **69 %** |
-| **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
+| **Général** | 104 / 153 | `██████████████░░░░░░` **68 %** |
+| **MVP audio** | 20 / 27 | `███████████████░░░░░` **74 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
 politique. Ils sont recalculés par `scripts/avancement.sh` à chaque fin de tâche, ne pas les
 modifier à la main.
 
-**MVP** : une partie complète jouable sur le téléphone, mode Classique, thème par défaut, sans
-musique ni records. Fondations (P0, sauf P0.12), domaine jusqu'à la pause (P1.1 à P1.15),
-écran de jeu (P2.1 à P2.7, P2.9, P2.10), injection (P3.3). Le test sur téléphone qui ouvre la
-phase de jeu réelle est P2.8. Pour changer le périmètre, modifier la liste ci-dessous.
+**MVP audio** : l'expérience musicale complète. Musique des parties et aperçu, générateur,
+éditeur, « Mes musiques » et fichier personnel : la phase P4, les tâches découpées comptées par
+tranches, sans les effets sonores optionnels (P4.8), la confirmation des droits hors code
+(P4.10) ni les mises à jour de maquette (P3.9, P4.21). Le premier MVP, une partie complète
+jouable sur le téléphone (P0 à P3), est atteint depuis le 2026-10-18. Pour changer le
+périmètre, modifier la liste ci-dessous.
 
-<!-- mvp: P0.1 P0.2 P0.3 P0.4 P0.5 P0.6 P0.7 P0.8 P0.9 P0.10 P0.11 P0.13 P1.1 P1.2 P1.3 P1.4 P1.5 P1.6 P1.7 P1.8 P1.9 P1.10 P1.11 P1.12 P1.13 P1.14 P1.15 P2.1 P2.2 P2.3 P2.4 P2.5 P2.6 P2.7 P2.9 P2.10 P3.3 -->
+<!-- mvp-audio: P4.1 P4.2 P4.3 P4.4 P4.5 P4.6 P4.7 P4.9 P4.11 P4.12 P4.13 P4.14 P4.15 P4.16 P4.17 P4.18 P4.19a P4.19b P4.19c P4.19d P4.20 P4.22a P4.22b P4.22c P4.22d P4.23 P4.24 -->
 
 | Phase | Objectif | État |
 |---|---|---|
