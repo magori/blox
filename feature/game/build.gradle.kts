@@ -48,4 +48,8 @@ dependencies {
     androidTestImplementation(libs.androidx.activity)
     // L'instrumentation, qui envoie une touche par le système, avec les replis d'Android (B de la manette en retour).
     androidTestImplementation(libs.androidx.test.monitor)
+    // La fabrique du ViewModel y est construite avec les faux partagés des tests unitaires (dépôts de core:data,
+    // lecteur de core:audio), plutôt qu'avec des copies.
+    androidTestImplementation(testFixtures(projects.core.audio))
+    androidTestImplementation(testFixtures(projects.core.data))
 }
