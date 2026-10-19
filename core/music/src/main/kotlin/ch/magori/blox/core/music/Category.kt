@@ -6,8 +6,8 @@ import kotlin.random.Random
  * The character of a generated music, as a set of parameters rather than code of its own: one generator plays them
  * all, so adding a category leaves it unchanged. [harmonies] gives its scales, each with the progressions that suit
  * it, [tempo] the tempos it allows, [rhythms] the rhythm cells its melody draws its bars from, [bass] the way its
- * bass goes, and [allowsChromaticPassingNotes] whether its melody may pass through a note out of the scale, on a
- * weak beat.
+ * bass goes, [allowsChromaticPassingNotes] whether its melody may pass through a note out of the scale, on a weak
+ * beat, and [melody] the way its melody leans: by fifths, down, or by arpeggios.
  */
 public enum class Category(
     public val harmonies: List<Harmony>,
@@ -15,6 +15,7 @@ public enum class Category(
     public val rhythms: List<RhythmCell>,
     public val bass: BassStyle,
     public val allowsChromaticPassingNotes: Boolean = false,
+    internal val melody: MelodyTraits = MelodyTraits.NEUTRAL,
     ownPhraseEnds: List<RhythmCell> = emptyList(),
 ) : CategoryChoice {
     /** Eighth notes and dotted eighths that skip along. */
@@ -34,21 +35,23 @@ public enum class Category(
         bass = BassStyle.WHOLE_AND_HALF_NOTES,
     ),
 
-    /** Strong quarter notes, struck on every beat. */
+    /** Strong quarter notes, struck on every beat, and leaps of a fifth. */
     EPIC(
         harmonies = listOf(on(ScaleType.NATURAL_MINOR, "i–VI–III–VII", "i–VII–VI–VII")),
         tempo = TempoRange(110, 140),
         rhythms = cells("1 1 1 1", "1 0.5 0.5 1 1", "0.5 0.5 1 1 1", "1 1 0.5 0.5 1"),
         bass = BassStyle.GALLOP,
+        melody = MelodyTraits(fifths = 8.0),
         ownPhraseEnds = cells("1 1 2", "1 1 1 r1"),
     ),
 
-    /** Long notes. */
+    /** Long notes, going down. */
     MELANCHOLIC(
         harmonies = listOf(on(ScaleType.NATURAL_MINOR, "i–VI–iv–v", "i–iv–VII–III")),
         tempo = TempoRange(80, 100),
         rhythms = cells("2 2", "3 1", "1 1 2", "1.5 0.5 2"),
         bass = BassStyle.ROOT_AND_FIFTH,
+        melody = MelodyTraits(descents = 3.0),
     ),
 
     /** Held notes, with room for a chromatic passing note. */
@@ -77,6 +80,7 @@ public enum class Category(
             "0.5 1 0.5 0.5 0.5 1",
         ),
         bass = BassStyle.FAST_OCTAVES,
+        melody = MelodyTraits(arpeggios = 4.0),
         ownPhraseEnds = cells("0.5 0.5 0.5 0.5 2", "0.25 0.25 0.25 0.25 0.5 0.5 2"),
     ),
 

@@ -57,7 +57,7 @@ public data class RhythmCell(public val steps: List<RhythmStep>) {
         private const val HALF_NOTE = 2.0
 
         /** Strong beats 1 and 3, as times in beats from the start of the bar. */
-        private val STRONG_BEATS = listOf(0.0, 2.0)
+        internal val STRONG_BEATS: List<Double> = listOf(0.0, 2.0)
 
         /** Reads durations in beats separated by spaces, a rest written with `r` before it: `"1.5 0.5 1 r1"`. */
         internal fun parse(steps: String): RhythmCell = RhythmCell(

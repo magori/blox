@@ -195,6 +195,92 @@ l'autre : la caractérisation le signalera. Aucune vue de maquette n'est concern
 - **Respirer** : chaque phrase se termine par une note longue (une blanche au moins) ou un
   silence.
 
+### Mélodie (implémentée, P4.16)
+
+`Melody.compose(forme, tirage)` (interne à `core:music`) remplit de hauteurs les rythmes de la
+forme, note après note, par une recherche avec retour arrière : chaque règle dure est vérifiée
+à chaque note, une impasse fait revenir sur le choix précédent. Valeurs **[à vérifier]** à
+l'écoute.
+
+- **Règles dures**, garanties par construction et vérifiées sur 100 graines et toutes les
+  catégories, boucle comprise (de la mesure 8 à la mesure 1) :
+  - chaque son de la forme reçoit une note, chaque silence un silence ;
+  - une note de l'accord en place sur chaque attaque des temps 1 et 3 (de la demi-mesure en
+    Rétro), et sur la dernière note de chaque phrase, même sur un temps faible ; la dernière
+    note de la mesure 8 appartient à l'accord de cadence ;
+  - toutes les notes dans la gamme, sauf une note de passage chromatique de Mystérieux, sur un
+    temps faible, entre deux notes à un ton l'une de l'autre ;
+  - sous un accord emprunté, aucune note à un demi-ton d'une note de l'accord qui sort de la
+    gamme (fausse relation) ;
+  - ni saut de plus d'une octave, ni triton ; après une quarte ou plus, retour par degré en
+    sens inverse ; jamais plus de trois fois la même note de suite ;
+  - une dixième au plus, dans la tessiture de la voix de mélodie, **do4 à do6** : la mélodie
+    se place dans une fenêtre d'une dixième centrée sur cette tessiture (mi4 à sol#5), coupée
+    à une tessiture plus étroite ;
+  - aucune mesure ne copie la précédente, hauteurs et rythme compris.
+
+  `MelodyTest › a melody fills the rhythm of each bar of its form, a note for each sound and a rest for each silence`,
+  `MelodyTest › every note struck on beat 1 or 3 is a note of the chord in place, of its half bar when two chords share it`,
+  `MelodyTest › each phrase ends on a note of the chord in place, even when its last note falls on a weak beat`,
+  `MelodyTest › the last note struck in bar 8 is a note of the half cadence chord, which calls back bar 1`,
+  `MelodyTest › every note is in the scale, but a chromatic passing note of mysterious, on a weak beat between two steps`,
+  `MelodyTest › under a borrowed chord, no note stands a semitone from a note of the chord out of the scale, a false relation`,
+  `MelodyTest › a melody never leaps past an octave, nor by a tritone, not even from bar 8 back to bar 1`,
+  `MelodyTest › after a leap of a fourth or more, the melody turns back by step, across the loop too`,
+  `MelodyTest › a melody never strikes the same note more than three times in a row, rests left out, loop included`,
+  `MelodyTest › a melody spans a tenth at most, within the range of the melody voice, from C4 to C6`,
+  `MelodyTest › a melody keeps within a narrower range given to it, its window cut to that range`,
+  `MelodyTest › no bar of a melody copies the one before it, pitches and rhythm alike, not even bar 1 after bar 8`,
+  `MelodyTest › a bar taking up the motif on the chord of the bar before still departs from it`.
+- **Seconde** : un mouvement vers une note voisine de la gamme ; dans une gamme de 7 notes, au
+  plus 2 demi-tons (la seconde augmentée de la mineure harmonique est un saut), et dans la
+  pentatonique, la tierce mineure entre deux degrés voisins compte comme une seconde.
+  `MelodyMeasuresTest › in a pentatonic scale, a minor third between two neighbouring degrees is a step`,
+  `MelodyMeasuresTest › in a seven-note scale, the augmented second of the harmonic minor is a leap, not a step`.
+- **Arche** : le sommet est tiré parmi les temps forts de la mesure 5 (la plus haute note de
+  l'accord de cet emplacement dans la fenêtre), frappé une seule fois ; rien ne le dépasse
+  ailleurs. Mesuré : 100 % des graines dans toutes les catégories. La recherche avec arche a un
+  budget (5 000 étapes) ; au-delà, elle recommence sans arche.
+  `MelodyTest › over the seeds, a melody almost always arches up to its peak, struck once on a strong beat of bar 5 or 6`,
+  `MelodyTest › over the seeds, bars 5 and 6 mostly sing higher than bars 1 and 8, the foot of the arch`,
+  `MelodyTest › a search for an arch that gives up leaves a melody without one, rather than no melody at all`.
+- **Tendances**, tirées par poids : de l'unisson à l'octave 1 / 10 / 3 / 1,5 / 1 / 0,3 / 0,2 /
+  0,2. Mesuré : 60 à 73 % de secondes selon la catégorie (fourchette du test : 55 à 85 %).
+  Les mesures du motif reprennent ses mouvements en degrés, transposés sur l'accord en place
+  (de 39 % des mouvements gardés pour Calme à 88 % pour Rétro).
+  `MelodyTest › over the seeds, a melody goes mostly by step, about 70 percent of its moves`,
+  `MelodyTest › over the seeds, the bars taking up the motif keep most of its moves, in degrees of the scale, calm the fewest`.
+- **Traits de catégorie** (`MelodyTraits`, facteurs strictement positifs) : Épique multiplie
+  les quintes par 8, Mélancolique les secondes descendantes par 3 (et divise les montantes
+  par 3), Rétro les mouvements entre notes de l'accord par 4 ; les autres sont neutres.
+  Mystérieux passe par une note chromatique dans environ 40 % des graines.
+  `CategoryTest › a single category leans its melody each way, epic to fifths, melancholic down, retro to arpeggios`,
+  `MelodyTraitsTest › a factor that is not positive and finite is refused, as it would cancel or swamp the weights of the draws`,
+  `MelodyTest › over the seeds, epic leaps by a fifth more often than a melody leaning no way on the same forms`,
+  `MelodyTest › over the seeds, melancholic goes down more often than a melody leaning no way on the same forms`,
+  `MelodyTest › over the seeds, retro runs arpeggios more often than a melody leaning no way on the same forms`,
+  `MelodyTest › over the seeds, mysterious passes now and then through a chromatic note, but not in most melodies`.
+- **Mesures pour la note de qualité** (P4.18) : part des secondes, des quintes, des descentes,
+  des arpèges, mesures du sommet.
+  `MelodyMeasuresTest › the share of steps counts the moves to a neighbouring note of the scale, repeats and rests left out`,
+  `MelodyMeasuresTest › the peak of a melody lists the bars where its highest note is struck, once for each time`,
+  `MelodyMeasuresTest › the share of fifths counts the moves of a perfect fifth, up or down, repeats left out`,
+  `MelodyMeasuresTest › the share of descents counts the moves down, repeats left out`,
+  `MelodyMeasuresTest › the share of arpeggios counts the moves between two notes of the chord in place, repeats left out`.
+- **Reproductible et borné** : les tirages suivent ceux de la forme sur le même tirage
+  (recherches abandonnées d'abord, puis la recherche qui aboutit, puis les notes
+  chromatiques). La recherche repart de zéro toutes les 1 000 étapes et s'arrête à 50 000 :
+  une forme qu'aucune mélodie ne peut remplir est refusée. Pire temps mesuré : 32 ms à froid,
+  6 ms à chaud sur la JVM.
+  `MelodyTest › the same form and the same draw give the same melody`,
+  `MelodyTest › the seed 42 on joyful gives this melody, which pins the order of the draws after the form`,
+  `MelodyTest › the seed 1 on mysterious gives this melody in D dorian, which passes through D sharp and C sharp`,
+  `MelodyTest › a form that no melody fits is refused in good time, rather than searched for ever`.
+
+Ouverts pour P4.18 : notes étrangères approchées et quittées par degré (aujourd'hui une
+tendance, non mesurée) ; renversement du motif en A'' non fait. Aucune vue de maquette n'est
+concernée.
+
 ### Rythme
 
 - Le rythme vient d'un répertoire de motifs propre à la catégorie : croches régulières,
@@ -259,9 +345,8 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   `TempoRangeTest › a drawn tempo stays within the range and may be either end`,
   `TempoRangeTest › a range that is not a positive tempo up to a faster or equal one is refused`,
   `TempoRangeTest › a range of a single tempo always draws that tempo`.
-- **Toniques** : do, ré, fa, sol, la (octave 4), communes à toutes les catégories. Aucune
-  tessiture n'est encore définie dans le code : la règle « tient dans les tessitures » sera
-  vérifiée avec la mélodie (P4.16).
+- **Toniques** : do, ré, fa, sol, la (octave 4), communes à toutes les catégories. Toutes
+  tiennent dans la fenêtre de la mélodie (do4 à do6, voir « Mélodie (implémentée) »).
   `CategoryTest › every category may be played in C, D, F, G or A`.
 - **Cellules rythmiques** (`RhythmCell`, durées en temps, `r` pour un silence) : une mesure de
   4 temps exactement, des durées positives. Une cellule sait si elle se tait sur un temps fort
@@ -308,8 +393,7 @@ les suites et les cellules sont des choix de conception du projet, sans source :
   `CategoryChoiceTest › a category chosen by the player is played as it is, whatever the draw`.
 
 Points ouverts : l'accord qui ferme la boucle est tranché par la forme (P4.15, ci-dessus) ; les traits
-mélodiques de la table (sauts de quinte, descentes, arpèges) ne sont pas encore des
-paramètres (P4.16) ; les sept styles de basse pourront se réduire aux motifs de la section
+mélodiques de la table sont des paramètres (`MelodyTraits`, P4.16) ; les sept styles de basse pourront se réduire aux motifs de la section
 Basse (P4.17). Aucune vue de maquette n'est concernée.
 
 ## Note de qualité

@@ -23,7 +23,10 @@ internal enum class BarRole {
 }
 
 /** One bar of a [Form]: its [section], its [role] in the plan, the [chords] it plays in turn, and its [rhythm]. */
-internal data class Bar(val section: Section, val role: BarRole, val chords: List<Chord>, val rhythm: RhythmCell)
+internal data class Bar(val section: Section, val role: BarRole, val chords: List<Chord>, val rhythm: RhythmCell) {
+    /** The chord in place at [onset] beats from the start of the bar: each chord plays an equal share of the bar. */
+    fun chordAt(onset: Double): Chord = chords[(onset * chords.size / GENERATED_BEATS_PER_BAR).toInt()]
+}
 
 /**
  * The skeleton of a generated music of [category], before its pitches: its key and [scale], the [progression] it

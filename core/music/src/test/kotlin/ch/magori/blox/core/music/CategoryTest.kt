@@ -219,6 +219,27 @@ class CategoryTest {
         assertThat(chromatic).containsExactly(Category.MYSTERIOUS)
     }
 
+    @ParameterizedTest(name = "{0} leans to {1}")
+    @CsvSource("EPIC, fifths", "MELANCHOLIC, descents", "RETRO, arpeggios")
+    fun `a single category leans its melody each way, epic to fifths, melancholic down, retro to arpeggios`(
+        leaning: Category,
+        trait: String,
+    ) {
+        // Given
+        val factor = mapOf<String, (MelodyTraits) -> Double>(
+            "fifths" to { it.fifths },
+            "descents" to { it.descents },
+            "arpeggios" to { it.arpeggios },
+        ).getValue(trait)
+
+        // When
+        val leanings = Category.entries.filter { factor(it.melody) != factor(MelodyTraits.NEUTRAL) }
+
+        // Then
+        assertThat(leanings).containsExactly(leaning)
+        assertThat(factor(leaning.melody)).isGreaterThan(factor(MelodyTraits.NEUTRAL))
+    }
+
     @Test
     fun `every category may be played in C, D, F, G or A`() {
         // When
