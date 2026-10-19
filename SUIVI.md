@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 78 / 143 | `███████████░░░░░░░░░` **55 %** |
+| **Général** | 80 / 143 | `███████████░░░░░░░░░` **56 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -383,9 +383,12 @@ Référence : [docs/musique.md](docs/musique.md).
   `switchBeats` (`resumePosition`). Position exacte de ce qui a été entendu
   (`playbackHeadPosition`) non lue : écart accepté (`docs/musique.md`).
 - [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
-  Revue de P3.1 : garder l'URI dans `settings.preferences_pb` (clé `music_file_uri`,
-  `setMusicFile(uri)`, permission persistante), avec repli sur *Korobeïniki* si l'URI n'est
-  plus lisible ; `MusicChoice.MY_FILE` sans fichier retenu se comporte de même.
+  Revue de P3.1, amendée par P5.28 : garder l'URI (`setMusicFile(uri)`, permission persistante)
+  dans un fichier DataStore à part, par exemple `music_file.preferences_pb` créé par
+  `dataStoreFile`, que les règles de sauvegarde en liste blanche excluent d'office (ne pas
+  l'ajouter à `BackupRulesTest`) ; `MusicChoice.MY_FILE` reste dans les réglages. Repli sur
+  *Korobeïniki* si l'URI n'est plus lisible, et pour un `MY_FILE` sans fichier retenu, ce qui
+  couvre aussi un `MY_FILE` restauré sur un autre appareil sans son URI.
 - [x] **P4.7** Aperçu « Écouter » sur l'accueil. Remplacer `Score.title` (texte affiché dans le
   domaine, « Menuet en sol » alors que l'accueil dit « Menuet ») par un identifiant que la
   feature traduit via `strings.xml` (revue de P4.2). Fait :
@@ -532,13 +535,13 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `keyColors` (C3). Fait : soulignement et choix non sélectionnés en encart, 5,7:1 au moins ; contraste en `testFixtures` de `core:designsystem` (`docs/themes.md`, Choix de l'accueil).
 - [ ] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
-- [ ] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
+- [x] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
 - [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
 - [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
   choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
-- [ ] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
+- [x] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
   ou non cacheable (revue P5.24).

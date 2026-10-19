@@ -124,6 +124,20 @@ graph LR
   `GameViewModelTest › a programming error while the settings are read is not swallowed`,
   `GameViewModelTest › a programming error while the score is submitted is not swallowed`.
 
+  **Sauvegarde Android** (P5.28) : Auto Backup et le transfert d'appareil ne prennent que
+  `files/datastore/records.preferences_pb` et `files/datastore/settings.preferences_pb`. Les
+  règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
+  `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
+  listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
+  URI de contenu ne doit jamais y figurer : la permission persistante ne suit pas l'appareil, et
+  l'identifiant du document révélerait le nom d'un fichier de l'utilisateur. Le chemin vient de
+  `dataStoreFile(filesDir, name)` (`app`, `files/datastore/<nom>`), les noms de `RECORDS_FILE` et
+  `SETTINGS_FILE` (`core:data`).
+
+  **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
+  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record and the settings`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record and the settings`.
+
 ## Boucle de jeu
 
 Le jeu est simulé à **pas fixe** : 1 tick = 1 image = 1/60 s, comme sur la NES. L'écran

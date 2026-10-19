@@ -24,6 +24,7 @@ import ch.magori.blox.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
 
@@ -43,12 +44,12 @@ class AppContainer(context: Context) {
 
     /** The record, in `files/datastore/records.preferences_pb`: the game and the home screen share it. */
     private val highScores: HighScoreRepository = DataStoreHighScoreRepository(
-        preferencesDataStore(dataScope) { File(filesDir, "datastore/$RECORDS_FILE").toOkioPath() },
+        preferencesDataStore(dataScope) { dataStoreFile(filesDir, RECORDS_FILE) },
     )
 
     /** The settings, in `files/datastore/settings.preferences_pb`, apart from the record. */
     private val userPreferences: UserPreferencesRepository = DataStoreUserPreferencesRepository(
-        preferencesDataStore(dataScope) { File(filesDir, "datastore/$SETTINGS_FILE").toOkioPath() },
+        preferencesDataStore(dataScope) { dataStoreFile(filesDir, SETTINGS_FILE) },
     )
 
     /** The theme of the whole application, the one saved in the settings. */
@@ -87,3 +88,15 @@ private const val TAG = "BloX"
 
 /** Samples per second of the music: 44 100 Hz, the rate of a CD, which every Android device plays. */
 private const val MUSIC_SAMPLE_RATE = 44_100
+
+/**
+ * The DataStore file [name] in [filesDir], the private files of the application: `files/datastore/<name>`.
+ * The backup rules (`res/xml/data_extraction_rules.xml`, `res/xml/backup_rules.xml`) name these files.
+ */
+internal fun dataStoreFile(
+    filesDir: File,
+    name: String,
+): Path = File(File(filesDir, DATASTORE_DIRECTORY), name).toOkioPath()
+
+/** The directory of the DataStore files, in the private files of the application. */
+private const val DATASTORE_DIRECTORY = "datastore"
