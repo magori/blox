@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.map
 class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Preferences>) : UserPreferencesRepository {
     /**
      * The settings; each one missing or unknown in the file (a value a later version removed, a level
-     * below 0), or all of them while the file cannot be read, is its default.
+     * below 0) is its default. If the file cannot be read, all of them are, once, and the flow then ends.
      */
     override val preferences: Flow<UserPreferences> = dataStore.readOrEmpty().map { stored ->
         UserPreferences(

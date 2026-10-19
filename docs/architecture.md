@@ -101,8 +101,28 @@ graph LR
   Une valeur inconnue ou un fichier illisible redonnent les valeurs par défaut (Original,
   Korobeïniki, niveau 0).
 
+  **Erreurs de lecture** (P5.22) : les flux de lecture (`HighScoreRepository.highScore`,
+  `UserPreferencesRepository.preferences`) ne lèvent jamais d'`IOException` ; un fichier
+  illisible donne la valeur par défaut (record 0, `UserPreferences.DEFAULT`) une fois, puis le
+  flux se termine ; les collecteurs gardent cette valeur (`combine` le fait de lui-même). Les
+  écritures (`submit`, `setTheme`, `setMusic`, `setStartLevel`) échouent avec une
+  `IOException` si le fichier ne peut pas être écrit : les ViewModels ne rattrapent que
+  celle-ci (la partie montre son écran de fin sans nouveau record, l'accueil garde les réglages
+  enregistrés). Toute autre exception est un bug : elle se propage, et aucun ViewModel ne la
+  rattrape (un plantage visible plutôt qu'une erreur silencieuse).
+
   **Tests :** `DataStoreHighScoreRepositoryTest`, `DataStoreUserPreferencesRepositoryTest`
-  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record »).
+  (liste des tests du record dans `docs/regles-mode-classique.md`, section « Record ») ;
+  erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
+  `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
+  `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
+  `DataStoreUserPreferencesRepositoryTest › a failure other than an IOException while the settings are read is not absorbed`,
+  `HomeViewModelTest › unreadable records show 0 and the home screen goes on`,
+  `HomeViewModelTest › a programming error while the records are read is not swallowed`,
+  `GameViewModelTest › unreadable records show 0 and the game goes on`,
+  `GameViewModelTest › a programming error while the records are read is not swallowed`,
+  `GameViewModelTest › a programming error while the settings are read is not swallowed`,
+  `GameViewModelTest › a programming error while the score is submitted is not swallowed`.
 
 ## Boucle de jeu
 
