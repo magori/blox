@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 68 / 141 | `██████████░░░░░░░░░░` **48 %** |
+| **Général** | 75 / 143 | `██████████░░░░░░░░░░` **52 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -485,8 +485,8 @@ Revue qualité du 2026-10-19 (Android et performance, qualité logicielle, sécu
 accessibilité, build et CI) : constats et raisons des écarts dans
 [docs/revue-qualite.md](docs/revue-qualite.md). Chaque tâche cite ses constats (A1, B2, C3…).
 
-- [ ] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
-  quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1).
+- [x] **P5.10** Musique au tempo normal hors partie : remettre le tempo à la fin de partie et en
+  quittant le jeu, pour que « Écouter » à l'accueil ne joue pas à ×1,25 (A1). Fait : `play` part toujours au tempo normal, `resume` garde le tempo en cours (`docs/musique.md`).
 - [ ] **P5.11** Rendu du plateau : peintres et `Path` construits une fois par thème et par
   taille, plateau et pièce lus dans la phase de dessin, racine du jeu qui ne recompose plus à
   chaque mouvement de la pièce (A2, A7).
@@ -494,22 +494,22 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   partie sur les écrans à 90 ou 120 Hz, rétablis en quittant le jeu (A5, A6).
 - [ ] **P5.13** Mort du processus : une partie recréée par le système démarre en pause (marqueur
   « partie commencée » dans le `SavedStateHandle`), sans reprendre l'état (ADR 0014) (A3).
-- [ ] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
+- [x] **P5.14** Focus audio : le demander à la lecture, l'abandonner à l'arrêt, couper la musique
   quand il est perdu durablement et la baisser quand il l'est passagèrement ; arrêter sur
-  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4).
+  débranchement du casque (`ACTION_AUDIO_BECOMING_NOISY`) (A4). Fait : décorateur `FocusedMusicPlayer` (`core:audio`), `SystemAudioFocus` sans test JVM ; une perte passagère met en pause (`docs/musique.md`).
 - [ ] **P5.15** Audio robuste : sortie rouverte une fois après `ERROR_DEAD_OBJECT` ; les deux
   tempos rendus au lancement de la partie, cache limité à la partition en cours (A8, A11).
 - [ ] **P5.16** Zone du geste Retour : `systemGestureExclusion` sur les deux groupes de commandes
   (A10).
 - [ ] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
   partie (A9). Demande un émulateur ou un téléphone pour générer le profil.
-- [ ] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
+- [x] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
   `docs/regles-mode-classique.md` et `docs/musique.md`, puis un script dans `scripts/` qui vérifie
-  chaque `Classe › nom` des docs, lancé en CI (B1).
-- [ ] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
+  chaque `Classe › nom` des docs, lancé en CI (B1). Fait : cinq références corrigées (une de plus, `CellStylesTest`), `scripts/verifier-tracabilite.sh` en tête de la CI. Reste hors script : les classes citées seules dans `docs/architecture.md`.
+- [x] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
   perdu » (A, B, ◀ dans `EntryDelay` et `Clearing`), compteur de déplacement de départ nommé et
-  sourcé, ou marqué **[à vérifier]** (B2).
-- [ ] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
+  sourcé, ou marqué **[à vérifier]** (B2). Fait : 5 tests (A, B, ◀, ▶, ▼, dernier tick du délai, DAS chargé), `AutoRepeat.heldWithoutPress` sourcé (`autorepeatX`), valeur 0 **[à vérifier]**.
+- [x] **P5.20** Invariants de progression : le niveau dérive du niveau de départ et des lignes
   (vérifié à la construction), fixture `gameState(...)` corrigée, test « le niveau ne baisse
   jamais après un effacement », KDoc de `GameState` (B3, B7).
 - [ ] **P5.21** Moteur : `Ticks` pour les décomptes de `Phase` et de `RepeatTiming`, décompte
@@ -521,21 +521,27 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.23** État de l'écran de jeu : `Points`, `Lines` et `Level` gardés dans
   `GameOverUiState` ; cellules de la pièce suivante calculées dans `toUiState`, sans
   `RotationSystem` dans `GameUiState` (B8, B11).
-- [ ] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
+- [x] **P5.24** CI : `assembleRelease` (R8) et `assembleDebugAndroidTest`, rapports publiés en
   cas d'échec, `permissions: contents: read`, actions épinglées par SHA, soumission du graphe de
   dépendances sur `main` (C1, C7, C9).
 - [ ] **P5.25** Avertissements bloquants : opt-in des coroutines expérimentales dans les tests,
   avertissements Kotlin en erreurs, lint en erreurs avec une base des avertissements assumés,
   chacun avec sa raison (C8).
-- [ ] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
+- [x] **P5.26** Accueil : un choix sélectionné se distingue sans la couleur (cadre ou coche), avec
   au moins 3:1 entre les deux états dans chaque thème ; fonction `choiceColors` testée comme
-  `keyColors` (C3).
+  `keyColors` (C3). Fait : soulignement et choix non sélectionnés en encart, 5,7:1 au moins ; contraste en `testFixtures` de `core:designsystem` (`docs/themes.md`, Choix de l'accueil).
 - [ ] **P5.27** Clavier et manette : flèches, ZQSD/WASD, croix et boutons A/B traduits en
   appuis et relâchements tenus, Échap ou Start pour la pause (C4).
 - [ ] **P5.28** Règles de sauvegarde explicites : `data_extraction_rules.xml` et
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
 - [ ] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large (deux lignes de 5 ou
   sélecteur − / +) ; décision du développeur et maquette à mettre à jour (C5).
+- [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné souligné et
+  choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26).
+- [ ] **P5.31** Cache de build partagé entre worktrees : deux fois, `ktlintCheck` a échoué sur les
+  rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
+  trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
+  ou non cacheable (revue P5.24).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -1,10 +1,13 @@
 package ch.magori.blox.di
 
+import android.content.Context
 import android.util.Log
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
+import ch.magori.blox.core.audio.FocusedMusicPlayer
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Synthesizer
+import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
 import ch.magori.blox.core.data.HighScoreRepository
@@ -30,9 +33,11 @@ import java.io.File
  * It lives as long as the application, which creates it once: a DataStore file must have a single
  * instance per process.
  *
- * @param filesDir the private files directory of the application.
+ * @param context the application: its private files directory, its audio focus.
  */
-class AppContainer(filesDir: File) {
+class AppContainer(context: Context) {
+    private val filesDir: File = context.filesDir
+
     /** Where the DataStores live and work, for the whole life of the process. */
     private val dataScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
@@ -53,13 +58,17 @@ class AppContainer(filesDir: File) {
      * The music of the games and of the preview on the home screen: a single sequencer for the whole life
      * of the process, so that one music plays at a time, rendering on [Dispatchers.Default] and writing to
      * an [AudioTrackSink] on [Dispatchers.IO]. A failure stops the music, never the game; it is logged
-     * here, the only place that knows Android.
+     * here, the only place that knows Android. It plays only with the audio focus of the system, which
+     * it gives back on stop: it never mixes with another app, and the headphones unplugged stop it.
      */
-    private val music: MusicPlayer = ChiptuneSequencer(
-        synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
-        openSink = ::AudioTrackSink,
-        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-        onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
+    private val music: MusicPlayer = FocusedMusicPlayer(
+        player = ChiptuneSequencer(
+            synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
+            openSink = ::AudioTrackSink,
+            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+            onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
+        ),
+        focus = SystemAudioFocus(context),
     )
 
     /** Classic mode: one engine per game, from the seed of the game route (ADR 0014); the chosen music. */

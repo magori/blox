@@ -2,7 +2,6 @@ package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.cellsOf
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
@@ -20,6 +19,9 @@ import org.junit.jupiter.params.provider.MethodSource
 
 class GameEngineControlsTest {
     private val engine = GameEngine(ClassicRules, ScriptedRandomizer())
+
+    /** An engine for the tests where a J, next, appears: it draws an S after it. */
+    private val nextPieceEngine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.S))
 
     @Test
     fun `pressing left moves nothing at once, the piece shifts one column on the next tick`() {
@@ -182,7 +184,7 @@ class GameEngineControlsTest {
     @Test
     fun `the piece drops at most one row per tick, even when the soft drop and the gravity both fall due`() {
         // Given down held at level 29, where the gravity drops the piece on every tick
-        val pressed = engine.press(gameState(level = Level(29), phase = Phase.Falling(T_AT_5_10)), Button.DOWN)
+        val pressed = engine.press(gameState(lines = LINES_TO_LEVEL_29, phase = Phase.Falling(T_AT_5_10)), Button.DOWN)
 
         // When
         val rows = generateSequence(pressed) { engine.tick(it).state }.take(7).map { it.current?.pivot?.row }.toList()
@@ -275,14 +277,8 @@ class GameEngineControlsTest {
     @Test
     fun `a lock by soft drop goes the way of a lock by gravity, line clear, entry delay and events included`() {
         // Given a T with its pivot on row 16 and down held: steps to rows 17 and 18, then locks on tick 7, filling 2 rows
-        val board = Board.parse(
-            """
-            IIII...III
-            IIIII.IIII
-            """,
-        )
         val pressed = engine.press(
-            gameState(board = board, phase = Phase.Falling(tPointingDown(at = Position(5, 16)))),
+            gameState(board = TWO_ROWS_TO_FILL, phase = Phase.Falling(tPointingDown(at = Position(5, 16)))),
             Button.DOWN,
         )
 
@@ -304,14 +300,13 @@ class GameEngineControlsTest {
     fun `the held shift outlives the lock and stands still during the line clear and the entry delay`(board: Board) {
         // Given left held: the T shifts on the first tick, then locks on the floor on that same tick
         val falling = Phase.Falling(tPointingDown(at = Position(5, 18)), ticksSinceDrop = 47)
-        val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.S))
-        val pressed = engine.press(gameState(board = board, next = PieceType.J, phase = falling), Button.LEFT)
-        val spawned = generateSequence(engine.tick(pressed).state) {
-            engine.tick(it).state
-        }.first { it.phase is Phase.Falling }
+        val pressed = nextPieceEngine.press(gameState(board = board, next = PieceType.J, phase = falling), Button.LEFT)
+        val spawned = firstStateWithTheNextPiece(pressed)
 
         // When
-        val shiftTicks = generateSequence(spawned) { engine.tick(it).state }.take(17).map { it.current?.pivot?.column }
+        val shiftTicks = generateSequence(spawned) { nextPieceEngine.tick(it).state }
+            .take(17)
+            .map { it.current?.pivot?.column }
 
         // Then the repeat goes on from where it stood: the next step on the 16th tick the J falls
         assertThat(spawned.current).isEqualTo(spawned(PieceType.J))
@@ -321,21 +316,120 @@ class GameEngineControlsTest {
     @Test
     fun `a down held through the lock does not drop the next piece until it is pressed again`() {
         // Given down held: the T drops to the floor and locks; the J appears 10 ticks later
-        val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.S))
         val falling = Phase.Falling(tPointingDown(at = Position(5, 17)))
-        val pressed = engine.press(gameState(next = PieceType.J, phase = falling), Button.DOWN)
-        val spawned = generateSequence(engine.tick(pressed).state) { engine.tick(it).state }
-            .dropWhile { it.phase is Phase.Falling }
-            .first { it.phase is Phase.Falling }
+        val pressed = nextPieceEngine.press(gameState(next = PieceType.J, phase = falling), Button.DOWN)
+        val spawned = firstStateWithTheNextPiece(pressed)
 
         // When down stays held for 6 ticks, then is released and pressed again
-        val held = engine.ticks(spawned, 6)
-        val pressedAgain = engine.press(engine.apply(held, Input.Release(Button.DOWN)).state, Button.DOWN)
+        val held = nextPieceEngine.ticks(spawned, 6)
+        val pressedAgain = nextPieceEngine.press(
+            nextPieceEngine.apply(held, Input.Release(Button.DOWN)).state,
+            Button.DOWN,
+        )
 
         // Then the held down does nothing on the J; the new press soft drops it 2 ticks later
         assertThat(spawned.phase).isEqualTo(Phase.Falling(spawned(PieceType.J)))
         assertThat(held.current).isEqualTo(spawned(PieceType.J))
-        assertThat(ticksWhereThePieceDropped(pressedAgain, ticks = 5)).containsExactly(2, 4)
+        assertThat(ticksWhereThePieceDropped(pressedAgain, ticks = 5, nextPieceEngine)).containsExactly(2, 4)
+    }
+
+    // "Before the next piece": during the line clear or the entry delay, while the ROM does not read the controller.
+
+    @ParameterizedTest(name = "{argumentSetName}")
+    @MethodSource("rotationsBeforeTheNextPiece")
+    fun `A or B pressed before the next piece is lost, it appears unturned`(
+        board: Board,
+        phase: Class<out Phase>,
+        button: Button,
+    ) {
+        // Given a T that locks on the first tick, then the button pressed and held until the J appears
+        val pressed = nextPieceEngine.press(lockedOnTheFirstTick(board, into = phase), button)
+
+        // When
+        val falls = nextPieceEngine.ticks(firstStateWithTheNextPiece(pressed), 3)
+
+        // Then
+        assertThat(falls.current).isEqualTo(spawned(PieceType.J))
+    }
+
+    @ParameterizedTest(name = "{argumentSetName}")
+    @MethodSource("shiftsBeforeTheNextPiece")
+    fun `left or right pressed before the next piece, with no shift repeat yet, shifts it on its 16th tick of fall`(
+        board: Board,
+        phase: Class<out Phase>,
+        button: Button,
+    ) {
+        // Given a T that locks on the first tick, with no shift repeat yet, then the button pressed and held
+        val locked = lockedOnTheFirstTick(board, into = phase)
+        val pressed = nextPieceEngine.press(locked, button)
+
+        // When
+        val shiftTicks = ticksWhereThePieceMoved(firstStateWithTheNextPiece(pressed), ticks = 22, nextPieceEngine)
+
+        // Then the press starts nothing: the J shifts on its 16th tick of fall (the 15th counted from 0), not at once
+        assertThat(locked.controls.shift).isNull()
+        assertThat(shiftTicks).containsExactly(15, 21)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Button::class, names = ["LEFT", "RIGHT"])
+    fun `left or right pressed before the next piece, with a charged shift repeat, shifts it on its first tick of fall`(
+        button: Button,
+    ) {
+        // Given a T pushed left against the wall, which charges the shift repeat, then left released before the lock
+        val againstTheWall = Phase.Falling(tPointingDown(at = Position(1, 18)), ticksSinceDrop = 46)
+        val pushed = nextPieceEngine.tick(
+            nextPieceEngine.press(gameState(next = PieceType.J, phase = againstTheWall), Button.LEFT),
+        ).state
+        val locked = nextPieceEngine.tick(nextPieceEngine.apply(pushed, Input.Release(Button.LEFT)).state).state
+
+        // When the button is pressed during the entry delay, and held
+        val pressed = nextPieceEngine.press(locked, button)
+        val shiftTicks = ticksWhereThePieceMoved(firstStateWithTheNextPiece(pressed), ticks = 7, nextPieceEngine)
+
+        // Then the press starts nothing again: the charged repeat shifts the J at once, then 6 ticks later
+        assertThat(pushed.current?.pivot).isEqualTo(Position(1, 18))
+        assertThat(locked.phase).isInstanceOf(Phase.EntryDelay::class.java)
+        assertThat(shiftTicks).containsExactly(0, 6)
+    }
+
+    @ParameterizedTest(name = "{argumentSetName}")
+    @MethodSource("locksBeforeTheNextPiece")
+    fun `down pressed before the next piece does not soft drop it until it is pressed again`(
+        board: Board,
+        phase: Class<out Phase>,
+    ) {
+        // Given a T that locks on the first tick, then down pressed and held until the J appears
+        val pressed = nextPieceEngine.press(lockedOnTheFirstTick(board, into = phase), Button.DOWN)
+        val spawned = firstStateWithTheNextPiece(pressed)
+
+        // When down stays held for 6 ticks, then is released and pressed again
+        val held = nextPieceEngine.ticks(spawned, 6)
+        val pressedAgain = nextPieceEngine.press(
+            nextPieceEngine.apply(held, Input.Release(Button.DOWN)).state,
+            Button.DOWN,
+        )
+
+        // Then the held down does nothing on the J; the new press soft drops it 2 ticks later
+        assertThat(held.current).isEqualTo(spawned(PieceType.J))
+        assertThat(ticksWhereThePieceDropped(pressedAgain, ticks = 5, nextPieceEngine)).containsExactly(2, 4)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Button::class, names = ["A", "LEFT"])
+    fun `A or left pressed on the last tick of the entry delay is lost, the next piece neither turns nor shifts`(
+        button: Button,
+    ) {
+        // Given the J due to appear on the next tick, and the button pressed and held
+        val pressed = nextPieceEngine.press(gameState(next = PieceType.J, phase = Phase.EntryDelay(1)), button)
+
+        // When the J appears, then falls one tick
+        val spawned = firstStateWithTheNextPiece(pressed)
+        val firstFall = nextPieceEngine.tick(spawned).state
+
+        // Then
+        assertThat(spawned.tickCount).isEqualTo(1)
+        assertThat(firstFall.current).isEqualTo(spawned(PieceType.J))
     }
 
     @Test
@@ -457,22 +551,54 @@ class GameEngineControlsTest {
         assertThat(ticked.state).isEqualTo(over)
     }
 
-    /** When: [ticks] ticks from [state]; the ticks, counted from 0, where the piece in play changed column. */
+    /**
+     * Given a T pointing down with its pivot on row 18, due to drop, on [board], and a J next: the state once
+     * the T locked on the first tick, checked to be [into], the line clear or the entry delay.
+     */
+    private fun lockedOnTheFirstTick(
+        board: Board,
+        into: Class<out Phase>,
+    ): GameState {
+        val falling = Phase.Falling(tPointingDown(at = Position(5, 18)), ticksSinceDrop = 47)
+        val locked = nextPieceEngine.tick(gameState(board = board, next = PieceType.J, phase = falling)).state
+        assertThat(locked.phase).isInstanceOf(into)
+        return locked
+    }
+
+    /**
+     * When: ticks of [nextPieceEngine] from [state] until the piece in play, if any, locks and the next one
+     * appears; the state where it appears, before it falls.
+     */
+    private fun firstStateWithTheNextPiece(state: GameState): GameState =
+        generateSequence(state) { nextPieceEngine.tick(it).state }
+            .dropWhile { it.phase is Phase.Falling }
+            .first { it.phase is Phase.Falling }
+
+    /**
+     * When: [ticks] ticks of [engine], the one that gave [state], from [state]; the ticks, counted from 0, where
+     * the piece in play changed column.
+     */
     private fun ticksWhereThePieceMoved(
         state: GameState,
         ticks: Int,
-    ): List<Int> = ticksWhereChanged(state, ticks) { it.current?.pivot?.column }
+        engine: GameEngine = this.engine,
+    ): List<Int> = ticksWhereChanged(state, ticks, engine) { it.current?.pivot?.column }
 
-    /** When: [ticks] ticks from [state]; the ticks, counted from 0, where the piece in play changed row. */
+    /**
+     * When: [ticks] ticks of [engine], the one that gave [state], from [state]; the ticks, counted from 0, where
+     * the piece in play changed row.
+     */
     private fun ticksWhereThePieceDropped(
         state: GameState,
         ticks: Int,
-    ): List<Int> = ticksWhereChanged(state, ticks) { it.current?.pivot?.row }
+        engine: GameEngine = this.engine,
+    ): List<Int> = ticksWhereChanged(state, ticks, engine) { it.current?.pivot?.row }
 
-    /** When: [ticks] ticks from [state]; the ticks, counted from 0, where [watched] changed. */
+    /** When: [ticks] ticks of [engine] from [state]; the ticks, counted from 0, where [watched] changed. */
     private fun ticksWhereChanged(
         state: GameState,
         ticks: Int,
+        engine: GameEngine,
         watched: (GameState) -> Any?,
     ): List<Int> {
         val states = generateSequence(state) { engine.tick(it).state }.take(ticks + 1).toList()
@@ -526,6 +652,33 @@ class GameEngineControlsTest {
                 ),
             ),
         )
+
+        /**
+         * A T pointing down, locked with its pivot at (5, 18) on these boards, leads to the phase named, the entry
+         * delay at once, or the line clear first. Its place differs from [boardsToLockOn], where the T shifts first.
+         */
+        private val LOCKS_BEFORE_THE_NEXT_PIECE: List<Triple<String, Board, Class<out Phase>>> = listOf(
+            Triple("the entry delay", Board.empty(), Phase.EntryDelay::class.java),
+            Triple("the line clear", TWO_ROWS_TO_FILL, Phase.Clearing::class.java),
+        )
+
+        /** For each lock before the next piece: the board and the phase that follows. */
+        @JvmStatic
+        fun locksBeforeTheNextPiece(): List<Arguments> = LOCKS_BEFORE_THE_NEXT_PIECE.map { (phase, board, phaseClass) ->
+            argumentSet("during $phase", board, phaseClass)
+        }
+
+        @JvmStatic
+        fun rotationsBeforeTheNextPiece(): List<Arguments> = pressesBeforeTheNextPiece(Button.A, Button.B)
+
+        @JvmStatic
+        fun shiftsBeforeTheNextPiece(): List<Arguments> = pressesBeforeTheNextPiece(Button.LEFT, Button.RIGHT)
+
+        /** Each of [buttons] crossed with each lock before the next piece: the board, the phase, the button. */
+        private fun pressesBeforeTheNextPiece(vararg buttons: Button): List<Arguments> =
+            LOCKS_BEFORE_THE_NEXT_PIECE.flatMap { (phase, board, phaseClass) ->
+                buttons.map { button -> argumentSet("$button pressed during $phase", board, phaseClass, button) }
+            }
 
         @JvmStatic
         fun pressesWithDown(): List<Arguments> = listOf(

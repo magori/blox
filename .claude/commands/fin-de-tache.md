@@ -8,7 +8,9 @@ Arrête-toi et signale-le si une étape échoue.
 
 1. **Tests verts** : lance `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, et
-   `./gradlew lintDebug assembleDebug` si un module Android a changé. Montre le résultat.
+   `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
+   ou une dépendance a changé ; si une interface a changé, `./gradlew validateDebugScreenshotTest`
+   et, sur un émulateur ou un téléphone, `./gradlew connectedDebugAndroidTest`. Montre le résultat.
 
 2. **Revue indépendante** : lance un sous-agent qui n'a pas le contexte de cette conversation.
    Donne-lui uniquement : le diff de la tâche par rapport à `main`, `CLAUDE.md`, et les documents
@@ -20,7 +22,8 @@ Arrête-toi et signale-le si une étape échoue.
 
 3. **Spécification** : mets à jour les règles touchées, avec les tests qui les prouvent
    (`ClasseDeTest › nom du test`), les vues de maquette (`V…`), et retire les [à vérifier]
-   confirmés en citant la source.
+   confirmés en citant la source. Lance ensuite `scripts/verifier-tracabilite.sh` (Git Bash) :
+   chaque référence citée doit désigner un test existant. Montre le résultat.
 
 4. **Maquette** : si un écran a changé, mets à jour `docs/maquette.md` (renumérote si besoin, et
    reporte les nouveaux numéros partout) et ajoute dans `SUIVI.md` une tâche

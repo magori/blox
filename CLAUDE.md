@@ -58,7 +58,10 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew buildHealth           # dépendances déclarées sans usage ou mal déclarées
 ./gradlew lintDebug             # lint Android, règles Compose de Slack comprises
 ./gradlew assembleDebug         # APK
+./gradlew assembleRelease       # APK release minifié (R8), non signé ; lance aussi lintVitalRelease
+./gradlew assembleDebugAndroidTest   # compile les tests instrumentés (androidTest) de tous les modules Android
 ./gradlew installDebug          # installation sur un appareil connecté
+scripts/verifier-tracabilite.sh # chaque `Classe › nom du test` des docs désigne un test existant
 ```
 
 Un seul test ou une seule classe :
@@ -72,9 +75,14 @@ Un seul test ou une seule classe :
 ./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
 ```
 
-La CI (`.github/workflows/ci.yml`) enchaîne exactement : `ktlintCheck` (projet et `build-logic`),
-`buildHealth`, tests du domaine, `testDebugUnitTest`,
-`lintDebug`, `assembleDebug`. Ce qui passe localement avec ces six commandes passe en CI.
+La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-tracabilite.sh` et
+`wrapper-validation` (avant même l'installation du JDK), `ktlintCheck` (projet et `build-logic`),
+`buildHealth`, tests du domaine, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease` (R8 et
+`lintVitalRelease`), `assembleDebugAndroidTest` (compilation seule, pas d'émulateur). Ce qui passe
+localement avec ces neuf commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
+comme artefact `rapports`. Les actions sont épinglées par SHA (tag en commentaire, tenus à jour par
+Dependabot `github-actions`) et le jeton est en lecture seule ; un second job, sur `push` vers
+`main` seulement, soumet le graphe des dépendances Gradle (`contents: write`).
 
 ## Architecture
 
@@ -194,7 +202,8 @@ La commande `/fin-de-tache` les déroule.
 1. **Tests verts.**
    `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
-   `./gradlew lintDebug assembleDebug` si un module Android a changé ; si une interface a
+   `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
+   ou une dépendance a changé ; si une interface a
    changé, `./gradlew validateDebugScreenshotTest` et, sur un émulateur ou un téléphone,
    `./gradlew connectedDebugAndroidTest` (ni l'un ni l'autre ne tourne encore en CI).
    Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
@@ -208,7 +217,8 @@ La commande `/fin-de-tache` les déroule.
    - la règle telle qu'elle est implémentée ;
    - le ou les tests qui la prouvent, sous la forme `ClasseDeTest › nom du test` ;
    - les vues de maquette concernées (`V1`, `V2`…) ;
-   - le marqueur **[à vérifier]** retiré si la valeur a été confirmée, **avec la source**.
+   - le marqueur **[à vérifier]** retiré si la valeur a été confirmée, **avec la source** ;
+   - `scripts/verifier-tracabilite.sh` vert.
 4. **Maquette à jour**, si un écran a changé. Les vues sont numérotées dans
    [docs/maquette.md](docs/maquette.md) ; en cas de renumérotation, mettre à jour toutes les
    références (spécification, SUIVI). La maquette Claude Design (planche et prototype) se

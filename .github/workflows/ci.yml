@@ -9,20 +9,37 @@ concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# Moindre privilège : le jeton du workflow ne fait que lire le dépôt. Un job qui a besoin de plus
+# (soumission du graphe de dépendances) le déclare lui-même.
+permissions:
+  contents: read
+
+# Actions épinglées par SHA (le tag en commentaire) : un tag peut être déplacé, pas un commit.
+# Dependabot (`github-actions`, .github/dependabot.yml) met à jour le SHA et le commentaire.
 jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-      - uses: gradle/actions/wrapper-validation@v4
+      # Aucune étape ne pousse : le jeton n'est pas laissé dans .git/config.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-java@v4
+      # Sans JDK ni Gradle : quelques secondes, avant tout le reste.
+      - name: Traçabilité règle → test (docs)
+        run: bash scripts/verifier-tracabilite.sh
+
+      # setup-gradle valide aussi le wrapper par défaut, mais seulement après l'installation du JDK :
+      # cette étape fait échouer un wrapper altéré plus tôt, avant tout téléchargement.
+      - uses: gradle/actions/wrapper-validation@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
 
       # Les vérifications rapides d'abord, pour un retour en quelques secondes.
       - name: Style Kotlin (ktlint)
@@ -42,3 +59,44 @@ jobs:
 
       - name: Assemblage de l'APK debug
         run: ./gradlew assembleDebug
+
+      # Les PR Dependabot sont fusionnées sur CI verte : la release minifiée (R8, réduction des
+      # ressources) doit donc être construite ici. APK non signé ; lance aussi lintVitalRelease.
+      - name: Assemblage de l'APK release (R8)
+        run: ./gradlew assembleRelease
+
+      # Compile les sources androidTest de tous les modules Android (APK de test), sans les
+      # exécuter : il n'y a pas d'émulateur en CI.
+      - name: Compilation des tests instrumentés
+        run: ./gradlew assembleDebugAndroidTest
+
+      - name: Rapports en cas d'échec
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: rapports
+          path: "**/build/reports/**"
+          if-no-files-found: ignore
+          retention-days: 14
+
+  # Graphe des dépendances Gradle envoyé à GitHub (Insights › Dependency graph), pour les alertes
+  # Dependabot sur les dépendances transitives. Seulement après une fusion dans main.
+  dependency-submission:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      # Le job tient contents: write pendant tout Gradle : le jeton n'est pas laissé dans .git/config.
+      # La soumission passe par l'API (jeton de l'action), pas par git.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0

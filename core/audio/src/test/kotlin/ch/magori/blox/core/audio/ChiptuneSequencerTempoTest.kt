@@ -58,7 +58,20 @@ class ChiptuneSequencerTempoTest {
     }
 
     @Test
-    fun `a tempo factor set while nothing plays is kept for the next play`() = runTest {
+    fun `a new play starts at the normal tempo, though the music played before was faster`() = runTest {
+        // Given a score sped up to 2.0 (a game in danger), then stopped (the game over)
+        val sequencer = sequencer()
+        stoppedAtDoubleTempo(sequencer)
+
+        // When a score is played again (the preview of the home screen, a new game)
+        sequencer.play(score)
+
+        // Then it plays at the normal tempo, from its start
+        assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
+    }
+
+    @Test
+    fun `a tempo factor set while nothing plays is not kept for the next play`() = runTest {
         // Given
         val sequencer = sequencer()
         sequencer.setTempoFactor(2.0)
@@ -68,8 +81,8 @@ class ChiptuneSequencerTempoTest {
         renderNow()
 
         // Then
-        assertThat(rendered).containsExactly(2.0 to true)
-        assertThat(nextSlice()).containsExactly(200f, 201f, 202f, 203f)
+        assertThat(rendered).containsExactly(1.0 to true)
+        assertThat(nextSlice()).containsExactly(100f, 101f, 102f, 103f)
     }
 
     @Test
@@ -388,16 +401,7 @@ class ChiptuneSequencerTempoTest {
     fun `a playback stopped at the danger tempo resumes at that tempo, where it stood`() = runTest {
         // Given a score switched to 2.0 on beat 3, stopped at sample 2 of the buffer at 2.0 (beat 1)
         val sequencer = sequencer()
-        val playback = sequencer.play(score)
-        renderNow()
-        sequencer.setTempoFactor(2.0)
-        nextSlice()
-        runCurrent()
-        renderDispatcher.runAll()
-        nextSlice()
-        assertThat(nextSlice()).containsExactly(108f, 205f, 200f, 201f)
-        playback.stop()
-        runCurrent()
+        val playback = stoppedAtDoubleTempo(sequencer)
 
         // When
         playback.resume()
@@ -443,6 +447,24 @@ class ChiptuneSequencerTempoTest {
 
         // Then it is brought back into the buffer: the start of the loop
         assertThat(nextSlice()).startsWith(200f, 201f, 202f)
+    }
+
+    /**
+     * [score] played by [sequencer] at 1.0, switched to 2.0 on beat 3 (sample 9 of 12), then stopped at
+     * sample 2 of the buffer at 2.0, in beat 1, as a game in danger then over or paused; its playback.
+     */
+    private suspend fun TestScope.stoppedAtDoubleTempo(sequencer: ChiptuneSequencer): Playback {
+        val playback = sequencer.play(score)
+        renderNow()
+        sequencer.setTempoFactor(2.0)
+        nextSlice()
+        runCurrent()
+        renderDispatcher.runAll()
+        nextSlice()
+        assertThat(nextSlice()).containsExactly(108f, 205f, 200f, 201f)
+        playback.stop()
+        runCurrent()
+        return playback
     }
 
     /** A sequencer playing [played] at 1.0, its buffer rendered, before its first write is received. */

@@ -32,8 +32,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val state = GameState(
             board = board,
             next = appearance.next,
-            startLevel = startLevel,
-            progress = GameProgress.startingAt(startLevel),
+            progress = GameProgress.startingAt(startLevel, rules.levelProgression),
             phase = appearance.phase,
             tickCount = 0,
             stackInDanger = false,
@@ -69,7 +68,10 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      *   screen. The entry delay follows.
      * - When the entry delay is over, the next piece appears, or the game is over if it does not fit. The
      *   held shift stands still from the lock until then, and goes on with the next piece; a down held
-     *   through the lock does not soft drop the next piece until it is pressed again.
+     *   through the lock does not soft drop the next piece until it is pressed again. A press made during the
+     *   line clear or the entry delay is lost, as in the ROM: a button pressed then and still held is only
+     *   held for the next piece. A or B does not turn it; left or right does not start the shift repeat
+     *   again: the shift goes on with its count where it stood, or from 0 if there is none yet.
      * - Once the game is over, or while it is paused, a tick changes nothing, not even [GameState.tickCount].
      *
      * Not pure: the next piece is drawn from the randomizer (ADR 0014). Pass back only the last state
@@ -201,7 +203,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val newPress = Button.LEFT in controls.pressedSinceLastTick || Button.RIGHT in controls.pressedSinceLastTick
         val repeat = when {
             newPress -> AutoRepeat(rules.inputRepeat.shift)
-            else -> controls.shift ?: AutoRepeat(rules.inputRepeat.shift).tick(pressed = true).next
+            else -> controls.shift ?: AutoRepeat.heldWithoutPress(rules.inputRepeat.shift)
         }.tick(pressed = true)
         if (!repeat.step) return controls.copy(shift = repeat.next) to piece
         val shifted = board.move(piece, direction) ?: return controls.copy(shift = repeat.next.charged()) to piece
@@ -278,7 +280,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         val lineClear = clearing.rowsCleared.lineClear
         val cleared = state.copy(
             board = clearing.rowsCleared.board,
-            progress = state.progress.afterClear(lineClear, state.startLevel, rules),
+            progress = state.progress.afterClear(lineClear, rules),
             phase = Phase.EntryDelay(clearing.entryDelayAfter.value),
             stackInDanger = clearing.stackInDangerAfter,
         )

@@ -63,6 +63,7 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
 
   **Tests :** `GameEngineGameOverTest › GameOver is sent once, on the tick where the next piece cannot appear`,
   `GameEngineGameOverTest › the last events are PieceLocked, then LinesCleared if any, then GameOver, and never StackDanger(off)`,
+  `GameEngineTickTest › if the next piece does not fit when it appears, the game is over and the piece stays shown`,
   `GameEngineTickTest › a piece that appears gives no event`,
   `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
   `GameEngineControlsTest › once the game is over, an input changes nothing`. Vue : V4.
@@ -76,7 +77,6 @@ réinitialisable, pas de T-spin. C'est ce qui le distingue du mode Moderne.
   `GameEngineStartTest › a starting level outside the range of the level progression is refused`,
   `GameEngineStartTest › the first piece is drawn with no previous piece, the next one with the first as previous`,
   `GameEngineStartTest › the piece in play appears with its pivot at (5, 0), in the spawn orientation of the rotation system`,
-  `GameEngineStartTest › if the piece does not fit when it appears, the game is over and the piece stays shown`,
   `GameEngineFactoryTest › two engines created with the same seed deal the same pieces`,
   `ClassicLevelProgressionTest › the Classic mode accepts starting levels 0 to 9`.
 
@@ -340,12 +340,20 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   relâché entre deux ticks) compte quand même au tick suivant (écart assumé : sur NES, un appui
   dure au moins une image) ; presser une touche déjà tenue n'est pas un nouvel appui. Un appui
   fait pendant l'effacement ou le délai d'apparition est perdu, comme dans la ROM (le
-  déplacement, la rotation et la descente n'y sont pas appelés).
+  déplacement, la rotation et la descente n'y sont pas appelés) : chaque tick efface les appuis
+  qu'il n'a pas lus, quelle que soit la phase. Un bouton pressé à ce moment et encore tenu est
+  seulement tenu pour la pièce suivante : A ou B ne la tourne pas, ▼ ne la fait pas descendre,
+  et ◀ ou ▶ ne relance pas le DAS : le déplacement reprend son compteur où il en était (un DAS
+  chargé déplace la pièce dès son premier tick de chute), ou part de 0 s'il n'y en a pas encore.
 - **Déplacement** : ▶ l'emporte sur ◀ ; ▼ tenu bloque le déplacement et fige le DAS, qui reprend
   où il en était (`$89B2`). Seul un **nouvel appui** de ◀ ou ▶ relance le DAS, quelle que soit
   la direction (`$89B8`) ; un changement de direction sans nouvel appui (◀ et ▶ tenus puis ▶
   relâché) continue le compteur, sans pas immédiat. Le DAS survit au verrouillage et reste figé
-  pendant l'effacement et le délai d'apparition.
+  pendant l'effacement et le délai d'apparition. Sans déplacement plus tôt dans la partie, un ◀
+  ou ▶ tenu sans nouvel appui part d'un compteur à 0 (`autorepeatX`, `$0046`) : premier
+  déplacement au 16ᵉ tick de chute, puis tous les 6 ticks (`$89C4` à `$89CE`, meatfighter.com).
+  **[à vérifier]** : la valeur 0 suppose une RAM effacée en début de partie ; la source ne dit
+  pas ce que contient `autorepeatX` avant le premier déplacement.
 - **Rotation** : A (horaire) l'emporte sur B s'ils sont pressés ensemble (`$88B4`) ; la pièce
   prend le premier candidat du système de rotation qui tient, sinon elle ne bouge pas.
 - **Descente rapide** : elle démarre sur un **nouvel appui de ▼**, sans appui de ◀ ou ▶ dans le
@@ -388,7 +396,12 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
 `GameEngineControlsTest › a rotation against the wall is refused, and a new press of B on the next tick turns the piece back`,
 `GameEngineControlsTest › A and B pressed together turn the piece once, clockwise`,
 `GameEngineControlsTest › a held down freezes the shift repeat, which goes on where it stood when down is released`,
-`GameEngineControlsTest › once the game is over, an input changes nothing`. Vues : V2, V3.
+`GameEngineControlsTest › once the game is over, an input changes nothing`,
+`GameEngineControlsTest › A or B pressed before the next piece is lost, it appears unturned`,
+`GameEngineControlsTest › left or right pressed before the next piece, with no shift repeat yet, shifts it on its 16th tick of fall`,
+`GameEngineControlsTest › left or right pressed before the next piece, with a charged shift repeat, shifts it on its first tick of fall`,
+`GameEngineControlsTest › down pressed before the next piece does not soft drop it until it is pressed again`,
+`GameEngineControlsTest › A or left pressed on the last tick of the entry delay is lost, the next piece neither turns nor shifts`. Vues : V2, V3.
 
 ## Délai d'apparition
 
@@ -472,7 +485,9 @@ d'avant, du haut vers le bas, pour l'animation.
 | 3 | 300 × (niveau + 1) |
 | 4 | 1200 × (niveau + 1) |
 
-Aucune ligne effacée ne rapporte rien ; plus de 4 lignes ou un nombre négatif est refusé.
+Aucune ligne effacée ne rapporte rien. Le nombre de lignes effacées d'un coup est un `LineClear`, qui
+porte la borne 0 à 4 : plus de 4 lignes ou un nombre négatif est refusé dès sa construction, avant
+le calcul des points (voir « Statistiques de fin de partie » plus bas).
 
 **Affichage du score** : sur 6 chiffres, plafonné à 999 999 comme sur la NES ; le domaine
 garde la vraie valeur, seul l'affichage plafonne, partout où le score est montré (jeu, fin
@@ -516,7 +531,7 @@ Vues : V1, V2, V3, V4.
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,
 `ClassicScoringRuleTest › the base value is multiplied by the level plus one`,
-`ClassicScoringRuleTest › a number of lines cleared outside 0 to 4 is refused`.
+`LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`.
 
 **Descente rapide** : 1 point par ligne descendue en maintenant ▼, compté une fois au
 verrouillage pour les lignes descendues d'affilée par la pièce. C'est une
@@ -547,6 +562,19 @@ Pour un départ de 0 à 9, la formule vaut toujours `(départ + 1) × 10`, et le
 `ClassicLevelProgressionTest › a start level outside 0 to 9 is refused`,
 `LinesTest › a total of lines cannot be negative`, `LinesTest › a total of 0 lines is the lowest valid total`.
 
+**Niveau dérivé** (P5.20) : le niveau d'une partie n'est jamais fourni, il est toujours celui
+que la progression du mode donne pour le niveau de départ et les lignes (`GameProgress`, qui
+porte le niveau de départ). Il ne passe jamais sous le niveau de départ (refusé à la
+construction) et ne baisse jamais au fil des effacements : un effacement qui le ferait baisser
+est refusé, contre une progression fautive d'un autre mode. Les tests du moteur partent donc
+d'états atteignables : « niveau 29 » veut dire départ 0 et 290 lignes.
+
+**Tests :** `GameProgressTest › the level is the one the level progression gives for the start level and the lines`,
+`GameProgressTest › a progression that gives a level below the start level is refused`,
+`GameProgressTest › a clear with a progression whose level goes down is refused`,
+`ClassicLevelProgressionTest › the level never goes below the start level, and never goes down as lines are cleared`,
+`GameEngineClearTest › the level never goes down after a clear`.
+
 **Ordre score / niveau** : quand un effacement fait monter de niveau, le total de lignes et le
 niveau sont mis à jour d'abord, puis les points sont comptés **avec le nouveau niveau**.
 Source : rétro-ingénierie de la ROM, meatfighter.com, « Applying AI to Nintendo Tetris »
@@ -575,6 +603,7 @@ Un effacement compte de 0 à 4 lignes d'un coup ; toute autre valeur est refusé
 `GameStatisticsTest › four-line clears add up over the game`,
 `GameEngineClearTest › a four-line clear counts in the statistics of the game`,
 `GameEngineTickTest › a tick after the game is over changes nothing, the tick count included`,
+`GameStateTest › a negative tick count is refused`,
 `LineClearTest › a number of lines cleared at once outside 0 to 4 is refused`,
 `LineClearTest › only 4 lines cleared at once make four lines`,
 `BoardClearTest › the result gives the number of lines cleared at once`.
