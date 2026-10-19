@@ -1,6 +1,8 @@
 package ch.magori.blox.feature.game
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
@@ -8,11 +10,24 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Board
@@ -79,8 +94,8 @@ internal class GameScreenTest {
 
     private val moveDown = { uiState = uiState.copy(piece = uiState.piece?.moved(Direction.DOWN)) }
 
-    /** The game screen for [uiState], drawn once. */
-    private fun ComposeContext.showGameScreen() {
+    /** The game screen for [uiState], drawn once, the size of the device or of [size], even larger than the device. */
+    private fun ComposeContext.showGameScreen(size: DpSize? = null) {
         setContent {
             resume = stringResource(R.string.feature_game_pause_resume)
             replay = stringResource(R.string.feature_game_over_replay)
@@ -90,15 +105,17 @@ internal class GameScreenTest {
                 shownField.spokenValue(),
             )
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                key(generation) {
-                    GameScreen(
-                        uiState = { uiState },
-                        onBack = {},
-                        onReplay = {},
-                        onControl = {},
-                        onPause = {},
-                        onResume = {},
-                    )
+                Box(modifier = if (size == null) Modifier else Modifier.requiredSize(size)) {
+                    key(generation) {
+                        GameScreen(
+                            uiState = { uiState },
+                            onBack = {},
+                            onReplay = {},
+                            onControl = {},
+                            onPause = {},
+                            onResume = {},
+                        )
+                    }
                 }
             }
         }
@@ -194,8 +211,17 @@ internal class GameScreenTest {
     fun theGameOverScreenTakesThePlaceOfTheGameOnceItIsOver() = extension.use {
         showGameScreen()
 
-        runOnIdle {
-            uiState = uiState.copy(
+        runOnIdle { uiState = ShownScreen.GAME_OVER.change(uiState) }
+
+        onNodeWithText(replay).assertIsDisplayed()
+    }
+
+    /** A screen shown in place of the game screen, or the game screen itself, once [change] is made. */
+    internal enum class ShownScreen(val change: (GameUiState) -> GameUiState) {
+        GAME({ it }),
+        PAUSE({ it.copy(paused = true) }),
+        GAME_OVER({
+            it.copy(
                 piece = null,
                 gameOver = GameOverUiState(
                     score = Points(12_340),
@@ -206,8 +232,81 @@ internal class GameScreenTest {
                     newRecord = false,
                 ),
             )
+        }),
+    }
+
+    @ParameterizedTest
+    @EnumSource(ShownScreen::class)
+    @DisplayName("every button of the screen is 48 dp wide and high at least")
+    fun everyButtonIsLargeEnough(screen: ShownScreen) = extension.use {
+        // Given
+        uiState = screen.change(uiState)
+        showGameScreen()
+
+        // Then: 48 dp visible, a rule of BloX, stricter than WCAG 2.2 (2.5.8, 24 px) and than Android, whose
+        // 48 dp is a touch area that may pass beyond what is drawn
+        val buttons = onAllNodes(hasClickAction())
+        val count = buttons.fetchSemanticsNodes().size
+        assertThat(count).isGreaterThan(1)
+        repeat(count) { index ->
+            buttons[index].assertWidthIsAtLeast(
+                BloxSizes.minTouchTarget,
+            ).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+    }
+
+    /**
+     * A layout of the game screen in [size]: its parts, found by something they hold, in the order TalkBack must
+     * read them, and the place of each in that order.
+     */
+    internal enum class ScreenLayout(val size: DpSize, val parts: List<SemanticsMatcher>, val order: List<Float>) {
+        /** The next piece is in the side column, under the score. */
+        PORTRAIT(
+            DpSize(360.dp, 760.dp),
+            listOf(BOARD, SCORE, LEFT, A),
+            listOf(1f, 2f, 4f, 5f),
+        ),
+
+        /** The arrows on the left, beside the score; the next piece on the right of the board. */
+        LANDSCAPE(
+            DpSize(800.dp, 360.dp),
+            listOf(BOARD, SCORE, NEXT, LEFT, A),
+            listOf(1f, 2f, 3f, 4f, 5f),
+        ),
+    }
+
+    @ParameterizedTest
+    @EnumSource(ScreenLayout::class)
+    @DisplayName("TalkBack reads the board, the score, the next piece, the arrows, then B and A, each part as a whole")
+    fun talkBackReadsThePartsInOrder(layout: ScreenLayout) = extension.use {
+        // Given
+        showGameScreen(layout.size)
+
+        // When
+        val parts = layout.parts.map { matcher ->
+            placedPart(onNode(matcher, useUnmergedTree = true).fetchSemanticsNode())
         }
 
-        onNodeWithText(replay).assertIsDisplayed()
+        // Then the order does not depend on where the layout puts the parts
+        assertThat(parts.map { it.config[SemanticsProperties.TraversalIndex] }).isEqualTo(layout.order)
+        assertThat(parts.map { it.config.getOrNull(SemanticsProperties.IsTraversalGroup) }).containsOnly(true)
+        assertThat(parts.map { it.parent?.config?.getOrNull(SemanticsProperties.IsTraversalGroup) }).containsOnly(true)
+    }
+
+    /** The part of the game screen that holds [node], or [node] itself: the first that has a place in the order. */
+    private fun placedPart(node: SemanticsNode): SemanticsNode {
+        var part: SemanticsNode = node
+        while (SemanticsProperties.TraversalIndex !in part.config) {
+            part = checkNotNull(part.parent) { "No part of the screen holds $node" }
+        }
+        return part
+    }
+
+    private companion object {
+        val BOARD = hasContentDescription("Plateau : pile de 3 rangées sur 20")
+        val SCORE = hasContentDescription("Score : 12340")
+        val NEXT = hasContentDescription("Suivante : pièce I")
+        val LEFT = hasTestTag("control_left")
+        val A = hasTestTag("control_a")
     }
 }

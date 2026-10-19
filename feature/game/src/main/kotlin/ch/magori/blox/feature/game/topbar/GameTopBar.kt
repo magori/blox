@@ -31,14 +31,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
-import ch.magori.blox.feature.game.ui.ScreenSizes
 import ch.magori.blox.feature.game.ui.ValueText
 
-/** The sizes of the top bar, in one place; the touch target is [ScreenSizes.minTouchTarget]. */
+/** The sizes of the top bar, in one place; the touch target is [BloxSizes.minTouchTarget]. */
 private object TopBarSizes {
     /** Between the pause button, the title and the record. */
     val gap = 8.dp
@@ -111,7 +111,7 @@ private fun PauseButton(onPause: () -> Unit) {
         modifier = Modifier
             // Read by the measured journey of `:benchmark` (`By.res`), whatever the language.
             .testTag("game_pause")
-            .sizeIn(minWidth = ScreenSizes.minTouchTarget, minHeight = ScreenSizes.minTouchTarget)
+            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = BloxSizes.minTouchTarget)
             .clip(BloxTheme.shapes.button)
             .background(palette.button)
             .clickable(role = Role.Button, onClick = onPause)

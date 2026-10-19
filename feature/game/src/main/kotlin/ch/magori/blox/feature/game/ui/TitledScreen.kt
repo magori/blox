@@ -25,6 +25,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /** The sizes shared by the screens shown over the game (game over, pause), in one place. */
@@ -34,9 +35,6 @@ internal object ScreenSizes {
 
     /** Between two blocks of the screen. */
     val gap = 16.dp
-
-    /** The smallest touch target (accessibility). */
-    val minTouchTarget = 48.dp
     val title = 22.sp
 }
 
@@ -85,7 +83,7 @@ internal fun PrimaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = ScreenSizes.minTouchTarget),
+            .heightIn(min = BloxSizes.minTouchTarget),
         shape = BloxTheme.shapes.button,
         colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
     ) {
@@ -105,7 +103,7 @@ internal fun SecondaryButton(
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = ScreenSizes.minTouchTarget),
+            .heightIn(min = BloxSizes.minTouchTarget),
         shape = BloxTheme.shapes.button,
         border = BorderStroke(BloxBorders.frame, palette.panelBorder),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),

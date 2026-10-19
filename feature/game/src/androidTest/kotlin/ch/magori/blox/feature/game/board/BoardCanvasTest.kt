@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -40,13 +41,15 @@ internal class BoardCanvasTest {
     @RegisterExtension
     val recompositions = RecompositionRecorder()
 
-    private val board = Board.parse(
-        """
-        J.........
-        JJJ..OO..L
-        SSTTTOO.LL
-        IIII.ZZSSL
-        """,
+    private var board by mutableStateOf(
+        Board.parse(
+            """
+            J.........
+            JJJ..OO..L
+            SSTTTOO.LL
+            IIII.ZZSSL
+            """,
+        ),
     )
 
     private var piece by mutableStateOf(
@@ -147,5 +150,72 @@ internal class BoardCanvasTest {
         drawnContent()
 
         assertThat(built.get()).isEqualTo(2)
+    }
+
+    /** The board once a T locks on top of its stack, one row higher. */
+    private val higherBoard = Board.parse(
+        """
+        ...TTT....
+        J...T.....
+        JJJ..OO..L
+        SSTTTOO.LL
+        IIII.ZZSSL
+        """,
+    )
+
+    @Test
+    @DisplayName("the painters are not built again when a piece locks and the stack grows")
+    fun paintersAreNotBuiltAgainWhenAPieceLocks() = extension.use {
+        showBoard()
+
+        runOnIdle { board = higherBoard }
+        drawnContent()
+
+        assertThat(built.get()).isEqualTo(1)
+    }
+
+    @Test
+    @DisplayName("TalkBack reads the height of the stack on the board, in rows")
+    fun talkBackReadsTheHeightOfTheStack() = extension.use {
+        // Given a stack 4 rows high
+        showBoard()
+
+        // Then
+        onNodeWithContentDescription("Plateau : pile de 4 rangées sur 20").assertExists()
+    }
+
+    @Test
+    @DisplayName("TalkBack reads a stack of one row in the singular")
+    fun talkBackReadsAStackOfOneRowInTheSingular() = extension.use {
+        // Given
+        board = Board.parse("IIII.ZZSSL")
+        showBoard()
+
+        // Then
+        onNodeWithContentDescription("Plateau : pile de 1 rangée sur 20").assertExists()
+    }
+
+    @Test
+    @DisplayName("TalkBack reads an empty board as empty")
+    fun talkBackReadsAnEmptyBoardAsEmpty() = extension.use {
+        // Given
+        board = Board.empty()
+        showBoard()
+
+        // Then
+        onNodeWithContentDescription("Plateau : vide").assertExists()
+    }
+
+    @Test
+    @DisplayName("TalkBack reads the new height of the stack once a piece locks on top of it")
+    fun talkBackReadsTheNewHeightOfTheStack() = extension.use {
+        // Given a stack 4 rows high
+        showBoard()
+
+        // When a piece locks on top of it, one row higher
+        runOnIdle { board = higherBoard }
+
+        // Then
+        onNodeWithContentDescription("Plateau : pile de 5 rangées sur 20").assertExists()
     }
 }

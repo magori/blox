@@ -3,13 +3,19 @@ package ch.magori.blox.feature.home
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -61,11 +67,41 @@ internal class HomeScreenTest {
         onNodeWithText("4").assertIsNotSelected()
     }
 
-    private fun ComposeContext.showHomeScreen() {
+    @Test
+    @DisplayName("every button and choice is 48 dp wide and high at least, but the start levels")
+    fun everyTargetIsLargeEnough() = extension.use {
+        // Given a music that may be listened to, with its button
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.KOROBEINIKI)))
+
+        // Then: 48 dp visible, a rule of BloX, stricter than WCAG 2.2 (2.5.8, 24 px) and than Android, whose
+        // 48 dp is a touch area that may pass beyond what is drawn. The width of the start levels is left to P5.29
+        val targets = onAllNodes(hasClickAction() and !hasTestTag(START_LEVEL_TAG))
+        val count = targets.fetchSemanticsNodes().size
+        assertThat(count).isGreaterThan(1)
+        repeat(count) { index ->
+            targets[index].assertWidthIsAtLeast(
+                BloxSizes.minTouchTarget,
+            ).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+    }
+
+    @Test
+    @DisplayName("every start level is 48 dp high at least")
+    fun everyStartLevelIsHighEnough() = extension.use {
+        // Given
+        showHomeScreen()
+
+        // Then: their width is left to P5.29, not their height (48 dp visible, a rule of BloX)
+        val levels = onAllNodes(hasTestTag(START_LEVEL_TAG))
+        assertThat(levels.fetchSemanticsNodes()).hasSize(uiState.startLevels.size)
+        repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsAtLeast(BloxSizes.minTouchTarget) }
+    }
+
+    private fun ComposeContext.showHomeScreen(state: HomeUiState = uiState) {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 HomeScreen(
-                    uiState = uiState,
+                    uiState = state,
                     onThemeChosen = {},
                     onMusicChosen = {},
                     onListen = {},

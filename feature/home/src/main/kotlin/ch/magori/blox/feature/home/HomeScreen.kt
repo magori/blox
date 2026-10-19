@@ -20,6 +20,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,16 +49,17 @@ import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxTypographies
 
-/** The smallest height of a choice, so that a finger can hit it. */
-private val MinTouchHeight = 48.dp
-
 /** The underline of a selected choice: as thick as a stroke of the pixel font, a little below its label. */
 private val UnderlineThickness = 2.dp
 private val UnderlineGap = 2.dp
+
+/** The tag of each start level, the same in every language, read by the tests. */
+internal const val START_LEVEL_TAG = "home_start_level"
 
 /** The alpha of a choice that cannot be made yet. */
 private const val DISABLED_ALPHA = 0.38f
@@ -131,7 +133,7 @@ internal fun HomeScreen(
                         text = level.toString(),
                         selected = level == uiState.startLevel,
                         onClick = { onStartLevelChosen(level) },
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier.weight(1f).testTag(START_LEVEL_TAG),
                     )
                 }
             }
@@ -156,7 +158,15 @@ internal fun HomeScreen(
         }
         // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
         // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
-        Button(onClick = dropUnlessResumed { onPlay(uiState.startLevel) }, modifier = Modifier.testTag("home_play")) {
+        // As tall as the choices: the button itself, not only the space Material keeps around it, is 48 dp high.
+        // In the accent of the palette, as the main buttons of the game, whose contrast is tested (PaletteContrastTest).
+        Button(
+            onClick = dropUnlessResumed { onPlay(uiState.startLevel) },
+            modifier = Modifier
+                .testTag("home_play")
+                .heightIn(min = BloxSizes.minTouchTarget),
+            colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
+        ) {
             Text(text = stringResource(R.string.feature_home_play))
         }
     }
@@ -228,7 +238,7 @@ private fun Choice(
     }
     Box(
         modifier = modifier
-            .heightIn(min = MinTouchHeight)
+            .heightIn(min = BloxSizes.minTouchTarget)
             .alpha(if (enabled) 1f else DISABLED_ALPHA)
             .background(colors.background, shape)
             .border(BloxBorders.frame, colors.frame, shape)
