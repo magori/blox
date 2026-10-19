@@ -58,7 +58,7 @@ class HomeViewModelTest {
             assertThat(awaitItem()).isNull()
 
             // When they are read
-            preferences.state.value = UserPreferences(ThemeChoice.COLORFUL, MusicChoice.MINUET, 5)
+            preferences.state.value = UserPreferences(ThemeChoice.COLORFUL, MusicChoice.MINUET, 5, vibrations = true)
 
             // Then
             assertThat(awaitItem()).isEqualTo(
@@ -89,7 +89,9 @@ class HomeViewModelTest {
             viewModel.onStartLevelChosen(7)
 
             // Then
-            assertThat(preferences.state.value).isEqualTo(UserPreferences(ThemeChoice.COLORFUL, MusicChoice.NONE, 7))
+            // The vibrations, which the home screen does not offer yet, keep their default.
+            val expected = UserPreferences(ThemeChoice.COLORFUL, MusicChoice.NONE, startLevel = 7, vibrations = false)
+            assertThat(preferences.state.value).isEqualTo(expected)
             val shown = expectMostRecentItem()
             assertThat(shown?.theme).isEqualTo(ThemeChoice.COLORFUL)
             assertThat(shown?.music).isEqualTo(MusicChoice.NONE)

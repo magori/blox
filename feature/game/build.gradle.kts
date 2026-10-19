@@ -16,6 +16,8 @@ dependencies {
     api(projects.core.music)
     // La fabrique reçoit aussi le lecteur de musique.
     api(projects.core.audio)
+    // La fabrique reçoit aussi le retour haptique (P5.2).
+    api(projects.core.haptics)
     api(libs.androidx.lifecycle.viewmodel)
 
     // Le seul module de feature qui a un ViewModel, pour l'instant.
@@ -30,6 +32,8 @@ dependencies {
     implementation(libs.androidx.navigationevent.compose)
     // Le faux lecteur de musique, partagé avec l'autre feature.
     testImplementation(testFixtures(projects.core.audio))
+    // Le faux retour haptique, partagé avec les tests instrumentés.
+    testImplementation(testFixtures(projects.core.haptics))
     // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.data))
 
@@ -51,5 +55,6 @@ dependencies {
     // La fabrique du ViewModel y est construite avec les faux partagés des tests unitaires (dépôts de core:data,
     // lecteur de core:audio), plutôt qu'avec des copies.
     androidTestImplementation(testFixtures(projects.core.audio))
+    androidTestImplementation(testFixtures(projects.core.haptics))
     androidTestImplementation(testFixtures(projects.core.data))
 }

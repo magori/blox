@@ -31,6 +31,7 @@ dependencies {
     implementation(projects.core.game)
     implementation(projects.core.data)
     implementation(projects.core.audio)
+    implementation(projects.core.haptics)
     implementation(projects.core.music)
     implementation(libs.androidx.datastore.core)
     implementation(libs.kotlinx.coroutines.core)

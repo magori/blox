@@ -5,6 +5,7 @@ import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.GameEngineFactory
+import ch.magori.blox.core.haptics.FakeHaptics
 
 /**
  * The factory of the game view model, with [engineFactory], the shared fakes of core:data (no record, the
@@ -18,6 +19,7 @@ internal fun silentGameViewModelFactory(
     FakeHighScoreRepository(),
     FakeUserPreferencesRepository(),
     FakeMusicPlayer(),
+    FakeHaptics(),
     scoreOf = { null },
     gameMusic = { null },
 )

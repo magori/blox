@@ -20,6 +20,8 @@ import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.data.preferencesDataStore
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
+import ch.magori.blox.core.haptics.Haptics
+import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.music.gameMusicScore
@@ -38,7 +40,7 @@ import java.io.File
  * It lives as long as the application, which creates it once: a DataStore file must have a single
  * instance per process.
  *
- * @param context the application: its private files directory, its audio focus.
+ * @param context the application: its private files directory, its audio focus, its vibrator.
  */
 class AppContainer(context: Context) {
     private val filesDir: File = context.filesDir
@@ -85,14 +87,21 @@ class AppContainer(context: Context) {
     )
 
     /**
+     * The vibrations of the games, on the lines cleared and at the game over, when the settings allow them. A
+     * device without a vibrator plays nothing.
+     */
+    private val haptics: Haptics = SystemHaptics(context)
+
+    /**
      * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for
-     * the games, else the one chosen on the home screen.
+     * the games, else the one chosen on the home screen; the vibrations.
      */
     val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(
         ClassicGameEngineFactory,
         highScores,
         userPreferences,
         music,
+        haptics,
         ::scoreOf,
         musicLibrary::gameMusicScore,
     )

@@ -2,6 +2,7 @@ package ch.magori.blox.core.data
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
@@ -25,6 +26,8 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
             music = MusicChoice.entries.firstOrNull { it.name == stored[MUSIC] } ?: UserPreferences.DEFAULT.music,
             startLevel = stored[START_LEVEL]?.takeIf { it >= 0 }
                 ?: UserPreferences.DEFAULT.startLevel,
+            // Missing in the files of the versions before it: those keep their choices, with the default.
+            vibrations = stored[VIBRATIONS] ?: UserPreferences.DEFAULT.vibrations,
         )
     }.distinctUntilChanged()
 
@@ -41,9 +44,14 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
         dataStore.edit { it[START_LEVEL] = startLevel }
     }
 
+    override suspend fun setVibrations(vibrations: Boolean) {
+        dataStore.edit { it[VIBRATIONS] = vibrations }
+    }
+
     private companion object {
         val START_LEVEL = intPreferencesKey("start_level")
         val THEME = stringPreferencesKey("theme")
         val MUSIC = stringPreferencesKey("music")
+        val VIBRATIONS = booleanPreferencesKey("vibrations")
     }
 }

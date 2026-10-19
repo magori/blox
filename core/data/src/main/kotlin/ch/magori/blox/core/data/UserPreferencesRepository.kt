@@ -27,4 +27,11 @@ interface UserPreferencesRepository {
      * @throws IllegalArgumentException if [startLevel] is negative.
      */
     suspend fun setStartLevel(startLevel: Int)
+
+    /**
+     * Saves whether the game vibrates on the lines cleared and at the game over.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setVibrations(vibrations: Boolean)
 }

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 104 / 153 | `██████████████░░░░░░` **68 %** |
+| **Général** | 105 / 154 | `██████████████░░░░░░` **68 %** |
 | **MVP audio** | 20 / 27 | `███████████████░░░░░` **74 %** |
 <!-- avancement:fin -->
 
@@ -480,7 +480,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
 
 - [x] **P5.1** Icône de l'application et écran de démarrage. Fait : icône adaptative aux couleurs du
   logo, couche monochrome, écran de démarrage d'Android 12 par le thème (`docs/themes.md`).
-- [ ] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
+- [x] **P5.2** Vibrations (optionnelles) sur ligne effacée et fin de partie.
 - [x] **P5.3** Accessibilité : descriptions des boutons, contrastes, tailles de cible ;
   `semantics { contentDescription }` sur `BoardCanvas` (revue de P2.3).
 - [x] **P5.4** Gestion du cycle de vie : pause automatique quand l'app passe en arrière-plan, déclenchée
@@ -599,6 +599,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.35** En jeu, une musique morte (séquenceur en échec) garde le focus audio jusqu'à la
   pause ou la fin : `GameViewModel` pourrait suivre `Playback.isPlaying` et rendre le focus,
   sans couper la partie (revue de P4.23).
+- [ ] **P5.37** Mettre à jour la maquette : interrupteur « Vibrations » (accueil V1 ou écran de
+  réglages), puis le brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
+  sa valeur par défaut (désactivé en attendant, P5.2).
 
 ## P6 — Mode Moderne (plus tard)
 

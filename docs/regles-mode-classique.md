@@ -651,6 +651,38 @@ simplification assumée : le calcul réel de la NES est plus particulier **[à v
 **Tests :** `ClassicScoringRuleTest › a soft drop scores one point per row dropped`,
 `ClassicScoringRuleTest › a negative number of rows soft dropped is refused`.
 
+## Vibrations
+
+Optionnelles (P5.2), **désactivées par défaut** tant qu'aucun interrupteur n'existe à l'écran
+(réglage `vibrations` des préférences ; la tâche de l'interrupteur fixera la valeur définitive).
+Une ligne effacée (1 à 3) donne un clic bref, quatre lignes un clic fort (effets prédéfinis
+d'Android à partir d'Android 10, impulsions de 20 et 50 ms avant), la fin de partie 80 ms,
+une pause de 100 ms puis 200 ms. La pose d'une pièce et le danger ne vibrent pas (trop
+fréquents ; la musique marque déjà le danger). Rien ne vibre en pause, après la fin de partie,
+avant que les réglages répondent, ni sur un appareil sans vibreur. Les vibrations sont celles
+d'un jeu (`USAGE_MEDIA`) : Ne pas déranger ne les coupe pas, l'économiseur de batterie et
+l'interrupteur général des vibrations les coupent. Le réglage est lu une fois par partie.
+
+**Tests :** `HapticOfEventTest › one to three lines cleared give the short pulse`,
+`HapticOfEventTest › four lines cleared at once give the stronger pulse`,
+`HapticOfEventTest › the game over gives its own pattern`,
+`HapticOfEventTest › a clear of no line, a lock and the danger give nothing`,
+`HapticEffectsTest › from Android 10 the lines cleared play the predefined click`,
+`HapticEffectsTest › from Android 10 four lines cleared play the predefined heavy click`,
+`HapticEffectsTest › before Android 10 the lines cleared play a pulse of 20 ms, four lines one of 50 ms`,
+`HapticEffectsTest › the game over plays 80 ms, a pause of 100 ms, then 200 ms, on every version`,
+`GameViewModelTest › clearing one line vibrates the short pulse`,
+`GameViewModelTest › clearing four lines at once vibrates the stronger pulse`,
+`GameViewModelTest › the game over vibrates its pattern once, and the frames after it nothing more`,
+`GameViewModelTest › with the vibrations turned off in the settings nothing vibrates`,
+`GameViewModelTest › until the settings answer nothing vibrates`,
+`GameViewModelTest › a game recreated paused after the process died vibrates nothing while it stays paused`,
+`UserPreferencesRepositoryContract › without saved preferences the defaults are the Original theme, Korobeiniki, level 0 and vibrations off`,
+`UserPreferencesRepositoryContract › a saved vibrations choice is read back`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before the vibrations existed keep their choices, with vibrations off`,
+`DataStoreUserPreferencesRepositoryTest › the vibrations are stored as a boolean under a key that must not change`.
+Aucune vue de maquette (interrupteur à maquetter). À essayer sur un téléphone.
+
 ## Niveaux
 
 - Le joueur choisit un **niveau de départ** de 0 à 9.
