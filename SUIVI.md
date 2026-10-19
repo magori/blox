@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 95 / 146 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 96 / 146 | `█████████████░░░░░░░` **66 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -555,7 +555,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   rapports d'un autre worktree (chemins `blox-wt/q-jeu`), vert après `--rerun-tasks --no-build-cache` ;
   trouver la tâche dont la sortie mise en cache contient des chemins absolus, et la rendre relocalisable
   ou non cacheable (revue P5.24).
-- [ ] **P5.32** Doublures des tests instrumentés : `GameViewModelDoubles.kt` (`NoRecords`,
+- [x] **P5.32** Doublures des tests instrumentés : `GameViewModelDoubles.kt` (`NoRecords`,
   `DefaultSettings`) recopie encore les faux de `core:data`, et `NoRecords` ne respecte pas le
   contrat ; passer par `androidTestImplementation(testFixtures(projects.core.data))` (revue P0.15).
 - [ ] **P5.33** Mesures sur téléphone (suite de P5.17) : `GameBenchmark` n'a jamais rendu de durée

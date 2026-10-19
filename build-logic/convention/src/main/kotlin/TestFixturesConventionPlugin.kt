@@ -7,7 +7,8 @@ import org.gradle.kotlin.dsl.configure
 /**
  * Doublures de test partagées (`src/testFixtures`) : un module qui en publie applique ce plugin en plus de
  * son plugin principal, dans n'importe quel ordre. Les autres modules les consomment avec
- * `testImplementation(testFixtures(projects.core.xxx))`, et les tests du module lui-même les voient.
+ * `testImplementation(testFixtures(projects.core.xxx))` (`androidTestImplementation` pour les tests
+ * instrumentés), et les tests du module lui-même les voient.
  *
  * - Module Kotlin pur (`blox.jvm.library`) : plugin `java-test-fixtures` du cœur de Gradle.
  * - Bibliothèque Android (`blox.android.library`) : les testFixtures d'AGP.
