@@ -23,5 +23,6 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0015](0015-un-moteur-des-capacites.md) | Mode Moderne : un moteur, des capacités | Acceptée ; amende 0004 |
 | [0016](0016-polices-embarquees.md) | Polices embarquées, chiffres à chasse fixe | Acceptée |
 | [0017](0017-format-des-musiques-enregistrees.md) | Format des musiques enregistrées | Acceptée |
+| [0018](0018-une-musique-partition-ou-fichier.md) | Une musique : partition ou fichier | Acceptée |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).

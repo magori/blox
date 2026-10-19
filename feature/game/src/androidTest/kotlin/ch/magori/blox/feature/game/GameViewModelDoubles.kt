@@ -9,7 +9,7 @@ import ch.magori.blox.core.haptics.FakeHaptics
 
 /**
  * The factory of the game view model, with [engineFactory], the shared fakes of core:data (no record, the
- * default settings) and no music: the factory answers no score for every music choice, and no music of the
+ * default settings) and no music: the factory answers no music for every music choice, and no music of the
  * player for the games, so the fake player is never asked to play.
  */
 internal fun silentGameViewModelFactory(
@@ -20,6 +20,6 @@ internal fun silentGameViewModelFactory(
     FakeUserPreferencesRepository(),
     FakeMusicPlayer(),
     FakeHaptics(),
-    scoreOf = { null },
+    musicOf = { null },
     gameMusic = { null },
 )

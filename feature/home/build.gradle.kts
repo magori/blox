@@ -26,6 +26,9 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     // `@StringRes` sur les libellés des choix.
     implementation(libs.androidx.annotation)
+    // Le sélecteur de documents du système pour « Mon fichier » (ActivityResultContracts.OpenDocument).
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.activity.compose)
     // Le faux lecteur de musique, partagé avec l'autre feature.
     testImplementation(testFixtures(projects.core.audio))
     // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec l'autre feature.

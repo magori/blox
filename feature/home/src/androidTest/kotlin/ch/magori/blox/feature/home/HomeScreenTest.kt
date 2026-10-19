@@ -105,6 +105,7 @@ internal class HomeScreenTest {
                     onThemeChosen = {},
                     onMusicChosen = {},
                     onListen = {},
+                    onChangeMusicFile = {},
                     onStartLevelChosen = {},
                     onPlay = {},
                 )

@@ -1,6 +1,7 @@
 package ch.magori.blox.di
 
 import ch.magori.blox.core.data.MUSICS_FILE
+import ch.magori.blox.core.data.MY_MUSIC_FILE
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
 import ch.magori.blox.theme.ANDROID_NAMESPACE
@@ -50,6 +51,20 @@ class BackupRulesTest {
             .containsExactlyInAnyOrderElementsOf(DATASTORE_FILES)
     }
 
+    @Test
+    fun `the music file of my file never leaves the device`() {
+        // Given the file of « Mon fichier », whose uri names a document of the player and whose permission belongs to
+        // this device
+        val myMusicFile = datastorePath(MY_MUSIC_FILE)
+
+        // Then no backup takes it, whatever the version of Android
+        val rules = appResource("xml/data_extraction_rules.xml")
+        val sections = listOf("cloud-backup", "device-transfer").map { included(rules, "/data-extraction-rules/$it") }
+        (sections + listOf(included(appResource("xml/backup_rules.xml"), "/full-backup-content"))).forEach {
+            assertThat(it).doesNotContain(myMusicFile)
+        }
+    }
+
     /** The files that the rules under [section] include, as `domain:path`. */
     private fun included(
         rules: Document,
@@ -60,9 +75,12 @@ class BackupRulesTest {
 
     private companion object {
         /** The DataStore files of core:data, where the application creates them, relative to its files directory. */
-        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE, MUSICS_FILE).map { name ->
+        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE, MUSICS_FILE).map(::datastorePath)
+
+        /** Where the application creates the DataStore file [name], as a rule names it: `file:<path>`. */
+        fun datastorePath(name: String): String {
             val filesDir = File("files")
-            "file:" + dataStoreFile(filesDir, name).toFile().relativeTo(filesDir).invariantSeparatorsPath
+            return "file:" + dataStoreFile(filesDir, name).toFile().relativeTo(filesDir).invariantSeparatorsPath
         }
     }
 }

@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 105 / 154 | `██████████████░░░░░░` **68 %** |
-| **MVP audio** | 20 / 27 | `███████████████░░░░░` **74 %** |
+| **Général** | 106 / 155 | `██████████████░░░░░░` **68 %** |
+| **MVP audio** | 21 / 27 | `████████████████░░░░` **78 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -388,7 +388,7 @@ Référence : [docs/musique.md](docs/musique.md).
   début), position mise à l'échelle du tempo en cours puis reculée au dernier temps de
   `switchBeats` (`resumePosition`). Position exacte de ce qui a été entendu
   (`playbackHeadPosition`) non lue : écart accepté (`docs/musique.md`).
-- [ ] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
+- [x] **P4.6** `AudioFilePlayer` : choix d'un fichier personnel via le sélecteur du système.
   Revue de P3.1, amendée par P5.28 : garder l'URI (`setMusicFile(uri)`, permission persistante)
   dans un fichier DataStore à part, par exemple `music_file.preferences_pb` créé par
   `dataStoreFile`, que les règles de sauvegarde en liste blanche excluent d'office (ne pas
@@ -472,7 +472,8 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
     Utiliser / En jeu, menu « … », suppression avec confirmation et annulation, *Au hasard* et
     *Nouvelle*, navigation depuis l'accueil.
   - [ ] **P4.22d** Musique choisie proposée dans le choix de musique de l'accueil (V1). Revue de P4.22b : choisir une autre musique à l'accueil (Aucune comprise) retire
-    la musique personnelle des parties (`setGameMusic(null)`), test de `HomeViewModel`.
+    la musique personnelle des parties (`setGameMusic(null)`), test de `HomeViewModel`. Choisir
+    un fichier à l'accueil la retire aussi (revue de P4.6).
 - [x] **P4.21** Mettre à jour la maquette : liste « Mes musiques » et éditeur dans la maquette BloX
   (accès depuis V1), dans les quatre thèmes ; choix de la catégorie, fenêtre d'enregistrement.
 
@@ -602,6 +603,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.37** Mettre à jour la maquette : interrupteur « Vibrations » (accueil V1 ou écran de
   réglages), puis le brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
   sa valeur par défaut (désactivé en attendant, P5.2).
+- [ ] **P5.38** Mettre à jour la maquette : action « Changer » (Changer de fichier) sous « Mon
+  fichier », à côté d'« Écouter », et le nom du fichier retenu, à afficher ensuite
+  (`OpenableColumns.DISPLAY_NAME`) (P4.6).
 
 ## P6 — Mode Moderne (plus tard)
 

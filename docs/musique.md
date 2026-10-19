@@ -283,7 +283,7 @@ musique personnelle choisie pour les parties (« Mes musiques », P4.22b), lue u
 partie, est jouée en priorité, même si l'accueil est sur *Aucune* : dans la maquette (V1), elle
 est un choix de l'accueil exclusif des autres. Sans elle, la musique choisie à l'accueil est
 jouée au tempo normal (*Korobeïniki*, *Menuet* ; *Aucune* ne joue
-rien ; *Mon fichier* ne joue rien en attendant P4.6), sauf si la partie est déjà en pause ou
+rien ; *Mon fichier* joue le fichier choisi, voir plus bas), sauf si la partie est déjà en pause ou
 finie quand les préférences répondent. La pause (bouton, retour système, passage en
 arrière-plan) arrête la musique ; la reprise la fait **repartir où elle s'était arrêtée**
 (P4.12 : `Playback.resume()`, au début du dernier temps où toutes les voix commencent une note,
@@ -298,6 +298,83 @@ jeu, et il est journalisé. Toute nouvelle lecture (`play`) part au tempo normal
 *Écouter* de l'accueil, une nouvelle partie et Rejouer ne sont jamais accélérés par une partie
 finie ou quittée en danger (fin de partie, Pause puis Menu). La reprise après une pause garde le
 tempo en cours, × 1,25 si la pile est en danger.
+
+**Mon fichier** (P4.6) : le joueur choisit un fichier audio de l'appareil par le sélecteur du
+système (documents locaux seulement, `audio/*`), avec une permission persistante ; la
+permission d'un fichier précédent est rendue. L'URI est gardée dans un fichier DataStore à part
+(`music_file.preferences_pb`), exclu de la sauvegarde : la permission ne suit pas l'appareil et
+l'identifiant révélerait le nom d'un fichier. Si un fichier est déjà retenu, toucher *Mon
+fichier* le choisit directement ; l'action *Changer* (lue « Changer de fichier ») rouvre le
+sélecteur, à côté d'*Écouter*. Annuler le sélecteur garde le choix précédent. Le fichier est lu
+par `MediaPlayer`, en boucle, et reprend à sa position après une pause ; il garde sa vitesse
+(l'accélération du danger ne vaut que pour les partitions). Une partition et un fichier sont
+deux sortes de `Music` (`core:music`), jouées par un seul lecteur (`MusicSwitch` derrière le
+focus audio, [ADR 0018](adr/0018-une-musique-partition-ou-fichier.md)). **Repli sur
+Korobeïniki** : sans fichier retenu (y compris des réglages restaurés sur un autre appareil),
+pour un fichier qui ne s'ouvre plus ou ne se décode pas, à la lecture comme à la reprise. Un
+fichier qui échoue après avoir commencé à jouer se tait (la partie rend le focus, P5.35) et
+réessaie à la reprise. La musique personnelle de « Mes musiques » garde la priorité en partie
+(voir P4.22d). Vue : V1 (maquette à mettre à jour). À essayer sur un téléphone.
+
+**Tests :** (plus `MediaPlayerTracksTest`, instrumenté : boucle, reprise à une position, document illisible)
+`MusicFileRepositoryContract › without a music file chosen there is none`,
+`MusicFileRepositoryContract › the music file chosen is read back`,
+`MusicFileRepositoryContract › a music file chosen again replaces the one before`,
+`MusicFileRepositoryContract › the music file flow emits each change once, and nothing when the same file is chosen again`,
+`DataStoreMusicFileRepositoryTest › the music file survives a new repository on the same file`,
+`DataStoreMusicFileRepositoryTest › the uri is stored as text under a key that must not change`,
+`DataStoreMusicFileRepositoryTest › a blank uri in the file gives no music file`,
+`DataStoreMusicFileRepositoryTest › a corrupted file gives no music file, and a new one is kept`,
+`DataStoreMusicFileRepositoryTest › a file that cannot be read gives no music file`,
+`DataStoreMusicFileRepositoryTest › a failure other than an IOException while the music file is read is not absorbed`,
+`MusicSwitchTest › a score plays on the score player`,
+`MusicSwitchTest › a music file plays on the file player`,
+`MusicSwitchTest › a music file played while a score plays stops the score`,
+`MusicSwitchTest › a score played while a music file plays stops the file`,
+`MusicSwitchTest › a music file that cannot be opened plays the fallback score in its place`,
+`MusicSwitchTest › a score resumed while a music file plays stops the file`,
+`MusicSwitchTest › a music file resumed while a score plays stops the score`,
+`MusicSwitchTest › stopping a music file replaced by a score leaves the score playing`,
+`MusicSwitchTest › the tempo goes to the scores, a music file plays at its own speed`,
+`MusicSwitchTest › a music file that opens but cannot be decoded plays the fallback score in its place`,
+`MusicSwitchTest › a music file that cannot be decoded resumes its fallback score`,
+`MusicSwitchTest › a music file that cannot be decoded once resumed plays the fallback score`,
+`MusicSwitchTest › a music file resumed once it can no longer be opened plays the fallback score`,
+`MusicSwitchTest › a music file that cannot be decoded after it was replaced plays nothing in place of the new music`,
+`MusicSwitchTest › a music file played after a fallback stops the fallback score`,
+`AudioFilePlayerTest › a file plays from its start`,
+`AudioFilePlayerTest › a file that cannot be opened gives no playback, and the file playing goes on`,
+`AudioFilePlayerTest › a new play replaces the file playing, whose playback no longer plays`,
+`AudioFilePlayerTest › a stopped playback releases its track and no longer plays`,
+`AudioFilePlayerTest › stopping a playback that was replaced leaves the new one playing`,
+`AudioFilePlayerTest › a stopped playback resumes the file from where it stopped`,
+`AudioFilePlayerTest › a playback replaced by another file resumes from where it was replaced`,
+`AudioFilePlayerTest › a track that fails while it plays ends its playback once, and its resume plays again from where it stood`,
+`AudioFilePlayerTest › a track that fails before it starts tells the file cannot be played, then ends its playback`,
+`AudioFilePlayerTest › a track that fails before it starts, once its playback was stopped, tells nothing`,
+`AudioFilePlayerTest › a playback resumed once its file can no longer be opened gives no playback`,
+`AudioFilePlayerTest › a playback resumed twice plays once`,
+`MusicFileTest › a music file is known by the uri of the document the player chose`,
+`MusicFileTest › a music file without a uri is refused`,
+`MusicFileTest › a score and a music file are both a music to play`,
+`HomeViewModelTest › the home screen is loading until the music file is read, so that its listen button never shows up late`,
+`HomeViewModelTest › my file can be listened to once a music file is chosen, in the order of the choices`,
+`HomeViewModelTest › listening to my file plays the music file chosen and shows it as previewed`,
+`HomeViewModelTest › choosing my file with a music file kept chooses it without opening the picker`,
+`HomeViewModelTest › choosing my file without a music file opens the picker, and chooses nothing yet`,
+`HomeViewModelTest › changing the music file opens the picker`,
+`HomeViewModelTest › the picker once opened is no longer asked for`,
+`HomeViewModelTest › a music file kept is shown, so that it may be changed`,
+`HomeViewModelTest › choosing a music file keeps it and chooses my file`,
+`HomeViewModelTest › choosing a music file stops the preview, even that of the file before`,
+`HomeViewModelTest › a music file that cannot be kept leaves the music chosen before`,
+`MusicScoresTest › my file plays the music file chosen`,
+`MusicScoresTest › my file without a file chosen plays Korobeiniki, as on another device the settings were restored on`,
+`MusicScoresTest › a music file that cannot be played falls back on the score of my file without a file`,
+`MusicScoresTest › the music of a choice is read with the music file kept`,
+`BackupRulesTest › the music file of my file never leaves the device`,
+`GameViewModelTest › with my file chosen on the home screen the music file of the player plays, its tempo left to the player`.
+
 
 **Tests (jeu) :** `MusicScoresTest › each music choice plays its score, or none`,
 `GameViewModelTest › at the start of the game the music of the player chosen for the games plays instead of the home screen's`,

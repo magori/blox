@@ -12,7 +12,7 @@ dependencies {
     // du record, et GameViewModel est un ViewModel.
     api(projects.core.game)
     api(projects.core.data)
-    // `api` : la fabrique reçoit de app la partition de chaque choix de musique, (MusicChoice) -> Score?.
+    // `api` : la fabrique reçoit de app la musique de chaque choix, (MusicChoice) -> Music?, partition ou fichier.
     api(projects.core.music)
     // La fabrique reçoit aussi le lecteur de musique.
     api(projects.core.audio)

@@ -75,6 +75,7 @@ internal fun HomeScreen(
     onThemeChosen: (ThemeChoice) -> Unit,
     onMusicChosen: (MusicChoice) -> Unit,
     onListen: (MusicChoice) -> Unit,
+    onChangeMusicFile: () -> Unit,
     onStartLevelChosen: (Int) -> Unit,
     onPlay: (startLevel: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -145,12 +146,18 @@ internal fun HomeScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         val name = stringResource(music.label)
                         Choice(text = name, selected = music == uiState.music, onClick = { onMusicChosen(music) })
-                        if (music in uiState.listenable) {
-                            ListenButton(
-                                musicName = name,
-                                previewed = music == uiState.previewing,
-                                onClick = { onListen(music) },
-                            )
+                        // Beside it, « Mon fichier » with a file offers to change that file.
+                        Row {
+                            if (music in uiState.listenable) {
+                                ListenButton(
+                                    musicName = name,
+                                    previewed = music == uiState.previewing,
+                                    onClick = { onListen(music) },
+                                )
+                            }
+                            if (music == MusicChoice.MY_FILE && uiState.hasMusicFile) {
+                                ChangeMusicFileButton(onClick = onChangeMusicFile)
+                            }
                         }
                     }
                 }
@@ -313,12 +320,15 @@ private fun HomeScreenPreview(theme: ThemeChoice) {
                 startLevel = 0,
                 startLevels = (0..9).toList(),
                 record = 12_340,
-                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
+                // A music file kept: « Mon fichier » shows its listen and change buttons.
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
                 previewing = null,
+                hasMusicFile = true,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
             onListen = {},
+            onChangeMusicFile = {},
             onStartLevelChosen = {},
             onPlay = {},
         )

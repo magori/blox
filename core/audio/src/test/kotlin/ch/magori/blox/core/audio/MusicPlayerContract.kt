@@ -17,7 +17,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 /**
- * The contract of [MusicPlayer] and [Playback], what every player does, the real one and the fake shared by
+ * The contract of [Player] and [Playback], what every player does, the real one and the fake shared by
  * the tests of the features alike: which score is heard, at which tempo, which tempos are ready ahead, and
  * whether a playback still plays.
  * A subclass gives a player and tells what is heard of it; what is proper to a player (its sinks, its
@@ -29,7 +29,7 @@ abstract class MusicPlayerContract {
 
     /** A player under test, and what is heard of it. */
     protected interface PlayerUnderTest {
-        val player: MusicPlayer
+        val player: Player<Score>
 
         /** What is heard now, null in silence, once the work due has run. */
         suspend fun heard(): Heard?
@@ -56,9 +56,9 @@ abstract class MusicPlayerContract {
      */
     protected fun heardThrough(
         fake: FakeMusicPlayer,
-        player: MusicPlayer = fake,
+        player: Player<Score> = fake,
     ): PlayerUnderTest = object : PlayerUnderTest {
-        override val player: MusicPlayer = player
+        override val player: Player<Score> = player
 
         override suspend fun heard(): Heard? = fake.playing?.let { Heard(it, fake.tempo) }
 

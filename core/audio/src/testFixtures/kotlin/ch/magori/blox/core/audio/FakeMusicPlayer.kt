@@ -1,22 +1,26 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Music
+import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
- * A music player that notes what it is told, in order (`play <id>`, `stop`, `resume <id>`,
- * `tempo <factor>`), and keeps the identifier of the score [playing], the [tempo] it plays at and the
- * tempos [prepared]. As the real one, it plays one score at a time: stopping a playback that was replaced
- * leaves the new one playing; a new play starts at the normal tempo and forgets the tempos prepared, a
- * resume goes on at the tempo asked for, with the tempos prepared; a tempo factor that is not positive and
- * finite is refused. The music may stop by itself ([fail]), as when the real one fails. It keeps the
+ * A music player that notes what it is told, in order (`play <id>`, `play file <uri>`, `stop`, `resume <id>`,
+ * `resume file <uri>`, `tempo <factor>`), and keeps the identifier of the score [playing] or the music file
+ * [playingFile], the [tempo] it plays at and the tempos [prepared]. As the real one, it plays one music at a time:
+ * stopping a playback that was replaced leaves the new one playing; a new play starts at the normal tempo and forgets
+ * the tempos prepared, a resume goes on at the tempo asked for, with the tempos prepared; a tempo factor that is not
+ * positive and finite is refused. The music may stop by itself ([fail]), as when the real one fails. It keeps the
  * contract of the real one (`MusicPlayerContract`).
  */
 class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
     var playing: ScoreId? = null
+        private set
+    var playingFile: MusicFile? = null
         private set
     var tempo: Double = 1.0
         private set
@@ -24,11 +28,11 @@ class FakeMusicPlayer : MusicPlayer {
         private set
     private var current: FakePlayback? = null
 
-    override fun play(score: Score): Playback {
-        calls += "play ${score.id}"
+    override fun play(music: Music): Playback {
+        calls += "play ${music.noted}"
         tempo = 1.0
         prepared = emptySet()
-        return start(score)
+        return start(music)
     }
 
     override fun setTempoFactor(factor: Double) {
@@ -48,17 +52,26 @@ class FakeMusicPlayer : MusicPlayer {
      */
     fun fail() {
         calls += "failure"
+        silence()
+        current?.end()
+    }
+
+    private fun start(music: Music): Playback {
+        current?.end()
+        silence()
+        when (music) {
+            is Score -> playing = music.id
+            is MusicFile -> playingFile = music
+        }
+        return FakePlayback(music).also { current = it }
+    }
+
+    private fun silence() {
         playing = null
-        current?.end()
+        playingFile = null
     }
 
-    private fun start(score: Score): Playback {
-        current?.end()
-        playing = score.id
-        return FakePlayback(score).also { current = it }
-    }
-
-    private inner class FakePlayback(private val score: Score) : Playback {
+    private inner class FakePlayback(private val music: Music) : Playback {
         private val state = MutableStateFlow(true)
 
         override val isPlaying: Flow<Boolean> = state
@@ -71,16 +84,23 @@ class FakeMusicPlayer : MusicPlayer {
         override fun stop() {
             calls += "stop"
             end()
-            if (current === this) playing = null
+            if (current === this) silence()
         }
 
         override fun resume(): Playback {
-            calls += "resume ${score.id}"
-            return start(score)
+            calls += "resume ${music.noted}"
+            return start(music)
         }
     }
 
     private fun requireValidTempo(factor: Double) {
         require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
     }
+
+    /** How a music is noted in [calls]: a score by its identifier, a file by its uri. */
+    private val Music.noted: String
+        get() = when (this) {
+            is Score -> id.toString()
+            is MusicFile -> "file $uri"
+        }
 }

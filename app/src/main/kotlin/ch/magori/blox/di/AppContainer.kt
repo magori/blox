@@ -2,17 +2,23 @@ package ch.magori.blox.di
 
 import android.content.Context
 import android.util.Log
+import ch.magori.blox.core.audio.AudioFilePlayer
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
 import ch.magori.blox.core.audio.FocusedMusicPlayer
+import ch.magori.blox.core.audio.MediaPlayerTracks
 import ch.magori.blox.core.audio.MusicPlayer
+import ch.magori.blox.core.audio.MusicSwitch
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
+import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MUSICS_FILE
+import ch.magori.blox.core.data.MY_MUSIC_FILE
+import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
@@ -24,7 +30,9 @@ import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.gameMusicScore
+import ch.magori.blox.music.musicOf
 import ch.magori.blox.music.scoreOf
 import ch.magori.blox.theme.AppTheme
 import kotlinx.coroutines.CoroutineScope
@@ -59,6 +67,14 @@ class AppContainer(context: Context) {
     )
 
     /**
+     * The music file of « Mon fichier », in `files/datastore/music_file.preferences_pb`, apart from the settings: the
+     * backup rules leave it out, so that the uri of a document of the player never leaves the device.
+     */
+    private val musicFiles: MusicFileRepository = DataStoreMusicFileRepository(
+        preferencesDataStore(dataScope) { dataStoreFile(filesDir, MY_MUSIC_FILE) },
+    )
+
+    /**
      * The musics of the player, « Mes musiques », in `files/datastore/musics.bin`, and the one played during the
      * games.
      * Built here, once for the process; the games read the music chosen for them from it, and the screens that list
@@ -71,17 +87,25 @@ class AppContainer(context: Context) {
 
     /**
      * The music of the games and of the preview on the home screen: a single sequencer for the whole life
-     * of the process, so that one music plays at a time, rendering on [Dispatchers.Default] and writing to
-     * an [AudioTrackSink] on [Dispatchers.IO]. A failure stops the music, never the game; it is logged
-     * here, the only place that knows Android. It plays only with the audio focus of the system, which
-     * it gives back on stop: it never mixes with another app, and the headphones unplugged stop it.
+     * of the process, rendering on [Dispatchers.Default] and writing to an [AudioTrackSink] on
+     * [Dispatchers.IO], and a single player of the music file of the player, on `MediaPlayer`, one of them
+     * playing at a time. A music file that can no longer be read plays Korobeiniki instead. A failure stops
+     * the music, never the game; it is logged here, the only place that knows Android. It plays only with
+     * the audio focus of the system, which it gives back on stop: it never mixes with another app, and the
+     * headphones unplugged stop it.
      */
     private val music: MusicPlayer = FocusedMusicPlayer(
-        player = ChiptuneSequencer(
-            synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
-            openSink = ::AudioTrackSink,
-            scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
-            onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
+        player = MusicSwitch(
+            scores = ChiptuneSequencer(
+                synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
+                openSink = ::AudioTrackSink,
+                scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+                onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
+            ),
+            files = AudioFilePlayer(
+                MediaPlayerTracks(context, onFailure = { failure -> Log.w(TAG, "The music file stopped", failure) }),
+            ),
+            fallback = FALLBACK_SCORE,
         ),
         focus = SystemAudioFocus(context),
     )
@@ -102,16 +126,22 @@ class AppContainer(context: Context) {
         userPreferences,
         music,
         haptics,
-        ::scoreOf,
+        musicFiles::musicOf,
         musicLibrary::gameMusicScore,
     )
 
     /**
      * The settings and the record kept on the device; the start levels of the Classic mode; the music
-     * player of the games and the scores of the music choices, for the preview.
+     * player of the games and the scores of the music choices, for the preview; the music file of « Mon fichier ».
      */
-    val homeViewModelFactory: HomeViewModel.Factory =
-        HomeViewModel.Factory(userPreferences, highScores, ClassicRules.levelProgression, music, ::scoreOf)
+    val homeViewModelFactory: HomeViewModel.Factory = HomeViewModel.Factory(
+        userPreferences,
+        highScores,
+        ClassicRules.levelProgression,
+        music,
+        ::scoreOf,
+        musicFiles,
+    )
 }
 
 private const val TAG = "BloX"

@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.home.navigation
 
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -10,6 +11,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.home.HomeScreen
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.rememberMusicFilePicker
 import kotlinx.serialization.Serializable
 
 /** Clé de l'écran d'accueil (vue V1). */
@@ -36,6 +38,16 @@ fun EntryProviderScope<NavKey>.homeEntry(
             lifecycle.addObserver(observer)
             onDispose { lifecycle.removeObserver(observer) }
         }
+        // The view model decides when the picker of the system opens (tested there); the screen opens it, and hands
+        // the file picked, if any, over.
+        val pickMusicFile = rememberMusicFilePicker(onPicked = viewModel::onMusicFileChosen)
+        val pickerRequested by viewModel.musicFilePickerRequested.collectAsStateWithLifecycle()
+        LaunchedEffect(pickerRequested) {
+            if (pickerRequested) {
+                viewModel.onMusicFilePickerOpened()
+                pickMusicFile()
+            }
+        }
         // Nothing is shown, and nothing can be played, until the saved settings are read: no theme flashes.
         uiState?.let { loaded ->
             HomeScreen(
@@ -43,6 +55,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
                 onThemeChosen = viewModel::onThemeChosen,
                 onMusicChosen = viewModel::onMusicChosen,
                 onListen = viewModel::onListen,
+                onChangeMusicFile = viewModel::onChangeMusicFile,
                 onStartLevelChosen = viewModel::onStartLevelChosen,
                 onPlay = { startLevel ->
                     viewModel.onPlay()
