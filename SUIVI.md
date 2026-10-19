@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 71 / 141 | `██████████░░░░░░░░░░` **50 %** |
+| **Général** | 72 / 141 | `██████████░░░░░░░░░░` **51 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -503,9 +503,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   (A10).
 - [ ] **P5.17** Profil de référence (baseline profile) et Macrobenchmark du parcours accueil →
   partie (A9). Demande un émulateur ou un téléphone pour générer le profil.
-- [ ] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
+- [x] **P5.18** Traçabilité « règle → test » : corriger les quatre références introuvables de
   `docs/regles-mode-classique.md` et `docs/musique.md`, puis un script dans `scripts/` qui vérifie
-  chaque `Classe › nom` des docs, lancé en CI (B1).
+  chaque `Classe › nom` des docs, lancé en CI (B1). Fait : cinq références corrigées (une de plus, `CellStylesTest`), `scripts/verifier-tracabilite.sh` en tête de la CI. Reste hors script : les classes citées seules dans `docs/architecture.md`.
 - [x] **P5.19** Appui pendant l'effacement ou le délai d'apparition : tests de la règle « appui
   perdu » (A, B, ◀ dans `EntryDelay` et `Clearing`), compteur de déplacement de départ nommé et
   sourcé, ou marqué **[à vérifier]** (B2). Fait : 5 tests (A, B, ◀, ▶, ▼, dernier tick du délai, DAS chargé), `AutoRepeat.heldWithoutPress` sourcé (`autorepeatX`), valeur 0 **[à vérifier]**.
