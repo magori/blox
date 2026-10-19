@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.game.topbar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,6 +32,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -101,23 +103,28 @@ internal fun GameTopBar(
     }
 }
 
-/** The pause button: a drawn glyph, not a Unicode character, on a touch target of at least 48 dp. */
+/**
+ * The pause button: a drawn glyph, not a Unicode character, on a touch target of at least 48 dp, framed
+ * like a key at rest ([pauseButtonColors]) so that it stands out from the page.
+ */
 @Composable
 private fun PauseButton(onPause: () -> Unit) {
-    val palette = BloxTheme.palette
+    val colors = pauseButtonColors(BloxTheme.palette)
     val description = stringResource(R.string.feature_game_top_pause)
+    val shape = BloxTheme.shapes.button
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier
             // Read by the measured journey of `:benchmark` (`By.res`), whatever the language.
             .testTag("game_pause")
             .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = BloxSizes.minTouchTarget)
-            .clip(BloxTheme.shapes.button)
-            .background(palette.button)
+            .clip(shape)
+            .background(colors.background)
+            .border(BloxBorders.frame, colors.outline, shape)
             .clickable(role = Role.Button, onClick = onPause)
             .semantics { contentDescription = description },
     ) {
-        val ink = palette.buttonInk
+        val ink = colors.ink
         Spacer(
             modifier = Modifier
                 .size(TopBarSizes.glyph)
