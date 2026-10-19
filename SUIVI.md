@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 95 / 146 | `█████████████░░░░░░░` **65 %** |
+| **Général** | 96 / 146 | `█████████████░░░░░░░` **66 %** |
 | **MVP** (jouable sur téléphone) | 37 / 37 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -491,7 +491,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   prochaine montée d'AGP (déconseillé à partir d'AGP 9.5 au profit des « test suites »).
   Revue qualité (C2) : tant que Dependabot fusionne sur CI verte, une montée de Compose peut
   changer le rendu sans signal.
-- [ ] **P5.9** Fichier de configuration de stabilité Compose (`build-logic`) listant
+- [x] **P5.9** Fichier de configuration de stabilité Compose (`compose-stability.conf`, branché par `build-logic`) listant
   `ch.magori.blox.core.game.model.*` (revue de P2.3).
 
 Revue qualité du 2026-10-19 (Android et performance, qualité logicielle, sécurité,
