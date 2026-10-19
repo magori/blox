@@ -167,6 +167,18 @@ class DataStoreUserPreferencesRepositoryTest {
     }
 
     @Test
+    fun `a failure other than an IOException while the settings are read is not absorbed`() = runTest {
+        // Given a DataStore whose reading fails with a bug
+        val repository = DataStoreUserPreferencesRepository(FailingDataStore(IllegalStateException("a bug")))
+
+        // When
+        val failure = runCatching { repository.preferences.first() }.exceptionOrNull()
+
+        // Then
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage("a bug")
+    }
+
+    @Test
     fun `the preferences flow emits each change once, and nothing when a value is saved again`() = runTest {
         // Given
         val repository = repositoryIn(backgroundScope)

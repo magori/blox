@@ -150,6 +150,18 @@ class DataStoreHighScoreRepositoryTest {
         assertThat(repository.highScore.first()).isEqualTo(0)
     }
 
+    @Test
+    fun `a failure other than an IOException while the records are read is not absorbed`() = runTest {
+        // Given a DataStore whose reading fails with a bug
+        val repository = DataStoreHighScoreRepository(FailingDataStore(IllegalStateException("a bug")))
+
+        // When
+        val failure = runCatching { repository.highScore.first() }.exceptionOrNull()
+
+        // Then
+        assertThat(failure).isInstanceOf(IllegalStateException::class.java).hasMessage("a bug")
+    }
+
     /** The records file of the test, in [directory]. */
     private val recordsFile: File get() = File(directory, RECORDS_FILE)
 

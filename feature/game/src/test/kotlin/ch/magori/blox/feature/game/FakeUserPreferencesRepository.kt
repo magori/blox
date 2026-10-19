@@ -14,7 +14,10 @@ internal class FakeUserPreferencesRepository(initial: UserPreferences = UserPref
     UserPreferencesRepository {
     val state = MutableStateFlow<UserPreferences?>(initial)
 
-    override val preferences: Flow<UserPreferences> = state.filterNotNull()
+    /** What [preferences] gives: [state], unless the test sets another flow before the view model reads it. */
+    var preferencesFlow: Flow<UserPreferences> = state.filterNotNull()
+
+    override val preferences: Flow<UserPreferences> get() = preferencesFlow
 
     override suspend fun setTheme(theme: ThemeChoice) {
         state.update { it?.copy(theme = theme) }
