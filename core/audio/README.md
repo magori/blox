@@ -8,6 +8,9 @@ audio personnel.
 - `MusicPlayer` : interface consommée par les features (`play(track)`, `stop()`, `setTempoFactor()`).
 - `ChiptuneSequencer` : synthèse en temps réel (onde carrée, triangle) écrite dans un `AudioTrack`.
   Le rendu des échantillons est isolé dans une classe pure, testable sur la JVM.
+- `FocusedMusicPlayer` : ne joue qu'avec le focus audio (`AudioFocus`, `SystemAudioFocus` sur
+  `AudioManager`) ; l'abandonne à l'arrêt, s'arrête à une perte durable ou au débranchement du
+  casque, se met en pause pendant une perte passagère.
 - `AudioFilePlayer` : lecture d'un fichier choisi par l'utilisateur (sélecteur de documents
   du système), via `MediaPlayer` ou Media3.
 - `SoundEffects` : effets courts (rotation, ligne complète, fin de partie), plus tard.

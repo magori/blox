@@ -8,6 +8,14 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.tPointingDown
 
+/** Rows 18 and 19, which a T pointing down with its pivot at (5, 18) fills. */
+internal val TWO_ROWS_TO_FILL: Board = Board.parse(
+    """
+    IIII...III
+    IIIII.IIII
+    """,
+)
+
 /**
  * A game state for tests: an empty board, a T falling high on it, at level 0, unless told otherwise.
  * The start level stays 0.
