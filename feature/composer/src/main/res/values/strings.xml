@@ -7,6 +7,7 @@
     <string name="feature_composer_status_modified">modifiée</string>
     <string name="feature_composer_menu">Plus d\'options</string>
     <string name="feature_composer_menu_other_track">Montrer l\'autre piste en filigrane</string>
+    <string name="feature_composer_menu_follow">Suivre la lecture</string>
 
     <!-- Onglets -->
     <string name="feature_composer_tab_melody">Mélodie</string>
@@ -63,6 +64,10 @@
 
     <!-- Mesures -->
     <string name="feature_composer_bar">Mesure %1$d</string>
+    <!-- Lu par TalkBack : la mesure jouée pendant l'écoute. -->
+    <string name="feature_composer_bar_played">en lecture</string>
+    <!-- Message : toucher une autre mesure que la mesure jouée pendant l'écoute. -->
+    <string name="feature_composer_follow_stopped">La grille ne suit plus la lecture. Menu « … » pour la suivre à nouveau.</string>
 
     <!-- Panneau du bas -->
     <plurals name="feature_composer_tempo">
@@ -74,4 +79,6 @@
     <string name="feature_composer_faster_glyph" translatable="false">+</string>
     <string name="feature_composer_slower">Ralentir</string>
     <string name="feature_composer_faster">Accélérer</string>
+    <string name="feature_composer_listen">Écouter</string>
+    <string name="feature_composer_stop">Arrêter</string>
 </resources>

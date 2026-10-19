@@ -66,6 +66,25 @@ internal class TrackColorsTest {
         assertThat(contrast(palette.outOfScale, palette.page)).isLessThan(contrast(palette.label, palette.page))
     }
 
+    @ParameterizedTest(name = "{0}, {2}")
+    @MethodSource("themesAndTracks")
+    fun `the outline of the column played stands out from the cells, empty or filled, and the page by 3 to 1 at least`(
+        theme: String,
+        palette: BloxPalette,
+        track: Track,
+    ) {
+        // When
+        val outline = playedOutline(palette)
+        val notes = trackColors(palette, track)
+
+        // Then (WCAG 2.1, 1.4.11: graphical objects): one of its two lines, the line or its halo, stands out from
+        // whatever it is drawn against. No single colour does in Original, between its pale cells and its dark notes.
+        listOf(palette.boardBackground, palette.page, notes.note, notes.held).forEach { around ->
+            assertThat(maxOf(contrast(outline.line, around), contrast(outline.halo, around)))
+                .isGreaterThanOrEqualTo(3.0)
+        }
+    }
+
     companion object {
         @JvmStatic
         fun themes(): List<Arguments> = namedPalettes.map { (theme, palette) -> Arguments.of(theme, palette) }

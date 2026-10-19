@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 114 / 162 | `██████████████░░░░░░` **70 %** |
-| **MVP audio** | 23 / 27 | `█████████████████░░░` **85 %** |
+| **Général** | 115 / 164 | `██████████████░░░░░░` **70 %** |
+| **MVP audio** | 24 / 27 | `██████████████████░░` **89 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -411,6 +411,10 @@ Référence : [docs/musique.md](docs/musique.md).
   « Arrêter » alors que plus rien ne joue ; `MusicPlayer` n'expose aucun état (revue de P4.7).
 - [x] **P4.24** Test de contrat `MusicPlayerContract` exécuté sur `FakeMusicPlayer` et sur
   `ChiptuneSequencer` (un jeton remplacé ne coupe rien), pour que le faux suive le vrai.
+- [ ] **P4.25** Position de lecture exposée par `Playback` : la colonne jouée de l'éditeur est
+  calculée à partir du temps ; elle part avant le son, change de tempo un temps trop tôt et
+  continue pendant une perte passagère du focus. Le séquenceur dirait où il en est, et l'éditeur
+  le suivrait (revue de P4.19c, à faire si l'écart s'entend sur téléphone).
 - [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
@@ -459,7 +463,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
     entrée dans `app`, grille d'une mesure avec ses gestes, onglets, barre d'outils, boutons de
     mesure, noms de notes pour le lecteur d'écran, filigrane de l'autre piste, cases à deux
     doubles croches, captures des thèmes ; retirer l'exclusion `buildHealth` de `feature:composer`.
-  - [ ] **P4.19c** Écoute dans l'éditeur : *Écouter* par `MusicPlayer`, colonne jouée, *Suivre la
+  - [x] **P4.19c** Écoute dans l'éditeur : *Écouter* par `MusicPlayer`, colonne jouée, *Suivre la
     lecture*.
   - [ ] **P4.19d** Enregistrer, quitter, renommer, supprimer, avec le stockage de P4.22 : fenêtre
     d'enregistrement sur `MusicNames`, question en quittant. Reportés de la revue de P4.19b : garder
@@ -622,6 +626,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.40** Mettre à jour la maquette de l'éditeur (V8, V11, V14, V17) selon le code de P4.19b :
   onglets à la couleur de la piste en Couleurs, noms de ligne hors gamme en italique, hauteur
   minimale des lignes (26 dp), bouton « COMPOSER UNE MUSIQUE » de l'accueil en capitales avec icône.
+  Écoute (P4.19c) : bouton rond Écouter / Arrêter à droite du tempo, contour en deux traits de la
+  colonne jouée, trait sous la mesure jouée, « Suivre la lecture » dans le menu, message en bas
+  de la grille.
 - [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
@@ -633,6 +640,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
   qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
   `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18). Vu en P5.42 : « COMPOSER UNE MUSIQUE » coupé en « COMPOSER UNE MU » à ×2 (P4.19b).
+- [ ] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
+  `GameLoop` (`feature:game`) à son plafond de ticks par image près ; la monter dans un module
+  partagé avec un plafond en paramètre (revue de P4.19c, règle de 2).
 
 ## P6 — Mode Moderne (plus tard)
 
