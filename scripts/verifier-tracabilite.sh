@@ -19,11 +19,12 @@
 #     aussi déclarer « class Interne » (le nom du test est ensuite cherché dans tout le fichier,
 #     pas seulement dans le corps de la classe imbriquée) ;
 #   - le nom doit y être déclaré sous l'une de ces formes (les trois premières sont celles du
-#     dépôt, @DisplayName est prévu pour plus tard) :
+#     dépôt, @DisplayName sert aux tests instrumentés) :
 #       fun `nom`               nom de fonction de test
 #       name = "nom"            @ParameterizedTest(name = …)
 #       argumentSet("nom"       nom d'un jeu d'arguments
 #       @DisplayName("nom"
+#       @DisplayName(           seul en fin de ligne, le nom entre guillemets à la ligne suivante
 #     Un nom qui n'apparaît que dans une assertion, un commentaire ou une autre chaîne ne compte pas ;
 #   - le nom doit y figurer en entier, délimiteur fermant compris, sauf s'il se termine par « … »,
 #     « ... » ou « * » : ce qui précède ce marqueur est alors un préfixe, qui doit rester non vide.
@@ -125,6 +126,10 @@ while IFS=$'\t' read -r kind doc line class name; do
             reason="test introuvable"
             if grep -qF -e "fun \`$name$b" -e "name = \"$name$q" -e "argumentSet(\"$name$q" \
                 -e "@DisplayName(\"$name$q" "$file"; then
+                found=1; break
+            fi
+            # A name too long for one line: @DisplayName( alone, the name on the next line.
+            if grep -A1 -E '@DisplayName\($' "$file" | grep -qF -e "\"$name$q"; then
                 found=1; break
             fi
         done <<< "$files"

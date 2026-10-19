@@ -11,8 +11,8 @@ public interface MusicPlayer {
     /**
      * Plays [score] in a loop, from its start and at its tempo (1.0), in place of the score playing, if
      * any: a tempo asked for before is forgotten, so that a music played anew (a preview, a new game) is
-     * never left faster by the one before. The [Playback] stops this score only: once another one
-     * replaced it, stopping it does nothing.
+     * never left faster by the one before; so are the tempos prepared. The [Playback] stops this score
+     * only: once another one replaced it, stopping it does nothing.
      */
     public fun play(score: Score): Playback
 
@@ -21,6 +21,14 @@ public interface MusicPlayer {
      * the next [Playback.resume], not for the next [play].
      */
     public fun setTempoFactor(factor: Double)
+
+    /**
+     * Has the score played last ready at the tempo [factor] before it is asked for: a game prepares its
+     * danger tempo as it starts, so that entering the danger, the most tense moment of the game, renders
+     * nothing. Kept for the [Playback.resume] of that score, forgotten by the next [play]: a preview
+     * prepares nothing.
+     */
+    public fun prepareTempo(factor: Double)
 }
 
 /** A score played by a [MusicPlayer]. */

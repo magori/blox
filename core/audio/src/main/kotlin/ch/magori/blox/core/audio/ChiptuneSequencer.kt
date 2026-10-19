@@ -2,34 +2,34 @@ package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Score
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.async
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlin.math.roundToInt
 
 /**
  * Plays a score in a loop. Each score is rendered once, away from the audio writing, and kept in a
- * cache: one mixed buffer per score, about 2.3 MB for 8 bars at 44 100 Hz. The loop replays that
- * buffer, so it never drifts. The samples go to a sink in slices, the sink paces the loop. Playing
- * another score replaces the one playing: there is never more than one loop, nor more than one
- * open sink. A failure (no audio output, a write refused) stops the music, never the game.
+ * cache ([TempoBuffers]), one mixed buffer per tempo factor, about 2.3 MB for 8 bars at 44 100 Hz. The
+ * cache only holds the score played last, with its renderings under way, which a stop does not cancel:
+ * playing another score abandons them. The loop replays that buffer, so it never drifts. The samples go
+ * to a sink in slices, the sink paces the loop. Playing another score replaces the one playing: there is
+ * never more than one loop, nor more than one open sink. A sink that dies ([DeadSinkException]) is
+ * released and another one opened ([ReopeningSink]): the music goes on where it stood. Any other failure
+ * (no audio output, a write refused, a sink that keeps dying) stops the music, never the game.
  *
- * A new tempo factor ([setTempoFactor]) is rendered once, in the background, and cached too; the
- * music keeps its sink and switches once that buffer is ready, at the start of the next beat where a
- * note starts in every voice ([switchBeats]), so that no note is cut. The samples are never
- * resampled, which would change the pitch. A tempo rendering that fails leaves the music at its
- * tempo; a rendering under way never holds back a stop, nor the next play.
+ * As soon as a score plays, its normal tempo and the tempos prepared for it ([prepareTempo], the danger
+ * tempo of a game) are rendered in the background, if not cached yet, so that a change of tempo later
+ * finds its buffer ready. A new tempo factor ([setTempoFactor]) is otherwise rendered once, in the
+ * background, and cached too; the music keeps its sink and switches once that buffer is ready, at the
+ * start of the next beat where a note starts in every voice ([switchBeats]), so that no note is cut.
+ * The samples are never resampled, which would change the pitch. A tempo rendering that fails leaves
+ * the music at its tempo; a rendering under way never holds back a stop, nor the next play.
  */
 public class ChiptuneSequencer internal constructor(
     private val render: (Score, Double) -> FloatArray,
@@ -63,21 +63,42 @@ public class ChiptuneSequencer internal constructor(
         onFailure = onFailure,
     )
 
-    /** One mixed buffer per score and tempo factor, not one per voice. */
-    private val cache = mutableMapOf<Rendering, FloatArray>()
+    /** Held by the loop playing: never two loops, nor two open sinks, at a time. */
+    private val sinkLock = Mutex()
+
+    /**
+     * The buffers and renderings of the score played last; another score abandons them. Only used by the
+     * loop, under [sinkLock].
+     */
+    private var cache: TempoBuffers? = null
     private var playing: Job? = null
 
     /** The tempo factor asked for, read by the loop between two slices. */
     @Volatile
     private var requestedTempo = NORMAL_TEMPO
 
+    /** The tempo factors to render ahead for the score played last, read by the loop between two slices. */
+    @Volatile
+    private var preparedTempos: Set<Double> = emptySet()
+
     /**
      * Plays [score] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
-     * for before is forgotten. Call it from the main thread.
+     * for before is forgotten, and so are the tempos prepared. Call it from the main thread.
      */
     override fun play(score: Score): Playback {
         requestedTempo = NORMAL_TEMPO
+        preparedTempos = emptySet()
         return start(score, from = null)
+    }
+
+    /**
+     * Renders the score played last at [factor] in the background, as soon as it plays, so that switching
+     * to that tempo later renders nothing. Kept for a resume, forgotten by the next [play]. Call it from
+     * the main thread.
+     */
+    override fun prepareTempo(factor: Double) {
+        requireValidTempo(factor)
+        preparedTempos = preparedTempos + factor
     }
 
     /** Plays [score] in a loop from the start, or from where [from] stood, in place of the score playing. */
@@ -86,18 +107,21 @@ public class ChiptuneSequencer internal constructor(
         from: Place?,
     ): Playback {
         val playback = SequencerPlayback(score, from)
-        val previous = playing
+        // Stopped at once: the loop playing writes no more slice, nor sees the tempos of the next score.
+        playing?.cancel()
         val job = scope.launch(writeDispatcher) {
-            // The previous loop releases its sink before this one opens its own; the cache is
-            // only read and written here, one loop at a time.
-            previous?.cancelAndJoin()
-            try {
-                loop(score, playback, from)
-            } catch (cancellation: CancellationException) {
-                throw cancellation
-            } catch (failure: Exception) {
-                // No audio output, a rendering or a write that fails: the music stops, the game goes on.
-                onFailure(failure)
+            // One loop at a time: this one opens its sink once the one before has released its own, in
+            // the order of the plays; a loop stopped while it waits never gets it. The cache is only used
+            // under this lock.
+            sinkLock.withLock {
+                try {
+                    loop(score, playback, from)
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (failure: Exception) {
+                    // No audio output, a rendering or a write that fails: the music stops, the game goes on.
+                    onFailure(failure)
+                }
             }
         }
         playback.job = job
@@ -128,8 +152,9 @@ public class ChiptuneSequencer internal constructor(
     }
 
     /**
-     * Renders [score] at the tempo asked for, or takes it from the cache, then writes it in a loop
-     * until cancelled. A new tempo is rendered meanwhile, and played from the next beat once ready.
+     * Renders [score] at the tempo asked for, or takes it from the cache, then writes it in a loop until
+     * cancelled. Its normal tempo and the tempos prepared are rendered meanwhile, and so is a new tempo
+     * asked for, which plays from the next beat once ready.
      */
     private suspend fun loop(
         score: Score,
@@ -139,37 +164,44 @@ public class ChiptuneSequencer internal constructor(
         val beats = score.voices.first().beats.roundToInt()
         // The beats where no note is cut, then the end of the buffer, where the loop starts again.
         val switches = switchBeats(score) + beats
+        val buffers = buffersFor(score)
         var tempo = requestedTempo
-        var buffer = cache[Rendering(score, tempo)]
-            ?: withContext(renderDispatcher) { render(score, tempo) }.also { cache[Rendering(score, tempo)] = it }
-        val sink = openSink(sampleRate)
-        // Detached from the loop: a tempo rendering under way never holds back a stop, nor the next play.
-        val renderings = CoroutineScope(SupervisorJob() + renderDispatcher)
+        var buffer = buffers.bufferOf(tempo)
+        // An output that dies (a restart of the audio server, an output gone) is reopened.
+        val sink = ReopeningSink { openSink(sampleRate) }
+        // The tempo asked for last, rendered in the background while it is not the one playing.
+        var asked = tempo
         try {
             var cursor = LoopCursor(
                 buffer,
                 from?.let { resumePosition(it.position, it.length, buffer.size, switches, beats) } ?: 0,
             )
-            var pending: PendingTempo? = null
             val slice = FloatArray(sliceSize)
             while (true) {
                 // A real sink blocks instead of suspending: check for a stop between slices.
                 currentCoroutineContext().ensureActive()
-                pending = renderings.pendingFor(score, requestedTempo, tempo, pending)
+                buffers.prepare(NORMAL_TEMPO)
+                preparedTempos.forEach(buffers::prepare)
+                buffers.harvest()
+                val wanted = requestedTempo
+                if (wanted != asked) {
+                    // Of quick changes, only the last one is rendered.
+                    if (asked != tempo) buffers.giveUp(asked)
+                    asked = wanted
+                    if (asked != tempo) buffers.request(asked)
+                }
                 var written = 0
-                val ready = pending?.takeIf { it.buffer.isCompleted }
                 // A rendering that failed gives no buffer: the old tempo goes on.
-                val readyBuffer = ready?.buffer?.await()
-                if (ready != null && readyBuffer != null) {
+                val ready = if (asked != tempo) buffers.ready(asked) else null
+                if (ready != null) {
                     // Switch at the start of the next beat where no note is cut, if it comes within this slice.
                     val grid = BeatGrid(buffer.size, beats)
                     val beat = switches.first { it >= grid.nextBeat(cursor.position) }
                     val beforeBeat = grid.startOf(beat) - cursor.position
                     if (beforeBeat < sliceSize) {
                         cursor.fill(slice, until = beforeBeat)
-                        buffer = readyBuffer.also { cache[Rendering(score, ready.factor)] = it }
-                        tempo = ready.factor
-                        pending = null
+                        buffer = ready
+                        tempo = asked
                         cursor = LoopCursor(buffer, BeatGrid(buffer.size, beats).startOf(beat % beats))
                         written = beforeBeat
                     }
@@ -179,45 +211,17 @@ public class ChiptuneSequencer internal constructor(
                 sink.write(slice)
             }
         } finally {
-            renderings.cancel()
+            // A tempo asked for, not prepared, is not rendered for nothing; a tempo prepared goes on rendering.
+            if (asked != tempo) buffers.giveUp(asked)
             sink.release()
         }
     }
 
-    /**
-     * The rendering of the tempo [wanted], when it is not the [playing] one: [pending] if it is for
-     * that tempo already, else the cached buffer or a new rendering. A rendering that is no longer
-     * wanted is cancelled: of quick changes, only the last one plays.
-     */
-    private fun CoroutineScope.pendingFor(
-        score: Score,
-        wanted: Double,
-        playing: Double,
-        pending: PendingTempo?,
-    ): PendingTempo? {
-        if (pending?.factor == wanted) return pending
-        pending?.buffer?.cancel()
-        if (wanted == playing) return null
-        val buffer = cache[Rendering(score, wanted)]?.let { CompletableDeferred<FloatArray?>(it) }
-            ?: async(renderDispatcher) { renderOrNull(score, wanted) }
-        return PendingTempo(wanted, buffer)
-    }
-
-    /** A tempo asked for, and its buffer, rendered or being rendered; null if its rendering failed. */
-    private class PendingTempo(val factor: Double, val buffer: Deferred<FloatArray?>)
-
-    /**
-     * [score] rendered at [tempoFactor], or null when the rendering fails: a new tempo that cannot be
-     * rendered leaves the music at its tempo. Only the tempo renderings are caught; a failure of the
-     * sink still stops the music.
-     */
-    private fun renderOrNull(
-        score: Score,
-        tempoFactor: Double,
-    ): FloatArray? = try {
-        render(score, tempoFactor)
-    } catch (failure: Exception) {
-        null
+    /** The buffers of [score]: those of the score played last, or new ones, the others abandoned. */
+    private fun buffersFor(score: Score): TempoBuffers {
+        cache?.takeIf { it.score == score }?.let { return it }
+        cache?.abandon()
+        return TempoBuffers(score, render, renderDispatcher, parent = scope.coroutineContext[Job]).also { cache = it }
     }
 
     /**
@@ -225,7 +229,6 @@ public class ChiptuneSequencer internal constructor(
      * the main thread.
      */
     public fun stop() {
-        // The job is kept: the next play waits for it to have released its sink.
         playing?.cancel()
     }
 
@@ -235,12 +238,13 @@ public class ChiptuneSequencer internal constructor(
      * at 1.0 again. Call it from the main thread.
      */
     override fun setTempoFactor(factor: Double) {
-        require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
+        requireValidTempo(factor)
         requestedTempo = factor
     }
 
-    /** What a buffer is rendered from: a score, at a tempo factor. */
-    private data class Rendering(val score: Score, val tempoFactor: Double)
+    private fun requireValidTempo(factor: Double) {
+        require(factor > 0 && factor.isFinite()) { "The tempo factor is positive and finite, was $factor" }
+    }
 
     private companion object {
         const val NORMAL_TEMPO = 1.0

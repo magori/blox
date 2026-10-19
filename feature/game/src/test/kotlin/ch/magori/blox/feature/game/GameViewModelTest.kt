@@ -716,6 +716,31 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `at the start of the game the music prepares the danger tempo`() {
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then the music has its danger tempo ready before any danger
+        assertThat(music.playing).isEqualTo(Scores.korobeiniki.id)
+        assertThat(music.prepared).containsExactly(1.25)
+    }
+
+    @Test
+    fun `a game paused before its music started prepares the danger tempo when its music starts`() {
+        // Given a game paused before the settings answered, which then answer
+        preferences.state.value = null
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onPause()
+        preferences.state.value = UserPreferences.DEFAULT
+
+        // When
+        viewModel.onResume()
+
+        // Then
+        assertThat(music.prepared).containsExactly(1.25)
+    }
+
+    @Test
     fun `a game paused before the settings answered starts no music once they answer`() {
         // Given settings that have not answered yet
         preferences.state.value = null
