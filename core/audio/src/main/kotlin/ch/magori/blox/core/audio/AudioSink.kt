@@ -4,7 +4,8 @@ package ch.magori.blox.core.audio
 public interface AudioSink {
     /**
      * Writes [samples]; waits while the sink is full, which paces the sequencer. [samples] is only
-     * valid during the call: the sequencer reuses the array for the next slice.
+     * valid during the call: the sequencer reuses the array for the next slice. Throws
+     * [DeadSinkException] when the output died, so that the sequencer opens another sink.
      */
     public suspend fun write(samples: FloatArray)
 

@@ -19,6 +19,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.NonCancellable
@@ -75,9 +76,15 @@ class GameViewModel internal constructor(
             val choice = preferences.preferences.first().music
             score = scoreOf(choice)
             // The settings may answer once the game is paused or over: the music then waits, or never comes.
-            if (isUnderWay()) playback = score?.let(music::play)
+            if (isUnderWay()) playback = playMusic()
         }
     }
+
+    /**
+     * Plays the music of this game from its start, its danger tempo prepared at once: entering the danger,
+     * the most tense moment of the game, then renders nothing. Null when the game has no music.
+     */
+    private fun playMusic(): Playback? = score?.let { music.play(it).also { music.prepareTempo(DANGER_TEMPO) } }
 
     /**
      * The screen starts drawing frames again (first display, back from another screen or from the
@@ -125,7 +132,7 @@ class GameViewModel internal constructor(
         publish()
         // Only when the game really goes on again (not resumed twice, not over): the music goes on where it
         // stopped, or starts if the game was paused before it started.
-        if (wasPaused && isUnderWay()) playback = playback?.resume() ?: score?.let(music::play)
+        if (wasPaused && isUnderWay()) playback = playback?.resume() ?: playMusic()
     }
 
     /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
