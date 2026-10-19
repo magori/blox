@@ -52,9 +52,17 @@ est arrêtée, remplacée, refusée par le focus, quand le séquenceur échoue, 
 pour de bon ou que le casque est débranché. Une interruption brève (assistant vocal) laisse la
 lecture « en cours » : la musique reprend seule. L'accueil suit son aperçu : quand il s'arrête de
 lui-même, le bouton redevient « Écouter » et le focus est rendu. Une lecture morte ne redevient
-jamais « en cours ». En jeu, l'état n'est pas suivi : la partie continue en silence, et le focus
-reste pris jusqu'à la pause ou la fin, où la reprise relance la musique. L'état se suit sur le
-thread principal (sinon un « faux » passager peut apparaître pendant une pause de focus).
+jamais « en cours ». En jeu aussi (P5.35), la partie suit sa lecture : quand la musique meurt,
+elle l'arrête et rend le focus, puis continue en silence ; la reprise après une pause relance la
+musique, au tempo du moment (un passage en danger pendant le silence ne joue rien mais est gardé
+pour la reprise). Avec « Rejouer », l'ancienne partie n'arrête jamais la musique de la nouvelle.
+L'état se suit sur le thread principal (sinon un « faux » passager peut apparaître pendant une
+pause de focus).
+`GameViewModelTest › a music that stops by itself is stopped, to give the audio focus back, and the game goes on`,
+`GameViewModelTest › a music that stopped by itself plays again when the game resumes after a pause`,
+`GameViewModelTest › a music that stopped by itself again after the resume is stopped again`,
+`GameViewModelTest › entering the danger while the music is stopped by itself plays nothing, and the resume is faster`,
+`GameViewModelTest › the music of a new game is not stopped by the earlier game whose music it replaced`.
 
 **Tests :** `HomeViewModelTest › a preview whose music stops by itself, as the audio output fails, offers to listen again`,
 `MusicPlayerContract › a playback plays as soon as its score is played`,
