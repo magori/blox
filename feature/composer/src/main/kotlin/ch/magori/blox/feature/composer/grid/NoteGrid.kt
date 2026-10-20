@@ -18,7 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,6 +33,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.AwaitPointerEventScope
+import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
@@ -138,6 +143,7 @@ internal fun NoteGrid(
                     GridLine(
                         row = row,
                         colors = colors,
+                        outline = outline,
                         onTouch = onTouch,
                         onSlide = onSlide,
                         modifier = Modifier.height(rowHeight + if (row.spaceAbove) GridSizes.octaveSpace else 0.dp),
@@ -185,12 +191,14 @@ private fun BeatLine() {
 
 /**
  * A line of the grid: its name, then its eight cells. The name of a line out of the scale is dimmer, and in italics:
- * its colour is not its only cue.
+ * its colour is not its only cue. While a finger slides along the line, the cells it crosses are framed with the
+ * [outline] of the column played; read in the draw phase, the frame recomposes nothing.
  */
 @Composable
 private fun GridLine(
     row: RowView,
     colors: CellColors,
+    outline: PlayedOutline,
     onTouch: (pitch: Pitch, eighth: Int) -> Unit,
     onSlide: (pitch: Pitch, fromEighth: Int, toEighth: Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -199,6 +207,7 @@ private fun GridLine(
     val spoken = spokenName(row)
     val touch by rememberUpdatedState(onTouch)
     val slide by rememberUpdatedState(onSlide)
+    var crossed by remember { mutableStateOf<IntRange?>(null) }
     Row(
         modifier = modifier.padding(top = if (row.spaceAbove) GridSizes.octaveSpace else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -218,7 +227,12 @@ private fun GridLine(
                     detectCellGestures(
                         onTouch = { eighth -> touch(row.pitch, eighth) },
                         onSlide = { from, to -> slide(row.pitch, from, to) },
+                        onCrossed = { crossed = it },
                     )
+                }
+                .drawWithContent {
+                    drawContent()
+                    crossed?.let { drawCrossed(it, outline) }
                 },
         ) {
             row.cells.forEachIndexed { eighth, view ->
@@ -280,11 +294,13 @@ private fun gapBefore(eighth: Int) = when {
 /**
  * Taps and slides on the cells of a line, each cell an eighth of its width, as [CellGestureTracker] tells them apart.
  * An event already consumed gives the gesture up: a cancelled gesture (the system back gesture) ends with one, and so
- * does a vertical drag the scroll of the grid took.
+ * does a vertical drag the scroll of the grid took. [onCrossed] gets the cells the slide crosses as the finger moves,
+ * and `null` once the gesture ends, however it ends.
  */
 private suspend fun PointerInputScope.detectCellGestures(
     onTouch: (eighth: Int) -> Unit,
     onSlide: (fromEighth: Int, toEighth: Int) -> Unit,
+    onCrossed: (IntRange?) -> Unit,
 ) = awaitEachGesture {
     val down = awaitFirstDown()
     val gesture = CellGestureTracker(
@@ -293,16 +309,32 @@ private suspend fun PointerInputScope.detectCellGestures(
         downX = down.position.x,
         downY = down.position.y,
     )
+    try {
+        followCellGesture(down.id, gesture, onTouch, onSlide, onCrossed)
+    } finally {
+        onCrossed(null)
+    }
+}
+
+/** Follows the finger [pointer] of [gesture] until it is lifted or the gesture is given up. */
+private suspend fun AwaitPointerEventScope.followCellGesture(
+    pointer: PointerId,
+    gesture: CellGestureTracker,
+    onTouch: (eighth: Int) -> Unit,
+    onSlide: (fromEighth: Int, toEighth: Int) -> Unit,
+    onCrossed: (IntRange?) -> Unit,
+) {
     while (!gesture.isAbandoned) {
-        val change = awaitPointerEvent().changes.firstOrNull { it.id == down.id } ?: return@awaitEachGesture
+        val change = awaitPointerEvent().changes.firstOrNull { it.id == pointer } ?: return
         if (change.isConsumed) gesture.cancel() else gesture.move(change.position.x, change.position.y)
+        onCrossed(gesture.crossed)
         if (change.changedToUp()) {
             when (val done = gesture.lift()) {
                 is CellGesture.Touch -> onTouch(done.eighth)
                 is CellGesture.Slide -> onSlide(done.fromEighth, done.toEighth)
                 null -> Unit
             }
-            return@awaitEachGesture
+            return
         }
         // Once the finger slides along the line, the slide is its own: the scroll of the grid no longer takes it.
         if (gesture.isSliding) change.consume()
@@ -321,11 +353,32 @@ private fun DrawScope.drawPlayedColumn(
     val label = GridSizes.labelWidth.toPx()
     val slot = (size.width - label) / CELLS_PER_BAR
     val gap = gapBefore(eighth).toPx()
-    val column = Rect(Offset(label + eighth * slot + gap, 0f), Size(slot - gap, size.height))
+    drawOutline(Rect(Offset(label + eighth * slot + gap, 0f), Size(slot - gap, size.height)), outline)
+}
+
+/**
+ * The outline of the [cells] a slide crosses, on the cells of one line: the line and the halo of the column played.
+ * Each cell takes an eighth of the width, the gap before it included, as in [GridLine].
+ */
+private fun DrawScope.drawCrossed(
+    cells: IntRange,
+    outline: PlayedOutline,
+) {
+    val slot = size.width / CELLS_PER_BAR
+    val left = cells.first * slot + gapBefore(cells.first).toPx()
+    val width = (cells.last + 1) * slot - left
+    drawOutline(Rect(Offset(left, 0f), Size(width, size.height - GridSizes.cellGap.toPx())), outline)
+}
+
+/** [outline] around [bounds]: its line, then its halo just inside it. */
+private fun DrawScope.drawOutline(
+    bounds: Rect,
+    outline: PlayedOutline,
+) {
     val line = GridSizes.playedLine.toPx()
     val halo = GridSizes.playedHalo.toPx()
-    drawFrame(column, inset = line / 2, width = line, color = outline.line)
-    drawFrame(column, inset = line + halo / 2, width = halo, color = outline.halo)
+    drawFrame(bounds, inset = line / 2, width = line, color = outline.line)
+    drawFrame(bounds, inset = line + halo / 2, width = halo, color = outline.halo)
 }
 
 /** A frame of [width] in [color], its middle [inset] inside [bounds]. */

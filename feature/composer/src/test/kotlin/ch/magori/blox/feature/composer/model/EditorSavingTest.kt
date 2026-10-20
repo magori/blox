@@ -91,4 +91,17 @@ class EditorSavingTest {
         // Then
         assertThat(written.saveProblem("  ", emptyList())).isEqualTo(SaveProblem.BLANK_NAME)
     }
+
+    @Test
+    fun `a music cannot be renamed without a name, nor with the name of another music, but can with its own`() {
+        // Given
+        val musics = listOf(savedMusic("Joyeux 1"), savedMusic("Calme 1"))
+        val own = musics.first().id
+
+        // Then
+        assertThat(renameProblem(" ", musics, own)).isEqualTo(SaveProblem.BLANK_NAME)
+        assertThat(renameProblem("calme 1", musics, own)).isEqualTo(SaveProblem.NAME_TAKEN)
+        assertThat(renameProblem("JOYEUX 1", musics, own)).isNull()
+        assertThat(renameProblem("Calme 1", musics, apartFrom = null)).isEqualTo(SaveProblem.NAME_TAKEN)
+    }
 }

@@ -990,7 +990,6 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerViewModelTest › the fastest tempo button, disabled, does nothing when it comes all the same, and keeps the undo`,
 `ComposerViewModelTest › the slowest tempo button, disabled, does nothing when it comes all the same, and keeps the undo`,
 `ComposerViewModelTest › the menu hides the other track in watermark, and shows it again`,
-`ComposerViewModelTest › the factory that app builds makes an editor on a new music`,
 `BeatTest › the eight cells of a bar are the four beats and their halves, two cells a beat`,
 `CellActionTest › in Place mode touching a cell places a note on an empty cell, and erases the note it shows otherwise`,
 `CellActionTest › in Lengthen mode a touch places, brings back to one cell, shortens or lengthens, as the model does`,
@@ -1065,8 +1064,8 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
   séquenceur ne bascule qu'au temps suivant (décalage d'un temps au plus, sans cumul) ; une perte
   passagère du focus (assistant vocal) met le son en pause mais pas la colonne. Un `Playback` qui
   exposerait sa position les supprimerait (P4.25).
-- La partition jouée a l'identité provisoire `Personal("editor")` ; P4.19d donnera celle de la
-  musique enregistrée.
+- La partition jouée a l'identité de la musique, neuve ou enregistrée (P4.19d) ; avant, elle
+  avait l'identité provisoire `Personal("editor")`.
 
 **Tests :** `PlayHeadTest › the play head starts on the first cell of the first bar`,
 `PlayHeadTest › the play head moves on a cell each eighth note, 15 ticks at 120 beats per minute`,
@@ -1120,3 +1119,84 @@ Vues : V8, V11, V14, V17.
   avec son choix *En jeu*.
 - Le bouton de suppression prend la couleur `danger` du thème (rouge en Couleurs et Brume,
   encre en Original, faute de rouge dans sa palette).
+
+### Enregistrer, quitter, renommer, supprimer : éditeur (implémenté, P4.19d)
+
+- **Ouvrir** : `ComposerRoute(musicKey)` ouvre une musique enregistrée (clé de son
+  `ScoreId.Personal`), `ComposerRoute()` une musique neuve, qui reçoit tout de suite une identité
+  neuve (`newId()`) ; l'écoute et l'enregistrement utilisent cette identité. Une clé inconnue, ou
+  une musique que la grille ne sait pas montrer, s'ouvre comme une musique neuve sous une identité
+  neuve, sans message **[à vérifier]** : l'original n'est jamais écrasé. Dans *Mes musiques*,
+  toucher le nom (et sa ligne d'info) ou *Modifier*, en tête du menu « … », ouvre la musique.
+- **Fenêtre Enregistrer** : nom proposé « Catégorie n » (`proposedName`, « Ma musique n » sans
+  catégorie), saisie coupée à 40 caractères ; grille vide, nom vide ou pris refusés dans la
+  fenêtre, avec « Prendre « X 2 » » pour un nom pris ; la case « Jouer cette musique pendant les
+  parties », cochée si elle l'est déjà, la choisit ou rend la musique de l'accueil. Le bouton
+  *Enregistrer*, sur sa propre ligne sous le tempo, est plein et précédé de « • » quand des
+  changements seraient perdus.
+- **Quitter** : Retour (bouton ou geste du système) sort tout de suite pour une musique neuve
+  restée vide ou une musique enregistrée inchangée, et avant que la musique soit lue ; sinon il
+  demande *Enregistrer* / *Quitter sans enregistrer* / *Continuer*, et *Enregistrer* quitte une fois
+  la musique enregistrée. Le geste prédictif de la navigation est coupé sur cet écran.
+- **Renommer** (menu, ou toucher du titre et de son crayon) : une musique enregistrée est renommée
+  tout de suite dans la bibliothèque, ses changements restant à enregistrer ; une musique neuve
+  prend le nom, que la fenêtre Enregistrer propose ensuite.
+- **Supprimer** : seulement pour une musique enregistrée ; même confirmation que dans la liste, puis
+  l'éditeur se ferme. **Écart** : on revient à l'écran d'avant sans *Annuler* (P4.19e).
+- **Échec d'écriture** : la fenêtre reste ouverte, nom et case gardés, avec « L'enregistrement a
+  échoué. » (`danger`, annoncé par TalkBack), comme dans la liste ; une musique enregistrée dont
+  seul le choix pour les parties échoue reste enregistrée. Une seconde pression pendant
+  l'écriture ne fait rien.
+- **Brouillon** : l'identité, le nom et la grille survivent à la rotation et à la mort du processus
+  (`SavedStateHandle`, forme texte `DraftForm` en version 1, quelques kilo-octets pour une grille
+  pleine) ; une forme illisible est ignorée et la version enregistrée relue.
+- **Aperçu du glissé** : les cases traversées sont encadrées du contour de la colonne jouée,
+  dessiné sans recomposer.
+- `feature:composer` passe `core:data` en `api` (`MusicLibrary` est dans la fabrique publique).
+
+**Tests :** `CellGestureTest › while a finger slides to the right, the cells from its cell to the finger are crossed, none otherwise`,
+`DraftFormTest › a draft comes back from its saved form as it was, its scale, category, tempo, lines and notes kept`,
+`DraftFormTest › a new music, without category, comes back from its saved form as it was`,
+`DraftFormTest › the saved form of a full grid stays a few kilobytes, far below what a saved state may hold`,
+`DraftFormTest › a saved form that cannot be read gives no draft`,
+`EditorSavingTest › a music cannot be renamed without a name, nor with the name of another music, but can with its own`,
+`ComposerViewModelTest › the editor opens a saved music by its identity, as it was saved, under its name`,
+`ComposerViewModelTest › a saved music is listened to under its identity`,
+`ComposerViewModelTest › an identity the library does not know opens a new music, under a new identity`,
+`ComposerSavingTest › Save opens the window on the name proposed after the category, the first number no music has`,
+`ComposerSavingTest › the window of a saved music opens on its name, and on whether it is played during the games`,
+`ComposerSavingTest › the window saves the music under its name and its identity, and the changes count from there`,
+`ComposerSavingTest › a music saved again replaces its saved version, under the same identity and name`,
+`ComposerSavingTest › the window plays the music during the games when its box is checked, and no longer once unchecked`,
+`ComposerSavingTest › the window refuses a name another music has, and offers a free one, which taking fills in`,
+`ComposerSavingTest › the window refuses an empty grid, and a blank name`,
+`ComposerSavingTest › a name typed is cut at 40 characters, the longest a saved name may be`,
+`ComposerSavingTest › closing the window saves nothing`,
+`ComposerSavingTest › a save that fails keeps the window open on the name typed and the box, says it failed, and saves nothing`,
+`ComposerSavingTest › a music saved whose choice for the games fails stays saved, can be deleted, and the window says it failed`,
+`ComposerSavingTest › a second tap on Save while the music is being written does nothing`,
+`ComposerSavingTest › leaving a new music left empty, or a saved music unchanged, leaves at once without a question`,
+`ComposerSavingTest › leaving a changed music asks first, and Continue stays in the editor`,
+`ComposerSavingTest › Leave without saving leaves the editor, and saves nothing`,
+`ComposerSavingTest › Save in the question opens the save window, which leaves the editor once the music is saved`,
+`ComposerSavingTest › the exit, once the screen has left, is forgotten, so that the screen leaves once`,
+`ComposerSavingTest › Rename opens the window on the name of the music, or on the name proposed for a music never named`,
+`ComposerSavingTest › renaming a saved music renames it in the library, and leaves its changes unsaved`,
+`ComposerSavingTest › renaming a new music names it without saving it, and the save window then proposes that name`,
+`ComposerSavingTest › the rename window refuses a blank name, or one another music has, and offers a free one`,
+`ComposerSavingTest › Delete asks first, for a saved music only, and warns when the music is played during the games`,
+`ComposerSavingTest › deleting the music deletes it, and the editor leaves, handing what was deleted to restore it`,
+`ComposerSavingTest › Keep the music closes the question, and deletes nothing`,
+`ComposerSavingTest › a rename or a deletion that fails keeps its window open, says it failed, and changes nothing`,
+`ComposerSavingTest › a new music, its identity and its name survive the death of the process, in the saved state of the editor`,
+`ComposerSavingTest › a saved music changed is, after the death of the process, changed against its saved version`,
+`ComposerSavingTest › a new music saved is, after the death of the process, the saved music of its identity`,
+`ComposerSavingTest › a draft in the saved state that cannot be read leaves the music as it was saved`,
+`ComposerScreenTest › Save opens the window on the name proposed, which saves the music under the name typed`,
+`ComposerScreenTest › the back gesture on a changed music asks first: Continue stays, Leave without saving leaves`,
+`ComposerScreenTest › before its music is read, the back gesture leaves the editor, as the navigation would`,
+`ComposerViewModelFactoryTest › an entry without a music gives an editor on a new music`,
+`ComposerViewModelFactoryTest › an entry of a saved music gives an editor on that music, as it was saved`,
+`ComposerViewModelFactoryTest › an entry restored after the process died gives back the music being written`,
+`MyMusicsScreenTest › touching the name of a music, or Modifier in its menu, opens the music in the editor`.
+Vues : V7, V8, V9, V10, V11, V12.

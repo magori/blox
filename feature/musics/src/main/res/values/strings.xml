@@ -28,6 +28,7 @@
 
     <!-- Menu « … » d'une carte -->
     <string name="feature_musics_menu_description">Plus d\'actions pour %1$s</string>
+    <string name="feature_musics_menu_edit">Modifier</string>
     <string name="feature_musics_menu_rename">Renommer</string>
     <string name="feature_musics_menu_use">La jouer pendant les parties</string>
     <string name="feature_musics_menu_stop_using">Ne plus la jouer pendant les parties</string>

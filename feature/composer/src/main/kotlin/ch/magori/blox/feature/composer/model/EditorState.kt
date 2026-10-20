@@ -113,12 +113,7 @@ internal data class EditorState(
         name: String,
         musics: List<SavedMusic>,
         apartFrom: ScoreId.Personal? = null,
-    ): SaveProblem? = when {
-        draft.isEmpty -> SaveProblem.EMPTY_GRID
-        name.isBlank() -> SaveProblem.BLANK_NAME
-        musics.isNameTaken(name, apartFrom) -> SaveProblem.NAME_TAKEN
-        else -> null
-    }
+    ): SaveProblem? = if (draft.isEmpty) SaveProblem.EMPTY_GRID else renameProblem(name, musics, apartFrom)
 
     /** The editor once the music is saved: its changes are counted from there. */
     fun markedSaved(): EditorState = copy(saved = draft)
@@ -136,4 +131,18 @@ internal data class EditorState(
         /** The editor on a saved music, [draft]. */
         fun open(draft: ScoreDraft): EditorState = EditorState(draft, saved = draft)
     }
+}
+
+/**
+ * Why a music cannot be called [name], given the saved [musics], the one being renamed, known by [apartFrom], left out
+ * (null for a music never saved); `null` when it can.
+ */
+internal fun renameProblem(
+    name: String,
+    musics: List<SavedMusic>,
+    apartFrom: ScoreId.Personal?,
+): SaveProblem? = when {
+    name.isBlank() -> SaveProblem.BLANK_NAME
+    musics.isNameTaken(name, apartFrom) -> SaveProblem.NAME_TAKEN
+    else -> null
 }

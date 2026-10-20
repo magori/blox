@@ -1,14 +1,18 @@
 package ch.magori.blox.feature.composer
 
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
-import androidx.lifecycle.viewmodel.CreationExtras
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
+import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.music.Music
+import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.Cell
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.EditorState
@@ -17,6 +21,7 @@ import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.pitch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -29,12 +34,52 @@ class ComposerViewModelTest {
     val mainDispatcher = MainDispatcherExtension()
 
     private val music = FakeMusicPlayer()
-    private val viewModel = ComposerViewModel(music)
+    private val library = FakeMusicLibrary()
+    private val viewModel by lazy { editor() }
 
     @Test
     fun `the editor opens a new music, with the other track shown in watermark`() {
         // Then
-        assertThat(viewModel.uiState.value).isEqualTo(ComposerUiState(EditorState.new(), showOtherTrack = true))
+        assertThat(viewModel.shown).isEqualTo(ComposerUiState(EditorState.new(), showOtherTrack = true))
+    }
+
+    @Test
+    fun `the editor opens a saved music by its identity, as it was saved, under its name`() = runTest {
+        // Given
+        val saved = library.saveMusic("Joyeux 1", key = "joyeux")
+
+        // When
+        val opened = editor(key = "joyeux")
+
+        // Then
+        assertThat(opened.shown.editor).isEqualTo(EditorState.open(saved))
+        assertThat(opened.shown.name).isEqualTo("Joyeux 1")
+    }
+
+    @Test
+    fun `a saved music is listened to under its identity`() = runTest {
+        // Given
+        library.saveMusic("Joyeux 1", key = "joyeux")
+        val opened = editor(key = "joyeux")
+
+        // When
+        opened.onListen()
+
+        // Then
+        assertThat(music.playing).isEqualTo(ScoreId.Personal("joyeux"))
+    }
+
+    @Test
+    fun `an identity the library does not know opens a new music, under a new identity`() {
+        // When
+        val opened = editor(key = "gone")
+        opened.onCellTouched(pitch("E4"), eighth = 0)
+        opened.onListen()
+
+        // Then
+        assertThat(opened.shown.editor.saved).isNull()
+        assertThat(opened.shown.name).isNull()
+        assertThat(music.playing).isEqualTo(NEW_ID)
     }
 
     @Test
@@ -45,7 +90,7 @@ class ComposerViewModelTest {
 
         // Then
         val expected = EditorState.new().touch(pitch("E4"), eighth = 0).slide(pitch("G4"), fromEighth = 2, toEighth = 5)
-        assertThat(viewModel.uiState.value.editor).isEqualTo(expected)
+        assertThat(viewModel.shown.editor).isEqualTo(expected)
     }
 
     @Test
@@ -56,7 +101,7 @@ class ComposerViewModelTest {
         viewModel.onModeChosen(EditMode.LENGTHEN)
 
         // Then
-        val editor = viewModel.uiState.value.editor
+        val editor = viewModel.shown.editor
         assertThat(editor.track).isEqualTo(Track.BASS)
         assertThat(editor.bar).isEqualTo(5)
         assertThat(editor.mode).isEqualTo(EditMode.LENGTHEN)
@@ -66,26 +111,26 @@ class ComposerViewModelTest {
     fun `the toolbar copies the bar, clears it, and undoes the last of them`() {
         // Given a note in the first bar
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
-        val written = viewModel.uiState.value.editor
+        val written = viewModel.shown.editor
 
         // When
         viewModel.onCopyBar()
-        val copied = viewModel.uiState.value.editor
+        val copied = viewModel.shown.editor
         viewModel.onClearBar()
-        val cleared = viewModel.uiState.value.editor
+        val cleared = viewModel.shown.editor
         viewModel.onUndo()
 
         // Then
         assertThat(copied).isEqualTo(written.copyBar())
         assertThat(cleared).isEqualTo(copied.clearBar())
-        assertThat(viewModel.uiState.value.editor).isEqualTo(cleared.undo())
+        assertThat(viewModel.shown.editor).isEqualTo(cleared.undo())
     }
 
     @Test
     fun `a toolbar action without effect, its button disabled, does nothing when it comes all the same`() {
         // Given an empty music on its last bar: nothing to clear, to undo, nor a bar after it to copy over
         viewModel.onBarChosen(7)
-        val before = viewModel.uiState.value
+        val before = viewModel.shown
 
         // When
         viewModel.onCopyBar()
@@ -93,7 +138,7 @@ class ComposerViewModelTest {
         viewModel.onUndo()
 
         // Then
-        assertThat(viewModel.uiState.value).isEqualTo(before)
+        assertThat(viewModel.shown).isEqualTo(before)
     }
 
     @Test
@@ -104,7 +149,7 @@ class ComposerViewModelTest {
         viewModel.onSlower()
 
         // Then
-        assertThat(viewModel.uiState.value.editor.draft.tempo).isEqualTo(Tempo(130))
+        assertThat(viewModel.shown.editor.draft.tempo).isEqualTo(Tempo(130))
     }
 
     @Test
@@ -113,14 +158,14 @@ class ComposerViewModelTest {
         repeat(TEMPO_STEPS) { viewModel.onFaster() }
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
         viewModel.onClearBar()
-        val fastest = viewModel.uiState.value
+        val fastest = viewModel.shown
 
         // When
         viewModel.onFaster()
 
         // Then
         assertThat(fastest.editor.draft.tempo).isEqualTo(Tempo(Tempo.FASTEST))
-        assertThat(viewModel.uiState.value).isEqualTo(fastest)
+        assertThat(viewModel.shown).isEqualTo(fastest)
     }
 
     @Test
@@ -129,26 +174,26 @@ class ComposerViewModelTest {
         repeat(TEMPO_STEPS) { viewModel.onSlower() }
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
         viewModel.onClearBar()
-        val slowest = viewModel.uiState.value
+        val slowest = viewModel.shown
 
         // When
         viewModel.onSlower()
 
         // Then
         assertThat(slowest.editor.draft.tempo).isEqualTo(Tempo(Tempo.SLOWEST))
-        assertThat(viewModel.uiState.value).isEqualTo(slowest)
+        assertThat(viewModel.shown).isEqualTo(slowest)
     }
 
     @Test
     fun `the menu hides the other track in watermark, and shows it again`() {
         // When
         viewModel.onOtherTrackShown(false)
-        val hidden = viewModel.uiState.value.showOtherTrack
+        val hidden = viewModel.shown.showOtherTrack
         viewModel.onOtherTrackShown(true)
 
         // Then
         assertThat(hidden).isFalse()
-        assertThat(viewModel.uiState.value.showOtherTrack).isTrue()
+        assertThat(viewModel.shown.showOtherTrack).isTrue()
     }
 
     @Test
@@ -160,8 +205,8 @@ class ComposerViewModelTest {
         viewModel.onListen()
 
         // Then
-        val state = viewModel.uiState.value
-        assertThat(music.playedScores).containsExactly(state.editor.draft.toScore(EDITED_SCORE_ID))
+        val state = viewModel.shown
+        assertThat(music.playedScores).containsExactly(state.editor.draft.toScore(NEW_ID))
         assertThat(state.played).isEqualTo(Cell(bar = 0, eighth = 0))
     }
 
@@ -176,7 +221,7 @@ class ComposerViewModelTest {
 
         // Then
         assertThat(music.playing).isNull()
-        assertThat(viewModel.uiState.value.played).isNull()
+        assertThat(viewModel.shown.played).isNull()
     }
 
     @Test
@@ -188,12 +233,12 @@ class ComposerViewModelTest {
         // When the first frame, then a quarter of a second later, and two seconds and a half more
         viewModel.onFrame(1_000_000_000)
         viewModel.onFrame(1_250_000_000)
-        val second = viewModel.uiState.value.played
+        val second = viewModel.shown.played
         viewModel.onFrame(3_750_000_000)
 
         // Then
         assertThat(second).isEqualTo(Cell(bar = 0, eighth = 1))
-        assertThat(viewModel.uiState.value.played).isEqualTo(Cell(bar = 1, eighth = 3))
+        assertThat(viewModel.shown.played).isEqualTo(Cell(bar = 1, eighth = 3))
     }
 
     @Test
@@ -202,7 +247,7 @@ class ComposerViewModelTest {
         viewModel.onBarChosen(3)
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
         viewModel.onListen()
-        val atStart = viewModel.uiState.value
+        val atStart = viewModel.shown
 
         // When two seconds later, at 120 beats per minute: the second bar
         viewModel.onFrame(0)
@@ -211,7 +256,7 @@ class ComposerViewModelTest {
         // Then
         assertThat(atStart.followPlayback).isTrue()
         assertThat(atStart.editor.bar).isEqualTo(0)
-        assertThat(viewModel.uiState.value.editor.bar).isEqualTo(1)
+        assertThat(viewModel.shown.editor.bar).isEqualTo(1)
     }
 
     @Test
@@ -223,14 +268,14 @@ class ComposerViewModelTest {
 
         // When the bar played is chosen, then another one, and the music goes on to its second bar
         viewModel.onBarChosen(0)
-        val samePlayed = viewModel.uiState.value
+        val samePlayed = viewModel.shown
         viewModel.onBarChosen(5)
         viewModel.onFrame(2_000_000_000)
 
         // Then
         assertThat(samePlayed.followPlayback).isTrue()
         assertThat(samePlayed.message).isNull()
-        val state = viewModel.uiState.value
+        val state = viewModel.shown
         assertThat(state.followPlayback).isFalse()
         assertThat(state.message).isEqualTo(ComposerMessage.FOLLOW_STOPPED)
         assertThat(state.editor.bar).isEqualTo(5)
@@ -248,7 +293,7 @@ class ComposerViewModelTest {
         viewModel.onMessageShown()
 
         // Then
-        assertThat(viewModel.uiState.value.message).isNull()
+        assertThat(viewModel.shown.message).isNull()
     }
 
     @Test
@@ -261,14 +306,14 @@ class ComposerViewModelTest {
         // When following is unchecked, the music goes on to its second bar, then following is checked again
         viewModel.onFollowPlayback(false)
         viewModel.onFrame(2_000_000_000)
-        val unfollowed = viewModel.uiState.value
+        val unfollowed = viewModel.shown
         viewModel.onFollowPlayback(true)
 
         // Then
         assertThat(unfollowed.followPlayback).isFalse()
         assertThat(unfollowed.editor.bar).isEqualTo(0)
-        assertThat(viewModel.uiState.value.followPlayback).isTrue()
-        assertThat(viewModel.uiState.value.editor.bar).isEqualTo(1)
+        assertThat(viewModel.shown.followPlayback).isTrue()
+        assertThat(viewModel.shown.editor.bar).isEqualTo(1)
     }
 
     @ParameterizedTest(name = "{0}")
@@ -287,7 +332,7 @@ class ComposerViewModelTest {
 
         // Then
         assertThat(music.calls).containsExactly(PLAY, "stop")
-        assertThat(viewModel.uiState.value.played).isNull()
+        assertThat(viewModel.shown.played).isNull()
     }
 
     @Test
@@ -303,7 +348,7 @@ class ComposerViewModelTest {
 
         // Then
         assertThat(music.calls).containsExactly(PLAY)
-        assertThat(viewModel.uiState.value.played).isNotNull()
+        assertThat(viewModel.shown.played).isNotNull()
     }
 
     @Test
@@ -321,8 +366,8 @@ class ComposerViewModelTest {
         // Then
         assertThat(faster).isEqualTo(130.0 / 120)
         assertThat(music.tempo).isEqualTo(110.0 / 120)
-        assertThat(music.playing).isEqualTo(EDITED_SCORE_ID)
-        assertThat(viewModel.uiState.value.played).isNotNull()
+        assertThat(music.playing).isEqualTo(NEW_ID)
+        assertThat(viewModel.shown.played).isNotNull()
     }
 
     @Test
@@ -335,7 +380,7 @@ class ComposerViewModelTest {
 
             override fun prepareTempo(factor: Double) = Unit
         }
-        val editor = ComposerViewModel(refusing)
+        val editor = editor(refusing)
         editor.onCellTouched(pitch("E4"), eighth = 0)
 
         // When
@@ -344,7 +389,7 @@ class ComposerViewModelTest {
         editor.onFrame(1_000_000_000)
 
         // Then
-        assertThat(editor.uiState.value.played).isNull()
+        assertThat(editor.shown.played).isNull()
     }
 
     @Test
@@ -359,7 +404,7 @@ class ComposerViewModelTest {
         viewModel.onFrame(1_000_000_000)
 
         // Then six cells further, not four as at 120 beats per minute
-        assertThat(viewModel.uiState.value.played).isEqualTo(Cell(bar = 0, eighth = 6))
+        assertThat(viewModel.shown.played).isEqualTo(Cell(bar = 0, eighth = 6))
     }
 
     @Test
@@ -372,7 +417,7 @@ class ComposerViewModelTest {
 
         // When listened to again, then following unchecked in the menu and the music listened to once more
         viewModel.onListen()
-        val again = viewModel.uiState.value
+        val again = viewModel.shown
         viewModel.onFollowPlayback(false)
         viewModel.onListen()
         viewModel.onListen()
@@ -380,7 +425,7 @@ class ComposerViewModelTest {
         // Then
         assertThat(again.followPlayback).isTrue()
         assertThat(again.editor.bar).isEqualTo(0)
-        assertThat(viewModel.uiState.value.followPlayback).isFalse()
+        assertThat(viewModel.shown.followPlayback).isFalse()
     }
 
     @Test
@@ -390,7 +435,7 @@ class ComposerViewModelTest {
 
         // Then
         assertThat(music.calls).isEmpty()
-        assertThat(viewModel.uiState.value.played).isNull()
+        assertThat(viewModel.shown.played).isNull()
     }
 
     @Test
@@ -405,16 +450,16 @@ class ComposerViewModelTest {
         viewModel.onLifecycleEvent(Lifecycle.Event.ON_STOP)
 
         // Then
-        assertThat(paused).isEqualTo(EDITED_SCORE_ID)
+        assertThat(paused).isEqualTo(NEW_ID)
         assertThat(music.calls).containsExactly(PLAY, "stop")
-        assertThat(viewModel.uiState.value.played).isNull()
+        assertThat(viewModel.shown.played).isNull()
     }
 
     @Test
     fun `leaving the editor stops the music`() {
-        // Given a music listened to, in a view model store like the navigation entry's, built by the factory
+        // Given a music listened to, in a view model store like the navigation entry's
         val store = ViewModelStore()
-        val provider = ViewModelProvider.create(store, ComposerViewModel.Factory(music))
+        val provider = ViewModelProvider.create(store, viewModelFactory { initializer { editor() } })
         val editor = provider[ComposerViewModel::class]
         editor.onCellTouched(pitch("E4"), eighth = 0)
         editor.onListen()
@@ -434,7 +479,7 @@ class ComposerViewModelTest {
 
         // When
         music.fail()
-        val failed = viewModel.uiState.value
+        val failed = viewModel.shown
         viewModel.onListen()
 
         // Then
@@ -442,14 +487,12 @@ class ComposerViewModelTest {
         assertThat(music.calls).containsExactly(PLAY, "failure", "stop", PLAY)
     }
 
-    @Test
-    fun `the factory that app builds makes an editor on a new music`() {
-        // When
-        val made = ComposerViewModel.Factory(music).create(ComposerViewModel::class, CreationExtras.Empty)
-
-        // Then
-        assertThat(made.uiState.value.editor).isEqualTo(EditorState.new())
-    }
+    /** An editor on the music of [key], a new one when null, listened to by [player], restored from [savedState]. */
+    private fun editor(
+        player: MusicPlayer = music,
+        key: String? = null,
+        savedState: SavedStateHandle = SavedStateHandle(),
+    ) = ComposerViewModel(player, library, key, savedState)
 
     /** A change of the notes, each possible with a note in the first bar, shown on the grid, and the second cleared. */
     enum class NotesChange(val apply: ComposerViewModel.() -> Unit) {
@@ -465,7 +508,7 @@ class ComposerViewModelTest {
         const val TEMPO_STEPS = (Tempo.FASTEST - Tempo.SLOWEST) / Tempo.STEP
 
         /** What the music player notes when it is told to play the music being edited. */
-        val PLAY = "play ${EDITED_SCORE_ID}"
+        val PLAY = "play ${NEW_ID}"
     }
 }
 

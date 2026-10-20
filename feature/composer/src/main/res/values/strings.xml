@@ -8,6 +8,50 @@
     <string name="feature_composer_menu">Plus d\'options</string>
     <string name="feature_composer_menu_other_track">Montrer l\'autre piste en filigrane</string>
     <string name="feature_composer_menu_follow">Suivre la lecture</string>
+    <string name="feature_composer_menu_rename">Renommer</string>
+    <string name="feature_composer_menu_delete">Supprimer</string>
+    <!-- Lu par TalkBack sur le titre, qui renomme la musique. -->
+    <string name="feature_composer_title_rename">%1$s, renommer</string>
+    <!-- Ligne d'info : la catégorie, puis « modifiée » ou « non enregistrée ». -->
+    <string name="feature_composer_info">%1$s · %2$s</string>
+
+    <!-- Catégories, et base du nom proposé (« Joyeux 1 », « Ma musique 1 » sans catégorie). -->
+    <string name="feature_composer_category_joyful">Joyeux</string>
+    <string name="feature_composer_category_calm">Calme</string>
+    <string name="feature_composer_category_epic">Épique</string>
+    <string name="feature_composer_category_melancholic">Mélancolique</string>
+    <string name="feature_composer_category_mysterious">Mystérieux</string>
+    <string name="feature_composer_category_retro">Rétro</string>
+    <string name="feature_composer_category_dance">Danse</string>
+    <string name="feature_composer_name_base">Ma musique</string>
+
+    <!-- Fenêtres : enregistrer, renommer -->
+    <string name="feature_composer_save">Enregistrer</string>
+    <!-- Le bouton Enregistrer quand il y a des changements : précédé d'un point. -->
+    <string name="feature_composer_save_changed">• Enregistrer</string>
+    <string name="feature_composer_save_changed_description">Enregistrer les changements</string>
+    <string name="feature_composer_save_title">Enregistrer la musique</string>
+    <string name="feature_composer_rename_title">Renommer la musique</string>
+    <string name="feature_composer_name_label">Nom</string>
+    <string name="feature_composer_for_games">Jouer cette musique pendant les parties</string>
+    <string name="feature_composer_problem_empty">La grille est vide : pose au moins une note.</string>
+    <string name="feature_composer_problem_blank">Donne un nom à la musique.</string>
+    <string name="feature_composer_problem_taken">Une autre musique porte déjà ce nom.</string>
+    <string name="feature_composer_take_free_name">Prendre « %1$s »</string>
+    <string name="feature_composer_rename">Renommer</string>
+    <string name="feature_composer_cancel">Annuler</string>
+
+    <!-- Fenêtres : quitter, supprimer -->
+    <string name="feature_composer_leave_title">Quitter sans enregistrer ?</string>
+    <string name="feature_composer_leave_text">Les changements de cette musique ne sont pas enregistrés.</string>
+    <string name="feature_composer_leave_without_saving">Quitter sans enregistrer</string>
+    <string name="feature_composer_continue">Continuer</string>
+    <!-- Dans une fenêtre qui écrit les musiques, quand l'écriture échoue ; la fenêtre reste ouverte. -->
+    <string name="feature_composer_window_failed">L\'enregistrement a échoué.</string>
+    <string name="feature_composer_delete_title">Supprimer « %1$s » ?</string>
+    <string name="feature_composer_delete_game_music">Elle est jouée pendant les parties : la musique choisie à l\'accueil la remplacera.</string>
+    <string name="feature_composer_delete">Supprimer</string>
+    <string name="feature_composer_keep">Garder la musique</string>
 
     <!-- Onglets -->
     <string name="feature_composer_tab_melody">Mélodie</string>
@@ -68,6 +112,8 @@
     <string name="feature_composer_bar_played">en lecture</string>
     <!-- Message : toucher une autre mesure que la mesure jouée pendant l'écoute. -->
     <string name="feature_composer_follow_stopped">La grille ne suit plus la lecture. Menu « … » pour la suivre à nouveau.</string>
+    <!-- Message : l'écriture des musiques sur l'appareil a échoué. -->
+    <string name="feature_composer_write_failed">La musique n\'a pas pu être écrite sur l\'appareil. Réessaie.</string>
 
     <!-- Panneau du bas -->
     <plurals name="feature_composer_tempo">

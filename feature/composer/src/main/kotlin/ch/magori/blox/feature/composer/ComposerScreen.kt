@@ -24,11 +24,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigationevent.NavigationEventInfo
+import androidx.navigationevent.compose.NavigationBackHandler
+import androidx.navigationevent.compose.rememberNavigationEventState
+import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.feature.composer.grid.GridLines
@@ -37,24 +43,28 @@ import ch.magori.blox.feature.composer.grid.gridRows
 import ch.magori.blox.feature.composer.model.Cell
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.EditorState
+import ch.magori.blox.feature.composer.model.SaveProblem
 import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import ch.magori.blox.feature.composer.ui.ComposerSizes
+import ch.magori.blox.feature.composer.ui.ToolButton
 
 /**
- * The music editor (V8, V11) of [viewModel]; [onBack] leaves it. While the music is listened to, the screen hands each
- * frame to the view model, which moves the play head on (ADR 0012), and its lifecycle events, which stop the music once
- * the editor is no longer visible.
+ * The music editor (V8, V11) of [viewModel]; [onBack] leaves it, and [onDeleted] once its music is deleted, with what
+ * was deleted. While the music is listened to, the screen hands each frame to the view model, which moves the play head
+ * on (ADR 0012), and its lifecycle events, which stop the music once the editor is no longer visible. Retour, the
+ * button or the gesture of the system, asks the view model, which leaves at once or asks first.
  */
 @Composable
 internal fun ComposerScreen(
     viewModel: ComposerViewModel,
     onBack: () -> Unit,
+    onDeleted: (DeletedMusic) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val listening = uiState.played != null
+    val opened by viewModel.uiState.collectAsStateWithLifecycle()
+    val listening = opened?.played != null
     LaunchedEffect(viewModel, listening) {
         if (listening) {
             while (true) {
@@ -70,9 +80,29 @@ internal fun ComposerScreen(
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer) }
     }
+    NavigationBackHandler(
+        state = rememberNavigationEventState(NavigationEventInfo.None),
+        // Until the music is read, Retour goes to the navigation: there is nothing to lose yet.
+        isBackEnabled = opened != null && opened?.exit == null,
+        onBackCompleted = { if (opened != null) viewModel.onBackAsked() },
+    )
+    val exit = opened?.exit
+    LaunchedEffect(exit) {
+        when (exit) {
+            ComposerExit.Leave -> onBack()
+            is ComposerExit.Deleted -> onDeleted(exit.music)
+            null -> return@LaunchedEffect
+        }
+        viewModel.onExitDone()
+    }
+    // A saved music opens once the library is read: until then, the page alone.
+    val uiState = opened ?: return Box(modifier = modifier.fillMaxSize().background(BloxTheme.palette.page))
+    val base = stringResource(uiState.editor.draft.category?.label ?: R.string.feature_composer_name_base)
     ComposerContent(
         uiState = uiState,
-        onBack = onBack,
+        onBack = viewModel::onBackAsked,
+        onRename = { viewModel.onRenameAsked(base) },
+        onDelete = viewModel::onDeleteAsked,
         onOtherTrackShown = viewModel::onOtherTrackShown,
         onFollowPlayback = viewModel::onFollowPlayback,
         onTrackChosen = viewModel::onTrackChosen,
@@ -86,21 +116,37 @@ internal fun ComposerScreen(
         onSlower = viewModel::onSlower,
         onFaster = viewModel::onFaster,
         onListen = viewModel::onListen,
+        onSave = { viewModel.onSaveAsked(base) },
         onMessageShown = viewModel::onMessageShown,
+        dialogActions = remember(viewModel, base) {
+            DialogActions(
+                onNameChanged = viewModel::onNameChanged,
+                onFreeNameTaken = viewModel::onFreeNameTaken,
+                onForGamesChanged = viewModel::onForGamesChanged,
+                onSaveConfirmed = viewModel::onSaveConfirmed,
+                onRenameConfirmed = viewModel::onRenameConfirmed,
+                onDismissed = viewModel::onDialogDismissed,
+                onLeaveWithoutSaving = viewModel::onLeaveWithoutSaving,
+                onSaveBeforeLeaving = { viewModel.onSaveBeforeLeaving(base) },
+                onDeleteConfirmed = viewModel::onDeleteConfirmed,
+            )
+        },
         modifier = modifier,
     )
 }
 
 /**
  * The editor as [uiState] shows it, from top to bottom: the header, the tabs, the toolbar, the grid of one bar, the bar
- * buttons, the tempo and *Écouter*; the message of the editor, if any, over the bottom of the grid until
- * [onMessageShown]. No logic here: every touch goes to its callback. *Enregistrer*, the dice and the categories come
- * with the next slices of the editor.
+ * buttons, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over the bottom of the grid until
+ * [onMessageShown]; its window, if any, answered through [dialogActions]. No logic here: every touch goes to its
+ * callback. The dice and the categories come with the next slices of the editor.
  */
 @Composable
 internal fun ComposerContent(
     uiState: ComposerUiState,
     onBack: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
     onOtherTrackShown: (Boolean) -> Unit,
     onFollowPlayback: (Boolean) -> Unit,
     onTrackChosen: (Track) -> Unit,
@@ -114,7 +160,9 @@ internal fun ComposerContent(
     onSlower: () -> Unit,
     onFaster: () -> Unit,
     onListen: () -> Unit,
+    onSave: () -> Unit,
     onMessageShown: () -> Unit,
+    dialogActions: DialogActions,
     modifier: Modifier = Modifier,
 ) {
     val editor = uiState.editor
@@ -126,10 +174,15 @@ internal fun ComposerContent(
             verticalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
         ) {
             ComposerHeader(
+                name = uiState.name,
+                category = editor.draft.category?.let { stringResource(it.label) },
                 status = editor.status,
+                canDelete = editor.saved != null,
                 showOtherTrack = uiState.showOtherTrack,
                 followPlayback = uiState.followPlayback,
                 onBack = onBack,
+                onRename = onRename,
+                onDelete = onDelete,
                 onOtherTrackShown = onOtherTrackShown,
                 onFollowPlayback = onFollowPlayback,
             )
@@ -173,9 +226,44 @@ internal fun ComposerContent(
                 )
                 ListenButton(listening = played != null, enabled = uiState.canListen, onClick = onListen)
             }
+            // A line of its own: beside the tempo and *Écouter*, it leaves the tempo buttons no room on 360 dp.
+            SaveButton(changed = editor.asksBeforeLeaving, onClick = onSave, modifier = Modifier.fillMaxWidth())
         }
     }
+    ComposerDialogHost(dialog = uiState.dialog, name = uiState.name, actions = dialogActions)
 }
+
+/**
+ * *Enregistrer*: filled in `accent` and preceded by a dot while the music has [changed] (changes that leaving would
+ * lose), framed otherwise.
+ */
+@Composable
+private fun SaveButton(
+    changed: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    ToolButton(
+        text = stringResource(if (changed) R.string.feature_composer_save_changed else R.string.feature_composer_save),
+        description = if (changed) stringResource(R.string.feature_composer_save_changed_description) else null,
+        onClick = onClick,
+        primary = changed,
+        modifier = modifier,
+    )
+}
+
+/** The name of a category, and the base of the name proposed for a music of it (« Joyeux 1 »). */
+@get:StringRes
+internal val Category.label: Int
+    get() = when (this) {
+        Category.JOYFUL -> R.string.feature_composer_category_joyful
+        Category.CALM -> R.string.feature_composer_category_calm
+        Category.EPIC -> R.string.feature_composer_category_epic
+        Category.MELANCHOLIC -> R.string.feature_composer_category_melancholic
+        Category.MYSTERIOUS -> R.string.feature_composer_category_mysterious
+        Category.RETRO -> R.string.feature_composer_category_retro
+        Category.DANCE -> R.string.feature_composer_category_dance
+    }
 
 /** Shows [message], if any, for a while, in the ink of the page, then calls [onMessageShown]. */
 @Composable
@@ -205,6 +293,7 @@ private fun ComposerMessageHost(
 private val ComposerMessage.text: Int
     get() = when (this) {
         ComposerMessage.FOLLOW_STOPPED -> R.string.feature_composer_follow_stopped
+        ComposerMessage.WRITE_FAILED -> R.string.feature_composer_write_failed
     }
 
 /**
@@ -245,6 +334,8 @@ private fun ComposerPreview(
         ComposerContent(
             uiState = ComposerUiState(editor, showOtherTrack = true, played = played),
             onBack = {},
+            onRename = {},
+            onDelete = {},
             onOtherTrackShown = {},
             onFollowPlayback = {},
             onTrackChosen = {},
@@ -258,7 +349,9 @@ private fun ComposerPreview(
             onSlower = {},
             onFaster = {},
             onListen = {},
+            onSave = {},
             onMessageShown = {},
+            dialogActions = DialogActions.None,
         )
     }
 }
@@ -282,4 +375,79 @@ internal fun ComposerColorfulPreview() {
 @Composable
 internal fun ComposerEmptyPreview() {
     ComposerPreview(BloxThemeKind.ORIGINAL, EditorState.new())
+}
+
+/**
+ * The window [dialog] over a dimmed page, as it shows over the editor: the screenshots render its panel without the
+ * window of the system.
+ */
+@Composable
+private fun WindowPreview(
+    kind: BloxThemeKind,
+    dialog: ComposerDialog,
+) {
+    BloxTheme(kind = kind) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(horizontal = WindowMargin),
+        ) {
+            ComposerWindow(dialog = dialog, name = "Joyeux 1", actions = DialogActions.None)
+        }
+    }
+}
+
+/** The save window of a music whose name another music has: the problem, and the free name offered. */
+private val TakenName = ComposerDialog.Save(
+    name = "Joyeux 1",
+    forGames = true,
+    problem = SaveProblem.NAME_TAKEN,
+    freeName = "Joyeux 2",
+)
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+internal fun SaveWindowOriginalPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL, TakenName)
+}
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+internal fun SaveWindowColorfulPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL, TakenName)
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun SaveWindowOriginalLargeFontPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL, TakenName)
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun SaveWindowColorfulLargeFontPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL, TakenName)
+}
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+internal fun LeaveWindowOriginalPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL, ComposerDialog.Leave)
+}
+
+@Preview(widthDp = 360, heightDp = 640)
+@Composable
+internal fun LeaveWindowColorfulPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL, ComposerDialog.Leave)
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun LeaveWindowOriginalLargeFontPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL, ComposerDialog.Leave)
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun LeaveWindowColorfulLargeFontPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL, ComposerDialog.Leave)
 }

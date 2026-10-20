@@ -35,6 +35,14 @@ internal class CellGestureTracker(
     var isAbandoned: Boolean = false
         private set
 
+    /**
+     * The cells the slide crosses so far, highlighted while the finger is down: from its cell to the finger, or its
+     * cell alone when the finger is on its left (lifted there, it places an eighth note in its cell). `null` while it
+     * does not slide, once it is back on its cell (lifted there, it does nothing), and once the gesture is given up.
+     */
+    val crossed: IntRange?
+        get() = if (!isSliding || isAbandoned || to == from) null else from..maxOf(from, to)
+
     /** The finger moved to [x], [y]. */
     fun move(
         x: Float,
