@@ -131,6 +131,29 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   suivante à droite ; fenêtre étroite : B A sous les flèches. La pièce suivante a la même taille
   de cellule que le plateau. La colonne de score défile si la police agrandie ne tient pas.
   Une fenêtre trop petite rogne plutôt que de superposer (cellule d'au moins 1 px).
+- Fenêtre très étroite (P2.20, multi-fenêtre) : sous environ 288 dp de large, là où le plateau
+  serait plus étroit que la colonne de score, une disposition de plus est candidate : score et
+  niveau, puis lignes et pièce suivante, en deux rangées au-dessus du plateau, les commandes
+  empilées dessous. Sa cellule est plafonnée à celle de la disposition habituelle à cette largeur,
+  et elle n'est retenue que si elle donne un plateau strictement plus grand et tient : un plateau
+  ne rétrécit jamais quand la fenêtre s'élargit, et les téléphones en portrait ne changent pas. À
+  220 × 640 dp, la cellule passe de 4 dp à environ 10 dp. La hauteur réservée aux panneaux suit la
+  police du système. Les flèches se rapprochent (jusqu'à se toucher) quand elles ne tiennent pas
+  dans la largeur, 20 px au lieu de 21 à 220 dp et ×2,625 ; B A garde ses 8 dp ; les touches gardent
+  leur taille (52 et 56 dp) et leur exclusion des gestes système. Sous 8 dp de cellule, le jeu est
+  peu jouable (P2.24, à trancher).
+
+  **Tests :** `GameLayoutTest › a very narrow window puts the score above the board, for a board larger than beside the side column`,
+  `GameLayoutTest › the board never shrinks as the window widens, from the narrowest multi-window to a phone`,
+  `GameLayoutTest › when the score above gives a board of the same size, the usual layout stays`,
+  `GameLayoutTest › when the score above does not fit either, the usual layout stays, cut`,
+  `GameLayoutTest › a phone in portrait keeps the side column beside the board, though the score above would give a larger one`,
+  `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
+  `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
+  `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
+  `NextPieceCellsTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
+  `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
+  Captures : `GameScreenNarrow`, `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 
 ### V4 — Fin de partie
 - « Partie terminée », badge « Nouveau record » le cas échéant.

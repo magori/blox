@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 122 / 168 | `███████████████░░░░░` **73 %** |
+| **Général** | 123 / 171 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 27 / 28 | `███████████████████░` **96 %** |
 <!-- avancement:fin -->
 
@@ -306,9 +306,17 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   pièce suivante, pour des cellules de même taille comme sur la NES (revue de P2.4). Fait :
   `gameLayout` (fonction pure, trois dispositions), `PlacedParts`, aperçu à la taille de cellule
   du plateau ; `screenOrientation="portrait"` gardé jusqu'au test sur téléphone (P2.8).
-- [ ] **P2.20** Fenêtre très étroite (220 dp) : cellule de 4 dp, injouable ; essayer le score
+- [x] **P2.20** Fenêtre très étroite (220 dp) : cellule de 4 dp, injouable ; essayer le score
   au-dessus du plateau (revue de P2.11). À 220 dp et ×2,625, les flèches débordent de 2 px :
-  réduire l'espacement des commandes à cette largeur.
+  réduire l'espacement des commandes à cette largeur. Fait : score au-dessus sous 288 dp, cellule de
+  10 dp à 220 × 640 dp, flèches rapprochées.
+- [ ] **P2.24** Sous 8 dp de cellule (fenêtre de moins de 200 dp de large ou de 560 dp de haut
+  environ), le jeu est peu jouable : afficher « Agrandissez la fenêtre » à la place ? À trancher
+  par le développeur (revue de P2.20).
+- [ ] **P2.25** Mettre à jour la maquette : fenêtre très étroite, score et niveau puis lignes et
+  pièce suivante au-dessus du plateau, flèches rapprochées (P2.20).
+- [ ] **P2.26** Barre du haut dans une fenêtre très étroite : « MODE CLASS… » et le record (« 09876… »)
+  sont tronqués à 220 dp, surtout en police agrandie (vu en P2.20).
 
 ## P3 — Accueil, préférences, records
 
