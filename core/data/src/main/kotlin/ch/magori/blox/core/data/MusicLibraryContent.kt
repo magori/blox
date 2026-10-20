@@ -1,12 +1,15 @@
 package ch.magori.blox.core.data
 
 import ch.magori.blox.core.music.ScoreId
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * What a [MusicLibrary] holds: the saved [musics], in the order they were first saved, and the identity of the one
  * played during the games, if any, [gameMusicId]. Its changes are the rules of the library, shared by the real one
  * and the fake: each one gives a new content, or refuses with an [IllegalArgumentException] what would break them (two
- * musics of the same name, a music that is not saved).
+ * musics of the same name, a music that is not saved). A change dates the music it changes, to the millisecond, as
+ * the musics file keeps it: the music read before the file is opened again is the one read after.
  */
 internal data class MusicLibraryContent(
     val musics: List<SavedMusic> = emptyList(),
@@ -15,21 +18,30 @@ internal data class MusicLibraryContent(
     /** The saved music played during the games; null when there is none. */
     val gameMusic: SavedMusic? get() = musics.firstOrNull { it.id == gameMusicId }
 
-    /** [music] in place of the one of its identity, or after them all if it is new. */
-    fun saving(music: SavedMusic): MusicLibraryContent {
+    /** [music], changed [at] that time, in place of the one of its identity, or after them all if it is new. */
+    fun saving(
+        music: SavedMusic,
+        at: Instant,
+    ): MusicLibraryContent {
         requireFreeName(music.name, music.id)
         val place = musics.indexOfFirst { it.id == music.id }
-        return copy(musics = if (place < 0) musics + music else musics.replacing(place, music))
+        val dated = music.copy(modifiedAt = at.toFileTime())
+        return copy(musics = if (place < 0) musics + dated else musics.replacing(place, dated))
     }
 
-    /** The music of [id] called [name], at its place. */
+    /**
+     * The music of [id] called [name], at its place, changed [at] that time; unchanged if it is called [name] already,
+     * the very same: nothing of it changes.
+     */
     fun renaming(
         id: ScoreId.Personal,
         name: String,
+        at: Instant,
     ): MusicLibraryContent {
         val place = placeOf(id)
         requireFreeName(name, id)
-        return copy(musics = musics.replacing(place, musics[place].copy(name = name)))
+        if (musics[place].name == name) return this
+        return copy(musics = musics.replacing(place, musics[place].copy(name = name, modifiedAt = at.toFileTime())))
     }
 
     /** The music of [id] played during the games, or none if [id] is null. */
@@ -80,3 +92,6 @@ internal data class MusicLibraryContent(
         music: SavedMusic,
     ): List<SavedMusic> = toMutableList().apply { set(place, music) }
 }
+
+/** This time to the millisecond, as the musics file keeps it. */
+private fun Instant.toFileTime(): Instant = truncatedTo(ChronoUnit.MILLIS)

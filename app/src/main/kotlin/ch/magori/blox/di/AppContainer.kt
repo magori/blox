@@ -48,6 +48,7 @@ import kotlinx.coroutines.SupervisorJob
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
+import java.time.Clock
 
 /**
  * Builds what the features need, by hand (ADR 0007). The features define their view model
@@ -85,9 +86,11 @@ class AppContainer(context: Context) {
      * The musics of the player, « Mes musiques », in `files/datastore/musics.bin`, and the one played during the
      * games.
      * Built here, once for the process; the games read the music chosen for them from it, the home screen shows it, the
-     * list « Mes musiques » shows and changes them all; the editor will receive it (P4.19d).
+     * list « Mes musiques » shows and changes them all; the editor will receive it (P4.19d). Its changes are dated by
+     * the clock of the system, the only one the application reads.
      */
-    val musicLibrary: MusicLibrary = DataStoreMusicLibrary(dataScope) { dataStoreFile(filesDir, MUSICS_FILE) }
+    val musicLibrary: MusicLibrary =
+        DataStoreMusicLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, MUSICS_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)

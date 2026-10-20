@@ -4,8 +4,10 @@ import androidx.lifecycle.SavedStateHandle
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.FakeMusicLibrary
+import ch.magori.blox.core.data.MODIFIED_AT
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.MutableClock
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.ScoreId
@@ -19,6 +21,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.IOException
+import java.time.Instant
 
 /** Saving, leaving, renaming and deleting the music of the editor, in the musics of the player. */
 class ComposerSavingTest {
@@ -57,7 +60,7 @@ class ComposerSavingTest {
         // Then
         val draft = viewModel.shown.editor.draft
         assertThat(library.musics.first())
-            .containsExactly(SavedMusic(NEW_ID, "Thème du soir", null, draft.scale, draft.toScore(NEW_ID)))
+            .containsExactly(SavedMusic(NEW_ID, "Thème du soir", null, draft.scale, draft.toScore(NEW_ID), MODIFIED_AT))
         assertThat(viewModel.shown.editor.status).isEqualTo(SaveStatus.SAVED)
         assertThat(viewModel.shown.name).isEqualTo("Thème du soir")
         assertThat(viewModel.shown.dialog).isNull()
@@ -79,7 +82,7 @@ class ComposerSavingTest {
         assertThat(window).isEqualTo(ComposerDialog.Save(name = "Thème du soir", forGames = false, nameChosen = true))
         val draft = viewModel.shown.editor.draft
         assertThat(library.musics.first()).singleElement().isEqualTo(
-            SavedMusic(NEW_ID, "Thème du soir", null, draft.scale, draft.toScore(NEW_ID)),
+            SavedMusic(NEW_ID, "Thème du soir", null, draft.scale, draft.toScore(NEW_ID), MODIFIED_AT),
         )
     }
 
@@ -344,11 +347,32 @@ class ComposerSavingTest {
         // Then
         val id = ScoreId.Personal("joyeux")
         assertThat(library.musics.first()).containsExactly(
-            SavedMusic(id, "Fête", null, draft.scale, draft.toScore(id)),
+            SavedMusic(id, "Fête", null, draft.scale, draft.toScore(id), MODIFIED_AT),
         )
         assertThat(saved.shown.name).isEqualTo("Fête")
         assertThat(saved.shown.editor.status).isEqualTo(SaveStatus.MODIFIED)
         assertThat(saved.shown.dialog).isNull()
+    }
+
+    @Test
+    fun `saving, then renaming, in the editor dates the music by the clock of the library each time`() = runTest {
+        // Given a library whose clock tells ten
+        val clock = MutableClock(Instant.parse("2026-10-20T10:00:00Z"))
+        val dated = FakeMusicLibrary(clock)
+        val editor = editor(library = dated)
+        editor.onCellTouched(pitch("E4"), eighth = 0)
+
+        // When the music is saved at ten, then renamed at eleven
+        editor.save(name = "Thème du soir")
+        val savedAt = dated.musics.first().single().modifiedAt
+        clock.now = Instant.parse("2026-10-20T11:00:00Z")
+        editor.onRenameAsked()
+        editor.onNameChanged("Fête")
+        editor.onRenameConfirmed()
+
+        // Then
+        assertThat(savedAt).isEqualTo(Instant.parse("2026-10-20T10:00:00Z"))
+        assertThat(dated.musics.first().single().modifiedAt).isEqualTo(Instant.parse("2026-10-20T11:00:00Z"))
     }
 
     @Test

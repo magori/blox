@@ -7,15 +7,23 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import okio.Path
+import java.time.Clock
 import java.util.UUID
 
 /**
  * The musics kept in [dataStore], on [MUSICS_FILE]. The DataStore is created once, by the application container
  * (ADR 0007): a file has a single DataStore instance. Each change reads and replaces the content in one atomic update.
  */
-class DataStoreMusicLibrary internal constructor(private val dataStore: DataStore<MusicLibraryContent>) : MusicLibrary {
+class DataStoreMusicLibrary internal constructor(
+    private val dataStore: DataStore<MusicLibraryContent>,
+    private val clock: Clock,
+) : MusicLibrary {
     /** A library on the file [produceFile] gives, its DataStore living in [scope]: one instance per file. */
-    constructor(scope: CoroutineScope, produceFile: () -> Path) : this(musicLibraryDataStore(scope, produceFile))
+    constructor(
+        scope: CoroutineScope,
+        clock: Clock,
+        produceFile: () -> Path,
+    ) : this(musicLibraryDataStore(scope, produceFile), clock)
 
     /** A random UUID: an identity drawn twice is as good as impossible. */
     override fun newId(): ScoreId.Personal = ScoreId.Personal(UUID.randomUUID().toString())
@@ -29,14 +37,14 @@ class DataStoreMusicLibrary internal constructor(private val dataStore: DataStor
     }.distinctUntilChanged()
 
     override suspend fun save(music: SavedMusic) {
-        dataStore.updateData { it.saving(music) }
+        dataStore.updateData { it.saving(music, clock.instant()) }
     }
 
     override suspend fun rename(
         id: ScoreId.Personal,
         name: String,
     ) {
-        dataStore.updateData { it.renaming(id, name) }
+        dataStore.updateData { it.renaming(id, name, clock.instant()) }
     }
 
     override suspend fun setGameMusic(id: ScoreId.Personal?) {

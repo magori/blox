@@ -2,6 +2,7 @@ package ch.magori.blox.feature.composer
 
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
+import ch.magori.blox.core.data.MODIFIED_AT
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.Category
@@ -142,7 +143,9 @@ class ComposerNamingTest {
             val draft = viewModel.shown.editor.draft
             assertThat(draft.category).isEqualTo(Category.MELANCHOLIC)
             assertThat(library.musics.first())
-                .containsExactly(SavedMusic(NEW_ID, name, Category.MELANCHOLIC, draft.scale, draft.toScore(NEW_ID)))
+                .containsExactly(
+                    SavedMusic(NEW_ID, name, Category.MELANCHOLIC, draft.scale, draft.toScore(NEW_ID), MODIFIED_AT),
+                )
             assertThat(viewModel.shown.editor.status).isEqualTo(SaveStatus.SAVED)
         }
 

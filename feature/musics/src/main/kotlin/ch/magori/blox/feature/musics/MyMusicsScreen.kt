@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -40,14 +42,22 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.data.dayText
+import ch.magori.blox.core.data.spokenDay
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
+import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.ScoreId
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZoneOffset
 
 /** What the player does on « Mes musiques »: the screen hands each action over, and decides nothing. */
 @Stable
@@ -98,13 +108,17 @@ internal interface MyMusicsActions {
 /**
  * « Mes musiques » (V7, V10): the back button and, at the top, the music played during the games; a card per saved
  * music, to listen to it, choose it for the games, rename or delete it from its menu « … »; the message that undoes a
- * deletion; *Au hasard* and *Nouvelle*, which open the editor.
+ * deletion; *Au hasard* and *Nouvelle*, which open the editor. The day of the last change of a music is the one of
+ * [zone], its year told when it is not the one of [today]: both read at each composition, never kept for the life of
+ * the screen; a test or a preview gives its own.
  */
 @Composable
 internal fun MyMusicsScreen(
     uiState: MyMusicsUiState,
     actions: MyMusicsActions,
     modifier: Modifier = Modifier,
+    zone: ZoneId = ZoneId.systemDefault(),
+    today: LocalDate = LocalDate.now(zone),
 ) {
     val palette = BloxTheme.palette
     Column(
@@ -131,7 +145,7 @@ internal fun MyMusicsScreen(
             }
             items(uiState.musics, key = {
                 "$MUSIC_KEY${it.id.key}"
-            }) { card -> MusicCardRow(card = card, actions = actions) }
+            }) { card -> MusicCardRow(card = card, actions = actions, days = Days(zone, today)) }
         }
         uiState.deleted?.let { name ->
             UndoMessage(name = name, onUndo = actions::onUndo, onClose = actions::onUndoDismissed)
@@ -196,7 +210,7 @@ private fun Header(
 }
 
 /**
- * The card of a music: listen, its name and its info line, *Utiliser* or *En jeu* under them, and its menu « … ». The
+ * The card of a music: listen, its name and its info lines, *Utiliser* or *En jeu* under them, and its menu « … ». The
  * button stands under the name, not beside it as in the mockup: the pixel font of Original and a font twice as large
  * would leave the name a few letters.
  */
@@ -204,6 +218,7 @@ private fun Header(
 private fun MusicCardRow(
     card: MusicCard,
     actions: MyMusicsActions,
+    days: Days,
 ) {
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.panel
@@ -251,26 +266,67 @@ private fun MusicCardRow(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Text(
-                    text = if (listening != null) {
-                        stringResource(R.string.feature_musics_listening, listening.bar, listening.bars)
-                    } else {
-                        stringResource(
-                            R.string.feature_musics_info,
-                            stringResource(categoryLabel(card.category)),
-                            card.bpm,
-                        )
-                    },
-                    color = palette.label,
-                    style = MaterialTheme.typography.labelSmall,
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                CardInfo(card = card, listening = listening, days = days)
             }
             UseButton(name = card.name, inGame = card.inGame, onClick = { actions.onUse(card.id) })
         }
         CardMenu(card = card, actions = actions)
     }
+}
+
+/**
+ * The three lines under the name of a card, smaller: its style and its key, « Joyeux · sol majeur »; its tempo and its
+ * length, « 120 temps/min · 0:16 », or, while it is [listening] to, the bar played, in the ink as the mockup shows it;
+ * the day of its last change in the [days] of the screen, « Modifiée le 20 oct. », left out when it is unknown.
+ * TalkBack says them as a sentence of words instead ([cardInfoDescription]): « 80 temps par minute, 24 secondes,
+ * modifiée le 18 octobre », not « 0:24 » nor « · ».
+ */
+@Composable
+private fun CardInfo(
+    card: MusicCard,
+    listening: Listening?,
+    days: Days,
+) {
+    val palette = BloxTheme.palette
+    val style = stringResource(categoryLabel(card.category))
+    val description = cardInfoDescription(
+        style = style,
+        key = card.key,
+        bpm = card.bpm,
+        spokenLength = card.spokenLength,
+        spokenDay = card.modifiedAt?.let { spokenDay(it, days.zone, days.today) },
+        listening = listening,
+    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.clearAndSetSemantics { contentDescription = description },
+    ) {
+        InfoLine(stringResource(R.string.feature_musics_style_key, style, card.key))
+        if (listening != null) {
+            InfoLine(stringResource(R.string.feature_musics_listening, listening.bar, listening.bars), palette.ink)
+        } else {
+            InfoLine(stringResource(R.string.feature_musics_tempo_length, card.bpm, card.length))
+        }
+        card.modifiedAt?.let { modifiedAt ->
+            InfoLine(stringResource(R.string.feature_musics_modified, dayText(modifiedAt, days.zone, days.today)))
+        }
+    }
+}
+
+/** The [zone] of the days told on the cards, and [today] in it: a year other than its own is told. */
+private data class Days(val zone: ZoneId, val today: LocalDate)
+
+/**
+ * A line of the info of a card, in [color]: on as many lines as it takes, its words whole, shrunk with a large font
+ * rather than cut (« temps/ » / « min »).
+ */
+@Composable
+private fun InfoLine(
+    text: String,
+    color: Color = BloxTheme.palette.label,
+) {
+    val style = MaterialTheme.typography.labelSmall.shrinkingLineHeight()
+    Text(text = text, color = color, style = style, autoSize = shrinkToWholeWords(style.fontSize))
 }
 
 /** *Utiliser*, framed; or *En jeu*, filled in the accent, as a selected choice of the home screen. */
@@ -424,23 +480,50 @@ private fun MyMusicsPreview(
     uiState: MyMusicsUiState = previewState,
 ) {
     BloxTheme(kind = kind) {
-        MyMusicsScreen(uiState = uiState, actions = NoActions)
+        MyMusicsScreen(uiState = uiState, actions = NoActions, zone = ZoneOffset.UTC, today = PREVIEW_TODAY)
     }
 }
 
-/** Three musics, the first played during the games, the second listened to. */
+/**
+ * Three musics, the first played during the games, the second listened to, the third saved before the day of the last
+ * change was kept. Noon in Greenwich: the same day in every zone of the machines that render the previews.
+ */
 private val previewState = MyMusicsUiState(
     musics = listOf(
-        MusicCard(ScoreId.Personal("1"), "Thème du soir", Category.CALM, bpm = 80, inGame = true),
+        MusicCard(
+            ScoreId.Personal("1"),
+            "Thème du soir",
+            Category.CALM,
+            key = "fa majeur",
+            bpm = 80,
+            length = "0:24",
+            spokenLength = "24 secondes",
+            modifiedAt = Instant.parse("2026-10-18T12:00:00Z"),
+            inGame = true,
+        ),
         MusicCard(
             ScoreId.Personal("2"),
             "Ballades pour une longue soirée en hiver",
             Category.RETRO,
+            key = "fa dièse mixolydien",
             bpm = 156,
+            length = "0:12",
+            spokenLength = "12 secondes",
+            modifiedAt = Instant.parse("2026-10-01T12:00:00Z"),
             inGame = false,
             listening = Listening(bar = 3, bars = 8),
         ),
-        MusicCard(ScoreId.Personal("3"), "Ma marche", category = null, bpm = 132, inGame = false),
+        MusicCard(
+            ScoreId.Personal("3"),
+            "Ma marche",
+            category = null,
+            key = "la mineur",
+            bpm = 132,
+            length = "0:15",
+            spokenLength = "15 secondes",
+            modifiedAt = null,
+            inGame = false,
+        ),
     ),
     gameMusic = "Thème du soir",
     deleted = "Joyeux 2",
@@ -508,6 +591,9 @@ internal fun MyMusicsColorfulLargeFontPreview() {
 internal fun MyMusicsEmptyPreview() {
     MyMusicsPreview(BloxThemeKind.COLORFUL, MyMusicsUiState(musics = emptyList(), gameMusic = null))
 }
+
+/** The day the previews are looked at: the days of their musics, in 2026, are told without their year. */
+private val PREVIEW_TODAY: LocalDate = LocalDate.of(2026, 10, 20)
 
 /** The keys of the items of the list: a key of music never takes the one of the empty list. */
 private const val EMPTY_KEY = "empty"

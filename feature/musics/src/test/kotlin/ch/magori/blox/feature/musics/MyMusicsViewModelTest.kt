@@ -5,7 +5,10 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.data.FakeMusicLibrary
+import ch.magori.blox.core.data.MODIFIED_AT
 import ch.magori.blox.core.data.MainDispatcherExtension
+import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.Category
@@ -19,6 +22,7 @@ import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -53,11 +57,62 @@ internal class MyMusicsViewModelTest {
         // When / Then
         viewModel.uiState.test {
             assertThat(expectMostRecentItem()?.musics).containsExactly(
-                MusicCard(evening.id, "Thème du soir", Category.CALM, bpm = 80, inGame = false),
-                MusicCard(handMade.id, "Ma marche", category = null, bpm = 132, inGame = false),
+                aCard(
+                    evening.id,
+                    "Thème du soir",
+                    Category.CALM,
+                    bpm = 80,
+                    length = "0:24",
+                    spokenLength = "24 secondes",
+                ),
+                aCard(
+                    handMade.id,
+                    "Ma marche",
+                    category = null,
+                    bpm = 132,
+                    length = "0:15",
+                    spokenLength = "15 secondes",
+                ),
             )
         }
     }
+
+    @Test
+    fun `each card tells the key, the length at the tempo and the time of the last change of its music`() =
+        runMyMusicsTest {
+            // Given a music in G major of eight bars at 120 beats a minute, saved by the library at the time of its
+            // clock
+            aSavedMusic("Matin de fête", scale = Scale(Pitch.parse("G4"), ScaleType.MAJOR))
+            val viewModel = myMusics()
+
+            // When / Then
+            viewModel.uiState.test {
+                val card = expectMostRecentItem()?.musics?.single()
+                assertThat(card?.key).isEqualTo("sol majeur")
+                assertThat(card?.length).isEqualTo("0:16")
+                assertThat(card?.spokenLength).isEqualTo("16 secondes")
+                assertThat(card?.modifiedAt).isEqualTo(MODIFIED_AT)
+            }
+        }
+
+    @Test
+    fun `a music saved before the musics file kept the time of its changes has a card without a day`() =
+        runMyMusicsTest {
+            // Given a music read from a file of version 1: the time of its last change is unknown
+            val id = ScoreId.Personal("old")
+            val scale = Scale(Pitch.parse("A4"), ScaleType.NATURAL_MINOR)
+            val migrated = SavedMusic(id, "Ancienne", null, scale, eightBars(id, 120))
+            val readFromVersion1 = object : MusicLibrary by FakeMusicLibrary() {
+                override val musics = flowOf(listOf(migrated))
+                override val gameMusic = flowOf<SavedMusic?>(null)
+            }
+            val viewModel = myMusics(readFromVersion1)
+
+            // When / Then
+            viewModel.uiState.test {
+                assertThat(expectMostRecentItem()?.musics?.single()?.modifiedAt).isNull()
+            }
+        }
 
     @Test
     fun `the music played during the games is in game, and named at the top, the others are not`() = runMyMusicsTest {
@@ -813,7 +868,7 @@ internal class MyMusicsViewModelTest {
     }
 
     /** « Mes musiques » in a view model store like the navigation entry's, built by the factory as `app` builds it. */
-    private fun myMusics(): MyMusicsViewModel {
+    private fun myMusics(library: MusicLibrary = this.library): MyMusicsViewModel {
         val store = ViewModelStore().also { stores += it }
         return ViewModelProvider.create(
             store,
@@ -832,12 +887,33 @@ internal class MyMusicsViewModelTest {
         name: String,
         category: Category? = Category.JOYFUL,
         bpm: Int = 120,
+        scale: Scale = Scale(Pitch.parse("C4"), ScaleType.MAJOR),
     ): SavedMusic {
         val id = library.newId()
-        val saved = SavedMusic(id, name, category, Scale(Pitch.parse("C4"), ScaleType.MAJOR), eightBars(id, bpm))
+        val saved = SavedMusic(id, name, category, scale, eightBars(id, bpm))
         library.save(saved)
         return saved
     }
+
+    /** The card of a music of eight bars in C major saved at [MODIFIED_AT], as the list shows it. */
+    private fun aCard(
+        id: ScoreId.Personal,
+        name: String,
+        category: Category?,
+        bpm: Int,
+        length: String,
+        spokenLength: String,
+    ): MusicCard = MusicCard(
+        id = id,
+        name = name,
+        category = category,
+        key = "do majeur",
+        bpm = bpm,
+        length = length,
+        spokenLength = spokenLength,
+        modifiedAt = MODIFIED_AT,
+        inGame = false,
+    )
 
     /** A score of eight bars of four beats at [bpm], each bar one whole note of the melody over the bass. */
     private fun eightBars(

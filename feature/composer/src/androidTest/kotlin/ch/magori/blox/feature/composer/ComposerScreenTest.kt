@@ -198,6 +198,18 @@ internal class ComposerScreenTest {
     }
 
     @Test
+    @DisplayName("on a small phone with the largest font, the line under the title holds on two lines at most, whole")
+    fun theLineUnderTheTitleHoldsOnTwoLinesWithALargeFont() = extension.use {
+        // Given a new music, on a phone 360 dp wide, the font twice as large, in the pixel font
+        showEditorWithLargeFont()
+
+        // Then
+        val line = textLayout("Libre · do majeur · non enregistrée")
+        assertThat(line.lineCount).isLessThanOrEqualTo(2)
+        assertThat(line.hasVisualOverflow).isFalse()
+    }
+
+    @Test
     @DisplayName(
         "on a small phone with the largest font, the modes stand above the tools, each label whole, 48 dp at least",
     )
@@ -528,8 +540,8 @@ internal class ComposerScreenTest {
         onNodeWithText("Au hasard").performClick()
         mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
 
-        // Then
-        onNodeWithText("Calme · non enregistrée").assertExists()
+        // Then the line under the title tells the style; its key is the one the dice drew
+        onNodeWithText("Calme · ", substring = true).assertExists()
         onNodeWithText("Musique tirée au hasard. « Annuler » ramène l'ancienne.").assertExists()
 
         // When
@@ -562,7 +574,32 @@ internal class ComposerScreenTest {
         assertThat(runBlocking { library.gameMusic.first() }?.name).isEqualTo("Thème du soir")
         onNodeWithText("Enregistrer la musique").assertDoesNotExist()
         onNodeWithText("Thème du soir").assertExists()
-        onNodeWithText("non enregistrée").assertDoesNotExist()
+        onNodeWithText("non enregistrée", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the line under the title tells the style, the key, and whether the music is new, changed or saved")
+    fun theLineUnderTheTitleTellsStyleKeyAndSaving() = extension.use {
+        // Given a new music, written by hand on the scale of a new music, C major
+        showEditor()
+
+        // Then
+        onNodeWithText("Libre · do majeur · non enregistrée").assertExists()
+
+        // When a note is placed, and the music saved
+        cell("Mi bas, temps 1").performClick()
+        onNodeWithContentDescription("Enregistrer les changements").performClick()
+        onNodeWithText("Enregistrer").performClick()
+        waitForIdle()
+
+        // Then
+        onNodeWithText("Libre · do majeur").assertExists()
+
+        // When another note is placed
+        cell("Mi bas, temps 2").performClick()
+
+        // Then
+        onNodeWithText("Libre · do majeur · modifiée").assertExists()
     }
 
     @Test

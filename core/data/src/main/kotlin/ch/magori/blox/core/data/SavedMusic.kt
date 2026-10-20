@@ -4,13 +4,15 @@ import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import java.time.Instant
 
 /**
  * A music of the player, kept in « Mes musiques » (P4.22): what the music editor needs to open it again as it was
  * saved. [id] is its identity, which a rename leaves unchanged, and the one of its [score]; [name] is the one the
  * player gave it, of [MAX_NAME_LENGTH] characters at the most and without spaces around it; [category] the one it was
  * generated in, null for a music written by hand; [scale] the scale its grid follows, tonic included; [score] its two
- * voices, its tempo ([Score.bpm]) and its bars.
+ * voices, its tempo ([Score.bpm]) and its bars; [modifiedAt] the time it was last saved or renamed, which the library
+ * sets, null when it is unknown: a music saved before the musics file kept it (version 1).
  */
 data class SavedMusic(
     val id: ScoreId.Personal,
@@ -18,6 +20,7 @@ data class SavedMusic(
     val category: Category?,
     val scale: Scale,
     val score: Score,
+    val modifiedAt: Instant? = null,
 ) {
     init {
         require(name.isNotBlank()) { "A saved music has a name that is not blank" }

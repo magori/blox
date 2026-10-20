@@ -8,6 +8,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -16,9 +17,11 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -37,6 +40,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -51,8 +57,16 @@ internal class MyMusicsScreenTest {
 
     private val uiState = MyMusicsUiState(
         musics = listOf(
-            MusicCard(evening, "Thème du soir", Category.CALM, bpm = 80, inGame = true),
-            MusicCard(march, "Ma marche", category = null, bpm = 132, inGame = false),
+            aCard(evening, "Thème du soir", Category.CALM, key = "fa majeur", bpm = 80, inGame = true),
+            aCard(
+                march,
+                "Ma marche",
+                null,
+                key = "la mineur",
+                bpm = 132,
+                length = "0:15",
+                spokenLength = "15 secondes",
+            ),
         ),
         gameMusic = "Thème du soir",
     )
@@ -72,9 +86,13 @@ internal class MyMusicsScreenTest {
 
         // Then
         onNodeWithText("Pendant les parties : Thème du soir").assertExists()
-        onNodeWithText("Calme · 80 temps/min").assertExists()
-        onNodeWithText("Lecture · mesure 3 sur 8").assertExists()
-        onNodeWithText("Composée à la main · 132 temps/min").assertDoesNotExist()
+        // The info lines as TalkBack says them, in words
+        onNodeWithContentDescription(
+            "Calme, fa majeur, 80 temps par minute, 24 secondes, modifiée le 20 octobre",
+            substring = true,
+        ).assertExists()
+        onNodeWithContentDescription("Libre, la mineur, lecture, mesure 3 sur 8", substring = true).assertExists()
+        onNodeWithContentDescription("132 temps par minute", substring = true).assertDoesNotExist()
 
         // When
         onNodeWithContentDescription("Écouter Thème du soir").performClick()
@@ -85,7 +103,32 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("each category is named on its card as the specification names it, a music by hand Composée à la main")
+    @DisplayName("each card tells the style and the key, the tempo and the length, and the day of the last change")
+    fun eachCardTellsStyleKeyTempoLengthAndDay() = extension.use {
+        // Given « Thème du soir » last changed on 18 October, « Ma marche » at a time unknown (saved before it was
+        // kept)
+        showMyMusics(
+            uiState.copy(
+                musics = listOf(
+                    uiState.musics[0].copy(modifiedAt = Instant.parse("2026-10-18T12:00:00Z")),
+                    uiState.musics[1].copy(modifiedAt = null),
+                ),
+            ),
+        )
+
+        // Then TalkBack says each one in words, without « · » nor « 0:24 », the day only when it is known
+        onNodeWithContentDescription(
+            "Calme, fa majeur, 80 temps par minute, 24 secondes, modifiée le 18 octobre",
+            substring = true,
+        ).assertIsDisplayed()
+        onNodeWithContentDescription("Libre, la mineur, 132 temps par minute, 15 secondes", substring = true)
+            .assertIsDisplayed()
+        onAllNodesWithContentDescription("modifiée le", substring = true).assertCountEquals(1)
+        onAllNodesWithContentDescription("0:24", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("each category is named on its card as the specification names it, a music by hand Libre")
     fun eachCategoryIsNamedAsTheSpecificationNamesIt() = extension.use {
         // Given a card per category, and one of a music written by hand
         val names = mapOf(
@@ -96,28 +139,22 @@ internal class MyMusicsScreenTest {
             Category.MYSTERIOUS to "Mystérieux",
             Category.RETRO to "Rétro",
             Category.DANCE to "Danse",
-            null to "Composée à la main",
+            null to "Libre",
         )
         assertThat(names.keys).containsAll(Category.entries)
         showMyMusics(
             uiState.copy(
                 musics = names.keys.mapIndexed { index, category ->
-                    MusicCard(
-                        ScoreId.Personal("m$index"),
-                        "Musique $index",
-                        category,
-                        bpm = 100 + index,
-                        inGame = false,
-                    )
+                    aCard(ScoreId.Personal("m$index"), "Musique $index", category, key = "do majeur")
                 },
             ),
         )
 
         // Then
-        names.values.forEachIndexed { index, name ->
-            val info = "$name · ${100 + index} temps/min"
-            onNode(hasScrollToNodeAction()).performScrollToNode(hasText(info))
-            onNodeWithText(info).assertIsDisplayed()
+        names.values.forEach { name ->
+            val info = "$name, do majeur, "
+            onNode(hasScrollToNodeAction()).performScrollToNode(hasContentDescription(info, substring = true))
+            onNodeWithContentDescription(info, substring = true).assertIsDisplayed()
         }
     }
 
@@ -147,7 +184,7 @@ internal class MyMusicsScreenTest {
         // Given more musics than the screen holds
         showMyMusics(
             uiState.copy(
-                musics = List(12) { MusicCard(ScoreId.Personal("m$it"), "Musique ${it + 1}", null, 100, false) },
+                musics = List(12) { aCard(ScoreId.Personal("m$it"), "Musique ${it + 1}", category = null) },
             ),
         )
 
@@ -370,6 +407,28 @@ internal class MyMusicsScreenTest {
         }
     }
 
+    /** The card of a music of eight bars, last changed on 20 October 2026 at noon in Greenwich, the day shown. */
+    private fun aCard(
+        id: ScoreId.Personal,
+        name: String,
+        category: Category?,
+        key: String = "do majeur",
+        bpm: Int = 80,
+        length: String = "0:24",
+        spokenLength: String = "24 secondes",
+        inGame: Boolean = false,
+    ): MusicCard = MusicCard(
+        id = id,
+        name = name,
+        category = category,
+        key = key,
+        bpm = bpm,
+        length = length,
+        spokenLength = spokenLength,
+        modifiedAt = Instant.parse("2026-10-20T12:00:00Z"),
+        inGame = inGame,
+    )
+
     private fun ComposeContext.showMyMusics(
         state: MyMusicsUiState = uiState,
         renameProblem: (String) -> NameProblem? = { null },
@@ -384,6 +443,8 @@ internal class MyMusicsScreenTest {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 MyMusicsScreen(
                     uiState = state(),
+                    zone = ZoneOffset.UTC,
+                    today = LocalDate.of(2026, 10, 20),
                     actions = object : MyMusicsActions {
                         override fun onBack() {
                             calls += "back"

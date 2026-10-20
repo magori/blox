@@ -6,12 +6,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.time.Clock
+import java.time.Instant
 
 /**
  * Saved musics kept in memory, that keep the contract of [MusicLibrary] (`MusicLibraryContract`): the rules are
- * those of the real library, [MusicLibraryContent], only the file is left out.
+ * those of the real library, [MusicLibraryContent], only the file is left out. [clock] dates the changes: stopped at
+ * [MODIFIED_AT] unless a test gives another one.
  */
-class FakeMusicLibrary : MusicLibrary {
+class FakeMusicLibrary(private val clock: Clock = MutableClock()) : MusicLibrary {
     private val content = MutableStateFlow(MusicLibraryContent())
 
     /** The identities given so far: the next one is « music-<count + 1> », or the first after it no music has. */
@@ -27,14 +30,14 @@ class FakeMusicLibrary : MusicLibrary {
     override val gameMusic: Flow<SavedMusic?> = content.map { it.gameMusic }.distinctUntilChanged()
 
     override suspend fun save(music: SavedMusic) {
-        content.update { it.saving(music) }
+        content.update { it.saving(music, clock.instant()) }
     }
 
     override suspend fun rename(
         id: ScoreId.Personal,
         name: String,
     ) {
-        content.update { it.renaming(id, name) }
+        content.update { it.renaming(id, name, clock.instant()) }
     }
 
     override suspend fun setGameMusic(id: ScoreId.Personal?) {
@@ -51,3 +54,6 @@ class FakeMusicLibrary : MusicLibrary {
         content.update { it.restoring(deleted) }
     }
 }
+
+/** The time the clock of a [FakeMusicLibrary] tells, unless it is given another one: the time its musics are saved. */
+val MODIFIED_AT: Instant = Instant.parse("2026-10-20T10:00:00Z")
