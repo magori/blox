@@ -7,8 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -18,8 +20,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.notEnlarged
 import ch.magori.blox.core.designsystem.theme.shrinkFloor
 import ch.magori.blox.core.designsystem.theme.shrinkToFit
+import ch.magori.blox.core.designsystem.theme.shrinkToFitNotEnlarged
 
 /** The sizes shared by the panels and values of the game screens, in one place; their frame is `BloxBorders.frame`. */
 internal object PanelSizes {
@@ -65,13 +69,15 @@ internal fun LabelledPanel(
 
 /**
  * A value of the game screens: in the value font of the theme, every digit as wide as the others, on one
- * line, shrinking from [maxFontSize] if needed, down to [shrinkFloor].
+ * line, shrinking from [maxFontSize] if needed, down to [shrinkFloor]. With [capToNormalFont], it is never larger
+ * than with the normal font ([notEnlarged]).
  */
 @Composable
 internal fun ValueText(
     text: String,
     modifier: Modifier = Modifier,
     maxFontSize: TextUnit = PanelSizes.value,
+    capToNormalFont: Boolean = false,
 ) {
     val typography = BloxTheme.typography
     Text(
@@ -81,18 +87,20 @@ internal fun ValueText(
         style = typography.value,
         maxLines = 1,
         softWrap = false,
-        autoSize = shrinkToFit(maxFontSize),
+        autoSize = shrinkingFrom(maxFontSize, capToNormalFont),
     )
 }
 
 /**
  * The label of a panel or of a value: in capitals, in the theme label colour and font, on one line, shrinking
- * if needed, down to [shrinkFloor]: with an enlarged font, « SUIVANTE » stays whole.
+ * if needed, down to [shrinkFloor]: with an enlarged font, « SUIVANTE » stays whole. With [capToNormalFont], it is
+ * never larger than with the normal font ([notEnlarged]).
  */
 @Composable
 internal fun PanelLabel(
     text: String,
     modifier: Modifier = Modifier,
+    capToNormalFont: Boolean = false,
 ) {
     Text(
         text = text.uppercase(),
@@ -101,6 +109,14 @@ internal fun PanelLabel(
         style = BloxTheme.typography.label,
         maxLines = 1,
         softWrap = false,
-        autoSize = shrinkToFit(PanelSizes.label),
+        autoSize = shrinkingFrom(PanelSizes.label, capToNormalFont),
     )
 }
+
+/** A text from [maxFontSize], shrinking to fit; with [capToNormalFont], no larger than with the normal font. */
+@Composable
+@ReadOnlyComposable
+private fun shrinkingFrom(
+    maxFontSize: TextUnit,
+    capToNormalFont: Boolean,
+): TextAutoSize = if (capToNormalFont) shrinkToFitNotEnlarged(maxFontSize) else shrinkToFit(maxFontSize)

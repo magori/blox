@@ -56,6 +56,36 @@ class ShrinkFloorTest {
         assertThat(density.shrinkFloor(maxFontSize = 7.sp)).isEqualTo(7.sp)
     }
 
+    @Test
+    fun `with a font enlarged twice a text not enlarged keeps its 18 dp with the normal font`() {
+        val density = Density(density = 2.625f, fontScale = 2f)
+
+        val size = density.notEnlarged(18.sp)
+
+        assertThat(size).isEqualTo(9.sp)
+        assertThat(with(density) { size.toDp() }.value).isEqualTo(18f)
+    }
+
+    @Test
+    fun `with a font made smaller a text not enlarged keeps its size`() {
+        val density = Density(density = 2.625f, fontScale = 0.85f)
+
+        assertThat(density.notEnlarged(18.sp)).isEqualTo(18.sp)
+    }
+
+    @ParameterizedTest(name = "{0} sp at a font scale of {1}")
+    @MethodSource("sizesAndScales")
+    fun `the floor is never above the size of the text not enlarged`(
+        maxFontSize: Float,
+        fontScale: Float,
+    ) {
+        val density = Density(density = 2.625f, fontScale = fontScale)
+
+        val floor = density.shrinkFloor(maxFontSize.sp).value
+
+        assertThat(floor).isLessThanOrEqualTo(density.notEnlarged(maxFontSize.sp).value)
+    }
+
     private companion object {
         /** The rounding of the conversions between sp and dp, in floats. */
         const val TOLERANCE = 0.001f
