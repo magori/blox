@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.feature.game.controls.ControlSizes
 import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
@@ -77,6 +78,34 @@ internal fun gameLayout(
         .filter { it.cellSize > usual.cellSize }
         .largestThatFits(width, height)
         ?: usual
+}
+
+/** Under cells of this size, the game is hardly playable: the screen asks for a larger window (P2.24). */
+private val SmallestCell = 8.dp
+
+/** Around the game screen: the margins the controls are sized for (P2.5). */
+internal val ScreenMargin = 24.dp
+
+/** The top bar on one row: as high as its pause button. */
+private val TopBarRow = BloxSizes.minTouchTarget
+
+/**
+ * Whether a window of [width] × [height] pixels, inside the system bars, at [density] pixels per dp, is too small to
+ * play: in the space it leaves to the board (its margins, a top bar of one row and the gap under it taken off), the
+ * cells of [gameLayout] would be under [SmallestCell]. Measured on the window, so that it holds whatever the screen
+ * shows, paused included; and with the normal font: a window playable in the sense of this threshold stays so with
+ * an enlarged font, though less comfortably, its board smaller under the larger panels of the score above it, or
+ * under a top bar of two rows (P2.26).
+ */
+internal fun tooSmallToPlay(
+    width: Float,
+    height: Float,
+    density: Float,
+): Boolean {
+    val margins = 2 * ScreenMargin.value * density
+    val top = (TopBarRow + ScreenSizes.gap).value * density
+    val space = gameLayout(floor(width - margins), floor(height - margins - top), density)
+    return space.cellSize < SmallestCell.value * density
 }
 
 /** Of the portrait layouts and the landscape one, the one with the largest board that fits, else the portrait stacked. */

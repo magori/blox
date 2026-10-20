@@ -76,6 +76,24 @@ private fun GameScreenNarrowOriginal() = GameScreenNarrowOriginalPreview()
 @Composable
 private fun GameScreenNarrowLargeFont() = GameScreenNarrowLargeFontPreview()
 
+// The narrowest multi-window, 220 dp, too low to play: « Agrandissez la fenêtre » in place of the board, in both
+// themes, and with a large font (P2.24).
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 560)
+@Composable
+private fun GameScreenTooSmallOriginal() = GameScreenTooSmallOriginalPreview()
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 560)
+@Composable
+private fun GameScreenTooSmallColorful() = GameScreenTooSmallColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 560, fontScale = 2f)
+@Composable
+private fun GameScreenTooSmallLargeFont() = GameScreenTooSmallLargeFontPreview()
+
 // The board alone, larger than on the screen: the cells of the Original theme in detail.
 
 @PreviewTest

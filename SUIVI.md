@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 144 / 179 | `████████████████░░░░` **80 %** |
+| **Général** | 145 / 180 | `████████████████░░░░` **81 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -311,9 +311,12 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   au-dessus du plateau (revue de P2.11). À 220 dp et ×2,625, les flèches débordent de 2 px :
   réduire l'espacement des commandes à cette largeur. Fait : score au-dessus sous 288 dp, cellule de
   10 dp à 220 × 640 dp, flèches rapprochées.
-- [ ] **P2.24** Sous 8 dp de cellule (fenêtre de moins de 200 dp de large ou de 560 dp de haut
+- [x] **P2.24** Sous 8 dp de cellule (fenêtre de moins de 200 dp de large ou de 560 dp de haut
   environ), le jeu est peu jouable : afficher « Agrandissez la fenêtre » à la place ? À trancher
-  par le développeur (revue de P2.20).
+  par le développeur (revue de P2.20). Fait (oui, décision du développeur) : message à la place du
+  plateau, partie en pause, retour qui quitte.
+- [ ] **P2.28** Mettre à jour la maquette : vue « Agrandissez la fenêtre » (fenêtre trop petite pour
+  jouer, barre du haut gardée, bouton pause grisé) (P2.24).
 - [x] **P2.25** Mettre à jour la maquette : fenêtre très étroite, score et niveau puis lignes et
   pièce suivante au-dessus du plateau, flèches rapprochées (P2.20) ; barre du haut en deux rangées,
   titre au-dessus (P2.26).

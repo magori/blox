@@ -32,6 +32,15 @@ class BackActionTest {
     }
 
     @Test
+    fun `while the window is too small to play, the system back leaves the paused game, as Menu does`() {
+        // Given the game paused under the message « Agrandissez la fenêtre », which Reprendre cannot leave
+        val paused = playing.copy(paused = true)
+
+        // When / Then
+        assertThat(backAction(paused, tooSmallToPlay = true)).isEqualTo(BackAction.LEAVE)
+    }
+
+    @Test
     fun `once the game is over the system back leaves the game, as Menu does`() {
         // Given a game over, even one paused when it ended
         val over = GameOverUiState(

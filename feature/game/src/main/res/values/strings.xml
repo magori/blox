@@ -45,6 +45,8 @@
     <string name="feature_game_top_title">Mode classique</string>
     <string name="feature_game_top_pause">Mettre en pause</string>
     <string name="feature_game_top_record">Record</string>
+    <!-- À la place du plateau, quand la fenêtre est trop petite pour jouer (cellules de moins de 8 dp, P2.24). -->
+    <string name="feature_game_too_small">Agrandissez la fenêtre</string>
     <!-- Plateau, lu par TalkBack (P5.3) : la hauteur de la pile en rangées (pas « lignes », le compteur de lignes effacées), qui ne change qu'au verrouillage ou à l'effacement. -->
     <string name="feature_game_board_empty">Plateau : vide</string>
     <plurals name="feature_game_board_stack">
