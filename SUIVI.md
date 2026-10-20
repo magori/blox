@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 124 / 172 | `██████████████░░░░░░` **72 %** |
+| **Général** | 125 / 173 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -667,18 +667,21 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
   `GameLoop` (`feature:game`) à son plafond de ticks par image près ; la monter dans un module
   partagé avec un plafond en paramètre (revue de P4.19c, règle de 2). Fait : `FrameTicks` dans `core:designsystem` (ADR 0012 amendé).
-- [ ] **P5.45** Doublons laissés par P4.22c (règle de 2) : `ComposerHeader` garde ses copies
+- [x] **P5.45** Doublons laissés par P4.22c (règle de 2) : `ComposerHeader` garde ses copies
   privées de `GlyphButton`, `drawBack` et `drawDots`, à remplacer par `GlyphButton` et `Glyphs` de
   `core:designsystem` ; `NameProblem` de la liste et `SaveProblem` de l'éditeur (nom vide, pris,
   trop long) à réunir dans `core:data` (`MusicNames`) ; fenêtres Renommer et confirmation de
   suppression, et leurs chaînes, en double dans `ComposerDialogs` et `MyMusicsDialogs` (revue de
-  P4.19d). Après P4.19d.
+  P4.19d). Après P4.19d. Fait : `nameProblem`, `cutName`, `NamingWindow`, `DeleteWindow`.
 - [ ] **P5.46** Plugin des captures (Compose Preview Screenshot Testing, alpha) : le revoir à la
   prochaine montée d'AGP, déconseillé à partir d'AGP 9.5 au profit des « test suites » ; garder
   la validation en CI (P5.8).
 - [ ] **P5.47** Éditeur en police ×2 (captures de P4.20) : le bouton « + » du tempo sort de l'écran,
   poussé par « 120 temps/min » sur deux lignes ; le message d'annulation couvre presque toute la
   grille ; une catégorie longue (« Mélancolique ») dépasse la rangée du dé.
+- [ ] **P5.48** Fenêtres en police ×2, thème Original : les libellés des réponses se coupent au
+  milieu d'un mot (« Annul/er », « Enreg/istre/r ») ; les faire passer à la ligne entre les mots, ou
+  les empiler (vu en P5.45).
 
 ## P6 — Mode Moderne (plus tard)
 
