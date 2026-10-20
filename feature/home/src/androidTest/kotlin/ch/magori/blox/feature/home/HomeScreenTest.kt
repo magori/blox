@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -27,6 +28,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
@@ -42,6 +44,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -251,6 +255,54 @@ internal class HomeScreenTest {
         runOnIdle { assertThat(composing).isEqualTo(1) }
     }
 
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a font twice as large, on 360 dp, the label of Composer une musique is shown whole")
+    fun inALargeFontComposeMusicIsShownWhole(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on 360 dp
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
+
+        // Then its label, as laid out, is not cut
+        assertThat(composeMusicLabel().hasVisualOverflow).isFalse()
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a normal font, on 360 dp, the label of Composer une musique stays on one line")
+    fun inANormalFontComposeMusicStaysOnOneLine(kind: BloxThemeKind) = extension.use {
+        // Given the normal font, on 360 dp
+        showHomeScreen(width = NARROW_PHONE, kind = kind)
+
+        // Then its label takes one line, shrinking if needed, rather than two
+        val label = composeMusicLabel()
+        assertThat(label.lineCount).isEqualTo(1)
+        assertThat(label.hasVisualOverflow).isFalse()
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, in Original, each word of Composer une musique stays whole on its line")
+    fun inALargeFontEachWordOfComposeMusicStaysWhole() = extension.use {
+        // Given a font twice as large, on 360 dp, in the pixel font
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = BloxThemeKind.ORIGINAL)
+
+        // Then each line holds whole words only: none is cut from one line to the next
+        val label = composeMusicLabel()
+        val text = label.layoutInput.text.text
+        val words = List(label.lineCount) { line ->
+            text.substring(label.getLineStart(line), label.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
+        }
+        assertThat(label.lineCount).isEqualTo(2)
+        assertThat(words.flatten()).containsExactly("COMPOSER", "UNE", "MUSIQUE")
+    }
+
+    /** The label of « Composer une musique », as laid out. */
+    private fun ComposeContext.composeMusicLabel(): TextLayoutResult {
+        val label = onNode(hasText("COMPOSER UNE MUSIQUE"), useUnmergedTree = true).fetchSemanticsNode()
+        val layouts = mutableListOf<TextLayoutResult>()
+        label.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single()
+    }
+
     /** A start level cell: its digit, and where it stands. */
     private data class Cell(val text: String, val bounds: DpRect)
 
@@ -291,6 +343,7 @@ internal class HomeScreenTest {
         state: HomeUiState = uiState,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
+        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         onListenGameMusic: () -> Unit = {},
         onCompose: () -> Unit = {},
         onMyMusics: () -> Unit = {},
@@ -298,7 +351,7 @@ internal class HomeScreenTest {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                BloxTheme(kind = kind) {
                     HomeScreen(
                         modifier = Modifier.width(width),
                         uiState = state,

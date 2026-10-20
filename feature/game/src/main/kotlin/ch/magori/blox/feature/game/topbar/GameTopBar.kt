@@ -36,10 +36,10 @@ import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.shrinkToFit
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.ValueText
-import ch.magori.blox.feature.game.ui.shrinkToFit
 
 /** The sizes of the top bar, in one place; the touch target is [BloxSizes.minTouchTarget]. */
 private object TopBarSizes {
