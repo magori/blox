@@ -34,6 +34,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V18 | Enregistrer la musique, thème Brume sombre | « V18 · Enregistrer la musique · thème Brume sombre » |
 | V19 | Pause (thème au choix) | « V19 · Pause » |
 | V20 | Jeu, fenêtre très étroite (220 × 640, thème au choix) | « V20 · Jeu · fenêtre très étroite » |
+| V21 | Paramètres (thème au choix) | « V21 · Paramètres » |
 
 Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
 pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un
@@ -60,7 +61,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 ### V1 — Accueil
 - Titre **BloX**, avec un logo de quatre cellules aux couleurs du thème, et le record.
 - **Mode de jeu** : *Classique* (règles 1989, sans réserve ni pièce fantôme) ; *Moderne*
-  affiché grisé, « bientôt ».
+  affiché grisé, « bientôt » dans le code ; dans la maquette du 2026-10-20 (P5.51), les deux
+  choix tiennent sur une ligne et *Moderne* est grisé sans « (bientôt) ».
 - **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
 - **Niveau de départ** : 0 à 9, sur deux lignes de 5 (P5.29).
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
@@ -75,7 +77,15 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
     cours (V7, V10, V13 ou V16) ;
   - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 dp, en capitales, icône note et crayon,
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
-  - l'accueil défile sur un téléphone : V1 fait 1360 px de haut.
+  - l'accueil défile sur un téléphone : V1 fait 1360 px de haut dans le code.
+- **Accueil raccourci**, maquetté le 2026-10-20 (demande du développeur, pas encore codé : P5.50
+  et P5.51) : V1 passe de 1360 à 861 px (cadre de la planche).
+  - les réglages partent en V21 (P5.50) ;
+  - logo (cellules de 16) et titre **BloX** (36) sur une même ligne, record dessous ;
+  - écart de 16 dp entre les sections au lieu de 24, marge du haut de 16 ;
+  - les choix de musique se suivent en rangées sans rien dessous ; une seule ligne d'actions,
+    sous les choix, vaut pour la musique sélectionnée : nom du fichier et *Changer* pour *Mon
+    fichier*, *Écouter* / *Arrêter* avec une icône (lecture ou carré), rien pour *Aucune*.
 - Section **Réglages** (P5.37) entre « COMPOSER UNE MUSIQUE » et « Jouer » : deux rangées pleine
   largeur en encart (couleurs d'un choix non sélectionné), d'au moins 48 dp, **Vibrations** et
   **Effets sonores**, libellé à gauche, interrupteur à droite, désactivés par défaut. Éteint :
@@ -141,7 +151,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
   décalés comme sur une console portable. Valeurs retenues en P2.5, reportées sur la
   maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
-  B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres ; A en `accent`, les
+  B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres (dans la maquette du
+  2026-10-20, P5.53 : flèche de rotation de 24 dp, anti-horaire pour B et horaire pour A, au-dessus
+  de la lettre en 13 sp ; pas encore codé, P5.54) ; A en `accent`, les
   autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Un bouton au repos
   est entouré d'un cadre de 2 dp en `buttonOutline`, `#646B87` en thème Couleurs, invisible en
   Original (P2.22, contraste de 3:1 avec la page). Le tout tient sur 360 dp de large
@@ -254,9 +266,43 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   (cellule de 10), flèches rapprochées, B A dessous ; en Original, le titre passe au-dessus du
   bouton pause et du record (P2.20, P2.26).
 
+### V21 — Paramètres
+- Maquetté le 2026-10-20 (demande du développeur), pas encore codé (P5.50). On y arrive depuis
+  l'accueil (V1) par un bouton engrenage de 48 dp en haut à droite (« Paramètres » pour TalkBack) ;
+  la section **Réglages** de l'accueil disparaît.
+- Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) vers l'accueil, titre
+  « Paramètres ». Section **Sons et vibrations** : les interrupteurs **Vibrations** et **Effets
+  sonores** de P5.37, inchangés (rangées en encart de 48 dp au moins, désactivés par défaut,
+  rangée entière lue comme interrupteur), puis la mention « Valable dès la partie suivante. ».
+- Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
+
+## Icônes
+
+Maquettées le 2026-10-20 (P5.53, demande du développeur), pas encore codées (P5.54). Une icône
+accompagne toujours un libellé, sauf l'engrenage de V1 et les boutons écouter et « … » des
+cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues).
+
+- **Style par thème** : en Original, dessins de 8 × 8 pixels pleins (2 dp par pixel à 16 dp, bords
+  nets), dans l'esprit de la police Press Start 2P ; en Couleurs et Brume, traits arrondis de
+  2,25 sur une grille de 24. Couleur du texte du bouton.
+- **Tailles** : 16 dp à côté d'un libellé, 14 dp au-dessus d'un libellé dans la barre d'outils
+  de l'éditeur et devant MES MUSIQUES et Écouter, 18 dp sur *Au hasard* et *Nouvelle*, 24 dp
+  pour l'engrenage ; 6 à 8 dp entre l'icône et le libellé, 12 dp dans les menus.
+- **Jeu d'icônes** : lecture et arrêt (Jouer, Écouter / Arrêter, Reprendre), liste (MES
+  MUSIQUES), note (COMPOSER UNE MUSIQUE, *Utiliser* et l'entrée du menu « … »), engrenage
+  (Paramètres), dé (*Au hasard*), plus (*Nouvelle*), crayon (*Modifier*), T (*Renommer*),
+  corbeille (*Supprimer*), maison (*Menu* de V4 et V19), flèche en boucle (*Rejouer*), et pour
+  la barre d'outils de l'éditeur, au-dessus du libellé : case (*Poser*), flèche (*Allonger*),
+  flèche retour (*Annuler*), deux cadres (*Copier*), gomme (*Effacer*) ; touches de rotation :
+  flèche anti-horaire sur B, horaire sur A, de 24 dp, au-dessus de la lettre (13 sp), qui reste
+  pour faire le lien avec les boutons de la manette (P5.27).
+- Vues touchées : V1 à V6, V7 à V18 (liste, menu, éditeur), V19, V20. La coche des choix sélectionnés et
+  la flèche Retour ne changent pas.
+
 ## Pas encore codé
 
 - **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
+- **Page Paramètres** (V21) et bouton engrenage de l'accueil (V1) : P5.50.
 
 ## Points ouverts
 

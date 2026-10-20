@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 149 / 180 | `█████████████████░░░` **83 %** |
+| **Général** | 150 / 186 | `████████████████░░░░` **81 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -723,6 +723,34 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   plancher (« Pose », « Allon », « Annul », « Copi », « Effac ») ; fenêtre Quitter : le point final
   de « enregistrés. » passe seul à la ligne (vus en P5.47). Fait : barre sur deux ou plusieurs
   rangées quand elle ne tient pas, `WindowText` en mots entiers ; maquette ajoutée à P5.40.
+- [ ] **P5.50** Page Paramètres (maquette V21 faite le 2026-10-20, demande du développeur) : les
+  interrupteurs Vibrations et Effets sonores (P5.37) quittent l'accueil pour une page à part, ouverte
+  par un bouton engrenage de 48 dp en haut à droite de V1 (« Paramètres » pour TalkBack) ; clé
+  `NavKey` et écran (dans `feature:home` ou une feature dédiée), retour vers l'accueil ; tests de
+  `HomeScreenTest` déplacés, captures, `docs/maquette.md` (V1, V21). Les réglages Moderne (P6.17,
+  P6.21) iront sur cette page.
+- [ ] **P5.51** Accueil raccourci (maquette V1 du 2026-10-20, 940 px au lieu de 1360, demande du
+  développeur) : logo et titre sur une ligne, mode de jeu sur une ligne (*Moderne* grisé, sans
+  « (bientôt) », `feature_home_mode_modern`), sections à 16 dp, une seule ligne d'actions
+  (*Écouter* / *Arrêter*, fichier, *Changer*) sous les choix de musique, pour la musique
+  sélectionnée ; TalkBack (« Écouter Menuet »), police ×2, captures (`docs/maquette.md`, V1).
+- [ ] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
+  2026-10-20, demande du développeur) : nom sur une ligne, une ligne style · tonalité · durée,
+  *Utiliser* / *En jeu* en bouton carré de 48 dp (note, coche en jeu), tempo et date retirés de la
+  carte ; police ×2, TalkBack, captures, tests de P4.29 à revoir (`docs/generateur-musique.md`).
+- [x] **P5.53** Mettre à jour la maquette : icônes (demande du développeur, 2026-10-20) ; en pixels
+  8 × 8 pour Original, en traits arrondis pour Couleurs et Brume ; Jouer, MES MUSIQUES, Écouter,
+  Paramètres, Reprendre, Rejouer, Menu, Au hasard, Nouvelle, menus « … », barre d'outils de
+  l'éditeur, touches A et B (flèches de rotation) (V1 à V20). Fait : `docs/maquette.md`, section Icônes.
+- [ ] **P5.54** Icônes dans le code (maquette P5.53), en deux tranches. Jeu d'icônes dans
+  `core:designsystem`, une variante par thème (vecteurs en pixels pour Original, traits pour
+  Couleurs et Brume), choisie par le thème ; décoratives à côté d'un libellé,
+  `contentDescription` seulement quand l'icône est seule ; captures dans tous les thèmes.
+  - [ ] **P5.54a** Le jeu d'icônes, puis l'écran de jeu (touches A et B : flèche de rotation
+    au-dessus de la lettre, P2.17, P2.5), la pause, la fin de partie et l'éditeur (barre d'outils
+    icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu).
+  - [ ] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
+    « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -769,7 +797,7 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
   niveau 1, un niveau toutes les 10 lignes).
 - [ ] **P6.16** Choix du mode : mode enregistré dans les préférences, *Moderne* activé dans V1,
   fabrique du moteur choisie par `app` ; records par mode.
-- [ ] **P6.17** Écran Réglages : nombre de pièces suivantes (3 par défaut), commandes par
+- [ ] **P6.17** Page Paramètres (V21, P5.50) : nombre de pièces suivantes (3 par défaut), commandes par
   boutons ou par gestes ; enregistrés dans `core:data`.
 - [ ] **P6.18** Écran de jeu Moderne : réserve, file de pièces suivantes, pièce fantôme
   (style par thème), boutons de chute instantanée et de réserve.
