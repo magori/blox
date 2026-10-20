@@ -3,9 +3,13 @@ package ch.magori.blox.feature.composer.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -14,9 +18,11 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -35,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.FramedBox
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.component.WrappingLabel
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -53,7 +61,8 @@ internal object ComposerSizes {
  * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such. A
  * [primary] button, *Enregistrer* with changes to save, is filled in `accent`. A label that [wraps] goes on several
  * lines when it does not fit, rather than shrinking. A button as wide as its label, rather than given its width,
- * leaves [labelPadding] on each side of it. The answers of a window are `WindowButton` (core:designsystem).
+ * leaves [labelPadding] on each side of it. Its [icon], decorative, goes above or before the label. The answers of a
+ * window are `WindowButton` (core:designsystem).
  */
 @Composable
 internal fun ToolButton(
@@ -65,6 +74,7 @@ internal fun ToolButton(
     primary: Boolean = false,
     wraps: Boolean = false,
     labelPadding: Dp = 0.dp,
+    icon: ToolIcon? = null,
 ) {
     val palette = BloxTheme.palette
     FramedBox(
@@ -77,7 +87,9 @@ internal fun ToolButton(
             .described(description),
     ) {
         val ink = if (primary) palette.accentInk else palette.ink
-        if (wraps) WrappingLabel(text = text, color = ink) else ButtonLabel(text = text, color = ink)
+        IconAndLabel(icon, ink) {
+            if (wraps) WrappingLabel(text = text, color = ink) else ButtonLabel(text = text, color = ink)
+        }
     }
 }
 
@@ -87,7 +99,8 @@ internal fun ToolButton(
  * one is framed, as on the home screen. In every theme the two differ by 3:1 at least in luminance (`ChoiceColorsTest`
  * of the home screen, `TrackColorsTest` for the tabs), so that hue is not their only cue. A choice with a [mark] (the
  * bar played) shows a line under its label, in the colour of the label, and TalkBack reads the mark as its state. A
- * choice as wide as its label, rather than given its width, leaves [labelPadding] on each side of it.
+ * choice as wide as its label, rather than given its width, leaves [labelPadding] on each side of it. Its
+ * [icon], decorative, goes above or before the label.
  */
 @Composable
 internal fun ChoiceButton(
@@ -101,6 +114,7 @@ internal fun ChoiceButton(
     selectedColor: Color = BloxTheme.palette.accent,
     selectedInk: Color = BloxTheme.palette.accentInk,
     labelPadding: Dp = 0.dp,
+    icon: ToolIcon? = null,
 ) {
     val palette = BloxTheme.palette
     val background = if (selected) selectedColor else palette.panel
@@ -114,9 +128,46 @@ internal fun ChoiceButton(
             .described(description)
             .marked(mark, ink),
     ) {
-        ButtonLabel(text = text, color = ink)
+        IconAndLabel(icon, ink) { ButtonLabel(text = text, color = ink) }
     }
 }
+
+/** An icon of a button of the editor: [icon], [above] its label, as in the toolbar, or before it. */
+@Immutable
+internal data class ToolIcon(val icon: BloxIcon, val above: Boolean)
+
+/**
+ * [label] with its [icon] in [ink], if any: above it, [IconSizes.aboveLabel] high, or before it, [IconSizes.besideLabel]
+ * high, [IconBesideGap] apart, the label wrapping in the room left.
+ */
+@Composable
+private fun IconAndLabel(
+    icon: ToolIcon?,
+    ink: Color,
+    label: @Composable () -> Unit,
+) {
+    when {
+        icon == null -> label()
+
+        icon.above -> Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            BloxIcon(icon.icon, size = IconSizes.aboveLabel, tint = ink)
+            label()
+        }
+
+        else -> Row(verticalAlignment = Alignment.CenterVertically) {
+            BloxIcon(icon.icon, tint = ink)
+            Spacer(modifier = Modifier.width(IconBesideGap))
+            Box(modifier = Modifier.weight(1f, fill = false)) { label() }
+        }
+    }
+}
+
+/**
+ * Between an icon and the label it goes before, on a button of the editor: 6 dp, as the mockup gives *Au hasard*, rather
+ * than the 8 dp of [IconSizes.gap] (the buttons of the game screens). The editor is denser: on 360 dp, twice as large,
+ * *Au hasard* shares its line with the choices of the dice (`DICE_SHARE`), and every dp goes to its label.
+ */
+private val IconBesideGap = 6.dp
 
 /** The line of a [mark] under the label, in [ink], and the mark read by TalkBack as the state of the button. */
 private fun Modifier.marked(
@@ -177,6 +228,7 @@ internal fun <T> ChoiceGroup(
     scroll: Boolean = false,
     labelPadding: Dp = 0.dp,
     choiceModifier: RowScope.(T) -> Modifier = { Modifier },
+    icon: (T) -> ToolIcon? = { null },
 ) {
     // A line of choices, each sized by [sizing].
     val line: @Composable (Modifier, Modifier) -> Unit = { lineModifier, sizing ->
@@ -195,6 +247,7 @@ internal fun <T> ChoiceGroup(
                     onClick = { onChosen(choice) },
                     role = Role.RadioButton,
                     labelPadding = if (scroll) ScrolledLabelPadding else labelPadding,
+                    icon = icon(choice),
                     modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(sizing),
                 )
             }
