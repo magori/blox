@@ -20,6 +20,11 @@ dependencies {
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
+
+    // textLayout et assertWordsWhole : les lignes d'un texte affiché, lues par les tests instrumentés des fenêtres et
+    // des features (mots entiers en police agrandie).
+    testFixturesApi(libs.androidx.compose.ui.test.android)
+    testFixturesImplementation(libs.assertj.core)
 }
 
 /**

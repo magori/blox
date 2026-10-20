@@ -82,3 +82,15 @@ internal fun DeleteWindowPreview() {
 internal fun DeleteWindowLargeFontPreview() {
     WindowPreview(BloxThemeKind.COLORFUL) { FailedDeleteWindow() }
 }
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun NamingWindowColorfulLargeFontPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL) { TakenNameWindow() }
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun DeleteWindowOriginalLargeFontPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL) { FailedDeleteWindow() }
+}

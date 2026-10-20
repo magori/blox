@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -36,6 +37,8 @@ import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
+import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.Note
@@ -293,7 +296,10 @@ private fun ComposerMessageHost(
     SnackbarHost(hostState = host, modifier = modifier) { data -> MessageBar(data.visuals.message) }
 }
 
-/** A message of the editor, [text] in the colour of the page on the ink. */
+/**
+ * A message of the editor, [text] in the colour of the page on the ink, on [MESSAGE_LINES] lines at most: with a large
+ * font it shrinks rather than hide the grid, down to the floor of a text that shrinks.
+ */
 @Composable
 private fun MessageBar(
     text: String,
@@ -306,9 +312,13 @@ private fun MessageBar(
         shape = BloxTheme.shapes.panel,
         modifier = modifier,
     ) {
-        Text(text)
+        val style = MaterialTheme.typography.bodyMedium.shrinkingLineHeight()
+        Text(text = text, style = style, maxLines = MESSAGE_LINES, autoSize = shrinkToWholeWords(style.fontSize))
     }
 }
+
+/** The most lines a message of the editor takes over the grid. */
+private const val MESSAGE_LINES = 3
 
 /** The text of a message of the editor. */
 @get:StringRes

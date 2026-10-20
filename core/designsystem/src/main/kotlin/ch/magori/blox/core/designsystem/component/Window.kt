@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,14 +16,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextMeasurer
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -105,7 +111,7 @@ fun WindowFailure(modifier: Modifier = Modifier) {
 }
 
 /**
- * An answer of a window, framed as a panel, its [text] on as many lines as it needs rather than shrunk. The answer
+ * An answer of a window, framed as a panel, its [text] on as many lines as it needs ([WrappingLabel]). The answer
  * the window expects, [primary], is filled in `accent`; the one that deletes, [danger], in `danger`. Disabled, it is
  * greyed out and announced as such.
  */
@@ -127,6 +133,7 @@ fun WindowButton(
     FramedBox(
         background = fill ?: palette.panel,
         frame = fill ?: palette.panelBorder,
+        labelPadding = AnswerLabelPadding,
         modifier = modifier
             .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
@@ -143,8 +150,10 @@ fun WindowButton(
 }
 
 /**
- * The two answers of a window, side by side: [dismiss] (« Annuler » unless told otherwise), then [confirm], filled in
- * `accent`, or in `danger` when it deletes ([danger]); [confirm] is disabled unless [confirmEnabled].
+ * The two answers of a window: [dismiss] (« Annuler » unless told otherwise), then [confirm], filled in `accent`, or in
+ * `danger` when it deletes ([danger]); [confirm] is disabled unless [confirmEnabled]. Side by side when each word of
+ * their labels holds whole in half the width; one above the other otherwise, in the same order, rather than cut a word
+ * or shrink a font made larger (« Annuler » in the pixel font, twice as large, on 360 dp).
  */
 @Composable
 fun WindowAnswers(
@@ -156,20 +165,46 @@ fun WindowAnswers(
     confirmEnabled: Boolean = true,
     danger: Boolean = false,
 ) {
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(AnswerGap)) {
-        WindowButton(text = dismiss, onClick = onDismiss, modifier = Modifier.weight(1f))
+    val answers: @Composable (Modifier) -> Unit = { sizing ->
+        WindowButton(text = dismiss, onClick = onDismiss, modifier = sizing)
         WindowButton(
             text = confirm,
             onClick = onConfirm,
             enabled = confirmEnabled,
             primary = true,
             danger = danger,
-            modifier = Modifier.weight(1f),
+            modifier = sizing,
         )
     }
+    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
+        val style = wrappingLabelStyle
+        val measurer = rememberTextMeasurer()
+        // The room of a label in half the window, as the answer lays it out; a pixel to spare against the rounding.
+        val room = with(LocalDensity.current) {
+            ((maxWidth - AnswerGap) / 2 - framedBoxPadding(AnswerLabelPadding) * 2).toPx() - 1f
+        }
+        val widest = remember(dismiss, confirm, style, measurer) {
+            maxOf(measurer.widestWord(dismiss, style), measurer.widestWord(confirm, style))
+        }
+        val sideBySide = widest <= room
+        if (sideBySide) {
+            Row(horizontalArrangement = Arrangement.spacedBy(AnswerGap)) { answers(Modifier.weight(1f)) }
+        } else {
+            Column(verticalArrangement = Arrangement.spacedBy(WindowGap)) { answers(Modifier.fillMaxWidth()) }
+        }
+    }
 }
+
+/** The width of the widest word of [text] in [style], on one line. */
+private fun TextMeasurer.widestWord(
+    text: String,
+    style: TextStyle,
+): Int = text.split(' ').maxOf { word -> measure(word, style, softWrap = false, maxLines = 1).size.width }
 
 /** Inside a window, between its parts, and between its two answers. */
 private val WindowPadding = 12.dp
 private val WindowGap = 12.dp
 private val AnswerGap = 4.dp
+
+/** On each side of the label of an answer, within its frame. */
+private val AnswerLabelPadding = 0.dp

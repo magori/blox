@@ -31,7 +31,7 @@ internal fun DicePanel(
     modifier: Modifier = Modifier,
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val half = maxWidth / 2
+        val widest = maxWidth * DICE_SHARE
         Row(
             horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
             verticalAlignment = Alignment.CenterVertically,
@@ -41,9 +41,9 @@ internal fun DicePanel(
                 onClick = onDice,
                 labelPadding = LabelPadding,
                 wraps = true,
-                // Half the line at most, its label on two lines with a large font: the choices keep room to show
-                // the one chosen.
-                modifier = Modifier.widthIn(max = half),
+                // A share of the line at most, its label on two lines with a large font, shrunk if need be: the choices
+                // keep room to show the one chosen whole, « Mélancolique » too.
+                modifier = Modifier.widthIn(max = widest),
             )
             ChoiceGroup(
                 choices = DiceChoices,
@@ -59,6 +59,9 @@ internal fun DicePanel(
 
 /** What the dice may compose in, in the order of the specification: Surprise first, then the seven categories. */
 private val DiceChoices: List<CategoryChoice> = listOf(Surprise) + Category.entries
+
+/** The share of the line *Au hasard* takes at most: on 360 dp, twice as large, « Mélancolique » needs the rest. */
+private const val DICE_SHARE = 0.45f
 
 /** The room on each side of the label of *Au hasard*. */
 private val LabelPadding = 6.dp

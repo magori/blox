@@ -36,6 +36,8 @@ import androidx.compose.ui.text.style.TextAlign
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToFewestLines
+import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 import ch.magori.blox.feature.composer.grid.trackColors
 import ch.magori.blox.feature.composer.model.BARS
 import ch.magori.blox.feature.composer.model.EditMode
@@ -235,13 +237,17 @@ internal fun TempoPanel(
             enabled = canSlowDown,
             modifier = Modifier.width(BloxSizes.minTouchTarget),
         )
+        val style = MaterialTheme.typography.labelLarge.shrinkingLineHeight()
         Text(
             text = pluralStringResource(R.plurals.feature_composer_tempo, bpm, bpm),
             color = BloxTheme.palette.ink,
-            style = MaterialTheme.typography.labelLarge,
+            style = style,
             textAlign = TextAlign.Center,
-            // The new tempo is read out after a touch on « − » or « + ».
-            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            // One line if it can, shrunk; else « 120 » above « temps/min », never cut at its slash.
+            autoSize = shrinkToFewestLines(style.fontSize),
+            // The new tempo is read out after a touch on « − » or « + ». Measured after them, so that a large font
+            // never pushes « + » out of the screen.
+            modifier = Modifier.weight(1f, fill = false).semantics { liveRegion = LiveRegionMode.Polite },
         )
         ToolButton(
             text = stringResource(R.string.feature_composer_faster_glyph),

@@ -3,6 +3,7 @@ package ch.magori.blox.feature.composer.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.widthIn
@@ -160,7 +161,7 @@ private fun Modifier.described(description: String?): Modifier =
 /**
  * Radio buttons among [choices], each named by [label], the [selected] one filled; a touch chooses its choice through
  * [onChosen]. They stand on one line, each sized by [choiceModifier], or, when they [scroll], each as wide as its label,
- * the line scrolling sideways when they do not fit, the one selected brought in sight.
+ * no wider than the line, the line scrolling sideways when they do not fit, the one selected brought in sight.
  */
 @Composable
 internal fun <T> ChoiceGroup(
@@ -172,30 +173,39 @@ internal fun <T> ChoiceGroup(
     scroll: Boolean = false,
     choiceModifier: RowScope.(T) -> Modifier = { Modifier },
 ) {
-    val buttons: @Composable RowScope.() -> Unit = {
-        choices.forEach { choice ->
-            val isSelected = choice == selected
-            // The choice made comes in sight on a line that scrolls, whole.
-            val sight = remember { BringIntoViewRequester() }
-            LaunchedEffect(isSelected, scroll) { if (isSelected && scroll) sight.bringIntoView() }
-            ChoiceButton(
-                text = label(choice),
-                selected = isSelected,
-                onClick = { onChosen(choice) },
-                role = Role.RadioButton,
-                labelPadding = if (scroll) ScrolledLabelPadding else 0.dp,
-                modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(
-                    if (scroll) Modifier.widthIn(min = BloxSizes.minTouchTarget) else Modifier,
-                ),
-            )
+    // A line of choices, each sized by [sizing].
+    val line: @Composable (Modifier, Modifier) -> Unit = { lineModifier, sizing ->
+        Row(
+            modifier = lineModifier.selectableGroup(),
+            horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
+        ) {
+            choices.forEach { choice ->
+                val isSelected = choice == selected
+                // The choice made comes in sight on a line that scrolls, whole.
+                val sight = remember { BringIntoViewRequester() }
+                LaunchedEffect(isSelected, scroll) { if (isSelected && scroll) sight.bringIntoView() }
+                ChoiceButton(
+                    text = label(choice),
+                    selected = isSelected,
+                    onClick = { onChosen(choice) },
+                    role = Role.RadioButton,
+                    labelPadding = if (scroll) ScrolledLabelPadding else 0.dp,
+                    modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(sizing),
+                )
+            }
         }
     }
-    val scrolling = if (scroll) Modifier.horizontalScroll(rememberScrollState()) else Modifier
-    Row(
-        modifier = modifier.then(scrolling).selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
-        content = buttons,
-    )
+    if (scroll) {
+        // A choice never wider than the line, its label shrinking to fit: in sight, it shows whole.
+        BoxWithConstraints(modifier = modifier) {
+            line(
+                Modifier.horizontalScroll(rememberScrollState()),
+                Modifier.widthIn(min = BloxSizes.minTouchTarget, max = maxOf(maxWidth, BloxSizes.minTouchTarget)),
+            )
+        }
+    } else {
+        line(modifier, Modifier)
+    }
 }
 
 /** The room on each side of the label of a choice as wide as its label. */
