@@ -154,6 +154,29 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `NextPieceCellsTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
   Captures : `GameScreenNarrow`, `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
+- Barre du haut dans une fenêtre très étroite (P2.26) : le titre et le record restent sur une
+  rangée, à côté du bouton pause, si chacun tient entier dans sa moitié de la place restante, à sa
+  plus petite taille (1 px de marge contre les arrondis de la rangée) ; sinon le titre passe
+  au-dessus, sur toute la largeur et une ligne si possible, sans couper de mot, avec dessous le
+  bouton pause et le record, plafonné à sa taille en police normale pour rester à la hauteur du
+  bouton (`notEnlarged`). Le plateau y perd un peu de hauteur (à 220 × 640 dp, cellule d'environ
+  10,3 à 9,1 dp en Original ×1). Le titre est alors lu le premier par TalkBack ; le record lu reste
+  la vraie valeur. Sur un téléphone de 360 dp, la barre garde sa rangée, même à ×2 ; en Original
+  ×2 la marge est d'un demi-pixel (titre de 324 px pour 324,5) : à vérifier sur d'autres densités.
+
+  **Tests :** `TopBarRowsTest › the title and the record stay on one row when each fits whole in half the room beside the pause button`,
+  `TopBarRowsTest › the title goes above the pause button and the record when it does not fit whole in its half`,
+  `TopBarRowsTest › the title goes above the pause button and the record when the record does not fit whole in its half`,
+  `TopBarRowsTest › a title one pixel narrower than its half stays on the row, a margin against the rounding of the row`,
+  `TopBarRowsTest › a title within the last pixel of its half goes above, rather than risk being cut`,
+  `TopBarRowsTest › a record within the last pixel of its half sends the title above, rather than risk being cut`,
+  `GameTopBarTest › in the narrowest window the title is shown whole, no word cut, in both themes, font enlarged`,
+  `GameTopBarTest › in the narrowest window the record is shown whole, in both themes, font enlarged`,
+  `GameTopBarTest › in the narrowest window the record is no taller than the pause button: the board keeps its height`,
+  `GameTopBarTest › in the narrowest window the pause button keeps its 48 dp, in both themes, font enlarged`,
+  `GameTopBarTest › in the narrowest window TalkBack reads the real record, beyond the 999 999 shown`,
+  `GameTopBarTest › on a phone of 360 dp the bar stays on one row, the title right of the pause button, font enlarged`.
+  Captures : `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 
 ### V4 — Fin de partie
 - « Partie terminée », badge « Nouveau record » le cas échéant.

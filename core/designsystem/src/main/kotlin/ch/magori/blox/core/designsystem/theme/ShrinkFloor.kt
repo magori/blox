@@ -17,9 +17,18 @@ import androidx.compose.ui.unit.sp
  * Never above [maxFontSize]: a text smaller than the floor keeps its size.
  */
 fun Density.shrinkFloor(maxFontSize: TextUnit): TextUnit {
-    val normalSize = maxFontSize.value.dp.toSp()
-    val floor = if (normalSize < BloxTypographies.MinimumFontSize) normalSize else BloxTypographies.MinimumFontSize
-    return if (floor > maxFontSize) maxFontSize else floor
+    val normalSize = notEnlarged(maxFontSize)
+    return if (normalSize < BloxTypographies.MinimumFontSize) normalSize else BloxTypographies.MinimumFontSize
+}
+
+/**
+ * [size], but never larger on screen than with the normal font, at this density and font scale: where every dp of
+ * height counts, as in the narrowest window, a text may keep the size it has with the normal font. Never above
+ * [size]: with a font made smaller, the text keeps its size.
+ */
+fun Density.notEnlarged(size: TextUnit): TextUnit {
+    val normalSize = size.value.dp.toSp()
+    return if (normalSize < size) normalSize else size
 }
 
 /** A text on its lines from [maxFontSize], shrinking to fit its place down to [shrinkFloor]. */
@@ -27,6 +36,19 @@ fun Density.shrinkFloor(maxFontSize: TextUnit): TextUnit {
 @ReadOnlyComposable
 fun shrinkToFit(maxFontSize: TextUnit): TextAutoSize = shrinkingAutoSize(maxFontSize) { minFontSize, max ->
     TextAutoSize.StepBased(minFontSize = minFontSize, maxFontSize = max, stepSize = ShrinkStep)
+}
+
+/**
+ * A text on its lines from [maxFontSize] but no larger than with the normal font ([notEnlarged]), shrinking to fit its
+ * place down to [shrinkFloor], as [shrinkToFit].
+ */
+@Composable
+@ReadOnlyComposable
+fun shrinkToFitNotEnlarged(maxFontSize: TextUnit): TextAutoSize {
+    val notEnlarged = LocalDensity.current.notEnlarged(maxFontSize)
+    return shrinkingAutoSize(maxFontSize) { minFontSize, _ ->
+        TextAutoSize.StepBased(minFontSize = minFontSize, maxFontSize = notEnlarged, stepSize = ShrinkStep)
+    }
 }
 
 /** The step between two sizes tried by a text that shrinks, the default of `TextAutoSize.StepBased`. */

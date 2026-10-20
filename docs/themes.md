@@ -324,6 +324,13 @@ lignes au plus). L'aperçu de la pièce suivante n'était pas écrasé : la barr
 pièce I. Captures : `GameScreenLargeFont`, `TopBarLargeFont`, `SidePanelLargeFont`,
 `GameScreenLandscapeLargeFont`.
 
+Un texte peut aussi ne jamais dépasser sa taille en police normale (`notEnlarged`,
+`shrinkToFitNotEnlarged`, P2.26), son plancher restant celui de `shrinkFloor` : c'est le record
+sous le titre de la barre du haut, dans une fenêtre très étroite, pour rester à la hauteur du
+bouton pause. **Tests :** `ShrinkFloorTest › with a font enlarged twice a text not enlarged keeps its 18 dp with the normal font`,
+`ShrinkFloorTest › with a font made smaller a text not enlarged keeps its size`,
+`ShrinkFloorTest › the floor is never above the size of the text not enlarged`.
+
 Accueil (P5.43) : les choix et `SingleLineText` (dont le lien « MES MUSIQUES », et les textes de
 l'éditeur et de la liste, inchangés à l'œil) suivent la même règle. Un texte qui peut tenir sur
 plusieurs lignes (`shrinkToFewestLines`) préfère une ligne, même plus petite, et ne passe à la
