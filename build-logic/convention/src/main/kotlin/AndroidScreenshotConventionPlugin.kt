@@ -21,8 +21,8 @@ import org.gradle.kotlin.dsl.withType
  *   les PNG des captures retirées ou renommées, que la tâche laisse en place, puis relancer la
  *   validation et versionner les PNG avec le changement.
  *
- * Une capture peut différer de [IMAGE_DIFFERENCE_THRESHOLD] de sa référence : le lissage du texte
- * et des bords varie un peu entre Windows, où les références sont générées, et la CI Linux.
+ * Une capture peut différer de [IMAGE_DIFFERENCE_THRESHOLD] de sa référence : une marge, car le rendu
+ * mesuré en P5.8 est identique au pixel près sous Windows, où les références sont générées, et sous Linux.
  *
  * Le moteur de test du plugin tourne sur JUnit Platform : aucune dépendance JUnit 4 (ADR 0009).
  * À appliquer à un module Android (bibliothèque, feature ou application) en plus de son plugin

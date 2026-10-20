@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 121 / 167 | `██████████████░░░░░░` **72 %** |
+| **Général** | 122 / 168 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 27 / 28 | `███████████████████░` **96 %** |
 <!-- avancement:fin -->
 
@@ -535,11 +535,12 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   configuration de stabilité Compose (`build-logic`) listant `ch.magori.blox.core.game.model.*`.
   Fait : plugin `com.android.compose.screenshot` 0.0.1-alpha16 par la convention
   `blox.android.screenshot`, 21 captures (`docs/architecture.md`, Tests). Reste en P5.8 et P5.9.
-- [ ] **P5.8** Captures dans la CI : générer les références sous Linux (job ou conteneur) puis
+- [x] **P5.8** Captures dans la CI : générer les références sous Linux (job ou conteneur) puis
   ajouter `validateDebugScreenshotTest` à `.github/workflows/ci.yml` ; revoir le plugin à la
   prochaine montée d'AGP (déconseillé à partir d'AGP 9.5 au profit des « test suites »).
   Revue qualité (C2) : tant que Dependabot fusionne sur CI verte, une montée de Compose peut
-  changer le rendu sans signal.
+  changer le rendu sans signal. Fait : références Windows identiques au pixel près sous Linux (42
+  captures à 0 %), validation en CI sans référence Linux ; la revue du plugin passe en P5.46.
 - [x] **P5.9** Fichier de configuration de stabilité Compose (`compose-stability.conf`, branché par `build-logic`) listant
   `ch.magori.blox.core.game.model.*` (revue de P2.3).
 
@@ -662,6 +663,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   trop long) à réunir dans `core:data` (`MusicNames`) ; fenêtres Renommer et confirmation de
   suppression, et leurs chaînes, en double dans `ComposerDialogs` et `MyMusicsDialogs` (revue de
   P4.19d). Après P4.19d.
+- [ ] **P5.46** Plugin des captures (Compose Preview Screenshot Testing, alpha) : le revoir à la
+  prochaine montée d'AGP, déconseillé à partir d'AGP 9.5 au profit des « test suites » ; garder
+  la validation en CI (P5.8).
 
 ## P6 — Mode Moderne (plus tard)
 

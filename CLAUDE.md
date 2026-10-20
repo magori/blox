@@ -92,8 +92,10 @@ La CI (`.github/workflows/ci.yml`) enchaîne exactement : `scripts/verifier-trac
 `wrapper-validation` (avant même l'installation du JDK), `ktlintCheck` (projet et `build-logic`),
 `buildHealth`, tests du domaine, `testDebugUnitTest`, `lintDebug`, `assembleDebug`, `assembleRelease` (R8 et
 `lintVitalRelease`), `assembleDebugAndroidTest` et `compileDebugScreenshotTestKotlin` (compilation
-seule des tests instrumentés et des tests de captures, pas d'émulateur), puis `:benchmark:assemble`. Ce qui passe
-localement avec ces commandes passe en CI. En cas d'échec, les `build/reports` sont publiés
+seule des tests instrumentés et des tests de captures, pas d'émulateur), `validateDebugScreenshotTest` (captures
+comparées aux références, P5.8), puis `:benchmark:assemble`. Ce qui passe
+localement avec ces commandes passe en CI. En cas d'échec, les `build/reports`, les captures rendues et leurs
+différences sont publiés
 comme artefact `rapports`. Les actions sont épinglées par SHA (tag en commentaire, tenus à jour par
 Dependabot `github-actions`) et le jeton est en lecture seule ; un second job, sur `push` vers
 `main` seulement, soumet le graphe des dépendances Gradle (`contents: write`).
@@ -240,7 +242,7 @@ La commande `/fin-de-tache` les déroule.
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
    ou une dépendance a changé ; si une interface a
    changé, `./gradlew validateDebugScreenshotTest` et, sur un émulateur ou un téléphone,
-   `./gradlew connectedDebugAndroidTest` (ni l'un ni l'autre ne tourne encore en CI).
+   `./gradlew connectedDebugAndroidTest` (pas encore en CI ; les captures, elles, y sont validées).
    Aucun test désactivé sans raison écrite dans le test et dans `JOURNAL.md`.
 2. **Revue de code indépendante.** La revue (`/revue`) est faite par un sous-agent qui **n'a pas
    vu l'implémentation** : il ne reçoit que le diff de la tâche, ce fichier et la documentation.
