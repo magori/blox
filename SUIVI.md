@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 125 / 173 | `██████████████░░░░░░` **72 %** |
+| **Général** | 126 / 174 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -314,9 +314,14 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   environ), le jeu est peu jouable : afficher « Agrandissez la fenêtre » à la place ? À trancher
   par le développeur (revue de P2.20).
 - [ ] **P2.25** Mettre à jour la maquette : fenêtre très étroite, score et niveau puis lignes et
-  pièce suivante au-dessus du plateau, flèches rapprochées (P2.20).
-- [ ] **P2.26** Barre du haut dans une fenêtre très étroite : « MODE CLASS… » et le record (« 09876… »)
-  sont tronqués à 220 dp, surtout en police agrandie (vu en P2.20).
+  pièce suivante au-dessus du plateau, flèches rapprochées (P2.20) ; barre du haut en deux rangées,
+  titre au-dessus (P2.26).
+- [x] **P2.26** Barre du haut dans une fenêtre très étroite : « MODE CLASS… » et le record (« 09876… »)
+  sont tronqués à 220 dp, surtout en police agrandie (vu en P2.20). Fait : le titre passe au-dessus
+  quand titre et record ne tiennent pas chacun dans leur moitié (`topBarRows`).
+- [ ] **P2.27** Barre du haut à 360 dp en Original ×2 : le titre tient à un demi-pixel près
+  (324 px pour 324,5 à ×2,625) ; vérifier sur un téléphone d'une autre densité qu'il ne passe pas
+  au-dessus, et sinon gagner un peu de place (écarts, bouton pause) (revue de P2.26).
 
 ## P3 — Accueil, préférences, records
 
