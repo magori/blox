@@ -148,7 +148,7 @@ class ComposerDiceTest {
         editor.onDice()
 
         // When a window opens meanwhile
-        editor.onRenameAsked(base = "Ma musique")
+        editor.onRenameAsked()
         composing.scheduler.advanceUntilIdle()
 
         // Then
@@ -167,7 +167,7 @@ class ComposerDiceTest {
         editor.onDice()
 
         // When the music is saved meanwhile, the window closed once it is written
-        editor.onSaveAsked(base = "Ma musique")
+        editor.onSaveAsked()
         editor.onSaveConfirmed()
         slow.gate.complete(Unit)
         composing.scheduler.advanceUntilIdle()
@@ -183,7 +183,7 @@ class ComposerDiceTest {
         // Given a note, and a window open
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
         val written = viewModel.shown.editor.draft
-        viewModel.onRenameAsked(base = "Ma musique")
+        viewModel.onRenameAsked()
 
         // When
         viewModel.onDice()
@@ -239,6 +239,22 @@ class ComposerDiceTest {
 
         // Then
         assertThat(restored.shown.editor.draft).isEqualTo(written)
+    }
+
+    @Test
+    fun `a name proposed between two rolls does not change the seeds the dice draws`() {
+        // Given
+        val seeds = Random(DICE_SEED)
+        viewModel.onDice()
+
+        // When a name is proposed, then the dice rolls again
+        viewModel.onSaveAsked()
+        viewModel.onDialogDismissed()
+        viewModel.onDice()
+
+        // Then
+        seeds.nextLong()
+        assertThat(viewModel.shown.editor.draft).isEqualTo(generated(Surprise, seeds.nextLong()))
     }
 
     /** The draft of the music the generator composes in [choice] from [seed]. */

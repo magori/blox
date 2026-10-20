@@ -103,12 +103,15 @@ internal fun ComposerScreen(
         viewModel.onExitDone()
     }
     // A saved music opens once the library is read: until then, the page alone.
-    val uiState = opened ?: return Box(modifier = modifier.fillMaxSize().background(BloxTheme.palette.page))
-    val base = stringResource(uiState.editor.draft.category?.label ?: R.string.feature_composer_name_base)
+    val uiState = opened
+    if (uiState == null) {
+        Box(modifier = modifier.fillMaxSize().background(BloxTheme.palette.page))
+        return
+    }
     ComposerContent(
         uiState = uiState,
         onBack = viewModel::onBackAsked,
-        onRename = { viewModel.onRenameAsked(base) },
+        onRename = viewModel::onRenameAsked,
         onDelete = viewModel::onDeleteAsked,
         onOtherTrackShown = viewModel::onOtherTrackShown,
         onFollowPlayback = viewModel::onFollowPlayback,
@@ -125,18 +128,19 @@ internal fun ComposerScreen(
         onListen = viewModel::onListen,
         onCategoryChosen = viewModel::onCategoryChosen,
         onDice = viewModel::onDice,
-        onSave = { viewModel.onSaveAsked(base) },
+        onSave = viewModel::onSaveAsked,
         onMessageShown = viewModel::onMessageShown,
-        dialogActions = remember(viewModel, base) {
+        dialogActions = remember(viewModel) {
             DialogActions(
                 onNameChanged = viewModel::onNameChanged,
                 onFreeNameTaken = viewModel::onFreeNameTaken,
                 onForGamesChanged = viewModel::onForGamesChanged,
+                onStyleChosen = viewModel::onStyleChosen,
                 onSaveConfirmed = viewModel::onSaveConfirmed,
                 onRenameConfirmed = viewModel::onRenameConfirmed,
                 onDismissed = viewModel::onDialogDismissed,
                 onLeaveWithoutSaving = viewModel::onLeaveWithoutSaving,
-                onSaveBeforeLeaving = { viewModel.onSaveBeforeLeaving(base) },
+                onSaveBeforeLeaving = viewModel::onSaveBeforeLeaving,
                 onDeleteConfirmed = viewModel::onDeleteConfirmed,
             )
         },
@@ -264,7 +268,7 @@ private fun SaveButton(
     )
 }
 
-/** The name of a category, and the base of the name proposed for a music of it (« Joyeux 1 »). */
+/** The name of a category. */
 @get:StringRes
 internal val Category.label: Int
     get() = when (this) {
@@ -517,12 +521,13 @@ private fun WindowPreview(
     }
 }
 
-/** The save window of a music whose name another music has: the problem, and the free name offered. */
+/** The save window of a music in Joyeux whose name another music has: the problem, the free name offered, the style. */
 private val TakenName = ComposerDialog.Save(
-    name = "Joyeux 1",
+    name = "Matin de fête en sol",
     forGames = true,
+    style = Category.JOYFUL,
     problem = SaveProblem.Name(NameProblem.TAKEN),
-    freeName = "Joyeux 2",
+    freeName = "Matin de fête en sol 2",
 )
 
 @Preview(widthDp = 360, heightDp = 640)
@@ -537,16 +542,35 @@ internal fun SaveWindowColorfulPreview() {
     WindowPreview(BloxThemeKind.COLORFUL, TakenName)
 }
 
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
 @Composable
 internal fun SaveWindowOriginalLargeFontPreview() {
     WindowPreview(BloxThemeKind.ORIGINAL, TakenName)
 }
 
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
 @Composable
 internal fun SaveWindowColorfulLargeFontPreview() {
     WindowPreview(BloxThemeKind.COLORFUL, TakenName)
+}
+
+/** The save window of a music in Épique without problem, its name of 40 characters, the longest one. */
+private val LongestName = ComposerDialog.Save(
+    name = "Marche des géants en fa dièse mixolydien",
+    forGames = false,
+    style = Category.EPIC,
+)
+
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
+@Composable
+internal fun SaveWindowLongestNameOriginalLargeFontPreview() {
+    WindowPreview(BloxThemeKind.ORIGINAL, LongestName)
+}
+
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
+@Composable
+internal fun SaveWindowLongestNameColorfulLargeFontPreview() {
+    WindowPreview(BloxThemeKind.COLORFUL, LongestName)
 }
 
 @Preview(widthDp = 360, heightDp = 640)

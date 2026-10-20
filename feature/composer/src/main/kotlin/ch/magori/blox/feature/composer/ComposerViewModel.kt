@@ -14,11 +14,14 @@ import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.cutName
 import ch.magori.blox.core.data.freeName
+import ch.magori.blox.core.data.isNameTaken
 import ch.magori.blox.core.data.proposedName
 import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.MusicGenerator
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.DraftForm
 import ch.magori.blox.feature.composer.model.EditMode
@@ -52,6 +55,7 @@ import kotlin.reflect.KClass
  * one bar of one track, and listened to by [music]. The music the library does not know, or that does not open on the
  * grid, opens as a new music, under a new identity: the saved one is never overwritten. The dice draws its seeds from
  * [random] and composes on [generation], off the main thread; it rolls once the music opens if it is to [rollDice].
+ * The names proposed for the music are drawn from [names], apart from the dice, so that they never shift its seeds.
  */
 class ComposerViewModel internal constructor(
     private val music: MusicPlayer,
@@ -59,6 +63,7 @@ class ComposerViewModel internal constructor(
     musicKey: String?,
     savedState: SavedStateHandle,
     private val random: Random,
+    private val names: Random,
     private val generation: CoroutineDispatcher,
     rollDice: Boolean,
 ) : ViewModel() {
@@ -75,6 +80,9 @@ class ComposerViewModel internal constructor(
 
     /** The saved musics, as the library last gave them: the names a music may not take. */
     private var musics: List<SavedMusic> = emptyList()
+
+    /** The names proposed so far, by what they were proposed for ([proposedName]). */
+    private val proposed = mutableMapOf<ProposedFor, String>()
 
     /** The identity of the music played during the games, if any. */
     private var gameMusic: ScoreId.Personal? = null
@@ -185,18 +193,59 @@ class ComposerViewModel internal constructor(
     }
 
     /**
-     * *Enregistrer*: opens the save window on the name of the music, or for a music never named on the name proposed
-     * after [base], the name of its category (« Joyeux 1 »), and on whether it is played during the games.
+     * *Enregistrer*: opens the save window on the name of the music, or for a music never named on a name proposed for
+     * its style ([proposedName]); on its style, the category of the dice or Libre (null) for a music written by hand; and
+     * on whether it is played during the games.
      */
-    internal fun onSaveAsked(base: String) = askToSave(base, thenLeave = false)
+    internal fun onSaveAsked() = askToSave(thenLeave = false)
 
-    private fun askToSave(
-        base: String,
-        thenLeave: Boolean,
-    ) = update {
-        val name = it.name ?: musics.proposedName(base, apartFrom = id)
-        it.copy(dialog = ComposerDialog.Save(name, forGames = it.isGameMusic, thenLeave = thenLeave).checked())
+    private fun askToSave(thenLeave: Boolean) {
+        // The name is drawn once, before the update, which may run its change more than once.
+        val shown = current
+        val style = shown.editor.draft.category
+        val proposed = shown.name ?: proposedName(style, shown.editor.draft)
+        update {
+            val window = ComposerDialog.Save(
+                it.name ?: proposed,
+                forGames = it.isGameMusic,
+                thenLeave = thenLeave,
+                style = style,
+                nameChosen = it.name != null,
+            )
+            it.copy(dialog = window.checked())
+        }
     }
+
+    /**
+     * A [style] chosen in the save window, a category or Libre (null): it proposes a name of its own, until the name is
+     * chosen (typed, taken free, or the one of a music named already).
+     */
+    internal fun onStyleChosen(style: Category?) {
+        val dialog = current.dialog as? ComposerDialog.Save ?: return
+        val proposed = if (dialog.nameChosen) null else proposedName(style, current.editor.draft)
+        update {
+            val window = it.dialog as? ComposerDialog.Save ?: return@update it
+            val name = if (window.nameChosen || proposed == null) window.name else proposed
+            it.copy(dialog = window.copy(style = style, name = name).checked())
+        }
+    }
+
+    /**
+     * A name for [draft] in [style], that no music has: an evocative name of the style, or of the mode and the tempo of
+     * the music for Libre (null), followed by its key. It is drawn with [names] once for a style, a scale and a tempo,
+     * then proposed again while no music takes it: the window closed and opened again proposes the same name.
+     */
+    private fun proposedName(
+        style: Category?,
+        draft: ScoreDraft,
+    ): String {
+        val key = ProposedFor(style, draft.scale, draft.tempo.bpm)
+        val drawn = proposed[key]?.takeUnless { musics.isNameTaken(it, apartFrom = id) }
+        return drawn ?: musics.proposedName(style, draft.scale, draft.tempo.bpm, names).also { proposed[key] = it }
+    }
+
+    /** What a name was proposed for: a [style], a [scale] and a tempo, [bpm]. */
+    private data class ProposedFor(val style: Category?, val scale: Scale, val bpm: Int)
 
     /** The name typed in the window, cut at the longest a saved name may be. */
     internal fun onNameChanged(name: String) = update {
@@ -214,11 +263,12 @@ class ComposerViewModel internal constructor(
 
     /**
      * *Renommer*, in the menu or on the title: opens the window on the name of the music, or for a music never named on
-     * the name proposed after [base], as the save window does.
+     * a name proposed for its style, as the save window does.
      */
-    internal fun onRenameAsked(base: String) = update {
-        val name = it.name ?: musics.proposedName(base, apartFrom = id)
-        it.copy(dialog = ComposerDialog.Rename(name).checked())
+    internal fun onRenameAsked() {
+        val shown = current
+        val proposed = shown.name ?: proposedName(shown.editor.draft.category, shown.editor.draft)
+        update { it.copy(dialog = ComposerDialog.Rename(it.name ?: proposed).checked()) }
     }
 
     /**
@@ -265,20 +315,24 @@ class ComposerViewModel internal constructor(
     internal fun onDialogDismissed() = update { it.copy(dialog = null) }
 
     /**
-     * *Enregistrer* in the window: saves the music under its identity and the name typed, plays it during the games or
-     * no longer as the box says, and counts the changes from there. A window that shows a problem saves nothing. A write
-     * that fails leaves the window open, saying so. Once saved, the music is saved even if choosing it for the games
-     * then fails.
+     * *Enregistrer* in the window: saves the music under its identity, the name typed and the style chosen, plays it during
+     * the games or no longer as the box says, and counts the changes from there, the editor going on in that style. A
+     * window that shows a problem saves nothing. A write that fails leaves the window open, saying so. Once saved, the
+     * music is saved even if choosing it for the games then fails.
      */
     internal fun onSaveConfirmed() {
         val dialog = current.dialog as? ComposerDialog.Save ?: return
         if (dialog.problem != null) return
-        val draft = current.editor.draft
+        val draft = current.editor.draft.copy(category = dialog.style)
         val name = dialog.name.trim()
         write {
             library.save(SavedMusic(id, name, draft.category, draft.scale, draft.toScore(id)))
             // Saved from here, whatever comes next: a failure to choose it for the games leaves it saved, deletable.
-            update { it.copy(editor = it.editor.copy(saved = draft), name = name) }
+            // The editor goes on in the style the music was saved in.
+            update {
+                val styled = it.editor.draft.copy(category = dialog.style)
+                it.copy(editor = it.editor.copy(draft = styled, saved = draft), name = name)
+            }
             if (dialog.forGames != (gameMusic == id)) library.setGameMusic(id.takeIf { dialog.forGames })
             update { it.copy(dialog = null, exit = if (dialog.thenLeave) ComposerExit.Leave else null) }
         }
@@ -296,7 +350,7 @@ class ComposerViewModel internal constructor(
     internal fun onLeaveWithoutSaving() = update { it.copy(dialog = null, exit = ComposerExit.Leave) }
 
     /** *Enregistrer* in the question before leaving: the save window, which leaves the editor once the music is saved. */
-    internal fun onSaveBeforeLeaving(base: String) = askToSave(base, thenLeave = true)
+    internal fun onSaveBeforeLeaving() = askToSave(thenLeave = true)
 
     /** The screen has left the editor as [ComposerUiState.exit] said: it leaves once. */
     internal fun onExitDone() = update { it.copy(exit = null) }
@@ -359,7 +413,7 @@ class ComposerViewModel internal constructor(
 
     /** The window with the [name] typed, checked. */
     private fun ComposerDialog.Naming.named(name: String): ComposerDialog = when (this) {
-        is ComposerDialog.Save -> copy(name = name)
+        is ComposerDialog.Save -> copy(name = name, nameChosen = true)
         is ComposerDialog.Rename -> copy(name = name)
     }.checked()
 
@@ -549,13 +603,15 @@ class ComposerViewModel internal constructor(
      * Builds the [ComposerViewModel] with the music player and the musics of the application; `app` builds this factory
      * (ADR 0013). The identity of the music to open comes from the navigation entry, in the creation extras under
      * [MusicKey] (absent for a new music), whether to roll the dice once it opens under [RollDice], with the saved state
-     * of the entry, which keeps the draft. The dice draws its seeds from [random] and composes on [generation].
+     * of the entry, which keeps the draft. The dice draws its seeds from [random] and composes on [generation]; the names
+     * proposed are drawn from [names].
      */
     class Factory(
         private val music: MusicPlayer,
         private val library: MusicLibrary,
         private val random: Random = Random.Default,
         private val generation: CoroutineDispatcher = Dispatchers.Default,
+        private val names: Random = Random.Default,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
@@ -568,6 +624,7 @@ class ComposerViewModel internal constructor(
                 extras[MusicKey],
                 extras.createSavedStateHandle(),
                 random,
+                names,
                 generation,
                 extras[RollDice] == true,
             ) as T

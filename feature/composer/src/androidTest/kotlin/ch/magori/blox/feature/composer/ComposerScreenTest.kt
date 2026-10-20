@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -22,10 +23,12 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -547,7 +550,7 @@ internal class ComposerScreenTest {
 
         // When
         onNodeWithContentDescription("Enregistrer les changements").performClick()
-        onNodeWithText("Ma musique 1").assertExists()
+        assertThat(nameField()).isIn("Envolée en do", "Galop en do", "Cavalcade en do")
         onNode(hasSetTextAction()).performTextReplacement("Thème du soir")
         onNodeWithText("Jouer cette musique pendant les parties").performClick()
         onNodeWithText("Enregistrer").performClick()
@@ -560,6 +563,42 @@ internal class ComposerScreenTest {
         onNodeWithText("Enregistrer la musique").assertDoesNotExist()
         onNodeWithText("Thème du soir").assertExists()
         onNodeWithText("non enregistrée").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the save window offers the styles as radio buttons, Libre chosen for a music written by hand")
+    fun theSaveWindowOffersTheStyles() = extension.use {
+        // Given a new music with a note
+        showEditor()
+        cell("Mi bas, temps 1").performClick()
+
+        // When
+        onNodeWithContentDescription("Enregistrer les changements").performClick()
+
+        // Then
+        STYLES.forEach { style ->
+            styleButton(style)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+        styleButton("Libre").assertIsSelected()
+        styleButton("Joyeux").assertIsNotSelected()
+
+        // When
+        styleButton("Mélancolique").performClick()
+
+        // Then the style is chosen, with a name of its own
+        styleButton("Mélancolique").assertIsSelected()
+        styleButton("Libre").assertIsNotSelected()
+        assertThat(nameField())
+            .isIn("Pluie de novembre en do", "Quai désert en do", "Dernier train en do", "Lettre perdue en do")
+
+        // When
+        onNode(hasText("Enregistrer") and hasAnyAncestor(isDialog())).performClick()
+        waitForIdle()
+
+        // Then
+        assertThat(runBlocking { library.musics.first() }.single().category).isEqualTo(Category.MELANCHOLIC)
     }
 
     @Test
@@ -633,6 +672,7 @@ internal class ComposerScreenTest {
         musicKey,
         SavedStateHandle(),
         Random(SEED),
+        Random(SEED),
         Dispatchers.Main.immediate,
         rollDice = false,
     )
@@ -702,6 +742,14 @@ internal class ComposerScreenTest {
 
     private fun ComposeContext.cell(name: String): SemanticsNodeInteraction = onNodeWithContentDescription(name)
 
+    /** The style [label] in the save window: the dice offers the categories too, under the window. */
+    private fun ComposeContext.styleButton(label: String): SemanticsNodeInteraction =
+        onNode(hasText(label) and hasAnyAncestor(isDialog()))
+
+    /** The name in the field of the window. */
+    private fun ComposeContext.nameField(): String =
+        onNode(hasSetTextAction()).fetchSemanticsNode().config[SemanticsProperties.EditableText].text
+
     private fun SemanticsNodeInteraction.assertState(state: String): SemanticsNodeInteraction =
         assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, state))
 
@@ -716,5 +764,8 @@ internal class ComposerScreenTest {
         const val BAR_TAG = "composer_bar"
         const val CELL_TAG = "composer_cell"
         val NARROWEST_PHONE = 360.dp
+
+        /** The styles of the save window, in their order. */
+        val STYLES = listOf("Joyeux", "Calme", "Épique", "Mélancolique", "Mystérieux", "Rétro", "Danse", "Libre")
     }
 }

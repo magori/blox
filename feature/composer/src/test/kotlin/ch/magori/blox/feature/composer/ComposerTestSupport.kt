@@ -35,6 +35,9 @@ internal suspend fun MusicLibrary.saveMusic(
 /** The seed of the draws of the dice, in each test. */
 internal const val DICE_SEED = 42L
 
+/** The seed of the draws of the names proposed, in each test. */
+internal const val NAME_SEED = 7L
+
 /**
  * An editor on the music of [key], a new one when null, in [library], restored from [savedState]; its dice draws with
  * [random] and composes on [generation], by default the main dispatcher of the test, at once; it rolls once open if it
@@ -46,9 +49,10 @@ internal fun composer(
     key: String? = null,
     savedState: SavedStateHandle = SavedStateHandle(),
     random: Random = Random(DICE_SEED),
+    names: Random = Random(NAME_SEED),
     generation: CoroutineDispatcher = Dispatchers.Main,
     rollDice: Boolean = false,
-) = ComposerViewModel(music, library, key, savedState, random, generation, rollDice)
+) = ComposerViewModel(music, library, key, savedState, random, names, generation, rollDice)
 
 /** Musics whose saves wait for [gate] before they are written, counted in [saves]. */
 internal class SlowLibrary(private val delegate: MusicLibrary) : MusicLibrary by delegate {

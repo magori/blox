@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.composer
 
 import ch.magori.blox.core.data.DeletedMusic
+import ch.magori.blox.core.music.Category
 import ch.magori.blox.feature.composer.model.SaveProblem
 
 /**
@@ -20,13 +21,17 @@ internal sealed interface ComposerDialog {
     }
 
     /**
-     * *Enregistrer* (V9, V12): the [name] typed and whether the music is to be played during the games, [forGames];
-     * once saved, the editor is left when the window came from leaving it, [thenLeave].
+     * *Enregistrer* (V9, V12): the [name] typed, whether the music is to be played during the games, [forGames], and its
+     * [style], a category or Libre (null). Another style proposes another name until the name is chosen, [nameChosen]:
+     * typed, taken free, or the one of a music named already. Once saved, the editor is left when the window came from
+     * leaving it, [thenLeave].
      */
     data class Save(
         override val name: String,
         val forGames: Boolean,
         val thenLeave: Boolean = false,
+        val style: Category? = null,
+        val nameChosen: Boolean = false,
         override val problem: SaveProblem? = null,
         override val freeName: String? = null,
         override val failed: Boolean = false,

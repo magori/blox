@@ -72,7 +72,7 @@ private fun MessageColorfulLargeFont() = MessageColorfulLargeFontPreview()
 private fun SaveWindowOriginal() = SaveWindowOriginalPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
 @Composable
 private fun SaveWindowOriginalLargeFont() = SaveWindowOriginalLargeFontPreview()
 
@@ -82,9 +82,19 @@ private fun SaveWindowOriginalLargeFont() = SaveWindowOriginalLargeFontPreview()
 private fun SaveWindowColorful() = SaveWindowColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
 @Composable
 private fun SaveWindowColorfulLargeFont() = SaveWindowColorfulLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
+@Composable
+private fun SaveWindowLongestNameOriginalLargeFont() = SaveWindowLongestNameOriginalLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1400, fontScale = 2f)
+@Composable
+private fun SaveWindowLongestNameColorfulLargeFont() = SaveWindowLongestNameColorfulLargeFontPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 640)

@@ -21,10 +21,10 @@ import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
- * A window where a [name] is typed, under [title]: why the name cannot be taken, [problem], is told under the field,
- * read by TalkBack as it shows, and [confirm] is disabled meanwhile; *Entrée* confirms too, the name allowed. A button
- * [freeName] (« Prendre « X 2 » ») may offer a name in its place; then come [extra] parts, and the answers,
- * *Annuler* and [confirm]. A name that could not be written, [failed], is told, the window still open.
+ * A window where a [name] is typed, on as many lines as it needs, under [title]: why the name cannot be taken,
+ * [problem], is told under the field, read by TalkBack as it shows, and [confirm] is disabled meanwhile; *Entrée*
+ * confirms too, the name allowed, and a line break pasted is a space. A button [freeName] (« Prendre « X 2 » ») may
+ * offer a name in its place; then come [extra] parts, and the answers, *Annuler* and [confirm]. A name that could not be written, [failed], is told, the window still open.
  */
 @Composable
 fun NamingWindow(
@@ -46,9 +46,12 @@ fun NamingWindow(
         if (failed) WindowFailure()
         OutlinedTextField(
             value = name,
-            onValueChange = onNameChanged,
+            // A name holds on one line: a line break typed (Entrée on a keyboard) is a space.
+            onValueChange = { onNameChanged(it.replace(LINE_BREAK, " ")) },
             label = { Text(stringResource(R.string.core_designsystem_window_name)) },
-            singleLine = true,
+            // On as many lines as it needs, never scrolled: a name of 40 characters stays whole in every theme, with the
+            // font twice as large too (four lines in Original).
+            singleLine = false,
             isError = problem != null,
             supportingText = problem?.let {
                 { Text(text = it, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }) }
@@ -85,3 +88,6 @@ fun NamingWindow(
 @ReadOnlyComposable
 fun nameTooLongText(maxLength: Int): String =
     pluralStringResource(R.plurals.core_designsystem_window_name_too_long, maxLength, maxLength)
+
+/** A line break, from a keyboard or pasted. */
+private val LINE_BREAK = Regex("\r\n|[\r\n]")

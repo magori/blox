@@ -31,36 +31,24 @@ class ComposerSavingTest {
     private val viewModel by lazy { editor() }
 
     @Test
-    fun `Save opens the window on the name proposed after the category, the first number no music has`() = runTest {
-        // Given
-        library.saveMusic("Ma musique 1", key = "first")
-        viewModel.onCellTouched(pitch("E4"), eighth = 0)
-
-        // When
-        viewModel.onSaveAsked(base = "Ma musique")
-
-        // Then
-        assertThat(viewModel.shown.dialog).isEqualTo(ComposerDialog.Save(name = "Ma musique 2", forGames = false))
-    }
-
-    @Test
     fun `the window of a saved music opens on its name, and on whether it is played during the games`() = runTest {
         // Given
         library.saveMusic("Joyeux 1", key = "joyeux", forGames = true)
         val opened = editor(key = "joyeux")
 
         // When
-        opened.onSaveAsked(base = "Joyeux")
+        opened.onSaveAsked()
 
         // Then
-        assertThat(opened.shown.dialog).isEqualTo(ComposerDialog.Save(name = "Joyeux 1", forGames = true))
+        assertThat(opened.shown.dialog)
+            .isEqualTo(ComposerDialog.Save(name = "Joyeux 1", forGames = true, nameChosen = true))
     }
 
     @Test
     fun `the window saves the music under its name and its identity, and the changes count from there`() = runTest {
         // Given
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
 
         // When
         viewModel.onNameChanged("  Thème du soir ")
@@ -83,12 +71,12 @@ class ComposerSavingTest {
         viewModel.onCellTouched(pitch("G4"), eighth = 2)
 
         // When
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
         val window = viewModel.shown.dialog
         viewModel.onSaveConfirmed()
 
         // Then
-        assertThat(window).isEqualTo(ComposerDialog.Save(name = "Thème du soir", forGames = false))
+        assertThat(window).isEqualTo(ComposerDialog.Save(name = "Thème du soir", forGames = false, nameChosen = true))
         val draft = viewModel.shown.editor.draft
         assertThat(library.musics.first()).singleElement().isEqualTo(
             SavedMusic(NEW_ID, "Thème du soir", null, draft.scale, draft.toScore(NEW_ID)),
@@ -102,12 +90,12 @@ class ComposerSavingTest {
             viewModel.onCellTouched(pitch("E4"), eighth = 0)
 
             // When
-            viewModel.onSaveAsked(base = "Ma musique")
+            viewModel.onSaveAsked()
             viewModel.onForGamesChanged(true)
             viewModel.onSaveConfirmed()
             val chosen = library.gameMusic.first()?.id
             val shownChosen = viewModel.shown.isGameMusic
-            viewModel.onSaveAsked(base = "Ma musique")
+            viewModel.onSaveAsked()
             viewModel.onForGamesChanged(false)
             viewModel.onSaveConfirmed()
 
@@ -123,7 +111,7 @@ class ComposerSavingTest {
         // Given
         library.saveMusic("Thème", key = "theme")
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
 
         // When
         viewModel.onNameChanged("thème")
@@ -136,23 +124,25 @@ class ComposerSavingTest {
             ComposerDialog.Save(
                 name = "thème",
                 forGames = false,
+                nameChosen = true,
                 problem = SaveProblem.Name(NameProblem.TAKEN),
                 freeName = "thème 2",
             ),
         )
         assertThat(library.musics.first()).hasSize(1)
-        assertThat(viewModel.shown.dialog).isEqualTo(ComposerDialog.Save(name = "thème 2", forGames = false))
+        assertThat(viewModel.shown.dialog)
+            .isEqualTo(ComposerDialog.Save(name = "thème 2", forGames = false, nameChosen = true))
     }
 
     @Test
     fun `the window refuses an empty grid, and a blank name`() = runTest {
         // When
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
         val empty = viewModel.shown.dialog
         viewModel.onSaveConfirmed()
         viewModel.onDialogDismissed()
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
         viewModel.onNameChanged("  ")
         val blank = viewModel.shown.dialog
         viewModel.onSaveConfirmed()
@@ -166,7 +156,7 @@ class ComposerSavingTest {
     @Test
     fun `a name typed is cut at 40 characters, the longest a saved name may be`() {
         // Given
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
 
         // When
         viewModel.onNameChanged("é".repeat(45))
@@ -179,7 +169,7 @@ class ComposerSavingTest {
     fun `closing the window saves nothing`() = runTest {
         // Given
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
 
         // When
         viewModel.onDialogDismissed()
@@ -195,7 +185,7 @@ class ComposerSavingTest {
         // Given
         val failing = editor(library = FailingLibrary())
         failing.onCellTouched(pitch("E4"), eighth = 0)
-        failing.onSaveAsked(base = "Ma musique")
+        failing.onSaveAsked()
         failing.onNameChanged("Fête")
         failing.onForGamesChanged(true)
 
@@ -204,7 +194,7 @@ class ComposerSavingTest {
 
         // Then
         assertThat(failing.shown.dialog)
-            .isEqualTo(ComposerDialog.Save(name = "Fête", forGames = true, failed = true))
+            .isEqualTo(ComposerDialog.Save(name = "Fête", forGames = true, nameChosen = true, failed = true))
         assertThat(failing.shown.editor.status).isEqualTo(SaveStatus.NOT_SAVED)
         assertThat(failing.shown.message).isNull()
     }
@@ -216,7 +206,8 @@ class ComposerSavingTest {
             val musics = FakeMusicLibrary()
             val failing = editor(library = GameMusicFailingLibrary(musics))
             failing.onCellTouched(pitch("E4"), eighth = 0)
-            failing.onSaveAsked(base = "Ma musique")
+            failing.onSaveAsked()
+            val proposed = (failing.shown.dialog as ComposerDialog.Save).name
             failing.onForGamesChanged(true)
 
             // When
@@ -225,7 +216,7 @@ class ComposerSavingTest {
             // Then
             assertThat(musics.musics.first().map { it.id }).containsExactly(NEW_ID)
             assertThat(failing.shown.editor.status).isEqualTo(SaveStatus.SAVED)
-            assertThat(failing.shown.name).isEqualTo("Ma musique 1")
+            assertThat(failing.shown.name).isEqualTo(proposed)
             assertThat((failing.shown.dialog as ComposerDialog.Save).failed).isTrue()
             failing.onDialogDismissed()
             failing.onDeleteAsked()
@@ -238,7 +229,7 @@ class ComposerSavingTest {
         val slow = SlowLibrary(library)
         val editor = editor(library = slow)
         editor.onCellTouched(pitch("E4"), eighth = 0)
-        editor.onSaveAsked(base = "Ma musique")
+        editor.onSaveAsked()
 
         // When
         editor.onSaveConfirmed()
@@ -303,12 +294,12 @@ class ComposerSavingTest {
         viewModel.onBackAsked()
 
         // When
-        viewModel.onSaveBeforeLeaving(base = "Ma musique")
+        viewModel.onSaveBeforeLeaving()
         val window = viewModel.shown.dialog
         viewModel.onSaveConfirmed()
 
         // Then
-        assertThat(window).isEqualTo(ComposerDialog.Save(name = "Ma musique 1", forGames = false, thenLeave = true))
+        assertThat((window as ComposerDialog.Save).thenLeave).isTrue()
         assertThat(library.musics.first()).hasSize(1)
         assertThat(viewModel.shown.exit).isEqualTo(ComposerExit.Leave)
     }
@@ -326,20 +317,17 @@ class ComposerSavingTest {
     }
 
     @Test
-    fun `Rename opens the window on the name of the music, or on the name proposed for a music never named`() =
-        runTest {
-            // Given
-            library.saveMusic("Joyeux 1", key = "joyeux")
-            val saved = editor(key = "joyeux")
+    fun `Rename opens the window on the name of the music`() = runTest {
+        // Given
+        library.saveMusic("Joyeux 1", key = "joyeux")
+        val saved = editor(key = "joyeux")
 
-            // When
-            saved.onRenameAsked(base = "Joyeux")
-            viewModel.onRenameAsked(base = "Ma musique")
+        // When
+        saved.onRenameAsked()
 
-            // Then
-            assertThat(saved.shown.dialog).isEqualTo(ComposerDialog.Rename(name = "Joyeux 1"))
-            assertThat(viewModel.shown.dialog).isEqualTo(ComposerDialog.Rename(name = "Ma musique 1"))
-        }
+        // Then
+        assertThat(saved.shown.dialog).isEqualTo(ComposerDialog.Rename(name = "Joyeux 1"))
+    }
 
     @Test
     fun `renaming a saved music renames it in the library, and leaves its changes unsaved`() = runTest {
@@ -349,7 +337,7 @@ class ComposerSavingTest {
         saved.onCellTouched(pitch("G4"), eighth = 2)
 
         // When
-        saved.onRenameAsked(base = "Joyeux")
+        saved.onRenameAsked()
         saved.onNameChanged("Fête")
         saved.onRenameConfirmed()
 
@@ -369,22 +357,23 @@ class ComposerSavingTest {
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
 
         // When
-        viewModel.onRenameAsked(base = "Ma musique")
+        viewModel.onRenameAsked()
         viewModel.onNameChanged(" Fête ")
         viewModel.onRenameConfirmed()
-        viewModel.onSaveAsked(base = "Ma musique")
+        viewModel.onSaveAsked()
 
         // Then
         assertThat(library.musics.first()).isEmpty()
         assertThat(viewModel.shown.name).isEqualTo("Fête")
-        assertThat(viewModel.shown.dialog).isEqualTo(ComposerDialog.Save(name = "Fête", forGames = false))
+        assertThat(viewModel.shown.dialog)
+            .isEqualTo(ComposerDialog.Save(name = "Fête", forGames = false, nameChosen = true))
     }
 
     @Test
     fun `the rename window refuses a blank name, or one another music has, and offers a free one`() = runTest {
         // Given
         library.saveMusic("Fête", key = "party")
-        viewModel.onRenameAsked(base = "Ma musique")
+        viewModel.onRenameAsked()
 
         // When
         viewModel.onNameChanged(" ")
@@ -458,7 +447,7 @@ class ComposerSavingTest {
         val failing = editor(key = "joyeux", library = FailingLibrary(musics))
 
         // When
-        failing.onRenameAsked(base = "Joyeux")
+        failing.onRenameAsked()
         failing.onNameChanged("Fête")
         failing.onRenameConfirmed()
         val renamed = failing.shown
@@ -481,7 +470,7 @@ class ComposerSavingTest {
         val savedState = SavedStateHandle()
         val first = editor(savedState = savedState)
         first.onCellTouched(pitch("E4"), eighth = 0)
-        first.onRenameAsked(base = "Ma musique")
+        first.onRenameAsked()
         first.onNameChanged("Fête")
         first.onRenameConfirmed()
 
@@ -558,7 +547,7 @@ class ComposerSavingTest {
 
     /** Saves the music through the window, under [name]. */
     private fun ComposerViewModel.save(name: String) {
-        onSaveAsked(base = "Ma musique")
+        onSaveAsked()
         onNameChanged(name)
         onSaveConfirmed()
     }
