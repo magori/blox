@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,7 +56,7 @@ import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
-import ch.magori.blox.core.designsystem.theme.BloxTypographies
+import ch.magori.blox.core.designsystem.theme.shrinkToFit
 
 /** The tag of each start level, the same in every language, read by the tests. */
 internal const val START_LEVEL_TAG = "home_start_level"
@@ -385,10 +384,7 @@ private fun ChoiceLabel(
         overflow = if (maxLines > 1) TextOverflow.Ellipsis else TextOverflow.Clip,
         maxLines = maxLines,
         softWrap = maxLines > 1,
-        autoSize = TextAutoSize.StepBased(
-            minFontSize = BloxTypographies.MinimumFontSize,
-            maxFontSize = style.fontSize,
-        ),
+        autoSize = shrinkToFit(style.fontSize),
     )
 }
 
@@ -473,6 +469,12 @@ internal fun HomeScreenLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
+@Preview(widthDp = 360, heightDp = 1200, fontScale = 2f)
+@Composable
+internal fun HomeScreenColorfulLargeFontPreview() {
+    HomeScreenPreview(ThemeChoice.COLORFUL)
+}
+
 @Preview(widthDp = 360, heightDp = 1090)
 @Composable
 internal fun HomeScreenGameMusicPreview() {
@@ -489,7 +491,7 @@ internal fun HomeScreenGameMusicLongNamePreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
 }
 
-@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1620, fontScale = 2f)
 @Composable
 internal fun HomeScreenGameMusicLongNameLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))

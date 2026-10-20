@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.game.ui
+package ch.magori.blox.core.designsystem.theme
 
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp

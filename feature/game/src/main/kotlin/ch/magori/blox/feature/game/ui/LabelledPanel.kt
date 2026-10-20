@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.shrinkFloor
+import ch.magori.blox.core.designsystem.theme.shrinkToFit
 
 /** The sizes shared by the panels and values of the game screens, in one place; their frame is `BloxBorders.frame`. */
 internal object PanelSizes {

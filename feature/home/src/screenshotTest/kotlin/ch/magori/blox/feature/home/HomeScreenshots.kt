@@ -36,6 +36,11 @@ private fun HomeGameMusic() = HomeScreenGameMusicPreview()
 private fun HomeGameMusicLongName() = HomeScreenGameMusicLongNamePreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1620, fontScale = 2f)
 @Composable
 private fun HomeGameMusicLongNameLargeFont() = HomeScreenGameMusicLongNameLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1200, fontScale = 2f)
+@Composable
+private fun HomeColorfulLargeFont() = HomeScreenColorfulLargeFontPreview()
