@@ -15,7 +15,7 @@
     <!-- Ligne d'info : la catégorie, puis « modifiée » ou « non enregistrée ». -->
     <string name="feature_composer_info">%1$s · %2$s</string>
 
-    <!-- Catégories, et base du nom proposé (« Joyeux 1 », « Ma musique 1 » sans catégorie). -->
+    <!-- Catégories : le dé, la ligne d'info et le style de la fenêtre Enregistrer. -->
     <string name="feature_composer_category_joyful">Joyeux</string>
     <string name="feature_composer_category_calm">Calme</string>
     <string name="feature_composer_category_epic">Épique</string>
@@ -23,7 +23,6 @@
     <string name="feature_composer_category_mysterious">Mystérieux</string>
     <string name="feature_composer_category_retro">Rétro</string>
     <string name="feature_composer_category_dance">Danse</string>
-    <string name="feature_composer_name_base">Ma musique</string>
     <!-- Le choix du dé qui tire la catégorie elle-même au hasard. -->
     <string name="feature_composer_category_surprise">Surprise</string>
 
@@ -34,6 +33,9 @@
     <string name="feature_composer_save_changed_description">Enregistrer les changements</string>
     <string name="feature_composer_save_title">Enregistrer la musique</string>
     <string name="feature_composer_rename_title">Renommer la musique</string>
+    <!-- Le choix du style dans la fenêtre Enregistrer : les catégories, puis « Libre » (sans catégorie). -->
+    <string name="feature_composer_style">Style</string>
+    <string name="feature_composer_style_free">Libre</string>
     <string name="feature_composer_for_games">Jouer cette musique pendant les parties</string>
     <string name="feature_composer_problem_empty">La grille est vide : pose au moins une note.</string>
     <string name="feature_composer_problem_blank">Donne un nom à la musique.</string>

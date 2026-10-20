@@ -1,6 +1,9 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.Category
+import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScoreId
+import kotlin.random.Random
 
 /*
  * The rules of the names of the saved musics, the only source of them: the library keeps them (it refuses a name
@@ -38,20 +41,51 @@ fun List<SavedMusic>.nameProblem(
     val trimmed = name.trim()
     return when {
         trimmed.isEmpty() -> NameProblem.BLANK
-        trimmed.codePointCount(0, trimmed.length) > SavedMusic.MAX_NAME_LENGTH -> NameProblem.TOO_LONG
+        !fitsInAName(trimmed) -> NameProblem.TOO_LONG
         isNameTaken(trimmed, apartFrom) -> NameProblem.TAKEN
         else -> null
     }
 }
 
 /**
- * The name proposed for a music of the category called [base] (« Joyeux »): « Joyeux n », the first number from 1
- * that no music other than [apartFrom] has.
+ * The name proposed for a music of [style] on [scale], at [bpm] beats a minute (P4.27): one of the evocative names of
+ * the style, or for a free music (null) of its mode and its tempo ([evocativeNames]), followed by its key
+ * ([keyPhrase]), « Matin de fête en sol », drawn with [random] among those that no music has. Once all are taken, one of
+ * them followed by the first number that makes it free ([freeName]). Never more than [SavedMusic.MAX_NAME_LENGTH]
+ * characters.
  */
 fun List<SavedMusic>.proposedName(
-    base: String,
-    apartFrom: ScoreId.Personal? = null,
-): String = numbered(base.trim(), from = 1, apartFrom)
+    style: Category?,
+    scale: Scale,
+    bpm: Int,
+    random: Random,
+): String = proposedNameAmong(evocativeNames(style, scale, bpm).map { "$it ${keyPhrase(scale)}" }, random)
+
+/**
+ * One of [names], drawn with [random], of [SavedMusic.MAX_NAME_LENGTH] characters at the most: one that no music has,
+ * else one followed by the first number that makes it free, else, when none of them fits once numbered, one cut so that
+ * its number fits ([cutFreeName]).
+ */
+internal fun List<SavedMusic>.proposedNameAmong(
+    names: List<String>,
+    random: Random,
+): String {
+    val free = names.filterNot(::isNameTaken).filter(::fitsInAName)
+    val candidates = free.ifEmpty { names.map(::freeName).filter(::fitsInAName) }.ifEmpty { names.map(::cutFreeName) }
+    return candidates.random(random)
+}
+
+/**
+ * [wanted] cut at [SavedMusic.MAX_NAME_LENGTH] characters, without the spaces around it, when no music has it; else cut
+ * shorter, so that the first number from 2 that makes it free still fits.
+ */
+private fun List<SavedMusic>.cutFreeName(wanted: String): String {
+    val whole = cutName(wanted).trim()
+    if (!isNameTaken(whole)) return whole
+    return generateSequence(2) { it + 1 }
+        .map { number -> " $number".let { cutTo(whole, SavedMusic.MAX_NAME_LENGTH - it.length).trimEnd() + it } }
+        .first { !isNameTaken(it) }
+}
 
 /**
  * A name that no music other than [apartFrom] has, the one the editor offers to take (« Prendre « Joyeux 2 » »):
@@ -84,10 +118,16 @@ private fun List<SavedMusic>.numbered(
  * The name [typed] (in the editor, or in the list), cut at the most characters a saved name may have,
  * [SavedMusic.MAX_NAME_LENGTH], never between the two units of a character; a shorter name as it is, spaces kept.
  */
-fun cutName(typed: String): String {
-    val characters = minOf(typed.codePointCount(0, typed.length), SavedMusic.MAX_NAME_LENGTH)
-    return typed.take(typed.offsetByCodePoints(0, characters))
-}
+fun cutName(typed: String): String = cutTo(typed, SavedMusic.MAX_NAME_LENGTH)
+
+/** [text] cut at [characters] characters, never between the two units of a character. */
+private fun cutTo(
+    text: String,
+    characters: Int,
+): String = text.take(text.offsetByCodePoints(0, minOf(text.codePointCount(0, text.length), characters)))
 
 /** A number at the end of a name, after a space: « Joyeux 2 ». */
 private val ENDING_NUMBER = Regex(""" ([0-9]+)$""")
+
+/** Whether [name] has [SavedMusic.MAX_NAME_LENGTH] characters at the most. */
+private fun fitsInAName(name: String): Boolean = name.codePointCount(0, name.length) <= SavedMusic.MAX_NAME_LENGTH

@@ -104,17 +104,6 @@ class MusicNamesTest {
     }
 
     @Test
-    fun `the proposed name numbers the category, the first number from 1 that no music has`() {
-        // Given
-        val musics =
-            listOf(aMusic("a", name = "Calme 1"), aMusic("b", name = "joyeux 1"), aMusic("c", name = "Joyeux 3"))
-
-        // When / Then
-        assertThat(musics.proposedName("Joyeux")).isEqualTo("Joyeux 2")
-        assertThat(musics.proposedName("Épique")).isEqualTo("Épique 1")
-    }
-
-    @Test
     fun `a name is taken whatever its case, its accents in capitals and the spaces around it`() {
         // Given
         val musics = listOf(aMusic("a", name = "Thème du soir"), aMusic("b", name = "Matin calme"))
@@ -138,15 +127,6 @@ class MusicNamesTest {
         assertThat(musics.freeName("thème ")).isEqualTo("thème 4")
         assertThat(musics.freeName("Thème 2")).isEqualTo("Thème 4")
         assertThat(musics.freeName("joyeux 1")).isEqualTo("joyeux 2")
-    }
-
-    @Test
-    fun `the music being saved keeps its own proposed name`() {
-        // Given
-        val musics = listOf(aMusic("a", name = "Joyeux 1"))
-
-        // When / Then
-        assertThat(musics.proposedName("Joyeux", apartFrom = ScoreId.Personal("a"))).isEqualTo("Joyeux 1")
     }
 
     @ParameterizedTest(name = "« {0} »: {1}")

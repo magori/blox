@@ -1,10 +1,14 @@
 package ch.magori.blox.feature.composer
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
@@ -29,7 +33,10 @@ import ch.magori.blox.core.designsystem.component.WindowText
 import ch.magori.blox.core.designsystem.component.nameTooLongText
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.music.Category
 import ch.magori.blox.feature.composer.model.SaveProblem
+import ch.magori.blox.feature.composer.ui.ChoiceButton
+import ch.magori.blox.feature.composer.ui.ComposerSizes
 
 /** What the windows of the editor do, each answer to its callback; no logic here. */
 @Immutable
@@ -37,6 +44,7 @@ internal class DialogActions(
     val onNameChanged: (String) -> Unit,
     val onFreeNameTaken: () -> Unit,
     val onForGamesChanged: (Boolean) -> Unit,
+    val onStyleChosen: (Category?) -> Unit,
     val onSaveConfirmed: () -> Unit,
     val onRenameConfirmed: () -> Unit,
     val onDismissed: () -> Unit,
@@ -46,7 +54,7 @@ internal class DialogActions(
 ) {
     companion object {
         /** Windows that do nothing: previews and screenshots. */
-        val None = DialogActions({}, {}, {}, {}, {}, {}, {}, {}, {})
+        val None = DialogActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }
 
@@ -80,6 +88,7 @@ internal fun ComposerWindow(
             actions = actions,
             modifier = modifier,
         ) {
+            StyleChoice(style = dialog.style, onStyleChosen = actions.onStyleChosen)
             ForGamesBox(checked = dialog.forGames, onChecked = actions.onForGamesChanged)
         }
 
@@ -154,6 +163,48 @@ private fun ComposerNamingWindow(
         extra = extra,
     )
 }
+
+/**
+ * *Style*, in the save window: the seven categories and Libre (null), read by TalkBack as radio buttons, the one chosen,
+ * [style], filled. They go to the line when they do not fit, as with a large font, each 48 dp high at least.
+ */
+@Composable
+private fun StyleChoice(
+    style: Category?,
+    onStyleChosen: (Category?) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(StyleTitleGap)) {
+        Text(
+            text = stringResource(R.string.feature_composer_style),
+            color = BloxTheme.palette.ink,
+            style = MaterialTheme.typography.labelSmall,
+        )
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
+            verticalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
+            modifier = Modifier.selectableGroup(),
+        ) {
+            Styles.forEach { choice ->
+                ChoiceButton(
+                    text = stringResource(choice?.label ?: R.string.feature_composer_style_free),
+                    selected = choice == style,
+                    onClick = { onStyleChosen(choice) },
+                    role = Role.RadioButton,
+                    labelPadding = StyleLabelPadding,
+                )
+            }
+        }
+    }
+}
+
+/** The styles of a saved music, in the order of the specification: the seven categories, then Libre. */
+private val Styles: List<Category?> = Category.entries + null
+
+/** Between the title *Style* and its choices. */
+private val StyleTitleGap = 6.dp
+
+/** The room on each side of the label of a style. */
+private val StyleLabelPadding = 6.dp
 
 /** *Jouer cette musique pendant les parties*, [checked] or not, read by TalkBack as a check box. */
 @Composable
