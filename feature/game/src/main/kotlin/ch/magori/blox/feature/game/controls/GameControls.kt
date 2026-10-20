@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -39,10 +41,12 @@ import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -251,9 +255,9 @@ private fun Glyph(
     modifier: Modifier = Modifier,
 ) {
     when (button) {
-        ControlButton.A -> Text(text = "A", modifier = modifier, color = color, style = KeyLetterStyle)
+        ControlButton.A -> RotationGlyph(BloxIcon.ROTATE_RIGHT, "A", color, modifier)
 
-        ControlButton.B -> Text(text = "B", modifier = modifier, color = color, style = KeyLetterStyle)
+        ControlButton.B -> RotationGlyph(BloxIcon.ROTATE_LEFT, "B", color, modifier)
 
         else -> Spacer(
             modifier = modifier
@@ -265,6 +269,32 @@ private fun Glyph(
         )
     }
 }
+
+/**
+ * The arrow of rotation [icon] above [letter], the button of the pad it stands for: the letter in [KeyLetterStyle],
+ * its line no higher than the letter, shrunk to hold under the arrow in the key when the font is enlarged.
+ */
+@Composable
+private fun RotationGlyph(
+    icon: BloxIcon,
+    letter: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
+    val density = LocalDensity.current
+    val size = with(density) { keyLetterHeight(KeyLetterStyle.fontSize.toDp()).toSp() }
+    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        BloxIcon(icon, size = ControlSizes.rotationArrow, tint = color)
+        Text(
+            text = letter,
+            color = color,
+            style = KeyLetterStyle.copy(fontSize = size, lineHeight = size, lineHeightStyle = TightLine),
+        )
+    }
+}
+
+/** A line of text as high as its font: the letter of a key and its arrow hold in the key. */
+private val TightLine = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.Both)
 
 /** A triangle pointing the way of [button] (left, down or right), filling [width] × [height]. */
 private fun arrowPath(

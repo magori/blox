@@ -5,6 +5,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
@@ -29,10 +30,15 @@ internal fun PauseScreen(
         // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
         PrimaryButton(
             text = stringResource(R.string.feature_game_pause_resume),
+            icon = BloxIcon.PLAY,
             onClick = onResume,
             modifier = Modifier.testTag("pause_resume"),
         )
-        SecondaryButton(text = stringResource(R.string.feature_game_pause_menu), onClick = onMenu)
+        SecondaryButton(
+            text = stringResource(R.string.feature_game_pause_menu),
+            icon = BloxIcon.HOME,
+            onClick = onMenu,
+        )
     }
 }
 

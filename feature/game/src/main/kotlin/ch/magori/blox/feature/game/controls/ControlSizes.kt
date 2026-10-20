@@ -1,6 +1,8 @@
 package ch.magori.blox.feature.game.controls
 
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 
 /**
@@ -13,6 +15,9 @@ internal object ControlSizes {
     val rotationButton = BloxSizes.minTouchTarget + 8.dp
     val spacing = 8.dp
 
+    /** The arrow of rotation of B and A, above their letter. */
+    val rotationArrow = 24.dp
+
     /** B sits lower than A, as on a handheld console; ◀ ▼ ▶ half as low. */
     val rotationStagger = 24.dp
 
@@ -24,3 +29,10 @@ internal object ControlSizes {
     val rotationsWidth = rotationButton * 2 + spacing
     val rotationsHeight = rotationButton + rotationStagger
 }
+
+/**
+ * The height of the letter of B or A, [letter] high in its style: as high, or shrunk to hold under the arrow, within
+ * the frame of the key, when the font of the system is enlarged.
+ */
+internal fun keyLetterHeight(letter: Dp): Dp =
+    minOf(letter, ControlSizes.rotationButton - BloxBorders.frame * 2 - ControlSizes.rotationArrow)
