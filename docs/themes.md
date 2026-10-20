@@ -351,7 +351,15 @@ lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` g
 texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) restent
 côte à côte si le mot le plus large de chacune tient dans sa moitié ; sinon elles s'empilent, la
 réponse sûre d'abord (ordre de lecture inchangé), chacune sur toute la largeur et en grande police
-plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp.
+plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp. La décision
+compte en pixels entiers, comme la rangée, sur la largeur de ligne mesurée (`ButtonRow.kt`, partagé
+avec la barre d'outils de l'éditeur, P5.49). Le texte d'une fenêtre (`WindowText`) garde ses mots
+entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
+moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
+pas la césure, désactivée pour le corps du texte). **Tests :**
+`WindowTextTest › in a font twice as large, in Original, on 360 dp, a final point never stands alone on its line, words whole`,
+`WindowTextTest › with the normal font, in Original, on 360 dp, a sentence keeps its size, its words whole`.
+Capture : `LeaveWindowOriginalLargeFont`.
 
 **Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
 `BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
