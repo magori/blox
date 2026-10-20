@@ -17,6 +17,7 @@ import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
+import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
 import ch.magori.blox.feature.musics.navigation.myMusicsEntry
@@ -26,7 +27,8 @@ import ch.magori.blox.feature.musics.navigation.myMusicsEntry
  * plusieurs features : elles ne se connaissent pas entre elles. Naviguer, c'est ajouter
  * ou retirer une clé de la pile ; le retour système et le bouton Retour font la même chose.
  * Les deux décorateurs gardent l'état sauvegardable de chaque entrée et lient chaque ViewModel
- * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel.
+ * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel. [deletedMusics] porte une musique supprimée
+ * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler.
  */
 @Composable
 fun BloxNavDisplay(
@@ -34,6 +36,7 @@ fun BloxNavDisplay(
     gameViewModelFactory: GameViewModel.Factory,
     composerViewModelFactory: ComposerViewModel.Factory,
     myMusicsViewModelFactory: MyMusicsViewModel.Factory,
+    deletedMusics: DeletedMusicRelay,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
 ) {
@@ -64,8 +67,8 @@ fun BloxNavDisplay(
             )
             composerEntry(
                 onBack = goBack,
-                // « Mes musiques » n'offre pas encore d'annuler une suppression faite dans l'éditeur : il se ferme.
-                onDeleted = { goBack() },
+                // Après une suppression, « Mes musiques » revient et propose de l'annuler (P4.19e).
+                onDeleted = { deleted -> afterDeletion(backStack, deleted, deletedMusics::handOver) },
                 viewModelFactory = composerViewModelFactory,
             )
             myMusicsEntry(

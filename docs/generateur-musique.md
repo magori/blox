@@ -659,7 +659,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
     en jeu que celle de l'accueil la remplacera. Puis « « X » est supprimée. » avec *Annuler* et une
     croix, jusqu'à l'action suivante (une action faite pendant l'écriture empêche le message).
     *Annuler* remet la musique à sa place, en jeu si elle l'était, sous un nom libre (`freeName`)
-    si le sien a été pris entre-temps.
+    si le sien a été pris entre-temps. De même pour une suppression faite dans l'éditeur (P4.19e).
   - Une écriture qui échoue ne change rien : le dialogue ou le message reste, avec
     « L'enregistrement a échoué. ».
 - *Au hasard* et *Nouvelle* ouvrent l'éditeur vierge : la génération (P4.20) et l'ouverture d'une
@@ -1120,7 +1120,7 @@ Vues : V8, V11, V14, V17.
 - Le bouton de suppression prend la couleur `danger` du thème (rouge en Couleurs et Brume,
   encre en Original, faute de rouge dans sa palette).
 
-### Enregistrer, quitter, renommer, supprimer : éditeur (implémenté, P4.19d)
+### Enregistrer, quitter, renommer, supprimer : éditeur (implémenté, P4.19d et P4.19e)
 
 - **Ouvrir** : `ComposerRoute(musicKey)` ouvre une musique enregistrée (clé de son
   `ScoreId.Personal`), `ComposerRoute()` une musique neuve, qui reçoit tout de suite une identité
@@ -1142,7 +1142,13 @@ Vues : V8, V11, V14, V17.
   tout de suite dans la bibliothèque, ses changements restant à enregistrer ; une musique neuve
   prend le nom, que la fenêtre Enregistrer propose ensuite.
 - **Supprimer** : seulement pour une musique enregistrée ; même confirmation que dans la liste, puis
-  l'éditeur se ferme. **Écart** : on revient à l'écran d'avant sans *Annuler* (P4.19e).
+  l'éditeur se ferme sur *Mes musiques*, qui propose *Annuler* comme pour une suppression faite dans
+  la liste (P4.19e). Ouvert depuis la liste, l'éditeur se ferme sur elle ; ouvert depuis l'accueil,
+  la liste prend sa place, par-dessus l'accueil, où Retour mène ensuite ; on ne crée jamais une
+  seconde liste. La suppression passe par `DeletedMusicRelay` (`feature:musics`, une seule instance
+  dans `AppContainer`) : `app` la dépose (`afterDeletion`) et la liste la prend une seule fois. À la
+  mort du processus entre la suppression et le retour, la liste revient sans message : l'annulation
+  est perdue, rien de plus.
 - **Échec d'écriture** : la fenêtre reste ouverte, nom et case gardés, avec « L'enregistrement a
   échoué. » (`danger`, annoncé par TalkBack), comme dans la liste ; une musique enregistrée dont
   seul le choix pour les parties échoue reste enregistrée. Une seconde pression pendant
@@ -1198,5 +1204,19 @@ Vues : V8, V11, V14, V17.
 `ComposerViewModelFactoryTest › an entry without a music gives an editor on a new music`,
 `ComposerViewModelFactoryTest › an entry of a saved music gives an editor on that music, as it was saved`,
 `ComposerViewModelFactoryTest › an entry restored after the process died gives back the music being written`,
-`MyMusicsScreenTest › touching the name of a music, or Modifier in its menu, opens the music in the editor`.
+`MyMusicsScreenTest › touching the name of a music, or Modifier in its menu, opens the music in the editor`,
+`AfterDeletionTest › a deletion in the editor opened from my musics goes back to my musics, and hands the music over to it`,
+`AfterDeletionTest › a deletion in the editor opened from home opens my musics in its place, over home, handing the music over`,
+`AfterDeletionTest › once the editor has left, a late deletion changes nothing and hands nothing over`,
+`AfterDeletionTest › the editor alone on the stack leaves my musics alone in its place`,
+`AfterDeletionTest › with my musics lower in the stack, the screens above it leave with the editor, never a second list`,
+`DeletedMusicRelayTest › a music handed over is taken once, then no more`,
+`DeletedMusicRelayTest › a music handed over in place of one not taken replaces it`,
+`DeletedMusicRelayTest › of two lists waiting for a music handed over, only one takes it`,
+`MyMusicsViewModelTest › a music deleted in the editor opened from the list is offered to be undone once back on the list`,
+`MyMusicsViewModelTest › Annuler puts a music deleted in the editor back at its place, in game, under a free name if taken`,
+`MyMusicsViewModelTest › a music deleted in the editor opened from home is offered to be undone on the list opened after it`,
+`MyMusicsViewModelTest › a deletion in the editor is offered once, a list opened later does not offer it again`,
+`MyMusicsViewModelTest › a deletion in the editor taken by the list under it is not offered by a list opened later`,
+`MyMusicsViewModelTest › the next action of the list ends the chance to undo a deletion made in the editor`.
 Vues : V7, V8, V9, V10, V11, V12.

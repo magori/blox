@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
                         gameViewModelFactory = container.gameViewModelFactory,
                         composerViewModelFactory = container.composerViewModelFactory,
                         myMusicsViewModelFactory = container.myMusicsViewModelFactory,
+                        deletedMusics = container.deletedMusics,
                         // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
                         // finds the play button, the keys and the pause by them, whatever the language.
                         modifier = Modifier.semantics { testTagsAsResourceId = true },

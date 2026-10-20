@@ -39,6 +39,9 @@ internal class MyMusicsViewModelTest {
 
     private val music = FakeMusicPlayer()
 
+    /** The deletions made in the editor, as `app` hands them over to the list. */
+    private val deletedInEditor = DeletedMusicRelay()
+
     @Test
     fun `the list shows the saved musics in their order, by their name, category and tempo`() = runMyMusicsTest {
         // Given
@@ -654,6 +657,135 @@ internal class MyMusicsViewModelTest {
             }
         }
 
+    @Test
+    fun `a music deleted in the editor opened from the list is offered to be undone once back on the list`() =
+        runMyMusicsTest {
+            // Given the list, under the editor of a music
+            val evening = aSavedMusic("Thème du soir")
+            aSavedMusic("Ma marche")
+            val viewModel = myMusics()
+
+            viewModel.uiState.test {
+                viewModel.onEditorOpened()
+
+                // When the editor deletes it, and closes
+                deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+                runCurrent()
+
+                // Then
+                val shown = expectMostRecentItem()
+                assertThat(shown?.deleted).isEqualTo("Thème du soir")
+                assertThat(shown?.musics?.map { it.name }).containsExactly("Ma marche")
+            }
+        }
+
+    @Test
+    fun `a deletion in the editor taken by the list under it is not offered by a list opened later`() =
+        runMyMusicsTest {
+            // Given the list, under the editor of a music, which deletes it and closes
+            val evening = aSavedMusic("Thème du soir")
+            val viewModel = myMusics()
+            viewModel.uiState.test {
+                viewModel.onEditorOpened()
+                deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+                runCurrent()
+                expectMostRecentItem()
+            }
+
+            // When another list opens later
+            val later = myMusics()
+
+            // Then
+            later.uiState.test {
+                assertThat(expectMostRecentItem()?.deleted).isNull()
+            }
+        }
+
+    @Test
+    fun `the next action of the list ends the chance to undo a deletion made in the editor`() = runMyMusicsTest {
+        // Given a deletion in the editor, offered by the list under it
+        val evening = aSavedMusic("Thème du soir")
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+
+        viewModel.uiState.test {
+            viewModel.onEditorOpened()
+            deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+            runCurrent()
+
+            // When
+            viewModel.onListen(march.id)
+            viewModel.onUndo()
+
+            // Then
+            assertThat(expectMostRecentItem()?.deleted).isNull()
+            assertThat(library.musics.first().map { it.name }).containsExactly("Ma marche")
+        }
+    }
+
+    @Test
+    fun `Annuler puts a music deleted in the editor back at its place, in game, under a free name if taken`() =
+        runMyMusicsTest {
+            // Given a music played during the games, deleted in the editor; another one saved under its name since
+            aSavedMusic("Ma marche")
+            val evening = aSavedMusic("Thème du soir")
+            aSavedMusic("Joyeux")
+            library.setGameMusic(evening.id)
+            val viewModel = myMusics()
+
+            viewModel.uiState.test {
+                viewModel.onEditorOpened()
+                deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+                runCurrent()
+                aSavedMusic("thème du soir")
+
+                // When
+                viewModel.onUndo()
+
+                // Then
+                val shown = expectMostRecentItem()
+                assertThat(shown?.musics?.map { it.name to it.inGame }).containsExactly(
+                    "Ma marche" to false,
+                    "Thème du soir 2" to true,
+                    "Joyeux" to false,
+                    "thème du soir" to false,
+                )
+                assertThat(shown?.deleted).isNull()
+            }
+        }
+
+    @Test
+    fun `a music deleted in the editor opened from home is offered to be undone on the list opened after it`() =
+        runMyMusicsTest {
+            // Given a music deleted in the editor, while no list is open
+            val evening = aSavedMusic("Thème du soir")
+            deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+
+            // When the list opens
+            val viewModel = myMusics()
+
+            // Then
+            viewModel.uiState.test {
+                assertThat(expectMostRecentItem()?.deleted).isEqualTo("Thème du soir")
+            }
+        }
+
+    @Test
+    fun `a deletion in the editor is offered once, a list opened later does not offer it again`() = runMyMusicsTest {
+        // Given a deletion in the editor, offered by the list
+        val evening = aSavedMusic("Thème du soir")
+        deletedInEditor.handOver(checkNotNull(library.delete(evening.id)))
+        myMusics().uiState.test { expectMostRecentItem() }
+
+        // When the list is opened again
+        val again = myMusics()
+
+        // Then
+        again.uiState.test {
+            assertThat(expectMostRecentItem()?.deleted).isNull()
+        }
+    }
+
     /** The actions that end the chance to undo a deletion: any action of the list, and the message closed. */
     enum class NextAction(val act: (MyMusicsViewModel, ScoreId.Personal) -> Unit) {
         LISTEN({ viewModel, other -> viewModel.onListen(other) }),
@@ -682,7 +814,10 @@ internal class MyMusicsViewModelTest {
     /** « Mes musiques » in a view model store like the navigation entry's, built by the factory as `app` builds it. */
     private fun myMusics(): MyMusicsViewModel {
         val store = ViewModelStore().also { stores += it }
-        return ViewModelProvider.create(store, MyMusicsViewModel.Factory(library, music))[MyMusicsViewModel::class]
+        return ViewModelProvider.create(
+            store,
+            MyMusicsViewModel.Factory(library, music, deletedInEditor),
+        )[MyMusicsViewModel::class]
     }
 
     /** Lets [millis] milliseconds go by, running what is due by then, at that very time too. */
