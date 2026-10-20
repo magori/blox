@@ -18,8 +18,12 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsOff
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasParent
@@ -37,6 +41,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
+import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -322,8 +327,11 @@ internal class HomeScreenTest {
     }
 
     /** The label of « Composer une musique », as laid out. */
-    private fun ComposeContext.composeMusicLabel(): TextLayoutResult {
-        val label = onNode(hasText("COMPOSER UNE MUSIQUE"), useUnmergedTree = true).fetchSemanticsNode()
+    private fun ComposeContext.composeMusicLabel(): TextLayoutResult = textLayout("COMPOSER UNE MUSIQUE")
+
+    /** The text shown as [text], as laid out. */
+    private fun ComposeContext.textLayout(text: String): TextLayoutResult {
+        val label = onNode(hasText(text), useUnmergedTree = true).fetchSemanticsNode()
         val layouts = mutableListOf<TextLayoutResult>()
         label.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
         return layouts.single()
@@ -365,6 +373,110 @@ internal class HomeScreenTest {
         runOnIdle { assertThat(opened).isEqualTo(1) }
     }
 
+    @Test
+    @DisplayName("TalkBack reads Vibrations and Effets sonores as switches, off by default")
+    fun talkBackReadsTheSettingsAsSwitchesOffByDefault() = extension.use {
+        // Given the settings as saved by default
+        showHomeScreen()
+
+        // Then « Vibrations, interrupteur, désactivé »
+        listOf("Vibrations", "Effets sonores").forEach { setting ->
+            onNodeWithText(setting)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
+                .assertIsToggleable()
+                .assertIsOff()
+                .assertHasClickAction()
+        }
+    }
+
+    @Test
+    @DisplayName("TalkBack reads a setting turned on as on, the other staying off")
+    fun talkBackReadsASettingTurnedOnAsOn() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(vibrations = false, soundEffects = true))
+
+        // Then
+        onNodeWithText("Vibrations").assertIsOff()
+        onNodeWithText("Effets sonores").assertIsOn()
+    }
+
+    @Test
+    @DisplayName("tapping a setting off turns it on, tapping a setting on turns it off")
+    fun tappingASettingSwitchesIt() = extension.use {
+        // Given the vibrations off, the sound effects on
+        val vibrations = mutableListOf<Boolean>()
+        val soundEffects = mutableListOf<Boolean>()
+        showHomeScreen(
+            uiState.copy(vibrations = false, soundEffects = true),
+            onVibrationsChanged = { vibrations += it },
+            onSoundEffectsChanged = { soundEffects += it },
+        )
+
+        // When
+        onNodeWithText("Vibrations").performScrollTo().performClick()
+        onNodeWithText("Effets sonores").performScrollTo().performClick()
+
+        // Then
+        runOnIdle {
+            assertThat(vibrations).containsExactly(true)
+            assertThat(soundEffects).containsExactly(false)
+        }
+    }
+
+    @Test
+    @DisplayName("each setting is a row as wide as the screen within its margins, 48 dp high at least")
+    fun eachSettingIsAFullWidthRow() = extension.use {
+        // Given a phone of 360 dp, with margins of 24 dp
+        showHomeScreen(width = NARROW_PHONE)
+
+        // Then
+        listOf("Vibrations", "Effets sonores").forEach { setting ->
+            onNodeWithText(setting)
+                .assertWidthIsEqualTo(NARROW_PHONE - 48.dp)
+                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName(
+        "in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp",
+    )
+    fun inALargeFontEachSettingLabelKeepsItsSizeAndItsWordsWhole(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on the narrowest phone
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
+
+        // Then no word is cut from one line to the next (« Vibratio / ns »), and no label shrinks: it is as large as
+        // the heading of the section, in the same style, which never shrinks; the row grows with it
+        val normalSize = textLayout("Réglages").layoutInput.style.fontSize
+        listOf("Vibrations", "Effets sonores").forEach { setting ->
+            val label = textLayout(setting)
+            assertWordsWhole(label)
+            assertThat(label.hasVisualOverflow).isFalse()
+            assertThat(label.layoutInput.style.fontSize.value).isGreaterThanOrEqualTo(normalSize.value)
+            onNodeWithText(setting).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+    }
+
+    @Test
+    @DisplayName("the settings stand between Composer une musique and Jouer, under their heading Réglages")
+    fun theSettingsStandBetweenComposeAndPlay() = extension.use {
+        // Given
+        showHomeScreen()
+
+        // Then
+        val compose = onNodeWithText("COMPOSER UNE MUSIQUE", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val heading = onNodeWithText("Réglages").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .getUnclippedBoundsInRoot()
+        val vibrations = onNodeWithText("Vibrations").getUnclippedBoundsInRoot()
+        val soundEffects = onNodeWithText("Effets sonores").getUnclippedBoundsInRoot()
+        val play = onNodeWithText("Jouer").getUnclippedBoundsInRoot()
+        assertThat(heading.top).isGreaterThanOrEqualTo(compose.bottom)
+        assertThat(vibrations.top).isGreaterThanOrEqualTo(heading.bottom)
+        assertThat(soundEffects.top).isGreaterThanOrEqualTo(vibrations.bottom)
+        assertThat(play.top).isGreaterThanOrEqualTo(soundEffects.bottom)
+    }
+
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,
         width: Dp = Dp.Unspecified,
@@ -373,6 +485,8 @@ internal class HomeScreenTest {
         onListenGameMusic: () -> Unit = {},
         onCompose: () -> Unit = {},
         onMyMusics: () -> Unit = {},
+        onVibrationsChanged: (Boolean) -> Unit = {},
+        onSoundEffectsChanged: (Boolean) -> Unit = {},
     ) {
         setContent {
             val density = LocalDensity.current
@@ -390,6 +504,8 @@ internal class HomeScreenTest {
                         onPlay = {},
                         onCompose = onCompose,
                         onMyMusics = onMyMusics,
+                        onVibrationsChanged = onVibrationsChanged,
+                        onSoundEffectsChanged = onSoundEffectsChanged,
                     )
                 }
             }

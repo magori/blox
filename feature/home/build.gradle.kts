@@ -35,4 +35,6 @@ dependencies {
     testImplementation(testFixtures(projects.core.data))
     // Le contraste de WCAG et les palettes nommées, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.designsystem))
+    // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
+    androidTestImplementation(testFixtures(projects.core.designsystem))
 }
