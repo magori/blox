@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 118 / 166 | `██████████████░░░░░░` **71 %** |
+| **Général** | 119 / 166 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 25 / 27 | `███████████████████░` **93 %** |
 <!-- avancement:fin -->
 
@@ -643,9 +643,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
   police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30). Fait : coche dessinée avant le libellé (1 em, 24 dp au plus), dans le coin pour les niveaux.
-- [ ] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
+- [x] **P5.43** Accueil en police agrandie : appliquer la règle de `shrinkFloor` (P2.18) aux textes
   qui rétrécissent de l'accueil (`HomeScreen`, aujourd'hui `MinimumFontSize`), en montant
-  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18). Vu en P5.42 : « COMPOSER UNE MUSIQUE » coupé en « COMPOSER UNE MU » à ×2 (P4.19b).
+  `shrinkFloor` et `shrinkToFit` dans `core:designsystem` ; captures ×2 (revue de P2.18). Vu en P5.42 : « COMPOSER UNE MUSIQUE » coupé en « COMPOSER UNE MU » à ×2 (P4.19b). Fait : `shrinkToFewestLines`, « COMPOSER UNE MUSIQUE » sur deux lignes à ×2 en Original.
 - [x] **P5.44** Horloge d'images commune : `FrameTicks` (`feature:composer`, P4.19c) recopie
   `GameLoop` (`feature:game`) à son plafond de ticks par image près ; la monter dans un module
   partagé avec un plafond en paramètre (revue de P4.19c, règle de 2). Fait : `FrameTicks` dans `core:designsystem` (ADR 0012 amendé).

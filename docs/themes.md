@@ -314,15 +314,25 @@ descend pas sous 8 sp (`MinimumFontSize`).
 
 Police du système agrandie (P2.18, écran de jeu) : à ×2, 8 sp font 16 dp par lettre et la police
 pixel ne tenait plus (« SUIVANTE » rogné, titre « CLASSI… »). Le plancher d'un texte qui rétrécit
-(`shrinkFloor`, `shrinkToFit` dans `feature:game`) est donc le plus petit de 8 sp et de la taille
+(`shrinkFloor`, `shrinkToFit`, dans `core:designsystem` depuis P5.43) est donc le plus petit de 8 sp et de la taille
 du texte en police normale, jamais au-dessus de sa taille maximale : un joueur qui agrandit la
 police ne voit jamais un texte plus petit qu'en police normale (à ×2, un libellé de 11 sp peut
 revenir à 11 dp), et la règle des 8 sp reste entière à ×1. Le calcul passe par `toSp()`, donc par
 la mise à l'échelle non linéaire d'Android 14 et plus, que les tests JVM n'exercent pas (ils sont
 linéaires). Il sert aux libellés et valeurs des encarts et au titre de la barre du haut (deux
 lignes au plus). L'aperçu de la pièce suivante n'était pas écrasé : la barre des captures est la
-pièce I. L'accueil n'en profite pas encore (P5.43). Captures : `GameScreenLargeFont`,
-`TopBarLargeFont`, `SidePanelLargeFont`, `GameScreenLandscapeLargeFont`.
+pièce I. Captures : `GameScreenLargeFont`, `TopBarLargeFont`, `SidePanelLargeFont`,
+`GameScreenLandscapeLargeFont`.
+
+Accueil (P5.43) : les choix et `SingleLineText` (dont le lien « MES MUSIQUES », et les textes de
+l'éditeur et de la liste, inchangés à l'œil) suivent la même règle. Un texte qui peut tenir sur
+plusieurs lignes (`shrinkToFewestLines`) préfère une ligne, même plus petite, et ne passe à la
+ligne que si une ligne demanderait une taille sous le plancher ; il ne coupe jamais un mot. C'est
+« COMPOSER UNE MUSIQUE » : une ligne à ×1, deux lignes (« COMPOSER UNE » / « MUSIQUE ») à ×2 en
+Original, une ligne un peu réduite à ×2 en Couleurs. À ×1, son libellé en Original grandit d'un pas
+de 0,25 sp. Restent à ×2 : l'icône du bouton, de 18 dp, paraît petite ; le nom de 40 caractères
+d'une musique en jeu reste coupé par « … » (TalkBack le lit en entier). Captures : `HomeLargeFont`,
+`HomeColorfulLargeFont`, `HomeGameMusicLongNameLargeFont`.
 
 **Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
 `BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
@@ -332,6 +342,22 @@ pièce I. L'accueil n'en profite pas encore (P5.43). Captures : `GameScreenLarge
 `ShrinkFloorTest › the floor is never smaller on screen than 8 sp or than the text with the normal font, whichever is smaller`,
 `ShrinkFloorTest › with a font enlarged twice a label of 11 sp may shrink back to its 11 dp with the normal font`,
 `ShrinkFloorTest › with a font made smaller a text smaller than 8 sp never gets a floor above its largest size`,
+`FewestLinesSizeTest › a text that fits on one line keeps one line even at a smaller size than on several`,
+`FewestLinesSizeTest › a text that does not fit on one line even at the smallest size wraps on several lines`,
+`FewestLinesSizeTest › a text that fits nowhere takes the smallest size`,
+`FewestLinesSizeTest › the lines are never tried when one line is enough`,
+`LargestSizeThatFitsTest › a text that fits at its largest size keeps it`,
+`LargestSizeThatFitsTest › a text too large shrinks to the largest step from the smallest size that fits`,
+`LargestSizeThatFitsTest › a text that does not fit even at the smallest size has no size that fits`,
+`LargestSizeThatFitsTest › a largest size off the steps is kept when the text fits at it`,
+`LargestSizeThatFitsTest › below a largest size off the steps a text takes the largest step from the smallest size that fits`,
+`LargestSizeThatFitsTest › with the smallest size equal to the largest a text that fits takes it`,
+`LargestSizeThatFitsTest › with the smallest size equal to the largest a text that does not fit has no size that fits`,
+`LargestSizeThatFitsTest › a text that fits only at the smallest size takes exactly the smallest size`,
+`LargestSizeThatFitsTest › the sizes tried grow with the logarithm of the number of steps`,
+`HomeScreenTest › in a font twice as large, on 360 dp, the label of Composer une musique is shown whole`,
+`HomeScreenTest › in a normal font, on 360 dp, the label of Composer une musique stays on one line`,
+`HomeScreenTest › in a font twice as large, in Original, each word of Composer une musique stays whole on its line`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
 `ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.
