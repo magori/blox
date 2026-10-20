@@ -11,7 +11,11 @@ class ListenButtonTest {
 
         // Then
         assertThat(texts).isEqualTo(
-            ListenTexts(label = R.string.feature_home_listen, description = R.string.feature_home_listen_description),
+            ListenTexts(
+                label = R.string.feature_home_listen,
+                description = R.string.feature_home_listen_description,
+                glyph = ListenGlyph.PLAY,
+            ),
         )
     }
 
@@ -22,7 +26,11 @@ class ListenButtonTest {
 
         // Then
         assertThat(texts).isEqualTo(
-            ListenTexts(label = R.string.feature_home_stop, description = R.string.feature_home_stop_description),
+            ListenTexts(
+                label = R.string.feature_home_stop,
+                description = R.string.feature_home_stop_description,
+                glyph = ListenGlyph.STOP,
+            ),
         )
     }
 }

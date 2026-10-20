@@ -1,5 +1,8 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
@@ -18,14 +21,11 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
-import androidx.compose.ui.test.assertIsOff
-import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
-import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.assertWidthIsAtLeast
-import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
@@ -48,6 +48,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -106,8 +107,172 @@ internal class HomeScreenTest {
         showHomeScreen()
 
         // Then
-        onNodeWithText("Moderne (bientôt)").assertIsNotEnabled().assertIsNotSelected()
+        onNodeWithText("Moderne").assertIsNotEnabled().assertIsNotSelected()
         onNodeWithText("Classique").assertIsEnabled().assertIsSelected()
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("on 360 dp, the two modes stand on one line")
+    fun theTwoModesStandOnOneLine(kind: BloxThemeKind) = extension.use {
+        // Given
+        showHomeScreen(width = NARROW_PHONE, kind = kind)
+
+        // Then
+        val classic = onNodeWithText("Classique").getUnclippedBoundsInRoot()
+        val modern = onNodeWithText("Moderne").getUnclippedBoundsInRoot()
+        assertThat(modern.top).isEqualTo(classic.top)
+        assertThat(modern.left).isGreaterThanOrEqualTo(classic.right)
+    }
+
+    @Test
+    @DisplayName("the home screen leaves 16 dp above its header, and 16 dp between two sections")
+    fun theHomeScreenLeaves16DpAboveAndBetweenSections() = extension.use {
+        // Given a phone of 360 dp, without the bars of the system, which push the screen down
+        showHomeScreen(width = NARROW_PHONE, withoutInsets = true)
+
+        // Then
+        val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
+        assertThat(gear.top.value).isCloseTo(16f, within(PIXEL_ROUNDING))
+        val modes = onNodeWithText("Classique").getUnclippedBoundsInRoot()
+        val theme = onNodeWithText("Thème").getUnclippedBoundsInRoot()
+        assertThat((theme.top - modes.bottom).value).isCloseTo(16f, within(PIXEL_ROUNDING))
+    }
+
+    @Test
+    @DisplayName(
+        "the music choices bear nothing under them: one line of actions, under them all, is for the music selected",
+    )
+    fun oneLineOfActionsIsForTheMusicSelected() = extension.use {
+        // Given the minuet selected, among musics that may all be listened to, a music file kept
+        showHomeScreen(
+            uiState.copy(
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
+                hasMusicFile = true,
+            ),
+        )
+
+        // Then only the minuet may be listened to, under every choice
+        val listen = onNodeWithContentDescription("Écouter Menuet").assertHasClickAction().getUnclippedBoundsInRoot()
+        onNodeWithContentDescription("Écouter Korobeïniki").assertDoesNotExist()
+        onNodeWithContentDescription("Écouter Mon fichier").assertDoesNotExist()
+        onNodeWithContentDescription("Changer de fichier").assertDoesNotExist()
+        listOf("Korobeïniki", "Menuet", "Mon fichier", "Aucune").forEach { choice ->
+            assertThat(listen.top).isGreaterThanOrEqualTo(onNodeWithText(choice).getUnclippedBoundsInRoot().bottom)
+        }
+    }
+
+    @Test
+    @DisplayName(
+        "with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side",
+    )
+    fun withMyFileTheLineOfActionsOffersToListenAndToChange() = extension.use {
+        // Given
+        showHomeScreen(
+            uiState.copy(
+                music = MusicChoice.MY_FILE,
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
+                hasMusicFile = true,
+            ),
+            width = NARROW_PHONE,
+        )
+
+        // Then
+        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
+        val change = onNodeWithContentDescription(
+            "Changer de fichier",
+        ).assertHasClickAction().getUnclippedBoundsInRoot()
+        assertThat(change.top).isEqualTo(listen.top)
+        assertThat(change.left).isGreaterThanOrEqualTo(listen.right)
+        assertThat(listen.top).isGreaterThanOrEqualTo(onNodeWithText("Aucune").getUnclippedBoundsInRoot().bottom)
+    }
+
+    @Test
+    @DisplayName("with Aucune selected, there is nothing to listen to nor to change")
+    fun withNoneThereIsNoAction() = extension.use {
+        // Given
+        showHomeScreen(
+            uiState.copy(
+                music = MusicChoice.NONE,
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
+                hasMusicFile = true,
+            ),
+        )
+
+        // Then
+        onAllNodes(hasContentDescription("Écouter", substring = true)).assertCountEquals(0)
+        onNodeWithContentDescription("Changer de fichier").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the music selected being listened to offers to stop it, under a glyph that TalkBack does not read")
+    fun theMusicSelectedBeingListenedToOffersToStopIt() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MINUET), previewing = MusicChoice.MINUET))
+
+        // Then
+        onNodeWithContentDescription("Écouter Menuet").assertDoesNotExist()
+        onNodeWithContentDescription("Arrêter Menuet")
+            .assertHasClickAction()
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Arrêter Menuet")))
+        onNode(hasTestTag(LISTEN_GLYPH_TAG), useUnmergedTree = true)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName(
+        "in a font twice as large, on 360 dp, the labels of the line of actions are shown whole, on one line each",
+    )
+    fun inALargeFontTheLabelsOfTheLineOfActionsAreShownWhole(kind: BloxThemeKind) = extension.use {
+        // Given Mon fichier selected, in a font twice as large, on 360 dp
+        showHomeScreen(
+            uiState.copy(music = MusicChoice.MY_FILE, listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
+            width = NARROW_PHONE,
+            fontScale = 2f,
+            kind = kind,
+        )
+
+        // Then
+        listOf("Écouter", "Changer").forEach { label ->
+            val layout = textLayout(label)
+            assertWordsWhole(layout)
+            assertThat(layout.lineCount).isEqualTo(1)
+            // Within the screen: the label is not cut at its edge
+            val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertThat(shown.right).isLessThanOrEqualTo(NARROW_PHONE)
+        }
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName(
+        "in a font twice as large, in a window too narrow for both, Changer goes under Écouter, each label on one line",
+    )
+    fun inALargeFontInANarrowWindowChangeGoesUnderListen(kind: BloxThemeKind) = extension.use {
+        // Given Mon fichier selected, in a font twice as large, in a window where each button fits, but not both
+        val width = 280.dp
+        showHomeScreen(
+            uiState.copy(music = MusicChoice.MY_FILE, listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
+            width = width,
+            fontScale = 2f,
+            kind = kind,
+        )
+
+        // Then
+        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
+        val change = onNodeWithContentDescription("Changer de fichier").getUnclippedBoundsInRoot()
+        assertThat(change.top).isGreaterThanOrEqualTo(listen.bottom)
+        listOf(listen, change).forEach { button ->
+            assertThat(button.left).isGreaterThanOrEqualTo(0.dp)
+            assertThat(button.right).isLessThanOrEqualTo(width)
+        }
+        listOf("Écouter", "Changer").forEach { label ->
+            val layout = textLayout(label)
+            assertWordsWhole(layout)
+            assertThat(layout.lineCount).isEqualTo(1)
+        }
     }
 
     @Test
@@ -203,9 +368,14 @@ internal class HomeScreenTest {
         // Then the cells, selected (5) or not (4), take no more height than their digit needs, as the other choices
         val level = onNode(hasTestTag(START_LEVEL_TAG) and hasText("5")).getUnclippedBoundsInRoot()
         val choice = onNodeWithText("Original").getUnclippedBoundsInRoot()
-        assertThat(level.bottom - level.top).isEqualTo(choice.bottom - choice.top)
+        // But for the rounding of their edges to the pixel, which depends on where the cells stand on the screen
+        assertThat(
+            (level.bottom - level.top).value,
+        ).isCloseTo((choice.bottom - choice.top).value, within(PIXEL_ROUNDING))
         val unselected = onNode(hasTestTag(START_LEVEL_TAG) and hasText("4")).getUnclippedBoundsInRoot()
-        assertThat(level.bottom - level.top).isEqualTo(unselected.bottom - unselected.top)
+        assertThat(
+            (level.bottom - level.top).value,
+        ).isCloseTo((unselected.bottom - unselected.top).value, within(PIXEL_ROUNDING))
         // And the check, in the corner, touches neither the digit nor the frame
         val inLevel = hasParent(hasTestTag(START_LEVEL_TAG))
         val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
@@ -374,107 +544,62 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("TalkBack reads Vibrations and Effets sonores as switches, off by default")
-    fun talkBackReadsTheSettingsAsSwitchesOffByDefault() = extension.use {
-        // Given the settings as saved by default
-        showHomeScreen()
-
-        // Then « Vibrations, interrupteur, désactivé »
-        listOf("Vibrations", "Effets sonores").forEach { setting ->
-            onNodeWithText(setting)
-                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
-                .assertIsToggleable()
-                .assertIsOff()
-                .assertHasClickAction()
-        }
-    }
-
-    @Test
-    @DisplayName("TalkBack reads a setting turned on as on, the other staying off")
-    fun talkBackReadsASettingTurnedOnAsOn() = extension.use {
+    @DisplayName("the gear button, 48 dp, read Paramètres, opens the settings")
+    fun theGearButtonOpensTheSettings() = extension.use {
         // Given
-        showHomeScreen(uiState.copy(vibrations = false, soundEffects = true))
-
-        // Then
-        onNodeWithText("Vibrations").assertIsOff()
-        onNodeWithText("Effets sonores").assertIsOn()
-    }
-
-    @Test
-    @DisplayName("tapping a setting off turns it on, tapping a setting on turns it off")
-    fun tappingASettingSwitchesIt() = extension.use {
-        // Given the vibrations off, the sound effects on
-        val vibrations = mutableListOf<Boolean>()
-        val soundEffects = mutableListOf<Boolean>()
-        showHomeScreen(
-            uiState.copy(vibrations = false, soundEffects = true),
-            onVibrationsChanged = { vibrations += it },
-            onSoundEffectsChanged = { soundEffects += it },
-        )
+        var opened = 0
+        showHomeScreen(onSettings = { opened++ })
 
         // When
-        onNodeWithText("Vibrations").performScrollTo().performClick()
-        onNodeWithText("Effets sonores").performScrollTo().performClick()
+        onNodeWithContentDescription("Paramètres")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+            .performClick()
 
         // Then
-        runOnIdle {
-            assertThat(vibrations).containsExactly(true)
-            assertThat(soundEffects).containsExactly(false)
-        }
+        runOnIdle { assertThat(opened).isEqualTo(1) }
     }
 
     @Test
-    @DisplayName("each setting is a row as wide as the screen within its margins, 48 dp high at least")
-    fun eachSettingIsAFullWidthRow() = extension.use {
-        // Given a phone of 360 dp, with margins of 24 dp
+    @DisplayName("the gear button stands at the top right of the home screen, beside the title")
+    fun theGearButtonStandsAtTheTopRight() = extension.use {
+        // Given a phone of 360 dp
         showHomeScreen(width = NARROW_PHONE)
 
         // Then
-        listOf("Vibrations", "Effets sonores").forEach { setting ->
-            onNodeWithText(setting)
-                .assertWidthIsEqualTo(NARROW_PHONE - 48.dp)
-                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
-        }
-    }
-
-    @ParameterizedTest(name = "in {0}")
-    @EnumSource(BloxThemeKind::class)
-    @DisplayName(
-        "in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp",
-    )
-    fun inALargeFontEachSettingLabelKeepsItsSizeAndItsWordsWhole(kind: BloxThemeKind) = extension.use {
-        // Given a font twice as large, on the narrowest phone
-        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
-
-        // Then no word is cut from one line to the next (« Vibratio / ns »), and no label shrinks: it is as large as
-        // the heading of the section, in the same style, which never shrinks; the row grows with it
-        val normalSize = textLayout("Réglages").layoutInput.style.fontSize
-        listOf("Vibrations", "Effets sonores").forEach { setting ->
-            val label = textLayout(setting)
-            assertWordsWhole(label)
-            assertThat(label.hasVisualOverflow).isFalse()
-            assertThat(label.layoutInput.style.fontSize.value).isGreaterThanOrEqualTo(normalSize.value)
-            onNodeWithText(setting).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
-        }
+        val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
+        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
+        assertThat(gear.right).isEqualTo(NARROW_PHONE - 24.dp)
+        assertThat(gear.left).isGreaterThanOrEqualTo(title.right)
+        assertThat(gear.top).isLessThan(title.bottom)
     }
 
     @Test
-    @DisplayName("the settings stand between Composer une musique and Jouer, under their heading Réglages")
-    fun theSettingsStandBetweenComposeAndPlay() = extension.use {
+    @DisplayName("the logo and the title BloX stand on one line, the record under them")
+    fun theLogoAndTheTitleStandOnOneLine() = extension.use {
+        // Given
+        showHomeScreen(width = NARROW_PHONE)
+
+        // Then the logo before the title, centred on the same line
+        val logo = onNode(hasTestTag(HOME_LOGO_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
+        val record = onNodeWithContentDescription("Record 0").getUnclippedBoundsInRoot()
+        assertThat(logo.right).isLessThanOrEqualTo(title.left)
+        assertThat((logo.top + logo.bottom) / 2 - (title.top + title.bottom) / 2).isBetween((-1).dp, 1.dp)
+        assertThat(record.top).isGreaterThanOrEqualTo(title.bottom)
+    }
+
+    @Test
+    @DisplayName("the home screen no longer shows the settings, gone to their own page")
+    fun theHomeScreenNoLongerShowsTheSettings() = extension.use {
         // Given
         showHomeScreen()
 
         // Then
-        val compose = onNodeWithText("COMPOSER UNE MUSIQUE", useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val heading = onNodeWithText("Réglages").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
-            .getUnclippedBoundsInRoot()
-        val vibrations = onNodeWithText("Vibrations").getUnclippedBoundsInRoot()
-        val soundEffects = onNodeWithText("Effets sonores").getUnclippedBoundsInRoot()
-        val play = onNodeWithText("Jouer").getUnclippedBoundsInRoot()
-        assertThat(heading.top).isGreaterThanOrEqualTo(compose.bottom)
-        assertThat(vibrations.top).isGreaterThanOrEqualTo(heading.bottom)
-        assertThat(soundEffects.top).isGreaterThanOrEqualTo(vibrations.bottom)
-        assertThat(play.top).isGreaterThanOrEqualTo(soundEffects.bottom)
+        onNodeWithText("Réglages").assertDoesNotExist()
+        onNodeWithText("Vibrations").assertDoesNotExist()
+        onNodeWithText("Effets sonores").assertDoesNotExist()
     }
 
     private fun ComposeContext.showHomeScreen(
@@ -485,15 +610,19 @@ internal class HomeScreenTest {
         onListenGameMusic: () -> Unit = {},
         onCompose: () -> Unit = {},
         onMyMusics: () -> Unit = {},
-        onVibrationsChanged: (Boolean) -> Unit = {},
-        onSoundEffectsChanged: (Boolean) -> Unit = {},
+        onSettings: () -> Unit = {},
+        withoutInsets: Boolean = false,
     ) {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
                 BloxTheme(kind = kind) {
                     HomeScreen(
-                        modifier = Modifier.width(width),
+                        modifier = Modifier
+                            .width(width)
+                            .then(
+                                if (withoutInsets) Modifier.consumeWindowInsets(WindowInsets.safeDrawing) else Modifier,
+                            ),
                         uiState = state,
                         onThemeChosen = {},
                         onMusicChosen = {},
@@ -504,8 +633,7 @@ internal class HomeScreenTest {
                         onPlay = {},
                         onCompose = onCompose,
                         onMyMusics = onMyMusics,
-                        onVibrationsChanged = onVibrationsChanged,
-                        onSoundEffectsChanged = onSoundEffectsChanged,
+                        onSettings = onSettings,
                     )
                 }
             }
@@ -515,3 +643,6 @@ internal class HomeScreenTest {
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
+
+/** The rounding of an edge to the pixel, in dp: far below a pixel. */
+private const val PIXEL_ROUNDING = 0.01f

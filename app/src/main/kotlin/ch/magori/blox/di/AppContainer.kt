@@ -35,6 +35,7 @@ import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
@@ -172,6 +173,9 @@ class AppContainer(context: Context) {
         musicFiles,
         musicLibrary,
     )
+
+    /** The settings page: the settings kept on the device, read by each game when it is created. */
+    val settingsViewModelFactory: SettingsViewModel.Factory = SettingsViewModel.Factory(userPreferences)
 
     /** The music editor: a music of the player, or a new one, listened to by the music player of the games. */
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)

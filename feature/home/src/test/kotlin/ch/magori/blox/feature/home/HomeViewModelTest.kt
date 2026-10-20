@@ -93,8 +93,6 @@ class HomeViewModelTest {
                     record = 12_345,
                     listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
                     previewing = null,
-                    vibrations = true,
-                    soundEffects = true,
                 ),
             )
         }
@@ -158,80 +156,12 @@ class HomeViewModelTest {
             viewModel.onThemeChosen(ThemeChoice.COLORFUL)
             viewModel.onMusicChosen(MusicChoice.NONE)
             viewModel.onStartLevelChosen(7)
-            viewModel.onVibrationsChanged(true)
-            viewModel.onSoundEffectsChanged(true)
 
             // Then
             val shown = expectMostRecentItem()
             assertThat(shown?.theme).isEqualTo(ThemeChoice.ORIGINAL)
             assertThat(shown?.music).isEqualTo(MusicChoice.KOROBEINIKI)
             assertThat(shown?.startLevel).isEqualTo(0)
-            assertThat(shown?.vibrations).isFalse()
-            assertThat(shown?.soundEffects).isFalse()
-        }
-    }
-
-    @ParameterizedTest
-    @CsvSource("false, false", "true, false", "false, true", "true, true")
-    fun `the vibrations and the sound effects are shown as saved`(
-        vibrations: Boolean,
-        soundEffects: Boolean,
-    ) = runTest {
-        // Given
-        val saved = UserPreferences.DEFAULT.copy(vibrations = vibrations, soundEffects = soundEffects)
-        val viewModel = homeViewModelWith(preferences = FakeUserPreferencesRepository(initial = saved))
-
-        viewModel.uiState.test {
-            // Then
-            val shown = expectMostRecentItem()
-            assertThat(shown?.vibrations).isEqualTo(vibrations)
-            assertThat(shown?.soundEffects).isEqualTo(soundEffects)
-        }
-    }
-
-    @Test
-    fun `turning the vibrations on saves them on and shows them on, then off again`() = runTest {
-        // Given the vibrations off, as by default
-        val preferences = FakeUserPreferencesRepository()
-        val viewModel = homeViewModelWith(preferences = preferences)
-
-        viewModel.uiState.test {
-            // When
-            viewModel.onVibrationsChanged(true)
-
-            // Then
-            assertThat(preferences.state.value?.vibrations).isTrue()
-            assertThat(expectMostRecentItem()?.vibrations).isTrue()
-
-            // When
-            viewModel.onVibrationsChanged(false)
-
-            // Then
-            assertThat(preferences.state.value?.vibrations).isFalse()
-            assertThat(expectMostRecentItem()?.vibrations).isFalse()
-        }
-    }
-
-    @Test
-    fun `turning the sound effects on saves them on and shows them on, then off again`() = runTest {
-        // Given the sound effects off, as by default
-        val preferences = FakeUserPreferencesRepository()
-        val viewModel = homeViewModelWith(preferences = preferences)
-
-        viewModel.uiState.test {
-            // When
-            viewModel.onSoundEffectsChanged(true)
-
-            // Then
-            assertThat(preferences.state.value?.soundEffects).isTrue()
-            assertThat(expectMostRecentItem()?.soundEffects).isTrue()
-
-            // When
-            viewModel.onSoundEffectsChanged(false)
-
-            // Then
-            assertThat(preferences.state.value?.soundEffects).isFalse()
-            assertThat(expectMostRecentItem()?.soundEffects).isFalse()
         }
     }
 
@@ -581,6 +511,23 @@ class HomeViewModelTest {
 
             // When
             viewModel.onMyMusics()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
+    fun `opening the settings stops the preview`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When
+            viewModel.onSettings()
 
             // Then
             assertThat(music.calls).containsExactly("play MINUET", "stop")
@@ -1068,6 +1015,25 @@ class HomeViewModelTest {
 
             // When
             viewModel.onListenGameMusic()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(music.calls.last()).isEqualTo("stop")
+            assertThat(expectMostRecentItem()?.gameMusic?.previewed).isFalse()
+        }
+    }
+
+    @Test
+    fun `opening the settings stops the music of the player listened to`() = runTest {
+        // Given the music of the player listened to
+        aGameMusic()
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListenGameMusic()
+
+            // When
+            viewModel.onSettings()
 
             // Then
             assertThat(music.playing).isNull()

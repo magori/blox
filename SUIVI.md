@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 152 / 187 | `████████████████░░░░` **81 %** |
+| **Général** | 154 / 187 | `████████████████░░░░` **82 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -723,17 +723,20 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   plancher (« Pose », « Allon », « Annul », « Copi », « Effac ») ; fenêtre Quitter : le point final
   de « enregistrés. » passe seul à la ligne (vus en P5.47). Fait : barre sur deux ou plusieurs
   rangées quand elle ne tient pas, `WindowText` en mots entiers ; maquette ajoutée à P5.40.
-- [ ] **P5.50** Page Paramètres (maquette V21 faite le 2026-10-20, demande du développeur) : les
+- [x] **P5.50** Page Paramètres (maquette V21 faite le 2026-10-20, demande du développeur) : les
   interrupteurs Vibrations et Effets sonores (P5.37) quittent l'accueil pour une page à part, ouverte
   par un bouton engrenage de 48 dp en haut à droite de V1 (« Paramètres » pour TalkBack) ; clé
   `NavKey` et écran (dans `feature:home` ou une feature dédiée), retour vers l'accueil ; tests de
   `HomeScreenTest` déplacés, captures, `docs/maquette.md` (V1, V21). Les réglages Moderne (P6.17,
-  P6.21) iront sur cette page.
-- [ ] **P5.51** Accueil raccourci (maquette V1 du 2026-10-20, 940 px au lieu de 1360, demande du
+  P6.21) iront sur cette page. Fait : `SettingsScreen`, `SettingsViewModel`, `SettingsRoute` dans
+  `feature:home` ; en-tête affiché pendant la lecture des réglages.
+- [x] **P5.51** Accueil raccourci (maquette V1 du 2026-10-20, 940 px au lieu de 1360, demande du
   développeur) : logo et titre sur une ligne, mode de jeu sur une ligne (*Moderne* grisé, sans
   « (bientôt) », `feature_home_mode_modern`), sections à 16 dp, une seule ligne d'actions
   (*Écouter* / *Arrêter*, fichier, *Changer*) sous les choix de musique, pour la musique
   sélectionnée ; TalkBack (« Écouter Menuet »), police ×2, captures (`docs/maquette.md`, V1).
+  Fait : nom du fichier sous « Mon fichier » laissé à P5.38 ; *Moderne* sous *Classique* en
+  police ×2.
 - [x] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
   2026-10-20, demande du développeur) : nom sur une ligne, une ligne style · tonalité · durée,
   *Utiliser* / *En jeu* en bouton carré de 48 dp (note, coche en jeu), tempo et date retirés de la
@@ -749,8 +752,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   - [x] **P5.54a** Le jeu d'icônes, puis l'écran de jeu (touches A et B : flèche de rotation
     au-dessus de la lettre, P2.17, P2.5), la pause, la fin de partie et l'éditeur (barre d'outils
     icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu). Fait : `BloxIcon`,
-    lettres A et B gardées en 20 sp (contraste) ; `BloxIconSemanticsTest`, `ComposerScreenTest`
-    et `GameScreenKeysTest` à repasser sur un émulateur libre (P5.33).
+    lettres A et B gardées en 20 sp (contraste) ; tests instrumentés verts le 2026-10-21
+    (`BloxIconSemanticsTest`, `ComposerScreenTest`, `GameScreenKeysTest`).
   - [ ] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
     « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52.
 - [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est

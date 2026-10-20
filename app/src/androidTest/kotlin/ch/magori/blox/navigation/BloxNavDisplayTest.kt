@@ -20,6 +20,8 @@ import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
@@ -27,11 +29,19 @@ import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.OneRowPerTickGameEngineFactory
 import ch.magori.blox.core.haptics.FakeHaptics
+import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Scale
+import ch.magori.blox.core.music.ScaleType
+import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.Scores
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import kotlinx.coroutines.runBlocking
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import ch.magori.blox.feature.game.R as GameR
@@ -168,24 +178,148 @@ internal class BloxNavDisplayTest {
         }
     }
 
+    @Test
+    @DisplayName("the gear of the home screen opens the settings, whose switches save, and Retour goes back home")
+    fun theGearOpensTheSettingsAndRetourGoesBackHome() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the home screen, the vibrations off by default
+            val preferences = showApp()
+
+            // When the player opens the settings and turns the vibrations on
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            settle()
+            onNodeWithText(string(HomeR.string.feature_home_vibrations)).performClick()
+            settle()
+
+            // Then they are saved, for the next game
+            assertThat(preferences.state.value?.vibrations).isTrue()
+
+            // When
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings_back)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
+            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("on the settings, the system back goes back to the home screen")
+    fun onTheSettingsTheSystemBackGoesHome() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the settings, opened from the home screen
+            showApp()
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            settle()
+
+            // When
+            pressSystemBack()
+
+            // Then
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
+            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("while the saved settings are not read, the settings show their back arrow and title, and no switch")
+    fun whileTheSettingsAreNotReadTheyShowTheirHeaderAndNoSwitch() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the home screen, and settings of the page that have not answered yet
+            showApp(settingsPreferences = FakeUserPreferencesRepository(initial = null))
+
+            // When
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            settle()
+
+            // Then
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings_back)).assertExists()
+            onNodeWithText(string(HomeR.string.feature_home_settings)).assertExists()
+            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
+            onNodeWithText(string(HomeR.string.feature_home_sound_effects)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("opening the settings stops the music listened to on the home screen")
+    fun openingTheSettingsStopsTheMusicListenedTo() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the minuet listened to on the home screen
+            val music = FakeMusicPlayer()
+            showApp(music = music, scoreOf = mapOf(MusicChoice.MINUET to Scores.minuet)::get)
+            onNodeWithText(string(HomeR.string.feature_home_music_minuet)).performScrollTo().performClick()
+            settle()
+            onNodeWithContentDescription(listenDescription(string(HomeR.string.feature_home_music_minuet)))
+                .performScrollTo()
+                .performClick()
+            settle()
+            assertThat(music.playing).isNotNull()
+
+            // When
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performScrollTo().performClick()
+            settle()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(music.calls.last()).isEqualTo("stop")
+        }
+    }
+
+    @Test
+    @DisplayName("opening the settings stops the music of the player listened to on the home screen")
+    fun openingTheSettingsStopsTheMusicOfThePlayerListenedTo() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given a music of the player chosen for the games, listened to on the home screen
+            val music = FakeMusicPlayer()
+            val library = FakeMusicLibrary()
+            runBlocking {
+                val id = library.newId()
+                val score = Scores.minuet.copy(id = id)
+                library.save(SavedMusic(id, GAME_MUSIC, null, Scale(Pitch.parse("C4"), ScaleType.MAJOR), score))
+                library.setGameMusic(id)
+            }
+            showApp(music = music, library = library)
+            onNodeWithContentDescription(listenDescription(GAME_MUSIC)).performScrollTo().performClick()
+            settle()
+            assertThat(music.playing).isNotNull()
+
+            // When
+            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performScrollTo().performClick()
+            settle()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(music.calls.last()).isEqualTo("stop")
+        }
+    }
+
+    /** « Écouter » and the name of the music [name], as TalkBack reads the listen button of the home screen. */
+    private fun AndroidComposeUiTest<ComponentActivity>.listenDescription(name: String): String =
+        checkNotNull(activity).getString(HomeR.string.feature_home_listen_description, name)
+
     /**
      * The navigation of the application, on the home screen, with the shared fakes: no record, the default settings, no
-     * music; the games made by [engineFactory].
+     * music file; the games made by [engineFactory], the musics played by [music], the scores of the music choices given
+     * by [scoreOf], the musics of the player in [library]; the settings page reads [settingsPreferences], the settings
+     * of the application unless given. Gives the settings of the application.
      */
     private fun AndroidComposeUiTest<ComponentActivity>.showApp(
         engineFactory: GameEngineFactory = ClassicGameEngineFactory,
-    ) {
+        music: FakeMusicPlayer = FakeMusicPlayer(),
+        library: FakeMusicLibrary = FakeMusicLibrary(),
+        scoreOf: (MusicChoice) -> Score? = { null },
+        settingsPreferences: FakeUserPreferencesRepository? = null,
+    ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
-        val music = FakeMusicPlayer()
-        val library = FakeMusicLibrary()
         val deletedMusics = DeletedMusicRelay()
         val homeFactory = HomeViewModel.Factory(
             preferences,
             highScores,
             ClassicRules.levelProgression,
             music,
-            scoreOf = { null },
+            scoreOf = scoreOf,
             musicFiles = FakeMusicFileRepository(),
             library = library,
         )
@@ -207,12 +341,14 @@ internal class BloxNavDisplayTest {
                     gameViewModelFactory = gameFactory,
                     composerViewModelFactory = ComposerViewModel.Factory(music, library),
                     myMusicsViewModelFactory = MyMusicsViewModel.Factory(library, music, deletedMusics),
+                    settingsViewModelFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences),
                     deletedMusics = deletedMusics,
                 )
             }
         }
         // The home screen shows once its view model read the settings, which may answer after a first advance.
         advanceUntilShown(string(HomeR.string.feature_home_play))
+        return preferences
     }
 
     /** Chooses the start level [level] on the home screen, by its cell: no other text of the screen can be taken for it. */
@@ -265,6 +401,9 @@ internal class BloxNavDisplayTest {
     private companion object {
         /** A change of screen and its transition, well within: a second of the clock, sixty ticks of a game. */
         const val SETTLE_MILLIS = 1_000L
+
+        /** A music of the player, chosen for the games. */
+        const val GAME_MUSIC = "Thème du soir"
 
         /** The tag of a start level cell of the home screen (`START_LEVEL_TAG` of feature:home, internal to it). */
         const val START_LEVEL_TAG = "home_start_level"

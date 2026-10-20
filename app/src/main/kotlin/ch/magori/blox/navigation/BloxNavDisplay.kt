@@ -15,8 +15,11 @@ import ch.magori.blox.feature.composer.navigation.composerEntry
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
+import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
+import ch.magori.blox.feature.home.navigation.settingsEntry
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
@@ -36,6 +39,7 @@ fun BloxNavDisplay(
     gameViewModelFactory: GameViewModel.Factory,
     composerViewModelFactory: ComposerViewModel.Factory,
     myMusicsViewModelFactory: MyMusicsViewModel.Factory,
+    settingsViewModelFactory: SettingsViewModel.Factory,
     deletedMusics: DeletedMusicRelay,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
@@ -58,6 +62,7 @@ fun BloxNavDisplay(
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).
                 onCompose = { backStack.add(ComposerRoute()) },
                 onMyMusics = { backStack.add(MyMusicsRoute) },
+                onSettings = { backStack.add(SettingsRoute) },
                 viewModelFactory = homeViewModelFactory,
             )
             gameEntry(
@@ -79,6 +84,7 @@ fun BloxNavDisplay(
                 onEdit = { id -> backStack.add(ComposerRoute(musicKey = id.key)) },
                 viewModelFactory = myMusicsViewModelFactory,
             )
+            settingsEntry(onBack = goBack, viewModelFactory = settingsViewModelFactory)
         },
     )
 }

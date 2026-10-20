@@ -4,7 +4,7 @@ import androidx.compose.material3.SwitchColors
 import androidx.compose.runtime.Immutable
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 
-/** The colours of a setting of the home screen: its [row], drawn as an unselected choice, and its [switch]. */
+/** The colours of a setting of the settings page (V21): its [row], drawn as an unselected choice, and its [switch]. */
 @Immutable
 internal data class SettingColors(val row: ChoiceColors, val switch: SwitchColors)
 
