@@ -72,7 +72,7 @@ fun WrappingLabel(
 
 /**
  * Between each side of a [FramedBox] and its content, given its [labelPadding]: its frame, one more dp, then the
- * padding. The answers of a window lay out with it, and tell with it whether they stand side by side.
+ * padding; in pixels, [framedBoxPaddingPx].
  */
 internal fun framedBoxPadding(labelPadding: Dp): Dp = BloxBorders.frame + 1.dp + labelPadding
 

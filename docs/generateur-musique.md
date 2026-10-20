@@ -1061,8 +1061,28 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
   `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the longest category chosen for the dice shows whole`.
-  Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`. En Original ×2, la barre
-  d'outils coupe encore ses libellés (P5.49).
+  Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`.
+- **Barre d'outils** (P5.49) : une rangée si chaque libellé tient entier au plancher dans sa part ;
+  sinon les modes (Poser, Allonger) au-dessus des outils (Annuler, Copier, Effacer), et, si les
+  outils ne tiennent pas côte à côte non plus, chaque outil sur toute la largeur (Original ×2 à
+  320 dp). Sur plusieurs rangées, chaque libellé garde 4 dp de marge. La décision compte en pixels
+  entiers, comme la rangée les distribue, sur la largeur de la ligne mesurée (`ButtonRow.kt` dans
+  `core:designsystem`, partagé avec les réponses des fenêtres) : en police normale, la barre garde
+  sa rangée (« Allonger » tient au pixel près). **Tests :**
+  `ButtonRowTest › a row shares its width less its gaps in proportion to the weights, in whole pixels`,
+  `ButtonRowTest › the pixel a rounding takes too many is given back by the first buttons`,
+  `ButtonRowTest › the pixel a rounding leaves out is given to the first buttons`,
+  `ButtonRowTest › labels hold side by side when each holds in its share less the padding on each side`,
+  `ButtonRowTest › labels do not hold side by side when one is a pixel wider than its share less its padding`,
+  `ToolbarLinesTest › labels that hold in their share of the line at their smallest size keep the toolbar on one line`,
+  `ToolbarLinesTest › a label wider than its share of the line at its smallest size puts the modes above the tools`,
+  `ToolbarLinesTest › a label as wide as its share of the line, to the pixel, keeps the toolbar on one line`,
+  `ToolbarLinesTest › the gap between the two modes comes out of their share of the line`,
+  `ToolbarLinesTest › a share is counted in the whole pixels the line gives it, not in fractions`,
+  `ToolbarLinesTest › tools that do not hold side by side on the whole width at their smallest size stand one above the other`,
+  `ToolbarLinesTest › the margin of the labels counts once the modes stand above the tools`,
+  `ComposerScreenTest › on a small phone with the largest font, the modes stand above the tools, each label whole, 48 dp at least`,
+  `ComposerScreenTest › on a small phone with the normal font, in Original, the toolbar holds on one line, each label whole`.
 
 **Tests :** `ComposerDiceTest › the dice is ready for Surprise at first, and a category touched is chosen in its place`,
 `ComposerDiceTest › the dice opens the music the generator composes in the category chosen, from a seed drawn at each roll`,

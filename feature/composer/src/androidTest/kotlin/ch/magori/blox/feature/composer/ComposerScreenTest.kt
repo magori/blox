@@ -196,6 +196,32 @@ internal class ComposerScreenTest {
 
     @Test
     @DisplayName(
+        "on a small phone with the largest font, the modes stand above the tools, each label whole, 48 dp at least",
+    )
+    fun theLabelsOfTheToolbarShowWholeWithALargeFont() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large, in the pixel font
+        showEditorWithLargeFont()
+
+        // Then « Poser » and « Allonger » on a line, « Annuler », « Copier » and « Effacer » on the next, none clipped
+        val tops = toolbarTopsWithLabelsWhole()
+        assertThat(tops.getValue("Allonger")).isEqualTo(tops.getValue("Poser"))
+        assertThat(listOf("Copier", "Effacer").map(tops::getValue)).containsOnly(tops.getValue("Annuler"))
+        val modesBottom = onNode(hasText("Poser") and hasClickAction()).fetchSemanticsNode().boundsInRoot.bottom
+        assertThat(tops.getValue("Annuler")).isGreaterThanOrEqualTo(modesBottom)
+    }
+
+    @Test
+    @DisplayName("on a small phone with the normal font, in Original, the toolbar holds on one line, each label whole")
+    fun theToolbarHoldsOnOneLineWithTheNormalFont() = extension.use {
+        // Given a phone 360 dp wide, the normal font, in the pixel font
+        showEditor(kind = BloxThemeKind.ORIGINAL, modifier = Modifier.size(NARROWEST_PHONE, 760.dp))
+
+        // Then the five buttons on one line, none clipped
+        assertThat(toolbarTopsWithLabelsWhole().values.distinct()).hasSize(1)
+    }
+
+    @Test
+    @DisplayName(
         "on a small phone with the largest font, the message of the dice holds on three lines, its words whole",
     )
     fun theMessageOfTheDiceHoldsOnThreeLinesWithALargeFont() = extension.use {
@@ -652,6 +678,26 @@ internal class ComposerScreenTest {
         val width = with(density) { NARROWEST_PHONE.toPx() }
         assertThat(node.positionInRoot.x).isGreaterThanOrEqualTo(0f)
         assertThat(node.positionInRoot.x + node.size.width).isLessThanOrEqualTo(width)
+    }
+
+    /**
+     * The top of each button of the toolbar, by its label, once checked that no label is clipped nor cut, and that each
+     * button stands within the phone, 48 dp wide and high at least.
+     */
+    private fun ComposeContext.toolbarTopsWithLabelsWhole(): Map<String, Float> {
+        val width = with(density) { NARROWEST_PHONE.toPx() }
+        return listOf("Poser", "Allonger", "Annuler", "Copier", "Effacer").associateWith { label ->
+            val layout = textLayout(label)
+            assertThat(layout.hasVisualOverflow).describedAs(label).isFalse()
+            assertWordsWhole(layout)
+            val button = onNode(hasText(label) and hasClickAction())
+                .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
+                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+                .fetchSemanticsNode()
+            assertThat(button.positionInRoot.x).isGreaterThanOrEqualTo(0f)
+            assertThat(button.positionInRoot.x + button.size.width).isLessThanOrEqualTo(width)
+            button.positionInRoot.y
+        }
     }
 
     private fun ComposeContext.cell(name: String): SemanticsNodeInteraction = onNodeWithContentDescription(name)

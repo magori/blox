@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 129 / 175 | `███████████████░░░░░` **74 %** |
+| **Général** | 130 / 175 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -658,7 +658,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   de la grille. Enregistrement (P4.19d) : bouton Enregistrer sur sa ligne sous le tempo, « • » et
   plein quand des changements seraient perdus, crayon après le titre, ligne « Catégorie · modifiée »,
   fenêtre en échec. Dé (P4.20) : ligne Au hasard et catégories en rangée défilante, choix rempli
-  sans coche, message d'annulation.
+  sans coche, message d'annulation. Police ×2 (P5.47, P5.49) : barre d'outils en deux rangées,
+  réponses des fenêtres empilées.
 - [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
@@ -690,9 +691,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   milieu d'un mot (« Annul/er », « Enreg/istre/r ») ; les faire passer à la ligne entre les mots, ou
   les empiler (vu en P5.45). Fait : réponses empilées quand elles ne tiennent pas côte à côte,
   retour à la ligne seulement après une espace.
-- [ ] **P5.49** Barre d'outils de l'éditeur en Original ×2 : ses libellés restent coupés même au
+- [x] **P5.49** Barre d'outils de l'éditeur en Original ×2 : ses libellés restent coupés même au
   plancher (« Pose », « Allon », « Annul », « Copi », « Effac ») ; fenêtre Quitter : le point final
-  de « enregistrés. » passe seul à la ligne (vus en P5.47).
+  de « enregistrés. » passe seul à la ligne (vus en P5.47). Fait : barre sur deux ou plusieurs
+  rangées quand elle ne tient pas, `WindowText` en mots entiers ; maquette ajoutée à P5.40.
 
 ## P6 — Mode Moderne (plus tard)
 

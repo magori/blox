@@ -15,6 +15,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -26,6 +27,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
@@ -146,13 +148,14 @@ private fun ButtonLabel(
     text: String,
     color: Color,
 ) {
-    SingleLineText(
-        text = text,
-        color = color,
-        style = MaterialTheme.typography.labelMedium.copy(lineHeight = TextUnit.Unspecified),
-        textAlign = TextAlign.Center,
-    )
+    SingleLineText(text = text, color = color, style = buttonLabelStyle, textAlign = TextAlign.Center)
 }
+
+/** The style of the label of a button; the toolbar measures its labels with it. */
+internal val buttonLabelStyle: TextStyle
+    @Composable
+    @ReadOnlyComposable
+    get() = MaterialTheme.typography.labelMedium.copy(lineHeight = TextUnit.Unspecified)
 
 /** TalkBack reads [description], when there is one, in place of the label of the button. */
 private fun Modifier.described(description: String?): Modifier =
@@ -160,7 +163,8 @@ private fun Modifier.described(description: String?): Modifier =
 
 /**
  * Radio buttons among [choices], each named by [label], the [selected] one filled; a touch chooses its choice through
- * [onChosen]. They stand on one line, each sized by [choiceModifier], or, when they [scroll], each as wide as its label,
+ * [onChosen]. They stand on one line, each sized by [choiceModifier], [labelPadding] on each side of its label, or, when
+ * they [scroll], each as wide as its label,
  * no wider than the line, the line scrolling sideways when they do not fit, the one selected brought in sight.
  */
 @Composable
@@ -171,6 +175,7 @@ internal fun <T> ChoiceGroup(
     label: @Composable (T) -> String,
     modifier: Modifier = Modifier,
     scroll: Boolean = false,
+    labelPadding: Dp = 0.dp,
     choiceModifier: RowScope.(T) -> Modifier = { Modifier },
 ) {
     // A line of choices, each sized by [sizing].
@@ -189,7 +194,7 @@ internal fun <T> ChoiceGroup(
                     selected = isSelected,
                     onClick = { onChosen(choice) },
                     role = Role.RadioButton,
-                    labelPadding = if (scroll) ScrolledLabelPadding else 0.dp,
+                    labelPadding = if (scroll) ScrolledLabelPadding else labelPadding,
                     modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(sizing),
                 )
             }
