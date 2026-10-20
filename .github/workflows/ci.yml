@@ -72,6 +72,13 @@ jobs:
       - name: Compilation des tests instrumentés et des tests de captures
         run: ./gradlew assembleDebugAndroidTest compileDebugScreenshotTestKotlin
 
+      # Compare les captures des previews (src/screenshotTest) aux références versionnées, générées
+      # sous Windows : une montée de Compose qui change le rendu fait échouer la CI. Tolérance dans
+      # AndroidScreenshotConventionPlugin (build-logic). --continue : tous les modules sont comparés
+      # même si l'un échoue ; rapports d'écart dans l'artefact `rapports`.
+      - name: Validation des captures (références Windows)
+        run: ./gradlew validateDebugScreenshotTest --continue
+
       # Compile le module de mesure (Macrobenchmark, générateur du profil de référence) et ses
       # APK de test, sans les exécuter : les mesures et la génération demandent un appareil.
       - name: Compilation des mesures (Macrobenchmark)
@@ -82,7 +89,12 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: rapports
-          path: "**/build/reports/**"
+          # Les captures rendues, les différences et l'écart de chacune (diffPercent, résultats JUnit)
+          # vivent hors de build/reports : sans eux, un échec de captures ne se diagnostique pas.
+          path: |
+            **/build/reports/**
+            **/build/outputs/screenshotTest-results/**
+            **/build/test-results/validateDebugScreenshotTest/**
           if-no-files-found: ignore
           retention-days: 14
 
