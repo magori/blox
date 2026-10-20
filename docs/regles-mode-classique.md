@@ -672,8 +672,8 @@ simplification assumée : le calcul réel de la NES est plus particulier **[à v
 
 ## Vibrations
 
-Optionnelles (P5.2), **désactivées par défaut** tant qu'aucun interrupteur n'existe à l'écran
-(réglage `vibrations` des préférences ; la tâche de l'interrupteur fixera la valeur définitive).
+Optionnelles (P5.2), **désactivées par défaut** (décision du développeur ; réglage `vibrations` des
+préférences, interrupteur de l'accueil V1, P5.37).
 Une ligne effacée (1 à 3) donne un clic bref, quatre lignes un clic fort (effets prédéfinis
 d'Android à partir d'Android 10, impulsions de 20 et 50 ms avant), la fin de partie 80 ms,
 une pause de 100 ms puis 200 ms. La pose d'une pièce et le danger ne vibrent pas (trop
@@ -700,12 +700,12 @@ l'interrupteur général des vibrations les coupent. Le réglage est lu une fois
 `UserPreferencesRepositoryContract › a saved vibrations choice is read back`,
 `DataStoreUserPreferencesRepositoryTest › settings saved before the vibrations existed keep their choices, with vibrations off`,
 `DataStoreUserPreferencesRepositoryTest › the vibrations are stored as a boolean under a key that must not change`.
-Aucune vue de maquette (interrupteur à maquetter). À essayer sur un téléphone.
+Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
 
 ## Effets sonores
 
 Optionnels (P4.8), **désactivés par défaut** (décision du développeur ; réglage `soundEffects` des
-préférences, interrupteur maquetté sur V1 et à brancher en P5.37). Une rotation réussie donne un
+préférences, interrupteur de l'accueil V1, P5.37 ; un changement vaut pour la partie suivante). Une rotation réussie donne un
 bip, une à trois lignes un arpège montant, quatre lignes un arpège sur deux octaves, la fin de
 partie un arpège descendant ; la pose d'une pièce et le danger ne sonnent pas (trop fréquents).
 Les effets se jouent par-dessus la musique sans la couper. Rien ne sonne en pause, après la fin
@@ -732,7 +732,7 @@ sons : `docs/musique.md`, Effets sonores.
 `UserPreferencesRepositoryContract › a saved sound effects choice is read back`,
 `DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects off`,
 `DataStoreUserPreferencesRepositoryTest › the sound effects are stored as a boolean under a key that must not change`.
-Vue : V1 (interrupteur, pas encore codé). À essayer sur un téléphone.
+Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
 
 ## Niveaux
 
