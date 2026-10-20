@@ -14,10 +14,15 @@ internal enum class BackAction {
 
 /**
  * What the system back does in [uiState]: it pauses the game, resumes the paused game, and leaves a game
- * that is over (the game over screen has priority, even over a pause).
+ * that is over (the game over screen has priority, even over a pause). While the window is [tooSmallToPlay], the
+ * message « Agrandissez la fenêtre » in place of the game, it leaves the game too: resumed, the game would only
+ * pause again.
  */
-internal fun backAction(uiState: GameUiState): BackAction = when {
-    uiState.gameOver != null -> BackAction.LEAVE
+internal fun backAction(
+    uiState: GameUiState,
+    tooSmallToPlay: Boolean = false,
+): BackAction = when {
+    uiState.gameOver != null || tooSmallToPlay -> BackAction.LEAVE
     uiState.paused -> BackAction.RESUME
     else -> BackAction.PAUSE
 }

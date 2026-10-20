@@ -4,9 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +16,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -37,6 +40,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -87,9 +91,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 
-/** The 24 dp margins the controls are sized for (P2.5). */
-private val ScreenMargin = 24.dp
-
 /**
  * The game screen of [viewModel]. The screen owns the frame clock (ADR 0012): while it is started
  * and the game runs ([GameUiState.running]: neither paused nor over), it hands the view model every frame,
@@ -100,8 +101,8 @@ private val ScreenMargin = 24.dp
  * player resumes it. A recreation of the activity (dark theme, language, window size) goes through
  * `ON_PAUSE` too, and so pauses the game: this is intended.
  *
- * The system back follows [backAction]: it pauses the game, resumes it, or, once the game is over,
- * leaves it as the navigation does.
+ * The system back follows [backAction]: it pauses the game, resumes it, or, once the game is over or while the
+ * window is too small to play, leaves it as the navigation does.
  */
 @Composable
 internal fun GameScreen(
@@ -136,7 +137,8 @@ internal fun GameScreen(
     GameDisplayModeEffect()
     // A game over or a game already paused ignores the pause.
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
-    val backAction by rememberPart(uiState, ::backAction)
+    var tooSmallToPlay by remember { mutableStateOf(false) }
+    val backAction by rememberPart(uiState) { backAction(it, tooSmallToPlay) }
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
         isBackEnabled = backAction != BackAction.LEAVE,
@@ -157,14 +159,15 @@ internal fun GameScreen(
         onPause = viewModel::onPause,
         onResume = viewModel::onResume,
         modifier = modifier,
+        onTooSmallToPlayChange = { tooSmallToPlay = it },
     )
 }
 
 /**
  * The part of the state given by [uiState] that [part] picks, as a state that changes only when that
  * part changes: the composable that reads it recomposes for that part only, not at each move of the
- * piece. [part] is not a key: the first one given is kept, so it must capture nothing, as a property
- * of [GameUiState] or a function of it alone.
+ * piece. [part] is not a key: the first one given is kept, so it must capture no plain value, only
+ * states, read each time it runs: a property of [GameUiState], a function of it alone or of states.
  */
 @Composable
 private fun <T> rememberPart(
@@ -178,6 +181,12 @@ private fun <T> rememberPart(
  * place, the board hidden: Reprendre is [onResume], Menu is [onBack]. Once the game is over, the game
  * over screen, which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
  *
+ * In a window too small to play ([tooSmallToPlay], measured inside the system bars whatever shows), the message
+ * « Agrandissez la fenêtre » in place of the board and of the pause screen, under the top bar, its pause button
+ * disabled. The game is paused by [onPause] once the composition that shows the message is applied, before the next
+ * frame and its ticks; the pause screen comes back only with a window large enough, where Reprendre resumes the
+ * game. Whether the window is too small goes to [onTooSmallToPlayChange] at the same time.
+ *
  * Each part of the screen reads only the part of the state it shows: a move of the piece draws the
  * board again, and recomposes nothing.
  */
@@ -190,6 +199,44 @@ internal fun GameScreen(
     onPause: () -> Unit,
     onResume: () -> Unit,
     modifier: Modifier = Modifier,
+    onTooSmallToPlayChange: (Boolean) -> Unit = {},
+) {
+    BoxWithConstraints(modifier = modifier) {
+        val density = LocalDensity.current
+        val direction = LocalLayoutDirection.current
+        val bars = WindowInsets.safeDrawing
+        val width = constraints.maxWidth - bars.getLeft(density, direction) - bars.getRight(density, direction)
+        val height = constraints.maxHeight - bars.getTop(density) - bars.getBottom(density)
+        val tooSmall = remember(width, height, density.density) {
+            tooSmallToPlay(width.toFloat(), height.toFloat(), density.density)
+        }
+        val running by rememberPart(uiState) { it.running }
+        SideEffect {
+            onTooSmallToPlayChange(tooSmall)
+            if (tooSmall && running) onPause()
+        }
+        Screens(
+            uiState = uiState,
+            tooSmallToPlay = tooSmall,
+            onBack = onBack,
+            onReplay = onReplay,
+            onControl = onControl,
+            onPause = onPause,
+            onResume = onResume,
+        )
+    }
+}
+
+/** The screen shown, among the game, its pause and its game over, as [GameScreen] says. */
+@Composable
+private fun Screens(
+    uiState: () -> GameUiState,
+    tooSmallToPlay: Boolean,
+    onBack: () -> Unit,
+    onReplay: () -> Unit,
+    onControl: (ControlChange) -> Unit,
+    onPause: () -> Unit,
+    onResume: () -> Unit,
 ) {
     val gameOver = rememberPart(uiState) { it.gameOver }.value
     val paused by rememberPart(uiState) { it.paused }
@@ -205,7 +252,7 @@ internal fun GameScreen(
     // Whether the menu itself holds the focus, none of its buttons: an arrow then moves it into the buttons.
     var menuFocused by remember { mutableStateOf(false) }
     val menuModifier = { shown: Menu ->
-        modifier
+        Modifier
             .onFocusChanged { menuFocused = it.isFocused }
             .takingKeys(focus) {
                 val repeatCount = it.nativeKeyEvent.repeatCount
@@ -222,9 +269,19 @@ internal fun GameScreen(
             modifier = menuModifier(Menu.GAME_OVER),
         )
 
-        paused -> PauseScreen(onResume = onResume, onMenu = onBack, modifier = menuModifier(Menu.PAUSE))
+        paused && !tooSmallToPlay -> PauseScreen(
+            onResume = onResume,
+            onMenu = onBack,
+            modifier = menuModifier(Menu.PAUSE),
+        )
 
-        else -> Game(uiState = uiState, onControl = onControl, onPause = onPause, focus = focus, modifier = modifier)
+        else -> Game(
+            uiState = uiState,
+            tooSmallToPlay = tooSmallToPlay,
+            onControl = onControl,
+            onPause = onPause,
+            focus = focus,
+        )
     }
 }
 
@@ -241,10 +298,15 @@ private fun Modifier.takingKeys(
  * The game under way: the top bar, the board, the side column and the controls. Given the focus by
  * [focus], it plays the keys of a keyboard or a pad as the controls ([HeldControls.key]), their pause key
  * being [onPause]. The other keys are left to the system: Tab moves the focus, for instance.
+ *
+ * In a window [tooSmallToPlay], the message « Agrandissez la fenêtre » in place of the board, the side column and
+ * the controls, the pause button disabled: the game is already paused. The keys still reach the controls, which the
+ * paused game ignores, rather than the system, where B and Escape would leave the game.
  */
 @Composable
 private fun Game(
     uiState: () -> GameUiState,
+    tooSmallToPlay: Boolean,
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     focus: FocusRequester,
@@ -264,18 +326,27 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(record = record, onPause = onPause)
-        BoxWithConstraints(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-        ) {
-            val density = LocalDensity.current.density
-            val fontScale = LocalDensity.current.fontScale
-            val width = constraints.maxWidth.toFloat()
-            val height = constraints.maxHeight.toFloat()
-            val layout = remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
-            Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
+        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay)
+        if (tooSmallToPlay) {
+            TooSmallMessage(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            )
+        } else {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+            ) {
+                val density = LocalDensity.current.density
+                val fontScale = LocalDensity.current.fontScale
+                val width = constraints.maxWidth.toFloat()
+                val height = constraints.maxHeight.toFloat()
+                val layout =
+                    remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
+                Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
+            }
         }
     }
 }
@@ -493,4 +564,24 @@ internal fun GameScreenNarrowOriginalPreview() {
 @Composable
 internal fun GameScreenNarrowLargeFontPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+// The narrowest multi-window, too low to play: the message in place of the board, the game paused by it (P2.24).
+
+@Preview(widthDp = 220, heightDp = 560)
+@Composable
+internal fun GameScreenTooSmallOriginalPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState.copy(paused = true))
+}
+
+@Preview(widthDp = 220, heightDp = 560)
+@Composable
+internal fun GameScreenTooSmallColorfulPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(paused = true))
+}
+
+@Preview(widthDp = 220, heightDp = 560, fontScale = 2f)
+@Composable
+internal fun GameScreenTooSmallLargeFontPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState.copy(paused = true))
 }

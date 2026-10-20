@@ -67,13 +67,15 @@ private object TopBarSizes {
  * The top bar of the game screen (view V2): the pause button, the mode title and the record. No
  * logic here: the record texts come from [topBarTexts], the glyph from [pauseBars], the rows from [topBarRows]. A
  * `null` [record] is not known yet: its value is hidden, in a place of the same size, so that nothing moves when it
- * comes.
+ * comes. The pause button does nothing unless [pauseEnabled]: under « Agrandissez la fenêtre », the game is already
+ * paused.
  */
 @Composable
 internal fun GameTopBar(
     record: Int?,
     onPause: () -> Unit,
     modifier: Modifier = Modifier,
+    pauseEnabled: Boolean = true,
 ) {
     val texts = topBarTexts(record ?: 0)
     val title = stringResource(R.string.feature_game_top_title).uppercase()
@@ -85,7 +87,7 @@ internal fun GameTopBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                PauseButton(onPause = onPause)
+                PauseButton(onPause = onPause, enabled = pauseEnabled)
                 // On two lines, shrinking if needed: with an enlarged font, back to its size with the normal font,
                 // where CLASSIQUE fits whole, rather than cut.
                 ModeTitle(text = title, autoSize = shrinkToFit(TopBarSizes.title), modifier = Modifier.weight(1f))
@@ -109,7 +111,7 @@ internal fun GameTopBar(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    PauseButton(onPause = onPause)
+                    PauseButton(onPause = onPause, enabled = pauseEnabled)
                     // No larger than with the normal font: the height of the bar is taken from the board.
                     Record(
                         record = record,
@@ -219,7 +221,10 @@ private fun Record(
  * like a key at rest ([pauseButtonColors]) so that it stands out from the page.
  */
 @Composable
-private fun PauseButton(onPause: () -> Unit) {
+private fun PauseButton(
+    onPause: () -> Unit,
+    enabled: Boolean,
+) {
     val colors = pauseButtonColors(BloxTheme.palette)
     val description = stringResource(R.string.feature_game_top_pause)
     val shape = BloxTheme.shapes.button
@@ -232,7 +237,7 @@ private fun PauseButton(onPause: () -> Unit) {
             .clip(shape)
             .background(colors.background)
             .border(BloxBorders.frame, colors.outline, shape)
-            .clickable(role = Role.Button, onClick = onPause)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onPause)
             .semantics { contentDescription = description },
     ) {
         val ink = colors.ink

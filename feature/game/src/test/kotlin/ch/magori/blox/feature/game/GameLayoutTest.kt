@@ -361,6 +361,43 @@ class GameLayoutTest {
         assertThat(layout.rotations.height / density).isLessThanOrEqualTo(200f)
     }
 
+    @ParameterizedTest(name = "at {0} px per dp")
+    @CsvSource("1.5", "2", "2.625", "3.5")
+    fun `the narrowest multi-window is too small to play 590 dp high, its cells under 8 dp, and playable 592 dp high`(
+        density: Float,
+    ) {
+        // Given windows of 220 dp wide, 590 and 592 dp high (591 at 2 px per dp and more): the score above the board
+        val (width, lower) = available(widthDp = 220, heightDp = 590, density = density)
+        val (_, higher) = available(widthDp = 220, heightDp = 592, density = density)
+
+        // When / Then cells under 8 dp in the lower, too small to play; 8 dp at least in the higher. The window is
+        // measured whole, its margins and its top bar of one row (48 dp) taken off
+        assertThat(gameLayout(width, lower, density).cellSize).isLessThan(8 * density)
+        assertThat(tooSmallToPlay(220 * density, 590 * density, density)).isTrue()
+        assertThat(gameLayout(width, higher, density).cellSize).isGreaterThanOrEqualTo(8 * density)
+        assertThat(tooSmallToPlay(220 * density, 592 * density, density)).isFalse()
+    }
+
+    @ParameterizedTest(name = "at {0} px per dp")
+    @CsvSource("1.5", "2", "2.625", "3.5")
+    fun `a window too narrow for the arrows is too small to play, however high`(density: Float) {
+        // Given a window of 200 × 1200 dp: the arrows go past its width, the board beside the side column
+
+        // When / Then
+        assertThat(tooSmallToPlay(200 * density, 1200 * density, density)).isTrue()
+    }
+
+    @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
+    @MethodSource("windowsWithRoom")
+    fun `phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`(
+        widthDp: Int,
+        heightDp: Int,
+        density: Float,
+    ) {
+        // When / Then
+        assertThat(tooSmallToPlay(widthDp * density, heightDp * density, density)).isFalse()
+    }
+
     /**
      * The space a window of [widthDp] × [heightDp] leaves to [gameLayout], in pixels: without the 24 dp
      * margins, the top bar (48 dp, its pause button) and the 16 dp under it. Whole pixels, rounded down,
