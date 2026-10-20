@@ -93,6 +93,8 @@ class HomeViewModelTest {
                     record = 12_345,
                     listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
                     previewing = null,
+                    vibrations = true,
+                    soundEffects = true,
                 ),
             )
         }
@@ -120,7 +122,7 @@ class HomeViewModelTest {
             viewModel.onStartLevelChosen(7)
 
             // Then
-            // The vibrations and the sound effects, which the home screen does not offer yet, keep their defaults.
+            // The vibrations and the sound effects, not changed, keep their defaults.
             val expected = UserPreferences(
                 ThemeChoice.COLORFUL,
                 MusicChoice.NONE,
@@ -156,12 +158,80 @@ class HomeViewModelTest {
             viewModel.onThemeChosen(ThemeChoice.COLORFUL)
             viewModel.onMusicChosen(MusicChoice.NONE)
             viewModel.onStartLevelChosen(7)
+            viewModel.onVibrationsChanged(true)
+            viewModel.onSoundEffectsChanged(true)
 
             // Then
             val shown = expectMostRecentItem()
             assertThat(shown?.theme).isEqualTo(ThemeChoice.ORIGINAL)
             assertThat(shown?.music).isEqualTo(MusicChoice.KOROBEINIKI)
             assertThat(shown?.startLevel).isEqualTo(0)
+            assertThat(shown?.vibrations).isFalse()
+            assertThat(shown?.soundEffects).isFalse()
+        }
+    }
+
+    @ParameterizedTest
+    @CsvSource("false, false", "true, false", "false, true", "true, true")
+    fun `the vibrations and the sound effects are shown as saved`(
+        vibrations: Boolean,
+        soundEffects: Boolean,
+    ) = runTest {
+        // Given
+        val saved = UserPreferences.DEFAULT.copy(vibrations = vibrations, soundEffects = soundEffects)
+        val viewModel = homeViewModelWith(preferences = FakeUserPreferencesRepository(initial = saved))
+
+        viewModel.uiState.test {
+            // Then
+            val shown = expectMostRecentItem()
+            assertThat(shown?.vibrations).isEqualTo(vibrations)
+            assertThat(shown?.soundEffects).isEqualTo(soundEffects)
+        }
+    }
+
+    @Test
+    fun `turning the vibrations on saves them on and shows them on, then off again`() = runTest {
+        // Given the vibrations off, as by default
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel = homeViewModelWith(preferences = preferences)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onVibrationsChanged(true)
+
+            // Then
+            assertThat(preferences.state.value?.vibrations).isTrue()
+            assertThat(expectMostRecentItem()?.vibrations).isTrue()
+
+            // When
+            viewModel.onVibrationsChanged(false)
+
+            // Then
+            assertThat(preferences.state.value?.vibrations).isFalse()
+            assertThat(expectMostRecentItem()?.vibrations).isFalse()
+        }
+    }
+
+    @Test
+    fun `turning the sound effects on saves them on and shows them on, then off again`() = runTest {
+        // Given the sound effects off, as by default
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel = homeViewModelWith(preferences = preferences)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onSoundEffectsChanged(true)
+
+            // Then
+            assertThat(preferences.state.value?.soundEffects).isTrue()
+            assertThat(expectMostRecentItem()?.soundEffects).isTrue()
+
+            // When
+            viewModel.onSoundEffectsChanged(false)
+
+            // Then
+            assertThat(preferences.state.value?.soundEffects).isFalse()
+            assertThat(expectMostRecentItem()?.soundEffects).isFalse()
         }
     }
 

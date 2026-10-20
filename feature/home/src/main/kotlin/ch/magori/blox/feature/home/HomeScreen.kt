@@ -20,17 +20,21 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -81,6 +85,8 @@ internal fun HomeScreen(
     onPlay: (startLevel: Int) -> Unit,
     onCompose: () -> Unit,
     onMyMusics: () -> Unit,
+    onVibrationsChanged: (Boolean) -> Unit,
+    onSoundEffectsChanged: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -184,6 +190,21 @@ internal fun HomeScreen(
             }
             // Under the choice of music: opens the editor on a new music.
             ComposeMusicButton(onClick = dropUnlessResumed { onCompose() })
+        }
+        // Read by a game once, when it is created: a change holds for the next game.
+        Section(title = R.string.feature_home_settings) {
+            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Setting(
+                    text = stringResource(R.string.feature_home_vibrations),
+                    checked = uiState.vibrations,
+                    onCheckedChange = onVibrationsChanged,
+                )
+                Setting(
+                    text = stringResource(R.string.feature_home_sound_effects),
+                    checked = uiState.soundEffects,
+                    onCheckedChange = onSoundEffectsChanged,
+                )
+            }
         }
         // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
         // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
@@ -317,8 +338,7 @@ private fun Choice(
         modifier = modifier
             .heightIn(min = BloxSizes.minTouchTarget)
             .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
-            .background(colors.background, shape)
-            .border(BloxBorders.frame, colors.frame, shape)
+            .panelFrame(colors, shape)
             .then(interaction)
             .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier),
         contentAlignment = Alignment.Center,
@@ -388,6 +408,61 @@ private fun ChoiceLabel(
     )
 }
 
+/**
+ * A setting, on or off as [checked]: a row as wide as the screen, drawn as a panel, its [text] on the left and its
+ * switch on the right, the whole row a switch for TalkBack (« Vibrations, interrupteur, désactivé ») and for the
+ * finger. The thumb of the switch stands on the left when off, on the right when on: its state is not told by colour
+ * only. In a large font, the label keeps its size and the row grows: it goes on two lines at a space, and the switch
+ * goes under it, still on the right, when the label no longer fits beside it (« Vibrations » in Original, twice as
+ * large, on 360 dp). It shrinks only as a last resort, so that no word is ever cut in two.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun Setting(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    val colors = settingColors(BloxTheme.palette)
+    val shape = BloxTheme.shapes.button
+    FlowRow(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = BloxSizes.minTouchTarget)
+            .panelFrame(colors.row, shape)
+            // The ripple of a tap stays within the frame, rounded in Couleurs.
+            .clip(shape)
+            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
+            .padding(horizontal = SETTING_PADDING, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(SETTING_PADDING),
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        val style = MaterialTheme.typography.labelLarge
+        // The label as wide as its words; the switch takes the room left on the line, on its right, or the next line.
+        Text(
+            text = text,
+            color = colors.row.ink,
+            style = style,
+            maxLines = 2,
+            autoSize = shrinkToFit(style.fontSize),
+        )
+        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
+            // Drawn only: the row holds the action and the state, so TalkBack reads one switch, its label included.
+            Switch(checked = checked, onCheckedChange = null, colors = colors.switch)
+        }
+    }
+}
+
+/** The background and the frame of a choice or of a setting, in [colors], of [shape]. */
+private fun Modifier.panelFrame(
+    colors: ChoiceColors,
+    shape: Shape,
+): Modifier = background(colors.background, shape).border(BloxBorders.frame, colors.frame, shape)
+
+/** The room inside a setting, on both sides, and between its label and its switch. */
+private val SETTING_PADDING = 12.dp
+
 /** The check of a start level, in its top corner: small, so that it fits beside the digit. */
 private val CORNER_CHECK_SIZE = 10.dp
 
@@ -435,6 +510,9 @@ private fun HomeScreenPreview(
                 previewing = null,
                 hasMusicFile = true,
                 gameMusic = gameMusic,
+                // One setting on, the other off, as by default: both states of a switch are seen.
+                vibrations = true,
+                soundEffects = false,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
@@ -445,37 +523,39 @@ private fun HomeScreenPreview(
             onPlay = {},
             onCompose = {},
             onMyMusics = {},
+            onVibrationsChanged = {},
+            onSoundEffectsChanged = {},
         )
     }
 }
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1170)
 @Composable
 internal fun HomeScreenOriginalPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1060)
 @Composable
 internal fun HomeScreenColorfulPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 1520, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1760, fontScale = 2f)
 @Composable
 internal fun HomeScreenLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1200, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1320, fontScale = 2f)
 @Composable
 internal fun HomeScreenColorfulLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 1090)
+@Preview(widthDp = 360, heightDp = 1260)
 @Composable
 internal fun HomeScreenGameMusicPreview() {
     // A music of the player chosen for the games: the only music selected, which may be listened to.
@@ -485,13 +565,13 @@ internal fun HomeScreenGameMusicPreview() {
 /** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
 private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
 
-@Preview(widthDp = 360, heightDp = 1090)
+@Preview(widthDp = 360, heightDp = 1260)
 @Composable
 internal fun HomeScreenGameMusicLongNamePreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
 }
 
-@Preview(widthDp = 360, heightDp = 1620, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1900, fontScale = 2f)
 @Composable
 internal fun HomeScreenGameMusicLongNameLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
