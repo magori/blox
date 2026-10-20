@@ -298,6 +298,67 @@ comme `AudioTrackSink`.
 `FocusedMusicPlayerTest › a tempo prepared while the focus is refused is prepared once the score plays`,
 `FocusedMusicPlayerTest › a new play forgets the tempos prepared for the score refused the focus`.
 
+## Effets sonores
+
+Effets courts du jeu (P4.8), **désactivés par défaut** (règles et réglage : `docs/regles-mode-classique.md`,
+Effets sonores). Arpèges de l'accord de do, synthétisés et écrits pour BloX : aucun fichier son,
+rien du jeu de 1989.
+
+| Effet | Onde | Volume | Enveloppe (montée / descente) | Notes | Durée |
+|---|---|---|---|---|---|
+| Rotation | carrée | 0,05 | 1 / 10 ms | E6 30 ms | 30 ms |
+| 1 à 3 lignes | carrée | 0,08 | 2 / 15 ms | C6 40, E6 40, G6 80 | 160 ms |
+| 4 lignes | carrée | 0,09 | 2 / 15 ms | C5, E5, G5, C6, E6, G6 (50 ms chacune), C7 150 ms | 450 ms |
+| Fin de partie | triangle | 0,2 | 2 / 30 ms | G4 120, E4 120, C4 120, G3 240 | 600 ms |
+
+Pour situer : la mélodie des musiques est à 0,07 et la basse à 0,16.
+
+- **Donnée pure** dans `core:music` (`SoundEffect`, `Blip`, `Envelope`, catalogue `SoundEffects`),
+  testée sur la JVM ; chaque bip monte et descend sur quelques millisecondes pour ne pas claquer.
+- **Lecture** dans `core:audio` (`SoundEffectPlayer`, `SoundEffectTracks`) : chaque effet est rendu
+  une fois, au taux d'échantillonnage natif de la sortie (`PROPERTY_OUTPUT_SAMPLE_RATE`, 48 000 Hz
+  à défaut), dans sa propre piste `AudioTrack` statique, puis seulement rejoué ; deux effets
+  différents se superposent, un effet rejoué repart du début (coupure nette possible). Les pistes
+  demandent le mode basse latence, que le système peut refuser. Elles sont préparées dès que la
+  partie sait les effets activés, et vivent autant que le processus (quatre petits tampons).
+- **Sans focus audio** (`USAGE_GAME`, `CONTENT_TYPE_SONIFICATION`) : le système mixe l'effet
+  par-dessus la musique sans la couper.
+- **Échecs** silencieux et journalisés : un rendu, une ouverture ou une lecture qui échoue ne
+  remonte jamais à la partie ; l'effet n'est pas réessayé avant 5 s, son rendu gardé.
+- La traduction des événements du moteur en effets vit dans `feature:game` (`soundEffectFor`),
+  comme celle des vibrations.
+
+**Tests :** `SoundEffectTest › an effect lasts the sum of its blips`,
+`SoundEffectTest › an effect without blips is refused`,
+`SoundEffectTest › a blip lasts a positive number of milliseconds`,
+`SoundEffectTest › the volume of an effect is above 0 and at most 1`,
+`SoundEffectTest › an envelope that rises or falls over a negative time is refused`,
+`SoundEffectTest › an envelope longer than a blip is refused, one as long as the shortest blip is accepted`,
+`SoundEffectsTest › the rotation is a single E6 of 30 ms on the square, the quietest effect, as it comes so often`,
+`SoundEffectsTest › the lines cleared rise up the chord of C, C6, E6, G6, in 160 ms on the square`,
+`SoundEffectsTest › four lines cleared rise up the chord of C over two octaves, C5 to C7, in 450 ms on the square`,
+`SoundEffectsTest › the game over falls down the chord of C, G4, E4, C4, G3, in 600 ms on the triangle`,
+`SoundEffectsTest › every effect lasts from a few tens to a few hundred milliseconds`,
+`SoundEffectsTest › every blip rises and falls over a few milliseconds, so that none clicks`,
+`SoundEffectRenderTest › an effect lasts its milliseconds at the sample rate`,
+`SoundEffectRenderTest › each blip rises over the attack from silence to the volume, holds it, then falls over the release`,
+`SoundEffectRenderTest › a blip plays its pitch on the waveform of the effect`,
+`SoundEffectTracksTest › an effect is rendered and its track opened at its first play, then each play replays the same track`,
+`SoundEffectTracksTest › each effect has its own track, so that an effect playing over another does not cut it`,
+`SoundEffectTracksTest › play returns at once, the effect is opened and played on the scope of the player`,
+`SoundEffectTracksTest › several effects played before the scope runs open one track each`,
+`SoundEffectTracksTest › warming up renders and opens the effects on the scope without playing them, their first play only replays`,
+`SoundEffectTracksTest › an output that cannot open plays nothing, reports its failure, and opens at a play 5 s later`,
+`SoundEffectTracksTest › after an output that cannot open, the effect is not tried again for 5 s, its rendering kept`,
+`SoundEffectTracksTest › a track that fails to play reports its failure, is released, and another one opens at a play 5 s later`,
+`SoundEffectTracksTest › a track that fails to play, then to be released, reports both failures and never reaches the caller`,
+`SoundEffectTracksTest › a rendering that fails plays nothing and reports its failure`,
+`EffectSampleRateTest › the effects are rendered at the sample rate of the output, so that it may play them on its fast path`,
+`EffectSampleRateTest › an output sample rate that is not a positive number gives 48 000 Hz`,
+`EffectSampleRateTest › an output that does not tell its sample rate gives 48 000 Hz`,
+`StaticAudioTrackTest › every effect opens, plays, plays again over itself, and is released without failing`.
+À écouter sur un téléphone.
+
 ## Accélération
 
 Quand la pile atteint une hauteur critique, le tempo augmente de **× 1,25**, et revient à la

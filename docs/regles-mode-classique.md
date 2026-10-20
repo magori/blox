@@ -177,9 +177,18 @@ Système de rotation de la NES :
 - **Tourner** : A passe à l'orientation suivante dans l'ordre horaire, B à la précédente, en
   boucle ; le pivot ne bouge pas. Le système de rotation propose des candidats dans l'ordre
   d'essai et le moteur garde le premier qui tient ; le mode Classique n'en propose qu'un. Une
-  orientation qui n'appartient pas au type de la pièce est refusée. Tourner le O ne change rien :
-  faut-il alors émettre l'événement de rotation (son) ? **[à vérifier]**, à trancher en P1.12
-  (par défaut : seulement si la pièce change).
+  orientation qui n'appartient pas au type de la pièce est refusée. Tourner le O ne change rien.
+  Une rotation réussie émet `PieceRotated` (la pièce tournée, avant la chute du même tick), en
+  tête des événements du tick ; une rotation refusée et le O n'émettent rien (P4.8, tranché :
+  seulement si la pièce change). Il sert à l'effet sonore de rotation ; la rotation ne vibre pas.
+
+  **Tests (événement) :** `GameEngineControlsTest › a piece that turns sends PieceRotated, with the piece as it turned`,
+  `GameEngineControlsTest › a rotation refused, or one that leaves the O as it was, sends nothing`,
+  `GameEngineControlsTest › a piece that turns then locks on the same tick sends PieceRotated before PieceLocked`,
+  `GameEngineControlsTest › the rotation comes before the drop in a tick`,
+  `GameEngineStackDangerTest › a piece that turns then locks into the danger sends PieceRotated, then PieceLocked, then StackDanger`,
+  `GameEngineGameOverTest › a piece that turns then locks for the last time leaves GameOver alone on the tick it ends`,
+  `HapticOfEventTest › a rotation gives nothing`.
 
   **Tests :** `ClassicRotationSystemTest › a clockwise rotation gives the next orientation, a counterclockwise one the previous`,
   `ClassicRotationSystemTest › four clockwise turns bring T J and L back, two are enough for I S and Z, O never changes`,
@@ -691,6 +700,38 @@ l'interrupteur général des vibrations les coupent. Le réglage est lu une fois
 `DataStoreUserPreferencesRepositoryTest › settings saved before the vibrations existed keep their choices, with vibrations off`,
 `DataStoreUserPreferencesRepositoryTest › the vibrations are stored as a boolean under a key that must not change`.
 Aucune vue de maquette (interrupteur à maquetter). À essayer sur un téléphone.
+
+## Effets sonores
+
+Optionnels (P4.8), **désactivés par défaut** (décision du développeur ; réglage `soundEffects` des
+préférences, interrupteur maquetté sur V1 et à brancher en P5.37). Une rotation réussie donne un
+bip, une à trois lignes un arpège montant, quatre lignes un arpège sur deux octaves, la fin de
+partie un arpège descendant ; la pose d'une pièce et le danger ne sonnent pas (trop fréquents).
+Les effets se jouent par-dessus la musique sans la couper. Rien ne sonne en pause, après la fin
+de partie ni avant que les réglages répondent ; le réglage est lu une fois par partie, et les
+effets sont préparés dès qu'il répond, pour que le premier ne soit pas en retard. Détail des
+sons : `docs/musique.md`, Effets sonores.
+
+**Tests :** `SoundEffectOfEventTest › a rotation gives the rotation effect`,
+`SoundEffectOfEventTest › one to three lines cleared give the lines cleared effect`,
+`SoundEffectOfEventTest › four lines cleared at once give the four lines effect`,
+`SoundEffectOfEventTest › the game over gives its own effect`,
+`SoundEffectOfEventTest › a clear of no line, a lock and the danger give nothing`,
+`GameViewModelTest › clearing one line plays the lines cleared effect`,
+`GameViewModelTest › clearing four lines at once plays the four lines effect`,
+`GameViewModelTest › a piece turned plays the rotation effect on the frame of its tick`,
+`GameViewModelTest › the game over plays its effect once, and the frames after it nothing more`,
+`GameViewModelTest › with the sound effects turned off in the settings no effect plays, the vibrations still do`,
+`GameViewModelTest › with the vibrations turned off in the settings the sound effects still play`,
+`GameViewModelTest › until the settings answer no effect plays`,
+`GameViewModelTest › a game recreated paused after the process died plays no effect while it stays paused`,
+`GameViewModelTest › with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`,
+`GameViewModelTest › with the sound effects off, the game warms nothing up`,
+`UserPreferencesRepositoryContract › without saved preferences the sound effects are off`,
+`UserPreferencesRepositoryContract › a saved sound effects choice is read back`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects off`,
+`DataStoreUserPreferencesRepositoryTest › the sound effects are stored as a boolean under a key that must not change`.
+Vue : V1 (interrupteur, pas encore codé). À essayer sur un téléphone.
 
 ## Niveaux
 
