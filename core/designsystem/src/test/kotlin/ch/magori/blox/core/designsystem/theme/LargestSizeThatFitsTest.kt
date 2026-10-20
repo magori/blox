@@ -75,4 +75,20 @@ class LargestSizeThatFitsTest {
         // The largest and the smallest sizes, then one halving of the steps left at a time.
         assertThat(tries).isLessThanOrEqualTo(2 + ceil(log2(steps + 1.0)).toInt())
     }
+
+    @Test
+    fun `when fitting is not monotonic, as a text that wraps may be, the size given was tried and fits`() {
+        // Fits at the smallest size and between 11 and 12, not between: a later line break may free some width.
+        val fitting = { size: Float -> size <= 8f || size in 11f..12f }
+        val tried = mutableListOf<Float>()
+
+        val size = largestSizeThatFits(smallest = 8f, largest = 14f, step = 0.25f) {
+            tried += it
+            fitting(it)
+        }
+
+        assertThat(size).isNotNull()
+        assertThat(tried).contains(size)
+        assertThat(fitting(checkNotNull(size))).isTrue()
+    }
 }

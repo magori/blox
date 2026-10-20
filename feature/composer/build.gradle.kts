@@ -40,6 +40,8 @@ dependencies {
     // Le ViewModel de l'écran y est construit avec les faux des tests unitaires (lecteur, musiques enregistrées).
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.data))
+    // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les fenêtres.
+    androidTestImplementation(testFixtures(projects.core.designsystem))
     // Le test de la fabrique sauve puis restaure l'état d'une entrée, comme après la mort du processus.
     androidTestImplementation(libs.androidx.savedstate)
     // L'instrumentation, qui envoie le retour du système (et fait tourner la fabrique sur le fil principal).

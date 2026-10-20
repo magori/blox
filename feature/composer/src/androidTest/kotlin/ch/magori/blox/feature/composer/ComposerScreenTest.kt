@@ -25,6 +25,7 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -32,6 +33,7 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.SavedStateHandle
 import androidx.navigationevent.NavigationEventInfo
@@ -42,6 +44,8 @@ import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.text.assertWordsWhole
+import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -121,19 +125,7 @@ internal class ComposerScreenTest {
     @DisplayName("on a small phone with the largest font, every cell is 24 dp wide and high at least")
     fun everyCellIsLargeEnoughOnASmallPhone() = extension.use {
         // Given a phone of 360 × 640 dp, the font twice as large
-        setContent {
-            val density = LocalDensity.current
-            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
-                BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                    ComposerScreen(
-                        viewModel = viewModel,
-                        onBack = {},
-                        onDeleted = {},
-                        modifier = Modifier.size(360.dp, 640.dp),
-                    )
-                }
-            }
-        }
+        showEditorWithLargeFont(height = 640.dp)
 
         // Then: 24 dp, the minimum of WCAG 2.2 (2.5.8); the lines that do not fit scroll
         val cells = onAllNodes(hasTestTag(CELL_TAG))
@@ -146,30 +138,82 @@ internal class ComposerScreenTest {
     @DisplayName("on a small phone with the largest font, the category chosen for the dice comes in sight, whole")
     fun theCategoryChosenComesInSight() = extension.use {
         // Given a phone 360 dp wide, the font twice as large: the categories do not all fit on their line
-        setContent {
-            val density = LocalDensity.current
-            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
-                BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                    ComposerScreen(
-                        viewModel = viewModel,
-                        onBack = {},
-                        onDeleted = {},
-                        modifier = Modifier.size(360.dp, 760.dp),
-                    )
-                }
-            }
-        }
+        showEditorWithLargeFont()
 
         // When the last category is chosen
         runOnUiThread { viewModel.onCategoryChosen(Category.DANCE) }
         waitForIdle()
 
         // Then it shows whole, within the width of the phone
-        // (its position and size unclipped: the bounds of a node are cut by the line that scrolls)
-        val node = onNodeWithText("Danse").fetchSemanticsNode()
-        val width = with(density) { 360.dp.toPx() }
-        assertThat(node.positionInRoot.x).isGreaterThanOrEqualTo(0f)
-        assertThat(node.positionInRoot.x + node.size.width).isLessThanOrEqualTo(width)
+        assertShowsWhole("Danse")
+    }
+
+    @Test
+    @DisplayName("on a small phone with the largest font, the longest category chosen for the dice shows whole")
+    fun theLongestCategoryChosenShowsWhole() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large, in the pixel font
+        showEditorWithLargeFont()
+
+        // When the category of the longest name is chosen
+        runOnUiThread { viewModel.onCategoryChosen(Category.MELANCHOLIC) }
+        waitForIdle()
+
+        // Then it shows whole, within the width of the phone, its name too
+        assertShowsWhole("Mélancolique")
+        assertThat(textLayout("Mélancolique").hasVisualOverflow).isFalse()
+    }
+
+    @Test
+    @DisplayName("on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo")
+    fun theTempoButtonsShowWholeWithALargeFont() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large, in the pixel font
+        showEditorWithLargeFont()
+
+        // Then « − », the tempo and « + » stand in this order, within the width of the phone, « + » 48 dp wide
+        val slower = onNodeWithContentDescription("Ralentir").fetchSemanticsNode().boundsInRoot
+        val faster = onNodeWithContentDescription("Accélérer").fetchSemanticsNode().boundsInRoot
+        val tempo = onNodeWithText("120 temps/min").fetchSemanticsNode().boundsInRoot
+        val width = with(density) { NARROWEST_PHONE.toPx() }
+        assertThat(slower.left).isGreaterThanOrEqualTo(0f)
+        assertThat(tempo.left).isGreaterThanOrEqualTo(slower.right)
+        assertThat(faster.left).isGreaterThanOrEqualTo(tempo.right)
+        assertThat(faster.right).isLessThanOrEqualTo(width)
+        assertThat(faster.width).isEqualTo(with(density) { BloxSizes.minTouchTarget.toPx() })
+    }
+
+    @Test
+    @DisplayName("on a small phone with the largest font, the tempo holds on two lines at most, its words whole")
+    fun theTempoKeepsItsWordsWholeWithALargeFont() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large, in the pixel font
+        showEditorWithLargeFont()
+
+        // Then « temps/min » is not cut at its slash
+        val tempo = textLayout("120 temps/min")
+        assertThat(tempo.lineCount).isLessThanOrEqualTo(2)
+        assertThat(tempo.hasVisualOverflow).isFalse()
+        assertWordsWhole(tempo)
+    }
+
+    @Test
+    @DisplayName(
+        "on a small phone with the largest font, the message of the dice holds on three lines, its words whole",
+    )
+    fun theMessageOfTheDiceHoldsOnThreeLinesWithALargeFont() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large, in the pixel font, and a note in the grid
+        showEditorWithLargeFont()
+        cell("Mi bas, temps 1").performScrollTo().performClick()
+        waitForIdle()
+        mainClock.autoAdvance = false
+
+        // When the dice rolls over it
+        runOnUiThread { viewModel.onDice() }
+        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
+
+        // Then its message leaves most of the grid in sight: three lines at most, none cut, no word cut
+        val message = textLayout("Musique tirée au hasard. « Annuler » ramène l'ancienne.")
+        assertThat(message.lineCount).isLessThanOrEqualTo(MESSAGE_LINES)
+        assertThat(message.hasVisualOverflow).isFalse()
+        assertWordsWhole(message)
     }
 
     @Test
@@ -579,6 +623,37 @@ internal class ComposerScreenTest {
         }
     }
 
+    /** The editor on a phone [NARROWEST_PHONE] wide and [height] high, the font twice as large, in [kind]. */
+    private fun ComposeContext.showEditorWithLargeFont(
+        height: Dp = 760.dp,
+        kind: BloxThemeKind = BloxThemeKind.ORIGINAL,
+    ) {
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                BloxTheme(kind = kind) {
+                    ComposerScreen(
+                        viewModel = viewModel,
+                        onBack = {},
+                        onDeleted = {},
+                        modifier = Modifier.size(NARROWEST_PHONE, height),
+                    )
+                }
+            }
+        }
+    }
+
+    /**
+     * The button labelled [text] stands within the width of the phone
+     * (its position and size unclipped: the bounds of a node are cut by the line that scrolls).
+     */
+    private fun ComposeContext.assertShowsWhole(text: String) {
+        val node = onNode(hasText(text) and hasClickAction()).fetchSemanticsNode()
+        val width = with(density) { NARROWEST_PHONE.toPx() }
+        assertThat(node.positionInRoot.x).isGreaterThanOrEqualTo(0f)
+        assertThat(node.positionInRoot.x + node.size.width).isLessThanOrEqualTo(width)
+    }
+
     private fun ComposeContext.cell(name: String): SemanticsNodeInteraction = onNodeWithContentDescription(name)
 
     private fun SemanticsNodeInteraction.assertState(state: String): SemanticsNodeInteraction =
@@ -591,6 +666,7 @@ internal class ComposerScreenTest {
         const val SLIDE_STEPS = 10
         const val SEED = 42L
         const val MESSAGE_SHOWN_MILLIS = 500L
+        const val MESSAGE_LINES = 3
         const val BAR_TAG = "composer_bar"
         const val CELL_TAG = "composer_cell"
         val NARROWEST_PHONE = 360.dp

@@ -12,7 +12,7 @@ import kotlin.math.floor
 
 /**
  * A text from [maxFontSize], shrinking to fit its place down to [shrinkFloor]. Prefers one line; wraps (up to the
- * maxLines of the text) only if one line would need a size below the floor.
+ * maxLines of the text), between its words, only if one line would need a size below the floor.
  */
 @Composable
 @ReadOnlyComposable
@@ -30,13 +30,11 @@ private data class FewestLines(val minFontSize: TextUnit, val maxFontSize: TextU
             smallest = minFontSize.toPx(),
             largest = maxFontSize.toPx(),
             step = ShrinkStep.toPx(),
-            fitsOnOneLine = { layout(it).run { fits && lineCount == 1 } },
-            fitsOnLines = { layout(it).fits },
+            fitsOnOneLine = { layout(it).run { fitsWithWholeWords && lineCount == 1 } },
+            fitsOnLines = { layout(it).fitsWithWholeWords },
         )
         return size.toSp()
     }
-
-    private val TextLayoutResult.fits: Boolean get() = !didOverflowWidth && !didOverflowHeight
 }
 
 /**
@@ -74,3 +72,29 @@ internal fun largestSizeThatFits(
     }
     return smallest + low * step
 }
+
+/**
+ * A text from [maxFontSize], on as many lines as it needs (up to its maxLines), shrinking only when it does not fit
+ * there or would cut a word, down to [shrinkFloor]. Unlike [shrinkToFewestLines], it does not seek the fewest lines:
+ * it keeps the largest size, on as many lines as that size takes.
+ */
+@Composable
+@ReadOnlyComposable
+fun shrinkToWholeWords(maxFontSize: TextUnit): TextAutoSize = shrinkingAutoSize(maxFontSize, ::WholeWords)
+
+/** Lays the text out for the largest size at which it fits with whole words, or else its smallest size. */
+private data class WholeWords(val minFontSize: TextUnit, val maxFontSize: TextUnit) : TextAutoSize {
+    override fun TextAutoSizeLayoutScope.getFontSize(
+        constraints: Constraints,
+        text: AnnotatedString,
+    ): TextUnit = largestSizeThatFits(
+        smallest = minFontSize.toPx(),
+        largest = maxFontSize.toPx(),
+        step = ShrinkStep.toPx(),
+        fits = { performLayout(constraints, text, it.toSp()).fitsWithWholeWords },
+    )?.toSp() ?: minFontSize
+}
+
+/** Whether this text, as laid out, fits its place without cutting a word. */
+private val TextLayoutResult.fitsWithWholeWords: Boolean
+    get() = !didOverflowWidth && !didOverflowHeight && !cutsAWord
