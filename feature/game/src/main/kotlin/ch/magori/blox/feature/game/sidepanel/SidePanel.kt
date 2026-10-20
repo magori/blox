@@ -4,6 +4,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -31,11 +35,12 @@ import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.ValueText
 
 /** The sizes of the side column, in one place. */
-private object SidePanelSizes {
+internal object SidePanelSizes {
     /** Between two panels. */
     val gap = 8.dp
 
-    /** The preview fits the widest piece: 2 cells high. */
+    /** The preview fits every piece in its spawn orientation: 4 cells wide, 2 high. */
+    const val PREVIEW_COLUMNS = 4
     const val PREVIEW_ROWS = 2
 }
 
@@ -69,22 +74,70 @@ internal fun ScorePanels(
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ValuePanel(
-            label = stringResource(R.string.feature_game_score),
-            value = scoreText(score),
-            rawValue = score.value,
-        )
-        ValuePanel(
-            label = stringResource(R.string.feature_game_level),
-            value = levelText(level),
-            rawValue = level.value,
-        )
-        ValuePanel(
-            label = stringResource(R.string.feature_game_lines),
-            value = linesText(lines),
-            rawValue = lines.value,
-        )
+        ScorePanel(score)
+        LevelPanel(level)
+        LinesPanel(lines)
     }
+}
+
+/**
+ * The side column laid across, above the board of a very narrow window: score and level, then lines and next
+ * piece, the next piece with cells of [cellSize] pixels, those of the board. The two panels of a row are as wide
+ * and as high as each other. [next] is null when the next piece is hidden.
+ */
+@Composable
+internal fun ScoreGrid(
+    score: Points,
+    level: Level,
+    lines: Lines,
+    next: NextPieceCells?,
+    cellSize: Float,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
+        PanelRow {
+            ScorePanel(score, Modifier.weight(1f).fillMaxHeight())
+            LevelPanel(level, Modifier.weight(1f).fillMaxHeight())
+        }
+        PanelRow {
+            LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
+            NextPiecePanel(next = next, cellSize = cellSize, modifier = Modifier.weight(1f).fillMaxHeight())
+        }
+    }
+}
+
+/** Two panels side by side, [SidePanelSizes.gap] apart, as high as the higher. */
+@Composable
+private fun PanelRow(content: @Composable RowScope.() -> Unit) {
+    Row(
+        modifier = Modifier.height(IntrinsicSize.Max),
+        horizontalArrangement = Arrangement.spacedBy(SidePanelSizes.gap),
+        content = content,
+    )
+}
+
+@Composable
+private fun ScorePanel(
+    score: Points,
+    modifier: Modifier = Modifier,
+) {
+    ValuePanel(stringResource(R.string.feature_game_score), scoreText(score), score.value, modifier)
+}
+
+@Composable
+private fun LevelPanel(
+    level: Level,
+    modifier: Modifier = Modifier,
+) {
+    ValuePanel(stringResource(R.string.feature_game_level), levelText(level), level.value, modifier)
+}
+
+@Composable
+private fun LinesPanel(
+    lines: Lines,
+    modifier: Modifier = Modifier,
+) {
+    ValuePanel(stringResource(R.string.feature_game_lines), linesText(lines), lines.value, modifier)
 }
 
 /** The next piece in its panel, with cells of [cellSize] pixels, those of the board. */
@@ -117,10 +170,12 @@ private fun ValuePanel(
     label: String,
     value: String,
     rawValue: Int,
+    modifier: Modifier = Modifier,
 ) {
     LabelledPanel(
         label = label,
         description = stringResource(R.string.feature_game_value_description, label, rawValue.toString()),
+        modifier = modifier,
     ) {
         ValueText(text = value)
     }
