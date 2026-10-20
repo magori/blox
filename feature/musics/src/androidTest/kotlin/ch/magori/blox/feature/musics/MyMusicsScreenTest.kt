@@ -1,32 +1,43 @@
 package ch.magori.blox.feature.musics
 
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionContains
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -40,9 +51,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -57,13 +65,12 @@ internal class MyMusicsScreenTest {
 
     private val uiState = MyMusicsUiState(
         musics = listOf(
-            aCard(evening, "Thème du soir", Category.CALM, key = "fa majeur", bpm = 80, inGame = true),
+            aCard(evening, "Thème du soir", Category.CALM, key = "fa majeur", inGame = true),
             aCard(
                 march,
                 "Ma marche",
                 null,
                 key = "la mineur",
-                bpm = 132,
                 length = "0:15",
                 spokenLength = "15 secondes",
             ),
@@ -75,7 +82,7 @@ internal class MyMusicsScreenTest {
     private val calls = mutableListOf<String>()
 
     @Test
-    @DisplayName("each card tells the name, the category and the tempo of its music, or the bar played while listened")
+    @DisplayName("each card tells the name, style, key and length of its music, or the bar played while listened")
     fun eachCardTellsItsMusic() = extension.use {
         // Given « Ma marche » listened to, at its third bar of eight
         showMyMusics(
@@ -86,13 +93,14 @@ internal class MyMusicsScreenTest {
 
         // Then
         onNodeWithText("Pendant les parties : Thème du soir").assertExists()
+        onNodeWithContentDescription("Lecture, mesure 3 sur 8", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertShows("Lecture · mesure 3 sur 8")
+        onAllNodesWithContentDescription("la mineur", substring = true, useUnmergedTree = true).assertCountEquals(0)
         // The info lines as TalkBack says them, in words
-        onNodeWithContentDescription(
-            "Calme, fa majeur, 80 temps par minute, 24 secondes, modifiée le 20 octobre",
-            substring = true,
-        ).assertExists()
-        onNodeWithContentDescription("Libre, la mineur, lecture, mesure 3 sur 8", substring = true).assertExists()
-        onNodeWithContentDescription("132 temps par minute", substring = true).assertDoesNotExist()
+        onNodeWithContentDescription("Calme, fa majeur, 24 secondes", substring = true).assertExists()
+        onNodeWithContentDescription("Lecture, mesure 3 sur 8", substring = true).assertExists()
+        onNodeWithContentDescription("la mineur", substring = true).assertDoesNotExist()
 
         // When
         onNodeWithContentDescription("Écouter Thème du soir").performClick()
@@ -103,28 +111,59 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("each card tells the style and the key, the tempo and the length, and the day of the last change")
-    fun eachCardTellsStyleKeyTempoLengthAndDay() = extension.use {
-        // Given « Thème du soir » last changed on 18 October, « Ma marche » at a time unknown (saved before it was
-        // kept)
-        showMyMusics(
-            uiState.copy(
-                musics = listOf(
-                    uiState.musics[0].copy(modifiedAt = Instant.parse("2026-10-18T12:00:00Z")),
-                    uiState.musics[1].copy(modifiedAt = null),
-                ),
-            ),
-        )
+    @DisplayName("each card shows its style, its key and its length on one line, without its tempo nor its last change")
+    fun eachCardShowsStyleKeyAndLengthOnOneLine() = extension.use {
+        // Given
+        showMyMusics()
 
-        // Then TalkBack says each one in words, without « · » nor « 0:24 », the day only when it is known
-        onNodeWithContentDescription(
-            "Calme, fa majeur, 80 temps par minute, 24 secondes, modifiée le 18 octobre",
-            substring = true,
-        ).assertIsDisplayed()
-        onNodeWithContentDescription("Libre, la mineur, 132 temps par minute, 15 secondes", substring = true)
+        // Then the line shows them with « · » and « 0:24 »
+        onNodeWithContentDescription("Calme, fa majeur, 24 secondes", useUnmergedTree = true)
             .assertIsDisplayed()
-        onAllNodesWithContentDescription("modifiée le", substring = true).assertCountEquals(1)
+            .assertShows("Calme · fa majeur · 0:24")
+        onNodeWithContentDescription("Libre, la mineur, 15 secondes", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertShows("Libre · la mineur · 0:15")
+        onAllNodesWithText("temps", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        onAllNodesWithText("Modifiée", substring = true, useUnmergedTree = true).assertCountEquals(0)
+        // TalkBack, which reads the button that opens the editor as a whole, says them in words only
+        onNodeWithText("Ma marche").assertContentDescriptionContains("Libre, la mineur, 15 secondes", substring = true)
+        onAllNodesWithText("·", substring = true).assertCountEquals(0)
+        onAllNodesWithText("0:24", substring = true).assertCountEquals(0)
         onAllNodesWithContentDescription("0:24", substring = true).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("a card is a single row as high as its buttons, a long name on one line, Utiliser a square of 48 dp")
+    fun aCardIsASingleRow() = extension.use {
+        // Given
+        showMyMusics(uiState.copy(musics = listOf(uiState.musics[0], uiState.musics[1].copy(name = LONG_NAME))))
+
+        // Then the name and its info line, which open the editor, are as high as the buttons beside them
+        onNodeWithText(LONG_NAME).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+        onNodeWithText(LONG_NAME, useUnmergedTree = true).assertOnOneLineCutShort()
+        onNodeWithContentDescription("$LONG_NAME pendant les parties").assertIsSquareOfTouchTarget()
+        // A glyph, not a word
+        onNodeWithText("Utiliser").assertDoesNotExist()
+        onNodeWithText("En jeu").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("with a font twice as large, the name and the info of a card stay on one line each, cut short")
+    fun withALargeFontTheCardKeepsOneLineEach() = extension.use {
+        // Given
+        val long = uiState.musics[1].copy(name = LONG_NAME, key = "fa dièse mixolydien")
+        showMyMusics(uiState.copy(musics = listOf(long)), fontScale = 2f)
+
+        // Then
+        onNodeWithText(LONG_NAME, useUnmergedTree = true).assertIsDisplayed().assertOnOneLineCutShort()
+        onNodeWithContentDescription("Libre, fa dièse mixolydien, 15 secondes", useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assertShows("Libre · fa dièse mixolydien · 0:15")
+            .assertOnOneLineCutShort()
+        // The buttons beside them keep their size
+        onNodeWithContentDescription("Écouter $LONG_NAME").assertIsSquareOfTouchTarget()
+        onNodeWithContentDescription("$LONG_NAME pendant les parties").assertIsSquareOfTouchTarget()
+        onNodeWithContentDescription("Plus d'actions pour $LONG_NAME").assertIsSquareOfTouchTarget()
     }
 
     @Test
@@ -407,13 +446,12 @@ internal class MyMusicsScreenTest {
         }
     }
 
-    /** The card of a music of eight bars, last changed on 20 October 2026 at noon in Greenwich, the day shown. */
+    /** The card of a music of eight bars. */
     private fun aCard(
         id: ScoreId.Personal,
         name: String,
         category: Category?,
         key: String = "do majeur",
-        bpm: Int = 80,
         length: String = "0:24",
         spokenLength: String = "24 secondes",
         inGame: Boolean = false,
@@ -422,86 +460,122 @@ internal class MyMusicsScreenTest {
         name = name,
         category = category,
         key = key,
-        bpm = bpm,
         length = length,
         spokenLength = spokenLength,
-        modifiedAt = Instant.parse("2026-10-20T12:00:00Z"),
         inGame = inGame,
     )
 
     private fun ComposeContext.showMyMusics(
         state: MyMusicsUiState = uiState,
         renameProblem: (String) -> NameProblem? = { null },
-    ) = setMyMusics(renameProblem) { state }
+        fontScale: Float = 1f,
+    ) = setMyMusics(renameProblem, fontScale) { state }
 
-    /** Shows the list in the state [state] gives, read again when it changes. */
+    /** Shows the list in the state [state] gives, read again when it changes, its font [fontScale] times as large. */
     private fun ComposeContext.setMyMusics(
         renameProblem: (String) -> NameProblem? = { null },
+        fontScale: Float = 1f,
         state: () -> MyMusicsUiState,
     ) {
         setContent {
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                MyMusicsScreen(
-                    uiState = state(),
-                    zone = ZoneOffset.UTC,
-                    today = LocalDate.of(2026, 10, 20),
-                    actions = object : MyMusicsActions {
-                        override fun onBack() {
-                            calls += "back"
-                        }
+            val density = Density(LocalDensity.current.density, fontScale)
+            CompositionLocalProvider(LocalDensity provides density) { ThemedMyMusics(renameProblem, state) }
+        }
+    }
 
-                        override fun onListen(id: ScoreId.Personal) {
-                            calls += "listen ${id.key}"
-                        }
+    /** The list in the theme Couleurs, its actions written down in [calls]. */
+    @Composable
+    private fun ThemedMyMusics(
+        renameProblem: (String) -> NameProblem?,
+        state: () -> MyMusicsUiState,
+    ) {
+        BloxTheme(kind = BloxThemeKind.COLORFUL) {
+            MyMusicsScreen(
+                uiState = state(),
+                actions = object : MyMusicsActions {
+                    override fun onBack() {
+                        calls += "back"
+                    }
 
-                        override fun onUse(id: ScoreId.Personal) {
-                            calls += "use ${id.key}"
-                        }
+                    override fun onListen(id: ScoreId.Personal) {
+                        calls += "listen ${id.key}"
+                    }
 
-                        override fun onEdit(id: ScoreId.Personal) {
-                            calls += "edit ${id.key}"
-                        }
+                    override fun onUse(id: ScoreId.Personal) {
+                        calls += "use ${id.key}"
+                    }
 
-                        override fun onRename(id: ScoreId.Personal) {
-                            calls += "rename ${id.key}"
-                        }
+                    override fun onEdit(id: ScoreId.Personal) {
+                        calls += "edit ${id.key}"
+                    }
 
-                        override fun renameProblem(name: String): NameProblem? = renameProblem(name)
+                    override fun onRename(id: ScoreId.Personal) {
+                        calls += "rename ${id.key}"
+                    }
 
-                        override fun onRenamed(name: String) {
-                            calls += "renamed $name"
-                        }
+                    override fun renameProblem(name: String): NameProblem? = renameProblem(name)
 
-                        override fun onDelete(id: ScoreId.Personal) {
-                            calls += "delete ${id.key}"
-                        }
+                    override fun onRenamed(name: String) {
+                        calls += "renamed $name"
+                    }
 
-                        override fun onDeleteConfirmed() {
-                            calls += "delete confirmed"
-                        }
+                    override fun onDelete(id: ScoreId.Personal) {
+                        calls += "delete ${id.key}"
+                    }
 
-                        override fun onDialogDismissed() {
-                            calls += "dismissed"
-                        }
+                    override fun onDeleteConfirmed() {
+                        calls += "delete confirmed"
+                    }
 
-                        override fun onUndo() {
-                            calls += "undo"
-                        }
+                    override fun onDialogDismissed() {
+                        calls += "dismissed"
+                    }
 
-                        override fun onUndoDismissed() {
-                            calls += "undo dismissed"
-                        }
+                    override fun onUndo() {
+                        calls += "undo"
+                    }
 
-                        override fun onRandom() {
-                            calls += "random"
-                        }
+                    override fun onUndoDismissed() {
+                        calls += "undo dismissed"
+                    }
 
-                        override fun onNew() {
-                            calls += "new"
-                        }
-                    },
-                )
-            }
+                    override fun onRandom() {
+                        calls += "random"
+                    }
+
+                    override fun onNew() {
+                        calls += "new"
+                    }
+                },
+            )
         }
     }
 }
+
+/** A name too long for a card at its width: « Ballades pour une longue soirée en hiver ». */
+private const val LONG_NAME = "Ballades pour une longue soirée en hiver"
+
+/** The text of this node as it is laid out: what it shows, whatever TalkBack reads. */
+private fun SemanticsNodeInteraction.layout(): TextLayoutResult {
+    val layouts = mutableListOf<TextLayoutResult>()
+    fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+    return layouts.single()
+}
+
+/** Asserts that this node shows [text]. */
+private fun SemanticsNodeInteraction.assertShows(text: String): SemanticsNodeInteraction {
+    assertThat(layout().layoutInput.text.text).isEqualTo(text)
+    return this
+}
+
+/** Asserts that the text of this node takes one line, cut short by an ellipsis. */
+private fun SemanticsNodeInteraction.assertOnOneLineCutShort(): SemanticsNodeInteraction {
+    val layout = layout()
+    assertThat(layout.lineCount).isEqualTo(1)
+    assertThat(layout.isLineEllipsized(0)).isTrue()
+    return this
+}
+
+/** Asserts that this node is a square of the touch target, 48 dp. */
+private fun SemanticsNodeInteraction.assertIsSquareOfTouchTarget(): SemanticsNodeInteraction =
+    assertWidthIsEqualTo(BloxSizes.minTouchTarget).assertHeightIsEqualTo(BloxSizes.minTouchTarget)

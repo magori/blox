@@ -628,7 +628,7 @@ voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des
 ### Mes musiques
 
 - Bouton retour vers l'accueil ; en haut, la musique jouée pendant les parties.
-- Une carte par musique : écouter, nom (le toucher ouvre l'éditeur), catégorie et tempo,
+- Une carte par musique : écouter, nom (le toucher ouvre l'éditeur), style, tonalité et durée,
   *Utiliser* / *En jeu*, menu « … » (*Modifier*, *La jouer pendant les parties* ou *Ne plus la
   jouer*, *Supprimer*). Pendant l'écoute, la carte affiche « Lecture · mesure n sur 8 ».
 - Une seule musique personnelle est jouée à la fois ; sans elle, c'est la musique choisie à
@@ -642,16 +642,26 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 
 - **Liste** : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché avant la lecture.
   En-tête fixe (Retour, titre, « Pendant les parties : X » ou « la musique choisie à l'accueil »,
-  deux lignes au plus). Chaque carte : le nom, puis trois lignes (P4.29) : style et tonalité (« Joyeux · sol majeur », « Libre · la mineur ») ; tempo et durée des 8 mesures, arrondie à la seconde (« 120 temps/min · 0:16 ») ; « Modifiée le 20 oct. » (« 1er » le premier du mois, l'année ajoutée quand ce n'est pas l'année en cours, fuseau de l'appareil, ligne absente pour une date inconnue). Pendant l'écoute, « Lecture · mesure n sur 8 » remplace la ligne du tempo, en couleur d'encre. Les lignes gardent leurs mots entiers et réduisent en police agrandie ; TalkBack lit « 80 temps par minute, 24 secondes, modifiée le 18 octobre ».
+  deux lignes au plus). Chaque carte tient sur une rangée (P5.52, demande du développeur) : 48 dp
+  de contenu, 56 dp avec la marge de 4 dp et le cadre ; de gauche à droite, écouter (48 dp), le
+  nom sur une ligne puis une ligne « style · tonalité · durée » (« Joyeux · sol majeur · 0:16 »,
+  durée des 8 mesures arrondie à la seconde), chacune coupée par une ellipse si elle ne tient pas,
+  l'interrupteur *Utiliser* / *En jeu* et le menu « … ». Pendant l'écoute, « Lecture · mesure n
+  sur 8 » remplace la ligne d'info, en couleur d'encre. En police agrandie, la rangée grandit au
+  lieu de rogner. Le tempo et la date de modification ne sont plus sur la carte (la date reste
+  dans le fichier des musiques). TalkBack lit « Calme, fa majeur, 24 secondes », ou « Lecture,
+  mesure 3 sur 8 » pendant l'écoute, sans les « · ».
 - **Écoute** : par le lecteur partagé, une musique à la fois ; la toucher à nouveau l'arrête. La
   carte écoutée affiche « Lecture · mesure n sur 8 », calculée d'après le tempo, sans dérive.
   L'écoute s'arrête quand le lecteur s'arrête de lui-même, en arrière-plan (`ON_STOP`), en
   quittant la liste, en ouvrant l'éditeur et quand on supprime la musique écoutée ; elle continue
   derrière un dialogue. Comme dans l'éditeur, l'indication peut devancer le son (tampon audio,
   perte passagère du focus : P4.25).
-- ***Utiliser* / *En jeu*** : un interrupteur pour TalkBack (« X pendant les parties »), activé pour
-  la musique jouée pendant les parties ; *Utiliser* la choisit, *En jeu* touché rend la musique de
-  l'accueil.
+- ***Utiliser* / *En jeu*** : un bouton carré de 48 dp à droite du nom (P5.52), interrupteur pour
+  TalkBack (« X pendant les parties »), activé pour la musique jouée pendant les parties : note
+  de musique encadrée sur `panel` quand elle n'est pas en jeu, coche `accentInk` sur `accent`
+  quand elle l'est. Le toucher choisit la musique, ou rend celle de l'accueil si elle était en
+  jeu. Note et coche sont dessinées sur place, en attendant le jeu d'icônes (P5.54b).
 - **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
   - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
     `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.
@@ -664,16 +674,10 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
     « L'opération a échoué. » (P5.45).
 - *Nouvelle* ouvre l'éditeur vierge ; *Au hasard* l'ouvre sur une musique tirée sur *Surprise*
   (`ComposerRoute(rollDice = true)`, P4.20) ; toucher le nom ou *Modifier* ouvre la musique (P4.19d).
-- Écarts avec V7 et V10 : *Utiliser* sous le nom et non à côté (la police pixel et la police ×2 ne
-  laissaient que quelques lettres au nom) ; menu déroulant comme celui de l'éditeur, pas de feuille
-  en bas d'écran ; pas de nom de gamme dans la ligne d'info ; pas de message après *Utiliser* ;
-  *Renommer* dans le menu de la carte (P4.26, maquette).
-- Cartes plus basses, maquettées le 2026-10-20 (V7, V10, V13, V16 ; demande du développeur, pas
-  encore codé : P5.52) : une seule rangée de 48 dp (écouter, nom sur une ligne, puis une ligne
-  « Joyeux · sol majeur · 0:16 » ou « Lecture · mesure n sur 8 », interrupteur, menu « … ») ;
-  *Utiliser* / *En jeu* devient un bouton carré de 48 dp à côté du nom (note de musique, coche
-  sur fond `accent` quand la musique est en jeu ; même interrupteur pour TalkBack) ; tempo et
-  date quittent la carte.
+- Écarts avec V7 et V10 : menu déroulant comme celui de l'éditeur, pas de feuille en bas
+  d'écran ; pas de message après *Utiliser* ; *Renommer* dans le menu de la carte (P4.26,
+  maquette). En thème Original (police pixel), la rangée ne laisse voir qu'une dizaine de
+  caractères du nom et le début de la ligne d'info, moins encore en police ×2 ; TalkBack lit tout.
 
 **Tests :** `MyMusicsViewModelTest › the list shows the saved musics in their order, by their name, category and tempo`,
 `MyMusicsViewModelTest › the music played during the games is in game, and named at the top, the others are not`,
@@ -707,7 +711,9 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsViewModelTest › a deletion that cannot be written leaves the confirmation open, telling it failed, and offers no undo`,
 `MyMusicsViewModelTest › a choice for the games that cannot be written changes nothing`,
 `CategoryLabelTest › each category has a label of its own, and a music written by hand another one`,
-`MyMusicsScreenTest › each card tells the name, the category and the tempo of its music, or the bar played while listened`,
+`MyMusicsScreenTest › each card tells the name, style, key and length of its music, or the bar played while listened`,
+`MyMusicsScreenTest › a card is a single row as high as its buttons, a long name on one line, Utiliser a square of 48 dp`,
+`MyMusicsScreenTest › with a font twice as large, the name and the info of a card stay on one line each, cut short`,
 `MyMusicsScreenTest › Utiliser and En jeu are read as a switch, on for the music played during the games, and choose it`,
 `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
 `MyMusicsScreenTest › the dialog Renommer refuses a name taken, saying why, and renames with a free one`,
@@ -1371,14 +1377,13 @@ Captures : `SaveWindow*`, `SaveWindowLongestName*LargeFont`. Vues : V9, V12, V15
 
 ### Informations des musiques (implémentées, P4.29)
 
-Demandées par le développeur (2026-10-20). Les cartes de *Mes musiques* montrent, sous le nom :
-style et tonalité (`Scale.keyName()`), tempo et durée des 8 mesures (`lengthText`, arrondie à la
-seconde, une demi-seconde vers le haut), date de la dernière modification (`dayText` : « 20 oct. »,
-« 1er mai », l'année ajoutée quand ce n'est pas celle d'aujourd'hui, jour, mois et année jamais
-séparés, fuseau de l'appareil ; ligne absente pour une musique enregistrée avant que le fichier
-garde les dates). Pendant l'écoute, « Lecture · mesure n sur 8 » remplace la ligne du tempo.
-TalkBack lit une phrase (`cardInfoDescription`) : « Calme, fa majeur, 80 temps par minute,
-24 secondes, modifiée le 18 octobre ». La bibliothèque date chaque enregistrement et renommage
+Demandées par le développeur (2026-10-20). Les cartes de *Mes musiques* montrent, sous le nom et
+sur une seule ligne depuis P5.52 : style, tonalité (`Scale.keyName()`) et durée des 8 mesures
+(`lengthText`, arrondie à la seconde, une demi-seconde vers le haut). Le tempo et la date de la
+dernière modification, affichés en P4.29, ont quitté la carte en P5.52 (cartes plus basses,
+demande du développeur) ; `dayText` et `spokenDay` ont été retirés avec elles. Pendant l'écoute,
+« Lecture · mesure n sur 8 » remplace la ligne d'info. TalkBack lit une phrase
+(`cardInfoDescription`) : « Calme, fa majeur, 24 secondes ». La bibliothèque date chaque enregistrement et renommage
 (horloge injectée) ; renommer d'un nom identique, choisir pour les parties ou restaurer ne change
 pas la date. Format du fichier : ADR 0017, amendement P4.29. L'éditeur montre « Style · tonalité ·
 modifiée » ou « non enregistrée », sur deux lignes au plus.
@@ -1386,17 +1391,10 @@ modifiée » ou « non enregistrée », sur deux lignes au plus.
 **Tests :** `MusicInfoTest › a music lasts its beats at its tempo, in minutes and seconds, rounded to the nearest second`,
 `MusicInfoTest › a music in bars of 3 beats lasts its own beats, not those of bars of 4`,
 `MusicInfoTest › half a second is rounded up to the next second`,
-`MusicInfoTest › a day is its number then its month shortened in French, which a line never parts`,
-`MusicInfoTest › the first day of a month is written 1er, as French writes it`,
-`MusicInfoTest › the day is the one of the zone of the player, not the one of Greenwich`,
-`MusicInfoTest › a day of another year than today is written with its year`,
-`MusicInfoTest › a day of the year that just ended takes its year on the first of January`,
 `MusicInfoTest › a length is said in minutes and seconds, as TalkBack reads it`,
 `MusicInfoTest › a length of one second is said in the singular`,
-`MusicInfoTest › a day is said with its month whole, and its year when it is not the year of today`,
-`CardDescriptionTest › the info of a card is said as a sentence, its tempo per minute, its length and its day in words`,
-`CardDescriptionTest › while the music is listened to, the bar played is said in place of its tempo and its length`,
-`CardDescriptionTest › a music whose day is unknown is said without it`,
+`CardDescriptionTest › the info of a card is said as a sentence, its style, its key and its length in words`,
+`CardDescriptionTest › while the music is listened to, the bar played is said in place of its style, its key and its length`,
 `MusicLibraryContract › a saved music takes the time of its saving, whatever time it carried`,
 `MusicLibraryContract › the time of a change is kept to the millisecond, as the musics file keeps it`,
 `MusicLibraryContract › choosing a music for the games, or another one, leaves the time of its last change`,
@@ -1408,10 +1406,9 @@ modifiée » ou « non enregistrée », sur deux lignes au plus.
 `DataStoreMusicLibraryTest › a musics file of version 2 is read as it was written, a format that must not change`,
 `DataStoreMusicLibraryTest › the musics of a file of version 1 keep a time unknown once the file is written in version 2`,
 `DataStoreMusicLibraryTest › a time marked neither known nor unknown makes the musics file corrupted`,
-`MyMusicsViewModelTest › each card tells the key, the length at the tempo and the time of the last change of its music`,
-`MyMusicsViewModelTest › a music saved before the musics file kept the time of its changes has a card without a day`,
+`MyMusicsViewModelTest › each card tells the key and the length at the tempo of its music`,
 `ComposerSavingTest › saving, then renaming, in the editor dates the music by the clock of the library each time`,
-`MyMusicsScreenTest › each card tells the style and the key, the tempo and the length, and the day of the last change`,
+`MyMusicsScreenTest › each card shows its style, its key and its length on one line, without its tempo nor its last change`,
 `ComposerScreenTest › the line under the title tells the style, the key, and whether the music is new, changed or saved`,
 `ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`.
 Vues : V7 à V18.

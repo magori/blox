@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 151 / 187 | `████████████████░░░░` **81 %** |
+| **Général** | 152 / 187 | `████████████████░░░░` **81 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -734,10 +734,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   « (bientôt) », `feature_home_mode_modern`), sections à 16 dp, une seule ligne d'actions
   (*Écouter* / *Arrêter*, fichier, *Changer*) sous les choix de musique, pour la musique
   sélectionnée ; TalkBack (« Écouter Menuet »), police ×2, captures (`docs/maquette.md`, V1).
-- [ ] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
+- [x] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
   2026-10-20, demande du développeur) : nom sur une ligne, une ligne style · tonalité · durée,
   *Utiliser* / *En jeu* en bouton carré de 48 dp (note, coche en jeu), tempo et date retirés de la
-  carte ; police ×2, TalkBack, captures, tests de P4.29 à revoir (`docs/generateur-musique.md`).
+  carte ; police ×2, TalkBack, captures, tests de P4.29 à revoir (`docs/generateur-musique.md`). Fait : rangée de 48 dp (56 avec la marge), ligne d'info lue sans « · », `dayText` et `spokenDay` retirés.
 - [x] **P5.53** Mettre à jour la maquette : icônes (demande du développeur, 2026-10-20) ; en pixels
   8 × 8 pour Original, en traits arrondis pour Couleurs et Brume ; Jouer, MES MUSIQUES, Écouter,
   Paramètres, Reprendre, Rejouer, Menu, Au hasard, Nouvelle, menus « … », barre d'outils de
