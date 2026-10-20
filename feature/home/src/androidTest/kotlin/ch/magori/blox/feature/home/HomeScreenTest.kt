@@ -15,6 +15,8 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
@@ -77,6 +79,30 @@ internal class HomeScreenTest {
         onNodeWithText("5").assertIsSelected()
         onNodeWithText("4").assertIsNotSelected()
         onNodeWithText("Menuet").assertIsSelected()
+    }
+
+    @Test
+    @DisplayName("TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown")
+    fun talkBackReadsTheRecordAsItIs() = extension.use {
+        // Given a record beyond the six digits shown
+        showHomeScreen(uiState.copy(record = 1_234_567))
+
+        // Then TalkBack reads its value alone, not the text shown, capped (« Record 999999 »)
+        onNodeWithContentDescription("Record 1234567")
+            .assertExists()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
+        onNodeWithText("Record", substring = true).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the Modern mode is disabled, as TalkBack reads it, beside the Classic mode, selected")
+    fun theModernModeIsDisabled() = extension.use {
+        // Given
+        showHomeScreen()
+
+        // Then
+        onNodeWithText("Moderne (bientôt)").assertIsNotEnabled().assertIsNotSelected()
+        onNodeWithText("Classique").assertIsEnabled().assertIsSelected()
     }
 
     @Test

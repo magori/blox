@@ -417,7 +417,16 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   `GameViewModelTest › frames started again while paused change nothing, the game stays paused until it resumes`,
   `BackActionTest › during the game the system back pauses it`,
   `BackActionTest › while paused the system back resumes the game`,
-  `BackActionTest › once the game is over the system back leaves the game, as Menu does`. Vues : V2, V3,
+  `BackActionTest › once the game is over the system back leaves the game, as Menu does`,
+  `GameScreenLifecycleTest › a screen no longer in front (ON_PAUSE) pauses the game`,
+  `GameScreenLifecycleTest › a paused game asks for no frame: Compose becomes idle`,
+  `GameScreenLifecycleTest › a game resumed goes on from where it stood, without catching up the time spent paused`,
+  `GameScreenLifecycleTest › once the game is over, Rejouer and Menu do nothing until the screen is in front`,
+  `BloxNavDisplayTest › in a game under way, the system back pauses the game, which stays on screen`,
+  `BloxNavDisplayTest › in a paused game, the system back resumes it`,
+  `BloxNavDisplayTest › once the game is over, the system back goes back to the home screen`,
+  `BloxNavDisplayTest › once the game is over, Rejouer starts a new game at its level, in place of the finished one`,
+  `BloxNavDisplayTest › once the game is over, Menu goes back to the home screen`. Vues : V2, V3,
   pause (pas encore maquettée, P2.16).
 
   **Après la mort du processus** (P5.13) : quand le système tue le processus d'une partie (en

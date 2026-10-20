@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 128 / 175 | `███████████████░░░░░` **73 %** |
+| **Général** | 129 / 175 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -526,7 +526,7 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   (incrément 3) : en pause, les images tournent encore à 60 Hz sans donner de tick ; suspendre
   la boucle tant que `paused` est vrai, puis `onFramesStarted()` à la reprise. Fait :
   `LifecycleEventEffect(ON_PAUSE)` → `onPause()`, boucle suspendue en pause (ADR 0012 amendé).
-- [ ] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
+- [x] **P5.5** Tests d'interface des parcours principaux (Compose UI Test). Au premier test
   instrumenté, vérifier que le moteur Jupiter arrive sur `debugAndroidTestRuntimeClasspath`
   (`:feature:game:dependencies`), ou le déclarer en `androidTestRuntimeOnly` (revue de P1.18).
   Parcours à couvrir : fin de partie → Rejouer (nouvelle partie) → Menu ; retour système (revue
@@ -539,7 +539,8 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
   test JVM possible aujourd'hui. Revue de P2.2 (incrément 2) : `GameScreen` affiche
   `GameOverScreen` à la place du jeu, `GameControls` branché, `dropUnlessResumed` sur Rejouer
   et Menu ; `MainDispatcherExtension` (tests de `feature:game`) à mutualiser dès qu'un autre
-  module en a besoin.
+  module en a besoin. Fait : `GameScreenLifecycleTest`, `BloxNavDisplayTest` (app), deux tests de
+  l'accueil ; Jupiter, `CreationExtras` et `MainDispatcherExtension` étaient déjà réglés.
 - [ ] **P5.6** Build de release signé pour installation personnelle. Vérifier la restauration de
   la pile de navigation après mort du processus en build minifié (règles R8 de
   kotlinx-serialization, ADR 0011).
