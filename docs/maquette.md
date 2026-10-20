@@ -90,6 +90,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   (P3.7) : 2 × 2 cellules de 20 dp, joint fin, couleurs des pièces du thème
   (`docs/themes.md`), décoratif pour TalkBack. Les niveaux proposés sont ceux du mode
   (`LevelProgression`) ; un niveau enregistré hors de la liste s'affiche comme le plus proche.
+  Parcours (P5.5) : `HomeScreenTest › TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown`,
+  `HomeScreenTest › the Modern mode is disabled, as TalkBack reads it, beside the Classic mode, selected`,
+  `BloxNavDisplayTest › Jouer starts a game at the start level chosen on the home screen`.
 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).

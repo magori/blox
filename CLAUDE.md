@@ -133,7 +133,7 @@ lui-même.
 | Bibliothèque Android (`core:audio`, `core:data`, `core:haptics`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`) | `blox.android.library` + `blox.android.library.compose` | idem |
 | Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
-| Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem |
+| Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem + Compose UI Test (parcours entre features), `ui-test-manifest` en debug |
 | Mesures (`benchmark`, `com.android.test`) | `blox.android.benchmark` | JUnit 5 branché à la main, règles Macrobenchmark par l'adaptateur `RuleExtension` (amendement de l'ADR 0009) |
 
 - Les dépendances inter-modules utilisent les accesseurs typés : `implementation(projects.core.game)`.
