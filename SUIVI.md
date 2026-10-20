@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 120 / 167 | `██████████████░░░░░░` **72 %** |
-| **MVP audio** | 26 / 28 | `███████████████████░` **93 %** |
+| **Général** | 121 / 167 | `██████████████░░░░░░` **72 %** |
+| **MVP audio** | 27 / 28 | `███████████████████░` **96 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -474,10 +474,10 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
     le brouillon dans `SavedStateHandle` (rotation, mort du processus), Retour qui demande avant de
     quitter une musique modifiée, aperçu du glissé (cases traversées surlignées). Fait, avec
     l'ouverture d'une musique depuis « Mes musiques » (nom, *Modifier*).
-  - [ ] **P4.19e** Annuler une suppression faite depuis l'éditeur : il se ferme en rendant
+  - [x] **P4.19e** Annuler une suppression faite depuis l'éditeur : il se ferme en rendant
     `DeletedMusic`, que `app` jette ; la spec veut le retour à « Mes musiques » avec *Annuler*.
     Relais dans `AppContainer` (flux consommé par `MyMusicsViewModel` à la reprise) ou entrée de la
-    liste avec la suppression en paramètre (revue de P4.19d).
+    liste avec la suppression en paramètre (revue de P4.19d). Fait : relais `DeletedMusicRelay` ; depuis l'accueil, la liste prend la place de l'éditeur.
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
