@@ -668,6 +668,12 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   laissaient que quelques lettres au nom) ; menu déroulant comme celui de l'éditeur, pas de feuille
   en bas d'écran ; pas de nom de gamme dans la ligne d'info ; pas de message après *Utiliser* ;
   *Renommer* dans le menu de la carte (P4.26, maquette).
+- Cartes plus basses, maquettées le 2026-10-20 (V7, V10, V13, V16 ; demande du développeur, pas
+  encore codé : P5.52) : une seule rangée de 48 dp (écouter, nom sur une ligne, puis une ligne
+  « Joyeux · sol majeur · 0:16 » ou « Lecture · mesure n sur 8 », interrupteur, menu « … ») ;
+  *Utiliser* / *En jeu* devient un bouton carré de 48 dp à côté du nom (note de musique, coche
+  sur fond `accent` quand la musique est en jeu ; même interrupteur pour TalkBack) ; tempo et
+  date quittent la carte.
 
 **Tests :** `MyMusicsViewModelTest › the list shows the saved musics in their order, by their name, category and tempo`,
 `MyMusicsViewModelTest › the music played during the games is in game, and named at the top, the others are not`,
