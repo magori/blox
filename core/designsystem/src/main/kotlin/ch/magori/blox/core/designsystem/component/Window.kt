@@ -26,8 +26,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.TextMeasurer
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
@@ -38,6 +36,9 @@ import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.shrinkFloor
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
+import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 
 /*
  * The windows of the screens, over them until they are answered or closed: a panel of the theme, its title, its
@@ -90,13 +91,23 @@ fun WindowPanel(
     }
 }
 
-/** A sentence of a window. */
+/**
+ * A sentence of a window, going to the line between its words only: a word wider than the line, its punctuation with
+ * it, shrinks (down to [shrinkFloor]) rather than be cut, which would leave a final point alone on its line.
+ */
 @Composable
 fun WindowText(
     text: String,
     modifier: Modifier = Modifier,
 ) {
-    Text(text = text, color = BloxTheme.palette.ink, style = MaterialTheme.typography.bodyMedium, modifier = modifier)
+    val style = MaterialTheme.typography.bodyMedium.shrinkingLineHeight()
+    Text(
+        text = text,
+        color = BloxTheme.palette.ink,
+        style = style,
+        autoSize = shrinkToWholeWords(style.fontSize),
+        modifier = modifier,
+    )
 }
 
 /** « L'opération a échoué. », in `danger`, read by TalkBack as it shows: the window stays open to try again. */
@@ -179,14 +190,19 @@ fun WindowAnswers(
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val style = wrappingLabelStyle
         val measurer = rememberTextMeasurer()
-        // The room of a label in half the window, as the answer lays it out; a pixel to spare against the rounding.
-        val room = with(LocalDensity.current) {
-            ((maxWidth - AnswerGap) / 2 - framedBoxPadding(AnswerLabelPadding) * 2).toPx() - 1f
+        val density = LocalDensity.current
+        val widest = remember(style, density, dismiss, confirm) {
+            listOf(measurer.widestWord(dismiss, style), measurer.widestWord(confirm, style))
         }
-        val widest = remember(dismiss, confirm, style, measurer) {
-            maxOf(measurer.widestWord(dismiss, style), measurer.widestWord(confirm, style))
+        val sideBySide = with(density) {
+            holdSideBySide(
+                width = constraints.maxWidth,
+                gap = AnswerGap.roundToPx(),
+                padding = framedBoxPaddingPx(AnswerLabelPadding),
+                weights = listOf(1f, 1f),
+                labels = widest,
+            )
         }
-        val sideBySide = widest <= room
         if (sideBySide) {
             Row(horizontalArrangement = Arrangement.spacedBy(AnswerGap)) { answers(Modifier.weight(1f)) }
         } else {
@@ -194,12 +210,6 @@ fun WindowAnswers(
         }
     }
 }
-
-/** The width of the widest word of [text] in [style], on one line. */
-private fun TextMeasurer.widestWord(
-    text: String,
-    style: TextStyle,
-): Int = text.split(' ').maxOf { word -> measure(word, style, softWrap = false, maxLines = 1).size.width }
 
 /** Inside a window, between its parts, and between its two answers. */
 private val WindowPadding = 12.dp
