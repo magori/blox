@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, build/P5.8-captures-ci] # TEMPORAIRE (mesure P5.8) : à retirer avant la PR
   pull_request:
 
 concurrency:
