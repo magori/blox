@@ -11,12 +11,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.Surprise
 import ch.magori.blox.feature.composer.ui.ChoiceGroup
 import ch.magori.blox.feature.composer.ui.ComposerSizes
 import ch.magori.blox.feature.composer.ui.ToolButton
+import ch.magori.blox.feature.composer.ui.ToolIcon
 
 /**
  * *Au hasard*, then what the dice composes in: Surprise and the seven categories, read as radio buttons, the one chosen,
@@ -40,6 +42,7 @@ internal fun DicePanel(
                 text = stringResource(R.string.feature_composer_dice),
                 onClick = onDice,
                 labelPadding = LabelPadding,
+                icon = ToolIcon(BloxIcon.DICE, above = false),
                 wraps = true,
                 // A share of the line at most, its label on two lines with a large font, shrunk if need be: the choices
                 // keep room to show the one chosen whole, « Mélancolique » too.

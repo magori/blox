@@ -40,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
@@ -117,6 +118,7 @@ internal fun ComposerHeader(
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
                 DropdownMenuItem(
                     text = { Text(stringResource(R.string.feature_composer_menu_rename)) },
+                    leadingIcon = { BloxIcon(BloxIcon.RENAME, tint = palette.ink) },
                     onClick = {
                         expanded = false
                         onRename()
@@ -141,6 +143,7 @@ internal fun ComposerHeader(
                 if (canDelete) {
                     DropdownMenuItem(
                         text = { Text(stringResource(R.string.feature_composer_menu_delete), color = palette.danger) },
+                        leadingIcon = { BloxIcon(BloxIcon.TRASH, tint = palette.danger) },
                         onClick = {
                             expanded = false
                             onDelete()

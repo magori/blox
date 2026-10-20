@@ -7,14 +7,10 @@
     <string name="feature_musics_game_music_home">la musique choisie à l\'accueil</string>
 
     <!-- Cartes -->
-    <!-- Sous le nom, trois lignes : le style et la tonalité (« Joyeux · sol majeur »), le tempo et la durée des huit
-         mesures (« 120 temps/min · 0:16 »), ou la mesure jouée pendant l'écoute, puis la date de la dernière
-         modification (« Modifiée le 20 oct. »), absente pour une musique enregistrée avant qu'elle soit gardée.
-         PluralsCandidate : « temps/min » est une unité, invariable ; « sur » (mesure 3 sur 8), une préposition. -->
-    <string name="feature_musics_style_key">%1$s · %2$s</string>
-    <string name="feature_musics_tempo_length" tools:ignore="PluralsCandidate">%1$d temps/min · %2$s</string>
+    <!-- Sous le nom, une ligne : le style, la tonalité et la durée des huit mesures (« Joyeux · sol majeur · 0:16 »),
+         ou la mesure jouée pendant l'écoute. PluralsCandidate : « sur » (mesure 3 sur 8), une préposition. -->
+    <string name="feature_musics_info">%1$s · %2$s · %3$s</string>
     <string name="feature_musics_listening" tools:ignore="PluralsCandidate">Lecture · mesure %1$d sur %2$d</string>
-    <string name="feature_musics_modified">Modifiée le %1$s</string>
     <!-- Le style d'une musique composée à la main, sans catégorie. -->
     <string name="feature_musics_category_free">Libre</string>
     <string name="feature_musics_category_joyful">Joyeux</string>
@@ -26,10 +22,8 @@
     <string name="feature_musics_category_dance">Danse</string>
     <string name="feature_musics_listen_description">Écouter %1$s</string>
     <string name="feature_musics_stop_description">Arrêter %1$s</string>
-    <string name="feature_musics_use">Utiliser</string>
-    <!-- Lu par TalkBack sur l'interrupteur Utiliser / En jeu, avec son état (activé ou non). -->
+    <!-- Lu par TalkBack sur l'interrupteur Utiliser / En jeu (note, ou coche en jeu), avec son état (activé ou non). -->
     <string name="feature_musics_use_description">%1$s pendant les parties</string>
-    <string name="feature_musics_in_game">En jeu</string>
     <string name="feature_musics_empty">Aucune musique pour l\'instant. Compose la tienne, ou laisse le dé t\'en proposer une.</string>
 
     <!-- Menu « … » d'une carte -->

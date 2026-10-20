@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 152 / 186 | `████████████████░░░░` **82 %** |
+| **Général** | 154 / 187 | `████████████████░░░░` **82 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -737,10 +737,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   sélectionnée ; TalkBack (« Écouter Menuet »), police ×2, captures (`docs/maquette.md`, V1).
   Fait : nom du fichier sous « Mon fichier » laissé à P5.38 ; *Moderne* sous *Classique* en
   police ×2.
-- [ ] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
+- [x] **P5.52** Cartes de « Mes musiques » sur une rangée (maquette V7, V10, V13, V16 du
   2026-10-20, demande du développeur) : nom sur une ligne, une ligne style · tonalité · durée,
   *Utiliser* / *En jeu* en bouton carré de 48 dp (note, coche en jeu), tempo et date retirés de la
-  carte ; police ×2, TalkBack, captures, tests de P4.29 à revoir (`docs/generateur-musique.md`).
+  carte ; police ×2, TalkBack, captures, tests de P4.29 à revoir (`docs/generateur-musique.md`). Fait : rangée de 48 dp (56 avec la marge), ligne d'info lue sans « · », `dayText` et `spokenDay` retirés.
 - [x] **P5.53** Mettre à jour la maquette : icônes (demande du développeur, 2026-10-20) ; en pixels
   8 × 8 pour Original, en traits arrondis pour Couleurs et Brume ; Jouer, MES MUSIQUES, Écouter,
   Paramètres, Reprendre, Rejouer, Menu, Au hasard, Nouvelle, menus « … », barre d'outils de
@@ -749,11 +749,16 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `core:designsystem`, une variante par thème (vecteurs en pixels pour Original, traits pour
   Couleurs et Brume), choisie par le thème ; décoratives à côté d'un libellé,
   `contentDescription` seulement quand l'icône est seule ; captures dans tous les thèmes.
-  - [ ] **P5.54a** Le jeu d'icônes, puis l'écran de jeu (touches A et B : flèche de rotation
+  - [x] **P5.54a** Le jeu d'icônes, puis l'écran de jeu (touches A et B : flèche de rotation
     au-dessus de la lettre, P2.17, P2.5), la pause, la fin de partie et l'éditeur (barre d'outils
-    icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu).
+    icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu). Fait : `BloxIcon`,
+    lettres A et B gardées en 20 sp (contraste) ; `BloxIconSemanticsTest`, `ComposerScreenTest`
+    et `GameScreenKeysTest` à repasser sur un émulateur libre (P5.33).
   - [ ] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
     « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52.
+- [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
+  dépréciée et ne se déclenche pas, et Kotlin ne les signale pas (vu à la revue de P5.54a) ;
+  ajouter une vérification (detekt `UnusedImports` ou équivalent) à `build-logic` et à la CI.
 
 ## P6 — Mode Moderne (plus tard)
 

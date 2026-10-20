@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Level
@@ -93,8 +94,16 @@ internal fun GameOverScreen(
                 spokenDuration(texts.spokenDuration),
             ),
         )
-        PrimaryButton(text = stringResource(R.string.feature_game_over_replay), onClick = onReplay)
-        SecondaryButton(text = stringResource(R.string.feature_game_over_menu), onClick = onMenu)
+        PrimaryButton(
+            text = stringResource(R.string.feature_game_over_replay),
+            icon = BloxIcon.REPLAY,
+            onClick = onReplay,
+        )
+        SecondaryButton(
+            text = stringResource(R.string.feature_game_over_menu),
+            icon = BloxIcon.HOME,
+            onClick = onMenu,
+        )
     }
 }
 

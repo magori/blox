@@ -5,11 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -24,6 +27,8 @@ import androidx.compose.ui.semantics.paneTitle
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -71,10 +76,11 @@ internal fun TitledScreen(
     }
 }
 
-/** The main action of a screen: a full-width button in the theme accent. */
+/** The main action of a screen: a full-width button in the theme accent, [icon] before its [text]. */
 @Composable
 internal fun PrimaryButton(
     text: String,
+    icon: BloxIcon,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -87,14 +93,15 @@ internal fun PrimaryButton(
         shape = BloxTheme.shapes.button,
         colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
     ) {
-        Text(text = text)
+        IconLabel(icon, text)
     }
 }
 
-/** A secondary action of a screen: a full-width outlined button in the theme colours. */
+/** A secondary action of a screen: a full-width outlined button in the theme colours, [icon] before its [text]. */
 @Composable
 internal fun SecondaryButton(
     text: String,
+    icon: BloxIcon,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -108,6 +115,17 @@ internal fun SecondaryButton(
         border = BorderStroke(BloxBorders.frame, palette.panelBorder),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),
     ) {
-        Text(text = text)
+        IconLabel(icon, text)
     }
+}
+
+/** The content of a button of a screen: [icon], decorative, then [text], [IconSizes.gap] apart. */
+@Composable
+private fun RowScope.IconLabel(
+    icon: BloxIcon,
+    text: String,
+) {
+    BloxIcon(icon)
+    Spacer(modifier = Modifier.width(IconSizes.gap))
+    Text(text = text)
 }
