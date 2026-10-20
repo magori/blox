@@ -732,7 +732,7 @@ renomme, supprime en rendant de quoi restaurer à sa place (`DeletedMusic`, avec
 jeu »), et retient la musique jouée pendant les parties, une au plus, effacée par sa
 suppression et rétablie par la restauration. Les règles de nom (`MusicNames`, une seule source
 pour le dépôt et l'éditeur) : un nom est pris sans tenir compte de la casse ni des espaces, la
-musique en cours exceptée par son identité ; nom proposé « Catégorie n » (premier n libre) ;
+musique en cours exceptée par son identité ; nom proposé évocateur suivi de la tonalité (P4.27, voir « Nom proposé et style ») ;
 nom libre « X 2 », ou le nombre suivant si le nom finit par un nombre. Le dépôt refuse un nom
 pris (précondition vérifiée par l'appelant). La musique choisie pour les parties est jouée
 à chaque partie à la place du choix de l'accueil (P4.22b, voir musique.md). Format du fichier : [ADR 0017](adr/0017-format-des-musiques-enregistrees.md).
@@ -790,10 +790,8 @@ pris (précondition vérifiée par l'appelant). La musique choisie pour les part
 `MusicNamesTest › a taken name that ends with a number counts on from it`,
 `MusicNamesTest › a free name leaves out the spaces around the name wanted`,
 `MusicNamesTest › a taken name ending with a number too big to count on is followed by 2`,
-`MusicNamesTest › the proposed name numbers the category, the first number from 1 that no music has`,
 `MusicNamesTest › a name is taken whatever its case, its accents in capitals and the spaces around it`,
 `MusicNamesTest › a taken name is offered free with the next number that no music has, the case of the name wanted kept`,
-`MusicNamesTest › the music being saved keeps its own proposed name`,
 `SavedMusicTest › a saved music is known by the identity of its score`,
 `SavedMusicTest › a saved music has a name that is not blank`,
 `SavedMusicTest › a saved music has no spaces around its name`,
@@ -867,7 +865,7 @@ suivantes. Choix de conception, **[à vérifier]** à l'essai :
 - **Tempo** de 60 à 200 temps/min, par pas de 10 (toutes les catégories, Korobeïniki et le
   Menuet y tiennent).
 - **Enregistrement** : « modifiée » compare le contenu à la version enregistrée ; une musique
-  neuve restée vide se quitte sans question. Nom proposé « Catégorie n » (premier n libre),
+  neuve restée vide se quitte sans question. Nom proposé évocateur suivi de la tonalité (P4.27),
   nom unique sans tenir compte de la casse ni des espaces, la musique en cours exceptée ; un nom
   pris est proposé libre avec le numéro suivant (« Thème 2 » donne « Thème 3 »).
 - **Conversions** : une partition s'ouvre avec sa gamme et sa catégorie (fournies par le
@@ -1173,8 +1171,8 @@ Vues : V8, V11, V14, V17.
 
 ### Enregistrer
 
-- *Enregistrer* ouvre une fenêtre : le nom (proposé d'après la catégorie, par exemple
-  « Joyeux 2 ») et la case « Jouer cette musique pendant les parties ». Entrée valide.
+- *Enregistrer* ouvre une fenêtre : le nom (proposé d'après le style et la tonalité, par exemple
+  « Matin de fête en sol »), le style (P4.28) et la case « Jouer cette musique pendant les parties ». Entrée valide.
 - Enregistrer est impossible si la grille est vide, ou si le nom est déjà pris (comparaison
   sans tenir compte des majuscules, en ignorant la musique en cours) ; un bouton propose alors
   un nom libre, « Prendre « X 2 » ».
@@ -1201,8 +1199,8 @@ Vues : V8, V11, V14, V17.
   une musique que la grille ne sait pas montrer, s'ouvre comme une musique neuve sous une identité
   neuve, sans message **[à vérifier]** : l'original n'est jamais écrasé. Dans *Mes musiques*,
   toucher le nom (et sa ligne d'info) ou *Modifier*, en tête du menu « … », ouvre la musique.
-- **Fenêtre Enregistrer** : nom proposé « Catégorie n » (`proposedName`, « Ma musique n » sans
-  catégorie), saisie coupée à 40 caractères ; grille vide, nom vide ou pris refusés dans la
+- **Fenêtre Enregistrer** : nom proposé évocateur suivi de la tonalité (P4.27, voir « Nom proposé et style ») ;
+  saisie coupée à 40 caractères ; grille vide, nom vide ou pris refusés dans la
   fenêtre, avec « Prendre « X 2 » » pour un nom pris ; la case « Jouer cette musique pendant les
   parties », cochée si elle l'est déjà, la choisit ou rend la musique de l'accueil. Le bouton
   *Enregistrer*, sur sa propre ligne sous le tempo, est plein et précédé de « • » quand des
@@ -1242,7 +1240,6 @@ Vues : V8, V11, V14, V17.
 `ComposerViewModelTest › the editor opens a saved music by its identity, as it was saved, under its name`,
 `ComposerViewModelTest › a saved music is listened to under its identity`,
 `ComposerViewModelTest › an identity the library does not know opens a new music, under a new identity`,
-`ComposerSavingTest › Save opens the window on the name proposed after the category, the first number no music has`,
 `ComposerSavingTest › the window of a saved music opens on its name, and on whether it is played during the games`,
 `ComposerSavingTest › the window saves the music under its name and its identity, and the changes count from there`,
 `ComposerSavingTest › a music saved again replaces its saved version, under the same identity and name`,
@@ -1259,7 +1256,7 @@ Vues : V8, V11, V14, V17.
 `ComposerSavingTest › Leave without saving leaves the editor, and saves nothing`,
 `ComposerSavingTest › Save in the question opens the save window, which leaves the editor once the music is saved`,
 `ComposerSavingTest › the exit, once the screen has left, is forgotten, so that the screen leaves once`,
-`ComposerSavingTest › Rename opens the window on the name of the music, or on the name proposed for a music never named`,
+`ComposerSavingTest › Rename opens the window on the name of the music`,
 `ComposerSavingTest › renaming a saved music renames it in the library, and leaves its changes unsaved`,
 `ComposerSavingTest › renaming a new music names it without saving it, and the save window then proposes that name`,
 `ComposerSavingTest › the rename window refuses a blank name, or one another music has, and offers a free one`,
@@ -1293,6 +1290,78 @@ Vues : V8, V11, V14, V17.
 `MyMusicsViewModelTest › a deletion in the editor taken by the list under it is not offered by a list opened later`,
 `MyMusicsViewModelTest › the next action of the list ends the chance to undo a deletion made in the editor`.
 Vues : V7, V8, V9, V10, V11, V12.
+
+### Nom proposé et style (implémentés, P4.27 et P4.28)
+
+Demandés par le développeur (2026-10-20).
+
+- **Nom proposé** (`proposedName`, `core:data/ProposedNames.kt`) : un nom évocateur du style, tiré
+  au hasard (hasard propre aux noms, injecté, qui ne décale pas les tirages du dé), suivi de la
+  tonalité : « Matin de fête en sol », « Pluie de novembre en ré mineur », « Couloir secret en ré
+  dorien ». Le nom tiré reste le même tant que le style, la gamme et le tempo ne changent pas et
+  qu'aucune musique ne le prend. Ordre : un nom libre de la liste, sinon un nom numéroté
+  (`freeName`), sinon un nom coupé pour que son numéro tienne ; jamais plus de 40 caractères.
+  Renommer une musique jamais nommée propose le même genre de nom. Les listes sont des données du
+  jeu, en français, en constantes Kotlin (l'application n'est qu'en français) :
+
+  | Style | Noms |
+  |---|---|
+  | Joyeux | Matin de fête, Jour de marché, Ronde des cerises, Soleil levant |
+  | Calme | Brume du lac, Jardin du soir, Sieste au verger, Ciel de lait |
+  | Épique | Bannière au vent, Les remparts, Chevauchée, Marche des géants |
+  | Mélancolique | Pluie de novembre, Quai désert, Dernier train, Lettre perdue |
+  | Mystérieux | Couloir secret, Ombre du phare, Carte effacée, Lanterne au bois |
+  | Rétro | Niveau bonus, Salle d'arcade, Écran titre, Dernière vie |
+  | Danse | Bal du port, Tourbillon, Nuit de fanfare, Pas chassé |
+  | Libre, lent, mineur | Rêverie, Songe, Clair-obscur |
+  | Libre, lent, majeur | Promenade, Berceuse, Flânerie |
+  | Libre, vif, mineur | Poursuite, Orage, Fuite |
+  | Libre, vif, majeur | Envolée, Galop, Cavalcade |
+
+  En Libre, le mode compte mineur pour le mineur naturel, harmonique et le dorien, majeur pour le
+  majeur, la pentatonique et le mixolydien ; le tempo est lent sous 100 temps par minute.
+- **Tonalité** (`Scale.keyName()`, `Scale.tonicName()`, `keyPhrase`) : « en sol » (majeur et
+  pentatonique majeure), « en ré mineur » (mineur naturel ou harmonique), « en ré dorien », « en
+  sol mixolydien ». La tonique est en français, écrite selon l'armure de la gamme majeure parente
+  qui a le moins d'altérations, l'égalité allant aux dièses (« en fa dièse », « en ré dièse
+  mineur », « en si bémol mineur »).
+- **Style** (P4.28) : la fenêtre Enregistrer propose « Style », les 7 catégories puis « Libre »,
+  en boutons radio qui passent à la ligne (48 dp), pré-rempli avec la catégorie du dé (« Libre »
+  pour une musique faite à la main) et enregistré dans `SavedMusic.category` (null pour Libre) ;
+  l'éditeur continue ensuite dans ce style. Changer de style change le nom proposé tant que le nom
+  n'est pas choisi (tapé, « Prendre », ou nom d'une musique déjà nommée) : une musique nommée garde
+  son nom, même si sa tonalité change ensuite.
+- Le champ Nom montre le nom entier sur autant de lignes qu'il faut ; un retour à la ligne devient
+  une espace. En Original ×2, « mixolydien » est plus large que le champ et s'y coupe.
+
+**Tests :** `ProposedNamesTest › the key of a major scale is its tonic alone, « en sol »`,
+`ProposedNamesTest › the key says minor for a minor scale, natural or harmonic, the mode of the others, nothing for a major one`,
+`ProposedNamesTest › the tonic is named in French in every octave, its sharp or flat the one of the key signature`,
+`ProposedNamesTest › a music of a style is proposed one of the four names of its style, drawn at random, followed by its key`,
+`ProposedNamesTest › a free music is named after its mode, dorian counted minor, and its tempo, slow under 100 beats a minute`,
+`ProposedNamesTest › a name another music has is never proposed while a name of the list is free, the case ignored`,
+`ProposedNamesTest › once every name of the list is taken, one of them is proposed with the first number that makes it free`,
+`ProposedNamesTest › a proposed name has 40 characters at the most, numbered or not, whatever the style, the key and the tempo`,
+`ProposedNamesTest › when no name of the list fits in 40 characters once numbered, one is cut so that its number fits`,
+`ProposedNamesTest › a key is named by its tonic and its mode, « sol majeur », « ré mineur », « ré dorien »`,
+`ProposedNamesTest › the tonic of a scale is named alone, in French`,
+`ProposedNamesTest › the tonic named of every scale on every note is that note, with one sharp or one flat at the most`,
+`ComposerNamingTest › Save proposes for a music written by hand the style Libre, and a name of its mode and tempo in its key`,
+`ComposerNamingTest › Save proposes for a music of the dice the category it was composed in, and a name of it in its key`,
+`ComposerNamingTest › Rename proposes for a music never named a name of its style in its key`,
+`ComposerNamingTest › the free name taken in place of a name another music has is kept whatever the style chosen`,
+`ComposerNamingTest › a saved music opens the window on its own style, and keeps its name whatever the style chosen`,
+`ComposerNamingTest › a style chosen in the window proposes a name of that style, until the player types a name of their own`,
+`ComposerNamingTest › the music is saved in the style chosen, the editor going on in that style, its changes counted from there`,
+`ComposerNamingTest › a music saved in a style and saved again in Libre is saved without a category`,
+`ComposerNamingTest › a music of the dice saved in Libre is saved without a category`,
+`ComposerNamingTest › a new music renamed keeps its name in the save window whatever the style chosen`,
+`ComposerNamingTest › the window closed and opened again proposes the same name, as long as the style is the same`,
+`ComposerNamingTest › the names are drawn with their own random, injected like the one of the dice`,
+`ComposerDiceTest › a name proposed between two rolls does not change the seeds the dice draws`,
+`ComposerScreenTest › the save window offers the styles as radio buttons, Libre chosen for a music written by hand`,
+`NamingWindowTest › a name of 40 characters shows whole with the font twice as large; a line break is a space`.
+Captures : `SaveWindow*`, `SaveWindowLongestName*LargeFont`. Vues : V9, V12, V15, V18.
 
 ### Noms et fenêtres communs à l'éditeur et à la liste (P5.45)
 
