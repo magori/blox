@@ -76,6 +76,7 @@ import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
 import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 import ch.magori.blox.feature.game.sidepanel.NextPiecePanel
+import ch.magori.blox.feature.game.sidepanel.ScoreGrid
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 import ch.magori.blox.feature.game.sidepanel.nextPieceCells
@@ -270,9 +271,10 @@ private fun Game(
                 .fillMaxWidth(),
         ) {
             val density = LocalDensity.current.density
+            val fontScale = LocalDensity.current.fontScale
             val width = constraints.maxWidth.toFloat()
             val height = constraints.maxHeight.toFloat()
-            val layout = remember(width, height, density) { gameLayout(width, height, density) }
+            val layout = remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
             Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
         }
     }
@@ -305,29 +307,41 @@ private fun Play(
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
         )
         val nextPiece = layout.nextPiece
-        if (nextPiece == null) {
-            SidePanel(
+        val scores = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll)
+        when {
+            layout.scoresAbove -> ScoreGrid(
                 score = side.score,
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
                 cellSize = layout.cellSize,
-                modifier = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll),
+                modifier = scores,
             )
-        } else {
-            ScorePanels(
+
+            nextPiece == null -> SidePanel(
                 score = side.score,
                 level = side.level,
                 lines = side.lines,
-                modifier = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll),
-            )
-            NextPiecePanel(
                 next = side.next,
                 cellSize = layout.cellSize,
-                modifier = Modifier.placedAt(nextPiece, ReadingOrder.NEXT).wrapContentHeight(Alignment.Top),
+                modifier = scores,
             )
+
+            else -> {
+                ScorePanels(score = side.score, level = side.level, lines = side.lines, modifier = scores)
+                NextPiecePanel(
+                    next = side.next,
+                    cellSize = layout.cellSize,
+                    modifier = Modifier.placedAt(nextPiece, ReadingOrder.NEXT).wrapContentHeight(Alignment.Top),
+                )
+            }
         }
-        DirectionPad(controls = controls, modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS))
+        val directionSpacing = with(LocalDensity.current) { layout.directionSpacing.toDp() }
+        DirectionPad(
+            controls = controls,
+            modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
+            spacing = directionSpacing,
+        )
         RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS))
     }
 }
@@ -465,6 +479,18 @@ private fun GameScreenTabletPortraitPreview() {
 
 @Preview(widthDp = 220, heightDp = 640)
 @Composable
-private fun GameScreenNarrowPreview() {
+internal fun GameScreenNarrowPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+@Preview(widthDp = 220, heightDp = 640)
+@Composable
+internal fun GameScreenNarrowOriginalPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, previewState)
+}
+
+@Preview(widthDp = 220, heightDp = 640, fontScale = 2f)
+@Composable
+internal fun GameScreenNarrowLargeFontPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
 }

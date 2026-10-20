@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.EnumSource
 
 class NextPieceCellsTest {
     @ParameterizedTest(name = "{0} -> {1}")
@@ -26,6 +27,17 @@ class NextPieceCellsTest {
         drawing: String,
     ) {
         assertThat(nextPieceCells(type, ClassicRotationSystem)).isEqualTo(cellsDrawn(type, drawing))
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(PieceType::class)
+    fun `every next piece fits the preview the layout reserves, 4 cells wide and 2 high`(type: PieceType) {
+        // When
+        val next = nextPieceCells(type, ClassicRotationSystem)
+
+        // Then
+        assertThat(next.columns).isLessThanOrEqualTo(SidePanelSizes.PREVIEW_COLUMNS)
+        assertThat(next.rows).isLessThanOrEqualTo(SidePanelSizes.PREVIEW_ROWS)
     }
 
     @Test

@@ -125,27 +125,28 @@ internal class HeldControls(private val onChange: (ControlChange) -> Unit) {
     }
 }
 
-/** ◀ ▼ ▶, half as low as B: [ControlSizes.directionsWidth] × [ControlSizes.directionsHeight]. */
+/** ◀ ▼ ▶, half as low as B, [spacing] apart: [ControlSizes.directionsWidth] × [ControlSizes.directionsHeight]. */
 @Composable
 internal fun DirectionPad(
     controls: HeldControls,
     modifier: Modifier = Modifier,
+    spacing: Dp = ControlSizes.spacing,
 ) {
     val keyModifier = Modifier.padding(top = ControlSizes.rotationStagger / 2)
-    ControlGroup(modifier = modifier) {
+    ControlGroup(spacing = spacing, modifier = modifier) {
         ControlKey(ControlButton.LEFT, controls, ControlSizes.directionButton, keyModifier)
         ControlKey(ControlButton.DOWN, controls, ControlSizes.directionButton, keyModifier)
         ControlKey(ControlButton.RIGHT, controls, ControlSizes.directionButton, keyModifier)
     }
 }
 
-/** B and A, B lower: [ControlSizes.rotationsWidth] × [ControlSizes.rotationsHeight]. */
+/** B and A, B lower, [ControlSizes.spacing] apart: [ControlSizes.rotationsWidth] × [ControlSizes.rotationsHeight]. */
 @Composable
 internal fun RotationPad(
     controls: HeldControls,
     modifier: Modifier = Modifier,
 ) {
-    ControlGroup(modifier = modifier) {
+    ControlGroup(spacing = ControlSizes.spacing, modifier = modifier) {
         ControlKey(
             ControlButton.B,
             controls,
@@ -157,21 +158,22 @@ internal fun RotationPad(
 }
 
 /**
- * The keys of a group in a row, [ControlSizes.spacing] apart. The group is excluded from the system
- * gestures (API 29 and above): in gesture navigation, the zone of the Back gesture can be wider than
- * the margins of the screen, and a thumb sliding from ◀ to ▼ would otherwise go back, which cancels
- * the fingers and pauses the game. The system honours 200 dp of exclusion per edge, which the groups
- * fit: ◀ ▼ ▶ is [ControlSizes.directionsHeight] high, B A [ControlSizes.rotationsHeight], and both
- * together would still fit on one edge.
+ * The keys of a group in a row, [spacing] apart: [ControlSizes.spacing], the arrows closer in a window too narrow.
+ * The group is excluded from the system gestures (API 29 and above): in gesture navigation, the zone
+ * of the Back gesture can be wider than the margins of the screen, and a thumb sliding from ◀ to ▼
+ * would otherwise go back, which cancels the fingers and pauses the game. The system honours 200 dp
+ * of exclusion per edge, which the groups fit: ◀ ▼ ▶ is [ControlSizes.directionsHeight] high, B A
+ * [ControlSizes.rotationsHeight], and both together would still fit on one edge.
  */
 @Composable
 private fun ControlGroup(
+    spacing: Dp,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     Row(
         modifier = modifier.systemGestureExclusion(),
-        horizontalArrangement = Arrangement.spacedBy(ControlSizes.spacing),
+        horizontalArrangement = Arrangement.spacedBy(spacing),
         content = { content() },
     )
 }

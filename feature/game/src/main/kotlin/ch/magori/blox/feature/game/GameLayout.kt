@@ -4,29 +4,39 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.feature.game.controls.ControlSizes
+import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import ch.magori.blox.feature.game.ui.roundToPixel
+import kotlin.math.ceil
 import kotlin.math.floor
 
 /** The board of the mode Classique: 10 × 20 cells. */
 private const val BOARD_COLUMNS = 10
 private const val BOARD_ROWS = 20
 
-/** The preview of the next piece fits the widest one, 4 cells. */
-private const val NEXT_COLUMNS = 4
+/** The preview of the next piece, 4 cells wide and 2 high, fits each of them. */
+private const val NEXT_COLUMNS = SidePanelSizes.PREVIEW_COLUMNS
+private const val NEXT_ROWS = SidePanelSizes.PREVIEW_ROWS
 
 /** The side column fits a score of 6 digits. */
 private val SidePanelWidth = 112.dp
 
 /**
+ * The height of a line of text, in sizes of its font: generous, Chakra Petch, the tallest font of the themes,
+ * taking 1.17.
+ */
+private const val LINE_HEIGHT = 1.35f
+
+/**
  * Where the game screen puts its parts, in pixels of the space given to [gameLayout]: the [board] of
  * square cells of [cellSize], the [sidePanel] (score, level, lines, and the next piece unless
- * [nextPiece] places it apart), and the two groups of controls, [directions] (◀ ▼ ▶) and [rotations]
- * (B A).
+ * [nextPiece] places it apart; above the board, two by two, when [scoresAbove]), and the two groups of
+ * controls, [directions] (◀ ▼ ▶) and [rotations] (B A), the arrows [directionSpacing] apart.
  */
 @Immutable
 internal data class GameLayout(
@@ -34,29 +44,58 @@ internal data class GameLayout(
     val board: Rect,
     val sidePanel: Rect,
     val nextPiece: Rect?,
+    val scoresAbove: Boolean,
     val directions: Rect,
     val rotations: Rect,
+    val directionSpacing: Float,
 )
 
 /**
- * The layout of the game screen in [width] × [height] pixels, at [density] pixels per dp: of the
+ * The layout of the game screen in [width] × [height] pixels, at [density] pixels per dp and the system font
+ * scaled by [fontScale]: of the
  * portrait layout (controls below, side by side when they fit, else one group above the other) and
  * the landscape one (controls on either side), the one with the larger board, among those that fit.
- * When none fits, a window too small for the controls, the portrait layout with one group above the
- * other, its cells of one pixel at least: what goes past the space is cut.
+ * In a window narrower than [Sizes.scoresAboveBelow], where the board beside the side column would be
+ * narrower than the column, the score above the board instead, if its board is larger; its cells no larger
+ * than those of the usual layout at that width, so that a wider window never has a smaller board. When none
+ * fits, a window too small for the controls, the portrait layout with one group above the other, its cells
+ * of one pixel at least: what goes past the space is cut.
  */
 internal fun gameLayout(
     width: Float,
     height: Float,
     density: Float,
+    fontScale: Float = 1f,
 ): GameLayout {
-    val sizes = Sizes(density)
+    val sizes = Sizes(density, fontScale, width)
+    val usual = usualLayout(width, height, sizes)
+    val limit = sizes.scoresAboveBelow
+    if (width >= limit) return usual
+    val largestCell = usualLayout(limit, height, Sizes(density, fontScale, limit)).cellSize
+    return listOf(true, false)
+        .map { stacked -> scoresAbove(width, height, sizes, stacked, largestCell) }
+        .filter { it.cellSize > usual.cellSize }
+        .largestThatFits(width, height)
+        ?: usual
+}
+
+/** Of the portrait layouts and the landscape one, the one with the largest board that fits, else the portrait stacked. */
+private fun usualLayout(
+    width: Float,
+    height: Float,
+    sizes: Sizes,
+): GameLayout {
     val stacked = portrait(width, height, sizes, stacked = true)
     return listOf(portrait(width, height, sizes, stacked = false), landscape(width, height, sizes), stacked)
-        .filter { it.fitsIn(width, height) }
-        .maxByOrNull { it.cellSize }
+        .largestThatFits(width, height)
         ?: stacked
 }
+
+/** Of these layouts, the one with the largest board, among those that fit in [width] × [height]. */
+private fun List<GameLayout>.largestThatFits(
+    width: Float,
+    height: Float,
+): GameLayout? = filter { it.fitsIn(width, height) }.maxByOrNull { it.cellSize }
 
 /** Every part inside [width] × [height], none over another. */
 private fun GameLayout.fitsIn(
@@ -79,8 +118,7 @@ private fun portrait(
     sizes: Sizes,
     stacked: Boolean,
 ): GameLayout = with(sizes) {
-    val controlsHeight = if (stacked) directionsHeight + spacing + rotationsHeight else controlsHeight
-    val areaHeight = height - controlsHeight - gap
+    val areaHeight = height - controlsHeight(stacked) - gap
     val cellSize = cellFor(width - gap, areaHeight)
     val next = nextWidth(cellSize)
     val left = ((width - (cellSize * BOARD_COLUMNS + gap + next)) / 2).roundToPixel()
@@ -90,8 +128,40 @@ private fun portrait(
         board = board,
         sidePanel = Rect(board.right + gap, board.top, board.right + gap + next, areaHeight),
         nextPiece = null,
-        directions = directions(left = 0f, top = height - controlsHeight),
-        rotations = rotations(right = width, top = height - if (stacked) rotationsHeight else controlsHeight),
+        scoresAbove = false,
+        directions = directionsBelow(height, stacked),
+        rotations = rotationsBelow(width, height, stacked),
+        directionSpacing = directionSpacing,
+    )
+}
+
+/**
+ * Score and level, then lines and the next piece, in two rows across the width, the board under them, the
+ * two groups of controls below: without the side column, the board takes the width of a very narrow window. Its
+ * cells are [largestCell] at most.
+ */
+private fun scoresAbove(
+    width: Float,
+    height: Float,
+    sizes: Sizes,
+    stacked: Boolean,
+    largestCell: Float,
+): GameLayout = with(sizes) {
+    val areaHeight = height - controlsHeight(stacked) - gap
+    val cellSize = minOf(cellUnderScores(width, areaHeight), largestCell)
+    val scores = scoresHeight(cellSize)
+    val top = ((areaHeight - (scores + gap + cellSize * BOARD_ROWS)) / 2).roundToPixel()
+    val boardTop = (top + scores + gap).roundToPixel()
+    val left = ((width - cellSize * BOARD_COLUMNS) / 2).roundToPixel()
+    GameLayout(
+        cellSize = cellSize,
+        board = Rect(left, boardTop, left + cellSize * BOARD_COLUMNS, boardTop + cellSize * BOARD_ROWS),
+        sidePanel = Rect(0f, top, width, top + scores),
+        nextPiece = null,
+        scoresAbove = true,
+        directions = directionsBelow(height, stacked),
+        rotations = rotationsBelow(width, height, stacked),
+        directionSpacing = directionSpacing,
     )
 }
 
@@ -117,8 +187,10 @@ private fun landscape(
         board = board,
         sidePanel = Rect(left, board.top, left + side, height),
         nextPiece = Rect(board.right + gap, board.top, board.right + gap + next, height),
-        directions = directions(left = 0f, top = height - controlsHeight),
-        rotations = rotations(right = width, top = height - controlsHeight),
+        scoresAbove = false,
+        directions = directionsBelow(height, stacked = false),
+        rotations = rotationsBelow(width, height, stacked = false),
+        directionSpacing = directionSpacing,
     )
 }
 
@@ -126,28 +198,47 @@ private fun landscape(
  * The sizes of the layout, in pixels. The controls are measured as Compose measures them: each button
  * and each spacing rounded to whole pixels, so that their rectangles hold them whole.
  */
-private class Sizes(density: Float) {
-    private val pixels = Density(density)
+private class Sizes(density: Float, fontScale: Float, width: Float) {
+    private val pixels = Density(density, fontScale)
 
     private fun Dp.px(): Float = with(pixels) { toPx() }
+
+    /** A line of text of this size, as the system font scales it: less than its scale for a large text. */
+    private fun TextUnit.linePx(): Float = with(pixels) { toPx() } * LINE_HEIGHT
 
     private fun Dp.wholePx(): Float = with(pixels) { roundToPx().toFloat() }
 
     val gap = ScreenSizes.gap.px()
     val side = SidePanelWidth.px()
-    val spacing = ControlSizes.spacing.wholePx()
+
+    /** The narrowest width where the board beside the side column, as wide as the column, needs no score above it. */
+    val scoresAboveBelow = gap + 2 * side
+
+    private val spacing = ControlSizes.spacing.wholePx()
     private val directionButton = ControlSizes.directionButton.wholePx()
     private val rotationButton = ControlSizes.rotationButton.wholePx()
-    val directionsWidth = 3 * directionButton + 2 * spacing
-    val directionsHeight = (ControlSizes.rotationStagger / 2).wholePx() + directionButton
-    val rotationsWidth = 2 * rotationButton + spacing
-    val rotationsHeight = ControlSizes.rotationStagger.wholePx() + rotationButton
 
-    /** The two groups side by side, their tops level. */
-    val controlsHeight = maxOf(directionsHeight, rotationsHeight)
+    /** Between two arrows: closer in a window narrower than them, down to touching. B A keep their spacing. */
+    val directionSpacing = minOf(spacing, floor((width - 3 * directionButton) / 2)).coerceAtLeast(0f)
+    val directionsWidth = 3 * directionButton + 2 * directionSpacing
+    private val directionsHeight = (ControlSizes.rotationStagger / 2).wholePx() + directionButton
+    val rotationsWidth = 2 * rotationButton + spacing
+    private val rotationsHeight = ControlSizes.rotationStagger.wholePx() + rotationButton
 
     /** Around the preview of the next piece: the frame and the padding of its panel, on both sides. */
     private val nextInsets = (BloxBorders.frame + PanelSizes.padding).px() * 2
+
+    /**
+     * A panel of the score above the board, in whole pixels: on both sides its frame and padding, between them its
+     * label, the gap under it and its value; and the same without the value, for the next piece.
+     */
+    private val scoreLabel = ceil(PanelSizes.label.linePx() + PanelSizes.labelGap.px() + nextInsets)
+    private val scorePanel = ceil(scoreLabel + PanelSizes.value.linePx())
+    private val scoreGap = SidePanelSizes.gap.px()
+
+    /** The two groups of controls below the board: side by side, their tops level, or [stacked], ◀ ▼ ▶ above B A. */
+    fun controlsHeight(stacked: Boolean): Float =
+        if (stacked) directionsHeight + spacing + rotationsHeight else maxOf(directionsHeight, rotationsHeight)
 
     /**
      * The largest cell, in whole pixels, for a board of [height] and, beside it in [width], the
@@ -164,6 +255,29 @@ private class Sizes(density: Float) {
         ),
     ).coerceAtLeast(1f)
 
+    /**
+     * The largest cell, in whole pixels, for a board as wide as [width] under the two rows of the score
+     * ([scoresHeight]), in [height]; the next piece in half the width. One pixel at least.
+     */
+    fun cellUnderScores(
+        width: Float,
+        height: Float,
+    ): Float {
+        val board = height - scorePanel - scoreGap - gap
+        return floor(
+            minOf(
+                width / BOARD_COLUMNS,
+                ((width - scoreGap) / 2 - nextInsets) / NEXT_COLUMNS,
+                (board - scorePanel) / BOARD_ROWS,
+                (board - scoreLabel) / (BOARD_ROWS + NEXT_ROWS),
+            ),
+        ).coerceAtLeast(1f)
+    }
+
+    /** The two rows of the score above the board, the second as high as the next piece of [cellSize] needs. */
+    fun scoresHeight(cellSize: Float): Float =
+        scorePanel + scoreGap + maxOf(scorePanel, scoreLabel + NEXT_ROWS * cellSize)
+
     /** The column of the next piece: as wide as the side column, or as its 4 cells of [cellSize]. */
     fun nextWidth(cellSize: Float): Float = maxOf(side, NEXT_COLUMNS * cellSize + nextInsets)
 
@@ -177,15 +291,22 @@ private class Sizes(density: Float) {
         return Rect(left, top, left + cellSize * BOARD_COLUMNS, top + cellSize * BOARD_ROWS)
     }
 
-    /** ◀ ▼ ▶ from [left] and [top]. */
-    fun directions(
-        left: Float,
-        top: Float,
-    ): Rect = Rect(left, top, left + directionsWidth, top + directionsHeight)
+    /** ◀ ▼ ▶ at the bottom left of [height], above B A when [stacked]. */
+    fun directionsBelow(
+        height: Float,
+        stacked: Boolean,
+    ): Rect {
+        val top = height - controlsHeight(stacked)
+        return Rect(0f, top, directionsWidth, top + directionsHeight)
+    }
 
-    /** B A up to [right], from [top]. */
-    fun rotations(
-        right: Float,
-        top: Float,
-    ): Rect = Rect(right - rotationsWidth, top, right, top + rotationsHeight)
+    /** B A at the bottom right of [width] × [height]. */
+    fun rotationsBelow(
+        width: Float,
+        height: Float,
+        stacked: Boolean,
+    ): Rect {
+        val top = height - if (stacked) rotationsHeight else controlsHeight(stacked = false)
+        return Rect(width - rotationsWidth, top, width, top + rotationsHeight)
+    }
 }

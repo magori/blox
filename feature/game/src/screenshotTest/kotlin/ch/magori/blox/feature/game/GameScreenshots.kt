@@ -58,6 +58,24 @@ private fun GameScreenLargeFont() = GameScreenLargeFontPreview()
 @Composable
 private fun GameScreenLandscapeLargeFont() = GameScreenLandscapeLargeFontPreview()
 
+// The narrowest multi-window, 220 dp: the score above the board, two by two, in both themes, and with a
+// large font (P2.20).
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 640)
+@Composable
+private fun GameScreenNarrow() = GameScreenNarrowPreview()
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 640)
+@Composable
+private fun GameScreenNarrowOriginal() = GameScreenNarrowOriginalPreview()
+
+@PreviewTest
+@Preview(widthDp = 220, heightDp = 640, fontScale = 2f)
+@Composable
+private fun GameScreenNarrowLargeFont() = GameScreenNarrowLargeFontPreview()
+
 // The board alone, larger than on the screen: the cells of the Original theme in detail.
 
 @PreviewTest

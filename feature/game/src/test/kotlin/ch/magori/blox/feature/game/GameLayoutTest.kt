@@ -9,6 +9,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.MethodSource
 import kotlin.math.floor
 
@@ -97,20 +98,145 @@ class GameLayoutTest {
     }
 
     @Test
-    fun `a very narrow window puts B A under the arrows, and the board shrinks`() {
-        // Given a window of 220 dp, the narrowest in multi-window, at 2 px per dp
+    fun `a very narrow window puts the score above the board, for a board larger than beside the side column`() {
+        // Given a window of 220 dp, the narrowest in multi-window, at 2 px per dp: beside the side column, the
+        // board would have cells of 4 dp
         val (width, height) = available(widthDp = 220, heightDp = 640, density = 2f)
 
         // When
         val layout = gameLayout(width, height, density = 2f)
 
-        // Then the arrows above, B A below on the right, 8 dp apart; cells of 4 dp
+        // Then the arrows above, B A below on the right, 8 dp apart; above them the score, level, lines and next
+        // piece two by two, the board under them: cells of 10 dp
         assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 752f, right = 344f, bottom = 880f))
         assertThat(layout.rotations).isEqualTo(Rect(left = 104f, top = 896f, right = 344f, bottom = 1056f))
-        assertThat(layout.cellSize).isEqualTo(8f)
-        assertThat(layout.board).isEqualTo(Rect(left = 4f, top = 280f, right = 84f, bottom = 440f))
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 116f, top = 280f, right = 340f, bottom = 720f))
+        assertThat(layout.cellSize).isEqualTo(20f)
+        assertThat(layout.scoresAbove).isTrue()
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 9f, right = 344f, bottom = 279f))
+        assertThat(layout.board).isEqualTo(Rect(left = 72f, top = 311f, right = 272f, bottom = 711f))
         assertThat(layout.nextPiece).isNull()
+    }
+
+    @ParameterizedTest(name = "at {0} px per dp, cells of {1} px")
+    @CsvSource("2, 36", "2.625, 48", "3.5, 64")
+    fun `a phone in portrait keeps the side column beside the board, though the score above would give a larger one`(
+        density: Float,
+        cellSize: Float,
+    ) {
+        // Given a 360 × 760 dp phone: the board is wider than the side column
+        val (width, height) = available(widthDp = 360, heightDp = 760, density = density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then the portrait layout, its controls side by side, the keys 8 dp apart
+        assertThat(layout.scoresAbove).isFalse()
+        assertThat(layout.nextPiece).isNull()
+        assertThat(layout.cellSize).isEqualTo(cellSize)
+        assertThat(layout.sidePanel.left).isGreaterThan(layout.board.right)
+        assertThat(layout.rotations.top).isEqualTo(layout.directions.top)
+        assertThat(layout.directionSpacing).isEqualTo(8 * density)
+    }
+
+    @ParameterizedTest(name = "{0} dp high at {1} px per dp")
+    @CsvSource("640, 2", "640, 2.625", "760, 2", "760, 2.625", "900, 2", "900, 2.625", "1200, 2.625")
+    fun `the board never shrinks as the window widens, from the narrowest multi-window to a phone`(
+        heightDp: Int,
+        density: Float,
+    ) {
+        // Given windows of 220 to 420 dp wide, dp by dp: the score above the board in the narrowest, the side
+        // column beside it in the widest
+        val cells = (220..420).associateWith { widthDp ->
+            val (width, height) = available(widthDp, heightDp, density)
+            gameLayout(width, height, density).cellSize
+        }
+
+        // When and Then: each window has cells as large as the one 1 dp narrower, at least
+        cells.entries.zipWithNext().forEach { (narrower, wider) ->
+            assertThat(wider.value)
+                .describedAs("%d dp: %s px, %d dp: %s px", narrower.key, narrower.value, wider.key, wider.value)
+                .isGreaterThanOrEqualTo(narrower.value)
+        }
+    }
+
+    @Test
+    fun `with the font twice as large, the score above reserves the height of its larger texts`() {
+        // Given the narrowest window at 2 px per dp, with the system font twice as large
+        val (width, height) = available(widthDp = 220, heightDp = 640, density = 2f)
+
+        // When
+        val layout = gameLayout(width, height, density = 2f, fontScale = 2f)
+
+        // Then rows for the texts as the system scales them, less for the larger: a label of 11 sp drawn at 22 dp, a
+        // value of 18 sp at 30 dp (not 36). Cells of 7 dp under them, 10 dp with the normal font
+        assertThat(layout.scoresAbove).isTrue()
+        assertThat(layout.cellSize).isEqualTo(14f)
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 7f, right = 344f, bottom = 401f))
+        assertThat(layout.board).isEqualTo(Rect(left = 102f, top = 433f, right = 242f, bottom = 713f))
+    }
+
+    @Test
+    fun `when the score above gives a board of the same size, the usual layout stays`() {
+        // Given a window of 220 × 516 dp at 2 px per dp: cells of 8 px with the score beside the board or above it
+        val (width, height) = available(widthDp = 220, heightDp = 516, density = 2f)
+
+        // When
+        val layout = gameLayout(width, height, density = 2f)
+
+        // Then
+        assertThat(layout.cellSize).isEqualTo(8f)
+        assertThat(layout.scoresAbove).isFalse()
+    }
+
+    @Test
+    fun `when the score above does not fit either, the usual layout stays, cut`() {
+        // Given a window of 200 × 900 dp at 2 px per dp: too narrow for the arrows, in every layout; the score above
+        // would give cells of 22 px, beside the side column 4 px
+        val (width, height) = available(widthDp = 200, heightDp = 900, density = 2f)
+
+        // When
+        val layout = gameLayout(width, height, density = 2f)
+
+        // Then the portrait layout, B A under the arrows, which go past the width
+        assertThat(layout.scoresAbove).isFalse()
+        assertThat(layout.cellSize).isEqualTo(4f)
+        assertThat(layout.rotations.top).isGreaterThanOrEqualTo(layout.directions.bottom)
+        assertThat(layout.directions.right).isGreaterThan(width)
+    }
+
+    @Test
+    fun `in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`() {
+        // Given a window of 220 dp at 2.625 px per dp: 451 px wide, for arrows of 3 × 137 px, 21 px apart (453 px)
+        val (width, height) = available(widthDp = 220, heightDp = 640, density = 2.625f)
+
+        // When
+        val layout = gameLayout(width, height, density = 2.625f)
+
+        // Then the arrows 20 px apart, as wide as the space, B A still 8 dp apart (21 px), the score above the board
+        assertThat(width).isEqualTo(451f)
+        assertThat(layout.directionSpacing).isEqualTo(20f)
+        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 986f, right = 451f, bottom = 1155f))
+        assertThat(layout.rotations).isEqualTo(Rect(left = 136f, top = 1176f, right = 451f, bottom = 1386f))
+        assertThat(layout.scoresAbove).isTrue()
+        assertThat(layout.cellSize).isEqualTo(27f)
+    }
+
+    @ParameterizedTest(name = "at {0} px per dp")
+    @CsvSource("1.5", "2.625", "3.5")
+    fun `a window too narrow for the arrows even touching puts them touching, cut at the right`(density: Float) {
+        // Given a window of 200 dp: 152 dp of space, for 3 arrows of 52 dp
+        val (width, height) = available(widthDp = 200, heightDp = 640, density = density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then the arrows touch and go past the width, B A under them, 8 dp apart, up to the right edge
+        assertThat(layout.directionSpacing).isZero()
+        assertThat(layout.directions.left).isZero()
+        assertThat(layout.directions.right).isGreaterThan(width)
+        assertThat(layout.rotations.right).isEqualTo(width)
+        assertThat(layout.rotations.width).isEqualTo(2 * Math.round(56 * density) + Math.round(8 * density).toFloat())
+        assertThat(layout.scoresAbove).isFalse()
     }
 
     @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
@@ -191,12 +317,15 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density)
 
-        // Then each group has the size of its row, every button and spacing rounded to whole pixels as Compose does
+        // Then each group has the size of its row, every button and spacing rounded to whole pixels as Compose does;
+        // the keys 8 dp apart, the arrows closer only when they would not fit the width
         with(Density(density)) {
             val direction = ControlSizes.directionButton.roundToPx()
             val rotation = ControlSizes.rotationButton.roundToPx()
             val spacing = ControlSizes.spacing.roundToPx()
-            assertThat(layout.directions.width).isEqualTo((3 * direction + 2 * spacing).toFloat())
+            val arrowSpacing = minOf(spacing, (width.toInt() - 3 * direction) / 2).coerceAtLeast(0)
+            assertThat(layout.directionSpacing).isEqualTo(arrowSpacing.toFloat())
+            assertThat(layout.directions.width).isEqualTo((3 * direction + 2 * arrowSpacing).toFloat())
             assertThat(layout.directions.height)
                 .isEqualTo(((ControlSizes.rotationStagger / 2).roundToPx() + direction).toFloat())
             assertThat(layout.rotations.width).isEqualTo((2 * rotation + spacing).toFloat())
@@ -246,21 +375,19 @@ class GameLayoutTest {
     companion object {
         private val densities = listOf(1.5f, 2.625f, 3.5f)
 
-        /** The narrowest multi-window at 2.625 px per dp: 451 px wide, for arrows of 453 px. */
-        private val narrowest = Triple(220, 640, 2.625f)
-
         /**
-         * A phone, the same sideways, a tablet both ways, the narrowest multi-window, at usual densities:
-         * everything fits, but in the [narrowest] window.
+         * A phone, the same sideways, a tablet both ways, narrow multi-windows down to the narrowest, 220 dp, at
+         * usual densities: everything fits.
          */
         @JvmStatic
         fun windowsWithRoom(): List<Arguments> =
-            (listOf(360 to 640, 800 to 360, 1280 to 800, 800 to 1280, 220 to 640).at(densities) - narrowest).arguments()
+            listOf(360 to 640, 360 to 760, 800 to 360, 1280 to 800, 800 to 1280, 260 to 640, 220 to 640)
+                .at(densities)
+                .arguments()
 
-        /** Windows too small for the controls, where the rest is cut: too low, too narrow, and the [narrowest]. */
+        /** Windows too small for the controls, where the rest is cut: too low, too narrow. */
         @JvmStatic
-        fun windowsTooSmall(): List<Arguments> =
-            (listOf(360 to 200, 220 to 220, 200 to 640).at(densities) + narrowest).arguments()
+        fun windowsTooSmall(): List<Arguments> = listOf(360 to 200, 220 to 220, 200 to 640).at(densities).arguments()
 
         /** Every window, with room or not. */
         @JvmStatic
