@@ -661,7 +661,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
     *Annuler* remet la musique à sa place, en jeu si elle l'était, sous un nom libre (`freeName`)
     si le sien a été pris entre-temps. De même pour une suppression faite dans l'éditeur (P4.19e).
   - Une écriture qui échoue ne change rien : le dialogue ou le message reste, avec
-    « L'enregistrement a échoué. ».
+    « L'opération a échoué. » (P5.45).
 - *Nouvelle* ouvre l'éditeur vierge ; *Au hasard* l'ouvre sur une musique tirée sur *Surprise*
   (`ComposerRoute(rollDice = true)`, P4.20) ; toucher le nom ou *Modifier* ouvre la musique (P4.19d).
 - Écarts avec V7 et V10 : *Utiliser* sous le nom et non à côté (la police pixel et la police ×2 ne
@@ -1193,7 +1193,7 @@ Vues : V8, V11, V14, V17.
   dans `AppContainer`) : `app` la dépose (`afterDeletion`) et la liste la prend une seule fois. À la
   mort du processus entre la suppression et le retour, la liste revient sans message : l'annulation
   est perdue, rien de plus.
-- **Échec d'écriture** : la fenêtre reste ouverte, nom et case gardés, avec « L'enregistrement a
+- **Échec d'écriture** : la fenêtre reste ouverte, nom et case gardés, avec « L'opération a
   échoué. » (`danger`, annoncé par TalkBack), comme dans la liste ; une musique enregistrée dont
   seul le choix pour les parties échoue reste enregistrée. Une seconde pression pendant
   l'écriture ne fait rien.
@@ -1264,3 +1264,32 @@ Vues : V8, V11, V14, V17.
 `MyMusicsViewModelTest › a deletion in the editor taken by the list under it is not offered by a list opened later`,
 `MyMusicsViewModelTest › the next action of the list ends the chance to undo a deletion made in the editor`.
 Vues : V7, V8, V9, V10, V11, V12.
+
+### Noms et fenêtres communs à l'éditeur et à la liste (P5.45)
+
+- **Règle du nom** (`core:data`, `MusicNames.kt`) : `nameProblem` refuse un nom vide, de plus de
+  40 caractères ou pris par une autre musique (casse et espaces autour ignorés, la musique renommée
+  peut garder le sien) ; `cutName` coupe un nom saisi ou collé à 40 caractères, comptés en
+  caractères et non en unités (40 emoji tiennent). L'éditeur et la liste s'en servent tous deux :
+  un collage trop long est coupé dans les deux. Seule « grille vide » reste propre à l'éditeur
+  (`SaveProblem.EmptyGrid`).
+- **Fenêtres** (`core:designsystem`, `NamingWindow`, `DeleteWindow`, `Window*`) : les fenêtres
+  Renommer, Enregistrer et Supprimer des deux écrans sont les mêmes composables, aux textes passés
+  en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. Les fenêtres
+  de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses côte à côte, la sûre d'abord
+  (TalkBack les lit dans cet ordre), motif de refus du nom annoncé par TalkBack, erreur du champ en
+  `ink` (le texte la porte), note de suppression en `ink`. Un seul texte d'échec, « L'opération a
+  échoué. ». « Une autre musique porte déjà ce nom. » et « Garder la musique » restent dans chaque
+  feature : `core:designsystem` ne parle pas de musique et `core:data` n'a pas de ressources.
+- En Original et police ×2, les libellés des réponses se coupent au milieu d'un mot (P5.48).
+
+**Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,
+`MusicNamesTest › the music being renamed may keep its own name, in another case or not`,
+`MusicNamesTest › a name of the most characters a saved name may have is accepted, its characters counted and not its units`,
+`MusicNamesTest › a name of more characters than a saved name may have is refused, the spaces around it apart`,
+`MusicNamesTest › a name typed is cut at the most characters a saved name may have, a shorter one kept as it is`,
+`MusicNamesTest › a name typed is cut after its characters, never between the two units of one`,
+`MyMusicsScreenTest › a name pasted too long is cut at the most characters a name may have, 40 emoji kept whole`,
+`NamingWindowTest › with a problem, the confirmation is disabled and Enter confirms nothing; without, both confirm`.
+Captures : `NamingWindowTakenName`, `NamingWindowTakenNameLargeFont`, `DeleteWindowFailed`,
+`DeleteWindowFailedLargeFont` (`core:designsystem`). Vues : V7, V9, V10, V12.

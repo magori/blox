@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Les fenêtres partagées par l'éditeur et Mes musiques (P5.45). -->
+    <!-- Dans une fenêtre qui écrit (enregistrer, renommer, supprimer), quand l'écriture échoue ; la fenêtre reste ouverte. -->
+    <string name="core_designsystem_window_failed">L\'opération a échoué.</string>
+    <string name="core_designsystem_window_cancel">Annuler</string>
+    <string name="core_designsystem_window_name">Nom</string>
+    <plurals name="core_designsystem_window_name_too_long">
+        <item quantity="one">%1$d caractère au plus.</item>
+        <item quantity="many">%1$d caractères au plus.</item>
+        <item quantity="other">%1$d caractères au plus.</item>
+    </plurals>
+    <string name="core_designsystem_window_delete_title">Supprimer « %1$s » ?</string>
+    <string name="core_designsystem_window_delete">Supprimer</string>
+</resources>

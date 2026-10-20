@@ -1,15 +1,10 @@
 package ch.magori.blox.feature.composer.ui
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.relocation.BringIntoViewRequester
 import androidx.compose.foundation.relocation.bringIntoViewRequester
@@ -17,11 +12,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
@@ -36,9 +29,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.component.FramedBox
 import ch.magori.blox.core.designsystem.component.SingleLineText
+import ch.magori.blox.core.designsystem.component.WrappingLabel
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
-import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
@@ -54,10 +48,9 @@ internal object ComposerSizes {
 /**
  * A button of the editor, framed as a panel: [text] on it, [description] read by TalkBack in its place when the text
  * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such. A
- * [primary] button, the answer a window expects or *Enregistrer* with changes to save, is filled in `accent`. A label
- * that [wraps] goes on several lines when it does not fit, rather than shrinking: the answers of a window. A
- * [danger] button, the one that deletes, is filled in `danger`. A button as wide as its label, rather than given its
- * width, leaves [labelPadding] on each side of it.
+ * [primary] button, *Enregistrer* with changes to save, is filled in `accent`. A label that [wraps] goes on several
+ * lines when it does not fit, rather than shrinking. A button as wide as its label, rather than given its width,
+ * leaves [labelPadding] on each side of it. The answers of a window are `WindowButton` (core:designsystem).
  */
 @Composable
 internal fun ToolButton(
@@ -68,33 +61,20 @@ internal fun ToolButton(
     description: String? = null,
     primary: Boolean = false,
     wraps: Boolean = false,
-    danger: Boolean = false,
     labelPadding: Dp = 0.dp,
 ) {
     val palette = BloxTheme.palette
-    val fill = when {
-        danger -> palette.danger
-        primary -> palette.accent
-        else -> null
-    }
-    ButtonBox(
-        background = fill ?: palette.panel,
-        frame = fill ?: palette.panelBorder,
+    FramedBox(
+        background = if (primary) palette.accent else palette.panel,
+        frame = if (primary) palette.accent else palette.panelBorder,
         labelPadding = labelPadding,
         modifier = modifier
             .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .described(description),
     ) {
-        ButtonLabel(
-            text = text,
-            color = when {
-                danger -> palette.dangerInk
-                primary -> palette.accentInk
-                else -> palette.ink
-            },
-            wraps = wraps,
-        )
+        val ink = if (primary) palette.accentInk else palette.ink
+        if (wraps) WrappingLabel(text = text, color = ink) else ButtonLabel(text = text, color = ink)
     }
 }
 
@@ -122,7 +102,7 @@ internal fun ChoiceButton(
     val palette = BloxTheme.palette
     val background = if (selected) selectedColor else palette.panel
     val ink = if (selected) selectedInk else palette.ink
-    ButtonBox(
+    FramedBox(
         background = background,
         frame = if (selected) background else palette.panelBorder,
         labelPadding = labelPadding,
@@ -159,44 +139,12 @@ private const val MARK_WIDTH = 0.5f
 private val MarkHeight = 3.dp
 private val MarkInset = 6.dp
 
-@Composable
-private fun ButtonBox(
-    background: Color,
-    frame: Color,
-    modifier: Modifier = Modifier,
-    labelPadding: Dp = 0.dp,
-    content: @Composable () -> Unit,
-) {
-    val shape = BloxTheme.shapes.button
-    Box(
-        modifier = modifier
-            .heightIn(min = BloxSizes.minTouchTarget)
-            .background(background, shape)
-            .border(BloxBorders.frame, frame, shape)
-            .padding(horizontal = BloxBorders.frame + 1.dp + labelPadding),
-        contentAlignment = Alignment.Center,
-    ) {
-        content()
-    }
-}
-
-/** The label of a button, on one line, shrunk if needed, or on as many lines as it needs when it [wraps]. */
+/** The label of a button, on one line, shrunk if needed. */
 @Composable
 private fun ButtonLabel(
     text: String,
     color: Color,
-    wraps: Boolean = false,
 ) {
-    if (wraps) {
-        Text(
-            text = text,
-            color = color,
-            style = MaterialTheme.typography.labelMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(vertical = 4.dp),
-        )
-        return
-    }
     SingleLineText(
         text = text,
         color = color,

@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer.model
 
+import ch.magori.blox.core.data.NameProblem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -69,7 +70,7 @@ class EditorSavingTest {
 
     @Test
     fun `an empty grid cannot be saved`() {
-        assertThat(EditorState.new().saveProblem("Joyeux 1", emptyList())).isEqualTo(SaveProblem.EMPTY_GRID)
+        assertThat(EditorState.new().saveProblem("Joyeux 1", emptyList())).isEqualTo(SaveProblem.EmptyGrid)
     }
 
     @Test
@@ -79,7 +80,7 @@ class EditorSavingTest {
         val names = listOf(savedMusic("Joyeux 1"))
 
         // Then
-        assertThat(written.saveProblem("joyeux 1", names)).isEqualTo(SaveProblem.NAME_TAKEN)
+        assertThat(written.saveProblem("joyeux 1", names)).isEqualTo(SaveProblem.Name(NameProblem.TAKEN))
         assertThat(written.saveProblem("Joyeux 2", names)).isNull()
     }
 
@@ -89,7 +90,7 @@ class EditorSavingTest {
         val written = EditorState.new().touch(pitch("E4"), eighth = 0)
 
         // Then
-        assertThat(written.saveProblem("  ", emptyList())).isEqualTo(SaveProblem.BLANK_NAME)
+        assertThat(written.saveProblem("  ", emptyList())).isEqualTo(SaveProblem.Name(NameProblem.BLANK))
     }
 
     @Test
@@ -99,9 +100,9 @@ class EditorSavingTest {
         val own = musics.first().id
 
         // Then
-        assertThat(renameProblem(" ", musics, own)).isEqualTo(SaveProblem.BLANK_NAME)
-        assertThat(renameProblem("calme 1", musics, own)).isEqualTo(SaveProblem.NAME_TAKEN)
+        assertThat(renameProblem(" ", musics, own)).isEqualTo(SaveProblem.Name(NameProblem.BLANK))
+        assertThat(renameProblem("calme 1", musics, own)).isEqualTo(SaveProblem.Name(NameProblem.TAKEN))
         assertThat(renameProblem("JOYEUX 1", musics, own)).isNull()
-        assertThat(renameProblem("Calme 1", musics, apartFrom = null)).isEqualTo(SaveProblem.NAME_TAKEN)
+        assertThat(renameProblem("Calme 1", musics, apartFrom = null)).isEqualTo(SaveProblem.Name(NameProblem.TAKEN))
     }
 }

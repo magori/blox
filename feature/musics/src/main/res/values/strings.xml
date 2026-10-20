@@ -36,23 +36,13 @@
 
     <!-- Renommer -->
     <string name="feature_musics_rename_title">Renommer « %1$s »</string>
-    <string name="feature_musics_rename_field">Nom</string>
     <string name="feature_musics_rename_confirm">Renommer</string>
-    <string name="feature_musics_rename_cancel">Annuler</string>
     <string name="feature_musics_name_blank">Donne-lui un nom.</string>
     <string name="feature_musics_name_taken">Une autre musique porte déjà ce nom.</string>
-    <plurals name="feature_musics_name_too_long">
-        <item quantity="one">%1$d caractère au plus.</item>
-        <item quantity="many">%1$d caractères au plus.</item>
-        <item quantity="other">%1$d caractères au plus.</item>
-    </plurals>
-    <string name="feature_musics_write_failed">L\'enregistrement a échoué.</string>
 
     <!-- Supprimer -->
-    <string name="feature_musics_delete_title">Supprimer « %1$s » ?</string>
     <string name="feature_musics_delete_note">Elle disparaîtra de Mes musiques. Tu pourras annuler juste après.</string>
     <string name="feature_musics_delete_note_in_game">Elle est jouée pendant les parties : la musique choisie à l\'accueil la remplacera. Tu pourras annuler juste après.</string>
-    <string name="feature_musics_delete_confirm">Supprimer</string>
     <string name="feature_musics_delete_keep">Garder la musique</string>
     <string name="feature_musics_deleted">« %1$s » est supprimée.</string>
     <string name="feature_musics_undo">Annuler</string>

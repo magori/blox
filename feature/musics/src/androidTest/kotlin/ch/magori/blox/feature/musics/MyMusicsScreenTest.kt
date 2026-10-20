@@ -24,6 +24,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
+import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -267,13 +269,13 @@ internal class MyMusicsScreenTest {
         setMyMusics { state }
 
         // Then
-        onNodeWithText("L'enregistrement a échoué.").assertExists()
+        onNodeWithText("L'opération a échoué.").assertExists()
 
         // When
         state = uiState.copy(dialog = MyMusicsDialog.ConfirmDelete(march, "Ma marche", inGame = false, failed = true))
 
         // Then
-        onNodeWithText("L'enregistrement a échoué.").assertExists()
+        onNodeWithText("L'opération a échoué.").assertExists()
     }
 
     @Test
@@ -287,6 +289,24 @@ internal class MyMusicsScreenTest {
 
         // Then
         onNodeWithText("40 caractères au plus.").assertExists()
+    }
+
+    @Test
+    @DisplayName("a name pasted too long is cut at the most characters a name may have, 40 emoji kept whole")
+    fun aNamePastedTooLongIsCut() = extension.use {
+        // Given
+        showMyMusics(uiState.copy(dialog = MyMusicsDialog.Rename(march, "Ma marche")))
+        val longest = "x".repeat(SavedMusic.MAX_NAME_LENGTH)
+        val notes = "\uD83C\uDFB5".repeat(SavedMusic.MAX_NAME_LENGTH)
+
+        // When
+        onNode(hasSetTextAction()).performTextReplacement(longest + "yz")
+        onNode(hasClickAction() and hasText("Renommer")).performClick()
+        onNode(hasSetTextAction()).performTextReplacement(notes)
+        onNode(hasClickAction() and hasText("Renommer")).performClick()
+
+        // Then
+        runOnIdle { assertThat(calls).containsExactly("renamed $longest", "renamed $notes") }
     }
 
     @Test

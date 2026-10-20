@@ -34,25 +34,19 @@
     <string name="feature_composer_save_changed_description">Enregistrer les changements</string>
     <string name="feature_composer_save_title">Enregistrer la musique</string>
     <string name="feature_composer_rename_title">Renommer la musique</string>
-    <string name="feature_composer_name_label">Nom</string>
     <string name="feature_composer_for_games">Jouer cette musique pendant les parties</string>
     <string name="feature_composer_problem_empty">La grille est vide : pose au moins une note.</string>
     <string name="feature_composer_problem_blank">Donne un nom à la musique.</string>
     <string name="feature_composer_problem_taken">Une autre musique porte déjà ce nom.</string>
     <string name="feature_composer_take_free_name">Prendre « %1$s »</string>
     <string name="feature_composer_rename">Renommer</string>
-    <string name="feature_composer_cancel">Annuler</string>
 
     <!-- Fenêtres : quitter, supprimer -->
     <string name="feature_composer_leave_title">Quitter sans enregistrer ?</string>
     <string name="feature_composer_leave_text">Les changements de cette musique ne sont pas enregistrés.</string>
     <string name="feature_composer_leave_without_saving">Quitter sans enregistrer</string>
     <string name="feature_composer_continue">Continuer</string>
-    <!-- Dans une fenêtre qui écrit les musiques, quand l'écriture échoue ; la fenêtre reste ouverte. -->
-    <string name="feature_composer_window_failed">L\'enregistrement a échoué.</string>
-    <string name="feature_composer_delete_title">Supprimer « %1$s » ?</string>
     <string name="feature_composer_delete_game_music">Elle est jouée pendant les parties : la musique choisie à l\'accueil la remplacera.</string>
-    <string name="feature_composer_delete">Supprimer</string>
     <string name="feature_composer_keep">Garder la musique</string>
 
     <!-- Onglets -->

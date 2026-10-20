@@ -9,4 +9,7 @@ object BloxSizes {
      * que WCAG 2.2 (2.5.8, 24 px) et qu'Android, dont les 48 dp sont une zone tactile qui peut déborder du dessin.
      */
     val minTouchTarget = 48.dp
+
+    /** Entre une fenêtre (`WindowDialog`) et les bords de l'écran. */
+    val windowMargin = 16.dp
 }

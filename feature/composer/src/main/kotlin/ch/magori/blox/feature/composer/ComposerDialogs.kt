@@ -1,48 +1,35 @@
 package ch.magori.blox.feature.composer
 
-import androidx.annotation.StringRes
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.liveRegion
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardCapitalization
-import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.component.DeleteWindow
+import ch.magori.blox.core.designsystem.component.NamingWindow
+import ch.magori.blox.core.designsystem.component.WindowButton
+import ch.magori.blox.core.designsystem.component.WindowDialog
+import ch.magori.blox.core.designsystem.component.WindowPanel
+import ch.magori.blox.core.designsystem.component.WindowText
+import ch.magori.blox.core.designsystem.component.nameTooLongText
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.feature.composer.model.SaveProblem
-import ch.magori.blox.feature.composer.ui.ComposerSizes
-import ch.magori.blox.feature.composer.ui.ToolButton
 
 /** What the windows of the editor do, each answer to its callback; no logic here. */
 @Immutable
@@ -71,18 +58,12 @@ internal fun ComposerDialogHost(
     actions: DialogActions,
 ) {
     if (dialog == null) return
-    // Wider than the default of the platform: a title in the pixel font, twice as large, keeps its words whole.
-    Dialog(onDismissRequest = actions.onDismissed, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        ComposerWindow(
-            dialog = dialog,
-            name = name,
-            actions = actions,
-            modifier = Modifier.padding(horizontal = WindowMargin),
-        )
+    WindowDialog(onDismissRequest = actions.onDismissed) {
+        ComposerWindow(dialog = dialog, name = name, actions = actions)
     }
 }
 
-/** The panel of the window [dialog]: apart from its [Dialog], so that the screenshots show it. */
+/** The panel of the window [dialog]: apart from its dialog, so that the screenshots show it. */
 @Composable
 internal fun ComposerWindow(
     dialog: ComposerDialog,
@@ -91,7 +72,7 @@ internal fun ComposerWindow(
     modifier: Modifier = Modifier,
 ) {
     when (dialog) {
-        is ComposerDialog.Save -> NamingWindow(
+        is ComposerDialog.Save -> ComposerNamingWindow(
             title = stringResource(R.string.feature_composer_save_title),
             confirm = stringResource(R.string.feature_composer_save),
             dialog = dialog,
@@ -102,7 +83,7 @@ internal fun ComposerWindow(
             ForGamesBox(checked = dialog.forGames, onChecked = actions.onForGamesChanged)
         }
 
-        is ComposerDialog.Rename -> NamingWindow(
+        is ComposerDialog.Rename -> ComposerNamingWindow(
             title = stringResource(R.string.feature_composer_rename_title),
             confirm = stringResource(R.string.feature_composer_rename),
             dialog = dialog,
@@ -114,50 +95,42 @@ internal fun ComposerWindow(
         ComposerDialog.Leave -> WindowPanel(title = stringResource(R.string.feature_composer_leave_title), modifier) {
             WindowText(stringResource(R.string.feature_composer_leave_text))
             // One answer a line: « Quitter sans enregistrer » is long, and the font may be twice as large.
-            ToolButton(
-                wraps = true,
+            WindowButton(
                 text = stringResource(R.string.feature_composer_save),
                 onClick = actions.onSaveBeforeLeaving,
                 primary = true,
                 modifier = Modifier.fillMaxWidth(),
             )
-            ToolButton(
-                wraps = true,
+            WindowButton(
                 text = stringResource(R.string.feature_composer_leave_without_saving),
                 onClick = actions.onLeaveWithoutSaving,
                 modifier = Modifier.fillMaxWidth(),
             )
-            ToolButton(
-                wraps = true,
+            WindowButton(
                 text = stringResource(R.string.feature_composer_continue),
                 onClick = actions.onDismissed,
                 modifier = Modifier.fillMaxWidth(),
             )
         }
 
-        is ComposerDialog.Delete -> WindowPanel(
-            title = stringResource(R.string.feature_composer_delete_title, name.orEmpty()),
+        is ComposerDialog.Delete -> DeleteWindow(
+            name = name.orEmpty(),
+            keep = stringResource(R.string.feature_composer_keep),
+            onConfirm = actions.onDeleteConfirmed,
+            onDismiss = actions.onDismissed,
+            note = if (dialog.isGameMusic) stringResource(R.string.feature_composer_delete_game_music) else null,
+            failed = dialog.failed,
             modifier = modifier,
-        ) {
-            if (dialog.failed) WriteFailed()
-            if (dialog.isGameMusic) WindowText(stringResource(R.string.feature_composer_delete_game_music))
-            Answers(
-                dismiss = stringResource(R.string.feature_composer_keep),
-                confirm = stringResource(R.string.feature_composer_delete),
-                onDismiss = actions.onDismissed,
-                onConfirm = actions.onDeleteConfirmed,
-                danger = true,
-            )
-        }
+        )
     }
 }
 
 /**
  * A window where a name is typed ([dialog]), then [extra] content, and its answers: [confirm], disabled while the name
- * has a problem, which the window says, offering a free name when the name is taken. *Entrée* confirms too.
+ * has a problem, which the window says, offering a free name when the name is taken.
  */
 @Composable
-private fun NamingWindow(
+private fun ComposerNamingWindow(
     title: String,
     confirm: String,
     dialog: ComposerDialog.Naming,
@@ -166,61 +139,20 @@ private fun NamingWindow(
     modifier: Modifier = Modifier,
     extra: @Composable ColumnScope.() -> Unit = {},
 ) {
-    val palette = BloxTheme.palette
-    WindowPanel(title = title, modifier = modifier) {
-        if (dialog.failed) WriteFailed()
-        OutlinedTextField(
-            value = dialog.name,
-            onValueChange = actions.onNameChanged,
-            label = { Text(stringResource(R.string.feature_composer_name_label)) },
-            singleLine = true,
-            isError = dialog.problem != null,
-            supportingText = dialog.problem?.let { problem ->
-                {
-                    Text(
-                        text = stringResource(problem.text),
-                        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-                    )
-                }
-            },
-            keyboardOptions = KeyboardOptions(
-                capitalization = KeyboardCapitalization.Sentences,
-                imeAction = ImeAction.Done,
-            ),
-            keyboardActions = KeyboardActions(onDone = { onConfirm() }),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = palette.ink,
-                unfocusedTextColor = palette.ink,
-                focusedBorderColor = palette.ink,
-                unfocusedBorderColor = palette.panelBorder,
-                focusedLabelColor = palette.ink,
-                unfocusedLabelColor = palette.label,
-                cursorColor = palette.ink,
-                errorBorderColor = palette.ink,
-                errorLabelColor = palette.ink,
-                errorSupportingTextColor = palette.ink,
-                errorTextColor = palette.ink,
-                errorCursorColor = palette.ink,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-        )
-        dialog.freeName?.let { free ->
-            ToolButton(
-                wraps = true,
-                text = stringResource(R.string.feature_composer_take_free_name, free),
-                onClick = actions.onFreeNameTaken,
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        extra()
-        Answers(
-            dismiss = stringResource(R.string.feature_composer_cancel),
-            confirm = confirm,
-            onDismiss = actions.onDismissed,
-            onConfirm = onConfirm,
-            confirmEnabled = dialog.problem == null,
-        )
-    }
+    NamingWindow(
+        title = title,
+        name = dialog.name,
+        onNameChanged = actions.onNameChanged,
+        problem = dialog.problem?.let { problemText(it) },
+        confirm = confirm,
+        onConfirm = onConfirm,
+        onDismiss = actions.onDismissed,
+        failed = dialog.failed,
+        freeName = dialog.freeName?.let { stringResource(R.string.feature_composer_take_free_name, it) },
+        onFreeNameTaken = actions.onFreeNameTaken,
+        modifier = modifier,
+        extra = extra,
+    )
 }
 
 /** *Jouer cette musique pendant les parties*, [checked] or not, read by TalkBack as a check box. */
@@ -255,86 +187,18 @@ private fun ForGamesBox(
     }
 }
 
-/** The two answers of a window, side by side: [dismiss], then [confirm], filled in `accent`, or `danger` if it deletes. */
+/** What the window says of a music that cannot be saved, or of a name that cannot be taken. */
 @Composable
-private fun Answers(
-    dismiss: String,
-    confirm: String,
-    onDismiss: () -> Unit,
-    onConfirm: () -> Unit,
-    confirmEnabled: Boolean = true,
-    danger: Boolean = false,
-) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap)) {
-        ToolButton(text = dismiss, onClick = onDismiss, wraps = true, modifier = Modifier.weight(1f))
-        ToolButton(
-            wraps = true,
-            text = confirm,
-            onClick = onConfirm,
-            enabled = confirmEnabled,
-            primary = true,
-            danger = danger,
-            modifier = Modifier.weight(1f),
-        )
+@ReadOnlyComposable
+private fun problemText(problem: SaveProblem): String = when (problem) {
+    SaveProblem.EmptyGrid -> stringResource(R.string.feature_composer_problem_empty)
+
+    is SaveProblem.Name -> when (problem.reason) {
+        NameProblem.BLANK -> stringResource(R.string.feature_composer_problem_blank)
+
+        NameProblem.TAKEN -> stringResource(R.string.feature_composer_problem_taken)
+
+        // Never shown: the editor cuts the name typed at the longest a saved name may be.
+        NameProblem.TOO_LONG -> nameTooLongText(SavedMusic.MAX_NAME_LENGTH)
     }
 }
-
-/** A window: a panel of the theme, its [title], then its [content], scrolling when the font is large. */
-@Composable
-private fun WindowPanel(
-    title: String,
-    modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
-) {
-    val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.panel
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(palette.panel, shape)
-            .border(BloxBorders.frame, palette.panelBorder, shape)
-            .verticalScroll(rememberScrollState())
-            .padding(WindowPadding),
-        verticalArrangement = Arrangement.spacedBy(WindowGap),
-    ) {
-        Text(
-            text = title,
-            color = palette.ink,
-            // Cut at a syllable, never in the middle of one, when a word is wider than the window.
-            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall).copy(hyphens = Hyphens.Auto),
-            modifier = Modifier.semantics { heading() },
-        )
-        content()
-    }
-}
-
-/** « L'enregistrement a échoué. », in `danger`, read by TalkBack as it shows: the window stays open to try again. */
-@Composable
-private fun WriteFailed() {
-    Text(
-        text = stringResource(R.string.feature_composer_window_failed),
-        color = BloxTheme.palette.danger,
-        style = MaterialTheme.typography.bodyMedium,
-        modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-    )
-}
-
-/** A sentence of a window. */
-@Composable
-private fun WindowText(text: String) {
-    Text(text = text, color = BloxTheme.palette.ink, style = MaterialTheme.typography.bodyMedium)
-}
-
-/** What the window says of a name that cannot be taken. */
-@get:StringRes
-private val SaveProblem.text: Int
-    get() = when (this) {
-        SaveProblem.EMPTY_GRID -> R.string.feature_composer_problem_empty
-        SaveProblem.NAME_TAKEN -> R.string.feature_composer_problem_taken
-        SaveProblem.BLANK_NAME -> R.string.feature_composer_problem_blank
-    }
-
-/** Between the window and the edges of the screen, inside the window, and between its parts. */
-internal val WindowMargin = 16.dp
-private val WindowPadding = 12.dp
-private val WindowGap = 12.dp

@@ -1,7 +1,7 @@
 package ch.magori.blox.feature.composer.model
 
 import ch.magori.blox.core.data.SavedMusic
-import ch.magori.blox.core.data.isNameTaken
+import ch.magori.blox.core.data.nameProblem
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.ScoreId
 
@@ -113,7 +113,7 @@ internal data class EditorState(
         name: String,
         musics: List<SavedMusic>,
         apartFrom: ScoreId.Personal? = null,
-    ): SaveProblem? = if (draft.isEmpty) SaveProblem.EMPTY_GRID else renameProblem(name, musics, apartFrom)
+    ): SaveProblem? = if (draft.isEmpty) SaveProblem.EmptyGrid else renameProblem(name, musics, apartFrom)
 
     /** The editor once the music is saved: its changes are counted from there. */
     fun markedSaved(): EditorState = copy(saved = draft)
@@ -135,14 +135,10 @@ internal data class EditorState(
 
 /**
  * Why a music cannot be called [name], given the saved [musics], the one being renamed, known by [apartFrom], left out
- * (null for a music never saved); `null` when it can.
+ * (null for a music never saved), by the rule of the library (`nameProblem`); `null` when it can.
  */
 internal fun renameProblem(
     name: String,
     musics: List<SavedMusic>,
     apartFrom: ScoreId.Personal?,
-): SaveProblem? = when {
-    name.isBlank() -> SaveProblem.BLANK_NAME
-    musics.isNameTaken(name, apartFrom) -> SaveProblem.NAME_TAKEN
-    else -> null
-}
+): SaveProblem? = musics.nameProblem(name, apartFrom)?.let(SaveProblem::Name)

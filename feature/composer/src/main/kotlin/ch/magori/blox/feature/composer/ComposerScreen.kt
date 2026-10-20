@@ -32,6 +32,8 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.data.DeletedMusic
+import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Category
@@ -495,7 +497,10 @@ private fun WindowPreview(
     BloxTheme(kind = kind) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(horizontal = WindowMargin),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(BloxTheme.palette.page)
+                .padding(horizontal = BloxSizes.windowMargin),
         ) {
             ComposerWindow(dialog = dialog, name = "Joyeux 1", actions = DialogActions.None)
         }
@@ -506,7 +511,7 @@ private fun WindowPreview(
 private val TakenName = ComposerDialog.Save(
     name = "Joyeux 1",
     forGames = true,
-    problem = SaveProblem.NAME_TAKEN,
+    problem = SaveProblem.Name(NameProblem.TAKEN),
     freeName = "Joyeux 2",
 )
 

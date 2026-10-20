@@ -6,6 +6,7 @@ import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.EditorState
@@ -135,7 +136,7 @@ class ComposerSavingTest {
             ComposerDialog.Save(
                 name = "thème",
                 forGames = false,
-                problem = SaveProblem.NAME_TAKEN,
+                problem = SaveProblem.Name(NameProblem.TAKEN),
                 freeName = "thème 2",
             ),
         )
@@ -157,8 +158,8 @@ class ComposerSavingTest {
         viewModel.onSaveConfirmed()
 
         // Then
-        assertThat((empty as ComposerDialog.Save).problem).isEqualTo(SaveProblem.EMPTY_GRID)
-        assertThat((blank as ComposerDialog.Save).problem).isEqualTo(SaveProblem.BLANK_NAME)
+        assertThat((empty as ComposerDialog.Save).problem).isEqualTo(SaveProblem.EmptyGrid)
+        assertThat((blank as ComposerDialog.Save).problem).isEqualTo(SaveProblem.Name(NameProblem.BLANK))
         assertThat(library.musics.first()).isEmpty()
     }
 
@@ -393,9 +394,9 @@ class ComposerSavingTest {
         viewModel.onRenameConfirmed()
 
         // Then
-        assertThat(blank).isEqualTo(ComposerDialog.Rename(name = " ", problem = SaveProblem.BLANK_NAME))
+        assertThat(blank).isEqualTo(ComposerDialog.Rename(name = " ", problem = SaveProblem.Name(NameProblem.BLANK)))
         assertThat(taken).isEqualTo(
-            ComposerDialog.Rename(name = "FÊTE", problem = SaveProblem.NAME_TAKEN, freeName = "FÊTE 2"),
+            ComposerDialog.Rename(name = "FÊTE", problem = SaveProblem.Name(NameProblem.TAKEN), freeName = "FÊTE 2"),
         )
         assertThat(viewModel.shown.name).isNull()
     }
