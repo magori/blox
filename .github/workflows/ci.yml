@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, build/P5.8-captures-ci] # TEMPORAIRE (mesure P5.8) : à retirer avant la PR
+    branches: [main]
   pull_request:
 
 concurrency:
@@ -67,25 +67,18 @@ jobs:
 
       # Compile les sources androidTest de tous les modules Android (APK de test), sans les
       # exécuter : il n'y a pas d'émulateur en CI. Compile aussi les tests de captures
-      # (src/screenshotTest), qu'aucune autre étape ne compile : un avertissement Kotlin y est une
-      # erreur comme ailleurs (P5.25). Les captures elles-mêmes ne sont pas comparées ici.
+      # (src/screenshotTest) : un avertissement Kotlin y est une erreur comme ailleurs (P5.25), et
+      # il est signalé ici, avant la comparaison des captures (étape suivante).
       - name: Compilation des tests instrumentés et des tests de captures
         run: ./gradlew assembleDebugAndroidTest compileDebugScreenshotTestKotlin
 
       # Compare les captures des previews (src/screenshotTest) aux références versionnées, générées
-      # sous Windows : une montée de Compose qui change le rendu fait échouer la CI. Tolérance dans
-      # AndroidScreenshotConventionPlugin (build-logic). --continue : tous les modules sont comparés
-      # même si l'un échoue ; rapports d'écart dans l'artefact `rapports`.
+      # sous Windows : une montée de Compose qui change le rendu fait échouer la CI. Le rendu
+      # (layoutlib, sur la JVM) est identique au pixel près sous Linux (P5.8 : 42 captures à 0 %) ;
+      # tolérance dans AndroidScreenshotConventionPlugin (build-logic). --continue : tous les
+      # modules sont comparés même si l'un échoue ; rapports d'écart dans l'artefact `rapports`.
       - name: Validation des captures (références Windows)
         run: ./gradlew validateDebugScreenshotTest --continue
-
-      # TEMPORAIRE (mesure P5.8) : écart de chaque capture, à retirer avant la PR.
-      - name: Mesure des écarts de captures
-        if: always()
-        run: |
-          for f in feature/*/build/test-results/validateDebugScreenshotTest/*.xml; do
-            grep -oE 'PreviewScreenshot\.(previewName|diffPercent)" value="[^"]*"' "$f" | paste - - ;
-          done
 
       # Compile le module de mesure (Macrobenchmark, générateur du profil de référence) et ses
       # APK de test, sans les exécuter : les mesures et la génération demandent un appareil.
