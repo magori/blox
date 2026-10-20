@@ -30,4 +30,8 @@
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->
     <string name="feature_home_compose">Composer une musique</string>
     <string name="feature_home_my_musics">Mes musiques</string>
+    <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
+    <string name="feature_home_settings">Réglages</string>
+    <string name="feature_home_vibrations">Vibrations</string>
+    <string name="feature_home_sound_effects">Effets sonores</string>
 </resources>

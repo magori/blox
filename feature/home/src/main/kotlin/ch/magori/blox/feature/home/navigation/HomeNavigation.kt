@@ -73,6 +73,8 @@ fun EntryProviderScope<NavKey>.homeEntry(
                     viewModel.onMyMusics()
                     onMyMusics()
                 },
+                onVibrationsChanged = viewModel::onVibrationsChanged,
+                onSoundEffectsChanged = viewModel::onSoundEffectsChanged,
             )
         }
     }

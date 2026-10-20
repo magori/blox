@@ -207,6 +207,12 @@ que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 
 libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
 `keyColors`.
 
+**Réglages** (P5.37, `settingColors`) : une rangée de réglage prend les couleurs d'un choix non
+sélectionné (`choiceColors`) ; l'interrupteur éteint a une piste `panel`, un contour et un bouton
+`ink`, allumé une piste `accent` et un bouton `accentInk`. Aucun jeton n'a changé : les contrastes
+sont ceux du tableau ci-dessous (libellé et contour `ink` sur `panel`, `accent` sur `panel`,
+`accentInk` sur `accent`). Tests : `SettingColorsTest` (cités dans `docs/maquette.md`, V1).
+
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
 pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp

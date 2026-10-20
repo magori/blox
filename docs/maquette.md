@@ -76,8 +76,27 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 dp, en capitales, icône note et crayon,
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
   - l'accueil défile sur un téléphone : V1 fait 1360 px de haut.
-- Section **Réglages** (Vibrations, Effets sonores, désactivés : voir « Pas encore codé »), puis
-  bouton **Jouer**, 48 dp de haut, en `accent`.
+- Section **Réglages** (P5.37) entre « COMPOSER UNE MUSIQUE » et « Jouer » : deux rangées pleine
+  largeur en encart (couleurs d'un choix non sélectionné), d'au moins 48 dp, **Vibrations** et
+  **Effets sonores**, libellé à gauche, interrupteur à droite, désactivés par défaut. Éteint :
+  piste `panel`, contour et bouton `ink` à gauche ; allumé : piste `accent`, bouton `accentInk` à
+  droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
+  (« Vibrations, interrupteur, désactivé »). En police agrandie, le libellé garde sa taille et passe
+  à la ligne aux espaces ; s'il ne tient pas à côté de l'interrupteur, celui-ci passe dessous, à
+  droite. Un changement vaut pour la partie suivante (les réglages sont lus à sa création).
+  **Tests :** `HomeScreenTest › TalkBack reads Vibrations and Effets sonores as switches, off by default`,
+  `HomeScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
+  `HomeScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
+  `HomeScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
+  `HomeScreenTest › the settings stand between Composer une musique and Jouer, under their heading Réglages`,
+  `HomeScreenTest › in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp`,
+  `HomeViewModelTest › the vibrations and the sound effects are shown as saved`,
+  `HomeViewModelTest › turning the vibrations on saves them on and shows them on, then off again`,
+  `HomeViewModelTest › turning the sound effects on saves them on and shows them on, then off again`,
+  `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
+  `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
+  `SettingColorsTest › a switch on stands out from its row, and its thumb from it, by a contrast of 3 to 1 at least`.
+- Bouton **Jouer**, 48 dp de haut, en `accent`.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
 - Valeurs retenues en P3.4, reportées sur la maquette (P3.8, 2026-10-20) : rien n'est affiché tant que
@@ -237,12 +256,6 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ## Pas encore codé
 
-- **Réglages de l'accueil** (V1, maquettés le 2026-10-20) : une section « Réglages » entre
-  « COMPOSER UNE MUSIQUE » et « Jouer », deux rangées pleine largeur en encart (`panel`, cadre de
-  2 dp), d'au moins 48 dp : **Vibrations** et **Effets sonores**, libellé à gauche, interrupteur à
-  droite, désactivés par défaut. Éteint : contour couleur du libellé, bouton à gauche ; allumé :
-  rempli d'`accent`, bouton à droite (l'état se lit à la position, pas seulement à la couleur).
-  TalkBack : « Vibrations, interrupteur, désactivé ». À brancher (P5.37).
 - **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
 
 ## Points ouverts

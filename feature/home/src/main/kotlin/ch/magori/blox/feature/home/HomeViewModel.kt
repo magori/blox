@@ -129,6 +129,15 @@ class HomeViewModel(
     }
 
     /**
+     * Saves whether the games vibrate. A game reads the settings once, when it is created: a change made here holds for
+     * the next game, never for one under way.
+     */
+    internal fun onVibrationsChanged(vibrations: Boolean) = save { setVibrations(vibrations) }
+
+    /** Saves whether the games play their sound effects; as for the vibrations, it holds from the next game on. */
+    internal fun onSoundEffectsChanged(soundEffects: Boolean) = save { setSoundEffects(soundEffects) }
+
+    /**
      * The player picked [uri] in the picker of the system, opened by « Mon fichier »: the file is kept, then
      * « Mon fichier » chosen, as [onMusicChosen] does; the music being listened to stops, the file being another music.
      * A file that cannot be kept leaves the music chosen before. A picker cancelled tells nothing: the choice stays.
@@ -257,6 +266,8 @@ class HomeViewModel(
         previewing = (previewed as? Previewed.Choice)?.choice,
         hasMusicFile = sources.file != null,
         gameMusic = sources.gameMusic?.let { GameMusicUi(it.name, previewed = previewed == Previewed.Personal(it.id)) },
+        vibrations = saved.vibrations,
+        soundEffects = saved.soundEffects,
     )
 
     /**

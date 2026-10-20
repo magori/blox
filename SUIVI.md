@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 145 / 180 | `████████████████░░░░` **81 %** |
+| **Général** | 146 / 180 | `████████████████░░░░` **81 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -666,10 +666,10 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.35** En jeu, une musique morte (séquenceur en échec) garde le focus audio jusqu'à la
   pause ou la fin : `GameViewModel` pourrait suivre `Playback.isPlaying` et rendre le focus,
   sans couper la partie (revue de P4.23).
-- [ ] **P5.37** Interrupteurs « Vibrations » et « Effets sonores » de l'accueil (maquette V1 faite le
+- [x] **P5.37** Interrupteurs « Vibrations » et « Effets sonores » de l'accueil (maquette V1 faite le
   2026-10-20, section Réglages) : les brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
   leur valeur par défaut : désactivés (décisions du développeur, 2026-10-19 et 2026-10-20 ; P5.2,
-  P4.8).
+  P4.8). Fait : section Réglages, `settingColors`, désactivés par défaut.
 - [ ] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
   déjà codé), à afficher
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
