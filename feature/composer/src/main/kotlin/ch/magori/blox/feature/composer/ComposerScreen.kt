@@ -35,8 +35,10 @@ import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Category
+import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Surprise
 import ch.magori.blox.feature.composer.grid.GridLines
 import ch.magori.blox.feature.composer.grid.NoteGrid
 import ch.magori.blox.feature.composer.grid.gridRows
@@ -116,6 +118,8 @@ internal fun ComposerScreen(
         onSlower = viewModel::onSlower,
         onFaster = viewModel::onFaster,
         onListen = viewModel::onListen,
+        onCategoryChosen = viewModel::onCategoryChosen,
+        onDice = viewModel::onDice,
         onSave = { viewModel.onSaveAsked(base) },
         onMessageShown = viewModel::onMessageShown,
         dialogActions = remember(viewModel, base) {
@@ -137,9 +141,9 @@ internal fun ComposerScreen(
 
 /**
  * The editor as [uiState] shows it, from top to bottom: the header, the tabs, the toolbar, the grid of one bar, the bar
- * buttons, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over the bottom of the grid until
- * [onMessageShown]; its window, if any, answered through [dialogActions]. No logic here: every touch goes to its
- * callback. The dice and the categories come with the next slices of the editor.
+ * buttons, *Au hasard* and its categories, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over
+ * the bottom of the grid until [onMessageShown]; its window, if any, answered through [dialogActions]. No logic here:
+ * every touch goes to its callback.
  */
 @Composable
 internal fun ComposerContent(
@@ -159,6 +163,8 @@ internal fun ComposerContent(
     onBarChosen: (Int) -> Unit,
     onSlower: () -> Unit,
     onFaster: () -> Unit,
+    onCategoryChosen: (CategoryChoice) -> Unit,
+    onDice: () -> Unit,
     onListen: () -> Unit,
     onSave: () -> Unit,
     onMessageShown: () -> Unit,
@@ -215,6 +221,7 @@ internal fun ComposerContent(
                 )
             }
             BarButtons(bar = editor.bar, playedBar = played?.bar, onBarChosen = onBarChosen)
+            DicePanel(choice = uiState.choice, onCategoryChosen = onCategoryChosen, onDice = onDice)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TempoPanel(
                     bpm = editor.draft.tempo.bpm,
@@ -272,19 +279,32 @@ private fun ComposerMessageHost(
     onMessageShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val host = remember { SnackbarHostState() }
     val text = message?.let { stringResource(it.text) }
+    // A preview, without time going by, shows the message as it stands.
+    val host = remember { SnackbarHostState() }
     LaunchedEffect(message) {
         if (text != null) {
             host.showSnackbar(text)
             onMessageShown()
         }
     }
+    SnackbarHost(hostState = host, modifier = modifier) { data -> MessageBar(data.visuals.message) }
+}
+
+/** A message of the editor, [text] in the colour of the page on the ink. */
+@Composable
+private fun MessageBar(
+    text: String,
+    modifier: Modifier = Modifier,
+) {
     val palette = BloxTheme.palette
-    SnackbarHost(hostState = host, modifier = modifier) { data ->
-        Snackbar(containerColor = palette.ink, contentColor = palette.page, shape = BloxTheme.shapes.panel) {
-            Text(data.visuals.message)
-        }
+    Snackbar(
+        containerColor = palette.ink,
+        contentColor = palette.page,
+        shape = BloxTheme.shapes.panel,
+        modifier = modifier,
+    ) {
+        Text(text)
     }
 }
 
@@ -294,6 +314,9 @@ private val ComposerMessage.text: Int
     get() = when (this) {
         ComposerMessage.FOLLOW_STOPPED -> R.string.feature_composer_follow_stopped
         ComposerMessage.WRITE_FAILED -> R.string.feature_composer_write_failed
+        ComposerMessage.DICE_ROLLED -> R.string.feature_composer_dice_rolled
+        ComposerMessage.BAR_COPIED -> R.string.feature_composer_bar_copied
+        ComposerMessage.BAR_CLEARED -> R.string.feature_composer_bar_cleared
     }
 
 /**
@@ -329,10 +352,16 @@ private fun ComposerPreview(
     kind: BloxThemeKind,
     editor: EditorState,
     played: Cell? = null,
+    choice: CategoryChoice = Surprise,
 ) {
     BloxTheme(kind = kind) {
         ComposerContent(
-            uiState = ComposerUiState(editor, showOtherTrack = true, played = played),
+            uiState = ComposerUiState(
+                editor,
+                showOtherTrack = true,
+                played = played,
+                choice = choice,
+            ),
             onBack = {},
             onRename = {},
             onDelete = {},
@@ -348,6 +377,8 @@ private fun ComposerPreview(
             onBarChosen = {},
             onSlower = {},
             onFaster = {},
+            onCategoryChosen = {},
+            onDice = {},
             onListen = {},
             onSave = {},
             onMessageShown = {},
@@ -375,6 +406,81 @@ internal fun ComposerColorfulPreview() {
 @Composable
 internal fun ComposerEmptyPreview() {
     ComposerPreview(BloxThemeKind.ORIGINAL, EditorState.new())
+}
+
+/**
+ * The editor once the dice rolled in Joyeux over a music, which *Annuler* brings back; its message shows apart
+ * ([MessagePreview]), as the host of the messages shows it only once time goes by.
+ */
+@Composable
+private fun DicePreview(kind: BloxThemeKind) {
+    val rolled = previewEditor()
+    ComposerPreview(
+        kind,
+        rolled.copy(draft = rolled.draft.copy(category = Category.JOYFUL), undoable = ScoreDraft.new()),
+        choice = Category.JOYFUL,
+    )
+}
+
+/** The message that the dice can be undone, at the bottom of the page, as it shows over the bottom of the grid. */
+@Composable
+private fun MessagePreview(kind: BloxThemeKind) {
+    BloxTheme(kind = kind) {
+        Box(
+            contentAlignment = Alignment.BottomCenter,
+            modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(ComposerSizes.padding),
+        ) {
+            MessageBar(stringResource(ComposerMessage.DICE_ROLLED.text))
+        }
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 240)
+@Composable
+internal fun MessageOriginalPreview() {
+    MessagePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 240)
+@Composable
+internal fun MessageColorfulPreview() {
+    MessagePreview(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360, heightDp = 400, fontScale = 2f)
+@Composable
+internal fun MessageOriginalLargeFontPreview() {
+    MessagePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 400, fontScale = 2f)
+@Composable
+internal fun MessageColorfulLargeFontPreview() {
+    MessagePreview(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun ComposerDiceOriginalPreview() {
+    DicePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun ComposerDiceColorfulPreview() {
+    DicePreview(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+internal fun ComposerDiceOriginalLargeFontPreview() {
+    DicePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+internal fun ComposerDiceColorfulLargeFontPreview() {
+    DicePreview(BloxThemeKind.COLORFUL)
 }
 
 /**

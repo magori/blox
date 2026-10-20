@@ -28,6 +28,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
@@ -44,6 +45,7 @@ import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.ScoreId
@@ -53,6 +55,7 @@ import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -62,6 +65,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import kotlin.random.Random
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -76,7 +80,7 @@ internal class ComposerScreenTest {
 
     private val music = FakeMusicPlayer()
     private val library = FakeMusicLibrary()
-    private val viewModel = ComposerViewModel(music, library, musicKey = null, SavedStateHandle())
+    private val viewModel = editor()
 
     @Test
     @DisplayName("touching an empty cell places a note, and touching it again erases it")
@@ -136,6 +140,36 @@ internal class ComposerScreenTest {
         val count = cells.fetchSemanticsNodes().size
         assertThat(count).isEqualTo(15 * 8)
         repeat(count) { index -> cells[index].assertWidthIsAtLeast(24.dp).assertHeightIsAtLeast(24.dp) }
+    }
+
+    @Test
+    @DisplayName("on a small phone with the largest font, the category chosen for the dice comes in sight, whole")
+    fun theCategoryChosenComesInSight() = extension.use {
+        // Given a phone 360 dp wide, the font twice as large: the categories do not all fit on their line
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+                    ComposerScreen(
+                        viewModel = viewModel,
+                        onBack = {},
+                        onDeleted = {},
+                        modifier = Modifier.size(360.dp, 760.dp),
+                    )
+                }
+            }
+        }
+
+        // When the last category is chosen
+        runOnUiThread { viewModel.onCategoryChosen(Category.DANCE) }
+        waitForIdle()
+
+        // Then it shows whole, within the width of the phone
+        // (its position and size unclipped: the bounds of a node are cut by the line that scrolls)
+        val node = onNodeWithText("Danse").fetchSemanticsNode()
+        val width = with(density) { 360.dp.toPx() }
+        assertThat(node.positionInRoot.x).isGreaterThanOrEqualTo(0f)
+        assertThat(node.positionInRoot.x + node.size.width).isLessThanOrEqualTo(width)
     }
 
     @Test
@@ -265,6 +299,8 @@ internal class ComposerScreenTest {
                     onBarChosen = {},
                     onSlower = {},
                     onFaster = {},
+                    onCategoryChosen = {},
+                    onDice = {},
                     onListen = {},
                     onSave = {},
                     onMessageShown = {},
@@ -403,6 +439,36 @@ internal class ComposerScreenTest {
     }
 
     @Test
+    @DisplayName("Au hasard composes in the category chosen, read as a radio button, and a message tells Annuler")
+    fun auHasardComposesInTheCategoryChosen() = extension.use {
+        // Given a note in the grid, and Calme chosen among the categories
+        showEditor()
+        cell("Mi bas, temps 1").performClick()
+        onNodeWithText("Surprise").assertIsSelected()
+        onNodeWithText("Calme").performScrollTo().performClick()
+        onNodeWithText("Calme").assertIsSelected()
+        onNodeWithText("Surprise").assertIsNotSelected()
+        waitForIdle()
+        mainClock.autoAdvance = false
+
+        // When
+        onNodeWithText("Au hasard").performClick()
+        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
+
+        // Then
+        onNodeWithText("Calme · non enregistrée").assertExists()
+        onNodeWithText("Musique tirée au hasard. « Annuler » ramène l'ancienne.").assertExists()
+
+        // When
+        onNodeWithText("Annuler").performClick()
+        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
+
+        // Then the note is back, and the message gone with the undo
+        cell("Mi bas, temps 1").assertState("note")
+        onNodeWithText("Musique tirée au hasard", substring = true).assertDoesNotExist()
+    }
+
+    @Test
     @DisplayName("Save opens the window on the name proposed, which saves the music under the name typed")
     fun saveSavesTheMusicUnderTheNameTyped() = extension.use {
         // Given a new music with a note
@@ -463,7 +529,7 @@ internal class ComposerScreenTest {
         val unread = object : MusicLibrary by library {
             override val musics: Flow<List<SavedMusic>> = flow { awaitCancellation() }
         }
-        val opening = ComposerViewModel(music, unread, musicKey = "joyeux", SavedStateHandle())
+        val opening = editor(unread, musicKey = "joyeux")
         var backs = 0
         setContent {
             // The system back, as the navigation handles it, under the editor.
@@ -483,6 +549,23 @@ internal class ComposerScreenTest {
         // Then
         runOnIdle { assertThat(backs).isEqualTo(1) }
     }
+
+    /**
+     * An editor on the music of [musicKey] in [library], a new music when null; its dice draws its seeds from [SEED] and
+     * composes on the main thread, at once.
+     */
+    private fun editor(
+        library: MusicLibrary = this.library,
+        musicKey: String? = null,
+    ) = ComposerViewModel(
+        music,
+        library,
+        musicKey,
+        SavedStateHandle(),
+        Random(SEED),
+        Dispatchers.Main.immediate,
+        rollDice = false,
+    )
 
     private fun ComposeContext.showEditor(
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
@@ -506,6 +589,7 @@ internal class ComposerScreenTest {
 
     private companion object {
         const val SLIDE_STEPS = 10
+        const val SEED = 42L
         const val MESSAGE_SHOWN_MILLIS = 500L
         const val BAR_TAG = "composer_bar"
         const val CELL_TAG = "composer_cell"

@@ -16,13 +16,21 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.music.MusicGenerator
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.Surprise
 import ch.magori.blox.feature.composer.model.EditorState
+import ch.magori.blox.feature.composer.model.ScoreDraft
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
+
+/** The first seed of the draws of the dice. */
+private const val SEED = 42L
 
 /**
  * The factory that `app` builds, with the real saved state of Android, which the JVM tests do not have: what it takes
@@ -74,6 +82,22 @@ internal class ComposerViewModelFactoryTest {
         assertThat(restored.uiState.value?.editor?.draft).isEqualTo(written.uiState.value?.editor?.draft)
     }
 
+    @Test
+    @DisplayName("an entry of Au hasard gives an editor on a new music, rolled from a seed the factory draws")
+    fun anEntryOfAuHasardGivesARolledMusic() {
+        // Given a factory that draws its seeds from 42, and composes on the main thread, at once
+        val rolling = ComposerViewModel.Factory(FakeMusicPlayer(), library, Random(SEED), Dispatchers.Main.immediate)
+
+        // When
+        val owner = onMain { EntryOwner(restored = null) }
+        val editor = onMain { owner.composer(musicKey = null, rollDice = true, factory = rolling) }
+
+        // Then
+        val music = MusicGenerator.generate(Surprise, Random(SEED).nextLong(), ScoreId.Personal("rolled"))
+        val draft = ScoreDraft.fromScore(music.score, music.scale, music.category)
+        assertThat(editor.uiState.value?.editor).isEqualTo(EditorState(checkNotNull(draft)))
+    }
+
     /**
      * Runs [block] on the main thread, as the navigation does: the view model collects on `Dispatchers.Main.immediate`,
      * at once from there.
@@ -102,12 +126,20 @@ internal class ComposerViewModelFactoryTest {
             enableSavedStateHandles()
         }
 
-        /** The editor of the music of [musicKey], as the composer entry asks for it (ADR 0013). */
-        fun composer(musicKey: String?): ComposerViewModel {
+        /**
+         * The editor of the music of [musicKey], rolled once open if it is to [rollDice], as the composer entry asks
+         * [factory] for it (ADR 0013).
+         */
+        fun composer(
+            musicKey: String?,
+            rollDice: Boolean = false,
+            factory: ComposerViewModel.Factory = this@ComposerViewModelFactoryTest.factory,
+        ): ComposerViewModel {
             val extras = MutableCreationExtras().apply {
                 set(SAVED_STATE_REGISTRY_OWNER_KEY, this@EntryOwner)
                 set(VIEW_MODEL_STORE_OWNER_KEY, this@EntryOwner)
                 musicKey?.let { set(ComposerViewModel.MusicKey, it) }
+                if (rollDice) set(ComposerViewModel.RollDice, true)
             }
             return ViewModelProvider.create(viewModelStore, factory, extras)[ComposerViewModel::class]
         }

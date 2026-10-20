@@ -127,6 +127,69 @@ class ComposerViewModelTest {
     }
 
     @Test
+    fun `copying or clearing the bar shows a message that says it can be undone`() {
+        // Given a note in the first bar
+        viewModel.onCellTouched(pitch("E4"), eighth = 0)
+
+        // When
+        viewModel.onCopyBar()
+
+        // Then
+        assertThat(viewModel.shown.message).isEqualTo(ComposerMessage.BAR_COPIED)
+
+        // When
+        viewModel.onClearBar()
+
+        // Then
+        assertThat(viewModel.shown.message).isEqualTo(ComposerMessage.BAR_CLEARED)
+    }
+
+    @Test
+    fun `the message that an action can be undone goes away once it is undone, or once the undo is taken away`() {
+        // Given a note in the first bar, cleared
+        viewModel.onCellTouched(pitch("E4"), eighth = 0)
+        viewModel.onClearBar()
+
+        // When
+        viewModel.onUndo()
+
+        // Then
+        assertThat(viewModel.shown.message).isNull()
+
+        // Given
+        viewModel.onCopyBar()
+
+        // When a touch takes the undo away
+        viewModel.onCellTouched(pitch("G4"), eighth = 2)
+
+        // Then
+        assertThat(viewModel.shown.message).isNull()
+
+        // Given
+        viewModel.onCopyBar()
+
+        // When a change of tempo takes the undo away
+        viewModel.onFaster()
+
+        // Then
+        assertThat(viewModel.shown.message).isNull()
+    }
+
+    @Test
+    fun `the message that the playback is no longer followed stays when the undo is taken away`() {
+        // Given a note in the first bar, the music listened to, and another bar chosen
+        viewModel.onCellTouched(pitch("E4"), eighth = 0)
+        viewModel.onListen()
+        viewModel.onBarChosen(3)
+
+        // When
+        viewModel.onCellTouched(pitch("G4"), eighth = 2)
+
+        // Then
+        assertThat(viewModel.shown.message).isEqualTo(ComposerMessage.FOLLOW_STOPPED)
+    }
+
+    @Test
     fun `a toolbar action without effect, its button disabled, does nothing when it comes all the same`() {
         // Given an empty music on its last bar: nothing to clear, to undo, nor a bar after it to copy over
         viewModel.onBarChosen(7)
@@ -492,7 +555,7 @@ class ComposerViewModelTest {
         player: MusicPlayer = music,
         key: String? = null,
         savedState: SavedStateHandle = SavedStateHandle(),
-    ) = ComposerViewModel(player, library, key, savedState)
+    ) = composer(player, library, key, savedState)
 
     /** A change of the notes, each possible with a note in the first bar, shown on the grid, and the second cleared. */
     enum class NotesChange(val apply: ComposerViewModel.() -> Unit) {
@@ -501,6 +564,7 @@ class ComposerViewModelTest {
         COPY({ onCopyBar() }),
         CLEAR({ onClearBar() }),
         UNDO({ onUndo() }),
+        DICE({ onDice() }),
     }
 
     private companion object {

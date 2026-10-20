@@ -15,6 +15,8 @@ import ch.magori.blox.core.data.SavedMusic.Companion.MAX_NAME_LENGTH
 import ch.magori.blox.core.data.freeName
 import ch.magori.blox.core.data.proposedName
 import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.music.CategoryChoice
+import ch.magori.blox.core.music.MusicGenerator
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.composer.model.DraftForm
@@ -26,7 +28,9 @@ import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Tempo
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.renameProblem
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -37,19 +41,25 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 /**
  * The music editor (V8, V11): the music of [musicKey] in [library], or a new one when it is null, edited on the grid of
  * one bar of one track, and listened to by [music]. The music the library does not know, or that does not open on the
- * grid, opens as a new music, under a new identity: the saved one is never overwritten.
+ * grid, opens as a new music, under a new identity: the saved one is never overwritten. The dice draws its seeds from
+ * [random] and composes on [generation], off the main thread; it rolls once the music opens if it is to [rollDice].
  */
 class ComposerViewModel internal constructor(
     private val music: MusicPlayer,
     private val library: MusicLibrary,
     musicKey: String?,
     savedState: SavedStateHandle,
+    private val random: Random,
+    private val generation: CoroutineDispatcher,
+    rollDice: Boolean,
 ) : ViewModel() {
     private val state = MutableStateFlow<ComposerUiState?>(null)
 
@@ -71,6 +81,18 @@ class ComposerViewModel internal constructor(
     /** The change of the musics under way, if any: a second tap on its button meanwhile does nothing. */
     private var writing: Job? = null
 
+    /** The roll of the dice under way, if any: a second roll meanwhile does nothing. */
+    private var rolling: Job? = null
+
+    /**
+     * Whether a window was shown since the roll of the dice under way began: the music being saved, renamed or deleted
+     * then, the roll leaves its music aside.
+     */
+    private var windowShown = false
+
+    /** Whether the dice is to roll once the music opens: the editor opened by *Au hasard*. */
+    private var rollOnOpen = false
+
     /** The music listened to, if any. */
     private var listening: Listening? = null
 
@@ -81,6 +103,8 @@ class ComposerViewModel internal constructor(
         // The identity of the music, kept in the saved state once opened: after the death of the process, the editor
         // opens the same music, a new one included, with the draft and the name it kept.
         val ownKey = savedState.get<String>(ID_KEY)
+        // Rolled once, when the music opens; an editor restored keeps the music it rolled.
+        rollOnOpen = rollDice && ownKey == null
         val key = ownKey ?: musicKey
         val restored = Restored(
             draft = savedState.get<String>(DRAFT_KEY)?.let(DraftForm::read),
@@ -141,13 +165,23 @@ class ComposerViewModel internal constructor(
         val editor = EditorState(draft = restored.draft ?: saved ?: ScoreDraft.new(), saved = saved)
         state.value =
             ComposerUiState(editor, showOtherTrack = true, name = restored.name, isGameMusic = gameMusic == id)
+        if (rollOnOpen) {
+            rollOnOpen = false
+            onDice()
+        }
     }
 
     /** What the saved state kept of the music: its [draft] and its [name], if any. */
     private data class Restored(val draft: ScoreDraft? = null, val name: String? = null)
 
-    /** Applies [change] to what the editor shows, once its music is open. */
-    private fun update(change: (ComposerUiState) -> ComposerUiState) = state.update { it?.let(change) }
+    /**
+     * Applies [change] to what the editor shows, once its music is open. A window shown meanwhile is noted for the roll
+     * of the dice under way, which then leaves its music aside.
+     */
+    private fun update(change: (ComposerUiState) -> ComposerUiState) {
+        state.update { it?.let(change) }
+        if (state.value?.dialog != null) windowShown = true
+    }
 
     /**
      * *Enregistrer*: opens the save window on the name of the music, or for a music never named on the name proposed
@@ -365,6 +399,30 @@ class ComposerViewModel internal constructor(
         listening?.let { show(it.head) }
     }
 
+    /** A category, or Surprise, chosen for the dice. */
+    internal fun onCategoryChosen(choice: CategoryChoice) = update { it.copy(choice = choice) }
+
+    /**
+     * *Au hasard*: the music the generator composes in the category chosen, from a seed drawn for this roll, in place of
+     * the music being edited. The generator takes some tens of milliseconds: it composes off the main thread, and a second
+     * roll meanwhile does nothing. It does not roll behind a window, and leaves its music aside once a window was shown
+     * while it composed (a save, a rename, a deletion); a note touched meanwhile is replaced, *Annuler* brings it back.
+     */
+    internal fun onDice() {
+        if (rolling?.isActive == true || current.dialog != null) return
+        windowShown = false
+        val choice = current.choice
+        val seed = random.nextLong()
+        rolling = viewModelScope.launch {
+            val music = withContext(generation) { MusicGenerator.generate(choice, seed, id) }
+            // Every music of the generator opens on the grid (ScoreDraftRoundTripTest).
+            val draft = checkNotNull(ScoreDraft.fromScore(music.score, music.scale, music.category)) {
+                "A generated music does not open on the grid"
+            }
+            if (!windowShown) editUndoable(ComposerMessage.DICE_ROLLED) { rollDice(draft) }
+        }
+    }
+
     /** The message of the editor was shown. */
     internal fun onMessageShown() = update { it.copy(message = null) }
 
@@ -375,19 +433,19 @@ class ComposerViewModel internal constructor(
     // same, a second tap before the button is disabled, does nothing, and keeps the undo.
 
     /** *Copier la mesure*. */
-    internal fun onCopyBar() = edit { if (canCopyBar) copyBar() else this }
+    internal fun onCopyBar() = editUndoable(ComposerMessage.BAR_COPIED) { if (canCopyBar) copyBar() else this }
 
     /** *Effacer la mesure*. */
-    internal fun onClearBar() = edit { if (canClearBar) clearBar() else this }
+    internal fun onClearBar() = editUndoable(ComposerMessage.BAR_CLEARED) { if (canClearBar) clearBar() else this }
 
     /** *Annuler*. */
     internal fun onUndo() = edit { if (canUndo) undo() else this }
 
     /** The tempo button « + ». */
-    internal fun onFaster() = changeTempo { if (it.canSpeedUp) it.copy(editor = it.editor.faster()) else it }
+    internal fun onFaster() = changeTempo { if (it.canSpeedUp) it.edited(it.editor.faster()) else it }
 
     /** The tempo button « − ». */
-    internal fun onSlower() = changeTempo { if (it.canSlowDown) it.copy(editor = it.editor.slower()) else it }
+    internal fun onSlower() = changeTempo { if (it.canSlowDown) it.edited(it.editor.slower()) else it }
 
     /** Applies [change] to the tempo; the music listened to plays on, at the new tempo. */
     private fun changeTempo(change: (ComposerUiState) -> ComposerUiState) {
@@ -464,32 +522,63 @@ class ComposerViewModel internal constructor(
 
     /**
      * Applies [change] to the editor. A change of the notes stops the music listened to: it never goes on playing a
-     * version that is gone.
+     * version that is gone. Once the undo is gone, the message that told of it goes with it.
      */
     private fun edit(change: EditorState.() -> EditorState) {
         val before = current.editor.draft
-        update { it.copy(editor = it.editor.change()) }
+        update { it.edited(it.editor.change()) }
         if (current.editor.draft != before) stopListening()
+    }
+
+    /**
+     * Applies [change], an action that can be undone, to the editor; once done, with an undo kept, [message] says it can
+     * be undone.
+     */
+    private fun editUndoable(
+        message: ComposerMessage,
+        change: EditorState.() -> EditorState,
+    ) {
+        val before = current.editor
+        edit(change)
+        val after = current.editor
+        if (after != before && after.canUndo) update { it.copy(message = message) }
     }
 
     /**
      * Builds the [ComposerViewModel] with the music player and the musics of the application; `app` builds this factory
      * (ADR 0013). The identity of the music to open comes from the navigation entry, in the creation extras under
-     * [MusicKey] (absent for a new music), with the saved state of the entry, which keeps the draft.
+     * [MusicKey] (absent for a new music), whether to roll the dice once it opens under [RollDice], with the saved state
+     * of the entry, which keeps the draft. The dice draws its seeds from [random] and composes on [generation].
      */
-    class Factory(private val music: MusicPlayer, private val library: MusicLibrary) : ViewModelProvider.Factory {
+    class Factory(
+        private val music: MusicPlayer,
+        private val library: MusicLibrary,
+        private val random: Random = Random.Default,
+        private val generation: CoroutineDispatcher = Dispatchers.Default,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return ComposerViewModel(music, library, extras[MusicKey], extras.createSavedStateHandle()) as T
+            return ComposerViewModel(
+                music,
+                library,
+                extras[MusicKey],
+                extras.createSavedStateHandle(),
+                random,
+                generation,
+                extras[RollDice] == true,
+            ) as T
         }
     }
 
     companion object {
         /** Where the navigation entry puts the key of the music to open, `ScoreId.Personal.key`, for [Factory]. */
         val MusicKey: CreationExtras.Key<String> = object : CreationExtras.Key<String> {}
+
+        /** Where the navigation entry tells [Factory] to roll the dice once the music opens: *Au hasard*. */
+        val RollDice: CreationExtras.Key<Boolean> = object : CreationExtras.Key<Boolean> {}
 
         /** The keys, in the saved state of the entry, of the identity, the draft and the name of the music. */
         private const val ID_KEY = "ch.magori.blox.feature.composer.id"

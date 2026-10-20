@@ -12,7 +12,6 @@ import ch.magori.blox.feature.composer.model.EditorState
 import ch.magori.blox.feature.composer.model.SaveProblem
 import ch.magori.blox.feature.composer.model.SaveStatus
 import ch.magori.blox.feature.composer.model.pitch
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -554,7 +553,7 @@ class ComposerSavingTest {
         key: String? = null,
         library: MusicLibrary = this.library,
         savedState: SavedStateHandle = SavedStateHandle(),
-    ) = ComposerViewModel(music, library, key, savedState)
+    ) = composer(music, library, key, savedState)
 
     /** Saves the music through the window, under [name]. */
     private fun ComposerViewModel.save(name: String) {
@@ -579,16 +578,4 @@ private class FailingLibrary(private val delegate: MusicLibrary = FakeMusicLibra
 /** Musics that save, but cannot choose the music played during the games: [setGameMusic] fails. */
 private class GameMusicFailingLibrary(private val delegate: MusicLibrary) : MusicLibrary by delegate {
     override suspend fun setGameMusic(id: ScoreId.Personal?) = throw IOException("The disk is full")
-}
-
-/** Musics whose saves wait for [gate] before they are written, counted in [saves]. */
-private class SlowLibrary(private val delegate: MusicLibrary) : MusicLibrary by delegate {
-    val gate = CompletableDeferred<Unit>()
-    var saves = 0
-
-    override suspend fun save(music: SavedMusic) {
-        saves++
-        gate.await()
-        delegate.save(music)
-    }
 }

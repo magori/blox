@@ -73,9 +73,8 @@ fun BloxNavDisplay(
             )
             myMusicsEntry(
                 onBack = goBack,
-                // L'éditeur ne s'ouvre pas encore sur une musique tirée au hasard (P4.20) : *Au hasard* l'ouvre sur une
-                // musique neuve, comme *Nouvelle*, en attendant.
-                onRandom = { backStack.add(ComposerRoute()) },
+                // *Au hasard* ouvre l'éditeur sur une musique neuve tirée au hasard, *Nouvelle* sur une musique vierge.
+                onRandom = { backStack.add(ComposerRoute(rollDice = true)) },
                 onNew = { backStack.add(ComposerRoute()) },
                 onEdit = { id -> backStack.add(ComposerRoute(musicKey = id.key)) },
                 viewModelFactory = myMusicsViewModelFactory,
