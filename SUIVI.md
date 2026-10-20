@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 148 / 180 | `████████████████░░░░` **82 %** |
+| **Général** | 149 / 180 | `█████████████████░░░` **83 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -447,7 +447,7 @@ Référence : [docs/musique.md](docs/musique.md).
   une musique faite à la main), enregistré avec la musique (`SavedMusic.category`, null pour
   « Libre ») ; le style change le nom proposé tant que le joueur n'a pas tapé le sien (P4.27).
   Maquette V9, V12, V15, V18.
-- [ ] **P4.29** Informations des cartes de « Mes musiques » (demande du développeur, 2026-10-20) :
+- [x] **P4.29** Informations des cartes de « Mes musiques » (demande du développeur, 2026-10-20) :
   sous le nom, style et tonalité (« Joyeux · sol majeur », « Libre · la mineur »), tempo et durée
   des 8 mesures (« 120 temps/min · 0:16 »), date de dernière modification (« Modifiée le 20 oct. ») ;
   la date est enregistrée à chaque enregistrement ou renommage (horloge injectée), d'où une nouvelle
