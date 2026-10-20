@@ -10,8 +10,9 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
-import ch.magori.blox.core.data.SavedMusic.Companion.MAX_NAME_LENGTH
+import ch.magori.blox.core.data.cutName
 import ch.magori.blox.core.data.freeName
 import ch.magori.blox.core.data.proposedName
 import ch.magori.blox.core.designsystem.frame.FrameTicks
@@ -199,7 +200,7 @@ class ComposerViewModel internal constructor(
 
     /** The name typed in the window, cut at the longest a saved name may be. */
     internal fun onNameChanged(name: String) = update {
-        val cut = name.take(name.offsetByCodePoints(0, minOf(name.codePointCount(0, name.length), MAX_NAME_LENGTH)))
+        val cut = cutName(name)
         val dialog = it.dialog
         if (dialog is ComposerDialog.Naming) it.copy(dialog = dialog.named(cut)) else it
     }
@@ -346,7 +347,7 @@ class ComposerViewModel internal constructor(
     private fun freeNameIf(
         problem: SaveProblem?,
         name: String,
-    ): String? = if (problem == SaveProblem.NAME_TAKEN) musics.freeName(name, apartFrom = id) else null
+    ): String? = if (problem == SaveProblem.Name(NameProblem.TAKEN)) musics.freeName(name, apartFrom = id) else null
 
     /** The window, saying that writing the musics failed; a window that writes nothing as it is. */
     private fun ComposerDialog.failed(): ComposerDialog = when (this) {

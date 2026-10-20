@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.MainDispatcherExtension
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Note

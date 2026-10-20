@@ -39,6 +39,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.SingleLineText

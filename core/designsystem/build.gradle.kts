@@ -4,6 +4,8 @@ plugins {
     // Le calcul du contraste de WCAG et la liste des palettes nommées, partagés par les tests de contraste des
     // features (ChoiceColorsTest, KeyColorsTest).
     alias(libs.plugins.blox.test.fixtures)
+    // Les fenêtres partagées (NamingWindow, DeleteWindow), rendues sur la JVM et comparées aux références.
+    alias(libs.plugins.blox.android.screenshot)
 }
 
 android {
@@ -14,6 +16,10 @@ dependencies {
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.material3)
+
+    // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
+    androidTestImplementation(libs.androidx.compose.ui.test.android)
+    debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
 }
 
 /**

@@ -9,9 +9,10 @@ import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.freeName
-import ch.magori.blox.core.data.isNameTaken
+import ch.magori.blox.core.data.nameProblem
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import kotlinx.coroutines.Job
@@ -112,17 +113,10 @@ class MyMusicsViewModel(
 
     /**
      * Why the music being renamed cannot be called [name]: blank, too long, or the name of another music, the case and
-     * the spaces around it ignored (`isNameTaken`, the rule of the library); null when it can.
+     * the spaces around it ignored (`nameProblem`, the rule of the library); null when it can.
      */
-    internal fun renameProblem(name: String): NameProblem? {
-        val trimmed = name.trim()
-        return when {
-            trimmed.isEmpty() -> NameProblem.BLANK
-            trimmed.codePointCount(0, trimmed.length) > SavedMusic.MAX_NAME_LENGTH -> NameProblem.TOO_LONG
-            content.value?.musics.orEmpty().isNameTaken(trimmed, apartFrom = dialog.value?.id) -> NameProblem.TAKEN
-            else -> null
-        }
-    }
+    internal fun renameProblem(name: String): NameProblem? =
+        content.value?.musics.orEmpty().nameProblem(name, apartFrom = dialog.value?.id)
 
     /** The dialog *Renommer* confirmed with [name]: the music takes it, without the spaces around it, if it may. */
     internal fun onRenamed(name: String) {

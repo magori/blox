@@ -4,6 +4,7 @@ import ch.magori.blox.core.music.ScoreId
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 /** The rules of the names of the saved musics, shared by the repository, which keeps them, and the editor (P4.19). */
@@ -146,5 +147,84 @@ class MusicNamesTest {
 
         // When / Then
         assertThat(musics.proposedName("Joyeux", apartFrom = ScoreId.Personal("a"))).isEqualTo("Joyeux 1")
+    }
+
+    @ParameterizedTest(name = "« {0} »: {1}")
+    @CsvSource(
+        nullValues = ["none"],
+        value = [
+            "Thème du matin, none",
+            "' Thème du matin ', none",
+            "ma marche, TAKEN",
+            "' Ma marche  ', TAKEN",
+            "'', BLANK",
+            "'   ', BLANK",
+        ],
+    )
+    fun `a name is refused when blank, or taken by another music, the case and the spaces ignored`(
+        name: String,
+        problem: NameProblem?,
+    ) {
+        // Given
+        val musics = listOf(aMusic("a", name = "Thème du soir"), aMusic("b", name = "Ma marche"))
+
+        // When / Then
+        assertThat(musics.nameProblem(name)).isEqualTo(problem)
+    }
+
+    @Test
+    fun `a name of more characters than a saved name may have is refused, the spaces around it apart`() {
+        // Given
+        val longest = "x".repeat(SavedMusic.MAX_NAME_LENGTH)
+
+        // When / Then
+        assertThat(emptyList<SavedMusic>().nameProblem(" $longest ")).isNull()
+        assertThat(emptyList<SavedMusic>().nameProblem("x".repeat(SavedMusic.MAX_NAME_LENGTH + 1)))
+            .isEqualTo(NameProblem.TOO_LONG)
+    }
+
+    @Test
+    fun `the music being renamed may keep its own name, in another case or not`() {
+        // Given
+        val musics = listOf(aMusic("a", name = "Joyeux"))
+
+        // When / Then
+        assertThat(musics.nameProblem("JOYEUX", apartFrom = ScoreId.Personal("a"))).isNull()
+        assertThat(musics.nameProblem("Joyeux", apartFrom = ScoreId.Personal("b"))).isEqualTo(NameProblem.TAKEN)
+    }
+
+    @Test
+    fun `a name of the most characters a saved name may have is accepted, its characters counted and not its units`() {
+        // Given a name of 40 characters, each written with two units
+        val longest = NOTE.repeat(SavedMusic.MAX_NAME_LENGTH)
+
+        // When / Then
+        assertThat(emptyList<SavedMusic>().nameProblem(longest)).isNull()
+        assertThat(emptyList<SavedMusic>().nameProblem("$longest!")).isEqualTo(NameProblem.TOO_LONG)
+    }
+
+    @Test
+    fun `a name typed is cut at the most characters a saved name may have, a shorter one kept as it is`() {
+        // Given
+        val longest = "x".repeat(SavedMusic.MAX_NAME_LENGTH)
+
+        // When / Then
+        assertThat(cutName(longest + "yz")).isEqualTo(longest)
+        assertThat(cutName(longest)).isEqualTo(longest)
+        assertThat(cutName(" Joyeux ")).isEqualTo(" Joyeux ")
+    }
+
+    @Test
+    fun `a name typed is cut after its characters, never between the two units of one`() {
+        // Given a name of 41 characters, each written with two units
+        val pasted = NOTE.repeat(SavedMusic.MAX_NAME_LENGTH + 1)
+
+        // When / Then
+        assertThat(cutName(pasted)).isEqualTo(NOTE.repeat(SavedMusic.MAX_NAME_LENGTH))
+    }
+
+    private companion object {
+        /** A musical note, a character written with two units of UTF-16. */
+        const val NOTE = "\uD83C\uDFB5"
     }
 }

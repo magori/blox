@@ -12,11 +12,11 @@ import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.musics.MyMusicsActions
 import ch.magori.blox.feature.musics.MyMusicsScreen
 import ch.magori.blox.feature.musics.MyMusicsViewModel
-import ch.magori.blox.feature.musics.NameProblem
 import kotlinx.serialization.Serializable
 
 /** Clé de « Mes musiques » (vues V7 et V10). */

@@ -58,15 +58,3 @@ internal sealed interface MyMusicsDialog {
         override val failed: Boolean = false,
     ) : MyMusicsDialog
 }
-
-/** Why a name is refused. */
-internal enum class NameProblem {
-    /** Empty, or only spaces. */
-    BLANK,
-
-    /** Another music has it, the case and the spaces around it ignored. */
-    TAKEN,
-
-    /** More characters than a saved music may have in its name (`SavedMusic.MAX_NAME_LENGTH`). */
-    TOO_LONG,
-}
