@@ -12,7 +12,7 @@
     <string name="feature_composer_menu_delete">Supprimer</string>
     <!-- Lu par TalkBack sur le titre, qui renomme la musique. -->
     <string name="feature_composer_title_rename">%1$s, renommer</string>
-    <!-- Ligne d'info : la catégorie, puis « modifiée » ou « non enregistrée ». -->
+    <!-- Ligne d'info : le style · la tonalité (« Libre · do majeur »), puis · « modifiée » ou « non enregistrée ». -->
     <string name="feature_composer_info">%1$s · %2$s</string>
 
     <!-- Catégories : le dé, la ligne d'info et le style de la fenêtre Enregistrer. -->

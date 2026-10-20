@@ -42,6 +42,8 @@ import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
+import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 import ch.magori.blox.feature.composer.model.SaveStatus
 
 /** The thickness of the pencil, drawn: this part of its box. */
@@ -49,14 +51,15 @@ private const val GLYPH_STROKE = 0.12f
 
 /**
  * The header of the editor: the back button, the title, the [name] of the music (« Nouvelle musique » until it is
- * named), to touch to rename it, with its pencil, and its info line, its [category] and its [status]; and the menu
- * « … »: *Renommer*, *Suivre la lecture*, *Montrer l'autre piste en filigrane* and, for a saved music ([canDelete]),
- * *Supprimer*.
+ * named), to touch to rename it, with its pencil, and its info line on two lines at most, its [style], its [key]
+ * and its [status]; and the menu « … »: *Renommer*, *Suivre la lecture*, *Montrer l'autre piste en filigrane* and,
+ * for a saved music ([canDelete]), *Supprimer*.
  */
 @Composable
 internal fun ComposerHeader(
     name: String?,
-    category: String?,
+    style: String,
+    key: String,
     status: SaveStatus,
     canDelete: Boolean,
     showOtherTrack: Boolean,
@@ -93,9 +96,16 @@ internal fun ComposerHeader(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.semantics { heading() },
                 )
-                infoText(category, status)?.let {
-                    Text(text = it, color = palette.label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
-                }
+                // On two lines at most, its words whole: with a large font, it shrinks rather than cut a word.
+                val infoStyle = MaterialTheme.typography.labelSmall.shrinkingLineHeight()
+                Text(
+                    text = infoText(style, key, status),
+                    color = palette.label,
+                    style = infoStyle,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    autoSize = shrinkToWholeWords(infoStyle.fontSize),
+                )
             }
             Spacer(modifier = Modifier.padding(start = 4.dp).size(PencilSize).drawBehind { drawPencil(palette.ink) })
         }
@@ -173,23 +183,22 @@ private fun CheckItem(
 }
 
 /**
- * The info line: the [category], if any, then « non enregistrée » for a new music, « modifiée » for a saved one
- * changed, nothing once saved; null when it says nothing.
+ * The info line, as the mockup shows it: the [style] (« Libre » for a music written by hand), the [key] (« sol
+ * majeur »), then « non enregistrée » for a new music, « modifiée » for a saved one changed, nothing once saved.
  */
 @Composable
 private fun infoText(
-    category: String?,
+    style: String,
+    key: String,
     status: SaveStatus,
-): String? {
+): String {
     val saving = when (status) {
         SaveStatus.NOT_SAVED -> stringResource(R.string.feature_composer_status_not_saved)
         SaveStatus.MODIFIED -> stringResource(R.string.feature_composer_status_modified)
         SaveStatus.SAVED -> null
     }
-    return when {
-        category != null && saving != null -> stringResource(R.string.feature_composer_info, category, saving)
-        else -> category ?: saving
-    }
+    val styleAndKey = stringResource(R.string.feature_composer_info, style, key)
+    return saving?.let { stringResource(R.string.feature_composer_info, styleAndKey, it) } ?: styleAndKey
 }
 
 /** A pencil, slanted, its tip at the bottom left: the title renames the music. */

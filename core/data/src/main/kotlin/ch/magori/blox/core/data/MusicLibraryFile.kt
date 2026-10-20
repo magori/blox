@@ -22,6 +22,7 @@ import okio.FileSystem
 import okio.Path
 import java.io.EOFException
 import java.io.IOException
+import java.time.Instant
 
 /** The file of the saved musics, apart from the settings and the records. */
 const val MUSICS_FILE: String = "musics.bin"
@@ -62,7 +63,8 @@ private const val CORRUPTED_SUFFIX = ".corrupt"
 /**
  * The format of the musics file, a format of BloX on Okio, without a library of its own: [MAGIC], its [VERSION], the
  * identity of the music played during the games (an empty text when there is none), then the count of the musics and
- * each music in turn: its identity, its name, its category (an empty text when there is none), its scale (the MIDI
+ * each music in turn: its identity, its name, the time of its last change (since version 2: a byte, 0 for a time
+ * unknown, or 1 then its milliseconds since 1970), its category (an empty text when there is none), its scale (the MIDI
  * number of its tonic, its type), its tempo, its beats per bar, then its voices, each one its waveform, its volume
  * and its notes, each one its MIDI number ([REST] for a rest) and its beats. The enums are written by their names,
  * which must not change; a text is its length in bytes, then its bytes in UTF-8; a decimal number is its 64 bits.
@@ -72,7 +74,7 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
     private const val MAGIC = 0x424C584D
 
     /** The version of the format, written after [MAGIC]: a change of the format gets a number of its own. */
-    private const val VERSION = 1
+    private const val VERSION = 2
 
     override val defaultValue: MusicLibraryContent = MusicLibraryContent()
 
@@ -90,7 +92,7 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
             if (version < 1) throw CorruptionException("The musics file is of version $version, which no BloX writes")
             if (version > VERSION) throw IOException("The musics file is of version $version, later than $VERSION")
             val gameMusicId = readText().takeIf { it.isNotEmpty() }?.let(ScoreId::Personal)
-            val musics = List(readCount()) { readMusic() }
+            val musics = List(readCount()) { readMusic(version) }
             require(musics.distinctBy { it.id }.size == musics.size) { "Two musics of the file have the same identity" }
             // A music for the games that is none of the musics is forgotten: no music saved later takes its place.
             MusicLibraryContent(musics, gameMusicId?.takeIf { id -> musics.any { it.id == id } })
@@ -115,21 +117,24 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
         }
     }
 
-    private fun BufferedSource.readMusic(): SavedMusic {
+    /** A music as [version] of the format writes it: version 1 does not keep the time of its last change. */
+    private fun BufferedSource.readMusic(version: Int): SavedMusic {
         val id = ScoreId.Personal(readText())
         val name = readText()
+        val modifiedAt = if (version >= DATED_SINCE) readTime() else null
         // A category a later version removed is lost, not the music: it reads as a music written by hand.
         val category = readText().let { name -> Category.entries.firstOrNull { it.name == name } }
         val scale = Scale(Pitch(readInt()), ScaleType.valueOf(readText()))
         val bpm = readInt()
         val beatsPerBar = readInt()
         val voices = List(readCount()) { readVoice() }
-        return SavedMusic(id, name, category, scale, Score(id, bpm, beatsPerBar, voices))
+        return SavedMusic(id, name, category, scale, Score(id, bpm, beatsPerBar, voices), modifiedAt)
     }
 
     private fun BufferedSink.writeMusic(music: SavedMusic) {
         writeText(music.id.key)
         writeText(music.name)
+        writeTime(music.modifiedAt)
         writeText(music.category?.name.orEmpty())
         writeInt(music.scale.tonic.midi)
         writeText(music.scale.type.name)
@@ -165,6 +170,25 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
         val bytes = text.encodeToByteArray()
         writeInt(bytes.size)
         write(bytes)
+    }
+
+    /**
+     * A time, or none: [UNKNOWN_TIME] for a time unknown, or [KNOWN_TIME] then its milliseconds since 1970 in
+     * Greenwich. Any other mark is what no file holds.
+     */
+    private fun BufferedSource.readTime(): Instant? = when (val mark = readByte().toInt()) {
+        UNKNOWN_TIME -> null
+        KNOWN_TIME -> Instant.ofEpochMilli(readLong())
+        else -> throw IllegalArgumentException("A time is marked $UNKNOWN_TIME or $KNOWN_TIME, was $mark")
+    }
+
+    private fun BufferedSink.writeTime(time: Instant?) {
+        if (time == null) {
+            writeByte(UNKNOWN_TIME)
+        } else {
+            writeByte(KNOWN_TIME)
+            writeLong(time.toEpochMilli())
+        }
     }
 
     private fun BufferedSource.readDouble(): Double = Double.fromBits(readLong())
@@ -209,4 +233,13 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
 
     /** The MIDI number written for a rest, which no pitch has. */
     private const val REST = -1
+
+    /** The first version that keeps the time of the last change of each music. */
+    private const val DATED_SINCE = 2
+
+    /** The mark of a time unknown: a music saved in version 1, before the format kept it. */
+    private const val UNKNOWN_TIME = 0
+
+    /** The mark of a time known, its milliseconds after it. */
+    private const val KNOWN_TIME = 1
 }

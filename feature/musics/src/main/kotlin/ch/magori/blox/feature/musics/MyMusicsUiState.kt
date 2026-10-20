@@ -2,6 +2,7 @@ package ch.magori.blox.feature.musics
 
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.ScoreId
+import java.time.Instant
 
 /**
  * What « Mes musiques » shows: the saved [musics], in their order, the name of the one played during the games,
@@ -16,14 +17,20 @@ internal data class MyMusicsUiState(
 )
 
 /**
- * The card of a saved music: its [name], its [category] (null for a music written by hand), its tempo [bpm], whether
- * it is played during the games, [inGame], and where it is, [listening] to it, null when it is not.
+ * The card of a saved music: its [name], its [category] (null for a music written by hand, « Libre »), its [key] in
+ * French (« sol majeur »), its tempo [bpm], its [length] at that tempo (« 0:16 »), as TalkBack says it,
+ * [spokenLength] (« 16 secondes »), the time of its last change, [modifiedAt], null when it is unknown, whether it is
+ * played during the games, [inGame], and where it is, [listening] to it, null when it is not.
  */
 internal data class MusicCard(
     val id: ScoreId.Personal,
     val name: String,
     val category: Category?,
+    val key: String,
     val bpm: Int,
+    val length: String,
+    val spokenLength: String,
+    val modifiedAt: Instant?,
     val inGame: Boolean,
     val listening: Listening? = null,
 )

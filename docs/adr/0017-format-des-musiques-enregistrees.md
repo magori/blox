@@ -46,3 +46,19 @@ Options envisagées :
   figés : il faut alors garder l'ancien nom à la lecture.
 - Tests : `DataStoreMusicLibraryTest` (format, corruption, version, bornes) et le contrat
   `MusicLibraryContract`, joué par le dépôt réel et par son faux.
+
+## Amendement (P4.29, 2026-10-20)
+
+Version 2 du format : chaque musique garde la date de sa dernière modification, écrite après son
+nom (un octet : 0 pour une date inconnue, 1 suivi de ses millisecondes depuis 1970 en UTC ; toute
+autre marque rend le fichier corrompu). La bibliothèque date elle-même chaque enregistrement et
+chaque renommage avec une horloge injectée (`Clock`, celle du système dans `AppContainer`, réglable
+dans les tests et le faux), tronquée à la milliseconde comme le fichier la garde ; choisir la
+musique des parties, restaurer une musique supprimée ou la renommer de son propre nom ne change pas
+sa date. Un fichier de version 1 se lit toujours : ses musiques ont une date inconnue
+(`modifiedAt = null`), pas la date de la migration, pour que la lecture reste une fonction des
+seuls octets (rien n'est réécrit à la lecture, la date ne change pas d'un lancement à l'autre) et
+que la carte n'affiche pas une date fausse ; le prochain enregistrement réécrit tout le fichier en
+version 2, en gardant ces dates inconnues. Un fichier de version 3 ou plus est traité comme l'était
+un fichier « plus récent ». Tests : `DataStoreMusicLibraryTest` (fichiers v1 et v2 écrits à la main,
+octets écrits en v2, migration, marque invalide) et le contrat `MusicLibraryContract`.

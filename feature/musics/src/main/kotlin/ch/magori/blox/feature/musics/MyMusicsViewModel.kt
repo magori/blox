@@ -12,7 +12,10 @@ import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.freeName
+import ch.magori.blox.core.data.keyName
+import ch.magori.blox.core.data.lengthText
 import ch.magori.blox.core.data.nameProblem
+import ch.magori.blox.core.data.spokenLength
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import kotlinx.coroutines.Job
@@ -279,7 +282,11 @@ class MyMusicsViewModel(
                 id = saved.id,
                 name = saved.name,
                 category = saved.category,
+                key = saved.scale.keyName(),
                 bpm = saved.score.bpm,
+                length = lengthText(saved.score),
+                spokenLength = spokenLength(saved.score),
+                modifiedAt = saved.modifiedAt,
                 inGame = saved.id == content.gameMusic?.id,
                 listening = listened?.takeIf { it.id == saved.id }?.listening,
             )

@@ -34,6 +34,7 @@ import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.data.keyName
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -190,7 +191,8 @@ internal fun ComposerContent(
         ) {
             ComposerHeader(
                 name = uiState.name,
-                category = editor.draft.category?.let { stringResource(it.label) },
+                style = stringResource(editor.draft.category?.label ?: R.string.feature_composer_style_free),
+                key = editor.draft.scale.keyName(),
                 status = editor.status,
                 canDelete = editor.saved != null,
                 showOtherTrack = uiState.showOtherTrack,

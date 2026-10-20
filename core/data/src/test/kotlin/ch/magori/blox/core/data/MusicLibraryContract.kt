@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.Clock
+import java.time.Instant
 
 /**
  * The contract of [MusicLibrary], what every implementation does, the real one and the fake shared by the tests of
@@ -14,8 +16,120 @@ import org.junit.jupiter.api.Test
  * tested in the subclass.
  */
 abstract class MusicLibraryContract {
-    /** A library without any saved music, whatever it needs to live in [scope] (a DataStore does). */
-    protected abstract fun emptyLibrary(scope: CoroutineScope): MusicLibrary
+    /**
+     * A library without any saved music, whatever it needs to live in [scope] (a DataStore does), that dates the
+     * changes by [clock].
+     */
+    protected abstract fun emptyLibrary(
+        scope: CoroutineScope,
+        clock: Clock,
+    ): MusicLibrary
+
+    /** A library without any saved music, its clock stopped at [MODIFIED_AT]. */
+    protected fun emptyLibrary(scope: CoroutineScope): MusicLibrary = emptyLibrary(scope, MutableClock())
+
+    @Test
+    fun `a saved music takes the time of its saving, whatever time it carried`() = runTest {
+        // Given a library whose clock tells ten past ten, and a music that carries no time
+        val clock = MutableClock(Instant.parse("2026-10-20T10:10:00Z"))
+        val library = emptyLibrary(backgroundScope, clock)
+
+        // When
+        library.save(aMusic("a", name = "Calme", modifiedAt = null))
+
+        // Then
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(Instant.parse("2026-10-20T10:10:00Z"))
+    }
+
+    @Test
+    fun `the time of a change is kept to the millisecond, as the musics file keeps it`() = runTest {
+        // Given a clock that tells the time to the nanosecond
+        val clock = MutableClock(Instant.parse("2026-10-20T10:00:00.123456789Z"))
+        val library = emptyLibrary(backgroundScope, clock)
+
+        // When
+        library.save(aMusic("a", name = "Calme"))
+
+        // Then the music read now is the one read after the file is opened again
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(Instant.parse("2026-10-20T10:00:00.123Z"))
+    }
+
+    @Test
+    fun `choosing a music for the games, or another one, leaves the time of its last change`() = runTest {
+        // Given a music saved at ten
+        val clock = MutableClock()
+        val library = emptyLibrary(backgroundScope, clock)
+        library.save(aMusic("a", name = "Calme"))
+
+        // When it is chosen for the games at eleven, then left
+        clock.now = Instant.parse("2026-10-20T11:00:00Z")
+        library.setGameMusic(ScoreId.Personal("a"))
+        library.setGameMusic(null)
+
+        // Then it was last changed at ten
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(MODIFIED_AT)
+    }
+
+    @Test
+    fun `a deleted music restored keeps the time of its last change`() = runTest {
+        // Given a music saved at ten, deleted
+        val clock = MutableClock()
+        val library = emptyLibrary(backgroundScope, clock)
+        library.save(aMusic("a", name = "Calme"))
+        val deleted = checkNotNull(library.delete(ScoreId.Personal("a")))
+
+        // When it is restored at eleven: « Annuler » undoes the deletion, it changes nothing of the music
+        clock.now = Instant.parse("2026-10-20T11:00:00Z")
+        library.restore(deleted)
+
+        // Then
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(MODIFIED_AT)
+    }
+
+    @Test
+    fun `a renamed music takes the time of its renaming`() = runTest {
+        // Given a music saved at ten
+        val clock = MutableClock()
+        val library = emptyLibrary(backgroundScope, clock)
+        library.save(aMusic("a", name = "Calme"))
+
+        // When it is renamed the next day
+        clock.now = Instant.parse("2026-10-21T08:00:00Z")
+        library.rename(ScoreId.Personal("a"), "Berceuse")
+
+        // Then
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(Instant.parse("2026-10-21T08:00:00Z"))
+    }
+
+    @Test
+    fun `a music renamed with its own name, as it is, keeps the time of its last change`() = runTest {
+        // Given a music saved at ten
+        val clock = MutableClock()
+        val library = emptyLibrary(backgroundScope, clock)
+        library.save(aMusic("a", name = "Calme"))
+
+        // When it is « renamed » the next day with the very same name: nothing changes
+        clock.now = Instant.parse("2026-10-21T08:00:00Z")
+        library.rename(ScoreId.Personal("a"), "Calme")
+
+        // Then
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(MODIFIED_AT)
+    }
+
+    @Test
+    fun `a music saved again takes the time of its new saving`() = runTest {
+        // Given a music saved at ten
+        val clock = MutableClock()
+        val library = emptyLibrary(backgroundScope, clock)
+        library.save(aMusic("a", name = "Calme"))
+
+        // When it is saved again, changed, the next day
+        clock.now = Instant.parse("2026-10-21T08:00:00Z")
+        library.save(aMusic("a", name = "Calme", bpm = 80))
+
+        // Then
+        assertThat(library.musics.first().single().modifiedAt).isEqualTo(Instant.parse("2026-10-21T08:00:00Z"))
+    }
 
     @Test
     fun `without a saved music the list is empty and no music is played during the games`() = runTest {

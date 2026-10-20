@@ -642,7 +642,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 
 - **Liste** : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché avant la lecture.
   En-tête fixe (Retour, titre, « Pendant les parties : X » ou « la musique choisie à l'accueil »,
-  deux lignes au plus). Chaque carte : nom, « Catégorie · n temps/min » ou « Composée à la main ».
+  deux lignes au plus). Chaque carte : le nom, puis trois lignes (P4.29) : style et tonalité (« Joyeux · sol majeur », « Libre · la mineur ») ; tempo et durée des 8 mesures, arrondie à la seconde (« 120 temps/min · 0:16 ») ; « Modifiée le 20 oct. » (« 1er » le premier du mois, l'année ajoutée quand ce n'est pas l'année en cours, fuseau de l'appareil, ligne absente pour une date inconnue). Pendant l'écoute, « Lecture · mesure n sur 8 » remplace la ligne du tempo, en couleur d'encre. Les lignes gardent leurs mots entiers et réduisent en police agrandie ; TalkBack lit « 80 temps par minute, 24 secondes, modifiée le 18 octobre ».
 - **Écoute** : par le lecteur partagé, une musique à la fois ; la toucher à nouveau l'arrête. La
   carte écoutée affiche « Lecture · mesure n sur 8 », calculée d'après le tempo, sans dérive.
   L'écoute s'arrête quand le lecteur s'arrête de lui-même, en arrière-plan (`ON_STOP`), en
@@ -713,7 +713,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › after a deletion, Annuler puts the music back, and the cross closes the message`,
 `MyMusicsScreenTest › Au hasard and Nouvelle open the editor, and the back button goes back home`,
 `MyMusicsScreenTest › the back button and the title stay in place when the list scrolls`,
-`MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Composée à la main`,
+`MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Libre`,
 `MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
 `MyMusicsScreenTest › every button is 48 dp wide and high at least`,
 `HomeViewModelTest › opening my musics stops the preview`,
@@ -802,7 +802,7 @@ pris (précondition vérifiée par l'appelant). La musique choisie pour les part
 De haut en bas :
 
 1. **En-tête** : retour ; titre à toucher pour renommer (icône crayon), avec la ligne d'info
-   (catégorie, « modifiée » ou « non enregistrée ») ; menu « … » (*Renommer*, *Suivre la
+   (« Style · tonalité · modifiée » ou « non enregistrée », sur deux lignes au plus, P4.29) ; menu « … » (*Renommer*, *Suivre la
    lecture*, *Montrer l'autre piste en filigrane*, *Supprimer*).
 2. **Onglets** *Mélodie* / *Basse*.
 3. **Barre d'outils** : *Poser* / *Allonger*, *Annuler*, *Copier la mesure*, *Effacer la
@@ -1362,6 +1362,53 @@ Demandés par le développeur (2026-10-20).
 `ComposerScreenTest › the save window offers the styles as radio buttons, Libre chosen for a music written by hand`,
 `NamingWindowTest › a name of 40 characters shows whole with the font twice as large; a line break is a space`.
 Captures : `SaveWindow*`, `SaveWindowLongestName*LargeFont`. Vues : V9, V12, V15, V18.
+
+### Informations des musiques (implémentées, P4.29)
+
+Demandées par le développeur (2026-10-20). Les cartes de *Mes musiques* montrent, sous le nom :
+style et tonalité (`Scale.keyName()`), tempo et durée des 8 mesures (`lengthText`, arrondie à la
+seconde, une demi-seconde vers le haut), date de la dernière modification (`dayText` : « 20 oct. »,
+« 1er mai », l'année ajoutée quand ce n'est pas celle d'aujourd'hui, jour, mois et année jamais
+séparés, fuseau de l'appareil ; ligne absente pour une musique enregistrée avant que le fichier
+garde les dates). Pendant l'écoute, « Lecture · mesure n sur 8 » remplace la ligne du tempo.
+TalkBack lit une phrase (`cardInfoDescription`) : « Calme, fa majeur, 80 temps par minute,
+24 secondes, modifiée le 18 octobre ». La bibliothèque date chaque enregistrement et renommage
+(horloge injectée) ; renommer d'un nom identique, choisir pour les parties ou restaurer ne change
+pas la date. Format du fichier : ADR 0017, amendement P4.29. L'éditeur montre « Style · tonalité ·
+modifiée » ou « non enregistrée », sur deux lignes au plus.
+
+**Tests :** `MusicInfoTest › a music lasts its beats at its tempo, in minutes and seconds, rounded to the nearest second`,
+`MusicInfoTest › a music in bars of 3 beats lasts its own beats, not those of bars of 4`,
+`MusicInfoTest › half a second is rounded up to the next second`,
+`MusicInfoTest › a day is its number then its month shortened in French, which a line never parts`,
+`MusicInfoTest › the first day of a month is written 1er, as French writes it`,
+`MusicInfoTest › the day is the one of the zone of the player, not the one of Greenwich`,
+`MusicInfoTest › a day of another year than today is written with its year`,
+`MusicInfoTest › a day of the year that just ended takes its year on the first of January`,
+`MusicInfoTest › a length is said in minutes and seconds, as TalkBack reads it`,
+`MusicInfoTest › a length of one second is said in the singular`,
+`MusicInfoTest › a day is said with its month whole, and its year when it is not the year of today`,
+`CardDescriptionTest › the info of a card is said as a sentence, its tempo per minute, its length and its day in words`,
+`CardDescriptionTest › while the music is listened to, the bar played is said in place of its tempo and its length`,
+`CardDescriptionTest › a music whose day is unknown is said without it`,
+`MusicLibraryContract › a saved music takes the time of its saving, whatever time it carried`,
+`MusicLibraryContract › the time of a change is kept to the millisecond, as the musics file keeps it`,
+`MusicLibraryContract › choosing a music for the games, or another one, leaves the time of its last change`,
+`MusicLibraryContract › a deleted music restored keeps the time of its last change`,
+`MusicLibraryContract › a renamed music takes the time of its renaming`,
+`MusicLibraryContract › a music renamed with its own name, as it is, keeps the time of its last change`,
+`MusicLibraryContract › a music saved again takes the time of its new saving`,
+`DataStoreMusicLibraryTest › a musics file is written in version 2, the time of the last change of each music after its name`,
+`DataStoreMusicLibraryTest › a musics file of version 2 is read as it was written, a format that must not change`,
+`DataStoreMusicLibraryTest › the musics of a file of version 1 keep a time unknown once the file is written in version 2`,
+`DataStoreMusicLibraryTest › a time marked neither known nor unknown makes the musics file corrupted`,
+`MyMusicsViewModelTest › each card tells the key, the length at the tempo and the time of the last change of its music`,
+`MyMusicsViewModelTest › a music saved before the musics file kept the time of its changes has a card without a day`,
+`ComposerSavingTest › saving, then renaming, in the editor dates the music by the clock of the library each time`,
+`MyMusicsScreenTest › each card tells the style and the key, the tempo and the length, and the day of the last change`,
+`ComposerScreenTest › the line under the title tells the style, the key, and whether the music is new, changed or saved`,
+`ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`.
+Vues : V7 à V18.
 
 ### Noms et fenêtres communs à l'éditeur et à la liste (P5.45)
 

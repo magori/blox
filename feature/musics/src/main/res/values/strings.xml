@@ -7,10 +7,16 @@
     <string name="feature_musics_game_music_home">la musique choisie à l\'accueil</string>
 
     <!-- Cartes -->
-    <!-- PluralsCandidate : « temps/min » est une unité, invariable ; « sur » (mesure 3 sur 8), une préposition. -->
-    <string name="feature_musics_info" tools:ignore="PluralsCandidate">%1$s · %2$d temps/min</string>
+    <!-- Sous le nom, trois lignes : le style et la tonalité (« Joyeux · sol majeur »), le tempo et la durée des huit
+         mesures (« 120 temps/min · 0:16 »), ou la mesure jouée pendant l'écoute, puis la date de la dernière
+         modification (« Modifiée le 20 oct. »), absente pour une musique enregistrée avant qu'elle soit gardée.
+         PluralsCandidate : « temps/min » est une unité, invariable ; « sur » (mesure 3 sur 8), une préposition. -->
+    <string name="feature_musics_style_key">%1$s · %2$s</string>
+    <string name="feature_musics_tempo_length" tools:ignore="PluralsCandidate">%1$d temps/min · %2$s</string>
     <string name="feature_musics_listening" tools:ignore="PluralsCandidate">Lecture · mesure %1$d sur %2$d</string>
-    <string name="feature_musics_hand_made">Composée à la main</string>
+    <string name="feature_musics_modified">Modifiée le %1$s</string>
+    <!-- Le style d'une musique composée à la main, sans catégorie. -->
+    <string name="feature_musics_category_free">Libre</string>
     <string name="feature_musics_category_joyful">Joyeux</string>
     <string name="feature_musics_category_calm">Calme</string>
     <string name="feature_musics_category_epic">Épique</string>

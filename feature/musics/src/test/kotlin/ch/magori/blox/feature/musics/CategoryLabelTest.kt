@@ -12,6 +12,6 @@ internal class CategoryLabelTest {
 
         // Then
         assertThat(labels).doesNotHaveDuplicates()
-        assertThat(categoryLabel(null)).isEqualTo(R.string.feature_musics_hand_made)
+        assertThat(categoryLabel(null)).isEqualTo(R.string.feature_musics_category_free)
     }
 }

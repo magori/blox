@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.IOException
+import java.time.Clock
+import java.time.Instant
 
 /** The contract of the saved musics, on a DataStore file, and what is proper to a file: it is kept, its errors. */
 class DataStoreMusicLibraryTest : MusicLibraryContract() {
@@ -98,14 +100,103 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
                 category = Category.CALM,
                 scale = Scale(Pitch.parse("C4"), ScaleType.MAJOR_PENTATONIC),
                 score = Score(id, bpm = 80, beatsPerBar = 4, voices = listOf(voice)),
+                // Version 1 did not keep the time of the changes: it is unknown.
+                modifiedAt = null,
             ),
         )
     }
 
     @Test
+    fun `a musics file is written in version 2, the time of the last change of each music after its name`() = runTest {
+        // Given a library whose clock tells 20 October 2026 at ten, Greenwich time
+        inScopeClosedAfter { scope ->
+            // When a calm music of one bar, a rest then a C5, is saved
+            val id = ScoreId.Personal("a")
+            val voice = Voice(Waveform.SQUARE, 0.07, listOf(Note(null, 2.0), Note(Pitch.parse("C5"), 2.0)))
+            libraryIn(scope).save(
+                SavedMusic(
+                    id = id,
+                    name = "Calme",
+                    category = Category.CALM,
+                    scale = Scale(Pitch.parse("C4"), ScaleType.MAJOR_PENTATONIC),
+                    score = Score(id, bpm = 80, beatsPerBar = 4, voices = listOf(voice)),
+                ),
+            )
+        }
+
+        // Then the file holds it in version 2: its time, known (1), in milliseconds since 1970, follows its name
+        assertThat(musicsFile.readBytes()).isEqualTo(
+            Buffer()
+                .writeUtf8("BLXM")
+                .writeInt(2)
+                .text("")
+                .writeInt(1)
+                .text("a").text("Calme")
+                .writeByte(1).writeLong(1_792_490_400_000)
+                .text("CALM")
+                .writeInt(60).text("MAJOR_PENTATONIC")
+                .writeInt(80).writeInt(4)
+                .writeInt(1)
+                .text("SQUARE").writeLong(0.07.toRawBits())
+                .writeInt(2)
+                .writeInt(-1).writeLong(2.0.toRawBits())
+                .writeInt(72).writeLong(2.0.toRawBits())
+                .readByteArray(),
+        )
+    }
+
+    @Test
+    fun `a musics file of version 2 is read as it was written, a format that must not change`() = runTest {
+        // Given a file of version 2: a music of a time known, 20 October 2026 at ten in Greenwich, then one of a time
+        // unknown, which a music of version 1 written again keeps
+        musicsFile.writeBytes(
+            Buffer()
+                .header(version = 2, musics = 2)
+                .music("a", "Calme", time = { writeByte(1).writeLong(1_792_490_400_000) })
+                .music("b", "Joyeux", time = { writeByte(0) })
+                .readByteArray(),
+        )
+
+        // When
+        val musics = libraryIn(backgroundScope).musics.first()
+
+        // Then
+        assertThat(musics.map { it.name to it.modifiedAt }).containsExactly(
+            "Calme" to Instant.parse("2026-10-20T10:00:00Z"),
+            "Joyeux" to null,
+        )
+    }
+
+    @Test
+    fun `the musics of a file of version 1 keep a time unknown once the file is written in version 2`() = runTest {
+        // Given a file of version 1, which did not keep the time of the changes
+        musicsFile.writeBytes(Buffer().header(musics = 1).music("a", "Calme").readByteArray())
+
+        // When another music is saved, and the file opened again
+        inScopeClosedAfter { scope -> libraryIn(scope).save(aMusic("b", name = "Joyeux")) }
+        val musics = libraryIn(backgroundScope).musics.first()
+
+        // Then the file is of version 2, the music of version 1 of a time unknown, not of the time of the migration
+        assertThat(Buffer().write(musicsFile.readBytes()).apply { skip(4) }.readInt()).isEqualTo(2)
+        assertThat(musics.map { it.name to it.modifiedAt }).containsExactly("Calme" to null, "Joyeux" to MODIFIED_AT)
+    }
+
+    @Test
+    fun `a time marked neither known nor unknown makes the musics file corrupted`() = runTest {
+        // Given a file of version 2 whose only music has a time marked 2
+        musicsFile.writeBytes(
+            Buffer().header(version = 2, musics = 1).music("a", "Calme", time = { writeByte(2) }).readByteArray(),
+        )
+
+        // When / Then
+        assertThat(libraryIn(backgroundScope).musics.first()).isEmpty()
+        assertThat(File(directory, "$MUSICS_FILE.corrupt")).exists()
+    }
+
+    @Test
     fun `a musics file of a later version gives an empty list, and is kept for that version`() = runTest {
-        // Given a file of version 2, as a backup of a later BloX would bring back
-        val later = Buffer().writeUtf8("BLXM").writeInt(2).text("").writeInt(0).readByteArray()
+        // Given a file of version 3, as a backup of a later BloX would bring back
+        val later = Buffer().writeUtf8("BLXM").writeInt(3).text("").writeInt(0).readByteArray()
         musicsFile.writeBytes(later)
         val library = libraryIn(backgroundScope)
 
@@ -142,7 +233,7 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
     @Test
     fun `a failure other than an IOException while the musics are read is not absorbed`() = runTest {
         // Given a DataStore whose reading fails with a bug
-        val library = DataStoreMusicLibrary(FailingDataStore(IllegalStateException("a bug")))
+        val library = DataStoreMusicLibrary(FailingDataStore(IllegalStateException("a bug")), MutableClock())
 
         // When
         val failures = listOf(library.musics, library.gameMusic).map { runCatching { it.first() }.exceptionOrNull() }
@@ -295,8 +386,8 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
     @Test
     fun `a musics file of version 1 with a music for the games, written by hand, is read as it was written`() =
         runTest {
-            // Given a file of version 1 whose only music, played during the games, has no category and a name of 9 bytes
-            // in UTF-8: « Nuit » and a space, then a moon of 4 bytes
+            // Given a file of version 1 whose only music, played during the games, has no category and a name of 9
+            // bytes in UTF-8: « Nuit » and a space, then a moon of 4 bytes
             musicsFile.writeBytes(
                 Buffer()
                     .writeUtf8("BLXM")
@@ -333,7 +424,10 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
             assertThat(library.gameMusic.first()).isEqualTo(night)
         }
 
-    override fun emptyLibrary(scope: CoroutineScope): MusicLibrary = libraryIn(scope)
+    override fun emptyLibrary(
+        scope: CoroutineScope,
+        clock: Clock,
+    ): MusicLibrary = libraryIn(scope, clock)
 
     /** Runs [block] in a scope of its own, then closes it: the DataStores living in it release the file. */
     private suspend fun <T> TestScope.inScopeClosedAfter(block: suspend (CoroutineScope) -> T): T {
@@ -343,19 +437,26 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
         return result
     }
 
-    /** The start of a musics file: « BLXM », [version], the key of the music played during the games, the count of musics. */
+    /**
+     * The start of a musics file: « BLXM », [version], the key of the music played during the games, the count of
+     * musics.
+     */
     private fun Buffer.header(
         version: Int = 1,
         gameMusic: String = "",
         musics: Int,
     ): Buffer = writeUtf8("BLXM").writeInt(version).text(gameMusic).writeInt(musics)
 
-    /** A music as the musics file of version 1 writes it: one bar of 4 beats in C major, a melody of one C5. */
+    /**
+     * A music as the musics file writes it: one bar of 4 beats in C major, a melody of one C5. Its [time] follows its
+     * name in version 2; version 1 has none, the default.
+     */
     private fun Buffer.music(
         key: String,
         name: String,
         category: String = "CALM",
-    ): Buffer = text(key).text(name).text(category)
+        time: Buffer.() -> Buffer = { this },
+    ): Buffer = text(key).text(name).time().text(category)
         .writeInt(60).text("MAJOR")
         .writeInt(120).writeInt(4)
         .writeInt(1)
@@ -369,7 +470,9 @@ class DataStoreMusicLibraryTest : MusicLibraryContract() {
     /** The musics file of the test, in [directory]. */
     private val musicsFile: File get() = File(directory, MUSICS_FILE)
 
-    /** A library on the musics file of [directory], its DataStore living in [scope], as in production. */
-    private fun libraryIn(scope: CoroutineScope): MusicLibrary =
-        DataStoreMusicLibrary(scope) { musicsFile.absolutePath.toPath() }
+    /** A library on the musics file of [directory], its DataStore in [scope], dating by [clock], as in production. */
+    private fun libraryIn(
+        scope: CoroutineScope,
+        clock: Clock = MutableClock(),
+    ): MusicLibrary = DataStoreMusicLibrary(scope, clock) { musicsFile.absolutePath.toPath() }
 }
