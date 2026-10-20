@@ -177,6 +177,21 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
+    @DisplayName("touching the name of a music, or Modifier in its menu, opens the music in the editor")
+    fun theNameOrModifierOpensTheMusicInTheEditor() = extension.use {
+        // Given
+        showMyMusics()
+
+        // When
+        onNodeWithText("Ma marche").performClick()
+        onNodeWithContentDescription("Plus d'actions pour Thème du soir").performClick()
+        onNodeWithText("Modifier").performClick()
+
+        // Then
+        runOnIdle { assertThat(calls).containsExactly("edit march", "edit evening") }
+    }
+
+    @Test
     @DisplayName("the dialog Renommer refuses a name taken, saying why, and renames with a free one")
     fun theRenameDialogRefusesANameTaken() = extension.use {
         // Given
@@ -360,6 +375,10 @@ internal class MyMusicsScreenTest {
 
                         override fun onUse(id: ScoreId.Personal) {
                             calls += "use ${id.key}"
+                        }
+
+                        override fun onEdit(id: ScoreId.Personal) {
+                            calls += "edit ${id.key}"
                         }
 
                         override fun onRename(id: ScoreId.Personal) {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,7 +41,10 @@ internal object ComposerSizes {
 
 /**
  * A button of the editor, framed as a panel: [text] on it, [description] read by TalkBack in its place when the text
- * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such.
+ * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such. A
+ * [primary] button, the answer a window expects or *Enregistrer* with changes to save, is filled in `accent`. A label
+ * that [wraps] goes on several lines when it does not fit, rather than shrinking: the answers of a window. A
+ * [danger] button, the one that deletes, is filled in `danger`.
  */
 @Composable
 internal fun ToolButton(
@@ -49,17 +53,33 @@ internal fun ToolButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     description: String? = null,
+    primary: Boolean = false,
+    wraps: Boolean = false,
+    danger: Boolean = false,
 ) {
     val palette = BloxTheme.palette
+    val fill = when {
+        danger -> palette.danger
+        primary -> palette.accent
+        else -> null
+    }
     ButtonBox(
-        background = palette.panel,
-        frame = palette.panelBorder,
+        background = fill ?: palette.panel,
+        frame = fill ?: palette.panelBorder,
         modifier = modifier
             .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
             .described(description),
     ) {
-        ButtonLabel(text = text, color = palette.ink)
+        ButtonLabel(
+            text = text,
+            color = when {
+                danger -> palette.dangerInk
+                primary -> palette.accentInk
+                else -> palette.ink
+            },
+            wraps = wraps,
+        )
     }
 }
 
@@ -141,12 +161,23 @@ private fun ButtonBox(
     }
 }
 
-/** The label of a button, on one line, shrunk if needed. */
+/** The label of a button, on one line, shrunk if needed, or on as many lines as it needs when it [wraps]. */
 @Composable
 private fun ButtonLabel(
     text: String,
     color: Color,
+    wraps: Boolean = false,
 ) {
+    if (wraps) {
+        Text(
+            text = text,
+            color = color,
+            style = MaterialTheme.typography.labelMedium,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(vertical = 4.dp),
+        )
+        return
+    }
     SingleLineText(
         text = text,
         color = color,

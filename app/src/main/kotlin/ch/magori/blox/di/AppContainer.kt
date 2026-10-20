@@ -147,8 +147,8 @@ class AppContainer(context: Context) {
         musicLibrary,
     )
 
-    /** The music editor: a new music, listened to by the music player of the games (saving comes later, P4.19d). */
-    val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music)
+    /** The music editor: a music of the player, or a new one, listened to by the music player of the games. */
+    val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)
 
     /**
      * « Mes musiques »: the musics of the player, and the music player of the games and of the home screen, to listen to

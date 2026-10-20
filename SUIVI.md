@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 119 / 166 | `██████████████░░░░░░` **72 %** |
-| **MVP audio** | 25 / 27 | `███████████████████░` **93 %** |
+| **Général** | 120 / 167 | `██████████████░░░░░░` **72 %** |
+| **MVP audio** | 26 / 28 | `███████████████████░` **93 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -26,7 +26,7 @@ tranches, sans les effets sonores optionnels (P4.8), la confirmation des droits 
 jouable sur le téléphone (P0 à P3), est atteint depuis le 2026-10-18. Pour changer le
 périmètre, modifier la liste ci-dessous.
 
-<!-- mvp-audio: P4.1 P4.2 P4.3 P4.4 P4.5 P4.6 P4.7 P4.9 P4.11 P4.12 P4.13 P4.14 P4.15 P4.16 P4.17 P4.18 P4.19a P4.19b P4.19c P4.19d P4.20 P4.22a P4.22b P4.22c P4.22d P4.23 P4.24 -->
+<!-- mvp-audio: P4.1 P4.2 P4.3 P4.4 P4.5 P4.6 P4.7 P4.9 P4.11 P4.12 P4.13 P4.14 P4.15 P4.16 P4.17 P4.18 P4.19a P4.19b P4.19c P4.19d P4.19e P4.20 P4.22a P4.22b P4.22c P4.22d P4.23 P4.24 -->
 
 | Phase | Objectif | État |
 |---|---|---|
@@ -469,10 +469,15 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
     doubles croches, captures des thèmes ; retirer l'exclusion `buildHealth` de `feature:composer`.
   - [x] **P4.19c** Écoute dans l'éditeur : *Écouter* par `MusicPlayer`, colonne jouée, *Suivre la
     lecture*.
-  - [ ] **P4.19d** Enregistrer, quitter, renommer, supprimer, avec le stockage de P4.22 : fenêtre
+  - [x] **P4.19d** Enregistrer, quitter, renommer, supprimer, avec le stockage de P4.22 : fenêtre
     d'enregistrement sur `MusicNames`, question en quittant. Reportés de la revue de P4.19b : garder
     le brouillon dans `SavedStateHandle` (rotation, mort du processus), Retour qui demande avant de
-    quitter une musique modifiée, aperçu du glissé (cases traversées surlignées).
+    quitter une musique modifiée, aperçu du glissé (cases traversées surlignées). Fait, avec
+    l'ouverture d'une musique depuis « Mes musiques » (nom, *Modifier*).
+  - [ ] **P4.19e** Annuler une suppression faite depuis l'éditeur : il se ferme en rendant
+    `DeletedMusic`, que `app` jette ; la spec veut le retour à « Mes musiques » avec *Annuler*.
+    Relais dans `AppContainer` (flux consommé par `MyMusicsViewModel` à la reprise) ou entrée de la
+    liste avec la suppression en paramètre (revue de P4.19d).
 - [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
@@ -634,7 +639,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   minimale des lignes (26 dp), bouton « COMPOSER UNE MUSIQUE » de l'accueil en capitales avec icône.
   Écoute (P4.19c) : bouton rond Écouter / Arrêter à droite du tempo, contour en deux traits de la
   colonne jouée, trait sous la mesure jouée, « Suivre la lecture » dans le menu, message en bas
-  de la grille.
+  de la grille. Enregistrement (P4.19d) : bouton Enregistrer sur sa ligne sous le tempo, « • » et
+  plein quand des changements seraient perdus, crayon après le titre, ligne « Catégorie · modifiée »,
+  fenêtre en échec.
 - [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
@@ -652,7 +659,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.45** Doublons laissés par P4.22c (règle de 2) : `ComposerHeader` garde ses copies
   privées de `GlyphButton`, `drawBack` et `drawDots`, à remplacer par `GlyphButton` et `Glyphs` de
   `core:designsystem` ; `NameProblem` de la liste et `SaveProblem` de l'éditeur (nom vide, pris,
-  trop long) à réunir dans `core:data` (`MusicNames`). Après P4.19d.
+  trop long) à réunir dans `core:data` (`MusicNames`) ; fenêtres Renommer et confirmation de
+  suppression, et leurs chaînes, en double dans `ComposerDialogs` et `MyMusicsDialogs` (revue de
+  P4.19d). Après P4.19d.
 
 ## P6 — Mode Moderne (plus tard)
 

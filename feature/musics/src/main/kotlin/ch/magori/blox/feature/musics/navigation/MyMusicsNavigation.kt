@@ -3,6 +3,8 @@ package ch.magori.blox.feature.musics.navigation
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,13 +25,15 @@ data object MyMusicsRoute : NavKey
 
 /**
  * Déclare l'entrée « Mes musiques » dans le fournisseur d'entrées de l'application (ADR 0011). `app` construit
- * [viewModelFactory] (ADR 0013) ; [onBack] revient à l'accueil ; [onNew] ouvre l'éditeur sur une musique neuve et
- * [onRandom] sur une musique tirée au hasard : l'éditeur est une autre feature, que la liste ne connaît pas.
+ * [viewModelFactory] (ADR 0013) ; [onBack] revient à l'accueil ; [onNew] ouvre l'éditeur sur une musique neuve,
+ * [onRandom] sur une musique tirée au hasard et [onEdit] sur la musique enregistrée de cet identifiant : l'éditeur est
+ * une autre feature, que la liste ne connaît pas.
  */
 fun EntryProviderScope<NavKey>.myMusicsEntry(
     onBack: () -> Unit,
     onRandom: () -> Unit,
     onNew: () -> Unit,
+    onEdit: (ScoreId.Personal) -> Unit,
     viewModelFactory: MyMusicsViewModel.Factory,
 ) {
     entry<MyMusicsRoute> {
@@ -47,8 +51,13 @@ fun EntryProviderScope<NavKey>.myMusicsEntry(
         val goBack = dropUnlessResumed { onBack() }
         val openRandom = dropUnlessResumed { onRandom() }
         val openNew = dropUnlessResumed { onNew() }
-        val actions = remember(viewModel, goBack, openRandom, openNew) {
-            EntryActions(viewModel, goBack = goBack, openRandom = openRandom, openNew = openNew)
+        // The same for a tap that opens a music, which dropUnlessResumed cannot carry: it takes no identity.
+        val currentEdit by rememberUpdatedState(onEdit)
+        val openEdit: (ScoreId.Personal) -> Unit = remember(lifecycle) {
+            { id -> if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) currentEdit(id) }
+        }
+        val actions = remember(viewModel, goBack, openRandom, openNew, openEdit) {
+            EntryActions(viewModel, goBack, openRandom, openNew, openEdit)
         }
         // Nothing is shown until the musics are read: no empty list flashes.
         uiState?.let { loaded -> MyMusicsScreen(uiState = loaded, actions = actions) }
@@ -61,12 +70,18 @@ private class EntryActions(
     private val goBack: () -> Unit,
     private val openRandom: () -> Unit,
     private val openNew: () -> Unit,
+    private val openEdit: (ScoreId.Personal) -> Unit,
 ) : MyMusicsActions {
     override fun onBack() = goBack()
 
     override fun onListen(id: ScoreId.Personal) = viewModel.onListen(id)
 
     override fun onUse(id: ScoreId.Personal) = viewModel.onUse(id)
+
+    override fun onEdit(id: ScoreId.Personal) {
+        viewModel.onEditorOpened()
+        openEdit(id)
+    }
 
     override fun onRename(id: ScoreId.Personal) = viewModel.onRename(id)
 

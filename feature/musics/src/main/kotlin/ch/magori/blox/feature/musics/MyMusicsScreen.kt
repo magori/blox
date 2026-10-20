@@ -2,6 +2,7 @@ package ch.magori.blox.feature.musics
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -57,6 +59,9 @@ internal interface MyMusicsActions {
 
     /** *Utiliser*, or *En jeu*, on the music of [id]; or its item in the menu. */
     fun onUse(id: ScoreId.Personal)
+
+    /** The name of the music of [id] touched, or *Modifier* in its menu: the music opens in the editor. */
+    fun onEdit(id: ScoreId.Personal)
 
     /** *Renommer*, in the menu of the music of [id]. */
     fun onRename(id: ScoreId.Personal)
@@ -226,24 +231,41 @@ private fun MusicCardRow(
             glyph = { ink -> if (listening != null) Glyphs.stop(this, ink) else Glyphs.play(this, ink) },
         )
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(
-                text = card.name,
-                color = palette.ink,
-                style = MaterialTheme.typography.labelLarge,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = if (listening != null) {
-                    stringResource(R.string.feature_musics_listening, listening.bar, listening.bars)
-                } else {
-                    stringResource(R.string.feature_musics_info, stringResource(categoryLabel(card.category)), card.bpm)
-                },
-                color = palette.label,
-                style = MaterialTheme.typography.labelSmall,
-                maxLines = 3,
-                overflow = TextOverflow.Ellipsis,
-            )
+            // Touching the name, or its info line, opens the music in the editor; TalkBack says so. 48 dp high at least.
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .clickable(
+                        onClickLabel = stringResource(R.string.feature_musics_menu_edit),
+                        role = Role.Button,
+                        onClick = { actions.onEdit(card.id) },
+                    ),
+            ) {
+                Text(
+                    text = card.name,
+                    color = palette.ink,
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = if (listening != null) {
+                        stringResource(R.string.feature_musics_listening, listening.bar, listening.bars)
+                    } else {
+                        stringResource(
+                            R.string.feature_musics_info,
+                            stringResource(categoryLabel(card.category)),
+                            card.bpm,
+                        )
+                    },
+                    color = palette.label,
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
             UseButton(name = card.name, inGame = card.inGame, onClick = { actions.onUse(card.id) })
         }
         CardMenu(card = card, actions = actions)
@@ -270,7 +292,7 @@ private fun UseButton(
     )
 }
 
-/** The menu « … » of a card: *Renommer*, *La jouer* or *Ne plus la jouer pendant les parties*, *Supprimer*. */
+/** The menu « … » of a card: *Modifier*, *Renommer*, *La jouer* or *Ne plus la jouer pendant les parties*, *Supprimer*. */
 @Composable
 private fun CardMenu(
     card: MusicCard,
@@ -289,6 +311,10 @@ private fun CardMenu(
             onDismissRequest = { expanded = false },
             containerColor = palette.panel,
         ) {
+            MenuItem(R.string.feature_musics_menu_edit, palette.ink) {
+                expanded = false
+                actions.onEdit(card.id)
+            }
             MenuItem(R.string.feature_musics_menu_rename, palette.ink) {
                 expanded = false
                 actions.onRename(card.id)
@@ -426,6 +452,8 @@ private object NoActions : MyMusicsActions {
     override fun onListen(id: ScoreId.Personal) = Unit
 
     override fun onUse(id: ScoreId.Personal) = Unit
+
+    override fun onEdit(id: ScoreId.Personal) = Unit
 
     override fun onRename(id: ScoreId.Personal) = Unit
 

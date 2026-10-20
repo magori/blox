@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.material3.Checkbox
@@ -51,15 +53,22 @@ private const val GLYPH_STROKE = 0.12f
 private const val DOT_RADIUS = 0.09f
 
 /**
- * The header of the editor: the back button, the title with its info line ([status] of the music), and the menu
- * « … », which holds *Suivre la lecture* and *Montrer l'autre piste en filigrane* for now.
+ * The header of the editor: the back button, the title, the [name] of the music (« Nouvelle musique » until it is
+ * named), to touch to rename it, with its pencil, and its info line, its [category] and its [status]; and the menu
+ * « … »: *Renommer*, *Suivre la lecture*, *Montrer l'autre piste en filigrane* and, for a saved music ([canDelete]),
+ * *Supprimer*.
  */
 @Composable
 internal fun ComposerHeader(
+    name: String?,
+    category: String?,
     status: SaveStatus,
+    canDelete: Boolean,
     showOtherTrack: Boolean,
     followPlayback: Boolean,
     onBack: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
     onOtherTrackShown: (Boolean) -> Unit,
     onFollowPlayback: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -67,18 +76,31 @@ internal fun ComposerHeader(
     val palette = BloxTheme.palette
     Row(modifier = modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
         GlyphButton(description = stringResource(R.string.feature_composer_back), onClick = onBack) { drawBack(it) }
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = stringResource(R.string.feature_composer_title_new),
-                color = palette.ink,
-                style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.semantics { heading() },
-            )
-            statusText(status)?.let {
-                Text(text = it, color = palette.label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+        val title = name ?: stringResource(R.string.feature_composer_title_new)
+        val renameTitle = stringResource(R.string.feature_composer_title_rename, title)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .weight(1f)
+                .heightIn(min = BloxSizes.minTouchTarget)
+                .clip(BloxTheme.shapes.button)
+                .clickable(role = Role.Button, onClick = onRename)
+                .semantics(mergeDescendants = true) { contentDescription = renameTitle },
+        ) {
+            Column(modifier = Modifier.weight(1f, fill = false)) {
+                Text(
+                    text = title,
+                    color = palette.ink,
+                    style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.semantics { heading() },
+                )
+                infoText(category, status)?.let {
+                    Text(text = it, color = palette.label, style = MaterialTheme.typography.labelSmall, maxLines = 1)
+                }
             }
+            Spacer(modifier = Modifier.padding(start = 4.dp).size(PencilSize).drawBehind { drawPencil(palette.ink) })
         }
         Box {
             var expanded by remember { mutableStateOf(false) }
@@ -86,6 +108,13 @@ internal fun ComposerHeader(
                 drawDots(it)
             }
             DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.feature_composer_menu_rename)) },
+                    onClick = {
+                        expanded = false
+                        onRename()
+                    },
+                )
                 CheckItem(
                     text = stringResource(R.string.feature_composer_menu_follow),
                     checked = followPlayback,
@@ -102,6 +131,15 @@ internal fun ComposerHeader(
                         expanded = false
                     },
                 )
+                if (canDelete) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.feature_composer_menu_delete), color = palette.danger) },
+                        onClick = {
+                            expanded = false
+                            onDelete()
+                        },
+                    )
+                }
             }
         }
     }
@@ -137,13 +175,46 @@ private fun CheckItem(
     )
 }
 
-/** The info line: « non enregistrée » for a new music, « modifiée » for a saved one changed, nothing once saved. */
+/**
+ * The info line: the [category], if any, then « non enregistrée » for a new music, « modifiée » for a saved one
+ * changed, nothing once saved; null when it says nothing.
+ */
 @Composable
-private fun statusText(status: SaveStatus): String? = when (status) {
-    SaveStatus.NOT_SAVED -> stringResource(R.string.feature_composer_status_not_saved)
-    SaveStatus.MODIFIED -> stringResource(R.string.feature_composer_status_modified)
-    SaveStatus.SAVED -> null
+private fun infoText(
+    category: String?,
+    status: SaveStatus,
+): String? {
+    val saving = when (status) {
+        SaveStatus.NOT_SAVED -> stringResource(R.string.feature_composer_status_not_saved)
+        SaveStatus.MODIFIED -> stringResource(R.string.feature_composer_status_modified)
+        SaveStatus.SAVED -> null
+    }
+    return when {
+        category != null && saving != null -> stringResource(R.string.feature_composer_info, category, saving)
+        else -> category ?: saving
+    }
 }
+
+/** A pencil, slanted, its tip at the bottom left: the title renames the music. */
+private fun DrawScope.drawPencil(color: Color) {
+    val stroke = size.width * GLYPH_STROKE
+    drawLine(
+        color,
+        start = Offset(size.width * 0.25f, size.height * 0.75f),
+        end = Offset(size.width * 0.8f, size.height * 0.2f),
+        strokeWidth = stroke * 2,
+    )
+    val tip = Path().apply {
+        moveTo(size.width * 0.12f, size.height * 0.88f)
+        lineTo(size.width * 0.16f, size.height * 0.62f)
+        lineTo(size.width * 0.38f, size.height * 0.84f)
+        close()
+    }
+    drawPath(tip, color)
+}
+
+/** The pencil after the title. */
+private val PencilSize = 16.dp
 
 /** A button of the header, its glyph drawn by [glyph] in `ink`, on a touch target of 48 dp. */
 @Composable
