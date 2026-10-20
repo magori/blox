@@ -31,6 +31,7 @@ import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.gameMusicScore
@@ -151,10 +152,17 @@ class AppContainer(context: Context) {
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)
 
     /**
-     * « Mes musiques »: the musics of the player, and the music player of the games and of the home screen, to listen to
-     * them from the list.
+     * The music deleted in the editor, handed over to « Mes musiques », which offers to undo it: once for the process,
+     * like the list and the editor it links.
      */
-    val myMusicsViewModelFactory: MyMusicsViewModel.Factory = MyMusicsViewModel.Factory(musicLibrary, music)
+    val deletedMusics: DeletedMusicRelay = DeletedMusicRelay()
+
+    /**
+     * « Mes musiques »: the musics of the player, and the music player of the games and of the home screen, to listen to
+     * them from the list; the musics deleted in the editor, to undo their deletion.
+     */
+    val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
+        MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
 }
 
 private const val TAG = "BloX"

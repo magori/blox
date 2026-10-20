@@ -31,9 +31,14 @@ import kotlin.reflect.KClass
 /**
  * « Mes musiques » (V7, V10): the musics of the player saved in [library], and the one played during the games. Each
  * one may be listened to on the [music] player, the one the games play on, its card telling the bar it plays; chosen
- * for the games, renamed, or deleted after a confirmation, the deletion offered to be undone until the next action.
+ * for the games, renamed, or deleted after a confirmation, the deletion offered to be undone until the next action; a
+ * deletion made in the editor, handed over by [deletedElsewhere], too.
  */
-class MyMusicsViewModel(private val library: MusicLibrary, private val music: MusicPlayer) : ViewModel() {
+class MyMusicsViewModel(
+    private val library: MusicLibrary,
+    private val music: MusicPlayer,
+    private val deletedElsewhere: DeletedMusicRelay,
+) : ViewModel() {
     /** The saved musics and the one played during the games, the only reading of [library]; null until read. */
     private val content: StateFlow<Content?> =
         combine(library.musics, library.gameMusic, ::Content)
@@ -61,6 +66,16 @@ class MyMusicsViewModel(private val library: MusicLibrary, private val music: Mu
     internal val uiState: StateFlow<MyMusicsUiState?> =
         combine(content.filterNotNull(), listened, dialog, deleted, ::toUiState)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), initialValue = null)
+
+    init {
+        // A music deleted in the editor, which closes on the list: its deletion may be undone as one made here.
+        viewModelScope.launch {
+            deletedElsewhere.handedOver.collect { handed ->
+                // Not an action of the player on the list: actionCount, which only those raise, stays as it is.
+                if (deletedElsewhere.take(handed)) deleted.value = handed
+            }
+        }
+    }
 
     /** *Écouter* the music of [id], in place of the one being listened to; or *Arrêter* it, if it is listened to. */
     internal fun onListen(id: ScoreId.Personal) {
@@ -284,13 +299,17 @@ class MyMusicsViewModel(private val library: MusicLibrary, private val music: Mu
      * Builds the [MyMusicsViewModel] with the musics of the player and the music player of the application, which
      * builds this factory (ADR 0013): the same player as the games and the home screen.
      */
-    class Factory(private val library: MusicLibrary, private val music: MusicPlayer) : ViewModelProvider.Factory {
+    class Factory(
+        private val library: MusicLibrary,
+        private val music: MusicPlayer,
+        private val deletedElsewhere: DeletedMusicRelay,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return MyMusicsViewModel(library, music) as T
+            return MyMusicsViewModel(library, music, deletedElsewhere) as T
         }
     }
 
