@@ -32,6 +32,16 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V16 | Mes musiques, thème Brume sombre | « V16 · Mes musiques · thème Brume sombre » |
 | V17 | Éditeur de musique, thème Brume sombre | « V17 · Éditeur de musique · thème Brume sombre » |
 | V18 | Enregistrer la musique, thème Brume sombre | « V18 · Enregistrer la musique · thème Brume sombre » |
+| V19 | Pause (thème au choix) | « V19 · Pause » |
+| V20 | Jeu, fenêtre très étroite (220 × 640, thème au choix) | « V20 · Jeu · fenêtre très étroite » |
+
+Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
+pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un
+téléphone). Seule la police normale est dessinée : les variantes en police ×2 (barre d'outils de
+l'éditeur en deux rangées, réponses des fenêtres empilées) ne le sont pas. Brume n'étant pas codé,
+quelques jetons de ses vues ont été choisis sur la planche et restent à confirmer (P5.41) : cadre
+des touches `#8B8799` (clair) et `#7E7B92` (sombre), teintes tenues `#E2E0EA` et `#4A4760`, accent
+tenu `#3730A3` et `#6366F1`.
 
 Les vues V7 à V18 sont rangées sous le titre « Musique — Mes musiques et éditeur », une rangée
 par thème. Elles viennent toutes d'un seul fichier, `Musique.dc.html` (V7), que les autres
@@ -56,21 +66,21 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
   *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
   une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
-- **Musiques personnelles** (maquette, P4.21 ; à coder en P4.22) :
-  - le choix de musique passe en grille de 3 colonnes : *Korobeïniki*, *Menuet*, *Mon fichier*,
-    puis la musique personnelle « En jeu » (icône de note, sur deux colonnes ; « Thème du soir »
-    dans la maquette, choisie par défaut et qu'on peut écouter) et *Aucune*. Choisir une autre
-    musique retire la musique personnelle des parties ;
-  - un lien **MES MUSIQUES** dans l'en-tête de la section mène à la liste du thème en cours
-    (V7, V10, V13 ou V16) ;
-  - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 px, icône note et crayon, cadre à
-    l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
-  - pour tenir dans 844 px, les espacements sont resserrés : 10 px entre sections au lieu de
-    16, 6 px sous les titres de section au lieu de 8.
-- Bouton **Jouer**.
+- **Musiques personnelles** (P4.22, maquette mise au code le 2026-10-20) :
+  - la musique personnelle « En jeu » est un choix comme les autres, en rangées qui passent à la
+    ligne, sans icône de note ni grille de trois colonnes (« Thème du soir » dans la maquette),
+    qu'on peut écouter. Choisir une autre musique la retire des parties ;
+  - *Changer* à côté d'*Écouter* sous *Mon fichier* (P5.38) ;
+  - un lien **MES MUSIQUES**, souligné, dans l'en-tête de la section mène à la liste du thème en
+    cours (V7, V10, V13 ou V16) ;
+  - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 dp, en capitales, icône note et crayon,
+    cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
+  - l'accueil défile sur un téléphone : V1 fait 1360 px de haut.
+- Section **Réglages** (Vibrations, Effets sonores, désactivés : voir « Pas encore codé »), puis
+  bouton **Jouer**, 48 dp de haut, en `accent`.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
-- Valeurs retenues en P3.4, à confirmer sur la maquette (P3.8) : rien n'est affiché tant que
+- Valeurs retenues en P3.4, reportées sur la maquette (P3.8, 2026-10-20) : rien n'est affiché tant que
   les réglages ne sont pas lus (pas de thème qui clignote, pas de « Jouer » au mauvais niveau) ;
   choix en boutons radio groupés (TalkBack), *Classique* sélectionné sans action, *Moderne*
   désactivé ; choix sélectionné rempli en `accent`, sans soulignement (retiré en P5.36) et marqué d'une coche (P5.42), les
@@ -96,21 +106,21 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
-- Barre du haut : bouton pause, « MODE CLASSIQUE », record. Valeurs retenues en P2.6, à
-  confirmer sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button` avec le cadre `buttonOutline` des touches (P2.23), pictogramme
+- Barre du haut : bouton pause, « MODE CLASSIQUE », record. Valeurs retenues en P2.6,
+  reportées sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button` avec le cadre `buttonOutline` des touches (P2.23), pictogramme
   dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
   entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
   valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la
   vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
   entre les trois éléments.
-- Plateau 10 × 20 (cellules de 24 points) et colonne latérale : score, niveau, lignes,
-  pièce suivante. Valeurs retenues en P2.4, à confirmer sur la maquette (P2.13) : encarts
+- Plateau 10 × 20 (cellules de 21 points à 390 dp, comme le code ; 24 sur l'ancienne maquette, P2.19) et colonne latérale : score, niveau, lignes,
+  pièce suivante. Valeurs retenues en P2.4, reportées sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
   ligne, réduite si la police du système est agrandie) ; aperçu de la pièce suivante dans un
   cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 10 dp
   (Couleurs). Score sur 6 chiffres, niveau sur 2 et lignes sur 3 au moins.
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
-  décalés comme sur une console portable. Valeurs retenues en P2.5, à confirmer sur la
+  décalés comme sur une console portable. Valeurs retenues en P2.5, reportées sur la
   maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
   B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres ; A en `accent`, les
   autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Un bouton au repos
@@ -128,7 +138,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
   **Tests :** `GameScreenGesturesTest › every control is excluded from the system gestures, by rectangles of 200 dp high at most that the system honours`,
   `GameLayoutTest › each group of controls holds to its edge, within the 200 dp of gesture exclusion honoured per edge`.
-- Autres formats (P2.11, retenus par le code, pas encore maquettés) : la disposition qui donne le
+- Autres formats (P2.11, retenus par le code ; fenêtre très étroite maquettée en V20) : la disposition qui donne le
   plus grand plateau l'emporte. Portrait comme ci-dessus ; paysage (téléphone couché, tablette) :
   ◀ ▼ ▶ en bas à gauche, B A en bas à droite, score, niveau et lignes à gauche du plateau, pièce
   suivante à droite ; fenêtre étroite : B A sous les flèches. La pièce suivante a la même taille
@@ -185,21 +195,33 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - « Partie terminée », badge « Nouveau record » le cas échéant.
 - Score en grand, puis lignes, niveau, nombre de « 4 lignes », durée.
 - Boutons **Rejouer** et **Menu**.
-- Valeurs retenues en P2.7, à confirmer sur la maquette (P2.15) : titre en 22 sp, score dans un
+- Valeurs retenues en P2.7, reportées sur la maquette (P2.15) : titre en 22 sp, score dans un
   encart en 40 sp au plus, statistiques « libellé – valeur » (libellé 11 sp, valeur 18 sp), marges
   de 24, 16 et 8 dp ; badge en `accent` sur `accentInk` ; Rejouer plein (`accent`), Menu en
   contour (`panelBorder`, encre `ink`) ; lignes et niveau avec leurs zéros, comme en jeu. L'écran
   défile si la police est agrandie. TalkBack annonce l'écran et lit la durée « 1 minute et
   5 secondes ».
 
-## Pas encore maquetté
+### V19 — Pause
+- Le plateau est masqué : fond `page` opaque qui remplace tout l'écran de jeu, titre « Pause » en
+  22 sp, boutons **Reprendre** (plein, `accent`) et **Menu** (contour, `panelBorder`), même mise
+  en page que V4 (marges de 24 et 16 dp, cibles de 48 dp au moins). TalkBack annonce l'écran
+  (P2.6, maquetté le 2026-10-20). Dans le prototype, le bouton pause de V2, V3, V5 et V6 l'ouvre.
 
-- **Pause** : le plateau doit être masqué. Écran retenu en P2.6, à dessiner sur la maquette
-  (P2.16) : fond `page` opaque qui remplace tout l'écran de jeu, titre « Pause » en 22 sp,
-  boutons **Reprendre** (plein, `accent`) et **Menu** (contour, `panelBorder`), même mise en
-  page que V4 (marges de 24 et 16 dp, cibles de 48 dp au moins). TalkBack annonce l'écran.
-- **Réglages** (si les options se multiplient : volume, effets sonores, vibrations,
-  sensibilité des commandes).
+### V20 — Jeu, fenêtre très étroite
+- 220 × 640 : score et niveau, puis lignes et pièce suivante en grille 2 × 2 au-dessus du plateau
+  (cellule de 10), flèches rapprochées, B A dessous ; en Original, le titre passe au-dessus du
+  bouton pause et du record (P2.20, P2.26).
+
+## Pas encore codé
+
+- **Réglages de l'accueil** (V1, maquettés le 2026-10-20) : une section « Réglages » entre
+  « COMPOSER UNE MUSIQUE » et « Jouer », deux rangées pleine largeur en encart (`panel`, cadre de
+  2 dp), d'au moins 48 dp : **Vibrations** et **Effets sonores**, libellé à gauche, interrupteur à
+  droite, désactivés par défaut. Éteint : contour couleur du libellé, bouton à gauche ; allumé :
+  rempli d'`accent`, bouton à droite (l'état se lit à la position, pas seulement à la couleur).
+  TalkBack : « Vibrations, interrupteur, désactivé ». À brancher (P5.37).
+- **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
 
 ## Points ouverts
 

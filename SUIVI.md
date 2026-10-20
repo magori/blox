@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 130 / 175 | `███████████████░░░░░` **74 %** |
+| **Général** | 143 / 175 | `████████████████░░░░` **82 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -246,15 +246,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   Logique pure testée (styles, géométrie, cellules affichées), `BoardCanvas` sur `drawWithCache`.
   Pour P1.12c : l'animation d'effacement passera par un paramètre de `displayedCells`. Pour
   P2.6 : `BoardCanvas(Board.empty(), piece = null)` masque le plateau.
-- [ ] **P2.12** Mettre à jour la maquette : confirmer la taille du carré central des pièces du
+- [x] **P2.12** Mettre à jour la maquette : confirmer la taille du carré central des pièces du
   thème Original (8 px sur 24 retenu en P2.3) sur la maquette Claude Design.
 - [x] **P2.4** Colonne latérale : score, niveau, lignes, pièce suivante. `SidePanel`,
   `NextPieceCanvas`, `BloxTheme.shapes`.
-- [ ] **P2.13** Mettre à jour la maquette : confirmer les mesures des encarts de la colonne
+- [x] **P2.13** Mettre à jour la maquette : confirmer les mesures des encarts de la colonne
   latérale (cadre, marges, tailles de texte) retenues en P2.4 (`docs/maquette.md`, V2 et V3).
 - [x] **P2.5** Commandes tactiles : ◀ ▼ ▶, A, B, avec appui maintenu. `HeldButtons`,
   `GameControls(onChange)`, `BloxShapes.button`. Pas encore branché dans `GameScreen` (P2.2).
-- [ ] **P2.14** Mettre à jour la maquette : confirmer la taille, l'espacement et le retour
+- [x] **P2.14** Mettre à jour la maquette : confirmer la taille, l'espacement et le retour
   visuel des boutons de commande retenus en P2.5 (`docs/maquette.md`, V2 et V3).
 - [x] **P2.6** Écran de pause (plateau masqué) et reprise. Revue de P2.5 : à la pause, le
   moteur oublie les touches tenues, pour ne pas reprendre avec un DAS chargé ; le bouton pause
@@ -265,13 +265,13 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   `topBarTexts`), `TitledScreen` partagé avec la fin de partie, `PanelLabel`,
   `ScreenSizes.minTouchTarget`. Pause du moteur (P1.15) et branchement (P2.2, incrément 3)
   faits.
-- [ ] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
+- [x] **P2.16** Mettre à jour la maquette : écran de pause et barre du haut, valeurs retenues
   en P2.6 (`docs/maquette.md`).
 - [x] **P2.17** Lisibilité vue sur les captures (P5.7) : touche A enfoncée invisible en thème
   Couleurs (son fond égalait la page) ; cellules en aplat du thème Original fondues entre elles.
   Fait : `keyColors`, jetons `buttonPressed` et `accentPressed`, lettres A et B en gras ; joint
   de 1/24 de la couleur du fond (`cellLayout`, `CellPainter(background)`).
-- [ ] **P2.21** Mettre à jour la maquette : touches tenues (teinte « pressée »), lettres A et B
+- [x] **P2.21** Mettre à jour la maquette : touches tenues (teinte « pressée »), lettres A et B
   en gras, joint des cellules du thème Original (P2.17) ; cadre `buttonOutline` `#646B87` des
   touches au repos et du bouton pause en thème Couleurs, V3 (P2.22, P2.23).
 - [x] **P2.22** Contraste des flèches au repos en thème Couleurs : `button` `#2A2E3E` sur la page
@@ -283,14 +283,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   tronqué en « CLASSI… », aperçu de la pièce suivante écrasé en barre. Fait : plancher d'un texte
   qui rétrécit au plus petit de 8 sp et de sa taille en police normale (`shrinkFloor`) ; l'aperçu
   n'était pas écrasé (pièce I).
-- [ ] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
+- [x] **P2.19** Taille du plateau en portrait : 18 dp par cellule à 360 dp, environ 21 à 390 dp,
   contre 24 points sur la maquette (marges de 24 dp et colonne de 112 dp) ; grands vides au-dessus
   et en dessous à 360 × 760. Trancher entre une colonne plus étroite, des marges réduites ou la
-  maquette (revues de P5.7 et P2.11).
+  maquette (revues de P5.7 et P2.11). Tranché : on garde tel quel (décision du développeur,
+  2026-10-20) ; la maquette dessine désormais des cellules de 21 comme le code à 390 dp.
 - [x] **P2.7** Écran de fin de partie, Rejouer / Menu : état de l'écran de jeu, Rejouer
   remplace la clé de la pile (ADR 0011 amendé). `GameOverScreen(GameOverUiState)`,
   `LabelledPanel` partagé avec la colonne latérale.
-- [ ] **P2.15** Mettre à jour la maquette : confirmer les mesures et couleurs de V4 retenues en
+- [x] **P2.15** Mettre à jour la maquette : confirmer les mesures et couleurs de V4 retenues en
   P2.7 (`docs/maquette.md`).
 - [ ] **P2.8** Test sur téléphone : boutons ou gestes ? Décider et consigner (ADR si changement).
   Revue de P2.5 : évaluer le glissement d'un doigt de ◀ à ▼ ou ▶ (aujourd'hui le doigt reste
@@ -313,7 +314,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [ ] **P2.24** Sous 8 dp de cellule (fenêtre de moins de 200 dp de large ou de 560 dp de haut
   environ), le jeu est peu jouable : afficher « Agrandissez la fenêtre » à la place ? À trancher
   par le développeur (revue de P2.20).
-- [ ] **P2.25** Mettre à jour la maquette : fenêtre très étroite, score et niveau puis lignes et
+- [x] **P2.25** Mettre à jour la maquette : fenêtre très étroite, score et niveau puis lignes et
   pièce suivante au-dessus du plateau, flèches rapprochées (P2.20) ; barre du haut en deux rangées,
   titre au-dessus (P2.26).
 - [x] **P2.26** Barre du haut dans une fenêtre très étroite : « MODE CLASS… » et le record (« 09876… »)
@@ -348,7 +349,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
 - [x] **P3.7** Logo de quatre cellules aux couleurs du thème sur l'accueil (maquette V1, revue
   de P3.4). Fait : `HomeLogo`, `logoCells`, jeton `BloxPalette.logoCells` (`LogoColors`), garde-fou
   `LogoColorsTest` contre la dérive des couleurs des pièces.
-- [ ] **P3.8** Mettre à jour la maquette : valeurs de l'accueil retenues en P3.4
+- [x] **P3.8** Mettre à jour la maquette : valeurs de l'accueil retenues en P3.4
   (`docs/maquette.md`, V1).
 - [x] **P3.5** Changement de thème appliqué à toute l'application. La couleur de fond de fenêtre
   (`app/src/main/res/values/colors.xml`) duplique `BloxPalettes.Original.page` : ajouter un
@@ -429,10 +430,10 @@ Référence : [docs/musique.md](docs/musique.md).
   continue pendant une perte passagère du focus. Le séquenceur dirait où il en est, et l'éditeur
   le suivrait (revue de P4.19c, à faire si l'écart s'entend sur téléphone). La liste « Mes
   musiques » calcule de même sa « mesure n sur 8 » (P4.22c).
-- [ ] **P4.26** Mettre à jour la maquette : « Mes musiques » telle que codée (V7, V10, V13, V16) :
+- [x] **P4.26** Mettre à jour la maquette : « Mes musiques » telle que codée (V7, V10, V13, V16) :
   *Utiliser* / *En jeu* sous le nom, menu déroulant, *Renommer* dans le menu de la carte, pas de
   message après *Utiliser*, lien « MES MUSIQUES » souligné à l'accueil (P4.22c).
-- [ ] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
+- [x] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
@@ -614,7 +615,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   `backup_rules.xml`, qui gardent `datastore/` et excluront les URI de fichiers (C6).
 - [x] **P5.29** Niveaux de départ : cibles d'au moins 48 dp de large, en deux lignes de 5
   (décision du développeur, 2026-10-19, plutôt qu'un sélecteur − / +) ; maquette à mettre à jour (C5). Fait : cellules de 59 dp à 360 dp, coche dans le coin, maquette dans P5.30.
-- [ ] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
+- [x] **P5.30** Mettre à jour la maquette : choix de l'accueil (V1), choix sélectionné plein (sans
   soulignement, P5.36) et choix non sélectionnés en encart (`panel`, cadre `panelBorder`), coins carrés en Original (P5.26) ;
   bouton « Jouer » de 48 dp de haut et en `accent` (P5.3). Écart du code avec V1 (P4.22d) : la
   musique personnelle « En jeu » sans icône de note ni grille de trois colonnes, à trancher. Coche du choix sélectionné (P5.42) ; niveaux de départ sur deux lignes de 5, 52 dp de plus en hauteur (P5.29).
@@ -640,17 +641,18 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [x] **P5.35** En jeu, une musique morte (séquenceur en échec) garde le focus audio jusqu'à la
   pause ou la fin : `GameViewModel` pourrait suivre `Playback.isPlaying` et rendre le focus,
   sans couper la partie (revue de P4.23).
-- [ ] **P5.37** Mettre à jour la maquette : interrupteur « Vibrations » (accueil V1 ou écran de
-  réglages), puis le brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
-  sa valeur par défaut : désactivé (décision du développeur, 2026-10-19 ; P5.2).
-- [ ] **P5.38** Mettre à jour la maquette : action « Changer » (Changer de fichier) sous « Mon
-  fichier », à côté d'« Écouter », et le nom du fichier retenu, à afficher ensuite
+- [ ] **P5.37** Interrupteurs « Vibrations » et « Effets sonores » de l'accueil (maquette V1 faite le
+  2026-10-20, section Réglages) : les brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
+  leur valeur par défaut : désactivés (décisions du développeur, 2026-10-19 et 2026-10-20 ; P5.2,
+  P4.8).
+- [ ] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
+  déjà codé), à afficher
   (`OpenableColumns.DISPLAY_NAME`) (P4.6).
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 - [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
   trois lignes (captures de P4.22d) : la faire tenir (libellé, mise en page ou retour à la ligne).
-- [ ] **P5.40** Mettre à jour la maquette de l'éditeur (V8, V11, V14, V17) selon le code de P4.19b :
+- [x] **P5.40** Mettre à jour la maquette de l'éditeur (V8, V11, V14, V17) selon le code de P4.19b :
   onglets à la couleur de la piste en Couleurs, noms de ligne hors gamme en italique, hauteur
   minimale des lignes (26 dp), bouton « COMPOSER UNE MUSIQUE » de l'accueil en capitales avec icône.
   Écoute (P4.19c) : bouton rond Écouter / Arrêter à droite du tempo, contour en deux traits de la
@@ -664,7 +666,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
   de l'éditeur (déjà relevés) ; tests de contraste (`PaletteContrastTest`, `KeyColorsTest`,
-  `ChoiceColorsTest`, `TrackColorsTest`) et captures dans les deux variantes.
+  `ChoiceColorsTest`, `TrackColorsTest`) et captures dans les deux variantes. Jetons choisis sur la
+  maquette le 2026-10-20, à confirmer : cadre des touches, teintes tenues, accent tenu (docs/maquette.md).
 - [x] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
   police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30). Fait : coche dessinée avant le libellé (1 em, 24 dp au plus), dans le coin pour les niveaux.
