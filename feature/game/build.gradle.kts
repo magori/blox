@@ -57,4 +57,7 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.haptics))
     androidTestImplementation(testFixtures(projects.core.data))
+    // Les règles où une rangée est un tick (OneRowPerTickGameEngineFactory) : une fin de partie en quelques secondes
+    // d'horloge, et chaque tick visible sur la pièce.
+    androidTestImplementation(testFixtures(projects.core.game))
 }
