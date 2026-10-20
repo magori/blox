@@ -752,8 +752,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   - [x] **P5.54a** Le jeu d'icônes, puis l'écran de jeu (touches A et B : flèche de rotation
     au-dessus de la lettre, P2.17, P2.5), la pause, la fin de partie et l'éditeur (barre d'outils
     icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu). Fait : `BloxIcon`,
-    lettres A et B gardées en 20 sp (contraste) ; `BloxIconSemanticsTest`, `ComposerScreenTest`
-    et `GameScreenKeysTest` à repasser sur un émulateur libre (P5.33).
+    lettres A et B gardées en 20 sp (contraste) ; tests instrumentés verts le 2026-10-21
+    (`BloxIconSemanticsTest`, `ComposerScreenTest`, `GameScreenKeysTest`).
   - [ ] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
     « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52.
 - [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
