@@ -151,9 +151,11 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
   décalés comme sur une console portable. Valeurs retenues en P2.5, reportées sur la
   maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
-  B plus bas de 24 dp ; flèches dessinées (triangles), A et B en lettres (dans la maquette du
-  2026-10-20, P5.53 : flèche de rotation de 24 dp, anti-horaire pour B et horaire pour A, au-dessus
-  de la lettre en 13 sp ; pas encore codé, P5.54) ; A en `accent`, les
+  B plus bas de 24 dp ; flèches dessinées (triangles) ; sur B et A, flèche de rotation de 24 dp
+  (anti-horaire sur B, horaire sur A) au-dessus de la lettre (P5.54a), en 20 sp gras et non 13 sp
+  comme la maquette : à 13 sp la lettre serait du texte normal, à 4,5:1, que B au repos en
+  Original (4,04:1) et A tenu en Couleurs (4,48:1) n'atteignent pas ; en police agrandie, la
+  lettre se réduit à la place qui reste sous la flèche (28 dp) ; A en `accent`, les
   autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Un bouton au repos
   est entouré d'un cadre de 2 dp en `buttonOutline`, `#646B87` en thème Couleurs, invisible en
   Original (P2.22, contraste de 3:1 avec la page). Le tout tient sur 360 dp de large
@@ -278,7 +280,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ## Icônes
 
-Maquettées le 2026-10-20 (P5.53, demande du développeur), pas encore codées (P5.54). Une icône
+Maquettées le 2026-10-20 (P5.53, demande du développeur). Codées (P5.54a) : jeu d'icônes
+(`BloxIcon`, `core:designsystem`), écran de jeu, pause, fin de partie et éditeur ; restent
+l'accueil et « Mes musiques » (P5.54b). Une icône
 accompagne toujours un libellé, sauf l'engrenage de V1 et les boutons écouter et « … » des
 cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues).
 
@@ -298,6 +302,23 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   pour faire le lien avec les boutons de la manette (P5.27).
 - Vues touchées : V1 à V6, V7 à V18 (liste, menu, éditeur), V19, V20. La coche des choix sélectionnés et
   la flèche Retour ne changent pas.
+- Dans le code (P5.54a) : en Original, chaque pixel de l'icône est un carré d'un nombre entier de
+  pixels de l'écran, le dessin centré (l'icône fait donc 8 × ⌊taille / 8⌋ pixels de l'écran, un peu
+  moins que la taille demandée) ; une suite de pixels pleins sur une ligne est un seul rectangle.
+  Les icônes restent en dp en police agrandie. Écart de 6 dp à côté du dé de l'éditeur (ligne
+  partagée avec les catégories en police ×2), 8 dp ailleurs ; menu de l'éditeur à l'écart de
+  Material (12 dp).
+  **Tests :** `PixelIconTest › a full pixel becomes a square of whole device pixels`,
+  `PixelIconTest › each pixel is as many whole device pixels as fit eight times in the box, the drawing centred to the pixel`,
+  `PixelIconTest › a run of full pixels on a row is one rectangle`,
+  `BloxIconTest › every icon has a pixel drawing of 8 lines of 8 pixels, each full or empty`,
+  `StrokeIconTest › a stroke icon is drawn on a grid of 24, in unfilled lines 2,25 thick, rounded at their ends and joins`,
+  `StrokeIconTest › every icon has strokes to draw`,
+  `IconStyleTest › the Original theme draws its icons in pixels`,
+  `IconStyleTest › the Colorful theme draws its icons in strokes`,
+  `KeyGlyphTest › the letter keeps its size when it holds under the arrow in the key`,
+  `KeyGlyphTest › the letter shrinks to hold under the arrow in the key when the font is enlarged`,
+  `KeyGlyphTest › a letter exactly as high as the room under the arrow keeps its size`.
 
 ## Pas encore codé
 

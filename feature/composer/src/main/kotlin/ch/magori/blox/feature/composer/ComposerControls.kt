@@ -44,6 +44,7 @@ import ch.magori.blox.core.designsystem.component.holdSideBySide
 import ch.magori.blox.core.designsystem.component.labelsHold
 import ch.magori.blox.core.designsystem.component.rowShares
 import ch.magori.blox.core.designsystem.component.widestWord
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -58,6 +59,7 @@ import ch.magori.blox.feature.composer.ui.ChoiceButton
 import ch.magori.blox.feature.composer.ui.ChoiceGroup
 import ch.magori.blox.feature.composer.ui.ComposerSizes
 import ch.magori.blox.feature.composer.ui.ToolButton
+import ch.magori.blox.feature.composer.ui.ToolIcon
 import ch.magori.blox.feature.composer.ui.buttonLabelStyle
 
 /** The tabs *Mélodie* and *Basse*: the open [track], in the colours of its tab ([trackColors]). */
@@ -141,6 +143,7 @@ internal fun ComposerToolbar(
                 modifier = groupModifier,
                 labelPadding = labelPadding,
                 choiceModifier = { Modifier.weight(widthOf(modes.getValue(it))) },
+                icon = { ToolIcon(it.icon, above = true) },
             )
         }
         val tools: @Composable ((String) -> Modifier) -> Unit = { sizing ->
@@ -148,6 +151,7 @@ internal fun ComposerToolbar(
                 text = undo,
                 onClick = onUndo,
                 enabled = canUndo,
+                icon = ToolIcon(BloxIcon.UNDO, above = true),
                 labelPadding = labelPadding,
                 modifier = sizing(undo),
             )
@@ -156,6 +160,7 @@ internal fun ComposerToolbar(
                 description = stringResource(R.string.feature_composer_tool_copy_description),
                 onClick = onCopyBar,
                 enabled = canCopyBar,
+                icon = ToolIcon(BloxIcon.COPY, above = true),
                 labelPadding = labelPadding,
                 modifier = sizing(copy),
             )
@@ -164,6 +169,7 @@ internal fun ComposerToolbar(
                 description = stringResource(R.string.feature_composer_tool_clear_description),
                 onClick = onClearBar,
                 enabled = canClearBar,
+                icon = ToolIcon(BloxIcon.ERASE, above = true),
                 labelPadding = labelPadding,
                 modifier = sizing(clear),
             )
@@ -367,6 +373,13 @@ private val EditMode.label: Int
     get() = when (this) {
         EditMode.PLACE -> R.string.feature_composer_tool_place
         EditMode.LENGTHEN -> R.string.feature_composer_tool_lengthen
+    }
+
+/** The icon of a mode of the touches, above its label. */
+private val EditMode.icon: BloxIcon
+    get() = when (this) {
+        EditMode.PLACE -> BloxIcon.PLACE
+        EditMode.LENGTHEN -> BloxIcon.EXTEND
     }
 
 /** The share of the toolbar given to a button labelled [label]: its characters, and one to spare. */
