@@ -1,6 +1,5 @@
 package ch.magori.blox.core.audio
 
-import android.media.AudioFormat
 import android.media.AudioTrack
 
 /**
@@ -11,13 +10,8 @@ import android.media.AudioTrack
 public class AudioTrackSink(sampleRate: Int) : AudioSink {
     private val track: AudioTrack = AudioTrack.Builder()
         .setAudioAttributes(MUSIC_ATTRIBUTES)
-        .setAudioFormat(
-            AudioFormat.Builder()
-                .setEncoding(ENCODING)
-                .setSampleRate(sampleRate)
-                .setChannelMask(CHANNELS)
-                .build(),
-        ).setTransferMode(AudioTrack.MODE_STREAM)
+        .setAudioFormat(monoFloatFormat(sampleRate))
+        .setTransferMode(AudioTrack.MODE_STREAM)
         .setBufferSizeInBytes(bufferSizeInBytes(sampleRate))
         .build()
 
@@ -47,15 +41,12 @@ public class AudioTrackSink(sampleRate: Int) : AudioSink {
     }
 
     private companion object {
-        const val ENCODING = AudioFormat.ENCODING_PCM_FLOAT
-        const val CHANNELS = AudioFormat.CHANNEL_OUT_MONO
-
         /**
          * Four times the minimum the device asks for, and at least two slices of the sequencer, so that
          * a slice is always written while the previous one plays.
          */
         fun bufferSizeInBytes(sampleRate: Int): Int {
-            val minimum = AudioTrack.getMinBufferSize(sampleRate, CHANNELS, ENCODING)
+            val minimum = AudioTrack.getMinBufferSize(sampleRate, MONO_CHANNELS, MONO_FLOAT_ENCODING)
             require(minimum > 0) { "This device cannot play mono float samples at $sampleRate Hz, error $minimum" }
             return maxOf(4 * minimum, 2 * SLICE_SIZE * Float.SIZE_BYTES)
         }

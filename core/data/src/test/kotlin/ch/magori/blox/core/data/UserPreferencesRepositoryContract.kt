@@ -35,6 +35,7 @@ abstract class UserPreferencesRepositoryContract {
                     music = MusicChoice.KOROBEINIKI,
                     startLevel = 0,
                     vibrations = false,
+                    soundEffects = false,
                 ),
             )
         }
@@ -93,24 +94,52 @@ abstract class UserPreferencesRepositoryContract {
     }
 
     @Test
+    fun `without saved preferences the sound effects are off`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences.soundEffects).isFalse()
+    }
+
+    @ParameterizedTest(name = "sound effects {0}")
+    @ValueSource(booleans = [false, true])
+    fun `a saved sound effects choice is read back`(soundEffects: Boolean) = runTest {
+        // Given the sound effects saved the other way first, so that the choice read back is not there by chance
+        val repository = emptyRepository(backgroundScope)
+        repository.setSoundEffects(!soundEffects)
+
+        // When
+        repository.setSoundEffects(soundEffects)
+
+        // Then
+        assertThat(repository.preferences.first().soundEffects).isEqualTo(soundEffects)
+    }
+
+    @Test
     fun `changing one preference leaves the others`() = runTest {
-        // Given all four preferences saved, none at its default
+        // Given all five preferences saved, none at its default
         val repository = emptyRepository(backgroundScope)
         repository.setTheme(ThemeChoice.COLORFUL)
         repository.setMusic(MusicChoice.MINUET)
         repository.setStartLevel(7)
         repository.setVibrations(true)
+        repository.setSoundEffects(true)
 
         // When the theme changes
         repository.setTheme(ThemeChoice.ORIGINAL)
 
-        // Then the music, the start level and the vibrations are kept
+        // Then the music, the start level, the vibrations and the sound effects are kept
         assertThat(repository.preferences.first()).isEqualTo(
             UserPreferences(
                 theme = ThemeChoice.ORIGINAL,
                 music = MusicChoice.MINUET,
                 startLevel = 7,
                 vibrations = true,
+                soundEffects = true,
             ),
         )
     }

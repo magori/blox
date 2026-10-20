@@ -9,8 +9,12 @@ import ch.magori.blox.core.audio.FocusedMusicPlayer
 import ch.magori.blox.core.audio.MediaPlayerTracks
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.MusicSwitch
+import ch.magori.blox.core.audio.SoundEffectPlayer
+import ch.magori.blox.core.audio.SoundEffectTracks
+import ch.magori.blox.core.audio.StaticAudioTrack
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
+import ch.magori.blox.core.audio.effectSampleRate
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
@@ -119,9 +123,26 @@ class AppContainer(context: Context) {
      */
     private val haptics: Haptics = SystemHaptics(context)
 
+    /** The sample rate of the sound effects: the one of the output of the device, for its fast path. */
+    private val effectSampleRate: Int = effectSampleRate(context)
+
+    /**
+     * The sound effects of the games, when the settings allow them: each one rendered once by its own synthesizer, at
+     * the rate of the output, and kept in a static `AudioTrack`, opened when a game warms them up, then replayed over
+     * the music without the audio focus. Their work runs one piece at a time on [Dispatchers.Default], never on the
+     * main thread. A failure plays nothing, never stops the game, and is logged here. The tracks, four small buffers,
+     * live as long as the process, as this container: they are never closed.
+     */
+    private val soundEffects: SoundEffectPlayer = SoundEffectTracks(
+        render = Synthesizer(effectSampleRate)::render,
+        openTrack = { samples -> StaticAudioTrack(samples, effectSampleRate) },
+        scope = CoroutineScope(SupervisorJob() + Dispatchers.Default.limitedParallelism(1)),
+        onFailure = { failure -> Log.w(TAG, "A sound effect could not play", failure) },
+    )
+
     /**
      * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for
-     * the games, else the one chosen on the home screen; the vibrations.
+     * the games, else the one chosen on the home screen; the vibrations; the sound effects.
      */
     val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(
         ClassicGameEngineFactory,
@@ -129,6 +150,7 @@ class AppContainer(context: Context) {
         userPreferences,
         music,
         haptics,
+        soundEffects,
         musicFiles::musicOf,
         musicLibrary::gameMusicScore,
     )

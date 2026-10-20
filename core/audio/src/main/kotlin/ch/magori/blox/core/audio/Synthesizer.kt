@@ -2,13 +2,14 @@ package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundEffect
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlin.math.roundToInt
 
 /**
- * Pure sample generator: turns voices into samples from −1 to 1 at [sampleRate] samples per second.
- * It knows neither AudioTrack nor threads; the sequencer plays what it renders.
+ * Pure sample generator: turns voices and sound effects into samples from −1 to 1 at [sampleRate] samples per second.
+ * It knows neither AudioTrack nor threads; the sequencer plays the scores it renders, [SoundEffectTracks] the effects.
  */
 public class Synthesizer(public val sampleRate: Int) {
     init {
@@ -16,8 +17,8 @@ public class Synthesizer(public val sampleRate: Int) {
     }
 
     /**
-     * Renders [score]: its voices, mixed, at its tempo times [tempoFactor]. The only entry point of the
-     * rendering: the sequencer plays what it returns.
+     * Renders [score]: its voices, mixed, at its tempo times [tempoFactor]. The only entry point of the rendering of
+     * the scores: the sequencer plays what it returns.
      */
     public fun render(
         score: Score,
@@ -28,6 +29,26 @@ public class Synthesizer(public val sampleRate: Int) {
         }
         return mix(score.voices.map { renderVoice(it, score.bpm * tempoFactor) })
     }
+
+    /**
+     * Renders [effect]: its blips one after the other, each starting at the sample of its cumulated milliseconds,
+     * so that rounding never adds up along the effect, and each shaped by the envelope of the effect.
+     */
+    public fun render(effect: SoundEffect): FloatArray {
+        val boundaries = effect.blips.runningFold(0) { millis, blip -> millis + blip.millis }.map(::sampleAtMillis)
+        val samples = FloatArray(boundaries.last())
+        val attack = sampleAtMillis(effect.envelope.attackMillis)
+        val release = sampleAtMillis(effect.envelope.releaseMillis)
+        effect.blips.forEachIndexed { index, blip ->
+            val start = boundaries[index]
+            val gain = { sample: Int, count: Int -> blipGain(sample, count, attack, release) }
+            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, effect.waveform, effect.volume, gain)
+        }
+        return samples
+    }
+
+    /** The sample at which [millis] milliseconds have passed. */
+    private fun sampleAtMillis(millis: Int): Int = (millis.toDouble() * sampleRate / MILLIS_PER_SECOND).roundToInt()
 
     /**
      * Renders [voice] at [bpm]. Each note starts at the sample of its cumulated beats, so that rounding
@@ -42,7 +63,15 @@ public class Synthesizer(public val sampleRate: Int) {
         val samples = FloatArray(boundaries.last())
         voice.notes.forEachIndexed { index, note ->
             val start = boundaries[index]
-            writeNote(samples, start, boundaries[index + 1] - start, note.pitch, voice.waveform, voice.volume)
+            writeNote(
+                samples,
+                start,
+                boundaries[index + 1] - start,
+                note.pitch,
+                voice.waveform,
+                voice.volume,
+                ::noteGain,
+            )
         }
         return samples
     }
@@ -55,22 +84,38 @@ public class Synthesizer(public val sampleRate: Int) {
 
     /**
      * Writes one note of [sampleCount] samples into [target] from [offset]: volume × wave, the phase
-     * at 0 on its first sample, shaped by the envelope. Nothing for a rest (a `null` [pitch]), since
-     * [target] starts silent. No array is allocated for the note.
+     * at 0 on its first sample, shaped by [gain] of the sample and of [sampleCount]. Nothing for a rest
+     * (a `null` [pitch]), since [target] starts silent. No array is allocated for the note.
      */
-    private fun writeNote(
+    private inline fun writeNote(
         target: FloatArray,
         offset: Int,
         sampleCount: Int,
         pitch: Pitch?,
         waveform: Waveform,
         volume: Double,
+        gain: (index: Int, sampleCount: Int) -> Double,
     ) {
         if (pitch == null) return
         for (index in 0 until sampleCount) {
             val wave = volume * waveform.amplitudeAt(phaseAt(index, pitch.frequency))
-            target[offset + index] = (wave * envelopeGain(index, sampleCount)).toFloat()
+            target[offset + index] = (wave * gain(index, sampleCount)).toFloat()
         }
+    }
+
+    /**
+     * Gain from 0 to 1 at sample [index] of a blip of [sampleCount] samples: a linear rise from silence over
+     * [attack] samples, full, then a linear fall over its last [release] samples, down towards silence.
+     */
+    private fun blipGain(
+        index: Int,
+        sampleCount: Int,
+        attack: Int,
+        release: Int,
+    ): Double {
+        val rise = if (index < attack) index.toDouble() / attack else 1.0
+        val fall = if (sampleCount - index < release) (sampleCount - index).toDouble() / release else 1.0
+        return minOf(rise, fall)
     }
 
     /** The phase, from 0 to 1, of a wave of [frequency] at sample [index] of a note. */
@@ -83,7 +128,7 @@ public class Synthesizer(public val sampleRate: Int) {
      * Gain from 0 to 1 at sample [index] of a note of [sampleCount] samples: full up to 80 % of the
      * note, a linear fade out up to 95 %, then silence, so that repeated notes stay distinct.
      */
-    private fun envelopeGain(
+    private fun noteGain(
         index: Int,
         sampleCount: Int,
     ): Double {
@@ -99,5 +144,6 @@ public class Synthesizer(public val sampleRate: Int) {
         const val SUSTAIN_END = 0.80
         const val FADE_END = 0.95
         const val SECONDS_PER_MINUTE = 60.0
+        const val MILLIS_PER_SECOND = 1_000.0
     }
 }

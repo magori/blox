@@ -34,4 +34,11 @@ interface UserPreferencesRepository {
      * @throws java.io.IOException if the settings cannot be written.
      */
     suspend fun setVibrations(vibrations: Boolean)
+
+    /**
+     * Saves whether the game plays its sound effects.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setSoundEffects(soundEffects: Boolean)
 }

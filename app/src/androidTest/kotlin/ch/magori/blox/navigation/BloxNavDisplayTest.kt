@@ -15,6 +15,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeMusicLibrary
@@ -194,6 +195,7 @@ internal class BloxNavDisplayTest {
             preferences,
             music,
             FakeHaptics(),
+            FakeSoundEffectPlayer(),
             musicOf = { null },
             gameMusic = { null },
         )

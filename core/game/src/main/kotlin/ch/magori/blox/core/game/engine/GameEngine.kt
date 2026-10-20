@@ -52,7 +52,8 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      *     change of direction starts the repeat again; a shift refused by a wall or the stack charges it,
      *     so the piece moves as soon as the way is free. A held down blocks the shift.
      *   - Rotation: A turns clockwise, B counterclockwise, once per press, even a press released before the
-     *     tick; the first candidate of the rotation system that fits wins.
+     *     tick; the first candidate of the rotation system that fits wins. A piece that turns sends
+     *     [GameEvent.PieceRotated], first among the events of the tick.
      *   - Drop: at most one row per tick. A new press of down starts the soft drop ([Rules.inputRepeat]),
      *     which goes on while down is held alone and starts the gravity count again at each step. A held
      *     left or right, or a release of down, stops it and its points; it then needs a new press of down.
@@ -123,14 +124,19 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
     /** [GameState] with one more tick played. */
     private fun GameState.counted(): GameState = copy(tickCount = tickCount + 1)
 
-    /** A tick of the piece in play: the shift, then the rotation, then the drop, as the NES reads them. */
+    /**
+     * A tick of the piece in play: the shift, then the rotation, then the drop, as the NES reads them. A piece
+     * that turned sends [GameEvent.PieceRotated] before the events of the drop.
+     */
     private fun fall(
         state: GameState,
         falling: Phase.Falling,
     ): GameUpdate {
         val (controls, shifted) = shift(state.board, state.controls, falling.piece)
         val turned = falling.copy(piece = rotate(state.board, controls, shifted))
-        return drop(state.copy(controls = controls), turned)
+        val dropped = drop(state.copy(controls = controls), turned)
+        if (turned.piece == shifted) return dropped
+        return dropped.copy(events = listOf(GameEvent.PieceRotated(turned.piece)) + dropped.events)
     }
 
     /**

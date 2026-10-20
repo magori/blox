@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 143 / 178 | `████████████████░░░░` **80 %** |
+| **Général** | 144 / 179 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -451,7 +451,12 @@ Référence : [docs/musique.md](docs/musique.md).
   version de `musics.bin` avec migration des musiques existantes (ADR 0017 amendé). Dans l'éditeur,
   la ligne sous le titre devient « Style · tonalité · modifiée ». Maquette V7 à V18.
 - [x] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
-- [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
+- [x] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels. Fait :
+  désactivés par défaut (décision du développeur), arpèges synthétisés, événement `PieceRotated` ;
+  interrupteur dans P5.37.
+- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : le moteur n'émet pas
+  d'événement de niveau (à déduire de `progress.level`) et il tomberait sur le même tick que les
+  lignes effacées : le fusionner ou choisir lequel jouer.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
   jeu de 1989 plutôt que le chant (revue de P4.2). Fait : 5 mesures sur 8 s'écartaient du chant ;

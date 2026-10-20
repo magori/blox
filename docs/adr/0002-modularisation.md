@@ -44,3 +44,9 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   (ADR 0011), qui passe les rappels à son entrée. `feature:home`, `feature:composer` et
   `feature:musics` partagent le même lecteur de musique, construit une fois dans `AppContainer` :
   un seul aperçu joue à la fois dans toute l'app.
+- **Amendement (P4.8, 2026-10-20).** Les effets sonores n'ont pas de module : leur description
+  (`SoundEffect`, donnée pure) va dans `core:music`, leur rendu et leur lecture (`SoundEffectPlayer`,
+  pistes `AudioTrack` statiques, sans focus audio, `USAGE_GAME`) dans `core:audio`, qui a déjà le
+  synthétiseur et `AudioTrack`, et dont la feature de jeu dépend déjà. À l'inverse de `core:haptics`,
+  ils passent par le même service système que la musique. Le moteur gagne l'événement
+  `PieceRotated`, sans dépendance : il dit ce qui s'est passé, la feature en tire un son.

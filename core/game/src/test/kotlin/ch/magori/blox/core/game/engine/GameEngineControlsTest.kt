@@ -489,8 +489,10 @@ class GameEngineControlsTest {
         // When
         val ticked = engine.tick(pressed)
 
-        // Then the J turned, then dropped
-        assertThat(ticked.events).isEmpty()
+        // Then the J turned, then dropped, without locking
+        assertThat(ticked.events).containsExactly(
+            GameEvent.PieceRotated(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 10))),
+        )
         assertThat(ticked.state.current).isEqualTo(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 11)))
     }
 
@@ -535,6 +537,48 @@ class GameEngineControlsTest {
         // Then the next shift comes on the 16th held tick of left, the 7th tick after the release
         assertThat(downHeld.current?.pivot).isEqualTo(Position(4, 10))
         assertThat(shiftTicks).containsExactly(6)
+    }
+
+    @Test
+    fun `a piece that turns sends PieceRotated, with the piece as it turned`() {
+        // Given a T pointing down, and A pressed
+        val pressed = engine.press(gameState(phase = Phase.Falling(T_AT_5_10)), Button.A)
+
+        // When
+        val ticked = engine.tick(pressed)
+
+        // Then
+        val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 10))
+        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned))
+    }
+
+    @Test
+    fun `a rotation refused, or one that leaves the O as it was, sends nothing`() {
+        // Given a T pointing right against the left wall, and an O, A pressed for both
+        val tRight = Piece(PieceType.T, Orientation(cellsOf(T_RIGHT)), Position(0, 10))
+        val o = spawned(PieceType.O)
+
+        // When
+        val refused = engine.tick(engine.press(gameState(phase = Phase.Falling(tRight)), Button.A))
+        val oTurned = engine.tick(engine.press(gameState(phase = Phase.Falling(o)), Button.A))
+
+        // Then
+        assertThat(refused.events).isEmpty()
+        assertThat(oTurned.events).isEmpty()
+    }
+
+    @Test
+    fun `a piece that turns then locks on the same tick sends PieceRotated before PieceLocked`() {
+        // Given a T pointing down with its pivot on row 18, due to drop, and A pressed: it turns, then cannot drop
+        val tDown = tPointingDown(at = Position(5, 18))
+        val pressed = engine.press(gameState(phase = Phase.Falling(tDown, ticksSinceDrop = 47)), Button.A)
+
+        // When
+        val ticked = engine.tick(pressed)
+
+        // Then
+        val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 18))
+        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned), GameEvent.PieceLocked(turned))
     }
 
     @Test

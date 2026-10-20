@@ -40,6 +40,15 @@ class HapticOfEventTest {
     }
 
     @Test
+    fun `a rotation gives nothing`() {
+        // When
+        val haptic = hapticFor(GameEvent.PieceRotated(spawned(PieceType.T)))
+
+        // Then
+        assertThat(haptic).isNull()
+    }
+
+    @Test
     fun `a clear of no line, a lock and the danger give nothing`() {
         // Given
         val events = listOf(
