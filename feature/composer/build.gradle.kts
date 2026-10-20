@@ -24,7 +24,8 @@ dependencies {
     // Retour, le geste du système compris, demande avant de quitter une musique modifiée (même mécanisme que NavDisplay).
     implementation(libs.androidx.navigationevent)
     implementation(libs.androidx.navigationevent.compose)
-    implementation(libs.kotlinx.coroutines.core)
+    // Le dispatcher de la génération du dé, que la fabrique publique reçoit (P4.20).
+    api(libs.kotlinx.coroutines.core)
     // `collectAsStateWithLifecycle` lit le `LifecycleOwner` courant : il faut lifecycle-common à la compilation.
     implementation(libs.androidx.lifecycle.common)
     // `@StringRes` sur les libellés des onglets, des modes et des noms de notes.

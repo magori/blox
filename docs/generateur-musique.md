@@ -662,8 +662,8 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
     si le sien a été pris entre-temps. De même pour une suppression faite dans l'éditeur (P4.19e).
   - Une écriture qui échoue ne change rien : le dialogue ou le message reste, avec
     « L'enregistrement a échoué. ».
-- *Au hasard* et *Nouvelle* ouvrent l'éditeur vierge : la génération (P4.20) et l'ouverture d'une
-  musique enregistrée (P4.19d, toucher du nom et *Modifier*) viendront ensuite.
+- *Nouvelle* ouvre l'éditeur vierge ; *Au hasard* l'ouvre sur une musique tirée sur *Surprise*
+  (`ComposerRoute(rollDice = true)`, P4.20) ; toucher le nom ou *Modifier* ouvre la musique (P4.19d).
 - Écarts avec V7 et V10 : *Utiliser* sous le nom et non à côté (la police pixel et la police ×2 ne
   laissaient que quelques lettres au nom) ; menu déroulant comme celui de l'éditeur, pas de feuille
   en bas d'écran ; pas de nom de gamme dans la ligne d'info ; pas de message après *Utiliser* ;
@@ -975,7 +975,7 @@ et demi »), son état et l'action qu'un toucher ferait (poser, effacer, allonge
 ramener à une case) ; onglets et mesures en onglets, modes en boutons radio, tempo annoncé à
 chaque changement. Les cases n'atteignent pas 48 dp de large sur un téléphone de 360 dp (huit par
 ligne) ; elles font au moins 24 dp en tout sens, et le mode *Allonger* et l'action TalkBack de
-chaque case compensent. L'enregistrement, l'écoute et le dé viennent ensuite (P4.19c, P4.19d,
+chaque case compensent. L'enregistrement, l'écoute et le dé sont venus ensuite (P4.19c, P4.19d,
 P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 
 **Tests :**
@@ -1031,6 +1031,50 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerScreenTest › every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars`,
 `HomeViewModelTest › opening the music editor stops the preview`,
 `HomeScreenTest › the button Composer une musique, shown in capitals and read as written, opens the music editor`.
+
+### Éditeur : dé (implémenté, P4.20)
+
+- **Panneau** : une ligne sous les boutons de mesure, *Au hasard* (la moitié de la ligne au plus, sur
+  deux lignes en police agrandie) puis les choix *Surprise* et les sept catégories, boutons radio dans
+  une rangée qui défile ; le choix retenu est rempli de l'accent et amené à l'écran. *Surprise* est
+  choisi d'abord ; le choix n'est pas gardé après la mort du processus. **Écarts** avec V8 et V11 :
+  pas de coche, rangée défilante, cibles de 48 dp.
+- **Tirage** : `MusicGenerator.generate(choice, seed, id)` avec une graine tirée à chaque lancer d'un
+  `Random` injecté (la fabrique donne `Random.Default`), hors du thread principal ; l'identité de la
+  musique est gardée. Un second appui pendant le calcul ne fait rien ; le dé ne se lance pas derrière
+  une fenêtre, et son résultat est écarté si une fenêtre (Enregistrer, Renommer, Quitter) s'est ouverte
+  pendant le calcul. Un toucher pendant le calcul est remplacé par la musique tirée, et *Annuler* le
+  rend. Le dé pendant l'écoute l'arrête, comme toute modification.
+- **Annuler** : un seul niveau ; le dé sur une grille vide (même vidée par *Effacer*) ne garde pas
+  d'annulation. Le dé, *Copier* et *Effacer* affichent un message qui rappelle qu'on peut annuler
+  (« Musique tirée au hasard. « Annuler » ramène l'ancienne. »), et ce message disparaît dès que
+  l'annulation n'existe plus.
+- **Depuis « Mes musiques »** : `ComposerRoute(rollDice = true)` ouvre une musique neuve tirée sur
+  *Surprise*, sans annulation ; une entrée restaurée après la mort du processus garde sa musique et ne
+  relance pas. `rollDice` avec une musique enregistrée est refusé.
+- En police ×2 et police pixel, une catégorie longue (« Mélancolique ») dépasse la zone et est amenée
+  par son début.
+
+**Tests :** `ComposerDiceTest › the dice is ready for Surprise at first, and a category touched is chosen in its place`,
+`ComposerDiceTest › the dice opens the music the generator composes in the category chosen, from a seed drawn at each roll`,
+`ComposerDiceTest › the dice over notes can be undone, once, and a message says so`,
+`ComposerDiceTest › the dice over an empty grid keeps no undo, and no message says there is one`,
+`ComposerDiceTest › the dice composes off the main thread, and a second roll meanwhile does nothing`,
+`ComposerDiceTest › an editor opened for the dice, as Au hasard of my musics does, opens a new music it rolled, without undo`,
+`ComposerDiceTest › an editor opened for the dice, restored after the death of the process, keeps its music and rolls no more`,
+`ComposerDiceTest › a note touched while the dice composes is replaced by the music rolled, and Annuler brings it back`,
+`ComposerDiceTest › the music rolled is left aside when a window opened while the dice composed`,
+`ComposerDiceTest › the music rolled is left aside when the music was saved while the dice composed`,
+`ComposerDiceTest › the dice does not roll while a window is open`,
+`ComposerDiceTest › the dice over a music emptied by Effacer keeps no undo, the clearing lost as the specification wants`,
+`ComposerRouteTest › the dice rolls on a new music only, an entry of a saved music that asks for it is refused`,
+`ComposerViewModelTest › copying or clearing the bar shows a message that says it can be undone`,
+`ComposerViewModelTest › the message that an action can be undone goes away once it is undone, or once the undo is taken away`,
+`ComposerViewModelTest › the message that the playback is no longer followed stays when the undo is taken away`,
+`ComposerScreenTest › Au hasard composes in the category chosen, read as a radio button, and a message tells Annuler`,
+`ComposerScreenTest › on a small phone with the largest font, the category chosen for the dice comes in sight, whole`,
+`ComposerViewModelFactoryTest › an entry of Au hasard gives an editor on a new music, rolled from a seed the factory draws`.
+Vues : V8, V11, V7, V10.
 
 ### Éditeur : écoute (implémentée, P4.19c)
 

@@ -24,6 +24,8 @@
     <string name="feature_composer_category_retro">Rétro</string>
     <string name="feature_composer_category_dance">Danse</string>
     <string name="feature_composer_name_base">Ma musique</string>
+    <!-- Le choix du dé qui tire la catégorie elle-même au hasard. -->
+    <string name="feature_composer_category_surprise">Surprise</string>
 
     <!-- Fenêtres : enregistrer, renommer -->
     <string name="feature_composer_save">Enregistrer</string>
@@ -114,8 +116,13 @@
     <string name="feature_composer_follow_stopped">La grille ne suit plus la lecture. Menu « … » pour la suivre à nouveau.</string>
     <!-- Message : l'écriture des musiques sur l'appareil a échoué. -->
     <string name="feature_composer_write_failed">La musique n\'a pas pu être écrite sur l\'appareil. Réessaie.</string>
+    <!-- Messages : une action que la barre d'outils peut annuler (un seul niveau). -->
+    <string name="feature_composer_dice_rolled">Musique tirée au hasard. « Annuler » ramène l\'ancienne.</string>
+    <string name="feature_composer_bar_copied">Mesure copiée sur la suivante. « Annuler » remet la suivante comme avant.</string>
+    <string name="feature_composer_bar_cleared">Mesure effacée. « Annuler » la ramène.</string>
 
     <!-- Panneau du bas -->
+    <string name="feature_composer_dice">Au hasard</string>
     <plurals name="feature_composer_tempo">
         <item quantity="one">%1$d temps/min</item>
         <item quantity="many">%1$d temps/min</item>

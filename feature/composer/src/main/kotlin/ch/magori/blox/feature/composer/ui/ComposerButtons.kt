@@ -3,13 +3,24 @@ package ch.magori.blox.feature.composer.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -22,6 +33,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.SingleLineText
@@ -44,7 +56,8 @@ internal object ComposerSizes {
  * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such. A
  * [primary] button, the answer a window expects or *Enregistrer* with changes to save, is filled in `accent`. A label
  * that [wraps] goes on several lines when it does not fit, rather than shrinking: the answers of a window. A
- * [danger] button, the one that deletes, is filled in `danger`.
+ * [danger] button, the one that deletes, is filled in `danger`. A button as wide as its label, rather than given its
+ * width, leaves [labelPadding] on each side of it.
  */
 @Composable
 internal fun ToolButton(
@@ -56,6 +69,7 @@ internal fun ToolButton(
     primary: Boolean = false,
     wraps: Boolean = false,
     danger: Boolean = false,
+    labelPadding: Dp = 0.dp,
 ) {
     val palette = BloxTheme.palette
     val fill = when {
@@ -66,6 +80,7 @@ internal fun ToolButton(
     ButtonBox(
         background = fill ?: palette.panel,
         frame = fill ?: palette.panelBorder,
+        labelPadding = labelPadding,
         modifier = modifier
             .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
@@ -88,7 +103,8 @@ internal fun ToolButton(
  * selected one is filled in [selectedColor], `accent` unless told otherwise, its label in [selectedInk]; an unselected
  * one is framed, as on the home screen. In every theme the two differ by 3:1 at least in luminance (`ChoiceColorsTest`
  * of the home screen, `TrackColorsTest` for the tabs), so that hue is not their only cue. A choice with a [mark] (the
- * bar played) shows a line under its label, in the colour of the label, and TalkBack reads the mark as its state.
+ * bar played) shows a line under its label, in the colour of the label, and TalkBack reads the mark as its state. A
+ * choice as wide as its label, rather than given its width, leaves [labelPadding] on each side of it.
  */
 @Composable
 internal fun ChoiceButton(
@@ -101,6 +117,7 @@ internal fun ChoiceButton(
     mark: String? = null,
     selectedColor: Color = BloxTheme.palette.accent,
     selectedInk: Color = BloxTheme.palette.accentInk,
+    labelPadding: Dp = 0.dp,
 ) {
     val palette = BloxTheme.palette
     val background = if (selected) selectedColor else palette.panel
@@ -108,6 +125,7 @@ internal fun ChoiceButton(
     ButtonBox(
         background = background,
         frame = if (selected) background else palette.panelBorder,
+        labelPadding = labelPadding,
         modifier = modifier
             .selectable(selected = selected, role = role, onClick = onClick)
             .described(description)
@@ -146,6 +164,7 @@ private fun ButtonBox(
     background: Color,
     frame: Color,
     modifier: Modifier = Modifier,
+    labelPadding: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
     val shape = BloxTheme.shapes.button
@@ -154,7 +173,7 @@ private fun ButtonBox(
             .heightIn(min = BloxSizes.minTouchTarget)
             .background(background, shape)
             .border(BloxBorders.frame, frame, shape)
-            .padding(horizontal = BloxBorders.frame + 1.dp),
+            .padding(horizontal = BloxBorders.frame + 1.dp + labelPadding),
         contentAlignment = Alignment.Center,
     ) {
         content()
@@ -189,3 +208,47 @@ private fun ButtonLabel(
 /** TalkBack reads [description], when there is one, in place of the label of the button. */
 private fun Modifier.described(description: String?): Modifier =
     if (description == null) this else semantics { contentDescription = description }
+
+/**
+ * Radio buttons among [choices], each named by [label], the [selected] one filled; a touch chooses its choice through
+ * [onChosen]. They stand on one line, each sized by [choiceModifier], or, when they [scroll], each as wide as its label,
+ * the line scrolling sideways when they do not fit, the one selected brought in sight.
+ */
+@Composable
+internal fun <T> ChoiceGroup(
+    choices: List<T>,
+    selected: T,
+    onChosen: (T) -> Unit,
+    label: @Composable (T) -> String,
+    modifier: Modifier = Modifier,
+    scroll: Boolean = false,
+    choiceModifier: RowScope.(T) -> Modifier = { Modifier },
+) {
+    val buttons: @Composable RowScope.() -> Unit = {
+        choices.forEach { choice ->
+            val isSelected = choice == selected
+            // The choice made comes in sight on a line that scrolls, whole.
+            val sight = remember { BringIntoViewRequester() }
+            LaunchedEffect(isSelected, scroll) { if (isSelected && scroll) sight.bringIntoView() }
+            ChoiceButton(
+                text = label(choice),
+                selected = isSelected,
+                onClick = { onChosen(choice) },
+                role = Role.RadioButton,
+                labelPadding = if (scroll) ScrolledLabelPadding else 0.dp,
+                modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(
+                    if (scroll) Modifier.widthIn(min = BloxSizes.minTouchTarget) else Modifier,
+                ),
+            )
+        }
+    }
+    val scrolling = if (scroll) Modifier.horizontalScroll(rememberScrollState()) else Modifier
+    Row(
+        modifier = modifier.then(scrolling).selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
+        content = buttons,
+    )
+}
+
+/** The room on each side of the label of a choice as wide as its label. */
+private val ScrolledLabelPadding = 6.dp

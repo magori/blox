@@ -41,6 +41,7 @@ import ch.magori.blox.feature.composer.model.BARS
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.ui.ChoiceButton
+import ch.magori.blox.feature.composer.ui.ChoiceGroup
 import ch.magori.blox.feature.composer.ui.ComposerSizes
 import ch.magori.blox.feature.composer.ui.ToolButton
 
@@ -94,20 +95,14 @@ internal fun ComposerToolbar(
     // Each button as wide as its label needs, with a character to spare: equal widths cut the longest labels of the
     // pixel font on 360 dp, widths of the label alone leave « Poser » under 48 dp.
     Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap)) {
-        Row(
-            modifier = Modifier.weight(modes.values.map(::widthOf).sum()).selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
-        ) {
-            modes.forEach { (choice, text) ->
-                ChoiceButton(
-                    text = text,
-                    selected = choice == mode,
-                    onClick = { onModeChosen(choice) },
-                    role = Role.RadioButton,
-                    modifier = Modifier.weight(widthOf(text)),
-                )
-            }
-        }
+        ChoiceGroup(
+            choices = EditMode.entries,
+            selected = mode,
+            onChosen = onModeChosen,
+            label = { modes.getValue(it) },
+            modifier = Modifier.weight(modes.values.map(::widthOf).sum()),
+            choiceModifier = { Modifier.weight(widthOf(modes.getValue(it))) },
+        )
         ToolButton(
             text = undo,
             onClick = onUndo,

@@ -11,8 +11,8 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 123 / 171 | `██████████████░░░░░░` **72 %** |
-| **MVP audio** | 27 / 28 | `███████████████████░` **96 %** |
+| **Général** | 124 / 172 | `██████████████░░░░░░` **72 %** |
+| **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
 Pourcentages en **nombre de tâches**, pas en effort : le moteur (P1.12) pèse bien plus qu'une
@@ -486,7 +486,8 @@ qu'entre des possibilités musicales. Valeurs et sources **[à vérifier]**.
     `DeletedMusic`, que `app` jette ; la spec veut le retour à « Mes musiques » avec *Annuler*.
     Relais dans `AppContainer` (flux consommé par `MyMusicsViewModel` à la reprise) ou entrée de la
     liste avec la suppression en paramètre (revue de P4.19d). Fait : relais `DeletedMusicRelay` ; depuis l'accueil, la liste prend la place de l'éditeur.
-- [ ] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation.
+- [x] **P4.20** Bouton *Au hasard* dans l'éditeur : choix de la catégorie, annulation. Fait : aussi
+  depuis « Mes musiques » (`ComposerRoute(rollDice = true)`).
 - [ ] **P4.22** Liste « Mes musiques » : partitions enregistrées dans `core:data`, écoute depuis
   la liste, ouverture dans l'éditeur, choix de la musique jouée pendant les parties (une à la
   fois, proposée aussi dans la musique de l'accueil, V1), renommer et supprimer. Découpée en
@@ -650,7 +651,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   colonne jouée, trait sous la mesure jouée, « Suivre la lecture » dans le menu, message en bas
   de la grille. Enregistrement (P4.19d) : bouton Enregistrer sur sa ligne sous le tempo, « • » et
   plein quand des changements seraient perdus, crayon après le titre, ligne « Catégorie · modifiée »,
-  fenêtre en échec.
+  fenêtre en échec. Dé (P4.20) : ligne Au hasard et catégories en rangée défilante, choix rempli
+  sans coche, message d'annulation.
 - [ ] **P5.41** Thème Brume (clair et sombre) dans le code : relever ses jetons dans la maquette
   (V5, V6, V13 à V18) et les écrire dans `docs/themes.md` ; `BloxThemeKind` et palettes, choix à
   l'accueil (V1) et à la fin de partie (V4), clair ou sombre selon le réglage du système ; jetons
@@ -674,6 +676,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.46** Plugin des captures (Compose Preview Screenshot Testing, alpha) : le revoir à la
   prochaine montée d'AGP, déconseillé à partir d'AGP 9.5 au profit des « test suites » ; garder
   la validation en CI (P5.8).
+- [ ] **P5.47** Éditeur en police ×2 (captures de P4.20) : le bouton « + » du tempo sort de l'écran,
+  poussé par « 120 temps/min » sur deux lignes ; le message d'annulation couvre presque toute la
+  grille ; une catégorie longue (« Mélancolique ») dépasse la rangée du dé.
 
 ## P6 — Mode Moderne (plus tard)
 
