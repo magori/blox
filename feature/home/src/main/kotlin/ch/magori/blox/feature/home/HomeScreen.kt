@@ -2,7 +2,6 @@ package ch.magori.blox.feature.home
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,21 +19,17 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -56,7 +51,6 @@ import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
-import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -65,13 +59,16 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 /** The tag of each start level, the same in every language, read by the tests. */
 internal const val START_LEVEL_TAG = "home_start_level"
 
+/** The tag of the logo, decorative, read by the tests only. */
+internal const val HOME_LOGO_TAG = "home_logo"
+
 /**
- * The home screen (V1): logo, title and record, mode, theme, start level, music, and the play button.
- * It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
+ * The home screen (V1): logo and title on one line, the record under them, mode, theme, start level, music, and the
+ * play button. It is drawn in the theme of the application, which follows the chosen theme: a new choice colours
  * this screen at once. A music with a BloX score may be listened to before playing. A music of the player chosen
  * for the games is the music selected, among the others. « Composer une musique » opens the music editor on a new
  * music, through [onCompose]; « Mes musiques », in the header of the music section, opens the list of the musics of
- * the player, through [onMyMusics].
+ * the player, through [onMyMusics]. The gear at the top right opens the settings page (V21), through [onSettings].
  */
 @Composable
 internal fun HomeScreen(
@@ -85,8 +82,7 @@ internal fun HomeScreen(
     onPlay: (startLevel: Int) -> Unit,
     onCompose: () -> Unit,
     onMyMusics: () -> Unit,
-    onVibrationsChanged: (Boolean) -> Unit,
-    onSoundEffectsChanged: (Boolean) -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -96,17 +92,11 @@ internal fun HomeScreen(
             .background(palette.page)
             .safeDrawingPadding()
             .verticalScroll(rememberScrollState())
-            .padding(24.dp),
+            .padding(start = 24.dp, top = 16.dp, end = 24.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        HomeLogo()
-        Text(
-            text = stringResource(R.string.feature_home_title),
-            color = palette.ink,
-            style = MaterialTheme.typography.displayMedium,
-            modifier = Modifier.semantics { heading() },
-        )
+        Header(onSettings = dropUnlessResumed { onSettings() })
         Record(record = uiState.record)
         Section(title = R.string.feature_home_mode) {
             ChoiceRow {
@@ -164,47 +154,23 @@ internal fun HomeScreen(
             ChoiceRow {
                 MusicChoice.entries.forEach { music ->
                     // The music of the player chosen for the games stands before « Aucune », as on the mockup.
-                    if (music == MusicChoice.NONE) {
-                        uiState.gameMusic?.let { GameMusicChoice(gameMusic = it, onListen = onListenGameMusic) }
-                    }
-                    // A music with a BloX score may be listened to: its button stands under its choice.
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        val name = stringResource(music.label)
-                        val selected = music == uiState.selectedMusic
-                        Choice(text = name, selected = selected, onClick = { onMusicChosen(music) })
-                        // Beside it, or under it when short of room, « Mon fichier » with a file offers to change it.
-                        ChoiceActions {
-                            if (music in uiState.listenable) {
-                                ListenButton(
-                                    musicName = name,
-                                    previewed = music == uiState.previewing,
-                                    onClick = { onListen(music) },
-                                )
-                            }
-                            if (music == MusicChoice.MY_FILE && uiState.hasMusicFile) {
-                                ChangeMusicFileButton(onClick = onChangeMusicFile)
-                            }
-                        }
-                    }
+                    if (music == MusicChoice.NONE) uiState.gameMusic?.let { GameMusicChoice(gameMusic = it) }
+                    Choice(
+                        text = stringResource(music.label),
+                        selected = music == uiState.selectedMusic,
+                        onClick = { onMusicChosen(music) },
+                    )
                 }
             }
+            // One line of actions under all the choices, for the music selected only.
+            MusicActions(
+                uiState = uiState,
+                onListen = onListen,
+                onListenGameMusic = onListenGameMusic,
+                onChangeMusicFile = onChangeMusicFile,
+            )
             // Under the choice of music: opens the editor on a new music.
             ComposeMusicButton(onClick = dropUnlessResumed { onCompose() })
-        }
-        // Read by a game once, when it is created: a change holds for the next game.
-        Section(title = R.string.feature_home_settings) {
-            Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Setting(
-                    text = stringResource(R.string.feature_home_vibrations),
-                    checked = uiState.vibrations,
-                    onCheckedChange = onVibrationsChanged,
-                )
-                Setting(
-                    text = stringResource(R.string.feature_home_sound_effects),
-                    checked = uiState.soundEffects,
-                    onCheckedChange = onSoundEffectsChanged,
-                )
-            }
         }
         // Taps count only while this screen is resumed: once a game is on its way, a second tap does nothing.
         // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
@@ -225,23 +191,80 @@ internal fun HomeScreen(
 /**
  * The music of the player played during the games, [gameMusic], selected among the music choices: shown by its name,
  * and announced as selected, without an action. It stays until another music is chosen, then leaves the home screen:
- * « Mes musiques » chooses it again. Its score may be listened to.
+ * « Mes musiques » chooses it again. Its score may be listened to, from the line of actions.
  */
 @Composable
-private fun GameMusicChoice(
-    gameMusic: GameMusicUi,
-    onListen: () -> Unit,
+private fun GameMusicChoice(gameMusic: GameMusicUi) {
+    // Its name on two lines if needed: a name of 40 characters, shrunk to one line, could no longer be read.
+    Choice(
+        text = gameMusic.name,
+        selected = true,
+        onClick = null,
+        description = stringResource(R.string.feature_home_music_game_description, gameMusic.name),
+        maxLines = 2,
+    )
+}
+
+/**
+ * The line of actions under the music choices, for the music selected only: *Écouter* or *Arrêter* for a music that may
+ * be listened to, the music of the player for the games included, and *Changer* for « Mon fichier » with a file kept.
+ * Nothing for « Aucune ». The actions stand side by side, or one under the other in a large font.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun MusicActions(
+    uiState: HomeUiState,
+    onListen: (MusicChoice) -> Unit,
+    onListenGameMusic: () -> Unit,
+    onChangeMusicFile: () -> Unit,
 ) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        // Its name on two lines if needed: a name of 40 characters, shrunk to one line, could no longer be read.
-        Choice(
-            text = gameMusic.name,
-            selected = true,
-            onClick = null,
-            description = stringResource(R.string.feature_home_music_game_description, gameMusic.name),
-            maxLines = 2,
-        )
-        ListenButton(musicName = gameMusic.name, previewed = gameMusic.previewed, onClick = onListen)
+    val gameMusic = uiState.gameMusic
+    val selected = uiState.selectedMusic
+    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally)) {
+        if (gameMusic != null) {
+            ListenButton(musicName = gameMusic.name, previewed = gameMusic.previewed, onClick = onListenGameMusic)
+        } else if (selected != null) {
+            if (selected in uiState.listenable) {
+                ListenButton(
+                    musicName = stringResource(selected.label),
+                    previewed = selected == uiState.previewing,
+                    onClick = { onListen(selected) },
+                )
+            }
+            if (selected == MusicChoice.MY_FILE && uiState.hasMusicFile) {
+                ChangeMusicFileButton(onClick = onChangeMusicFile)
+            }
+        }
+    }
+}
+
+/**
+ * The logo and the title on one line, centred on the screen, and the gear button at the top right, which opens the
+ * settings through [onSettings]. Room as wide as the gear stands on the left, so that the title stays in the middle.
+ * In a large font, the title shrinks rather than going on two lines.
+ */
+@Composable
+private fun Header(onSettings: () -> Unit) {
+    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        Spacer(Modifier.width(BloxSizes.minTouchTarget))
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.spacedBy(HEADER_SPACING, Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            HomeLogo(modifier = Modifier.testTag(HOME_LOGO_TAG), cellSize = LOGO_CELL_SIZE)
+            val style = MaterialTheme.typography.displaySmall
+            Text(
+                text = stringResource(R.string.feature_home_title),
+                color = BloxTheme.palette.ink,
+                style = style,
+                maxLines = 1,
+                softWrap = false,
+                autoSize = shrinkToFit(style.fontSize),
+                modifier = Modifier.semantics { heading() },
+            )
+        }
+        SettingsButton(onClick = onSettings)
     }
 }
 
@@ -292,16 +315,6 @@ private fun ChoiceRow(content: @Composable () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) { content() }
-}
-
-/**
- * The actions under a choice, side by side, or one under the other when they do not fit (a large font): a label is
- * never cut in the middle of a word.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun ChoiceActions(content: @Composable () -> Unit) {
-    FlowRow(horizontalArrangement = Arrangement.Center) { content() }
 }
 
 /**
@@ -408,60 +421,11 @@ private fun ChoiceLabel(
     )
 }
 
-/**
- * A setting, on or off as [checked]: a row as wide as the screen, drawn as a panel, its [text] on the left and its
- * switch on the right, the whole row a switch for TalkBack (« Vibrations, interrupteur, désactivé ») and for the
- * finger. The thumb of the switch stands on the left when off, on the right when on: its state is not told by colour
- * only. In a large font, the label keeps its size and the row grows: it goes on two lines at a space, and the switch
- * goes under it, still on the right, when the label no longer fits beside it (« Vibrations » in Original, twice as
- * large, on 360 dp). It shrinks only as a last resort, so that no word is ever cut in two.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun Setting(
-    text: String,
-    checked: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
-) {
-    val colors = settingColors(BloxTheme.palette)
-    val shape = BloxTheme.shapes.button
-    FlowRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .heightIn(min = BloxSizes.minTouchTarget)
-            .panelFrame(colors.row, shape)
-            // The ripple of a tap stays within the frame, rounded in Couleurs.
-            .clip(shape)
-            .toggleable(value = checked, role = Role.Switch, onValueChange = onCheckedChange)
-            .padding(horizontal = SETTING_PADDING, vertical = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(SETTING_PADDING),
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-        itemVerticalAlignment = Alignment.CenterVertically,
-    ) {
-        val style = MaterialTheme.typography.labelLarge
-        // The label as wide as its words; the switch takes the room left on the line, on its right, or the next line.
-        Text(
-            text = text,
-            color = colors.row.ink,
-            style = style,
-            maxLines = 2,
-            autoSize = shrinkToFit(style.fontSize),
-        )
-        Box(Modifier.weight(1f), contentAlignment = Alignment.CenterEnd) {
-            // Drawn only: the row holds the action and the state, so TalkBack reads one switch, its label included.
-            Switch(checked = checked, onCheckedChange = null, colors = colors.switch)
-        }
-    }
-}
+/** A cell of the logo, beside the title. */
+private val LOGO_CELL_SIZE = 16.dp
 
-/** The background and the frame of a choice or of a setting, in [colors], of [shape]. */
-private fun Modifier.panelFrame(
-    colors: ChoiceColors,
-    shape: Shape,
-): Modifier = background(colors.background, shape).border(BloxBorders.frame, colors.frame, shape)
-
-/** The room inside a setting, on both sides, and between its label and its switch. */
-private val SETTING_PADDING = 12.dp
+/** The room between the logo and the title. */
+private val HEADER_SPACING = 12.dp
 
 /** The check of a start level, in its top corner: small, so that it fits beside the digit. */
 private val CORNER_CHECK_SIZE = 10.dp
@@ -510,9 +474,6 @@ private fun HomeScreenPreview(
                 previewing = null,
                 hasMusicFile = true,
                 gameMusic = gameMusic,
-                // One setting on, the other off, as by default: both states of a switch are seen.
-                vibrations = true,
-                soundEffects = false,
             ),
             onThemeChosen = {},
             onMusicChosen = {},
@@ -523,39 +484,38 @@ private fun HomeScreenPreview(
             onPlay = {},
             onCompose = {},
             onMyMusics = {},
-            onVibrationsChanged = {},
-            onSoundEffectsChanged = {},
+            onSettings = {},
         )
     }
 }
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360, heightDp = 1170)
+@Preview(widthDp = 360, heightDp = 800)
 @Composable
 internal fun HomeScreenOriginalPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1060)
+@Preview(widthDp = 360, heightDp = 800)
 @Composable
 internal fun HomeScreenColorfulPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 1760, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
 @Composable
 internal fun HomeScreenLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1320, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
 @Composable
 internal fun HomeScreenColorfulLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 1260)
+@Preview(widthDp = 360, heightDp = 880)
 @Composable
 internal fun HomeScreenGameMusicPreview() {
     // A music of the player chosen for the games: the only music selected, which may be listened to.
@@ -565,13 +525,13 @@ internal fun HomeScreenGameMusicPreview() {
 /** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
 private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
 
-@Preview(widthDp = 360, heightDp = 1260)
+@Preview(widthDp = 360, heightDp = 880)
 @Composable
 internal fun HomeScreenGameMusicLongNamePreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))
 }
 
-@Preview(widthDp = 360, heightDp = 1900, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1380, fontScale = 2f)
 @Composable
 internal fun HomeScreenGameMusicLongNameLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.ORIGINAL, gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false))

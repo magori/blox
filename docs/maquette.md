@@ -59,53 +59,47 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 ## Écrans
 
 ### V1 — Accueil
-- Titre **BloX**, avec un logo de quatre cellules aux couleurs du thème, et le record.
+- En-tête (P5.51) : logo de quatre cellules de 16 dp aux couleurs du thème et titre **BloX**
+  (36 sp, une ligne, réduit en police agrandie) sur une même ligne, le record dessous ; marge du
+  haut de 16 dp, 16 dp entre les sections. Bouton engrenage de 48 dp en haut à droite, lu
+  « Paramètres » par TalkBack, qui ouvre V21 (P5.50) ; une place vide de 48 dp à gauche garde
+  le titre centré.
 - **Mode de jeu** : *Classique* (règles 1989, sans réserve ni pièce fantôme) ; *Moderne*
-  affiché grisé, « bientôt » dans le code ; dans la maquette du 2026-10-20 (P5.51), les deux
-  choix tiennent sur une ligne et *Moderne* est grisé sans « (bientôt) ».
+  affiché grisé, sans « (bientôt) » (P5.51) ; les deux sur une ligne à 360 dp en police normale,
+  *Moderne* sous *Classique* en police ×2.
 - **Thème** : *Original* ou *Couleurs*. Le choix recolore immédiatement l'accueil.
 - **Niveau de départ** : 0 à 9, sur deux lignes de 5 (P5.29).
-- **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, *Aucune*, avec un bouton
-  *Écouter* pour les deux mélodies (P4.7 : bouton Écouter / Arrêter sous chaque musique qui a
-  une partition, un seul aperçu à la fois, lu par TalkBack « Écouter Menuet »).
+- **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, la musique personnelle « En jeu »,
+  *Aucune*, en rangées qui passent à la ligne, sans rien dessous. Une seule ligne d'actions, sous
+  tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, avec un
+  triangle ou un carré que TalkBack ne lit pas (« Écouter Menuet ») ; pour *Mon fichier*,
+  *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Un
+  seul aperçu à la fois (P4.7), arrêté en changeant de choix, en ouvrant les Paramètres ou
+  « Mes musiques ».
 - **Musiques personnelles** (P4.22, maquette mise au code le 2026-10-20) :
-  - la musique personnelle « En jeu » est un choix comme les autres, en rangées qui passent à la
-    ligne, sans icône de note ni grille de trois colonnes (« Thème du soir » dans la maquette),
-    qu'on peut écouter. Choisir une autre musique la retire des parties ;
-  - *Changer* à côté d'*Écouter* sous *Mon fichier* (P5.38) ;
+  - la musique personnelle « En jeu » est un choix comme les autres, sans icône de note ni
+    grille de trois colonnes (« Thème du soir » dans la maquette), qu'on peut écouter. Choisir
+    une autre musique la retire des parties ;
   - un lien **MES MUSIQUES**, souligné, dans l'en-tête de la section mène à la liste du thème en
     cours (V7, V10, V13 ou V16) ;
   - un bouton **COMPOSER UNE MUSIQUE** sous le choix (48 dp, en capitales, icône note et crayon,
-    cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17) ;
-  - l'accueil défile sur un téléphone : V1 fait 1360 px de haut dans le code.
-- **Accueil raccourci**, maquetté le 2026-10-20 (demande du développeur, pas encore codé : P5.50
-  et P5.51) : V1 passe de 1360 à 861 px (cadre de la planche).
-  - les réglages partent en V21 (P5.50) ;
-  - logo (cellules de 16) et titre **BloX** (36) sur une même ligne, record dessous ;
-  - écart de 16 dp entre les sections au lieu de 24, marge du haut de 16 ;
-  - les choix de musique se suivent en rangées sans rien dessous ; une seule ligne d'actions,
-    sous les choix, vaut pour la musique sélectionnée : nom du fichier et *Changer* pour *Mon
-    fichier*, *Écouter* / *Arrêter* avec une icône (lecture ou carré), rien pour *Aucune*.
-- Section **Réglages** (P5.37) entre « COMPOSER UNE MUSIQUE » et « Jouer » : deux rangées pleine
-  largeur en encart (couleurs d'un choix non sélectionné), d'au moins 48 dp, **Vibrations** et
-  **Effets sonores**, libellé à gauche, interrupteur à droite, désactivés par défaut. Éteint :
-  piste `panel`, contour et bouton `ink` à gauche ; allumé : piste `accent`, bouton `accentInk` à
-  droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
-  (« Vibrations, interrupteur, désactivé »). En police agrandie, le libellé garde sa taille et passe
-  à la ligne aux espaces ; s'il ne tient pas à côté de l'interrupteur, celui-ci passe dessous, à
-  droite. Un changement vaut pour la partie suivante (les réglages sont lus à sa création).
-  **Tests :** `HomeScreenTest › TalkBack reads Vibrations and Effets sonores as switches, off by default`,
-  `HomeScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
-  `HomeScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
-  `HomeScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
-  `HomeScreenTest › the settings stand between Composer une musique and Jouer, under their heading Réglages`,
-  `HomeScreenTest › in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp`,
-  `HomeViewModelTest › the vibrations and the sound effects are shown as saved`,
-  `HomeViewModelTest › turning the vibrations on saves them on and shows them on, then off again`,
-  `HomeViewModelTest › turning the sound effects on saves them on and shows them on, then off again`,
-  `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
-  `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
-  `SettingColorsTest › a switch on stands out from its row, and its thumb from it, by a contrast of 3 to 1 at least`.
+    cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17).
+- L'accueil défile sur un petit téléphone ; la planche V1 fait 861 px de haut.
+  **Tests :** `HomeScreenTest › the gear button, 48 dp, read Paramètres, opens the settings`,
+  `HomeScreenTest › the gear button stands at the top right of the home screen, beside the title`,
+  `HomeScreenTest › the logo and the title BloX stand on one line, the record under them`,
+  `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
+  `HomeScreenTest › on 360 dp, the two modes stand on one line`,
+  `HomeScreenTest › the home screen leaves 16 dp above its header, and 16 dp between two sections`,
+  `HomeScreenTest › the music choices bear nothing under them: one line of actions, under them all, is for the music selected`,
+  `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
+  `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
+  `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
+  `HomeScreenTest › in a font twice as large, in a window too narrow for both, Changer goes under Écouter, each label on one line`,
+  `HomeViewModelTest › opening the settings stops the preview`,
+  `HomeViewModelTest › opening the settings stops the music of the player listened to`,
+  `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,
+  `BloxNavDisplayTest › opening the settings stops the music of the player listened to on the home screen`.
 - Bouton **Jouer**, 48 dp de haut, en `accent`.
 - Les choix (thème, niveau, musique) sont gardés d'une ouverture à l'autre ; au premier
   lancement : *Original*, niveau 0, *Korobeïniki* (P3.1).
@@ -267,14 +261,43 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   bouton pause et du record (P2.20, P2.26).
 
 ### V21 — Paramètres
-- Maquetté le 2026-10-20 (demande du développeur), pas encore codé (P5.50). On y arrive depuis
-  l'accueil (V1) par un bouton engrenage de 48 dp en haut à droite (« Paramètres » pour TalkBack) ;
-  la section **Réglages** de l'accueil disparaît.
-- Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) vers l'accueil, titre
-  « Paramètres ». Section **Sons et vibrations** : les interrupteurs **Vibrations** et **Effets
-  sonores** de P5.37, inchangés (rangées en encart de 48 dp au moins, désactivés par défaut,
-  rangée entière lue comme interrupteur), puis la mention « Valable dès la partie suivante. ».
+- Demandée par le développeur (2026-10-20), codée en P5.50 : `SettingsScreen` et
+  `SettingsViewModel` dans `feature:home`, clé `SettingsRoute`, entrée `settingsEntry` assemblée
+  par `app`. On y arrive depuis l'accueil (V1) par le bouton engrenage ; la flèche Retour et le
+  retour du système ramènent à l'accueil.
+- Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »
+  (titre pour TalkBack), affichés dès l'ouverture, avant même la lecture des réglages. Section
+  **Sons et vibrations**, marges de 16 dp : les interrupteurs **Vibrations** et **Effets
+  sonores** (P5.37), désactivés par défaut, rangées pleine largeur en encart (couleurs d'un choix
+  non sélectionné) d'au moins 48 dp, libellé à gauche, interrupteur à droite. Éteint : piste
+  `panel`, contour et bouton `ink` à gauche ; allumé : piste `accent`, bouton `accentInk` à
+  droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
+  (« Vibrations, interrupteur, désactivé »). En police agrandie, le libellé garde sa taille et
+  passe à la ligne aux espaces ; s'il ne tient pas à côté de l'interrupteur, celui-ci passe
+  dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
+  à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
+  **Tests :** `SettingsScreenTest › TalkBack reads Vibrations and Effets sonores as switches, off by default`,
+  `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
+  `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
+  `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
+  `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
+  `SettingsScreenTest › in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp`,
+  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen`,
+  `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,
+  `SettingsScreenTest › while the saved settings are not read, the page shows its back arrow and its title, and no switch`,
+  `BloxNavDisplayTest › while the saved settings are not read, the settings show their back arrow and title, and no switch`,
+  `SettingsViewModelTest › the vibrations and the sound effects are shown as saved`,
+  `SettingsViewModelTest › turning the vibrations on saves them on and shows them on, then off again`,
+  `SettingsViewModelTest › turning the sound effects on saves them on and shows them on, then off again`,
+  `SettingsViewModelTest › the settings page is loading until the saved settings are read, then shows them`,
+  `SettingsViewModelTest › a setting that cannot be saved leaves the saved settings shown, without crashing`,
+  `SettingsViewModelTest › the factory builds the settings page on the settings of the application`,
+  `BloxNavDisplayTest › the gear of the home screen opens the settings, whose switches save, and Retour goes back home`,
+  `BloxNavDisplayTest › on the settings, the system back goes back to the home screen`,
+  `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
+  `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
+  `SettingColorsTest › a switch on stands out from its row, and its thumb from it, by a contrast of 3 to 1 at least`.
 
 ## Icônes
 
@@ -302,7 +325,6 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
 ## Pas encore codé
 
 - **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
-- **Page Paramètres** (V21) et bouton engrenage de l'accueil (V1) : P5.50.
 
 ## Points ouverts
 

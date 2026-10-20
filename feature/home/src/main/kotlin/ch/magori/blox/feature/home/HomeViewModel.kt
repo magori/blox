@@ -30,7 +30,6 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import java.io.IOException
 import kotlin.math.abs
 import kotlin.reflect.KClass
 
@@ -129,15 +128,6 @@ class HomeViewModel(
     }
 
     /**
-     * Saves whether the games vibrate. A game reads the settings once, when it is created: a change made here holds for
-     * the next game, never for one under way.
-     */
-    internal fun onVibrationsChanged(vibrations: Boolean) = save { setVibrations(vibrations) }
-
-    /** Saves whether the games play their sound effects; as for the vibrations, it holds from the next game on. */
-    internal fun onSoundEffectsChanged(soundEffects: Boolean) = save { setSoundEffects(soundEffects) }
-
-    /**
      * The player picked [uri] in the picker of the system, opened by « Mon fichier »: the file is kept, then
      * « Mon fichier » chosen, as [onMusicChosen] does; the music being listened to stops, the file being another music.
      * A file that cannot be kept leaves the music chosen before. A picker cancelled tells nothing: the choice stays.
@@ -196,6 +186,9 @@ class HomeViewModel(
     /** The player opens « Mes musiques »: the music being listened to stops, the list plays its own. */
     internal fun onMyMusics() = stopPreview()
 
+    /** The player opens the settings: the music being listened to stops. */
+    internal fun onSettings() = stopPreview()
+
     /**
      * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
      * the background, or a game in front), the music being listened to stops. A pause alone, behind a
@@ -231,15 +224,8 @@ class HomeViewModel(
      * Saves a choice. A write that fails (a full disk) is dropped: the screen keeps showing the saved
      * settings, and the player may choose again.
      */
-    private fun save(write: suspend UserPreferencesRepository.() -> Unit) {
-        viewModelScope.launch {
-            try {
-                preferences.write()
-            } catch (_: IOException) {
-                // Nothing saved: the settings shown are still the saved ones.
-            }
-        }
-    }
+    private fun save(write: suspend UserPreferencesRepository.() -> Unit) =
+        viewModelScope.saveSettings(preferences, write)
 
     /**
      * Chooses [music] on the home screen, and leaves the music of the player chosen for the games: in the mockup (V1), it
@@ -266,8 +252,6 @@ class HomeViewModel(
         previewing = (previewed as? Previewed.Choice)?.choice,
         hasMusicFile = sources.file != null,
         gameMusic = sources.gameMusic?.let { GameMusicUi(it.name, previewed = previewed == Previewed.Personal(it.id)) },
-        vibrations = saved.vibrations,
-        soundEffects = saved.soundEffects,
     )
 
     /**

@@ -11,36 +11,36 @@ import com.android.tools.screenshot.PreviewTest
  */
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1170)
+@Preview(widthDp = 360, heightDp = 800)
 @Composable
 private fun HomeOriginal() = HomeScreenOriginalPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1060)
+@Preview(widthDp = 360, heightDp = 800)
 @Composable
 private fun HomeColorful() = HomeScreenColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1760, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
 @Composable
 private fun HomeLargeFont() = HomeScreenLargeFontPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1260)
+@Preview(widthDp = 360, heightDp = 880)
 @Composable
 private fun HomeGameMusic() = HomeScreenGameMusicPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1260)
+@Preview(widthDp = 360, heightDp = 880)
 @Composable
 private fun HomeGameMusicLongName() = HomeScreenGameMusicLongNamePreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1900, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1380, fontScale = 2f)
 @Composable
 private fun HomeGameMusicLongNameLargeFont() = HomeScreenGameMusicLongNameLargeFontPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1320, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
 @Composable
 private fun HomeColorfulLargeFont() = HomeScreenColorfulLargeFontPreview()

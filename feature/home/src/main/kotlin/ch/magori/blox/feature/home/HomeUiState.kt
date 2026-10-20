@@ -17,8 +17,6 @@ import ch.magori.blox.core.data.ThemeChoice
  * @property hasMusicFile whether a music file is picked for « Mon fichier »: it may then be changed.
  * @property gameMusic the music of the player played during the games (« Mes musiques »), instead of [music]; null
  *   when there is none.
- * @property vibrations whether the games vibrate: off unless the player turned them on.
- * @property soundEffects whether the games play their sound effects: off unless the player turned them on.
  */
 internal data class HomeUiState(
     val theme: ThemeChoice,
@@ -30,8 +28,6 @@ internal data class HomeUiState(
     val previewing: MusicChoice?,
     val hasMusicFile: Boolean = false,
     val gameMusic: GameMusicUi? = null,
-    val vibrations: Boolean = false,
-    val soundEffects: Boolean = false,
 ) {
     /**
      * The music choice shown selected: [music], unless a music of the player is played during the games, then the only

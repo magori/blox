@@ -8,7 +8,7 @@
     <string name="feature_home_record_description">Record %1$d</string>
     <string name="feature_home_mode">Mode de jeu</string>
     <string name="feature_home_mode_classic">Classique</string>
-    <string name="feature_home_mode_modern">Moderne (bientôt)</string>
+    <string name="feature_home_mode_modern">Moderne</string>
     <string name="feature_home_theme">Thème</string>
     <string name="feature_home_theme_original">Original</string>
     <string name="feature_home_theme_colorful">Couleurs</string>
@@ -30,8 +30,12 @@
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->
     <string name="feature_home_compose">Composer une musique</string>
     <string name="feature_home_my_musics">Mes musiques</string>
+    <!-- Page Paramètres (V21), ouverte par l'engrenage de l'accueil, lu « Paramètres » par TalkBack. -->
+    <string name="feature_home_settings">Paramètres</string>
+    <string name="feature_home_settings_back">Retour</string>
     <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
-    <string name="feature_home_settings">Réglages</string>
+    <string name="feature_home_settings_sounds">Sons et vibrations</string>
     <string name="feature_home_vibrations">Vibrations</string>
     <string name="feature_home_sound_effects">Effets sonores</string>
+    <string name="feature_home_settings_next_game">Valable dès la partie suivante.</string>
 </resources>
