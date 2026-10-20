@@ -283,10 +283,8 @@ class MyMusicsViewModel(
                 name = saved.name,
                 category = saved.category,
                 key = saved.scale.keyName(),
-                bpm = saved.score.bpm,
                 length = lengthText(saved.score),
                 spokenLength = spokenLength(saved.score),
-                modifiedAt = saved.modifiedAt,
                 inGame = saved.id == content.gameMusic?.id,
                 listening = listened?.takeIf { it.id == saved.id }?.listening,
             )
