@@ -410,7 +410,8 @@ puis retour à 1 (`$894E`, `$8954`) ; `autorepeatX = 16` après un déplacement 
   **À l'écran** (P2.2, P2.6) : le bouton pause de la barre du haut met en pause ; l'écran de
   pause remplace tout le jeu (plateau masqué) ; Reprendre reprend sans rattraper le temps passé
   en pause ; Menu quitte la partie. Le retour système met en pause en jeu, reprend en pause, et
-  quitte la partie une fois la fin affichée. Aucun tick n'est donné pendant la pause : la durée
+  quitte la partie une fois la fin affichée, ou tant que la fenêtre est trop petite pour jouer
+  (P2.24, `docs/maquette.md`, V2 et V3). Aucun tick n'est donné pendant la pause : la durée
   de jeu n'avance pas. Quand l'application passe en arrière-plan (`ON_PAUSE`), la partie se met
   en pause d'elle-même et y reste au retour, jusqu'à Reprendre (P5.4) ; une recréation de
   l'activité (thème sombre, langue, taille de fenêtre) fait de même. Pendant la pause, la boucle

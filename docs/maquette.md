@@ -153,8 +153,30 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   220 × 640 dp, la cellule passe de 4 dp à environ 10 dp. La hauteur réservée aux panneaux suit la
   police du système. Les flèches se rapprochent (jusqu'à se toucher) quand elles ne tiennent pas
   dans la largeur, 20 px au lieu de 21 à 220 dp et ×2,625 ; B A garde ses 8 dp ; les touches gardent
-  leur taille (52 et 56 dp) et leur exclusion des gestes système. Sous 8 dp de cellule, le jeu est
-  peu jouable (P2.24, à trancher).
+  leur taille (52 et 56 dp) et leur exclusion des gestes système.
+- Fenêtre trop petite pour jouer (P2.24, décision du développeur) : quand la cellule calculée pour
+  la fenêtre (sans les barres système, barre du haut comptée sur une rangée, en police normale)
+  descendrait sous 8 dp, « Agrandissez la fenêtre » remplace le plateau, ou l'écran de pause si la
+  fenêtre rétrécit pendant la pause. La partie se met en pause avant la première image ; la barre du
+  haut reste, son bouton pause désactivé ; le message, `ink` sur `page`, en mots entiers, est
+  annoncé par TalkBack (région vive polie) ; les commandes sont ignorées. Quand la fenêtre redevient
+  assez grande, l'écran de pause revient et seul Reprendre relance la partie. Le retour système
+  quitte alors la partie, comme Menu (sinon Reprendre remettrait aussitôt en pause). Bascules :
+  220 × 590 dp trop petite, 220 × 592 jouable ; sous environ 204 dp de large, toujours trop petite ;
+  téléphones, tablettes et la fenêtre de 220 × 640 jamais touchés. Le seuil ignore la police : en
+  police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
+  sous 8 dp près du seuil.
+
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 590 dp high, its cells under 8 dp, and playable 592 dp high`,
+  `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
+  `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
+  `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,
+  `GameScreenLifecycleTest › in a window too small to play, « Agrandissez la fenêtre » replaces the board, the game paused`,
+  `GameScreenLifecycleTest › paused, a window that becomes too small to play shows the message in place of the pause screen`,
+  `GameScreenLifecycleTest › under the message, the controls of the game are ignored, even once the game resumes`,
+  `GameScreenLifecycleTest › once the window is large enough again, the pause screen shows, and Reprendre resumes the game`,
+  `GameScreenLifecycleTest › while the window is too small to play, the system back leaves the game`.
+  Captures : `GameScreenTooSmallOriginal`, `GameScreenTooSmallColorful`, `GameScreenTooSmallLargeFont`.
 
   **Tests :** `GameLayoutTest › a very narrow window puts the score above the board, for a board larger than beside the side column`,
   `GameLayoutTest › the board never shrinks as the window widens, from the narrowest multi-window to a phone`,
