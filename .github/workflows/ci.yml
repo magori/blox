@@ -79,6 +79,14 @@ jobs:
       - name: Validation des captures (références Windows)
         run: ./gradlew validateDebugScreenshotTest --continue
 
+      # TEMPORAIRE (mesure P5.8) : écart de chaque capture, à retirer avant la PR.
+      - name: Mesure des écarts de captures
+        if: always()
+        run: |
+          for f in feature/*/build/test-results/validateDebugScreenshotTest/*.xml; do
+            grep -oE 'PreviewScreenshot\.(previewName|diffPercent)" value="[^"]*"' "$f" | paste - - ;
+          done
+
       # Compile le module de mesure (Macrobenchmark, générateur du profil de référence) et ses
       # APK de test, sans les exécuter : les mesures et la génération demandent un appareil.
       - name: Compilation des mesures (Macrobenchmark)
