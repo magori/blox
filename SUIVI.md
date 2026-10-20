@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 143 / 175 | `████████████████░░░░` **82 %** |
+| **Général** | 143 / 178 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -433,6 +433,23 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.26** Mettre à jour la maquette : « Mes musiques » telle que codée (V7, V10, V13, V16) :
   *Utiliser* / *En jeu* sous le nom, menu déroulant, *Renommer* dans le menu de la carte, pas de
   message après *Utiliser*, lien « MES MUSIQUES » souligné à l'accueil (P4.22c).
+- [ ] **P4.27** Nom proposé à l'enregistrement en rapport avec la musique (demande du développeur,
+  2026-10-20) : un nom évocateur tiré selon le style, suivi de la tonalité (« Matin de fête en
+  sol », « Brume du lac en ré mineur ») ; pour une musique « Libre », d'après le mode et le tempo
+  (« Rêverie en la mineur ») ; tirage déterministe, 40 caractères au plus, « 2 » ajouté si le nom
+  est pris (`freeName`), aucun nom de marque. Remplace « Catégorie n » (`proposedName`) ; listes de
+  mots par style dans la spécification (docs/generateur-musique.md), maquette V9, V12, V15, V18.
+- [ ] **P4.28** Style choisi dans la fenêtre Enregistrer (demande du développeur, 2026-10-20) : choix
+  « Style » parmi les 7 catégories et « Libre », pré-rempli avec la catégorie du dé (« Libre » pour
+  une musique faite à la main), enregistré avec la musique (`SavedMusic.category`, null pour
+  « Libre ») ; le style change le nom proposé tant que le joueur n'a pas tapé le sien (P4.27).
+  Maquette V9, V12, V15, V18.
+- [ ] **P4.29** Informations des cartes de « Mes musiques » (demande du développeur, 2026-10-20) :
+  sous le nom, style et tonalité (« Joyeux · sol majeur », « Libre · la mineur »), tempo et durée
+  des 8 mesures (« 120 temps/min · 0:16 »), date de dernière modification (« Modifiée le 20 oct. ») ;
+  la date est enregistrée à chaque enregistrement ou renommage (horloge injectée), d'où une nouvelle
+  version de `musics.bin` avec migration des musiques existantes (ADR 0017 amendé). Dans l'éditeur,
+  la ligne sous le titre devient « Style · tonalité · modifiée ». Maquette V7 à V18.
 - [x] **P3.9** Mettre à jour la maquette : bouton Écouter / Arrêter de l'accueil (P4.7).
 - [ ] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
