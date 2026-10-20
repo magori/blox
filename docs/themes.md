@@ -341,6 +341,18 @@ de 0,25 sp. Restent à ×2 : l'icône du bouton, de 18 dp, paraît petite ; le n
 d'une musique en jeu reste coupé par « … » (TalkBack le lit en entier). Captures : `HomeLargeFont`,
 `HomeColorfulLargeFont`, `HomeGameMusicLongNameLargeFont`.
 
+Mots entiers (P5.47, P5.48) : un texte ne passe à la ligne qu'après une espace (`cutsAWord`) ;
+après une barre oblique ou un trait d'union, c'est une coupure, refusée exprès (« 120 temps/min »,
+« peut-être » réduisent plutôt). Limite : une langue sans espace (chinois, japonais, thaï)
+réduirait toujours au plancher. `shrinkToFewestLines` vérifie désormais aussi les mots entiers
+quand il passe sur plusieurs lignes. `shrinkToWholeWords` permet plusieurs lignes et ne réduit que
+si le texte déborde ou coupe un mot ; il ne cherche pas le moins de lignes (message du dé, trois
+lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` garde l'interligne d'un
+texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) restent
+côte à côte si le mot le plus large de chacune tient dans sa moitié ; sinon elles s'empilent, la
+réponse sûre d'abord (ordre de lecture inchangé), chacune sur toute la largeur et en grande police
+plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp.
+
 **Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
 `BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
 `BloxTypographyTest › the Material styles take the font of the titles for headings and of the labels for the rest`,
@@ -365,6 +377,20 @@ d'une musique en jeu reste coupé par « … » (TalkBack le lit en entier). Cap
 `HomeScreenTest › in a font twice as large, on 360 dp, the label of Composer une musique is shown whole`,
 `HomeScreenTest › in a normal font, on 360 dp, the label of Composer une musique stays on one line`,
 `HomeScreenTest › in a font twice as large, in Original, each word of Composer une musique stays whole on its line`,
+`LargestSizeThatFitsTest › when fitting is not monotonic, as a text that wraps may be, the size given was tried and fits`,
+`WordCutTest › a text on one line cuts no word`,
+`WordCutTest › a text that goes to the line between its words cuts no word`,
+`WordCutTest › a text that goes to the line inside a word cuts it`,
+`WordCutTest › a word cut on any of the lines is enough`,
+`WordCutTest › a text that goes to the line after a slash or a hyphen cuts its word, a line goes on only after a space`,
+`WordCutTest › a number cut between two digits is cut`,
+`ShrinkingLineHeightTest › a text that shrinks keeps the line height of its style in proportion to its size`,
+`ShrinkingLineHeightTest › a style without a line height in sp keeps its own`,
+`WindowAnswersTest › in a normal font, on 360 dp, the answers of a window stand side by side, the safe one first`,
+`WindowAnswersTest › in a font twice as large, in Original, on 360 dp, answers too wide side by side stand one above the other`,
+`WindowAnswersTest › in a font twice as large, in Colorful, on 360 dp, answers whose words hold whole stay side by side`,
+`WindowAnswersTest › in a font twice as large, a word too long for the whole width of an answer shrinks rather than be cut`,
+`WindowAnswersTest › in a normal font, in Original, on 320 dp, the answers of a window stand one above the other`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
 `ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.

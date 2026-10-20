@@ -1052,8 +1052,17 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 - **Depuis « Mes musiques »** : `ComposerRoute(rollDice = true)` ouvre une musique neuve tirée sur
   *Surprise*, sans annulation ; une entrée restaurée après la mort du processus garde sa musique et ne
   relance pas. `rollDice` avec une musique enregistrée est refusé.
-- En police ×2 et police pixel, une catégorie longue (« Mélancolique ») dépasse la zone et est amenée
-  par son début.
+- Police ×2 (P5.47) : un choix n'est jamais plus large que la rangée visible et son libellé réduit
+  pour tenir ; *Au hasard* prend au plus 45 % de la rangée, pour que « Mélancolique » tienne en
+  entier sur 360 dp. Le tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur
+  deux lignes au plus, sans couper « temps/min » ; le message d'annulation tient sur trois lignes
+  au plus (`shrinkToWholeWords`). **Tests :**
+  `ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
+  `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
+  `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
+  `ComposerScreenTest › on a small phone with the largest font, the longest category chosen for the dice shows whole`.
+  Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`. En Original ×2, la barre
+  d'outils coupe encore ses libellés (P5.49).
 
 **Tests :** `ComposerDiceTest › the dice is ready for Surprise at first, and a category touched is chosen in its place`,
 `ComposerDiceTest › the dice opens the music the generator composes in the category chosen, from a seed drawn at each roll`,
@@ -1281,7 +1290,7 @@ Vues : V7, V8, V9, V10, V11, V12.
   `ink` (le texte la porte), note de suppression en `ink`. Un seul texte d'échec, « L'opération a
   échoué. ». « Une autre musique porte déjà ce nom. » et « Garder la musique » restent dans chaque
   feature : `core:designsystem` ne parle pas de musique et `core:data` n'a pas de ressources.
-- En Original et police ×2, les libellés des réponses se coupent au milieu d'un mot (P5.48).
+- En police ×2, les réponses qui ne tiennent pas côte à côte s'empilent, sans couper de mot (P5.48, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
 
 **Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,
 `MusicNamesTest › the music being renamed may keep its own name, in another case or not`,

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 126 / 174 | `██████████████░░░░░░` **72 %** |
+| **Général** | 128 / 175 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -681,12 +681,17 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.46** Plugin des captures (Compose Preview Screenshot Testing, alpha) : le revoir à la
   prochaine montée d'AGP, déconseillé à partir d'AGP 9.5 au profit des « test suites » ; garder
   la validation en CI (P5.8).
-- [ ] **P5.47** Éditeur en police ×2 (captures de P4.20) : le bouton « + » du tempo sort de l'écran,
+- [x] **P5.47** Éditeur en police ×2 (captures de P4.20) : le bouton « + » du tempo sort de l'écran,
   poussé par « 120 temps/min » sur deux lignes ; le message d'annulation couvre presque toute la
-  grille ; une catégorie longue (« Mélancolique ») dépasse la rangée du dé.
-- [ ] **P5.48** Fenêtres en police ×2, thème Original : les libellés des réponses se coupent au
+  grille ; une catégorie longue (« Mélancolique ») dépasse la rangée du dé. Fait : tempo mesuré après ses boutons, message sur trois lignes,
+  choix plafonnés à la rangée.
+- [x] **P5.48** Fenêtres en police ×2, thème Original : les libellés des réponses se coupent au
   milieu d'un mot (« Annul/er », « Enreg/istre/r ») ; les faire passer à la ligne entre les mots, ou
-  les empiler (vu en P5.45).
+  les empiler (vu en P5.45). Fait : réponses empilées quand elles ne tiennent pas côte à côte,
+  retour à la ligne seulement après une espace.
+- [ ] **P5.49** Barre d'outils de l'éditeur en Original ×2 : ses libellés restent coupés même au
+  plancher (« Pose », « Allon », « Annul », « Copi », « Effac ») ; fenêtre Quitter : le point final
+  de « enregistrés. » passe seul à la ligne (vus en P5.47).
 
 ## P6 — Mode Moderne (plus tard)
 
