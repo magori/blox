@@ -34,6 +34,8 @@ class FakeUserPreferencesRepository(
 
     override suspend fun setVibrations(vibrations: Boolean) = write { it.copy(vibrations = vibrations) }
 
+    override suspend fun setSoundEffects(soundEffects: Boolean) = write { it.copy(soundEffects = soundEffects) }
+
     /** As DataStore does, a write applies to the settings kept, or to the default ones if there are none. */
     private fun write(change: (UserPreferences) -> UserPreferences) {
         if (failWrites) throw IOException("The disk is full")

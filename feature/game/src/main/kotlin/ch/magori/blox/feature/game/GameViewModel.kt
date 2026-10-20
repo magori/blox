@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
+import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -23,6 +24,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.haptics.hapticFor
@@ -30,6 +32,7 @@ import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.sidepanel.nextPieceCells
+import ch.magori.blox.feature.game.sound.soundEffectFor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -58,6 +61,7 @@ class GameViewModel internal constructor(
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
     private val haptics: Haptics,
+    private val soundEffects: SoundEffectPlayer,
     private val musicOf: suspend (MusicChoice) -> Music?,
     private val gameMusic: suspend () -> Score?,
     savedState: SavedStateHandle,
@@ -118,6 +122,12 @@ class GameViewModel internal constructor(
      */
     private var vibrations = false
 
+    /**
+     * Whether the game plays its sound effects (a rotation, lines cleared, the game over), from the settings; false
+     * until they answer, as the vibrations.
+     */
+    private var soundEffectsOn = false
+
     init {
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
         // process dies, unlike this view model. A configuration change keeps the view model, and so the game.
@@ -137,9 +147,14 @@ class GameViewModel internal constructor(
             // comes.
             if (gameState.isUnderWay) play(playMusic())
         }
-        // Whether the game vibrates, from the settings, read apart: the music of the player does not wait for them.
+        // Whether the game vibrates and plays its sound effects, from the settings, read apart: the music of the player
+        // does not wait for them.
         viewModelScope.launch {
-            vibrations = preferences.preferences.first().vibrations
+            val settings = preferences.preferences.first()
+            vibrations = settings.vibrations
+            soundEffectsOn = settings.soundEffects
+            // At once, so that the first rotation does not wait for its track to open.
+            if (soundEffectsOn) soundEffects.warmUp(SoundEffects.all)
         }
     }
 
@@ -209,6 +224,7 @@ class GameViewModel internal constructor(
             if (GameEvent.GameOver in update.events) over = true
             update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
+            if (soundEffectsOn) update.events.mapNotNull(::soundEffectFor).forEach(soundEffects::play)
         }
         publish()
         if (over) onGameOver(gameState)
@@ -288,6 +304,7 @@ class GameViewModel internal constructor(
         private val preferences: UserPreferencesRepository,
         private val music: MusicPlayer,
         private val haptics: Haptics,
+        private val soundEffects: SoundEffectPlayer,
         private val musicOf: suspend (MusicChoice) -> Music?,
         private val gameMusic: suspend () -> Score?,
     ) : ViewModelProvider.Factory {
@@ -307,6 +324,7 @@ class GameViewModel internal constructor(
                 preferences,
                 music,
                 haptics,
+                soundEffects,
                 musicOf,
                 gameMusic,
                 savedState,

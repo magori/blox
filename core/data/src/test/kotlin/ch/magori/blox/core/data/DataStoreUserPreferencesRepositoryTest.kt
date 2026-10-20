@@ -66,6 +66,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 music = MusicChoice.MINUET,
                 startLevel = 7,
                 vibrations = false,
+                soundEffects = false,
             ),
         )
     }
@@ -81,6 +82,37 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
 
         // Then
         assertThat(preferences.vibrations).isTrue()
+    }
+
+    @Test
+    fun `settings saved before the sound effects existed keep their choices, with sound effects off`() = runTest {
+        // Given a file written by a version without the sound effects setting
+        writeSettingsFile {
+            it[stringPreferencesKey("theme")] = "COLORFUL"
+            it[booleanPreferencesKey("vibrations")] = true
+        }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences).isEqualTo(
+            UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, vibrations = true, soundEffects = false),
+        )
+    }
+
+    @Test
+    fun `the sound effects are stored as a boolean under a key that must not change`() = runTest {
+        // Given a file whose sound effects were turned on by an earlier version
+        writeSettingsFile { it[booleanPreferencesKey("sound_effects")] = true }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences.soundEffects).isTrue()
     }
 
     @Test
@@ -144,6 +176,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 setMusic(MusicChoice.MY_FILE)
                 setStartLevel(9)
                 setVibrations(true)
+                setSoundEffects(true)
             }
         }
 
@@ -157,6 +190,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 music = MusicChoice.MY_FILE,
                 startLevel = 9,
                 vibrations = true,
+                soundEffects = true,
             ),
         )
     }

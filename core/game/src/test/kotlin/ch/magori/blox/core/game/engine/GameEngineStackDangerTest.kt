@@ -3,8 +3,10 @@ package ch.magori.blox.core.game.engine
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.tPointingDown
 import ch.magori.blox.core.game.model.verticalI
+import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -80,6 +82,26 @@ class GameEngineStackDangerTest {
             GameEvent.StackDanger(on = false),
         )
         assertThat(clearEnd.state.stackInDanger).isFalse()
+    }
+
+    @Test
+    fun `a piece that turns then locks into the danger sends PieceRotated, then PieceLocked, then StackDanger`() {
+        // Given a T about to lock at height 15, A pressed: turned, it locks at height 16 on the same tick
+        val state = engine.press(
+            gameState(board = TOWER, lines = LINES_TO_LEVEL_29, phase = Phase.Falling(T_ON_TOWER)),
+            Button.A,
+        )
+
+        // When
+        val update = engine.tick(state)
+
+        // Then
+        val turned = ClassicRotationSystem.candidates(T_ON_TOWER, Rotation.CLOCKWISE).single()
+        assertThat(update.events).containsExactly(
+            GameEvent.PieceRotated(turned),
+            GameEvent.PieceLocked(turned),
+            GameEvent.StackDanger(on = true),
+        )
     }
 
     private companion object {

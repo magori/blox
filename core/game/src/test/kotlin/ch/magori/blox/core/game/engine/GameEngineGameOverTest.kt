@@ -5,9 +5,11 @@ import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import ch.magori.blox.core.game.model.verticalI
+import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -63,6 +65,35 @@ class GameEngineGameOverTest {
         // Then
         assertThat(updates.last().state.phase).isInstanceOf(Phase.GameOver::class.java)
         assertThat(updates.flatMap { it.events }).containsExactlyElementsOf(expectedEvents)
+    }
+
+    @Test
+    fun `a piece that turns then locks for the last time leaves GameOver alone on the tick it ends`() {
+        // Given a T on the floor beside a column where no piece can appear, A pressed: it turns, then locks
+        val state = engine.press(
+            gameState(
+                board = TOWER,
+                next = PieceType.T,
+                lines = LINES_TO_LEVEL_29,
+                stackInDanger = true,
+                phase = Phase.Falling(T_ON_THE_FLOOR),
+            ),
+            Button.A,
+        )
+
+        // When the game goes on to its end
+        val updates = generateSequence(engine.tick(state)) { engine.tick(it.state) }
+            .take(60)
+            .takeWhile { it.state.phase !is Phase.GameOver || GameEvent.GameOver in it.events }
+            .toList()
+
+        // Then
+        val turned = ClassicRotationSystem.candidates(T_ON_THE_FLOOR, Rotation.CLOCKWISE).single()
+        assertThat(
+            updates.first().events,
+        ).containsExactly(GameEvent.PieceRotated(turned), GameEvent.PieceLocked(turned))
+        assertThat(updates.last().events).containsExactly(GameEvent.GameOver)
+        assertThat(updates.drop(1).dropLast(1).flatMap { it.events }).isEmpty()
     }
 
     private companion object {

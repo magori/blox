@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
@@ -42,6 +43,7 @@ import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.gameover.GameOverUiState
@@ -72,14 +74,17 @@ class GameViewModelTest {
     private val highScores = FakeHighScoreRepository(initial = 100)
 
     /**
-     * The settings of the player: Korobeiniki, unless a test chooses another music, and the vibrations turned on
-     * (they are off by default), unless a test turns them off.
+     * The settings of the player: Korobeiniki, unless a test chooses another music, and the vibrations and the sound
+     * effects turned on (they are off by default), unless a test turns them off.
      */
-    private val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(vibrations = true))
+    private val preferences =
+        FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(vibrations = true, soundEffects = true))
 
     private val music = FakeMusicPlayer()
 
     private val haptics = FakeHaptics()
+
+    private val soundEffects = FakeSoundEffectPlayer()
 
     /**
      * The music of each choice, as `app` gives it: Korobeiniki and the minuet, nothing else, unless a test chooses
@@ -1216,6 +1221,145 @@ class GameViewModelTest {
         assertThat(haptics.played).isEmpty()
     }
 
+    @Test
+    fun `clearing one line plays the lines cleared effect`() {
+        // Given a game whose first three pieces fill row 19
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+
+        // When the game is played until an effect plays
+        playUntil(viewModel, "an effect plays") { soundEffects.played.isNotEmpty() }
+
+        // Then it is the effect of one to three lines, once
+        assertThat(soundEffects.played).containsExactly(SoundEffects.linesCleared)
+    }
+
+    @Test
+    fun `clearing four lines at once plays the four lines effect`() {
+        // Given a game whose first ten pieces fill rows 16 to 19, the last one completing all four
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), fourLinesGame)
+
+        // When the game is played until an effect plays
+        playUntil(viewModel, "an effect plays") { soundEffects.played.isNotEmpty() }
+
+        // Then it is the effect of four lines, once
+        assertThat(soundEffects.played).containsExactly(SoundEffects.fourLinesCleared)
+    }
+
+    @Test
+    fun `a piece turned plays the rotation effect on the frame of its tick`() {
+        // Given a game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+
+        // When A is pressed, then the next frame comes
+        viewModel.onControl(ControlChange.Pressed(ControlButton.A))
+        assertThat(soundEffects.played).isEmpty()
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then
+        assertThat(soundEffects.played).containsExactly(SoundEffects.rotation)
+    }
+
+    @Test
+    fun `the game over plays its effect once, and the frames after it nothing more`() {
+        // Given a game played until its game over shows: the test game clears no line
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val lastFrame = playUntilGameOver(viewModel)
+
+        // When frames still come
+        repeat(10) { viewModel.onFrame(lastFrame + (it + 1) * ONE_SIXTIETH_NANOS) }
+
+        // Then
+        assertThat(soundEffects.played).containsExactly(SoundEffects.gameOver)
+    }
+
+    @Test
+    fun `with the sound effects turned off in the settings no effect plays, the vibrations still do`() {
+        // Given the sound effects turned off, the vibrations on
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = true, soundEffects = false)
+
+        // When a game clears a line, then another one turns its first piece and is played until it is over
+        val clearing = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+        playUntil(clearing, "a line is cleared") { clearing.uiState.value.lines == Lines(1) }
+        val turning = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        turning.onFrame(frameNanos = 0L)
+        turning.onControl(ControlChange.Pressed(ControlButton.A))
+        playUntil(turning, "the screen shows the game over", firstFrame = ONE_SIXTIETH_NANOS) {
+            turning.uiState.value.gameOver != null
+        }
+
+        // Then
+        assertThat(soundEffects.played).isEmpty()
+        assertThat(haptics.played).isNotEmpty()
+    }
+
+    @Test
+    fun `with the vibrations turned off in the settings the sound effects still play`() {
+        // Given the vibrations turned off, the sound effects on
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = false, soundEffects = true)
+
+        // When a game is played until it is over
+        playUntilGameOver(createViewModel(GameRoute(startLevel = 0, seed = 1L)))
+
+        // Then
+        assertThat(soundEffects.played).containsExactly(SoundEffects.gameOver)
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`() {
+        // Given settings that have not answered yet
+        val lateSettings = FakeUserPreferencesRepository(initial = null)
+        createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = lateSettings)
+        assertThat(soundEffects.warmedUp).isEmpty()
+
+        // When they answer, the sound effects on
+        lateSettings.state.value = UserPreferences.DEFAULT.copy(soundEffects = true)
+
+        // Then
+        assertThat(soundEffects.warmedUp).containsExactlyElementsOf(SoundEffects.all)
+        assertThat(soundEffects.played).isEmpty()
+    }
+
+    @Test
+    fun `with the sound effects off, the game warms nothing up`() {
+        // Given the sound effects turned off
+        preferences.state.value = UserPreferences.DEFAULT.copy(soundEffects = false)
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(soundEffects.warmedUp).isEmpty()
+    }
+
+    @Test
+    fun `until the settings answer no effect plays`() {
+        // Given settings that never answer
+        val silentPreferences = FakeUserPreferencesRepository(initial = null)
+
+        // When a game is played until it is over
+        playUntilGameOver(createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = silentPreferences))
+
+        // Then
+        assertThat(soundEffects.played).isEmpty()
+    }
+
+    @Test
+    fun `a game recreated paused after the process died plays no effect while it stays paused`() {
+        // Given a game recreated, paused, after its process died, and A pressed
+        val savedState = SavedStateHandle()
+        createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState)
+        val recreated = createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState.restored())
+        recreated.onControl(ControlChange.Pressed(ControlButton.A))
+
+        // When frames come for longer than the whole test game lasts
+        generateSequence(0L) { it + ONE_SIXTIETH_NANOS }.take(MAX_TICKS).forEach(recreated::onFrame)
+
+        // Then
+        assertThat(soundEffects.played).isEmpty()
+    }
+
     /**
      * A game view model built with test doubles, as the factory would, but without its creation extras: the
      * route and [savedState] (empty by default, as for a new navigation entry) are given directly. The factory
@@ -1228,8 +1372,18 @@ class GameViewModelTest {
         savedState: SavedStateHandle = SavedStateHandle(),
         records: FakeHighScoreRepository = highScores,
         userPreferences: FakeUserPreferencesRepository = preferences,
-    ): GameViewModel =
-        GameViewModel(factory, route, records, userPreferences, music, haptics, musicOf, gameMusic, savedState)
+    ): GameViewModel = GameViewModel(
+        factory,
+        route,
+        records,
+        userPreferences,
+        music,
+        haptics,
+        soundEffects,
+        musicOf,
+        gameMusic,
+        savedState,
+    )
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
     private fun SavedStateHandle.restored(): SavedStateHandle = SavedStateHandle(keys().associateWith { get<Any>(it) })

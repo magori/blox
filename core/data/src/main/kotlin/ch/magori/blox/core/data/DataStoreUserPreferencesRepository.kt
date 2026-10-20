@@ -26,8 +26,9 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
             music = MusicChoice.entries.firstOrNull { it.name == stored[MUSIC] } ?: UserPreferences.DEFAULT.music,
             startLevel = stored[START_LEVEL]?.takeIf { it >= 0 }
                 ?: UserPreferences.DEFAULT.startLevel,
-            // Missing in the files of the versions before it: those keep their choices, with the default.
+            // Missing in the files of the versions before them: those keep their choices, with the defaults.
             vibrations = stored[VIBRATIONS] ?: UserPreferences.DEFAULT.vibrations,
+            soundEffects = stored[SOUND_EFFECTS] ?: UserPreferences.DEFAULT.soundEffects,
         )
     }.distinctUntilChanged()
 
@@ -48,10 +49,15 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
         dataStore.edit { it[VIBRATIONS] = vibrations }
     }
 
+    override suspend fun setSoundEffects(soundEffects: Boolean) {
+        dataStore.edit { it[SOUND_EFFECTS] = soundEffects }
+    }
+
     private companion object {
         val START_LEVEL = intPreferencesKey("start_level")
         val THEME = stringPreferencesKey("theme")
         val MUSIC = stringPreferencesKey("music")
         val VIBRATIONS = booleanPreferencesKey("vibrations")
+        val SOUND_EFFECTS = booleanPreferencesKey("sound_effects")
     }
 }

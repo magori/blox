@@ -5,6 +5,13 @@ import ch.magori.blox.core.game.model.Piece
 
 /** Something that happened in the game, for the screen and the sound. Starting a game gives none. */
 public sealed interface GameEvent {
+    /**
+     * The piece in play turned: [piece] is the piece as it turned, before the drop of that tick. A rotation
+     * refused, or one that leaves the piece as it was (the O), sends none. When the turned piece locks on the
+     * same tick, it comes before [PieceLocked].
+     */
+    public data class PieceRotated(public val piece: Piece) : GameEvent
+
     /** [piece] could not drop any further and joined the board, where it now lies. */
     public data class PieceLocked(public val piece: Piece) : GameEvent
 
