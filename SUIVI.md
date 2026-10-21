@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 154 / 187 | `████████████████░░░░` **82 %** |
+| **Général** | 155 / 187 | `█████████████████░░░` **83 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -745,7 +745,7 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   8 × 8 pour Original, en traits arrondis pour Couleurs et Brume ; Jouer, MES MUSIQUES, Écouter,
   Paramètres, Reprendre, Rejouer, Menu, Au hasard, Nouvelle, menus « … », barre d'outils de
   l'éditeur, touches A et B (flèches de rotation) (V1 à V20). Fait : `docs/maquette.md`, section Icônes.
-- [ ] **P5.54** Icônes dans le code (maquette P5.53), en deux tranches. Jeu d'icônes dans
+- [x] **P5.54** Icônes dans le code (maquette P5.53), en deux tranches. Jeu d'icônes dans
   `core:designsystem`, une variante par thème (vecteurs en pixels pour Original, traits pour
   Couleurs et Brume), choisie par le thème ; décoratives à côté d'un libellé,
   `contentDescription` seulement quand l'icône est seule ; captures dans tous les thèmes.
@@ -754,8 +754,9 @@ accessibilité, build et CI) : constats et raisons des écarts dans
     icône au-dessus du libellé, police ×2 comprise, P5.49 ; Au hasard ; menu). Fait : `BloxIcon`,
     lettres A et B gardées en 20 sp (contraste) ; tests instrumentés verts le 2026-10-21
     (`BloxIconSemanticsTest`, `ComposerScreenTest`, `GameScreenKeysTest`).
-  - [ ] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
-    « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52.
+  - [x] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
+    « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52. Fait : `GlyphButton(icon)` pour les icônes seules, `IconSizes` complété ;
+    tests instrumentés verts (`HomeScreenTest`, `MyMusicsScreenTest`, `GlyphButtonTest`).
 - [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
   dépréciée et ne se déclenche pas, et Kotlin ne les signale pas (vu à la revue de P5.54a) ;
   ajouter une vérification (detekt `UnusedImports` ou équivalent) à `build-logic` et à la CI.

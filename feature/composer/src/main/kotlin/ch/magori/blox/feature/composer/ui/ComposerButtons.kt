@@ -138,7 +138,7 @@ internal data class ToolIcon(val icon: BloxIcon, val above: Boolean)
 
 /**
  * [label] with its [icon] in [ink], if any: above it, [IconSizes.aboveLabel] high, or before it, [IconSizes.besideLabel]
- * high, [IconBesideGap] apart, the label wrapping in the room left.
+ * high, [IconSizes.denseGap] apart, the label wrapping in the room left.
  */
 @Composable
 private fun IconAndLabel(
@@ -156,18 +156,11 @@ private fun IconAndLabel(
 
         else -> Row(verticalAlignment = Alignment.CenterVertically) {
             BloxIcon(icon.icon, tint = ink)
-            Spacer(modifier = Modifier.width(IconBesideGap))
+            Spacer(modifier = Modifier.width(IconSizes.denseGap))
             Box(modifier = Modifier.weight(1f, fill = false)) { label() }
         }
     }
 }
-
-/**
- * Between an icon and the label it goes before, on a button of the editor: 6 dp, as the mockup gives *Au hasard*, rather
- * than the 8 dp of [IconSizes.gap] (the buttons of the game screens). The editor is denser: on 360 dp, twice as large,
- * *Au hasard* shares its line with the choices of the dice (`DICE_SHARE`), and every dp goes to its label.
- */
-private val IconBesideGap = 6.dp
 
 /** The line of a [mark] under the label, in [ink], and the mark read by TalkBack as the state of the button. */
 private fun Modifier.marked(

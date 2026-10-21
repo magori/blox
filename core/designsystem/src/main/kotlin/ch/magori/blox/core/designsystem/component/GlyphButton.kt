@@ -12,28 +12,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
-/** The box a glyph is drawn in. */
-private val GlyphSize = 24.dp
+/** The tag of the icon of a [GlyphButton] of an icon alone, decorative, read by the tests only. */
+const val GLYPH_BUTTON_ICON_TAG = "glyph_button_icon"
+
+/** The width of the strokes of a glyph, and the radius of its dots, in parts of its box. */
 private const val GLYPH_STROKE = 0.12f
 private const val DOT_RADIUS = 0.09f
 
 /**
- * A button that shows a glyph alone, drawn by [glyph] in [ink], on a touch target of 48 dp, on [background]
- * (transparent unless told otherwise); TalkBack reads [description].
+ * A button that shows a glyph alone, drawn by [glyph] in [ink] in a box of [IconSizes.alone], on a touch target of
+ * 48 dp, on [background] (transparent unless told otherwise); TalkBack reads [description].
  */
 @Composable
 fun GlyphButton(
@@ -43,6 +46,38 @@ fun GlyphButton(
     ink: Color = BloxTheme.palette.ink,
     background: Color = Color.Transparent,
     glyph: DrawScope.(ink: Color) -> Unit,
+) {
+    AloneButton(description, onClick, background, modifier) {
+        Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { glyph(ink) })
+    }
+}
+
+/**
+ * A button that shows [icon] alone, [IconSizes.alone] square, in [ink], on a touch target of 48 dp, on [background]
+ * (transparent unless told otherwise); TalkBack reads [description], once: the icon itself has none.
+ */
+@Composable
+fun GlyphButton(
+    icon: BloxIcon,
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    ink: Color = BloxTheme.palette.ink,
+    background: Color = Color.Transparent,
+) {
+    AloneButton(description, onClick, background, modifier) {
+        BloxIcon(icon, Modifier.testTag(GLYPH_BUTTON_ICON_TAG), size = IconSizes.alone, tint = ink)
+    }
+}
+
+/** A button of 48 dp at least, on [background], that shows [content] alone; TalkBack reads [description]. */
+@Composable
+private fun AloneButton(
+    description: String,
+    onClick: () -> Unit,
+    background: Color,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
 ) {
     val shape = BloxTheme.shapes.button
     Box(
@@ -54,7 +89,7 @@ fun GlyphButton(
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { contentDescription = description },
     ) {
-        Spacer(modifier = Modifier.size(GlyphSize).drawBehind { glyph(ink) })
+        content()
     }
 }
 
@@ -85,32 +120,6 @@ object Glyphs {
         listOf(0.2f, 0.5f, 0.8f).forEach { x ->
             drawCircle(color, radius = size.width * DOT_RADIUS, center = Offset(size.width * x, size.height / 2))
         }
-    }
-
-    /** A triangle pointing right: play. */
-    fun play(
-        scope: DrawScope,
-        color: Color,
-    ) = with(scope) {
-        val path = Path().apply {
-            moveTo(size.width * 0.3f, size.height * 0.2f)
-            lineTo(size.width * 0.8f, size.height * 0.5f)
-            lineTo(size.width * 0.3f, size.height * 0.8f)
-            close()
-        }
-        drawPath(path, color)
-    }
-
-    /** A square: stop. */
-    fun stop(
-        scope: DrawScope,
-        color: Color,
-    ) = with(scope) {
-        drawRect(
-            color,
-            topLeft = Offset(size.width * 0.25f, size.height * 0.25f),
-            size = Size(size.width * 0.5f, size.height * 0.5f),
-        )
     }
 
     /** A cross: close. */

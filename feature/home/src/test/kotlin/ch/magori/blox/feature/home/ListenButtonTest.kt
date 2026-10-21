@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.home
 
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,7 +15,7 @@ class ListenButtonTest {
             ListenTexts(
                 label = R.string.feature_home_listen,
                 description = R.string.feature_home_listen_description,
-                glyph = ListenGlyph.PLAY,
+                icon = BloxIcon.PLAY,
             ),
         )
     }
@@ -29,7 +30,7 @@ class ListenButtonTest {
             ListenTexts(
                 label = R.string.feature_home_stop,
                 description = R.string.feature_home_stop_description,
-                glyph = ListenGlyph.STOP,
+                icon = BloxIcon.STOP,
             ),
         )
     }

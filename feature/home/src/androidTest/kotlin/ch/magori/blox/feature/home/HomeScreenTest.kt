@@ -12,6 +12,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
@@ -24,6 +25,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
@@ -34,6 +36,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -41,6 +44,7 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
+import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -215,7 +219,7 @@ internal class HomeScreenTest {
         onNodeWithContentDescription("Arrêter Menuet")
             .assertHasClickAction()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Arrêter Menuet")))
-        onNode(hasTestTag(LISTEN_GLYPH_TAG), useUnmergedTree = true)
+        iconOf(hasContentDescription("Arrêter Menuet"))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
     }
@@ -601,6 +605,90 @@ internal class HomeScreenTest {
         onNodeWithText("Vibrations").assertDoesNotExist()
         onNodeWithText("Effets sonores").assertDoesNotExist()
     }
+
+    @Test
+    @DisplayName("Jouer, MES MUSIQUES, Écouter and Composer une musique bear an icon that TalkBack does not read")
+    fun theButtonsWithALabelBearAnIconThatTalkBackDoesNotRead() = extension.use {
+        // Given the minuet selected, which may be listened to
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MINUET)))
+
+        // Then each bears one icon, decorative
+        listOf(
+            hasTestTag(PLAY_TAG),
+            hasContentDescription("Mes musiques"),
+            hasContentDescription("Écouter Menuet"),
+            hasContentDescription("Composer une musique"),
+        ).forEach { button ->
+            iconOf(button)
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
+        }
+        // And TalkBack reads each button as before, its label once
+        onNode(hasTestTag(PLAY_TAG))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString("Jouer"))))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        listOf("Mes musiques", "Écouter Menuet", "Composer une musique").forEach { description ->
+            onNodeWithContentDescription(description)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(description)))
+        }
+    }
+
+    @Test
+    @DisplayName("the gear button is read Paramètres once, its icon adding nothing")
+    fun theGearButtonIsReadOnce() = extension.use {
+        // Given
+        showHomeScreen()
+
+        // Then the button alone is described, once
+        onNodeWithContentDescription("Paramètres")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Paramètres")))
+        onAllNodes(hasContentDescription("Paramètres"), useUnmergedTree = true).assertCountEquals(1)
+        // And its icon is there, with nothing for TalkBack: neither a description nor a role
+        onNode(
+            hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(hasContentDescription("Paramètres")),
+            useUnmergedTree = true,
+        )
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName(
+        "in a font twice as large, on 360 dp, Jouer, MES MUSIQUES and Écouter are shown whole, after their icons",
+    )
+    fun inALargeFontJouerMyMusicsAndListenAreShownWholeAfterTheirIcons(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on 360 dp, the minuet selected, which may be listened to
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.MINUET)),
+            width = NARROW_PHONE,
+            fontScale = 2f,
+            kind = kind,
+        )
+
+        // Then each label is shown whole, on one line, after its icon, within its button and the screen
+        listOf(
+            hasTestTag(PLAY_TAG) to "Jouer",
+            hasContentDescription("Mes musiques") to "MES MUSIQUES",
+            hasContentDescription("Écouter Menuet") to "Écouter",
+        ).forEach { (button, label) ->
+            val bounds = onNode(button).getUnclippedBoundsInRoot()
+            val icon = iconOf(button).getUnclippedBoundsInRoot()
+            val layout = textLayout(label)
+            assertThat(layout.lineCount).isEqualTo(1)
+            // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
+            assertThat(layout.getLineRight(0)).isLessThanOrEqualTo(layout.size.width.toFloat())
+            val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertThat(icon.right).isLessThanOrEqualTo(shown.left)
+            assertThat(icon.left).isGreaterThanOrEqualTo(bounds.left)
+            assertThat(shown.right).isLessThanOrEqualTo(bounds.right)
+            assertThat(bounds.right).isLessThanOrEqualTo(NARROW_PHONE)
+        }
+    }
+
+    /** The icon of the button [button] matches, alone in it. */
+    private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
+        onNode(hasTestTag(HOME_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
 
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,
