@@ -1,10 +1,12 @@
 package ch.magori.blox.feature.musics
 
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -24,10 +26,14 @@ import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasScrollToNodeAction
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithContentDescription
 import androidx.compose.ui.test.onAllNodesWithText
@@ -36,10 +42,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -51,6 +61,8 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -446,6 +458,89 @@ internal class MyMusicsScreenTest {
         }
     }
 
+    @Test
+    @DisplayName("Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone")
+    fun auHasardAndNouvelleBearAnIconThatTalkBackDoesNotRead() = extension.use {
+        // Given
+        showMyMusics()
+
+        // Then
+        listOf("Au hasard", "Nouvelle").forEach { label ->
+            val button = hasClickAction() and hasText(label)
+            iconOf(holding(label)).assertIsDecorative()
+            onNode(button)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString(label))))
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        }
+    }
+
+    @Test
+    @DisplayName("the listen button and Utiliser of a card are read once, their icons adding nothing")
+    fun theListenButtonAndUtiliserAreReadOnce() = extension.use {
+        // Given Ma marche, neither listened to nor played during the games
+        showMyMusics()
+
+        // Then Utiliser bears a note, decorative
+        val use = hasContentDescription("Ma marche pendant les parties")
+        iconOf(use).assertIsDecorative()
+        // And each button is read by its description alone, once
+        listOf("Écouter Ma marche", "Ma marche pendant les parties").forEach { description ->
+            onNodeWithContentDescription(description)
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(description)))
+            onAllNodes(hasContentDescription(description), useUnmergedTree = true).assertCountEquals(1)
+        }
+        // And the listen button bears its icon, decorative
+        onNode(
+            hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(hasContentDescription("Écouter Ma marche")),
+            useUnmergedTree = true,
+        ).assertIsDecorative()
+    }
+
+    @Test
+    @DisplayName("each item of the menu of a card bears an icon that TalkBack does not read")
+    fun eachItemOfTheMenuBearsAnIcon() = extension.use {
+        // Given the menu of Ma marche open
+        showMyMusics()
+
+        // When
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").performClick()
+
+        // Then
+        listOf("Modifier", "Renommer", "La jouer pendant les parties", "Supprimer").forEach { item ->
+            iconOf(holding(item)).assertIsDecorative()
+        }
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a font twice as large, on 360 dp, Au hasard and Nouvelle are shown whole, after their icons")
+    fun inALargeFontAuHasardAndNouvelleAreShownWhole(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on 360 dp, the width of the mockup
+        showMyMusics(fontScale = 2f, kind = kind, width = 360.dp)
+
+        // Then each label is shown on one line, not cut, after its icon, within its button
+        listOf("Au hasard", "Nouvelle").forEach { label ->
+            val button = hasClickAction() and hasText(label)
+            val bounds = onNode(button).getUnclippedBoundsInRoot()
+            val icon = iconOf(holding(label)).getUnclippedBoundsInRoot()
+            val text = onNode(hasText(label), useUnmergedTree = true)
+            val layout = text.layout()
+            assertThat(layout.lineCount).isEqualTo(1)
+            assertThat(layout.hasVisualOverflow).isFalse()
+            val shown = text.getUnclippedBoundsInRoot()
+            assertThat(icon.left).isGreaterThanOrEqualTo(bounds.left)
+            assertThat(icon.right).isLessThanOrEqualTo(shown.left)
+            assertThat(shown.right).isLessThanOrEqualTo(bounds.right)
+        }
+    }
+
+    /** The icon of the button [button] matches, alone in it. */
+    private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
+        onNode(hasTestTag(MUSICS_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
+
+    /** The button that holds the text [label], as the unmerged tree sees it: its text is one of its children. */
+    private fun holding(label: String): SemanticsMatcher = hasClickAction() and hasAnyDescendant(hasText(label))
+
     /** The card of a music of eight bars. */
     private fun aCard(
         id: ScoreId.Personal,
@@ -469,28 +564,40 @@ internal class MyMusicsScreenTest {
         state: MyMusicsUiState = uiState,
         renameProblem: (String) -> NameProblem? = { null },
         fontScale: Float = 1f,
-    ) = setMyMusics(renameProblem, fontScale) { state }
+        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
+        width: Dp = Dp.Unspecified,
+    ) = setMyMusics(renameProblem, fontScale, kind, width) { state }
 
-    /** Shows the list in the state [state] gives, read again when it changes, its font [fontScale] times as large. */
+    /**
+     * Shows the list in the state [state] gives, read again when it changes, its font [fontScale] times as large, in the
+     * theme [kind], [width] wide.
+     */
     private fun ComposeContext.setMyMusics(
         renameProblem: (String) -> NameProblem? = { null },
         fontScale: Float = 1f,
+        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
+        width: Dp = Dp.Unspecified,
         state: () -> MyMusicsUiState,
     ) {
         setContent {
             val density = Density(LocalDensity.current.density, fontScale)
-            CompositionLocalProvider(LocalDensity provides density) { ThemedMyMusics(renameProblem, state) }
+            CompositionLocalProvider(LocalDensity provides density) {
+                ThemedMyMusics(renameProblem, kind, Modifier.width(width), state)
+            }
         }
     }
 
-    /** The list in the theme Couleurs, its actions written down in [calls]. */
+    /** The list in the theme [kind], its actions written down in [calls]. */
     @Composable
     private fun ThemedMyMusics(
         renameProblem: (String) -> NameProblem?,
+        kind: BloxThemeKind,
+        modifier: Modifier = Modifier,
         state: () -> MyMusicsUiState,
     ) {
-        BloxTheme(kind = BloxThemeKind.COLORFUL) {
+        BloxTheme(kind = kind) {
             MyMusicsScreen(
+                modifier = modifier,
                 uiState = state(),
                 actions = object : MyMusicsActions {
                     override fun onBack() {
@@ -579,3 +686,9 @@ private fun SemanticsNodeInteraction.assertOnOneLineCutShort(): SemanticsNodeInt
 /** Asserts that this node is a square of the touch target, 48 dp. */
 private fun SemanticsNodeInteraction.assertIsSquareOfTouchTarget(): SemanticsNodeInteraction =
     assertWidthIsEqualTo(BloxSizes.minTouchTarget).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+
+/** Asserts that this icon is decorative: TalkBack has nothing to read on it, neither a description nor a role. */
+private fun SemanticsNodeInteraction.assertIsDecorative(): SemanticsNodeInteraction =
+    assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
+        .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))

@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.musics
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -33,14 +34,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -59,12 +59,17 @@ import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.SingleLineText
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.ScoreId
+
+/** The tag of the icons of « Mes musiques », decorative, read by the tests only. */
+internal const val MUSICS_ICON_TAG = "musics_icon"
 
 /** What the player does on « Mes musiques »: the screen hands each action over, and decides nothing. */
 @Stable
@@ -233,19 +238,16 @@ private fun MusicCardRow(
         horizontalArrangement = Arrangement.spacedBy(4.dp),
     ) {
         val listening = card.listening
-        val listenDescription =
-            if (listening !=
-                null
-            ) {
-                R.string.feature_musics_stop_description
-            } else {
-                R.string.feature_musics_listen_description
-            }
+        val listenDescription = if (listening != null) {
+            R.string.feature_musics_stop_description
+        } else {
+            R.string.feature_musics_listen_description
+        }
         GlyphButton(
+            icon = if (listening != null) BloxIcon.STOP else BloxIcon.PLAY,
             description = stringResource(listenDescription, card.name),
             onClick = { actions.onListen(card.id) },
             background = palette.page,
-            glyph = { ink -> if (listening != null) Glyphs.stop(this, ink) else Glyphs.play(this, ink) },
         )
         // Touching the name, or its info line, opens the music in the editor; TalkBack says so. 48 dp high at least.
         Column(
@@ -320,7 +322,7 @@ private class LaidOutText {
 
 /**
  * *Utiliser*, a note framed; or *En jeu*, a tick on the accent, as a selected choice of the home screen: a square of
- * 48 dp. A switch for TalkBack: « Thème du soir pendant les parties », on or off.
+ * 48 dp. A switch for TalkBack: « Thème du soir pendant les parties », on or off; the note and the tick add nothing.
  */
 @Composable
 private fun UseSwitch(
@@ -342,34 +344,15 @@ private fun UseSwitch(
             .toggleable(value = inGame, role = Role.Switch) { onClick() }
             .semantics { contentDescription = description },
     ) {
-        Spacer(
-            modifier = Modifier.size(GlyphSize).drawBehind {
-                if (inGame) tick(ink) else note(ink)
-            },
-        )
+        if (inGame) {
+            Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { tick(ink) })
+        } else {
+            BloxIcon(BloxIcon.NOTE, Modifier.testTag(MUSICS_ICON_TAG), size = IconSizes.alone, tint = ink)
+        }
     }
 }
 
-/** A note of music: a head, its stem and its flag. Drawn here until the icons of the project come (P5.54). */
-private fun DrawScope.note(color: Color) {
-    val stroke = size.width * GLYPH_STROKE
-    drawOval(
-        color,
-        topLeft = Offset(size.width * NOTE_HEAD_LEFT, size.height * 0.62f),
-        size = Size(size.width * (NOTE_HEAD_RIGHT - NOTE_HEAD_LEFT), size.height * 0.24f),
-    )
-    // The stem rises from the right edge of the head, inside it; its square ends match those of the tick.
-    val stem = size.width * NOTE_HEAD_RIGHT - stroke / 2
-    val top = Offset(stem, size.height * 0.15f)
-    drawLine(color, Offset(stem, size.height * 0.74f), top, stroke, cap = StrokeCap.Square)
-    drawLine(color, top, Offset(size.width * 0.8f, size.height * 0.32f), stroke, cap = StrokeCap.Square)
-}
-
-/** The left and right edges of the head of the note, in parts of its box. */
-private const val NOTE_HEAD_LEFT = 0.2f
-private const val NOTE_HEAD_RIGHT = 0.54f
-
-/** A tick: on. Drawn here until the icons of the project come (P5.54). */
+/** A tick: on. */
 private fun DrawScope.tick(color: Color) {
     val path = Path().apply {
         moveTo(size.width * 0.2f, size.height * 0.52f)
@@ -379,13 +362,12 @@ private fun DrawScope.tick(color: Color) {
     drawPath(
         path,
         color,
-        style = Stroke(width = size.width * GLYPH_STROKE, cap = StrokeCap.Square, join = StrokeJoin.Miter),
+        style = Stroke(width = size.width * TICK_STROKE, cap = StrokeCap.Square, join = StrokeJoin.Miter),
     )
 }
 
-/** The box the glyphs of a card are drawn in, and the width of their strokes, as those of the other buttons. */
-private val GlyphSize = 24.dp
-private const val GLYPH_STROKE = 0.12f
+/** The width of the stroke of the tick, in parts of its box, as the glyphs of the other buttons. */
+private const val TICK_STROKE = 0.12f
 
 /** The menu « … » of a card: *Modifier*, *Renommer*, *La jouer* or *Ne plus la jouer pendant les parties*, *Supprimer*. */
 @Composable
@@ -406,22 +388,23 @@ private fun CardMenu(
             onDismissRequest = { expanded = false },
             containerColor = palette.panel,
         ) {
-            MenuItem(R.string.feature_musics_menu_edit, palette.ink) {
+            MenuItem(R.string.feature_musics_menu_edit, BloxIcon.EDIT, palette.ink) {
                 expanded = false
                 actions.onEdit(card.id)
             }
-            MenuItem(R.string.feature_musics_menu_rename, palette.ink) {
+            MenuItem(R.string.feature_musics_menu_rename, BloxIcon.RENAME, palette.ink) {
                 expanded = false
                 actions.onRename(card.id)
             }
             MenuItem(
                 if (card.inGame) R.string.feature_musics_menu_stop_using else R.string.feature_musics_menu_use,
+                BloxIcon.NOTE,
                 palette.ink,
             ) {
                 expanded = false
                 actions.onUse(card.id)
             }
-            MenuItem(R.string.feature_musics_menu_delete, palette.danger) {
+            MenuItem(R.string.feature_musics_menu_delete, BloxIcon.TRASH, palette.danger) {
                 expanded = false
                 actions.onDelete(card.id)
             }
@@ -429,16 +412,19 @@ private fun CardMenu(
     }
 }
 
+/** An item of the menu « … », [text] after its [icon], decorative, both in [color]. */
 @Composable
 private fun MenuItem(
-    text: Int,
+    @StringRes text: Int,
+    icon: BloxIcon,
     color: Color,
     onClick: () -> Unit,
 ) {
     DropdownMenuItem(
         text = { Text(text = stringResource(text), color = color, style = MaterialTheme.typography.labelLarge) },
+        leadingIcon = { BloxIcon(icon, Modifier.testTag(MUSICS_ICON_TAG), tint = color) },
         onClick = onClick,
-        modifier = Modifier.heightIn(min = 48.dp),
+        modifier = Modifier.heightIn(min = BloxSizes.minTouchTarget),
     )
 }
 
@@ -485,7 +471,7 @@ private fun UndoMessage(
     }
 }
 
-/** *Au hasard*, framed as a panel, and *Nouvelle*, in the accent, side by side. */
+/** *Au hasard*, framed as a panel, and *Nouvelle*, in the accent, side by side, each after its icon: a die, a plus. */
 @Composable
 private fun BottomButtons(
     onRandom: () -> Unit,
@@ -500,6 +486,7 @@ private fun BottomButtons(
             frame = palette.panelBorder,
             onClick = onRandom,
             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+            icon = BloxIcon.DICE,
         )
         TextButtonBox(
             text = stringResource(R.string.feature_musics_new),
@@ -508,6 +495,7 @@ private fun BottomButtons(
             frame = palette.accent,
             onClick = onNew,
             modifier = Modifier.weight(1f).heightIn(min = 56.dp),
+            icon = BloxIcon.PLUS,
         )
     }
 }

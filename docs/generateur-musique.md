@@ -661,7 +661,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   TalkBack (« X pendant les parties »), activé pour la musique jouée pendant les parties : note
   de musique encadrée sur `panel` quand elle n'est pas en jeu, coche `accentInk` sur `accent`
   quand elle l'est. Le toucher choisit la musique, ou rend celle de l'accueil si elle était en
-  jeu. Note et coche sont dessinées sur place, en attendant le jeu d'icônes (P5.54b).
+  jeu. La note est l'icône `NOTE` de 24 dp (P5.54b) ; la coche reste dessinée sur place.
 - **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
   - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
     `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.

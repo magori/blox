@@ -303,9 +303,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ## Icônes
 
-Maquettées le 2026-10-20 (P5.53, demande du développeur). Codées (P5.54a) : jeu d'icônes
-(`BloxIcon`, `core:designsystem`), écran de jeu, pause, fin de partie et éditeur ; restent
-l'accueil et « Mes musiques » (P5.54b). Une icône
+Maquettées le 2026-10-20 (P5.53, demande du développeur). Codées : jeu d'icônes
+(`BloxIcon`, `core:designsystem`), écran de jeu, pause, fin de partie et éditeur (P5.54a),
+accueil et « Mes musiques » (P5.54b). Une icône
 accompagne toujours un libellé, sauf l'engrenage de V1 et les boutons écouter et « … » des
 cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues).
 
@@ -321,7 +321,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   corbeille (*Supprimer*), maison (*Menu* de V4 et V19), flèche en boucle (*Rejouer*), et pour
   la barre d'outils de l'éditeur, au-dessus du libellé : case (*Poser*), flèche (*Allonger*),
   flèche retour (*Annuler*), deux cadres (*Copier*), gomme (*Effacer*) ; touches de rotation :
-  flèche anti-horaire sur B, horaire sur A, de 24 dp, au-dessus de la lettre (13 sp), qui reste
+  flèche anti-horaire sur B, horaire sur A, de 24 dp, au-dessus de la lettre (20 sp, voir V2), qui reste
   pour faire le lien avec les boutons de la manette (P5.27).
 - Vues touchées : V1 à V6, V7 à V18 (liste, menu, éditeur), V19, V20. La coche des choix sélectionnés et
   la flèche Retour ne changent pas.
@@ -342,6 +342,21 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   `KeyGlyphTest › the letter keeps its size when it holds under the arrow in the key`,
   `KeyGlyphTest › the letter shrinks to hold under the arrow in the key when the font is enlarged`,
   `KeyGlyphTest › a letter exactly as high as the room under the arrow keeps its size`.
+- Dans le code (P5.54b) : l'engrenage, le bouton écouter des cartes et la note d'*Utiliser* sont
+  des icônes seules de 24 dp (`GlyphButton(icon)`, `IconSizes.alone`), lues une fois par le nom
+  de leur bouton ; *En jeu* garde sa coche. *Au hasard* et *Nouvelle* : 18 dp, écart de 6 dp et
+  marge latérale réduite à 2 dp dans le cadre, pour tenir en Original ×2 à 360 dp (comme le
+  bouton *Annuler* du message de suppression, qui partage ce bouton). Menu « … » des cartes :
+  icônes en tête, la corbeille en `danger` comme *Supprimer*.
+  **Tests :** `HomeScreenTest › Jouer, MES MUSIQUES, Écouter and Composer une musique bear an icon that TalkBack does not read`,
+  `HomeScreenTest › the gear button is read Paramètres once, its icon adding nothing`,
+  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer, MES MUSIQUES and Écouter are shown whole, after their icons`,
+  `GlyphButtonTest › a button of an icon alone is 48 dp, read as a button of its description, its icon adding nothing`,
+  `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
+  `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,
+  `MyMusicsScreenTest › the listen button and Utiliser of a card are read once, their icons adding nothing`,
+  `MyMusicsScreenTest › each item of the menu of a card bears an icon that TalkBack does not read`,
+  `MyMusicsScreenTest › in a font twice as large, on 360 dp, Au hasard and Nouvelle are shown whole, after their icons`.
 
 ## Pas encore codé
 

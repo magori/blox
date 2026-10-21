@@ -49,6 +49,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -61,6 +63,12 @@ internal const val START_LEVEL_TAG = "home_start_level"
 
 /** The tag of the logo, decorative, read by the tests only. */
 internal const val HOME_LOGO_TAG = "home_logo"
+
+/**
+ * The tag of the play button, the same in every language, read by the tests and by the journey of `:benchmark`, which
+ * copies it as it is: it does not see this module (`PlayTagTest`).
+ */
+internal const val PLAY_TAG = "home_play"
 
 /**
  * The home screen (V1): logo and title on one line, the record under them, mode, theme, start level, music, and the
@@ -179,10 +187,13 @@ internal fun HomeScreen(
         Button(
             onClick = dropUnlessResumed { onPlay(uiState.startLevel) },
             modifier = Modifier
-                .testTag("home_play")
+                .testTag(PLAY_TAG)
                 .heightIn(min = BloxSizes.minTouchTarget),
             colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
         ) {
+            // A triangle before the label, decorative: TalkBack reads « Jouer », nothing more.
+            BloxIcon(BloxIcon.PLAY, Modifier.testTag(HOME_ICON_TAG))
+            Spacer(Modifier.width(IconSizes.gap))
             Text(text = stringResource(R.string.feature_home_play))
         }
     }
