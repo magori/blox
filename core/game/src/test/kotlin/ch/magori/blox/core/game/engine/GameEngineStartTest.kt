@@ -45,6 +45,19 @@ class GameEngineStartTest {
         assertThat(events).isEmpty()
     }
 
+    @ParameterizedTest(name = "start level {0}")
+    @ValueSource(ints = [0, 5, 9])
+    fun `a game that starts sends no level up`(startLevel: Int) {
+        // Given
+        val engine = GameEngine(ClassicRules, ScriptedRandomizer(PieceType.T, PieceType.J))
+
+        // When
+        val events = engine.start(Level(startLevel)).events
+
+        // Then
+        assertThat(events).noneMatch { it is GameEvent.LevelUp }
+    }
+
     @Test
     fun `the last starting level of the range is accepted`() {
         // Given

@@ -1,7 +1,9 @@
 package ch.magori.blox.core.game.engine
 
 import ch.magori.blox.core.game.model.Board
+import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
+import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
@@ -57,14 +59,36 @@ class GameEngineGameOverTest {
         )
 
         // When the game goes on to its end
-        val updates = generateSequence(engine.tick(state)) { engine.tick(it.state) }
-            .take(60)
-            .takeWhile { it.state.phase !is Phase.GameOver || GameEvent.GameOver in it.events }
-            .toList()
+        val updates = engine.updatesToTheEnd(state)
 
         // Then
         assertThat(updates.last().state.phase).isInstanceOf(Phase.GameOver::class.java)
         assertThat(updates.flatMap { it.events }).containsExactlyElementsOf(expectedEvents)
+    }
+
+    @Test
+    fun `a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`() {
+        // Given 289 lines at level 28, the stack in danger, and the last piece about to clear one line: 290 lines,
+        // level 29; a T comes next, and cannot appear
+        val state = gameState(
+            board = TOWER_ON_A_ROW_TO_CLEAR,
+            next = PieceType.T,
+            lines = Lines(289),
+            stackInDanger = true,
+            phase = Phase.Falling(I_FILLING_ROW_19),
+        )
+
+        // When the game goes on to its end
+        val updates = engine.updatesToTheEnd(state)
+
+        // Then
+        assertThat(updates.last().state.phase).isInstanceOf(Phase.GameOver::class.java)
+        assertThat(updates.flatMap { it.events }).containsExactly(
+            GameEvent.PieceLocked(I_FILLING_ROW_19),
+            GameEvent.LinesCleared(LineClear(1)),
+            GameEvent.LevelUp(Level(29)),
+            GameEvent.GameOver,
+        )
     }
 
     @Test
@@ -82,10 +106,7 @@ class GameEngineGameOverTest {
         )
 
         // When the game goes on to its end
-        val updates = generateSequence(engine.tick(state)) { engine.tick(it.state) }
-            .take(60)
-            .takeWhile { it.state.phase !is Phase.GameOver || GameEvent.GameOver in it.events }
-            .toList()
+        val updates = engine.updatesToTheEnd(state)
 
         // Then
         val turned = ClassicRotationSystem.candidates(T_ON_THE_FLOOR, Rotation.CLOCKWISE).single()
@@ -95,6 +116,13 @@ class GameEngineGameOverTest {
         assertThat(updates.last().events).containsExactly(GameEvent.GameOver)
         assertThat(updates.drop(1).dropLast(1).flatMap { it.events }).isEmpty()
     }
+
+    /** The updates of the ticks from [state] up to the one that ends the game, within a second. */
+    private fun GameEngine.updatesToTheEnd(state: GameState): List<GameUpdate> =
+        generateSequence(tick(state)) { tick(it.state) }
+            .take(60)
+            .takeWhile { it.state.phase !is Phase.GameOver || GameEvent.GameOver in it.events }
+            .toList()
 
     private companion object {
         /** A column of 20 cells in column 5: no piece can appear. */

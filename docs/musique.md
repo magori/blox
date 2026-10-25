@@ -548,7 +548,7 @@ La hauteur de pile vaut 20 moins la première ligne occupée (0 si le plateau es
 deux seuils, pour que le tempo ne bascule pas à chaque pièce. Valeurs à régler en jouant
 **[à vérifier]**. La hauteur se mesure au verrouillage, sur le plateau **après** effacement des
 lignes ; l'événement n'est émis qu'au franchissement, au verrouillage s'il n'y a pas
-d'effacement, sinon à la fin de l'animation, avec `LinesCleared`, pour que le tempo change
+d'effacement, sinon à la fin de l'animation, avec `LinesCleared` (et `LevelUp` éventuel, émis entre les deux), pour que le tempo change
 quand la pile baisse à l'écran. La fin de partie n'émet pas `StackDanger(off)` : c'est l'audio
 qui s'arrête sur `GameOver`.
 
