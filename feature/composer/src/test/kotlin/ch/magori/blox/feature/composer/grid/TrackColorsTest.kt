@@ -12,17 +12,20 @@ import org.junit.jupiter.params.provider.MethodSource
 internal class TrackColorsTest {
     @ParameterizedTest(name = "{0}, {2}")
     @MethodSource("themesAndTracks")
-    fun `the attack and the held part of a note stand out from the cell by a contrast of 3 to 1 at least`(
+    fun `the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`(
         theme: String,
         palette: BloxPalette,
         track: Track,
     ) {
         // When
         val colors = trackColors(palette, track)
+        val held = heldPart(palette, track)
 
-        // Then (WCAG 2.1, 1.4.11: graphical objects)
+        // Then (WCAG 2.1, 1.4.11: graphical objects): the held part, in a paler band, is edged above and below in the
+        // colour of its track, which draws it on the cell whatever the band
+        assertThat(held).isEqualTo(HeldPart(band = colors.held, edge = colors.note))
         assertThat(contrast(colors.note, palette.boardBackground)).isGreaterThanOrEqualTo(3.0)
-        assertThat(contrast(colors.held, palette.boardBackground)).isGreaterThanOrEqualTo(3.0)
+        assertThat(contrast(held.edge, palette.boardBackground)).isGreaterThanOrEqualTo(3.0)
     }
 
     @ParameterizedTest(name = "{0}, {2}")

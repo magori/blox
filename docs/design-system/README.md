@@ -44,7 +44,7 @@ de suite ; ils reviennent en `motion-press`. Focus clavier : contour de 3 px `in
 |---|---|---|---|---|
 | Principal XL (Jouer) | pilule de 72 px (84 tablette, 64 couché) | `accent`, `play-label` en `accent-ink`, sous-ligne `small` 600, disque de 52 px `accent-ink` avec le triangle en `accent` | `accent-pressed` | — |
 | Principal (Reprendre, Rejouer) | pilule de 56 px | `accent`, `button-label-strong`, pictogramme de 24 | `accent-pressed` | — |
-| Secondaire (Menu, Changer, tuiles) | pilule de 56 px ; tuile en `radius-md` | `button`, cadre de 2 px `button-outline`, `button-ink` 15/700 | `button-pressed` jusqu'au bord | libellé `label`, cadre `panel-border`, sans reflet |
+| Secondaire (Menu, Changer, tuiles) | pilule de 56 px ; tuile en `radius-md` | `button`, cadre de 2 px `button-outline`, `button-ink` 15/700 | `button-pressed`, cadre gardé | libellé `label`, cadre `panel-border`, sans reflet |
 | Icône (Paramètres, Écouter, Pause) | disque de 48 px (56 tablette) | comme Secondaire, pictogramme de 24 | idem | idem |
 | Groupe de choix (mode, thème) | boîte de 48 px en pilule, cadre de 2 px `button-outline` autour du groupe ; segments de 44 px | segment : transparent, `ink` 15/500 | retenu : `accent`, coche de 16 et libellé `accent-ink` | Moderne : libellé `label` et étiquette `BIENTÔT` 11/700 |
 
@@ -128,13 +128,13 @@ Menuet, Mon fichier, la musique personnelle en jeu, Aucune), chacune avec sa coc
 
 | Événement | Visuel | Effets réduits |
 |---|---|---|
-| Touche pressée | remplissage pressé, 2 px plus bas | remplissage seul |
+| Touche pressée | remplissage pressé, 2 px plus bas | idem : la descente n'est pas une animation, et c'est le seul repère de A tenue de jour (1,4:1 contre A au repos) |
 | `PieceRotated` | le pictogramme de A ou B tourne de 90° (6 ticks) | rien |
 | `PieceLocked` | les 4 cases posées s'éclairent (8 ticks) | rien |
 | Effacement (`Phase.Clearing`) | rangées en `clear-glow`, cases qui éclatent par paires du centre vers les bords, calées sur le délai NES | rangées en `clear-glow` fixe |
 | `LinesCleared` | rangées du dessus qui glissent, autocollant « +points » (`points-pop`, `motion-pop`), score qui compte | autocollant fixe, score immédiat |
 | 4 lignes | en plus : reflet irisé qui fait le tour du cadre, autocollant « 4 LIGNES » (`four-lines-pop`) | cadre irisé fixe |
-| `LevelUp` (à ajouter au moteur) | l'encart NIVEAU bascule et s'encadre d'`accent` (1 s), annonce TalkBack | cadre `accent` sans bascule |
+| `LevelUp` | l'encart NIVEAU bascule et s'encadre d'`accent` (1 s), annonce TalkBack | cadre `accent` sans bascule |
 | `StackDanger` | cadre du plateau `danger` de 4 px, 5 rangées du haut en `danger-soft` qui respire | cadre et teinte fixes |
 | Record battu | NOUVEAU RECORD rebondit à la place du record, barre de record irisée | échange sans rebond |
 | `GameOver` | pile éteinte de bas en haut (2 ticks par rangée), carte, score qui compte | pile éteinte d'un coup, fondu |
@@ -223,13 +223,16 @@ place du « o ». Dessiné dans la maquette (composant `LogoBloX`), pas encore e
 |---|---|---|
 | `ink` sur `page` | 14,8:1 | 18,2:1 |
 | `label` sur `page` / `panel` | 7,0:1 / 8,0:1 | 9,1:1 / 8,2:1 |
-| `accent-ink` sur `accent` / `accent-pressed` | 6,5:1 / 4,6:1 | 16,9:1 / 11,7:1 |
+| `accent-ink` sur `accent` / `accent-pressed` | 6,5:1 / 4,6:1 | 16,9:1 / 9,5:1 |
 | `button-outline` sur `page` | 3,7:1 | 4,1:1 |
 | `melody` / `bass` sur `cell-ground` | 4,8:1 / 4,8:1 | 6,1:1 / 9,0:1 |
 | `danger` sur `page` | 5,0:1 | 6,2:1 |
 
 `panel-border` (1,4:1) reste décoratif : tout ce qui se touche est encadré en `button-outline`,
-et les choix le sont par le cadre de leur groupe. Le danger se lit aussi à l'épaisseur du
+et les choix le sont par le cadre de leur groupe. Repères autres que la couleur, là où un aplat ne
+suffit pas (P5.57) : le choix retenu porte une coche (3:1), l'interrupteur se lit à son cadre
+`button-outline` (l'encre en Original), à la position et à la taille de son pouce, la touche tenue à
+son décalage de 2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit aussi à l'épaisseur du
 cadre (4 px), pas à la seule couleur.
 
 ## Correspondance avec le code

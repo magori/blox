@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.blox.test.fixtures)
     // Les fenêtres partagées (NamingWindow, DeleteWindow), rendues sur la JVM et comparées aux références.
     alias(libs.plugins.blox.android.screenshot)
+    // Les couleurs de docs/design-system/tokens.json, comparées aux palettes par PaletteTokensTest (ADR 0019).
+    alias(libs.plugins.blox.design.tokens)
 }
 
 android {

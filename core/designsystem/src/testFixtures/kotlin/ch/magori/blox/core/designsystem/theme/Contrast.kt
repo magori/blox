@@ -13,8 +13,12 @@ fun contrast(
     return (lighter + 0.05) / (darker + 0.05)
 }
 
-/** The palette of each theme, with its name as shown on the home screen, for parameterised tests. */
+/**
+ * The palette of each variant of each theme, named after the theme as shown on the home screen, for parameterised
+ * tests.
+ */
 val namedPalettes: List<Pair<String, BloxPalette>> = listOf(
     "Original" to BloxPalettes.Original,
-    "Couleurs" to BloxPalettes.Colorful,
+    "Couleurs, jour" to BloxPalettes.ColorfulLight,
+    "Couleurs, nuit" to BloxPalettes.ColorfulDark,
 )

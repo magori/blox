@@ -2,6 +2,7 @@ package ch.magori.blox.core.designsystem.icon
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
 
 /*
@@ -19,3 +20,8 @@ private fun IconSheetOriginal() = IconSheetOriginalPreview()
 @Preview(widthDp = 360, heightDp = 1100)
 @Composable
 private fun IconSheetColorful() = IconSheetColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1100, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun IconSheetColorfulNight() = IconSheetColorfulPreview()

@@ -85,6 +85,9 @@ private object GridSizes {
     /** The outline of the watermark, so that it shows on a note of the open track too. */
     val echoOutline = 1.5.dp
 
+    /** The edges of the held part of a note, above and below its band, in the colour of its track. */
+    val heldEdge = 2.dp
+
     /** The outline of the column played, over the cells: its line, and the halo inside it. */
     val playedLine = 2.dp
     val playedHalo = 1.dp
@@ -102,7 +105,7 @@ internal data class GridLines(val rows: List<RowView>)
 
 /** The colours of a cell: its [background], the notes of the open track, and the watermark of the other, [echo]. */
 @Immutable
-private data class CellColors(val background: Color, val note: Color, val held: Color, val echo: Color)
+private data class CellColors(val background: Color, val note: Color, val held: HeldPart, val echo: Color)
 
 /**
  * The grid of one bar of the open [track] (V8, V11): the line « Temps 1 2 3 4 », then its [lines], as high as the room
@@ -124,7 +127,13 @@ internal fun NoteGrid(
 ) {
     val palette = BloxTheme.palette
     val notes = trackColors(palette, track)
-    val colors = CellColors(palette.boardBackground, notes.note, notes.held, trackColors(palette, track.other).note)
+    val colors =
+        CellColors(
+            palette.boardBackground,
+            notes.note,
+            heldPart(palette, track),
+            trackColors(palette, track.other).note,
+        )
     val outline = playedOutline(palette)
     Column(modifier = modifier) {
         BeatLine()
@@ -419,7 +428,7 @@ private fun DrawScope.drawCell(
     }
 }
 
-/** A part of a cell from [left], [width] wide: the attack of a note as a block, its held part as a band. */
+/** A part of a cell from [left], [width] wide: the attack of a note as a block, its held part as a band edged above and below. */
 private fun DrawScope.drawPart(
     part: CellPart,
     left: Float,
@@ -440,7 +449,11 @@ private fun DrawScope.drawPart(
 
         CellPart.HELD -> {
             val band = size.height * BAND_HEIGHT
-            drawRect(color = colors.held, topLeft = Offset(left, (size.height - band) / 2), size = Size(width, band))
+            val top = (size.height - band) / 2
+            drawRect(color = colors.held.band, topLeft = Offset(left, top), size = Size(width, band))
+            val edge = GridSizes.heldEdge.toPx().coerceAtMost(band / 2)
+            drawRect(color = colors.held.edge, topLeft = Offset(left, top), size = Size(width, edge))
+            drawRect(color = colors.held.edge, topLeft = Offset(left, top + band - edge), size = Size(width, edge))
         }
     }
 }

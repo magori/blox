@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 165 / 219 | `███████████████░░░░░` **75 %** |
+| **Général** | 166 / 221 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -787,7 +787,7 @@ composants.
   noter dans `JOURNAL.md` les décisions qui reviennent sur P5.29 (niveaux), P4.20 (dé, coches) et l'ordre des
   réponses de P5.45 ; amender P5.41 (Brume codé en variantes, ADR 0020). Cas : `scripts/verifier-tracabilite.sh`
   vert.
-- [ ] **P5.57** Couleurs v2, jour et nuit (`core:designsystem`, ADR 0019, 0020) : `BloxThemeVariant`
+- [x] **P5.57** Couleurs v2, jour et nuit (`core:designsystem`, ADR 0019, 0020) : `BloxThemeVariant`
   (`ORIGINAL`, `COLORFUL_LIGHT`, `COLORFUL_DARK`) résolue par `BloxTheme` depuis `BloxThemeKind` et le mode
   sombre du système, exposée par `BloxTheme.variant` ; palettes `ColorfulLight` et `ColorfulDark` aux valeurs de
   `tokens.json`, à la place de `Colorful` ; rôles nouveaux de `BloxPalette` (`emptyCell`, `panelInset`, `scrim`,
@@ -901,7 +901,9 @@ composants.
   forcedBySystem)` porté par `BloxTheme`, résolu par une fonction pure depuis la préférence et
   `ValueAnimator.areAnimatorsEnabled()` (lu par `MainActivity` à chaque reprise) ; carte Affichage avec Effets
   réduits (allumé et bloqué quand Android l'impose, sans écraser le choix) et la note sur le thème ; les boutons
-  pressés ne descendent plus en Effets réduits. Après P5.70.
+  pressés ne descendent plus en Effets réduits, mais une touche de jeu tenue garde sa descente de 2 dp : ce n'est pas
+  une animation, et c'est le seul repère de A tenue de jour (1,4:1 contre A au repos ; décision de la revue de
+  P5.57). Cas : `a held key goes 2 dp down, reduced effects or not`. Après P5.70.
   Cas : `effects are reduced when the player asks for it`, `effects are reduced and forced when Android removes
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
@@ -1011,6 +1013,15 @@ composants.
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.
+- [ ] **P5.88** Grille de l'éditeur en Couleurs v2 (`feature:composer`) : jetons `cell-ground` et `grid-line` de
+  `tokens.json`, listés comme non codés dans `PaletteTokensTest` (P5.57), à coder dans `BloxPalette` avec leur
+  valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
+  Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
+  3:1 de la case.
+- [ ] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
+  mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
+  `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
+  Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
 
 ## P6 — Mode Moderne (plus tard)
 

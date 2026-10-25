@@ -10,9 +10,10 @@ internal data class SettingColors(val row: ChoiceColors, val switch: SwitchColor
 
 /**
  * The colours of a setting in [palette]. The row is an unselected choice ([choiceColors]): `panel` framed in
- * `panelBorder`, its label in `ink`. Its switch, off, is the row itself, outlined in the colour of the label, its thumb
- * too; on, it is filled in `accent`, as a selected choice, its thumb in `accentInk`. Colour is not the only cue (WCAG
- * 2.1, 1.4.1): the thumb stands on the left when off, on the right when on. A setting is never disabled: its disabled
+ * `panelBorder`, its label in `ink`. Its switch is framed in `buttonOutline`, on and off (in the colour of the label in
+ * Original, whose outline is the face of its buttons); off, it is the row itself, its thumb in the colour of the label;
+ * on, it is filled in `accent`, as a selected choice, its thumb in `accentInk`. Colour is not the only cue (WCAG 2.1,
+ * 1.4.1): the thumb stands on the left when off, on the right when on. A setting is never disabled: its disabled
  * colours are its enabled ones.
  */
 internal fun settingColors(palette: BloxPalette): SettingColors {
@@ -21,24 +22,26 @@ internal fun settingColors(palette: BloxPalette): SettingColors {
     val onThumb = palette.accentInk
     val off = row.background
     val offLine = row.ink
+    // A palette whose outline is the face of its buttons, as Original, draws no outline: the label frames the track.
+    val frame = if (palette.buttonOutline == palette.button) offLine else palette.buttonOutline
     return SettingColors(
         row = row,
         switch = SwitchColors(
             checkedThumbColor = onThumb,
             checkedTrackColor = on,
-            checkedBorderColor = on,
+            checkedBorderColor = frame,
             checkedIconColor = on,
             uncheckedThumbColor = offLine,
             uncheckedTrackColor = off,
-            uncheckedBorderColor = offLine,
+            uncheckedBorderColor = frame,
             uncheckedIconColor = off,
             disabledCheckedThumbColor = onThumb,
             disabledCheckedTrackColor = on,
-            disabledCheckedBorderColor = on,
+            disabledCheckedBorderColor = frame,
             disabledCheckedIconColor = on,
             disabledUncheckedThumbColor = offLine,
             disabledUncheckedTrackColor = off,
-            disabledUncheckedBorderColor = offLine,
+            disabledUncheckedBorderColor = frame,
             disabledUncheckedIconColor = off,
         ),
     )

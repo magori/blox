@@ -2,6 +2,7 @@ package ch.magori.blox.feature.home
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
 
 /*
@@ -19,6 +20,11 @@ private fun HomeOriginal() = HomeScreenOriginalPreview()
 @Preview(widthDp = 360, heightDp = 800)
 @Composable
 private fun HomeColorful() = HomeScreenColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun HomeColorfulNight() = HomeScreenColorfulPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)

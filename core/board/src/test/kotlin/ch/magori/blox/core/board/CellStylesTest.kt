@@ -1,7 +1,7 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
@@ -27,7 +27,7 @@ class CellStylesTest {
         centre: String,
     ) {
         // When
-        val style = cellStyle(BloxThemeKind.ORIGINAL, Cell.Filled(type))
+        val style = cellStyle(BloxThemeVariant.ORIGINAL, Cell.Filled(type))
 
         // Then: on a 24 px cell, a joint of 1 px on each edge, 2 px between two cells, so that two flat cells
         // side by side never merge; it takes the colour under the cell (CellPainter). Inside it, a 2 px border
@@ -59,10 +59,10 @@ class CellStylesTest {
         dark: String,
     ) {
         // When
-        val style = cellStyle(BloxThemeKind.COLORFUL, Cell.Filled(type))
+        val styles = COLORFUL_VARIANTS.map { cellStyle(it, Cell.Filled(type)) }
 
-        // Then: a 3 px bevel on a 24 px cell
-        assertThat(style).isEqualTo(
+        // Then: a 3 px bevel on a 24 px cell, day and night, until the pieces take the colours of the design system
+        assertThat(styles).containsOnly(
             CellStyle(
                 fill = rgb(fill),
                 border = CellBorder.Bevel(light = rgb(light), dark = rgb(dark), width = 3f / 24),
@@ -74,22 +74,34 @@ class CellStylesTest {
     @Test
     fun `in the Original theme an empty cell is the board background without border`() {
         // When
-        val style = cellStyle(BloxThemeKind.ORIGINAL, Cell.Empty)
+        val style = cellStyle(BloxThemeVariant.ORIGINAL, Cell.Empty)
 
         // Then
         assertThat(style).isEqualTo(CellStyle(fill = rgb("DCEBD5"), border = null, centre = null))
     }
 
-    @Test
-    fun `in the Colorful theme an empty cell has a 1 px border`() {
+    @ParameterizedTest(name = "{0}: empty cell {1}")
+    @CsvSource(
+        "COLORFUL_LIGHT, F1F2F8",
+        "COLORFUL_DARK, 14151E",
+    )
+    fun `in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`(
+        variant: BloxThemeVariant,
+        emptyCell: String,
+    ) {
         // When
-        val style = cellStyle(BloxThemeKind.COLORFUL, Cell.Empty)
+        val style = cellStyle(variant, Cell.Empty)
 
-        // Then: 1 px on a 24 px cell
+        // Then: in the colour of the empty cells, framed by 1 px of a 24 px cell in the colour under it, the
+        // background the board is drawn on, as a margin
         assertThat(style).isEqualTo(
-            CellStyle(fill = rgb("0B0C12"), border = CellBorder.Plain(rgb("191C27"), width = 1f / 24), centre = null),
+            CellStyle(fill = rgb(emptyCell), border = null, centre = null, joint = CellJoint(width = 1f / 24)),
         )
     }
 
     private fun rgb(hex: String): Color = Color(0xFF000000 or hex.toLong(radix = 16))
+
+    private companion object {
+        val COLORFUL_VARIANTS = listOf(BloxThemeVariant.COLORFUL_LIGHT, BloxThemeVariant.COLORFUL_DARK)
+    }
 }

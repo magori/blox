@@ -54,23 +54,24 @@ internal class BoardCanvasTest {
     private val moveDown = { piece = piece.moved(Direction.DOWN) }
 
     private val built = AtomicInteger()
-    private val countingPainters: PaintersFactory = { theme, cellSize, background ->
+    private val countingPainters: PaintersFactory = { variant, cellSize, background ->
         built.incrementAndGet()
-        paintersFor(theme, cellSize, background)
+        paintersFor(variant, cellSize, background)
     }
 
     /** What may change between two drawings, besides the piece. */
     private var width by mutableStateOf(240.dp)
     private var theme by mutableStateOf(BloxThemeKind.COLORFUL)
+    private var darkSystem by mutableStateOf(false)
     private var background by mutableStateOf(Color.Black)
 
     /** Changing it composes the board again from scratch, as a board shown for the first time. */
     private var generation by mutableIntStateOf(0)
 
-    /** The board and [piece] in [theme], [width] wide, on [background], drawn once. */
+    /** The board and [piece] in [theme], in the mode [darkSystem], [width] wide, on [background], drawn once. */
     private fun ComposeContext.showBoard() {
         setContent {
-            BloxTheme(kind = theme) {
+            BloxTheme(kind = theme, darkSystem = darkSystem) {
                 key(generation) {
                     BoardCanvas(
                         board = { board },
@@ -132,6 +133,18 @@ internal class BoardCanvasTest {
 
         // The background is given: only the theme changes.
         runOnIdle { theme = BloxThemeKind.ORIGINAL }
+        drawnContent()
+
+        assertThat(built.get()).isEqualTo(2)
+    }
+
+    @Test
+    @DisplayName("the painters are built again when the variant changes")
+    fun paintersAreBuiltAgainWhenTheVariantChanges() = extension.use {
+        showBoard()
+
+        // The theme and the background are given: only the variant changes, from the day to the night.
+        runOnIdle { darkSystem = true }
         drawnContent()
 
         assertThat(built.get()).isEqualTo(2)

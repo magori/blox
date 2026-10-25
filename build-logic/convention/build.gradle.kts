@@ -56,6 +56,10 @@ gradlePlugin {
             id = libs.plugins.blox.android.benchmark.get().pluginId
             implementationClass = "AndroidBenchmarkConventionPlugin"
         }
+        register("designTokens") {
+            id = libs.plugins.blox.design.tokens.get().pluginId
+            implementationClass = "DesignTokensConventionPlugin"
+        }
         register("jvmLibrary") {
             id = libs.plugins.blox.jvm.library.get().pluginId
             implementationClass = "JvmLibraryConventionPlugin"

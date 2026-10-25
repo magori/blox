@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
@@ -29,11 +30,11 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 private val BoardShape = Board.empty()
 
 /**
- * Draws the [board] and the [piece] in play in [theme], on [background], the colour of the joints. No
+ * Draws the [board] and the [piece] in play in [variant], on [background], the colour of the joints. No
  * logic here: the cells come from [displayedCells], their place from [BoardGeometry], their look from
  * the [CellPainter]s built by [paintersFor].
  *
- * The geometry and the painters, with their paths, are built once per size, theme and background.
+ * The geometry and the painters, with their paths, are built once per variant, size and background.
  * [board] and [piece] are read only while drawing: a move of the piece draws the board again, without
  * recomposing it nor building anything but its cells. Both must stay the same lambdas from one
  * composition to the next, reading a state rather than capturing a value: a new lambda changes the
@@ -48,10 +49,10 @@ fun BoardCanvas(
     board: () -> Board,
     piece: () -> Piece?,
     modifier: Modifier = Modifier,
-    theme: BloxThemeKind = BloxTheme.kind,
+    variant: BloxThemeVariant = BloxTheme.variant,
     background: Color = BloxTheme.palette.boardBackground,
 ) {
-    BoardCanvas(board, piece, painters = ::paintersFor, modifier, theme, background)
+    BoardCanvas(board, piece, painters = ::paintersFor, modifier, variant, background)
 }
 
 /** [BoardCanvas] with the [CellPainter]s built by [painters]: the tests count how often they are built. */
@@ -61,7 +62,7 @@ internal fun BoardCanvas(
     piece: () -> Piece?,
     painters: PaintersFactory,
     modifier: Modifier = Modifier,
-    theme: BloxThemeKind = BloxTheme.kind,
+    variant: BloxThemeVariant = BloxTheme.variant,
     background: Color = BloxTheme.palette.boardBackground,
 ) {
     // Derived from the board alone: a move of the piece leaves it as it is, and recomposes nothing.
@@ -73,7 +74,7 @@ internal fun BoardCanvas(
             .drawWithCache {
                 val columns = BoardShape.columns
                 val geometry = BoardGeometry.fit(size.width, size.height, columns, BoardShape.rows)
-                val cellPainters = painters(theme, geometry.cellSize, background)
+                val cellPainters = painters(variant, geometry.cellSize, background)
                 onDrawBehind {
                     val cells = displayedCells(board(), piece())
                     for (index in cells.indices) {

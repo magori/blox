@@ -144,6 +144,10 @@ lui-même.
   faux dépôts de `core:data` passent le même contrat que les vrais (`HighScoreRepositoryContract`,
   `UserPreferencesRepositoryContract`), et `MainDispatcherExtension` y est partagée. De même, le faux
   lecteur de `core:audio` passe le contrat du séquenceur (`MusicPlayerContract`).
+- Un module dont le code reprend des jetons de `docs/design-system/tokens.json` (`core:designsystem`) applique
+  en plus `blox.design.tokens` (ADR 0019) : ses tests JVM reçoivent le chemin du fichier par la propriété système
+  `blox.designTokens` (entrée à chemin relatif, clé de cache indépendante du worktree) et le lisent avec
+  `kotlinx-serialization-json`, en dépendance de test. `PaletteTokensTest` compare chaque jeton à la palette.
 - Les modules Kotlin purs compilent avec `explicitApi()` strict : ce qui est `public` est un
   choix, pas un oubli.
 - **JUnit 5 partout**, tests unitaires et instrumentés (ADR 0009). Jamais de `junit:junit`

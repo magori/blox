@@ -7,24 +7,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
-/** What builds the painters of every cell, for a theme, a cell size in pixels and a background: [paintersFor]. */
+/** What builds the painters of every cell, for a variant, a cell size in pixels and a background: [paintersFor]. */
 internal typealias PaintersFactory = (
-    theme: BloxThemeKind,
+    variant: BloxThemeVariant,
     cellSize: Float,
     background: Color,
 ) -> Map<Cell, CellPainter>
 
 /** A painter for each cell that can be drawn on [background]: the empty cell and a cell of each piece. */
 internal fun paintersFor(
-    theme: BloxThemeKind,
+    variant: BloxThemeVariant,
     cellSize: Float,
     background: Color,
 ): Map<Cell, CellPainter> = (listOf(Cell.Empty) + PieceType.entries.map(Cell::Filled))
-    .associateWith { cell -> CellPainter(cellStyle(theme, cell), cellSize, background) }
+    .associateWith { cell -> CellPainter(cellStyle(variant, cell), cellSize, background) }
 
 /**
  * One cell of [side] pixels in [style], drawn on [background], with its shapes built once from its

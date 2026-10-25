@@ -2,7 +2,7 @@ package ch.magori.blox.core.board
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
@@ -16,7 +16,7 @@ class CellLayoutTest {
         side: Float,
     ) {
         // Given two I cells side by side, at x = 0 and x = side: the same dark fill and border
-        val layout = cellLayout(cellStyle(BloxThemeKind.ORIGINAL, Cell.Filled(PieceType.I)), side)
+        val layout = cellLayout(cellStyle(BloxThemeVariant.ORIGINAL, Cell.Filled(PieceType.I)), side)
         val first = layout.fill
         val second = layout.fill.translate(Offset(side, 0f))
 
