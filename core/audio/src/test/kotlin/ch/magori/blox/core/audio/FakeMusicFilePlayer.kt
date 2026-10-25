@@ -1,14 +1,15 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * A player of music files that notes in [log] what it is told (`play file <uri>`, `stop file`, `resume file <uri>`),
- * keeps the file [playing], and cannot open the files [unreadable] (a permission lost, a file deleted). The file
- * playing may turn out undecodable before it starts ([failBeforeStart]). As the real one, it plays one file at a
- * time: a new play or resume ends the playback before.
+ * keeps the file [playing] and the [volume] set, and cannot open the files [unreadable] (a permission lost, a file
+ * deleted). The file playing may turn out undecodable before it starts ([failBeforeStart]). As the real one, it plays
+ * one file at a time: a new play or resume ends the playback before.
  */
 internal class FakeMusicFilePlayer(
     private val log: MutableList<String> = mutableListOf(),
@@ -16,7 +17,13 @@ internal class FakeMusicFilePlayer(
 ) : MusicFilePlayer {
     var playing: MusicFile? = null
         private set
+    var volume: Volume = Volume.FULL
+        private set
     private var current: FakeFilePlayback? = null
+
+    override fun setVolume(volume: Volume) {
+        this.volume = volume
+    }
 
     override fun play(
         file: MusicFile,

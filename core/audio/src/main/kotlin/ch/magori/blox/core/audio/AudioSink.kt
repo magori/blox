@@ -9,6 +9,12 @@ public interface AudioSink {
      */
     public suspend fun write(samples: FloatArray)
 
+    /**
+     * Plays the samples at [gain], from 0 (silent) to 1 (as written, the gain of a new sink), the samples written
+     * already included, as far as the output allows: the gain of the volume of the music ([VolumeControl]).
+     */
+    public fun setGain(gain: Float)
+
     /** Stops playing and frees the sink; it is not written to again. */
     public fun release()
 }

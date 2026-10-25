@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 165 / 221 | `███████████████░░░░░` **75 %** |
+| **Général** | 168 / 221 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -868,13 +868,13 @@ composants.
 - [x] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
   Cas (contrat, vrai dépôt et faux) : `a cleared record is 0`, `a score after a clear is a new record`,
   `clearing without a record leaves 0`, `a record that cannot be written fails with an IOException`.
-- [ ] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
+- [x] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
   `Haptic.KEY_PRESS`, effet le plus léger, attributs du toucher (`USAGE_TOUCH`, que le réglage « vibration au
   toucher » d'Android coupe) ; en jeu, l'appui d'une touche vibre si `keyVibration` est allumé. Après P5.65.
   Cas : `the key press is the predefined tick from Android 10 and a pulse of 10 ms before` **[à vérifier]**,
   `a pressed key vibrates once when key vibration is on`, `a released key does not vibrate`,
   `with key vibration off no key vibrates`.
-- [ ] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
+- [x] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
   sélecteur et du décorateur de focus, et des effets ; courbe perceptive `Volume.gain` ; `AppContainer` applique
   les volumes enregistrés au lecteur partagé, en direct (aperçus et parties). Après P5.65.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
@@ -1018,7 +1018,7 @@ composants.
   valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
   Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
   3:1 de la case.
-- [ ] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
+- [x] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).

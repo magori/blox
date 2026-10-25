@@ -196,7 +196,12 @@ qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
 `blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
 compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
 `cell-ground` et `grid-line` (grille de l'éditeur, P5.88) et les couleurs des pièces (P5.74).
-Le schéma Material part de la base claire ou sombre selon la variante. Les formes, polices et
+Le schéma Material part de la base claire ou sombre selon la variante, les icônes des barres système aussi
+(P5.89, `BloxSystemBars` dans `app`) : sombres sur Original et Couleurs jour, claires sur Couleurs nuit, quel que
+soit le mode du téléphone, réappliquées quand le thème ou le mode change ; avant la lecture du thème, celles
+d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
+`SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
+`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Les formes, polices et
 pictogrammes ne dépendent que du thème (`BloxTheme.kind`), pas du mode. Les styles de pièces, le
 dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux sont construits une
 fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une
