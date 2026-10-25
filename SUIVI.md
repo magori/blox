@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 161 / 221 | `███████████████░░░░░` **73 %** |
+| **Général** | 164 / 221 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -457,7 +457,7 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels. Fait :
   désactivés par défaut (décision du développeur), arpèges synthétisés, événement `PieceRotated` ;
   interrupteur dans P5.37.
-- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
+- [x] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
   l'événement `LevelUp` (P5.64), qui tombe sur le même tick que `LinesCleared` : le fusionner ou
   choisir lequel jouer.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
@@ -880,7 +880,7 @@ composants.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
   `MusicPlayerContract › a volume set before a play applies to it`, `the volume of the effects applies to each
   track`, `a volume changed in the settings applies to the music playing`.
-- [ ] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
+- [x] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
   autres, joué à `LevelUp` ; aucune vibration. Après P5.64.
   Cas : `the level up sound is an effect of its own, shorter than the four lines`,
   `a level up plays the level up sound when the sound effects are on`, `a level up does not vibrate`.
@@ -1009,7 +1009,7 @@ composants.
   maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
   parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
   feuille au-dessus du clavier, coches sur les choix retenus).
-- [ ] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
+- [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.

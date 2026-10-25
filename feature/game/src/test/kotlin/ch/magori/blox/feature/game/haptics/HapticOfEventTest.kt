@@ -67,7 +67,7 @@ class HapticOfEventTest {
     }
 
     @Test
-    fun `a level up gives nothing yet`() {
+    fun `a level up does not vibrate`() {
         // When
         val haptic = hapticFor(GameEvent.LevelUp(Level(1)))
 
