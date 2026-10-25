@@ -2,7 +2,6 @@ package ch.magori.blox.feature.game
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import ch.magori.blox.feature.game.board.BoardCanvasOriginalPreview
 import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
@@ -93,13 +92,6 @@ private fun GameScreenTooSmallColorful() = GameScreenTooSmallColorfulPreview()
 @Preview(widthDp = 220, heightDp = 560, fontScale = 2f)
 @Composable
 private fun GameScreenTooSmallLargeFont() = GameScreenTooSmallLargeFontPreview()
-
-// The board alone, larger than on the screen: the cells of the Original theme in detail.
-
-@PreviewTest
-@Preview
-@Composable
-private fun BoardOriginal() = BoardCanvasOriginalPreview()
 
 // The top bar with a large font.
 

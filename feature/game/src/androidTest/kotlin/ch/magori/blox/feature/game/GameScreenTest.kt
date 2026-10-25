@@ -27,6 +27,13 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.board.RecompositionRecorder
+import ch.magori.blox.core.board.assertDrawnAsFresh
+import ch.magori.blox.core.board.drawnContent
+import ch.magori.blox.core.board.movePiece
+import ch.magori.blox.core.board.next.NextPieceCells
+import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.next.pieceName
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -40,9 +47,6 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.gameover.GameOverUiState
-import ch.magori.blox.feature.game.sidepanel.NextPieceCells
-import ch.magori.blox.feature.game.sidepanel.nextPieceCells
-import ch.magori.blox.feature.game.sidepanel.pieceName
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
