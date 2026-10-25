@@ -79,8 +79,8 @@ class SettingsViewModelTest {
 
     @Test
     fun `turning the sound effects on saves them on and shows them on, then off again`() = runTest {
-        // Given the sound effects off, as by default
-        val preferences = FakeUserPreferencesRepository()
+        // Given the sound effects turned off by the player: they are on by default
+        val preferences = FakeUserPreferencesRepository(initial = UserPreferences.DEFAULT.copy(soundEffects = false))
         val viewModel = SettingsViewModel(preferences)
 
         viewModel.uiState.test {
@@ -102,16 +102,16 @@ class SettingsViewModelTest {
 
     @Test
     fun `a setting that cannot be saved leaves the saved settings shown, without crashing`() = runTest {
-        // Given a disk that refuses every write
+        // Given a disk that refuses every write, the settings at their defaults: vibrations off, sound effects on
         val viewModel = SettingsViewModel(FakeUserPreferencesRepository(failWrites = true))
 
         viewModel.uiState.test {
-            // When
+            // When each switch is turned the other way
             viewModel.onVibrationsChanged(true)
-            viewModel.onSoundEffectsChanged(true)
+            viewModel.onSoundEffectsChanged(false)
 
             // Then
-            assertThat(expectMostRecentItem()).isEqualTo(SettingsUiState(vibrations = false, soundEffects = false))
+            assertThat(expectMostRecentItem()).isEqualTo(SettingsUiState(vibrations = false, soundEffects = true))
         }
     }
 
@@ -126,7 +126,7 @@ class SettingsViewModelTest {
 
         // Then
         viewModel.uiState.test {
-            assertThat(expectMostRecentItem()).isEqualTo(SettingsUiState(vibrations = true, soundEffects = false))
+            assertThat(expectMostRecentItem()).isEqualTo(SettingsUiState(vibrations = true, soundEffects = true))
         }
     }
 }

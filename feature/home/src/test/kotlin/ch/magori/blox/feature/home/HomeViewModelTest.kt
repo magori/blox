@@ -81,7 +81,12 @@ class HomeViewModelTest {
 
             // When they are read
             preferences.state.value =
-                UserPreferences(ThemeChoice.COLORFUL, MusicChoice.MINUET, 5, vibrations = true, soundEffects = true)
+                UserPreferences.DEFAULT.copy(
+                    theme = ThemeChoice.COLORFUL,
+                    music = MusicChoice.MINUET,
+                    startLevel = 5,
+                    vibrations = true,
+                )
 
             // Then
             assertThat(awaitItem()).isEqualTo(
@@ -120,14 +125,9 @@ class HomeViewModelTest {
             viewModel.onStartLevelChosen(7)
 
             // Then
-            // The vibrations and the sound effects, not changed, keep their defaults.
-            val expected = UserPreferences(
-                ThemeChoice.COLORFUL,
-                MusicChoice.NONE,
-                startLevel = 7,
-                vibrations = false,
-                soundEffects = false,
-            )
+            // The other settings, not changed, keep their defaults.
+            val expected =
+                UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, music = MusicChoice.NONE, startLevel = 7)
             assertThat(preferences.state.value).isEqualTo(expected)
             val shown = expectMostRecentItem()
             assertThat(shown?.theme).isEqualTo(ThemeChoice.COLORFUL)
