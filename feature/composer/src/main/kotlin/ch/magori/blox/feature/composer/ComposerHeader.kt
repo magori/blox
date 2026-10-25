@@ -84,7 +84,7 @@ internal fun ComposerHeader(
             modifier = Modifier
                 .weight(1f)
                 .heightIn(min = BloxSizes.minTouchTarget)
-                .clip(BloxTheme.shapes.button)
+                .clip(BloxTheme.shapes.md)
                 .clickable(role = Role.Button, onClick = onRename)
                 .semantics(mergeDescendants = true) { contentDescription = renameTitle },
         ) {

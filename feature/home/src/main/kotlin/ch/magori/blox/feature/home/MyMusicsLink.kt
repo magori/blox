@@ -31,7 +31,7 @@ internal fun MyMusicsLink(
     val ink = BloxTheme.palette.ink
     TextButton(
         onClick = onClick,
-        shape = BloxTheme.shapes.button,
+        shape = BloxTheme.shapes.md,
         modifier = modifier
             .heightIn(min = BloxSizes.minTouchTarget)
             .semantics { contentDescription = label },

@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.MediaPlayer
 import android.net.Uri
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Volume
 import java.io.IOException
 
 /**
@@ -58,11 +59,15 @@ private class MediaPlayerTrack(
     /** Whether the player failed: it then tells no position, which only a player in order has. */
     private var failed = false
 
+    /** The gain set, given to the player once it is prepared: `MediaPlayer` does not promise it while it prepares. */
+    private var gain = Volume.FULL.gain
+
     init {
         player.isLooping = true
         player.setOnPreparedListener {
             prepared = true
             if (startAt > 0) player.seekTo(startAt.toLong(), MediaPlayer.SEEK_CLOSEST)
+            player.setVolume(gain, gain)
             player.start()
         }
         player.setOnErrorListener { _, what, extra ->
@@ -76,6 +81,11 @@ private class MediaPlayerTrack(
 
     /** Where the file plays; where it was to start from, until it is prepared, and once it failed. */
     override val position: Int get() = if (prepared && !failed) player.currentPosition else startAt
+
+    override fun setGain(gain: Float) {
+        this.gain = gain
+        if (prepared && !failed) player.setVolume(gain, gain)
+    }
 
     override fun release() {
         // A released player tells nothing more: neither preparation nor error.

@@ -215,7 +215,7 @@ private fun ControlKey(
     val held = button in controls.heldButtons
     val (background, outline, foreground) = keyColors(BloxTheme.palette, button, held)
     val description = stringResource(descriptionOf(button))
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     Box(
         modifier = modifier
             .testTag(controlTestTag(button))

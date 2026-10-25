@@ -5,6 +5,9 @@ public interface EffectTrack {
     /** Plays the effect from its start, cutting it if it still plays. */
     public fun play()
 
+    /** Plays at [gain], from 0 (silent) to 1 (the samples as loaded, the gain of a new track). */
+    public fun setGain(gain: Float)
+
     /** Frees the output; it is not played again. */
     public fun release()
 }

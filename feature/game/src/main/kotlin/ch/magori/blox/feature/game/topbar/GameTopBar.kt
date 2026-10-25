@@ -227,7 +227,7 @@ private fun PauseButton(
 ) {
     val colors = pauseButtonColors(BloxTheme.palette)
     val description = stringResource(R.string.feature_game_top_pause)
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     Box(
         contentAlignment = Alignment.Center,
         modifier = Modifier

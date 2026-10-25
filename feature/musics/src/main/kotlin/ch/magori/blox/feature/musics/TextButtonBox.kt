@@ -45,7 +45,7 @@ internal fun TextButtonBox(
     enabled: Boolean = true,
     icon: BloxIcon? = null,
 ) {
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     Row(
         modifier = modifier
             .heightIn(min = BloxSizes.minTouchTarget)

@@ -4,16 +4,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 
 /**
  * The sizes of the controls, in one place: 3 × 52 + 2 × 8 for ◀ ▼ ▶, 2 × 56 + 8 for B and A, which
  * fit a 360 dp wide phone inside its 24 dp margins (312 dp). Every button is at least
- * [BloxSizes.minTouchTarget], the accessibility minimum.
+ * [BloxSizes.minTouchTarget], the accessibility minimum. The sizes of the keys are tokens of the design system, held
+ * by [BloxSizes]: the compact ones for now, until the keys pick theirs by the width of the screen (P5.79).
  */
 internal object ControlSizes {
-    val directionButton = BloxSizes.minTouchTarget + 4.dp
-    val rotationButton = BloxSizes.minTouchTarget + 8.dp
-    val spacing = 8.dp
+    val directionButton = BloxSizes.keyArrowCompact
+    val rotationButton = BloxSizes.keyRotateCompact
+    val spacing = BloxSpaces.space2
 
     /** The arrow of rotation of B and A, above their letter. */
     val rotationArrow = 24.dp

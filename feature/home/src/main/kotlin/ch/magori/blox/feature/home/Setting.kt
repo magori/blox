@@ -42,7 +42,7 @@ internal fun Setting(
     modifier: Modifier = Modifier,
 ) {
     val colors = settingColors(BloxTheme.palette)
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     FlowRow(
         modifier = modifier
             .fillMaxWidth()

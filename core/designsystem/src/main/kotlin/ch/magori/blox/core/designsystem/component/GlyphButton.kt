@@ -79,7 +79,7 @@ private fun AloneButton(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     Box(
         contentAlignment = Alignment.Center,
         modifier = modifier

@@ -30,6 +30,10 @@ public class AudioTrackSink(sampleRate: Int) : AudioSink {
         check(result >= 0) { "The AudioTrack refused the samples, error $result" }
     }
 
+    override fun setGain(gain: Float) {
+        track.setVolume(gain)
+    }
+
     /** Released even when dead: a track whose pause fails still frees its resources. */
     override fun release() {
         try {

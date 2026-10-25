@@ -315,7 +315,7 @@ private fun MessageBar(
     Snackbar(
         containerColor = palette.ink,
         contentColor = palette.page,
-        shape = BloxTheme.shapes.panel,
+        shape = BloxTheme.shapes.snack,
         modifier = modifier,
     ) {
         val style = MaterialTheme.typography.bodyMedium.shrinkingLineHeight()

@@ -227,7 +227,7 @@ private fun MusicCardRow(
     actions: MyMusicsActions,
 ) {
     val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.panel
+    val shape = BloxTheme.shapes.md
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -331,7 +331,7 @@ private fun UseSwitch(
     onClick: () -> Unit,
 ) {
     val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     val ink = if (inGame) palette.accentInk else palette.ink
     val description = stringResource(R.string.feature_musics_use_description, name)
     Box(
@@ -441,7 +441,7 @@ private fun UndoMessage(
     FlowRow(
         modifier = Modifier
             .fillMaxWidth()
-            .background(palette.ink, BloxTheme.shapes.panel)
+            .background(palette.ink, BloxTheme.shapes.snack)
             .padding(start = 16.dp)
             .semantics { liveRegion = LiveRegionMode.Polite },
         horizontalArrangement = Arrangement.SpaceBetween,

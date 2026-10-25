@@ -48,10 +48,13 @@ object BloxTheme {
     val shapes: BloxShapes
         @Composable
         @ReadOnlyComposable
-        get() = when (kind) {
-            BloxThemeKind.ORIGINAL -> BloxShapeSets.Original
-            BloxThemeKind.COLORFUL -> BloxShapeSets.Colorful
-        }
+        get() = shapesOf(kind)
+
+    /** The reliefs of the current variant: their light and shade differ day and night, and the Original is flat. */
+    val glosses: BloxGlosses
+        @Composable
+        @ReadOnlyComposable
+        get() = glossesOf(LocalBloxThemeVariant.current)
 
     /** The fonts of the current theme: titles, labels and values. */
     val typography: BloxTypography
@@ -77,6 +80,19 @@ internal fun paletteOf(variant: BloxThemeVariant): BloxPalette = when (variant) 
     BloxThemeVariant.ORIGINAL -> BloxPalettes.Original
     BloxThemeVariant.COLORFUL_LIGHT -> BloxPalettes.ColorfulLight
     BloxThemeVariant.COLORFUL_DARK -> BloxPalettes.ColorfulDark
+}
+
+/** The shapes of the theme [kind], the same day and night. */
+internal fun shapesOf(kind: BloxThemeKind): BloxShapes = when (kind) {
+    BloxThemeKind.ORIGINAL -> BloxShapeSets.Original
+    BloxThemeKind.COLORFUL -> BloxShapeSets.Colorful
+}
+
+/** The reliefs of [variant]. */
+internal fun glossesOf(variant: BloxThemeVariant): BloxGlosses = when (variant) {
+    BloxThemeVariant.ORIGINAL -> BloxGlossSets.Original
+    BloxThemeVariant.COLORFUL_LIGHT -> BloxGlossSets.ColorfulLight
+    BloxThemeVariant.COLORFUL_DARK -> BloxGlossSets.ColorfulDark
 }
 
 /**

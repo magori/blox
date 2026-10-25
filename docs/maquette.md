@@ -164,7 +164,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   pièce suivante. Valeurs retenues en P2.4, reportées sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
   ligne, réduite si la police du système est agrandie) ; aperçu de la pièce suivante dans un
-  cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 10 dp
+  cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 16 dp (`md`, P5.59)
   (Couleurs). Score sur 6 chiffres, niveau sur 2 et lignes sur 3 au moins.
 - Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
   décalés comme sur une console portable. Valeurs retenues en P2.5, reportées sur la

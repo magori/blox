@@ -49,8 +49,11 @@ dependencies {
     // `collectAsStateWithLifecycle` lit le `LifecycleOwner` courant : il faut lifecycle-common à la compilation.
     implementation(libs.androidx.lifecycle.common)
 
-    // Le faux dépôt des réglages, partagé avec les features : AppThemeTest y lit le thème choisi.
+    // Le faux dépôt des réglages, partagé avec les features : AppThemeTest y lit le thème choisi, SavedVolumesTest les
+    // volumes.
     testImplementation(testFixtures(projects.core.data))
+    // Les faux lecteurs de musique et d'effets : SavedVolumesTest y lit les volumes appliqués.
+    testImplementation(testFixtures(projects.core.audio))
 
     // Les parcours qui traversent les features (BloxNavDisplayTest), sur les faux partagés : dépôts et bibliothèque de
     // core:data, lecteur de core:audio, retour haptique, et les règles où une rangée est un tick (une fin de partie en
@@ -61,6 +64,8 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.game))
     // `@StringRes` sur les textes lus dans les ressources des features.
     androidTestImplementation(libs.androidx.annotation)
+    // `WindowInsetsControllerCompat` : l'apparence réelle des barres système (SystemBarsAppearanceTest).
+    androidTestImplementation(libs.androidx.core)
 
     // Le module qui produit le profil de référence (blox.android.benchmark, P5.17).
     baselineProfile(projects.benchmark)
