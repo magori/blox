@@ -128,13 +128,13 @@ Menuet, Mon fichier, la musique personnelle en jeu, Aucune), chacune avec sa coc
 
 | Événement | Visuel | Effets réduits |
 |---|---|---|
-| Touche pressée | remplissage pressé, 2 px plus bas | remplissage seul |
+| Touche pressée | remplissage pressé, 2 px plus bas | idem : la descente n'est pas une animation, et c'est le seul repère de A tenue de jour (1,4:1 contre A au repos) |
 | `PieceRotated` | le pictogramme de A ou B tourne de 90° (6 ticks) | rien |
 | `PieceLocked` | les 4 cases posées s'éclairent (8 ticks) | rien |
 | Effacement (`Phase.Clearing`) | rangées en `clear-glow`, cases qui éclatent par paires du centre vers les bords, calées sur le délai NES | rangées en `clear-glow` fixe |
 | `LinesCleared` | rangées du dessus qui glissent, autocollant « +points » (`points-pop`, `motion-pop`), score qui compte | autocollant fixe, score immédiat |
 | 4 lignes | en plus : reflet irisé qui fait le tour du cadre, autocollant « 4 LIGNES » (`four-lines-pop`) | cadre irisé fixe |
-| `LevelUp` (à ajouter au moteur) | l'encart NIVEAU bascule et s'encadre d'`accent` (1 s), annonce TalkBack | cadre `accent` sans bascule |
+| `LevelUp` | l'encart NIVEAU bascule et s'encadre d'`accent` (1 s), annonce TalkBack | cadre `accent` sans bascule |
 | `StackDanger` | cadre du plateau `danger` de 4 px, 5 rangées du haut en `danger-soft` qui respire | cadre et teinte fixes |
 | Record battu | NOUVEAU RECORD rebondit à la place du record, barre de record irisée | échange sans rebond |
 | `GameOver` | pile éteinte de bas en haut (2 ticks par rangée), carte, score qui compte | pile éteinte d'un coup, fondu |
@@ -223,7 +223,7 @@ place du « o ». Dessiné dans la maquette (composant `LogoBloX`), pas encore e
 |---|---|---|
 | `ink` sur `page` | 14,8:1 | 18,2:1 |
 | `label` sur `page` / `panel` | 7,0:1 / 8,0:1 | 9,1:1 / 8,2:1 |
-| `accent-ink` sur `accent` / `accent-pressed` | 6,5:1 / 4,6:1 | 16,9:1 / 11,7:1 |
+| `accent-ink` sur `accent` / `accent-pressed` | 6,5:1 / 4,6:1 | 16,9:1 / 9,5:1 |
 | `button-outline` sur `page` | 3,7:1 | 4,1:1 |
 | `melody` / `bass` sur `cell-ground` | 4,8:1 / 4,8:1 | 6,1:1 / 9,0:1 |
 | `danger` sur `page` | 5,0:1 | 6,2:1 |

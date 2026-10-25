@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class KeyDropTest {
+internal class KeyDropTest {
     @Test
     fun `a held key goes 2 dp down`() {
         // Then (docs/design-system: a pressed key takes its pressed fill and goes 2 px down, in every theme): a cue

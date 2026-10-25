@@ -1,8 +1,8 @@
 package ch.magori.blox.feature.game
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
@@ -17,9 +17,6 @@ import ch.magori.blox.feature.game.sidepanel.SidePanelLargeFontPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelNoNextPiecePreview
 import ch.magori.blox.feature.game.topbar.GameTopBarLargeFontPreview
 import com.android.tools.screenshot.PreviewTest
-
-/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
-private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of the game screen and its parts, in both themes, from the previews of the
@@ -45,7 +42,7 @@ private fun GameScreenOriginal() = GameScreenOriginalPreview()
 private fun GameScreenColorful() = GameScreenColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 760, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameScreenColorfulNight() = GameScreenColorfulPreview()
 
@@ -98,7 +95,7 @@ private fun GameScreenTooSmallOriginal() = GameScreenTooSmallOriginalPreview()
 private fun GameScreenTooSmallColorful() = GameScreenTooSmallColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 220, heightDp = 560, uiMode = NIGHT)
+@Preview(widthDp = 220, heightDp = 560, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameScreenTooSmallColorfulNight() = GameScreenTooSmallColorfulPreview()
 
@@ -122,7 +119,7 @@ private fun TopBarLargeFont() = GameTopBarLargeFontPreview()
 private fun SidePanelColorful() = SidePanelColorfulPreview()
 
 @PreviewTest
-@Preview(uiMode = NIGHT)
+@Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun SidePanelColorfulNight() = SidePanelColorfulPreview()
 
@@ -143,6 +140,11 @@ private fun SidePanelNoNextPiece() = SidePanelNoNextPiecePreview()
 @Composable
 private fun ControlsHeld() = GameControlsHeldPreview()
 
+@PreviewTest
+@Preview(widthDp = 360, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun ControlsHeldNight() = GameControlsHeldPreview()
+
 // The pause screen.
 
 @PreviewTest
@@ -156,7 +158,7 @@ private fun PauseOriginal() = PauseOriginalPreview()
 private fun PauseColorful() = PauseColorfulPreview()
 
 @PreviewTest
-@Preview(uiMode = NIGHT)
+@Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun PauseColorfulNight() = PauseColorfulPreview()
 
@@ -183,7 +185,7 @@ private fun GameOverOriginalNewRecord() = GameOverOriginalNewRecordPreview()
 private fun GameOverColorful() = GameOverColorfulPreview()
 
 @PreviewTest
-@Preview(uiMode = NIGHT)
+@Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameOverColorfulNight() = GameOverColorfulPreview()
 
@@ -193,7 +195,7 @@ private fun GameOverColorfulNight() = GameOverColorfulPreview()
 private fun GameOverColorfulNewRecord() = GameOverColorfulNewRecordPreview()
 
 @PreviewTest
-@Preview(uiMode = NIGHT)
+@Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameOverColorfulNewRecordNight() = GameOverColorfulNewRecordPreview()
 

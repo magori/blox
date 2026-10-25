@@ -63,8 +63,8 @@ private fun originalStyle(type: PieceType): CellStyle {
     )
 }
 
-/** The margin around an empty cell, in the colour of the board, as around a piece. */
-private const val COLORFUL_EMPTY_BORDER_WIDTH = 1f / 24
+/** The margin around an empty cell: a joint, in the colour under the cell, as around a piece. */
+private const val COLORFUL_EMPTY_JOINT_WIDTH = 1f / 24
 private const val COLORFUL_BEVEL_WIDTH = 3f / 24
 
 private fun colorfulStyle(type: PieceType): CellStyle {
@@ -80,9 +80,9 @@ private fun colorfulStyle(type: PieceType): CellStyle {
     return CellStyle(Color(fill), CellBorder.Bevel(Color(light), Color(dark), COLORFUL_BEVEL_WIDTH), centre = null)
 }
 
-/** An empty cell of a Colorful variant: its own colour, apart from the board by a margin of the board. */
+/** An empty cell of a Colorful variant: its own colour, apart from the background by a joint of it. */
 private fun colorfulEmpty(palette: BloxPalette): CellStyle =
-    CellStyle(palette.emptyCell, CellBorder.Plain(palette.boardBackground, COLORFUL_EMPTY_BORDER_WIDTH), centre = null)
+    CellStyle(palette.emptyCell, border = null, centre = null, joint = CellJoint(COLORFUL_EMPTY_JOINT_WIDTH))
 
 // The tables come last: top-level properties are initialised in the order of the file.
 private val ORIGINAL_EMPTY = CellStyle(BloxPalettes.Original.boardBackground, border = null, centre = null)

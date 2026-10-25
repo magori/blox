@@ -901,7 +901,9 @@ composants.
   forcedBySystem)` porté par `BloxTheme`, résolu par une fonction pure depuis la préférence et
   `ValueAnimator.areAnimatorsEnabled()` (lu par `MainActivity` à chaque reprise) ; carte Affichage avec Effets
   réduits (allumé et bloqué quand Android l'impose, sans écraser le choix) et la note sur le thème ; les boutons
-  pressés ne descendent plus en Effets réduits. Après P5.70.
+  pressés ne descendent plus en Effets réduits, mais une touche de jeu tenue garde sa descente de 2 dp : ce n'est pas
+  une animation, et c'est le seul repère de A tenue de jour (1,4:1 contre A au repos ; décision de la revue de
+  P5.57). Cas : `a held key goes 2 dp down, reduced effects or not`. Après P5.70.
   Cas : `effects are reduced when the player asks for it`, `effects are reduced and forced when Android removes
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,

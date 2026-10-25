@@ -1,5 +1,6 @@
 import ch.magori.blox.buildlogic.library
 import ch.magori.blox.buildlogic.libs
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.file.RegularFileProperty
@@ -13,9 +14,9 @@ import org.gradle.process.CommandLineArgumentProvider
 
 /**
  * Jetons du design system (ADR 0019) : un module dont le code reprend des jetons de
- * `docs/design-system/tokens.json` applique ce plugin en plus de son plugin principal. Ses tests JVM lisent le
- * fichier, dont le chemin leur est donné par la propriété système `blox.designTokens`, et comparent chaque jeton au
- * code.
+ * `docs/design-system/tokens.json` applique ce plugin en plus de son plugin principal, dans n'importe quel ordre.
+ * Ses tests JVM lisent le fichier, dont le chemin leur est donné par la propriété système `blox.designTokens`, et
+ * comparent chaque jeton au code.
  *
  * Le fichier est une entrée des tâches de test, à chemin relatif : le modifier relance les tests, y compris depuis le
  * cache de build, et la clé de cache ne dépend pas de l'emplacement de la copie du dépôt (P5.31). Le chemin absolu
@@ -32,12 +33,28 @@ class DesignTokensConventionPlugin : Plugin<Project> {
             tasks.withType<Test>().configureEach {
                 jvmArgumentProviders.add(tokens)
             }
-            dependencies.add("testImplementation", libs.library("kotlinx-serialization-json"))
+            // La configuration testImplementation n'existe qu'une fois le plugin principal appliqué, avant ou après
+            // celui-ci : comme blox.test.fixtures, on attend l'un ou l'autre et on échoue s'il manque.
+            listOf(ANDROID_LIBRARY, KOTLIN_JVM).forEach { id ->
+                pluginManager.withPlugin(id) {
+                    dependencies.add("testImplementation", libs.library("kotlinx-serialization-json"))
+                }
+            }
+            afterEvaluate {
+                if (!pluginManager.hasPlugin(ANDROID_LIBRARY) && !pluginManager.hasPlugin(KOTLIN_JVM)) {
+                    throw GradleException(
+                        "blox.design.tokens s'applique à une bibliothèque : appliquer aussi blox.jvm.library " +
+                            "ou blox.android.library dans $path.",
+                    )
+                }
+            }
         }
     }
 
     private companion object {
         const val TOKENS_FILE = "docs/design-system/tokens.json"
+        const val ANDROID_LIBRARY = "com.android.library"
+        const val KOTLIN_JVM = "org.jetbrains.kotlin.jvm"
     }
 }
 

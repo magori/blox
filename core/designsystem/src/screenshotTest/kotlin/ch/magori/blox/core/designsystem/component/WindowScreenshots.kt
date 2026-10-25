@@ -1,12 +1,9 @@
 package ch.magori.blox.core.designsystem.component
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
-
-/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
-private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of the windows shared by the editor and « Mes musiques », the font of the system normal and twice
@@ -32,6 +29,11 @@ private fun NamingWindowTakenNameLargeFont() = NamingWindowLargeFontPreview()
 private fun DeleteWindowFailed() = DeleteWindowPreview()
 
 @PreviewTest
+@Preview(widthDp = 360, heightDp = 640, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun DeleteWindowFailedNight() = DeleteWindowPreview()
+
+@PreviewTest
 @Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
 @Composable
 private fun DeleteWindowFailedLargeFont() = DeleteWindowLargeFontPreview()
@@ -42,7 +44,7 @@ private fun DeleteWindowFailedLargeFont() = DeleteWindowLargeFontPreview()
 private fun NamingWindowTakenNameColorfulLargeFont() = NamingWindowColorfulLargeFontPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun NamingWindowTakenNameColorfulLargeFontNight() = NamingWindowColorfulLargeFontPreview()
 

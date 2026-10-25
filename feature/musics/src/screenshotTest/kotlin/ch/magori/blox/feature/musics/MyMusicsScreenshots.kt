@@ -1,12 +1,9 @@
 package ch.magori.blox.feature.musics
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
-
-/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
-private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of « Mes musiques » (views V7 and V10), in both themes coded so far, with the font of the system
@@ -25,7 +22,7 @@ private fun MyMusicsOriginal() = MyMusicsOriginalPreview()
 private fun MyMusicsColorful() = MyMusicsColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 760, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun MyMusicsColorfulNight() = MyMusicsColorfulPreview()
 

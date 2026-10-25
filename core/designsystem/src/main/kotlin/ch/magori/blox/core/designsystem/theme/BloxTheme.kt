@@ -28,9 +28,10 @@ fun BloxTheme(
 ) {
     val variant = BloxThemeVariant.of(kind, darkSystem)
     CompositionLocalProvider(LocalBloxThemeVariant provides variant) {
+        val colorScheme = remember(variant) { colorSchemeOf(variant) }
         val typography = remember(kind) { BloxTypographies.of(kind).toMaterial() }
         MaterialTheme(
-            colorScheme = colorSchemeOf(variant),
+            colorScheme = colorScheme,
             typography = typography,
             content = content,
         )

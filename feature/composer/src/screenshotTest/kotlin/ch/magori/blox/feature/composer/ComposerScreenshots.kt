@@ -1,12 +1,9 @@
 package ch.magori.blox.feature.composer
 
-import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
-
-/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
-private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of the music editor (views V8 and V11), and of its windows (save, V9 and V12, and the question before
@@ -26,7 +23,7 @@ private fun ComposerOriginal() = ComposerOriginalPreview()
 private fun ComposerColorful() = ComposerColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 760, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun ComposerColorfulNight() = ComposerColorfulPreview()
 
@@ -46,7 +43,7 @@ private fun ComposerDiceOriginal() = ComposerDiceOriginalPreview()
 private fun ComposerDiceColorful() = ComposerDiceColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 760, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun ComposerDiceColorfulNight() = ComposerDiceColorfulPreview()
 
@@ -71,7 +68,7 @@ private fun MessageOriginal() = MessageOriginalPreview()
 private fun MessageColorful() = MessageColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 240, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 240, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun MessageColorfulNight() = MessageColorfulPreview()
 
@@ -101,7 +98,7 @@ private fun SaveWindowOriginalLargeFont() = SaveWindowOriginalLargeFontPreview()
 private fun SaveWindowColorful() = SaveWindowColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 640, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 640, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun SaveWindowColorfulNight() = SaveWindowColorfulPreview()
 
@@ -136,7 +133,7 @@ private fun LeaveWindowOriginalLargeFont() = LeaveWindowOriginalLargeFontPreview
 private fun LeaveWindowColorful() = LeaveWindowColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 640, uiMode = NIGHT)
+@Preview(widthDp = 360, heightDp = 640, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun LeaveWindowColorfulNight() = LeaveWindowColorfulPreview()
 

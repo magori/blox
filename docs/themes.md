@@ -9,7 +9,8 @@ mêmes mises en page v2 avec ses propres jetons (ADR 0020). Valeurs Original ret
 rôles nouveaux (P5.56, à confirmer sur la maquette en P5.85) : `emptyCell` `#DCEBD5` (le fond du
 plateau), `panelInset` `#DCEBD5`, `scrim` `rgba(207,227,200,0.85)`, `clearGlow` `#EEF5EA`,
 `dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger se lit au cadre de
-4 dp), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo.
+4 dp), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo
+(`OriginalPaletteTest › the roles new in v2 have in the Original theme the values of docs themes md`).
 Points tranchés en P5.56 : pendant la partie (P5.78), NOUVEAU RECORD n'apparaît que si un record supérieur à 0 existait (sinon il s'afficherait dès le premier point) ; en fin de partie, la règle reste celle d'aujourd'hui (un premier score positif est un nouveau record, `HighScoreRepositoryContract › a first positive score is a new record against 0`) ;
 un volume à 0 joue en silence (la musique ne s'arrête pas) ; pas de fondu au changement de thème.
 
@@ -100,7 +101,7 @@ le logo de l'accueil.
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
-`CellStylesTest › in the Colorful theme an empty cell has a 1 px border`,
+`CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`,
 `BoardGeometryTest › a cell is the smaller of the width over 10 and the height over 20, in whole pixels`,
 `BoardGeometryTest › a cell and the board origin are whole numbers of pixels`,
 `BoardGeometryTest › the board is centred in the available space`,
@@ -180,7 +181,7 @@ ses bords de 2 dp dans la couleur de sa piste.
 `PaletteTokensTest › each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
 `PaletteTokensTest › every colour token of tokens json is in the palette or listed as not coded, with its reason`,
 `PaletteTokensTest › a colour written rgba in tokens json is read with its alpha`,
-`CellStylesTest › in the Colorful theme an empty cell has a 1 px border`.
+`CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`.
 Vues : V22 à V34 (jour), nuit dans le design system.
 
 Une couleur par pièce, effet biseauté (bordure claire en haut et à gauche, foncée en bas et à
@@ -214,7 +215,8 @@ couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
 
 **Tests :** `KeyColorsTest › a held key stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
-`KeyColorsTest › a held key stands out from the key at rest by 1,5 to 1, or for A in the day by going 2 dp down`,
+`KeyColorsTest › a held key stands out from the key at rest by a contrast of 1,5 to 1 at least`,
+`KeyColorsTest › for A in the day the held key differs from it at rest by less than 1,5 to 1, so its 2 dp drop tells it`,
 `KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,

@@ -141,6 +141,6 @@ blox-android-library-compose = { id = "blox.android.library.compose" }
 blox-android-feature = { id = "blox.android.feature" }
 blox-android-benchmark = { id = "blox.android.benchmark" }
 blox-android-screenshot = { id = "blox.android.screenshot" }
+blox-design-tokens = { id = "blox.design.tokens" }
 blox-jvm-library = { id = "blox.jvm.library" }
 blox-test-fixtures = { id = "blox.test.fixtures" }
-blox-design-tokens = { id = "blox.design.tokens" }

@@ -80,22 +80,22 @@ class CellStylesTest {
         assertThat(style).isEqualTo(CellStyle(fill = rgb("DCEBD5"), border = null, centre = null))
     }
 
-    @ParameterizedTest(name = "{0}: empty cell {1} on the board {2}")
+    @ParameterizedTest(name = "{0}: empty cell {1}")
     @CsvSource(
-        "COLORFUL_LIGHT, F1F2F8, FFFFFF",
-        "COLORFUL_DARK, 14151E, 0E0F16",
+        "COLORFUL_LIGHT, F1F2F8",
+        "COLORFUL_DARK, 14151E",
     )
-    fun `in the Colorful theme an empty cell has a 1 px border`(
+    fun `in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`(
         variant: BloxThemeVariant,
         emptyCell: String,
-        board: String,
     ) {
         // When
         val style = cellStyle(variant, Cell.Empty)
 
-        // Then: in the colour of the empty cells, framed by 1 px of the board on a 24 px cell, as a margin
+        // Then: in the colour of the empty cells, framed by 1 px of a 24 px cell in the colour under it, the
+        // background the board is drawn on, as a margin
         assertThat(style).isEqualTo(
-            CellStyle(fill = rgb(emptyCell), border = CellBorder.Plain(rgb(board), width = 1f / 24), centre = null),
+            CellStyle(fill = rgb(emptyCell), border = null, centre = null, joint = CellJoint(width = 1f / 24)),
         )
     }
 

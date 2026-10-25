@@ -15,8 +15,9 @@ internal data class ChoiceColors(val background: Color, val frame: Color, val in
  * The colours of a choice in [palette], [selected] or not. A selected choice is filled in `accent`, as the
  * play button, and checked in the ink of its label; an unselected one is drawn as a panel of the game screen,
  * `panel` framed in `panelBorder`, with its label in `ink`, and no check. Colour is not the only cue (WCAG 2.1,
- * 1.4.1): the selected choice bears a check, and in every theme the two states differ by 3:1 at least in
- * luminance, not in hue only, the unselected choice framed, the selected one filled.
+ * 1.4.1): the state is told by the check, which the selected choice alone bears and which stands out from its
+ * background by 3:1 at least in every theme. The fills of the two states do not reach 3:1 between them in every
+ * theme (2.6:1 by day): the unselected choice is framed, the selected one filled, but the check is the cue.
  */
 internal fun choiceColors(
     palette: BloxPalette,
