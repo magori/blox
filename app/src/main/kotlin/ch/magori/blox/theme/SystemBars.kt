@@ -27,7 +27,8 @@ internal fun hasDarkSystemBarIcons(variant: BloxThemeVariant): Boolean = !varian
 
 /**
  * Draws the window edge to edge, the icons of its bars dark or light as [darkIcons] says, whatever the mode of the
- * system. The scrims of the navigation bar (three buttons) are those of `enableEdgeToEdge` by default.
+ * system. [LIGHT_SCRIM] and [DARK_SCRIM], those of `enableEdgeToEdge` by default, serve only on API 26 to 28: from
+ * API 29, `auto` leaves the navigation bar transparent and the system draws its own scrim (three buttons).
  */
 internal fun ComponentActivity.showSystemBars(darkIcons: Boolean) {
     enableEdgeToEdge(

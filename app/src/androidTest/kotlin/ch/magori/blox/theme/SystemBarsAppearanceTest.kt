@@ -1,13 +1,19 @@
 package ch.magori.blox.theme
 
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -16,7 +22,7 @@ import org.junit.jupiter.params.provider.CsvSource
  * passed to [BloxTheme] (`darkSystem`): the test does not depend on the mode of the device, nor changes it.
  */
 @OptIn(ExperimentalTestApi::class)
-// Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
+// Sentences in @DisplayName: the dex refuses spaces in method names below API 30 (minSdk 26).
 internal class SystemBarsAppearanceTest {
     @ParameterizedTest(name = "{0}, system in dark mode: {1} -> light appearance (dark icons): {2}")
     @CsvSource(
@@ -31,19 +37,56 @@ internal class SystemBarsAppearanceTest {
         expectedLightAppearance: Boolean,
     ) {
         runAndroidComposeUiTest<ComponentActivity> {
-            // Given the theme chosen, in the mode of the system
+            // Given bars in the opposite appearance, so that the theme has to change it
+            runOnUiThread { bars().setLightAppearance(!expectedLightAppearance) }
+
+            // When the theme chosen is drawn, in the mode of the system
             setContent {
                 BloxTheme(kind = kind, darkSystem = darkSystem) { BloxSystemBars() }
             }
             waitForIdle()
 
             // Then the status bar and the navigation bar have dark icons on a light variant, light ones on a dark one
-            runOnUiThread {
-                val window = checkNotNull(activity).window
-                val controller = WindowCompat.getInsetsController(window, window.decorView)
-                assertThat(controller.isAppearanceLightStatusBars).isEqualTo(expectedLightAppearance)
-                assertThat(controller.isAppearanceLightNavigationBars).isEqualTo(expectedLightAppearance)
-            }
+            assertLightAppearance(expectedLightAppearance)
         }
+    }
+
+    @Test
+    @DisplayName("the system bars change their appearance as soon as the variant drawn changes")
+    fun theSystemBarsFollowAChangeOfVariant() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given Colorful by day: dark icons
+            var darkSystem by mutableStateOf(false)
+            setContent {
+                BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem) { BloxSystemBars() }
+            }
+            waitForIdle()
+            assertLightAppearance(true)
+
+            // When the system goes dark, in the same composition
+            darkSystem = true
+            waitForIdle()
+
+            // Then light icons, on the night variant
+            assertLightAppearance(false)
+        }
+    }
+
+    private fun AndroidComposeUiTest<ComponentActivity>.bars(): WindowInsetsControllerCompat {
+        val window = checkNotNull(activity).window
+        return WindowCompat.getInsetsController(window, window.decorView)
+    }
+
+    private fun AndroidComposeUiTest<ComponentActivity>.assertLightAppearance(expected: Boolean) {
+        runOnUiThread {
+            val bars = bars()
+            assertThat(bars.isAppearanceLightStatusBars).isEqualTo(expected)
+            assertThat(bars.isAppearanceLightNavigationBars).isEqualTo(expected)
+        }
+    }
+
+    private fun WindowInsetsControllerCompat.setLightAppearance(light: Boolean) {
+        isAppearanceLightStatusBars = light
+        isAppearanceLightNavigationBars = light
     }
 }

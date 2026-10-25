@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 164 / 221 | `███████████████░░░░░` **74 %** |
+| **Général** | 165 / 221 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1018,7 +1018,7 @@ composants.
   valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
   Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
   3:1 de la case.
-- [ ] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
+- [x] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
