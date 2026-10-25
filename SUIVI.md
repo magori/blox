@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 159 / 219 | `███████████████░░░░░` **73 %** |
+| **Général** | 160 / 219 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -916,7 +916,7 @@ composants.
   `changing the game from the home goes back to the cartridges`,
   `changing the game from a restored stack without cartridges puts them at its root`,
   `the system back on the cartridges leaves the application`, TalkBack (nom de chaque cartouche) ; captures.
-- [ ] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
+- [x] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
   `CellPainter`, `CellStyles`, `CellStyle`, `BoardGeometry`, `DisplayedCells`, `CellLayout`, `CellPixels`,
   `NextPieceCanvas` et `NextPieceCells` quittent `feature:game`. Pur déplacement, aucun pixel ne change
   (`CLAUDE.md`, `docs/architecture.md` et `docs/themes.md` mis à jour) ; fait avant P5.57, la clé des peintres

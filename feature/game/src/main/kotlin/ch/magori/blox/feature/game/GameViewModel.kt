@@ -9,6 +9,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.audio.SoundEffectPlayer
+import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -32,7 +33,6 @@ import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
-import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import ch.magori.blox.feature.game.sound.soundEffectFor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable

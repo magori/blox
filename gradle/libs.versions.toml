@@ -101,6 +101,9 @@ okio = { group = "com.squareup.okio", name = "okio", version.ref = "okio" }
 # Lanceur JUnit 5 des tests instrumentés : le plugin android-junit le pose lui-même dans les modules
 # application et bibliothèque, pas dans un module `com.android.test` (`:benchmark`, blox.android.benchmark).
 android-junit-test-runner = { group = "de.mannodermaus.junit5", name = "android-test-runner", version.ref = "androidJunit" }
+# Les extensions Compose de JUnit 5 (ComposeContext) : le plugin android-junit les pose dans androidTest, pas dans
+# les testFixtures de core:board, qui les emploient.
+android-junit-test-compose = { group = "de.mannodermaus.junit5", name = "android-test-compose", version.ref = "androidJunit" }
 androidx-test-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "androidxEspresso" }
 screenshot-validation-api = { group = "com.android.tools.screenshot", name = "screenshot-validation-api", version.ref = "screenshot" }
 

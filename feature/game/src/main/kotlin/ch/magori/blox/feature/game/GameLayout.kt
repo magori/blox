@@ -6,13 +6,13 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.board.roundToPixel
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.feature.game.controls.ControlSizes
 import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
-import ch.magori.blox.feature.game.ui.roundToPixel
 import kotlin.math.ceil
 import kotlin.math.floor
 

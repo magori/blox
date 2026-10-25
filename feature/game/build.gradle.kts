@@ -20,6 +20,9 @@ dependencies {
     api(projects.core.haptics)
     api(libs.androidx.lifecycle.viewmodel)
 
+    // Le rendu du plateau et de la pièce suivante (P5.73).
+    implementation(projects.core.board)
+
     // Le seul module de feature qui a un ViewModel, pour l'instant.
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.common)
@@ -41,6 +44,8 @@ dependencies {
     testImplementation(testFixtures(projects.core.game))
     // Le contraste de WCAG et les palettes nommées, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.designsystem))
+    // Les outils des tests instrumentés du dessin (RecompositionRecorder, drawnContent, assertDrawnAsFresh).
+    androidTestImplementation(testFixtures(projects.core.board))
     // Les tests instrumentés emploient ses annotations (ce que buildHealth demande de déclarer).
     androidTestImplementation(libs.androidx.annotation)
     // Le test de la fabrique sauve puis restaure l'état d'une entrée, comme après la mort du processus.

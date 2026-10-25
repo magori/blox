@@ -11,14 +11,6 @@
     <string name="feature_game_lines">Lignes</string>
     <string name="feature_game_next">Suivante</string>
     <string name="feature_game_value_description">%1$s : %2$s</string>
-    <string name="feature_game_next_none">aucune</string>
-    <string name="feature_game_piece_i">pièce I</string>
-    <string name="feature_game_piece_o">pièce O</string>
-    <string name="feature_game_piece_t">pièce T</string>
-    <string name="feature_game_piece_s">pièce S</string>
-    <string name="feature_game_piece_z">pièce Z</string>
-    <string name="feature_game_piece_j">pièce J</string>
-    <string name="feature_game_piece_l">pièce L</string>
     <string name="feature_game_over_title">Partie terminée</string>
     <string name="feature_game_over_new_record">Nouveau record</string>
     <string name="feature_game_over_four_lines">4 lignes</string>
@@ -47,11 +39,4 @@
     <string name="feature_game_top_record">Record</string>
     <!-- À la place du plateau, quand la fenêtre est trop petite pour jouer (cellules de moins de 8 dp, P2.24). -->
     <string name="feature_game_too_small">Agrandissez la fenêtre</string>
-    <!-- Plateau, lu par TalkBack (P5.3) : la hauteur de la pile en rangées (pas « lignes », le compteur de lignes effacées), qui ne change qu'au verrouillage ou à l'effacement. -->
-    <string name="feature_game_board_empty">Plateau : vide</string>
-    <plurals name="feature_game_board_stack">
-        <item quantity="one">Plateau : pile de %1$d rangée sur %2$d</item>
-        <item quantity="many">Plateau : pile de %1$d rangées sur %2$d</item>
-        <item quantity="other">Plateau : pile de %1$d rangées sur %2$d</item>
-    </plurals>
 </resources>
