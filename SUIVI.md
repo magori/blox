@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 165 / 221 | `███████████████░░░░░` **75 %** |
+| **Général** | 166 / 221 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -925,7 +925,7 @@ composants.
   `(variante, taille, fond)` et son test `the painters are built again when the variant changes` passent en P5.57.
   Cas : tests déplacés verts (`BoardCanvasTest`, `CellStylesTest`, `BoardGeometryTest`, `DisplayedCellsTest`,
   `CellPixelsTest`, `CellLayoutTest`), captures à 0 % d'écart, `buildHealth` vert.
-- [ ] **P5.74** Cases « bulles » (`core:board`, composant Piece) : dégradé `piece-<x>-hi` → `piece-<x>`,
+- [x] **P5.74** Cases « bulles » (`core:board`, composant Piece) : dégradé `piece-<x>-hi` → `piece-<x>`,
   `radius-cell` (2 dp sous 16 dp), `cell-gloss` à 16 dp et plus, case vide `empty-cell` sur `board`, marge de
   1 px ; Original inchangé. Après P5.59, P5.73.
   Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,

@@ -1,6 +1,7 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
@@ -40,7 +41,7 @@ class CellStylesTest {
                 fill = rgb(fill),
                 border = CellBorder(rgb(border), width = 2f / 24),
                 centre = CellCentre(rgb(centre), size = 8f / 24),
-                joint = CellJoint(width = 1f / 24),
+                joint = CellJoint.Fraction(width = 1f / 24),
             ),
         )
     }
@@ -57,7 +58,7 @@ class CellStylesTest {
         assertThat(styles).allSatisfy { style ->
             assertThat(style.border).isNull()
             assertThat(style.centre).isNull()
-            assertThat(style.joint).isEqualTo(CellJoint(width = 1f / 24))
+            assertThat(style.joint).isEqualTo(CellJoint.Fixed(width = 1.dp))
             assertThat(style.bubble?.highlight).isNotNull()
             assertThat(style.bubble?.gloss).isEqualTo(cellGloss(variant))
         }
@@ -84,14 +85,14 @@ class CellStylesTest {
         // When
         val style = cellStyle(variant, Cell.Empty)
 
-        // Then: in the colour of the empty cells, framed by 1 px of a 24 px cell in the colour under it, the
+        // Then: in the colour of the empty cells, framed by 1 dp (1 px of the design system) in the colour under it, the
         // background the board is drawn on, as a margin; rounded as a piece, flat, without gloss
         assertThat(style).isEqualTo(
             CellStyle(
                 fill = rgb(emptyCell),
                 border = null,
                 centre = null,
-                joint = CellJoint(width = 1f / 24),
+                joint = CellJoint.Fixed(width = 1.dp),
                 bubble = CellBubble(highlight = null, gloss = Gloss.None),
             ),
         )
@@ -99,9 +100,9 @@ class CellStylesTest {
 
     private fun rgb(hex: String): Color = Color(0xFF000000 or hex.toLong(radix = 16))
 
+    /** The gloss of the cells of a Colorful variant, by day or by night. */
     private fun cellGloss(variant: BloxThemeVariant): Gloss = when (variant) {
-        BloxThemeVariant.ORIGINAL -> BloxGlossSets.Original.cell
         BloxThemeVariant.COLORFUL_LIGHT -> BloxGlossSets.ColorfulLight.cell
-        BloxThemeVariant.COLORFUL_DARK -> BloxGlossSets.ColorfulDark.cell
+        else -> BloxGlossSets.ColorfulDark.cell
     }
 }

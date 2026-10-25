@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxShapeSets
 import ch.magori.blox.core.designsystem.theme.Gloss
+import kotlin.math.ceil
 
 /**
  * Where the parts of a cell go, in pixels of the cell, from its top-left corner: the [fill], in [shape], and the
@@ -17,8 +18,8 @@ import ch.magori.blox.core.designsystem.theme.Gloss
 internal data class CellLayout(val fill: Rect, val border: Rect?, val shape: Shape, val gloss: Gloss)
 
 /**
- * The parts of a cell of [side] pixels in [style], at [density]. The joint takes [CellJoint.width] of the cell on each
- * edge, 1 px at least: two cells side by side are apart by twice as much. A bubble has the corners of `radius-cell`
+ * The parts of a cell of [side] pixels in [style], at [density]. The joint takes its width on each edge, in whole
+ * pixels, 1 px at least: two cells side by side are apart by twice as much. A bubble has the corners of `radius-cell`
  * and its gloss from 16 dp; below, corners of 2 dp and no gloss, which would weigh too much on so small a cell
  * (docs/design-system/components/Piece).
  */
@@ -27,7 +28,14 @@ internal fun cellLayout(
     side: Float,
     density: Density,
 ): CellLayout {
-    val inset = style.joint?.let { pixelsOf(it.width, side) } ?: 0f
+    val inset = when (val joint = style.joint) {
+        null -> 0f
+
+        is CellJoint.Fraction -> pixelsOf(joint.width, side)
+
+        // Rounded up: the ring of a gloss, as wide, fits in it at every density.
+        is CellJoint.Fixed -> ceil(with(density) { joint.width.toPx() }).coerceAtLeast(1f)
+    }
     val fill = Rect(inset, inset, side - inset, side - inset)
     val bubble = style.bubble
     val large = with(density) { side.toDp() } >= LARGE_CELL

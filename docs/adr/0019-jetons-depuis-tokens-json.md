@@ -20,7 +20,9 @@ tâche `build-logic` qui lise aussi les valeurs CSS (`rgba`, ombres), et cachera
   n'est ni codé ni listé « non codé », avec sa raison.
 - La convention `blox.design.tokens` déclare le fichier en **entrée des tâches de test**, par un
   chemin relatif (`CommandLineArgumentProvider`), pour que le cache reste relocalisable (P5.31).
-- Lecture par `kotlinx-serialization-json`, en `testImplementation` seulement.
+- Lecture par `kotlinx-serialization-json`, dans un seul lecteur, `DesignTokens`, publié par les doublures de test
+  de `core:designsystem` (`testFixturesImplementation`) et consommé par les autres modules
+  (`testImplementation(testFixtures(projects.core.designsystem))`, P5.74).
 
 ## Conséquences
 

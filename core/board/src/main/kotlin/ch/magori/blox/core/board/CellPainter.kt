@@ -10,7 +10,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -61,12 +60,8 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         fill(scope)
         border?.invoke(scope)
         centre?.invoke(scope)
-        // The ring of the gloss stays in the cell, in its joint: it never covers a cell beside it.
-        gloss?.let { bands ->
-            scope.clipRect(right = cellSize.width, bottom = cellSize.height) {
-                translate(layout.fill.left, layout.fill.top) { bands.draw(this) }
-            }
-        }
+        // The ring of the gloss fits in the margin of the cell (cellLayout): it never covers a cell beside it.
+        gloss?.let { bands -> scope.translate(layout.fill.left, layout.fill.top) { bands.draw(this) } }
     }
 }
 

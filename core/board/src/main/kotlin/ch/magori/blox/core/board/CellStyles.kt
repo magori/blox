@@ -1,6 +1,7 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxPalette
@@ -63,12 +64,12 @@ private fun originalStyle(type: PieceType): CellStyle {
         fill = fill,
         border = CellBorder(border, ORIGINAL_BORDER_WIDTH),
         centre = CellCentre(centre, ORIGINAL_CENTRE_SIZE),
-        joint = CellJoint(ORIGINAL_JOINT_WIDTH),
+        joint = CellJoint.Fraction(ORIGINAL_JOINT_WIDTH),
     )
 }
 
-/** The margin around a cell of a Colorful variant, piece or empty: a joint, in the colour under the cell, 1 px of 24. */
-private const val COLORFUL_JOINT_WIDTH = 1f / 24
+/** The margin around a Colorful cell, piece or empty, in the colour under it: 1 px of the design system. */
+private val COLORFUL_MARGIN = 1.dp
 
 /**
  * The colours of a piece in a Colorful variant, the tokens of docs/design-system/tokens.json (PieceTokensTest): its
@@ -84,7 +85,7 @@ private fun colorfulStyle(
     fill = Color(colors.fill),
     border = null,
     centre = null,
-    joint = CellJoint(COLORFUL_JOINT_WIDTH),
+    joint = CellJoint.Fixed(COLORFUL_MARGIN),
     bubble = CellBubble(highlight = Color(colors.highlight), gloss = glosses.cell),
 )
 
@@ -93,7 +94,7 @@ private fun colorfulEmpty(palette: BloxPalette): CellStyle = CellStyle(
     fill = palette.emptyCell,
     border = null,
     centre = null,
-    joint = CellJoint(COLORFUL_JOINT_WIDTH),
+    joint = CellJoint.Fixed(COLORFUL_MARGIN),
     bubble = CellBubble(highlight = null, gloss = Gloss.None),
 )
 

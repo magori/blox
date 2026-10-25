@@ -9,6 +9,7 @@ import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxShapeSets
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
+import ch.magori.blox.core.designsystem.theme.GlossLayer
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
@@ -80,6 +81,33 @@ class CellLayoutTest {
             assertThat(empty.shape).isEqualTo(piece.shape)
             assertThat(empty.gloss).isEqualTo(Gloss.None)
         }
+    }
+
+    @ParameterizedTest(name = "cells of {0} px")
+    @ValueSource(floats = [32f, 96f])
+    fun `a bubble has a margin of 1 dp whatever its size`(side: Float) {
+        // Given a cell of a piece at a density of 2: 16 dp, then 48 dp
+        val style = cellStyle(BloxThemeVariant.COLORFUL_LIGHT, Cell.Filled(PieceType.T))
+
+        // When
+        val layout = cellLayout(style, side, DENSITY)
+
+        // Then 1 dp of the design system on each edge, 2 px, as the 1 px of the design system
+        assertThat(layout.fill).isEqualTo(Rect(2f, 2f, side - 2f, side - 2f))
+    }
+
+    @ParameterizedTest(name = "density {0}")
+    @ValueSource(floats = [0.75f, 1f, 1.33f, 2f, 2.625f, 3f, 3.5f])
+    fun `the ring of the gloss fits in the margin`(density: Float) {
+        // Given a cell of a piece of 24 dp by day, whose gloss has a ring around the bubble
+        val style = cellStyle(BloxThemeVariant.COLORFUL_LIGHT, Cell.Filled(PieceType.T))
+
+        // When
+        val layout = cellLayout(style, side = 24 * density, Density(density))
+
+        // Then the ring stays in the margin, never cut at the edge of the cell
+        val ring = layout.gloss.layers.filterIsInstance<GlossLayer.Ring>().single()
+        assertThat(ring.width.value * density).isLessThanOrEqualTo(layout.fill.left)
     }
 
     private companion object {
