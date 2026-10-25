@@ -61,6 +61,12 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
         "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
     ),
 
+    /** Vibrations, in the settings: a phone that shakes (docs/design-system/pictogrammes.md). */
+    VIBRATE(
+        listOf("..####..", "..#..#..", "#.#..#.#", "#.#..#.#", "#.#..#.#", "..#..#..", "..####..", "........"),
+        "M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM3 8v8M21 8v8",
+    ),
+
     /** Menu: a house. */
     HOME(
         listOf("...##...", "..####..", ".######.", "########", ".######.", ".##..##.", ".##..##.", ".##..##."),

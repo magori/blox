@@ -336,7 +336,7 @@ sélectionné (`choiceColors`) ; l'interrupteur éteint a une piste `panel` et u
 une piste `accent` et un bouton `accentInk`. Allumé ou éteint, il est cadré en `buttonOutline`, à
 3:1 au moins de sa rangée (P5.57) ; en Original, dont le contour est la face des boutons, le cadre
 est à l'encre. L'état se lit aussi à la place du bouton (à gauche éteint, à droite allumé).
-Tests : `SettingColorsTest` (cités dans `docs/maquette.md`, V1).
+Tests : `SwitchLookTest` (cités dans `docs/maquette.md`, V21).
 
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient

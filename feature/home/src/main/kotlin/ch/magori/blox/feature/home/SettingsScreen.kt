@@ -22,7 +22,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.SettingSwitchRow
 import ch.magori.blox.core.designsystem.component.SingleLineText
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
@@ -71,13 +73,17 @@ internal fun SettingsScreen(
                 modifier = Modifier.semantics { heading() },
             )
             if (uiState != null) {
-                Setting(
-                    text = stringResource(R.string.feature_home_vibrations),
+                SettingSwitchRow(
+                    icon = BloxIcon.VIBRATE,
+                    label = stringResource(R.string.feature_home_vibrations),
+                    subLine = stringResource(R.string.feature_home_vibrations_sub_line),
                     checked = uiState.vibrations,
                     onCheckedChange = onVibrationsChanged,
                 )
-                Setting(
-                    text = stringResource(R.string.feature_home_sound_effects),
+                SettingSwitchRow(
+                    icon = BloxIcon.NOTE,
+                    label = stringResource(R.string.feature_home_sound_effects),
+                    subLine = stringResource(R.string.feature_home_sound_effects_sub_line),
                     checked = uiState.soundEffects,
                     onCheckedChange = onSoundEffectsChanged,
                 )

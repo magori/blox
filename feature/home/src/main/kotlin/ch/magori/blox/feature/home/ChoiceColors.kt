@@ -1,7 +1,12 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 
 /**
@@ -32,3 +37,9 @@ internal fun choiceColors(
 } else {
     ChoiceColors(background = palette.panel, frame = palette.panelBorder, ink = palette.ink, check = null)
 }
+
+/** The background and the frame of a choice, in [colors], of [shape]. */
+internal fun Modifier.panelFrame(
+    colors: ChoiceColors,
+    shape: Shape,
+): Modifier = background(colors.background, shape).border(BloxBorders.frame, colors.frame, shape)

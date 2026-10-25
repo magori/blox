@@ -19,6 +19,7 @@ import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -106,6 +107,21 @@ internal class SettingsScreenTest {
                 .assertIsToggleable()
                 .assertIsOff()
                 .assertHasClickAction()
+        }
+    }
+
+    @Test
+    @DisplayName("each setting says what it does under its label, read with it by TalkBack")
+    fun eachSettingSaysWhatItDoes() = extension.use {
+        // Given
+        showSettingsScreen()
+
+        // Then
+        mapOf(
+            "Vibrations" to "Lignes effacées, fin de partie",
+            "Effets sonores" to "Rotation, lignes, fin de partie",
+        ).forEach { (setting, subLine) ->
+            onNode(isToggleable() and hasText(setting) and hasText(subLine)).assertExists()
         }
     }
 

@@ -321,9 +321,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SettingsViewModelTest › the factory builds the settings page on the settings of the application`,
   `BloxNavDisplayTest › the gear of the home screen opens the settings, whose switches save, and Retour goes back home`,
   `BloxNavDisplayTest › on the settings, the system back goes back to the home screen`,
-  `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
-  `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
-  `SettingColorsTest › a switch is framed in button outline, in ink in Original, standing out from its row by 3 to 1`.
+  `SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
+  `SwitchLookTest › the thumb stands out from its track by 3 to 1, on and off, and the check from the thumb`,
+  `SwitchLookTest › the track is framed in button outline, which stands out from the page by 3 to 1, on and off`.
 
 ## Icônes
 
