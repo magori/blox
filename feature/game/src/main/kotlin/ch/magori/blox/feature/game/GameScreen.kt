@@ -57,6 +57,9 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
+import ch.magori.blox.core.board.BoardCanvas
+import ch.magori.blox.core.board.next.NextPieceCells
+import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Board
@@ -67,7 +70,6 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
-import ch.magori.blox.feature.game.board.BoardCanvas
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
 import ch.magori.blox.feature.game.controls.HeldControls
@@ -78,12 +80,10 @@ import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.PauseScreen
-import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 import ch.magori.blox.feature.game.sidepanel.NextPiecePanel
 import ch.magori.blox.feature.game.sidepanel.ScoreGrid
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
-import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import ch.magori.blox.feature.game.topbar.GameTopBar
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest

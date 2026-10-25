@@ -237,7 +237,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
   `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
   `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
-  `NextPieceCellsTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
+  `SidePanelSizesTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
   Captures : `GameScreenNarrow`, `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 - Barre du haut dans une fenêtre très étroite (P2.26) : le titre et le record restent sur une

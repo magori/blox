@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Pièce suivante, lue par TalkBack. -->
+    <string name="core_board_next_none">aucune</string>
+    <string name="core_board_piece_i">pièce I</string>
+    <string name="core_board_piece_o">pièce O</string>
+    <string name="core_board_piece_t">pièce T</string>
+    <string name="core_board_piece_s">pièce S</string>
+    <string name="core_board_piece_z">pièce Z</string>
+    <string name="core_board_piece_j">pièce J</string>
+    <string name="core_board_piece_l">pièce L</string>
+    <!-- Plateau, lu par TalkBack (P5.3) : la hauteur de la pile en rangées (pas « lignes », le compteur de lignes effacées), qui ne change qu'au verrouillage ou à l'effacement. -->
+    <string name="core_board_empty">Plateau : vide</string>
+    <plurals name="core_board_stack">
+        <item quantity="one">Plateau : pile de %1$d rangée sur %2$d</item>
+        <item quantity="many">Plateau : pile de %1$d rangées sur %2$d</item>
+        <item quantity="other">Plateau : pile de %1$d rangées sur %2$d</item>
+    </plurals>
+</resources>
