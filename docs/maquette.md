@@ -45,6 +45,9 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
 | V31 | Paramètres v2 (Affichage, Sons et vibrations, Record) | rangée « Ouverture… puis Paramètres » |
+| V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
+| V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
+| V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
