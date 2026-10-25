@@ -311,7 +311,10 @@ rien du jeu de 1989.
 | 4 lignes | carrée | 0,09 | 2 / 15 ms | C5, E5, G5, C6, E6, G6 (50 ms chacune), C7 150 ms | 450 ms |
 | Fin de partie | triangle | 0,2 | 2 / 30 ms | G4 120, E4 120, C4 120, G3 240 | 600 ms |
 
-Pour situer : la mélodie des musiques est à 0,07 et la basse à 0,16.
+Pour situer : la mélodie des musiques est à 0,07 et la basse à 0,16. Ces volumes sont ensuite multipliés par le gain du
+réglage « Volume des effets » ou « Volume de la musique » (P5.68, `docs/regles-mode-classique.md`,
+Préférences v2) : chaque lecteur prend un `Volume` par l'interface `VolumeControl`, et les sorties
+(`AudioSink`, pistes de fichier et d'effets) un gain, réappliqué à une sortie rouverte.
 
 - **Donnée pure** dans `core:music` (`SoundEffect`, `Blip`, `Envelope`, catalogue `SoundEffects`),
   testée sur la JVM ; chaque bip monte et descend sur quelques millisecondes pour ne pas claquer.

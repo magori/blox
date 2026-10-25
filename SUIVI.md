@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 161 / 219 | `███████████████░░░░░` **74 %** |
+| **Général** | 162 / 219 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -874,7 +874,7 @@ composants.
   Cas : `the key press is the predefined tick from Android 10 and a pulse of 10 ms before` **[à vérifier]**,
   `a pressed key vibrates once when key vibration is on`, `a released key does not vibrate`,
   `with key vibration off no key vibrates`.
-- [ ] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
+- [x] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
   sélecteur et du décorateur de focus, et des effets ; courbe perceptive `Volume.gain` ; `AppContainer` applique
   les volumes enregistrés au lecteur partagé, en direct (aperçus et parties). Après P5.65.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
