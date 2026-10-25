@@ -300,7 +300,7 @@ comme `AudioTrackSink`.
 
 ## Effets sonores
 
-Effets courts du jeu (P4.8), **désactivés par défaut** (règles et réglage : `docs/regles-mode-classique.md`,
+Effets courts du jeu (P4.8), **activés par défaut** depuis P5.65 (règles et réglage : `docs/regles-mode-classique.md`,
 Effets sonores). Arpèges de l'accord de do, synthétisés et écrits pour BloX : aucun fichier son,
 rien du jeu de 1989.
 
@@ -323,7 +323,7 @@ Préférences v2) : chaque lecteur prend un `Volume` par l'interface `VolumeCont
   à défaut), dans sa propre piste `AudioTrack` statique, puis seulement rejoué ; deux effets
   différents se superposent, un effet rejoué repart du début (coupure nette possible). Les pistes
   demandent le mode basse latence, que le système peut refuser. Elles sont préparées dès que la
-  partie sait les effets activés, et vivent autant que le processus (quatre petits tampons).
+  partie sait les effets activés, et vivent autant que le processus (cinq petits tampons).
 - **Sans focus audio** (`USAGE_GAME`, `CONTENT_TYPE_SONIFICATION`) : le système mixe l'effet
   par-dessus la musique sans la couper.
 - **Échecs** silencieux et journalisés : un rendu, une ouverture ou une lecture qui échoue ne

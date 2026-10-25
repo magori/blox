@@ -22,6 +22,7 @@ import ch.magori.blox.core.game.engine.Input
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.Score
@@ -32,7 +33,7 @@ import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
-import ch.magori.blox.feature.game.sound.soundEffectFor
+import ch.magori.blox.feature.game.sound.soundEffectsFor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -123,10 +124,13 @@ class GameViewModel internal constructor(
     private var vibrations = false
 
     /**
-     * Whether the game plays its sound effects (a rotation, lines cleared, the game over), from the settings; false
-     * until they answer, as the vibrations.
+     * Whether the game plays its sound effects (a rotation, lines cleared, a level up, the game over), from the
+     * settings; false until they answer, as the vibrations.
      */
     private var soundEffectsOn = false
+
+    /** Whether a key pressed vibrates, from the settings; false until they answer, as the vibrations. */
+    private var keyVibration = false
 
     init {
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
@@ -147,12 +151,13 @@ class GameViewModel internal constructor(
             // comes.
             if (gameState.isUnderWay) play(playMusic())
         }
-        // Whether the game vibrates and plays its sound effects, from the settings, read apart: the music of the player
-        // does not wait for them.
+        // Whether the game and its keys vibrate and the game plays its sound effects, from the settings, read once,
+        // apart: the music of the player does not wait for them.
         viewModelScope.launch {
             val settings = preferences.preferences.first()
             vibrations = settings.vibrations
             soundEffectsOn = settings.soundEffects
+            keyVibration = settings.keyVibration
             // At once, so that the first rotation does not wait for its track to open.
             if (soundEffectsOn) soundEffects.warmUp(SoundEffects.all)
         }
@@ -224,7 +229,7 @@ class GameViewModel internal constructor(
             if (GameEvent.GameOver in update.events) over = true
             update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
-            if (soundEffectsOn) update.events.mapNotNull(::soundEffectFor).forEach(soundEffects::play)
+            if (soundEffectsOn) soundEffectsFor(update.events).forEach(soundEffects::play)
         }
         publish()
         if (over) onGameOver(gameState)
@@ -284,10 +289,13 @@ class GameViewModel internal constructor(
 
     /**
      * A button of the screen went down or up: the engine records it at once in its controller, and the
-     * ticks of the next frame read it. Several changes between two frames are all recorded, in order.
+     * ticks of the next frame read it. Several changes between two frames are all recorded, in order. A key
+     * pressed vibrates at once, under the finger, when the player chose it, only while the game runs: not in
+     * pause, not once it is over; a key released does not.
      */
     internal fun onControl(change: ControlChange) {
         gameState = engine.apply(gameState, change.toInput()).state
+        if (keyVibration && change is ControlChange.Pressed && gameState.isUnderWay) haptics.play(Haptic.KEY_PRESS)
     }
 
     /**

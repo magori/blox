@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 162 / 219 | `███████████████░░░░░` **74 %** |
+| **Général** | 165 / 219 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -457,7 +457,7 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels. Fait :
   désactivés par défaut (décision du développeur), arpèges synthétisés, événement `PieceRotated` ;
   interrupteur dans P5.37.
-- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
+- [x] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
   l'événement `LevelUp` (P5.64), qui tombe sur le même tick que `LinesCleared` : le fusionner ou
   choisir lequel jouer.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
@@ -868,7 +868,7 @@ composants.
 - [x] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
   Cas (contrat, vrai dépôt et faux) : `a cleared record is 0`, `a score after a clear is a new record`,
   `clearing without a record leaves 0`, `a record that cannot be written fails with an IOException`.
-- [ ] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
+- [x] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
   `Haptic.KEY_PRESS`, effet le plus léger, attributs du toucher (`USAGE_TOUCH`, que le réglage « vibration au
   toucher » d'Android coupe) ; en jeu, l'appui d'une touche vibre si `keyVibration` est allumé. Après P5.65.
   Cas : `the key press is the predefined tick from Android 10 and a pulse of 10 ms before` **[à vérifier]**,
@@ -880,7 +880,7 @@ composants.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
   `MusicPlayerContract › a volume set before a play applies to it`, `the volume of the effects applies to each
   track`, `a volume changed in the settings applies to the music playing`.
-- [ ] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
+- [x] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
   autres, joué à `LevelUp` ; aucune vibration. Après P5.64.
   Cas : `the level up sound is an effect of its own, shorter than the four lines`,
   `a level up plays the level up sound when the sound effects are on`, `a level up does not vibrate`.

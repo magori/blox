@@ -716,6 +716,30 @@ l'interrupteur général des vibrations les coupent. Le réglage est lu une fois
 `DataStoreUserPreferencesRepositoryTest › the vibrations are stored as a boolean under a key that must not change`.
 Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
 
+**Vibration des touches** (P5.67, réglage `keyVibration` des Préférences v2, désactivé par
+défaut) : l'appui d'une touche de jeu donne la vibration la plus légère, le tick prédéfini
+d'Android (`EFFECT_TICK`, « less strong compared to EFFECT_CLICK », doc Android) à partir
+d'Android 10, une impulsion de 10 ms avant **[à vérifier]** sur un téléphone Android 8 ou 9 à
+moteur lent. Seul l'appui vibre, jamais le relâchement ni la répétition du DAS (elle est dans le
+moteur, pas dans les appuis). Le réglage est indépendant de l'interrupteur `vibrations` (lignes et
+fin de partie) et lu une fois par partie ; rien ne vibre en pause, après la fin de partie ni avant
+que les réglages répondent. C'est un toucher : à partir d'Android 13 (`USAGE_TOUCH`), le réglage
+« vibration au toucher » d'Android la coupe ; avant, seul le réglage de BloX décide. Un nouvel appui
+remplace une vibration en cours (un clic de quatre lignes peut être écourté). `Haptics.canVibrate`
+dit si l'appareil a un vibreur, pour griser les réglages de vibration (P5.70).
+
+**Tests :** `HapticEffectsTest › the key press is the predefined tick from Android 10 and a pulse of 10 ms before`,
+`HapticEffectsTest › the key press vibrates as a touch, the others as a game`,
+`SystemHapticsTest › the haptics can vibrate exactly when the device has a vibrator`,
+`SystemHapticsTest › every haptic is accepted by the system, with its effect and its usage`,
+`GameViewModelTest › a pressed key vibrates once when key vibration is on`,
+`GameViewModelTest › a released key does not vibrate`,
+`GameViewModelTest › with key vibration off no key vibrates`,
+`GameViewModelTest › until the settings answer no key vibrates`,
+`GameViewModelTest › a key pressed while the game is paused does not vibrate`,
+`GameViewModelTest › a key pressed after the game over does not vibrate`,
+`GameViewModelTest › the key vibration is read once per game, at its start`.
+
 ## Effets sonores
 
 Optionnels (P4.8), **activés par défaut** depuis le 2026-10-25 (décision du développeur, P5.65 : un
@@ -848,8 +872,10 @@ animation), le moteur émet `LevelUp(niveau atteint)`, après `LinesCleared` et 
 `StackDanger` de ce tick. Un effacement fait au plus 4 lignes et les paliers sont espacés de 10 :
 il ne franchit jamais qu'un niveau. Aucun `LevelUp` au début d'une partie ni quand le niveau ne
 change pas ; un départ à 5 en reçoit un premier à 60 lignes. Il précède aussi la fin de partie
-quand le dernier effacement fait monter de niveau. Le son et la vibration ne lui répondent pas
-encore (P5.69).
+quand le dernier effacement fait monter de niveau. Il joue le son « niveau » (P5.69, quatre sauts
+d'octave sur do, `docs/musique.md`), qui remplace sur ce tick l'arpège d'une à trois lignes ; quatre
+lignes gardent leur effet seul, et le passage ne se voit alors qu'à l'écran. La rotation et la fin
+de partie du même tick jouent en plus. Il ne vibre pas : l'effacement du même tick vibre déjà.
 
 **Tests :** `GameEngineClearTest › a line clear that reaches the next level sends a level up with the new level`,
 `GameEngineClearTest › a line clear that stays at the same level sends no level up`,
@@ -857,8 +883,13 @@ encore (P5.69).
 `GameEngineClearTest › starting at level 5 the first level up comes at 60 lines, not at 10`,
 `GameEngineStartTest › a game that starts sends no level up`,
 `GameEngineGameOverTest › a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`,
-`HapticOfEventTest › a level up gives nothing yet`,
-`SoundEffectOfEventTest › a level up gives nothing yet`.
+`HapticOfEventTest › a level up does not vibrate`,
+`SoundEffectOfEventTest › a level up gives the level up sound`,
+`SoundEffectOfEventTest › on the tick of a level up the level up sound replaces the one to three lines effect`,
+`SoundEffectOfEventTest › four lines that reach the next level play the four lines effect alone`,
+`SoundEffectOfEventTest › the other effects of a tick all play, in order, as the game over after a level up`,
+`SoundEffectOfEventTest › a rotation on the tick of a level up still plays, before the level up sound`,
+`GameViewModelTest › a level up plays the level up sound when the sound effects are on`.
 
 ## Statistiques de fin de partie
 
