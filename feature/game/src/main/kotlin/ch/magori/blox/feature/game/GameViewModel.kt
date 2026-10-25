@@ -33,7 +33,7 @@ import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
 import ch.magori.blox.feature.game.navigation.GameRoute
-import ch.magori.blox.feature.game.sound.soundEffectFor
+import ch.magori.blox.feature.game.sound.soundEffectsFor
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -124,8 +124,8 @@ class GameViewModel internal constructor(
     private var vibrations = false
 
     /**
-     * Whether the game plays its sound effects (a rotation, lines cleared, the game over), from the settings; false
-     * until they answer, as the vibrations.
+     * Whether the game plays its sound effects (a rotation, lines cleared, a level up, the game over), from the
+     * settings; false until they answer, as the vibrations.
      */
     private var soundEffectsOn = false
 
@@ -229,7 +229,7 @@ class GameViewModel internal constructor(
             if (GameEvent.GameOver in update.events) over = true
             update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
-            if (soundEffectsOn) update.events.mapNotNull(::soundEffectFor).forEach(soundEffects::play)
+            if (soundEffectsOn) soundEffectsFor(update.events).forEach(soundEffects::play)
         }
         publish()
         if (over) onGameOver(gameState)

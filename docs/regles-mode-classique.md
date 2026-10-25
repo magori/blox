@@ -847,8 +847,10 @@ animation), le moteur émet `LevelUp(niveau atteint)`, après `LinesCleared` et 
 `StackDanger` de ce tick. Un effacement fait au plus 4 lignes et les paliers sont espacés de 10 :
 il ne franchit jamais qu'un niveau. Aucun `LevelUp` au début d'une partie ni quand le niveau ne
 change pas ; un départ à 5 en reçoit un premier à 60 lignes. Il précède aussi la fin de partie
-quand le dernier effacement fait monter de niveau. Le son et la vibration ne lui répondent pas
-encore (P5.69).
+quand le dernier effacement fait monter de niveau. Il joue le son « niveau » (P5.69, quatre sauts
+d'octave sur do, `docs/musique.md`), qui remplace sur ce tick l'arpège d'une à trois lignes ; quatre
+lignes gardent leur effet seul, et le passage ne se voit alors qu'à l'écran. La rotation et la fin
+de partie du même tick jouent en plus. Il ne vibre pas : l'effacement du même tick vibre déjà.
 
 **Tests :** `GameEngineClearTest › a line clear that reaches the next level sends a level up with the new level`,
 `GameEngineClearTest › a line clear that stays at the same level sends no level up`,
@@ -856,8 +858,13 @@ encore (P5.69).
 `GameEngineClearTest › starting at level 5 the first level up comes at 60 lines, not at 10`,
 `GameEngineStartTest › a game that starts sends no level up`,
 `GameEngineGameOverTest › a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`,
-`HapticOfEventTest › a level up gives nothing yet`,
-`SoundEffectOfEventTest › a level up gives nothing yet`.
+`HapticOfEventTest › a level up does not vibrate`,
+`SoundEffectOfEventTest › a level up gives the level up sound`,
+`SoundEffectOfEventTest › on the tick of a level up the level up sound replaces the one to three lines effect`,
+`SoundEffectOfEventTest › four lines that reach the next level play the four lines effect alone`,
+`SoundEffectOfEventTest › the other effects of a tick all play, in order, as the game over after a level up`,
+`SoundEffectOfEventTest › a rotation on the tick of a level up still plays, before the level up sound`,
+`GameViewModelTest › a level up plays the level up sound when the sound effects are on`.
 
 ## Statistiques de fin de partie
 
