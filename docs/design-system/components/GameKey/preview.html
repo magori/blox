@@ -1,0 +1,33 @@
+<!-- @dsCard group="Jeu" height=170 subtitle="Flèches, B et A, au repos et tenues" -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); }
+.pad { padding: var(--space-6); display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: var(--space-6); max-width: 390px; box-sizing: border-box; }
+.group { display: flex; gap: var(--space-2); }
+.key { width: var(--key-arrow); height: var(--key-arrow); padding: 0; box-sizing: border-box; display: flex; align-items: center; justify-content: center; background: var(--button); color: var(--button-ink); border: 2px solid var(--button-outline); border-radius: var(--radius-md); box-shadow: var(--button-gloss); cursor: pointer; touch-action: none; }
+.key.held, .key:active { background: var(--button-pressed); border-color: var(--button-pressed); box-shadow: var(--button-gloss-pressed); transform: translateY(2px); }
+.rot { width: var(--key-rotate); height: var(--key-rotate); border-radius: 50%; flex-direction: column; gap: 3px; font-weight: 700; font-size: 13px; line-height: 1; }
+.rot.b { margin-top: var(--space-6); }
+.rot.a { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.rot.a.held, .rot.a:active { background: var(--accent-pressed); border-color: var(--accent-pressed); }
+.key:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="pad">
+<div class="group">
+<button class="key held" type="button" aria-label="Gauche"><svg width="24" height="24" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><path d="M4 11L16 4v14z"></path></svg></button>
+<button class="key" type="button" aria-label="Descente rapide"><svg width="24" height="24" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><path d="M4 5h14l-7 13z"></path></svg></button>
+<button class="key" type="button" aria-label="Droite"><svg width="24" height="24" viewBox="0 0 22 22" fill="currentColor" aria-hidden="true"><path d="M18 11L6 4v14z"></path></svg></button>
+</div>
+<div class="group">
+<button class="key rot b" type="button" aria-label="B, rotation anti-horaire"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66M4 4v5h5"></path></svg></button>
+<button class="key rot a held" type="button" aria-label="A, rotation horaire"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v5h-5"></path></svg></button>
+</div>
+</div>
+</body>
+</html>
