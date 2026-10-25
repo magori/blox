@@ -33,6 +33,10 @@ class DataStoreHighScoreRepository(private val dataStore: DataStore<Preferences>
         return RecordResult(previous = previous, isNewRecord = score > previous)
     }
 
+    override suspend fun clear() {
+        dataStore.edit { preferences -> preferences.remove(HIGH_SCORE) }
+    }
+
     private companion object {
         val HIGH_SCORE = intPreferencesKey("high_score")
     }

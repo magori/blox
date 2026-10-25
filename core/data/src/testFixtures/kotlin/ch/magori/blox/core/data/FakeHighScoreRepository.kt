@@ -10,8 +10,8 @@ import kotlinx.coroutines.flow.getAndUpdate
  * (`HighScoreRepositoryContract`): a negative score is refused, a higher one becomes the record.
  *
  * For the tests of a view model: [submitted] holds every score accepted, [saved] every score whose submit
- * went to its end. A submit waits for [gate] when there is one, then fails with [failure] when there is one,
- * the record unchanged, as a file that cannot be written.
+ * went to its end. A submit or a clear waits for [gate] when there is one, then fails with [failure] when there
+ * is one, the record unchanged, as a file that cannot be written.
  */
 class FakeHighScoreRepository(initial: Int = 0) : HighScoreRepository {
     val submitted = mutableListOf<Int>()
@@ -35,5 +35,11 @@ class FakeHighScoreRepository(initial: Int = 0) : HighScoreRepository {
         val previous = record.getAndUpdate { maxOf(it, score) }
         saved += score
         return RecordResult(previous = previous, isNewRecord = score > previous)
+    }
+
+    override suspend fun clear() {
+        gate?.await()
+        failure?.let { throw it }
+        record.value = 0
     }
 }
