@@ -8,11 +8,11 @@ rôles nouveaux (P5.56, à confirmer sur la maquette en P5.85) : `emptyCell` `#D
 plateau), `panelInset` `#DCEBD5`, `scrim` `rgba(207,227,200,0.85)`, `clearGlow` `#EEF5EA`,
 `dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger se lit au cadre de
 4 dp), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo.
-Points tranchés en P5.56 : NOUVEAU RECORD n'apparaît que si un record supérieur à 0 existait ;
+Points tranchés en P5.56 : pendant la partie (P5.78), NOUVEAU RECORD n'apparaît que si un record supérieur à 0 existait (sinon il s'afficherait dès le premier point) ; en fin de partie, la règle reste celle d'aujourd'hui (un premier score positif est un nouveau record, `HighScoreRepositoryContract › a first positive score is a new record against 0`) ;
 un volume à 0 joue en silence (la musique ne s'arrête pas) ; pas de fondu au changement de thème.
 
 Deux thèmes, issus de la [maquette](maquette.md). Les jetons d'interface sont codés dans
-`core:designsystem` (`BloxPalettes`). Les styles de pièces seront codés dans `feature:game`,
+`core:designsystem` (`BloxPalettes`). Les styles de pièces seront codés dans `feature:game` (dans `core:board` depuis P5.73, ADR 0023),
 car ils dépendent des types de pièces du domaine.
 
 ## Principe

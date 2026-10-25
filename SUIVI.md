@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 156 / 218 | `██████████████░░░░░░` **72 %** |
+| **Général** | 156 / 219 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -791,7 +791,7 @@ composants.
   (`ORIGINAL`, `COLORFUL_LIGHT`, `COLORFUL_DARK`) résolue par `BloxTheme` depuis `BloxThemeKind` et le mode
   sombre du système, exposée par `BloxTheme.variant` ; palettes `ColorfulLight` et `ColorfulDark` aux valeurs de
   `tokens.json`, à la place de `Colorful` ; rôles nouveaux de `BloxPalette` (`emptyCell`, `panelInset`, `scrim`,
-  `accentRing`, `clearGlow`, `dangerSoft`, `cellDead`, `iris`) avec leurs valeurs Original (P5.56) ; convention
+  `accentRing`, `clearGlow`, `dangerSoft`, `cellDead`, et les trois arrêts `iris1` à `iris3`, ou une structure `IrisColors`) avec leurs valeurs Original (P5.56) ; table explicite jeton → propriété (ADR 0019 : les noms ne se déduisent pas tous, ex. `board` → `boardBackground`, `label-off` → `outOfScale`) ; `CLAUDE.md` et `docs/architecture.md` (plugin `blox.design.tokens`) mis à jour ; convention
   `blox.design.tokens` (le fichier en entrée des tâches de test, chemin relatif, rien d'absolu dans le cache,
   P5.31) ; `kotlinx-serialization-json` en dépendance de test. Écrans inchangés hormis les couleurs.
   Cas : `each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
@@ -799,19 +799,20 @@ composants.
   `a colour written rgba in tokens json is read with its alpha`,
   `the Colorful theme is the day variant in light mode and the night variant in dark mode`,
   `the Original theme has a single variant, whatever the mode of the system`,
-  `each variant has its palette and its Material colour scheme, light or dark` ; `PaletteContrastTest`,
+  `each variant has its palette and its Material colour scheme, light or dark`,
+  `the painters are built again when the variant changes` (clé des peintres `(variante, taille, fond)`, P5.73) ; `PaletteContrastTest`,
   `KeyColorsTest`, `PauseButtonColorsTest`, `ChoiceColorsTest`, `SettingColorsTest`, `TrackColorsTest`,
   `LogoColorsTest` sur chaque variante ; captures jour et nuit.
 - [ ] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
   (OFL, licences dans les assets), Chakra Petch retirée ; styles de texte du design system (`screen-title` à
   `logo`) dans `BloxTypography`, comparés à `tokens.json` ; Original inchangé ; valeurs à chiffres fixes
-  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) **[à vérifier]** sur le fichier. Après P5.57.
+  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) **[à vérifier]** sur le fichier ; taille de l'APK mesurée et notée dans l'ADR 0021 **[à vérifier]**. Après P5.57.
   Cas : `each text style of tokens json has its family, size, line height and weight in the Colorful typography`,
   `the logo style is in Bagel Fat One and is used for the logo only`, `EmbeddedFontsTest` (licence de chaque
   police, plus de Chakra Petch), `ValueDigitsTest` (dix chiffres de même largeur, sans crénage),
   `BloxTypographyTest` revu ; captures, police ×2 comprise.
 - [ ] **P5.59** Formes, reliefs, tailles et durées v2 : `BloxShapes` (`radius-cell`, `-md`, `-window`, `-card`,
-  `-pill`), reliefs `button-gloss`, `button-gloss-pressed` et `cell-gloss` dessinés en ombres intérieures (aucun
+  `-pill`, `-snack`), reliefs `button-gloss`, `button-gloss-pressed` et `cell-gloss` dessinés en ombres intérieures (aucun
   en Original), tailles (`touch-target`, `setting-row`, `switch-track`, `switch-thumb`, `key-*`), espacements,
   durées `motion-*` en ticks. Après P5.57.
   Cas : `each radius, size and space of tokens json is the one of the code`,
@@ -909,18 +910,19 @@ composants.
   à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
   du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
   fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
-  `BloxNavDisplayTest`, `BloxJourney`, profil de référence regénéré sur appareil. Après P5.60.
+  `BloxNavDisplayTest`, `BloxJourney`, profil de référence regénéré sur appareil ; `CLAUDE.md` (tableau des
+  modules et des plugins) et `docs/architecture.md` mis à jour. Après P5.60.
   Cas : `the application opens on the choice of the game`, `the Classic cartridge opens the Classic home`,
   `changing the game from the home goes back to the cartridges`,
   `changing the game from a restored stack without cartridges puts them at its root`,
   `the system back on the cartridges leaves the application`, TalkBack (nom de chaque cartouche) ; captures.
 - [ ] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
   `CellPainter`, `CellStyles`, `CellStyle`, `BoardGeometry`, `DisplayedCells`, `CellLayout`, `CellPixels`,
-  `NextPieceCanvas` et `NextPieceCells` quittent `feature:game` ; clé des peintres `(variante, taille, fond)`.
-  Pur déplacement, aucun pixel ne change. Après P5.57.
+  `NextPieceCanvas` et `NextPieceCells` quittent `feature:game`. Pur déplacement, aucun pixel ne change
+  (`CLAUDE.md`, `docs/architecture.md` et `docs/themes.md` mis à jour) ; fait avant P5.57, la clé des peintres
+  `(variante, taille, fond)` et son test `the painters are built again when the variant changes` passent en P5.57.
   Cas : tests déplacés verts (`BoardCanvasTest`, `CellStylesTest`, `BoardGeometryTest`, `DisplayedCellsTest`,
-  `CellPixelsTest`, `CellLayoutTest`), `the painters are built again when the variant changes`, captures à 0 %
-  d'écart, `buildHealth` vert.
+  `CellPixelsTest`, `CellLayoutTest`), captures à 0 % d'écart, `buildHealth` vert.
 - [ ] **P5.74** Cases « bulles » (`core:board`, composant Piece) : dégradé `piece-<x>-hi` → `piece-<x>`,
   `radius-cell` (2 dp sous 16 dp), `cell-gloss` à 16 dp et plus, case vide `empty-cell` sur `board`, marge de
   1 px ; Original inchangé. Après P5.59, P5.73.
@@ -945,7 +947,7 @@ composants.
 - [ ] **P5.77** Héros de l'accueil : logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
   ses quatre cases), plateau d'aperçu (`core:board`) qui rejoue un T tombant à la gravité du niveau choisi et
   effaçant deux lignes, score réel ; halo de Jouer (3 impulsions après 3 s, puis une toutes les 10 s, aucun en
-  Effets réduits). Après P5.71, P5.74, P5.75, logo exporté (P5.56).
+  Effets réduits). Après P5.71, P5.74, P5.75, P5.87 (logo exporté).
   Cas : `the preview drops a row every ticks per row of the chosen level`, `the preview scores 100 times the
   level plus one for its two lines`, `the preview starts again with the new level when the level changes`,
   `in reduced effects the preview and the halo stand still`, `nothing on the home recomposes while the preview
@@ -989,7 +991,8 @@ composants.
   rangée, sur l'horloge de Compose), carte, NOUVEAU RECORD avec confettis, score qui compte, « Record » ou «
   Ancien record » (`GameOverUiState.previousRecord`, de `RecordResult.previous`), lignes, niveau, 4 lignes, durée,
   Rejouer, Menu. Après P5.81, P5.82.
-  Cas : `a new record shows the old record as « Ancien record »`, `without a new record the record is shown as «
+  En fin de partie, un premier score positif reste un nouveau record (spécification actuelle), contrairement au jeu (P5.78).
+  Cas : `a new record shows the old record as « Ancien record »`, `a first positive score is shown as a new record, without an old record`, `without a new record the record is shown as «
   Record »`, `the stack goes out from the bottom, 2 ticks a row`, `in reduced effects the stack goes out at once
   and the score shows at once`, `the game loop stays stopped while the game over plays` ; captures.
 - [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et
@@ -1001,9 +1004,13 @@ composants.
 - [ ] **P5.85** Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
   partie, Paramètres), valeurs Original des rôles nouveaux (P5.57) ; tailles des touches sous 390 dp (P5.79).
 - [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer : à découper une fois leurs
-  maquettes dessinées (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
+  maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
   parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
   feuille au-dessus du clavier, coches sur les choix retenus).
+- [ ] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
+  note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
+  pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
+  vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.
 
 ## P6 — Mode Moderne (plus tard)
 

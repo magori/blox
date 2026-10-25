@@ -18,7 +18,7 @@ expérience de jeu remarquables, qui donnent envie de jouer et de rejouer, sans 
   réserve, de pièce fantôme, de chute instantanée ni de rotation murale ; DAS, délai
   d'apparition, gravité et score NES. Une idée qui les change appartient au mode Moderne
   (`docs/regles-mode-moderne.md`) : range-la là, sans la proposer pour le Classique.
-- `docs/maquette.md` et `docs/themes.md` : les écrans existants (V1 à V25) et leurs fonctions.
+- `docs/maquette.md` et `docs/themes.md` : les écrans existants (V1 à V25) et leurs fonctions, et les vues Couleurs v2 (V26 à V34).
 - Les événements du moteur (`core:game`, paquet `engine` : `LinesCleared`, `PieceLocked`,
   `GameOver`, `StackDanger`…) : chaque retour visuel, sonore ou haptique doit s'appuyer sur
   un événement qui existe, ou demander explicitement d'en ajouter un.
@@ -31,8 +31,11 @@ expérience de jeu remarquables, qui donnent envie de jouer et de rejouer, sans 
   accessible, Moderne grisé tant qu'il n'existe pas), thème, niveau de départ, musique
   (Écouter, Mon fichier avec Changer, Aucune), Mes musiques, Composer, Paramètres. Rien ne
   disparaît sans que ce soit dit et justifié.
-- Quatre formats : téléphone debout (390 × 844) et couché (844 × 390), tablette debout
-  (820 × 1180) et couchée (1180 × 820). Toute cible fait au moins 48 dp.
+- Formats : le téléphone debout (390 × 844) d'abord ; le téléphone couché (844 × 390) et les
+  tablettes debout (820 × 1180) et couchée (1180 × 820) sont optionnels et viennent en dernier
+  (P5.84), mais chaque proposition doit pouvoir s'y étendre. Toute cible fait au moins 48 dp
+  (1 px de la maquette vaut 1 dp).
+- Choix du jeu : une seule cartouche, Classique, aucune cartouche endormie (ADR 0022).
 - Effets riches, avec un réglage « Effets réduits » dans les Paramètres, et rien qui bouge
   quand le système demande de réduire les animations. Pour chaque effet, donne sa version
   réduite.

@@ -31,7 +31,7 @@ Le thème n'est pas encore codé : `docs/themes.md` décrit toujours l'ancien Co
   mouvement ; il est imposé quand Android supprime les animations.
 - **Mêmes fonctions que l'existant.** Aucune refonte ne retire une fonction sans le dire.
 - **Gros doigts.** Toute cible fait au moins `touch-target` (48 px).
-- **Un écran, quatre formats.** Les mêmes blocs, empilés quand l'écran est haut, côte à côte
+- **Le téléphone debout d'abord, d'autres formats ensuite.** Téléphone couché et tablettes sont optionnels et viennent en dernier (P5.84), mais tout est prévu pour eux : les mêmes blocs, empilés quand l'écran est haut, côte à côte
   quand il est large.
 
 ## Boutons
@@ -85,10 +85,10 @@ d'ombre.
 
 ## Accueil
 
-L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 ») ; la cartouche
+L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 », V26 : une seule cartouche, Classique, aucune endormie) ; la cartouche
 Classique ouvre cet accueil, et son disque « Changer de jeu » y ramène.
 
-De haut en bas, sur tous les formats :
+De haut en bas (téléphone debout ; en paysage, voir Mise en page) :
 
 1. **Barre** : disque « Changer de jeu » (cartouche), puce Record (48 px, étoile, `stat-label`
    et `record`) et bouton Paramètres.
@@ -233,8 +233,8 @@ cadre (4 px), pas à la seule couleur.
 
 ## Correspondance avec le code
 
-Les jetons d'interface prennent les noms de `BloxPalette` (`core:designsystem`) en kebab-case.
-Les pièces (`piece-*`) iront dans `feature:game` (`CellStyles`, ADR 0005). À ajouter dans le
+Les jetons d'interface correspondent aux propriétés de `BloxPalette` (`core:designsystem`) par une table explicite (ADR 0019) : la plupart en kebab-case, avec des exceptions (`board` → `boardBackground`, `label-off` → `outOfScale`, pistes dans `TrackColors`). 1 px de ce système vaut 1 dp dans le code.
+Les pièces (`piece-*`) vont dans `core:board` (`CellStyles`, ADR 0023). À ajouter dans le
 code pour ces retours : les volumes de la musique et des effets (`core:audio`), la vibration des
 touches, la capacité « l'appareil vibre » (`Haptics`), l'effacement du record (`core:data`), l'événement `LevelUp(level)` dans le moteur, le record battu en jeu
 (`GameUiState`), l'ancien record en fin de partie, un effet sonore « niveau », les préférences

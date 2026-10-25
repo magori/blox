@@ -52,10 +52,10 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
 en téléphone debout, jour et nuit, avec en plus le téléphone couché et les tablettes (formats
-optionnels, P5.84). Chaque écran v2 est un composant de la planche (`V2Accueil`, `V2Jeu`,
+optionnels, P5.84) ; V32 à V34 sont les écrans de musique v2, en jour seulement (P5.86). Chaque écran v2 est un composant de la planche (`V2Accueil`, `V2Jeu`,
 `V2Parametres`) dont les réglages Format, Sombre, Vue et Effets réduits donnent toutes les
 variantes. Leur spécification est le [design system](design-system/README.md). À exporter de la
-maquette pour le code (P5.56) : les pictogrammes cartouche, moins, étoile, note barrée,
+maquette pour le code (P5.87) : les pictogrammes cartouche, moins, étoile, note barrée,
 égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
