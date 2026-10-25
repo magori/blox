@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 159 / 219 | `███████████████░░░░░` **73 %** |
+| **Général** | 161 / 219 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -916,7 +916,7 @@ composants.
   `changing the game from the home goes back to the cartridges`,
   `changing the game from a restored stack without cartridges puts them at its root`,
   `the system back on the cartridges leaves the application`, TalkBack (nom de chaque cartouche) ; captures.
-- [ ] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
+- [x] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
   `CellPainter`, `CellStyles`, `CellStyle`, `BoardGeometry`, `DisplayedCells`, `CellLayout`, `CellPixels`,
   `NextPieceCanvas` et `NextPieceCells` quittent `feature:game`. Pur déplacement, aucun pixel ne change
   (`CLAUDE.md`, `docs/architecture.md` et `docs/themes.md` mis à jour) ; fait avant P5.57, la clé des peintres
@@ -1007,7 +1007,7 @@ composants.
   maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
   parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
   feuille au-dessus du clavier, coches sur les choix retenus).
-- [ ] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
+- [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.

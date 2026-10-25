@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game
 
+import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
@@ -7,7 +8,6 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.gameover.GameOverUiState
-import ch.magori.blox.feature.game.sidepanel.nextPieceCells
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

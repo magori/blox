@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.game
 
 import androidx.compose.runtime.Immutable
+import ch.magori.blox.core.board.next.NextPieceCells
 import ch.magori.blox.core.game.engine.GameState
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Board
@@ -10,7 +11,6 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.gameover.GameOverUiState
-import ch.magori.blox.feature.game.sidepanel.NextPieceCells
 
 /**
  * What the game screen shows. The domain values pass as they are: the screen draws them. The [next] piece
