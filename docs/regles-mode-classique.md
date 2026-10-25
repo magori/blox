@@ -627,6 +627,20 @@ première partie. Il est enregistré dès la fin de partie. Un score devient un 
 s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
 partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
 
+**Effacer le record** (P5.66, pour les Paramètres v2) : le record revient à 0, et le score suivant
+qui dépasse 0 devient un nouveau record. Effacer sans record laisse 0. Une écriture impossible
+(disque plein) échoue avec une `IOException` et garde le record tel qu'il était ; le flux du record
+émet 0 après un effacement réussi.
+
+**Tests :** `HighScoreRepositoryContract › a cleared record is 0`,
+`HighScoreRepositoryContract › a score after a clear is a new record`,
+`HighScoreRepositoryContract › clearing without a record leaves 0`,
+`HighScoreRepositoryContract › the record flow emits 0 after a clear`,
+`HighScoreRepositoryContract › a submit that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written keeps the record`,
+`FakeHighScoreRepositoryTest › a clear waits for the gate before it clears`.
+
 **Tests :** `HighScoreRepositoryContract › without a saved record the record is 0`,
 `HighScoreRepositoryContract › a higher score becomes the record, and submit tells it is a new record and the previous one`,
 `HighScoreRepositoryContract › a lower or equal score leaves the record and is not a new record`,
@@ -803,6 +817,23 @@ négatif.
 **Tests :** `GameEngineClearTest › when the clear is over the cleared board is shown, lines and level go up, points use the new level`,
 `PointsTest › points cannot be negative`, `PointsTest › points add up`,
 `LinesTest › the lines cleared at once add to the total`.
+
+**Événement de niveau** (P5.64) : au tick où un effacement fait monter de niveau (la fin de son
+animation), le moteur émet `LevelUp(niveau atteint)`, après `LinesCleared` et avant un éventuel
+`StackDanger` de ce tick. Un effacement fait au plus 4 lignes et les paliers sont espacés de 10 :
+il ne franchit jamais qu'un niveau. Aucun `LevelUp` au début d'une partie ni quand le niveau ne
+change pas ; un départ à 5 en reçoit un premier à 60 lignes. Il précède aussi la fin de partie
+quand le dernier effacement fait monter de niveau. Le son et la vibration ne lui répondent pas
+encore (P5.69).
+
+**Tests :** `GameEngineClearTest › a line clear that reaches the next level sends a level up with the new level`,
+`GameEngineClearTest › a line clear that stays at the same level sends no level up`,
+`GameEngineClearTest › the level up comes after the lines cleared and before the stack danger of that tick`,
+`GameEngineClearTest › starting at level 5 the first level up comes at 60 lines, not at 10`,
+`GameEngineStartTest › a game that starts sends no level up`,
+`GameEngineGameOverTest › a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`,
+`HapticOfEventTest › a level up gives nothing yet`,
+`SoundEffectOfEventTest › a level up gives nothing yet`.
 
 ## Statistiques de fin de partie
 

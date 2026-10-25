@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
+import java.io.IOException
 
 /**
  * The contract of [HighScoreRepository], what every implementation does, the real one and the fake shared by
@@ -20,6 +21,15 @@ import org.junit.jupiter.params.provider.ValueSource
 abstract class HighScoreRepositoryContract {
     /** A repository without any record, whatever it needs to live in [scope] (a DataStore does). */
     protected abstract fun emptyRepository(scope: CoroutineScope): HighScoreRepository
+
+    /**
+     * A repository holding [record], as a full disk: the record is read as kept, but every write
+     * (a submit, a clear) fails with an IOException.
+     */
+    protected abstract suspend fun unwritableRepository(
+        scope: CoroutineScope,
+        record: Int,
+    ): HighScoreRepository
 
     @Test
     fun `without a saved record the record is 0`() = runTest {
@@ -113,6 +123,23 @@ abstract class HighScoreRepositoryContract {
     }
 
     @Test
+    fun `the record flow emits 0 after a clear`() = runTest {
+        // Given a record of 5000
+        val repository = emptyRepository(backgroundScope)
+        repository.submit(5000)
+
+        repository.highScore.test {
+            assertThat(awaitItem()).isEqualTo(5000)
+
+            // When
+            repository.clear()
+
+            // Then
+            assertThat(awaitItem()).isEqualTo(0)
+        }
+    }
+
+    @Test
     fun `a lower score emits nothing on the record flow`() = runTest {
         // Given a record of 5000
         val repository = emptyRepository(backgroundScope)
@@ -148,5 +175,81 @@ abstract class HighScoreRepositoryContract {
         val (alone, after) = scores.zip(results).partition { (_, result) -> result.previous == 0 }
         assertThat(alone).hasSize(1)
         assertThat(after.single().second.previous).isEqualTo(alone.single().first)
+    }
+
+    @Test
+    fun `a cleared record is 0`() = runTest {
+        // Given a record of 5000
+        val repository = emptyRepository(backgroundScope)
+        repository.submit(5000)
+
+        // When
+        repository.clear()
+
+        // Then
+        assertThat(repository.highScore.first()).isEqualTo(0)
+    }
+
+    @Test
+    fun `a score after a clear is a new record`() = runTest {
+        // Given a record of 5000, cleared
+        val repository = emptyRepository(backgroundScope)
+        repository.submit(5000)
+        repository.clear()
+
+        // When a lower score than the record cleared is submitted
+        val result = repository.submit(1200)
+
+        // Then
+        assertThat(result).isEqualTo(RecordResult(previous = 0, isNewRecord = true))
+        assertThat(repository.highScore.first()).isEqualTo(1200)
+    }
+
+    @Test
+    fun `clearing without a record leaves 0`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When
+        repository.clear()
+
+        // Then
+        assertThat(repository.highScore.first()).isEqualTo(0)
+    }
+
+    @Test
+    fun `a submit that cannot be written fails with an IOException`() = runTest {
+        // Given
+        val repository = unwritableRepository(backgroundScope, record = 1200)
+
+        // When
+        val failure = runCatching { repository.submit(5000) }.exceptionOrNull()
+
+        // Then
+        assertThat(failure).isInstanceOf(IOException::class.java)
+    }
+
+    @Test
+    fun `a clear that cannot be written fails with an IOException`() = runTest {
+        // Given
+        val repository = unwritableRepository(backgroundScope, record = 5000)
+
+        // When
+        val failure = runCatching { repository.clear() }.exceptionOrNull()
+
+        // Then
+        assertThat(failure).isInstanceOf(IOException::class.java)
+    }
+
+    @Test
+    fun `a clear that cannot be written keeps the record`() = runTest {
+        // Given
+        val repository = unwritableRepository(backgroundScope, record = 5000)
+
+        // When
+        runCatching { repository.clear() }
+
+        // Then
+        assertThat(repository.highScore.first()).isEqualTo(5000)
     }
 }
