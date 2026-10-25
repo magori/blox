@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 156 / 219 | `██████████████░░░░░░` **71 %** |
+| **Général** | 157 / 219 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -865,7 +865,7 @@ composants.
   both volumes are 100`, `each new setting saved is read back`),
   `settings saved before Couleurs v2 keep their choices`, `each new setting is stored under a key that must not
   change`.
-- [ ] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
+- [x] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
   Cas (contrat, vrai dépôt et faux) : `a cleared record is 0`, `a score after a clear is a new record`,
   `clearing without a record leaves 0`, `a record that cannot be written fails with an IOException`.
 - [ ] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
