@@ -54,9 +54,9 @@ internal class BoardCanvasTest {
     private val moveDown = { piece = piece.moved(Direction.DOWN) }
 
     private val built = AtomicInteger()
-    private val countingPainters: PaintersFactory = { variant, cellSize, background ->
+    private val countingPainters: PaintersFactory = { variant, cellSize, background, density ->
         built.incrementAndGet()
-        paintersFor(variant, cellSize, background)
+        paintersFor(variant, cellSize, background, density)
     }
 
     /** What may change between two drawings, besides the piece. */
@@ -88,8 +88,9 @@ internal class BoardCanvasTest {
     }
 
     @Test
-    @DisplayName("the painters are built once while the piece moves")
-    fun paintersAreBuiltOnceWhileThePieceMoves() = extension.use {
+    @DisplayName("the painters are still built once while the piece moves")
+    fun paintersAreStillBuiltOnceWhileThePieceMoves() = extension.use {
+        // Given bubbles of 24 dp in the Colorful theme: their shapes, gradients and glosses are built with the painters
         showBoard()
 
         movePiece(times = 10, moveDown)

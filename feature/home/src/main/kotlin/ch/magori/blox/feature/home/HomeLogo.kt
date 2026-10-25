@@ -9,14 +9,15 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.designsystem.theme.BloxPalette
+import ch.magori.blox.core.board.logoColors
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 
 /** A cell of the logo, at [column] and [row] of its 2 × 2 square, in [color]. */
 internal data class LogoCell(val column: Int, val row: Int, val color: Color)
 
-/** The cells of the logo of the home screen (V1): a square of four cells, in the logo colours of [palette]. */
-internal fun logoCells(palette: BloxPalette): List<LogoCell> = with(palette.logoCells) {
+/** The cells of the logo of the home screen (V1): a square of four cells, in the logo colours of [variant]. */
+internal fun logoCells(variant: BloxThemeVariant): List<LogoCell> = with(logoColors(variant)) {
     listOf(
         LogoCell(column = 0, row = 0, color = topLeft),
         LogoCell(column = 1, row = 0, color = topRight),
@@ -26,15 +27,15 @@ internal fun logoCells(palette: BloxPalette): List<LogoCell> = with(palette.logo
 }
 
 /**
- * The logo of four cells, in the colours of the current theme. Plain squares: the cell painter of the
- * board belongs to feature:game, which this feature does not depend on. Decorative: TalkBack skips it.
+ * The logo of four cells, in the colours of the current theme. Plain squares, the logo of v1 (the logo of v2 comes
+ * in P5.77). Decorative: TalkBack skips it.
  */
 @Composable
 internal fun HomeLogo(
     modifier: Modifier = Modifier,
     cellSize: Dp = 20.dp,
 ) {
-    val cells = logoCells(BloxTheme.palette)
+    val cells = logoCells(BloxTheme.variant)
     Canvas(modifier = modifier.size(cellSize * SIDE)) {
         val side = size.width / SIDE
         // A thin gap between the cells, as between the cells of the board.

@@ -1,5 +1,3 @@
-import ch.magori.blox.buildlogic.library
-import ch.magori.blox.buildlogic.libs
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -22,7 +20,9 @@ import org.gradle.process.CommandLineArgumentProvider
  * cache de build, et la clé de cache ne dépend pas de l'emplacement de la copie du dépôt (P5.31). Le chemin absolu
  * n'est passé qu'en argument de la JVM des tests, que Gradle ne compte pas dans la clé.
  *
- * Les tests lisent le JSON avec `kotlinx-serialization-json`, en dépendance de test seulement.
+ * Un seul lecteur du fichier, `DesignTokens`, dans les doublures de test de `core:designsystem`, seules à dépendre de
+ * `kotlinx-serialization-json` : les tests de `core:designsystem` le voient, un autre module le déclare
+ * (`testImplementation(testFixtures(projects.core.designsystem))`, `core:board` pour les jetons des pièces).
  */
 class DesignTokensConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
@@ -33,13 +33,7 @@ class DesignTokensConventionPlugin : Plugin<Project> {
             tasks.withType<Test>().configureEach {
                 jvmArgumentProviders.add(tokens)
             }
-            // La configuration testImplementation n'existe qu'une fois le plugin principal appliqué, avant ou après
-            // celui-ci : comme blox.test.fixtures, on attend l'un ou l'autre et on échoue s'il manque.
-            listOf(ANDROID_LIBRARY, KOTLIN_JVM).forEach { id ->
-                pluginManager.withPlugin(id) {
-                    dependencies.add("testImplementation", libs.library("kotlinx-serialization-json"))
-                }
-            }
+            // Le plugin principal peut être appliqué avant ou après celui-ci : on vérifie une fois le module évalué.
             afterEvaluate {
                 if (!pluginManager.hasPlugin(ANDROID_LIBRARY) && !pluginManager.hasPlugin(KOTLIN_JVM)) {
                     throw GradleException(

@@ -16,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -74,7 +75,7 @@ internal fun BoardCanvas(
             .drawWithCache {
                 val columns = BoardShape.columns
                 val geometry = BoardGeometry.fit(size.width, size.height, columns, BoardShape.rows)
-                val cellPainters = painters(variant, geometry.cellSize, background)
+                val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
                 onDrawBehind {
                     val cells = displayedCells(board(), piece())
                     for (index in cells.indices) {
@@ -129,8 +130,17 @@ internal fun BoardCanvasOriginalPreview() {
 
 @Preview
 @Composable
-private fun BoardCanvasColorfulPreview() {
+internal fun BoardCanvasColorfulPreview() {
     BloxTheme(kind = BloxThemeKind.COLORFUL) {
         BoardCanvas({ previewBoard }, { previewPiece }, Modifier.size(240.dp, 480.dp))
+    }
+}
+
+/** Cells of 12 dp, under 16 dp: corners of 2 dp, no gloss. */
+@Preview
+@Composable
+internal fun BoardCanvasColorfulSmallPreview() {
+    BloxTheme(kind = BloxThemeKind.COLORFUL) {
+        BoardCanvas({ previewBoard }, { previewPiece }, Modifier.size(120.dp, 240.dp))
     }
 }

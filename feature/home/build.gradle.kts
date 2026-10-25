@@ -18,6 +18,8 @@ dependencies {
     api(projects.core.game)
     api(libs.androidx.lifecycle.viewmodel)
 
+    // Les couleurs du logo, celles des pièces (logoColors).
+    implementation(projects.core.board)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     // La valeur par défaut de `dropUnlessResumed` (LocalLifecycleOwner.current) référence

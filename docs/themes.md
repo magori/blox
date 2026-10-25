@@ -81,7 +81,7 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
 
-**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
+**Tests :** `BoardCanvasTest › the painters are still built once while the piece moves`,
 `BoardCanvasTest › nothing recomposes while the piece moves`,
 `BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
 `BoardCanvasTest › the painters are built again when the size changes`,
@@ -136,7 +136,7 @@ le logo de l'accueil.
 `LauncherIconTest › the monochrome layer has the very shape of the cells in front`.
 
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
-`CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
+`CellStylesTest › in the Colorful theme a piece is a bubble with the cell gloss, framed by a joint of 1 px, without border`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
 `CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`,
 `BoardGeometryTest › a cell is the smaller of the width over 10 and the height over 20, in whole pixels`,
@@ -216,7 +216,7 @@ ses bords de 2 dp dans la couleur de sa piste.
 `BloxThemeVariantTest › the Original theme has a single variant, whatever the mode of the system`,
 `BloxThemeVariantTest › each variant has its palette and its Material colour scheme, light or dark`,
 `PaletteTokensTest › each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
-`PaletteTokensTest › every colour token of tokens json is in the palette or listed as not coded, with its reason`,
+`PaletteTokensTest › every colour token of tokens json is in the palette, in the pieces or listed as not coded, with its reason`,
 `PaletteTokensTest › a colour written rgba in tokens json is read with its alpha`,
 `CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`.
 Vues : V22 à V34 (jour), nuit dans le design system.

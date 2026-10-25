@@ -1,13 +1,16 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
+import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.EnumSource
 
 class CellStylesTest {
     @ParameterizedTest(name = "{0}: fill {1}, border {2}, centre {3}")
@@ -35,40 +38,29 @@ class CellStylesTest {
         assertThat(style).isEqualTo(
             CellStyle(
                 fill = rgb(fill),
-                border = CellBorder.Plain(rgb(border), width = 2f / 24),
+                border = CellBorder(rgb(border), width = 2f / 24),
                 centre = CellCentre(rgb(centre), size = 8f / 24),
                 joint = CellJoint(width = 1f / 24),
             ),
         )
     }
 
-    @ParameterizedTest(name = "{0}: fill {1}, light bevel {2}, dark bevel {3}")
-    @CsvSource(
-        "I, 3FC5E8, 9BE6F6, 1D8FAE",
-        "O, F2C641, FAE08F, B38A17",
-        "T, A467E0, CFA6F1, 6E36A8",
-        "S, 5BC46A, A3E3AB, 2F8A3C",
-        "Z, E5534B, F29A94, A32A24",
-        "J, 3F7EE8, 93B8F4, 1F4FA6",
-        "L, EF8D3B, F6C18F, AD5A14",
-    )
-    fun `in the Colorful theme a piece has the fill and bevels of docs themes md`(
-        type: PieceType,
-        fill: String,
-        light: String,
-        dark: String,
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(BloxThemeVariant::class, names = ["COLORFUL_LIGHT", "COLORFUL_DARK"])
+    fun `in the Colorful theme a piece is a bubble with the cell gloss, framed by a joint of 1 px, without border`(
+        variant: BloxThemeVariant,
     ) {
         // When
-        val styles = COLORFUL_VARIANTS.map { cellStyle(it, Cell.Filled(type)) }
+        val styles = PieceType.entries.map { cellStyle(variant, Cell.Filled(it)) }
 
-        // Then: a 3 px bevel on a 24 px cell, day and night, until the pieces take the colours of the design system
-        assertThat(styles).containsOnly(
-            CellStyle(
-                fill = rgb(fill),
-                border = CellBorder.Bevel(light = rgb(light), dark = rgb(dark), width = 3f / 24),
-                centre = null,
-            ),
-        )
+        // Then each piece in its colours (PieceTokensTest), lit from the top, in relief, framed as an empty cell is
+        assertThat(styles).allSatisfy { style ->
+            assertThat(style.border).isNull()
+            assertThat(style.centre).isNull()
+            assertThat(style.joint).isEqualTo(CellJoint(width = 1f / 24))
+            assertThat(style.bubble?.highlight).isNotNull()
+            assertThat(style.bubble?.gloss).isEqualTo(cellGloss(variant))
+        }
     }
 
     @Test
@@ -93,15 +85,23 @@ class CellStylesTest {
         val style = cellStyle(variant, Cell.Empty)
 
         // Then: in the colour of the empty cells, framed by 1 px of a 24 px cell in the colour under it, the
-        // background the board is drawn on, as a margin
+        // background the board is drawn on, as a margin; rounded as a piece, flat, without gloss
         assertThat(style).isEqualTo(
-            CellStyle(fill = rgb(emptyCell), border = null, centre = null, joint = CellJoint(width = 1f / 24)),
+            CellStyle(
+                fill = rgb(emptyCell),
+                border = null,
+                centre = null,
+                joint = CellJoint(width = 1f / 24),
+                bubble = CellBubble(highlight = null, gloss = Gloss.None),
+            ),
         )
     }
 
     private fun rgb(hex: String): Color = Color(0xFF000000 or hex.toLong(radix = 16))
 
-    private companion object {
-        val COLORFUL_VARIANTS = listOf(BloxThemeVariant.COLORFUL_LIGHT, BloxThemeVariant.COLORFUL_DARK)
+    private fun cellGloss(variant: BloxThemeVariant): Gloss = when (variant) {
+        BloxThemeVariant.ORIGINAL -> BloxGlossSets.Original.cell
+        BloxThemeVariant.COLORFUL_LIGHT -> BloxGlossSets.ColorfulLight.cell
+        BloxThemeVariant.COLORFUL_DARK -> BloxGlossSets.ColorfulDark.cell
     }
 }

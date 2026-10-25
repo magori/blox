@@ -1,7 +1,8 @@
 package ch.magori.blox.theme
 
 import androidx.compose.ui.graphics.toArgb
-import ch.magori.blox.core.designsystem.theme.BloxPalettes
+import ch.magori.blox.core.board.logoColors
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.w3c.dom.Document
@@ -20,9 +21,9 @@ class LauncherIconTest {
             .map { it.getAttributeNS(ANDROID_NAMESPACE, "fillColor") }
 
         // Then
-        val logo = BloxPalettes.Original.logoCells
+        val logo = logoColors(BloxThemeVariant.ORIGINAL)
         assertThat(fills)
-            .withFailMessage { "The cells of the icon are $fills, not the logo colours of BloxPalettes.Original" }
+            .withFailMessage { "The cells of the icon are $fills, not the logo colours of the Original theme" }
             .containsExactlyElementsOf(
                 listOf(logo.topLeft, logo.topRight, logo.bottomLeft, logo.bottomRight).map {
                     "#%08X".format(it.toArgb())

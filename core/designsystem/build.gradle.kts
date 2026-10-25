@@ -27,6 +27,8 @@ dependencies {
     // des features (mots entiers en police agrandie).
     testFixturesApi(libs.androidx.compose.ui.test.android)
     testFixturesImplementation(libs.assertj.core)
+    // DesignTokens, le lecteur de docs/design-system/tokens.json, partagé avec core:board (jetons des pièces).
+    testFixturesImplementation(libs.kotlinx.serialization.json)
 }
 
 /**

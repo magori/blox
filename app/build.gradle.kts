@@ -51,6 +51,8 @@ dependencies {
 
     // Le faux dépôt des réglages, partagé avec les features : AppThemeTest y lit le thème choisi.
     testImplementation(testFixtures(projects.core.data))
+    // Les couleurs du logo, celles des pièces : LauncherIconTest les compare à l'icône.
+    testImplementation(projects.core.board)
 
     // Les parcours qui traversent les features (BloxNavDisplayTest), sur les faux partagés : dépôts et bibliothèque de
     // core:data, lecteur de core:audio, retour haptique, et les règles où une rangée est un tick (une fin de partie en

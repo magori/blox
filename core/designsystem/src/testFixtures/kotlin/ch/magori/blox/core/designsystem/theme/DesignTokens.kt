@@ -14,7 +14,7 @@ import java.io.File
  * The tokens of docs/design-system/tokens.json, the copy of the published design system. The convention
  * `blox.design.tokens` gives its path to the tests in the system property `blox.designTokens` (ADR 0019).
  */
-internal object DesignTokens {
+object DesignTokens {
     /** A token of the Colorful theme, as written for the day (light) and for the night (dark). */
     data class Written(val day: String, val night: String)
 
@@ -52,7 +52,7 @@ internal object DesignTokens {
 private val PIXELS = Regex("""(-?\d+)px|0""")
 
 /** A length as tokens json writes it, `16px` or `0`: 1 px of the design system is 1 dp of the code. */
-internal fun cssDp(written: String): Dp {
+fun cssDp(written: String): Dp {
     val pixels = requireNotNull(PIXELS.matchEntire(written)) { "Longueur CSS non lue : $written" }.groupValues[1]
     return pixels.ifEmpty { "0" }.toInt().dp
 }
@@ -61,7 +61,7 @@ private val RGBA = Regex("""rgba\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*,\s*([\d.]+
 private val HEX = Regex("""#([0-9A-Fa-f]{6})""")
 
 /** A colour as tokens json writes it: `#RRGGBB`, opaque, or `rgba(r,g,b,a)`. */
-internal fun cssColor(written: String): Color {
+fun cssColor(written: String): Color {
     HEX.matchEntire(written)?.let { hex -> return Color(0xFF000000 or hex.groupValues[1].toLong(radix = 16)) }
     val rgba = requireNotNull(RGBA.matchEntire(written)) { "Couleur CSS non lue : $written" }
     val (red, green, blue, alpha) = rgba.destructured
@@ -78,7 +78,7 @@ private val SHADOWS = Regex(""",\s*(?![^(]*\))""")
  * A gloss as tokens json writes it, a CSS `box-shadow` without blur: each `inset 0 y 0 colour` is an inner shadow,
  * each `0 0 0 width colour` a ring, of a width above 0. Any other shadow cannot be drawn by the code, and is refused.
  */
-internal fun cssGloss(written: String): Gloss = Gloss(
+fun cssGloss(written: String): Gloss = Gloss(
     written.trim().split(SHADOWS).map { shadow ->
         val match = requireNotNull(SHADOW.matchEntire(shadow.trim())) { "Ombre CSS non lue : $shadow" }
         val (inset, x, y, blur, spread, colour) = match.destructured
