@@ -627,6 +627,20 @@ première partie. Il est enregistré dès la fin de partie. Un score devient un 
 s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
 partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
 
+**Effacer le record** (P5.66, pour les Paramètres v2) : le record revient à 0, et le score suivant
+qui dépasse 0 devient un nouveau record. Effacer sans record laisse 0. Une écriture impossible
+(disque plein) échoue avec une `IOException` et garde le record tel qu'il était ; le flux du record
+émet 0 après un effacement réussi.
+
+**Tests :** `HighScoreRepositoryContract › a cleared record is 0`,
+`HighScoreRepositoryContract › a score after a clear is a new record`,
+`HighScoreRepositoryContract › clearing without a record leaves 0`,
+`HighScoreRepositoryContract › the record flow emits 0 after a clear`,
+`HighScoreRepositoryContract › a submit that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written keeps the record`,
+`FakeHighScoreRepositoryTest › a clear waits for the gate before it clears`.
+
 **Tests :** `HighScoreRepositoryContract › without a saved record the record is 0`,
 `HighScoreRepositoryContract › a higher score becomes the record, and submit tells it is a new record and the previous one`,
 `HighScoreRepositoryContract › a lower or equal score leaves the record and is not a new record`,

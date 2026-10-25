@@ -16,6 +16,33 @@ import java.io.IOException
 class FakeHighScoreRepositoryTest : HighScoreRepositoryContract() {
     override fun emptyRepository(scope: CoroutineScope): HighScoreRepository = FakeHighScoreRepository()
 
+    override suspend fun unwritableRepository(
+        scope: CoroutineScope,
+        record: Int,
+    ): HighScoreRepository = FakeHighScoreRepository(initial = record).apply { failure = IOException("disk full") }
+
+    @Test
+    fun `a clear waits for the gate before it clears`() = runTest {
+        // Given a record of 5000, and records that take their time to write
+        val repository = FakeHighScoreRepository(initial = 5000)
+        val writing = CompletableDeferred<Unit>()
+        repository.gate = writing
+
+        // When the record is cleared
+        val clearing = async { repository.clear() }
+        runCurrent()
+
+        // Then it is not cleared yet
+        assertThat(repository.record.value).isEqualTo(5000)
+
+        // When the records answer
+        writing.complete(Unit)
+        clearing.await()
+
+        // Then
+        assertThat(repository.record.value).isEqualTo(0)
+    }
+
     @Test
     fun `a failing submit throws and leaves the record and saved unchanged`() = runTest {
         // Given a record of 1200, then records that cannot be written
