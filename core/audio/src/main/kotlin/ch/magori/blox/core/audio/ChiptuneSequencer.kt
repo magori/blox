@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -87,6 +88,10 @@ public class ChiptuneSequencer internal constructor(
     @Volatile
     private var preparedTempos: Set<Double> = emptySet()
 
+    /** The gain of the volume set, read by the loop between two slices; kept by a play, unlike the tempo. */
+    @Volatile
+    private var gain = Volume.FULL.gain
+
     /**
      * Plays [music] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
      * for before is forgotten, and so are the tempos prepared. Call it from the main thread.
@@ -105,6 +110,15 @@ public class ChiptuneSequencer internal constructor(
     override fun prepareTempo(factor: Double) {
         requireValidTempo(factor)
         preparedTempos = preparedTempos + factor
+    }
+
+    /**
+     * Plays the scores at [volume], the one playing from its next slice: its sink plays at the gain of the volume,
+     * so that a change reaches at once the samples it holds. A volume of 0 goes on playing, in silence. It may be
+     * called from any thread: the gain is a `@Volatile` field, read by the loop between two slices.
+     */
+    override fun setVolume(volume: Volume) {
+        gain = volume.gain
     }
 
     /** Plays [score] in a loop from the start, or from where [from] stood, in place of the score playing. */
@@ -191,6 +205,8 @@ public class ChiptuneSequencer internal constructor(
         val sink = ReopeningSink { openSink(sampleRate) }
         // The tempo asked for last, rendered in the background while it is not the one playing.
         var asked = tempo
+        // The gain the sink plays at: that of a new sink, until another volume is set.
+        var sinkGain = Volume.FULL.gain
         try {
             var cursor = LoopCursor(
                 buffer,
@@ -203,6 +219,11 @@ public class ChiptuneSequencer internal constructor(
                 buffers.prepare(NORMAL_TEMPO)
                 preparedTempos.forEach(buffers::prepare)
                 buffers.harvest()
+                val wantedGain = gain
+                if (wantedGain != sinkGain) {
+                    sink.setGain(wantedGain)
+                    sinkGain = wantedGain
+                }
                 val wanted = requestedTempo
                 if (wanted != asked) {
                     // Of quick changes, only the last one is rendered.

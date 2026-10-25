@@ -415,6 +415,8 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
                     throw DeadSinkException("The audio output died")
                 }
 
+                override fun setGain(gain: Float) {}
+
                 override fun release() {}
             }
         })
@@ -603,6 +605,8 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
                     withContext(NonCancellable) { permits.receive() }
                 }
 
+                override fun setGain(gain: Float) {}
+
                 override fun release() {
                     log += "release#$number"
                 }
@@ -628,6 +632,8 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
             onWrite(writes)
         }
 
+        override fun setGain(gain: Float) {}
+
         override fun release() {
             released = true
         }
@@ -639,7 +645,7 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
 
     /**
      * A sequencer whose renderings give, in every sample, a code of their score and tempo factor: what its
-     * only open sink is given tells what is heard.
+     * only open sink is given, and the gain it plays at, tell what is heard.
      */
     private class ListenedSequencer(private val test: TestScope) : PlayerUnderTest {
         private val sinks = mutableListOf<FakeSink>()
@@ -664,7 +670,8 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
          */
         override suspend fun heard(): Heard? {
             val code = listen()?.roundToInt() ?: return null
-            return Heard(CODED[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0)
+            val gain = sinks.single { !it.released }.gain
+            return Heard(CODED[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0, gain = gain)
         }
 
         /** The only open sink refuses its next write, as a track in an error state: the music stops. */
