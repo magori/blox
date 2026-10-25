@@ -54,8 +54,8 @@ V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 d
 en téléphone debout, jour et nuit, avec en plus le téléphone couché et les tablettes (formats
 optionnels, P5.84) ; V32 à V34 sont les écrans de musique v2, en jour seulement (P5.86). Chaque écran v2 est un composant de la planche (`V2Accueil`, `V2Jeu`,
 `V2Parametres`) dont les réglages Format, Sombre, Vue et Effets réduits donnent toutes les
-variantes. Leur spécification est le [design system](design-system/README.md). À exporter de la
-maquette pour le code (P5.87) : les pictogrammes cartouche, moins, étoile, note barrée,
+variantes. Leur spécification est le [design system](design-system/README.md). Exportés de la
+maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogrammes.md) (P5.87) : les pictogrammes cartouche, moins, étoile, note barrée,
 égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
