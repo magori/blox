@@ -213,12 +213,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   annoncé par TalkBack (région vive polie) ; les commandes sont ignorées. Quand la fenêtre redevient
   assez grande, l'écran de pause revient et seul Reprendre relance la partie. Le retour système
   quitte alors la partie, comme Menu (sinon Reprendre remettrait aussitôt en pause). Bascules :
-  220 × 590 dp trop petite, 220 × 592 jouable ; sous environ 204 dp de large, toujours trop petite ;
+  220 × 591 dp trop petite, 220 × 593 jouable (dès 592 à 1,5 et 3,5 px par dp) ; sous environ 204 dp de large, toujours trop petite ;
   téléphones, tablettes et la fenêtre de 220 × 640 jamais touchés. Le seuil ignore la police : en
   police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
   sous 8 dp près du seuil.
 
-  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 590 dp high, its cells under 8 dp, and playable 592 dp high`,
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 591 dp high, its cells under 8 dp, and playable 593 dp high`,
   `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
   `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
   `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,

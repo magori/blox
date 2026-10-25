@@ -39,7 +39,13 @@ class TypographyTokensTest {
     }
 
     /** A text style of tokens json, and the property of [BloxTypography] that holds it. */
-    class CodedStyle(val name: String, private val property: String, val read: (BloxTypography) -> TextStyle) {
+    class CodedStyle(
+        val name: String,
+        private val property: String,
+        /** Whether the style lays numbers out, with digits of one width. */
+        val digits: Boolean = false,
+        val read: (BloxTypography) -> TextStyle,
+    ) {
         override fun toString(): String = "$name → $property"
     }
 
@@ -50,9 +56,9 @@ class TypographyTokensTest {
          */
         private val CODED: List<CodedStyle> = listOf(
             CodedStyle("screen-title", "screenTitle") { it.screenTitle },
-            CodedStyle("final-score", "finalScore") { it.finalScore },
-            CodedStyle("record", "record") { it.record },
-            CodedStyle("stat-value", "statValue") { it.statValue },
+            CodedStyle("final-score", "finalScore", digits = true) { it.finalScore },
+            CodedStyle("record", "record", digits = true) { it.record },
+            CodedStyle("stat-value", "statValue", digits = true) { it.statValue },
             CodedStyle("game-title", "gameTitle") { it.gameTitle },
             CodedStyle("stat-label", "statLabel") { it.statLabel },
             CodedStyle("button-label", "buttonLabel") { it.buttonLabel },

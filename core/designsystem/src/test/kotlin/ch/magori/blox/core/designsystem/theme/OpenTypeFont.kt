@@ -23,7 +23,10 @@ internal class OpenTypeFont(file: File) {
     /** The units per em, in which [advance] is written. */
     val unitsPerEm: Int = u16(table("head") + HEAD_UNITS_PER_EM)
 
-    /** The glyph that draws [char], from the Unicode BMP subtable of cmap (platform 3, encoding 1, format 4). */
+    /**
+     * The glyph that draws [char], from the Unicode BMP subtable of cmap (platform 3, encoding 1, format 4): 0, the
+     * missing glyph, for a character that the font does not draw.
+     */
     fun glyph(char: Char): Int {
         val cmap = table("cmap")
         val subtable = (0 until u16(cmap + 2)).map { cmap + 4 + 8 * it }
@@ -36,14 +39,13 @@ internal class OpenTypeFont(file: File) {
         val rangeOffsets = deltas + 2 * segments
         val code = char.code
         val segment = (0 until segments).first { code <= u16(ends + 2 * it) }
-        require(code >= u16(starts + 2 * segment)) { "No glyph for $char" }
+        if (code < u16(starts + 2 * segment)) return MISSING
+        val delta = u16(deltas + 2 * segment)
         val rangeOffset = u16(rangeOffsets + 2 * segment)
-        val glyph = if (rangeOffset == 0) {
-            code
-        } else {
-            u16(rangeOffsets + 2 * segment + rangeOffset + 2 * (code - u16(starts + 2 * segment)))
-        }
-        return (glyph + u16(deltas + 2 * segment)) and 0xFFFF
+        if (rangeOffset == 0) return (code + delta) and 0xFFFF
+        val glyph = u16(rangeOffsets + 2 * segment + rangeOffset + 2 * (code - u16(starts + 2 * segment)))
+        // A 0 in glyphIdArray is the missing glyph, to which idDelta does not apply.
+        return if (glyph == MISSING) MISSING else (glyph + delta) and 0xFFFF
     }
 
     /** The advance of [glyph] at the default instance, in [unitsPerEm]. */
@@ -73,12 +75,17 @@ internal class OpenTypeFont(file: File) {
     }
 
     /**
-     * How the advance of [glyph] varies with each region of the axes of a variable font (HVAR), in [unitsPerEm]:
-     * two glyphs of the same advance and the same variations have the same advance at every weight. Empty for a
-     * font that does not vary.
+     * How the advance of [glyph] varies with each region of the axes of a variable font (HVAR), in [unitsPerEm], by
+     * index of the region in the region list of the font, a region without delta left out: two glyphs of the same
+     * advance and the same variations have the same advance at every weight, whatever subtable (ItemVariationData)
+     * holds them and in whatever order it lists its regions. Empty for a font that does not vary.
      */
-    fun advanceVariations(glyph: Int): List<Int> {
-        val hvar = tables["HVAR"] ?: return emptyList<Int>().also { check("fvar" !in tables) { "fvar without HVAR" } }
+    fun advanceVariations(glyph: Int): Map<Int, Int> {
+        val hvar = tables["HVAR"]
+        if (hvar == null) {
+            check("fvar" !in tables) { "fvar without HVAR" }
+            return emptyMap()
+        }
         val store = hvar + u32(hvar + 4)
         val (outer, inner) = deltaSetIndex(hvar, glyph)
         val data = store + u32(store + 8 + 4 * outer)
@@ -86,9 +93,10 @@ internal class OpenTypeFont(file: File) {
         check(wordCount and LONG_WORDS == 0) { "Deltas on 32 bits are not read" }
         val regions = u16(data + 4)
         var offset = data + 6 + 2 * regions + inner * (2 * wordCount + (regions - wordCount))
-        return (0 until regions).map { region ->
+        val deltas = (0 until regions).map { region ->
             if (region < wordCount) bytes.getShort(offset).toInt().also { offset += 2 } else bytes.get(offset++).toInt()
         }
+        return (0 until regions).associate { u16(data + 6 + 2 * it) to deltas[it] }.filterValues { it != 0 }
     }
 
     private fun deltaSetIndex(
@@ -170,6 +178,7 @@ internal class OpenTypeFont(file: File) {
         const val SINGLE = 1
         const val EXTENSION = 7
         const val LONG_WORDS = 0x8000
+        const val MISSING = 0
     }
 }
 

@@ -16,11 +16,16 @@ gère les chiffres à chasse fixe par `DigitWidths` quand la police n'a pas `tnu
   `minSdk` 26). Les fichiers sont seulement renommés pour `res/font`, sans modifier la police.
 - Licences dans `assets/licenses/<famille>/OFL.txt`, vérifiées par le test existant.
 - **Chakra Petch est retirée** avec Couleurs v1 (ADR 0020).
-- Chiffres à chasse fixe : la fonction `tnum` de Manrope si elle existe, sinon `DigitWidths`
-  comme aujourd'hui **[à vérifier]** sur le fichier.
+- Chiffres à chasse fixe : la fonction `tnum` de Manrope (P5.58, vérifiée sur le fichier : lookup GSUB 21
+  qui envoie 0 à 9 vers dix glyphes de 0,62 em, de même largeur à toute graisse selon HVAR ;
+  `ValueDigitsTest`). `DigitWidths` et `valueText()` sont retirés. Manrope et Unbounded ne sont
+  publiées qu'en version variable ; `Font(res, weight)` ne réglant pas l'axe `wght`, chaque graisse
+  pose `FontVariation.weight`.
 
 ## Conséquences
 
-- La taille de l'APK est à mesurer **[à vérifier]**.
+- L'APK release passe de 2 008 790 à 3 037 943 octets (+1,0 Mo, P5.58). Bagel Fat One, qui ne sert
+  qu'au logo, en fait l'essentiel (662 Ko compressés, glyphes coréens compris) ; un logo exporté en
+  vecteur (P5.77) permettrait de la retirer.
 - Le rendu des polices variables sous Windows et Linux est à surveiller sur les captures, à 0 %
   d'écart aujourd'hui.

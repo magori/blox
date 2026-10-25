@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 164 / 221 | `███████████████░░░░░` **74 %** |
+| **Général** | 165 / 221 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -803,10 +803,10 @@ composants.
   `the painters are built again when the variant changes` (clé des peintres `(variante, taille, fond)`, P5.73) ; `PaletteContrastTest`,
   `KeyColorsTest`, `PauseButtonColorsTest`, `ChoiceColorsTest`, `SettingColorsTest`, `TrackColorsTest`,
   `LogoColorsTest` sur chaque variante ; captures jour et nuit.
-- [ ] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
+- [x] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
   (OFL, licences dans les assets), Chakra Petch retirée ; styles de texte du design system (`screen-title` à
   `logo`) dans `BloxTypography`, comparés à `tokens.json` ; Original inchangé ; valeurs à chiffres fixes
-  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) **[à vérifier]** sur le fichier ; taille de l'APK mesurée et notée dans l'ADR 0021 **[à vérifier]**. Après P5.57.
+  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) sur le fichier (confirmé : `tnum`) ; taille de l'APK mesurée et notée dans l'ADR 0021 (+1,0 Mo). Après P5.57.
   Cas : `each text style of tokens json has its family, size, line height and weight in the Colorful typography`,
   `the logo style is in Bagel Fat One and is used for the logo only`, `EmbeddedFontsTest` (licence de chaque
   police, plus de Chakra Petch), `ValueDigitsTest` (dix chiffres de même largeur, sans crénage),

@@ -87,8 +87,9 @@ internal fun BloxTypography.toMaterial(): Typography {
 private val PressStart2P = FontFamily(Font(R.font.press_start_2p_regular, FontWeight.Normal))
 
 /**
- * L'instance [weight] de la police variable [resId] : sans réglage de son axe wght, Android dessinerait l'instance
- * par défaut du fichier (ExtraLight pour Manrope) et en synthétiserait le gras (API 26 et plus, `minSdk` 26).
+ * L'instance [weight] de la police variable [resId] (API 26 et plus, `minSdk` 26) : sans réglage de son axe wght,
+ * Android dessinerait l'instance par défaut du fichier (ExtraLight pour Manrope, Regular pour Unbounded), quelle que
+ * soit la graisse demandée.
  */
 private fun variableFont(
     resId: Int,
@@ -97,7 +98,8 @@ private fun variableFont(
 
 /**
  * Manrope et Unbounded sont publiées en police variable, sur l'axe wght : chaque graisse en est une instance, posée
- * sur l'axe par [variableFont]. Seules les graisses du design system y sont : une autre serait synthétisée.
+ * sur l'axe par [variableFont]. Seules les graisses du design system y sont : une autre graisse demandée prend
+ * l'instance déclarée la plus proche (règles de CSS).
  */
 private val Manrope = FontFamily(
     variableFont(R.font.manrope_variable, FontWeight.Normal),

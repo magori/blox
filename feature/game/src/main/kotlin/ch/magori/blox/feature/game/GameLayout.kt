@@ -28,10 +28,11 @@ private const val NEXT_ROWS = SidePanelSizes.PREVIEW_ROWS
 private val SidePanelWidth = 112.dp
 
 /**
- * The height of a line of text, in sizes of its font: generous, Chakra Petch, the tallest font of the themes,
- * taking 1.17.
+ * The height of a line of text, in sizes of its font: that of Manrope, the tallest font of the game screen, whose
+ * ascent and descent (hhea) take 2132 + 600 of its 2000 units per em, 1.366, rounded up. Press Start 2P takes 1,
+ * Unbounded 1.24; Bagel Fat One (1.448) draws only the logo of the home screen.
  */
-private const val LINE_HEIGHT = 1.35f
+private const val LINE_HEIGHT = 1.37f
 
 /**
  * Where the game screen puts its parts, in pixels of the space given to [gameLayout]: the [board] of

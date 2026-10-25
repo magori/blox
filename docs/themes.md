@@ -371,7 +371,7 @@ autocollants, Bagel Fat One pour le seul logo, Manrope pour le reste. En Origina
 que la police pixel : les écrans d'Original gardent leurs tailles, jusqu'à ce qu'ils prennent les
 mises en page v2. Chaque graisse d'une police variable pose l'axe `wght` à sa valeur
 (`variableFont`) : sans ce réglage, Android dessinerait l'instance par défaut du fichier
-(ExtraLight pour Manrope, Regular pour Unbounded) et en synthétiserait le gras. Les tailles de
+(ExtraLight pour Manrope, Regular pour Unbounded), quelle que soit la graisse demandée. Les tailles de
 tablette que cite l'usage de certains styles (28 px pour `screen-title`) ne sont pas des jetons :
 les mises en page de la tablette les prendront.
 
@@ -479,5 +479,7 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `EmbeddedFontsTest › the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
 `ValueDigitsTest › in the Colorful theme the values take the tabular digits of Manrope, its tnum feature`,
+`OpenTypeFontTest › a character that the font does not draw takes the missing glyph 0`,
+`OpenTypeFontTest › the advance of a glyph varies by region of the axes, a region without delta not counted`,
 `ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.
 Vues : V1, V2, V3, V4.

@@ -19,7 +19,9 @@ class ValueDigitsTest {
 
             // Then each digit is as wide as the others, at every weight of the font
             val widths = DIGITS.map { digit ->
-                val glyph = font.glyph(digit).let { if (tabular) font.substitute(TABULAR, it) else it }
+                val drawn = font.glyph(digit)
+                assertThat(drawn).withFailMessage { "${fontFileOf(style)} has no glyph for $digit" }.isNotZero()
+                val glyph = if (tabular) font.substitute(TABULAR, drawn) else drawn
                 Width(advance = font.advance(glyph), variations = font.advanceVariations(glyph))
             }
             assertThat(widths.distinct()).withFailMessage { "The digits of $name have ${widths.distinct()}" }.hasSize(1)
@@ -50,13 +52,12 @@ class ValueDigitsTest {
         }
     }
 
-    /** The styles of [typography] that lay numbers out: the values, the final score and the record. */
-    private fun digitStyles(typography: BloxTypography): Map<String, TextStyle> = with(typography) {
-        mapOf("value" to value, "final-score" to finalScore, "record" to record, "stat-value" to statValue)
-    }
+    /** The styles of [typography] that lay numbers out: the values, and the styles of tokens json marked digits. */
+    private fun digitStyles(typography: BloxTypography): Map<String, TextStyle> = mapOf("value" to typography.value) +
+        TypographyTokensTest.codedStyles().filter { it.digits }.associate { it.name to it.read(typography) }
 
     /** A width of a glyph: its advance at the default instance, and how it varies with the weight. */
-    private data class Width(val advance: Int, val variations: List<Int>)
+    private data class Width(val advance: Int, val variations: Map<Int, Int>)
 
     /** The features that [style] turns on, as CSS writes them: `"tnum"` or `"tnum" 1`. */
     private fun featuresOn(style: TextStyle): List<String> = style.fontFeatureSettings.orEmpty().split(',')
