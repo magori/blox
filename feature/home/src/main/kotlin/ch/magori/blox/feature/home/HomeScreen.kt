@@ -347,7 +347,7 @@ private fun Choice(
 ) {
     val colors = choiceColors(BloxTheme.palette, selected)
     // A choice is a button, framed as the secondary buttons of the game screens: square corners in Original.
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     val interaction = if (onClick != null) {
         Modifier.selectable(selected = selected, enabled = enabled, role = Role.RadioButton, onClick = onClick)
     } else {

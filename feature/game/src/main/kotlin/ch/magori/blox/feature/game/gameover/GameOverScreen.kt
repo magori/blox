@@ -116,7 +116,7 @@ private fun NewRecordBadge() {
         fontSize = PanelSizes.label,
         style = BloxTheme.typography.title,
         modifier = Modifier
-            .background(palette.accent, BloxTheme.shapes.panel)
+            .background(palette.accent, BloxTheme.shapes.pill)
             .padding(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
     )
 }

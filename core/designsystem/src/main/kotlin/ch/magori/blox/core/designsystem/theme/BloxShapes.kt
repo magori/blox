@@ -6,21 +6,46 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-/** Jetons de forme de l'interface. Les valeurs viennent de la maquette, voir docs/themes.md. */
+/**
+ * The shapes of the interface, the `radius-*` tokens of docs/design-system/tokens.json (ShapeTokensTest): the same day
+ * and night, square in the Original theme.
+ */
 @Immutable
 data class BloxShapes(
-    /** Encarts (score, niveau…) : fond et cadre. */
-    val panel: Shape,
-    /** Boutons : commandes, boutons des écrans (Reprendre, Menu, Rejouer), bouton pause. */
-    val button: Shape,
+    /** A cell of a piece of 16 dp and more (`radius-cell`). */
+    val cell: Shape,
+    /** Panels, arrows, tiles, a pressed row, the board on a phone (`radius-md`). */
+    val md: Shape,
+    /** A message that goes away, the snackbar (`radius-snack`). */
+    val snack: Shape,
+    /** The card of the settings of the home, the board on a tablet (`radius-window`). */
+    val window: Shape,
+    /** The cards of the pause and of the end of a game, the dialog windows (`radius-card`). */
+    val card: Shape,
+    /** Buttons of a screen, groups of choices, stickers; a disc on a square (`radius-pill`). */
+    val pill: Shape,
 )
 
 object BloxShapeSets {
     /** Thème « Original » : coins carrés. */
-    val Original = BloxShapes(panel = RectangleShape, button = RectangleShape)
+    val Original = BloxShapes(
+        cell = RectangleShape,
+        md = RectangleShape,
+        snack = RectangleShape,
+        window = RectangleShape,
+        card = RectangleShape,
+        pill = RectangleShape,
+    )
 
-    /** Thème « Couleurs » : coins arrondis de 10 points. */
-    val Colorful = BloxShapes(panel = RoundedCornerShape(10.dp), button = RoundedCornerShape(10.dp))
+    /** Thème « Couleurs » : les rayons de tokens.json. */
+    val Colorful = BloxShapes(
+        cell = RoundedCornerShape(6.dp),
+        md = RoundedCornerShape(16.dp),
+        snack = RoundedCornerShape(20.dp),
+        window = RoundedCornerShape(24.dp),
+        card = RoundedCornerShape(28.dp),
+        pill = RoundedCornerShape(percent = 50),
+    )
 }
 
 /** Épaisseurs de trait de l'interface, les mêmes dans les deux thèmes. */
