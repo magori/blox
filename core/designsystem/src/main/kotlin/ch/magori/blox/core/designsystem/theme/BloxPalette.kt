@@ -4,9 +4,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * Jetons de couleur de l'interface (hors pièces). Les valeurs viennent de la maquette,
- * voir docs/themes.md. Les couleurs des pièces sont associées aux types de pièces
- * dans feature:game, pour que le design system ne dépende pas du domaine.
+ * Jetons de couleur de l'interface (hors pièces). Les valeurs du thème Couleurs, jour et nuit, viennent du design
+ * system (docs/design-system/tokens.json, comparé à ce fichier par PaletteTokensTest, ADR 0019) ; celles du thème
+ * Original, de docs/themes.md. Les couleurs des pièces sont associées aux types de pièces dans feature:game, pour que
+ * le design system ne dépende pas du domaine.
  */
 @Immutable
 data class BloxPalette(
@@ -15,8 +16,11 @@ data class BloxPalette(
     val label: Color,
     val panel: Color,
     val panelBorder: Color,
-    val frame: Color,
+    /** A tile laid in a card (the statistics of the pause and of the end of a game), and the track of a disabled switch. */
+    val panelInset: Color,
     val boardBackground: Color,
+    /** An empty cell of the board, drawn on [boardBackground]. */
+    val emptyCell: Color,
     val button: Color,
     /**
      * The edge of a button at rest, drawn over its [button] face: it stands out from [page] by 3:1 at least
@@ -37,8 +41,18 @@ data class BloxPalette(
      * [accent], the same button at rest, by 1.5:1 at least.
      */
     val accentPressed: Color,
+    /** The halo of the Play button, a decoration; transparent where the palette has no halo. */
+    val accentRing: Color,
+    /** The veil behind a dialog window, a sheet or the card of the end of a game. */
+    val scrim: Color,
+    /** The rows full while they are cleared. */
+    val clearGlow: Color,
+    /** The cells of the stack once the game is over, put out. */
+    val cellDead: Color,
     /** The four cells of the logo of the home screen. */
     val logoCells: LogoColors,
+    /** The iridescent gradient: the logo, the sheen of four lines, the bar of a record beaten. */
+    val iris: IrisColors,
     /** The notes of the melody in the music editor. */
     val melody: TrackColors,
     /** The notes of the bass in the music editor. */
@@ -51,6 +65,8 @@ data class BloxPalette(
      */
     val danger: Color,
     val dangerInk: Color,
+    /** The tint of the top rows while the stack is in danger, over the board. */
+    val dangerSoft: Color,
 )
 
 object BloxPalettes {
@@ -61,8 +77,10 @@ object BloxPalettes {
         label = Color(0xFF34503A),
         panel = Color(0xFFBFD6B6),
         panelBorder = Color(0xFF34503A),
-        frame = Color(0xFF34503A),
+        panelInset = Color(0xFFDCEBD5),
         boardBackground = Color(0xFFDCEBD5),
+        // The background of the board: an empty cell is not drawn apart.
+        emptyCell = Color(0xFFDCEBD5),
         button = Color(0xFF5F7F5C),
         // The face, 3.31:1 from the page: no outline to see.
         buttonOutline = Color(0xFF5F7F5C),
@@ -71,6 +89,12 @@ object BloxPalettes {
         accent = Color(0xFF34503A),
         accentInk = Color(0xFFEEF5EA),
         accentPressed = Color(0xFF1F3324),
+        // No halo around Play in Original.
+        accentRing = Color.Transparent,
+        // rgba(207,227,200,0.85): the page.
+        scrim = Color(0xFFCFE3C8).copy(alpha = 0.85f),
+        clearGlow = Color(0xFFEEF5EA),
+        cellDead = Color(0xFFBFD6B6),
         // The four greens of the pieces, the fills of I, O, J and T: dark, medium, light, pale.
         logoCells = LogoColors(
             topLeft = Color(0xFF34503A),
@@ -78,6 +102,8 @@ object BloxPalettes {
             bottomLeft = Color(0xFFBFD6B6),
             bottomRight = Color(0xFFEEF5EA),
         ),
+        // No iridescence: the ink, flat.
+        iris = IrisColors(start = Color(0xFF34503A), middle = Color(0xFF34503A), end = Color(0xFF34503A)),
         // The held tints of the mockup, #6E8F6A and #87A67F, stood out from the cells by 2.9:1 and 2.2:1 only: one
         // darker green, 3.1:1, for both, paler than both attacks.
         // The open tab is filled in the accent, as every selected choice of this palette.
@@ -98,50 +124,108 @@ object BloxPalettes {
         // No red in the greens of the screen: the ink, as the mockup does.
         danger = Color(0xFF34503A),
         dangerInk = Color(0xFFEEF5EA),
+        // rgba(52,80,58,0.14): the ink, faint; the danger reads in the frame of the board.
+        dangerSoft = Color(0xFF34503A).copy(alpha = 0.14f),
     )
 
-    /** Thème « Couleurs » : fond sombre, une couleur vive par pièce. */
-    val Colorful = BloxPalette(
-        page = Color(0xFF12141C),
-        ink = Color(0xFFF1F1F4),
-        label = Color(0xFF9AA0B4),
-        panel = Color(0xFF1C1F2B),
-        panelBorder = Color(0xFF2A2E3E),
-        frame = Color(0xFF2A2E3E),
-        boardBackground = Color(0xFF0B0C12),
-        button = Color(0xFF2A2E3E),
-        // The face, 1.36:1 from the page, is lost in it: a rim in the held shade, 3.50:1, draws the key.
-        buttonOutline = Color(0xFF646B87),
-        buttonInk = Color(0xFFF1F1F4),
-        buttonPressed = Color(0xFF646B87),
-        accent = Color(0xFFEF8D3B),
-        accentInk = Color(0xFF12141C),
-        // A darker orange: 1.67:1 from the accent at rest, 4.48:1 from the page and under the ink.
-        accentPressed = Color(0xFFC0651C),
-        // The fills of the I, O, Z and S pieces.
-        logoCells = LogoColors(
-            topLeft = Color(0xFF3FC5E8),
-            topRight = Color(0xFFF2C641),
-            bottomLeft = Color(0xFFE5534B),
-            bottomRight = Color(0xFF5BC46A),
-        ),
-        // The open tab takes the colour of its notes, the label in the ink of the page.
+    /**
+     * The fills of the I, O, Z and S pieces, the same day and night until the pieces take the colours of the design
+     * system (P5.74).
+     */
+    private val ColorfulLogoCells = LogoColors(
+        topLeft = Color(0xFF3FC5E8),
+        topRight = Color(0xFFF2C641),
+        bottomLeft = Color(0xFFE5534B),
+        bottomRight = Color(0xFF5BC46A),
+    )
+
+    /** Thème « Couleurs », le jour : nacre, lilas et pastels brillants. */
+    val ColorfulLight = BloxPalette(
+        page = Color(0xFFEEF0F7),
+        ink = Color(0xFF1C1B2E),
+        label = Color(0xFF4F4E68),
+        panel = Color(0xFFFFFFFF),
+        panelBorder = Color(0xFFC9CCDC),
+        panelInset = Color(0xFFF1F2F8),
+        boardBackground = Color(0xFFFFFFFF),
+        emptyCell = Color(0xFFF1F2F8),
+        button = Color(0xFFFFFFFF),
+        buttonOutline = Color(0xFF7A7894),
+        buttonInk = Color(0xFF1C1B2E),
+        buttonPressed = Color(0xFFD9C2FF),
+        accent = Color(0xFFB48CFF),
+        accentInk = Color(0xFF1C1B2E),
+        accentPressed = Color(0xFF9A6CF0),
+        // rgba(180,140,255,0.55): the accent.
+        accentRing = Color(0xFFB48CFF).copy(alpha = 0.55f),
+        // rgba(238,240,247,0.85): the page.
+        scrim = Color(0xFFEEF0F7).copy(alpha = 0.85f),
+        clearGlow = Color(0xFFFFFFFF),
+        cellDead = Color(0xFFD9DBE6),
+        logoCells = ColorfulLogoCells,
+        iris = IrisColors(start = Color(0xFFC9A7FF), middle = Color(0xFF9FF0D0), end = Color(0xFFFFC6A8)),
+        // The open tab takes the colour of its notes.
         melody = TrackColors(
-            note = Color(0xFF3FC5E8),
-            held = Color(0xFF2A8BA6),
-            tab = Color(0xFF3FC5E8),
-            tabInk = Color(0xFF12141C),
+            note = Color(0xFF7C4DEB),
+            held = Color(0xFFB7A0F2),
+            tab = Color(0xFF7C4DEB),
+            tabInk = Color(0xFFFFFFFF),
         ),
         bass = TrackColors(
-            note = Color(0xFFEF8D3B),
-            held = Color(0xFFA8642A),
-            tab = Color(0xFFEF8D3B),
-            tabInk = Color(0xFF12141C),
+            note = Color(0xFFB4501A),
+            held = Color(0xFFE8A57C),
+            tab = Color(0xFFB4501A),
+            tabInk = Color(0xFFFFFFFF),
         ),
-        outOfScale = Color(0xFF7C8193),
-        // #E5534B in the mockup, the red of the Z piece, 4.43:1 on the panel, where a menu offers to delete: a lighter
-        // red, 5.29:1 there, 5.93:1 under the ink.
-        danger = Color(0xFFEB6A62),
-        dangerInk = Color(0xFF12141C),
+        outOfScale = Color(0xFF6A6982),
+        danger = Color(0xFFC2264B),
+        dangerInk = Color(0xFFFFFFFF),
+        // rgba(194,38,75,0.14): the danger.
+        dangerSoft = Color(0xFFC2264B).copy(alpha = 0.14f),
+    )
+
+    /** Thème « Couleurs », la nuit : fond profond, vert acide et néons. */
+    val ColorfulDark = BloxPalette(
+        page = Color(0xFF07080D),
+        ink = Color(0xFFF2F4FA),
+        label = Color(0xFFA9AEC2),
+        panel = Color(0xFF141621),
+        panelBorder = Color(0xFF2A2D3A),
+        panelInset = Color(0xFF1B1D28),
+        boardBackground = Color(0xFF0E0F16),
+        emptyCell = Color(0xFF14151E),
+        button = Color(0xFF1B1D28),
+        buttonOutline = Color(0xFF6B7088),
+        buttonInk = Color(0xFFF2F4FA),
+        buttonPressed = Color(0xFF3A3E50),
+        accent = Color(0xFFC6FF3D),
+        accentInk = Color(0xFF07080D),
+        accentPressed = Color(0xFF8CC40F),
+        // rgba(198,255,61,0.5): the accent.
+        accentRing = Color(0xFFC6FF3D).copy(alpha = 0.5f),
+        // rgba(7,8,13,0.8): the page.
+        scrim = Color(0xFF07080D).copy(alpha = 0.8f),
+        // rgba(242,244,250,0.9): the ink.
+        clearGlow = Color(0xFFF2F4FA).copy(alpha = 0.9f),
+        cellDead = Color(0xFF2A2D3A),
+        logoCells = ColorfulLogoCells,
+        iris = IrisColors(start = Color(0xFFC6FF3D), middle = Color(0xFF3DFFD0), end = Color(0xFFA77BFF)),
+        melody = TrackColors(
+            note = Color(0xFFA77BFF),
+            held = Color(0xFF6B4FB0),
+            tab = Color(0xFFA77BFF),
+            tabInk = Color(0xFF07080D),
+        ),
+        bass = TrackColors(
+            note = Color(0xFFFF9E3D),
+            held = Color(0xFFA8662A),
+            tab = Color(0xFFFF9E3D),
+            tabInk = Color(0xFF07080D),
+        ),
+        outOfScale = Color(0xFF7E8399),
+        danger = Color(0xFFFF4D6D),
+        dangerInk = Color(0xFF07080D),
+        // rgba(255,77,109,0.18): the danger.
+        dangerSoft = Color(0xFFFF4D6D).copy(alpha = 0.18f),
     )
 }

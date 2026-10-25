@@ -10,23 +10,21 @@ internal data class KeyColors(val background: Color, val outline: Color, val ink
 
 /**
  * The colours of the key of [button] in [palette]: A in `accent`, the others in `button` framed by
- * `buttonOutline`. A [held] key takes the pressed shade of its colour up to its edge, its glyph unchanged:
- * never the colour of the page.
+ * `buttonOutline`, A framed by `accentPressed`. A [held] key takes the pressed shade of its colour and keeps its
+ * outline, its glyph unchanged: never the colour of the page.
  */
 internal fun keyColors(
     palette: BloxPalette,
     button: ControlButton,
     held: Boolean,
 ): KeyColors {
-    val accent = button == ControlButton.A
-    if (!accent && !held) return keyAtRestColors(palette)
-    val face = when {
-        accent && held -> palette.accentPressed
-        accent -> palette.accent
-        else -> palette.buttonPressed
+    if (button != ControlButton.A) {
+        val atRest = keyAtRestColors(palette)
+        return if (held) atRest.copy(background = palette.buttonPressed) else atRest
     }
-    // No frame of its own: the accent already stands out from the page by 3:1, a held key is filled to its edge.
-    return KeyColors(face, face, if (accent) palette.accentInk else palette.buttonInk)
+    // Framed in its pressed shade: the accent alone stands out from the page of the day by 2.3:1 only.
+    val face = if (held) palette.accentPressed else palette.accent
+    return KeyColors(face, palette.accentPressed, palette.accentInk)
 }
 
 /**

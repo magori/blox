@@ -1,8 +1,12 @@
 package ch.magori.blox.feature.home
 
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.android.tools.screenshot.PreviewTest
+
+/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
+private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of the settings page (view V21), in both themes and in a font twice as large, from the previews of
@@ -19,6 +23,11 @@ private fun SettingsOriginal() = SettingsScreenOriginalPreview()
 @Preview(widthDp = 360, heightDp = 640)
 @Composable
 private fun SettingsColorful() = SettingsScreenColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 640, uiMode = NIGHT)
+@Composable
+private fun SettingsColorfulNight() = SettingsScreenColorfulPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 640, fontScale = 2f)

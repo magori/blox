@@ -15,12 +15,12 @@ import ch.magori.blox.core.board.CellPainter
 import ch.magori.blox.core.board.R
 import ch.magori.blox.core.board.cellStyle
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
 /**
- * Draws the [next] piece in [theme], with the cells of the board, of [cellSize] pixels, on
+ * Draws the [next] piece in [variant], with the cells of the board, of [cellSize] pixels, on
  * [background], the colour of their joints (the panel of the next piece), centred in the space given
  * to it; nothing when [next] is null. No logic here: the cells come from the screen state
  * ([nextPieceCells]), their place from [BoardGeometry], their look from [CellPainter].
@@ -30,7 +30,7 @@ fun NextPieceCanvas(
     next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
-    theme: BloxThemeKind = BloxTheme.kind,
+    variant: BloxThemeVariant = BloxTheme.variant,
     background: Color = BloxTheme.palette.panel,
 ) {
     val description = nextPieceName(next)
@@ -40,7 +40,7 @@ fun NextPieceCanvas(
             .drawWithCache {
                 if (next == null) return@drawWithCache onDrawBehind {}
                 val geometry = BoardGeometry.centred(size.width, size.height, next.columns, next.rows, cellSize)
-                val painter = CellPainter(cellStyle(theme, Cell.Filled(next.type)), geometry.cellSize, background)
+                val painter = CellPainter(cellStyle(variant, Cell.Filled(next.type)), geometry.cellSize, background)
                 onDrawBehind {
                     for (cell in next.cells) {
                         val topLeft = geometry.cellTopLeft(cell)

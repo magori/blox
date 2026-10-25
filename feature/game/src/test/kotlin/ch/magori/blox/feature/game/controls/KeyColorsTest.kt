@@ -1,7 +1,9 @@
 package ch.magori.blox.feature.game.controls
 
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxPalette
+import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.contrast
 import ch.magori.blox.core.designsystem.theme.namedPalettes
 import org.assertj.core.api.Assertions.assertThat
@@ -27,35 +29,7 @@ internal class KeyColorsTest {
 
     @ParameterizedTest(name = "{0}, {1}")
     @MethodSource("keys")
-    fun `a held key is filled with its pressed shade up to its edge`(
-        theme: String,
-        button: ControlButton,
-        palette: BloxPalette,
-    ) {
-        // When
-        val colors = keyColors(palette, button, held = true)
-
-        // Then the outline of the key at rest is gone: pressing fills the key
-        assertThat(colors.outline).isEqualTo(colors.background)
-    }
-
-    @ParameterizedTest(name = "{0}, {1}")
-    @MethodSource("keys")
-    fun `a held key stands out from the page, by a contrast of 3 to 1 at least`(
-        theme: String,
-        button: ControlButton,
-        palette: BloxPalette,
-    ) {
-        // When
-        val colors = keyColors(palette, button, held = true)
-
-        // Then (WCAG 2.1, 1.4.11: user interface components)
-        assertThat(contrast(colors.background, palette.page)).isGreaterThanOrEqualTo(3.0)
-    }
-
-    @ParameterizedTest(name = "{0}, {1}")
-    @MethodSource("keys")
-    fun `a held key stands out from the same key not held, by a contrast of 1,5 to 1 at least`(
+    fun `a held key keeps the outline it has at rest`(
         theme: String,
         button: ControlButton,
         palette: BloxPalette,
@@ -64,8 +38,57 @@ internal class KeyColorsTest {
         val held = keyColors(palette, button, held = true)
         val notHeld = keyColors(palette, button, held = false)
 
-        // Then the player sees at a glance which keys are held
-        assertThat(contrast(held.background, notHeld.background)).isGreaterThanOrEqualTo(1.5)
+        // Then pressing changes the face only: the key keeps the edge that draws it on the page
+        assertThat(held.outline).isEqualTo(notHeld.outline)
+    }
+
+    @ParameterizedTest(name = "{0}, held: {2}")
+    @MethodSource("palettesHeldOrNot")
+    fun `the key A is framed in the pressed shade of the accent, held or not`(
+        theme: String,
+        palette: BloxPalette,
+        held: Boolean,
+    ) {
+        // When
+        val colors = keyColors(palette, ControlButton.A, held)
+
+        // Then its edge stands out from the page where the accent alone does not (2.3:1 by day)
+        assertThat(colors.outline).isEqualTo(palette.accentPressed)
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("keys")
+    fun `a held key stands out from the page by its outline, by a contrast of 3 to 1 at least`(
+        theme: String,
+        button: ControlButton,
+        palette: BloxPalette,
+    ) {
+        // When
+        val colors = keyColors(palette, button, held = true)
+
+        // Then (WCAG 2.1, 1.4.11: the edge of the key, kept while it is held, tells where the key is)
+        assertThat(contrast(colors.outline, palette.page)).isGreaterThanOrEqualTo(3.0)
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("keys")
+    fun `a held key stands out from the key at rest by 1,5 to 1, or for A in the day by going 2 dp down`(
+        theme: String,
+        button: ControlButton,
+        palette: BloxPalette,
+    ) {
+        // When
+        val held = keyColors(palette, button, held = true)
+        val notHeld = keyColors(palette, button, held = false)
+
+        // Then the player sees at a glance which keys are held. The A of the day cannot: its pressed lilac would have to
+        // stand 1.5:1 from the accent and 4.5:1 under the ink at once; it goes down instead (KeyDropTest).
+        if (palette == BloxPalettes.ColorfulLight && button == ControlButton.A) {
+            assertThat(contrast(held.background, notHeld.background)).isLessThan(1.5)
+            assertThat(keyDrop(held = true)).isEqualTo(2.dp)
+        } else {
+            assertThat(contrast(held.background, notHeld.background)).isGreaterThanOrEqualTo(1.5)
+        }
     }
 
     @ParameterizedTest(name = "{0}, {1}")
@@ -130,6 +153,12 @@ internal class KeyColorsTest {
         @JvmStatic
         fun keysHeldOrNot(): List<Arguments> = keys().flatMap { key ->
             listOf(true, false).map { Arguments.of(*key.get(), it) }
+        }
+
+        /** Each theme, a key held or not. */
+        @JvmStatic
+        fun palettesHeldOrNot(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
+            listOf(true, false).map { Arguments.of(theme, palette, it) }
         }
 
         /** Every key, in each theme. */

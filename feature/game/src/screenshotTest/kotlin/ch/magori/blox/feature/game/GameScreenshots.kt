@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game
 
+import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
@@ -16,6 +17,9 @@ import ch.magori.blox.feature.game.sidepanel.SidePanelLargeFontPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelNoNextPiecePreview
 import ch.magori.blox.feature.game.topbar.GameTopBarLargeFontPreview
 import com.android.tools.screenshot.PreviewTest
+
+/** The night of the system, where the Colorful theme takes its dark variant (ADR 0020). */
+private const val NIGHT = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL
 
 /*
  * Screenshot tests of the game screen and its parts, in both themes, from the previews of the
@@ -39,6 +43,11 @@ private fun GameScreenOriginal() = GameScreenOriginalPreview()
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 private fun GameScreenColorful() = GameScreenColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = NIGHT)
+@Composable
+private fun GameScreenColorfulNight() = GameScreenColorfulPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760)
@@ -89,6 +98,11 @@ private fun GameScreenTooSmallOriginal() = GameScreenTooSmallOriginalPreview()
 private fun GameScreenTooSmallColorful() = GameScreenTooSmallColorfulPreview()
 
 @PreviewTest
+@Preview(widthDp = 220, heightDp = 560, uiMode = NIGHT)
+@Composable
+private fun GameScreenTooSmallColorfulNight() = GameScreenTooSmallColorfulPreview()
+
+@PreviewTest
 @Preview(widthDp = 220, heightDp = 560, fontScale = 2f)
 @Composable
 private fun GameScreenTooSmallLargeFont() = GameScreenTooSmallLargeFontPreview()
@@ -106,6 +120,11 @@ private fun TopBarLargeFont() = GameTopBarLargeFontPreview()
 @Preview
 @Composable
 private fun SidePanelColorful() = SidePanelColorfulPreview()
+
+@PreviewTest
+@Preview(uiMode = NIGHT)
+@Composable
+private fun SidePanelColorfulNight() = SidePanelColorfulPreview()
 
 @PreviewTest
 @Preview(fontScale = 2f)
@@ -137,6 +156,11 @@ private fun PauseOriginal() = PauseOriginalPreview()
 private fun PauseColorful() = PauseColorfulPreview()
 
 @PreviewTest
+@Preview(uiMode = NIGHT)
+@Composable
+private fun PauseColorfulNight() = PauseColorfulPreview()
+
+@PreviewTest
 @Preview(fontScale = 2f)
 @Composable
 private fun PauseLargeFont() = PauseLargeFontPreview()
@@ -159,9 +183,19 @@ private fun GameOverOriginalNewRecord() = GameOverOriginalNewRecordPreview()
 private fun GameOverColorful() = GameOverColorfulPreview()
 
 @PreviewTest
+@Preview(uiMode = NIGHT)
+@Composable
+private fun GameOverColorfulNight() = GameOverColorfulPreview()
+
+@PreviewTest
 @Preview
 @Composable
 private fun GameOverColorfulNewRecord() = GameOverColorfulNewRecordPreview()
+
+@PreviewTest
+@Preview(uiMode = NIGHT)
+@Composable
+private fun GameOverColorfulNewRecordNight() = GameOverColorfulNewRecordPreview()
 
 @PreviewTest
 @Preview(fontScale = 2f)

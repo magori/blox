@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
@@ -211,13 +212,14 @@ private fun ControlKey(
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
-    val (background, outline, foreground) =
-        keyColors(BloxTheme.palette, button, held = button in controls.heldButtons)
+    val held = button in controls.heldButtons
+    val (background, outline, foreground) = keyColors(BloxTheme.palette, button, held)
     val description = stringResource(descriptionOf(button))
     val shape = BloxTheme.shapes.button
     Box(
         modifier = modifier
             .testTag(controlTestTag(button))
+            .offset(y = keyDrop(held))
             .size(size)
             .clip(shape)
             .background(background)

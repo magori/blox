@@ -18,11 +18,14 @@ class HomeLogoTest {
 
     @Test
     fun `in the Colorful theme the logo is a square of four cells in the colours of I, O, Z and S`() {
-        assertThat(logoCells(BloxPalettes.Colorful)).containsExactly(
-            LogoCell(column = 0, row = 0, color = Color(0xFF3FC5E8)),
-            LogoCell(column = 1, row = 0, color = Color(0xFFF2C641)),
-            LogoCell(column = 0, row = 1, color = Color(0xFFE5534B)),
-            LogoCell(column = 1, row = 1, color = Color(0xFF5BC46A)),
-        )
+        // Day and night alike, until the pieces take the colours of the design system
+        listOf(BloxPalettes.ColorfulLight, BloxPalettes.ColorfulDark).forEach { palette ->
+            assertThat(logoCells(palette)).containsExactly(
+                LogoCell(column = 0, row = 0, color = Color(0xFF3FC5E8)),
+                LogoCell(column = 1, row = 0, color = Color(0xFFF2C641)),
+                LogoCell(column = 0, row = 1, color = Color(0xFFE5534B)),
+                LogoCell(column = 1, row = 1, color = Color(0xFF5BC46A)),
+            )
+        }
     }
 }

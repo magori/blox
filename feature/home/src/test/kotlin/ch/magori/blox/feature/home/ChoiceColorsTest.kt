@@ -11,7 +11,7 @@ import org.junit.jupiter.params.provider.MethodSource
 internal class ChoiceColorsTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("themes")
-    fun `in every theme a selected choice stands out from an unselected one by a contrast of 3 to 1 at least`(
+    fun `in every theme a selected choice tells its state by its check, standing out from it by 3 to 1 at least`(
         theme: String,
         palette: BloxPalette,
     ) {
@@ -19,9 +19,11 @@ internal class ChoiceColorsTest {
         val selected = choiceColors(palette, selected = true)
         val unselected = choiceColors(palette, selected = false)
 
-        // Then (WCAG 2.1, 1.4.11: the state of a user interface component; and 1.4.1: the two states differ in
-        // luminance, not in hue only)
-        assertThat(contrast(selected.background, unselected.background)).isGreaterThanOrEqualTo(3.0)
+        // Then (WCAG 2.1, 1.4.11: the state of a user interface component, and 1.4.1: a cue other than colour): only
+        // the selected choice is checked, its check standing out from its background. The lilac of the day stands out
+        // from an unselected choice by 2.6:1 only.
+        assertThat(unselected.check).isNull()
+        assertThat(contrast(checkNotNull(selected.check), selected.background)).isGreaterThanOrEqualTo(3.0)
     }
 
     @ParameterizedTest(name = "{0}, selected: {2}")

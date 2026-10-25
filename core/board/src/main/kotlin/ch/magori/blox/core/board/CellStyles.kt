@@ -1,27 +1,33 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
+import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
 /**
- * The style of [cell] in [theme], from the tables of docs/themes.md. Widths are given there for a
+ * The style of [cell] in [variant], from the tables of docs/themes.md. Widths are given there for a
  * 24 px cell. The design system knows the board background, not the pieces (ADR 0005). The styles
  * are built once: reading one allocates nothing, so it can be done for every cell of every frame.
  */
 internal fun cellStyle(
-    theme: BloxThemeKind,
+    variant: BloxThemeVariant,
     cell: Cell,
-): CellStyle = when (theme) {
-    BloxThemeKind.ORIGINAL -> when (cell) {
+): CellStyle = when (variant) {
+    BloxThemeVariant.ORIGINAL -> when (cell) {
         Cell.Empty -> ORIGINAL_EMPTY
         is Cell.Filled -> ORIGINAL_PIECES.getValue(cell.type)
     }
 
-    BloxThemeKind.COLORFUL -> when (cell) {
-        Cell.Empty -> COLORFUL_EMPTY
+    BloxThemeVariant.COLORFUL_LIGHT -> when (cell) {
+        Cell.Empty -> COLORFUL_LIGHT_EMPTY
+        is Cell.Filled -> COLORFUL_PIECES.getValue(cell.type)
+    }
+
+    BloxThemeVariant.COLORFUL_DARK -> when (cell) {
+        Cell.Empty -> COLORFUL_DARK_EMPTY
         is Cell.Filled -> COLORFUL_PIECES.getValue(cell.type)
     }
 }
@@ -57,7 +63,7 @@ private fun originalStyle(type: PieceType): CellStyle {
     )
 }
 
-private val COLORFUL_EMPTY_BORDER = Color(0xFF191C27)
+/** The margin around an empty cell, in the colour of the board, as around a piece. */
 private const val COLORFUL_EMPTY_BORDER_WIDTH = 1f / 24
 private const val COLORFUL_BEVEL_WIDTH = 3f / 24
 
@@ -74,12 +80,13 @@ private fun colorfulStyle(type: PieceType): CellStyle {
     return CellStyle(Color(fill), CellBorder.Bevel(Color(light), Color(dark), COLORFUL_BEVEL_WIDTH), centre = null)
 }
 
+/** An empty cell of a Colorful variant: its own colour, apart from the board by a margin of the board. */
+private fun colorfulEmpty(palette: BloxPalette): CellStyle =
+    CellStyle(palette.emptyCell, CellBorder.Plain(palette.boardBackground, COLORFUL_EMPTY_BORDER_WIDTH), centre = null)
+
 // The tables come last: top-level properties are initialised in the order of the file.
 private val ORIGINAL_EMPTY = CellStyle(BloxPalettes.Original.boardBackground, border = null, centre = null)
 private val ORIGINAL_PIECES: Map<PieceType, CellStyle> = PieceType.entries.associateWith(::originalStyle)
-private val COLORFUL_EMPTY = CellStyle(
-    BloxPalettes.Colorful.boardBackground,
-    CellBorder.Plain(COLORFUL_EMPTY_BORDER, COLORFUL_EMPTY_BORDER_WIDTH),
-    centre = null,
-)
+private val COLORFUL_LIGHT_EMPTY = colorfulEmpty(BloxPalettes.ColorfulLight)
+private val COLORFUL_DARK_EMPTY = colorfulEmpty(BloxPalettes.ColorfulDark)
 private val COLORFUL_PIECES: Map<PieceType, CellStyle> = PieceType.entries.associateWith(::colorfulStyle)

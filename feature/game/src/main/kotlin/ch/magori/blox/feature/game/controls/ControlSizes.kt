@@ -18,6 +18,9 @@ internal object ControlSizes {
     /** The arrow of rotation of B and A, above their letter. */
     val rotationArrow = 24.dp
 
+    /** How far a held key goes down, in every theme: a cue other than its pressed fill. */
+    val heldDrop = 2.dp
+
     /** B sits lower than A, as on a handheld console; ◀ ▼ ▶ half as low. */
     val rotationStagger = 24.dp
 
@@ -36,3 +39,6 @@ internal object ControlSizes {
  */
 internal fun keyLetterHeight(letter: Dp): Dp =
     minOf(letter, ControlSizes.rotationButton - BloxBorders.frame * 2 - ControlSizes.rotationArrow)
+
+/** How far the key goes down while it is [held]: [ControlSizes.heldDrop], or not at all. */
+internal fun keyDrop(held: Boolean): Dp = if (held) ControlSizes.heldDrop else 0.dp
