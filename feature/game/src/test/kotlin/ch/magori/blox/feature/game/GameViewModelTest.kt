@@ -1307,6 +1307,103 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a pressed key vibrates once when key vibration is on`() {
+        // Given the keys vibrating, the vibrations of the game off, so that only the keys vibrate
+        vibrateKeysOnly()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+
+        // Then at once, without waiting for a frame
+        assertThat(haptics.played).containsExactly(Haptic.KEY_PRESS)
+    }
+
+    @Test
+    fun `a released key does not vibrate`() {
+        // Given the keys vibrating, the vibrations of the game off, and a key pressed
+        vibrateKeysOnly()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onControl(ControlChange.Pressed(ControlButton.A))
+
+        // When
+        viewModel.onControl(ControlChange.Released(ControlButton.A))
+
+        // Then only the press vibrated
+        assertThat(haptics.played).containsExactly(Haptic.KEY_PRESS)
+    }
+
+    @Test
+    fun `with key vibration off no key vibrates`() {
+        // Given the keys not vibrating, the vibrations of the game on
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = true, keyVibration = false)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When every key is pressed
+        ControlButton.entries.forEach { viewModel.onControl(ControlChange.Pressed(it)) }
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `until the settings answer no key vibrates`() {
+        // Given settings that never answer
+        val viewModel = createViewModel(
+            GameRoute(startLevel = 0, seed = 1L),
+            userPreferences = FakeUserPreferencesRepository(initial = null),
+        )
+
+        // When every key is pressed
+        ControlButton.entries.forEach { viewModel.onControl(ControlChange.Pressed(it)) }
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `a key pressed while the game is paused does not vibrate`() {
+        // Given the keys vibrating, the vibrations of the game off, and the game paused
+        vibrateKeysOnly()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onPause()
+
+        // When
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `a key pressed after the game over does not vibrate`() {
+        // Given the keys vibrating, the vibrations of the game off, and a game played until it is over
+        vibrateKeysOnly()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilGameOver(viewModel)
+
+        // When
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+
+        // Then
+        assertThat(haptics.played).isEmpty()
+    }
+
+    @Test
+    fun `the key vibration is read once per game, at its start`() {
+        // Given a game started with the keys vibrating, the vibrations of the game off
+        vibrateKeysOnly()
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the key vibration is turned off during the game, then a key is pressed
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = false, keyVibration = false)
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+
+        // Then the game keeps the choice it started with
+        assertThat(haptics.played).containsExactly(Haptic.KEY_PRESS)
+    }
+
+    @Test
     fun `with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`() {
         // Given settings that have not answered yet
         val lateSettings = FakeUserPreferencesRepository(initial = null)
@@ -1358,6 +1455,11 @@ class GameViewModelTest {
 
         // Then
         assertThat(soundEffects.played).isEmpty()
+    }
+
+    /** The settings of a player whose keys vibrate, the vibrations of the game off: only the keys may vibrate. */
+    private fun vibrateKeysOnly() {
+        preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = false, keyVibration = true)
     }
 
     /**
