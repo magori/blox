@@ -65,10 +65,23 @@ class DataStoreHighScoreRepositoryTest : HighScoreRepositoryContract() {
 
     override fun emptyRepository(scope: CoroutineScope): HighScoreRepository = repositoryIn(scope)
 
+    /** The records file holding [record], read as it is, but on a disk that refuses every write. */
+    override suspend fun unwritableRepository(
+        scope: CoroutineScope,
+        record: Int,
+    ): HighScoreRepository {
+        val dataStore = dataStoreIn(scope)
+        DataStoreHighScoreRepository(dataStore).submit(record)
+        return DataStoreHighScoreRepository(UnwritableDataStore(dataStore))
+    }
+
     /** The records file of the test, in [directory]. */
     private val recordsFile: File get() = File(directory, RECORDS_FILE)
 
     /** A repository on the records file of [directory], its DataStore living in [scope], as in production. */
     private fun repositoryIn(scope: CoroutineScope): HighScoreRepository =
-        DataStoreHighScoreRepository(preferencesDataStore(scope) { recordsFile.absolutePath.toPath() })
+        DataStoreHighScoreRepository(dataStoreIn(scope))
+
+    /** The DataStore of the records file of [directory], living in [scope]; one per file. */
+    private fun dataStoreIn(scope: CoroutineScope) = preferencesDataStore(scope) { recordsFile.absolutePath.toPath() }
 }

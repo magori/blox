@@ -627,6 +627,20 @@ première partie. Il est enregistré dès la fin de partie. Un score devient un 
 s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
 partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
 
+**Effacer le record** (P5.66, pour les Paramètres v2) : le record revient à 0, et le score suivant
+qui dépasse 0 devient un nouveau record. Effacer sans record laisse 0. Une écriture impossible
+(disque plein) échoue avec une `IOException` et garde le record tel qu'il était ; le flux du record
+émet 0 après un effacement réussi.
+
+**Tests :** `HighScoreRepositoryContract › a cleared record is 0`,
+`HighScoreRepositoryContract › a score after a clear is a new record`,
+`HighScoreRepositoryContract › clearing without a record leaves 0`,
+`HighScoreRepositoryContract › the record flow emits 0 after a clear`,
+`HighScoreRepositoryContract › a submit that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written fails with an IOException`,
+`HighScoreRepositoryContract › a clear that cannot be written keeps the record`,
+`FakeHighScoreRepositoryTest › a clear waits for the gate before it clears`.
+
 **Tests :** `HighScoreRepositoryContract › without a saved record the record is 0`,
 `HighScoreRepositoryContract › a higher score becomes the record, and submit tells it is a new record and the previous one`,
 `HighScoreRepositoryContract › a lower or equal score leaves the record and is not a new record`,
@@ -704,7 +718,9 @@ Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
 
 ## Effets sonores
 
-Optionnels (P4.8), **désactivés par défaut** (décision du développeur ; réglage `soundEffects` des
+Optionnels (P4.8), **activés par défaut** depuis le 2026-10-25 (décision du développeur, P5.65 : un
+fichier sans la clé `sound_effects` les active, un « désactivé » enregistré par le joueur est gardé ;
+avant, désactivés par défaut ; réglage `soundEffects` des
 préférences, interrupteur de l'accueil V1, P5.37 ; un changement vaut pour la partie suivante). Une rotation réussie donne un
 bip, une à trois lignes un arpège montant, quatre lignes un arpège sur deux octaves, la fin de
 partie un arpège descendant ; la pose d'une pièce et le danger ne sonnent pas (trop fréquents).
@@ -728,11 +744,32 @@ sons : `docs/musique.md`, Effets sonores.
 `GameViewModelTest › a game recreated paused after the process died plays no effect while it stays paused`,
 `GameViewModelTest › with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`,
 `GameViewModelTest › with the sound effects off, the game warms nothing up`,
-`UserPreferencesRepositoryContract › without saved preferences the sound effects are off`,
+`UserPreferencesRepositoryContract › without saved preferences the sound effects are on`,
 `UserPreferencesRepositoryContract › a saved sound effects choice is read back`,
-`DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects off`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects on`,
 `DataStoreUserPreferencesRepositoryTest › the sound effects are stored as a boolean under a key that must not change`.
 Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
+
+## Préférences v2
+
+Réglages ajoutés pour Couleurs v2 (P5.65), utilisés par les tâches qui suivent : **Effets
+réduits** (P5.71), **Gaucher** (P5.79), **Vibration des touches** (P5.67), **Volume de la
+musique** et **Volume des effets** (P5.68). Sans fichier, effets non réduits, droitier, touches
+sans vibration, deux volumes à 100 %. Un volume est un `Volume` (`core:music`), un pourcentage de
+0 à 100 par pas de 10 (`Volume.FULL` vaut 100, `Volume.SILENT` 0) ; toute autre valeur est
+refusée, et une valeur illisible du fichier retombe sur la valeur par défaut. Clés figées :
+`reduced_effects`, `left_handed`, `key_vibration` (booléens), `music_volume`, `effects_volume`
+(entiers en pourcentage). Un fichier d'avant Couleurs v2 garde tous ses choix.
+
+**Tests :** `VolumeTest › a volume is a multiple of 10 from 0 to 100`,
+`VolumeTest › a volume below 0, above 100 or between two steps of 10 is refused`,
+`VolumeTest › a percentage that is no volume gives no volume, without failing`,
+`VolumeTest › a percentage that is a volume gives that volume`,
+`VolumeTest › the full volume is 100 percent`, `VolumeTest › the silent volume is 0 percent`,
+`UserPreferencesRepositoryContract › without saved preferences effects are not reduced, right handed, keys do not vibrate, volumes at 100`,
+`UserPreferencesRepositoryContract › each new setting saved is read back`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before Couleurs v2 keep their choices`,
+`DataStoreUserPreferencesRepositoryTest › each new setting is stored under a key that must not change`.
 
 ## Niveaux
 
@@ -780,6 +817,23 @@ négatif.
 **Tests :** `GameEngineClearTest › when the clear is over the cleared board is shown, lines and level go up, points use the new level`,
 `PointsTest › points cannot be negative`, `PointsTest › points add up`,
 `LinesTest › the lines cleared at once add to the total`.
+
+**Événement de niveau** (P5.64) : au tick où un effacement fait monter de niveau (la fin de son
+animation), le moteur émet `LevelUp(niveau atteint)`, après `LinesCleared` et avant un éventuel
+`StackDanger` de ce tick. Un effacement fait au plus 4 lignes et les paliers sont espacés de 10 :
+il ne franchit jamais qu'un niveau. Aucun `LevelUp` au début d'une partie ni quand le niveau ne
+change pas ; un départ à 5 en reçoit un premier à 60 lignes. Il précède aussi la fin de partie
+quand le dernier effacement fait monter de niveau. Le son et la vibration ne lui répondent pas
+encore (P5.69).
+
+**Tests :** `GameEngineClearTest › a line clear that reaches the next level sends a level up with the new level`,
+`GameEngineClearTest › a line clear that stays at the same level sends no level up`,
+`GameEngineClearTest › the level up comes after the lines cleared and before the stack danger of that tick`,
+`GameEngineClearTest › starting at level 5 the first level up comes at 60 lines, not at 10`,
+`GameEngineStartTest › a game that starts sends no level up`,
+`GameEngineGameOverTest › a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`,
+`HapticOfEventTest › a level up gives nothing yet`,
+`SoundEffectOfEventTest › a level up gives nothing yet`.
 
 ## Statistiques de fin de partie
 

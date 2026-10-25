@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -31,11 +32,14 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
 
     @Test
     fun `an unknown value in the file gives the default of that preference`() = runTest {
-        // Given a file written by another version: a theme and a music it no longer knows, a negative level
+        // Given a file written by another version: a theme and a music it no longer knows, a negative level,
+        // volumes that are not one of the steps of 10 from 0 to 100
         writeSettingsFile {
             it[stringPreferencesKey("theme")] = "RAINBOW"
             it[stringPreferencesKey("music")] = "JAZZ"
             it[intPreferencesKey("start_level")] = -3
+            it[intPreferencesKey("music_volume")] = 55
+            it[intPreferencesKey("effects_volume")] = 150
         }
         val repository = repositoryIn(backgroundScope)
 
@@ -61,12 +65,11 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
 
         // Then
         assertThat(preferences).isEqualTo(
-            UserPreferences(
+            UserPreferences.DEFAULT.copy(
                 theme = ThemeChoice.COLORFUL,
                 music = MusicChoice.MINUET,
                 startLevel = 7,
                 vibrations = false,
-                soundEffects = false,
             ),
         )
     }
@@ -85,7 +88,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
     }
 
     @Test
-    fun `settings saved before the sound effects existed keep their choices, with sound effects off`() = runTest {
+    fun `settings saved before the sound effects existed keep their choices, with sound effects on`() = runTest {
         // Given a file written by a version without the sound effects setting
         writeSettingsFile {
             it[stringPreferencesKey("theme")] = "COLORFUL"
@@ -98,21 +101,75 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
 
         // Then
         assertThat(preferences).isEqualTo(
-            UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, vibrations = true, soundEffects = false),
+            UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, vibrations = true, soundEffects = true),
         )
     }
 
     @Test
     fun `the sound effects are stored as a boolean under a key that must not change`() = runTest {
-        // Given a file whose sound effects were turned on by an earlier version
-        writeSettingsFile { it[booleanPreferencesKey("sound_effects")] = true }
+        // Given a file whose sound effects were turned off by an earlier version: off is not the default, on is
+        writeSettingsFile { it[booleanPreferencesKey("sound_effects")] = false }
         val repository = repositoryIn(backgroundScope)
 
         // When
         val preferences = repository.preferences.first()
 
         // Then
-        assertThat(preferences.soundEffects).isTrue()
+        assertThat(preferences.soundEffects).isFalse()
+    }
+
+    @Test
+    fun `settings saved before Couleurs v2 keep their choices`() = runTest {
+        // Given a file written before the settings of Couleurs v2, its sound effects turned off by the player
+        writeSettingsFile {
+            it[stringPreferencesKey("theme")] = "COLORFUL"
+            it[stringPreferencesKey("music")] = "NONE"
+            it[intPreferencesKey("start_level")] = 4
+            it[booleanPreferencesKey("vibrations")] = true
+            it[booleanPreferencesKey("sound_effects")] = false
+        }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then the sound effects stay off, although they are now on by default; the new settings are at theirs
+        assertThat(preferences).isEqualTo(
+            UserPreferences.DEFAULT.copy(
+                theme = ThemeChoice.COLORFUL,
+                music = MusicChoice.NONE,
+                startLevel = 4,
+                vibrations = true,
+                soundEffects = false,
+            ),
+        )
+    }
+
+    @Test
+    fun `each new setting is stored under a key that must not change`() = runTest {
+        // Given a file holding each new setting away from its default, under its name
+        writeSettingsFile {
+            it[booleanPreferencesKey("reduced_effects")] = true
+            it[booleanPreferencesKey("left_handed")] = true
+            it[booleanPreferencesKey("key_vibration")] = true
+            it[intPreferencesKey("music_volume")] = 20
+            it[intPreferencesKey("effects_volume")] = 60
+        }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences).isEqualTo(
+            UserPreferences.DEFAULT.copy(
+                reducedEffects = true,
+                leftHanded = true,
+                keyVibration = true,
+                musicVolume = Volume(20),
+                effectsVolume = Volume(60),
+            ),
+        )
     }
 
     @Test
@@ -176,7 +233,12 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 setMusic(MusicChoice.MY_FILE)
                 setStartLevel(9)
                 setVibrations(true)
-                setSoundEffects(true)
+                setSoundEffects(false)
+                setReducedEffects(true)
+                setLeftHanded(true)
+                setKeyVibration(true)
+                setMusicVolume(Volume(80))
+                setEffectsVolume(Volume(10))
             }
         }
 
@@ -190,7 +252,12 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
                 music = MusicChoice.MY_FILE,
                 startLevel = 9,
                 vibrations = true,
-                soundEffects = true,
+                soundEffects = false,
+                reducedEffects = true,
+                leftHanded = true,
+                keyVibration = true,
+                musicVolume = Volume(80),
+                effectsVolume = Volume(10),
             ),
         )
     }
