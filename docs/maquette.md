@@ -54,8 +54,8 @@ V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 d
 en téléphone debout, jour et nuit, avec en plus le téléphone couché et les tablettes (formats
 optionnels, P5.84) ; V32 à V34 sont les écrans de musique v2, en jour seulement (P5.86). Chaque écran v2 est un composant de la planche (`V2Accueil`, `V2Jeu`,
 `V2Parametres`) dont les réglages Format, Sombre, Vue et Effets réduits donnent toutes les
-variantes. Leur spécification est le [design system](design-system/README.md). À exporter de la
-maquette pour le code (P5.87) : les pictogrammes cartouche, moins, étoile, note barrée,
+variantes. Leur spécification est le [design system](design-system/README.md). Exportés de la
+maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogrammes.md) (P5.87) : les pictogrammes cartouche, moins, étoile, note barrée,
 égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
@@ -237,7 +237,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
   `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
   `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
-  `NextPieceCellsTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
+  `SidePanelSizesTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
   Captures : `GameScreenNarrow`, `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 - Barre du haut dans une fenêtre très étroite (P2.26) : le titre et le record restent sur une
