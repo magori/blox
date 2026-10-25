@@ -70,7 +70,7 @@ fun WindowPanel(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.panel
+    val shape = BloxTheme.shapes.card
     Column(
         modifier = modifier
             .fillMaxWidth()

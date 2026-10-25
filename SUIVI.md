@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 167 / 221 | `███████████████░░░░░` **76 %** |
+| **Général** | 168 / 221 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -811,7 +811,7 @@ composants.
   `the logo style is in Bagel Fat One and is used for the logo only`, `EmbeddedFontsTest` (licence de chaque
   police, plus de Chakra Petch), `ValueDigitsTest` (dix chiffres de même largeur, sans crénage),
   `BloxTypographyTest` revu ; captures, police ×2 comprise.
-- [ ] **P5.59** Formes, reliefs, tailles et durées v2 : `BloxShapes` (`radius-cell`, `-md`, `-window`, `-card`,
+- [x] **P5.59** Formes, reliefs, tailles et durées v2 : `BloxShapes` (`radius-cell`, `-md`, `-window`, `-card`,
   `-pill`, `-snack`), reliefs `button-gloss`, `button-gloss-pressed` et `cell-gloss` dessinés en ombres intérieures (aucun
   en Original), tailles (`touch-target`, `setting-row`, `switch-track`, `switch-thumb`, `key-*`), espacements,
   durées `motion-*` en ticks. Après P5.57.

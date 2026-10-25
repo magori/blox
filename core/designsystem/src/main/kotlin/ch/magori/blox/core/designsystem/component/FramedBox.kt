@@ -36,7 +36,7 @@ fun FramedBox(
     labelPadding: Dp = 0.dp,
     content: @Composable () -> Unit,
 ) {
-    val shape = BloxTheme.shapes.button
+    val shape = BloxTheme.shapes.md
     Box(
         modifier = modifier
             .heightIn(min = BloxSizes.minTouchTarget)

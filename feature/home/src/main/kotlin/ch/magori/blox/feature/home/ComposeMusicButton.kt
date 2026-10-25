@@ -34,7 +34,7 @@ internal fun ComposeMusicButton(
     val label = stringResource(R.string.feature_home_compose)
     OutlinedButton(
         onClick = onClick,
-        shape = BloxTheme.shapes.button,
+        shape = BloxTheme.shapes.md,
         border = BorderStroke(BloxBorders.frame, ink),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = ink),
         modifier = modifier

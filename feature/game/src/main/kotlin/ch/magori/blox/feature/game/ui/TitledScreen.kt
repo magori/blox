@@ -90,7 +90,7 @@ internal fun PrimaryButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = BloxSizes.minTouchTarget),
-        shape = BloxTheme.shapes.button,
+        shape = BloxTheme.shapes.md,
         colors = ButtonDefaults.buttonColors(containerColor = palette.accent, contentColor = palette.accentInk),
     ) {
         IconLabel(icon, text)
@@ -111,7 +111,7 @@ internal fun SecondaryButton(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = BloxSizes.minTouchTarget),
-        shape = BloxTheme.shapes.button,
+        shape = BloxTheme.shapes.md,
         border = BorderStroke(BloxBorders.frame, palette.panelBorder),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.ink),
     ) {
