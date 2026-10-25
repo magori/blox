@@ -13,13 +13,13 @@ import kotlinx.coroutines.flow.Flow
 public typealias MusicPlayer = Player<Music>
 
 /**
- * Plays a kind [M] of music in a loop, and changes the tempo of the scores. Its failures never reach the
- * caller: the music stops, the game goes on, and [Playback.isPlaying] tells it. [ChiptuneSequencer] plays
- * the scores of the app, a [Player] of [Score]; it reports its failures to its `onFailure`, called on a
- * thread of `Dispatchers.IO`, not on the main thread. A player of every [Music] is a player of scores too,
- * so that the contract of the players is written once, for the scores.
+ * Plays a kind [M] of music in a loop, at the volume set ([VolumeControl]), and changes the tempo of the scores.
+ * Its failures never reach the caller: the music stops, the game goes on, and [Playback.isPlaying] tells it.
+ * [ChiptuneSequencer] plays the scores of the app, a [Player] of [Score]; it reports its failures to its
+ * `onFailure`, called on a thread of `Dispatchers.IO`, not on the main thread. A player of every [Music] is a
+ * player of scores too, so that the contract of the players is written once, for the scores.
  */
-public interface Player<in M : Music> {
+public interface Player<in M : Music> : VolumeControl {
     /**
      * Plays [music] in a loop, from its start and, for a score, at its tempo (1.0), in place of the music
      * playing, if any: a tempo asked for before is forgotten, so that a music played anew (a preview, a new

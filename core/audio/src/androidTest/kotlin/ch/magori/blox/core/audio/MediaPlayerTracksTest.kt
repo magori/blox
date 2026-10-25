@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Volume
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
@@ -56,6 +57,23 @@ class MediaPlayerTracksTest {
         val positions = mutableListOf<Int>()
         waitUntil { track.position.also(positions::add) > 4_800 }
         assertThat(positions).withFailMessage { "It did not play from 4.5 s: $positions" }.allMatch { it >= 4_400 }
+        assertThat(failures).isEmpty()
+    }
+
+    @Test
+    fun aFileTurnedDownWhileItPreparesThenToSilenceKeepsPlayingWithoutFailing() {
+        // Given a WAV of a second and a half, turned down as soon as it is opened, while it prepares
+        val file = wavFile(seconds = 1.5)
+        val track = requireNotNull(tracks.open(file, startAt = 0, onError = {})).also(opened::add)
+        track.setGain(Volume(50).gain)
+
+        // When it plays, then is turned down to silence
+        waitUntil { track.position > 0 }
+        track.setGain(Volume.SILENT.gain)
+
+        // Then it plays on, in silence, and nothing failed
+        val positions = sample(track, millis = 500)
+        assertThat(positions.last()).withFailMessage { "It stopped: $positions" }.isNotEqualTo(positions.first())
         assertThat(failures).isEmpty()
     }
 

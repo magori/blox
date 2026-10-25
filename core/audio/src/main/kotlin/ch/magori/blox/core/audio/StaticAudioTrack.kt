@@ -45,6 +45,11 @@ public class StaticAudioTrack(samples: FloatArray, sampleRate: Int) : EffectTrac
         track.play()
     }
 
+    /** A track that refuses the gain (an error code, never thrown) keeps the one it had: the effect still plays. */
+    override fun setGain(gain: Float) {
+        track.setVolume(gain)
+    }
+
     override fun release() {
         track.release()
     }

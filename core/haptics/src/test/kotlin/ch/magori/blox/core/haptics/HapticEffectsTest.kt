@@ -45,6 +45,33 @@ class HapticEffectsTest {
         assertThat(effect).isEqualTo(HapticEffect.Waveform(timings = listOf(0L, 80L, 100L, 200L)))
     }
 
+    @Test
+    fun `the key press is the predefined tick from Android 10 and a pulse of 10 ms before`() {
+        // When
+        val fromAndroid10 = hapticEffectFor(Haptic.KEY_PRESS, sdkInt = ANDROID_10)
+        val beforeAndroid10 = hapticEffectFor(Haptic.KEY_PRESS, sdkInt = ANDROID_9)
+
+        // Then
+        assertThat(fromAndroid10).isEqualTo(HapticEffect.Predefined(PredefinedEffect.TICK))
+        assertThat(beforeAndroid10).isEqualTo(HapticEffect.OneShot(millis = 10L))
+    }
+
+    @Test
+    fun `the key press vibrates as a touch, the others as a game`() {
+        // When
+        val usages = Haptic.entries.associateWith(::hapticUsageFor)
+
+        // Then
+        assertThat(usages).containsExactlyInAnyOrderEntriesOf(
+            mapOf(
+                Haptic.KEY_PRESS to HapticUsage.TOUCH,
+                Haptic.LINES_CLEARED to HapticUsage.GAME,
+                Haptic.FOUR_LINES_CLEARED to HapticUsage.GAME,
+                Haptic.GAME_OVER to HapticUsage.GAME,
+            ),
+        )
+    }
+
     private companion object {
         /** Android 9, API 28: the last version without predefined effects. */
         const val ANDROID_9 = 28

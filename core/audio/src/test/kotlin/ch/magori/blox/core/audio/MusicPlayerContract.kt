@@ -6,6 +6,7 @@ import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
+import ch.magori.blox.core.music.Volume
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -18,14 +19,14 @@ import org.junit.jupiter.params.provider.ValueSource
 
 /**
  * The contract of [Player] and [Playback], what every player does, the real one and the fake shared by
- * the tests of the features alike: which score is heard, at which tempo, which tempos are ready ahead, and
- * whether a playback still plays.
+ * the tests of the features alike: which score is heard, at which tempo, which tempos are ready ahead,
+ * at which volume, and whether a playback still plays.
  * A subclass gives a player and tells what is heard of it; what is proper to a player (its sinks, its
  * renderings, the place it resumes from) is tested in the subclass.
  */
 abstract class MusicPlayerContract {
-    /** What is heard of a player: the score playing, and its tempo factor. */
-    protected data class Heard(val score: ScoreId, val tempo: Double)
+    /** What is heard of a player: the score playing, its tempo factor, and the gain of its volume. */
+    protected data class Heard(val score: ScoreId, val tempo: Double, val gain: Float = Volume.FULL.gain)
 
     /** A player under test, and what is heard of it. */
     protected interface PlayerUnderTest {
@@ -51,7 +52,7 @@ abstract class MusicPlayerContract {
     protected abstract fun playerUnderTest(scope: TestScope): PlayerUnderTest
 
     /**
-     * [player] heard through [fake], which it plays on, or is: the score the fake plays, at its tempo, and
+     * [player] heard through [fake], which it plays on, or is: the score the fake plays, at its tempo and volume, and
      * the tempos prepared for it.
      */
     protected fun heardThrough(
@@ -60,7 +61,7 @@ abstract class MusicPlayerContract {
     ): PlayerUnderTest = object : PlayerUnderTest {
         override val player: Player<Score> = player
 
-        override suspend fun heard(): Heard? = fake.playing?.let { Heard(it, fake.tempo) }
+        override suspend fun heard(): Heard? = fake.playing?.let { Heard(it, fake.tempo, fake.volume.gain) }
 
         override fun prepared(score: ScoreId): Set<Double> = if (fake.playing == score) fake.prepared else emptySet()
 
@@ -437,6 +438,34 @@ abstract class MusicPlayerContract {
 
         // Then
         assertThat(subject.prepared(ScoreId.KOROBEINIKI)).containsExactly(1.25)
+    }
+
+    @Test
+    fun `a volume set before a play applies to it`() = runTest {
+        // Given the volume of the settings, applied as the application starts
+        val subject = playerUnderTest(this)
+        subject.player.setVolume(Volume(40))
+
+        // When a score plays, as the preview of the home screen
+        subject.player.play(korobeiniki)
+
+        // Then
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0, gain = Volume(40).gain))
+    }
+
+    @Test
+    fun `a volume set while a score plays applies to it, down to silence, without stopping it`() = runTest {
+        // Given a score playing
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+
+        // When the player turns the music down to 0, from the settings
+        subject.player.setVolume(Volume.SILENT)
+
+        // Then it plays on, in silence
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0, gain = 0f))
+        assertThat(playback.isPlaying.first()).isTrue()
     }
 
     @ParameterizedTest(name = "a tempo factor of {0} is refused")
