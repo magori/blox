@@ -1,5 +1,6 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -41,4 +42,39 @@ interface UserPreferencesRepository {
      * @throws java.io.IOException if the settings cannot be written.
      */
     suspend fun setSoundEffects(soundEffects: Boolean)
+
+    /**
+     * Saves whether the game shows fewer visual effects.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setReducedEffects(reducedEffects: Boolean)
+
+    /**
+     * Saves whether the controls are laid out for the left hand.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setLeftHanded(leftHanded: Boolean)
+
+    /**
+     * Saves whether each key pressed vibrates.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setKeyVibration(keyVibration: Boolean)
+
+    /**
+     * Saves the volume of the music.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setMusicVolume(musicVolume: Volume)
+
+    /**
+     * Saves the volume of the sound effects.
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setEffectsVolume(effectsVolume: Volume)
 }

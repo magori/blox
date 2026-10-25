@@ -94,9 +94,9 @@ internal class SettingsScreenTest {
     }
 
     @Test
-    @DisplayName("TalkBack reads Vibrations and Effets sonores as switches, off by default")
-    fun talkBackReadsTheSettingsAsSwitchesOffByDefault() = extension.use {
-        // Given the settings as saved by default
+    @DisplayName("TalkBack reads Vibrations and Effets sonores as switches, read off when off")
+    fun talkBackReadsTheSettingsAsSwitchesReadOffWhenOff() = extension.use {
+        // Given both switches off (the vibrations are off by default, the sound effects on)
         showSettingsScreen()
 
         // Then « Vibrations, interrupteur, désactivé »

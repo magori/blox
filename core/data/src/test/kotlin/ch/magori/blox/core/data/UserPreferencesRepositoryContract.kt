@@ -1,6 +1,7 @@
 package ch.magori.blox.core.data
 
 import app.cash.turbine.test
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -35,7 +36,12 @@ abstract class UserPreferencesRepositoryContract {
                     music = MusicChoice.KOROBEINIKI,
                     startLevel = 0,
                     vibrations = false,
-                    soundEffects = false,
+                    soundEffects = true,
+                    reducedEffects = false,
+                    leftHanded = false,
+                    keyVibration = false,
+                    musicVolume = Volume.FULL,
+                    effectsVolume = Volume.FULL,
                 ),
             )
         }
@@ -94,7 +100,7 @@ abstract class UserPreferencesRepositoryContract {
     }
 
     @Test
-    fun `without saved preferences the sound effects are off`() = runTest {
+    fun `without saved preferences the sound effects are on`() = runTest {
         // Given
         val repository = emptyRepository(backgroundScope)
 
@@ -102,7 +108,48 @@ abstract class UserPreferencesRepositoryContract {
         val preferences = repository.preferences.first()
 
         // Then
-        assertThat(preferences.soundEffects).isFalse()
+        assertThat(preferences.soundEffects).isTrue()
+    }
+
+    @Test
+    fun `without saved preferences effects are not reduced, right handed, keys do not vibrate, volumes at 100`() =
+        runTest {
+            // Given
+            val repository = emptyRepository(backgroundScope)
+
+            // When
+            val preferences = repository.preferences.first()
+
+            // Then
+            assertThat(preferences.reducedEffects).isFalse()
+            assertThat(preferences.leftHanded).isFalse()
+            assertThat(preferences.keyVibration).isFalse()
+            assertThat(preferences.musicVolume).isEqualTo(Volume.FULL)
+            assertThat(preferences.effectsVolume).isEqualTo(Volume.FULL)
+        }
+
+    @Test
+    fun `each new setting saved is read back`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When each new setting is saved away from its default, the two volumes apart
+        repository.setReducedEffects(true)
+        repository.setLeftHanded(true)
+        repository.setKeyVibration(true)
+        repository.setMusicVolume(Volume(30))
+        repository.setEffectsVolume(Volume(70))
+
+        // Then
+        assertThat(repository.preferences.first()).isEqualTo(
+            UserPreferences.DEFAULT.copy(
+                reducedEffects = true,
+                leftHanded = true,
+                keyVibration = true,
+                musicVolume = Volume(30),
+                effectsVolume = Volume(70),
+            ),
+        )
     }
 
     @ParameterizedTest(name = "sound effects {0}")
@@ -121,25 +168,35 @@ abstract class UserPreferencesRepositoryContract {
 
     @Test
     fun `changing one preference leaves the others`() = runTest {
-        // Given all five preferences saved, none at its default
+        // Given all the preferences saved, none at its default
         val repository = emptyRepository(backgroundScope)
         repository.setTheme(ThemeChoice.COLORFUL)
         repository.setMusic(MusicChoice.MINUET)
         repository.setStartLevel(7)
         repository.setVibrations(true)
-        repository.setSoundEffects(true)
+        repository.setSoundEffects(false)
+        repository.setReducedEffects(true)
+        repository.setLeftHanded(true)
+        repository.setKeyVibration(true)
+        repository.setMusicVolume(Volume(40))
+        repository.setEffectsVolume(Volume.SILENT)
 
         // When the theme changes
         repository.setTheme(ThemeChoice.ORIGINAL)
 
-        // Then the music, the start level, the vibrations and the sound effects are kept
+        // Then all the others are kept
         assertThat(repository.preferences.first()).isEqualTo(
             UserPreferences(
                 theme = ThemeChoice.ORIGINAL,
                 music = MusicChoice.MINUET,
                 startLevel = 7,
                 vibrations = true,
-                soundEffects = true,
+                soundEffects = false,
+                reducedEffects = true,
+                leftHanded = true,
+                keyVibration = true,
+                musicVolume = Volume(40),
+                effectsVolume = Volume.SILENT,
             ),
         )
     }

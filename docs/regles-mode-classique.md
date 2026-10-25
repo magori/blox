@@ -718,7 +718,9 @@ Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
 
 ## Effets sonores
 
-Optionnels (P4.8), **désactivés par défaut** (décision du développeur ; réglage `soundEffects` des
+Optionnels (P4.8), **activés par défaut** depuis le 2026-10-25 (décision du développeur, P5.65 : un
+fichier sans la clé `sound_effects` les active, un « désactivé » enregistré par le joueur est gardé ;
+avant, désactivés par défaut ; réglage `soundEffects` des
 préférences, interrupteur de l'accueil V1, P5.37 ; un changement vaut pour la partie suivante). Une rotation réussie donne un
 bip, une à trois lignes un arpège montant, quatre lignes un arpège sur deux octaves, la fin de
 partie un arpège descendant ; la pose d'une pièce et le danger ne sonnent pas (trop fréquents).
@@ -742,11 +744,32 @@ sons : `docs/musique.md`, Effets sonores.
 `GameViewModelTest › a game recreated paused after the process died plays no effect while it stays paused`,
 `GameViewModelTest › with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`,
 `GameViewModelTest › with the sound effects off, the game warms nothing up`,
-`UserPreferencesRepositoryContract › without saved preferences the sound effects are off`,
+`UserPreferencesRepositoryContract › without saved preferences the sound effects are on`,
 `UserPreferencesRepositoryContract › a saved sound effects choice is read back`,
-`DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects off`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before the sound effects existed keep their choices, with sound effects on`,
 `DataStoreUserPreferencesRepositoryTest › the sound effects are stored as a boolean under a key that must not change`.
 Vue : V1 (interrupteur, `docs/maquette.md`). À essayer sur un téléphone.
+
+## Préférences v2
+
+Réglages ajoutés pour Couleurs v2 (P5.65), utilisés par les tâches qui suivent : **Effets
+réduits** (P5.71), **Gaucher** (P5.79), **Vibration des touches** (P5.67), **Volume de la
+musique** et **Volume des effets** (P5.68). Sans fichier, effets non réduits, droitier, touches
+sans vibration, deux volumes à 100 %. Un volume est un `Volume` (`core:music`), un pourcentage de
+0 à 100 par pas de 10 (`Volume.FULL` vaut 100, `Volume.SILENT` 0) ; toute autre valeur est
+refusée, et une valeur illisible du fichier retombe sur la valeur par défaut. Clés figées :
+`reduced_effects`, `left_handed`, `key_vibration` (booléens), `music_volume`, `effects_volume`
+(entiers en pourcentage). Un fichier d'avant Couleurs v2 garde tous ses choix.
+
+**Tests :** `VolumeTest › a volume is a multiple of 10 from 0 to 100`,
+`VolumeTest › a volume below 0, above 100 or between two steps of 10 is refused`,
+`VolumeTest › a percentage that is no volume gives no volume, without failing`,
+`VolumeTest › a percentage that is a volume gives that volume`,
+`VolumeTest › the full volume is 100 percent`, `VolumeTest › the silent volume is 0 percent`,
+`UserPreferencesRepositoryContract › without saved preferences effects are not reduced, right handed, keys do not vibrate, volumes at 100`,
+`UserPreferencesRepositoryContract › each new setting saved is read back`,
+`DataStoreUserPreferencesRepositoryTest › settings saved before Couleurs v2 keep their choices`,
+`DataStoreUserPreferencesRepositoryTest › each new setting is stored under a key that must not change`.
 
 ## Niveaux
 

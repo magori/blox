@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 158 / 219 | `██████████████░░░░░░` **72 %** |
+| **Général** | 159 / 219 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -857,7 +857,7 @@ composants.
   `the level up comes after the lines cleared and before the stack danger of that tick`,
   `starting at level 5 the first level up comes at 60 lines, not at 10`,
   `a game that starts sends no level up`.
-- [ ] **P5.65** Préférences v2 (`core:data`, `core:music`) : `Volume` (pourcentage de 0 à 100 par pas de 10,
+- [x] **P5.65** Préférences v2 (`core:data`, `core:music`) : `Volume` (pourcentage de 0 à 100 par pas de 10,
   `core:music`) ; `UserPreferences.reducedEffects`, `leftHanded`, `keyVibration`, `musicVolume`,
   `effectsVolume` ; effets sonores activés par défaut (décision du développeur, 2026-10-25), tests de P4.8 revus.
   Cas : `a volume is a multiple of 10 from 0 to 100`, contrat (`without saved preferences the sound effects are on`,
