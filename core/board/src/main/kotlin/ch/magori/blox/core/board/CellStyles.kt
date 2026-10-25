@@ -1,16 +1,21 @@
 package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxGlossSets
+import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
 /**
- * The style of [cell] in [variant], from the tables of docs/themes.md. Widths are given there for a
- * 24 px cell. The design system knows the board background, not the pieces (ADR 0005). The styles
- * are built once: reading one allocates nothing, so it can be done for every cell of every frame.
+ * The style of [cell] in [variant]: in Original, from the tables of docs/themes.md, whose widths are given for a
+ * 24 px cell; in Colorful, the bubbles of the design system (docs/design-system/components/Piece). The design system
+ * knows the board background and the reliefs, not the pieces (ADR 0005, ADR 0023). The styles are built once: reading
+ * one allocates nothing, so it can be done for every cell of every frame.
  */
 internal fun cellStyle(
     variant: BloxThemeVariant,
@@ -23,12 +28,12 @@ internal fun cellStyle(
 
     BloxThemeVariant.COLORFUL_LIGHT -> when (cell) {
         Cell.Empty -> COLORFUL_LIGHT_EMPTY
-        is Cell.Filled -> COLORFUL_PIECES.getValue(cell.type)
+        is Cell.Filled -> COLORFUL_LIGHT_PIECES.getValue(cell.type)
     }
 
     BloxThemeVariant.COLORFUL_DARK -> when (cell) {
         Cell.Empty -> COLORFUL_DARK_EMPTY
-        is Cell.Filled -> COLORFUL_PIECES.getValue(cell.type)
+        is Cell.Filled -> COLORFUL_DARK_PIECES.getValue(cell.type)
     }
 }
 
@@ -57,36 +62,70 @@ private fun originalStyle(type: PieceType): CellStyle {
     }
     return CellStyle(
         fill = fill,
-        border = CellBorder.Plain(border, ORIGINAL_BORDER_WIDTH),
+        border = CellBorder(border, ORIGINAL_BORDER_WIDTH),
         centre = CellCentre(centre, ORIGINAL_CENTRE_SIZE),
-        joint = CellJoint(ORIGINAL_JOINT_WIDTH),
+        joint = CellJoint.Fraction(ORIGINAL_JOINT_WIDTH),
     )
 }
 
-/** The margin around an empty cell: a joint, in the colour under the cell, as around a piece. */
-private const val COLORFUL_EMPTY_JOINT_WIDTH = 1f / 24
-private const val COLORFUL_BEVEL_WIDTH = 3f / 24
+/** The margin around a Colorful cell, piece or empty, in the colour under it: 1 px of the design system. */
+private val COLORFUL_MARGIN = 1.dp
 
-private fun colorfulStyle(type: PieceType): CellStyle {
-    val (fill, light, dark) = when (type) {
-        PieceType.I -> Triple(0xFF3FC5E8, 0xFF9BE6F6, 0xFF1D8FAE)
-        PieceType.O -> Triple(0xFFF2C641, 0xFFFAE08F, 0xFFB38A17)
-        PieceType.T -> Triple(0xFFA467E0, 0xFFCFA6F1, 0xFF6E36A8)
-        PieceType.S -> Triple(0xFF5BC46A, 0xFFA3E3AB, 0xFF2F8A3C)
-        PieceType.Z -> Triple(0xFFE5534B, 0xFFF29A94, 0xFFA32A24)
-        PieceType.J -> Triple(0xFF3F7EE8, 0xFF93B8F4, 0xFF1F4FA6)
-        PieceType.L -> Triple(0xFFEF8D3B, 0xFFF6C18F, 0xFFAD5A14)
-    }
-    return CellStyle(Color(fill), CellBorder.Bevel(Color(light), Color(dark), COLORFUL_BEVEL_WIDTH), centre = null)
-}
+/**
+ * The colours of a piece in a Colorful variant, the tokens of docs/design-system/tokens.json (PieceTokensTest): its
+ * [fill] (`piece-<x>`), and its [highlight] at the top of the bubble (`piece-<x>-hi`).
+ */
+private class PieceColors(val fill: Long, val highlight: Long)
 
-/** An empty cell of a Colorful variant: its own colour, apart from the background by a joint of it. */
-private fun colorfulEmpty(palette: BloxPalette): CellStyle =
-    CellStyle(palette.emptyCell, border = null, centre = null, joint = CellJoint(COLORFUL_EMPTY_JOINT_WIDTH))
+/** A piece of a Colorful variant: a bubble in its [colors], in the relief of the cells of [glosses]. */
+private fun colorfulStyle(
+    colors: PieceColors,
+    glosses: BloxGlosses,
+): CellStyle = CellStyle(
+    fill = Color(colors.fill),
+    border = null,
+    centre = null,
+    joint = CellJoint.Fixed(COLORFUL_MARGIN),
+    bubble = CellBubble(highlight = Color(colors.highlight), gloss = glosses.cell),
+)
+
+/** An empty cell of a Colorful variant: its own colour, rounded as a piece, flat, apart from the background by a joint. */
+private fun colorfulEmpty(palette: BloxPalette): CellStyle = CellStyle(
+    fill = palette.emptyCell,
+    border = null,
+    centre = null,
+    joint = CellJoint.Fixed(COLORFUL_MARGIN),
+    bubble = CellBubble(highlight = null, gloss = Gloss.None),
+)
+
+/** The pieces by day: pastels. */
+private val COLORFUL_LIGHT_COLORS = mapOf(
+    PieceType.I to PieceColors(fill = 0xFF8FD8FF, highlight = 0xFFE3F6FF),
+    PieceType.O to PieceColors(fill = 0xFFFFE680, highlight = 0xFFFFF8D6),
+    PieceType.T to PieceColors(fill = 0xFFC3A2FF, highlight = 0xFFEFE6FF),
+    PieceType.S to PieceColors(fill = 0xFF9DEDB9, highlight = 0xFFE2FAEA),
+    PieceType.Z to PieceColors(fill = 0xFFFF94A6, highlight = 0xFFFFE0E6),
+    PieceType.J to PieceColors(fill = 0xFF9DB6FF, highlight = 0xFFE3EAFF),
+    PieceType.L to PieceColors(fill = 0xFFFFB896, highlight = 0xFFFFE9DE),
+)
+
+/** The pieces by night: neons. */
+private val COLORFUL_DARK_COLORS = mapOf(
+    PieceType.I to PieceColors(fill = 0xFF4DD8FF, highlight = 0xFFB8F0FF),
+    PieceType.O to PieceColors(fill = 0xFFFFE45E, highlight = 0xFFFFF5BF),
+    PieceType.T to PieceColors(fill = 0xFFA77BFF, highlight = 0xFFDCCBFF),
+    PieceType.S to PieceColors(fill = 0xFF3DFF8F, highlight = 0xFFB8FFD6),
+    PieceType.Z to PieceColors(fill = 0xFFFF4D6D, highlight = 0xFFFFB8C5),
+    PieceType.J to PieceColors(fill = 0xFF5C8DFF, highlight = 0xFFC2D4FF),
+    PieceType.L to PieceColors(fill = 0xFFFF9E3D, highlight = 0xFFFFD7B0),
+)
 
 // The tables come last: top-level properties are initialised in the order of the file.
 private val ORIGINAL_EMPTY = CellStyle(BloxPalettes.Original.boardBackground, border = null, centre = null)
 private val ORIGINAL_PIECES: Map<PieceType, CellStyle> = PieceType.entries.associateWith(::originalStyle)
 private val COLORFUL_LIGHT_EMPTY = colorfulEmpty(BloxPalettes.ColorfulLight)
 private val COLORFUL_DARK_EMPTY = colorfulEmpty(BloxPalettes.ColorfulDark)
-private val COLORFUL_PIECES: Map<PieceType, CellStyle> = PieceType.entries.associateWith(::colorfulStyle)
+private val COLORFUL_LIGHT_PIECES: Map<PieceType, CellStyle> =
+    COLORFUL_LIGHT_COLORS.mapValues { (_, colors) -> colorfulStyle(colors, BloxGlossSets.ColorfulLight) }
+private val COLORFUL_DARK_PIECES: Map<PieceType, CellStyle> =
+    COLORFUL_DARK_COLORS.mapValues { (_, colors) -> colorfulStyle(colors, BloxGlossSets.ColorfulDark) }

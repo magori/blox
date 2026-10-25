@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Density
 import ch.magori.blox.core.board.BoardGeometry
 import ch.magori.blox.core.board.CellPainter
 import ch.magori.blox.core.board.R
@@ -40,7 +41,8 @@ fun NextPieceCanvas(
             .drawWithCache {
                 if (next == null) return@drawWithCache onDrawBehind {}
                 val geometry = BoardGeometry.centred(size.width, size.height, next.columns, next.rows, cellSize)
-                val painter = CellPainter(cellStyle(variant, Cell.Filled(next.type)), geometry.cellSize, background)
+                val style = cellStyle(variant, Cell.Filled(next.type))
+                val painter = CellPainter(style, geometry.cellSize, background, Density(density, fontScale))
                 onDrawBehind {
                     for (cell in next.cells) {
                         val topLeft = geometry.cellTopLeft(cell)

@@ -104,9 +104,10 @@ le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
 `BloxPalettes.Original.page`.
 
 **Logo de l'accueil** (P3.7) : quatre cellules en carré 2 × 2, couleurs du jeton
-`BloxPalette.logoCells` (`LogoColors`, exactement quatre couleurs) : en Original, les
-remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S. Ces couleurs répètent celles
-des pièces (`core:board`) : un test vérifie qu'elles restent égales.
+`logoColors(variant)` (`LogoColors`, exactement quatre couleurs, `core:board` depuis P5.74) : en
+Original, les remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S, jour et nuit. Elles
+sont lues dans les styles des pièces, sans être recopiées ; `feature:home` dépend de `core:board`
+pour cela (ADR 0023). Le logo v2 arrive en P5.77.
 
 **Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
 `AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
@@ -136,7 +137,7 @@ le logo de l'accueil.
 `LauncherIconTest › the monochrome layer has the very shape of the cells in front`.
 
 **Tests :** `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
-`CellStylesTest › in the Colorful theme a piece has the fill and bevels of docs themes md`,
+`CellStylesTest › in the Colorful theme a piece is a bubble with the cell gloss, framed by a joint of 1 px, without border`,
 `CellStylesTest › in the Original theme an empty cell is the board background without border`,
 `CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`,
 `BoardGeometryTest › a cell is the smaller of the width over 10 and the height over 20, in whole pixels`,
@@ -195,7 +196,9 @@ qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
 [`tokens.json`](design-system/tokens.json), seule source (ADR 0019) : le plugin de convention
 `blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
 compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
-`cell-ground` et `grid-line` (grille de l'éditeur, P5.88) et les couleurs des pièces (P5.74).
+`cell-ground` et `grid-line` (grille de l'éditeur, P5.88). Les jetons des pièces sont comparés
+dans `core:board` (`PieceTokensTest`), avec le même lecteur, partagé par les doublures de test de
+`core:designsystem`.
 Le schéma Material part de la base claire ou sombre selon la variante, les icônes des barres système aussi
 (P5.89, `BloxSystemBars` dans `app`) : sombres sur Original et Couleurs jour, claires sur Couleurs nuit, quel que
 soit le mode du téléphone, réappliquées quand le thème ou le mode change ; avant la lecture du thème, celles
@@ -207,9 +210,8 @@ dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux
 fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une
 marge de 1 px en `boardBackground`.
 
-En attendant P5.74, les pièces et le logo gardent les couleurs de la v1 (tableau ci-dessous), de
-jour comme de nuit. L'ancienne palette sombre (`page` `#12141C`, accent orange `#EF8D3B`) est
-retirée ; ses valeurs restent dans l'historique de ce fichier.
+L'ancienne palette sombre (`page` `#12141C`, accent orange `#EF8D3B`) et les biseaux des pièces
+v1 sont retirés ; leurs valeurs restent dans l'historique de ce fichier.
 
 **Repères autres que la couleur** (P5.57, décision « Mixte » du développeur) : là où un aplat
 n'atteint pas le contraste voulu, surtout dans les pastels du jour, l'état se lit autrement. La
@@ -221,25 +223,34 @@ ses bords de 2 dp dans la couleur de sa piste.
 `BloxThemeVariantTest › the Original theme has a single variant, whatever the mode of the system`,
 `BloxThemeVariantTest › each variant has its palette and its Material colour scheme, light or dark`,
 `PaletteTokensTest › each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
-`PaletteTokensTest › every colour token of tokens json is in the palette or listed as not coded, with its reason`,
+`PaletteTokensTest › every colour token of tokens json is in the palette, in the pieces or listed as not coded, with its reason`,
 `PaletteTokensTest › a colour written rgba in tokens json is read with its alpha`,
 `CellStylesTest › in the Colorful theme an empty cell is framed by a joint of 1 px, as a piece is`.
 Vues : V22 à V34 (jour), nuit dans le design system.
 
-Une couleur par pièce, effet biseauté (bordure claire en haut et à gauche, foncée en bas et à
-droite). Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « Polices ») ; coins selon `BloxShapes` (P5.59).
+**Cases « bulles »** (P5.74, `core:board`, composant Piece) : une couleur par pièce, jour et nuit,
+aux valeurs de `tokens.json` (`piece-<x>` et son reflet `piece-<x>-hi`). Une case est un dégradé
+vertical du reflet vers la teinte (à 55 % de la hauteur), arrondie, entourée d'une marge de 1 dp (arrondie au pixel supérieur, pour que le liseré du relief y
+tienne à toute densité) dans la couleur du fond ; Original garde son joint de 1/24 de case. À 16 dp et plus (case entière, joint compris),
+coins `radius-cell` (6 dp) et relief `cell-gloss` ; en dessous, coins de 2 dp et aucun relief. De
+jour, le liseré du relief remplit cette marge : entre deux pièces, le joint en prend la couleur,
+comme dans le design system. La case vide a les coins et la marge d'une pièce, en
+`emptyCell` sur `boardBackground`, sans relief. Les chemins, dégradés et reliefs sont construits
+avec les peintres, une fois par variante, taille, densité et fond, jamais pendant le déplacement
+de la pièce. Original ne change pas.
 
-| Pièce | Fond | Biseau clair | Biseau foncé |
-|---|---|---|---|
-| I | `#3FC5E8` | `#9BE6F6` | `#1D8FAE` |
-| O | `#F2C641` | `#FAE08F` | `#B38A17` |
-| T | `#A467E0` | `#CFA6F1` | `#6E36A8` |
-| S | `#5BC46A` | `#A3E3AB` | `#2F8A3C` |
-| Z | `#E5534B` | `#F29A94` | `#A32A24` |
-| J | `#3F7EE8` | `#93B8F4` | `#1F4FA6` |
-| L | `#EF8D3B` | `#F6C18F` | `#AD5A14` |
+**Tests :** `PieceTokensTest › each piece token of tokens json is the fill and the highlight of its piece, day and night`,
+`CellLayoutTest › a cell under 16 dp has 2 dp corners and no gloss`,
+`CellLayoutTest › a cell of 16 dp and more has the corners of radius cell and the gloss of cell gloss`,
+`CellLayoutTest › an empty cell has the corners and the margin of a piece, without gloss`,
+`CellLayoutTest › a bubble has a margin of 1 dp whatever its size`,
+`CellLayoutTest › the ring of the gloss fits in the margin`,
+`BoardCanvasTest › the painters are built again when the density changes`,
+`CellStylesTest › in the Colorful theme a piece is a bubble with the cell gloss, framed by a joint of 1 px, without border`,
+`BoardCanvasTest › the painters are built once while the piece moves` ; captures `BoardColorful`,
+`BoardColorfulNight`, `BoardColorfulSmall`. Vues : V3, V22.
 
-Bordure biseautée de 3 px.
+Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « Polices ») ; coins selon `BloxShapes` (P5.59).
 **Commandes** (P2.17, P5.57) : une touche tenue prend la teinte « pressée » de sa couleur
 (`buttonPressed`, `accentPressed`), garde son encre et son cadre, et descend de 2 dp
 (`ControlSizes.heldDrop`). Elle se distingue de la page par son cadre (au moins 3:1) et de la même

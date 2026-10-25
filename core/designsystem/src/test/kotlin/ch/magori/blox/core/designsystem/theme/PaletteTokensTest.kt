@@ -22,9 +22,10 @@ class PaletteTokensTest {
     }
 
     @Test
-    fun `every colour token of tokens json is in the palette or listed as not coded, with its reason`() {
-        // Given the colour tokens of tokens json
-        val tokens = DesignTokens.colours.keys
+    fun `every colour token of tokens json is in the palette, in the pieces or listed as not coded, with its reason`() {
+        // Given the colour tokens of tokens json, but the colours of the pieces, `piece-*`: coded with the styles of the
+        // cells in core:board, which knows the pieces (ADR 0023), and compared to tokens json there (PieceTokensTest)
+        val tokens = DesignTokens.colours.keys.filterNot { it.startsWith(PIECE_TOKEN) }
 
         // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
         assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name }.toSet() + NOT_CODED.keys)
@@ -52,8 +53,6 @@ class PaletteTokensTest {
     companion object {
         private const val EDITOR_GRID =
             "The grid of the music editor is still drawn on boardBackground: the v2 editor will take it."
-        private const val PIECES =
-            "The pieces are styled in feature:game, which knows them (ADR 0005): their bubbles and colours come in P5.74."
 
         /**
          * Which property holds which token (ADR 0019): the names do not all follow from each other. A token can be
@@ -96,13 +95,14 @@ class PaletteTokensTest {
             CodedToken("iris-3", "iris.end") { it.iris.end },
         )
 
+        /** The prefix of the colours of the pieces in tokens json. */
+        private const val PIECE_TOKEN = "piece-"
+
         /** The colour tokens left out of [BloxPalette], with the reason why. */
         private val NOT_CODED: Map<String, String> = mapOf(
             "cell-ground" to EDITOR_GRID,
             "grid-line" to EDITOR_GRID,
-        ) + listOf("i", "o", "t", "s", "z", "j", "l").flatMap { piece ->
-            listOf("piece-$piece", "piece-$piece-hi")
-        }.associateWith { PIECES }
+        )
 
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED

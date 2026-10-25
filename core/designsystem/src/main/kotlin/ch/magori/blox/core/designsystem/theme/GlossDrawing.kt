@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.PathOperation
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.ContentDrawScope
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.node.DrawModifierNode
 import androidx.compose.ui.node.ModifierNodeElement
 import androidx.compose.ui.node.invalidateDraw
@@ -51,7 +52,7 @@ private data class GlossElement(val gloss: Gloss, val shape: Shape, val frame: D
 private class GlossNode(private var gloss: Gloss, private var shape: Shape, private var frame: Dp) :
     Modifier.Node(),
     DrawModifierNode {
-    private val bands = GlossCache(::glossBands)
+    private val bands = GlossCache { key -> GlossBands(bandsOf(key)) }
 
     fun update(
         gloss: Gloss,
@@ -66,7 +67,7 @@ private class GlossNode(private var gloss: Gloss, private var shape: Shape, priv
 
     override fun ContentDrawScope.draw() {
         val key = GlossKey(gloss, shape, frame.toPx(), size, layoutDirection, Density(density, fontScale))
-        bands.get(key).forEach { band -> drawPath(band.path, band.color) }
+        bands.get(key).draw(this)
         drawContent()
     }
 }
@@ -91,11 +92,32 @@ internal class GlossCache<T>(private val build: (GlossKey) -> T) {
     }
 }
 
+/**
+ * The bands of [gloss] on [shape] at [size], without a frame, to draw over a fill of that shape and size, from its
+ * top-left corner. For a painter that keeps its shapes and draws many of them, as the cells of the board (core:board):
+ * built once, they are drawn without allocating anything; a modifier per cell would be too many nodes.
+ */
+fun glossBands(
+    gloss: Gloss,
+    shape: Shape,
+    size: Size,
+    layoutDirection: LayoutDirection,
+    density: Density,
+): GlossBands = GlossBands(bandsOf(GlossKey(gloss, shape, frame = 0f, size, layoutDirection, density)))
+
+/** The bands of a gloss, built once ([glossBands]): drawing them allocates nothing. */
+class GlossBands internal constructor(private val bands: List<GlossBand>) {
+    /** Draws the bands in [scope], over what is drawn before them. */
+    fun draw(scope: DrawScope) {
+        for (index in bands.indices) scope.drawPath(bands[index].path, bands[index].color)
+    }
+}
+
 /** Where a layer of a gloss is painted, and in which colour. */
-private class GlossBand(val path: Path, val color: Color)
+internal class GlossBand(val path: Path, val color: Color)
 
 /** The bands of a gloss for [key]: inside its frame for its inner shadows, around its shape for its ring. */
-private fun glossBands(key: GlossKey): List<GlossBand> {
+private fun bandsOf(key: GlossKey): List<GlossBand> {
     val (gloss, shape, frame, size, layoutDirection, density) = key
 
     fun grown(by: Float): Path = Path().apply { addOutline(grownOutline(shape, size, by, layoutDirection, density)) }

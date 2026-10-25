@@ -52,6 +52,8 @@ dependencies {
     // Le faux dépôt des réglages, partagé avec les features : AppThemeTest y lit le thème choisi, SavedVolumesTest les
     // volumes.
     testImplementation(testFixtures(projects.core.data))
+    // Les couleurs du logo, celles des pièces : LauncherIconTest les compare à l'icône.
+    testImplementation(projects.core.board)
     // Les faux lecteurs de musique et d'effets : SavedVolumesTest y lit les volumes appliqués.
     testImplementation(testFixtures(projects.core.audio))
 
