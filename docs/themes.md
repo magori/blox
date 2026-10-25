@@ -227,7 +227,7 @@ ses bords de 2 dp dans la couleur de sa piste.
 Vues : V22 à V34 (jour), nuit dans le design system.
 
 Une couleur par pièce, effet biseauté (bordure claire en haut et à gauche, foncée en bas et à
-droite). Police : *Chakra Petch* (licence OFL) jusqu'à P5.58 ; coins selon `BloxShapes` (P5.59).
+droite). Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « Polices ») ; coins selon `BloxShapes` (P5.59).
 
 | Pièce | Fond | Biseau clair | Biseau foncé |
 |---|---|---|---|
@@ -387,24 +387,43 @@ dans la couleur de sa piste, qui s'en détache d'au moins 3:1.
 
 ## Polices
 
-Polices embarquées (ADR 0016), telles que publiées par `google/fonts` (SIL OFL 1.1), dans
+Polices embarquées (ADR 0016, 0021), telles que publiées par `google/fonts` (SIL OFL 1.1), dans
 `core:designsystem/src/main/res/font` ; leurs licences sont dans l'APK
 (`src/main/assets/licenses/<famille>/OFL.txt`). Pas de sous-ensemble : ce serait une version
-modifiée de la police, à renommer.
+modifiée de la police, à renommer. `google/fonts` ne publie Manrope et Unbounded qu'en police
+variable (axe `wght`, `Manrope[wght].ttf`, `Unbounded[wght].ttf`) : les fichiers sont seulement
+renommés (`manrope_variable.ttf`, `unbounded_variable.ttf`, `bagel_fat_one_regular.ttf`). Chakra
+Petch est retirée avec Couleurs v1 (P5.58).
 
 | Rôle | Original | Couleurs |
 |---|---|---|
-| Titres | Press Start 2P Regular | Chakra Petch Bold |
-| Libellés | Press Start 2P Regular | Chakra Petch Regular |
-| Valeurs (score, niveau, lignes, record) | Press Start 2P Regular | Chakra Petch Bold, chiffres complétés |
+| Titres | Press Start 2P Regular | Unbounded Bold |
+| Libellés | Press Start 2P Regular | Manrope Medium |
+| Valeurs (score, niveau, lignes, record) | Press Start 2P Regular | Manrope Bold, chiffres tabulaires (`tnum`) |
+| Styles du design system (`screen-title` à `logo`) | Press Start 2P Regular, sans taille | ceux de `tokens.json` |
 
 En Original, tout reste en Regular, seule graisse de la police pixel (pas de gras synthétisé).
 `BloxTheme.typography` porte la police et la graisse de chaque rôle ; la typographie Material
-en dérive (titres pour display, headline et title, libellés pour le reste). Les chiffres de
-*Chakra Petch* sont proportionnels, sans `tnum` : `valueText()` complète chaque chiffre plus
-étroit par un espacement en em jusqu'à la largeur du plus large (`DigitWidths`) et coupe le
-crénage, pour qu'une valeur ne bouge pas en changeant. Un texte qui rétrécit pour tenir ne
-descend pas sous 8 sp (`MinimumFontSize`).
+en dérive (titres pour display, headline et title, libellés pour le reste). Elle porte aussi les
+quinze styles de texte du design system (`screenTitle`, `finalScore`, `record`, `statValue`,
+`gameTitle`, `statLabel`, `buttonLabel`, `choice`, `section`, `small`, `playLabel`,
+`fourLinesPop`, `pointsPop`, `buttonLabelStrong`, `logo`) : en Couleurs, police, taille (1 px vaut
+1 sp), interligne en em et graisse de `tokens.json` ; Unbounded pour `screen-title`, Jouer et les
+autocollants, Bagel Fat One pour le seul logo, Manrope pour le reste. En Original, ces styles n'ont
+que la police pixel : les écrans d'Original gardent leurs tailles, jusqu'à ce qu'ils prennent les
+mises en page v2. Chaque graisse d'une police variable pose l'axe `wght` à sa valeur
+(`variableFont`) : sans ce réglage, Android dessinerait l'instance par défaut du fichier
+(ExtraLight pour Manrope, Regular pour Unbounded), quelle que soit la graisse demandée. Les tailles de
+tablette que cite l'usage de certains styles (28 px pour `screen-title`) ne sont pas des jetons :
+les mises en page de la tablette les prendront.
+
+Chiffres à chasse fixe : Manrope a la fonction `tnum` (GSUB, substitution simple des dix chiffres
+vers dix glyphes de 1240 unités sur 2000, soit 0,62 em, aux mêmes variations dans HVAR, donc à
+chaque graisse). Les valeurs, le score final et le record la prennent (`"tnum"` dans
+`fontFeatureSettings`) et coupent le crénage, pour qu'une valeur ne bouge pas en changeant ;
+`DigitWidths` et `valueText()`, qui complétaient les chiffres proportionnels de Chakra Petch, sont
+retirés. La police pixel est à chasse fixe. Un texte qui rétrécit pour tenir ne descend pas sous
+8 sp (`MinimumFontSize`).
 
 Police du système agrandie (P2.18, écran de jeu) : à ×2, 8 sp font 16 dp par lettre et la police
 pixel ne tenait plus (« SUIVANTE » rogné, titre « CLASSI… »). Le plancher d'un texte qui rétrécit
@@ -456,7 +475,12 @@ pas la césure, désactivée pour le corps du texte). **Tests :**
 Capture : `LeaveWindowOriginalLargeFont`.
 
 **Tests :** `BloxTypographyTest › in the Original theme titles, labels and values are in the pixel font, without a synthesized bold`,
-`BloxTypographyTest › in the Colorful theme titles and values are in Chakra Petch bold, labels in Chakra Petch regular`,
+`BloxTypographyTest › in the Colorful theme titles are in Unbounded bold, labels in Manrope medium and values in Manrope bold`,
+`BloxTypographyTest › in the Original theme each style of the design system is in the pixel font, without a synthesized bold`,
+`BloxTypographyTest › the logo style is in Bagel Fat One and is used for the logo only`,
+`BloxTypographyTest › each text takes its weight on the weight axis of its font, not the default instance of a variable font`,
+`TypographyTokensTest › each text style of tokens json has its family, size, line height and weight in the Colorful typography`,
+`TypographyTokensTest › every text style of tokens json is in the Colorful typography, and nothing more`,
 `BloxTypographyTest › the Material styles take the font of the titles for headings and of the labels for the rest`,
 `BloxTypographyTest › a text that shrinks to fit its place stays at least 8 sp, to stay readable`,
 `ShrinkFloorTest › the floor is never above the largest size of the text`,
@@ -494,6 +518,10 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `WindowAnswersTest › in a font twice as large, a word too long for the whole width of an answer shrinks rather than be cut`,
 `WindowAnswersTest › in a normal font, in Original, on 320 dp, the answers of a window stand one above the other`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
+`EmbeddedFontsTest › the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,
+`ValueDigitsTest › in the Colorful theme the values take the tabular digits of Manrope, its tnum feature`,
+`OpenTypeFontTest › a character that the font does not draw takes the missing glyph 0`,
+`OpenTypeFontTest › the advance of a glyph varies by region of the axes, a region without delta not counted`,
 `ValueDigitsTest › in each theme the values are laid out without kerning, which would bring two digits closer`.
 Vues : V1, V2, V3, V4.
