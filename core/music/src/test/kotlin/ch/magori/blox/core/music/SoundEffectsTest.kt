@@ -58,6 +58,22 @@ class SoundEffectsTest {
     }
 
     @Test
+    fun `the level up sound is an effect of its own, shorter than the four lines`() {
+        // Given / When / Then: octave leaps of C on the square, not a rise up the chord as the lines cleared
+        assertThat(SoundEffects.levelUp).isEqualTo(
+            SoundEffect(
+                Waveform.SQUARE,
+                volume = 0.08,
+                Envelope(attackMillis = 2, releaseMillis = 15),
+                blips("C6" to 50, "C7" to 50, "C6" to 50, "C7" to 150),
+            ),
+        )
+        assertThat(SoundEffects.all).contains(SoundEffects.levelUp).doesNotHaveDuplicates()
+        assertThat(SoundEffects.levelUp).isNotEqualTo(SoundEffects.linesCleared)
+        assertThat(SoundEffects.levelUp.millis).isLessThan(SoundEffects.fourLinesCleared.millis)
+    }
+
+    @Test
     fun `every effect lasts from a few tens to a few hundred milliseconds`() {
         // Given / When / Then
         assertThat(SoundEffects.all.map { it.millis }).allSatisfy { assertThat(it).isBetween(20, 700) }

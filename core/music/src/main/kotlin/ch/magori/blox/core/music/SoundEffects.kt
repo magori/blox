@@ -40,8 +40,20 @@ public object SoundEffects {
         blips("G4" to 120, "E4" to 120, "C4" to 120, "G3" to 240),
     )
 
+    /**
+     * The level goes up: a call of four octave leaps on C, C6 then C7, twice, the last C7 held, as loud as the lines
+     * cleared; leaps rather than a rise up the chord, so that it is not heard as one more line cleared, and shorter
+     * than the four lines.
+     */
+    public val levelUp: SoundEffect = SoundEffect(
+        Waveform.SQUARE,
+        volume = 0.08,
+        Envelope(attackMillis = 2, releaseMillis = 15),
+        blips("C6" to 50, "C7" to 50, "C6" to 50, "C7" to 150),
+    )
+
     /** Every effect, from the lightest to the heaviest. */
-    public val all: List<SoundEffect> = listOf(rotation, linesCleared, fourLinesCleared, gameOver)
+    public val all: List<SoundEffect> = listOf(rotation, linesCleared, levelUp, fourLinesCleared, gameOver)
 
     private fun blips(vararg blips: Pair<String, Int>): List<Blip> =
         blips.map { (pitch, millis) -> Blip(Pitch.parse(pitch), millis) }
