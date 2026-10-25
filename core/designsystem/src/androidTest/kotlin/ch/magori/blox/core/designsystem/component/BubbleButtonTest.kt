@@ -1,5 +1,8 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -17,7 +20,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -39,7 +44,7 @@ internal class BubbleButtonTest {
     val extension = createComposeExtension()
 
     @Test
-    @DisplayName("a pressed button goes 2 dp down at once, and is back 100 ms after it is released, not before")
+    @DisplayName("a pressed button goes 2 dp down at once, stays down while motion press lasts, then is back at rest")
     fun aPressedButtonGoesDownAtOnceAndComesBack() = extension.use {
         // Given a button at rest, on a clock that only moves when told
         mainClock.autoAdvance = false
@@ -52,12 +57,43 @@ internal class BubbleButtonTest {
         mainClock.advanceTimeByFrame()
         assertThat(labelTop() - atRest).isCloseTo(2f, within(0.5f))
 
-        // When it is released, Then still down 4 frames later (67 ms), back at rest within 100 ms and a frame
+        // When it is released, frame by frame
         onNodeWithText("Menu").performTouchInput { up() }
-        repeat(4) { mainClock.advanceTimeByFrame() }
-        assertThat(labelTop() - atRest).isGreaterThan(0f)
-        mainClock.advanceTimeBy(MOTION_PRESS_MS + FRAME_MS)
-        assertThat(labelTop()).isEqualTo(atRest)
+        val returnFrames = (BloxMotion.press * MILLIS_PER_SECOND / TICKS_PER_SECOND / FRAME_MS).toInt()
+        val drops = (1..returnFrames + SLACK_FRAMES).map {
+            mainClock.advanceTimeByFrame()
+            labelTop() - atRest
+        }
+
+        // Then still down at each frame of motion press, the last one just before its end, and back at rest after it
+        assertThat(drops.take(returnFrames)).allSatisfy { assertThat(it).isPositive() }
+        assertThat(drops.last()).isZero()
+    }
+
+    @Test
+    @DisplayName("a button tapped briefly in a scrolling column, pressed and released in one frame, still goes down")
+    fun aBriefTapInAScrollingColumnStillGoesDown() = extension.use {
+        // Given a button in a column that scrolls, as Pause and Fin de partie: its press is held back a little
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Column(Modifier.verticalScroll(rememberScrollState())) {
+                    SecondaryButton("Menu", BloxIcon.HOME, onClick = {})
+                }
+            }
+        }
+        mainClock.advanceTimeByFrame()
+        val atRest = labelTop()
+
+        // When it is pressed and released in one frame
+        onNodeWithText("Menu").performTouchInput {
+            down(center)
+            up()
+        }
+        mainClock.advanceTimeByFrame()
+
+        // Then it is lower on the next frame, on its way back up
+        assertThat(labelTop()).isGreaterThan(atRest)
     }
 
     @Test
@@ -121,7 +157,15 @@ internal class BubbleButtonTest {
 
     private companion object {
         const val TAG = "bubble"
-        const val MOTION_PRESS_MS = 100L
+        const val MILLIS_PER_SECOND = 1000L
+
+        /** A frame of the clock of the tests. */
         const val FRAME_MS = 16L
+
+        /**
+         * The frames a button may take after motion press to be back: one to start counting, one that only sets the
+         * time reference (FrameTicks), and one as a frame of 16 ms is a little less than a tick.
+         */
+        const val SLACK_FRAMES = 3
     }
 }

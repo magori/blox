@@ -2,7 +2,6 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
@@ -14,21 +13,22 @@ import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.Gloss
 
 /**
- * The families of the bubble buttons (docs/design-system/README.md, Boutons): at least [minHeight] high and [minWidth]
- * wide, in `accent` when [isPrimary], else in `button`. The sizes are those of a phone; a tablet's come with P5.84.
+ * The families of the bubble buttons (docs/design-system/README.md, Boutons): at least [minHeight] high and
+ * [BloxSizes.minTouchTarget] wide, in `accent` when [isPrimary], else in `button`. The sizes are those of a phone; a
+ * tablet's come with P5.84.
  */
-enum class ButtonFamily(val minHeight: Dp, val minWidth: Dp, internal val isPrimary: Boolean) {
+enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
     /** Principal XL: Jouer, a pill of 72 dp. */
-    PRIMARY_XL(minHeight = 72.dp, minWidth = BloxSizes.minTouchTarget, isPrimary = true),
+    PRIMARY_XL(minHeight = 72.dp, isPrimary = true),
 
     /** Principal: Reprendre, Rejouer, a pill of 56 dp; one per screen. */
-    PRIMARY(minHeight = 56.dp, minWidth = BloxSizes.minTouchTarget, isPrimary = true),
+    PRIMARY(minHeight = 56.dp, isPrimary = true),
 
     /** Secondaire: Menu, Changer, the tiles, a pill of 56 dp. */
-    SECONDARY(minHeight = 56.dp, minWidth = BloxSizes.minTouchTarget, isPrimary = false),
+    SECONDARY(minHeight = 56.dp, isPrimary = false),
 
     /** Icône: a disc of 48 dp, of a pictogram alone (Paramètres, Écouter, Pause). */
-    ICON(minHeight = BloxSizes.minTouchTarget, minWidth = BloxSizes.minTouchTarget, isPrimary = false),
+    ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
 }
 
 /**
@@ -57,8 +57,10 @@ internal data class ButtonLook(
 internal data class FocusRing(val color: Color, val width: Dp, val gap: Dp)
 
 /**
- * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant: on its way back up,
- * between pressed and at rest. A disabled button is flat and does not go down.
+ * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant. Only its drop moves
+ * on its way back up: its fill, its ink and its relief stay those of a pressed button until it is back at rest, so that
+ * a label and its fill never cross (in Original, the fill of a secondary button at rest is the colour of its label
+ * pressed). A disabled button is flat and does not go down.
  */
 internal fun buttonLook(
     family: ButtonFamily,
@@ -71,20 +73,26 @@ internal fun buttonLook(
         family.isPrimary -> colors.primary
         else -> colors.secondary
     }
-    val depth = if (state.enabled) state.depth else 0f
+    val down = state.enabled && state.depth > 0f
     return ButtonLook(
-        fill = lerp(bubble.fill, bubble.pressedFill, depth),
-        ink = lerp(bubble.ink, bubble.pressedInk, depth),
+        fill = if (down) bubble.pressedFill else bubble.fill,
+        ink = if (down) bubble.pressedInk else bubble.ink,
         frame = bubble.frame,
         gloss = when {
             !state.enabled -> Gloss.None
-            depth > 0f -> glosses.buttonPressed
+            down -> glosses.buttonPressed
             else -> glosses.button
         },
-        drop = lerp(0.dp, BloxSizes.pressDrop, depth),
+        drop = buttonDrop(state.enabled, state.depth),
         focusRing = if (state.focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null,
     )
 }
+
+/** How far down a button [depth] down is drawn: [BloxSizes.pressDrop] all the way down, not at all when disabled. */
+internal fun buttonDrop(
+    enabled: Boolean,
+    depth: Float,
+): Dp = if (enabled) lerp(0.dp, BloxSizes.pressDrop, depth) else 0.dp
 
 /**
  * How far down a button is, from 0 (at rest) to 1: all the way while [pressed], at once; released, it comes back up

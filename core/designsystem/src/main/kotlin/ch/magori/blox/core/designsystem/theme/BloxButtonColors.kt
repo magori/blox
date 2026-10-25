@@ -29,7 +29,7 @@ data class BloxButtonColors(
     val focus: Color,
 )
 
-object BloxButtonColorSets {
+internal object BloxButtonColorSets {
     /**
      * The Original theme. Its `buttonInk` is for pictograms on `button` (4.0:1, enough for them, not for a label): a
      * secondary button stands at rest on the page, its label in `ink`, framed by `buttonOutline` (3.3:1 on the page),

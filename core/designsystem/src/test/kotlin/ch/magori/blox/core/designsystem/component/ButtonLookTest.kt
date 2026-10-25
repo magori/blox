@@ -1,11 +1,11 @@
 package ch.magori.blox.core.designsystem.component
 
-import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
+import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -54,7 +54,7 @@ internal class ButtonLookTest {
     }
 
     @Test
-    fun `halfway back a button is 1 dp down, its fill halfway from pressed to rest`() {
+    fun `halfway back a button is 1 dp down, still in its pressed fill and ink`() {
         // Given a main button of the night, released 3 ticks ago
         val colors = BloxButtonColorSets.ColorfulDark
         val state = ButtonState(depth = pressDepth(pressed = false, ticksSinceRelease = 3))
@@ -64,7 +64,9 @@ internal class ButtonLookTest {
 
         // Then
         assertThat(look.drop).isEqualTo(1.dp)
-        assertThat(look.fill).isEqualTo(lerp(colors.primary.pressedFill, colors.primary.fill, 0.5f))
+        // And its colours do not cross: they change at once, back at rest only
+        assertThat(look.fill).isEqualTo(colors.primary.pressedFill)
+        assertThat(look.ink).isEqualTo(colors.primary.pressedInk)
     }
 
     @ParameterizedTest(name = "{0}, {1}")
@@ -87,13 +89,14 @@ internal class ButtonLookTest {
 
     @ParameterizedTest(name = "{0}, {1}")
     @MethodSource("variantsAndFamilies")
-    fun `the label of each family stands out from its fill by 4,5 to 1 at least, at rest and pressed`(
+    fun `the label of each family stands out from its fill by 4,5 to 1 at least, at rest, pressed and coming back`(
         theme: String,
         family: ButtonFamily,
         variant: Variant,
     ) {
-        // When
-        val looks = listOf(0f, 1f).map { depth ->
+        // When at rest, pressed, and at each tick of its way back up
+        val depths = listOf(0f, 1f) + (0..BloxMotion.press).map { pressDepth(pressed = false, ticksSinceRelease = it) }
+        val looks = depths.map { depth ->
             buttonLook(family, variant.colors, variant.glosses, ButtonState(depth = depth))
         }
 
@@ -119,12 +122,10 @@ internal class ButtonLookTest {
 
     @ParameterizedTest
     @EnumSource(ButtonFamily::class)
-    fun `every button is 48 dp high and wide at least`(family: ButtonFamily) {
-        // Then (touch-target): Principal XL 72 dp high, Principal and Secondaire 56, an icon a disc of 48
+    fun `every family is 48 dp high at least, Play 72 and a main or secondary button 56`(family: ButtonFamily) {
+        // Then (touch-target; 48 dp wide at least on the screen, BubbleButtonTest): an icon a disc of 48
         assertThat(family.minHeight).isGreaterThanOrEqualTo(BloxSizes.minTouchTarget)
-        assertThat(family.minWidth).isGreaterThanOrEqualTo(BloxSizes.minTouchTarget)
         assertThat(ButtonFamily.entries.map { it.minHeight }).containsExactly(72.dp, 56.dp, 56.dp, 48.dp)
-        assertThat(ButtonFamily.ICON.minWidth).isEqualTo(ButtonFamily.ICON.minHeight)
     }
 
     @Test

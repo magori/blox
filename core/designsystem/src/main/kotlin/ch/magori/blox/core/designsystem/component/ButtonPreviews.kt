@@ -46,7 +46,14 @@ private fun ButtonSheet(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     SheetStates.forEach { (name, state) ->
-                        BubbleButton(family, state, onClick = {}, interactionSource = null) {
+                        BubbleButton(
+                            family = family,
+                            enabled = state.enabled,
+                            focused = state.focused,
+                            depth = { state.depth },
+                            onClick = {},
+                            interactionSource = null,
+                        ) {
                             if (family == ButtonFamily.ICON) {
                                 BloxIcon(BloxIcon.GEAR, size = IconSizes.alone)
                             } else {

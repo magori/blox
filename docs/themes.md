@@ -35,8 +35,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 
 **Formes, reliefs, tailles et durées v2** (P5.59, `core:designsystem`), aux valeurs de
 `tokens.json` comparées au code comme les couleurs (ADR 0019) :
-- **Rayons** (`BloxShapes`) : `cell` 6, `md` 16 (encarts, choix, rangées, touches et, en attendant
-  les boutons bulles de P5.60, les boutons), `snack` 20 (messages de l'éditeur et de « Mes
+- **Rayons** (`BloxShapes`) : `cell` 6, `md` 16 (encarts, choix, rangées, touches), `snack` 20 (messages de l'éditeur et de « Mes
   musiques »), `window` 24, `card` 28 (fenêtres de confirmation), `pill` en demi-hauteur (étiquette
   NOUVEAU RECORD) ; tout est carré en Original.
 - **Reliefs** (`BloxTheme.glosses`, `Modifier.gloss`) : `button-gloss`, `button-gloss-pressed` et
@@ -71,6 +70,39 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossDrawingTest › the ring of a rounded shape grows its corners by its width`,
 `GlossDrawingTest › a square shape stays square, inside its frame and around it` ; captures `GlossSheetOriginal`,
 `GlossSheetColorful`, `GlossSheetColorfulNight`.
+
+**Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
+Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
+`BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
+retour, réglages, écoute, menu, fermeture). Ils remplacent les boutons de `feature:game`
+(Reprendre, Menu, Rejouer) et `SettingsButton`. Couleurs par variante (`BloxTheme.buttons`) ; en
+Original, carrés et sans relief par le thème. Le Principal est en `accent`, le Secondaire et l'Icône
+en `button` cadré de `buttonOutline` ; en Original, Secondaire et Icône sont au repos sur la page,
+encre `ink` et cadre `buttonOutline` (l'encre du bouton sur son fond n'atteint que 4,0:1), et
+prennent `buttonPressed` pressés. États : **pressé**, 2 dp plus bas et remplissage pressé tout de
+suite, retour en `motion-press` (6 ticks, `pressDepth`, compté par l'écran avec `FrameTicks`) ; seule la descente revient
+progressivement, fond, encre et relief restent ceux du bouton pressé jusqu'au repos (sinon, en Original,
+fond et libellé se croisaient) ; un tapotement bref dans une liste qui défile s'affiche aussi ;
+**désactivé**, sans relief, fond `panelInset`, libellé en `label`, cadre `panelBorder` ; **focus**,
+contour de 3 dp en `ink` à 3 dp du bouton. Libellés à 4,5:1 au moins sur leur fond, au repos et
+pressés ; cadres du Secondaire et de l'Icône à 3:1 sur la page ; 48 dp au moins de haut et de large.
+Effets réduits (P5.71) : retour immédiat par `returnTicks = 0`.
+
+**Tests :** `ButtonLookTest › a pressed button goes 2 dp down and takes its pressed fill at once`,
+`ButtonLookTest › a released button comes back in 6 ticks`,
+`ButtonLookTest › halfway back a button is 1 dp down, still in its pressed fill and ink`,
+`ButtonLookTest › a disabled button has no gloss, its label in label and its frame in panel border`,
+`ButtonLookTest › the label of each family stands out from its fill by 4,5 to 1 at least, at rest, pressed and coming back`,
+`ButtonLookTest › a focused button bears a 3 dp outline in ink`,
+`ButtonLookTest › every family is 48 dp high at least, Play 72 and a main or secondary button 56`,
+`ButtonLookTest › each variant draws its buttons in its own colours`,
+`ButtonLookTest › the frame of a secondary or an icon button stands out from the page by 3 to 1 at least`,
+`BubbleButtonTest › a pressed button goes 2 dp down at once, stays down while motion press lasts, then is back at rest`,
+`BubbleButtonTest › a button tapped briefly in a scrolling column, pressed and released in one frame, still goes down`,
+`BubbleButtonTest › a disabled button is read as disabled and does nothing when touched`,
+`BubbleButtonTest › a labelled button is read once, as a button of its label, its icon adding nothing`,
+`BubbleButtonTest › a button of each family is 48 dp high and wide at least, and as high as its family` ;
+captures `AccentButtons*` et `PlainButtons*` (Original, jour, nuit). Vues : V19, V21, V27 à V34.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
@@ -242,7 +274,7 @@ droite). Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « 
 Bordure biseautée de 3 px.
 **Commandes** (P2.17, P5.57) : une touche tenue prend la teinte « pressée » de sa couleur
 (`buttonPressed`, `accentPressed`), garde son encre et son cadre, et descend de 2 dp
-(`ControlSizes.heldDrop`). Elle se distingue de la page par son cadre (au moins 3:1) et de la même
+(`BloxSizes.pressDrop`, partagé avec les boutons bulles). Elle se distingue de la page par son cadre (au moins 3:1) et de la même
 touche au repos d'au moins 1,5:1 ; de jour, A tenue ne se distingue de A au repos que par ce
 décalage (une teinte ne peut être à la fois à 1,5:1 de l'accent et à 4,5:1 sous l'encre). Les
 lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches sont des pictogrammes

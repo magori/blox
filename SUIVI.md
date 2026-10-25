@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 169 / 221 | `███████████████░░░░░` **76 %** |
+| **Général** | 170 / 221 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -818,14 +818,14 @@ composants.
   Cas : `each radius, size and space of tokens json is the one of the code`,
   `each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
   `the Original theme has square corners and no gloss` ; captures des reliefs.
-- [ ] **P5.60** Boutons bulles (`core:designsystem`, composant Button) : Principal XL, Principal, Secondaire,
+- [x] **P5.60** Boutons bulles (`core:designsystem`, composant Button) : Principal XL, Principal, Secondaire,
   Icône ; repos, pressé (2 dp plus bas, remplissage pressé tout de suite, retour en `motion-press`), désactivé,
   focus (contour de 3 dp `ink` à 3 dp) ; ils remplacent `PrimaryButton` et `SecondaryButton`
   (`feature:game`, `ui/TitledScreen.kt`), `SettingsButton` et le fond de `GlyphButton`. Après P5.58, P5.59.
   Cas : `a pressed button goes 2 dp down and takes its pressed fill at once`,
   `a released button comes back in 6 ticks`, `a disabled button has no gloss, its label in label and its frame in
-  panel border`, `every button is 48 dp high and wide at least`,
-  `the label of each family stands out from its fill by 4,5 to 1 at least, at rest and pressed`,
+  panel border`, `every family is 48 dp high at least, Play 72 and a main or secondary button 56`,
+  `the label of each family stands out from its fill by 4,5 to 1 at least, at rest, pressed and coming back`,
   `a focused button bears a 3 dp outline in ink` ; captures de chaque famille et état, jour, nuit, Original.
 - [ ] **P5.61** Interrupteur et rangée de réglage (composant Switch) : `SettingSwitchRow` (pictogramme, libellé,
   sous-ligne, piste), toute la rangée est l'interrupteur ; état désactivé avec sa raison ; remplace `Setting` et
