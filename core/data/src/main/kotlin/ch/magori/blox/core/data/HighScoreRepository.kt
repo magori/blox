@@ -21,4 +21,11 @@ interface HighScoreRepository {
      * @throws IllegalArgumentException if [score] is negative.
      */
     suspend fun submit(score: Int): RecordResult
+
+    /**
+     * Clears the record: it is 0 again, and the next positive score is a new record. Without a record, it stays 0.
+     *
+     * @throws java.io.IOException if the records cannot be written; any other failure is a bug.
+     */
+    suspend fun clear()
 }
