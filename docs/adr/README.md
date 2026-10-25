@@ -24,5 +24,11 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0016](0016-polices-embarquees.md) | Polices embarquées, chiffres à chasse fixe | Acceptée |
 | [0017](0017-format-des-musiques-enregistrees.md) | Format des musiques enregistrées | Acceptée |
 | [0018](0018-une-musique-partition-ou-fichier.md) | Une musique : partition ou fichier | Acceptée |
+| [0019](0019-jetons-depuis-tokens-json.md) | Les jetons viennent de `tokens.json`, un test garde le code aligné | Acceptée |
+| [0020](0020-un-theme-deux-variantes.md) | Un thème, des variantes ; Couleurs v2 remplace Couleurs ; une mise en page pour tous les thèmes | Acceptée |
+| [0021](0021-polices-couleurs-v2.md) | Polices de Couleurs v2 | Acceptée ; amende 0016 |
+| [0022](0022-choix-du-jeu-a-la-racine.md) | Choix du jeu : une feature à la racine de la pile | Acceptée ; amende 0011 |
+| [0023](0023-rendu-du-plateau-dans-core-board.md) | Le rendu du plateau dans `core:board` | Acceptée ; amende 0005 |
+| [0024](0024-retours-de-jeu-et-effets-reduits.md) | Retours de jeu cadencés par les ticks, dessinés sans recomposition ; Effets réduits portés par le thème | Acceptée ; complète 0012 |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).

@@ -35,6 +35,27 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V19 | Pause (thème au choix) | « V19 · Pause » |
 | V20 | Jeu, fenêtre très étroite (220 × 640, thème au choix) | « V20 · Jeu · fenêtre très étroite » |
 | V21 | Paramètres (thème au choix) | « V21 · Paramètres » |
+| V22 | Jeu, thème Couleurs v2 nuit (V3 est le jour) | « V22 · Jeu · thème Couleurs sombre (piste C) » |
+| V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
+| V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
+| V25 | Enregistrer la musique, thème Couleurs v2 nuit | « V25 · Enregistrer la musique · thème Couleurs sombre » |
+| V26 | Choix du jeu, cartouches (écran d'ouverture, Couleurs v2) | « Ouverture · choix du jeu (cartouches) » |
+| V27 | Accueil v2 du mode Classique | rangée « Couleurs v2 — Accueil » |
+| V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
+| V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
+| V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
+| V31 | Paramètres v2 (Affichage, Sons et vibrations, Record) | rangée « Ouverture… puis Paramètres » |
+
+V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
+2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
+en téléphone debout, jour et nuit, avec en plus le téléphone couché et les tablettes (formats
+optionnels, P5.84). Chaque écran v2 est un composant de la planche (`V2Accueil`, `V2Jeu`,
+`V2Parametres`) dont les réglages Format, Sombre, Vue et Effets réduits donnent toutes les
+variantes. Leur spécification est le [design system](design-system/README.md). À exporter de la
+maquette pour le code (P5.56) : les pictogrammes cartouche, moins, étoile, note barrée,
+égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
+pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
+mascotte (`Mascotte`).
 
 Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
 pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un

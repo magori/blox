@@ -1,0 +1,52 @@
+<!-- @dsCard height=300 -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500&amp;family=Unbounded:wght@800&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: var(--page); }
+.cover { position: relative; width: 960px; height: 300px; overflow: hidden; background: var(--page); }
+svg { position: absolute; inset: 0; }
+.accent { fill: var(--accent); }
+.iris2 { fill: var(--iris-2); }
+.iris3 { fill: var(--iris-3); }
+.ink { fill: var(--ink); }
+.dot { fill: var(--page); }
+.slab { rx: var(--radius-window); }
+.pill { rx: 48px; }
+.tile { rx: var(--radius-md); }
+.text { position: absolute; left: 48px; bottom: 40px; max-width: 440px; display: flex; flex-direction: column; gap: var(--space-2); }
+.name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 72px; line-height: 0.95; color: var(--ink); }
+.tag { margin: 0; font-family: var(--font-body); font-size: 14px; color: var(--label); }
+</style>
+</head>
+<body>
+<div class="cover">
+<svg width="960" height="300" viewBox="0 0 960 300" aria-hidden="true">
+<!--
+blocks: accent slab 200×244 (radius-window), iris-2 pill 240×96 (pill: half of 96), iris-3 disc r56, ink tile 96×96 (radius-md)
+arrangement: one tall slab bleeding off the top, satellites stepping down to the right edge
+pattern: discs, "soft, friendly, large radii": the bubble of the pieces, cut out of the slab in the ground (page), 4 × 6 at a 40 / 32 pitch
+steps and radii: space-6 (24) margins, space-4 (16) gaps, radius-window 24, radius-md 16
+-->
+<rect class="accent slab" x="520" y="-24" width="200" height="244"></rect>
+<rect class="iris2 pill" x="744" y="32" width="240" height="96"></rect>
+<circle class="iris3" cx="808" cy="216" r="56"></circle>
+<rect class="ink tile" x="880" y="168" width="96" height="96"></rect>
+<g>
+<circle class="dot" cx="560" cy="24" r="6"></circle><circle class="dot" cx="600" cy="24" r="6"></circle><circle class="dot" cx="640" cy="24" r="6"></circle><circle class="dot" cx="680" cy="24" r="6"></circle>
+<circle class="dot" cx="560" cy="56" r="6"></circle><circle class="dot" cx="600" cy="56" r="6"></circle><circle class="dot" cx="640" cy="56" r="6"></circle><circle class="dot" cx="680" cy="56" r="6"></circle>
+<circle class="dot" cx="560" cy="88" r="6"></circle><circle class="dot" cx="600" cy="88" r="6"></circle><circle class="dot" cx="640" cy="88" r="6"></circle><circle class="dot" cx="680" cy="88" r="6"></circle>
+<circle class="dot" cx="560" cy="120" r="6"></circle><circle class="dot" cx="600" cy="120" r="6"></circle><circle class="dot" cx="640" cy="120" r="6"></circle><circle class="dot" cx="680" cy="120" r="6"></circle>
+<circle class="dot" cx="560" cy="152" r="6"></circle><circle class="dot" cx="600" cy="152" r="6"></circle><circle class="dot" cx="640" cy="152" r="6"></circle><circle class="dot" cx="680" cy="152" r="6"></circle>
+<circle class="dot" cx="560" cy="184" r="6"></circle><circle class="dot" cx="600" cy="184" r="6"></circle><circle class="dot" cx="640" cy="184" r="6"></circle><circle class="dot" cx="680" cy="184" r="6"></circle>
+</g>
+</svg>
+<div class="text">
+<h1 class="name">BloX Couleurs</h1>
+<p class="tag">Nacre et lilas le jour, vert acide la nuit.</p>
+</div>
+</div>
+</body>
+</html>

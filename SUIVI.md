@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 155 / 187 | `█████████████████░░░` **83 %** |
+| **Général** | 156 / 218 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -693,6 +693,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   de l'éditeur (déjà relevés) ; tests de contraste (`PaletteContrastTest`, `KeyColorsTest`,
   `ChoiceColorsTest`, `TrackColorsTest`) et captures dans les deux variantes. Jetons choisis sur la
   maquette le 2026-10-20, à confirmer : cadre des touches, teintes tenues, accent tenu (docs/maquette.md).
+  Amendée le 2026-10-25 (ADR 0020) : Brume entre comme deux variantes de `BloxThemeVariant`
+  (`BRUME_LIGHT`, `BRUME_DARK`), après P5.57, sur les mises en page v2.
 - [x] **P5.42** Repère du choix sélectionné à l'accueil, autre que la couleur (WCAG 1.4.1) : essayer
   une coche dans le choix sélectionné (décision du développeur, à tenter) ; place et taille en
   police normale et ×2, niveaux de départ compris, captures, puis maquette V1 (P5.30). Fait : coche dessinée avant le libellé (1 em, 24 dp au plus), dans le coin pour les niveaux.
@@ -760,6 +762,248 @@ accessibilité, build et CI) : constats et raisons des écarts dans
 - [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
   dépréciée et ne se déclenche pas, et Kotlin ne les signale pas (vu à la revue de P5.54a) ;
   ajouter une vérification (detekt `UnusedImports` ou équivalent) à `build-logic` et à la CI.
+
+Lot « Couleurs v2 » (conçu avec les agents `designer-jeu` et `architecte`, validé par le développeur le
+2026-10-25, phase P5 à sa demande) : thème Couleurs refait en piste C « Y2K irisé », jour et nuit selon le
+mode du téléphone ; écran de choix du jeu (cartouche Classique seule) ; accueil, jeu, pause, fin de partie et
+Paramètres v2. Source : le [design system](docs/design-system/README.md) (`tokens.json`, `components/`) et les
+rangées « Couleurs v2 » de la maquette. Décisions : ADR 0019 à 0024. Ordre : fondations (jetons, polices,
+formes, composants), puis données et domaine (indépendants, menables en parallèle), puis écrans ; Paramètres
+d'abord, chaque réglage arrivant avec ce qu'il règle (aucun interrupteur sans effet). Composants partagés dans
+`core:designsystem`, jamais recopiés ; revue indépendante à chaque tâche (définition de terminé).
+**Formats** (décision du développeur) : le téléphone debout d'abord ; le téléphone couché et les tablettes
+sont optionnels et viennent en dernier (P5.84), mais le code les prévoit dès le départ : mise en page choisie
+par une fonction pure de la taille disponible, aucune hypothèse « portrait » ni largeur d'écran fixe dans les
+composants.
+
+- [x] **P5.56** Préparer le lot (documentation, sans code) : corriger les écarts du design system (`space-5`
+  cité mais absent, `type.fonts` vide, graisses de `button-label` et `choice` contraires à Button et Switch,
+  usage de `radius-md`, largeur et ordre des encarts de StatPanel contraires à la section Jeu, README de
+  `Cover`) ; numéroter dans `docs/maquette.md` les vues Couleurs v2 (choix du jeu, accueil, jeu, pause, fin de
+  partie, Paramètres) et les V22 à V25 que cite le design system ; lister les pictogrammes et le logo à
+  exporter de la maquette (cartouche, moins, étoile, note barrée, égaliseur, rangées des Paramètres, logo BloX
+  v2, mascotte), en pixels 8 × 8 et en traits ; écrire et accepter les ADR 0019 à 0024 ; trancher les points
+  ouverts (valeurs Original des rôles nouveaux, NOUVEAU RECORD sans record, volume à 0, fondu de thème) ;
+  noter dans `JOURNAL.md` les décisions qui reviennent sur P5.29 (niveaux), P4.20 (dé, coches) et l'ordre des
+  réponses de P5.45 ; amender P5.41 (Brume codé en variantes, ADR 0020). Cas : `scripts/verifier-tracabilite.sh`
+  vert.
+- [ ] **P5.57** Couleurs v2, jour et nuit (`core:designsystem`, ADR 0019, 0020) : `BloxThemeVariant`
+  (`ORIGINAL`, `COLORFUL_LIGHT`, `COLORFUL_DARK`) résolue par `BloxTheme` depuis `BloxThemeKind` et le mode
+  sombre du système, exposée par `BloxTheme.variant` ; palettes `ColorfulLight` et `ColorfulDark` aux valeurs de
+  `tokens.json`, à la place de `Colorful` ; rôles nouveaux de `BloxPalette` (`emptyCell`, `panelInset`, `scrim`,
+  `accentRing`, `clearGlow`, `dangerSoft`, `cellDead`, `iris`) avec leurs valeurs Original (P5.56) ; convention
+  `blox.design.tokens` (le fichier en entrée des tâches de test, chemin relatif, rien d'absolu dans le cache,
+  P5.31) ; `kotlinx-serialization-json` en dépendance de test. Écrans inchangés hormis les couleurs.
+  Cas : `each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
+  `every colour token of tokens json is in the palette or listed as not coded, with its reason`,
+  `a colour written rgba in tokens json is read with its alpha`,
+  `the Colorful theme is the day variant in light mode and the night variant in dark mode`,
+  `the Original theme has a single variant, whatever the mode of the system`,
+  `each variant has its palette and its Material colour scheme, light or dark` ; `PaletteContrastTest`,
+  `KeyColorsTest`, `PauseButtonColorsTest`, `ChoiceColorsTest`, `SettingColorsTest`, `TrackColorsTest`,
+  `LogoColorsTest` sur chaque variante ; captures jour et nuit.
+- [ ] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
+  (OFL, licences dans les assets), Chakra Petch retirée ; styles de texte du design system (`screen-title` à
+  `logo`) dans `BloxTypography`, comparés à `tokens.json` ; Original inchangé ; valeurs à chiffres fixes
+  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) **[à vérifier]** sur le fichier. Après P5.57.
+  Cas : `each text style of tokens json has its family, size, line height and weight in the Colorful typography`,
+  `the logo style is in Bagel Fat One and is used for the logo only`, `EmbeddedFontsTest` (licence de chaque
+  police, plus de Chakra Petch), `ValueDigitsTest` (dix chiffres de même largeur, sans crénage),
+  `BloxTypographyTest` revu ; captures, police ×2 comprise.
+- [ ] **P5.59** Formes, reliefs, tailles et durées v2 : `BloxShapes` (`radius-cell`, `-md`, `-window`, `-card`,
+  `-pill`), reliefs `button-gloss`, `button-gloss-pressed` et `cell-gloss` dessinés en ombres intérieures (aucun
+  en Original), tailles (`touch-target`, `setting-row`, `switch-track`, `switch-thumb`, `key-*`), espacements,
+  durées `motion-*` en ticks. Après P5.57.
+  Cas : `each radius, size and space of tokens json is the one of the code`,
+  `each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
+  `the Original theme has square corners and no gloss` ; captures des reliefs.
+- [ ] **P5.60** Boutons bulles (`core:designsystem`, composant Button) : Principal XL, Principal, Secondaire,
+  Icône ; repos, pressé (2 dp plus bas, remplissage pressé tout de suite, retour en `motion-press`), désactivé,
+  focus (contour de 3 dp `ink` à 3 dp) ; ils remplacent `PrimaryButton` et `SecondaryButton`
+  (`feature:game`, `ui/TitledScreen.kt`), `SettingsButton` et le fond de `GlyphButton`. Après P5.58, P5.59.
+  Cas : `a pressed button goes 2 dp down and takes its pressed fill at once`,
+  `a released button comes back in 6 ticks`, `a disabled button has no gloss, its label in label and its frame in
+  panel border`, `every button is 48 dp high and wide at least`,
+  `the label of each family stands out from its fill by 4,5 to 1 at least, at rest and pressed`,
+  `a focused button bears a 3 dp outline in ink` ; captures de chaque famille et état, jour, nuit, Original.
+- [ ] **P5.61** Interrupteur et rangée de réglage (composant Switch) : `SettingSwitchRow` (pictogramme, libellé,
+  sous-ligne, piste), toute la rangée est l'interrupteur ; état désactivé avec sa raison ; remplace `Setting` et
+  `settingColors` (`feature:home`). Après P5.60.
+  Cas : `TalkBack reads one switch per row, its label, its sub-line and its state`,
+  `a disabled row reads as unavailable and its sub-line says why`,
+  `a switch on has its thumb on the right, larger, checked, a switch off on the left`,
+  `a pressed row fills with button pressed and its thumb grows to 28 dp`,
+  `the track is framed in button outline, which stands out from the page by 3 to 1, on and off` ; captures.
+- [ ] **P5.62** Curseur à pas (composants Choice et Switch) : logique pure `SteppedValue` (valeur la plus proche
+  d'une position, bornes, pas), curseur de volume (pas de 10 %, valeur en %) et jauge du niveau (10 barres, − et
+  +), un seul curseur pour TalkBack. Après P5.60.
+  Cas : `a touch on the track gives the nearest step`, `a drag never takes the value out of its range`,
+  `minus is disabled at the lowest step and plus at the highest`,
+  `TalkBack reads one slider with its value and moves it one step at a time`,
+  `each bar of the gauge is 8 dp wide and from 8 to 26 dp high, in accent up to the value` ; captures.
+- [ ] **P5.63** Groupe de choix (composant Choice) : `ChoiceGroup` (cadre `button-outline` autour du groupe,
+  segment retenu en `accent` avec coche, segment indisponible avec `BIENTÔT`) ; remplace `Choice`, `ChoiceRow`,
+  `ChoiceCheck` et `choiceColors` (`feature:home`). Après P5.60.
+  Cas : `exactly one segment is selected, checked and in accent`,
+  `an unavailable segment reads « Moderne, bientôt, indisponible » and cannot be chosen`,
+  `a group too wide for its line puts its label above and takes the whole width`,
+  `each segment is 48 dp high as a target` ; captures, police ×2.
+- [ ] **P5.64** Événement `GameEvent.LevelUp(level)` (`core:game`) : envoyé au tick où le niveau monte, après
+  `LinesCleared` et avant `StackDanger` ; branche `null` dans `soundEffectFor` et `hapticFor` en attendant
+  P5.69. Spécification `docs/regles-mode-classique.md` (Niveaux).
+  Cas : `a line clear that reaches the next level sends a level up with the new level`,
+  `a line clear that stays at the same level sends no level up`,
+  `the level up comes after the lines cleared and before the stack danger of that tick`,
+  `starting at level 5 the first level up comes at 60 lines, not at 10`,
+  `a game that starts sends no level up`.
+- [ ] **P5.65** Préférences v2 (`core:data`, `core:music`) : `Volume` (pourcentage de 0 à 100 par pas de 10,
+  `core:music`) ; `UserPreferences.reducedEffects`, `leftHanded`, `keyVibration`, `musicVolume`,
+  `effectsVolume` ; effets sonores activés par défaut (décision du développeur, 2026-10-25), tests de P4.8 revus.
+  Cas : `a volume is a multiple of 10 from 0 to 100`, contrat (`without saved preferences the sound effects are on`,
+  `without saved preferences effects are not reduced, the player is not left handed, the keys do not vibrate and
+  both volumes are 100`, `each new setting saved is read back`),
+  `settings saved before Couleurs v2 keep their choices`, `each new setting is stored under a key that must not
+  change`.
+- [ ] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
+  Cas (contrat, vrai dépôt et faux) : `a cleared record is 0`, `a score after a clear is a new record`,
+  `clearing without a record leaves 0`, `a record that cannot be written fails with an IOException`.
+- [ ] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
+  `Haptic.KEY_PRESS`, effet le plus léger, attributs du toucher (`USAGE_TOUCH`, que le réglage « vibration au
+  toucher » d'Android coupe) ; en jeu, l'appui d'une touche vibre si `keyVibration` est allumé. Après P5.65.
+  Cas : `the key press is the predefined tick from Android 10 and a pulse of 10 ms before` **[à vérifier]**,
+  `a pressed key vibrates once when key vibration is on`, `a released key does not vibrate`,
+  `with key vibration off no key vibrates`.
+- [ ] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
+  sélecteur et du décorateur de focus, et des effets ; courbe perceptive `Volume.gain` ; `AppContainer` applique
+  les volumes enregistrés au lecteur partagé, en direct (aperçus et parties). Après P5.65.
+  Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
+  `MusicPlayerContract › a volume set before a play applies to it`, `the volume of the effects applies to each
+  track`, `a volume changed in the settings applies to the music playing`.
+- [ ] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
+  autres, joué à `LevelUp` ; aucune vibration. Après P5.64.
+  Cas : `the level up sound is an effect of its own, shorter than the four lines`,
+  `a level up plays the level up sound when the sound effects are on`, `a level up does not vibrate`.
+- [ ] **P5.70** Paramètres v2, Sons et vibrations et Record (`feature:home`, maquette Couleurs v2) : barre
+  (Retour, « Paramètres » en `screen-title`), cartes ; Effets sonores, Volume des effets (grisé sans effets),
+  Volume de la musique, Vibrations, Vibration des touches, état sans vibreur, « Valable dès la partie
+  suivante. » ; Record : Effacer, `ConfirmWindow` générique (sur laquelle `DeleteWindow` est réécrite ; réponse
+  sûre « Garder le record » d'abord, P5.45), « Record effacé » lu par TalkBack ; un réglage allumé se fait
+  sentir une fois. Après P5.60 à P5.63, P5.65 à P5.68.
+  Cas : `turning the sound effects on plays the rotation once`, `turning a vibration on vibrates once`,
+  `without a vibrator both vibrations are disabled and say « Cet appareil ne vibre pas »`,
+  `the volume of the effects is disabled while the sound effects are off`,
+  `clearing the record asks first, and keeping it changes nothing`,
+  `a confirmed clear clears the record and says « Record effacé »`,
+  `a clear that cannot be written keeps the window open and says it failed` ; captures (téléphone, police ×2,
+  jour, nuit, Original).
+- [ ] **P5.71** Effets réduits (`core:designsystem`, `app`, `feature:home`, ADR 0024) : `BloxEffects(reduced,
+  forcedBySystem)` porté par `BloxTheme`, résolu par une fonction pure depuis la préférence et
+  `ValueAnimator.areAnimatorsEnabled()` (lu par `MainActivity` à chaque reprise) ; carte Affichage avec Effets
+  réduits (allumé et bloqué quand Android l'impose, sans écraser le choix) et la note sur le thème ; les boutons
+  pressés ne descendent plus en Effets réduits. Après P5.70.
+  Cas : `effects are reduced when the player asks for it`, `effects are reduced and forced when Android removes
+  the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
+  `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
+  `in reduced effects a pressed button changes its fill only`.
+- [ ] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
+  à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
+  du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
+  fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
+  `BloxNavDisplayTest`, `BloxJourney`, profil de référence regénéré sur appareil. Après P5.60.
+  Cas : `the application opens on the choice of the game`, `the Classic cartridge opens the Classic home`,
+  `changing the game from the home goes back to the cartridges`,
+  `changing the game from a restored stack without cartridges puts them at its root`,
+  `the system back on the cartridges leaves the application`, TalkBack (nom de chaque cartouche) ; captures.
+- [ ] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
+  `CellPainter`, `CellStyles`, `CellStyle`, `BoardGeometry`, `DisplayedCells`, `CellLayout`, `CellPixels`,
+  `NextPieceCanvas` et `NextPieceCells` quittent `feature:game` ; clé des peintres `(variante, taille, fond)`.
+  Pur déplacement, aucun pixel ne change. Après P5.57.
+  Cas : tests déplacés verts (`BoardCanvasTest`, `CellStylesTest`, `BoardGeometryTest`, `DisplayedCellsTest`,
+  `CellPixelsTest`, `CellLayoutTest`), `the painters are built again when the variant changes`, captures à 0 %
+  d'écart, `buildHealth` vert.
+- [ ] **P5.74** Cases « bulles » (`core:board`, composant Piece) : dégradé `piece-<x>-hi` → `piece-<x>`,
+  `radius-cell` (2 dp sous 16 dp), `cell-gloss` à 16 dp et plus, case vide `empty-cell` sur `board`, marge de
+  1 px ; Original inchangé. Après P5.59, P5.73.
+  Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,
+  `a cell under 16 dp has 2 dp corners and no gloss`, `an empty cell has the corners and the margin of a piece,
+  without gloss`, `the painters are still built once while the piece moves` ; captures.
+- [ ] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
+  choisie par la taille disponible, P5.84) : barre (Changer de jeu, puce Record, Paramètres), Jouer XL avec le
+  rappel « Classique · Niveau 05 · Korobeïniki », carte des réglages (Mode avec Moderne `BIENTÔT`, Thème, Niveau
+  en jauge, rangée Musique), tuiles Mes musiques et Composer. Remplace les niveaux en deux lignes de 5 (P5.29,
+  décision revue par la maquette v2). Après P5.60 à P5.63, P5.72.
+  Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
+  `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
+  `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
+- [ ] **P5.76** Feuille Musique (`feature:home`) : feuille qui monte (`motion-card`), une rangée de 56 dp par
+  musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
+  fermer ; un seul aperçu à la fois ; `ListenButton` partagé (`core:designsystem`) à la place des copies de
+  `feature:home` et `feature:composer`. Après P5.75.
+  Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
+  `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
+  TalkBack` ; captures.
+- [ ] **P5.77** Héros de l'accueil : logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
+  ses quatre cases), plateau d'aperçu (`core:board`) qui rejoue un T tombant à la gravité du niveau choisi et
+  effaçant deux lignes, score réel ; halo de Jouer (3 impulsions après 3 s, puis une toutes les 10 s, aucun en
+  Effets réduits). Après P5.71, P5.74, P5.75, logo exporté (P5.56).
+  Cas : `the preview drops a row every ticks per row of the chosen level`, `the preview scores 100 times the
+  level plus one for its two lines`, `the preview starts again with the new level when the level changes`,
+  `in reduced effects the preview and the halo stand still`, `nothing on the home recomposes while the preview
+  plays`.
+- [ ] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
+  devient l'autocollant NOUVEAU RECORD une fois battu et suit le score (`GameUiState.recordBeaten`) ; plateau en
+  cadre `board` ; colonne SUIVANTE, SCORE avec barre de record de 4 dp, LIGNES, NIVEAU. Après P5.60, P5.74.
+  Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new
+  record` (P5.56), `the record bar fills with the score up to the record`, `nothing on the screen recomposes
+  when only the piece moves` ; captures.
+- [ ] **P5.79** Touches v2 et Gaucher (`feature:game`, `feature:home`) : flèches de 60 dp, B et A de 68 dp au
+  pictogramme seul (nom lu par TalkBack), B plus bas ; tailles réduites sous 390 dp de large pour tenir à 360 dp
+  ; préférence Gaucher lue à la création de la partie, `gameLayout(…, leftHanded)` ; rangée Gaucher dans
+  Affichage avec son schéma. Après P5.65, P5.71, P5.78.
+  Cas : `left handed puts B and A on the left and the arrows on the right`, `the keys fit a 360 dp phone with 16
+  dp margins`, `TalkBack reads « B, rotation anti-horaire » and « A, rotation horaire »`, `the reading order
+  stays arrows then B and A, left handed or not`, `KeyColorsTest` revu ; captures.
+- [ ] **P5.80** Retours de jeu, première tranche (`feature:game`, ADR 0024) : `GameFeedback` (pur, en ticks)
+  dans `GameUiState` ; calque dessiné par-dessus le plateau, en phase de dessin ; pièce posée qui s'éclaire,
+  pictogramme de A ou B qui tourne, effacement calé sur `Phase.Clearing` (rangées `clear-glow`, cases qui
+  éclatent par paires), rangées qui glissent, autocollant « +points », score qui compte ; variantes Effets
+  réduits. Après P5.71, P5.78, P5.79.
+  Cas : `a lock lights its four cells for 8 ticks`, `a rotation turns the icon of its key by 90 degrees in 6
+  ticks`, `the clear pops the cells by pairs from the centre within the clear delay`, `the points sticker rises
+  and fades in 45 ticks`, `in reduced effects nothing moves and the score shows at once`, `a paused game freezes
+  its effects`, `nothing recomposes while an effect plays`, `the painters are built once while effects play`.
+- [ ] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
+  LIGNES »), `LevelUp` (encart NIVEAU qui bascule et s'encadre d'`accent` 1 s, annonce TalkBack), `StackDanger`
+  (cadre `danger` de 4 dp, 5 rangées du haut en `danger-soft` qui respirent), record battu (rebond, barre
+  irisée). Après P5.64, P5.80.
+  Cas : `four lines run the iridescent border once`, `a level up announces the new level to TalkBack`,
+  `the danger frame is 4 dp and stays until the danger ends`, `nothing flashes more than 3 times a second`,
+  `there are 40 particles at most`, variantes Effets réduits.
+- [ ] **P5.82** Pause en rideau : rideau de cases vides sur le plateau et la pièce suivante (`motion-curtain`),
+  puis la carte (mascotte, score, niveau, lignes, Reprendre, Menu) ; Reprendre rouvre le rideau puis relance la
+  partie ; horloge de Compose, la boucle de jeu reste arrêtée. Après P5.60, P5.78.
+  Cas : `the curtain hides the board and the next piece before the card shows`, `the game resumes only once the
+  curtain is open`, `in reduced effects the curtain fades in 8 ticks at most`, `the system back resumes as
+  Reprendre does` ; captures.
+- [ ] **P5.83** Fin de partie v2 : pile qui s'éteint rangée par rangée de bas en haut (`cell-dead`, 2 ticks par
+  rangée, sur l'horloge de Compose), carte, NOUVEAU RECORD avec confettis, score qui compte, « Record » ou «
+  Ancien record » (`GameOverUiState.previousRecord`, de `RecordResult.previous`), lignes, niveau, 4 lignes, durée,
+  Rejouer, Menu. Après P5.81, P5.82.
+  Cas : `a new record shows the old record as « Ancien record »`, `without a new record the record is shown as «
+  Record »`, `the stack goes out from the bottom, 2 ticks a row`, `in reduced effects the stack goes out at once
+  and the score shows at once`, `the game loop stays stopped while the game over plays` ; captures.
+- [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et
+  tablettes debout et couchée pour l'accueil (deux colonnes), les Paramètres (Affichage et Record à gauche, Sons
+  et vibrations à droite) et le jeu (mesures v2 par format) ; retrait de `screenOrientation="portrait"` (à
+  trancher avec P2.8). Après P5.70, P5.77, P5.83.
+  Cas : `on a phone in landscape the home puts logo, preview and tiles on the left`, `the settings take two
+  columns in landscape`, `each format keeps every target at 48 dp`, captures des quatre formats.
+- [ ] **P5.85** Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
+  partie, Paramètres), valeurs Original des rôles nouveaux (P5.57) ; tailles des touches sous 390 dp (P5.79).
+- [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer : à découper une fois leurs
+  maquettes dessinées (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
+  parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
+  feuille au-dessus du clavier, coches sur les choix retenus).
 
 ## P6 — Mode Moderne (plus tard)
 
