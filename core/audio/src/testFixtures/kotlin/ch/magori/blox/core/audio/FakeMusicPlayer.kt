@@ -4,17 +4,19 @@ import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * A music player that notes what it is told, in order (`play <id>`, `play file <uri>`, `stop`, `resume <id>`,
  * `resume file <uri>`, `tempo <factor>`), the scores it was told to play ([playedScores]), and keeps the identifier of the score [playing] or the music file
- * [playingFile], the [tempo] it plays at and the tempos [prepared]. As the real one, it plays one music at a time:
- * stopping a playback that was replaced leaves the new one playing; a new play starts at the normal tempo and forgets
- * the tempos prepared, a resume goes on at the tempo asked for, with the tempos prepared; a tempo factor that is not
- * positive and finite is refused. The music may stop by itself ([fail]), as when the real one fails. It keeps the
- * contract of the real one (`MusicPlayerContract`).
+ * [playingFile], the [tempo] it plays at, the tempos [prepared] and the [volume] set, which [calls] does not note. As
+ * the real one, it plays one music at a time: stopping a playback that was replaced leaves the new one playing; a new
+ * play starts at the normal tempo and forgets the tempos prepared, a resume goes on at the tempo asked for, with the
+ * tempos prepared; the volume stays as it was set; a tempo factor that is not positive and finite is refused. The
+ * music may stop by itself ([fail]), as when the real one fails. It keeps the contract of the real one
+ * (`MusicPlayerContract`).
  */
 class FakeMusicPlayer : MusicPlayer {
     val calls = mutableListOf<String>()
@@ -29,6 +31,12 @@ class FakeMusicPlayer : MusicPlayer {
         private set
     var prepared: Set<Double> = emptySet()
         private set
+    var volume: Volume = Volume.FULL
+        private set
+
+    /** Every volume set, in order, the same one set again included. */
+    val volumesSet = mutableListOf<Volume>()
+
     private var current: FakePlayback? = null
 
     override fun play(music: Music): Playback {
@@ -48,6 +56,11 @@ class FakeMusicPlayer : MusicPlayer {
     override fun prepareTempo(factor: Double) {
         requireValidTempo(factor)
         prepared = prepared + factor
+    }
+
+    override fun setVolume(volume: Volume) {
+        this.volume = volume
+        volumesSet += volume
     }
 
     /**

@@ -24,11 +24,19 @@ internal class FakeSink(
     /** Whether its writes fail from now on. */
     var refusesWrites = false
 
+    /** The gain it plays at: what is heard of the volume of the music. */
+    var gain = 1f
+        private set
+
     override suspend fun write(samples: FloatArray) {
         writes++
         check(!refusesWrites) { "The write was refused" }
         if (writes == diesOnWrite) throw DeadSinkException("The audio output died")
         written.send(samples.copyOf())
+    }
+
+    override fun setGain(gain: Float) {
+        this.gain = gain
     }
 
     override fun release() {

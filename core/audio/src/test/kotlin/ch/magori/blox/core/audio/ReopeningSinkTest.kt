@@ -20,15 +20,34 @@ class ReopeningSinkTest {
         assertThat(opened.dropLast(1)).allMatch { it.released }
     }
 
-    /** An output whose write number [diesOnWrite] finds it dead. */
+    @Test
+    fun `an output reopened plays at the gain set`() = runTest {
+        // Given an output that dies on its second write, the music turned down
+        val sink = ReopeningSink { DyingSink(diesOnWrite = 2).also { opened += it } }
+        sink.setGain(0.25f)
+
+        // When it dies, and is reopened
+        repeat(2) { sink.write(FloatArray(1)) }
+
+        // Then the new output plays at the same gain
+        assertThat(opened.map { it.gain }).containsExactly(0.25f, 0.25f)
+    }
+
+    /** An output whose write number [diesOnWrite] finds it dead; it keeps the [gain] it plays at. */
     private class DyingSink(private val diesOnWrite: Int) : AudioSink {
         private var writes = 0
         var released = false
+            private set
+        var gain = 1f
             private set
 
         override suspend fun write(samples: FloatArray) {
             writes++
             if (writes == diesOnWrite) throw DeadSinkException("The audio output died")
+        }
+
+        override fun setGain(gain: Float) {
+            this.gain = gain
         }
 
         override fun release() {
