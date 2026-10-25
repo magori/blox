@@ -2,9 +2,11 @@ package ch.magori.blox.core.audio
 
 import app.cash.turbine.test
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
 
 /** The logic of the player of music files, on fake tracks: what `MediaPlayer` does is left to [MediaPlayerTracks]. */
@@ -193,12 +195,28 @@ class AudioFilePlayerTest {
         assertThat(tracks.live).containsExactly(myFile)
     }
 
-    /** Tracks that note where they open, and fail on demand. */
+    @Test
+    fun `a volume set applies to the file playing and to the files played after it`() {
+        // Given a file playing
+        player.play(myFile, onUnplayable)
+
+        // When the music is turned down, then another file plays
+        player.setVolume(Volume(50))
+        player.play(otherFile, onUnplayable)
+
+        // Then both play at the gain of that volume
+        assertThat(tracks.gains).containsExactly(entry(myFile, Volume(50).gain), entry(otherFile, Volume(50).gain))
+    }
+
+    /** Tracks that note where they open and the gain they play at, and fail on demand. */
     private class FakeTracks : MusicTracks {
         val opened = mutableListOf<String>()
         val unreadable = mutableSetOf<MusicFile>()
         val live = mutableListOf<MusicFile>()
         var released = 0
+
+        /** The gain the last track of each file played at: 1, that of a new track, until it is set. */
+        val gains = mutableMapOf<MusicFile, Float>()
 
         /** The position of every track, in milliseconds. */
         var position = 0
@@ -213,8 +231,13 @@ class AudioFilePlayerTest {
             opened += "${file.uri} at $startAt"
             live += file
             this.onError = onError
+            gains[file] = 1f
             return object : MusicTrack {
                 override val position: Int get() = this@FakeTracks.position
+
+                override fun setGain(gain: Float) {
+                    gains[file] = gain
+                }
 
                 override fun release() {
                     released++

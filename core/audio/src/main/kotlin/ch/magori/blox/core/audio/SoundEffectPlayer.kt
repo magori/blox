@@ -5,9 +5,9 @@ import ch.magori.blox.core.music.SoundEffect
 /**
  * Plays the short sound effects of the game, over the music, without stopping it nor asking for the audio focus.
  * [SoundEffectTracks] plays them on the device; whether the player wants them at all is decided by the caller,
- * before it asks.
+ * before it asks. The effects play at the volume set ([VolumeControl]), apart from the volume of the music.
  */
-public interface SoundEffectPlayer {
+public interface SoundEffectPlayer : VolumeControl {
     /**
      * Gets [effects] ready to play, without playing them, so that their first [play] waits for nothing: a game warms
      * up its effects as soon as it knows the player wants them. Returns at once; never fails.

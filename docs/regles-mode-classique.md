@@ -785,6 +785,31 @@ refusée, et une valeur illisible du fichier retombe sur la valeur par défaut. 
 `reduced_effects`, `left_handed`, `key_vibration` (booléens), `music_volume`, `effects_volume`
 (entiers en pourcentage). Un fichier d'avant Couleurs v2 garde tous ses choix.
 
+**Volumes appliqués** (P5.68) : le volume de la musique vaut pour toute musique (partitions,
+fichier personnel, aperçus de l'accueil et de l'éditeur, parties), celui des effets pour les effets
+sonores. Un volume devient une amplitude par `Volume.gain` = (pourcentage ÷ 100)², une courbe qui
+suit l'oreille (50 % donne un quart de l'amplitude, environ −12 dB ; 10 %, le plus bas, −40 dB).
+Un changement dans les Paramètres s'entend tout de suite, même pendant une musique ; un volume de 0
+joue en silence sans arrêter la musique. Le volume reste d'une lecture à la suivante. Au démarrage,
+tout joue à 100 % jusqu'à la première lecture des réglages (seule une partie restaurée après la
+mort du processus peut en jouer quelques tranches).
+
+**Tests :** `VolumeTest › a volume of 0 gives a gain of 0 and 100 a gain of 1`,
+`VolumeTest › the gain grows with the volume`,
+`VolumeTest › half the volume gives a quarter of the gain, as the ear hears loudness on a curve`,
+`MusicPlayerContract › a volume set before a play applies to it`,
+`MusicPlayerContract › a volume set while a score plays applies to it, down to silence, without stopping it`,
+`ReopeningSinkTest › an output reopened plays at the gain set`,
+`AudioFilePlayerTest › a volume set applies to the file playing and to the files played after it`,
+`MusicSwitchTest › the volume goes to the scores and to the music files alike`,
+`SoundEffectTracksTest › the volume of the effects applies to each track`,
+`SoundEffectTracksTest › a track that cannot take the volume reports its failure, is released, and another one opens 5 s later`,
+`SoundEffectTracksTest › a track that cannot take the volume as it opens is released and plays nothing`,
+`SavedVolumesTest › a volume changed in the settings applies to the music playing`,
+`SavedVolumesTest › the volume of the effects saved in the settings applies to the sound effects, apart from the music`,
+`SavedVolumesTest › another setting changed applies no volume again`,
+`StaticAudioTrackTest › an effect turned down, then to silence, plays without failing`.
+
 **Tests :** `VolumeTest › a volume is a multiple of 10 from 0 to 100`,
 `VolumeTest › a volume below 0, above 100 or between two steps of 10 is refused`,
 `VolumeTest › a percentage that is no volume gives no volume, without failing`,

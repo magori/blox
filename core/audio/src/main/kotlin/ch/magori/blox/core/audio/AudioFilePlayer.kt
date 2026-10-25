@@ -1,20 +1,30 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.MusicFile
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Plays the music files of the player on the [tracks] it opens, one at a time, in a loop, at their own speed. A
- * playback stopped or replaced keeps the place it stood at, and resumes from there. A track that fails while it plays
- * ends its playback ([FilePlayback.isPlaying]), as a sequencer that fails: the game goes on in silence, and its resume
- * tries again. A track that fails before it starts tells its file cannot be played, then ends. Call it from the main
- * thread, the one the tracks report their errors on.
+ * playback stopped or replaced keeps the place it stood at, and resumes from there; every track plays at the volume
+ * set. A track that fails while it plays ends its playback ([FilePlayback.isPlaying]), as a sequencer that fails: the
+ * game goes on in silence, and its resume tries again. A track that fails before it starts tells its file cannot be
+ * played, then ends. Call it from the main thread, the one the tracks report their errors on.
  */
 public class AudioFilePlayer(private val tracks: MusicTracks) : MusicFilePlayer {
     /** The playback whose track plays; null when none does. */
     private var current: TrackPlayback? = null
+
+    /** The gain of the volume set, at which every track plays, from its opening. */
+    private var gain = Volume.FULL.gain
+
+    /** Plays the file playing at [volume] from now on, and the files played next. */
+    override fun setVolume(volume: Volume) {
+        gain = volume.gain
+        current?.track?.setGain(gain)
+    }
 
     override fun play(
         file: MusicFile,
@@ -30,6 +40,7 @@ public class AudioFilePlayer(private val tracks: MusicTracks) : MusicFilePlayer 
         val playback = TrackPlayback(file, startAt)
         val track = tracks.open(file, startAt) { beforeStart -> playback.fail(beforeStart, onUnplayable) }
             ?: return null
+        track.setGain(gain)
         current?.end()
         current = playback
         return playback.apply { this.track = track }

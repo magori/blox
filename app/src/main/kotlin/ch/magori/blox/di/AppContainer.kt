@@ -39,6 +39,7 @@ import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
+import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.musicOf
 import ch.magori.blox.music.scoreOf
@@ -64,6 +65,12 @@ class AppContainer(context: Context) {
 
     /** Where the DataStores live and work, for the whole life of the process. */
     private val dataScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    /**
+     * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them. For the
+     * whole life of the process, as [dataScope] and the players: it is never cancelled.
+     */
+    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     /** The record, in `files/datastore/records.preferences_pb`: the game and the home screen share it. */
     private val highScores: HighScoreRepository = DataStoreHighScoreRepository(
@@ -143,6 +150,12 @@ class AppContainer(context: Context) {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default.limitedParallelism(1)),
         onFailure = { failure -> Log.w(TAG, "A sound effect could not play", failure) },
     )
+
+    init {
+        // The volumes saved, applied to the music and to the effects shared by every screen, from the start and at each
+        // change: a preview, a game, hear the slider of the settings at once.
+        mainScope.applySavedVolumes(userPreferences, music = music, effects = soundEffects)
+    }
 
     /**
      * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for

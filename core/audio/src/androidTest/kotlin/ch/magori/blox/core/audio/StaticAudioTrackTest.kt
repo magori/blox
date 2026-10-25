@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import android.content.Context
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.music.SoundEffects
+import ch.magori.blox.core.music.Volume
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -33,6 +34,24 @@ class StaticAudioTrackTest {
                 // Then nothing failed
                 track.release()
             }
+        }
+    }
+
+    @Test
+    @DisplayName("an effect turned down, then to silence, plays without failing")
+    fun anEffectTurnedDownPlays() {
+        assertThatNoException().isThrownBy {
+            // Given
+            val track = StaticAudioTrack(synthesizer.render(SoundEffects.rotation), synthesizer.sampleRate)
+
+            // When it plays at the gain of 50 %, then in silence
+            track.setGain(Volume(50).gain)
+            track.play()
+            track.setGain(Volume.SILENT.gain)
+            track.play()
+
+            // Then nothing failed
+            track.release()
         }
     }
 }
