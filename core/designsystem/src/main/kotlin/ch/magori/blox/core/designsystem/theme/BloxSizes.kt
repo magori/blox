@@ -2,16 +2,16 @@ package ch.magori.blox.core.designsystem.theme
 
 import androidx.compose.ui.unit.dp
 
-/** Les tailles partagées par les écrans : les jetons `size` de docs/design-system/tokens.json (ShapeTokensTest). */
+/** The sizes shared by the screens: the `size` tokens of docs/design-system/tokens.json (ShapeTokensTest). */
 object BloxSizes {
     /**
-     * La plus petite cible tactile, en largeur comme en hauteur : 48 dp visibles, une règle de BloX plus stricte
-     * que WCAG 2.2 (2.5.8, 24 px) et qu'Android, dont les 48 dp sont une zone tactile qui peut déborder du dessin.
-     * Jeton `touch-target`.
+     * The least touch target, wide and high: 48 dp that can be seen, a rule of BloX stricter than WCAG 2.2 (2.5.8,
+     * 24 px) and than Android, whose 48 dp are a touch area that may go beyond what is drawn.
+     * Token `touch-target`.
      */
     val minTouchTarget = 48.dp
 
-    /** Entre une fenêtre (`WindowDialog`) et les bords de l'écran. */
+    /** Between a window (`WindowDialog`) and the edges of the screen. */
     val windowMargin = 16.dp
 
     /** The least height of a row of the settings (`setting-row`). */

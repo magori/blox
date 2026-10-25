@@ -76,7 +76,7 @@ private val SHADOWS = Regex(""",\s*(?![^(]*\))""")
 
 /**
  * A gloss as tokens json writes it, a CSS `box-shadow` without blur: each `inset 0 y 0 colour` is an inner shadow,
- * each `0 0 0 width colour` a ring. Any other shadow cannot be drawn by the code, and is refused.
+ * each `0 0 0 width colour` a ring, of a width above 0. Any other shadow cannot be drawn by the code, and is refused.
  */
 internal fun cssGloss(written: String): Gloss = Gloss(
     written.trim().split(SHADOWS).map { shadow ->
@@ -87,7 +87,7 @@ internal fun cssGloss(written: String): Gloss = Gloss(
             inset.isNotEmpty() && lengths.withIndex().all { (index, length) -> index == 1 || length == 0.dp } ->
                 GlossLayer.Inner(offsetY = lengths[1], color = cssColor(colour))
 
-            inset.isEmpty() && lengths.take(3).all { it == 0.dp } ->
+            inset.isEmpty() && lengths.take(3).all { it == 0.dp } && lengths[3] > 0.dp ->
                 GlossLayer.Ring(width = lengths[3], color = cssColor(colour))
 
             else -> throw IllegalArgumentException("Ombre CSS que le code ne dessine pas : $shadow")

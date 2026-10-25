@@ -27,7 +27,7 @@ data class BloxShapes(
 )
 
 object BloxShapeSets {
-    /** Thème « Original » : coins carrés. */
+    /** The Original theme: square corners. */
     val Original = BloxShapes(
         cell = RectangleShape,
         md = RectangleShape,
@@ -37,7 +37,7 @@ object BloxShapeSets {
         pill = RectangleShape,
     )
 
-    /** Thème « Couleurs » : les rayons de tokens.json. */
+    /** The Colorful theme: the radii of tokens json. */
     val Colorful = BloxShapes(
         cell = RoundedCornerShape(6.dp),
         md = RoundedCornerShape(16.dp),
@@ -48,8 +48,8 @@ object BloxShapeSets {
     )
 }
 
-/** Épaisseurs de trait de l'interface, les mêmes dans les deux thèmes. */
+/** The widths of the strokes of the interface, the same in both themes. */
 object BloxBorders {
-    /** Cadre d'un encart, d'un bouton secondaire, d'un choix de l'accueil et d'une touche de commande. */
+    /** The frame of a panel, of a secondary button, of a choice of the home and of a key of the game. */
     val frame = 2.dp
 }

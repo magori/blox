@@ -39,8 +39,8 @@ data class BloxGlosses(
 )
 
 object BloxGlossSets {
-    /** The ink of the day, `#1C1B2E`, in which the bubbles of the day are shaded. */
-    private val INK_OF_DAY = Color(0xFF1C1B2E)
+    /** The ink of the day, in which the bubbles of the day are shaded. */
+    private val INK_OF_DAY = BloxPalettes.ColorfulLight.ink
 
     /** How thick a button at rest is, crushed when held, and a cell: the height of its shade at the bottom. */
     private val THICKNESS = 3.dp

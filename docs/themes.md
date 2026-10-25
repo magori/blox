@@ -29,11 +29,48 @@ Les tailles de la maquette sont données pour une cellule de 24 px ; le code les
 suivent l'écran. Au dessin, la taille de cellule, l'origine du plateau et chaque épaisseur
 sont arrondies au pixel entier, au moins 1 px, pour éviter les joints flous. Le thème courant
 est exposé par `BloxTheme.kind` (`core:designsystem`), la forme des encarts par
-`BloxTheme.shapes` (coins carrés en Original, arrondis de 10 dp en Couleurs ; `button` sert aux
-commandes, aux boutons des écrans — Reprendre, Menu, Rejouer — et au bouton pause). Le code est dans
-`feature:game` : paquet `board` (`CellStyles`, `CellPainter`, `BoardGeometry`,
-`DisplayedCells`, `BoardCanvas`) et paquet `sidepanel` (colonne latérale, aperçu de la pièce
-suivante dessiné avec le même `CellPainter`).
+`BloxTheme.shapes` (coins carrés en Original). Le code du plateau est dans `core:board` (P5.73) :
+`CellStyles`, `CellPainter`, `BoardGeometry`, `DisplayedCells`, `BoardCanvas`, et l'aperçu de la
+pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale reste dans `feature:game`.
+
+**Formes, reliefs, tailles et durées v2** (P5.59, `core:designsystem`), aux valeurs de
+`tokens.json` comparées au code comme les couleurs (ADR 0019) :
+- **Rayons** (`BloxShapes`) : `cell` 6, `md` 16 (encarts, choix, rangées, touches et, en attendant
+  les boutons bulles de P5.60, les boutons), `snack` 20 (messages de l'éditeur et de « Mes
+  musiques »), `window` 24, `card` 28 (fenêtres de confirmation), `pill` en demi-hauteur (étiquette
+  NOUVEAU RECORD) ; tout est carré en Original.
+- **Reliefs** (`BloxTheme.glosses`, `Modifier.gloss`) : `button-gloss`, `button-gloss-pressed` et
+  `cell-gloss` dessinés en ombres intérieures (un trait clair en haut, un sombre en bas, comme
+  `inset 0 y 0` en CSS) et, pour `cell-gloss` de jour, un liseré autour de la forme ; jour et nuit
+  ont les leurs, Original n'en a aucun. Comme en CSS, la bande intérieure suit l'arrondi intérieur du cadre (rayon moins le
+  cadre) et le liseré grandit ses coins de sa largeur ; les bandes sont construites une fois par
+  taille, densité, sens de lecture et relief, pas à chaque recomposition. Ils seront posés sur les boutons en P5.60 et sur les cases
+  en P5.74.
+- **Tailles** (`BloxSizes`) : cible de 48 dp, rangée de réglage, interrupteur, touches (`keyArrow`,
+  `keyRotate` et leurs variantes compactes et tablette). `ControlSizes` (`feature:game`) y renvoie :
+  les touches gardent aujourd'hui la taille compacte (52 et 56 dp), les tailles par largeur
+  arrivent en P5.79.
+- **Espacements** (`BloxSpaces`, `space1` à `space6`) et **durées** (`BloxMotion`) en ticks, au plus
+  près des millisecondes du design system (1 tick = 1/60 s, ADR 0006) : `press` 6, `reducedFade`
+  8, `curtain` 12, `card` 18, `sticker` 30, `pop` 45.
+
+**Tests :** `ShapeTokensTest › each radius, size and space of tokens json is the one of the code`,
+`ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
+`OriginalShapesTest › the Original theme has square corners and no gloss`,
+`GlossTokensTest › each shadow of tokens json is the gloss of the code, day and night`,
+`GlossTokensTest › every shadow token of tokens json is a gloss of the code`,
+`GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
+`MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
+`MotionTokensTest › every duration token of tokens json is in the code`,
+`GlossTokensTest › a shadow blurred or moved sideways is refused, the code could not draw it`,
+`GlossTokensTest › a ring of a negative width is refused`,
+`GlossDrawingTest › two calls with the same gloss, shape and frame give the same modifier, so a recomposition keeps its bands`,
+`GlossDrawingTest › the bands are built once while their inputs stay the same`,
+`GlossDrawingTest › the bands are built again when the size, the density, the direction or a value of the gloss changes`,
+`GlossDrawingTest › the inner bands of a rounded shape follow the inside of its frame, their corners narrower by the frame`,
+`GlossDrawingTest › the ring of a rounded shape grows its corners by its width`,
+`GlossDrawingTest › a square shape stays square, inside its frame and around it` ; captures `GlossSheetOriginal`,
+`GlossSheetColorful`, `GlossSheetColorfulNight`.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
@@ -185,7 +222,7 @@ ses bords de 2 dp dans la couleur de sa piste.
 Vues : V22 à V34 (jour), nuit dans le design system.
 
 Une couleur par pièce, effet biseauté (bordure claire en haut et à gauche, foncée en bas et à
-droite). Police : *Chakra Petch* (licence OFL) jusqu'à P5.58, coins arrondis (10 px).
+droite). Police : *Chakra Petch* (licence OFL) jusqu'à P5.58 ; coins selon `BloxShapes` (P5.59).
 
 | Pièce | Fond | Biseau clair | Biseau foncé |
 |---|---|---|---|
