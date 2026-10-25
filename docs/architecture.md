@@ -57,7 +57,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 |---|---|---|
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
-| `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, rendu du plateau, commandes. |
+| `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
@@ -66,6 +66,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. |
+| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Dépend de `core:game` et `core:designsystem`. |
 | `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie) et génération du profil de référence de `app` (P5.17). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
 
@@ -88,7 +89,7 @@ changent beaucoup.
 3. **Le domaine ne connaît ni couleur, ni son, ni temps réel.** Un thème, un effet sonore,
    une horloge sont des détails de l'application.
 4. **`core:designsystem` ne dépend pas du domaine.** L'association « type de pièce → style de
-   cellule » vit dans `feature:game`.
+   cellule » vit dans `core:board` (ADR 0023).
 
 ## Couches dans une feature
 
@@ -211,8 +212,8 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 |---|---|---|
 | `core:game`, `core:music` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
 | Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
-| `src/androidTest` (`feature:*`, `core:designsystem`, `app`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension` ou `runAndroidComposeUiTest`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, état des choix de l'accueil lu par TalkBack (`HomeScreenTest`), cycle de vie de l'écran de jeu (`GameScreenLifecycleTest`). Dans `app`, les parcours entre features sur le vrai `BloxNavDisplay` avec les faux partagés (`BloxNavDisplayTest` : Jouer, retour système, Rejouer, Menu), horloge pilotée à la main (une partie en cours demande une image à chaque image) et fins de partie rapides par la doublure `OneRowPerTickGameEngineFactory` (testFixtures de `core:game`) ; `ui-test-manifest` n'entre que dans l'APK debug de `app`, ni en release ni en `benchmarkRelease` (P5.5). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; compilés en CI (`assembleDebugAndroidTest`), pas exécutés. |
-| `src/screenshotTest` (`feature:*`, `core:designsystem`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Validé en CI (P5.8) : le rendu est identique au pixel près sous Windows, où les références sont générées, et sous Linux (42 captures à 0 % d'écart) ; la tolérance de 0,05 % est une marge, pas une nécessité observée. |
+| `src/androidTest` (`feature:*`, `core:designsystem`, `core:board`, `app`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension` ou `runAndroidComposeUiTest`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, état des choix de l'accueil lu par TalkBack (`HomeScreenTest`), cycle de vie de l'écran de jeu (`GameScreenLifecycleTest`). Dans `app`, les parcours entre features sur le vrai `BloxNavDisplay` avec les faux partagés (`BloxNavDisplayTest` : Jouer, retour système, Rejouer, Menu), horloge pilotée à la main (une partie en cours demande une image à chaque image) et fins de partie rapides par la doublure `OneRowPerTickGameEngineFactory` (testFixtures de `core:game`) ; `ui-test-manifest` n'entre que dans l'APK debug de `app`, ni en release ni en `benchmarkRelease` (P5.5). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; compilés en CI (`assembleDebugAndroidTest`), pas exécutés. |
+| `src/screenshotTest` (`feature:*`, `core:designsystem`, `core:board`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Validé en CI (P5.8) : le rendu est identique au pixel près sous Windows, où les références sont générées, et sous Linux (42 captures à 0 % d'écart) ; la tolérance de 0,05 % est une marge, pas une nécessité observée. |
 
 JUnit 5 partout, y compris dans les modules Android grâce au plugin
 `de.mannodermaus.android-junit` appliqué par les plugins de convention. Voir les

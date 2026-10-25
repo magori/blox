@@ -1,5 +1,7 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.Volume
+
 /** The theme chosen on the home screen (V1). The feature maps it to its theme. */
 enum class ThemeChoice { ORIGINAL, COLORFUL }
 
@@ -7,10 +9,13 @@ enum class ThemeChoice { ORIGINAL, COLORFUL }
 enum class MusicChoice { KOROBEINIKI, MINUET, MY_FILE, NONE }
 
 /**
- * The settings of the player, chosen on the home screen (V1). [startLevel] is never negative; the
- * levels a game may start at belong to the game mode, which checks them: the home screen offers only
- * those. [vibrations] says whether the game vibrates when lines are cleared and when it is over;
+ * The settings of the player, chosen on the home screen (V1) and in the settings. [startLevel] is never
+ * negative; the levels a game may start at belong to the game mode, which checks them: the home screen offers
+ * only those. [vibrations] says whether the game vibrates when lines are cleared and when it is over;
  * [soundEffects] whether it plays its short sound effects (a rotation, lines cleared, the game over).
+ * [reducedEffects] asks for fewer visual effects; [leftHanded] for the controls laid out for the left hand;
+ * [keyVibration] for a short vibration on each key pressed. [musicVolume] and [effectsVolume] are the volumes
+ * of the music and of the sound effects.
  */
 data class UserPreferences(
     val theme: ThemeChoice,
@@ -18,19 +23,30 @@ data class UserPreferences(
     val startLevel: Int,
     val vibrations: Boolean,
     val soundEffects: Boolean,
+    val reducedEffects: Boolean,
+    val leftHanded: Boolean,
+    val keyVibration: Boolean,
+    val musicVolume: Volume,
+    val effectsVolume: Volume,
 ) {
     companion object {
         /**
          * The settings until the player changes them: the Original theme, Korobeiniki, level 0, vibrations off,
-         * sound effects off. The vibrations and the sound effects are off until the player turns them on, with their
-         * switches on the home screen: the choice of the developer.
+         * sound effects on, effects not reduced, the controls for the right hand, keys that do not vibrate, both
+         * volumes full. The vibrations are off until the player turns them on; the sound effects are on until the
+         * player turns them off: the choices of the developer.
          */
         val DEFAULT: UserPreferences = UserPreferences(
             ThemeChoice.ORIGINAL,
             MusicChoice.KOROBEINIKI,
             startLevel = 0,
             vibrations = false,
-            soundEffects = false,
+            soundEffects = true,
+            reducedEffects = false,
+            leftHanded = false,
+            keyVibration = false,
+            musicVolume = Volume.FULL,
+            effectsVolume = Volume.FULL,
         )
     }
 }

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 158 / 219 | `██████████████░░░░░░` **72 %** |
+| **Général** | 161 / 219 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -457,9 +457,9 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels. Fait :
   désactivés par défaut (décision du développeur), arpèges synthétisés, événement `PieceRotated` ;
   interrupteur dans P5.37.
-- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : le moteur n'émet pas
-  d'événement de niveau (à déduire de `progress.level`) et il tomberait sur le même tick que les
-  lignes effacées : le fusionner ou choisir lequel jouer.
+- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
+  l'événement `LevelUp` (P5.64), qui tombe sur le même tick que `LinesCleared` : le fusionner ou
+  choisir lequel jouer.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
   publique du chant populaire, citer la source, et réécrire le rythme s'il suit la version du
   jeu de 1989 plutôt que le chant (revue de P4.2). Fait : 5 mesures sur 8 s'écartaient du chant ;
@@ -849,7 +849,7 @@ composants.
   `an unavailable segment reads « Moderne, bientôt, indisponible » and cannot be chosen`,
   `a group too wide for its line puts its label above and takes the whole width`,
   `each segment is 48 dp high as a target` ; captures, police ×2.
-- [ ] **P5.64** Événement `GameEvent.LevelUp(level)` (`core:game`) : envoyé au tick où le niveau monte, après
+- [x] **P5.64** Événement `GameEvent.LevelUp(level)` (`core:game`) : envoyé au tick où le niveau monte, après
   `LinesCleared` et avant `StackDanger` ; branche `null` dans `soundEffectFor` et `hapticFor` en attendant
   P5.69. Spécification `docs/regles-mode-classique.md` (Niveaux).
   Cas : `a line clear that reaches the next level sends a level up with the new level`,
@@ -857,7 +857,7 @@ composants.
   `the level up comes after the lines cleared and before the stack danger of that tick`,
   `starting at level 5 the first level up comes at 60 lines, not at 10`,
   `a game that starts sends no level up`.
-- [ ] **P5.65** Préférences v2 (`core:data`, `core:music`) : `Volume` (pourcentage de 0 à 100 par pas de 10,
+- [x] **P5.65** Préférences v2 (`core:data`, `core:music`) : `Volume` (pourcentage de 0 à 100 par pas de 10,
   `core:music`) ; `UserPreferences.reducedEffects`, `leftHanded`, `keyVibration`, `musicVolume`,
   `effectsVolume` ; effets sonores activés par défaut (décision du développeur, 2026-10-25), tests de P4.8 revus.
   Cas : `a volume is a multiple of 10 from 0 to 100`, contrat (`without saved preferences the sound effects are on`,
@@ -916,7 +916,7 @@ composants.
   `changing the game from the home goes back to the cartridges`,
   `changing the game from a restored stack without cartridges puts them at its root`,
   `the system back on the cartridges leaves the application`, TalkBack (nom de chaque cartouche) ; captures.
-- [ ] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
+- [x] **P5.73** Rendu du plateau partagé (nouveau module `core:board`, ADR 0023) : `BoardCanvas`,
   `CellPainter`, `CellStyles`, `CellStyle`, `BoardGeometry`, `DisplayedCells`, `CellLayout`, `CellPixels`,
   `NextPieceCanvas` et `NextPieceCells` quittent `feature:game`. Pur déplacement, aucun pixel ne change
   (`CLAUDE.md`, `docs/architecture.md` et `docs/themes.md` mis à jour) ; fait avant P5.57, la clé des peintres

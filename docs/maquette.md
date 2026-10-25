@@ -237,7 +237,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
   `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
   `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
-  `NextPieceCellsTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
+  `SidePanelSizesTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
   Captures : `GameScreenNarrow`, `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 - Barre du haut dans une fenêtre très étroite (P2.26) : le titre et le record restent sur une
@@ -294,7 +294,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »
   (titre pour TalkBack), affichés dès l'ouverture, avant même la lecture des réglages. Section
   **Sons et vibrations**, marges de 16 dp : les interrupteurs **Vibrations** et **Effets
-  sonores** (P5.37), désactivés par défaut, rangées pleine largeur en encart (couleurs d'un choix
+  sonores** (P5.37 ; Vibrations désactivées, Effets sonores activés par défaut depuis P5.65), rangées pleine largeur en encart (couleurs d'un choix
   non sélectionné) d'au moins 48 dp, libellé à gauche, interrupteur à droite. Éteint : piste
   `panel`, contour et bouton `ink` à gauche ; allumé : piste `accent`, bouton `accentInk` à
   droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
@@ -303,7 +303,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
   à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
-  **Tests :** `SettingsScreenTest › TalkBack reads Vibrations and Effets sonores as switches, off by default`,
+  **Tests :** `SettingsScreenTest › TalkBack reads Vibrations and Effets sonores as switches, read off when off`,
   `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,

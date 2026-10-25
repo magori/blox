@@ -66,8 +66,8 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      * - With full rows, they are cleared after an animation, as long as [Rules.lineClearDelay] says,
      *   without any event: the board shown keeps them until then. At the end, the cleared board is shown,
      *   the lines and the level go up, the points are counted at the new level ([GameEvent.LinesCleared]),
-     *   then [GameEvent.StackDanger] if the danger changed, so that it changes as the stack goes down on
-     *   screen. The entry delay follows.
+     *   then [GameEvent.LevelUp] if the level went up, then [GameEvent.StackDanger] if the danger changed, so
+     *   that it changes as the stack goes down on screen. The entry delay follows.
      * - When the entry delay is over, the next piece appears, or the game is over if it does not fit. The
      *   held shift stands still from the lock until then, and goes on with the next piece; a down held
      *   through the lock does not soft drop the next piece until it is pressed again. A press made during the
@@ -269,6 +269,15 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         return GameUpdate(waiting, events = listOf(GameEvent.PieceLocked(piece)) + dangerChange(state, inDanger))
     }
 
+    /** [GameEvent.LevelUp] if the level of [after] is not the one of [before], else nothing. */
+    private fun levelUp(
+        before: GameState,
+        after: GameState,
+    ): List<GameEvent> {
+        val level = after.progress.level
+        return if (level != before.progress.level) listOf(GameEvent.LevelUp(level)) else emptyList()
+    }
+
     /** [GameEvent.StackDanger] if the stack danger changes from the one of [state] to [inDanger], else nothing. */
     private fun dangerChange(
         state: GameState,
@@ -294,7 +303,9 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
 
     /**
      * The last tick of the line clear of [clearing]: the cleared board is shown, the lines, the level and the
-     * points are counted, the stack danger changes if it must, and the entry delay begins.
+     * points are counted, the stack danger changes if it must, and the entry delay begins. Its events, in
+     * order: [GameEvent.LinesCleared], [GameEvent.LevelUp] if the level went up, [GameEvent.StackDanger] if
+     * the danger changed.
      */
     private fun endClear(
         state: GameState,
@@ -307,7 +318,8 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
             phase = Phase.EntryDelay(clearing.entryDelayAfter),
             stackInDanger = clearing.stackInDangerAfter,
         )
-        val events = listOf(GameEvent.LinesCleared(lineClear)) + dangerChange(state, clearing.stackInDangerAfter)
+        val events = listOf(GameEvent.LinesCleared(lineClear)) + levelUp(state, cleared) +
+            dangerChange(state, clearing.stackInDangerAfter)
         return GameUpdate(cleared, events)
     }
 

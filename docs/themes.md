@@ -12,7 +12,7 @@ Points tranchés en P5.56 : pendant la partie (P5.78), NOUVEAU RECORD n'apparaî
 un volume à 0 joue en silence (la musique ne s'arrête pas) ; pas de fondu au changement de thème.
 
 Deux thèmes, issus de la [maquette](maquette.md). Les jetons d'interface sont codés dans
-`core:designsystem` (`BloxPalettes`). Les styles de pièces seront codés dans `feature:game` (dans `core:board` depuis P5.73, ADR 0023),
+`core:designsystem` (`BloxPalettes`). Les styles de pièces sont codés dans `core:board` (P5.73, ADR 0023),
 car ils dépendent des types de pièces du domaine.
 
 ## Principe
@@ -66,7 +66,7 @@ le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
 **Logo de l'accueil** (P3.7) : quatre cellules en carré 2 × 2, couleurs du jeton
 `BloxPalette.logoCells` (`LogoColors`, exactement quatre couleurs) : en Original, les
 remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S. Ces couleurs répètent celles
-des pièces (`feature:game`) : un test vérifie qu'elles restent égales.
+des pièces (`core:board`) : un test vérifie qu'elles restent égales.
 
 **Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
 `AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,

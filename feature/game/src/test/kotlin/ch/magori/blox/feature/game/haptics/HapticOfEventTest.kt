@@ -2,6 +2,7 @@ package ch.magori.blox.feature.game.haptics
 
 import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.engine.spawned
+import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.haptics.Haptic
@@ -63,5 +64,14 @@ class HapticOfEventTest {
 
         // Then
         assertThat(haptics).containsOnlyNulls()
+    }
+
+    @Test
+    fun `a level up gives nothing yet`() {
+        // When
+        val haptic = hapticFor(GameEvent.LevelUp(Level(1)))
+
+        // Then
+        assertThat(haptic).isNull()
     }
 }

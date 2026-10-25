@@ -104,7 +104,7 @@ immuable et un moteur par partie. Ce qu'il faut consigner :
 |---|---|
 | `core:data` | Mode choisi dans les préférences ; **records par mode** (les scores ne sont pas comparables). |
 | `feature:home` | *Moderne* activé dans V1 ; niveaux proposés par le `LevelProgression` du mode (déjà le cas). |
-| `feature:game` | Cadres de réserve et de file ; fantôme dessiné par `CellStyles`, avec un style par thème (contour ou cellule translucide) ; deux boutons de plus, qui portent l'écran à 7 commandes sur 360 dp, et des gestes, au choix du joueur ; statistiques de V4. |
+| `feature:game` | Cadres de réserve et de file ; fantôme dessiné par `CellStyles` (dans `core:board` depuis P5.73), avec un style par thème (contour ou cellule translucide) ; deux boutons de plus, qui portent l'écran à 7 commandes sur 360 dp, et des gestes, au choix du joueur ; statistiques de V4. |
 | `core:audio` | Sons de chute instantanée, de réserve, de T-spin, si les effets sonores existent. |
 | Maquette | Nouvelles vues pour le jeu Moderne et sa fin de partie, à faire sur claude.ai (P6.22), avec l'écran Réglages. |
 
