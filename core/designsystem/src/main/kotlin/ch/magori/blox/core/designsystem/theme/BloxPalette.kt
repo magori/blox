@@ -6,8 +6,8 @@ import androidx.compose.ui.graphics.Color
 /**
  * Jetons de couleur de l'interface (hors pièces). Les valeurs du thème Couleurs, jour et nuit, viennent du design
  * system (docs/design-system/tokens.json, comparé à ce fichier par PaletteTokensTest, ADR 0019) ; celles du thème
- * Original, de docs/themes.md. Les couleurs des pièces sont associées aux types de pièces dans feature:game, pour que
- * le design system ne dépende pas du domaine.
+ * Original, de docs/themes.md. Les couleurs des pièces, et le logo qui les reprend, sont associées aux types de pièces
+ * dans core:board (ADR 0023), pour que le design system ne dépende pas du domaine.
  */
 @Immutable
 data class BloxPalette(
@@ -49,8 +49,6 @@ data class BloxPalette(
     val clearGlow: Color,
     /** The cells of the stack once the game is over, put out. */
     val cellDead: Color,
-    /** The four cells of the logo of the home screen. */
-    val logoCells: LogoColors,
     /** The iridescent gradient: the logo, the sheen of four lines, the bar of a record beaten. */
     val iris: IrisColors,
     /** The notes of the melody in the music editor. */
@@ -95,13 +93,6 @@ object BloxPalettes {
         scrim = Color(0xFFCFE3C8).copy(alpha = 0.85f),
         clearGlow = Color(0xFFEEF5EA),
         cellDead = Color(0xFFBFD6B6),
-        // The four greens of the pieces, the fills of I, O, J and T: dark, medium, light, pale.
-        logoCells = LogoColors(
-            topLeft = Color(0xFF34503A),
-            topRight = Color(0xFF87A67F),
-            bottomLeft = Color(0xFFBFD6B6),
-            bottomRight = Color(0xFFEEF5EA),
-        ),
         // No iridescence: the ink, flat.
         iris = IrisColors(start = Color(0xFF34503A), middle = Color(0xFF34503A), end = Color(0xFF34503A)),
         // The held tints of the mockup, #6E8F6A and #87A67F, stood out from the cells by 2.9:1 and 2.2:1 only: one
@@ -128,17 +119,6 @@ object BloxPalettes {
         dangerSoft = Color(0xFF34503A).copy(alpha = 0.14f),
     )
 
-    /**
-     * The fills of the I, O, Z and S pieces, the same day and night until the pieces take the colours of the design
-     * system (P5.74).
-     */
-    private val ColorfulLogoCells = LogoColors(
-        topLeft = Color(0xFF3FC5E8),
-        topRight = Color(0xFFF2C641),
-        bottomLeft = Color(0xFFE5534B),
-        bottomRight = Color(0xFF5BC46A),
-    )
-
     /** Thème « Couleurs », le jour : nacre, lilas et pastels brillants. */
     val ColorfulLight = BloxPalette(
         page = Color(0xFFEEF0F7),
@@ -162,7 +142,6 @@ object BloxPalettes {
         scrim = Color(0xFFEEF0F7).copy(alpha = 0.85f),
         clearGlow = Color(0xFFFFFFFF),
         cellDead = Color(0xFFD9DBE6),
-        logoCells = ColorfulLogoCells,
         iris = IrisColors(start = Color(0xFFC9A7FF), middle = Color(0xFF9FF0D0), end = Color(0xFFFFC6A8)),
         // The open tab takes the colour of its notes.
         melody = TrackColors(
@@ -208,7 +187,6 @@ object BloxPalettes {
         // rgba(242,244,250,0.9): the ink.
         clearGlow = Color(0xFFF2F4FA).copy(alpha = 0.9f),
         cellDead = Color(0xFF2A2D3A),
-        logoCells = ColorfulLogoCells,
         iris = IrisColors(start = Color(0xFFC6FF3D), middle = Color(0xFF3DFFD0), end = Color(0xFFA77BFF)),
         melody = TrackColors(
             note = Color(0xFFA77BFF),

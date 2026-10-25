@@ -6,6 +6,9 @@ plugins {
     alias(libs.plugins.blox.test.fixtures)
     // Le plateau seul, rendu sur la JVM et comparé à sa référence.
     alias(libs.plugins.blox.android.screenshot)
+    // Les couleurs des pièces, jetons piece-* de docs/design-system/tokens.json, comparées aux styles de case par
+    // PieceTokensTest (ADR 0019, ADR 0023).
+    alias(libs.plugins.blox.design.tokens)
 }
 
 android {
@@ -16,6 +19,9 @@ dependencies {
     // `api` : le plateau et la pièce suivante se dessinent à partir des types du domaine et du thème.
     api(projects.core.game)
     api(projects.core.designsystem)
+
+    // DesignTokens, le lecteur de tokens.json de core:designsystem.
+    testImplementation(testFixtures(projects.core.designsystem))
 
     androidTestImplementation(libs.androidx.compose.ui.test.android)
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
