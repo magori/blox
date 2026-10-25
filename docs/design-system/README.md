@@ -209,7 +209,8 @@ de l'éditeur utilisent un italique imité.
 Traits de 2,25 px aux bouts arrondis sur 24 × 24 (`icon`), en `currentColor` : lecture, arrêt,
 liste, dé, plus, crayon, renommer, corbeille, note, note barrée (Aucune), étoile (record),
 égaliseur (aperçu en cours), maison, rejouer, roue dentée, annuler, copier, gomme, placer,
-rotation gauche et droite, étendre. Flèches des touches en triangles pleins. Jamais d'emoji.
+rotation gauche et droite, étendre. Flèches des touches en triangles pleins. Jamais d'emoji. Les pictogrammes nouveaux de Couleurs v2, le logo et la mascotte sont relevés dans
+[pictogrammes.md](pictogrammes.md) (tracés, bitmaps 8 × 8 d'Original, mesures).
 
 ## Logo
 
