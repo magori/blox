@@ -6,7 +6,7 @@ import ch.magori.blox.core.haptics.Haptic
 /**
  * The vibration [event] of the engine gives, or null for none: lines cleared, four lines cleared at once, the
  * game over. A rotation, a lock or the danger give none: they come every few seconds, and the music already marks
- * the danger. A level up gives none yet (P5.69).
+ * the danger. A level up gives none either: it comes on the tick of a clear, whose vibration already marks it.
  */
 internal fun hapticFor(event: GameEvent): Haptic? = when (event) {
     is GameEvent.LinesCleared -> when {

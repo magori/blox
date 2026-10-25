@@ -31,9 +31,11 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
+import ch.magori.blox.core.game.rules.ClassicLevelProgression
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.ClassicScoringRule
 import ch.magori.blox.core.game.rules.GravityTable
+import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.haptics.FakeHaptics
@@ -1246,6 +1248,18 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a level up plays the level up sound when the sound effects are on`() {
+        // Given a game whose first three pieces fill row 19, and whose level goes up with each line
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineLevelUpGame)
+
+        // When the game is played until an effect plays
+        playUntil(viewModel, "an effect plays") { soundEffects.played.isNotEmpty() }
+
+        // Then the level up sound plays alone on the tick of the clear, instead of the lines cleared effect
+        assertThat(soundEffects.played).containsExactly(SoundEffects.levelUp)
+    }
+
+    @Test
     fun `a piece turned plays the rotation effect on the frame of its tick`() {
         // Given a game whose first frame set the time reference
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
@@ -1445,29 +1459,46 @@ class GameViewModelTest {
 
         /**
          * Engines whose pieces appear as [rotationSystem] says, without turning, and drop one row per tick,
-         * [pieces] in turn.
+         * [pieces] in turn, the level going up as [levelProgression] says.
          */
         fun scriptedGame(
             rotationSystem: RotationSystem,
             vararg pieces: PieceType,
+            levelProgression: LevelProgression = ClassicLevelProgression,
         ) = GameEngineFactory {
             GameEngine(
-                ClassicRules.copy(rotationSystem = rotationSystem, gravityTable = oneTickPerRow),
+                ClassicRules.copy(
+                    rotationSystem = rotationSystem,
+                    gravityTable = oneTickPerRow,
+                    levelProgression = levelProgression,
+                ),
                 ScriptedRandomizer.cycling(*pieces),
             )
         }
 
-        /** A game whose first three pieces fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9. */
-        val oneLineGame = scriptedGame(
-            SpawnAs(
-                PieceType.I to Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
-                PieceType.J to Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
-                PieceType.O to Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
-            ),
-            PieceType.I,
-            PieceType.J,
-            PieceType.O,
+        /** A level progression for tests: one level up for each line cleared, from the classic start levels. */
+        val oneLevelPerLine = object : LevelProgression {
+            override val startLevels: List<Level> = ClassicLevelProgression.startLevels
+
+            override fun levelFor(
+                start: Level,
+                lines: Lines,
+            ): Level = Level(start.value + lines.value)
+        }
+
+        /** Pieces I, J and O that fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9. */
+        val oneLineSpawns = SpawnAs(
+            PieceType.I to Orientation(setOf(Position(-5, 0), Position(-4, 0), Position(-3, 0), Position(-2, 0))),
+            PieceType.J to Orientation(setOf(Position(-1, 0), Position(0, 0), Position(1, 0), Position(2, 0))),
+            PieceType.O to Orientation(setOf(Position(3, -1), Position(4, -1), Position(3, 0), Position(4, 0))),
         )
+
+        /** A game whose first three pieces fill row 19 together: columns 0 to 3, 4 to 7, then 8 and 9. */
+        val oneLineGame = scriptedGame(oneLineSpawns, PieceType.I, PieceType.J, PieceType.O)
+
+        /** The [oneLineGame] whose level goes up with each line: its first clear is also a level up. */
+        val oneLineLevelUpGame =
+            scriptedGame(oneLineSpawns, PieceType.I, PieceType.J, PieceType.O, levelProgression = oneLevelPerLine)
 
         /**
          * A game whose first ten pieces fill rows 16 to 19 together: two-by-two squares stacked in pairs on columns

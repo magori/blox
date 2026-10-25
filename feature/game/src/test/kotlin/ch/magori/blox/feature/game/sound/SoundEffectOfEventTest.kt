@@ -67,11 +67,69 @@ class SoundEffectOfEventTest {
     }
 
     @Test
-    fun `a level up gives nothing yet`() {
+    fun `a level up gives the level up sound`() {
         // When
         val effect = soundEffectFor(GameEvent.LevelUp(Level(1)))
 
         // Then
-        assertThat(effect).isNull()
+        assertThat(effect).isEqualTo(SoundEffects.levelUp)
+    }
+
+    @ParameterizedTest(name = "{0} lines")
+    @ValueSource(ints = [1, 2, 3])
+    fun `on the tick of a level up the level up sound replaces the one to three lines effect`(count: Int) {
+        // Given the events of the last tick of a clear that reaches the next level
+        val events = listOf(GameEvent.LinesCleared(LineClear(count)), GameEvent.LevelUp(Level(1)))
+
+        // When
+        val effects = soundEffectsFor(events)
+
+        // Then
+        assertThat(effects).containsExactly(SoundEffects.levelUp)
+    }
+
+    @Test
+    fun `four lines that reach the next level play the four lines effect alone`() {
+        // Given
+        val events = listOf(GameEvent.LinesCleared(LineClear(4)), GameEvent.LevelUp(Level(1)))
+
+        // When
+        val effects = soundEffectsFor(events)
+
+        // Then
+        assertThat(effects).containsExactly(SoundEffects.fourLinesCleared)
+    }
+
+    @Test
+    fun `the other effects of a tick all play, in order, as the game over after a level up`() {
+        // Given the last clear of a game that reaches the next level, then the next piece that does not fit
+        val events = listOf(
+            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.LinesCleared(LineClear(1)),
+            GameEvent.LevelUp(Level(1)),
+            GameEvent.GameOver,
+        )
+
+        // When
+        val effects = soundEffectsFor(events)
+
+        // Then
+        assertThat(effects).containsExactly(SoundEffects.levelUp, SoundEffects.gameOver)
+    }
+
+    @Test
+    fun `a rotation on the tick of a level up still plays, before the level up sound`() {
+        // Given
+        val events = listOf(
+            GameEvent.PieceRotated(spawned(PieceType.T)),
+            GameEvent.LinesCleared(LineClear(1)),
+            GameEvent.LevelUp(Level(1)),
+        )
+
+        // When
+        val effects = soundEffectsFor(events)
+
+        // Then
+        assertThat(effects).containsExactly(SoundEffects.rotation, SoundEffects.levelUp)
     }
 }
