@@ -12,12 +12,48 @@ ensuite. Deux thèmes : **Original** (vert sauge pastel) et **Couleurs**.
 Prérequis : Android Studio récent, SDK Android 37. Le JDK 17 de compilation est téléchargé par la
 toolchain Gradle s'il manque (résolveur foojay).
 
+> **Note Windows** : `./gradlew` fonctionne sous Git Bash. Sous PowerShell ou CMD, utiliser `.\gradlew.bat`.
+
+### Commandes principales
+
 ```bash
-./gradlew :core:game:test      # tests du domaine, sur la JVM
-./gradlew testDebugUnitTest    # tests unitaires de tous les modules
-./gradlew assembleDebug        # APK de debug
-./gradlew installDebug         # installation sur un appareil connecté
+# Tests unitaires
+./gradlew :core:game:test              # tests du domaine (JUnit 5, JVM)
+./gradlew :core:music:test             # tests des partitions (JUnit 5, JVM)
+./gradlew testDebugUnitTest            # tests unitaires de tous les modules
+
+# Qualité et style de code
+./gradlew ktlintCheck                  # vérification du style Kotlin (ktlintFormat pour corriger)
+./gradlew -p build-logic ktlintCheck   # vérification du style des plugins de convention
+./gradlew buildHealth                  # analyse des dépendances
+./gradlew lintDebug                    # lint Android (inclut les règles Compose)
+
+# Build et Déploiement
+./gradlew assembleDebug                # compilation de l'APK de debug
+./gradlew installDebug                 # installation sur un appareil connecté
 ```
+
+### Lancer un test ciblé
+
+```bash
+# Test spécifique dans un module Kotlin pur
+./gradlew :core:game:test --tests "ch.magori.blox.core.game.model.BoardTest"
+
+# Test spécifique dans un module Android
+./gradlew :feature:game:testDebugUnitTest --tests "ch.magori.blox.feature.game.GameViewModelTest"
+```
+
+### Tout exécuter en une seule commande
+
+- **Dans Android Studio** (fenêtre *Run Anything* / configurations Gradle) :
+  - Pour vérifier et compiler : `check assembleDebug`
+  - Pour tout vérifier **et installer sur le mobile** : `check installDebug`
+  - Pour juste **installer directement sur le mobile** : `installDebug`
+
+- **Dans un Terminal** (Git Bash, PowerShell, CMD) :
+  - Pour vérifier et compiler : `./gradlew check assembleDebug`
+  - Pour tout vérifier **et installer sur le mobile** : `./gradlew check installDebug`
+  - Pour juste **installer directement sur le mobile** : `./gradlew installDebug`
 
 ## Structure
 

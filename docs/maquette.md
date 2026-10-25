@@ -39,7 +39,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
 | V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
 | V25 | Enregistrer la musique, thème Couleurs v2 nuit | « V25 · Enregistrer la musique · thème Couleurs sombre » |
-| V26 | Choix du jeu, cartouches (écran d'ouverture, Couleurs v2) | « Ouverture · choix du jeu (cartouches) » |
+| V26 | Choix du jeu, cartouche Classique seule (écran d'ouverture, Couleurs v2) | « V26 · Choix du jeu · cartouche Classique · jour », « … nuit », « … console chargée » |
 | V27 | Accueil v2 du mode Classique | rangée « Couleurs v2 — Accueil » |
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
