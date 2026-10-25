@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 157 / 219 | `██████████████░░░░░░` **72 %** |
+| **Général** | 158 / 219 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1007,7 +1007,7 @@ composants.
   maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
   parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
   feuille au-dessus du clavier, coches sur les choix retenus).
-- [ ] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
+- [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.
