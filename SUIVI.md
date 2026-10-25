@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 159 / 219 | `███████████████░░░░░` **73 %** |
+| **Général** | 161 / 219 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -457,7 +457,7 @@ Référence : [docs/musique.md](docs/musique.md).
 - [x] **P4.8** Effets sonores courts (rotation, ligne, 4 lignes, fin de partie), optionnels. Fait :
   désactivés par défaut (décision du développeur), arpèges synthétisés, événement `PieceRotated` ;
   interrupteur dans P5.37.
-- [ ] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
+- [x] **P4.30** Effet sonore de passage de niveau (optionnel, vu en P4.8) : repris par P5.69, sur
   l'événement `LevelUp` (P5.64), qui tombe sur le même tick que `LinesCleared` : le fusionner ou
   choisir lequel jouer.
 - [x] **P4.9** Droits : comparer la mélodie de *Korobeïniki* (`docs/musique.md`) à une partition
@@ -880,7 +880,7 @@ composants.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
   `MusicPlayerContract › a volume set before a play applies to it`, `the volume of the effects applies to each
   track`, `a volume changed in the settings applies to the music playing`.
-- [ ] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
+- [x] **P5.69** Son « niveau » (`core:music`, `feature:game`) : `SoundEffects.levelUp`, réchauffé avec les
   autres, joué à `LevelUp` ; aucune vibration. Après P5.64.
   Cas : `the level up sound is an effect of its own, shorter than the four lines`,
   `a level up plays the level up sound when the sound effects are on`, `a level up does not vibrate`.
