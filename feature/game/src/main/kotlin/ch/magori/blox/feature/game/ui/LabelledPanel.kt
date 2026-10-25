@@ -79,12 +79,11 @@ internal fun ValueText(
     maxFontSize: TextUnit = PanelSizes.value,
     capToNormalFont: Boolean = false,
 ) {
-    val typography = BloxTheme.typography
     Text(
-        text = typography.valueText(text),
+        text = text,
         modifier = modifier,
         color = BloxTheme.palette.ink,
-        style = typography.value,
+        style = BloxTheme.typography.value,
         maxLines = 1,
         softWrap = false,
         autoSize = shrinkingFrom(maxFontSize, capToNormalFont),

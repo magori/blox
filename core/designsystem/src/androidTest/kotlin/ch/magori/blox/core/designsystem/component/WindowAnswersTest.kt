@@ -81,7 +81,7 @@ internal class WindowAnswersTest {
     @Test
     @DisplayName("in a font twice as large, in Colorful, on 360 dp, answers whose words hold whole stay side by side")
     fun inALargeFontAnswersWhoseWordsHoldStaySideBySide() = extension.use {
-        // Given a font twice as large, in Chakra Petch: « Garder la musique » goes to the line between its words
+        // Given a font twice as large, in Manrope: « Garder la musique » goes to the line between its words
         showWindow(fontScale = 2f, kind = BloxThemeKind.COLORFUL) {
             WindowAnswers(dismiss = "Garder la musique", confirm = "Supprimer", onConfirm = {}, onDismiss = {})
         }

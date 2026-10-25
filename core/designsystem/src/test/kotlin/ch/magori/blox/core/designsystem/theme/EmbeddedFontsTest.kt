@@ -19,6 +19,18 @@ class EmbeddedFontsTest {
         }
     }
 
+    @Test
+    fun `the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`() {
+        // Given the fonts embedded in res/font and the licences in the assets
+        val fonts = fontDir.listFiles().orEmpty().map(::familyOf)
+        val licences = licensesDir.listFiles().orEmpty().map { it.name }
+
+        // Then each family is there once, as a font and as a licence, and Chakra Petch went with Colorful v1
+        val families = listOf("press_start_2p", "manrope", "unbounded", "bagel_fat_one")
+        assertThat(fonts).containsExactlyInAnyOrderElementsOf(families)
+        assertThat(licences).containsExactlyInAnyOrderElementsOf(families)
+    }
+
     /** The family of a font file, its name without the weight: press_start_2p_regular.ttf is press_start_2p. */
     private fun familyOf(font: File): String = font.nameWithoutExtension.substringBeforeLast('_')
 

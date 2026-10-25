@@ -53,7 +53,7 @@ object BloxTheme {
             BloxThemeKind.COLORFUL -> BloxShapeSets.Colorful
         }
 
-    /** The fonts of the current theme: titles, labels and values (see [BloxTypography.valueText]). */
+    /** The fonts of the current theme: titles, labels and values. */
     val typography: BloxTypography
         @Composable
         @ReadOnlyComposable

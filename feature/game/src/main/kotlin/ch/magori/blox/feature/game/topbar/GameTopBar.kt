@@ -158,7 +158,7 @@ private fun rememberTopBarRows(
         val valueStyle = typography.value.copy(fontSize = PanelSizes.value)
         val recordWidth = maxOf(
             widthAtSmallestSize(AnnotatedString(recordLabel.uppercase()), labelStyle),
-            widthAtSmallestSize(typography.valueText(record), valueStyle),
+            widthAtSmallestSize(AnnotatedString(record), valueStyle),
         )
         // In whole pixels, as the row rounds the button and its gaps.
         val beside = with(density) { BloxSizes.minTouchTarget.roundToPx() + 2 * TopBarSizes.gap.roundToPx() }
