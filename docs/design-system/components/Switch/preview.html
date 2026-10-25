@@ -1,0 +1,48 @@
+<!-- @dsCard group="Paramètres" height=260 subtitle="Rangées de réglage : allumé, éteint, désactivé" -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); }
+.wrap { max-width: 358px; padding: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+.section { color: var(--label); font-size: 15px; padding: 0 4px; }
+.card { padding: 8px; display: flex; flex-direction: column; background: var(--panel); border: 2px solid var(--panel-border); border-radius: var(--radius-window); }
+.line { height: 1px; margin: 0 8px; background: var(--panel-border); }
+.row { width: 100%; min-height: var(--setting-row); padding: 8px; box-sizing: border-box; display: flex; align-items: center; gap: 12px; text-align: left; font-family: var(--font-body); background: transparent; color: var(--ink); border: none; border-radius: var(--radius-md); cursor: pointer; }
+.row:active { background: var(--button-pressed); }
+.row:active .thumb { width: 28px; }
+.row:disabled { cursor: default; color: var(--label); }
+.row:disabled:active { background: transparent; }
+.ic { width: 40px; height: 40px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; color: var(--label); }
+.txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lab { font-size: 15px; font-weight: 700; }
+.sub { font-size: 14px; color: var(--label); }
+.track { width: var(--switch-track); height: 32px; flex-shrink: 0; padding: 2px; box-sizing: border-box; display: flex; align-items: center; justify-content: flex-start; background: var(--button); border: 2px solid var(--button-outline); border-radius: var(--radius-pill); }
+.thumb { width: 20px; height: 20px; margin-left: 2px; display: flex; align-items: center; justify-content: center; background: var(--label); color: var(--accent); border-radius: var(--radius-pill); transition: width 0.1s; }
+.thumb svg { display: none; }
+.row[aria-checked="true"] .track { justify-content: flex-end; background: var(--accent); box-shadow: var(--button-gloss); }
+.row[aria-checked="true"] .thumb { width: var(--switch-thumb); height: var(--switch-thumb); margin: 0; background: var(--accent-ink); }
+.row[aria-checked="true"] .thumb svg { display: block; }
+.row:disabled .track { background: var(--panel-inset); border-color: var(--panel-border); box-shadow: none; }
+.row:disabled .thumb { background: var(--label); color: var(--panel-inset); }
+.row:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div id="snd" class="section">Sons et vibrations</div>
+<div class="card" role="group" aria-labelledby="snd">
+<button class="row" type="button" role="switch" aria-checked="true"><span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"></path></svg></span><span class="txt"><span class="lab">Effets sonores</span><span class="sub">Rotation, lignes, fin de partie</span></span><span class="track" aria-hidden="true"><span class="thumb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg></span></span></button>
+<div class="line"></div>
+<button class="row" type="button" role="switch" aria-checked="false"><span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM3 8v8M21 8v8"></path></svg></span><span class="txt"><span class="lab">Vibrations</span><span class="sub">Lignes effacées, fin de partie</span></span><span class="track" aria-hidden="true"><span class="thumb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg></span></span></button>
+<div class="line"></div>
+<button class="row" type="button" role="switch" aria-checked="true" disabled aria-disabled="true"><span class="ic" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2 2M15.7 15.7l2 2M6.3 17.7l2-2M15.7 8.3l2-2M3 3l18 18"></path></svg></span><span class="txt"><span class="lab">Effets réduits</span><span class="sub">Imposé par les réglages d’Android</span></span><span class="track" aria-hidden="true"><span class="thumb"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"></path></svg></span></span></button>
+</div>
+</div>
+<script>
+document.querySelectorAll('.row:not(:disabled)').forEach((b) => b.addEventListener('click', () => b.setAttribute('aria-checked', b.getAttribute('aria-checked') === 'true' ? 'false' : 'true')));
+</script>
+</body>
+</html>

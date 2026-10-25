@@ -1,0 +1,45 @@
+<!-- @dsCard group="Accueil" height=200 subtitle="Groupes Mode et Thème, segment retenu et indisponible" -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: var(--page); color: var(--ink); font-family: var(--font-body); }
+.wrap { max-width: 358px; padding: var(--space-6) var(--space-4); display: flex; flex-direction: column; gap: var(--space-4); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-3); }
+.section { color: var(--label); width: 60px; }
+.group { height: var(--touch-target); padding: 0 1px; box-sizing: border-box; display: inline-flex; align-items: center; border: 2px solid var(--button-outline); border-radius: var(--radius-pill); background: var(--button); }
+.seg { height: 40px; padding: 0 12px; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-size: 15px; font-weight: 500; background: transparent; color: var(--ink); border: none; border-radius: var(--radius-pill); cursor: pointer; }
+.seg[aria-checked="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.seg .check { display: none; }
+.seg[aria-checked="true"] .check { display: block; }
+.seg:disabled { color: var(--label); cursor: default; }
+.soon { font-size: 11px; font-weight: 700; letter-spacing: 0.04em; }
+.seg:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="row"><span id="mode" class="section">Mode</span>
+<div class="group" role="radiogroup" aria-labelledby="mode">
+<button class="seg" type="button" role="radio" aria-checked="true"><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>Classique</button>
+<button class="seg" type="button" role="radio" aria-checked="false" disabled aria-label="Moderne, bientôt, indisponible">Moderne <span class="soon">BIENTÔT</span></button>
+</div></div>
+<div class="row"><span id="theme" class="section">Thème</span>
+<div class="group" role="radiogroup" aria-labelledby="theme" id="themes">
+<button class="seg" type="button" role="radio" aria-checked="false"><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>Original</button>
+<button class="seg" type="button" role="radio" aria-checked="true"><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>Couleurs</button>
+<button class="seg" type="button" role="radio" aria-checked="false"><svg class="check" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12.5l5 5L20 6.5"></path></svg>Brume</button>
+</div></div>
+</div>
+<script>
+const group = document.getElementById('themes');
+group.addEventListener('click', (e) => {
+  const b = e.target.closest('.seg');
+  if (!b) { return; }
+  group.querySelectorAll('.seg').forEach((o) => o.setAttribute('aria-checked', o === b ? 'true' : 'false'));
+});
+</script>
+</body>
+</html>
