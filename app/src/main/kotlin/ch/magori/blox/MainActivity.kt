@@ -5,21 +5,26 @@ import android.view.View
 import android.view.ViewTreeObserver
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.navigation.BloxNavDisplay
+import ch.magori.blox.theme.BloxSystemBars
+import ch.magori.blox.theme.hasDarkSystemBarIcons
+import ch.magori.blox.theme.showSystemBars
 
 class MainActivity : ComponentActivity() {
     private val container get() = (application as BloxApplication).container
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        // Until the theme is read, the window shows its background, the page of Original (themes.xml); then the bars
+        // follow the variant drawn (BloxSystemBars), not the mode of the system.
+        showSystemBars(darkIcons = hasDarkSystemBarIcons(BloxThemeVariant.ORIGINAL))
         holdFirstFrameUntilThemeIsRead()
         setContent {
             // The theme chosen on the home screen colours every screen. It is known at once once the
@@ -27,6 +32,7 @@ class MainActivity : ComponentActivity() {
             val themeKind by container.appTheme.kind.collectAsStateWithLifecycle()
             themeKind?.let { kind ->
                 BloxTheme(kind = kind) {
+                    BloxSystemBars()
                     BloxNavDisplay(
                         homeViewModelFactory = container.homeViewModelFactory,
                         gameViewModelFactory = container.gameViewModelFactory,

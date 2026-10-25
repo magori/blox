@@ -112,8 +112,8 @@ class GameLayoutTest {
         assertThat(layout.rotations).isEqualTo(Rect(left = 104f, top = 896f, right = 344f, bottom = 1056f))
         assertThat(layout.cellSize).isEqualTo(20f)
         assertThat(layout.scoresAbove).isTrue()
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 9f, right = 344f, bottom = 279f))
-        assertThat(layout.board).isEqualTo(Rect(left = 72f, top = 311f, right = 272f, bottom = 711f))
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 7f, right = 344f, bottom = 281f))
+        assertThat(layout.board).isEqualTo(Rect(left = 72f, top = 313f, right = 272f, bottom = 713f))
         assertThat(layout.nextPiece).isNull()
     }
 
@@ -171,8 +171,8 @@ class GameLayoutTest {
         // value of 18 sp at 30 dp (not 36). Cells of 7 dp under them, 10 dp with the normal font
         assertThat(layout.scoresAbove).isTrue()
         assertThat(layout.cellSize).isEqualTo(14f)
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 7f, right = 344f, bottom = 401f))
-        assertThat(layout.board).isEqualTo(Rect(left = 102f, top = 433f, right = 242f, bottom = 713f))
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 4f, right = 344f, bottom = 404f))
+        assertThat(layout.board).isEqualTo(Rect(left = 102f, top = 436f, right = 242f, bottom = 716f))
     }
 
     @Test
@@ -363,19 +363,20 @@ class GameLayoutTest {
 
     @ParameterizedTest(name = "at {0} px per dp")
     @CsvSource("1.5", "2", "2.625", "3.5")
-    fun `the narrowest multi-window is too small to play 590 dp high, its cells under 8 dp, and playable 592 dp high`(
+    fun `the narrowest multi-window is too small to play 591 dp high, its cells under 8 dp, and playable 593 dp high`(
         density: Float,
     ) {
-        // Given windows of 220 dp wide, 590 and 592 dp high (591 at 2 px per dp and more): the score above the board
-        val (width, lower) = available(widthDp = 220, heightDp = 590, density = density)
-        val (_, higher) = available(widthDp = 220, heightDp = 592, density = density)
+        // Given windows of 220 dp wide, 591 and 593 dp high (592 is enough at 1.5 and 3.5 px per dp): the score
+        // above the board
+        val (width, lower) = available(widthDp = 220, heightDp = 591, density = density)
+        val (_, higher) = available(widthDp = 220, heightDp = 593, density = density)
 
         // When / Then cells under 8 dp in the lower, too small to play; 8 dp at least in the higher. The window is
         // measured whole, its margins and its top bar of one row (48 dp) taken off
         assertThat(gameLayout(width, lower, density).cellSize).isLessThan(8 * density)
-        assertThat(tooSmallToPlay(220 * density, 590 * density, density)).isTrue()
+        assertThat(tooSmallToPlay(220 * density, 591 * density, density)).isTrue()
         assertThat(gameLayout(width, higher, density).cellSize).isGreaterThanOrEqualTo(8 * density)
-        assertThat(tooSmallToPlay(220 * density, 592 * density, density)).isFalse()
+        assertThat(tooSmallToPlay(220 * density, 593 * density, density)).isFalse()
     }
 
     @ParameterizedTest(name = "at {0} px per dp")

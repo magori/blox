@@ -5,6 +5,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.float
+import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -17,6 +19,12 @@ import java.io.File
 object DesignTokens {
     /** A token of the Colorful theme, as written for the day (light) and for the night (dark). */
     data class Written(val day: String, val night: String)
+
+    /**
+     * A text style, as written: the font of the family of its group (`Unbounded` for `display`), its size in px, its
+     * line height in em and its weight.
+     */
+    data class WrittenText(val family: String, val fontSize: Float, val lineHeight: Float, val fontWeight: Int)
 
     private val root: JsonObject by lazy {
         val path = requireNotNull(System.getProperty("blox.designTokens")) {
@@ -47,6 +55,27 @@ object DesignTokens {
                 night = value.getValue("dark").jsonPrimitive.content,
             )
         }
+
+    /** Each text style of the Colorful theme, by its name. */
+    val textStyles: Map<String, WrittenText> by lazy {
+        val type = root.getValue("type").jsonObject
+        // A family is a CSS list, its font first: "\"Unbounded\", system-ui, sans-serif".
+        val fonts = type.getValue("families").jsonObject.mapValues { (_, list) ->
+            list.jsonPrimitive.content.substringBefore(',').trim('"')
+        }
+        type.getValue("groups").jsonArray.flatMap { group ->
+            val family = fonts.getValue(group.jsonObject.getValue("family").jsonPrimitive.content)
+            group.jsonObject.getValue("styles").jsonArray.map { style ->
+                val written = style.jsonObject
+                written.getValue("name").jsonPrimitive.content to WrittenText(
+                    family = family,
+                    fontSize = written.getValue("fontSize").jsonPrimitive.content.removeSuffix("px").toFloat(),
+                    lineHeight = written.getValue("lineHeight").jsonPrimitive.float,
+                    fontWeight = written.getValue("fontWeight").jsonPrimitive.int,
+                )
+            }
+        }.toMap()
+    }
 }
 
 private val PIXELS = Regex("""(-?\d+)px|0""")

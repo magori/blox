@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import app.cash.turbine.test
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
@@ -229,5 +230,15 @@ class MusicSwitchTest {
         // Then
         assertThat(scores.playing).isNull()
         assertThat(files.playing).isEqualTo(other)
+    }
+
+    @Test
+    fun `the volume goes to the scores and to the music files alike`() {
+        // When the music is turned down, whatever plays
+        switch.setVolume(Volume(30))
+
+        // Then the scores, and the files, play at that volume
+        assertThat(scores.volume).isEqualTo(Volume(30))
+        assertThat(files.volume).isEqualTo(Volume(30))
     }
 }

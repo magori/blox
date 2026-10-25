@@ -2,21 +2,20 @@ package ch.magori.blox.core.designsystem.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontVariation
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.R
 
 /**
- * Jetons de typographie de l'interface : la police et la graisse de chaque rôle de texte, sans taille (les
- * écrans gardent les leurs). Les polices sont embarquées dans res/font, voir docs/themes.md.
+ * Jetons de typographie de l'interface. Les rôles [title], [label] et [value] portent la police et la graisse, sans
+ * taille (les écrans gardent les leurs) ; les styles de texte du design system ([screenTitle] à [logo], ceux de
+ * docs/design-system/tokens.json) portent aussi la taille et l'interligne en Couleurs, la police seule en Original,
+ * qui n'a pas encore ses tailles. Les polices sont embarquées dans res/font, voir docs/themes.md.
  */
 @Immutable
 data class BloxTypography(
@@ -26,16 +25,37 @@ data class BloxTypography(
     val label: TextStyle,
     /** Valeurs chiffrées : score, niveau, lignes, record. */
     val value: TextStyle,
-    /** La largeur de chaque chiffre de la police de [value]. */
-    private val valueDigits: DigitWidths = DigitWidths.Fixed,
-) {
-    /**
-     * [text] tel qu'une valeur l'affiche : chaque chiffre aussi large que le plus large, pour qu'une valeur ne
-     * bouge pas quand elle change. Les polices sans chiffres tabulaires (ni `tnum`) sont complétées par un
-     * espacement en em, que la taille automatique suit.
-     */
-    fun valueText(text: String): AnnotatedString = valueDigits.pad(text)
-}
+    /** `screen-title` : titre d'un écran plein (Pause, Partie terminée, Paramètres). */
+    val screenTitle: TextStyle,
+    /** `final-score` : score de fin de partie, chiffres à chasse fixe. */
+    val finalScore: TextStyle,
+    /** `record` : record en haut de l'écran de jeu et à l'accueil, chiffres à chasse fixe. */
+    val record: TextStyle,
+    /** `stat-value` : valeur d'un encart (score, niveau, lignes), chiffres à chasse fixe. */
+    val statValue: TextStyle,
+    /** `game-title` : titre de la barre du haut, en capitales. */
+    val gameTitle: TextStyle,
+    /** `stat-label` : étiquette d'encart, en capitales. */
+    val statLabel: TextStyle,
+    /** `button-label` : libellé des boutons secondaires (Menu, Changer, tuiles). */
+    val buttonLabel: TextStyle,
+    /** `choice` : choix de l'accueil et lignes des Paramètres. */
+    val choice: TextStyle,
+    /** `section` : titre de section. */
+    val section: TextStyle,
+    /** `small` : note sous une section, nom de fichier, actions discrètes. */
+    val small: TextStyle,
+    /** `play-label` : libellé du bouton Jouer. */
+    val playLabel: TextStyle,
+    /** `four-lines-pop` : autocollant d'un effacement de 4 lignes. */
+    val fourLinesPop: TextStyle,
+    /** `points-pop` : autocollant des points gagnés, et NOUVEAU RECORD. */
+    val pointsPop: TextStyle,
+    /** `button-label-strong` : libellé des boutons principaux (Reprendre, Rejouer). */
+    val buttonLabelStrong: TextStyle,
+    /** `logo` : le titre BloX de l'accueil, et lui seul. */
+    val logo: TextStyle,
+)
 
 /**
  * La typographie Material du thème, pour ce qui la lit (accueil, boutons) : les tailles de Material, la police
@@ -64,63 +84,107 @@ internal fun BloxTypography.toMaterial(): Typography {
     )
 }
 
-/**
- * La largeur, en em, des chiffres 0 à 9 d'une police, telle que sa table hmtx la donne. Une police dont les
- * chiffres sont proportionnels les complète par un espacement : Android le répartit de part et d'autre du
- * glyphe, qui reste centré dans sa case, comme un chiffre tabulaire.
- */
-@Immutable
-class DigitWidths(private val ems: List<Float>) {
-    init {
-        require(ems.size == DIGIT_COUNT) { "One width per digit, 0 to 9" }
-    }
-
-    fun pad(text: String): AnnotatedString = buildAnnotatedString {
-        val widest = ems.max()
-        text.forEach { char ->
-            val padding = if (char.isAsciiDigit()) widest - ems[char - '0'] else 0f
-            if (padding > 0f) withStyle(SpanStyle(letterSpacing = padding.em)) { append(char) } else append(char)
-        }
-    }
-
-    companion object {
-        private const val DIGIT_COUNT = 10
-
-        /** Une police à chasse fixe : rien à compléter. */
-        val Fixed = DigitWidths(List(DIGIT_COUNT) { 1f })
-    }
-}
-
-private fun Char.isAsciiDigit() = this in '0'..'9'
-
 private val PressStart2P = FontFamily(Font(R.font.press_start_2p_regular, FontWeight.Normal))
 
-private val ChakraPetch = FontFamily(
-    Font(R.font.chakra_petch_regular, FontWeight.Normal),
-    Font(R.font.chakra_petch_bold, FontWeight.Bold),
+/**
+ * L'instance [weight] de la police variable [resId] (API 26 et plus, `minSdk` 26) : sans réglage de son axe wght,
+ * Android dessinerait l'instance par défaut du fichier (ExtraLight pour Manrope, Regular pour Unbounded), quelle que
+ * soit la graisse demandée.
+ */
+private fun variableFont(
+    resId: Int,
+    weight: FontWeight,
+) = Font(resId, weight, variationSettings = FontVariation.Settings(FontVariation.weight(weight.weight)))
+
+/**
+ * Manrope et Unbounded sont publiées en police variable, sur l'axe wght : chaque graisse en est une instance, posée
+ * sur l'axe par [variableFont]. Seules les graisses du design system y sont : une autre graisse demandée prend
+ * l'instance déclarée la plus proche (règles de CSS).
+ */
+private val Manrope = FontFamily(
+    variableFont(R.font.manrope_variable, FontWeight.Normal),
+    variableFont(R.font.manrope_variable, FontWeight.Medium),
+    variableFont(R.font.manrope_variable, FontWeight.Bold),
+    variableFont(R.font.manrope_variable, FontWeight.ExtraBold),
 )
 
-/** Le style d'une valeur : sans crénage, qui rapprocherait deux chiffres et ferait bouger la valeur. */
-private fun valueStyle(text: TextStyle) = text.copy(fontFeatureSettings = "\"kern\" 0")
+private val Unbounded = FontFamily(
+    variableFont(R.font.unbounded_variable, FontWeight.Bold),
+    variableFont(R.font.unbounded_variable, FontWeight.ExtraBold),
+)
+
+private val BagelFatOne = FontFamily(Font(R.font.bagel_fat_one_regular, FontWeight.Normal))
+
+/**
+ * Le style d'une valeur : sans crénage, qui rapprocherait deux chiffres et ferait bouger la valeur. Avec [tabular], les
+ * chiffres tabulaires de la police (`tnum`), tous de la même largeur.
+ */
+private fun valueStyle(
+    text: TextStyle,
+    tabular: Boolean = false,
+) = text.copy(fontFeatureSettings = if (tabular) "\"kern\" 0, \"tnum\"" else "\"kern\" 0")
+
+/** Un style de texte de tokens.json : 1 px du design system vaut 1 sp, l'interligne est en em. */
+private fun textStyle(
+    family: FontFamily,
+    weight: FontWeight,
+    size: Int,
+    lineHeight: Float,
+) = TextStyle(fontFamily = family, fontWeight = weight, fontSize = size.sp, lineHeight = lineHeight.em)
 
 object BloxTypographies {
-    /** Thème « Original » : tout en police pixel, à sa seule graisse (un gras synthétisé la brouillerait). */
+    /**
+     * Thème « Original » : tout en police pixel, à sa seule graisse (un gras synthétisé la brouillerait). Les styles du
+     * design system n'y ont que la police : les écrans d'Original gardent leurs tailles.
+     */
     val Original = TextStyle(fontFamily = PressStart2P, fontWeight = FontWeight.Normal).let { pixel ->
-        BloxTypography(title = pixel, label = pixel, value = valueStyle(pixel))
-    }
-
-    /** Thème « Couleurs » : Chakra Petch, en gras pour les titres et les valeurs. */
-    val Colorful = TextStyle(fontFamily = ChakraPetch, fontWeight = FontWeight.Bold).let { bold ->
+        val digits = valueStyle(pixel)
         BloxTypography(
-            title = bold,
-            label = TextStyle(fontFamily = ChakraPetch, fontWeight = FontWeight.Normal),
-            value = valueStyle(bold),
-            // Chakra Petch Bold, hmtx sur 1000 unités par em ; ses chiffres sont proportionnels, sans tnum.
-            valueDigits = DigitWidths(
-                listOf(0.652f, 0.382f, 0.574f, 0.603f, 0.579f, 0.606f, 0.622f, 0.522f, 0.638f, 0.627f),
-            ),
+            title = pixel,
+            label = pixel,
+            value = digits,
+            screenTitle = pixel,
+            finalScore = digits,
+            record = digits,
+            statValue = digits,
+            gameTitle = pixel,
+            statLabel = pixel,
+            buttonLabel = pixel,
+            choice = pixel,
+            section = pixel,
+            small = pixel,
+            playLabel = pixel,
+            fourLinesPop = pixel,
+            pointsPop = pixel,
+            buttonLabelStrong = pixel,
+            logo = pixel,
         )
     }
+
+    /**
+     * Thème « Couleurs » (ADR 0021) : Unbounded pour les titres d'écran, Jouer et les autocollants, Bagel Fat One pour
+     * le seul logo, Manrope pour le reste ; les chiffres prennent les chiffres tabulaires de Manrope.
+     */
+    val Colorful = BloxTypography(
+        title = TextStyle(fontFamily = Unbounded, fontWeight = FontWeight.Bold),
+        label = TextStyle(fontFamily = Manrope, fontWeight = FontWeight.Medium),
+        value = valueStyle(TextStyle(fontFamily = Manrope, fontWeight = FontWeight.Bold), tabular = true),
+        screenTitle = textStyle(Unbounded, FontWeight.Bold, size = 22, lineHeight = 1.4f),
+        finalScore = valueStyle(textStyle(Manrope, FontWeight.Bold, size = 40, lineHeight = 1.2f), tabular = true),
+        record = valueStyle(textStyle(Manrope, FontWeight.Bold, size = 17, lineHeight = 1.2f), tabular = true),
+        statValue = valueStyle(textStyle(Manrope, FontWeight.Bold, size = 17, lineHeight = 1.3f), tabular = true),
+        gameTitle = textStyle(Manrope, FontWeight.Bold, size = 15, lineHeight = 1.2f),
+        statLabel = textStyle(Manrope, FontWeight.Medium, size = 11, lineHeight = 1.6f),
+        buttonLabel = textStyle(Manrope, FontWeight.Bold, size = 15, lineHeight = 1.2f),
+        choice = textStyle(Manrope, FontWeight.Medium, size = 15, lineHeight = 1.2f),
+        section = textStyle(Manrope, FontWeight.Normal, size = 15, lineHeight = 1.4f),
+        small = textStyle(Manrope, FontWeight.Normal, size = 14, lineHeight = 1.6f),
+        playLabel = textStyle(Unbounded, FontWeight.ExtraBold, size = 24, lineHeight = 1.1f),
+        fourLinesPop = textStyle(Unbounded, FontWeight.ExtraBold, size = 22, lineHeight = 1.1f),
+        pointsPop = textStyle(Unbounded, FontWeight.ExtraBold, size = 15, lineHeight = 1.1f),
+        buttonLabelStrong = textStyle(Manrope, FontWeight.ExtraBold, size = 16, lineHeight = 1.2f),
+        logo = textStyle(BagelFatOne, FontWeight.Normal, size = 56, lineHeight = 0.9f),
+    )
 
     /**
      * La plus petite taille à laquelle un texte d'une ligne réduit le sien pour tenir dans sa place, pour rester

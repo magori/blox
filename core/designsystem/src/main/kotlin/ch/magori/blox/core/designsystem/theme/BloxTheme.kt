@@ -56,7 +56,7 @@ object BloxTheme {
         @ReadOnlyComposable
         get() = glossesOf(LocalBloxThemeVariant.current)
 
-    /** The fonts of the current theme: titles, labels and values (see [BloxTypography.valueText]). */
+    /** The fonts of the current theme: titles, labels and values. */
     val typography: BloxTypography
         @Composable
         @ReadOnlyComposable

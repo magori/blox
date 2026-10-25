@@ -2,6 +2,7 @@ package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.SoundEffect
 import ch.magori.blox.core.music.SoundEffects
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -215,6 +216,61 @@ class SoundEffectTracksTest {
         assertThat(tracks).isEmpty()
     }
 
+    @Test
+    fun `the volume of the effects applies to each track`() = runTest {
+        // Given an effect warmed up, as a game starts
+        val player = player()
+        player.warmUp(listOf(SoundEffects.rotation))
+        runCurrent()
+
+        // When the volume of the effects is turned down, then another effect plays
+        player.setVolume(Volume(60))
+        player.play(SoundEffects.linesCleared)
+        runCurrent()
+
+        // Then the track opened before and the one opened after play at its gain
+        assertThat(tracks.map { it.gain }).containsExactly(Volume(60).gain, Volume(60).gain)
+    }
+
+    @Test
+    fun `a track that cannot take the volume reports its failure, is released, and another one opens 5 s later`() =
+        runTest {
+            // Given an effect warmed up, whose track then refuses a gain
+            val player = player()
+            player.warmUp(listOf(SoundEffects.rotation))
+            runCurrent()
+            tracks.single().failsToSetGain = true
+
+            // When the volume of the effects changes, then the rotation plays once 5 s have passed
+            player.setVolume(Volume(60))
+            runCurrent()
+            advanceTimeBy(5.seconds)
+            player.play(SoundEffects.rotation)
+            runCurrent()
+
+            // Then the failure reached the player, not the caller (runTest would fail), and a new track plays at the gain
+            assertThat(failures).hasSize(1).first().isInstanceOf(IllegalStateException::class.java)
+            assertThat(tracks.map { it.released }).containsExactly(true, false)
+            assertThat(tracks.last().gain).isEqualTo(Volume(60).gain)
+            assertThat(tracks.last().plays).isEqualTo(1)
+        }
+
+    @Test
+    fun `a track that cannot take the volume as it opens is released and plays nothing`() = runTest {
+        // Given tracks that refuse a gain
+        val player = player()
+        failingGains = true
+
+        // When
+        player.play(SoundEffects.rotation)
+        runCurrent()
+
+        // Then
+        assertThat(failures).hasSize(1)
+        assertThat(tracks.single().released).isTrue()
+        assertThat(tracks.single().plays).isZero()
+    }
+
     /** The failures the next openings of a track throw, in order; empty, they open. */
     private val openFailures = ArrayDeque<RuntimeException>()
 
@@ -224,6 +280,9 @@ class SoundEffectTracksTest {
     /** Whether the tracks opened fail when they are released. */
     private var failingReleases = false
 
+    /** Whether the tracks opened refuse a gain. */
+    private var failingGains = false
+
     private fun TestScope.player(): SoundEffectTracks = SoundEffectTracks(
         render = { effect ->
             rendered += effect
@@ -232,23 +291,35 @@ class SoundEffectTracksTest {
         openTrack = { samples ->
             openings++
             openFailures.removeFirstOrNull()?.let { throw it }
-            FakeEffectTrack(samples, failsToPlay = failingPlays-- > 0, failingReleases).also { tracks += it }
+            FakeEffectTrack(samples, failsToPlay = failingPlays-- > 0, failingReleases, failingGains)
+                .also { tracks += it }
         },
         scope = backgroundScope,
         timeSource = testScheduler.timeSource,
         onFailure = { failures += it },
     )
 
-    /** A track that plays nothing and counts its plays; one that [failsToPlay] throws as a dead track would. */
+    /**
+     * A track that plays nothing, counts its plays and keeps its [gain]; one that [failsToPlay], or [failsToSetGain],
+     * throws as a dead track would.
+     */
     private class FakeEffectTrack(
         val samples: FloatArray,
         private val failsToPlay: Boolean,
         private val failsToRelease: Boolean,
+        var failsToSetGain: Boolean,
     ) : EffectTrack {
         var plays = 0
             private set
         var released = false
             private set
+        var gain = 1f
+            private set
+
+        override fun setGain(gain: Float) {
+            check(!failsToSetGain) { "The track refused the gain" }
+            this.gain = gain
+        }
 
         override fun play() {
             check(!failsToPlay) { "The track died" }

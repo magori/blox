@@ -17,6 +17,9 @@ androidxDatastore = "1.2.1"
 androidxAnnotation = "1.9.1"
 # Celle que Lifecycle apporte déjà (le SavedStateHandle des ViewModels) : la déclarer directement ne la change pas.
 androidxSavedState = "1.4.0"
+# Celle qu'Activity et Compose apportent déjà (l'apparence des barres système, lue par SystemBarsAppearanceTest) : la
+# déclarer directement ne la change pas.
+androidxCore = "1.18.0"
 # Okio suit la version que DataStore embarque (datastore-core-okio) : les monter ensemble.
 okio = "3.9.1"
 # Profil de référence et Macrobenchmark (P5.17), vérifiées le 2026-10-19 : dernières stables. Le plugin
@@ -55,6 +58,7 @@ dependencyAnalysis = "3.19.2"
 [libraries]
 androidx-activity = { group = "androidx.activity", name = "activity", version.ref = "androidxActivity" }
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "androidxActivity" }
+androidx-core = { group = "androidx.core", name = "core", version.ref = "androidxCore" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version.ref = "androidxAnnotation" }
 androidx-datastore-core = { group = "androidx.datastore", name = "datastore-core", version.ref = "androidxDatastore" }
 androidx-datastore-core-okio = { group = "androidx.datastore", name = "datastore-core-okio", version.ref = "androidxDatastore" }

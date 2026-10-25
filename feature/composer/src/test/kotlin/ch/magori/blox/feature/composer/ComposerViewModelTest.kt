@@ -13,6 +13,7 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.Volume
 import ch.magori.blox.feature.composer.model.Cell
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.EditorState
@@ -442,6 +443,8 @@ class ComposerViewModelTest {
             override fun setTempoFactor(factor: Double) = Unit
 
             override fun prepareTempo(factor: Double) = Unit
+
+            override fun setVolume(volume: Volume) = Unit
         }
         val editor = editor(refusing)
         editor.onCellTouched(pitch("E4"), eighth = 0)

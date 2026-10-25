@@ -1,0 +1,21 @@
+package ch.magori.blox.theme
+
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
+
+class SystemBarsTest {
+    @ParameterizedTest(name = "{0} -> dark icons: {1}")
+    @CsvSource(
+        "ORIGINAL, true",
+        "COLORFUL_LIGHT, true",
+        "COLORFUL_DARK, false",
+    )
+    fun `the icons of the system bars are dark on a light variant and light on a dark one`(
+        variant: BloxThemeVariant,
+        expectedDarkIcons: Boolean,
+    ) {
+        assertThat(hasDarkSystemBarIcons(variant)).isEqualTo(expectedDarkIcons)
+    }
+}

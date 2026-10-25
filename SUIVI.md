@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 166 / 221 | `███████████████░░░░░` **75 %** |
+| **Général** | 170 / 221 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -803,10 +803,10 @@ composants.
   `the painters are built again when the variant changes` (clé des peintres `(variante, taille, fond)`, P5.73) ; `PaletteContrastTest`,
   `KeyColorsTest`, `PauseButtonColorsTest`, `ChoiceColorsTest`, `SettingColorsTest`, `TrackColorsTest`,
   `LogoColorsTest` sur chaque variante ; captures jour et nuit.
-- [ ] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
+- [x] **P5.58** Polices v2 (ADR 0021) : Manrope, Unbounded et Bagel Fat One embarquées telles que publiées
   (OFL, licences dans les assets), Chakra Petch retirée ; styles de texte du design system (`screen-title` à
   `logo`) dans `BloxTypography`, comparés à `tokens.json` ; Original inchangé ; valeurs à chiffres fixes
-  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) **[à vérifier]** sur le fichier ; taille de l'APK mesurée et notée dans l'ADR 0021 **[à vérifier]**. Après P5.57.
+  (`tnum` de Manrope s'il existe, sinon `DigitWidths`) sur le fichier (confirmé : `tnum`) ; taille de l'APK mesurée et notée dans l'ADR 0021 (+1,0 Mo). Après P5.57.
   Cas : `each text style of tokens json has its family, size, line height and weight in the Colorful typography`,
   `the logo style is in Bagel Fat One and is used for the logo only`, `EmbeddedFontsTest` (licence de chaque
   police, plus de Chakra Petch), `ValueDigitsTest` (dix chiffres de même largeur, sans crénage),
@@ -868,13 +868,13 @@ composants.
 - [x] **P5.66** Effacer le record (`core:data`) : `HighScoreRepository.clear()`, `IOException` si non écrit.
   Cas (contrat, vrai dépôt et faux) : `a cleared record is 0`, `a score after a clear is a new record`,
   `clearing without a record leaves 0`, `a record that cannot be written fails with an IOException`.
-- [ ] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
+- [x] **P5.67** Vibreur et vibration des touches (`core:haptics`, `feature:game`) : `Haptics.canVibrate` ;
   `Haptic.KEY_PRESS`, effet le plus léger, attributs du toucher (`USAGE_TOUCH`, que le réglage « vibration au
   toucher » d'Android coupe) ; en jeu, l'appui d'une touche vibre si `keyVibration` est allumé. Après P5.65.
   Cas : `the key press is the predefined tick from Android 10 and a pulse of 10 ms before` **[à vérifier]**,
   `a pressed key vibrates once when key vibration is on`, `a released key does not vibrate`,
   `with key vibration off no key vibrates`.
-- [ ] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
+- [x] **P5.68** Volumes (`core:audio`, `app`) : `setVolume(Volume)` du séquenceur, du lecteur de fichier, du
   sélecteur et du décorateur de focus, et des effets ; courbe perceptive `Volume.gain` ; `AppContainer` applique
   les volumes enregistrés au lecteur partagé, en direct (aperçus et parties). Après P5.65.
   Cas : `a volume of 0 gives a gain of 0 and 100 a gain of 1`, `the gain grows with the volume`,
@@ -1018,7 +1018,7 @@ composants.
   valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
   Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
   3:1 de la case.
-- [ ] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
+- [x] **P5.89** Barres système suivant la variante (`app`, découvert en P5.57) : en Original avec le téléphone en
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).

@@ -25,6 +25,9 @@ public interface MusicTrack {
     /** Where the track stands in the file, in milliseconds. */
     public val position: Int
 
+    /** Plays at [gain], from 0 (silent) to 1 (the file as it is, the gain of a new track). */
+    public fun setGain(gain: Float)
+
     /** Stops the track for good, and frees what it holds. */
     public fun release()
 }
