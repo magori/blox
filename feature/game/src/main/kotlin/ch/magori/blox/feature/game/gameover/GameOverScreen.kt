@@ -19,6 +19,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.component.PrimaryButton
+import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -28,9 +30,7 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.PanelSizes
-import ch.magori.blox.feature.game.ui.PrimaryButton
 import ch.magori.blox.feature.game.ui.ScreenSizes
-import ch.magori.blox.feature.game.ui.SecondaryButton
 import ch.magori.blox.feature.game.ui.TitledScreen
 import ch.magori.blox.feature.game.ui.ValueText
 
@@ -98,11 +98,13 @@ internal fun GameOverScreen(
             text = stringResource(R.string.feature_game_over_replay),
             icon = BloxIcon.REPLAY,
             onClick = onReplay,
+            modifier = Modifier.fillMaxWidth(),
         )
         SecondaryButton(
             text = stringResource(R.string.feature_game_over_menu),
             icon = BloxIcon.HOME,
             onClick = onMenu,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

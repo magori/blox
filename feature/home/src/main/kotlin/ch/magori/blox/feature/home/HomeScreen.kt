@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
+import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.text.scoreText
@@ -275,7 +276,11 @@ private fun Header(onSettings: () -> Unit) {
                 modifier = Modifier.semantics { heading() },
             )
         }
-        SettingsButton(onClick = onSettings)
+        GlyphButton(
+            icon = BloxIcon.GEAR,
+            description = stringResource(R.string.feature_home_settings),
+            onClick = onSettings,
+        )
     }
 }
 

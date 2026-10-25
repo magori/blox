@@ -247,7 +247,6 @@ private fun MusicCardRow(
             icon = if (listening != null) BloxIcon.STOP else BloxIcon.PLAY,
             description = stringResource(listenDescription, card.name),
             onClick = { actions.onListen(card.id) },
-            background = palette.page,
         )
         // Touching the name, or its info line, opens the music in the editor; TalkBack says so. 48 dp high at least.
         Column(
@@ -464,7 +463,6 @@ private fun UndoMessage(
             GlyphButton(
                 description = stringResource(R.string.feature_musics_close_message),
                 onClick = onClose,
-                ink = palette.page,
                 glyph = { Glyphs.close(this, it) },
             )
         }

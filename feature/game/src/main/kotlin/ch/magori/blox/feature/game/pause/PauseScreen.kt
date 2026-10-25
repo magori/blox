@@ -1,16 +1,17 @@
 package ch.magori.blox.feature.game.pause
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.component.PrimaryButton
+import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
-import ch.magori.blox.feature.game.ui.PrimaryButton
-import ch.magori.blox.feature.game.ui.SecondaryButton
 import ch.magori.blox.feature.game.ui.TitledScreen
 
 /**
@@ -32,12 +33,13 @@ internal fun PauseScreen(
             text = stringResource(R.string.feature_game_pause_resume),
             icon = BloxIcon.PLAY,
             onClick = onResume,
-            modifier = Modifier.testTag("pause_resume"),
+            modifier = Modifier.fillMaxWidth().testTag("pause_resume"),
         )
         SecondaryButton(
             text = stringResource(R.string.feature_game_pause_menu),
             icon = BloxIcon.HOME,
             onClick = onMenu,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
 }

@@ -1,15 +1,10 @@
 package ch.magori.blox.core.designsystem.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
@@ -19,13 +14,10 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
-import ch.magori.blox.core.designsystem.theme.BloxSizes
-import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /** The tag of the icon of a [GlyphButton] of an icon alone, decorative, read by the tests only. */
 const val GLYPH_BUTTON_ICON_TAG = "glyph_button_icon"
@@ -35,26 +27,26 @@ private const val GLYPH_STROKE = 0.12f
 private const val DOT_RADIUS = 0.09f
 
 /**
- * A button that shows a glyph alone, drawn by [glyph] in [ink] in a box of [IconSizes.alone], on a touch target of
- * 48 dp, on [background] (transparent unless told otherwise); TalkBack reads [description].
+ * A button of the family Icône that shows a glyph alone, drawn by [glyph] in the ink of the button in a box of
+ * [IconSizes.alone], on a disc of 48 dp; TalkBack reads [description].
  */
 @Composable
 fun GlyphButton(
     description: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    ink: Color = BloxTheme.palette.ink,
-    background: Color = Color.Transparent,
+    enabled: Boolean = true,
     glyph: DrawScope.(ink: Color) -> Unit,
 ) {
-    AloneButton(description, onClick, background, modifier) {
+    AloneButton(description, onClick, enabled, modifier) {
+        val ink = LocalContentColor.current
         Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { glyph(ink) })
     }
 }
 
 /**
- * A button that shows [icon] alone, [IconSizes.alone] square, in [ink], on a touch target of 48 dp, on [background]
- * (transparent unless told otherwise); TalkBack reads [description], once: the icon itself has none.
+ * A button of the family Icône that shows [icon] alone, [IconSizes.alone] square, in the ink of the button, on a disc
+ * of 48 dp; TalkBack reads [description], once: the icon itself has none.
  */
 @Composable
 fun GlyphButton(
@@ -62,32 +54,27 @@ fun GlyphButton(
     description: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    ink: Color = BloxTheme.palette.ink,
-    background: Color = Color.Transparent,
+    enabled: Boolean = true,
 ) {
-    AloneButton(description, onClick, background, modifier) {
-        BloxIcon(icon, Modifier.testTag(GLYPH_BUTTON_ICON_TAG), size = IconSizes.alone, tint = ink)
+    AloneButton(description, onClick, enabled, modifier) {
+        BloxIcon(icon, Modifier.testTag(GLYPH_BUTTON_ICON_TAG), size = IconSizes.alone)
     }
 }
 
-/** A button of 48 dp at least, on [background], that shows [content] alone; TalkBack reads [description]. */
+/** A bubble button of the family Icône that shows [content] alone; TalkBack reads [description]. */
 @Composable
 private fun AloneButton(
     description: String,
     onClick: () -> Unit,
-    background: Color,
+    enabled: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    val shape = BloxTheme.shapes.md
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = modifier
-            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = BloxSizes.minTouchTarget)
-            .clip(shape)
-            .background(background, shape)
-            .clickable(role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = description },
+    BubbleButton(
+        family = ButtonFamily.ICON,
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.semantics { contentDescription = description },
     ) {
         content()
     }
