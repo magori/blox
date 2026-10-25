@@ -1,5 +1,6 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -35,6 +36,16 @@ class FakeUserPreferencesRepository(
     override suspend fun setVibrations(vibrations: Boolean) = write { it.copy(vibrations = vibrations) }
 
     override suspend fun setSoundEffects(soundEffects: Boolean) = write { it.copy(soundEffects = soundEffects) }
+
+    override suspend fun setReducedEffects(reducedEffects: Boolean) = write { it.copy(reducedEffects = reducedEffects) }
+
+    override suspend fun setLeftHanded(leftHanded: Boolean) = write { it.copy(leftHanded = leftHanded) }
+
+    override suspend fun setKeyVibration(keyVibration: Boolean) = write { it.copy(keyVibration = keyVibration) }
+
+    override suspend fun setMusicVolume(musicVolume: Volume) = write { it.copy(musicVolume = musicVolume) }
+
+    override suspend fun setEffectsVolume(effectsVolume: Volume) = write { it.copy(effectsVolume = effectsVolume) }
 
     /** As DataStore does, a write applies to the settings kept, or to the default ones if there are none. */
     private fun write(change: (UserPreferences) -> UserPreferences) {

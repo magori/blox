@@ -75,7 +75,7 @@ class GameViewModelTest {
 
     /**
      * The settings of the player: Korobeiniki, unless a test chooses another music, and the vibrations and the sound
-     * effects turned on (they are off by default), unless a test turns them off.
+     * effects turned on (the vibrations are off by default, the sound effects on), unless a test turns them off.
      */
     private val preferences =
         FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(vibrations = true, soundEffects = true))
