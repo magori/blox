@@ -18,6 +18,8 @@ dependencies {
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.foundation)
     api(libs.androidx.compose.material3)
+    // Le retour d'un bouton relâché, compté sur les images de l'écran dans un LaunchedEffect (BubbleButton).
+    implementation(libs.kotlinx.coroutines.core)
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)

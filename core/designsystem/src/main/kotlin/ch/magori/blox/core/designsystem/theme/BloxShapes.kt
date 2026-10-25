@@ -52,4 +52,8 @@ object BloxShapeSets {
 object BloxBorders {
     /** The frame of a panel, of a secondary button, of a choice of the home and of a key of the game. */
     val frame = 2.dp
+
+    /** The ring of the keyboard focus around a button, and how far it stands off its edge. */
+    val focus = 3.dp
+    val focusGap = 3.dp
 }

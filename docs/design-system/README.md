@@ -43,7 +43,7 @@ de suite ; ils reviennent en `motion-press`. Focus clavier : contour de 3 px `in
 | Famille | Forme | Repos | Pressé | Désactivé |
 |---|---|---|---|---|
 | Principal XL (Jouer) | pilule de 72 px (84 tablette, 64 couché) | `accent`, `play-label` en `accent-ink`, sous-ligne `small` 600, disque de 52 px `accent-ink` avec le triangle en `accent` | `accent-pressed` | — |
-| Principal (Reprendre, Rejouer) | pilule de 56 px | `accent`, `button-label-strong`, pictogramme de 24 | `accent-pressed` | — |
+| Principal (Reprendre, Rejouer) | pilule de 56 px | `accent`, `button-label-strong`, pictogramme de 16 à côté du libellé | `accent-pressed` | — |
 | Secondaire (Menu, Changer, tuiles) | pilule de 56 px ; tuile en `radius-md` | `button`, cadre de 2 px `button-outline`, `button-ink` 15/700 | `button-pressed`, cadre gardé | libellé `label`, cadre `panel-border`, sans reflet |
 | Icône (Paramètres, Écouter, Pause) | disque de 48 px (56 tablette) | comme Secondaire, pictogramme de 24 | idem | idem |
 | Groupe de choix (mode, thème) | boîte de 48 px en pilule, cadre de 2 px `button-outline` autour du groupe ; segments de 44 px | segment : transparent, `ink` 15/500 | retenu : `accent`, coche de 16 et libellé `accent-ink` | Moderne : libellé `label` et étiquette `BIENTÔT` 11/700 |

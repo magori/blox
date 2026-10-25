@@ -11,6 +11,12 @@ object BloxSizes {
      */
     val minTouchTarget = 48.dp
 
+    /**
+     * How far a button or a key goes down while it is pressed, in every theme: a cue other than its pressed fill, and
+     * no animation, so kept in reduced effects. Not a token of its own: the usage of `button-gloss-pressed` says it.
+     */
+    val pressDrop = 2.dp
+
     /** Between a window (`WindowDialog`) and the edges of the screen. */
     val windowMargin = 16.dp
 

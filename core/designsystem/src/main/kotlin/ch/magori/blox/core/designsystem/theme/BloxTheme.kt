@@ -56,6 +56,12 @@ object BloxTheme {
         @ReadOnlyComposable
         get() = glossesOf(LocalBloxThemeVariant.current)
 
+    /** The colours of the bubble buttons of the current variant. */
+    val buttons: BloxButtonColors
+        @Composable
+        @ReadOnlyComposable
+        get() = buttonColorsOf(LocalBloxThemeVariant.current)
+
     /** The fonts of the current theme: titles, labels and values. */
     val typography: BloxTypography
         @Composable
@@ -93,6 +99,13 @@ internal fun glossesOf(variant: BloxThemeVariant): BloxGlosses = when (variant) 
     BloxThemeVariant.ORIGINAL -> BloxGlossSets.Original
     BloxThemeVariant.COLORFUL_LIGHT -> BloxGlossSets.ColorfulLight
     BloxThemeVariant.COLORFUL_DARK -> BloxGlossSets.ColorfulDark
+}
+
+/** The colours of the bubble buttons of [variant]. */
+internal fun buttonColorsOf(variant: BloxThemeVariant): BloxButtonColors = when (variant) {
+    BloxThemeVariant.ORIGINAL -> BloxButtonColorSets.Original
+    BloxThemeVariant.COLORFUL_LIGHT -> BloxButtonColorSets.ColorfulLight
+    BloxThemeVariant.COLORFUL_DARK -> BloxButtonColorSets.ColorfulDark
 }
 
 /**
