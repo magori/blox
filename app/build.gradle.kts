@@ -61,6 +61,8 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.game))
     // `@StringRes` sur les textes lus dans les ressources des features.
     androidTestImplementation(libs.androidx.annotation)
+    // `WindowInsetsControllerCompat` : l'apparence réelle des barres système (SystemBarsAppearanceTest).
+    androidTestImplementation(libs.androidx.core)
 
     // Le module qui produit le profil de référence (blox.android.benchmark, P5.17).
     baselineProfile(projects.benchmark)
