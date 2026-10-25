@@ -115,7 +115,77 @@ class GameEngineClearTest {
         assertThat(tick20.state.progress.lines).isEqualTo(Lines(13))
         assertThat(tick20.state.progress.level).isEqualTo(Level(1))
         assertThat(tick20.state.progress.score).isEqualTo(Points(2400))
-        assertThat(tick20.events).containsExactly(GameEvent.LinesCleared(LineClear(4)))
+    }
+
+    @ParameterizedTest(name = "start level {0}, {1} lines, then 2 more -> level {2}")
+    @CsvSource("0, 8, 1", "0, 18, 2", "5, 58, 6", "9, 98, 10", "0, 288, 29")
+    fun `a line clear that reaches the next level sends a level up with the new level`(
+        startLevel: Int,
+        lines: Int,
+        expectedLevel: Int,
+    ) {
+        // Given a game started at [startLevel] with [lines] lines, and a T about to lock that fills two rows
+        val state = twoRowsAboutToLock(Level(startLevel), Lines(lines))
+
+        // When the piece locks and its clear is over
+        val clearEnd = engine.endOfClear(state)
+
+        // Then
+        assertThat(clearEnd.events).containsExactly(
+            GameEvent.LinesCleared(LineClear(2)),
+            GameEvent.LevelUp(Level(expectedLevel)),
+        )
+    }
+
+    @ParameterizedTest(name = "start level {0}, {1} lines, then 2 more")
+    @CsvSource("0, 0", "0, 7", "0, 290", "5, 50")
+    fun `a line clear that stays at the same level sends no level up`(
+        startLevel: Int,
+        lines: Int,
+    ) {
+        // Given a game started at [startLevel] with [lines] lines, and a T about to lock that fills two rows
+        val state = twoRowsAboutToLock(Level(startLevel), Lines(lines))
+
+        // When the piece locks and its clear is over
+        val clearEnd = engine.endOfClear(state)
+
+        // Then
+        assertThat(clearEnd.state.progress.level).isEqualTo(state.progress.level)
+        assertThat(clearEnd.events).containsExactly(GameEvent.LinesCleared(LineClear(2)))
+    }
+
+    @Test
+    fun `the level up comes after the lines cleared and before the stack danger of that tick`() {
+        // Given a stack in danger at 8 lines and level 0, 14 rows high: a T clears two rows, which leaves it 12 high
+        val state = twoRowsAboutToLock(Level(0), Lines(8)).copy(
+            board = Board.parse((List(12) { ".........O" } + listOf("IIII...III", "IIIII.IIII")).joinToString("\n")),
+            stackInDanger = true,
+        )
+
+        // When the piece locks and its clear is over, at 10 lines
+        val clearEnd = engine.endOfClear(state)
+
+        // Then
+        assertThat(clearEnd.events).containsExactly(
+            GameEvent.LinesCleared(LineClear(2)),
+            GameEvent.LevelUp(Level(1)),
+            GameEvent.StackDanger(on = false),
+        )
+    }
+
+    @Test
+    fun `starting at level 5 the first level up comes at 60 lines, not at 10`() {
+        // Given a game started at level 5, and a T about to lock that fills two rows, at 8 lines and at 58 lines
+        val at8 = twoRowsAboutToLock(Level(5), Lines(8))
+        val at58 = twoRowsAboutToLock(Level(5), Lines(58))
+
+        // When the piece locks and its clear is over, at 10 lines and at 60 lines
+        val at10 = engine.endOfClear(at8)
+        val at60 = engine.endOfClear(at58)
+
+        // Then
+        assertThat(at10.events).noneMatch { it is GameEvent.LevelUp }
+        assertThat(at60.events).contains(GameEvent.LevelUp(Level(6)))
     }
 
     @ParameterizedTest(name = "start level {0}, {1} lines, then 2 more -> level {2}")
@@ -126,17 +196,10 @@ class GameEngineClearTest {
         expectedLevel: Int,
     ) {
         // Given a game started at [startLevel] with [lines] lines, and a T about to lock that fills two rows
-        val state = gameState(
-            board = TWO_ROWS_TO_FILL,
-            startLevel = Level(startLevel),
-            lines = Lines(lines),
-            phase = Phase.Falling(tPointingDown(at = Position(5, 18))),
-        )
+        val state = twoRowsAboutToLock(Level(startLevel), Lines(lines))
 
-        // When the piece locks and its clear is over (19 ticks for a lock on tick 1)
-        val cleared = generateSequence(engine.tick(state).state) { engine.tick(it).state }
-            .take(25)
-            .first { it.phase is Phase.EntryDelay }
+        // When the piece locks and its clear is over
+        val cleared = engine.endOfClear(state).state
 
         // Then the level is the one of the start level and the new total, never lower than before
         assertThat(cleared.progress.lines).isEqualTo(state.progress.lines + LineClear(2))
@@ -186,7 +249,29 @@ class GameEngineClearTest {
         assertThat(events).hasSize(19).allSatisfy { assertThat(it).isEmpty() }
     }
 
+    /** The update of the tick that ends the clear started when the piece of [state] locks. */
+    private fun GameEngine.endOfClear(state: GameState): GameUpdate = generateSequence(tick(state)) { tick(it.state) }
+        .take(MAX_TICKS_TO_CLEAR_END)
+        .first { it.state.phase is Phase.EntryDelay }
+
     private companion object {
+        /** The lock, then the longest clear: 16 ticks plus 3 up to the next multiple of 4. */
+        const val MAX_TICKS_TO_CLEAR_END = 20
+
+        /**
+         * A game started at [startLevel] with [lines] lines, a T about to lock on the next tick, whatever the
+         * level, that fills the two rows of [TWO_ROWS_TO_FILL].
+         */
+        fun twoRowsAboutToLock(
+            startLevel: Level,
+            lines: Lines,
+        ): GameState = gameState(
+            board = TWO_ROWS_TO_FILL,
+            startLevel = startLevel,
+            lines = lines,
+            phase = Phase.Falling(tPointingDown(at = Position(5, 18)), ticksSinceDrop = 47),
+        )
+
         /**
          * 9 lines at level 0, a vertical I about to lock on tick 4 with its pivot at (0, 18), filling rows
          * 16 to 19; a J to come.

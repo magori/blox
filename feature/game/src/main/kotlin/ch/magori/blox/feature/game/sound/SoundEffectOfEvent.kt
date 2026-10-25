@@ -7,7 +7,7 @@ import ch.magori.blox.core.music.SoundEffects
 /**
  * The sound effect [event] of the engine gives, or null for none: a rotation, lines cleared, four lines cleared at
  * once, the game over. A lock or the danger give none: a lock comes with every piece, every second or so, and the
- * music already marks the danger with its tempo.
+ * music already marks the danger with its tempo. A level up gives none yet (P5.69).
  */
 internal fun soundEffectFor(event: GameEvent): SoundEffect? = when (event) {
     is GameEvent.PieceRotated -> SoundEffects.rotation
@@ -20,5 +20,5 @@ internal fun soundEffectFor(event: GameEvent): SoundEffect? = when (event) {
 
     GameEvent.GameOver -> SoundEffects.gameOver
 
-    is GameEvent.PieceLocked, is GameEvent.StackDanger -> null
+    is GameEvent.PieceLocked, is GameEvent.StackDanger, is GameEvent.LevelUp -> null
 }
