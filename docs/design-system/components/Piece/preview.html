@@ -1,0 +1,53 @@
+<!-- @dsCard group="Jeu" height=230 subtitle="Les sept pièces en bulles brillantes, sur le plateau" -->
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;display=swap" rel="stylesheet">
+<style>
+body { margin: 0; background: var(--page); color: var(--label); font-family: var(--font-body); }
+.wrap { padding: var(--space-6); display: flex; flex-wrap: wrap; gap: var(--space-4); }
+.piece { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); }
+.board { padding: 4px; background: var(--board); display: grid; grid-template-columns: repeat(4, 21px); grid-auto-rows: 21px; }
+.c { padding: 1px; box-sizing: border-box; }
+.c span { display: block; width: 100%; height: 100%; border-radius: var(--radius-cell); background: var(--empty-cell); }
+.c.f span { box-shadow: var(--cell-gloss); }
+.I span { background: linear-gradient(180deg, var(--piece-i-hi) 0%, var(--piece-i) 55%); }
+.O span { background: linear-gradient(180deg, var(--piece-o-hi) 0%, var(--piece-o) 55%); }
+.T span { background: linear-gradient(180deg, var(--piece-t-hi) 0%, var(--piece-t) 55%); }
+.S span { background: linear-gradient(180deg, var(--piece-s-hi) 0%, var(--piece-s) 55%); }
+.Z span { background: linear-gradient(180deg, var(--piece-z-hi) 0%, var(--piece-z) 55%); }
+.J span { background: linear-gradient(180deg, var(--piece-j-hi) 0%, var(--piece-j) 55%); }
+.L span { background: linear-gradient(180deg, var(--piece-l-hi) 0%, var(--piece-l) 55%); }
+.name { font-size: 14px; font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="wrap" id="wrap"></div>
+<script>
+// Each shape on a 4 × 2 board; '#' is a cell of the piece, '.' an empty cell.
+const SHAPES = { I: ['####', '....'], O: ['.##.', '.##.'], T: ['###.', '.#..'], S: ['.##.', '##..'], Z: ['##..', '.##.'], J: ['#...', '###.'], L: ['..#.', '###.'] };
+const wrap = document.getElementById('wrap');
+Object.keys(SHAPES).forEach((k) => {
+  const piece = document.createElement('div');
+  piece.className = 'piece';
+  const board = document.createElement('div');
+  board.className = 'board';
+  board.setAttribute('role', 'img');
+  board.setAttribute('aria-label', 'Pièce ' + k);
+  SHAPES[k].join('').split('').forEach((ch) => {
+    const c = document.createElement('div');
+    c.className = ch === '#' ? 'c f ' + k : 'c';
+    c.appendChild(document.createElement('span'));
+    board.appendChild(c);
+  });
+  const name = document.createElement('div');
+  name.className = 'name';
+  name.textContent = k;
+  piece.appendChild(board);
+  piece.appendChild(name);
+  wrap.appendChild(piece);
+});
+</script>
+</body>
+</html>
