@@ -781,6 +781,23 @@ négatif.
 `PointsTest › points cannot be negative`, `PointsTest › points add up`,
 `LinesTest › the lines cleared at once add to the total`.
 
+**Événement de niveau** (P5.64) : au tick où un effacement fait monter de niveau (la fin de son
+animation), le moteur émet `LevelUp(niveau atteint)`, après `LinesCleared` et avant un éventuel
+`StackDanger` de ce tick. Un effacement fait au plus 4 lignes et les paliers sont espacés de 10 :
+il ne franchit jamais qu'un niveau. Aucun `LevelUp` au début d'une partie ni quand le niveau ne
+change pas ; un départ à 5 en reçoit un premier à 60 lignes. Il précède aussi la fin de partie
+quand le dernier effacement fait monter de niveau. Le son et la vibration ne lui répondent pas
+encore (P5.69).
+
+**Tests :** `GameEngineClearTest › a line clear that reaches the next level sends a level up with the new level`,
+`GameEngineClearTest › a line clear that stays at the same level sends no level up`,
+`GameEngineClearTest › the level up comes after the lines cleared and before the stack danger of that tick`,
+`GameEngineClearTest › starting at level 5 the first level up comes at 60 lines, not at 10`,
+`GameEngineStartTest › a game that starts sends no level up`,
+`GameEngineGameOverTest › a last line clear that reaches the next level sends PieceLocked, LinesCleared, LevelUp, then GameOver`,
+`HapticOfEventTest › a level up gives nothing yet`,
+`SoundEffectOfEventTest › a level up gives nothing yet`.
+
 ## Statistiques de fin de partie
 
 Score, lignes, niveau atteint, nombre de « 4 lignes » d'un coup, durée de la partie. Score,
