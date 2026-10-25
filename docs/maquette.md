@@ -323,7 +323,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `BloxNavDisplayTest › on the settings, the system back goes back to the home screen`,
   `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
   `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
-  `SettingColorsTest › a switch on stands out from its row, and its thumb from it, by a contrast of 3 to 1 at least`.
+  `SettingColorsTest › a switch is framed in button outline, in ink in Original, standing out from its row by 3 to 1`.
 
 ## Icônes
 

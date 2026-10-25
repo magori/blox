@@ -1022,7 +1022,7 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `RowNameTest › a line is named after its note without octave, low in the first octave of the track and high in the second`,
 `RowNameTest › the twelve notes of an octave are named with sharps, as the pitches are written`,
 `RowNameTest › the top of the range, a third octave, is very high, and a note opened below the range very low`,
-`TrackColorsTest › the attack and the held part of a note stand out from the cell by a contrast of 3 to 1 at least`,
+`TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`,
 `TrackColorsTest › the held part of a note is paler than its attack, standing out less from the cell`,
 `TrackColorsTest › the selected tab of a track stands out from the unselected one, its label readable on it`,
 `TrackColorsTest › the name of a line out of the scale is dimmer than the others, and still readable by a contrast of 4,5 to 1`,

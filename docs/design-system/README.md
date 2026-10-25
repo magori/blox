@@ -44,7 +44,7 @@ de suite ; ils reviennent en `motion-press`. Focus clavier : contour de 3 px `in
 |---|---|---|---|---|
 | Principal XL (Jouer) | pilule de 72 px (84 tablette, 64 couché) | `accent`, `play-label` en `accent-ink`, sous-ligne `small` 600, disque de 52 px `accent-ink` avec le triangle en `accent` | `accent-pressed` | — |
 | Principal (Reprendre, Rejouer) | pilule de 56 px | `accent`, `button-label-strong`, pictogramme de 24 | `accent-pressed` | — |
-| Secondaire (Menu, Changer, tuiles) | pilule de 56 px ; tuile en `radius-md` | `button`, cadre de 2 px `button-outline`, `button-ink` 15/700 | `button-pressed` jusqu'au bord | libellé `label`, cadre `panel-border`, sans reflet |
+| Secondaire (Menu, Changer, tuiles) | pilule de 56 px ; tuile en `radius-md` | `button`, cadre de 2 px `button-outline`, `button-ink` 15/700 | `button-pressed`, cadre gardé | libellé `label`, cadre `panel-border`, sans reflet |
 | Icône (Paramètres, Écouter, Pause) | disque de 48 px (56 tablette) | comme Secondaire, pictogramme de 24 | idem | idem |
 | Groupe de choix (mode, thème) | boîte de 48 px en pilule, cadre de 2 px `button-outline` autour du groupe ; segments de 44 px | segment : transparent, `ink` 15/500 | retenu : `accent`, coche de 16 et libellé `accent-ink` | Moderne : libellé `label` et étiquette `BIENTÔT` 11/700 |
 
@@ -209,7 +209,8 @@ de l'éditeur utilisent un italique imité.
 Traits de 2,25 px aux bouts arrondis sur 24 × 24 (`icon`), en `currentColor` : lecture, arrêt,
 liste, dé, plus, crayon, renommer, corbeille, note, note barrée (Aucune), étoile (record),
 égaliseur (aperçu en cours), maison, rejouer, roue dentée, annuler, copier, gomme, placer,
-rotation gauche et droite, étendre. Flèches des touches en triangles pleins. Jamais d'emoji.
+rotation gauche et droite, étendre. Flèches des touches en triangles pleins. Jamais d'emoji. Les pictogrammes nouveaux de Couleurs v2, le logo et la mascotte sont relevés dans
+[pictogrammes.md](pictogrammes.md) (tracés, bitmaps 8 × 8 d'Original, mesures).
 
 ## Logo
 
@@ -228,7 +229,10 @@ place du « o ». Dessiné dans la maquette (composant `LogoBloX`), pas encore e
 | `danger` sur `page` | 5,0:1 | 6,2:1 |
 
 `panel-border` (1,4:1) reste décoratif : tout ce qui se touche est encadré en `button-outline`,
-et les choix le sont par le cadre de leur groupe. Le danger se lit aussi à l'épaisseur du
+et les choix le sont par le cadre de leur groupe. Repères autres que la couleur, là où un aplat ne
+suffit pas (P5.57) : le choix retenu porte une coche (3:1), l'interrupteur se lit à son cadre
+`button-outline` (l'encre en Original), à la position et à la taille de son pouce, la touche tenue à
+son décalage de 2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit aussi à l'épaisseur du
 cadre (4 px), pas à la seule couleur.
 
 ## Correspondance avec le code

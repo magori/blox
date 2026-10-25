@@ -1,8 +1,10 @@
 # Thèmes
 
-Le thème Couleurs est en cours de refonte dans la piste C de la maquette (« Y2K irisé », clair
-et sombre) : jetons, typographie et composants cibles dans le [design system](design-system/README.md),
-pas encore codés ; la suite de ce document décrit le code actuel. Le thème Original prend les
+Le thème Couleurs est refait dans la piste C de la maquette (« Y2K irisé », jour et nuit) : jetons,
+typographie et composants cibles dans le [design system](design-system/README.md). Les couleurs de
+jour et de nuit sont codées depuis P5.57 (section « Thème Couleurs ») ; polices, formes, composants
+et pièces suivent (P5.58 à P5.74), et la suite de ce document décrit ces parties telles qu'elles
+sont codées aujourd'hui. Le thème Original prend les
 mêmes mises en page v2 avec ses propres jetons (ADR 0020). Valeurs Original retenues pour les
 rôles nouveaux (P5.56, à confirmer sur la maquette en P5.85) : `emptyCell` `#DCEBD5` (le fond du
 plateau), `panelInset` `#DCEBD5`, `scrim` `rgba(207,227,200,0.85)`, `clearGlow` `#EEF5EA`,
@@ -146,23 +148,43 @@ encart), soit 2/24 entre deux cellules : deux cellules en aplat voisines restent
 
 ## Thème « Couleurs »
 
-Fond sombre, une couleur par pièce, effet biseauté (bordure claire en haut et à gauche,
-foncée en bas et à droite).
+**Couleurs v2** (P5.57, piste C « Y2K irisé ») : le thème suit le mode sombre du téléphone. Le
+choix du joueur (`BloxThemeKind`) et le mode du système donnent la variante dessinée
+(`BloxThemeVariant` : `ORIGINAL`, `COLORFUL_LIGHT`, `COLORFUL_DARK`), exposée par
+`BloxTheme.variant` ; Original n'a qu'une variante, claire. Changer de mode recrée l'activité, ce
+qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
+(`BloxPalettes.ColorfulLight`, `ColorfulDark`) prennent les valeurs de
+[`tokens.json`](design-system/tokens.json), seule source (ADR 0019) : le plugin de convention
+`blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
+compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
+`cell-ground` et `grid-line` (grille de l'éditeur, P5.88) et les couleurs des pièces (P5.74).
+Le schéma Material part de la base claire ou sombre selon la variante. Les formes, polices et
+pictogrammes ne dépendent que du thème (`BloxTheme.kind`), pas du mode. Les styles de pièces, le
+dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux sont construits une
+fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une
+marge de 1 px en `boardBackground`.
 
-| Jeton | Valeur |
-|---|---|
-| `page` | `#12141C` |
-| `boardBackground` | `#0B0C12` |
-| `panel` | `#1C1F2B` |
-| `panelBorder`, `frame`, `button` | `#2A2E3E` |
-| `ink` | `#F1F1F4` |
-| `label` | `#9AA0B4` |
-| `accent` | `#EF8D3B` |
-| `accentInk` | `#12141C` |
-| `buttonPressed`, `buttonOutline` | `#646B87` |
-| `accentPressed` | `#C0651C` |
+En attendant P5.74, les pièces et le logo gardent les couleurs de la v1 (tableau ci-dessous), de
+jour comme de nuit. L'ancienne palette sombre (`page` `#12141C`, accent orange `#EF8D3B`) est
+retirée ; ses valeurs restent dans l'historique de ce fichier.
 
-Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
+**Repères autres que la couleur** (P5.57, décision « Mixte » du développeur) : là où un aplat
+n'atteint pas le contraste voulu, surtout dans les pastels du jour, l'état se lit autrement. La
+touche tenue garde son cadre et descend de 2 dp, le choix retenu se lit à sa coche,
+l'interrupteur à son cadre `buttonOutline` (l'encre en Original), la partie tenue d'une note à
+ses bords de 2 dp dans la couleur de sa piste.
+
+**Tests :** `BloxThemeVariantTest › the Colorful theme is the day variant in light mode and the night variant in dark mode`,
+`BloxThemeVariantTest › the Original theme has a single variant, whatever the mode of the system`,
+`BloxThemeVariantTest › each variant has its palette and its Material colour scheme, light or dark`,
+`PaletteTokensTest › each colour token of tokens json has its value in the palette of the day and in the palette of the night`,
+`PaletteTokensTest › every colour token of tokens json is in the palette or listed as not coded, with its reason`,
+`PaletteTokensTest › a colour written rgba in tokens json is read with its alpha`,
+`CellStylesTest › in the Colorful theme an empty cell has a 1 px border`.
+Vues : V22 à V34 (jour), nuit dans le design system.
+
+Une couleur par pièce, effet biseauté (bordure claire en haut et à gauche, foncée en bas et à
+droite). Police : *Chakra Petch* (licence OFL) jusqu'à P5.58, coins arrondis (10 px).
 
 | Pièce | Fond | Biseau clair | Biseau foncé |
 |---|---|---|---|
@@ -174,30 +196,32 @@ Police : *Chakra Petch* dans la maquette (licence OFL), coins arrondis (10 px).
 | J | `#3F7EE8` | `#93B8F4` | `#1F4FA6` |
 | L | `#EF8D3B` | `#F6C18F` | `#AD5A14` |
 
-Cellule vide : `#0B0C12` avec une bordure de 1 px `#191C27` (style de cellule, dans
-`feature:game` ; à monter dans la palette s'il sert ailleurs). Bordure biseautée de 3 px.
-**Commandes** (P2.17) : une touche tenue prend la teinte « pressée » de sa couleur (`buttonPressed`,
-`accentPressed`) et garde son encre ; elle se distingue de la page (au moins 3:1) et de la même
-touche au repos (au moins 1,5:1). Les lettres A et B sont en gras à 20 sp (grand texte, seuil
-3:1) ; les flèches sont des pictogrammes (3:1).
+Bordure biseautée de 3 px.
+**Commandes** (P2.17, P5.57) : une touche tenue prend la teinte « pressée » de sa couleur
+(`buttonPressed`, `accentPressed`), garde son encre et son cadre, et descend de 2 dp
+(`ControlSizes.heldDrop`). Elle se distingue de la page par son cadre (au moins 3:1) et de la même
+touche au repos d'au moins 1,5:1 ; de jour, A tenue ne se distingue de A au repos que par ce
+décalage (une teinte ne peut être à la fois à 1,5:1 de l'accent et à 4,5:1 sous l'encre). Les
+lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches sont des pictogrammes
+(3:1).
 
-**Cadre des touches** (P2.22) : chaque touche au repos est entourée d'un cadre de 2 dp
+**Cadre des touches** (P2.22, P5.57) : chaque touche est entourée d'un cadre de 2 dp
 (`BloxBorders.frame`) en `buttonOutline`, qui la détache de la page d'au moins 3:1 (WCAG 1.4.11,
-composant non textuel). Dans le thème Couleurs, le fond `button` ne se détachait de la page qu'à
-1,36:1 ; le cadre `#646B87` donne 3,50:1. Une touche tenue est remplie de sa teinte pressée
-jusqu'au bord, cadre compris. La touche A n'a pas de cadre propre : l'accent se détache déjà de la
-page. Dans le thème Original, le cadre a la couleur du bouton (3,31:1 contre la page) : rien ne
-change à l'œil. Le cadre partage sa teinte avec `buttonPressed` dans Couleurs ; le test le garde à
-3:1 si l'une des deux change. Le bouton pause de la barre du haut porte les couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`) : 3,50:1 en Couleurs.
+composant non textuel), tenue ou non. La touche A est cadrée en `accentPressed` : l'accent seul ne
+se détache de la page du jour qu'à 2,3:1. Dans le thème Original, le cadre a la couleur du bouton
+(3,31:1 contre la page) : rien ne change à l'œil. Le bouton pause de la barre du haut porte les
+couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
 
-**Tests :** `KeyColorsTest › a held key stands out from the page, by a contrast of 3 to 1 at least`,
+**Tests :** `KeyColorsTest › a held key stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
-`KeyColorsTest › a held key stands out from the same key not held, by a contrast of 1,5 to 1 at least`,
+`KeyColorsTest › a held key stands out from the key at rest by 1,5 to 1, or for A in the day by going 2 dp down`,
 `KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
 `KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
 `KeyColorsTest › a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`,
-`KeyColorsTest › a held key is filled with its pressed shade up to its edge`,
+`KeyColorsTest › a held key keeps the outline it has at rest`,
+`KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,
+`KeyDropTest › a held key goes 2 dp down`,
 `PauseButtonColorsTest › the pause button stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `PauseButtonColorsTest › the pause button has the face and the ink of a button, its glyph standing out by 3 to 1 at least`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
@@ -209,7 +233,9 @@ Vues : V2, V3.
 Un choix sélectionné (mode, thème, niveau de départ, musique) est rempli en `accent`, son
 libellé en `accentInk`. Il ne se distingue pas que par la teinte (WCAG 1.4.1) : les deux états
 diffèrent d'au moins 3:1 en luminance, et le choix non sélectionné est cadré quand le
-sélectionné est plein. Le soulignement ajouté en P5.26 est retiré à la demande du développeur
+sélectionné est plein. Depuis Couleurs v2 (P5.57), l'accent pastel du jour ne se détache du
+`panel` blanc qu'à 2,6:1 : c'est la coche, à 3:1 au moins de son fond, qui porte l'état dans tous
+les thèmes. Le soulignement ajouté en P5.26 est retiré à la demande du développeur
 (P5.36). Un
 choix non sélectionné est dessiné comme un encart du jeu : `panel`, cadre de 2 dp en
 `panelBorder` (`BloxBorders.frame`, partagé avec les encarts et `SecondaryButton`), libellé en `ink`, forme
@@ -219,10 +245,11 @@ libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). 
 `keyColors`.
 
 **Réglages** (P5.37, `settingColors`) : une rangée de réglage prend les couleurs d'un choix non
-sélectionné (`choiceColors`) ; l'interrupteur éteint a une piste `panel`, un contour et un bouton
-`ink`, allumé une piste `accent` et un bouton `accentInk`. Aucun jeton n'a changé : les contrastes
-sont ceux du tableau ci-dessous (libellé et contour `ink` sur `panel`, `accent` sur `panel`,
-`accentInk` sur `accent`). Tests : `SettingColorsTest` (cités dans `docs/maquette.md`, V1).
+sélectionné (`choiceColors`) ; l'interrupteur éteint a une piste `panel` et un bouton `ink`, allumé
+une piste `accent` et un bouton `accentInk`. Allumé ou éteint, il est cadré en `buttonOutline`, à
+3:1 au moins de sa rangée (P5.57) ; en Original, dont le contour est la face des boutons, le cadre
+est à l'encre. L'état se lit aussi à la place du bouton (à gauche éteint, à droite allumé).
+Tests : `SettingColorsTest` (cités dans `docs/maquette.md`, V1).
 
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
@@ -236,13 +263,15 @@ change. La coche est décorative : TalkBack annonce déjà « sélectionné ». 
 40 caractères d'une musique personnelle est coupé un mot plus tôt qu'avant (« une longue
 soir… ») ; TalkBack le lit en entier. Code : `ChoiceCheck.kt` (`checkStroke`, `choiceInsets`).
 
-| | Original | Couleurs |
+Contrastes mesurés en P5.26, avant Couleurs v2 (les valeurs v2 sont vérifiées par les tests) :
+
+| | Original | Couleurs v1 |
 |---|---|---|
 | Sélectionné / non sélectionné (`accent` / `panel`) | 5,7:1 (avant 1,99:1) | 6,7:1 (avant 5,48:1) |
 | Libellé sélectionné (`accentInk` sur `accent`) | 8,0:1 | 7,5:1 |
 | Libellé non sélectionné (`ink` sur `panel`) | 5,7:1 (avant 4,0:1) | 14,6:1 |
 
-**Tests :** `ChoiceColorsTest › in every theme a selected choice stands out from an unselected one by a contrast of 3 to 1 at least`,
+**Tests :** `ChoiceColorsTest › in every theme a selected choice tells its state by its check, standing out from it by 3 to 1 at least`,
 `ChoiceColorsTest › the label of a choice stands out from its background by a contrast of 4,5 to 1 at least`,
 `ChoiceColorsTest › an unselected choice is framed as a panel, a selected one in its own background`,
 `ContrastTest › black on white has the greatest contrast, 21 to 1, whatever the order`,
@@ -286,7 +315,11 @@ reprend la maquette ; Original fonce deux teintes, trop pâles pour leur contras
 page, toujours plus estompé que les autres libellés ; il est aussi en italique, pour ne pas
 dépendre de la couleur). L'onglet de piste choisi est rempli en `accent` en Original et dans la
 couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4,5:1 au moins.
-`TrackColorsTest` (`feature:composer`) vérifie ces contrastes dans les deux thèmes codés.
+`TrackColorsTest` (`feature:composer`) vérifie ces contrastes dans chaque variante codée. Les
+valeurs Couleurs ci-dessous sont celles de la v1 : depuis P5.57, celles du jour et de la nuit
+viennent de `tokens.json` (`melody`, `bass`, `danger`…). De jour, la partie tenue d'une note,
+pastel, ne se détache de la case qu'à 2,1 à 2,3:1 : elle est bordée en haut et en bas, sur 2 dp,
+dans la couleur de sa piste, qui s'en détache d'au moins 3:1.
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|
