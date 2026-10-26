@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> La grille (P7.3) et la génération (P7.4, P7.5) sont implémentées ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
+> La grille (P7.3), la génération (P7.4, P7.5) et la partie (P7.6) sont implémentées ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -60,12 +60,15 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
   (`ClassicRotationSystem`, 19 formes en tout) et leur **pivot**.
 - Une pièce donnée commence dans son orientation d'apparition (`spawnOrientation`) et garde son
   orientation quand on en choisit une autre puis qu'on y revient.
+  **Tests :** `PadlockGameTest › each piece keeps its orientation when another one is selected`.
 - **Tourner** : un quart de tour dans un sens ou dans l'autre, autour du pivot
   (`RotationSystem.rotate`). O ne change pas.
+  **Tests :** `PadlockGameTest › turning turns the selected piece a quarter turn either way`.
 - **Poser sur une case** : la pièce devient une `Piece` dont le pivot est la case visée ; ses
   cases (`Piece.cells`) peuvent sortir de la grille, c'est la serrure qui juge. Tourner une pièce
   présentée ne la déplace donc pas sous le doigt (le prototype ancrait la case la plus à gauche
   de la rangée du haut, qui change à chaque rotation).
+  **Tests :** `PadlockGameTest › a piece inside the hole is placed, its pivot on the cell aimed at`.
 
 ## Générer une serrure : composer, puis évaluer
 
@@ -139,26 +142,47 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
 
 ## Partie
 
+Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `takeBack`,
+`restart`) ; chaque action rend la partie suivante et ses événements (`PadlockUpdate`).
+
 - **Choisir** une pièce donnée non posée, par son rang ; à l'ouverture et après chaque pose
   acceptée, la première pièce non posée est choisie d'office.
+  **Tests :** `PadlockGameTest › a new game selects the first given piece in its spawn orientation, nothing placed`,
+  `PadlockGameTest › the first free piece is selected after a placement`,
+  `PadlockGameTest › selecting a placed piece or taking back a free one changes nothing`,
+  `PadlockGameTest › a rank that is not given is a programming error`.
 - **Poser** la pièce choisie, dans son orientation, avec son pivot sur une case :
   - **acceptée** si toutes ses cases sont dans le trou et libres : événement `PiecePlaced` ;
   - **refusée** sinon, avec la raison : une case sur le métal ou hors de la grille
-    (`OutOfHole`), une case sur une pièce posée (`Overlap`). Quand les deux s'appliquent,
-    `OutOfHole` l'emporte. Événement `PlacementRefused` ; la partie ne change pas, sauf le
+    (`Refusal.OUT_OF_HOLE`), une case sur une pièce posée (`Refusal.OVERLAP`). Quand les deux s'appliquent,
+    `OUT_OF_HOLE` l'emporte. Événement `PlacementRefused` ; la partie ne change pas, sauf le
     compteur des refus.
+  **Tests :** `PadlockGameTest › a piece inside the hole is placed, its pivot on the cell aimed at`,
+  `PadlockGameTest › a piece off the grid is refused as out of the hole`,
+  `PadlockGameTest › a piece over the metal is refused as out of the hole and only the refusals count it`,
+  `PadlockGameTest › a piece over a placed one is refused as an overlap`,
+  `PadlockGameTest › a piece both over the metal and over a placed one is refused as out of the hole`.
 - **Reprendre** une pièce posée : elle quitte la grille et redevient la pièce choisie, avec son
   orientation (`PieceTakenBack`).
+  **Tests :** `PadlockGameTest › a placed piece is taken back, selected in its orientation, and the moves are kept`.
 - **Serrure ouverte** quand toutes les pièces sont posées : la dernière pose émet `PiecePlaced`
   puis `PadlockOpened`. Toute pose acceptée étant juste, il n'y a rien d'autre à vérifier. Ensuite,
   choisir, tourner, poser, reprendre et demander un indice sont ignorés, sans événement ; seul
   Recommencer reste possible.
+  **Tests :** `PadlockGameTest › placing every piece opens the padlock, the last placement first`,
+  `PadlockGameTest › once the padlock is open nothing but restart is taken`.
 - **Recommencer** : même serrure, aucune pièce posée, compteurs à zéro.
+  **Tests :** `PadlockGameTest › restarting keeps the padlock, clears the pieces placed and the counters`.
 - La partie garde l'**ordre des poses** (pour l'indice).
+  **Tests :** `PadlockGameTest › the order of the placements is kept, a piece taken back leaves it`,
+  `PadlockGameTest › a piece taken back and placed again is the last placed`,
+  `PadlockGameTest › two games whose pieces were placed in a different order are not equal`.
 - **Compteurs**, séparés :
   - **coups** : les poses acceptées, y compris celles reprises ensuite ;
   - **refus** : les poses refusées ;
   - **indices** : les indices demandés.
+  **Tests :** `PadlockGameTest › a piece over the metal is refused as out of the hole and only the refusals count it`,
+  `PadlockGameTest › a placed piece is taken back, selected in its orientation, and the moves are kept` (les indices : P7.7).
 
 ## Indice
 
