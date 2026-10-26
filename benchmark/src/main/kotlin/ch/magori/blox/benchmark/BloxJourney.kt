@@ -44,6 +44,8 @@ internal fun MacrobenchmarkScope.launchFromHomeScreen() {
  */
 internal fun MacrobenchmarkScope.startGame() {
     device.clickWhenReady(By.res(CLASSIC_CARTRIDGE))
+    // Le choix du jeu défile aussi, sur un petit écran : on attend qu'il soit parti avant de chercher l'accueil.
+    device.wait(Until.gone(By.res(CLASSIC_CARTRIDGE)), UI_TIMEOUT.inWholeMilliseconds)
     device.scrollHomeToPlay()
     device.clickWhenReady(By.res(PLAY))
     device.awaitObject(By.res(PAUSE))

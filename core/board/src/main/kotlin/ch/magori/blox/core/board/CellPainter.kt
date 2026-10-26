@@ -7,6 +7,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -40,7 +42,7 @@ internal fun paintersFor(
  * One cell of [side] pixels in [style], drawn on [background], at [density], with its shapes, its gradient and its
  * gloss built once from its [cellLayout]; it draws at the origin, without allocating anything. The joint, if any,
  * takes the edge of the cell in the colour of [background]; the fill, the border and the gloss are drawn inside it,
- * the ring of a gloss in the joint.
+ * the ring of a gloss in the joint, and the dot and the cross, if any, over them all.
  */
 internal class CellPainter(style: CellStyle, side: Float, background: Color, density: Density) {
     private val layout = cellLayout(style, side, density)
@@ -48,12 +50,21 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
     private val cellSize = Size(side, side)
     private val fill: DrawScope.() -> Unit = fillOf(style, layout, density)
     private val border: (DrawScope.() -> Unit)? = layout.border?.let { edge ->
-        style.border?.let { plainBorder(it.color, pixelsOf(it.width, side), edge) }
+        style.border?.let { border ->
+            val width = pixelsOf(border.width, side)
+            if (layout.shape == RectangleShape) {
+                plainBorder(border.color, width, edge)
+            } else {
+                roundedBorder(border.color, width, edge, layout.shape, density)
+            }
+        }
     }
     private val centre: (DrawScope.() -> Unit)? = style.centre?.let { centreSquare(it, side) }
     private val gloss: GlossBands? = layout.gloss.takeIf { it.layers.isNotEmpty() }?.let {
         glossBands(it, layout.shape, layout.fill.size, LayoutDirection.Ltr, density)
     }
+    private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side) }
+    private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side) }
 
     fun draw(scope: DrawScope) {
         joint?.let { scope.drawRect(it, size = cellSize) }
@@ -62,6 +73,33 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         centre?.invoke(scope)
         // The ring of the gloss fits in the margin of the cell (cellLayout): it never covers a cell beside it.
         gloss?.let { bands -> scope.translate(layout.fill.left, layout.fill.top) { bands.draw(this) } }
+        dot?.invoke(scope)
+        cross?.invoke(scope)
+    }
+}
+
+/** How far from the edges of the fill the arms of a cross end: a quarter of it, the cross in its middle half. */
+private const val CROSS_MARGIN = 0.25f
+
+/** The two diagonals of [cross] across the middle of [fill], each drawn on its halo, in whole pixels. */
+private fun crossOver(
+    cross: CellCross,
+    fill: Rect,
+    side: Float,
+): DrawScope.() -> Unit {
+    val width = pixelsOf(cross.width, side)
+    val halo = width * 2
+    val margin = fill.width * CROSS_MARGIN
+    val topLeft = Offset(fill.left + margin, fill.top + margin)
+    val bottomRight = Offset(fill.right - margin, fill.bottom - margin)
+    val topRight = Offset(bottomRight.x, topLeft.y)
+    val bottomLeft = Offset(topLeft.x, bottomRight.y)
+    // The lines written out: a lambda taking a colour and a width would box them at each frame.
+    return {
+        drawLine(cross.halo, topLeft, bottomRight, strokeWidth = halo, cap = StrokeCap.Round)
+        drawLine(cross.halo, bottomLeft, topRight, strokeWidth = halo, cap = StrokeCap.Round)
+        drawLine(cross.color, topLeft, bottomRight, strokeWidth = width, cap = StrokeCap.Round)
+        drawLine(cross.color, bottomLeft, topRight, strokeWidth = width, cap = StrokeCap.Round)
     }
 }
 
@@ -116,3 +154,36 @@ private fun plainBorder(
     val size = Size(edge.width - width, edge.height - width)
     return { drawRect(color, topLeft = topLeft, size = size, style = stroke) }
 }
+
+/** A border of [width] pixels inside [edge], its outer edge, along the rounded corners of [shape]. */
+private fun roundedBorder(
+    color: Color,
+    width: Float,
+    edge: Rect,
+    shape: Shape,
+    density: Density,
+): DrawScope.() -> Unit {
+    val stroke = Stroke(width)
+    val path = Path().apply {
+        addOutline(shape.createOutline(Size(edge.width - width, edge.height - width), LayoutDirection.Ltr, density))
+        translate(edge.topLeft + Offset(width / 2, width / 2))
+    }
+    return { drawPath(path, color, style = stroke) }
+}
+
+/** The [dot] in the centre of a cell of [side] pixels, on its halo, half as wide again. */
+private fun centreDot(
+    dot: CellDot,
+    side: Float,
+): DrawScope.() -> Unit {
+    val radius = pixelsOf(dot.size, side) / 2
+    val haloRadius = radius * DOT_HALO
+    val centre = Offset(side / 2, side / 2)
+    return {
+        drawCircle(dot.halo, radius = haloRadius, center = centre)
+        drawCircle(dot.color, radius = radius, center = centre)
+    }
+}
+
+/** How much wider than a dot its halo is. */
+private const val DOT_HALO = 1.5f

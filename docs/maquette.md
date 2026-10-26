@@ -39,7 +39,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
 | V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
 | V25 | Enregistrer la musique, thème Couleurs v2 nuit | « V25 · Enregistrer la musique · thème Couleurs sombre » |
-| V26 | Choix du jeu, cartouche Classique seule (écran d'ouverture, Couleurs v2) | « V26 · Choix du jeu · cartouche Classique · jour », « … nuit », « … console chargée » |
+| V26 | Choix du jeu, cartouches Classique et Serrurier (écran d'ouverture, Couleurs v2 ; Serrurier à dessiner, P7.16) | « V26 · Choix du jeu · cartouche Classique · jour », « … nuit », « … console chargée » |
 | V27 | Accueil v2 du mode Classique | rangée « Couleurs v2 — Accueil » |
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
@@ -61,8 +61,8 @@ maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogr
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
 
-**V26 codé** (P5.72, `feature:cartridges`) : l'application s'ouvre sur le choix du jeu, une seule
-cartouche, Classique, qui ouvre l'accueil Classique ; le disque « Changer de jeu » de l'accueil y revient ; le
+**V26 codé** (P5.72, `feature:cartridges` ; seconde cartouche « Serrurier », P7.15) : l'application s'ouvre sur le choix du jeu,
+Classique, qui ouvre l'accueil Classique, et Serrurier, qui ouvre la serrure 1 ; le disque « Changer de jeu » de l'accueil y revient ; le
 retour système y quitte l'application. Le dessin est provisoire (titre, encart cadré, étiquette `accent` au
 nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche viennent avec P5.92.
 **Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
@@ -338,7 +338,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
   à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
-  **Tests :** `SettingsScreenTest › TalkBack reads Vibrations and Effets sonores as switches, read off when off`,
+  **Tests :** `SettingsScreenTest › TalkBack reads each setting as a switch, read off when off`,
   `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,

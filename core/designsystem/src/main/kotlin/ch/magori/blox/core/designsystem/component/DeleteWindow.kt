@@ -6,8 +6,9 @@ import androidx.compose.ui.res.stringResource
 import ch.magori.blox.core.designsystem.R
 
 /**
- * *Supprimer « [name] » ?*: [note], if any, then the answers, [keep], which calls [onDismiss], and *Supprimer*, in
- * `danger`, which calls [onConfirm]. A deletion that could not be written, [failed], is told, the window still open.
+ * *Supprimer « [name] » ?*, a [ConfirmWindow]: [note], if any, then the answers, [keep], which calls [onDismiss], and
+ * *Supprimer*, in `danger`, which calls [onConfirm]. A deletion that could not be written, [failed], is told, the
+ * window still open.
  */
 @Composable
 fun DeleteWindow(
@@ -19,15 +20,15 @@ fun DeleteWindow(
     note: String? = null,
     failed: Boolean = false,
 ) {
-    WindowPanel(title = stringResource(R.string.core_designsystem_window_delete_title, name), modifier = modifier) {
-        if (failed) WindowFailure()
-        note?.let { WindowText(it) }
-        WindowAnswers(
-            dismiss = keep,
-            confirm = stringResource(R.string.core_designsystem_window_delete),
-            onDismiss = onDismiss,
-            onConfirm = onConfirm,
-            danger = true,
-        )
-    }
+    ConfirmWindow(
+        title = stringResource(R.string.core_designsystem_window_delete_title, name),
+        dismiss = keep,
+        confirm = stringResource(R.string.core_designsystem_window_delete),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        modifier = modifier,
+        note = note,
+        danger = true,
+        failed = failed,
+    )
 }

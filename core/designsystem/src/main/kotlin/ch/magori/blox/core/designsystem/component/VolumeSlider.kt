@@ -67,9 +67,11 @@ fun VolumeSlider(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    val value = SteppedValue(percent, VolumeSteps)
-    val text = stringResource(R.string.core_designsystem_volume_percent, percent)
-    val latestValue by rememberUpdatedState(value)
+    val given = SteppedValue(percent, VolumeSteps)
+    val gesture = rememberStepGesture()
+    val value = gesture.shown(given)
+    val text = stringResource(R.string.core_designsystem_volume_percent, value.value)
+    val latestValue by rememberUpdatedState(given)
     val change = rememberStepChange(onPercentChange)
     Row(
         modifier = modifier.stepSemantics(value, description, state = text, enabled = enabled, onValueChange = change),
@@ -77,7 +79,13 @@ fun VolumeSlider(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         val direction = LocalLayoutDirection.current
-        val touch = if (enabled) Modifier.stepTouch(KnobSize / 2, direction, { latestValue }, change) else Modifier
+        val touch = if (enabled) {
+            Modifier.stepTouch(KnobSize / 2, direction, {
+                latestValue
+            }, gesture, change)
+        } else {
+            Modifier
+        }
         Track(value, enabled, Modifier.weight(1f).then(touch))
         ValueText(text, enabled, widest = stringResource(R.string.core_designsystem_volume_percent, VolumeSteps.last))
     }

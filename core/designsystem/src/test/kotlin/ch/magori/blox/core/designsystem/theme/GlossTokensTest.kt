@@ -24,8 +24,9 @@ class GlossTokensTest {
 
     @Test
     fun `every shadow token of tokens json is a gloss of the code`() {
-        // Given the shadow tokens of tokens json
-        val tokens = DesignTokens.shadows.keys
+        // Given the shadow tokens of tokens json, but those of the padlock of the Locksmith, `lock-*`, in the Colorful
+        // theme only: coded with its cells in core:board, and compared to tokens json there (LockTokensTest)
+        val tokens = DesignTokens.shadows.keys.filterNot { it.startsWith(LOCK_TOKEN) }
 
         // Then
         assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name })
@@ -67,6 +68,9 @@ class GlossTokensTest {
     }
 
     companion object {
+        /** The prefix of the shadows of the padlock of the Locksmith in tokens json. */
+        private const val LOCK_TOKEN = "lock-"
+
         private val CODED: List<CodedToken> = listOf(
             CodedToken("button-gloss", "button") { it.button },
             CodedToken("button-gloss-pressed", "buttonPressed") { it.buttonPressed },
