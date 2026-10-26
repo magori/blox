@@ -1,6 +1,7 @@
 package ch.magori.blox.navigation
 
 import androidx.activity.ComponentActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -47,6 +48,7 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.minutes
 import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.home.R as HomeR
@@ -61,10 +63,13 @@ import ch.magori.blox.feature.home.R as HomeR
  */
 @OptIn(ExperimentalTestApi::class)
 internal class BloxNavDisplayTest {
+    /** The system backs that went through the navigation down to the activity. */
+    private var backsToTheSystem = 0
+
     @Test
     @DisplayName("the application opens on the choice of the game")
     fun theApplicationOpensOnTheChoiceOfTheGame() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given / When
             showApp(openClassic = false)
 
@@ -78,7 +83,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("the Classic cartridge opens the Classic home")
     fun theClassicCartridgeOpensTheClassicHome() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the choice of the game
             showApp(openClassic = false)
 
@@ -94,22 +99,19 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("the system back on the cartridges leaves the application")
     fun theSystemBackOnTheCartridgesLeavesTheApplication() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the choice of the game
             showApp(openClassic = false)
 
-            // When
-            pressSystemBack()
-
-            // Then the activity finishes: nothing of the application lies under the cartridges
-            assertThat(checkNotNull(activity).isFinishing).isTrue()
+            // When / Then nothing of the application lies under the cartridges
+            assertTheSystemBackLeavesTheApplication()
         }
     }
 
     @Test
     @DisplayName("changing the game from the home goes back to the cartridges, and the system back then leaves")
     fun changingTheGameFromTheHomeGoesBackToTheCartridges() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the home of the Classic, opened from the cartridges
             showApp()
 
@@ -121,15 +123,14 @@ internal class BloxNavDisplayTest {
             onNodeWithText(string(HomeR.string.feature_home_play)).assertDoesNotExist()
 
             // And the home did not stay under them
-            pressSystemBack()
-            assertThat(checkNotNull(activity).isFinishing).isTrue()
+            assertTheSystemBackLeavesTheApplication()
         }
     }
 
     @Test
     @DisplayName("changing the game from a restored stack without cartridges puts them at its root")
     fun changingTheGameFromARestoredStackWithoutCartridgesPutsThemAtItsRoot() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the home alone, as a stack saved before the cartridges came (ADR 0022) is restored
             showApp(restoredStack = listOf(HomeRoute))
 
@@ -138,34 +139,34 @@ internal class BloxNavDisplayTest {
 
             // Then the cartridges show, alone on the stack: the system back leaves the application
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
-            pressSystemBack()
-            assertThat(checkNotNull(activity).isFinishing).isTrue()
+            assertTheSystemBackLeavesTheApplication()
         }
     }
 
     @Test
-    @DisplayName("changing the game stops the music listened to on the home screen")
-    fun changingTheGameStopsTheMusicListenedTo() {
-        runAndroidComposeUiTest<ComponentActivity> {
+    @DisplayName("changing the game stops the music listened to on the home screen at once, before the transition")
+    fun changingTheGameStopsTheMusicListenedToAtOnce() {
+        runJourney {
             // Given the minuet listened to on the home screen
             val music = FakeMusicPlayer()
             showApp(music = music, scoreOf = mapOf(MusicChoice.MINUET to Scores.minuet)::get)
             listenToTheMinuet()
             assertThat(music.playing).isNotNull()
 
-            // When
-            tapChangeGame()
+            // When the disc is tapped, the clock held: the home is still on screen, its transition not begun
+            onNodeWithContentDescription(string(HomeR.string.feature_home_change_game)).performScrollTo().performClick()
 
             // Then
             assertThat(music.playing).isNull()
             assertThat(music.calls.last()).isEqualTo("stop")
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
         }
     }
 
     @Test
     @DisplayName("Jouer starts a game at the start level chosen on the home screen")
     fun playStartsAGameAtTheChosenLevel() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the home screen, level 7 chosen in place of the default level, 0 (UserPreferences.DEFAULT)
             showApp()
             onNode(hasTestTag(START_LEVEL_TAG) and hasText("0")).assertIsSelected()
@@ -182,7 +183,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("in a game under way, the system back pauses the game, which stays on screen")
     fun inAGameTheSystemBackPausesIt() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a game under way
             showApp()
             play()
@@ -200,7 +201,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("in a paused game, the system back resumes it")
     fun inAPausedGameTheSystemBackResumesIt() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a game paused by its button
             showApp()
             play()
@@ -220,7 +221,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("once the game is over, the system back goes back to the home screen")
     fun onceOverTheSystemBackGoesHome() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a game played until its game over screen shows
             showApp(OneRowPerTickGameEngineFactory)
             play()
@@ -238,7 +239,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("once the game is over, Rejouer starts a new game at its level, in place of the finished one")
     fun replayStartsANewGameInPlaceOfTheFinishedOne() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a game at level 3 played until its game over screen shows
             val replay = string(GameR.string.feature_game_over_replay)
             showApp(OneRowPerTickGameEngineFactory)
@@ -266,7 +267,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("once the game is over, Menu goes back to the home screen")
     fun onceOverMenuGoesHome() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a game played until its game over screen shows
             val replay = string(GameR.string.feature_game_over_replay)
             showApp(OneRowPerTickGameEngineFactory)
@@ -286,7 +287,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("the gear of the home screen opens the settings, whose switches save, and Retour goes back home")
     fun theGearOpensTheSettingsAndRetourGoesBackHome() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the home screen, the vibrations off by default
             val preferences = showApp()
 
@@ -312,7 +313,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("on the settings, the system back goes back to the home screen")
     fun onTheSettingsTheSystemBackGoesHome() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the settings, opened from the home screen
             showApp()
             onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
@@ -330,7 +331,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("while the saved settings are not read, the settings show their back arrow and title, and no switch")
     fun whileTheSettingsAreNotReadTheyShowTheirHeaderAndNoSwitch() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the home screen, and settings of the page that have not answered yet
             showApp(settingsPreferences = FakeUserPreferencesRepository(initial = null))
 
@@ -349,7 +350,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("opening the settings stops the music listened to on the home screen")
     fun openingTheSettingsStopsTheMusicListenedTo() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given the minuet listened to on the home screen
             val music = FakeMusicPlayer()
             showApp(music = music, scoreOf = mapOf(MusicChoice.MINUET to Scores.minuet)::get)
@@ -369,7 +370,7 @@ internal class BloxNavDisplayTest {
     @Test
     @DisplayName("opening the settings stops the music of the player listened to on the home screen")
     fun openingTheSettingsStopsTheMusicOfThePlayerListenedTo() {
-        runAndroidComposeUiTest<ComponentActivity> {
+        runJourney {
             // Given a music of the player chosen for the games, listened to on the home screen
             val music = FakeMusicPlayer()
             val library = FakeMusicLibrary()
@@ -393,6 +394,13 @@ internal class BloxNavDisplayTest {
             assertThat(music.calls.last()).isEqualTo("stop")
         }
     }
+
+    /**
+     * Runs a journey of [block] with more than the minute a Compose test is given by default: on the emulator shared by
+     * several test processes, a journey through three screens may take longer, without hanging.
+     */
+    private fun runJourney(block: suspend AndroidComposeUiTest<ComponentActivity>.() -> Unit) =
+        runAndroidComposeUiTest<ComponentActivity>(testTimeout = JOURNEY_TIMEOUT, block = block)
 
     /** Chooses the minuet on the home screen, then listens to it. */
     private fun AndroidComposeUiTest<ComponentActivity>.listenToTheMinuet() {
@@ -446,6 +454,17 @@ internal class BloxNavDisplayTest {
             musicOf = { null },
             gameMusic = { null },
         )
+        // Below every screen: a system back that reaches it is one the navigation let go, to leave the application.
+        val activity = checkNotNull(activity)
+        runOnUiThread {
+            activity.onBackPressedDispatcher.addCallback(
+                object : OnBackPressedCallback(true) {
+                    override fun handleOnBackPressed() {
+                        backsToTheSystem++
+                    }
+                },
+            )
+        }
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
@@ -475,13 +494,13 @@ internal class BloxNavDisplayTest {
                 }
             }
         }
-        if (restoredStack == null) {
-            advanceUntilShown(string(CartridgesR.string.feature_cartridges_title))
-            if (!openClassic) return preferences
-            tapClassicCartridge()
+        // A restored stack shows the home once its view model read the settings.
+        if (restoredStack != null) {
+            advanceUntilShown(string(HomeR.string.feature_home_play))
+            return preferences
         }
-        // The home screen shows once its view model read the settings, which may answer after a first advance.
-        advanceUntilShown(string(HomeR.string.feature_home_play))
+        advanceUntilShown(string(CartridgesR.string.feature_cartridges_title))
+        if (openClassic) tapClassicCartridge()
         return preferences
     }
 
@@ -494,7 +513,8 @@ internal class BloxNavDisplayTest {
     /** Taps the Classic cartridge on the choice of the game, and waits for its home. */
     private fun AndroidComposeUiTest<ComponentActivity>.tapClassicCartridge() {
         onNode(hasTestTag(CLASSIC_CARTRIDGE_TAG)).performClick()
-        settle()
+        // The home shows once its view model read the settings, which may answer after a first advance.
+        advanceUntilShown(string(HomeR.string.feature_home_play))
     }
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
@@ -514,6 +534,18 @@ internal class BloxNavDisplayTest {
         val activity = checkNotNull(activity)
         runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
         settle()
+    }
+
+    /**
+     * The system back leaves the application: no screen of the navigation takes it, and it reaches the activity, as the
+     * last callback of its dispatcher, the one [showApp] registered before any screen. The activity would then leave on
+     * its own, by a request to the system that answers later (finish, or move a root task to the back): what it does
+     * is the system's, not the application's, and is not awaited here.
+     */
+    private fun AndroidComposeUiTest<ComponentActivity>.assertTheSystemBackLeavesTheApplication() {
+        val before = backsToTheSystem
+        pressSystemBack()
+        assertThat(backsToTheSystem).isEqualTo(before + 1)
     }
 
     /** Lets the clock run long enough for a change of screen and its transition. */
@@ -545,6 +577,9 @@ internal class BloxNavDisplayTest {
         checkNotNull(activity).getString(id)
 
     private companion object {
+        /** The longest a journey may take on a busy emulator. */
+        val JOURNEY_TIMEOUT = 3.minutes
+
         /** A change of screen and its transition, well within: a second of the clock, sixty ticks of a game. */
         const val SETTLE_MILLIS = 1_000L
 

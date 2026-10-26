@@ -56,6 +56,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | Module | Type | Responsabilité |
 |---|---|---|
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
+| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Ne dépend que de `core:designsystem`. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
@@ -83,7 +84,11 @@ changent beaucoup.
 1. **Une feature ne dépend jamais d'une autre feature.** La navigation entre features est
    assemblée dans `app`, qui seul les connaît toutes. Chaque feature définit sa clé `NavKey` et
    expose une extension d'`EntryProviderScope` qui déclare son entrée ; `app` possède la pile et
-   l'affiche avec `NavDisplay` (Navigation 3, [ADR 0011](adr/0011-navigation-3.md)).
+   l'affiche avec `NavDisplay` (Navigation 3, [ADR 0011](adr/0011-navigation-3.md)). La pile part des
+   cartouches (`CartridgesRoute`) ; la cartouche Classique empile l'accueil, et le disque « Changer de jeu » de
+   l'accueil revient aux cartouches par `changeGame` (fonction pure de `app` : dépile jusqu'à elles, ou les met à
+   la racine d'une pile restaurée qui ne les a pas). Le retour système sur les cartouches quitte l'application.
+   Le parcours mesuré (`BloxJourney`) passe par `cartridge_classic`.
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.
 3. **Le domaine ne connaît ni couleur, ni son, ni temps réel.** Un thème, un effet sonore,

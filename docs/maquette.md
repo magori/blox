@@ -60,6 +60,18 @@ maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogr
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
 
+**V26 codé** (P5.72, `feature:cartridges`) : l'application s'ouvre sur le choix du jeu, une seule
+cartouche, Classique, qui ouvre l'accueil Classique ; le disque « Changer de jeu » de l'accueil y revient ; le
+retour système y quitte l'application. Le dessin est provisoire (titre, encart cadré, étiquette `accent` au
+nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche viennent avec P5.92.
+**Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
+`ChangeGameTest › changing the game from a restored stack without cartridges puts them at its root`,
+`CartridgesScreenTest › TalkBack reads the name of each cartridge, as a button of 48 dp at least`,
+`CartridgesScreenTest › the Classic cartridge opens the Classic`,
+`BloxNavDisplayTest › the application opens on the choice of the game`,
+`BloxNavDisplayTest › the system back on the cartridges leaves the application`,
+`HomeViewModelTest › changing the game stops the preview`.
+
 Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
 pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un
 téléphone). Seule la police normale est dessinée : les variantes en police ×2 (barre d'outils de

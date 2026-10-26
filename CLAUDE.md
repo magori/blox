@@ -132,7 +132,7 @@ lui-même.
 | Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`, `core:haptics`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`, `core:board`) | `blox.android.library` + `blox.android.library.compose` | idem |
-| Feature (`feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
+| Feature (`feature:cartridges`, `feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem + Compose UI Test (parcours entre features), `ui-test-manifest` en debug |
 | Mesures (`benchmark`, `com.android.test`) | `blox.android.benchmark` | JUnit 5 branché à la main, règles Macrobenchmark par l'adaptateur `RuleExtension` (amendement de l'ADR 0009) |
 
@@ -162,7 +162,9 @@ lui-même.
   dépendance demande un ADR.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
   assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
-  extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011).
+  extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011). La
+  racine de la pile est le choix du jeu (`CartridgesRoute`, ADR 0022) ; `changeGame`, fonction pure de `app`, y
+  revient depuis l'accueil d'un jeu.
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `core:board` (ADR 0023), qui dépend du
   domaine et de `core:designsystem`, et que `feature:game` utilise.

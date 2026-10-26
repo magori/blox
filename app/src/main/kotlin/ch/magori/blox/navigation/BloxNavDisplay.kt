@@ -9,7 +9,6 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import ch.magori.blox.feature.cartridges.Cartridge
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.cartridges.navigation.cartridgesEntry
 import ch.magori.blox.feature.composer.ComposerViewModel
@@ -19,7 +18,6 @@ import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
-import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
 import ch.magori.blox.feature.home.navigation.settingsEntry
@@ -61,13 +59,7 @@ fun BloxNavDisplay(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
-            cartridgesEntry(
-                onOpen = { cartridge ->
-                    when (cartridge) {
-                        Cartridge.CLASSIC -> backStack.add(HomeRoute)
-                    }
-                },
-            )
+            cartridgesEntry(onOpen = { cartridge -> openCartridge(backStack, cartridge) })
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).

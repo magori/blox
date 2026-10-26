@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 171 / 221 | `███████████████░░░░░` **77 %** |
+| **Général** | 172 / 222 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -908,7 +908,7 @@ composants.
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
   `in reduced effects a pressed button changes its fill only`.
-- [ ] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
+- [x] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
   à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
   du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
   fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
@@ -1022,6 +1022,10 @@ composants.
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
+- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+  console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
+  étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
+  inchangé (`CartridgesScreenTest`).
 
 ## P6 — Mode Moderne (plus tard)
 

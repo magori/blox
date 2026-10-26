@@ -566,7 +566,7 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("the disc Changer de jeu, 48 dp, at the top left of the home screen, changes the game")
+    @DisplayName("the disc Changer de jeu, 48 dp, before the title and opposite the gear, changes the game")
     fun theChangeGameDiscChangesTheGame() = extension.use {
         // Given a phone of 360 dp
         var changed = 0
@@ -577,9 +577,14 @@ internal class HomeScreenTest {
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
         val bounds = disc.getUnclippedBoundsInRoot()
         val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
-        assertThat(bounds.left).isEqualTo(24.dp)
+        val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
+        // Before the title, on its line
         assertThat(bounds.right).isLessThanOrEqualTo(title.left)
         assertThat(bounds.top).isLessThan(title.bottom)
+        // The mirror of the gear: as far from the left edge as the gear from the right one, as high, as wide
+        assertThat(bounds.left.value).isCloseTo((NARROW_PHONE - gear.right).value, within(PIXEL_ROUNDING))
+        assertThat(bounds.top.value).isCloseTo(gear.top.value, within(PIXEL_ROUNDING))
+        assertThat((bounds.right - bounds.left).value).isCloseTo((gear.right - gear.left).value, within(PIXEL_ROUNDING))
 
         // When
         disc.performClick()

@@ -190,8 +190,8 @@ class HomeViewModel(
     internal fun onSettings() = stopPreview()
 
     /**
-     * The player goes back to the choice of the game: the music being listened to stops, before the home leaves the
-     * stack, which clears this view model without stopping it.
+     * The player goes back to the choice of the game: the music being listened to stops at once, before the transition
+     * (leaving the stack would stop it too, but only once the home is gone).
      */
     internal fun onChangeGame() = stopPreview()
 
