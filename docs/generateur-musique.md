@@ -733,7 +733,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
 `MyMusicsScreenTest › every button is 48 dp wide and high at least`,
 `HomeViewModelTest › opening my musics stops the preview`,
-`HomeScreenTest › the link MES MUSIQUES, in the header of the music section, read as written, opens my musics`.
+`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`.
 Vues : V1, V7, V10.
 
 
@@ -1044,7 +1044,7 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerScreenTest › the tempo buttons change the tempo shown`,
 `ComposerScreenTest › every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars`,
 `HomeViewModelTest › opening the music editor stops the preview`,
-`HomeScreenTest › the button Composer une musique, shown in capitals and read as written, opens the music editor`.
+`HomeScreenTest › the tile Composer une musique, read as written, opens the music editor`.
 
 ### Éditeur : dé (implémenté, P4.20)
 

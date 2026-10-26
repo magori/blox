@@ -7,9 +7,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -18,7 +21,6 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
-import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
@@ -26,6 +28,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
@@ -34,9 +37,10 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -71,14 +75,14 @@ internal class HomeScreenTest {
         theme = ThemeChoice.COLORFUL,
         music = MusicChoice.MINUET,
         startLevel = 5,
-        startLevels = (0..9).toList(),
+        startLevels = 0..9,
         record = 0,
         listenable = emptyList(),
         previewing = null,
     )
 
-    /** A start level: a cell that may be touched, in the group of the start levels. */
-    private val startLevel = hasClickAction() and hasAnyAncestor(hasTestTag(START_LEVELS_TAG))
+    /** The gauge of the start level, one slider for TalkBack. */
+    private val gauge = hasContentDescription("Niveau de départ")
 
     @Test
     @DisplayName("TalkBack reads each selected choice as selected, and the others as not selected")
@@ -90,9 +94,8 @@ internal class HomeScreenTest {
         onNodeWithText("Classique").assertIsSelected()
         onNodeWithText("Couleurs").assertIsSelected()
         onNodeWithText("Original").assertIsNotSelected()
-        onNodeWithText("5").assertIsSelected()
-        onNodeWithText("4").assertIsNotSelected()
         onNodeWithText("Menuet").assertIsSelected()
+        onNodeWithText("Korobeïniki").assertIsNotSelected()
     }
 
     @Test
@@ -101,11 +104,11 @@ internal class HomeScreenTest {
         // Given a record beyond the six digits shown
         showHomeScreen(uiState.copy(record = 1_234_567))
 
-        // Then TalkBack reads its value alone, not the text shown, capped (« Record 999999 »)
+        // Then TalkBack reads its value alone, not the text shown, capped (« RECORD 999999 »)
         onNodeWithContentDescription("Record 1234567")
             .assertExists()
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
-        onNodeWithText("Record", substring = true).assertDoesNotExist()
+        onNodeWithText("Record", substring = true, ignoreCase = true).assertDoesNotExist()
     }
 
     @Test
@@ -134,16 +137,19 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("the home screen leaves 16 dp above its header, and 16 dp between two sections")
-    fun theHomeScreenLeaves16DpAboveAndBetweenSections() = extension.use {
+    @DisplayName("the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings")
+    fun theHomeLeaves16DpAroundItsBarAndBetweenRows() = extension.use {
         // Given a phone of 360 dp, without the bars of the system, which push the screen down
         showHomeScreen(width = NARROW_PHONE, withoutInsets = true)
 
-        // Then
+        // Then the bar is 16 dp under the top, 16 dp off each side
         val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
+        val disc = onNodeWithContentDescription("Changer de jeu").getUnclippedBoundsInRoot()
         assertThat(gear.top.value).isCloseTo(16f, within(PIXEL_ROUNDING))
+        assertThat(disc.left.value).isCloseTo(16f, within(PIXEL_ROUNDING))
+        assertThat(gear.right.value).isCloseTo((NARROW_PHONE - 16.dp).value, within(PIXEL_ROUNDING))
+        // And a row starts with its label, above its group, or with its group, beside its label and taller
         val modes = onNodeWithText("Classique").getUnclippedBoundsInRoot()
-        // A section starts with its label, above its group, or with its group, beside its label and taller
         val theme = minOf(
             onNodeWithText("Thème").getUnclippedBoundsInRoot().top,
             onNodeWithText("Original").getUnclippedBoundsInRoot().top,
@@ -290,14 +296,14 @@ internal class HomeScreenTest {
     @Test
     @DisplayName("each selected choice bears a check, the others none, and TalkBack does not read it")
     fun eachSelectedChoiceBearsACheckThatTalkBackDoesNotRead() = extension.use {
-        // Given « Classique », « Couleurs », 5 and the music of the player for the games, which has a description
+        // Given « Classique », « Couleurs » and the music of the player for the games, which has a description
         showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
 
         // Then a cue other than colour (WCAG 2.1, 1.4.1), in the selected choices only
         val checks = onAllNodes(isChoiceCheck(), useUnmergedTree = true)
-        assertThat(checks.fetchSemanticsNodes()).hasSize(4)
+        assertThat(checks.fetchSemanticsNodes()).hasSize(3)
         onAllNodes(isChoiceCheck() and hasParent(isSelected()), useUnmergedTree = true)
-            .assertCountEquals(4)
+            .assertCountEquals(3)
         // And decorative: TalkBack already says « sélectionné », it reads nothing more
         checks.assertAll(
             SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription) and
@@ -312,103 +318,137 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("every button and choice, start levels included, is 48 dp wide and high at least on 360 dp")
+    @DisplayName("every target of the home is 48 dp at least on 360 dp")
     fun everyTargetIsLargeEnough() = extension.use {
         // Given a music that may be listened to, with its button, on a phone of 360 dp, the width of the mockup
-        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.KOROBEINIKI)), width = NARROW_PHONE)
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MINUET)), width = NARROW_PHONE)
 
         // Then: 48 dp visible, a rule of BloX, stricter than WCAG 2.2 (2.5.8, 24 px) and than Android, whose
-        // 48 dp is a touch area that may pass beyond what is drawn
+        // 48 dp is a touch area that may pass beyond what is drawn; − and + of the gauge included
         val targets = onAllNodes(hasClickAction())
         val count = targets.fetchSemanticsNodes().size
-        onAllNodes(startLevel).assertCountEquals(uiState.startLevels.size)
+        assertThat(count).isGreaterThanOrEqualTo(HOME_TARGETS)
         repeat(count) { index ->
-            targets[index].assertWidthIsAtLeast(
-                BloxSizes.minTouchTarget,
-            ).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+            targets[index].assertWidthIsAtLeast(BloxSizes.minTouchTarget)
+                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+        // And the gauge, touched or dragged
+        onNode(gauge).assertWidthIsAtLeast(BloxSizes.minTouchTarget).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+    }
+
+    @Test
+    @DisplayName("the gauge chooses the start level and saves it")
+    fun theGaugeChoosesTheStartLevel() = extension.use {
+        // Given level 5 chosen, of 0 to 9
+        val chosen = mutableListOf<Int>()
+        showHomeScreen(onStartLevelChosen = { chosen += it })
+        onNode(gauge).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.ProgressBarRangeInfo,
+                ProgressBarRangeInfo(current = 5f, range = 0f..9f, steps = 8),
+            ),
+        )
+
+        // When TalkBack, or a finger, moves it to 7
+        onNode(gauge).performSemanticsAction(SemanticsActions.SetProgress) { it(7f) }
+
+        // Then 7 is handed over to be saved (HomeViewModel saves it)
+        runOnIdle { assertThat(chosen).containsExactly(7) }
+    }
+
+    @Test
+    @DisplayName("the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack")
+    fun theReminderUnderPlaySaysTheModeTheLevelAndTheMusic() = extension.use {
+        // Given level 5 and the minuet
+        showHomeScreen(width = NARROW_PHONE)
+
+        // Then the reminder stands under Jouer
+        val play = onNode(hasText("Jouer") and hasAnyAncestor(hasTestTag(PLAY_TAG)), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val reminder = onNode(hasText(REMINDER), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(reminder.top).isGreaterThanOrEqualTo(play.bottom)
+        // And TalkBack reads Jouer, then the reminder in words, without its dots nor the zero of the level
+        onNode(hasTestTag(PLAY_TAG)).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.ContentDescription,
+                listOf("Jouer, Classique, niveau 5, Menuet"),
+            ),
+        )
+    }
+
+    @Test
+    @DisplayName("a reminder too long for Play is cut by an ellipsis on one line, and TalkBack still reads it whole")
+    fun aReminderTooLongIsCutButReadWhole() = extension.use {
+        // Given a music of the player of the longest name, on 360 dp
+        showHomeScreen(
+            uiState.copy(gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false)),
+            width = NARROW_PHONE,
+        )
+
+        // Then the reminder holds one line, cut
+        val layout = textLayout("Classique · Niveau 05 · $LONGEST_NAME")
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.isLineEllipsized(0)).isTrue()
+        // And TalkBack reads the whole name
+        onNode(hasTestTag(PLAY_TAG)).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.ContentDescription,
+                listOf("Jouer, Classique, niveau 5, $LONGEST_NAME"),
+            ),
+        )
+    }
+
+    @Test
+    @DisplayName("Jouer starts a game at the level chosen")
+    fun playStartsAGameAtTheLevelChosen() = extension.use {
+        // Given level 5 chosen
+        val played = mutableListOf<Int>()
+        showHomeScreen(onPlay = { played += it })
+
+        // When
+        onNode(hasTestTag(PLAY_TAG)).performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(played).containsExactly(5) }
+    }
+
+    @Test
+    @DisplayName("TalkBack reads the parts in the order of the screen")
+    fun talkBackReadsThePartsInTheOrderOfTheScreen() = extension.use {
+        // Given the minuet selected, which may be listened to, on 360 dp
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MINUET)), width = NARROW_PHONE)
+
+        // Then the bar, the title, Jouer, the settings, row by row, and the tiles, in the order of the tree
+        val expected = listOf(
+            "Changer de jeu", "Record 0", "Paramètres", "BloX", "Jouer, Classique, niveau 5, Menuet",
+            "Mode", "Classique", "Moderne, bientôt", "Thème", "Original", "Couleurs", "Niveau", "Niveau de départ",
+            "Musique", "Korobeïniki", "Menuet", "Mon fichier", "Aucune", "Écouter Menuet", "Mes musiques",
+            "Composer une musique",
+        )
+        val read = readingOrder(onRoot().fetchSemanticsNode()).filter { (name, _) -> name in expected }
+        assertThat(read.map { it.first }).containsExactlyElementsOf(expected)
+        // And each part stands beside the one before on its line, after it, whatever their heights (a label is centred
+        // beside a taller group), or on a row under it
+        read.zipWithNext().forEach { (before, after) ->
+            val (a, b) = before.second to after.second
+            val sameLine = b.top < a.bottom && b.bottom > a.top
+            if (sameLine) {
+                assertThat(b.left).describedAs("${after.first} beside ${before.first}").isGreaterThanOrEqualTo(a.left)
+            } else {
+                assertThat(b.top).describedAs("${after.first} under ${before.first}").isGreaterThanOrEqualTo(a.top)
+            }
         }
     }
 
-    @Test
-    @DisplayName("the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another")
-    fun theStartLevelsStandOnTwoRowsOfFive() = extension.use {
-        // Given
-        showHomeScreen(width = NARROW_PHONE)
-
-        // Then
-        val cells = startLevelCells()
-        assertThat(cells.map { it.text }).containsExactly("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
-        val (first, second) = cells.chunked(5)
-        assertThat(first.map { it.bounds.top }.distinct()).hasSize(1)
-        assertThat(second.map { it.bounds.top }.distinct()).hasSize(1)
-        assertThat(second.first().bounds.top).isGreaterThanOrEqualTo(first.first().bounds.bottom)
-        assertThat(second.map { it.bounds.left }).isEqualTo(first.map { it.bounds.left })
-        assertCellsAsWideAsOneAnother(cells)
-    }
-
-    @Test
-    @DisplayName("a last row of fewer than five start levels is aligned on the cells of the row above, as wide")
-    fun aShortLastRowIsAlignedOnTheRowAbove() = extension.use {
-        // Given a mode of 8 start levels
-        showHomeScreen(uiState.copy(startLevels = (0..7).toList()), width = NARROW_PHONE)
-
-        // Then 5, 6 and 7 stand under 0, 1 and 2, in cells as wide
-        val cells = startLevelCells()
-        assertThat(cells.map { it.text }).containsExactly("0", "1", "2", "3", "4", "5", "6", "7")
-        assertThat(cells.drop(5).map { it.bounds.left }).isEqualTo(cells.take(3).map { it.bounds.left })
-        assertThat(cells[5].bounds.top).isGreaterThanOrEqualTo(cells[0].bounds.bottom)
-        assertCellsAsWideAsOneAnother(cells)
-    }
-
-    @Test
-    @DisplayName("in a normal font, every start level is 48 dp high, no more")
-    fun inANormalFontEveryStartLevelIs48DpHigh() = extension.use {
-        // Given level 5 selected, on 360 dp
-        showHomeScreen(width = NARROW_PHONE)
-
-        // Then the cells take no room above or under their digit beyond the 48 dp of a finger
-        val levels = onAllNodes(startLevel)
-        repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsEqualTo(BloxSizes.minTouchTarget) }
-    }
-
-    @Test
-    @DisplayName("in a large font, every start level is as tall as the other choices, its check clear of its digit")
-    fun inALargeFontEveryStartLevelIsAsTallAsTheOtherChoices() = extension.use {
-        // Given level 5 selected, in a font twice as large, on 360 dp
-        showHomeScreen(width = NARROW_PHONE, fontScale = 2f)
-
-        // Then the cells, selected (5) or not (4), take no more height than their digit needs, as the other choices
-        val level = onNode(startLevel and hasText("5")).getUnclippedBoundsInRoot()
-        val choice = onNodeWithText("Original").getUnclippedBoundsInRoot()
-        // But for the rounding of their edges to the pixel, which depends on where the cells stand on the screen
-        assertThat(
-            (level.bottom - level.top).value,
-        ).isCloseTo((choice.bottom - choice.top).value, within(PIXEL_ROUNDING))
-        val unselected = onNode(startLevel and hasText("4")).getUnclippedBoundsInRoot()
-        assertThat(
-            (level.bottom - level.top).value,
-        ).isCloseTo((unselected.bottom - unselected.top).value, within(PIXEL_ROUNDING))
-        // And the check, in the corner, touches neither the digit nor the frame
-        val inLevel = hasParent(startLevel)
-        val check = onNode(isChoiceCheck() and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val digit = onNode(hasText("5") and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
-        assertThat(check.left).isGreaterThanOrEqualTo(digit.right)
-        assertThat(check.right).isLessThan(level.right)
-        assertThat(check.top).isGreaterThan(level.top)
-    }
-
-    @Test
-    @DisplayName("TalkBack reads the start levels as one group of radio buttons, from 0 to 9")
-    fun theStartLevelsAreOneGroupOfRadioButtons() = extension.use {
-        // Given
-        showHomeScreen(width = NARROW_PHONE)
-
-        // Then every level is a child of the same selectable group, in order, read as a radio button
-        val group = SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)
-        val levels = onAllNodes(startLevel and hasParent(group)).fetchSemanticsNodes()
-        assertThat(levels.map { it.config[SemanticsProperties.Text].joinToString() })
-            .containsExactly("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
-        assertThat(levels.map { it.config[SemanticsProperties.Role] }).containsOnly(Role.RadioButton)
+    /** What TalkBack reads of [node] and of each node under it, in the order of the tree, and where each stands. */
+    private fun ComposeContext.readingOrder(node: SemanticsNode): List<Pair<String, DpRect>> {
+        val name = node.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString()
+            ?: node.config.getOrNull(SemanticsProperties.Text)?.joinToString()
+        val bounds = with(density) {
+            node.boundsInRoot.let { DpRect(it.left.toDp(), it.top.toDp(), it.right.toDp(), it.bottom.toDp()) }
+        }
+        val own = if (name != null) listOf(name to bounds) else emptyList()
+        return own + node.children.flatMap { readingOrder(it) }
     }
 
     @Test
@@ -436,7 +476,7 @@ internal class HomeScreenTest {
         )
 
         // When
-        onNodeWithContentDescription("Écouter Thème du soir").performClick()
+        onNodeWithContentDescription("Écouter Thème du soir").performScrollTo().performClick()
 
         // Then
         assertThat(listened).isEqualTo(1)
@@ -454,62 +494,95 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("the button Composer une musique, shown in capitals and read as written, opens the music editor")
-    fun composeButtonOpensTheEditor() = extension.use {
+    @DisplayName("the tile Composer une musique, read as written, opens the music editor")
+    fun composeTileOpensTheEditor() = extension.use {
         // Given
         var composing = 0
         showHomeScreen(onCompose = { composing++ })
 
         // When
-        onNodeWithText("COMPOSER UNE MUSIQUE").assertExists()
-        onNodeWithContentDescription("Composer une musique").performScrollTo().performClick()
+        onNode(hasText("Composer une musique") and hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .performScrollTo()
+            .performClick()
 
         // Then
         runOnIdle { assertThat(composing).isEqualTo(1) }
     }
 
+    @Test
+    @DisplayName("the tile Mes musiques, read as written, opens my musics")
+    fun myMusicsTileOpensMyMusics() = extension.use {
+        // Given
+        var opened = 0
+        showHomeScreen(onMyMusics = { opened++ })
+
+        // When
+        onNode(hasText("Mes musiques") and hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .performScrollTo()
+            .performClick()
+
+        // Then
+        runOnIdle { assertThat(opened).isEqualTo(1) }
+    }
+
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a font twice as large, on 360 dp, the label of Composer une musique is shown whole")
-    fun inALargeFontComposeMusicIsShownWhole(kind: BloxThemeKind) = extension.use {
+    @DisplayName("in a font twice as large, on 360 dp, the labels of the tiles are shown whole, their words whole")
+    fun inALargeFontTheLabelsOfTheTilesAreShownWhole(kind: BloxThemeKind) = extension.use {
         // Given a font twice as large, on 360 dp
         showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
 
-        // Then its label, as laid out, is not cut
-        assertThat(composeMusicLabel().hasVisualOverflow).isFalse()
+        // Then each label, as laid out, holds whole words within its tile and the screen
+        listOf("Mes musiques", "Composer une musique").forEach { label ->
+            val layout = textLayout(label)
+            assertWordsWhole(layout)
+            assertThat(layout.hasVisualOverflow).describedAs(label).isFalse()
+            val tile = onNode(hasText(label) and hasClickAction()).getUnclippedBoundsInRoot()
+            val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertThat(shown.left).isGreaterThanOrEqualTo(tile.left)
+            assertThat(shown.right).isLessThanOrEqualTo(tile.right)
+            assertThat(tile.right).isLessThanOrEqualTo(NARROW_PHONE)
+        }
+    }
+
+    @Test
+    @DisplayName("in a normal font, on 360 dp, the tiles stand side by side, as high as each other")
+    fun inANormalFontTheTilesStandSideBySide() = extension.use {
+        // Given the normal font, on 360 dp, in Couleurs (the pixel font of Original, wider, stacks them already: it
+        // stays readable, the tiles of Original are not drawn otherwise)
+        showHomeScreen(width = NARROW_PHONE, kind = BloxThemeKind.COLORFUL)
+
+        // Then
+        val (myMusics, compose) = tiles()
+        assertThat(compose.top).isEqualTo(myMusics.top)
+        assertThat(compose.left).isGreaterThanOrEqualTo(myMusics.right)
+        assertThat(compose.bottom).isEqualTo(myMusics.bottom)
     }
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a normal font, on 360 dp, the label of Composer une musique stays on one line")
-    fun inANormalFontComposeMusicStaysOnOneLine(kind: BloxThemeKind) = extension.use {
-        // Given the normal font, on 360 dp
-        showHomeScreen(width = NARROW_PHONE, kind = kind)
+    @DisplayName("in a font twice as large, on 360 dp, the tiles stand one above the other, each as wide as the line")
+    fun inALargeFontTheTilesStandOneAboveTheOther(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on 360 dp, where « Composer » no longer holds in half the line
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
 
-        // Then its label takes one line, shrinking if needed, rather than two
-        val label = composeMusicLabel()
-        assertThat(label.lineCount).isEqualTo(1)
-        assertThat(label.hasVisualOverflow).isFalse()
-    }
-
-    @Test
-    @DisplayName("in a font twice as large, in Original, each word of Composer une musique stays whole on its line")
-    fun inALargeFontEachWordOfComposeMusicStaysWhole() = extension.use {
-        // Given a font twice as large, on 360 dp, in the pixel font
-        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = BloxThemeKind.ORIGINAL)
-
-        // Then each line holds whole words only: none is cut from one line to the next
-        val label = composeMusicLabel()
-        val text = label.layoutInput.text.text
-        val words = List(label.lineCount) { line ->
-            text.substring(label.getLineStart(line), label.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
+        // Then
+        val (myMusics, compose) = tiles()
+        assertThat(compose.top).isGreaterThanOrEqualTo(myMusics.bottom)
+        listOf(myMusics, compose).forEach { tile ->
+            assertThat(tile.left.value).isCloseTo(16f, within(PIXEL_ROUNDING))
+            assertThat(tile.right.value).isCloseTo((NARROW_PHONE - 16.dp).value, within(PIXEL_ROUNDING))
         }
-        assertThat(label.lineCount).isEqualTo(2)
-        assertThat(words.flatten()).containsExactly("COMPOSER", "UNE", "MUSIQUE")
     }
 
-    /** The label of « Composer une musique », as laid out. */
-    private fun ComposeContext.composeMusicLabel(): TextLayoutResult = textLayout("COMPOSER UNE MUSIQUE")
+    /** Where the tiles Mes musiques and Composer une musique stand, once the home scrolled down to the last. */
+    private fun ComposeContext.tiles(): Pair<DpRect, DpRect> {
+        val myMusics = onNode(hasText("Mes musiques") and hasClickAction())
+        val compose = onNode(hasText("Composer une musique") and hasClickAction()).performScrollTo()
+        return myMusics.getUnclippedBoundsInRoot() to compose.getUnclippedBoundsInRoot()
+    }
 
     /** The text shown as [text], as laid out. */
     private fun ComposeContext.textLayout(text: String): TextLayoutResult {
@@ -517,42 +590,6 @@ internal class HomeScreenTest {
         val layouts = mutableListOf<TextLayoutResult>()
         label.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
         return layouts.single()
-    }
-
-    /** A start level cell: its digit, and where it stands. */
-    private data class Cell(val text: String, val bounds: DpRect)
-
-    /** The start level cells, in the order of the tree, the order TalkBack reads them in. */
-    private fun ComposeContext.startLevelCells(): List<Cell> {
-        val nodes = onAllNodes(startLevel)
-        return List(nodes.fetchSemanticsNodes().size) { index ->
-            val node = nodes[index]
-            Cell(
-                text = node.fetchSemanticsNode().config[SemanticsProperties.Text].joinToString(),
-                bounds = node.getUnclippedBoundsInRoot(),
-            )
-        }
-    }
-
-    /** All [cells] as wide as one another, but for the rounding to a pixel. */
-    private fun assertCellsAsWideAsOneAnother(cells: List<Cell>) {
-        val widths = cells.map { it.bounds.right - it.bounds.left }
-        assertThat(widths.max() - widths.min()).isLessThanOrEqualTo(1.dp)
-    }
-
-    @Test
-    @DisplayName("the link MES MUSIQUES, in the header of the music section, read as written, opens my musics")
-    fun myMusicsLinkOpensMyMusics() = extension.use {
-        // Given
-        var opened = 0
-        showHomeScreen(onMyMusics = { opened++ })
-
-        // When
-        onNodeWithText("MES MUSIQUES").assertExists()
-        onNodeWithContentDescription("Mes musiques").performScrollTo().performClick()
-
-        // Then
-        runOnIdle { assertThat(opened).isEqualTo(1) }
     }
 
     @Test
@@ -574,7 +611,7 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("the disc Changer de jeu, 48 dp, before the title and opposite the gear, changes the game")
+    @DisplayName("the disc Changer de jeu, 48 dp, at the start of the bar and opposite the gear, changes the game")
     fun theChangeGameDiscChangesTheGame() = extension.use {
         // Given a phone of 360 dp
         var changed = 0
@@ -584,11 +621,7 @@ internal class HomeScreenTest {
             .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
         val bounds = disc.getUnclippedBoundsInRoot()
-        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
         val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
-        // Before the title, on its line
-        assertThat(bounds.right).isLessThanOrEqualTo(title.left)
-        assertThat(bounds.top).isLessThan(title.bottom)
         // The mirror of the gear: as far from the left edge as the gear from the right one, as high, as wide
         assertThat(bounds.left.value).isCloseTo((NARROW_PHONE - gear.right).value, within(PIXEL_ROUNDING))
         assertThat(bounds.top.value).isCloseTo(gear.top.value, within(PIXEL_ROUNDING))
@@ -601,33 +634,38 @@ internal class HomeScreenTest {
         runOnIdle { assertThat(changed).isEqualTo(1) }
     }
 
-    @Test
-    @DisplayName("the gear button stands at the top right of the home screen, beside the title")
-    fun theGearButtonStandsAtTheTopRight() = extension.use {
-        // Given a phone of 360 dp
-        showHomeScreen(width = NARROW_PHONE)
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("the record chip stands in the bar between Changer de jeu and the gear, 48 dp high")
+    fun theRecordChipStandsInTheBar(kind: BloxThemeKind) = extension.use {
+        // Given a phone of 360 dp, in a font twice as large, a record of six digits
+        showHomeScreen(uiState.copy(record = 999_999), width = NARROW_PHONE, fontScale = 2f, kind = kind)
 
         // Then
+        val chip = onNodeWithContentDescription("Record 999999")
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+            .getUnclippedBoundsInRoot()
+        val disc = onNodeWithContentDescription("Changer de jeu").getUnclippedBoundsInRoot()
         val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
-        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
-        assertThat(gear.right).isEqualTo(NARROW_PHONE - 24.dp)
-        assertThat(gear.left).isGreaterThanOrEqualTo(title.right)
-        assertThat(gear.top).isLessThan(title.bottom)
+        assertThat(chip.left).isGreaterThanOrEqualTo(disc.right)
+        assertThat(chip.right).isLessThanOrEqualTo(gear.left)
+        assertThat(chip.top).isLessThan(gear.bottom)
+        assertThat(chip.bottom).isGreaterThan(gear.top)
     }
 
     @Test
-    @DisplayName("the logo and the title BloX stand on one line, the record under them")
+    @DisplayName("the logo and the title BloX stand on one line, under the bar")
     fun theLogoAndTheTitleStandOnOneLine() = extension.use {
         // Given
         showHomeScreen(width = NARROW_PHONE)
 
-        // Then the logo before the title, centred on the same line
+        // Then the logo before the title, centred on the same line, under the bar
         val logo = onNode(hasTestTag(HOME_LOGO_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
         val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
-        val record = onNodeWithContentDescription("Record 0").getUnclippedBoundsInRoot()
+        val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
         assertThat(logo.right).isLessThanOrEqualTo(title.left)
         assertThat((logo.top + logo.bottom) / 2 - (title.top + title.bottom) / 2).isBetween((-1).dp, 1.dp)
-        assertThat(record.top).isGreaterThanOrEqualTo(title.bottom)
+        assertThat(minOf(logo.top, title.top)).isGreaterThanOrEqualTo(gear.bottom)
     }
 
     @Test
@@ -643,7 +681,7 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("Jouer, MES MUSIQUES, Écouter and Composer une musique bear an icon that TalkBack does not read")
+    @DisplayName("Jouer, Écouter and the tiles bear an icon that TalkBack does not read")
     fun theButtonsWithALabelBearAnIconThatTalkBackDoesNotRead() = extension.use {
         // Given the minuet selected, which may be listened to
         showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MINUET)))
@@ -651,21 +689,19 @@ internal class HomeScreenTest {
         // Then each bears one icon, decorative
         listOf(
             hasTestTag(PLAY_TAG),
-            hasContentDescription("Mes musiques"),
             hasContentDescription("Écouter Menuet"),
-            hasContentDescription("Composer une musique"),
+            tileIn("Mes musiques"),
+            tileIn("Composer une musique"),
         ).forEach { button ->
             iconOf(button)
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
         }
-        // And TalkBack reads each button as before, its label once
-        onNode(hasTestTag(PLAY_TAG))
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString("Jouer"))))
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
-        listOf("Mes musiques", "Écouter Menuet", "Composer une musique").forEach { description ->
-            onNodeWithContentDescription(description)
-                .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(description)))
+        // And TalkBack reads each button its label once
+        onNodeWithContentDescription("Écouter Menuet")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Écouter Menuet")))
+        listOf("Mes musiques", "Composer une musique").forEach { label ->
+            onAllNodes(hasText(label), useUnmergedTree = true).assertCountEquals(1)
         }
     }
 
@@ -690,10 +726,8 @@ internal class HomeScreenTest {
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName(
-        "in a font twice as large, on 360 dp, Jouer, MES MUSIQUES and Écouter are shown whole, after their icons",
-    )
-    fun inALargeFontJouerMyMusicsAndListenAreShownWholeAfterTheirIcons(kind: BloxThemeKind) = extension.use {
+    @DisplayName("in a font twice as large, on 360 dp, Jouer and Écouter are shown whole, beside their icons")
+    fun inALargeFontJouerAndListenAreShownWholeBesideTheirIcons(kind: BloxThemeKind) = extension.use {
         // Given a font twice as large, on 360 dp, the minuet selected, which may be listened to
         showHomeScreen(
             uiState.copy(listenable = listOf(MusicChoice.MINUET)),
@@ -702,10 +736,9 @@ internal class HomeScreenTest {
             kind = kind,
         )
 
-        // Then each label is shown whole, on one line, after its icon, within its button and the screen
+        // Then each label is shown whole, on one line, beside its icon, within its button and the screen
         listOf(
             hasTestTag(PLAY_TAG) to "Jouer",
-            hasContentDescription("Mes musiques") to "MES MUSIQUES",
             hasContentDescription("Écouter Menuet") to "Écouter",
         ).forEach { (button, label) ->
             val bounds = onNode(button).getUnclippedBoundsInRoot()
@@ -715,12 +748,15 @@ internal class HomeScreenTest {
             // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
             assertThat(layout.getLineRight(0)).isLessThanOrEqualTo(layout.size.width.toFloat())
             val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
-            assertThat(icon.right).isLessThanOrEqualTo(shown.left)
-            assertThat(icon.left).isGreaterThanOrEqualTo(bounds.left)
-            assertThat(shown.right).isLessThanOrEqualTo(bounds.right)
+            assertThat(icon.right <= shown.left || icon.left >= shown.right).describedAs(label).isTrue()
+            assertThat(minOf(icon.left, shown.left)).isGreaterThanOrEqualTo(bounds.left)
+            assertThat(maxOf(icon.right, shown.right)).isLessThanOrEqualTo(bounds.right)
             assertThat(bounds.right).isLessThanOrEqualTo(NARROW_PHONE)
         }
     }
+
+    /** A tile in the tree of its parts, unmerged: the button, its label under it. */
+    private fun tileIn(label: String): SemanticsMatcher = hasClickAction() and hasAnyDescendant(hasText(label))
 
     /** The icon of the button [button] matches, alone in it. */
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
@@ -732,6 +768,8 @@ internal class HomeScreenTest {
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         onListenGameMusic: () -> Unit = {},
+        onStartLevelChosen: (Int) -> Unit = {},
+        onPlay: (Int) -> Unit = {},
         onCompose: () -> Unit = {},
         onMyMusics: () -> Unit = {},
         onSettings: () -> Unit = {},
@@ -754,8 +792,8 @@ internal class HomeScreenTest {
                         onListen = {},
                         onListenGameMusic = onListenGameMusic,
                         onChangeMusicFile = {},
-                        onStartLevelChosen = {},
-                        onPlay = {},
+                        onStartLevelChosen = onStartLevelChosen,
+                        onPlay = onPlay,
                         onCompose = onCompose,
                         onMyMusics = onMyMusics,
                         onSettings = onSettings,
@@ -772,3 +810,15 @@ private val NARROW_PHONE = 360.dp
 
 /** The rounding of an edge to the pixel, in dp: far below a pixel. */
 private const val PIXEL_ROUNDING = 0.01f
+
+/** The reminder under Jouer, at level 5 with the minuet. */
+private const val REMINDER = "Classique · Niveau 05 · Menuet"
+
+/** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
+private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
+
+/**
+ * The targets of the home, at least: Changer de jeu, Paramètres, Jouer, two modes, two themes, − and +, four musics,
+ * Écouter, two tiles.
+ */
+private const val HOME_TARGETS = 16
