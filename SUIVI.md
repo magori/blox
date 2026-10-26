@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 183 / 241 | `███████████████░░░░░` **76 %** |
+| **Général** | 185 / 241 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1102,7 +1102,7 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
   0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
   `docs/architecture.md`, vue V35.
-- [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
+- [x] **P7.2** `Orientation.broughtToOrigin()`, ramenée en haut à gauche (`core:game`), partagée par les tuiles des
   pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
 - [x] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)` ; `api(core:music)` arrive avec P7.8),
   `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
@@ -1141,9 +1141,9 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   après une pose, *n* pièces sur la grille).
 - [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
   fanfare de résolution, son de refus.
-- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+- [x] **P7.10** Cases de la serrure (`core:board`, `LockCell`, `LockCellCanvas`, Couleurs seulement) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
-  `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
+  `lock-hint`, `lock-hole-inset` dans `tokens.json`, gardés par un test ; repères non colorés ; captures.
 - [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
   `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
   étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
@@ -1159,7 +1159,8 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
-  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
+  et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
+  (claude.ai), dont `tokens.json` est la copie (ADR 0019).
 - [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
 

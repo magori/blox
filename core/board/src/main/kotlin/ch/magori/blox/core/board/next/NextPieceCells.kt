@@ -23,10 +23,7 @@ fun nextPieceCells(
     type: PieceType,
     rotationSystem: RotationSystem,
 ): NextPieceCells {
-    val cells = rotationSystem.spawnOrientation(type).cells
-    val left = cells.minOf(Position::column)
-    val top = cells.minOf(Position::row)
-    val normalised = cells.map { Position(it.column - left, it.row - top) }.toSet()
+    val normalised = rotationSystem.spawnOrientation(type).broughtToOrigin().cells
     return NextPieceCells(
         type = type,
         cells = normalised,
