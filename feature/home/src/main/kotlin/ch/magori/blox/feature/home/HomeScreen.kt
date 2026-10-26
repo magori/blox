@@ -34,8 +34,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
-import ch.magori.blox.core.designsystem.component.Choice
 import ch.magori.blox.core.designsystem.component.ChoiceGroup
+import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
@@ -97,8 +97,8 @@ internal fun HomeScreen(
         ChoiceGroup(
             label = stringResource(R.string.feature_home_mode),
             choices = listOf(
-                Choice(stringResource(R.string.feature_home_mode_classic)),
-                Choice(stringResource(R.string.feature_home_mode_modern), available = false),
+                ChoiceItem(stringResource(R.string.feature_home_mode_classic)),
+                ChoiceItem(stringResource(R.string.feature_home_mode_modern), available = false),
             ),
             selected = 0,
             onChosen = {},
@@ -106,7 +106,7 @@ internal fun HomeScreen(
         val themes = ThemeChoice.entries
         ChoiceGroup(
             label = stringResource(R.string.feature_home_theme),
-            choices = themes.map { Choice(stringResource(it.label)) },
+            choices = themes.map { ChoiceItem(stringResource(it.label)) },
             selected = themes.indexOf(uiState.theme),
             onChosen = { onThemeChosen(themes[it]) },
         )
@@ -115,7 +115,7 @@ internal fun HomeScreen(
         val levels = uiState.startLevels
         ChoiceGroup(
             label = stringResource(R.string.feature_home_start_level),
-            choices = levels.map { Choice(it.toString()) },
+            choices = levels.map { ChoiceItem(it.toString()) },
             selected = levels.indexOf(uiState.startLevel),
             onChosen = { onStartLevelChosen(levels[it]) },
             columns = START_LEVELS_PER_ROW,
@@ -167,13 +167,13 @@ private fun MusicChoices(
 ) {
     val gameMusic = uiState.gameMusic
     // Each choice, and the music it chooses: none for the music of the player, already chosen.
-    val musics: List<Pair<Choice, MusicChoice?>> = buildList {
+    val musics: List<Pair<ChoiceItem, MusicChoice?>> = buildList {
         MusicChoice.entries.forEach { music ->
             if (music == MusicChoice.NONE && gameMusic != null) {
                 val description = stringResource(R.string.feature_home_music_game_description, gameMusic.name)
-                add(Choice(gameMusic.name, description = description, maxLines = 2) to null)
+                add(ChoiceItem(gameMusic.name, description = description, maxLines = 2) to null)
             }
-            add(Choice(stringResource(music.label)) to music)
+            add(ChoiceItem(stringResource(music.label)) to music)
         }
     }
     val selected = if (gameMusic != null) {

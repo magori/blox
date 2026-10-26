@@ -25,19 +25,19 @@ private fun ChoiceSheet(kind: BloxThemeKind) {
         ) {
             ChoiceGroup(
                 label = "Mode",
-                choices = listOf(Choice("Classique"), Choice("Moderne", available = false)),
+                choices = listOf(ChoiceItem("Classique"), ChoiceItem("Moderne", available = false)),
                 selected = 0,
                 onChosen = {},
             )
             ChoiceGroup(
                 label = "Thème",
-                choices = listOf(Choice("Original"), Choice("Couleurs")),
+                choices = listOf(ChoiceItem("Original"), ChoiceItem("Couleurs")),
                 selected = 1,
                 onChosen = {},
             )
             ChoiceGroup(
                 label = "Niveau de départ",
-                choices = (0..9).map { Choice(it.toString()) },
+                choices = (0..9).map { ChoiceItem(it.toString()) },
                 selected = 5,
                 onChosen = {},
                 columns = 5,

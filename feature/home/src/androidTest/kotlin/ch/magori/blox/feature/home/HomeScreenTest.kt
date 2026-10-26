@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
-import ch.magori.blox.core.designsystem.component.CHOICE_CHECK_TAG
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.component.isChoiceCheck
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -115,7 +115,7 @@ internal class HomeScreenTest {
         showHomeScreen()
 
         // Then
-        onNodeWithContentDescription("Moderne, bientôt, indisponible").assertIsNotEnabled().assertIsNotSelected()
+        onNodeWithContentDescription("Moderne, bientôt").assertIsNotEnabled().assertIsNotSelected()
         onNodeWithText("Classique").assertIsEnabled().assertIsSelected()
     }
 
@@ -128,7 +128,7 @@ internal class HomeScreenTest {
 
         // Then
         val classic = onNodeWithText("Classique").getUnclippedBoundsInRoot()
-        val modern = onNodeWithContentDescription("Moderne, bientôt, indisponible").getUnclippedBoundsInRoot()
+        val modern = onNodeWithContentDescription("Moderne, bientôt").getUnclippedBoundsInRoot()
         assertThat(modern.top).isEqualTo(classic.top)
         assertThat(modern.left).isGreaterThanOrEqualTo(classic.right)
     }
@@ -294,9 +294,9 @@ internal class HomeScreenTest {
         showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
 
         // Then a cue other than colour (WCAG 2.1, 1.4.1), in the selected choices only
-        val checks = onAllNodes(hasTestTag(CHOICE_CHECK_TAG), useUnmergedTree = true)
+        val checks = onAllNodes(isChoiceCheck(), useUnmergedTree = true)
         assertThat(checks.fetchSemanticsNodes()).hasSize(4)
-        onAllNodes(hasTestTag(CHOICE_CHECK_TAG) and hasParent(isSelected()), useUnmergedTree = true)
+        onAllNodes(isChoiceCheck() and hasParent(isSelected()), useUnmergedTree = true)
             .assertCountEquals(4)
         // And decorative: TalkBack already says « sélectionné », it reads nothing more
         checks.assertAll(
@@ -390,7 +390,7 @@ internal class HomeScreenTest {
         ).isCloseTo((unselected.bottom - unselected.top).value, within(PIXEL_ROUNDING))
         // And the check, in the corner, touches neither the digit nor the frame
         val inLevel = hasParent(startLevel)
-        val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val check = onNode(isChoiceCheck() and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
         val digit = onNode(hasText("5") and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
         assertThat(check.left).isGreaterThanOrEqualTo(digit.right)
         assertThat(check.right).isLessThan(level.right)

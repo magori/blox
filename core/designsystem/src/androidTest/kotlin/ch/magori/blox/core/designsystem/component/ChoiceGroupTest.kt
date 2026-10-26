@@ -3,8 +3,13 @@ package ch.magori.blox.core.designsystem.component
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -14,6 +19,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
@@ -28,10 +34,12 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -44,19 +52,19 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
-@OptIn(ExperimentalTestApi::class)
+@OptIn(ExperimentalTestApi::class, ExperimentalComposeUiApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
 internal class ChoiceGroupTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
 
-    private val themes = listOf(Choice("Original"), Choice("Couleurs"), Choice("Brume"))
-    private val modes = listOf(Choice("Classique"), Choice("Moderne", available = false))
+    private val themes = listOf(ChoiceItem("Original"), ChoiceItem("Couleurs"), ChoiceItem("Brume"))
+    private val modes = listOf(ChoiceItem("Classique"), ChoiceItem("Moderne", available = false))
 
     @Test
-    @DisplayName("exactly one segment is selected, checked and in accent")
-    fun exactlyOneSegmentIsSelectedCheckedAndInAccent() = extension.use {
+    @DisplayName("exactly one segment is selected and bears the check, the others neither")
+    fun exactlyOneSegmentIsSelectedAndBearsTheCheck() = extension.use {
         // Given
         showGroup(themes, selected = 1)
 
@@ -67,21 +75,20 @@ internal class ChoiceGroupTest {
         onAllNodes(hasTestTag(CHOICE_CHECK_TAG), useUnmergedTree = true).assertCountEquals(1)
         onAllNodes(hasTestTag(CHOICE_CHECK_TAG) and hasParent(isSelected()), useUnmergedTree = true)
             .assertCountEquals(1)
-        // And in accent: its colours are those of segmentLook (ChoiceLookTest), drawn by the screenshots
     }
 
     @Test
-    @DisplayName("an unavailable segment reads « Moderne, bientôt, indisponible » and cannot be chosen")
+    @DisplayName("an unavailable segment reads « Moderne, bientôt », disabled, and cannot be chosen")
     fun anUnavailableSegmentCannotBeChosen() = extension.use {
         // Given
         val chosen = mutableListOf<Int>()
-        showGroup(listOf(Choice("Classique"), Choice("Moderne", available = false)), selected = 0, onChosen = {
+        showGroup(listOf(ChoiceItem("Classique"), ChoiceItem("Moderne", available = false)), selected = 0, onChosen = {
             chosen +=
                 it
         })
 
         // When
-        val modern = onNodeWithContentDescription("Moderne, bientôt, indisponible")
+        val modern = onNodeWithContentDescription("Moderne, bientôt")
         modern.performClick()
 
         // Then TalkBack reads it whole, once, and it cannot be chosen
@@ -89,7 +96,7 @@ internal class ChoiceGroupTest {
             .assert(
                 SemanticsMatcher.expectValue(
                     SemanticsProperties.ContentDescription,
-                    listOf("Moderne, bientôt, indisponible"),
+                    listOf("Moderne, bientôt"),
                 ),
             )
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
@@ -117,6 +124,11 @@ internal class ChoiceGroupTest {
         assertThat(group.top).isGreaterThanOrEqualTo(label.bottom)
         assertThat(group.left).isEqualTo(label.left)
         assertThat((group.right - group.left).value).isCloseTo(250f, within(PIXEL))
+        // And its segments still side by side
+        val original = onNodeWithText("Original").getUnclippedBoundsInRoot()
+        val colorful = onNodeWithText("Couleurs").getUnclippedBoundsInRoot()
+        assertThat(colorful.top).isEqualTo(original.top)
+        assertThat(colorful.left).isGreaterThanOrEqualTo(original.right)
     }
 
     @Test
@@ -192,7 +204,7 @@ internal class ChoiceGroupTest {
 
         // Then
         val classic = onNodeWithText("Classique").getUnclippedBoundsInRoot()
-        val modern = onNodeWithContentDescription("Moderne, bientôt, indisponible").getUnclippedBoundsInRoot()
+        val modern = onNodeWithContentDescription("Moderne, bientôt").getUnclippedBoundsInRoot()
         assertThat(modern.top).isGreaterThanOrEqualTo(classic.bottom)
         // And Classique is shown whole, on one line
         val layout = textLayout("Classique")
@@ -203,6 +215,50 @@ internal class ChoiceGroupTest {
         val soon = onNode(hasTestTag(CHOICE_SOON_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
         assertThat(name.right - name.left).isGreaterThan(soon.right - soon.left)
         assertThat(soon.left >= name.right || soon.top >= name.bottom).isTrue()
+    }
+
+    @Test
+    @DisplayName("in a group of several rows, an unavailable choice bears BIENTÔT too")
+    fun inAGroupOfSeveralRowsAnUnavailableChoiceBearsSoon() = extension.use {
+        // Given a group of two columns, its third choice not yet available, on a second row
+        val choices = themes.take(2) + ChoiceItem("Moderne", available = false)
+        showGroup(choices, selected = 0, columns = 2)
+
+        // Then
+        val segment = onNodeWithContentDescription("Moderne, bientôt").getUnclippedBoundsInRoot()
+        val soon = onNode(hasTestTag(CHOICE_SOON_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(soon.left).isGreaterThan(segment.left)
+        assertThat(soon.right).isLessThan(segment.right)
+        assertThat(soon.bottom).isLessThanOrEqualTo(segment.bottom)
+    }
+
+    @Test
+    @DisplayName("a segment may take the focus of the keyboard, as a button")
+    fun aSegmentMayTakeTheFocusOfTheKeyboard() = extension.use {
+        // Given
+        showGroup(themes, selected = 1, keyboard = true)
+
+        // When
+        onNodeWithText("Brume").requestFocus()
+
+        // Then (its ring is that of the buttons: ChoiceLookTest)
+        onNodeWithText("Brume").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("right to left, the label stands at the right of its line, and the first choice at the right")
+    fun rightToLeftTheLabelAndTheFirstChoiceStandAtTheRight() = extension.use {
+        // Given
+        showGroup(themes.take(2), selected = 1, direction = LayoutDirection.Rtl)
+
+        // Then
+        val line = onNodeWithTag(GROUP_TAG).getUnclippedBoundsInRoot()
+        val label = onNodeWithText("Thème").getUnclippedBoundsInRoot()
+        val first = onNodeWithText("Original").getUnclippedBoundsInRoot()
+        val second = onNodeWithText("Couleurs").getUnclippedBoundsInRoot()
+        assertThat(label.right).isEqualTo(line.right)
+        assertThat(first.left).isGreaterThanOrEqualTo(second.right)
+        assertThat(second.left).isEqualTo(line.left)
     }
 
     /** The text [text], as laid out: the layout of its own node, not merged into its segment. */
@@ -221,22 +277,34 @@ internal class ChoiceGroupTest {
     }
 
     private fun ComposeContext.showGroup(
-        choices: List<Choice>,
+        choices: List<ChoiceItem>,
         selected: Int,
         width: Dp = 360.dp,
         fontScale: Float = 1f,
         onChosen: (Int) -> Unit = {},
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
+        columns: Int = choices.size,
+        direction: LayoutDirection = LayoutDirection.Ltr,
+        keyboard: Boolean = false,
     ) {
         setContent {
             val density = LocalDensity.current
-            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+            CompositionLocalProvider(
+                LocalDensity provides Density(density.density, fontScale),
+                LocalLayoutDirection provides direction,
+            ) {
+                if (keyboard) {
+                    // As with a keyboard plugged in: a touch screen gives the focus to text fields only.
+                    val inputModes = LocalInputModeManager.current
+                    LaunchedEffect(inputModes) { inputModes.requestInputMode(InputMode.Keyboard) }
+                }
                 BloxTheme(kind = kind) {
                     ChoiceGroup(
                         label = "Thème",
                         choices = choices,
                         selected = selected,
                         onChosen = onChosen,
+                        columns = columns,
                         // Clear of the bars of the system, which a touch at the top of the screen would open.
                         modifier = Modifier.safeDrawingPadding().width(width).testTag(GROUP_TAG),
                     )

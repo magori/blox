@@ -58,9 +58,6 @@ private const val CHECK_GAP_EM = 0.25f
 /** The least room between a check and its label. */
 private val MIN_CHECK_GAP = 4.dp
 
-/** The tag of the check of a selected choice, read by the tests. */
-const val CHOICE_CHECK_TAG: String = "choice_check"
-
 /**
  * A check, in [color], as wide as the smaller side of its box: the cue of a retained choice (ChoiceGroup), shared by
  * what bears one. Decorative: TalkBack already reads the state of what bears it, so it has no description. Its

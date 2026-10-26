@@ -14,6 +14,6 @@
     <string name="core_designsystem_window_delete">Supprimer</string>
     <!-- Les groupes de choix (P5.63) : un choix pas encore disponible, comme le mode Moderne. -->
     <string name="core_designsystem_choice_soon">Bientôt</string>
-    <!-- Lu par TalkBack à la place du libellé d’un choix pas encore disponible. -->
-    <string name="core_designsystem_choice_unavailable">%1$s, bientôt, indisponible</string>
+    <!-- Lu par TalkBack à la place du libellé d’un choix pas encore disponible ; son état désactivé dit le reste. -->
+    <string name="core_designsystem_choice_unavailable">%1$s, bientôt</string>
 </resources>

@@ -317,6 +317,38 @@ Vues : V2, V3.
 
 ## Choix de l'accueil
 
+**Groupe de choix v2** (P5.63, `ChoiceGroup` dans `core:designsystem`, composant Choice) : il remplace les
+choix de l'accueil décrits ci-dessous (`Choice`, `ChoiceRow`, `Section`, l'ancienne `ChoiceCheck`, devenue
+`CheckMark`, partagée). Un groupe est cadré comme un bouton secondaire (`button`, cadre `buttonOutline` ; en
+Original, la page, cadrée de la face des boutons) ; le segment retenu est en `accent`, en pilule, avec sa coche
+en `accentInk` (la coche porte l'état : de jour, l'accent ne fait que 2,6:1 contre le groupe) ; un segment
+indisponible est en `label`, marqué « BIENTÔT », et ne se choisit pas (TalkBack : « Moderne, bientôt », puis
+l'état désactivé). Le libellé du groupe est un titre pour TalkBack, les segments un groupe de boutons radio.
+Un groupe qui ne tient pas sur la ligne de son libellé passe dessous, sur toute la largeur ; si un libellé
+devait encore rétrécir sous 75 % de sa taille (marges et coche gardées), les segments s'empilent. Segments de
+48 dp de haut, cadre compris ; focus clavier par l'anneau des boutons ; ordre inversé de droite à gauche.
+Provisoirement, jusqu'à la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
+(5 colonnes) et la musique (2 colonnes) sont des groupes sur plusieurs rangées : fond retenu en `md`, coche
+dans le coin. Libellés du groupe alignés au début de la ligne. `ChoiceColors.kt` reste tant que `Setting`
+s'en sert (P5.61).
+
+**Tests :** `ChoiceLookTest › a selected segment is filled in accent and checked in the ink of its label`,
+`ChoiceLookTest › an unavailable segment is clear, its label in label, unchecked`,
+`ChoiceLookTest › a group is filled and framed as a secondary button, its frame standing out from the page by 3 to 1 at least`,
+`ChoiceLookTest › the label of a segment stands out from what is behind it by 4,5 to 1 at least, its check by 3 to 1`,
+`ChoiceLookTest › a segment focused by the keyboard bears a 3 dp ring in ink, as a button`,
+`ChoiceLayoutTest › cells stay side by side while their labels need not shrink below three quarters of their size`,
+`ChoiceLayoutTest › cells stack when their labels would shrink below three quarters of their size, margins and check kept`,
+`ChoiceLayoutTest › the check in the corner of a cell stays within its fill, whose corners are those of radius-md`,
+`ChoiceLayoutTest › a group asks for a selected choice that is available, and one column at least`,
+`ChoiceGroupTest › exactly one segment is selected and bears the check, the others neither`,
+`ChoiceGroupTest › an unavailable segment reads « Moderne, bientôt », disabled, and cannot be chosen`,
+`ChoiceGroupTest › a group too wide for its line puts its label above and takes the whole width`,
+`ChoiceGroupTest › each segment is 48 dp high as a target`,
+`ChoiceGroupTest › TalkBack reads the label as a heading, then the segments as one group of radio buttons`,
+`ChoiceGroupTest › in a group of several rows, an unavailable choice bears BIENTÔT too` ;
+captures `ChoiceGroups*`. Vues : V27.
+
 Un choix sélectionné (mode, thème, niveau de départ, musique) est rempli en `accent`, son
 libellé en `accentInk`. Il ne se distingue pas que par la teinte (WCAG 1.4.1) : les deux états
 diffèrent d'au moins 3:1 en luminance, et le choix non sélectionné est cadré quand le

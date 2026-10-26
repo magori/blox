@@ -1,5 +1,6 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxPalette
@@ -86,6 +87,24 @@ internal class ChoiceLookTest {
         val behind = look.fill ?: groupLook(colors).fill
         assertThat(contrast(look.ink, behind)).isGreaterThanOrEqualTo(4.5)
         look.check?.let { assertThat(contrast(it, behind)).isGreaterThanOrEqualTo(3.0) }
+    }
+
+    @ParameterizedTest(name = "{0}, selected: {3}, available: {4}")
+    @MethodSource("variantsAndStates")
+    fun `a segment focused by the keyboard bears a 3 dp ring in ink, as a button`(
+        theme: String,
+        palette: BloxPalette,
+        colors: BloxButtonColors,
+        selected: Boolean,
+        available: Boolean,
+    ) {
+        // When
+        val focused = segmentLook(colors, selected, available, focused = true)
+        val notFocused = segmentLook(colors, selected, available)
+
+        // Then (WCAG 2.1, 2.4.7): the ring of the buttons, 3 dp off the edge of the fill
+        assertThat(focused.focusRing).isEqualTo(FocusRing(color = palette.ink, width = 3.dp, gap = 3.dp))
+        assertThat(notFocused.focusRing).isNull()
     }
 
     companion object {

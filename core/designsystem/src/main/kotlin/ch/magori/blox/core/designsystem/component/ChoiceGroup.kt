@@ -2,6 +2,8 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -18,6 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -31,6 +35,7 @@ import androidx.compose.ui.layout.Measurable
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.layout.MeasureResult
 import androidx.compose.ui.layout.MeasureScope
+import androidx.compose.ui.layout.ParentDataModifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -45,10 +50,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxShapes
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -59,7 +66,7 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
  * [description] instead, if given. A choice that is not [available] bears « BIENTÔT » and cannot be chosen.
  */
 @Immutable
-data class Choice(
+data class ChoiceItem(
     val label: String,
     val available: Boolean = true,
     val description: String? = null,
@@ -82,13 +89,14 @@ data class Choice(
 @Composable
 fun ChoiceGroup(
     label: String,
-    choices: List<Choice>,
+    choices: List<ChoiceItem>,
     selected: Int,
     onChosen: (index: Int) -> Unit,
     modifier: Modifier = Modifier,
     columns: Int = choices.size,
     action: (@Composable () -> Unit)? = null,
 ) {
+    checkChoices(choices, selected, columns)
     Layout(
         contents = listOf(
             { GroupLabel(label, action) },
@@ -109,8 +117,8 @@ fun ChoiceGroup(
             val placedLabel = labelPart.measure(Constraints(maxWidth = width - groupWidth - gap))
             val height = maxOf(placedGroup.height, placedLabel.height)
             layout(width, height) {
-                placedLabel.place(0, (height - placedLabel.height) / 2)
-                placedGroup.place(width - placedGroup.width, (height - placedGroup.height) / 2)
+                placedLabel.placeRelative(0, (height - placedLabel.height) / 2)
+                placedGroup.placeRelative(width - placedGroup.width, (height - placedGroup.height) / 2)
             }
         } else {
             // Above: the label on its own line, the group under it, as wide as the line.
@@ -118,8 +126,8 @@ fun ChoiceGroup(
             val placedGroup = group.measure(Constraints.fixedWidth(width))
             val spacing = BloxSpaces.space1.roundToPx()
             layout(width, placedLabel.height + spacing + placedGroup.height) {
-                placedLabel.place(0, 0)
-                placedGroup.place(0, placedLabel.height + spacing)
+                placedLabel.placeRelative(0, 0)
+                placedGroup.placeRelative(0, placedLabel.height + spacing)
             }
         }
     }
@@ -153,15 +161,17 @@ private fun GroupLabel(
  */
 @Composable
 private fun Segments(
-    choices: List<Choice>,
+    choices: List<ChoiceItem>,
     selected: Int,
     onChosen: (index: Int) -> Unit,
     columns: Int,
 ) {
     val look = groupLook(BloxTheme.buttons)
-    val shape = GroupShape(single = BloxTheme.shapes.pill, several = BloxTheme.shapes.md)
+    val shapes = BloxTheme.shapes
+    val shape = remember(shapes) { GroupShape(single = shapes.pill, several = shapes.md) }
     // A grid of narrow cells, as the start levels, bears its checks in their corners.
     val checkInCorner = columns < choices.size
+    val measurePolicy = remember(columns) { SegmentsMeasurePolicy(columns) }
     Layout(
         content = {
             choices.forEachIndexed { index, choice ->
@@ -177,25 +187,32 @@ private fun Segments(
             .background(look.fill, shape)
             .border(BloxBorders.frame, look.frame, shape)
             .selectableGroup(),
-        measurePolicy = SegmentsMeasurePolicy(columns),
+        measurePolicy = measurePolicy,
     )
 }
 
 /**
- * Lays segments out on rows of [columns] cells as wide as one another, or of fewer when the width cannot hold so many:
- * a label may shrink to [SHRINK_BEFORE_STACKING] of its size, « BIENTÔT » go under it, before its cells stack. The last
- * row holds those left, under the first cells of the row above. A row is as high as its highest segment, the others
- * centred on it.
+ * Lays segments out on rows of [columns] cells as wide as one another, or of fewer when the width cannot hold so many
+ * ([fittingColumns]): a label may shrink to [SHRINK_BEFORE_STACKING] of its size, « BIENTÔT » go under it, before its
+ * cells stack; their margins and checks, given by each segment as its [SegmentRoom], do not shrink. The last row holds
+ * those left, under the first cells of the row above. A row is as high as its highest segment, the others centred on
+ * it. Right to left, the first cell stands at the right.
  */
-private class SegmentsMeasurePolicy(private val columns: Int) : MeasurePolicy {
+private data class SegmentsMeasurePolicy(private val columns: Int) : MeasurePolicy {
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints,
     ): MeasureResult {
         val widest = measurables.maxOfOrNull { it.maxIntrinsicWidth(Constraints.Infinity) } ?: 0
         val width = if (constraints.hasBoundedWidth) constraints.maxWidth else widest * columns
-        val widestAtLeast = measurables.maxOfOrNull { it.minIntrinsicWidth(Constraints.Infinity) } ?: 0
-        val fitting = (columns downTo 1).firstOrNull { it * widestAtLeast * SHRINK_BEFORE_STACKING <= width } ?: 1
+        // The segment that asks for the most room once its label is shrunk as far as it may be.
+        val rooms = measurables.map { segment ->
+            val fixed = ((segment.parentData as? SegmentRoom)?.fixed ?: 0.dp).roundToPx()
+            val label = (segment.minIntrinsicWidth(Constraints.Infinity) - fixed).coerceAtLeast(0)
+            label to fixed
+        }
+        val (label, fixed) = rooms.maxByOrNull { (label, fixed) -> label * SHRINK_BEFORE_STACKING + fixed } ?: (0 to 0)
+        val fitting = fittingColumns(columns, labelWidth = label, fixedWidth = fixed, width = width)
         val cell = width / fitting
         val rows = choiceRows(measurables.size, fitting).map { row ->
             row.map { measurables[it].measure(Constraints(minWidth = cell, maxWidth = cell)) }
@@ -206,7 +223,7 @@ private class SegmentsMeasurePolicy(private val columns: Int) : MeasurePolicy {
             rows.forEach { row ->
                 val rowHeight = row.maxOf { it.height }
                 row.forEachIndexed { column, placeable ->
-                    placeable.place(column * cell, y + (rowHeight - placeable.height) / 2)
+                    placeable.placeRelative(column * cell, y + (rowHeight - placeable.height) / 2)
                 }
                 y += rowHeight
             }
@@ -219,11 +236,16 @@ private class SegmentsMeasurePolicy(private val columns: Int) : MeasurePolicy {
     ): Int = (measurables.maxOfOrNull { it.maxIntrinsicWidth(height) } ?: 0) * columns
 }
 
+/** The room of a segment that does not shrink with its label, [fixed]: its margins, and its check before the label. */
+private data class SegmentRoom(val fixed: Dp) : ParentDataModifier {
+    override fun Density.modifyParentData(parentData: Any?): Any = this@SegmentRoom
+}
+
 /**
  * The shape of a group: [single] on one row, a pill, [several] on more, whose corners a pill would cut too deep. A
  * group of one row is no higher than [ONE_ROW].
  */
-private class GroupShape(private val single: Shape, private val several: Shape) : Shape {
+private data class GroupShape(private val single: Shape, private val several: Shape) : Shape {
     override fun createOutline(
         size: Size,
         layoutDirection: LayoutDirection,
@@ -237,48 +259,55 @@ private class GroupShape(private val single: Shape, private val several: Shape) 
 /**
  * A segment, as wide as the others of its row and [BloxSizes.minTouchTarget] high at least, frame of the group
  * included: the whole cell is its target. Its fill, when [selected], stands [SEGMENT_INSET] inside it, clear of the
- * frame. Its check stands before its label, or in its top corner if [checkInCorner].
+ * frame, and so does the ring of the keyboard focus. Its check stands before its label, or in its top corner if
+ * [checkInCorner]; « BIENTÔT » after the label of a choice not yet available, or under it when short of room.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Segment(
-    choice: Choice,
+    choice: ChoiceItem,
     selected: Boolean,
     onClick: () -> Unit,
     checkInCorner: Boolean,
 ) {
-    val look = segmentLook(BloxTheme.buttons, selected, choice.available)
+    val interactionSource = remember { MutableInteractionSource() }
+    val focused by interactionSource.collectIsFocusedAsState()
+    val look = segmentLook(BloxTheme.buttons, selected, choice.available, focused)
     val description = if (choice.available) {
         choice.description
     } else {
         stringResource(R.string.core_designsystem_choice_unavailable, choice.label)
     }
+    val fillShape = segmentFillShape(checkInCorner, BloxTheme.shapes)
+    val style = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.choice)
+    val labelSize = with(LocalDensity.current) { style.fontSize.toDp() }
+    val insets = choiceInsets(selected = selected, label = labelSize)
+    // The check in the corner of a narrow cell: every cell keeps its room on both sides of its label, selected or not,
+    // so that the check never touches it and the label stays in the middle, under the labels of the other rows.
+    val sides = if (checkInCorner) CORNER_CHECK_INSET + CORNER_CHECK_SIZE else 0.dp
+    val beforeAndAfter = if (checkInCorner) sides * 2 else insets.start + insets.check + insets.gap + insets.end
     val fill = look.fill
     Box(
         modifier = Modifier
+            .then(SegmentRoom(SEGMENT_INSET * 2 + beforeAndAfter))
             .heightIn(min = BloxSizes.minTouchTarget)
             .selectable(
                 selected = selected,
                 enabled = choice.available,
                 role = Role.RadioButton,
-                interactionSource = null,
+                interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick,
             )
             .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier)
             .padding(SEGMENT_INSET)
-            .then(if (fill != null) Modifier.background(fill, BloxTheme.shapes.pill) else Modifier),
+            .focusRing(look.focusRing, fillShape)
+            .then(if (fill != null) Modifier.background(fill, fillShape) else Modifier),
         contentAlignment = Alignment.Center,
     ) {
-        val style = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.choice)
         // With a description, TalkBack reads it alone, not the label after it.
         val read = description == null
         if (checkInCorner) {
-            // The check in the top corner, beside the label rather than before it: the label stays in the middle of
-            // its cell, under the labels of the other rows. Every cell keeps that room on both sides of its label,
-            // selected or not, so that the check never touches it, even in a large font.
-            val room = CORNER_CHECK_INSET + CORNER_CHECK_SIZE
-            SegmentLabel(choice, look.ink, style, read, Modifier.padding(horizontal = room))
+            LabelAndSoon(choice, look.ink, style, read, Modifier.padding(horizontal = sides))
             look.check?.let {
                 CheckMark(
                     color = it,
@@ -291,8 +320,6 @@ private fun Segment(
             }
         } else {
             // Before the label, as large as its letters up to a limit, so that it grows with the font.
-            val labelSize = with(LocalDensity.current) { style.fontSize.toDp() }
-            val insets = choiceInsets(selected = selected, label = labelSize)
             Row(
                 modifier = Modifier.padding(start = insets.start, end = insets.end),
                 verticalAlignment = Alignment.CenterVertically,
@@ -301,17 +328,32 @@ private fun Segment(
                     CheckMark(it, Modifier.testTag(CHOICE_CHECK_TAG).size(insets.check))
                     Spacer(Modifier.width(insets.gap))
                 }
-                // « BIENTÔT » after the name, or under it when short of room: the name keeps its room.
-                FlowRow(
-                    modifier = Modifier.weight(1f, fill = false),
-                    horizontalArrangement = Arrangement.spacedBy(SOON_GAP, Alignment.CenterHorizontally),
-                    itemVerticalAlignment = Alignment.CenterVertically,
-                ) {
-                    SegmentLabel(choice, look.ink, style, read)
-                    if (!choice.available) Soon(look.ink)
-                }
+                LabelAndSoon(choice, look.ink, style, read, Modifier.weight(1f, fill = false))
             }
         }
+    }
+}
+
+/**
+ * The label of [choice] in [color] and [style], read by TalkBack if [read], and « BIENTÔT » after it, or under it when
+ * short of room, when the choice is not yet available: the name keeps its room.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun LabelAndSoon(
+    choice: ChoiceItem,
+    color: Color,
+    style: TextStyle,
+    read: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(SOON_GAP, Alignment.CenterHorizontally),
+        itemVerticalAlignment = Alignment.CenterVertically,
+    ) {
+        SegmentLabel(choice, color, style, read)
+        if (!choice.available) Soon(color)
     }
 }
 
@@ -321,7 +363,7 @@ private fun Segment(
  */
 @Composable
 private fun SegmentLabel(
-    choice: Choice,
+    choice: ChoiceItem,
     color: Color,
     style: TextStyle,
     read: Boolean,
@@ -360,6 +402,9 @@ internal fun choiceRows(
     columns: Int,
 ): List<List<Int>> = (0 until count).chunked(columns)
 
+/** The tag of the check of a selected choice, read by the tests (testFixtures: `isChoiceCheck`). */
+internal const val CHOICE_CHECK_TAG = "choice_check"
+
 /** The tag of « BIENTÔT », read by the tests. */
 internal const val CHOICE_SOON_TAG = "choice_soon"
 
@@ -370,10 +415,10 @@ internal const val CHOICE_LABEL_TAG = "choice_label"
 private val SEGMENT_INSET = BloxBorders.frame * 2
 
 /** The check in the top corner of a cell: small, so that it fits beside a digit. */
-private val CORNER_CHECK_SIZE = 10.dp
+internal val CORNER_CHECK_SIZE = 10.dp
 
 /** Between the check in the corner of a cell and the edges of its fill. */
-private val CORNER_CHECK_INSET = 4.dp
+internal val CORNER_CHECK_INSET = 4.dp
 
 /** Between the label of a choice not yet available and « BIENTÔT ». */
 private val SOON_GAP = 6.dp
@@ -383,3 +428,41 @@ private val ONE_ROW = BloxSizes.minTouchTarget * 1.5f
 
 /** How small a label may shrink, as a part of its size, before the cells of its group stack: three quarters. */
 private const val SHRINK_BEFORE_STACKING = 0.75f
+
+/**
+ * How many of [columns] cells stand side by side in [width]: as many as hold, one at least, when each cell holds its
+ * label, [labelWidth] wide at its size, shrunk to [SHRINK_BEFORE_STACKING] of it at most, and its margins and check,
+ * [fixedWidth], which do not shrink.
+ */
+internal fun fittingColumns(
+    columns: Int,
+    labelWidth: Int,
+    fixedWidth: Int,
+    width: Int,
+): Int {
+    val cell = labelWidth * SHRINK_BEFORE_STACKING + fixedWidth
+    return (columns downTo 1).firstOrNull { it * cell <= width } ?: 1
+}
+
+/**
+ * The fill of a selected segment among [shapes]: a pill, as the group, or, with its check in its corner, of `radius-md`,
+ * whose corners leave room to the check where a pill would cut it.
+ */
+internal fun segmentFillShape(
+    checkInCorner: Boolean,
+    shapes: BloxShapes,
+): Shape = if (checkInCorner) shapes.md else shapes.pill
+
+/**
+ * Checks what a group is asked to show: [selected] is one of [choices], available, and [columns] is one at least.
+ */
+internal fun checkChoices(
+    choices: List<ChoiceItem>,
+    selected: Int,
+    columns: Int,
+) {
+    require(selected in choices.indices && choices[selected].available) {
+        "The selected choice, $selected, is not one of the ${choices.size} choices, or is not available."
+    }
+    require(columns >= 1) { "A group has one column at least, not $columns." }
+}
