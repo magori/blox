@@ -130,13 +130,25 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
 
 - Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
   serrure 4.
+  La serrure *n* d'une graine est `Padlock.generate(level, seed)`, seule entrée publique du
+  générateur.
   **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
-  `PadlockGenerationTest › there is no padlock before padlock 1`.
+  `PadlockGenerationTest › there is no padlock before padlock 1`,
+  `PadlockGenerationTest › padlock n of a seed holds min of 6 and 2 plus n pieces`,
+  `PadlockGenerationTest › the same level and seed give the same padlock, another seed another one`,
+  `PadlockGenerationTest › there is no padlock 0`.
 - Chaque serrure a sa graine, tirée par l'application quand elle ouvre la serrure suivante (clé
-  de navigation `LocksmithRoute(level, seed)`). La graine n'est pas affichée : la suite de
-  `Random` n'est pas un contrat (ADR 0014), une graine partagée demanderait un générateur maison.
+  de navigation `LocksmithRoute(level, seed)`). La clé numérote les serrures dès 1, et la suivante
+  est `route.next(seed)`. La graine n'est pas affichée : la suite de `Random` n'est pas un contrat
+  (ADR 0014), une graine partagée demanderait un générateur maison.
+  **Tests :** `LocksmithRouteTest › padlocks are numbered from 1`,
+  `LocksmithRouteTest › the next padlock is one level up, on the seed it is given`,
+  `LocksmithViewModelTest › the screen opens on padlock n of the seed of its route, nothing placed`,
+  `LocksmithViewModelTest › the factory builds the padlock and the level of the route the entry hands it`,
+  `LocksmithViewModelTest › the factory fails clearly without the route of the entry`.
 - Après la mort du processus, la clé restaurée régénère la même serrure depuis sa graine, **sans
   pièce posée**.
+  **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`.
 - Le niveau n'est pas enregistré : la cartouche ouvre toujours la serrure 1. Reprendre à la
   dernière serrure demandera une préférence (point ouvert).
 
@@ -250,6 +262,10 @@ la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
 
 ## Écran
 
+**Thème : Couleurs v2 seulement** (décision du développeur, 2026-10-26). L'écran du Serrurier est
+toujours dessiné en Couleurs, de jour ou de nuit selon le téléphone, quel que soit le thème choisi
+pour le Classique ; il n'a pas d'aspect Original.
+
 Conception de `designer-jeu` (2026-10-26), en Couleurs v2, téléphone debout d'abord ; vue V35
 de la [maquette](maquette.md) (à dessiner). De haut en bas : barre (retour, « SERRURE 04 »,
 coups, cadenas d'état), bande des accords (une pilule par chiffre romain de `progression`,
@@ -293,3 +309,12 @@ droite.
   marqué jusqu'à la pose suivante.
 - Serrure ouverte : carte avec les compteurs, **Serrure suivante** et **Rejouer cette serrure**.
 - Pas de bouton pour passer une serrure : l'indice débloque.
+- L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
+  l'action (deux refus à la suite restent deux retours) et l'indice affiché, jusqu'à la pose
+  acceptée suivante, une reprise ou Recommencer.
+  **Tests :** `LocksmithViewModelTest › a placement gives the next game and its events`,
+  `LocksmithViewModelTest › a refused placement tells its reason`,
+  `LocksmithViewModelTest › two refusals in a row are two moves the screen can tell apart`,
+  `LocksmithViewModelTest › a hint shows where a piece fits until the next placement`,
+  `LocksmithViewModelTest › taking a piece back gives the next game and its event`,
+  `LocksmithViewModelTest › restart keeps the padlock and starts it over, hint and events cleared`.
