@@ -274,6 +274,32 @@ serrure (8 × 8 cases de 42 dp au plus, selon la largeur, dans un rebord de mét
 Indice et Recommencer, tuiles des pièces données, puis tourner à gauche, **Poser**, tourner à
 droite.
 
+- **Cases de la serrure** (`core:board`, `LockCell`, `LockCellCanvas`, en Couleurs seulement) : le
+  métal (`lock-metal`, à 3:1 au moins du trou et de la page, un rivet `lock-rivet` plus foncé au
+  centre) ; le trou (case vide du plateau, enfoncée par `lock-hole-inset`) ; la pièce posée (sa
+  bulle du plateau) ; l'aperçu qui tient (plat, cerné d'un contour `ink`) ; l'aperçu refusé (une
+  croix sur chaque case fautive) ; l'indice (teinte `lock-hint` et un point `ink`, sur une case
+  libre ou sur la pièce posée qui bloque). Aucun état ne repose sur la seule couleur.
+  **Tests :** `LockCellStylesTest › a metal cell is a square of lock metal with a rivet in its centre`,
+  `LockCellStylesTest › a rivet is darker than the metal, so that it does not read as a small hole`,
+  `LockCellStylesTest › the metal stands out from the hole and from the page by 3 to 1 at least`,
+  `LockCellStylesTest › a hole is an empty cell of the board sunk by the hole inset`,
+  `LockCellStylesTest › a placed piece has the bubble it has on the board`,
+  `LockCellStylesTest › a preview that fits differs from its placed piece by more than its colour`,
+  `LockCellStylesTest › a preview that does not fit is crossed out, so that the refusal does not rest on colour`,
+  `LockCellStylesTest › the cross of a refused preview reads on every piece, by its ink or by its halo`,
+  `LockCellStylesTest › a hint reads apart from the hole and from every preview without colour`,
+  `LockCellStylesTest › a placed piece named by the hint bears the hint mark`,
+  `LockCellStylesTest › the padlock has no style in the Original theme, the Locksmith is drawn in the Colorful theme only`,
+  `LockTokensTest › each colour token of the padlock is its colour in the code, day and night`,
+  `LockTokensTest › the hole inset of tokens json is the inner shadow of a hole, day and night`,
+  `LockTokensTest › every lock token of tokens json is coded in core board`.
+  Point ouvert : les pièces posées se détachent du métal à moins de 3:1 de jour (de 1,7:1 à
+  2,8:1), par leur forme et leur relief plus que par la couleur ; à juger par `designer-jeu`.
+- Les tuiles des pièces données dessinent la pièce ramenée en haut à gauche
+  (`Orientation.broughtToOrigin()`, comme la pièce suivante du Classique).
+  **Tests :** `OrientationTest › an orientation brought to the origin touches row 0 and column 0`,
+  `OrientationTest › bringing an orientation to the origin keeps its shape`.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un

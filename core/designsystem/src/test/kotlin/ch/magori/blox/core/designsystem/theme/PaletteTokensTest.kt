@@ -24,8 +24,10 @@ class PaletteTokensTest {
     @Test
     fun `every colour token of tokens json is in the palette, in the pieces or listed as not coded, with its reason`() {
         // Given the colour tokens of tokens json, but the colours of the pieces, `piece-*`: coded with the styles of the
-        // cells in core:board, which knows the pieces (ADR 0023), and compared to tokens json there (PieceTokensTest)
-        val tokens = DesignTokens.colours.keys.filterNot { it.startsWith(PIECE_TOKEN) }
+        // cells in core:board, which knows the pieces (ADR 0023), and compared to tokens json there (PieceTokensTest);
+        // and the colours of the padlock of the Locksmith, `lock-*`, in the Colorful theme only: coded with its cells in
+        // core:board too, and compared there (LockTokensTest)
+        val tokens = DesignTokens.colours.keys.filterNot { it.startsWith(PIECE_TOKEN) || it.startsWith(LOCK_TOKEN) }
 
         // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
         assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name }.toSet() + NOT_CODED.keys)
@@ -97,6 +99,9 @@ class PaletteTokensTest {
 
         /** The prefix of the colours of the pieces in tokens json. */
         private const val PIECE_TOKEN = "piece-"
+
+        /** The prefix of the colours and shadows of the padlock of the Locksmith in tokens json. */
+        private const val LOCK_TOKEN = "lock-"
 
         /** The colour tokens left out of [BloxPalette], with the reason why. */
         private val NOT_CODED: Map<String, String> = mapOf(
