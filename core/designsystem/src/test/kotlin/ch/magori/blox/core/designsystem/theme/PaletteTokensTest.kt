@@ -51,9 +51,6 @@ class PaletteTokensTest {
     }
 
     companion object {
-        private const val EDITOR_GRID =
-            "The grid of the music editor is still drawn on boardBackground: the v2 editor will take it."
-
         /**
          * Which property holds which token (ADR 0019): the names do not all follow from each other. A token can be
          * held by several properties, as `melody`, the notes and the open tab of the melody.
@@ -82,6 +79,8 @@ class PaletteTokensTest {
             CodedToken("scrim", "scrim") { it.scrim },
             CodedToken("clear-glow", "clearGlow") { it.clearGlow },
             CodedToken("cell-dead", "cellDead") { it.cellDead },
+            CodedToken("cell-ground", "cellGround") { it.cellGround },
+            CodedToken("grid-line", "gridLine") { it.gridLine },
             CodedToken("melody", "melody.note") { it.melody.note },
             CodedToken("melody", "melody.tab") { it.melody.tab },
             CodedToken("melody-soft", "melody.held") { it.melody.held },
@@ -99,10 +98,7 @@ class PaletteTokensTest {
         private const val PIECE_TOKEN = "piece-"
 
         /** The colour tokens left out of [BloxPalette], with the reason why. */
-        private val NOT_CODED: Map<String, String> = mapOf(
-            "cell-ground" to EDITOR_GRID,
-            "grid-line" to EDITOR_GRID,
-        )
+        private val NOT_CODED: Map<String, String> = emptyMap()
 
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED

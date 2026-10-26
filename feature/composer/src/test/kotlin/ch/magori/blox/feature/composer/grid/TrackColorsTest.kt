@@ -12,6 +12,28 @@ import org.junit.jupiter.params.provider.MethodSource
 internal class TrackColorsTest {
     @ParameterizedTest(name = "{0}, {2}")
     @MethodSource("themesAndTracks")
+    fun `a cell of the grid is drawn on the cell ground, between lines of the grid, the notes of its tracks on it`(
+        theme: String,
+        palette: BloxPalette,
+        track: Track,
+    ) {
+        // When
+        val colors = cellColors(palette, track)
+
+        // Then: the ground and the lines are the tokens cell-ground and grid-line (PaletteTokensTest)
+        assertThat(colors).isEqualTo(
+            CellColors(
+                background = palette.cellGround,
+                line = palette.gridLine,
+                note = trackColors(palette, track).note,
+                held = heldPart(palette, track),
+                echo = trackColors(palette, track.other).note,
+            ),
+        )
+    }
+
+    @ParameterizedTest(name = "{0}, {2}")
+    @MethodSource("themesAndTracks")
     fun `the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`(
         theme: String,
         palette: BloxPalette,
@@ -20,12 +42,13 @@ internal class TrackColorsTest {
         // When
         val colors = trackColors(palette, track)
         val held = heldPart(palette, track)
+        val cell = cellColors(palette, track).background
 
         // Then (WCAG 2.1, 1.4.11: graphical objects): the held part, in a paler band, is edged above and below in the
         // colour of its track, which draws it on the cell whatever the band
         assertThat(held).isEqualTo(HeldPart(band = colors.held, edge = colors.note))
-        assertThat(contrast(colors.note, palette.boardBackground)).isGreaterThanOrEqualTo(3.0)
-        assertThat(contrast(held.edge, palette.boardBackground)).isGreaterThanOrEqualTo(3.0)
+        assertThat(contrast(colors.note, cell)).isGreaterThanOrEqualTo(3.0)
+        assertThat(contrast(held.edge, cell)).isGreaterThanOrEqualTo(3.0)
     }
 
     @ParameterizedTest(name = "{0}, {2}")
@@ -37,10 +60,11 @@ internal class TrackColorsTest {
     ) {
         // When
         val colors = trackColors(palette, track)
+        val cell = cellColors(palette, track).background
 
         // Then
-        assertThat(contrast(colors.held, palette.boardBackground))
-            .isLessThan(contrast(colors.note, palette.boardBackground))
+        assertThat(contrast(colors.held, cell))
+            .isLessThan(contrast(colors.note, cell))
     }
 
     @ParameterizedTest(name = "{0}, {2}")
@@ -82,7 +106,7 @@ internal class TrackColorsTest {
 
         // Then (WCAG 2.1, 1.4.11: graphical objects): one of its two lines, the line or its halo, stands out from
         // whatever it is drawn against. No single colour does in Original, between its pale cells and its dark notes.
-        listOf(palette.boardBackground, palette.page, notes.note, notes.held).forEach { around ->
+        listOf(cellColors(palette, track).background, palette.page, notes.note, notes.held).forEach { around ->
             assertThat(maxOf(contrast(outline.line, around), contrast(outline.halo, around)))
                 .isGreaterThanOrEqualTo(3.0)
         }
