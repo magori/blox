@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> Aucune règle n'est encore implémentée (phase P7 de [SUIVI.md](../SUIVI.md)).
+> Seule la grille est implémentée (P7.3) ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -33,9 +33,26 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 - **10 × 10 cases.** L'anneau extérieur (colonnes et lignes 0 et 9) est toujours du métal : le
   trou tient dans les **8 × 8 cases intérieures**. L'écran peut donc ne montrer que ces 8 × 8
   cases, dans un rebord de métal.
+  **Tests :** `PadlockTest › the hole stays inside the outer ring`.
 - Le trou est **l'union des cases d'une solution** : 3 à 6 pièces posées sans chevauchement,
   chacune touchant une pièce précédente par un bord (pas seulement par un coin). Toute serrure a
   donc au moins une solution ; elle n'est pas forcément unique.
+  **Tests :** `PadlockTest › the hole is the union of the cells of the solution`,
+  `PadlockTest › two pieces of a solution cannot overlap`,
+  `PadlockTest › a padlock holds 3 to 6 pieces`,
+  `PadlockTest › a padlock of 3 or 6 pieces is accepted`,
+  `PadlockTest › every piece but the first touches an earlier one edge to edge`,
+  `PadlockTest › a piece may touch any earlier piece, not only the one before it`.
+- Chaque pièce de la solution prend une orientation du Classique pour son type.
+  **Tests :** `PadlockTest › a piece of a solution takes a Classic orientation of its type`.
+- Pour les tests, une serrure s'écrit en ASCII : `#` pour le métal, le rang de chaque pièce de la
+  solution (`1` à `6`, sans trou dans la suite) sur ses cases ; chaque pièce prend l'orientation
+  du Classique et le pivot qui couvrent ses cases (les 19 formes sont toutes différentes). Tout
+  autre caractère, une grille qui n'est pas de 10 × 10 ou un rang qui n'est pas une pièce est
+  refusé.
+  **Tests :** `PadlockTest › parse reads the hole and the pieces of the solution`,
+  `PadlockTest › parse finds the orientation and the pivot of every Classic piece`,
+  `PadlockTest › parse rejects a grid not 10 by 10, an unknown cell, a wrong or missing rank, a rank not a piece`.
 
 ## Pièces
 

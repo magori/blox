@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 173 / 239 | `██████████████░░░░░░` **72 %** |
+| **Général** | 174 / 239 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | Spécification faite (P7.1) ; domaine à faire |
+| P7 | Le Serrurier, second jeu | En cours : spécification et serrure (`Padlock`) faites |
 
 ---
 
@@ -1100,7 +1100,7 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   `docs/architecture.md`, vue V35.
 - [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
   pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
-- [ ] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+- [x] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)` ; `api(core:music)` arrive avec P7.8),
   `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
   `CLAUDE.md` ; `Padlock` (grille 10 × 10, trou, solution de `Piece`) et `Padlock.parse(ascii)`
   pour les tests (pièces de la solution marquées par leur rang, `1` à `6`). Cas : `the hole is the
@@ -1131,7 +1131,7 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   never names a piece already placed`, `the hint finds a way even when the player left the
   solution`, `the hint names the piece that blocks when no way is left`, `when no single piece
   unblocks the padlock the hint names the last piece placed`.
-- [ ] **P7.8** Suites d'accords (`Progression` de `core:music`) : une par nombre de pièces, finissant
+- [ ] **P7.8** Suites d'accords (`Progression` de `core:music`, ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
   par V–I ; accord de rang *n* après une pose, *n* pièces sur la grille.
 - [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
   fanfare de résolution, son de refus.
