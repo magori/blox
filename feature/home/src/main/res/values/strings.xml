@@ -2,16 +2,22 @@
 <resources>
     <string name="feature_home_title" translatable="false">BloX</string>
     <string name="feature_home_play">Jouer</string>
-    <!-- Affiché : le record plafonné, sur 6 chiffres. -->
-    <string name="feature_home_record_value">Record %1$s</string>
+    <!-- Rappel sous Jouer : le mode, le niveau sur deux chiffres, la musique ; coupé par une ellipse s'il est trop long. -->
+    <string name="feature_home_play_reminder">%1$s · Niveau %2$02d · %3$s</string>
+    <!-- Lu par TalkBack sur Jouer : le rappel en entier, en mots, sans les points ni le zéro du niveau. -->
+    <string name="feature_home_play_description">Jouer, %1$s, niveau %2$d, %3$s</string>
+    <!-- Puce Record de la barre : l'étiquette, en capitales, au-dessus du record plafonné, sur 6 chiffres. -->
+    <string name="feature_home_record">Record</string>
     <!-- Lu par TalkBack : la vraie valeur, non plafonnée. -->
     <string name="feature_home_record_description">Record %1$d</string>
-    <string name="feature_home_mode">Mode de jeu</string>
+    <string name="feature_home_mode">Mode</string>
     <string name="feature_home_mode_classic">Classique</string>
     <string name="feature_home_mode_modern">Moderne</string>
     <string name="feature_home_theme">Thème</string>
     <string name="feature_home_theme_original">Original</string>
     <string name="feature_home_theme_colorful">Couleurs</string>
+    <!-- Rangée du niveau dans la carte des réglages ; la jauge est lue « Niveau de départ » par TalkBack. -->
+    <string name="feature_home_level">Niveau</string>
     <string name="feature_home_start_level">Niveau de départ</string>
     <string name="feature_home_music">Musique</string>
     <string name="feature_home_music_korobeiniki">Korobeïniki</string>
@@ -41,4 +47,21 @@
     <string name="feature_home_vibrations_sub_line">Lignes effacées, fin de partie</string>
     <string name="feature_home_sound_effects_sub_line">Rotation, lignes, fin de partie</string>
     <string name="feature_home_settings_next_game">Valable dès la partie suivante.</string>
+    <!-- Paramètres v2 (V31) : la vibration de chaque touche du jeu, les volumes (curseurs de 0 à 100 % par pas de 10). -->
+    <string name="feature_home_key_vibration">Vibration des touches</string>
+    <string name="feature_home_key_vibration_sub_line">Un léger toucher à chaque touche</string>
+    <string name="feature_home_effects_volume">Volume des effets</string>
+    <string name="feature_home_music_volume">Volume de la musique</string>
+    <!-- À la place de la sous-ligne des deux vibrations, grisées, quand l'appareil n'a pas de vibreur. -->
+    <string name="feature_home_no_vibrator">Cet appareil ne vibre pas</string>
+    <!-- Carte Record : effacer le record, après confirmation (réponse sûre d'abord), puis le dire (lu par TalkBack). -->
+    <string name="feature_home_settings_record">Record</string>
+    <string name="feature_home_classic_record">Record du Classique</string>
+    <string name="feature_home_clear_record">Effacer</string>
+    <!-- Lu par TalkBack sur le bouton Effacer, seul : le libellé de la rangée est laissé de côté. -->
+    <string name="feature_home_clear_record_description">Effacer le record du Classique</string>
+    <string name="feature_home_clear_record_title">Effacer le record ?</string>
+    <string name="feature_home_clear_record_confirm">Effacer le record</string>
+    <string name="feature_home_keep_record">Garder le record</string>
+    <string name="feature_home_record_cleared">Record effacé</string>
 </resources>

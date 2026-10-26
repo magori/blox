@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 184 / 241 | `███████████████░░░░░` **76 %** |
+| **Général** | 194 / 257 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -885,7 +885,7 @@ composants.
   autres, joué à `LevelUp` ; aucune vibration. Après P5.64.
   Cas : `the level up sound is an effect of its own, shorter than the four lines`,
   `a level up plays the level up sound when the sound effects are on`, `a level up does not vibrate`.
-- [ ] **P5.70** Paramètres v2, Sons et vibrations et Record (`feature:home`, maquette Couleurs v2) : barre
+- [x] **P5.70** Paramètres v2, Sons et vibrations et Record (`feature:home`, maquette Couleurs v2) : barre
   (Retour, « Paramètres » en `screen-title`), cartes ; Effets sonores, Volume des effets (grisé sans effets),
   Volume de la musique, Vibrations, Vibration des touches, état sans vibreur, « Valable dès la partie
   suivante. » ; Record : Effacer, `ConfirmWindow` générique (sur laquelle `DeleteWindow` est réécrite ; réponse
@@ -932,7 +932,7 @@ composants.
   Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,
   `a cell under 16 dp has 2 dp corners and no gloss`, `an empty cell has the corners and the margin of a piece,
   without gloss`, `the painters are still built once while the piece moves` ; captures.
-- [ ] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
+- [x] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
   choisie par la taille disponible, P5.84) : barre (Changer de jeu, puce Record, Paramètres), Jouer XL avec le
   rappel « Classique · Niveau 05 · Korobeïniki », carte des réglages (Mode avec Moderne `BIENTÔT`, Thème, Niveau
   en jauge, rangée Musique), tuiles Mes musiques et Composer. Remplace les niveaux en deux lignes de 5 (P5.29,
@@ -940,10 +940,10 @@ composants.
   Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
   `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
   `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
-- [ ] **P5.76** Feuille Musique (`feature:home`) : feuille qui monte (`motion-card`), une rangée de 56 dp par
+- [ ] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
   musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
-  fermer ; un seul aperçu à la fois ; `ListenButton` partagé (`core:designsystem`) à la place des copies de
-  `feature:home` et `feature:composer`. Après P5.75.
+  fermer ; un seul aperçu à la fois ; feuille en `BloxSheet` et rangées en `SheetChoiceRow` (P5.96), Écouter en
+  `ListenButton` (P5.94). Après P5.75, P5.94, P5.96.
   Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
   `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
   TalkBack` ; captures.
@@ -1004,12 +1004,132 @@ composants.
   trancher avec P2.8). Après P5.70, P5.77, P5.83.
   Cas : `on a phone in landscape the home puts logo, preview and tiles on the left`, `the settings take two
   columns in landscape`, `each format keeps every target at 48 dp`, captures des quatre formats.
-- [ ] **P5.85** Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
+- [ ] **P5.85** (optionnel, en fin de lot : Original n'a plus à suivre Couleurs au 1 pour 1, décision du développeur du 2026-10-26) Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
   partie, Paramètres), valeurs Original des rôles nouveaux (P5.57) ; tailles des touches sous 390 dp (P5.79).
-- [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer : à découper une fois leurs
-  maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
-  parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
-  feuille au-dessus du clavier, coches sur les choix retenus).
+- [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer (V32 à V34, jour, dessinées le
+  2026-10-25 ; conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les parties », notes
+  tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en feuille au-dessus du
+  clavier, coches sur les choix retenus). Composants partagés d'abord (`core:designsystem`), puis les écrans ;
+  Original n'a pas de travail propre, il doit seulement rester utilisable. Découpée le 2026-10-26 par l'agent
+  `architecte` ; décisions du développeur : taille compacte de 48 dp, réponses des fenêtres toujours empilées (la
+  sûre d'abord), Renommer en fenêtre v2. Tranches :
+  - [ ] **P5.93** Boutons bulles, états et variantes de la musique (`core:designsystem`, composant Button) :
+    état retenu (`selected` : fond et cadre `accent`, encre `accent-ink`, pressé `accent-pressed`) pour les mesures
+    et le disque Utiliser / En jeu ; état en cours (`active` : fond `button-pressed` sans descente) pour Écouter
+    pendant l'écoute ; disque nu (`GlyphButton(…, bare = true)` : ni fond, ni cadre, ni relief au repos,
+    `button-pressed` pressé, 48 dp) pour « … », − et + du tempo et la croix des messages et des feuilles ; taille
+    compacte de 48 dp (`compact`) des familles Principal et Secondaire, en pilule ou en tuile `radius-md` ;
+    pictogrammes `CHECK` et `ALERT` dans `BloxIcon`. Design system (README, Boutons) mis à jour des deux côtés.
+    Après P5.60, P5.75.
+    Cas : `a selected button is filled and framed in accent, its ink in accent ink, and pressed in accent pressed`,
+    `the ink of a selected button stands out from its fill by 4,5 to 1 at least, at rest and pressed, in every
+    variant`, `an active button keeps the pressed fill at rest, without going down`, `a bare icon button has no
+    fill, no frame and no gloss at rest, and takes button pressed when pressed`, `a bare icon button is 48 dp wide
+    and high at least`, `a compact button is 48 dp high, in the colours of its family` ; captures.
+  - [ ] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
+    `ListenButton(playing, description, size)` (disque de la famille Icône, triangle puis carré, état en cours
+    pendant l'écoute ; 48 dp, 56 dans l'éditeur) remplace les copies de `feature:home` et de `ComposerControls.kt` ;
+    `Equalizer` (trois barres de 3 × 14 en `accent`, de 35 % à 100 % en 30 ticks, sur l'horloge de Compose,
+    dessinées sans recomposer), immobile en Effets réduits et en Original. Après P5.71, P5.75, P5.93.
+    Cas : `the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of
+    the music`, `a music playing keeps its listen button in the pressed fill`, `the equalizer moves its three bars
+    between 35 and 100 percent of their height in 30 ticks`, `in reduced effects or in Original the equalizer stands
+    still`, `the equalizer is left out by TalkBack`, `nothing recomposes while the equalizer moves` ; captures.
+  - [ ] **P5.95** Segments de choix sans titre, à pictogramme et à couleur de piste (`core:designsystem`, composant
+    Choice) : `ChoiceSegments` public (segments de `ChoiceGroup` sans `LabelledControl`, nommés pour TalkBack),
+    `ChoiceItem.icon` (pictogramme avant le libellé, remplacé par la coche sur le segment retenu), couleurs
+    retenues par segment (`ChoiceItem.selectedColors`, ici `TrackColors.tab` et `tabInk`) ; pistes et mesures lues
+    comme des boutons radio. Après P5.63, P5.75.
+    Cas : `segments without a visible label are one group of radio buttons, read under the name given to TalkBack`,
+    `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
+    takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
+    high as a target` ; captures.
+  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0026) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+    panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
+    `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
+    ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée
+    d'actions restant visible) ; `SheetChoiceRow` (rangée de 56 dp, rond puis `CheckMark` une fois retenue, libellé
+    et sous-ligne). ADR 0026 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
+    P5.71, P5.93.
+    Cas : `a sheet is read as a dialog by TalkBack, its title first`, `the system back and a touch on the scrim close
+    the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
+    bottom inset keeps its last row of actions in sight, its content scrolling`, `a choice row is 56 dp high, read as
+    a radio button with its label and its sub-line, the chosen one checked` ; captures.
+  - [ ] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
+    `panel` cadré `radius-md`, rangées de 48 dp, pictogramme décoratif, variante `danger`, variante cochée ; ombre
+    par un jeton à ajouter, ADR 0019), à la place du `DropdownMenu` de Material ; `SnackMessage` (fond `ink`, texte
+    `page`, `radius-snack`, action en texte et croix en disque nu, région vive polie ; l'action passe sous le texte
+    plutôt que de le couper), à la place de `UndoMessage` et `MessageBar`. Après P5.93.
+    Cas : `a menu item is 48 dp high, read as its label, its icon adding nothing`, `a deleting item is in danger,
+    icon and label`, `a checked item is read as a checked check box and bears a check`, `a message is read politely
+    by TalkBack as it shows`, `the text of a message stands out from ink by 4,5 to 1 at least, day and night`, `in a
+    font twice as large the action of a message goes under its text, no word cut` ; captures.
+  - [ ] **P5.98** Fenêtres v2 et champ du nom (`core:designsystem`) : titre de `WindowPanel` en `screen-title` ;
+    `WindowButton` en bulles (Secondaire, Principal, Danger plein avec la corbeille), réponses toujours empilées sur
+    toute la largeur, la sûre d'abord ; `NameField` extrait de `NamingWindow` (fond `panel-inset`, 56 dp,
+    `radius-md`, cadre au focus et `danger` en erreur, compteur « n/40 », erreur avec `ALERT`) ; Renommer reste une
+    fenêtre (v2) ; `ButtonRow` et `holdSideBySide` retirés s'ils ne servent plus. Après P5.70, P5.93.
+    Cas : `the title of a window is in screen title, read as a heading`, `the answers of a window stand one above the
+    other, the safe one first, as TalkBack reads them`, `a deleting answer is filled in danger with its trash icon, its
+    label standing out by 4,5 to 1`, `the name field counts its characters out of 40, as TalkBack reads it`, `a refused
+    name frames the field in danger and says why, read by TalkBack as it shows` ; captures.
+  - [ ] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
+    « PENDANT LES PARTIES » ; une rangée par musique (Écouter, nom et ligne d'infos qui ouvrent l'éditeur,
+    égaliseur et mesure jouée pendant l'écoute, jauge des huit mesures, pastille EN JEU, disque Utiliser / En jeu
+    retenu avec coche, « … » en disque nu) ; état vide ; Au hasard et Nouvelle collés en bas sur un fondu.
+    `UseSwitch`, `TextButtonBox`, `BottomButtons` retirés. Après P5.93, P5.94.
+    Cas : `the card Pendant les parties names the music played during the games, or the music chosen on the home
+    screen`, `a row is read as listen, the name that opens the editor, the switch and the menu, in this order`,
+    `listening to a music shows the equalizer and the bar played, and a gauge of eight bars that TalkBack leaves out`,
+    `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
+    « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
+    on 360 dp, in a font twice as large` ; captures.
+  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+    `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
+    `DeleteWindow` v2 ; « « X » est supprimée. » en `SnackMessage` avec Annuler et la croix ; Renommer en fenêtre
+    v2. `CardMenu`, `MenuItem`, `UndoMessage` retirés. Après P5.97, P5.98, P5.99.
+    Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
+    Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
+    read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+  - [ ] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
+    feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
+    cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
+    P5.93, P5.96.
+    Cas : `the dice of the bar opens the sheet Au hasard, read as a dialog`, `the sheet offers Surprise and the seven
+    categories, each with what it sounds like, the chosen one checked`, `choosing a category keeps the sheet open and
+    the choice`, `Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler` ;
+    captures.
+  - [ ] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
+    dé, « … » en `BloxMenu`) ; pistes et Poser / Allonger en `ChoiceSegments` (coche sur le retenu) ; Annuler,
+    Copier, Effacer compacts ; mesures en 2 × 4, mesure jouée lue « en lecture » ; tempo en pilule (disques nus de
+    48 dp) et Écouter de 56 dp ; Enregistrer seul en `accent`, toujours en accent, point devant tant que la musique a
+    changé ; messages en `SnackMessage`. Composants locaux de l'éditeur retirés. Après P5.94, P5.95, P5.97, P5.101.
+    Cas : `the bar of the editor reads Retour, the name to rename, Au hasard and the menu, in this order`, `the open
+    track is filled in its colour and checked`, `the bars stand on two rows of four, the bar played marked and read
+    en lecture`, `Annuler, Copier and Effacer are disabled when they have no effect`, `Enregistrer is the only button
+    in accent on the editor, its dot shown while the music has changed`, `on 360 by 640 dp in a font twice as large
+    every control is 48 dp and the grid keeps rows of 26 dp, scrolling` ; captures.
+  - [ ] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
+    reflet de la piste à sa couleur, coins `radius-cell`, relief `cell-gloss` à 16 dp et plus) ; jetons `melody-hi`
+    et `bass-hi` ajoutés à `tokens.json` (jour et nuit) et comparés ; grille dans un bloc `board` cadré
+    `panel-border` ; ligne « TEMPS 1 2 3 4 » en `stat-label` ; fondu du bas tant que des lignes restent dessous.
+    Après P5.88.
+    Cas : `the highlight and the colour of each track are those of tokens json, day and night`, `the lower part of a
+    note stands out from the cell by 3 to 1 at least`, `a note under 16 dp has 2 dp corners and no gloss`, `the
+    painters of the notes are built once per size and variant, not at each touch` ; captures.
+  - [ ] **P5.104** Enregistrer en feuille (`feature:composer`, V34) : `ComposerDialog.Save` en `BloxSheet`
+    au-dessus du clavier ; « La grille est vide. » en tête ; `NameField` ; Style en `ChoiceGroup` de huit segments,
+    le retenu coché ; « Jouer pendant les parties » en `SettingSwitchRow` ; Annuler (Secondaire) et Enregistrer
+    (Principal, désactivé tant qu'un problème demeure). `StyleChoice`, `ForGamesBox` retirés. Après P5.95, P5.96,
+    P5.98, P5.102.
+    Cas : `Enregistrer opens a sheet above the keyboard, the name field focused`, `an empty grid says « La grille
+    est vide. » at the top of the sheet and Enregistrer is disabled`, `a taken name frames the field in danger, says why
+    and offers the free name`, `the eight styles are one group of radio buttons, the chosen one checked`, `Annuler and
+    the system back close the sheet and save nothing`, `in a font twice as large on 360 by 640 dp the sheet scrolls
+    and keeps Annuler and Enregistrer in sight` ; captures.
+  - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
+    fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
+    de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
@@ -1027,7 +1147,7 @@ composants.
   haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
   l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
   `a focused slider bears the focus ring`.
-- [ ] **P5.91** Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
+- [ ] **P5.91** (optionnel, en fin de lot, comme P5.85) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
@@ -1097,12 +1217,13 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 ## P7 — Le Serrurier, second jeu (`core:locksmith`, `feature:locksmith`)
 
 Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : ADR 0025. Le domaine
-(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend.
+(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend. Interface en thème
+Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pas d'aspect Original.
 
 - [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
   0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
   `docs/architecture.md`, vue V35.
-- [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
+- [x] **P7.2** `Orientation.broughtToOrigin()`, ramenée en haut à gauche (`core:game`), partagée par les tuiles des
   pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
 - [x] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)` ; `api(core:music)` arrive avec P7.8),
   `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
@@ -1139,29 +1260,47 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [x] **P7.8** Suites d'accords (`PadlockChords`, `Progression` de `core:music` ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
   par V–I, Do majeur sur C4 ; `PadlockGame.progression` et `PadlockGame.chords` (accord de rang *n*
   après une pose, *n* pièces sur la grille).
-- [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
-  fanfare de résolution, son de refus.
-- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+- [x] **P7.9** Effets d'accord (`core:music`, `LocksmithSounds`) : arpège d'un accord, basse deux octaves plus bas,
+  fanfare de serrure ouverte, son de refus ; `effectsOf(chord)` pour jouer et préchauffer.
+- [x] **P7.10** Cases de la serrure (`core:board`, `LockCell`, `LockCellCanvas`, Couleurs seulement) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
-  `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
-- [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
-  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
-  étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
-  surcharge interne : `seeds`, `compose`, `candidate` et `rating` restent internes.
-- [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
-  aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
-  captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
-  P7.11.
+  `lock-hint`, `lock-hole-inset` dans `tokens.json`, gardés par un test ; repères non colorés ; captures.
+- [x] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
+  `LocksmithViewModel.Factory`, `LocksmithUiState`, écran minimal toujours en Couleurs. Une seule entrée
+  publique du générateur, `Padlock.generate(level, seed)`, qui délègue à la surcharge interne :
+  `seeds`, `compose`, `candidate` et `rating` restent internes.
+- [x] **P7.12** Écran jouable : grille 10 × 10 (anneau de métal compris, cases de 42 dp au plus),
+  bande des accords, message, Indice et Recommencer, tuiles des pièces, tourner, Poser ; toucher qui
+  vise, pose par un second toucher, reprend une pièce posée ; aperçu, cases fautives barrées,
+  indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
 - [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
-- [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
-  serrure). Après P7.7 et P7.13.
-- [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
-  suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
+- [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
+  étant faits en P7.12. Après P7.7 et P7.13.
+- [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+  suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
-  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
-- [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
+  et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
+  (claude.ai), dont `tokens.json` est la copie (ADR 0019).
+- [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
+- [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
+  pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
+  du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
+- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [ ] **P7.20** Serrurier, finitions de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
+  intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
+  en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; retours animés
+  de la pose, du refus (tremblement), de la serrure ouverte et de l'indice, chacun en « Effets réduits »
+  (ADR 0024) ; TalkBack : grille en collection, orientation de la pièce choisie, accords entendus, refus
+  répété annoncé, pièce désignée par l'indice nommée ; tuile choisie dont l'anneau descend avec la tuile ;
+  captures (aperçu refusé, pièce qui bloque, serrure ouverte) ; UI Test instrumenté (poser, refuser,
+  reprendre) ; stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le
+  nombre de pistes d'effets (ADR 0025).
+- [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
+  pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
+  P7.15).
 
 ---
 

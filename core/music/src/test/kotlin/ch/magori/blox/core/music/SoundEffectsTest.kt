@@ -12,7 +12,7 @@ class SoundEffectsTest {
                 Waveform.SQUARE,
                 volume = 0.05,
                 Envelope(attackMillis = 1, releaseMillis = 10),
-                blips("E6" to 30),
+                blipsOf("E6" to 30),
             ),
         )
         assertThat(SoundEffects.all.minOf { it.volume }).isEqualTo(SoundEffects.rotation.volume)
@@ -26,7 +26,7 @@ class SoundEffectsTest {
                 Waveform.SQUARE,
                 volume = 0.08,
                 Envelope(attackMillis = 2, releaseMillis = 15),
-                blips("C6" to 40, "E6" to 40, "G6" to 80),
+                blipsOf("C6" to 40, "E6" to 40, "G6" to 80),
             ),
         )
     }
@@ -39,7 +39,7 @@ class SoundEffectsTest {
                 Waveform.SQUARE,
                 volume = 0.09,
                 Envelope(attackMillis = 2, releaseMillis = 15),
-                blips("C5" to 50, "E5" to 50, "G5" to 50, "C6" to 50, "E6" to 50, "G6" to 50, "C7" to 150),
+                blipsOf("C5" to 50, "E5" to 50, "G5" to 50, "C6" to 50, "E6" to 50, "G6" to 50, "C7" to 150),
             ),
         )
     }
@@ -52,7 +52,7 @@ class SoundEffectsTest {
                 Waveform.TRIANGLE,
                 volume = 0.2,
                 Envelope(attackMillis = 2, releaseMillis = 30),
-                blips("G4" to 120, "E4" to 120, "C4" to 120, "G3" to 240),
+                blipsOf("G4" to 120, "E4" to 120, "C4" to 120, "G3" to 240),
             ),
         )
     }
@@ -65,7 +65,7 @@ class SoundEffectsTest {
                 Waveform.SQUARE,
                 volume = 0.08,
                 Envelope(attackMillis = 2, releaseMillis = 15),
-                blips("C6" to 50, "C7" to 50, "C6" to 50, "C7" to 150),
+                blipsOf("C6" to 50, "C7" to 50, "C6" to 50, "C7" to 150),
             ),
         )
         assertThat(SoundEffects.all).contains(SoundEffects.levelUp).doesNotHaveDuplicates()
@@ -87,7 +87,4 @@ class SoundEffectsTest {
             assertThat(envelope.releaseMillis).isPositive()
         }
     }
-
-    private fun blips(vararg blips: Pair<String, Int>): List<Blip> =
-        blips.map { (pitch, millis) -> Blip(Pitch.parse(pitch), millis) }
 }

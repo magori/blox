@@ -97,3 +97,15 @@ internal fun PlainButtonsOriginalPreview() {
 internal fun PlainButtonsColorfulPreview() {
     ButtonSheet(BloxThemeKind.COLORFUL, PlainFamilies)
 }
+
+@Preview(widthDp = 360, heightDp = 200)
+@Composable
+internal fun DangerButtonsOriginalPreview() {
+    ButtonSheet(BloxThemeKind.ORIGINAL, listOf(ButtonFamily.DANGER))
+}
+
+@Preview(widthDp = 360, heightDp = 200)
+@Composable
+internal fun DangerButtonsColorfulPreview() {
+    ButtonSheet(BloxThemeKind.COLORFUL, listOf(ButtonFamily.DANGER))
+}

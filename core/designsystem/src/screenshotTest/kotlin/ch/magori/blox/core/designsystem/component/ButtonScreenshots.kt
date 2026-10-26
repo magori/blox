@@ -41,3 +41,18 @@ private fun PlainButtonsColorful() = PlainButtonsColorfulPreview()
 @Preview(widthDp = 360, heightDp = 360, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun PlainButtonsColorfulNight() = PlainButtonsColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 200)
+@Composable
+private fun DangerButtonsOriginal() = DangerButtonsOriginalPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 200)
+@Composable
+private fun DangerButtonsColorful() = DangerButtonsColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 200, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun DangerButtonsColorfulNight() = DangerButtonsColorfulPreview()

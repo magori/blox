@@ -123,9 +123,32 @@ internal class ButtonLookTest {
     @ParameterizedTest
     @EnumSource(ButtonFamily::class)
     fun `every family is 48 dp high at least, Play 72 and a main or secondary button 56`(family: ButtonFamily) {
-        // Then (touch-target; 48 dp wide at least on the screen, BubbleButtonTest): an icon a disc of 48
+        // Then (touch-target; 48 dp wide at least on the screen, BubbleButtonTest): an icon a disc of 48, a danger
+        // button as high as a secondary one
         assertThat(family.minHeight).isGreaterThanOrEqualTo(BloxSizes.minTouchTarget)
-        assertThat(ButtonFamily.entries.map { it.minHeight }).containsExactly(72.dp, 56.dp, 56.dp, 48.dp)
+        assertThat(ButtonFamily.entries.map { it.minHeight }).containsExactly(72.dp, 56.dp, 56.dp, 56.dp, 48.dp)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a danger button is framed and labelled in danger at rest, filled in danger pressed`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When
+        val atRest = buttonLook(ButtonFamily.DANGER, variant.colors, variant.glosses, ButtonState())
+        val pressed = buttonLook(ButtonFamily.DANGER, variant.colors, variant.glosses, ButtonState(depth = 1f))
+
+        // Then at rest, filled as a secondary button (docs/design-system/README.md, Paramètres: Effacer, « cadre et
+        // texte danger »); pressed, as the answer of a window that deletes: on the pressed fill of a secondary button,
+        // the danger would not stand out by 4,5 to 1
+        assertThat(atRest.fill).isEqualTo(variant.colors.secondary.fill)
+        assertThat(atRest.ink).isEqualTo(variant.palette.danger)
+        assertThat(pressed.fill).isEqualTo(variant.palette.danger)
+        assertThat(pressed.ink).isEqualTo(variant.palette.dangerInk)
+        assertThat(listOf(atRest, pressed)).allSatisfy { look ->
+            assertThat(look.frame).isEqualTo(variant.palette.danger)
+        }
     }
 
     @Test
@@ -169,6 +192,9 @@ internal class ButtonLookTest {
             "Couleurs, nuit" to
                 Variant(BloxPalettes.ColorfulDark, BloxButtonColorSets.ColorfulDark, BloxGlossSets.ColorfulDark),
         )
+
+        @JvmStatic
+        fun variants(): List<Arguments> = VARIANTS.map { (theme, variant) -> Arguments.of(theme, variant) }
 
         @JvmStatic
         fun variantsAndFamilies(): List<Arguments> = VARIANTS.flatMap { (theme, variant) ->

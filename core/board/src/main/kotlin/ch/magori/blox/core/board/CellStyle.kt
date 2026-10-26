@@ -8,7 +8,8 @@ import ch.magori.blox.core.designsystem.theme.Gloss
 /**
  * How a board cell is drawn: a [fill], an optional [border] and an optional square in the [centre];
  * around them all, an optional [joint], which keeps two cells side by side apart. A [bubble] rounds the
- * fill and lights it. Widths are fractions of the cell size, so the style does not depend on the screen.
+ * fill and lights it; over it all, a [dot] marks the cell, a [cross] strikes it out. Widths are fractions of the cell
+ * size, so the style does not depend on the screen.
  */
 @Immutable
 internal data class CellStyle(
@@ -17,7 +18,21 @@ internal data class CellStyle(
     val centre: CellCentre?,
     val joint: CellJoint? = null,
     val bubble: CellBubble? = null,
+    val cross: CellCross? = null,
+    val dot: CellDot? = null,
 )
+
+/**
+ * A disc of [color] in the centre of the cell, [size] across, a fraction of the cell size, on a disc of [halo] half as
+ * wide again: the dot reads on any colour under it.
+ */
+internal data class CellDot(val color: Color, val halo: Color, val size: Float)
+
+/**
+ * Two diagonals of [color] across the fill, [width] a fraction of the cell size, each over a stroke of [halo] twice as
+ * wide: the cross reads on any colour under it.
+ */
+internal data class CellCross(val color: Color, val halo: Color, val width: Float)
 
 /**
  * A bubble (docs/design-system/components/Piece): a fill with rounded corners, lit from the top in [highlight] when

@@ -67,6 +67,25 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
         "M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM3 8v8M21 8v8",
     ),
 
+    /** Vibration des touches, in the settings: a finger that touches. */
+    TOUCH(
+        listOf("...#....", "...#....", "...###..", "#..####.", "##.####.", ".######.", "..####..", "..####.."),
+        "M10 11V5.5a1.5 1.5 0 0 1 3 0V11M13 10.5a1.5 1.5 0 0 1 3 0V12M16 11.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5" +
+            "a5 5 0 0 1-4-2l-3-4a1.4 1.4 0 0 1 2.1-1.9L10 15",
+    ),
+
+    /** The volumes, in the settings: a loudspeaker and its waves. */
+    VOLUME(
+        listOf("...#....", "..##..#.", "####.#.#", "####.#.#", "####.#.#", "..##..#.", "...#....", "........"),
+        "M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11",
+    ),
+
+    /** Record du Classique, in the settings: a cup. */
+    TROPHY(
+        listOf(".######.", "#.####.#", "#.####.#", ".######.", "..####..", "...##...", "..####..", "........"),
+        "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4",
+    ),
+
     /** Menu: a house. */
     HOME(
         listOf("...##...", "..####..", ".######.", "########", ".######.", ".##..##.", ".##..##.", ".##..##."),
@@ -132,6 +151,18 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
     CARTRIDGE(
         listOf(".######.", ".#....#.", ".#....#.", ".######.", ".######.", ".######.", "..####..", "..#..#.."),
         "M6 3h12v13l-2 5H8l-2-5zM9 7h6v6H9zM10 18h4",
+    ),
+
+    /** The record chip of the home: a star (pictogrammes.md, P5.87). */
+    STAR(
+        listOf("...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"),
+        "M12 3.2l2.6 5.6 6.1.7-4.5 4.1 1.2 6.1L12 16.6l-5.4 3.1 1.2-6.1-4.5-4.1 6.1-.7z",
+    ),
+
+    /** The tile Composer une musique: a note and a pencil (pictogrammes.md, P5.87). */
+    COMPOSE(
+        listOf("..######", "..######", "..#....#", "..#..#.#", "..#.###.", "#####...", "####....", "........"),
+        "M9 18V5l11-2v6M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM14 21h2.5l5-5-2.5-2.5-5 5z",
     ),
 }
 

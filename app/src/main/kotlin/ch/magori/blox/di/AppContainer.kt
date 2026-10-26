@@ -36,6 +36,7 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
@@ -187,8 +188,12 @@ class AppContainer(context: Context) {
         musicLibrary,
     )
 
-    /** The settings page: the settings kept on the device, read by each game when it is created. */
-    val settingsViewModelFactory: SettingsViewModel.Factory = SettingsViewModel.Factory(userPreferences)
+    /**
+     * The settings page: the settings kept on the device, read by each game when it is created; the record, which it
+     * clears; the sound effects and the vibrations of the games, for a setting turned on to be felt once.
+     */
+    val settingsViewModelFactory: SettingsViewModel.Factory =
+        SettingsViewModel.Factory(userPreferences, highScores, soundEffects, haptics)
 
     /** The music editor: a music of the player, or a new one, listened to by the music player of the games. */
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)
@@ -205,6 +210,9 @@ class AppContainer(context: Context) {
      */
     val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
+
+    /** Builds the view model of the Locksmith (ADR 0025). */
+    val locksmithViewModelFactory: LocksmithViewModel.Factory = LocksmithViewModel.Factory()
 }
 
 private const val TAG = "BloX"

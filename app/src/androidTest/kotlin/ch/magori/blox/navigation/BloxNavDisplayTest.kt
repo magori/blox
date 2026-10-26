@@ -3,10 +3,14 @@ package ch.magori.blox.navigation
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
@@ -14,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -37,11 +42,14 @@ import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
+import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import kotlinx.coroutines.runBlocking
@@ -52,6 +60,7 @@ import kotlin.time.Duration.Companion.minutes
 import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.home.R as HomeR
+import ch.magori.blox.feature.locksmith.R as LocksmithR
 
 /**
  * The journeys that cross the features, on the navigation of the application ([BloxNavDisplay]) and the shared fakes:
@@ -105,6 +114,54 @@ internal class BloxNavDisplayTest {
 
             // When / Then nothing of the application lies under the cartridges
             assertTheSystemBackLeavesTheApplication()
+        }
+    }
+
+    @Test
+    @DisplayName("the Locksmith cartridge opens padlock 1")
+    fun theLocksmithCartridgeOpensPadlock1() {
+        runJourney {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When
+            tapLocksmithCartridge()
+
+            // Then
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertIsDisplayed()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("on the Locksmith, the system back goes back to the cartridges, and then leaves")
+    fun onTheLocksmithTheSystemBackGoesBackToTheCartridges() {
+        runJourney {
+            // Given padlock 1, opened from the cartridges
+            showApp(openClassic = false)
+            tapLocksmithCartridge()
+
+            // When
+            pressSystemBack()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            assertTheSystemBackLeavesTheApplication()
+        }
+    }
+
+    @Test
+    @DisplayName("a restored stack with a padlock on top shows that padlock again, nothing placed")
+    fun aRestoredStackWithAPadlockOnTopShowsItAgain() {
+        runJourney {
+            // Given padlock 2 of seed 7 on top, as the system restores the stack after the death of the process
+            showApp(
+                restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2, seed = 7)),
+                restoredShows = string(LocksmithR.string.feature_locksmith_title, 2),
+            )
+
+            // Then
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 0)).assertIsDisplayed()
         }
     }
 
@@ -169,7 +226,7 @@ internal class BloxNavDisplayTest {
         runJourney {
             // Given the home screen, level 7 chosen in place of the default level, 0 (UserPreferences.DEFAULT)
             showApp()
-            onNode(hasTestTag(START_LEVEL_TAG) and hasText("0")).assertIsSelected()
+            onNode(startLevelGauge()).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "0"))
             chooseStartLevel(7)
 
             // When
@@ -431,6 +488,7 @@ internal class BloxNavDisplayTest {
         settingsPreferences: FakeUserPreferencesRepository? = null,
         openClassic: Boolean = true,
         restoredStack: List<NavKey>? = null,
+        restoredShows: String? = null,
     ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
@@ -468,7 +526,12 @@ internal class BloxNavDisplayTest {
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
-        val settingsFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences)
+        val settingsFactory = SettingsViewModel.Factory(
+            settingsPreferences ?: preferences,
+            highScores,
+            FakeSoundEffectPlayer(),
+            FakeHaptics(),
+        )
         setContent {
             BloxTheme(kind = BloxThemeKind.ORIGINAL) {
                 // The stack of the application unless one is restored: the first screen is the one it gives.
@@ -480,6 +543,7 @@ internal class BloxNavDisplayTest {
                         myMusicsFactory,
                         settingsFactory,
                         deletedMusics,
+                        LocksmithViewModel.Factory(),
                     )
                 } else {
                     BloxNavDisplay(
@@ -489,14 +553,15 @@ internal class BloxNavDisplayTest {
                         myMusicsFactory,
                         settingsFactory,
                         deletedMusics,
+                        LocksmithViewModel.Factory(),
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
             }
         }
-        // A restored stack shows the home once its view model read the settings.
+        // A restored stack shows its top screen, the home once its view model read the settings, unless told another.
         if (restoredStack != null) {
-            advanceUntilShown(string(HomeR.string.feature_home_play))
+            advanceUntilShown(restoredShows ?: string(HomeR.string.feature_home_play))
             return preferences
         }
         advanceUntilShown(string(CartridgesR.string.feature_cartridges_title))
@@ -504,9 +569,15 @@ internal class BloxNavDisplayTest {
         return preferences
     }
 
-    /** Chooses the start level [level] on the home screen, by its cell: no other text of the screen can be taken for it. */
+    /** The gauge of the start level of the home screen, read « Niveau de départ ». */
+    private fun AndroidComposeUiTest<ComponentActivity>.startLevelGauge() =
+        hasContentDescription(string(HomeR.string.feature_home_start_level))
+
+    /** Moves the gauge of the start level of the home screen to [level], as TalkBack does. */
     private fun AndroidComposeUiTest<ComponentActivity>.chooseStartLevel(level: Int) {
-        onNode(hasTestTag(START_LEVEL_TAG) and hasText(level.toString())).performScrollTo().performClick()
+        onNode(startLevelGauge()).performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) {
+            it(level.toFloat())
+        }
         settle()
     }
 
@@ -515,6 +586,12 @@ internal class BloxNavDisplayTest {
         onNode(hasTestTag(CLASSIC_CARTRIDGE_TAG)).performClick()
         // The home shows once its view model read the settings, which may answer after a first advance.
         advanceUntilShown(string(HomeR.string.feature_home_play))
+    }
+
+    /** Taps the cartridge of the Locksmith on the choice of the game, and waits for its padlock 1. */
+    private fun AndroidComposeUiTest<ComponentActivity>.tapLocksmithCartridge() {
+        onNode(hasTestTag(LOCKSMITH_CARTRIDGE_TAG)).performClick()
+        advanceUntilShown(string(LocksmithR.string.feature_locksmith_title, 1))
     }
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
@@ -573,8 +650,10 @@ internal class BloxNavDisplayTest {
         return checkNotNull(activity).getString(GameR.string.feature_game_value_description, label, "$level")
     }
 
-    private fun AndroidComposeUiTest<ComponentActivity>.string(@StringRes id: Int): String =
-        checkNotNull(activity).getString(id)
+    private fun AndroidComposeUiTest<ComponentActivity>.string(
+        @StringRes id: Int,
+        vararg arguments: Any,
+    ): String = checkNotNull(activity).getString(id, *arguments)
 
     private companion object {
         /** The longest a journey may take on a busy emulator. */
@@ -586,11 +665,9 @@ internal class BloxNavDisplayTest {
         /** A music of the player, chosen for the games. */
         const val GAME_MUSIC = "Thème du soir"
 
-        /** The tag of a start level cell of the home screen (`START_LEVEL_TAG` of feature:home, internal to it). */
-        const val START_LEVEL_TAG = "home_start_level"
-
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
+        const val LOCKSMITH_CARTRIDGE_TAG = "cartridge_locksmith"
 
         /** Between two searches of the game over screen. */
         const val CHECK_MILLIS = 500L
