@@ -2,6 +2,7 @@ package ch.magori.blox.theme
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.AndroidComposeUiTest
@@ -9,8 +10,11 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -42,7 +46,9 @@ internal class SystemBarsAppearanceTest {
 
             // When the theme chosen is drawn, in the mode of the system
             setContent {
-                BloxTheme(kind = kind, darkSystem = darkSystem) { BloxSystemBars() }
+                BloxTheme(kind = kind, darkSystem = darkSystem) {
+                    BloxSystemBars(top = { null }, darkSystem = darkSystem)
+                }
             }
             waitForIdle()
 
@@ -58,7 +64,9 @@ internal class SystemBarsAppearanceTest {
             // Given Colorful by day: dark icons
             var darkSystem by mutableStateOf(false)
             setContent {
-                BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem) { BloxSystemBars() }
+                BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem) {
+                    BloxSystemBars(top = { null }, darkSystem = darkSystem)
+                }
             }
             waitForIdle()
             assertLightAppearance(true)
@@ -69,6 +77,34 @@ internal class SystemBarsAppearanceTest {
 
             // Then light icons, on the night variant
             assertLightAppearance(false)
+        }
+    }
+
+    @Test
+    @DisplayName(
+        "at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left",
+    )
+    fun theSystemBarsFollowTheLocksmith() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the Original theme at night, on the cartridges: dark icons on its light page
+            val stack = mutableStateListOf<NavKey>(CartridgesRoute)
+            setContent {
+                BloxTheme(kind = BloxThemeKind.ORIGINAL, darkSystem = true) {
+                    BloxSystemBars(top = { stack.lastOrNull() }, darkSystem = true)
+                }
+            }
+            waitForIdle()
+            assertLightAppearance(true)
+
+            // When the Locksmith opens, in its Colorful night variant
+            stack.add(LocksmithRoute(level = 1, seed = 1))
+            waitForIdle()
+
+            // Then light icons on its dark page, and dark ones again once back on the cartridges
+            assertLightAppearance(false)
+            stack.removeAt(stack.lastIndex)
+            waitForIdle()
+            assertLightAppearance(true)
         }
     }
 

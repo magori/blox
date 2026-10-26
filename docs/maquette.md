@@ -39,7 +39,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
 | V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
 | V25 | Enregistrer la musique, thème Couleurs v2 nuit | « V25 · Enregistrer la musique · thème Couleurs sombre » |
-| V26 | Choix du jeu, cartouche Classique seule (écran d'ouverture, Couleurs v2) | « V26 · Choix du jeu · cartouche Classique · jour », « … nuit », « … console chargée » |
+| V26 | Choix du jeu, cartouches Classique et Serrurier (écran d'ouverture, Couleurs v2 ; Serrurier à dessiner, P7.16) | « V26 · Choix du jeu · cartouche Classique · jour », « … nuit », « … console chargée » |
 | V27 | Accueil v2 du mode Classique | rangée « Couleurs v2 — Accueil » |
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
@@ -61,8 +61,8 @@ maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogr
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
 
-**V26 codé** (P5.72, `feature:cartridges`) : l'application s'ouvre sur le choix du jeu, une seule
-cartouche, Classique, qui ouvre l'accueil Classique ; le disque « Changer de jeu » de l'accueil y revient ; le
+**V26 codé** (P5.72, `feature:cartridges` ; seconde cartouche « Serrurier », P7.15) : l'application s'ouvre sur le choix du jeu,
+Classique, qui ouvre l'accueil Classique, et Serrurier, qui ouvre la serrure 1 ; le disque « Changer de jeu » de l'accueil y revient ; le
 retour système y quitte l'application. Le dessin est provisoire (titre, encart cadré, étiquette `accent` au
 nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche viennent avec P5.92.
 **Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
