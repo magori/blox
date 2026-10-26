@@ -341,7 +341,12 @@ internal class BloxNavDisplayTest {
                     gameViewModelFactory = gameFactory,
                     composerViewModelFactory = ComposerViewModel.Factory(music, library),
                     myMusicsViewModelFactory = MyMusicsViewModel.Factory(library, music, deletedMusics),
-                    settingsViewModelFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences),
+                    settingsViewModelFactory = SettingsViewModel.Factory(
+                        settingsPreferences ?: preferences,
+                        highScores,
+                        FakeSoundEffectPlayer(),
+                        FakeHaptics(),
+                    ),
                     deletedMusics = deletedMusics,
                 )
             }

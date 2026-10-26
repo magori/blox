@@ -3,6 +3,7 @@ package ch.magori.blox.feature.home.navigation
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -12,6 +13,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.home.HomeScreen
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.SettingsActions
 import ch.magori.blox.feature.home.SettingsScreen
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.rememberMusicFilePicker
@@ -103,12 +105,20 @@ fun EntryProviderScope<NavKey>.settingsEntry(
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         // A second tap on the way back does nothing.
         val goBack = dropUnlessResumed { onBack() }
-        // The page and its header show at once; its switches, once the saved settings are read (no switch flashes off).
-        SettingsScreen(
-            uiState = uiState,
-            onBack = goBack,
-            onVibrationsChanged = viewModel::onVibrationsChanged,
-            onSoundEffectsChanged = viewModel::onSoundEffectsChanged,
-        )
+        val actions = remember(viewModel, goBack) {
+            SettingsActions(
+                onBack = goBack,
+                onSoundEffectsChanged = viewModel::onSoundEffectsChanged,
+                onEffectsVolumeChanged = viewModel::onEffectsVolumeChanged,
+                onMusicVolumeChanged = viewModel::onMusicVolumeChanged,
+                onVibrationsChanged = viewModel::onVibrationsChanged,
+                onKeyVibrationChanged = viewModel::onKeyVibrationChanged,
+                onClearRecord = viewModel::onClearRecord,
+                onKeepRecord = viewModel::onKeepRecord,
+                onClearRecordConfirmed = viewModel::onClearRecordConfirmed,
+            )
+        }
+        // The page and its header show at once; its settings, once the saved settings are read (no switch flashes off).
+        SettingsScreen(uiState = uiState, actions = actions)
     }
 }
