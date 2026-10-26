@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.ui.unit.dp
 import org.assertj.core.api.Assertions.assertThat
@@ -40,9 +40,9 @@ internal class ChoiceCheckTest {
         val selected = choiceInsets(selected = true, label = label)
         val unselected = choiceInsets(selected = false, label = label)
 
-        // Then
-        assertThat(selected).isEqualTo(ChoiceInsets(start = 8.dp, check = 14.dp, gap = 4.dp, end = 8.dp))
-        assertThat(unselected).isEqualTo(ChoiceInsets(start = 8.dp, check = 0.dp, gap = 0.dp, end = 8.dp))
+        // Then the inner margin of a choice, space-3, on each side
+        assertThat(selected).isEqualTo(ChoiceInsets(start = 12.dp, check = 14.dp, gap = 4.dp, end = 12.dp))
+        assertThat(unselected).isEqualTo(ChoiceInsets(start = 12.dp, check = 0.dp, gap = 0.dp, end = 12.dp))
     }
 
     @Test
