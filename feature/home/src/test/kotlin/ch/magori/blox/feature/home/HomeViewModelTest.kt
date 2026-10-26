@@ -519,6 +519,23 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `changing the game stops the preview`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When the home leaves for the choice of the game: its view model is cleared, the preview would play on
+            viewModel.onChangeGame()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
     fun `opening the settings stops the preview`() = runTest {
         // Given
         val viewModel = homeViewModel()
