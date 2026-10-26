@@ -57,6 +57,16 @@ public data class Padlock(public val solution: List<Piece>) {
         /** The characters that mark the pieces of a solution, by rank. */
         private val RANKS = '1'..'6'
 
+        /**
+         * Padlock [level] (from 1) of [seed]: the best of the padlocks of its number of pieces composed from
+         * that seed, always the same for the same level and seed (`PadlockGenerator`, a pure function of the
+         * seed, ADR 0014).
+         */
+        public fun generate(
+            level: Int,
+            seed: Long,
+        ): Padlock = PadlockGenerator.generate(PadlockGenerator.pieceCount(level), seed)
+
         /** Whether [position] is inside the outer ring of metal, where the hole may lie. */
         internal fun isInside(position: Position): Boolean = position.column in INSIDE && position.row in INSIDE
 

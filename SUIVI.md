@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 186 / 241 | `███████████████░░░░░` **77 %** |
+| **Général** | 187 / 243 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1097,7 +1097,8 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 ## P7 — Le Serrurier, second jeu (`core:locksmith`, `feature:locksmith`)
 
 Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : ADR 0025. Le domaine
-(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend.
+(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend. Interface en thème
+Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pas d'aspect Original.
 
 - [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
   0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
@@ -1144,10 +1145,10 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
   `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
-- [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
-  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
-  étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
-  surcharge interne : `seeds`, `compose`, `candidate` et `rating` restent internes.
+- [x] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
+  `LocksmithViewModel.Factory`, `LocksmithUiState`, écran minimal toujours en Couleurs. Une seule entrée
+  publique du générateur, `Padlock.generate(level, seed)`, qui délègue à la surcharge interne :
+  `seeds`, `compose`, `candidate` et `rating` restent internes.
 - [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
   aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
   captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
@@ -1162,6 +1163,11 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   et nuit, cartouche Serrurier sur V26, jetons métal et trou.
 - [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
+- [ ] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
+  pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
+  du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
+- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
 
 ---
 
