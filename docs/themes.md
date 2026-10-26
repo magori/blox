@@ -437,9 +437,7 @@ Contrastes mesurés en P5.26, avant Couleurs v2 (les valeurs v2 sont vérifiées
 `ChoiceCheckTest › the check is a stroke down then up, drawn wholly within its square`,
 `ChoiceCheckTest › only a selected choice makes room for its check and its gap before its label`,
 `ChoiceCheckTest › the check is as large as its label, 24 dp at most, a quarter of the label away from it, 4 dp at least`,
-`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`,
-`HomeScreenTest › in a normal font, every start level is 48 dp high, no more`,
-`HomeScreenTest › in a large font, every start level is as tall as the other choices, its check clear of its digit`.
+`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`.
 Vues : V1.
 
 
@@ -458,7 +456,7 @@ WCAG 2.2 (2.5.8, 24 px) et qu'Android (qui accepte une zone tactile plus grande 
 P5.29 (décision du développeur), font 59 dp de large à 360 dp : il n'y a plus d'exception.
 
 **Tests :** `PaletteContrastTest › a text stands out from its background by a contrast of 4,5 to 1 at least`,
-`HomeScreenTest › every button and choice, start levels included, is 48 dp wide and high at least on 360 dp`,
+`HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
 `GameScreenTest › every button of the screen is 48 dp wide and high at least`. Vues : V1 à V4.
 ## Éditeur de musique (maquette)
 
@@ -613,9 +611,7 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `LargestSizeThatFitsTest › with the smallest size equal to the largest a text that does not fit has no size that fits`,
 `LargestSizeThatFitsTest › a text that fits only at the smallest size takes exactly the smallest size`,
 `LargestSizeThatFitsTest › the sizes tried grow with the logarithm of the number of steps`,
-`HomeScreenTest › in a font twice as large, on 360 dp, the label of Composer une musique is shown whole`,
-`HomeScreenTest › in a normal font, on 360 dp, the label of Composer une musique stays on one line`,
-`HomeScreenTest › in a font twice as large, in Original, each word of Composer une musique stays whole on its line`,
+`HomeScreenTest › in a font twice as large, on 360 dp, the labels of the tiles are shown whole, their words whole`,
 `LargestSizeThatFitsTest › when fitting is not monotonic, as a text that wraps may be, the size given was tried and fits`,
 `WordCutTest › a text on one line cuts no word`,
 `WordCutTest › a text that goes to the line between its words cuts no word`,

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 183 / 241 | `███████████████░░░░░` **76 %** |
+| **Général** | 184 / 241 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -932,7 +932,7 @@ composants.
   Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,
   `a cell under 16 dp has 2 dp corners and no gloss`, `an empty cell has the corners and the margin of a piece,
   without gloss`, `the painters are still built once while the piece moves` ; captures.
-- [ ] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
+- [x] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
   choisie par la taille disponible, P5.84) : barre (Changer de jeu, puce Record, Paramètres), Jouer XL avec le
   rappel « Classique · Niveau 05 · Korobeïniki », carte des réglages (Mode avec Moderne `BIENTÔT`, Thème, Niveau
   en jauge, rangée Musique), tuiles Mes musiques et Composer. Remplace les niveaux en deux lignes de 5 (P5.29,
@@ -940,7 +940,7 @@ composants.
   Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
   `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
   `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
-- [ ] **P5.76** Feuille Musique (`feature:home`) : feuille qui monte (`motion-card`), une rangée de 56 dp par
+- [ ] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
   musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
   fermer ; un seul aperçu à la fois ; `ListenButton` partagé (`core:designsystem`) à la place des copies de
   `feature:home` et `feature:composer`. Après P5.75.
