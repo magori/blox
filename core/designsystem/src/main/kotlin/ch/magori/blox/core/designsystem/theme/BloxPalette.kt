@@ -30,8 +30,9 @@ data class BloxPalette(
     val buttonOutline: Color,
     val buttonInk: Color,
     /**
-     * A button held down: it stands out from [page] by 3:1 at least, [buttonInk] on it too, and from
-     * [button], the same button at rest, by 1.5:1 at least.
+     * A button held down: [buttonInk] stands out from it by 3:1 at least, and it from [button], the same button at
+     * rest, by 1.5:1 at least. It may not stand out from [page] (1.4:1 by day): what is held keeps a frame in
+     * [buttonOutline].
      */
     val buttonPressed: Color,
     val accent: Color,

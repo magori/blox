@@ -11,11 +11,11 @@ import androidx.compose.ui.unit.dp
 /** The side of the grid of a stroke drawing. */
 private const val STROKE_GRID = 24f
 
-/** The thickness of the strokes, on the grid. */
-private const val STROKE_WIDTH = 2.25f
+/** The thickness of the strokes, on the grid, unless an icon says otherwise. */
+internal const val STROKE_WIDTH = 2.25f
 
 /**
- * The strokes of [icon] as a vector: unfilled lines [STROKE_WIDTH] thick on a grid of [STROKE_GRID], rounded at their
+ * The strokes of [icon] as a vector: unfilled lines as thick as it says on a grid of [STROKE_GRID], rounded at their
  * ends and joins, in black, to be tinted.
  */
 internal fun strokeIcon(icon: BloxIcon): ImageVector = ImageVector.Builder(
@@ -28,7 +28,7 @@ internal fun strokeIcon(icon: BloxIcon): ImageVector = ImageVector.Builder(
     pathData = addPathNodes(icon.strokes),
     fill = null,
     stroke = SolidColor(Color.Black),
-    strokeLineWidth = STROKE_WIDTH,
+    strokeLineWidth = icon.strokeWidth,
     strokeLineCap = StrokeCap.Round,
     strokeLineJoin = StrokeJoin.Round,
 ).build()
