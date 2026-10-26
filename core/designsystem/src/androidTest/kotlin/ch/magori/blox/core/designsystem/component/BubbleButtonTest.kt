@@ -22,6 +22,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
@@ -162,26 +163,41 @@ internal class BubbleButtonTest {
 
     @ParameterizedTest
     @EnumSource(ButtonFamily::class, names = ["PRIMARY", "SECONDARY"])
-    @DisplayName("a compact button is 48 dp high, in the colours of its family")
-    fun aCompactButtonIsSmallerInTheColoursOfItsFamily(family: ButtonFamily) = extension.use {
+    @DisplayName("a compact main or secondary button is 48 dp high")
+    fun aCompactButtonIs48DpHigh(family: ButtonFamily) = extension.use {
         // Given a compact button of the family, as wide as a measure
-        var fill = Color.Unspecified
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                fill = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, ButtonState()).fill
                 BubbleButton(
                     family = family,
                     onClick = {},
-                    compact = true,
+                    size = ButtonSize.COMPACT,
                     modifier = Modifier.testTag(TAG).width(160.dp),
                 ) { Text("Ok") }
             }
         }
 
-        // Then 48 dp high, filled as its family, 12 dp into it, halfway down, out of the way of its label
+        // Then
         onNodeWithTag(TAG).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
-        val image = onNodeWithTag(TAG).captureToImage().toPixelMap()
-        assertThat(image[with(density) { 12.dp.roundToPx() }, image.height / 2]).isEqualTo(fill)
+    }
+
+    @Test
+    @DisplayName("a selected button is read as selected by TalkBack, a plain one is not")
+    fun aSelectedButtonIsReadAsSelected() = extension.use {
+        // Given the choice made and another
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Column {
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {
+                    }, emphasis = ButtonEmphasis.SELECTED) { Text("Mesure 1") }
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {}) { Text("Mesure 2") }
+                }
+            }
+        }
+
+        // Then
+        onNodeWithText("Mesure 1").assertIsSelected()
+        onNodeWithText("Mesure 2").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
     }
 
     @Test

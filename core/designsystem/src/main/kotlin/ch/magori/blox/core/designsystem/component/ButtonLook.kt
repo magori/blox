@@ -10,6 +10,7 @@ import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BubbleColors
 import ch.magori.blox.core.designsystem.theme.Gloss
 
 /**
@@ -31,23 +32,40 @@ enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
     ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
     ;
 
-    /** How high a button of this family is at least: [BloxSizes.minTouchTarget] when it is [compact]. */
-    internal fun minHeight(compact: Boolean): Dp = if (compact) BloxSizes.minTouchTarget else minHeight
+    /**
+     * How high a button of this family is at least in [size]: [BloxSizes.minTouchTarget] when it is compact, which only
+     * a main or a secondary button may be.
+     */
+    internal fun minHeight(size: ButtonSize): Dp = when (size) {
+        ButtonSize.REGULAR -> minHeight
+
+        ButtonSize.COMPACT -> {
+            require(this == PRIMARY || this == SECONDARY) { "Only Principal and Secondaire may be compact, not $this" }
+            BloxSizes.minTouchTarget
+        }
+    }
 }
+
+/** How large a button is: [REGULAR], as high as its family says; [COMPACT], 48 dp, for Principal and Secondaire. */
+enum class ButtonSize { REGULAR, COMPACT }
+
+/**
+ * How a button stands out: [PLAIN], in the colours of its family; [SELECTED], the choice made (a measure, Utiliser),
+ * in `accent`; [BARE], a disc of its pictogram alone until it is pressed (« … », − and + of the tempo, a cross).
+ */
+enum class ButtonEmphasis { PLAIN, SELECTED, BARE }
 
 /**
  * What a button is: [enabled] or not, [depth], how far down it is, from 0 (at rest) to 1 (pressed), [focused] by the
- * keyboard or not, [selected], the choice made, or not, [active], at work (Écouter while it plays), or not, and [bare],
- * a disc of its pictogram alone until it is pressed, or not.
+ * keyboard or not, [active], at work (Écouter while it plays), or not, and how it stands out, [emphasis].
  */
 @Immutable
 internal data class ButtonState(
     val enabled: Boolean = true,
     val depth: Float = 0f,
     val focused: Boolean = false,
-    val selected: Boolean = false,
     val active: Boolean = false,
-    val bare: Boolean = false,
+    val emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
 )
 
 /**
@@ -68,8 +86,8 @@ internal data class ButtonLook(
  * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant. Only its drop moves
  * on its way back up: its fill, its ink and its relief stay those of a pressed button until it is back at rest, so that
  * a label and its fill never cross (in Original, the fill of a secondary button at rest is the colour of its label
- * pressed). An active button looks pressed, in place. A selected button is in the accent, bare or not; a bare one has
- * no relief at rest. A disabled button is flat and does not go down.
+ * pressed). An active button looks pressed, in place. A bare one has no relief at rest. A disabled button is flat and
+ * does not go down.
  */
 internal fun buttonLook(
     family: ButtonFamily,
@@ -77,27 +95,40 @@ internal fun buttonLook(
     glosses: BloxGlosses,
     state: ButtonState,
 ): ButtonLook {
-    val bare = state.bare && !state.selected
-    val bubble = when {
-        !state.enabled -> colors.disabled
-        state.selected -> colors.selected
-        bare -> colors.bare
-        family.isPrimary -> colors.primary
-        else -> colors.secondary
-    }
+    val bubble = bubbleColors(family, colors, state)
     val held = state.enabled && (state.depth > 0f || state.active)
     return ButtonLook(
         fill = if (held) bubble.pressedFill else bubble.fill,
         ink = if (held) bubble.pressedInk else bubble.ink,
-        frame = bubble.frame,
+        frame = if (held) bubble.pressedFrame else bubble.frame,
         gloss = when {
             held -> glosses.buttonPressed
-            !state.enabled || bare -> Gloss.None
+            !state.enabled || state.emphasis == ButtonEmphasis.BARE -> Gloss.None
             else -> glosses.button
         },
         drop = buttonDrop(state.enabled, state.depth),
         focusRing = if (state.focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null,
     )
+}
+
+/**
+ * The colours of a button of [family] in [state], among the [colors] of its variant. A selected button keeps its own
+ * disabled: the choice made still shows; a bare one stays bare, its pictogram in the ink of the disabled.
+ */
+private fun bubbleColors(
+    family: ButtonFamily,
+    colors: BloxButtonColors,
+    state: ButtonState,
+): BubbleColors = when (state.emphasis) {
+    ButtonEmphasis.SELECTED -> colors.selected
+
+    ButtonEmphasis.BARE -> if (state.enabled) colors.bare else colors.bare.copy(ink = colors.disabled.ink)
+
+    ButtonEmphasis.PLAIN -> when {
+        !state.enabled -> colors.disabled
+        family.isPrimary -> colors.primary
+        else -> colors.secondary
+    }
 }
 
 /** How far down a button [depth] down is drawn: [BloxSizes.pressDrop] all the way down, not at all when disabled. */

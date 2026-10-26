@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -59,9 +61,9 @@ import ch.magori.blox.core.designsystem.theme.grownOutline
  * once, and comes back in `motion-press` once released; [enabled] false, it is flat, in `label` framed by
  * `panel-border`, and cannot be touched; focused by the keyboard, it bears a ring of 3 dp in `ink`. Its [content] is
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
- * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. [selected], the choice
- * made (a measure, Utiliser), it is filled and framed in `accent`; [active], at work (Écouter while it plays), it keeps
- * its pressed fill without going down; [compact], a main or secondary button is 48 dp high in place of 56.
+ * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. Its [emphasis] says how
+ * it stands out ([ButtonEmphasis]); [active], at work (Écouter while it plays), it keeps its pressed fill without
+ * going down; its [size] may be compact, 48 dp high, for a main or a secondary button.
  */
 @Composable
 fun BubbleButton(
@@ -70,76 +72,67 @@ fun BubbleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = BloxTheme.shapes.pill,
-    selected: Boolean = false,
+    emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
     active: Boolean = false,
-    compact: Boolean = false,
-    content: @Composable RowScope.() -> Unit,
-) {
-    BubbleButton(family, onClick, bare = false, modifier, enabled, shape, selected, active, compact, content)
-}
-
-/** A [BubbleButton] that may be [bare]: a disc of its pictogram alone until it is pressed ([GlyphButton]). */
-@Composable
-internal fun BubbleButton(
-    family: ButtonFamily,
-    onClick: () -> Unit,
-    bare: Boolean,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    shape: Shape = BloxTheme.shapes.pill,
-    selected: Boolean = false,
-    active: Boolean = false,
-    compact: Boolean = false,
+    size: ButtonSize = ButtonSize.REGULAR,
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
     val depth = remember(motion) { { motion.depth } }
-    BubbleButton(
+    BubbleButtonDrawing(
         family = family,
-        state = ButtonState(enabled, focused = focused, selected = selected, active = active, bare = bare),
-        depth = depth,
         onClick = onClick,
         interactionSource = interactionSource,
+        depth = depth,
         modifier = modifier,
+        enabled = enabled,
+        focused = focused,
+        emphasis = emphasis,
+        active = active,
+        size = size,
         shape = shape,
-        compact = compact,
         content = content,
     )
 }
 
 /**
- * A bubble button of [family], in [state] but for its depth, as far down as [depth] says, whatever its
- * [interactionSource] says: the previews draw each state so, the button above reads it from its interactions. The
- * depth is read only where the button is placed, so that its way back up moves it without composing it again; its
- * colours and relief change twice, when it goes down and when it is back. [compact], it is 48 dp high at least.
+ * A bubble button of [family], [enabled], [focused] and [active] or not, standing out as [emphasis] says, as far down
+ * as [depth] says, whatever its [interactionSource] says: the previews draw each state so, [BubbleButton] reads it from
+ * its interactions. The depth is read only where the button is placed, so that its way back up moves it without
+ * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads a
+ * selected one as selected.
  */
 @Composable
-internal fun BubbleButton(
+internal fun BubbleButtonDrawing(
     family: ButtonFamily,
-    state: ButtonState,
-    depth: () -> Float,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource?,
+    depth: () -> Float,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    focused: Boolean = false,
+    emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
+    active: Boolean = false,
+    size: ButtonSize = ButtonSize.REGULAR,
     shape: Shape = BloxTheme.shapes.pill,
-    compact: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
-    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state.copy(depth = if (down) 1f else 0f))
+    val state = ButtonState(enabled, if (down) 1f else 0f, focused, active, emphasis)
+    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
-    val enabled = state.enabled
     Row(
         modifier = modifier
             .offset { IntOffset(0, buttonDrop(enabled, depth()).roundToPx()) }
             .focusRing(look.focusRing, shape)
-            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(compact))
+            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(size))
             .background(look.fill, shape)
             .gloss(look.gloss, shape, frameWidth)
             .then(if (frame == null) Modifier else Modifier.border(frameWidth, frame, shape))
+            .then(if (emphasis == ButtonEmphasis.SELECTED) Modifier.semantics { selected = true } else Modifier)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,

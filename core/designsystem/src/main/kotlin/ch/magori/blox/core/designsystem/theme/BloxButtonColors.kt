@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * The colours of a bubble button: its [fill] and [ink] at rest, [pressedFill] and [pressedInk] held, and its [frame],
- * the same in both, if it has one.
+ * The colours of a bubble button: its [fill] and [ink] at rest, [pressedFill] and [pressedInk] held, its [frame] at rest
+ * if it has one, and its [pressedFrame] held, the same unless said otherwise.
  */
 @Immutable
 data class BubbleColors(
@@ -14,6 +14,7 @@ data class BubbleColors(
     val pressedFill: Color,
     val pressedInk: Color,
     val frame: Color?,
+    val pressedFrame: Color? = frame,
 )
 
 /**
@@ -65,9 +66,16 @@ internal object BloxButtonColorSets {
             palette.accentInk,
             palette.accentPressed,
             palette.accentInk,
-            palette.accent,
+            palette.accentPressed,
         ),
-        bare = BubbleColors(Color.Transparent, palette.ink, palette.buttonPressed, palette.buttonInk, null),
+        bare = BubbleColors(
+            Color.Transparent,
+            palette.ink,
+            palette.buttonPressed,
+            palette.buttonInk,
+            frame = null,
+            pressedFrame = palette.buttonOutline,
+        ),
         disabled = flat(palette.panelInset, palette.label, palette.panelBorder),
         focus = palette.ink,
     )

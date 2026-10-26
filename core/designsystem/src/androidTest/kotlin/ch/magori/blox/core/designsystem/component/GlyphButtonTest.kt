@@ -57,7 +57,9 @@ internal class GlyphButtonTest {
         // Given a disc of nothing but its glyph
         setContent {
             BloxTheme(kind = kind) {
-                GlyphButton(description = "Plus d'actions", onClick = {}, bare = true) { ink -> Glyphs.more(this, ink) }
+                GlyphButton(description = "Plus d'actions", onClick = {}, emphasis = ButtonEmphasis.BARE) { ink ->
+                    Glyphs.more(this, ink)
+                }
             }
         }
 

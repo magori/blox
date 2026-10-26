@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
@@ -47,13 +48,7 @@ private fun ButtonSheet(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     SheetStates.forEach { (name, state) ->
-                        BubbleButton(
-                            family = family,
-                            state = state,
-                            depth = { state.depth },
-                            onClick = {},
-                            interactionSource = null,
-                        ) {
+                        DrawnButton(family, state) {
                             if (family == ButtonFamily.ICON) {
                                 BloxIcon(BloxIcon.GEAR, size = IconSizes.alone)
                             } else {
@@ -114,25 +109,41 @@ private fun VariantLine(
     }
 }
 
-/** A button of [family] in [state], [compact] or not, in [shape] if given, showing [icon] and [label] if given. */
+/** A button of [family] drawn in [state], in [size] and [shape], showing [content]. */
+@Composable
+private fun DrawnButton(
+    family: ButtonFamily,
+    state: ButtonState,
+    size: ButtonSize = ButtonSize.REGULAR,
+    shape: Shape = BloxTheme.shapes.pill,
+    content: @Composable RowScope.() -> Unit,
+) {
+    BubbleButtonDrawing(
+        family = family,
+        onClick = {},
+        interactionSource = null,
+        depth = { state.depth },
+        enabled = state.enabled,
+        focused = state.focused,
+        emphasis = state.emphasis,
+        active = state.active,
+        size = size,
+        shape = shape,
+        content = content,
+    )
+}
+
+/** A button of [family] in [state], in [size] and [shape], showing [icon] and [label] if given. */
 @Composable
 private fun SheetButton(
     family: ButtonFamily,
     state: ButtonState,
     icon: BloxIcon,
     label: String? = null,
-    compact: Boolean = false,
+    size: ButtonSize = ButtonSize.REGULAR,
     shape: Shape = BloxTheme.shapes.pill,
 ) {
-    BubbleButton(
-        family = family,
-        state = state,
-        depth = { state.depth },
-        onClick = {},
-        interactionSource = null,
-        shape = shape,
-        compact = compact,
-    ) {
+    DrawnButton(family, state, size, shape) {
         BloxIcon(icon, size = if (label == null) IconSizes.alone else IconSizes.besideLabel)
         if (label != null) Text(text = label)
     }
@@ -145,17 +156,19 @@ private fun SheetButton(
 @Composable
 private fun ButtonVariantsSheet(kind: BloxThemeKind) {
     BloxTheme(kind = kind) {
-        val selected = ButtonState(selected = true)
-        val bare = ButtonState(bare = true)
+        val selected = ButtonState(emphasis = ButtonEmphasis.SELECTED)
+        val bare = ButtonState(emphasis = ButtonEmphasis.BARE)
+        val compact = ButtonSize.COMPACT
         Column(
             modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             VariantLine("RETENU") {
-                SheetButton(ButtonFamily.SECONDARY, selected, BloxIcon.CHECK, "Repos", compact = true)
-                SheetButton(ButtonFamily.SECONDARY, selected.copy(depth = 1f), BloxIcon.CHECK, "Pressé", compact = true)
+                SheetButton(ButtonFamily.SECONDARY, selected, BloxIcon.CHECK, "Repos", size = compact)
+                SheetButton(ButtonFamily.SECONDARY, selected.copy(depth = 1f), BloxIcon.CHECK, "Pressé", size = compact)
                 SheetButton(ButtonFamily.ICON, selected, BloxIcon.CHECK)
                 SheetButton(ButtonFamily.ICON, selected.copy(depth = 1f), BloxIcon.CHECK)
+                SheetButton(ButtonFamily.ICON, selected.copy(enabled = false), BloxIcon.CHECK)
             }
             VariantLine("EN COURS") {
                 SheetButton(ButtonFamily.ICON, ButtonState(active = true), BloxIcon.STOP)
@@ -167,14 +180,14 @@ private fun ButtonVariantsSheet(kind: BloxThemeKind) {
                 SheetButton(ButtonFamily.ICON, bare.copy(enabled = false), BloxIcon.PLUS)
             }
             VariantLine("COMPACT") {
-                SheetButton(ButtonFamily.PRIMARY, ButtonState(), BloxIcon.CHECK, "Enregistrer", compact = true)
-                SheetButton(ButtonFamily.SECONDARY, ButtonState(), BloxIcon.UNDO, "Annuler", compact = true)
+                SheetButton(ButtonFamily.PRIMARY, ButtonState(), BloxIcon.CHECK, "Enregistrer", size = compact)
+                SheetButton(ButtonFamily.SECONDARY, ButtonState(), BloxIcon.UNDO, "Annuler", size = compact)
                 SheetButton(
                     ButtonFamily.SECONDARY,
                     ButtonState(),
                     BloxIcon.ALERT,
                     "Tuile",
-                    compact = true,
+                    size = compact,
                     shape = BloxTheme.shapes.md,
                 )
             }
