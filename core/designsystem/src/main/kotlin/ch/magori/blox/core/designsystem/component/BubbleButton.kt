@@ -59,7 +59,9 @@ import ch.magori.blox.core.designsystem.theme.grownOutline
  * once, and comes back in `motion-press` once released; [enabled] false, it is flat, in `label` framed by
  * `panel-border`, and cannot be touched; focused by the keyboard, it bears a ring of 3 dp in `ink`. Its [content] is
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
- * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill.
+ * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. [selected], the choice
+ * made (a measure, Utiliser), it is filled and framed in `accent`; [active], at work (Écouter while it plays), it keeps
+ * its pressed fill without going down; [compact], a main or secondary button is 48 dp high in place of 56.
  */
 @Composable
 fun BubbleButton(
@@ -68,43 +70,73 @@ fun BubbleButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     shape: Shape = BloxTheme.shapes.pill,
+    selected: Boolean = false,
+    active: Boolean = false,
+    compact: Boolean = false,
+    content: @Composable RowScope.() -> Unit,
+) {
+    BubbleButton(family, onClick, bare = false, modifier, enabled, shape, selected, active, compact, content)
+}
+
+/** A [BubbleButton] that may be [bare]: a disc of its pictogram alone until it is pressed ([GlyphButton]). */
+@Composable
+internal fun BubbleButton(
+    family: ButtonFamily,
+    onClick: () -> Unit,
+    bare: Boolean,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    shape: Shape = BloxTheme.shapes.pill,
+    selected: Boolean = false,
+    active: Boolean = false,
+    compact: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
     val depth = remember(motion) { { motion.depth } }
-    BubbleButton(family, enabled, focused, depth, onClick, interactionSource, modifier, shape, content)
+    BubbleButton(
+        family = family,
+        state = ButtonState(enabled, focused = focused, selected = selected, active = active, bare = bare),
+        depth = depth,
+        onClick = onClick,
+        interactionSource = interactionSource,
+        modifier = modifier,
+        shape = shape,
+        compact = compact,
+        content = content,
+    )
 }
 
 /**
- * A bubble button of [family], [enabled] and [focused] or not, as far down as [depth] says, whatever its
+ * A bubble button of [family], in [state] but for its depth, as far down as [depth] says, whatever its
  * [interactionSource] says: the previews draw each state so, the button above reads it from its interactions. The
  * depth is read only where the button is placed, so that its way back up moves it without composing it again; its
- * colours and relief change twice, when it goes down and when it is back.
+ * colours and relief change twice, when it goes down and when it is back. [compact], it is 48 dp high at least.
  */
 @Composable
 internal fun BubbleButton(
     family: ButtonFamily,
-    enabled: Boolean,
-    focused: Boolean,
+    state: ButtonState,
     depth: () -> Float,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource?,
     modifier: Modifier = Modifier,
     shape: Shape = BloxTheme.shapes.pill,
+    compact: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
-    val state = ButtonState(enabled = enabled, depth = if (down) 1f else 0f, focused = focused)
-    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
+    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state.copy(depth = if (down) 1f else 0f))
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
+    val enabled = state.enabled
     Row(
         modifier = modifier
             .offset { IntOffset(0, buttonDrop(enabled, depth()).roundToPx()) }
             .focusRing(look.focusRing, shape)
-            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight)
+            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(compact))
             .background(look.fill, shape)
             .gloss(look.gloss, shape, frameWidth)
             .then(if (frame == null) Modifier else Modifier.border(frameWidth, frame, shape))

@@ -12,16 +12,16 @@ import com.android.tools.screenshot.PreviewTest
  */
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1100)
+@Preview(widthDp = 360, heightDp = 1400)
 @Composable
 private fun IconSheetOriginal() = IconSheetOriginalPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1100)
+@Preview(widthDp = 360, heightDp = 1400)
 @Composable
 private fun IconSheetColorful() = IconSheetColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1100, uiMode = UI_MODE_NIGHT)
+@Preview(widthDp = 360, heightDp = 1400, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun IconSheetColorfulNight() = IconSheetColorfulPreview()

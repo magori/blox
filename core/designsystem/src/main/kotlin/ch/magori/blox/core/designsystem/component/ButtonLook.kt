@@ -29,14 +29,26 @@ enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
 
     /** Icône: a disc of 48 dp, of a pictogram alone (Paramètres, Écouter, Pause). */
     ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
+    ;
+
+    /** How high a button of this family is at least: [BloxSizes.minTouchTarget] when it is [compact]. */
+    internal fun minHeight(compact: Boolean): Dp = if (compact) BloxSizes.minTouchTarget else minHeight
 }
 
 /**
- * What a button is: [enabled] or not, [depth], how far down it is, from 0 (at rest) to 1 (pressed), and [focused] by
- * the keyboard or not.
+ * What a button is: [enabled] or not, [depth], how far down it is, from 0 (at rest) to 1 (pressed), [focused] by the
+ * keyboard or not, [selected], the choice made, or not, [active], at work (Écouter while it plays), or not, and [bare],
+ * a disc of its pictogram alone until it is pressed, or not.
  */
 @Immutable
-internal data class ButtonState(val enabled: Boolean = true, val depth: Float = 0f, val focused: Boolean = false)
+internal data class ButtonState(
+    val enabled: Boolean = true,
+    val depth: Float = 0f,
+    val focused: Boolean = false,
+    val selected: Boolean = false,
+    val active: Boolean = false,
+    val bare: Boolean = false,
+)
 
 /**
  * How a button is drawn: its [fill], its [ink], its [frame] if it has one, its [gloss], how far down it goes, [drop],
@@ -56,7 +68,8 @@ internal data class ButtonLook(
  * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant. Only its drop moves
  * on its way back up: its fill, its ink and its relief stay those of a pressed button until it is back at rest, so that
  * a label and its fill never cross (in Original, the fill of a secondary button at rest is the colour of its label
- * pressed). A disabled button is flat and does not go down.
+ * pressed). An active button looks pressed, in place. A selected button is in the accent, bare or not; a bare one has
+ * no relief at rest. A disabled button is flat and does not go down.
  */
 internal fun buttonLook(
     family: ButtonFamily,
@@ -64,19 +77,22 @@ internal fun buttonLook(
     glosses: BloxGlosses,
     state: ButtonState,
 ): ButtonLook {
+    val bare = state.bare && !state.selected
     val bubble = when {
         !state.enabled -> colors.disabled
+        state.selected -> colors.selected
+        bare -> colors.bare
         family.isPrimary -> colors.primary
         else -> colors.secondary
     }
-    val down = state.enabled && state.depth > 0f
+    val held = state.enabled && (state.depth > 0f || state.active)
     return ButtonLook(
-        fill = if (down) bubble.pressedFill else bubble.fill,
-        ink = if (down) bubble.pressedInk else bubble.ink,
+        fill = if (held) bubble.pressedFill else bubble.fill,
+        ink = if (held) bubble.pressedInk else bubble.ink,
         frame = bubble.frame,
         gloss = when {
-            !state.enabled -> Gloss.None
-            down -> glosses.buttonPressed
+            held -> glosses.buttonPressed
+            !state.enabled || bare -> Gloss.None
             else -> glosses.button
         },
         drop = buttonDrop(state.enabled, state.depth),

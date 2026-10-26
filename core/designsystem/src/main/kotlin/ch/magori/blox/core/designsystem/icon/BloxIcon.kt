@@ -2,10 +2,14 @@ package ch.magori.blox.core.designsystem.icon
 
 /**
  * The icons of BloX (maquette, section Icônes), each drawn twice: [pixels], 8 lines of 8 pixels, full (`#`) or empty
- * (`.`), for the Original theme; [strokes], the path data of its strokes on a grid of 24 (as an SVG `d`), for the
- * others. [BloxIcon] (the composable) draws the one of the theme.
+ * (`.`), for the Original theme; [strokes], the path data of its strokes on a grid of 24 (as an SVG `d`), [strokeWidth]
+ * thick, for the others. [BloxIcon] (the composable) draws the one of the theme.
  */
-enum class BloxIcon(internal val pixels: List<String>, internal val strokes: String) {
+enum class BloxIcon(
+    internal val pixels: List<String>,
+    internal val strokes: String,
+    internal val strokeWidth: Float = STROKE_WIDTH,
+) {
     /** Jouer, Écouter, Reprendre. */
     PLAY(
         listOf("..#.....", "..##....", "..###...", "..####..", "..####..", "..###...", "..##....", "..#....."),
@@ -144,6 +148,20 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
     COMPOSE(
         listOf("..######", "..######", "..#....#", "..#..#.#", "..#.###.", "#####...", "####....", "........"),
         "M9 18V5l11-2v6M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM14 21h2.5l5-5-2.5-2.5-5 5z",
+    ),
+
+    /** The choice made (Utiliser, En jeu, the sheets): a check (pictogrammes.md, P5.87). */
+    CHECK(
+        listOf("........", ".......#", "......##", "#....##.", "##..##..", ".####...", "..##....", "........"),
+        "M4 12.5l5 5L20 6.5",
+        strokeWidth = 3f,
+    ),
+
+    /** A message of error (Enregistrer): an exclamation mark in a circle (pictogrammes.md, P5.87). */
+    ALERT(
+        listOf("..####..", ".#....#.", "#..##..#", "#..##..#", "#......#", "#..##..#", ".#....#.", "..####.."),
+        "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v6M12 16.5v.5",
+        strokeWidth = 2.5f,
     ),
 }
 

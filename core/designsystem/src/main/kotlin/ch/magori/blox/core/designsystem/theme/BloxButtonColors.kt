@@ -18,13 +18,17 @@ data class BubbleColors(
 
 /**
  * The colours of the bubble buttons of a variant (docs/design-system/README.md, Boutons): [primary] for Principal XL
- * and Principal, [secondary] for Secondaire and Icône, [disabled] for any of them that cannot be touched, and the
- * ring of the keyboard focus, [focus].
+ * and Principal, [secondary] for Secondaire and Icône, [selected] for any of them that is the choice made (a measure,
+ * Utiliser), [bare] for a disc that shows nothing but its pictogram until it is pressed (« … », − and + of the tempo,
+ * the cross of a message), [disabled] for any of them that cannot be touched, and the ring of the keyboard focus,
+ * [focus].
  */
 @Immutable
 data class BloxButtonColors(
     val primary: BubbleColors,
     val secondary: BubbleColors,
+    val selected: BubbleColors,
+    val bare: BubbleColors,
     val disabled: BubbleColors,
     val focus: Color,
 )
@@ -56,6 +60,14 @@ internal object BloxButtonColorSets {
             palette.buttonInk,
             palette.buttonOutline,
         ),
+        selected = BubbleColors(
+            palette.accent,
+            palette.accentInk,
+            palette.accentPressed,
+            palette.accentInk,
+            palette.accent,
+        ),
+        bare = BubbleColors(Color.Transparent, palette.ink, palette.buttonPressed, palette.buttonInk, null),
         disabled = flat(palette.panelInset, palette.label, palette.panelBorder),
         focus = palette.ink,
     )

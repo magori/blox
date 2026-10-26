@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -19,6 +20,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
@@ -156,6 +158,30 @@ internal class BubbleButtonTest {
             .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(family.minHeight)
+    }
+
+    @ParameterizedTest
+    @EnumSource(ButtonFamily::class, names = ["PRIMARY", "SECONDARY"])
+    @DisplayName("a compact button is 48 dp high, in the colours of its family")
+    fun aCompactButtonIsSmallerInTheColoursOfItsFamily(family: ButtonFamily) = extension.use {
+        // Given a compact button of the family, as wide as a measure
+        var fill = Color.Unspecified
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                fill = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, ButtonState()).fill
+                BubbleButton(
+                    family = family,
+                    onClick = {},
+                    compact = true,
+                    modifier = Modifier.testTag(TAG).width(160.dp),
+                ) { Text("Ok") }
+            }
+        }
+
+        // Then 48 dp high, filled as its family, 12 dp into it, halfway down, out of the way of its label
+        onNodeWithTag(TAG).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+        val image = onNodeWithTag(TAG).captureToImage().toPixelMap()
+        assertThat(image[with(density) { 12.dp.roundToPx() }, image.height / 2]).isEqualTo(fill)
     }
 
     @Test

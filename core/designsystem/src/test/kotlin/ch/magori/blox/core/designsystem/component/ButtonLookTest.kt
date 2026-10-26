@@ -1,5 +1,6 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
@@ -158,6 +159,78 @@ internal class ButtonLookTest {
         }
     }
 
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("variantsAndFamilies")
+    fun `a selected button is filled and framed in accent, its ink in accent ink, and pressed in accent pressed`(
+        theme: String,
+        family: ButtonFamily,
+        variant: Variant,
+    ) {
+        // When at rest and pressed
+        val atRest = buttonLook(family, variant.colors, variant.glosses, ButtonState(selected = true))
+        val pressed = buttonLook(family, variant.colors, variant.glosses, ButtonState(selected = true, depth = 1f))
+
+        // Then
+        val palette = variant.palette
+        assertThat(listOf(atRest.fill, atRest.frame, atRest.ink))
+            .containsExactly(palette.accent, palette.accent, palette.accentInk)
+        assertThat(listOf(pressed.fill, pressed.frame, pressed.ink))
+            .containsExactly(palette.accentPressed, palette.accent, palette.accentInk)
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("variantsAndFamilies")
+    fun `the ink of a selected button stands out from its fill by 4,5 to 1 at least, at rest and pressed`(
+        theme: String,
+        family: ButtonFamily,
+        variant: Variant,
+    ) {
+        // When
+        val looks = listOf(0f, 1f).map { depth ->
+            buttonLook(family, variant.colors, variant.glosses, ButtonState(selected = true, depth = depth))
+        }
+
+        // Then (WCAG 2.1, 1.4.3)
+        assertThat(looks).allSatisfy { look -> assertThat(contrast(look.ink, look.fill)).isGreaterThanOrEqualTo(4.5) }
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("variantsAndFamilies")
+    fun `an active button keeps the pressed fill at rest, without going down`(
+        theme: String,
+        family: ButtonFamily,
+        variant: Variant,
+    ) {
+        // Given the same button pressed
+        val pressed = buttonLook(family, variant.colors, variant.glosses, ButtonState(depth = 1f))
+
+        // When it is active, at rest (Écouter while it plays)
+        val active = buttonLook(family, variant.colors, variant.glosses, ButtonState(active = true))
+
+        // Then it looks pressed, in place
+        assertThat(active).isEqualTo(pressed.copy(drop = 0.dp))
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a bare icon button has no fill, no frame and no gloss at rest, and takes button pressed when pressed`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When at rest and pressed
+        val atRest = buttonLook(ButtonFamily.ICON, variant.colors, variant.glosses, ButtonState(bare = true))
+        val pressed =
+            buttonLook(ButtonFamily.ICON, variant.colors, variant.glosses, ButtonState(bare = true, depth = 1f))
+
+        // Then nothing but its glyph at rest
+        assertThat(atRest.fill).isEqualTo(Color.Transparent)
+        assertThat(atRest.frame).isNull()
+        assertThat(atRest.gloss).isEqualTo(Gloss.None)
+        // And a disc of button pressed when pressed, without a frame
+        assertThat(pressed.fill).isEqualTo(variant.palette.buttonPressed)
+        assertThat(pressed.frame).isNull()
+    }
+
     /** A variant of a theme: its palette, the colours of its buttons and its reliefs. */
     internal class Variant(val palette: BloxPalette, val colors: BloxButtonColors, val glosses: BloxGlosses)
 
@@ -169,6 +242,9 @@ internal class ButtonLookTest {
             "Couleurs, nuit" to
                 Variant(BloxPalettes.ColorfulDark, BloxButtonColorSets.ColorfulDark, BloxGlossSets.ColorfulDark),
         )
+
+        @JvmStatic
+        fun variants(): List<Arguments> = VARIANTS.map { (theme, variant) -> Arguments.of(theme, variant) }
 
         @JvmStatic
         fun variantsAndFamilies(): List<Arguments> = VARIANTS.flatMap { (theme, variant) ->

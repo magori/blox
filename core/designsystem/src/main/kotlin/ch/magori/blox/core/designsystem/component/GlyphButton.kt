@@ -28,7 +28,8 @@ private const val DOT_RADIUS = 0.09f
 
 /**
  * A button of the family Icône that shows a glyph alone, drawn by [glyph] in the ink of the button in a box of
- * [IconSizes.alone], on a disc of 48 dp; TalkBack reads [description].
+ * [IconSizes.alone], on a disc of 48 dp; TalkBack reads [description]. [selected], [active] and [bare] as for the
+ * button of an icon.
  */
 @Composable
 fun GlyphButton(
@@ -36,9 +37,12 @@ fun GlyphButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    selected: Boolean = false,
+    active: Boolean = false,
+    bare: Boolean = false,
     glyph: DrawScope.(ink: Color) -> Unit,
 ) {
-    AloneButton(description, onClick, enabled, modifier) {
+    AloneButton(description, onClick, enabled, selected, active, bare, modifier) {
         val ink = LocalContentColor.current
         Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { glyph(ink) })
     }
@@ -46,7 +50,10 @@ fun GlyphButton(
 
 /**
  * A button of the family Icône that shows [icon] alone, [IconSizes.alone] square, in the ink of the button, on a disc
- * of 48 dp; TalkBack reads [description], once: the icon itself has none.
+ * of 48 dp; TalkBack reads [description], once: the icon itself has none. [selected], the choice made (Utiliser, En
+ * jeu), it is filled and framed in `accent`; [active], at work (Écouter while it plays), it keeps its pressed fill
+ * without going down; [bare] (« … », − and + of the tempo, the cross of a message), it has neither fill, nor frame,
+ * nor relief until it is pressed.
  */
 @Composable
 fun GlyphButton(
@@ -55,26 +62,38 @@ fun GlyphButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    selected: Boolean = false,
+    active: Boolean = false,
+    bare: Boolean = false,
 ) {
-    AloneButton(description, onClick, enabled, modifier) {
+    AloneButton(description, onClick, enabled, selected, active, bare, modifier) {
         BloxIcon(icon, Modifier.testTag(GLYPH_BUTTON_ICON_TAG), size = IconSizes.alone)
     }
 }
 
-/** A bubble button of the family Icône that shows [content] alone; TalkBack reads [description]. */
+/**
+ * A bubble button of the family Icône that shows [content] alone, [selected], [active] and [bare] or not; TalkBack
+ * reads [description].
+ */
 @Composable
 private fun AloneButton(
     description: String,
     onClick: () -> Unit,
     enabled: Boolean,
+    selected: Boolean,
+    active: Boolean,
+    bare: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
     BubbleButton(
         family = ButtonFamily.ICON,
         onClick = onClick,
-        enabled = enabled,
         modifier = modifier.semantics { contentDescription = description },
+        enabled = enabled,
+        selected = selected,
+        active = active,
+        bare = bare,
     ) {
         content()
     }
