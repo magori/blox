@@ -1,6 +1,8 @@
 package ch.magori.blox.feature.locksmith
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasTextExactly
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -92,6 +94,33 @@ internal class LocksmithScreenTest {
 
         // Then
         runOnIdle { assertThat(touched).containsExactly("back") }
+    }
+
+    @Test
+    @DisplayName("the journey of the benchmark finds a hole, Place and the first tile by their tags")
+    fun theJourneyFindsAHolePlaceAndTheFirstTileByTheirTags() = extension.use {
+        // Given
+        showLocksmith(start)
+
+        // Then
+        assertThat(onAllNodes(hasTestTag("locksmith_cell_hole")).fetchSemanticsNodes()).isNotEmpty()
+        onNode(hasTestTag("locksmith_place")).assertExists()
+        onNode(hasTestTag("locksmith_tile_0")).assertExists()
+    }
+
+    @Test
+    @DisplayName("once aimed, the cells of the preview are tagged as such, no longer as the hole")
+    fun onceAimedTheCellsOfThePreviewAreTaggedAsSuch() = extension.use {
+        // Given: the selected piece aimed at a cell of the hole
+        val state = LocksmithUiState(level = 1, game = start, aim = start.padlock.hole.first())
+        val preview = checkNotNull(state.preview).cells.filter { it.isInside }
+
+        // When
+        setContent { LocksmithScreen(state = state, actions = LocksmithActions.None) }
+
+        // Then
+        onAllNodes(hasTestTag("locksmith_cell_preview")).assertCountEquals(preview.size)
+        onAllNodes(hasTestTag("locksmith_cell_hole")).assertCountEquals(start.padlock.hole.count { it !in preview })
     }
 
     /** The screen of [game], each action that matters here noted in [touched] by its name. */
