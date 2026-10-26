@@ -251,8 +251,8 @@ qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
 (`BloxPalettes.ColorfulLight`, `ColorfulDark`) prennent les valeurs de
 [`tokens.json`](design-system/tokens.json), seule source (ADR 0019) : le plugin de convention
 `blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
-compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
-`cell-ground` et `grid-line` (grille de l'éditeur, P5.88). Les jetons des pièces sont comparés
+compare chaque jeton à sa propriété ; une liste des jetons non codés, avec leur raison, est prévue mais vide
+(depuis P5.88, `cell-ground` et `grid-line` font la grille de l'éditeur). Les jetons des pièces sont comparés
 dans `core:board` (`PieceTokensTest`), avec le même lecteur, partagé par les doublures de test de
 `core:designsystem`.
 Le schéma Material part de la base claire ou sombre selon la variante, les icônes des barres système aussi
@@ -506,7 +506,12 @@ couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4
 valeurs Couleurs ci-dessous sont celles de la v1 : depuis P5.57, celles du jour et de la nuit
 viennent de `tokens.json` (`melody`, `bass`, `danger`…). De jour, la partie tenue d'une note,
 pastel, ne se détache de la case qu'à 2,1 à 2,3:1 : elle est bordée en haut et en bas, sur 2 dp,
-dans la couleur de sa piste, qui s'en détache d'au moins 3:1.
+dans la couleur de sa piste, qui s'en détache d'au moins 3:1. Depuis P5.88, les cases de la grille sont en `cellGround`
+et séparées par des lignes `gridLine` (jetons `cell-ground` et `grid-line`), et ces contrastes se mesurent sur
+la case (`TrackColorsTest › a cell of the grid is drawn on the cell ground, between lines of the grid, the notes of its tracks on it`,
+`TrackColorsTest › the lines of the grid stand out from its cells by night by a contrast of 1,3 to 1 at least` (de nuit,
+`grid-line` `#2A2D44`, P5.88 ; de jour, les lignes blanches se lisent contre les cases pâles),
+`TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`).
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|
