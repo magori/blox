@@ -119,7 +119,7 @@ et A, chaque partie d'un bloc.
 `BoardCanvasTest › TalkBack reads an empty board as empty`,
 `BoardCanvasTest › TalkBack reads the new height of the stack once a piece locks on top of it`,
 `BoardCanvasTest › the painters are not built again when a piece locks and the stack grows`,
-`GameScreenTest › TalkBack reads the board, the score, the next piece, the arrows, then B and A, each part as a whole`.
+`GameScreenTest › TalkBack reads the board, the next piece, the score, the arrows, then B and A, each part as a whole`.
 Vues : V2, V3. À essayer avec TalkBack sur un téléphone.
 ## Tirage des pièces
 

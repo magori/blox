@@ -320,7 +320,7 @@ lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches son
 composant non textuel), tenue ou non. La touche A est cadrée en `accentPressed` : l'accent seul ne
 se détache de la page du jour qu'à 2,3:1. Dans le thème Original, le cadre a la couleur du bouton
 (3,31:1 contre la page) : rien ne change à l'œil. Le bouton pause de la barre du haut porte les
-couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
+disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'une touche au repos, P2.23).
 
 **Tests :** `KeyColorsTest › a held key stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
@@ -333,8 +333,6 @@ couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
 `KeyColorsTest › a held key keeps the outline it has at rest`,
 `KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,
 `KeyDropTest › a held key goes 2 dp down`,
-`PauseButtonColorsTest › the pause button stands out from the page by its outline, by a contrast of 3 to 1 at least`,
-`PauseButtonColorsTest › the pause button has the face and the ink of a button, its glyph standing out by 3 to 1 at least`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
