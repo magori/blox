@@ -2,6 +2,9 @@ package ch.magori.blox.feature.home
 
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -31,6 +34,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -66,6 +70,9 @@ internal class SettingsScreenTest {
 
     /** What the page asked for, in order, each answer named by the action it calls. */
     private val asked = mutableListOf<String>()
+
+    /** What the page shows; a test may change it once the page is shown. */
+    private var shown by mutableStateOf<SettingsUiState?>(null)
 
     @Test
     @DisplayName("the back arrow, 48 dp, read Retour, goes back to the home screen")
@@ -270,26 +277,58 @@ internal class SettingsScreenTest {
     }
 
     @Test
-    @DisplayName("Effacer, under its heading Record, beside Record du Classique, asks to clear the record")
+    @DisplayName(
+        "Effacer, beside Record du Classique, read once as « Effacer le record du Classique », asks to clear it",
+    )
     fun effacerAsksToClearTheRecord() = extension.use {
-        // Given
-        showSettingsScreen()
+        // Given a phone of 360 dp, in a normal font
+        showSettingsScreen(width = NARROW_PHONE)
 
-        // Then
+        // Then the label above, beside the button, which says it all: TalkBack reads the row once
         val heading = onNodeWithText("Record")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
             .getUnclippedBoundsInRoot()
-        val label = onNodeWithText("Record du Classique").getUnclippedBoundsInRoot()
+        val labelNode = onNode(hasText("Record du Classique"), useUnmergedTree = true)
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility))
+        val label = labelNode.getUnclippedBoundsInRoot()
+        val effacer = onNode(hasContentDescription("Effacer le record du Classique") and hasClickAction())
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        val effacerBounds = effacer.getUnclippedBoundsInRoot()
         assertThat(label.top).isGreaterThanOrEqualTo(heading.bottom)
+        assertThat(effacerBounds.left).isGreaterThanOrEqualTo(label.right)
+        assertThat(effacerBounds.top).isLessThan(label.bottom)
 
         // When
-        onNode(hasText("Effacer") and hasClickAction())
-            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
-            .performScrollTo()
-            .performClick()
+        effacer.performScrollTo().performClick()
 
         // Then nothing cleared yet: the page asks first
         runOnIdle { assertThat(asked).containsExactly("clear record") }
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 360 dp, Effacer goes under Record du Classique, its words whole")
+    fun inALargeFontEffacerGoesUnderItsLabel() = extension.use {
+        // Given
+        showSettingsScreen(width = NARROW_PHONE, fontScale = 2f, kind = BloxThemeKind.ORIGINAL)
+
+        // Then
+        val label = onNode(hasText("Record du Classique"), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val effacer = onNode(hasContentDescription("Effacer le record du Classique") and hasClickAction())
+            .getUnclippedBoundsInRoot()
+        assertThat(effacer.top).isGreaterThanOrEqualTo(label.bottom)
+        assertWordsWhole(textLayout("Record du Classique"))
+    }
+
+    @Test
+    @DisplayName("while the clear is written, the window stays open and both its answers are disabled")
+    fun whileTheClearIsWrittenTheWindowWaits() = extension.use {
+        // Given
+        showSettingsScreen(uiState.copy(recordClearing = RecordClearing.CLEARING))
+
+        // Then
+        onNodeWithText("Effacer le record ?").assertExists()
+        onNode(hasText("Garder le record") and hasClickAction()).assertIsNotEnabled()
+        onNode(hasText("Effacer le record") and hasClickAction()).assertIsNotEnabled()
     }
 
     @Test
@@ -316,14 +355,21 @@ internal class SettingsScreenTest {
     }
 
     @Test
-    @DisplayName("once cleared, the page says « Record effacé », read by TalkBack as it shows, and the window is gone")
+    @DisplayName(
+        "once cleared, the page says « Record effacé » in a live region there from the start, and the window is gone",
+    )
     fun onceClearedThePageSaysRecordEfface() = extension.use {
-        // Given
-        showSettingsScreen(uiState.copy(recordClearing = RecordClearing.CLEARED))
+        // Given the window that asks: the live region is there, silent
+        showSettingsScreen(uiState.copy(recordClearing = RecordClearing.CLEARING))
+        val live = onNode(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        live.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
 
-        // Then
-        onNodeWithText("Record effacé")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        // When the record is cleared
+        shown = uiState.copy(recordClearing = RecordClearing.CLEARED)
+
+        // Then the same region says it, so that TalkBack announces a change, not a node that the focus coming back
+        // from the window would cover
+        live.assert(SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString("Record effacé"))))
         onNodeWithText("Effacer le record ?").assertDoesNotExist()
     }
 
@@ -370,11 +416,12 @@ internal class SettingsScreenTest {
             onKeepRecord = { asked += "keep record" },
             onClearRecordConfirmed = { asked += "clear record confirmed" },
         )
+        shown = state
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
                 BloxTheme(kind = kind) {
-                    SettingsScreen(modifier = Modifier.width(width), uiState = state, actions = actions)
+                    SettingsScreen(modifier = Modifier.width(width), uiState = shown, actions = actions)
                 }
             }
         }

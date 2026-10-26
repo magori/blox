@@ -411,6 +411,33 @@ Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
 `SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
 captures `Switches*`. Vues : V21, V31.
 
+**Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
+et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
+effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
+converti en `Volume`), Vibrations, Vibration des touches (« Un léger toucher à chaque touche ») ; sans vibreur, les
+deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Valable dès la partie suivante. ». Un
+réglage allumé se fait sentir une fois, après un enregistrement réussi : la rotation pour les effets, la
+vibration des lignes ou d'une touche pour les vibrations. Record : `SettingActionRow`, Effacer en bout de ligne
+(dessous en grande police), lu « Effacer le record du Classique » ; il ouvre une `ConfirmWindow` (générique,
+`DeleteWindow` réécrite dessus) qui propose d'abord « Garder le record » ; pendant l'écriture, la fenêtre reste
+ouverte, réponses désactivées ; un échec la garde ouverte et le dit ; un succès la ferme et « Record effacé »
+s'affiche dans une région vive présente dès l'ouverture de la page. Effacer est un bouton `DANGER` (cadre et
+libellé `danger`, rempli pressé). Les curseurs gardent le pas sous le doigt pendant un glissé et ne demandent
+chaque pas qu'une fois.
+**Tests :** `SettingsViewModelTest › turning the sound effects on plays the rotation once`,
+`SettingsViewModelTest › turning a vibration on vibrates once`,
+`SettingsViewModelTest › clearing the record asks first, and keeping it changes nothing`,
+`SettingsViewModelTest › a confirmed clear clears the record and says « Record effacé »`,
+`SettingsViewModelTest › a clear that cannot be written keeps the window open and says it failed`,
+`SettingsViewModelTest › while the record is being cleared, the window stays open and answers nothing more`,
+`SettingsScreenTest › without a vibrator both vibrations are disabled and say « Cet appareil ne vibre pas »`,
+`SettingsScreenTest › the volume of the effects is disabled while the sound effects are off`,
+`SettingsScreenTest › once cleared, the page says « Record effacé » in a live region there from the start, and the window is gone`,
+`ConfirmWindowTest › the window asks its question as a heading, then offers the safe answer first, each calling its own`,
+`VolumeSliderTest › a drag asks for each step once, and the knob follows the finger while the value has not come back`,
+`ButtonLookTest › a danger button is framed and labelled in danger at rest, filled in danger pressed` ;
+captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
+
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
 pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp

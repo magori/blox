@@ -5,6 +5,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
@@ -60,9 +61,21 @@ internal class ConfirmWindowTest {
         onNode(hasText("Effacer le record") and hasClickAction()).assertExists()
     }
 
-    /** The window that asks whether to clear the record, [failed] once or not. */
+    @Test
+    @DisplayName("a window that waits for its answer to be written has both answers disabled")
+    fun aWindowThatWaitsHasItsAnswersDisabled() = extension.use {
+        // Given
+        showWindow(waiting = true)
+
+        // Then
+        onNode(hasText("Garder le record") and hasClickAction()).assertIsNotEnabled()
+        onNode(hasText("Effacer le record") and hasClickAction()).assertIsNotEnabled()
+    }
+
+    /** The window that asks whether to clear the record, [failed] once or not, [waiting] for its answer or not. */
     private fun ComposeContext.showWindow(
         failed: Boolean = false,
+        waiting: Boolean = false,
         onConfirm: () -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
@@ -76,6 +89,7 @@ internal class ConfirmWindowTest {
                     onDismiss = onDismiss,
                     danger = true,
                     failed = failed,
+                    waiting = waiting,
                 )
             }
         }

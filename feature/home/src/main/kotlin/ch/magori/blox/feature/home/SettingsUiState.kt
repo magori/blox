@@ -29,6 +29,9 @@ internal enum class RecordClearing {
     /** The window asks whether to clear the record, « Garder le record » first. */
     ASKED,
 
+    /** The clear is being written: the window stays open, its answers disabled, and nothing closes it. */
+    CLEARING,
+
     /** The record could not be cleared: the window, still open, says it failed. */
     FAILED,
 

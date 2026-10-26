@@ -162,8 +162,8 @@ fun WindowButton(
 
 /**
  * The two answers of a window: [dismiss] (« Annuler » unless told otherwise), then [confirm], filled in `accent`, or in
- * `danger` when it deletes ([danger]); [confirm] is disabled unless [confirmEnabled]. Side by side when each word of
- * their labels holds whole in half the width; one above the other otherwise, in the same order, rather than cut a word
+ * `danger` when it deletes ([danger]); [confirm] is disabled unless [confirmEnabled], [dismiss] unless
+ * [dismissEnabled]. Side by side when each word of their labels holds whole in half the width; one above the other otherwise, in the same order, rather than cut a word
  * or shrink a font made larger (« Annuler » in the pixel font, twice as large, on 360 dp).
  */
 @Composable
@@ -175,9 +175,10 @@ fun WindowAnswers(
     dismiss: String = stringResource(R.string.core_designsystem_window_cancel),
     confirmEnabled: Boolean = true,
     danger: Boolean = false,
+    dismissEnabled: Boolean = true,
 ) {
     val answers: @Composable (Modifier) -> Unit = { sizing ->
-        WindowButton(text = dismiss, onClick = onDismiss, modifier = sizing)
+        WindowButton(text = dismiss, onClick = onDismiss, enabled = dismissEnabled, modifier = sizing)
         WindowButton(
             text = confirm,
             onClick = onConfirm,

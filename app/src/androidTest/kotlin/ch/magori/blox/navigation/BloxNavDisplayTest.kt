@@ -6,6 +6,7 @@ import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
@@ -63,7 +64,7 @@ internal class BloxNavDisplayTest {
         runAndroidComposeUiTest<ComponentActivity> {
             // Given the home screen, level 7 chosen in place of the default level, 0 (UserPreferences.DEFAULT)
             showApp()
-            onNode(hasTestTag(START_LEVEL_TAG) and hasText("0")).assertIsSelected()
+            onNode(hasAnyAncestor(hasTestTag(START_LEVELS_TAG)) and hasText("0")).assertIsSelected()
             chooseStartLevel(7)
 
             // When
@@ -358,7 +359,9 @@ internal class BloxNavDisplayTest {
 
     /** Chooses the start level [level] on the home screen, by its cell: no other text of the screen can be taken for it. */
     private fun AndroidComposeUiTest<ComponentActivity>.chooseStartLevel(level: Int) {
-        onNode(hasTestTag(START_LEVEL_TAG) and hasText(level.toString())).performScrollTo().performClick()
+        onNode(
+            hasAnyAncestor(hasTestTag(START_LEVELS_TAG)) and hasText(level.toString()),
+        ).performScrollTo().performClick()
         settle()
     }
 
@@ -410,8 +413,8 @@ internal class BloxNavDisplayTest {
         /** A music of the player, chosen for the games. */
         const val GAME_MUSIC = "Thème du soir"
 
-        /** The tag of a start level cell of the home screen (`START_LEVEL_TAG` of feature:home, internal to it). */
-        const val START_LEVEL_TAG = "home_start_level"
+        /** The tag of the start levels of the home screen (`START_LEVELS_TAG` of feature:home, internal to it). */
+        const val START_LEVELS_TAG = "home_start_levels"
 
         /** Between two searches of the game over screen. */
         const val CHECK_MILLIS = 500L

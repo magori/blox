@@ -51,6 +51,8 @@
     <string name="feature_home_settings_record">Record</string>
     <string name="feature_home_classic_record">Record du Classique</string>
     <string name="feature_home_clear_record">Effacer</string>
+    <!-- Lu par TalkBack sur le bouton Effacer, seul : le libellé de la rangée est laissé de côté. -->
+    <string name="feature_home_clear_record_description">Effacer le record du Classique</string>
     <string name="feature_home_clear_record_title">Effacer le record ?</string>
     <string name="feature_home_clear_record_confirm">Effacer le record</string>
     <string name="feature_home_keep_record">Garder le record</string>

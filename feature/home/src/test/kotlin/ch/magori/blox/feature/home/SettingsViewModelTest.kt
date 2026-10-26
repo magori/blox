@@ -12,6 +12,7 @@ import ch.magori.blox.core.haptics.FakeHaptics
 import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.core.music.Volume
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -282,6 +283,69 @@ class SettingsViewModelTest {
             // Then
             assertThat(expectMostRecentItem()?.recordClearing).isEqualTo(RecordClearing.CLEARED)
             assertThat(highScores.record.value).isZero()
+        }
+    }
+
+    @Test
+    fun `while the record is being cleared, the window stays open and answers nothing more`() = runTest {
+        // Given a record whose clear takes its time, and the window that asks whether to clear it
+        val gate = CompletableDeferred<Unit>()
+        val highScores = FakeHighScoreRepository(initial = 12_340).apply { this.gate = gate }
+        val viewModel = settingsViewModel(highScores = highScores)
+
+        viewModel.uiState.test {
+            viewModel.onClearRecord()
+
+            // When the player confirms, then, while it is written, keeps the record and confirms again
+            viewModel.onClearRecordConfirmed()
+            assertThat(expectMostRecentItem()?.recordClearing).isEqualTo(RecordClearing.CLEARING)
+            viewModel.onKeepRecord()
+            viewModel.onClearRecordConfirmed()
+
+            // Then the window waits, the record cleared once
+            assertThat(viewModel.uiState.value?.recordClearing).isEqualTo(RecordClearing.CLEARING)
+            assertThat(highScores.clears).isEqualTo(1)
+
+            // When the clear is written
+            gate.complete(Unit)
+
+            // Then
+            assertThat(expectMostRecentItem()?.recordClearing).isEqualTo(RecordClearing.CLEARED)
+            assertThat(highScores.clears).isEqualTo(1)
+        }
+    }
+
+    @Test
+    fun `a clear is confirmed only from the window that asks`() = runTest {
+        // Given a record, no window open
+        val highScores = FakeHighScoreRepository(initial = 12_340)
+        val viewModel = settingsViewModel(highScores = highScores)
+
+        viewModel.uiState.test {
+            // When a confirmation comes without the window (a late tap)
+            viewModel.onClearRecordConfirmed()
+
+            // Then nothing is cleared
+            assertThat(expectMostRecentItem()?.recordClearing).isEqualTo(RecordClearing.NONE)
+            assertThat(highScores.clears).isZero()
+            assertThat(highScores.record.value).isEqualTo(12_340)
+        }
+    }
+
+    @Test
+    fun `a volume that cannot be saved leaves the saved volume shown, without crashing`() = runTest {
+        // Given a disk that refuses every write, both volumes full, as by default
+        val viewModel = settingsViewModel(FakeUserPreferencesRepository(failWrites = true))
+
+        viewModel.uiState.test {
+            // When each volume is moved
+            viewModel.onEffectsVolumeChanged(30)
+            viewModel.onMusicVolumeChanged(70)
+
+            // Then
+            val shown = expectMostRecentItem()
+            assertThat(shown?.effectsVolume).isEqualTo(100)
+            assertThat(shown?.musicVolume).isEqualTo(100)
         }
     }
 

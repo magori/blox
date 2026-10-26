@@ -1,13 +1,9 @@
 package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -16,8 +12,6 @@ import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.icon.BloxIcon
-import ch.magori.blox.core.designsystem.icon.IconSizes
-import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
@@ -42,15 +36,10 @@ fun SettingVolumeRow(
 ) {
     val palette = BloxTheme.palette
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .heightIn(min = BloxSizes.settingRow)
-            .padding(BloxSpaces.space2),
+        modifier = modifier.settingRow().padding(BloxSpaces.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(Modifier.size(BloxSizes.settingIcon), contentAlignment = Alignment.Center) {
-            BloxIcon(icon, size = IconSizes.alone, tint = palette.label)
-        }
+        SettingIcon(icon, tint = palette.label)
         Column(
             modifier = Modifier.padding(start = BloxSpaces.space3).weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),

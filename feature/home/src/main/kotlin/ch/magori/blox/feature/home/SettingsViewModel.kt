@@ -75,19 +75,23 @@ class SettingsViewModel(
 
     /** Asks whether to clear the record: the window opens. */
     internal fun onClearRecord() {
-        recordClearing.value = RecordClearing.ASKED
+        if (recordClearing.value != RecordClearing.CLEARING) recordClearing.value = RecordClearing.ASKED
     }
 
-    /** Keeps the record: the window closes, nothing changed. */
+    /** Keeps the record: the window closes, nothing changed; not while the clear is being written. */
     internal fun onKeepRecord() {
-        recordClearing.value = RecordClearing.NONE
+        if (recordClearing.value != RecordClearing.CLEARING) recordClearing.value = RecordClearing.NONE
     }
 
     /**
-     * Clears the record, as the player confirmed: the window closes on « Record effacé ». A record that cannot be
-     * written (a full disk) is kept, and the window stays open to say so, for the player to try again or keep it.
+     * Clears the record, as the player confirmed in the window (asked, or after a failure; any other confirmation, a
+     * late tap, is ignored). While it is written, the window stays open and answers nothing; then it closes on « Record
+     * effacé ». A record that cannot be written (a full disk) is kept, and the window stays open to say so, for the
+     * player to try again or keep it.
      */
     internal fun onClearRecordConfirmed() {
+        if (recordClearing.value != RecordClearing.ASKED && recordClearing.value != RecordClearing.FAILED) return
+        recordClearing.value = RecordClearing.CLEARING
         viewModelScope.launch {
             recordClearing.value = try {
                 highScores.clear()

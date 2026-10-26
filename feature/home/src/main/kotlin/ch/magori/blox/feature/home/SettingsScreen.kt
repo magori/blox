@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
@@ -149,7 +150,11 @@ private fun SoundsAndVibrations(
     }
 }
 
-/** « Record »: the record of the Classic mode and Effacer; once cleared, « Record effacé », read by TalkBack. */
+/**
+ * « Record »: the record of the Classic mode and Effacer, read once by TalkBack as « Effacer le record du Classique »;
+ * under the card, a live region, silent until the record is [cleared], then « Record effacé »: there from the start, so
+ * that TalkBack announces the change of its text, which the focus coming back from the window does not cover.
+ */
 @Composable
 private fun RecordSection(
     cleared: Boolean,
@@ -158,30 +163,35 @@ private fun RecordSection(
     Section(title = stringResource(R.string.feature_home_settings_record)) {
         Card {
             SettingActionRow(icon = BloxIcon.TROPHY, label = stringResource(R.string.feature_home_classic_record)) {
+                val name = stringResource(R.string.feature_home_clear_record_description)
                 DangerButton(
                     text = stringResource(R.string.feature_home_clear_record),
                     icon = BloxIcon.TRASH,
                     onClick = onClear,
+                    modifier = Modifier.semantics { contentDescription = name },
                 )
             }
         }
-        if (cleared) {
-            Note(
-                text = stringResource(R.string.feature_home_record_cleared),
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-            )
+        Box(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
+            if (cleared) Note(stringResource(R.string.feature_home_record_cleared))
         }
     }
 }
 
-/** The window that asks whether to clear the record, while it is asked or after it failed; the safe answer first. */
+/**
+ * The window that asks whether to clear the record: while it is asked, after it failed, and while the clear is written,
+ * its answers then disabled and nothing closing it (neither Back nor a touch outside); the safe answer first.
+ */
 @Composable
 private fun RecordWindow(
     clearing: RecordClearing,
     actions: SettingsActions,
 ) {
-    if (clearing != RecordClearing.ASKED && clearing != RecordClearing.FAILED) return
-    WindowDialog(onDismissRequest = actions.onKeepRecord) {
+    if (clearing != RecordClearing.ASKED && clearing != RecordClearing.FAILED && clearing != RecordClearing.CLEARING) {
+        return
+    }
+    val waiting = clearing == RecordClearing.CLEARING
+    WindowDialog(onDismissRequest = if (waiting) ({}) else actions.onKeepRecord) {
         ConfirmWindow(
             title = stringResource(R.string.feature_home_clear_record_title),
             dismiss = stringResource(R.string.feature_home_keep_record),
@@ -190,6 +200,7 @@ private fun RecordWindow(
             onDismiss = actions.onKeepRecord,
             danger = true,
             failed = clearing == RecordClearing.FAILED,
+            waiting = waiting,
         )
     }
 }

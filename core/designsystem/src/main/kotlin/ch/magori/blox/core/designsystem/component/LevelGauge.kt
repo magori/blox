@@ -56,11 +56,13 @@ fun LevelGauge(
     description: String,
     modifier: Modifier = Modifier,
 ) {
-    val value = SteppedValue(level, levels)
-    val latestValue by rememberUpdatedState(value)
+    val given = SteppedValue(level, levels)
+    val gesture = rememberStepGesture()
+    val value = gesture.shown(given)
+    val latestValue by rememberUpdatedState(given)
     val change = rememberStepChange(onLevelChange)
     Row(
-        modifier = modifier.stepSemantics(value, description, state = level.toString(), onValueChange = change),
+        modifier = modifier.stepSemantics(value, description, state = value.value.toString(), onValueChange = change),
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -70,7 +72,12 @@ fun LevelGauge(
             onClick = { change(value.decreased()) },
             glyph = Glyphs::minus,
         )
-        GaugeBars(value, Modifier.stepTouch(BarWidth / 2, LocalLayoutDirection.current, { latestValue }, change))
+        GaugeBars(
+            value,
+            Modifier.stepTouch(BarWidth / 2, LocalLayoutDirection.current, {
+                latestValue
+            }, gesture, change),
+        )
         StepButton(
             description = stringResource(R.string.core_designsystem_stepper_increase),
             enabled = value.canIncrease,
