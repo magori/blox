@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 202 / 303 | `█████████████░░░░░░░` **67 %** |
+| **Général** | 203 / 303 | `█████████████░░░░░░░` **67 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1283,8 +1283,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   bande des accords, message, Indice et Recommencer, tuiles des pièces, tourner, Poser ; toucher qui
   vise, pose par un second toucher, reprend une pièce posée ; aperçu, cases fautives barrées,
   indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
-- [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
-  effets sonores respecté. Après P7.8, P7.9 et P7.12.
+- [x] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
+  effets sonores respecté. Après P7.8, P7.9 et P7.12. La bande des accords est celle de P7.12 ; sa paire V–I
+  reste en P7.20.
 - [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
   étant faits en P7.12. Après P7.7 et P7.13.
 - [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure

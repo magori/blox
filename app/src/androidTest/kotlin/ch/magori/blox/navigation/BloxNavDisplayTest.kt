@@ -526,6 +526,7 @@ internal class BloxNavDisplayTest {
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
+        val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
         val settingsFactory = SettingsViewModel.Factory(
             settingsPreferences ?: preferences,
             highScores,
@@ -543,7 +544,7 @@ internal class BloxNavDisplayTest {
                         myMusicsFactory,
                         settingsFactory,
                         deletedMusics,
-                        LocksmithViewModel.Factory(),
+                        locksmithFactory,
                     )
                 } else {
                     BloxNavDisplay(
@@ -553,7 +554,7 @@ internal class BloxNavDisplayTest {
                         myMusicsFactory,
                         settingsFactory,
                         deletedMusics,
-                        LocksmithViewModel.Factory(),
+                        locksmithFactory,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
