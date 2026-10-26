@@ -48,6 +48,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
+| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | à dessiner (P7.16) ; prototype d'origine « Idée · Le Serrurier » |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
@@ -148,10 +149,10 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   niveaux en deux lignes de 5 (0 à 4, puis 5 à 9 ; P5.29, décision du développeur), en cellules
   égales d'au moins 48 dp de large et de haut à 360 dp, écart de 4 dp ; une dernière ligne
   incomplète s'aligne sous les colonnes du dessus ; un seul groupe de boutons radio, lu de 0 à 9
-  (`HomeUiStateTest › the start levels 0 to 9 stand on two rows of five, 0 to 4 then 5 to 9`,
-  `HomeUiStateTest › a last row of fewer than five start levels holds those left, in order`,
-  `HomeUiStateTest › five start levels stand on a single full row`,
-  `HomeUiStateTest › eleven start levels stand on three rows, the last holding a single level`,
+  (`ChoiceRowsTest › ten choices in five columns stand on two rows of five, 0 to 4 then 5 to 9`,
+  `ChoiceRowsTest › a last row of fewer choices than columns holds those left, in order`,
+  `ChoiceRowsTest › as many choices as columns stand on a single full row`,
+  `ChoiceRowsTest › eleven choices in five columns stand on three rows, the last holding a single choice`,
   `HomeScreenTest › the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another`,
   `HomeScreenTest › a last row of fewer than five start levels is aligned on the cells of the row above, as wide`,
   `HomeScreenTest › TalkBack reads the start levels as one group of radio buttons, from 0 to 9`) ;
@@ -320,7 +321,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
   `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
-  `SettingsScreenTest › in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp`,
+  `SettingsScreenTest › in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least`,
   `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen`,
   `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,
   `SettingsScreenTest › while the saved settings are not read, the page shows its back arrow and its title, and no switch`,
@@ -333,9 +334,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SettingsViewModelTest › the factory builds the settings page on the settings of the application`,
   `BloxNavDisplayTest › the gear of the home screen opens the settings, whose switches save, and Retour goes back home`,
   `BloxNavDisplayTest › on the settings, the system back goes back to the home screen`,
-  `SettingColorsTest › the label of a setting stands out from its row by a contrast of 4,5 to 1 at least`,
-  `SettingColorsTest › a switch off, its outline and its thumb, stands out from its row by a contrast of 3 to 1 at least`,
-  `SettingColorsTest › a switch is framed in button outline, in ink in Original, standing out from its row by 3 to 1`.
+  `SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
+  `SwitchLookTest › the thumb stands out from its track by 3 to 1, on and off, and the check from the thumb`,
+  `SwitchLookTest › the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`.
 
 ## Icônes
 

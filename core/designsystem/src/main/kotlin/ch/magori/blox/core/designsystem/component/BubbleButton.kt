@@ -191,7 +191,7 @@ private fun labelStyle(family: ButtonFamily): TextStyle {
  * it down, then back up. [returnTicks] is where reduced effects (P5.71) may ask for no return at all.
  */
 @Stable
-private class PressMotion(private val returnTicks: Int) {
+internal class PressMotion(private val returnTicks: Int) {
     private var pressed by mutableStateOf(false)
     private var ticksSinceRelease by mutableIntStateOf(returnTicks)
 
@@ -224,7 +224,7 @@ private class PressMotion(private val returnTicks: Int) {
 
 /** The [PressMotion] of the button of [interactionSource], fed by each of its presses, releases and cancels. */
 @Composable
-private fun rememberPressMotion(interactionSource: InteractionSource): PressMotion {
+internal fun rememberPressMotion(interactionSource: InteractionSource): PressMotion {
     val motion = remember { PressMotion(BloxMotion.press) }
     LaunchedEffect(interactionSource) {
         val presses = mutableListOf<PressInteraction.Press>()
@@ -251,20 +251,4 @@ private fun rememberPressMotion(interactionSource: InteractionSource): PressMoti
     }
     LaunchedEffect(motion.releases) { motion.comeBack() }
     return motion
-}
-
-/** Draws [ring], if any, around [shape], off its edge: drawn outside the bounds, it takes no room. Built once a size. */
-private fun Modifier.focusRing(
-    ring: FocusRing?,
-    shape: Shape,
-): Modifier = if (ring == null) {
-    this
-} else {
-    drawWithCache {
-        val width = ring.width.toPx()
-        val outline = grownOutline(shape, size, ring.gap.toPx() + width / 2, layoutDirection, this)
-        val path = Path().apply { addOutline(outline) }
-        val stroke = Stroke(width)
-        onDrawBehind { drawPath(path, ring.color, style = stroke) }
-    }
 }

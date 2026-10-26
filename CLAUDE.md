@@ -41,7 +41,7 @@ TDD) et `/revue [branche|fichier]` (revue des changements selon ces conventions)
 
 ## TDD strict
 
-Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game` et `core:music`,
+Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game`, `core:music` et `core:locksmith`,
 et pour toute logique testable ailleurs :
 
 1. **Rouge** : écrire un seul test qui échoue, pour la plus petite règle suivante. Le lancer
@@ -59,6 +59,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ```bash
 ./gradlew :core:game:test       # domaine (JUnit 5, JVM, sans émulateur)
 ./gradlew :core:music:test      # partitions
+./gradlew :core:locksmith:test  # le Serrurier
 ./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
 ./gradlew ktlintCheck           # style Kotlin (ktlintFormat corrige)
 ./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
@@ -129,7 +130,7 @@ lui-même.
 
 | Type de module | Plugin(s) à appliquer | Tests fournis par le plugin |
 |---|---|---|
-| Kotlin pur (`core:game`, `core:music`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
+| Kotlin pur (`core:game`, `core:music`, `core:locksmith`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`, `core:haptics`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`, `core:board`) | `blox.android.library` + `blox.android.library.compose` | idem |
 | Feature (`feature:cartridges`, `feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
@@ -160,6 +161,8 @@ lui-même.
 
 - `core:game` et `core:music` : **aucune dépendance** (ni Android, ni coroutines). Une nouvelle
   dépendance demande un ADR.
+- `core:locksmith` : seulement `core:game` et `core:music`, en `api` (ADR 0025), ni
+  Android ni coroutines. Il suit le TDD strict comme eux.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
   assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
   extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011). La
@@ -213,7 +216,8 @@ du Classique, qui doit rester vert (ADR 0015).
   `Score` est la partition de `core:music`), `LinesCleared`, `StackDanger`. Mode Moderne :
   `Hold` (réserve), `HardDrop` (chute instantanée), `Ghost` (pièce fantôme), `LockDelay` (délai
   de verrouillage), `Bag` (sac de 7), `TSpin`, `Combo`, `BackToBack` (enchaînement de coups
-  difficiles). Garder ces noms.
+  difficiles). Le Serrurier (`core:locksmith`) : `Padlock` (la serrure ; *lock* est le
+  verrouillage du Classique), les pièces posées étant des `Piece`. Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
@@ -246,7 +250,7 @@ Une tâche de [SUIVI.md](SUIVI.md) n'est terminée qu'après ces étapes, **dans
 La commande `/fin-de-tache` les déroule.
 
 1. **Tests verts.**
-   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test testDebugUnitTest`,
+   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
    ou une dépendance a changé ; si une interface a

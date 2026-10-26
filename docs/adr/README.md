@@ -7,7 +7,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | N° | Décision | Statut |
 |---|---|---|
 | [0001](0001-kotlin-compose-activite-unique.md) | Kotlin, Jetpack Compose, activité unique | Acceptée ; point « Navigation Compose » remplacé par 0011 |
-| [0002](0002-modularisation.md) | Modularisation `app` / `core` / `feature` et plugins de convention | Acceptée |
+| [0002](0002-modularisation.md) | Modularisation `app` / `core` / `feature` et plugins de convention | Acceptée ; amendée par 0025 |
 | [0003](0003-domaine-en-kotlin-pur.md) | Domaine en Kotlin pur, développé en TDD | Acceptée ; point « JUnit 4 côté Android » remplacé par 0009 |
 | [0004](0004-regles-nes-comme-reference.md) | Règles de la NES comme référence du mode Classique | Acceptée ; la promesse « Moderne sans toucher au moteur » est amendée par [0015](0015-un-moteur-des-capacites.md) |
 | [0005](0005-themes-hors-du-domaine.md) | Les thèmes restent hors du domaine | Acceptée ; amendée par 0023 |
@@ -27,8 +27,9 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0019](0019-jetons-depuis-tokens-json.md) | Les jetons viennent de `tokens.json`, un test garde le code aligné | Acceptée |
 | [0020](0020-un-theme-deux-variantes.md) | Un thème, des variantes ; Couleurs v2 remplace Couleurs ; une mise en page pour tous les thèmes | Acceptée |
 | [0021](0021-polices-couleurs-v2.md) | Polices de Couleurs v2 | Acceptée ; amende 0016 |
-| [0022](0022-choix-du-jeu-a-la-racine.md) | Choix du jeu : une feature à la racine de la pile | Acceptée ; amende 0011 |
+| [0022](0022-choix-du-jeu-a-la-racine.md) | Choix du jeu : une feature à la racine de la pile | Acceptée ; amende 0011 ; amendée par 0025 |
 | [0023](0023-rendu-du-plateau-dans-core-board.md) | Le rendu du plateau dans `core:board` | Acceptée ; amende 0005 |
 | [0024](0024-retours-de-jeu-et-effets-reduits.md) | Retours de jeu cadencés par les ticks, dessinés sans recomposition ; Effets réduits portés par le thème | Acceptée ; complète 0012 |
+| [0025](0025-le-serrurier.md) | Le Serrurier : un second jeu, `core:locksmith` et `feature:locksmith` | Acceptée ; amende 0002 et 0022 |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).
