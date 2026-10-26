@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 179 / 240 | `███████████████░░░░░` **75 %** |
+| **Général** | 180 / 240 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -843,7 +843,7 @@ composants.
   `minus is disabled at the lowest step and plus at the highest`,
   `TalkBack reads one slider with its value and moves it one step at a time`,
   `each bar of the gauge is 8 dp wide and from 8 to 26 dp high, in accent up to the value` ; captures.
-- [ ] **P5.63** Groupe de choix (composant Choice) : `ChoiceGroup` (cadre `button-outline` autour du groupe,
+- [x] **P5.63** Groupe de choix (composant Choice) : `ChoiceGroup` (cadre `button-outline` autour du groupe,
   segment retenu en `accent` avec coche, segment indisponible avec `BIENTÔT`) ; remplace `Choice`, `ChoiceRow`,
   `ChoiceCheck` et `choiceColors` (`feature:home`). Après P5.60.
   Cas : `exactly one segment is selected, checked and in accent`,

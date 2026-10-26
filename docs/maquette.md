@@ -137,10 +137,10 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   niveaux en deux lignes de 5 (0 à 4, puis 5 à 9 ; P5.29, décision du développeur), en cellules
   égales d'au moins 48 dp de large et de haut à 360 dp, écart de 4 dp ; une dernière ligne
   incomplète s'aligne sous les colonnes du dessus ; un seul groupe de boutons radio, lu de 0 à 9
-  (`HomeUiStateTest › the start levels 0 to 9 stand on two rows of five, 0 to 4 then 5 to 9`,
-  `HomeUiStateTest › a last row of fewer than five start levels holds those left, in order`,
-  `HomeUiStateTest › five start levels stand on a single full row`,
-  `HomeUiStateTest › eleven start levels stand on three rows, the last holding a single level`,
+  (`ChoiceRowsTest › ten choices in five columns stand on two rows of five, 0 to 4 then 5 to 9`,
+  `ChoiceRowsTest › a last row of fewer choices than columns holds those left, in order`,
+  `ChoiceRowsTest › as many choices as columns stand on a single full row`,
+  `ChoiceRowsTest › eleven choices in five columns stand on three rows, the last holding a single choice`,
   `HomeScreenTest › the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another`,
   `HomeScreenTest › a last row of fewer than five start levels is aligned on the cells of the row above, as wide`,
   `HomeScreenTest › TalkBack reads the start levels as one group of radio buttons, from 0 to 9`) ;
