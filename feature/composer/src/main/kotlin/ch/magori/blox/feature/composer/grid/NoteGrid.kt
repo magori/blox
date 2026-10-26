@@ -190,8 +190,9 @@ private fun BeatLine() {
 
 /**
  * A line of the grid: its name, then its eight cells, the gaps between them in the line of the grid. The name of a
- * line out of the scale is dimmer, and in italics: its colour is not its only cue. While a finger slides along the line, the cells it crosses are framed with the
- * [outline] of the column played; read in the draw phase, the frame recomposes nothing.
+ * line out of the scale is dimmer, and in italics: its colour is not its only cue. While a finger slides along the
+ * line, the cells it crosses are framed with the [outline] of the column played; read in the draw phase, the frame
+ * recomposes nothing.
  */
 @Composable
 private fun GridLine(

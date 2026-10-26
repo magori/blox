@@ -198,7 +198,7 @@ object BloxPalettes {
         cellDead = Color(0xFF2A2D3A),
         iris = IrisColors(start = Color(0xFFC6FF3D), middle = Color(0xFF3DFFD0), end = Color(0xFFA77BFF)),
         cellGround = Color(0xFF12131B),
-        gridLine = Color(0xFF141621),
+        gridLine = Color(0xFF2A2D44),
         melody = TrackColors(
             note = Color(0xFFA77BFF),
             held = Color(0xFF6B4FB0),

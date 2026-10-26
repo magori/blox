@@ -1,10 +1,12 @@
 package ch.magori.blox.feature.composer.grid
 
 import ch.magori.blox.core.designsystem.theme.BloxPalette
+import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.contrast
 import ch.magori.blox.core.designsystem.theme.namedPalettes
 import ch.magori.blox.feature.composer.model.Track
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
@@ -21,15 +23,21 @@ internal class TrackColorsTest {
         val colors = cellColors(palette, track)
 
         // Then: the ground and the lines are the tokens cell-ground and grid-line (PaletteTokensTest)
-        assertThat(colors).isEqualTo(
-            CellColors(
-                background = palette.cellGround,
-                line = palette.gridLine,
-                note = trackColors(palette, track).note,
-                held = heldPart(palette, track),
-                echo = trackColors(palette, track.other).note,
-            ),
-        )
+        assertThat(colors.background).isEqualTo(palette.cellGround)
+        assertThat(colors.line).isEqualTo(palette.gridLine)
+    }
+
+    @Test
+    fun `the lines of the grid stand out from its cells by night by a contrast of 1,3 to 1 at least`() {
+        // Given the night of Couleurs. Not the day: no line paler than its pale cells reaches 1.3:1, white reads 1.07:1,
+        // and its white lines read against the pale cells and the page all the same
+        val palette = BloxPalettes.ColorfulDark
+
+        // When
+        val colors = cellColors(palette, Track.MELODY)
+
+        // Then: a decoration, below the 3:1 of a graphical object, but seen, so that the columns can be counted
+        assertThat(contrast(colors.line, colors.background)).isGreaterThanOrEqualTo(1.3)
     }
 
     @ParameterizedTest(name = "{0}, {2}")
@@ -106,7 +114,8 @@ internal class TrackColorsTest {
 
         // Then (WCAG 2.1, 1.4.11: graphical objects): one of its two lines, the line or its halo, stands out from
         // whatever it is drawn against. No single colour does in Original, between its pale cells and its dark notes.
-        listOf(cellColors(palette, track).background, palette.page, notes.note, notes.held).forEach { around ->
+        val cell = cellColors(palette, track)
+        listOf(cell.background, cell.line, palette.page, notes.note, notes.held).forEach { around ->
             assertThat(maxOf(contrast(outline.line, around), contrast(outline.halo, around)))
                 .isGreaterThanOrEqualTo(3.0)
         }

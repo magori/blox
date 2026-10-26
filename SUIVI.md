@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 183 / 241 | `███████████████░░░░░` **76 %** |
+| **Général** | 184 / 241 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1014,7 +1014,7 @@ composants.
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.
-- [ ] **P5.88** Grille de l'éditeur en Couleurs v2 (`feature:composer`) : jetons `cell-ground` et `grid-line` de
+- [x] **P5.88** Grille de l'éditeur en Couleurs v2 (`feature:composer`) : jetons `cell-ground` et `grid-line` de
   `tokens.json`, listés comme non codés dans `PaletteTokensTest` (P5.57), à coder dans `BloxPalette` avec leur
   valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
   Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
