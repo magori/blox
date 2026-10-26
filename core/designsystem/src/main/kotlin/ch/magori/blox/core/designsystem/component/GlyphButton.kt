@@ -109,6 +109,33 @@ object Glyphs {
         }
     }
 
+    /** A dash: one step down. */
+    fun minus(
+        scope: DrawScope,
+        color: Color,
+    ) = with(scope) {
+        drawLine(
+            color,
+            Offset(size.width * 0.2f, size.height / 2),
+            Offset(size.width * 0.8f, size.height / 2),
+            size.width * GLYPH_STROKE,
+        )
+    }
+
+    /** A dash crossed upright: one step up. */
+    fun plus(
+        scope: DrawScope,
+        color: Color,
+    ) = with(scope) {
+        minus(this, color)
+        drawLine(
+            color,
+            Offset(size.width / 2, size.height * 0.2f),
+            Offset(size.width / 2, size.height * 0.8f),
+            size.width * GLYPH_STROKE,
+        )
+    }
+
     /** A cross: close. */
     fun close(
         scope: DrawScope,
