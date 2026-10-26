@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 195 / 257 | `███████████████░░░░░` **76 %** |
+| **Général** | 199 / 303 | `█████████████░░░░░░░` **66 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -38,6 +38,10 @@ périmètre, modifier la liste ci-dessous.
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
 | P7 | Le Serrurier, second jeu | En cours : domaine fait (`core:locksmith`), interface à faire |
+| P8 | Musique vivante, la musique du Classique qui suit la partie | Spécification faite ; à faire |
+| P9 | Graine du jour, les mêmes pièces pour tous chaque jour | Spécification faite ; à faire après P1.20 et P8 |
+| P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
+| P11 | Au tempo, la pièce tombe en rythme | Spécification faite ; à faire en dernier, après une mesure sur téléphone |
 
 ---
 
@@ -193,9 +197,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [x] **P1.19** Types des points et des « lignes d'un coup » pour `ScoringRule` : `LineClear`
   (lot P1.16 / P1.15) et `Points` (P1.12c, rendu par `ScoringRule`) ; `CLAUDE.md` dit `Points`.
-- [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
-  (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
-  premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).
+- [ ] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
+  Jardin (P10.7) : générateur maison dont la suite ne dépend pas de la version de Kotlin
+  (`kotlin.random.Random` ne garantit pas la sienne). `StableRandom` étend `kotlin.random.Random` ; `nextInt(n)`
+  tire sans biais, par tirage avec rejet. Point d'entrée **public** `ClassicRandomizer.stable(seed)`
+  (`explicitApi`), le constructeur `ClassicRandomizer(random)` restant `internal` ; un test fige les 20 premières
+  pièces de la graine 20261026 : la suite des pièces d'une graine devient un contrat (ADR 0026, qui amende
+  l'ADR 0014). Algorithme à choisir ici ([graine-du-jour.md](docs/graine-du-jour.md)) ; glossaire de `CLAUDE.md`
+  (`StableRandom`). Cas : `the same seed gives the same numbers`, `a number drawn in a range takes every value of
+  the range`, `the first 20 pieces of seed 20261026 are fixed`.
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
@@ -1301,6 +1311,212 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
 - [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
+
+## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
+
+Règles : [docs/musique-vivante.md](docs/musique-vivante.md). Architecture : ADR 0026. Un choix de musique du
+Classique, « Vivante », sans cartouche ni écran à lui ; les règles du jeu ne changent pas. Ordre : P8 d'abord,
+la Graine du jour l'impose.
+
+- [x] **P8.1** Spécification et décision : `docs/musique-vivante.md`, ADR 0026 (amende 0014 et 0022), vue V37
+  numérotée (à dessiner). Fait le 2026-10-26, avec les spécifications de P9 à P11 et les ADR 0027 et 0028.
+- [ ] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
+  même rang, au même facteur de tempo, sous le même jeton ; ajouté à `MusicPlayerContract` et au faux lecteur,
+  et à chaque étage du lecteur (`ChiptuneSequencer`, `FocusedMusicPlayer`, `MusicSwitch`) ; réservé aux
+  partitions, sans effet pour un `MusicFile` ; la partition demandée est préparée au tempo du moment (pour la
+  tendue, celui du danger), sans rendu à l'entrée en danger. Cas : `a score switched to starts on the next bar, at the same rank`, `a switch keeps the tempo factor and the
+  playback`, `a second switch before the bar line replaces the first`, `a switch while the music is stopped is
+  played at the resume`.
+- [ ] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
+  (`Category.EPIC`), de même longueur et de même tonique, par `MusicGenerator.generate`. Après P8.9. Cas : `a live
+  music is a calm music and a tense one`, `the calm and the tense music have the same number of bars`, `the calm
+  and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
+  depend on the tense one`.
+- [ ] **P8.4** `MusicChoice.LIVE` (`core:data`) et `scoreOf` (`app`) : le choix enregistré, qui demande de composer
+  les deux ambiances au lieu d'une partition fixe ; règles de sauvegarde. Cas : `the live choice is saved and read
+  back`, `the live choice asks for a live music rather than a score`. Après P8.3.
+- [ ] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
+  `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
+- [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
+  par `switchTo` ; facteur de tempo = min(1 + 0,02 × niveaux gagnés, 1,30) **[à vérifier]**, multiplié au × 1,25
+  du danger ; graine de la musique = graine de la partie ; chaque `LevelUp` déclenche un rendu, dont le coût est
+  à mesurer sur téléphone. Après P8.2, P8.3, P8.5. Cas : `a live game starts on the
+  calm music`, `entering the danger switches to the tense music`, `leaving the danger switches back to the calm
+  music`, `each level up speeds the music up by 2 percent, up to 1 point 3`, `the speed of the levels and the
+  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`.
+- [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
+  graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
+  ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
+- [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
+- [ ] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
+  Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
+  music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
+
+## P9 — Graine du jour (`core:game`, `core:data`, `feature:game`, `app`)
+
+Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0026 (amende 0014 et 0022).
+**Préalable : P1.20** (`StableRandom`, suite des pièces figée pour la graine 20261026), et la Musique vivante
+(P8), imposée. Écrans en Couleurs v2 seulement, jour et nuit.
+
+- [x] **P9.1** Spécification et décision : `docs/graine-du-jour.md`, amendement de l'ADR 0014 (la suite des pièces
+  d'une graine devient un contrat) dans l'ADR 0026, vues V38 et V39 numérotées (à dessiner). Fait le 2026-10-26.
+- [ ] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
+  téléphone. Cas : `the seed of a day is its date written year month day`, `the date is the local date of the
+  phone`, `two days give two seeds`.
+- [ ] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
+  en testFixtures : date en cours, essais, premier essai, meilleur ; un essai est compté **à son début**
+  **[à vérifier]** (premier essai à 0 tant qu'il n'est pas fini) ; règles de sauvegarde **[à vérifier]**. Cas :
+  `without a try there is no result of the day`, `a try is counted as soon as it starts`, `the first try is worth 0
+  until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
+  `every try is counted`, `a try of a newer date starts that date over`, `a try of an
+  older date is ignored`.
+- [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
+  `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
+  musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
+  compté à son début **[à vérifier]**, une partie restaurée après la mort du processus reste le même essai ; thème
+  Couleurs imposé et barres système (`systemBarVariant` connaît la variante, ADR 0026). Après P1.20, P8.6, P9.2,
+  P9.3. Cas : `a daily game starts at
+  level 5 whatever the level chosen`, `a daily game plays the live music whatever the music chosen`, `a daily game
+  draws the pieces of its seed`, `a daily game never enters the Classic records`, `replaying a daily game keeps
+  its seed, even after midnight`, `a daily game left before its end counts as a try`, `a daily game restored after
+  the process died is the same try`, `the bars of a daily game follow its colorful variant`.
+- [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
+  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
+  graine à minuit » ; en jeu, titre « GRAINE DU JOUR » et meilleur du jour (V39) ; fin de partie « MEILLEUR DU
+  JOUR », Rejouer, Copier ; TalkBack ; captures jour et nuit. Module à trancher ici (dans `feature:game`, ou une
+  feature à part, qui amenderait l'ADR 0002). Après P9.4.
+- [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
+  presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
+  U+202F, sans plafond ni zéros de tête. Cas : `the copied text gives the date, the first try,
+  the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
+  offered before the first try`. Après P9.3.
+- [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
+  colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
+  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5.
+- [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  Après P9.4.
+
+## P10 — Le Jardin musical, troisième jeu (`core:garden`, `feature:garden`)
+
+Règles : [docs/jardin-musical.md](docs/jardin-musical.md). Architecture : ADR 0027 (amende 0002 et 0022), sur le
+modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Couleurs v2 seulement, jour et nuit.
+
+- [x] **P10.1** Spécification et décision : `docs/jardin-musical.md`, ADR 0027, modules prévus dans
+  `docs/architecture.md`, vue V40 numérotée (à dessiner). Fait le 2026-10-26.
+- [ ] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
+  règle de 2 ; captures du Serrurier inchangées. Avant P10.10.
+- [ ] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
+  partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
+  paramètres (8 mesures pour l'éditeur, 2 pour le jardin), sans `Tempo` ni `Cell`, internes à `feature:composer`.
+  Avant P10.12.
+- [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+  `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de
+  `CLAUDE.md` ; `Garden` immuable (16 × 14, poser, refuser, reprendre, effacer) et `Garden.parse(ascii)`. Cas : `a
+  piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
+  refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
+  piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
+- [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
+  lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
+  plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
+  of its group`, `changing the mood keeps the pieces where they are`.
+- [ ] **P10.6** `Garden.toScore(mood)` : une case = une croche ; colonne par colonne, les cases d'une même pièce se
+  partagent la croche en arpège montant ; une voix par ligne à volume fixe et la basse **[à vérifier]**, sans
+  changer `core:music` ; durées exactes (la dernière part d'une croche partagée en prend le reste). Cas : `a cell
+  plays its note for its eighth`, `a piece with one cell per column plays its notes column after column`, `a
+  standing piece plays its notes as a rising arpeggio within the eighth`, `a column of three cells keeps the length
+  of the bar exact`, `two pieces in the same column sound together`, `an empty garden plays the bass alone`,
+  `fourteen notes at once never go above the peak of a generated music`.
+- [ ] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
+  20 candidats, note **[à vérifier]**. Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
+  composed garden holds 6 pieces placed without overlap`, `the best candidate is kept, the first one among equals`,
+  `a candidate does not depend on the draws of the previous ones`.
+- [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
+  case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
+  colorés ; jetons gardés par un test ; captures jour et nuit.
+- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+  `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
+  Après P10.4.
+- [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
+  22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
+  effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
+  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9.
+- [ ] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
+  lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
+  read back, its mood too`, `an unreadable garden gives an empty one`.
+- [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
+  lecture (`LoopPlayHead`) et pilule d'accord ; aperçu sonore par un ensemble fini d'effets jamais libérés
+  (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
+- [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
+  Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
+  le premier).
+- [ ] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
+  du jardin dans le design system publié (ADR 0019).
+- [ ] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
+  lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
+  8 ticks). Après P10.10, P10.12.
+
+## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
+
+Règles : [docs/regles-au-tempo.md](docs/regles-au-tempo.md). Architecture : ADR 0026 et ADR 0028 (amende 0012 et
+0015). En dernier : la phase commence par une mesure sur téléphone. Le Classique reste vert à chaque tâche ; P6
+reste gelée (`ScoringRule` intouchée, chevauchement avec P6.11 noté dans l'ADR 0028). Écran en Couleurs v2
+seulement, jour et nuit.
+
+- [x] **P11.1** Spécification et décision : `docs/regles-au-tempo.md`, ADR 0028, vue V41 numérotée (à dessiner).
+  Fait le 2026-10-26.
+- [ ] **P11.2** Mesure sur téléphone (sans code de production) : précision d'`AudioTrack.getTimestamp`, latence
+  (haut-parleur, casque filaire, Bluetooth), dérive entre horloge audio et horloge d'images ; fixe la fenêtre
+  « sur le temps » (N = 5 ou 6 ticks **[à vérifier]**) ; résultats dans la spécification et `JOURNAL.md`.
+- [ ] **P11.3** `Playback.heardNanos()` (`core:audio`) et ticks d'Au tempo nourris par le temps entendu, sans
+  plafond, repli sur l'horloge d'images (ADR 0028, amendement de l'ADR 0012) : le ViewModel lit `heardNanos()` à
+  chaque image ; temps monotone depuis `play`, tick 0 au premier échantillon entendu, reprise à la position
+  `tickCount mod phrase`. Après P11.2. Cas : `the heard time is the time of the music played, latency included`,
+  `a stopped playback has no heard time`, `the heard time never goes back, even when the music loops`, `the ticks
+  follow the heard time without a cap`, `the ticks stay in phase with the accompaniment after a pause`, `when the
+  music fails the ticks fall back on the frame clock without a jump`.
+- [ ] **P11.4** Extraire `DropTiming` de `Rules`, pur refactoring : `ClassicDropTiming` délègue à `GravityTable`,
+  tests du Classique verts ; parties de référence enregistrées avant l'extraction, pour la propriété de P11.8 ;
+  glossaire de `CLAUDE.md` (`DropTiming`). Cas
+  : `the classic drop timing follows the gravity table of the level`.
+- [ ] **P11.5** `Meter` (`core:game`, paquet `tempo`) : croche en ticks entiers, noire, mesure, phrase, temps et
+  mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
+  beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
+  beat`, `the tempo is 1800 over the ticks per eighth`.
+- [ ] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
+  falls one row on every eighth`, `a piece that appears between two eighths falls on the next one`, `the level does
+  not change the fall`, `the soft drop stays the one of the Classic`.
+- [ ] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
+  (dans `PieceLocked` ou l'état, à trancher) ; événements `OnBeat` et `CadenceCleared` ; + 80 et × 2 sur le temps
+  **[à vérifier]** ; le tick de verrouillage est retenu et la cadence appliquée au `LinesCleared` qui suit, ses
+  points lus par l'écart des `Points` ; glossaire de `CLAUDE.md` (`TempoScore`). Après P11.5. Cas : `lines locked
+  in bar 4 and cleared in bar 1 still make a cadence`, `a piece locked on the beat by the held soft drop earns 80 points`, `a piece
+  locked by gravity alone earns no beat bonus`, `a piece locked out of the window earns nothing`, `lines cleared on
+  the beat in bar 4 earn their points twice`, `lines cleared off the beat in bar 4 earn no cadence bonus`, `the
+  total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
+  locked`.
+- [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; propriété de non-régression du
+  Classique : les parties de référence de P11.4 rendent les mêmes états. Après P11.6. Cas : `tempo rules are the
+  classic rules but for the drop timing`, `the classic games recorded before the drop timing are played the same`.
+- [ ] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
+  temps/min, joués au facteur `18 / ticksPerEighth` ; préférence Métronome **[à vérifier]** (activé par défaut).
+  Cas : `the accompaniment clicks on every quarter, louder on beat 1`, `the bass plays I V vi IV, one bar each`, `the
+  tempo factor is 18 over the ticks per eighth`, `without the metronome the bass plays on`.
+- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `TempoRules`, horloge audio, accompagnement, total moteur +
+  bonus, records dans un fichier DataStore à part (inclus dans la sauvegarde **[à vérifier]**, `BackupRulesTest`) ;
+  `SteadyMusicDirection`, sans accélération (le danger ne change pas le tempo) ; thème Couleurs imposé et barres
+  système (`systemBarVariant` connaît la variante, ADR 0026) ; tempo de la v1 120 temps/min et départ au niveau 0
+  **[à vérifier]**. Après P11.3, P11.7, P11.8, P11.9. Cas : `a tempo game falls on the eighths of its tempo`, `a tempo
+  game enters only its own records`, `the score shown is the points plus the bonuses`, `the danger does not change
+  the tempo of a tempo game`.
+- [ ] **P11.11** Panneau des temps (V41) : titre « AU TEMPO » et son record, encarts TEMPO (4 disques, « MESURE
+  2/4 », bpm) et SUR LE TEMPS (« 12 / 40 »), autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 », reflet du
+  temps 1 (3 par seconde au plus), interrupteur Métronome dans la carte Pause, chacun en « Effets réduits » (ADR
+  0024) ; TalkBack ; captures jour et nuit. Après P11.10.
+- [ ] **P11.12** Cartouche « Au tempo » (`feature:cartridges`, `app`) : ouvre une partie ; parcours Macrobenchmark.
+  Après P11.10 et P9.7.
+- [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36.
 
 ---
 
