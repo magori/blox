@@ -16,6 +16,7 @@ import ch.magori.blox.feature.game.sidepanel.SidePanelColorfulPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelLargeFontPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelNoNextPiecePreview
 import ch.magori.blox.feature.game.topbar.GameTopBarLargeFontPreview
+import ch.magori.blox.feature.game.topbar.GameTopBarNewRecordLargeFontPreview
 import com.android.tools.screenshot.PreviewTest
 
 /*
@@ -55,6 +56,23 @@ private fun GameScreenPaused() = GameScreenPausedPreview()
 @Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
 @Composable
 private fun GameScreenLargeFont() = GameScreenLargeFontPreview()
+
+// The record beaten during the game (V28): NOUVEAU RECORD and the score in the top bar, the record bar full.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenNewRecord() = GameScreenNewRecordPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenNewRecordNight() = GameScreenNewRecordPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenNewRecordOriginal() = GameScreenNewRecordOriginalPreview()
 
 // Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
 
@@ -110,6 +128,11 @@ private fun GameScreenTooSmallLargeFont() = GameScreenTooSmallLargeFontPreview()
 @Preview(widthDp = 360, fontScale = 2f)
 @Composable
 private fun TopBarLargeFont() = GameTopBarLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, fontScale = 2f)
+@Composable
+private fun TopBarNewRecordLargeFont() = GameTopBarNewRecordLargeFontPreview()
 
 // The side column: a score beyond 999 999, a large font, no next piece.
 

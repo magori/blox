@@ -167,14 +167,25 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 ### V2 et V3 — Jeu (thèmes Original et Couleurs)
 - Même disposition dans les deux thèmes, seuls les styles changent (voir `docs/themes.md`).
 - Barre du haut : bouton pause, « MODE CLASSIQUE », record. Valeurs retenues en P2.6,
-  reportées sur la maquette (P2.16) : bouton pause de 48 dp au moins, en `button` avec le cadre `buttonOutline` des touches (P2.23), pictogramme
-  dessiné de 24 dp (deux barres d'un quart de la largeur, un quart d'écart, bords au pixel
-  entier) ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
+  reportées sur la maquette (P2.16) : bouton pause en disque de 48 dp (famille Icône des boutons bulles, P5.78 ; avant, en `button` cadré de
+  `buttonOutline`, P2.23), pictogramme de 24 dp ; titre centré, en gras, sur 2 lignes au plus ; record à droite, libellé 11 sp et
   valeur 18 sp comme la colonne latérale, sur 6 chiffres plafonnés à 999 999 (TalkBack lit la
   vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
-  entre les trois éléments.
-- Plateau 10 × 20 (cellules de 21 points à 390 dp, comme le code ; 24 sur l'ancienne maquette, P2.19) et colonne latérale : score, niveau, lignes,
-  pièce suivante. Valeurs retenues en P2.4, reportées sur la maquette (P2.13) : encarts
+  entre les trois éléments. Une fois le record battu (un score au-dessus d'un record supérieur à 0, P5.56),
+  « RECORD » devient l'autocollant NOUVEAU RECORD (`accent`, sur deux lignes s'il le faut, sans inclinaison en
+  Original) et la valeur suit le score ; rien ne bouge dans la barre (P5.78).
+- Plateau 10 × 20 (cellules de 21 points à 390 dp, comme le code, un peu moins depuis le cadre du plateau de P5.78 ; 24 sur l'ancienne maquette, P2.19) et colonne latérale : pièce suivante, score (avec sa barre de record de 4 dp, P5.78), lignes,
+  niveau ; lue dans cet ordre par TalkBack dans toutes les mises en page. Le plateau est cadré (`BoardFrame` :
+  2 dp de `panelBorder` et 6 dp du fond du plateau, dessinés dans les marges, sans changer la taille des cases
+  ni les seuils de fenêtre).
+  **Tests (P5.78) :** `GameViewModelTest › the record is beaten once the score is above a record above 0`,
+  `GameViewModelTest › without a record the game shows no new record`,
+  `GameViewModelTest › the record stays beaten once the game over saves the score as the record`,
+  `RecordBarTest › the record bar fills with the score up to the record`,
+  `RecordBarTest › the filled part of the record bar stands out from its track by 3 to 1 at least`,
+  `ShownRecordTest › once beaten the record shown follows the score, as the new record`,
+  `GameLayoutTest › the frame of the board stays within the width of the space, lined up with the top bar and the controls`,
+  `ScoreGridTest › the score above the board shows the next piece and the score, then the lines and the level, in order`. Valeurs retenues en P2.4, reportées sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
   ligne, réduite si la police du système est agrandie) ; aperçu de la pièce suivante dans un
   cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 16 dp (`md`, P5.59)
