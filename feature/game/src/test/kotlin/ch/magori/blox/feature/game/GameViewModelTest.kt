@@ -629,6 +629,53 @@ class GameViewModelTest {
         assertThat(viewModel.uiState.value.record).isEqualTo(100)
     }
 
+    @Test
+    fun `the record is beaten once the score is above a record above 0`() {
+        // Given a record of 100, and a game that scores 100 points per piece locked
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the score reaches the record
+        val even = playUntil(viewModel, "the score reaches the record") { viewModel.uiState.value.score.value == 100 }
+
+        // Then the record is not beaten yet
+        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+
+        // When the score passes it
+        playUntil(viewModel, "the score passes the record", firstFrame = even + ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.score.value > 100
+        }
+
+        // Then
+        assertThat(viewModel.uiState.value.recordBeaten).isTrue()
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("noRecords")
+    fun `without a record the game shows no new record`(records: FakeHighScoreRepository) {
+        // Given no record above 0: the first point would beat it, which says nothing (P5.56)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), records = records)
+
+        // When the game scores
+        playUntil(viewModel, "the game scores 200 points") { viewModel.uiState.value.score.value >= 200 }
+
+        // Then
+        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+    }
+
+    @Test
+    fun `the record stays beaten once the game over saves the score as the record`() {
+        // Given a game that beats the record of 100
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When it ends, its score saved as the new record
+        playUntilGameOver(viewModel)
+
+        // Then the record the screen shows is the score, still beaten: the top bar does not go back to « Record »
+        val over = viewModel.uiState.value
+        assertThat(over.record).isEqualTo(over.score.value)
+        assertThat(over.recordBeaten).isTrue()
+    }
+
     @ParameterizedTest(name = "{0}")
     @MethodSource("scoresOfChoices")
     fun `at the start of the game the music of the settings plays, at the normal tempo`(
@@ -1531,6 +1578,16 @@ class GameViewModelTest {
         fun scoresOfChoices(): List<Arguments> = listOf(
             argumentSet("Korobeiniki", MusicChoice.KOROBEINIKI, Scores.korobeiniki),
             argumentSet("the minuet", MusicChoice.MINUET, Scores.minuet),
+        )
+
+        /** Records without a record above 0: a record of 0, and records that never answer. */
+        @JvmStatic
+        fun noRecords(): List<Arguments> = listOf(
+            argumentSet("a record of 0", FakeHighScoreRepository(initial = 0)),
+            argumentSet(
+                "a record not read yet",
+                FakeHighScoreRepository().apply { highScoreFlow = MutableSharedFlow() },
+            ),
         )
 
         /** Every music the home screen may choose, none included: the music of the player plays instead of any. */

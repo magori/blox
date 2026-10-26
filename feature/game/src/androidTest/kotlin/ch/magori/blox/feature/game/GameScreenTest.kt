@@ -127,14 +127,53 @@ internal class GameScreenTest {
         recompositions.start()
     }
 
-    @Test
+    /** The record of the game, as the records give it, and whether the score beats it. */
+    internal enum class RecordShown(val change: (GameUiState) -> GameUiState) {
+        UNKNOWN({ it.copy(record = null) }),
+        SHOWN({ it.copy(record = 98_760) }),
+        BEATEN({ it.copy(record = 12_000, recordBeaten = true) }),
+    }
+
+    @ParameterizedTest
+    @EnumSource(RecordShown::class)
     @DisplayName("nothing on the screen recomposes when only the piece moves")
-    fun nothingOnTheScreenRecomposesWhenOnlyThePieceMoves() = extension.use {
+    fun nothingOnTheScreenRecomposesWhenOnlyThePieceMoves(record: RecordShown) = extension.use {
+        uiState = record.change(uiState)
         showGameScreen()
 
         movePiece(times = 10, moveDown)
 
         assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
+    @DisplayName("once the record is beaten, the top bar shows NOUVEAU RECORD and the score, read as the new record")
+    fun onceTheRecordIsBeatenTheTopBarShowsTheNewRecord() = extension.use {
+        // Given a game whose score of 12 340 is under the record
+        uiState = uiState.copy(record = 12_360)
+        showGameScreen()
+        onNodeWithContentDescription("Record : 12360").assertIsDisplayed()
+
+        // When the score beats it
+        runOnIdle { uiState = uiState.copy(score = Points(12_380), recordBeaten = true) }
+
+        // Then the sticker in place of the record, the score as its value: TalkBack reads them as one
+        onNodeWithContentDescription("Nouveau record : 12380").assertIsDisplayed()
+        onNodeWithContentDescription("Record : 12360").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the side column shows the next piece, then the score, the lines and the level, from the top")
+    fun theSideColumnShowsTheNextPieceFirst() = extension.use {
+        // Given a phone in portrait: the next piece in the side column
+        showGameScreen(DpSize(360.dp, 760.dp))
+
+        // When
+        val tops = listOf(NEXT, SCORE, LINES, LEVEL).map { onNode(it).fetchSemanticsNode().boundsInRoot.top }
+
+        // Then
+        assertThat(tops).isSorted()
+        assertThat(tops).doesNotHaveDuplicates()
     }
 
     @Test
@@ -310,6 +349,8 @@ internal class GameScreenTest {
         val BOARD = hasContentDescription("Plateau : pile de 3 rangées sur 20")
         val SCORE = hasContentDescription("Score : 12340")
         val NEXT = hasContentDescription("Suivante : pièce I")
+        val LINES = hasContentDescription("Lignes : 52")
+        val LEVEL = hasContentDescription("Niveau : 5")
         val LEFT = hasTestTag("control_left")
         val A = hasTestTag("control_a")
     }

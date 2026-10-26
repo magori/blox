@@ -333,8 +333,6 @@ couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
 `KeyColorsTest › a held key keeps the outline it has at rest`,
 `KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,
 `KeyDropTest › a held key goes 2 dp down`,
-`PauseButtonColorsTest › the pause button stands out from the page by its outline, by a contrast of 3 to 1 at least`,
-`PauseButtonColorsTest › the pause button has the face and the ink of a button, its glyph standing out by 3 to 1 at least`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.

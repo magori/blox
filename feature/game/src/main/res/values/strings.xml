@@ -37,6 +37,7 @@
     <string name="feature_game_top_title">Mode classique</string>
     <string name="feature_game_top_pause">Mettre en pause</string>
     <string name="feature_game_top_record">Record</string>
+    <string name="feature_game_top_new_record">Nouveau record</string>
     <!-- À la place du plateau, quand la fenêtre est trop petite pour jouer (cellules de moins de 8 dp, P2.24). -->
     <string name="feature_game_too_small">Agrandissez la fenêtre</string>
 </resources>

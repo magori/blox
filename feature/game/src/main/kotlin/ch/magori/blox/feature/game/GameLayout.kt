@@ -38,7 +38,8 @@ private const val LINE_HEIGHT = 1.37f
  * Where the game screen puts its parts, in pixels of the space given to [gameLayout]: the [board] of
  * square cells of [cellSize], the [sidePanel] (score, level, lines, and the next piece unless
  * [nextPiece] places it apart; above the board, two by two, when [scoresAbove]), and the two groups of
- * controls, [directions] (◀ ▼ ▶) and [rotations] (B A), the arrows [directionSpacing] apart.
+ * controls, [directions] (◀ ▼ ▶) and [rotations] (B A), the arrows [directionSpacing] apart. The board is framed
+ * [boardFrameInset] around its cells ([boardFrame]).
  */
 @Immutable
 internal data class GameLayout(
@@ -50,7 +51,17 @@ internal data class GameLayout(
     val directions: Rect,
     val rotations: Rect,
     val directionSpacing: Float,
-)
+    val boardFrameInset: Float,
+) {
+    /**
+     * The frame of the board, [boardFrameInset] around its cells, in the gaps and margins around it: the cells keep
+     * their size, and the frame overlaps nothing, as the gaps beside the board are wider than it.
+     */
+    val boardFrame: Rect get() = board.inflate(boardFrameInset)
+}
+
+/** Around the cells of the board: its frame, then the padding of its background ([GameLayout.boardFrame]). */
+private val BoardFrameInset = BloxBorders.frame + 6.dp
 
 /**
  * The layout of the game screen in [width] × [height] pixels, at [density] pixels per dp and the system font
@@ -162,6 +173,7 @@ private fun portrait(
         directions = directionsBelow(height, stacked),
         rotations = rotationsBelow(width, height, stacked),
         directionSpacing = directionSpacing,
+        boardFrameInset = boardFrameInset,
     )
 }
 
@@ -192,6 +204,7 @@ private fun scoresAbove(
         directions = directionsBelow(height, stacked),
         rotations = rotationsBelow(width, height, stacked),
         directionSpacing = directionSpacing,
+        boardFrameInset = boardFrameInset,
     )
 }
 
@@ -221,6 +234,7 @@ private fun landscape(
         directions = directionsBelow(height, stacked = false),
         rotations = rotationsBelow(width, height, stacked = false),
         directionSpacing = directionSpacing,
+        boardFrameInset = boardFrameInset,
     )
 }
 
@@ -240,6 +254,7 @@ private class Sizes(density: Float, fontScale: Float, width: Float) {
 
     val gap = ScreenSizes.gap.px()
     val side = SidePanelWidth.px()
+    val boardFrameInset = BoardFrameInset.wholePx()
 
     /** The narrowest width where the board beside the side column, as wide as the column, needs no score above it. */
     val scoresAboveBelow = gap + 2 * side

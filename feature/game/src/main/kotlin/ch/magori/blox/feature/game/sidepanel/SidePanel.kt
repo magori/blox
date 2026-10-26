@@ -49,10 +49,10 @@ internal object SidePanelSizes {
 }
 
 /**
- * The side column of the game screen: score, level, lines and next piece, each in a panel. No
- * logic here: the texts come from [scoreText], [levelText] and [linesText], the preview from
- * [NextPieceCanvas], with cells of [cellSize] pixels, those of the board. [next] is null when the
- * next piece is hidden (pause, option).
+ * The side column of the game screen (views V3, V28): the next piece at the top, near where it appears, then score,
+ * lines and level, each in a panel. No logic here: the texts come from [scoreText], [levelText] and [linesText], the
+ * fill of the record bar under the score, [recordFill], from [recordBarFill], the preview from [NextPieceCanvas], with
+ * cells of [cellSize] pixels, those of the board. [next] is null when the next piece is hidden (pause, option).
  */
 @Composable
 internal fun SidePanel(
@@ -60,34 +60,37 @@ internal fun SidePanel(
     level: Level,
     lines: Lines,
     next: NextPieceCells?,
+    recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ScorePanels(score = score, level = level, lines = lines)
         NextPiecePanel(next = next, cellSize = cellSize)
+        ScorePanels(score = score, level = level, lines = lines, recordFill = recordFill)
     }
 }
 
-/** Score, level and lines, each in a panel, one under the other. */
+/** Score, its record bar filled by [recordFill], then lines and level, each in a panel, one under the other. */
 @Composable
 internal fun ScorePanels(
     score: Points,
     level: Level,
     lines: Lines,
+    recordFill: Float?,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ScorePanel(score)
-        LevelPanel(level)
+        ScorePanel(score, recordFill)
         LinesPanel(lines)
+        LevelPanel(level)
     }
 }
 
 /**
  * The side column laid across, above the board of a very narrow window: score and level, then lines and next
- * piece, the next piece with cells of [cellSize] pixels, those of the board. The two panels of a row are as wide
- * and as high as each other. [next] is null when the next piece is hidden.
+ * piece, the next piece with cells of [cellSize] pixels, those of the board, the score with its record bar filled by
+ * [recordFill]. The two panels of a row are as wide and as high as each other. [next] is null when the next piece is
+ * hidden.
  */
 @Composable
 internal fun ScoreGrid(
@@ -95,12 +98,13 @@ internal fun ScoreGrid(
     level: Level,
     lines: Lines,
     next: NextPieceCells?,
+    recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
-            ScorePanel(score, Modifier.weight(1f).fillMaxHeight())
+            ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight())
             LevelPanel(level, Modifier.weight(1f).fillMaxHeight())
         }
         PanelRow {
@@ -120,12 +124,15 @@ private fun PanelRow(content: @Composable RowScope.() -> Unit) {
     )
 }
 
+/** The score in its panel, the record bar under it filled by [recordFill] ([recordBar]); without a record, none. */
 @Composable
 private fun ScorePanel(
     score: Points,
+    recordFill: Float?,
     modifier: Modifier = Modifier,
 ) {
-    ValuePanel(stringResource(R.string.feature_game_score), scoreText(score), score.value, modifier)
+    val bar = if (recordFill == null) Modifier else Modifier.recordBar(recordFill)
+    ValuePanel(stringResource(R.string.feature_game_score), scoreText(score), score.value, modifier.then(bar))
 }
 
 @Composable
@@ -192,6 +199,7 @@ private fun SidePanelPreview(
     level: Int,
     lines: Int,
     next: PieceType?,
+    record: Int? = 98_760,
 ) {
     BloxTheme(kind = kind) {
         SidePanel(
@@ -199,6 +207,7 @@ private fun SidePanelPreview(
             level = Level(level),
             lines = Lines(lines),
             next = next?.let { nextPieceCells(it, ClassicRotationSystem) },
+            recordFill = recordBarFill(Points(score), record),
             cellSize = with(LocalDensity.current) { 18.dp.roundToPx().toFloat() },
             modifier = Modifier
                 .background(BloxTheme.palette.page)
@@ -231,5 +240,5 @@ internal fun SidePanelLargeFontPreview() {
 @Preview
 @Composable
 internal fun SidePanelNoNextPiecePreview() {
-    SidePanelPreview(BloxThemeKind.COLORFUL, score = 0, level = 0, lines = 0, next = null)
+    SidePanelPreview(BloxThemeKind.COLORFUL, score = 0, level = 0, lines = 0, next = null, record = null)
 }

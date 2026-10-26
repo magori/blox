@@ -31,6 +31,7 @@ internal data class GameUiState(
     val paused: Boolean = false,
     val running: Boolean = !paused,
     val record: Int? = null,
+    val recordBeaten: Boolean = false,
     val gameOver: GameOverUiState? = null,
 )
 
@@ -50,6 +51,16 @@ internal fun GameState.toUiState(nextPiece: (PieceType) -> NextPieceCells): Game
     paused = paused,
     running = isUnderWay,
 )
+
+/**
+ * [this] state with its [GameUiState.recordBeaten] up to date: beaten once its score is above a record above 0, and
+ * from then on, as [wasBeaten] says, even once the game over saves the score as the record. A record of 0, or not
+ * read yet, is never beaten during the game: the first point would beat it (P5.56).
+ */
+internal fun GameUiState.withRecordBeaten(wasBeaten: Boolean): GameUiState {
+    val beaten = wasBeaten || (record != null && record > 0 && score.value > record)
+    return if (beaten == recordBeaten) this else copy(recordBeaten = beaten)
+}
 
 /** Whether [this] game goes on: neither paused nor over. */
 internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.GameOver

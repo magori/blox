@@ -264,6 +264,30 @@ class GameLayoutTest {
     }
 
     @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
+    @MethodSource("windowsWithRoom")
+    fun `the board is framed by 8 dp all around, clear of every other part, within the margins and the gaps`(
+        widthDp: Int,
+        heightDp: Int,
+        density: Float,
+    ) {
+        // Given
+        val (width, height) = available(widthDp, heightDp, density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then the frame takes 8 dp, in whole pixels, around the cells: out of the 16 dp of the gaps beside the board
+        // and of the 24 dp of the margins, never over the score, the next piece nor the controls
+        val inset = Math.round(8 * density).toFloat()
+        val frame = layout.boardFrame
+        assertThat(frame).isEqualTo(layout.board.inflate(inset))
+        assertThat(Rect(0f, 0f, width, height).inflate(16 * density).intersect(frame)).isEqualTo(frame)
+        listOfNotNull(layout.sidePanel, layout.nextPiece, layout.directions, layout.rotations).forEach { part ->
+            assertThat(frame.overlaps(part)).describedAs("$frame, $part").isFalse()
+        }
+    }
+
+    @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
     @MethodSource("windows")
     fun `the board has 10 × 20 square cells of whole pixels, from a whole pixel`(
         widthDp: Int,
