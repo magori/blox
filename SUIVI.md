@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 175 / 239 | `███████████████░░░░░` **73 %** |
+| **Général** | 176 / 239 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : spécification, serrure et candidat faits |
+| P7 | Le Serrurier, second jeu | En cours : spécification, serrure et génération faites |
 
 ---
 
@@ -1111,15 +1111,16 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   les 8 × 8 intérieures, collées bord à bord, abandon sinon. Cas : `a candidate has the number of
   pieces asked`, `a candidate is a valid padlock whatever the random`, `a candidate that cannot place a piece is ruled
   out`, `the same random gives the same candidate`.
-- [ ] **P7.5** Composer, puis évaluer : `generate(pieceCount, seed)`, 20 candidats par graine
-  (abandonnés compris), trou rectangulaire éliminé, note entière `10 × contour + 30 × variété −
-  3 × boîte`, premier composé à égalité, `seed + 1` si aucun ne reste, au plus 100 graines puis
-  `IllegalStateException` (paramètres injectables), pièces données dans l'ordre de `PieceType`,
-  `min(6, 2 + niveau)` pièces. Cas : `a rectangular hole is ruled out`, `a longer outline rates
-  higher`, `more kinds of pieces rate higher`, `the first candidate wins among equals`, `when every
-  candidate is ruled out the next seed is tried`, `when no seed gives a padlock within the bound the
-  generator fails`, `the same seed gives the same padlock` ; propriété : toute serrure de 500
-  graines, de 3 à 6 pièces, est valide.
+- [x] **P7.5** Composer, puis évaluer : `generate(pieceCount, seed)`, 20 candidats par graine
+  (abandonnés compris), chacun avec son `Random` tiré d'un maître, trou rectangulaire éliminé, note
+  entière `10 × contour + 30 × variété − 3 × boîte`, premier composé à égalité, `seed + 1` si aucun
+  ne reste, au plus 100 graines puis `IllegalStateException` (graines et composition injectables),
+  pièces données dans l'ordre de `PieceType`, `min(6, 2 + niveau)` pièces. Cas : `a rectangular hole
+  is ruled out`, `the rating is 10 per edge of the outline, 30 per kind of piece, minus 3 per cell of
+  the box`, `the best candidate is kept, the first one among equals`, `a candidate does not depend on
+  the draws of the previous ones`, `when every candidate is ruled out the next seed is tried`, `the
+  same seed gives the same padlock` ; propriété : toute serrure de 500 graines, de 3 à 6 pièces, est
+  valide.
 - [ ] **P7.6** `PadlockGame`, partie immuable : pièces données par rang, chacune avec son
   orientation ; choix, quart de tour, pose acceptée ou refusée (`OutOfHole` l'emporte sur
   `Overlap`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
@@ -1139,7 +1140,9 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
   `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
 - [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
-  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6.
+  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
+  étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
+  surcharge interne : `seeds`, `compose`, `candidate` et `rating` restent internes.
 - [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
   aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
   captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et

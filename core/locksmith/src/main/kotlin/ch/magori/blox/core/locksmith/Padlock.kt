@@ -13,6 +13,12 @@ public data class Padlock(public val solution: List<Piece>) {
     /** The cells to fill: the union of the cells of the [solution]. */
     public val hole: Set<Position> = solution.flatMap(Piece::cells).toSet()
 
+    /**
+     * The pieces given to the player: those of the [solution], in the order of [PieceType], which
+     * tells nothing of the solution.
+     */
+    public val givenPieces: List<PieceType> = solution.map(Piece::type).sorted()
+
     init {
         require(solution.size in PIECE_COUNTS) {
             "A padlock holds ${PIECE_COUNTS.first} to ${PIECE_COUNTS.last} pieces, got ${solution.size}"
@@ -36,13 +42,15 @@ public data class Padlock(public val solution: List<Piece>) {
         /** The grid is [SIZE] × [SIZE] cells. */
         public const val SIZE: Int = 10
 
-        private val PIECE_COUNTS = 3..6
+        /** How many pieces a padlock holds. */
+        internal val PIECE_COUNTS: IntRange = 3..6
 
         /** The rows and columns inside the outer ring of metal. */
         internal val INSIDE: IntRange = 1..SIZE - 2
 
         /** The four cells that share an edge with a cell, as offsets. */
-        private val NEIGHBOURS = listOf(Position(1, 0), Position(-1, 0), Position(0, 1), Position(0, -1))
+        internal val NEIGHBOURS: List<Position> =
+            listOf(Position(1, 0), Position(-1, 0), Position(0, 1), Position(0, -1))
 
         private const val METAL = '#'
 

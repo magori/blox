@@ -127,6 +127,31 @@ class PadlockTest {
     }
 
     @Test
+    fun `the pieces given to the player follow the order I O T S Z J L, not the solution`() {
+        // Given: a solution placed J, then T, then S, an order that neither PieceType nor the alphabet gives
+        val padlock = Padlock.parse(
+            """
+            ##########
+            #111######
+            ###1222###
+            #####233##
+            #####33###
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
+        // When
+        val given = padlock.givenPieces
+
+        // Then
+        assertThat(given).containsExactly(PieceType.T, PieceType.S, PieceType.J)
+    }
+
+    @Test
     fun `two padlocks with the same solution are equal`() {
         // Given
         val solution = stackedIs(3)
