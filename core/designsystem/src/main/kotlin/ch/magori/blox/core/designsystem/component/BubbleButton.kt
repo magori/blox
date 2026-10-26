@@ -59,7 +59,7 @@ import ch.magori.blox.core.designsystem.theme.grownOutline
  * once, and comes back in `motion-press` once released; [enabled] false, it is flat, in `label` framed by
  * `panel-border`, and cannot be touched; focused by the keyboard, it bears a ring of 3 dp in `ink`. Its [content] is
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
- * button.
+ * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill.
  */
 @Composable
 fun BubbleButton(
@@ -67,13 +67,14 @@ fun BubbleButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = BloxTheme.shapes.pill,
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
     val depth = remember(motion) { { motion.depth } }
-    BubbleButton(family, enabled, focused, depth, onClick, interactionSource, modifier, content)
+    BubbleButton(family, enabled, focused, depth, onClick, interactionSource, modifier, shape, content)
 }
 
 /**
@@ -91,12 +92,12 @@ internal fun BubbleButton(
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource?,
     modifier: Modifier = Modifier,
+    shape: Shape = BloxTheme.shapes.pill,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
     val state = ButtonState(enabled = enabled, depth = if (down) 1f else 0f, focused = focused)
     val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
-    val shape = BloxTheme.shapes.pill
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
     Row(

@@ -97,60 +97,8 @@ fun ChoiceGroup(
     action: (@Composable () -> Unit)? = null,
 ) {
     checkChoices(choices, selected, columns)
-    Layout(
-        contents = listOf(
-            { GroupLabel(label, action) },
-            { Segments(choices, selected, onChosen, columns) },
-        ),
-        modifier = modifier,
-    ) { (labels, groups), constraints ->
-        val labelPart = labels.single()
-        val group = groups.single()
-        val gap = BloxSpaces.space3.roundToPx()
-        val labelWidth = labelPart.maxIntrinsicWidth(Constraints.Infinity)
-        val groupWidth = group.maxIntrinsicWidth(Constraints.Infinity)
-        val wanted = labelWidth + gap + groupWidth
-        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else wanted
-        if (wanted <= width) {
-            // Beside: the label at the start of the line, the group at its end, both centred on the line.
-            val placedGroup = group.measure(Constraints.fixedWidth(groupWidth))
-            val placedLabel = labelPart.measure(Constraints(maxWidth = width - groupWidth - gap))
-            val height = maxOf(placedGroup.height, placedLabel.height)
-            layout(width, height) {
-                placedLabel.placeRelative(0, (height - placedLabel.height) / 2)
-                placedGroup.placeRelative(width - placedGroup.width, (height - placedGroup.height) / 2)
-            }
-        } else {
-            // Above: the label on its own line, the group under it, as wide as the line.
-            val placedLabel = labelPart.measure(Constraints(maxWidth = width))
-            val placedGroup = group.measure(Constraints.fixedWidth(width))
-            val spacing = BloxSpaces.space1.roundToPx()
-            layout(width, placedLabel.height + spacing + placedGroup.height) {
-                placedLabel.placeRelative(0, 0)
-                placedGroup.placeRelative(0, placedLabel.height + spacing)
-            }
-        }
-    }
-}
-
-/** The label of a group, a heading, and its [action] beside it, or under it when short of room. */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun GroupLabel(
-    label: String,
-    action: (@Composable () -> Unit)?,
-) {
-    FlowRow(
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
-        itemVerticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            color = BloxTheme.palette.label,
-            style = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.section),
-            modifier = Modifier.semantics { heading() },
-        )
-        action?.invoke()
+    LabelledControl(label = label, modifier = modifier, action = action) {
+        Segments(choices, selected, onChosen, columns)
     }
 }
 

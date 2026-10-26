@@ -123,11 +123,10 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17).
 - L'accueil défile sur un petit téléphone ; la planche V1 fait 861 px de haut.
   **Tests :** `HomeScreenTest › the gear button, 48 dp, read Paramètres, opens the settings`,
-  `HomeScreenTest › the gear button stands at the top right of the home screen, beside the title`,
-  `HomeScreenTest › the logo and the title BloX stand on one line, the record under them`,
+  `HomeScreenTest › the logo and the title BloX stand on one line, under the bar`,
   `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
   `HomeScreenTest › on 360 dp, the two modes stand on one line`,
-  `HomeScreenTest › the home screen leaves 16 dp above its header, and 16 dp between two sections`,
+  `HomeScreenTest › the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings`,
   `HomeScreenTest › the music choices bear nothing under them: one line of actions, under them all, is for the music selected`,
   `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
   `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
@@ -152,10 +151,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   (`ChoiceRowsTest › ten choices in five columns stand on two rows of five, 0 to 4 then 5 to 9`,
   `ChoiceRowsTest › a last row of fewer choices than columns holds those left, in order`,
   `ChoiceRowsTest › as many choices as columns stand on a single full row`,
-  `ChoiceRowsTest › eleven choices in five columns stand on three rows, the last holding a single choice`,
-  `HomeScreenTest › the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another`,
-  `HomeScreenTest › a last row of fewer than five start levels is aligned on the cells of the row above, as wide`,
-  `HomeScreenTest › TalkBack reads the start levels as one group of radio buttons, from 0 to 9`) ;
+  `ChoiceRowsTest › eleven choices in five columns stand on three rows, the last holding a single choice``) ;
   record affiché comme le score (6 chiffres, plafond 999 999), lu en clair par TalkBack. Logo
   (P3.7) : 2 × 2 cellules de 20 dp, joint fin, couleurs des pièces du thème
   (`docs/themes.md`), décoratif pour TalkBack. Les niveaux proposés sont ceux du mode
@@ -385,9 +381,9 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   marge latérale réduite à 2 dp dans le cadre, pour tenir en Original ×2 à 360 dp (comme le
   bouton *Annuler* du message de suppression, qui partage ce bouton). Menu « … » des cartes :
   icônes en tête, la corbeille en `danger` comme *Supprimer*.
-  **Tests :** `HomeScreenTest › Jouer, MES MUSIQUES, Écouter and Composer une musique bear an icon that TalkBack does not read`,
+  **Tests :** `HomeScreenTest › Jouer, Écouter and the tiles bear an icon that TalkBack does not read`,
   `HomeScreenTest › the gear button is read Paramètres once, its icon adding nothing`,
-  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer, MES MUSIQUES and Écouter are shown whole, after their icons`,
+  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer and Écouter are shown whole, beside their icons`,
   `GlyphButtonTest › a button of an icon alone is 48 dp, read as a button of its description, its icon adding nothing`,
   `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
   `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,

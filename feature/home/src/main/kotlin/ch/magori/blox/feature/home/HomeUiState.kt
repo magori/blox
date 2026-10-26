@@ -4,7 +4,7 @@ import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 
 /**
- * What the home screen shows (V1).
+ * What the home screen shows (V27).
  *
  * @property theme the chosen theme.
  * @property music the music chosen on the home screen, the one the games play when no [gameMusic] is chosen.
@@ -41,6 +41,3 @@ internal data class HomeUiState(
  * whether it is being listened to, [previewed].
  */
 internal data class GameMusicUi(val name: String, val previewed: Boolean)
-
-/** The start levels on a row of the home screen: five cells of 48 dp at least side by side on 360 dp. */
-internal const val START_LEVELS_PER_ROW = 5
