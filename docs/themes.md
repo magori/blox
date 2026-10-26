@@ -128,6 +128,22 @@ Effets réduits (P5.71) : retour immédiat par `returnTicks = 0`.
 `BubbleButtonTest › a button of each family is 48 dp high and wide at least, and as high as its family` ;
 captures `AccentButtons*` et `PlainButtons*` (Original, jour, nuit). Vues : V19, V21, V27 à V34.
 
+**États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
+(`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
+`accent`, cadré en `accentPressed` (3:1 sur la page de jour, comme la touche A), encre `accentInk`, et annoncé
+« sélectionné » par TalkBack ; désactivé, il reste en `accent`, à plat. Un bouton **en cours** (Écouter pendant
+l'écoute) garde l'aspect pressé sans descendre. Un **disque nu** (« … », − et + du tempo, croix) n'a ni fond, ni
+cadre, ni relief au repos ; pressé, il prend `buttonPressed` et un cadre `buttonOutline` ; désactivé, il reste nu,
+pictogramme en `label`. La taille **compacte** (48 dp, décision du développeur) ne vaut que pour Principal et
+Secondaire. Pictogrammes `CHECK` et `ALERT`, chacun avec son épaisseur de trait.
+**Tests :** `ButtonLookTest › a selected button is filled in accent, framed and pressed in accent pressed, its ink in accent ink`,
+`ButtonLookTest › the frame of a selected button stands out from the page by 3 to 1 at least`,
+`ButtonLookTest › a disabled selected button stays in accent, flat and in place`,
+`ButtonLookTest › a pressed bare button is framed in button outline, which stands out from the page by 3 to 1 at least`,
+`ButtonLookTest › a disabled bare icon button stays bare, its glyph in label`,
+`ButtonLookTest › only a main or a secondary button may be compact, 48 dp high`,
+`BubbleButtonTest › a selected button is read as selected by TalkBack, a plain one is not` ; captures `ButtonVariants*`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que

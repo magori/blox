@@ -50,13 +50,13 @@ private fun IconSheet(kind: BloxThemeKind) {
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360, heightDp = 1100)
+@Preview(widthDp = 360, heightDp = 1600)
 @Composable
 internal fun IconSheetOriginalPreview() {
     IconSheet(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1100)
+@Preview(widthDp = 360, heightDp = 1600)
 @Composable
 internal fun IconSheetColorfulPreview() {
     IconSheet(BloxThemeKind.COLORFUL)

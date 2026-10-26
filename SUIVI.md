@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 197 / 258 | `███████████████░░░░░` **76 %** |
+| **Général** | 201 / 258 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1004,7 +1004,7 @@ composants.
   trancher avec P2.8). Après P5.70, P5.77, P5.83.
   Cas : `on a phone in landscape the home puts logo, preview and tiles on the left`, `the settings take two
   columns in landscape`, `each format keeps every target at 48 dp`, captures des quatre formats.
-- [ ] **P5.85** (optionnel, en fin de lot : Original n'a plus à suivre Couleurs au 1 pour 1, décision du développeur du 2026-10-26) Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
+- [x] **P5.85** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
   partie, Paramètres), valeurs Original des rôles nouveaux (P5.57) ; tailles des touches sous 390 dp (P5.79).
 - [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer (V32 à V34, jour, dessinées le
   2026-10-25 ; conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les parties », notes
@@ -1013,7 +1013,7 @@ composants.
   Original n'a pas de travail propre, il doit seulement rester utilisable. Découpée le 2026-10-26 par l'agent
   `architecte` ; décisions du développeur : taille compacte de 48 dp, réponses des fenêtres toujours empilées (la
   sûre d'abord), Renommer en fenêtre v2. Tranches :
-  - [ ] **P5.93** Boutons bulles, états et variantes de la musique (`core:designsystem`, composant Button) :
+  - [x] **P5.93** Boutons bulles, états et variantes de la musique (`core:designsystem`, composant Button) :
     état retenu (`selected` : fond et cadre `accent`, encre `accent-ink`, pressé `accent-pressed`) pour les mesures
     et le disque Utiliser / En jeu ; état en cours (`active` : fond `button-pressed` sans descente) pour Écouter
     pendant l'écoute ; disque nu (`GlyphButton(…, bare = true)` : ni fond, ni cadre, ni relief au repos,
@@ -1147,7 +1147,7 @@ composants.
   haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
   l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
   `a focused slider bears the focus ring`.
-- [ ] **P5.91** (optionnel, en fin de lot, comme P5.85) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
+- [x] **P5.91** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
@@ -1273,8 +1273,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   bande des accords, message, Indice et Recommencer, tuiles des pièces, tourner, Poser ; toucher qui
   vise, pose par un second toucher, reprend une pièce posée ; aperçu, cases fautives barrées,
   indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
-- [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
-  effets sonores respecté. Après P7.8, P7.9 et P7.12.
+- [x] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
+  effets sonores respecté. Après P7.8, P7.9 et P7.12. La bande des accords est celle de P7.12 ; sa paire V–I
+  reste en P7.20.
 - [x] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
   étant faits en P7.12. Après P7.7 et P7.13.
 - [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure

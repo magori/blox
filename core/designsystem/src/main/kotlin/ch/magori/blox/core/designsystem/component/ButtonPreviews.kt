@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -46,14 +48,7 @@ private fun ButtonSheet(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     SheetStates.forEach { (name, state) ->
-                        BubbleButton(
-                            family = family,
-                            enabled = state.enabled,
-                            focused = state.focused,
-                            depth = { state.depth },
-                            onClick = {},
-                            interactionSource = null,
-                        ) {
+                        DrawnButton(family, state) {
                             if (family == ButtonFamily.ICON) {
                                 BloxIcon(BloxIcon.GEAR, size = IconSizes.alone)
                             } else {
@@ -96,6 +91,120 @@ internal fun PlainButtonsOriginalPreview() {
 @Composable
 internal fun PlainButtonsColorfulPreview() {
     ButtonSheet(BloxThemeKind.COLORFUL, PlainFamilies)
+}
+
+/** A sheet's line of the variants of the music: its name, then [buttons]. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun VariantLine(
+    name: String,
+    buttons: @Composable () -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Text(text = name, color = BloxTheme.palette.label, fontSize = 11.sp, style = BloxTheme.typography.label)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) { buttons() }
+    }
+}
+
+/** A button of [family] drawn in [state], in [size] and [shape], showing [content]. */
+@Composable
+private fun DrawnButton(
+    family: ButtonFamily,
+    state: ButtonState,
+    size: ButtonSize = ButtonSize.REGULAR,
+    shape: Shape = BloxTheme.shapes.pill,
+    content: @Composable RowScope.() -> Unit,
+) {
+    BubbleButtonDrawing(
+        family = family,
+        onClick = {},
+        interactionSource = null,
+        depth = { state.depth },
+        enabled = state.enabled,
+        focused = state.focused,
+        emphasis = state.emphasis,
+        active = state.active,
+        size = size,
+        shape = shape,
+        content = content,
+    )
+}
+
+/** A button of [family] in [state], in [size] and [shape], showing [icon] and [label] if given. */
+@Composable
+private fun SheetButton(
+    family: ButtonFamily,
+    state: ButtonState,
+    icon: BloxIcon,
+    label: String? = null,
+    size: ButtonSize = ButtonSize.REGULAR,
+    shape: Shape = BloxTheme.shapes.pill,
+) {
+    DrawnButton(family, state, size, shape) {
+        BloxIcon(icon, size = if (label == null) IconSizes.alone else IconSizes.besideLabel)
+        if (label != null) Text(text = label)
+    }
+}
+
+/**
+ * The variants of the music (V32 to V34) in the theme [kind]: selected, at rest and pressed; active; bare, at rest and
+ * pressed; and compact, in a pill and in a tile.
+ */
+@Composable
+private fun ButtonVariantsSheet(kind: BloxThemeKind) {
+    BloxTheme(kind = kind) {
+        val selected = ButtonState(emphasis = ButtonEmphasis.SELECTED)
+        val bare = ButtonState(emphasis = ButtonEmphasis.BARE)
+        val compact = ButtonSize.COMPACT
+        Column(
+            modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            VariantLine("RETENU") {
+                SheetButton(ButtonFamily.SECONDARY, selected, BloxIcon.CHECK, "Repos", size = compact)
+                SheetButton(ButtonFamily.SECONDARY, selected.copy(depth = 1f), BloxIcon.CHECK, "Pressé", size = compact)
+                SheetButton(ButtonFamily.ICON, selected, BloxIcon.CHECK)
+                SheetButton(ButtonFamily.ICON, selected.copy(depth = 1f), BloxIcon.CHECK)
+                SheetButton(ButtonFamily.ICON, selected.copy(enabled = false), BloxIcon.CHECK)
+            }
+            VariantLine("EN COURS") {
+                SheetButton(ButtonFamily.ICON, ButtonState(active = true), BloxIcon.STOP)
+                SheetButton(ButtonFamily.ICON, ButtonState(active = true, depth = 1f), BloxIcon.STOP)
+            }
+            VariantLine("NU") {
+                SheetButton(ButtonFamily.ICON, bare, BloxIcon.PLUS)
+                SheetButton(ButtonFamily.ICON, bare.copy(depth = 1f), BloxIcon.PLUS)
+                SheetButton(ButtonFamily.ICON, bare.copy(enabled = false), BloxIcon.PLUS)
+            }
+            VariantLine("COMPACT") {
+                SheetButton(ButtonFamily.PRIMARY, ButtonState(), BloxIcon.CHECK, "Enregistrer", size = compact)
+                SheetButton(ButtonFamily.SECONDARY, ButtonState(), BloxIcon.UNDO, "Annuler", size = compact)
+                SheetButton(
+                    ButtonFamily.SECONDARY,
+                    ButtonState(),
+                    BloxIcon.ALERT,
+                    "Tuile",
+                    size = compact,
+                    shape = BloxTheme.shapes.md,
+                )
+            }
+        }
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 560)
+@Composable
+internal fun ButtonVariantsOriginalPreview() {
+    ButtonVariantsSheet(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 560)
+@Composable
+internal fun ButtonVariantsColorfulPreview() {
+    ButtonVariantsSheet(BloxThemeKind.COLORFUL)
 }
 
 @Preview(widthDp = 360, heightDp = 200)

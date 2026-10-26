@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -19,7 +20,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
@@ -184,6 +187,45 @@ internal class BubbleButtonTest {
             .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(family.minHeight)
+    }
+
+    @ParameterizedTest
+    @EnumSource(ButtonFamily::class, names = ["PRIMARY", "SECONDARY"])
+    @DisplayName("a compact main or secondary button is 48 dp high")
+    fun aCompactButtonIs48DpHigh(family: ButtonFamily) = extension.use {
+        // Given a compact button of the family, as wide as a measure
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                BubbleButton(
+                    family = family,
+                    onClick = {},
+                    size = ButtonSize.COMPACT,
+                    modifier = Modifier.testTag(TAG).width(160.dp),
+                ) { Text("Ok") }
+            }
+        }
+
+        // Then
+        onNodeWithTag(TAG).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+    }
+
+    @Test
+    @DisplayName("a selected button is read as selected by TalkBack, a plain one is not")
+    fun aSelectedButtonIsReadAsSelected() = extension.use {
+        // Given the choice made and another
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Column {
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {
+                    }, emphasis = ButtonEmphasis.SELECTED) { Text("Mesure 1") }
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {}) { Text("Mesure 2") }
+                }
+            }
+        }
+
+        // Then
+        onNodeWithText("Mesure 1").assertIsSelected()
+        onNodeWithText("Mesure 2").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
     }
 
     @Test

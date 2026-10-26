@@ -4,8 +4,8 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 
 /**
- * The colours of a bubble button: its [fill] and [ink] at rest, [pressedFill] and [pressedInk] held, and its [frame],
- * the same in both, if it has one.
+ * The colours of a bubble button: its [fill] and [ink] at rest, [pressedFill] and [pressedInk] held, its [frame] at rest
+ * if it has one, and its [pressedFrame] held, the same unless said otherwise.
  */
 @Immutable
 data class BubbleColors(
@@ -14,19 +14,23 @@ data class BubbleColors(
     val pressedFill: Color,
     val pressedInk: Color,
     val frame: Color?,
+    val pressedFrame: Color? = frame,
 )
 
 /**
  * The colours of the bubble buttons of a variant (docs/design-system/README.md, Boutons): [primary] for Principal XL
  * and Principal, [secondary] for Secondaire and Icône, [danger] for what cannot be undone (Effacer, the record), filled
- * as a secondary button, [disabled] for any of them that cannot be touched, and the ring of the keyboard focus,
- * [focus].
+ * as a secondary button, [selected] for any of them that is the choice made (a measure, Utiliser), [bare] for a disc
+ * that shows nothing but its pictogram until it is pressed (« … », − and + of the tempo, the cross of a message),
+ * [disabled] for any of them that cannot be touched, and the ring of the keyboard focus, [focus].
  */
 @Immutable
 data class BloxButtonColors(
     val primary: BubbleColors,
     val secondary: BubbleColors,
     val danger: BubbleColors,
+    val selected: BubbleColors,
+    val bare: BubbleColors,
     val disabled: BubbleColors,
     val focus: Color,
 )
@@ -62,6 +66,21 @@ internal object BloxButtonColorSets {
             palette.buttonOutline,
         ),
         danger = BubbleColors(palette.button, palette.danger, palette.danger, palette.dangerInk, palette.danger),
+        selected = BubbleColors(
+            palette.accent,
+            palette.accentInk,
+            palette.accentPressed,
+            palette.accentInk,
+            palette.accentPressed,
+        ),
+        bare = BubbleColors(
+            Color.Transparent,
+            palette.ink,
+            palette.buttonPressed,
+            palette.buttonInk,
+            frame = null,
+            pressedFrame = palette.buttonOutline,
+        ),
         disabled = flat(palette.panelInset, palette.label, palette.panelBorder),
         focus = palette.ink,
     )
