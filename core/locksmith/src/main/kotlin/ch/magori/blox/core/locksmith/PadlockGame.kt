@@ -39,11 +39,13 @@ public data class PadlockGame private constructor(
      * The chords heard so far, in [PadlockChords.KEY]: one per piece on the grid, the first ones of the
      * progression of the padlock, so that the last placement resolves on I.
      */
-    public val chords: List<Chord>
-        get() = progression.numerals.take(placements.size).map(PadlockChords.KEY::chord)
+    public val chords: List<Chord> get() = progressionChords.take(placements.size)
 
     /** The chords of this padlock, one per given piece, in the order they are heard. */
     public val progression: Progression get() = PadlockChords.progression(given.size)
+
+    /** The chords of the [progression], in [PadlockChords.KEY]: all of them are heard once the padlock is open. */
+    public val progressionChords: List<Chord> get() = progression.numerals.map(PadlockChords.KEY::chord)
 
     /** Whether every given piece is placed: the padlock is open. */
     public val isOpen: Boolean get() = placements.size == given.size

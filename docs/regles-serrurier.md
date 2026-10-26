@@ -259,6 +259,8 @@ dernier.
 **Tests :** `PadlockGameTest › the chords heard are one per piece on the grid, from C4 major, the last placement resolving on I`,
 `PadlockGameTest › a game plays the chords of its number of pieces`,
 `PadlockGameTest › a piece taken back takes its chord back`.
+Tous les accords de la serrure, entendus ou non, sont `PadlockGame.progressionChords` ; `chords` en est le début.
+**Tests :** `PadlockGameTest › the chords of a padlock are those of its progression, in C4 major, all heard once it is open`.
 
 | Pièces | Accords |
 |---|---|
@@ -277,6 +279,36 @@ serrure ouverte ; son de refus (`LocksmithSounds`, valeurs dans [musique.md](mus
 sont des effets sonores superposés (`SoundEffect`), joués par
 `SoundEffectPlayer` et soumis au réglage des effets sonores. Une reprise ne coupe aucun son : seule
 la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
+
+- Chaque événement de la dernière action donne ses sons (`soundCuesFor`, fonction pure de `feature:locksmith`) :
+  une pose acceptée, l'arpège et la basse de son accord (celui de rang *n*) ; la serrure ouverte, en plus, la
+  fanfare, **après l'arpège final** (sa durée plus 10 ms, soit 450 ms aujourd'hui) ; un refus, le son de refus ;
+  une reprise et un indice, rien. Choisir, tourner, viser et recommencer ne jouent rien.
+  **Tests :** `PadlockSoundCuesTest › a placement plays the arpeggio and the bass of its chord`,
+  `PadlockSoundCuesTest › the second placement plays the chord of IV`,
+  `PadlockSoundCuesTest › the last placement adds the opening flourish after the final chord`,
+  `PadlockSoundCuesTest › the flourish waits for the final chord to end`,
+  `PadlockSoundCuesTest › a refusal plays the refusal`,
+  `PadlockSoundCuesTest › taking back and a hint play nothing`,
+  `LocksmithSoundTest › a placement plays the arpeggio and the bass of its chord`,
+  `LocksmithSoundTest › the second placement plays the chord of IV`,
+  `LocksmithSoundTest › the last placement adds the opening flourish after the final chord`,
+  `LocksmithSoundTest › a refusal plays the refusal`,
+  `LocksmithSoundTest › taking back, a hint and choosing play nothing`.
+- Le réglage des effets sonores est lu une fois, à l'ouverture de l'écran, comme au Classique : effets coupés,
+  ni son ni préchauffage.
+  **Tests :** `LocksmithSoundTest › no sound when the sound effects are off`,
+  `LocksmithSoundTest › nothing is warmed up when the sound effects are off`.
+- À l'ouverture de l'écran, les effets de la serrure sont préchauffés, chacun une fois : les accords de sa
+  suite, la fanfare et le refus.
+  **Tests :** `PadlockSoundCuesTest › the effects warmed up are those of every chord of the padlock, the flourish and the refusal, once each`,
+  `LocksmithSoundTest › the effects of the padlock are warmed up when its screen opens`.
+- Une fanfare encore en attente meurt avec l'écran quitté (retour, ou « Serrure suivante » qui remplace
+  l'entrée) : elle ne sonne pas sur la serrure suivante. Une action à l'écran, Recommencer compris, ne coupe
+  aucun son.
+  **Tests :** `LocksmithSoundTest › the opening flourish still waiting dies with the screen left`.
+- Point ouvert : les pistes d'effets préchauffées ne sont jamais libérées (jusqu'à 12 de plus que le Classique,
+  environ 1 Mo) ; à mesurer sur un téléphone (`dumpsys media.audio_flinger`, P7.20).
 
 ## Écran
 
