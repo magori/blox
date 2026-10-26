@@ -1157,7 +1157,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
 - [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
   étant faits en P7.12. Après P7.7 et P7.13.
-- [x] **P7.15** Cartouche « Le Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+- [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
   et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
