@@ -172,18 +172,13 @@ class PadlockHintTest {
             generateSequence(start) { game ->
                 if (game.isOpen) return@generateSequence null
                 val fit = (game.hint().events.single() as PadlockEvent.HintGiven).hint as Hint.Fit
-                game.select(fit.rank).turnTo(fit.piece).place(fit.piece.pivot).game
+                game.select(fit.rank).turnedTo(fit.piece.orientation).place(fit.piece.pivot).game
             }.last()
         }
 
         // Then
         assertThat(ends).allSatisfy { assertThat(it.isOpen).isTrue }
     }
-
-    /** Turns the selected piece clockwise until it takes the orientation of [piece]. */
-    private fun PadlockGame.turnTo(piece: Piece): PadlockGame = generateSequence(this) {
-        it.turn(Rotation.CLOCKWISE)
-    }.first { it.orientationOf(selected!!) == piece.orientation }
 
     private companion object {
         /** Two I on the left, two O on the right; given as I, I, O, O. */

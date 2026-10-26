@@ -10,6 +10,7 @@ import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.Refusal
+import ch.magori.blox.core.locksmith.turnedTo
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -152,13 +153,4 @@ class LocksmithViewModelTest {
             LocksmithViewModel.Factory().create(LocksmithViewModel::class, CreationExtras.Empty)
         }
     }
-
-    /** Turns the selected piece clockwise until it takes [orientation]. */
-    private fun LocksmithViewModel.turnTo(orientation: Orientation) {
-        while (uiState.value.game.let { it.orientationOf(it.selected!!) } != orientation) turn(Rotation.CLOCKWISE)
-    }
-
-    /** This game, its selected piece turned clockwise until it takes [orientation]. */
-    private fun PadlockGame.turnedTo(orientation: Orientation): PadlockGame =
-        generateSequence(this) { it.turn(Rotation.CLOCKWISE) }.first { it.orientationOf(it.selected!!) == orientation }
 }
