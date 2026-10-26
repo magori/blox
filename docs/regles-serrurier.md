@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> La grille (P7.3) et le candidat (P7.4) sont implémentés ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
+> La grille (P7.3) et la génération (P7.4, P7.5) sont implémentées ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -71,9 +71,14 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 Même principe que la musique : on compose des candidats au hasard, on élimine, on note, on
 garde le meilleur. La génération est une **fonction pure de la graine**
-(`generate(pieceCount, seed)`, qui construit son `Random(seed)` elle-même) : aucun état
-modifiable de plus dans le domaine ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)), et une
-même graine donne toujours la même serrure.
+(`PadlockGenerator.generate(pieceCount, seed)`, qui construit son `Random(seed)` elle-même) :
+aucun état modifiable de plus dans le domaine ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)),
+et une même graine donne toujours la même serrure. Comme pour la musique, ce `Random(seed)` est un
+maître : chaque candidat est composé avec son propre `Random`, tiré du maître, si bien qu'un
+candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
+**Tests :** `PadlockGenerationTest › the same seed gives the same padlock`,
+`PadlockGenerationTest › different seeds give different padlocks`,
+`PadlockGenerationTest › a candidate does not depend on the draws of the previous ones`.
 
 1. **Un candidat** : pour chaque pièce, jusqu'à **200 essais** d'un type, d'une orientation (parmi
    toutes celles du type) et d'un pivot tiré dans les 8 × 8 intérieures. Un essai est retenu si
@@ -89,25 +94,41 @@ même graine donne toujours la même serrure.
    `PadlockGeneratorTest › almost every random gives a candidate of 6 pieces`,
    `PadlockGeneratorTest › the first piece of a candidate takes every placement inside the ring`,
    `PadlockGeneratorTest › over many randoms the candidates use every orientation of every type and every inner cell`.
-2. **20 candidats** par graine, abandonnés compris.
+2. **20 candidats** par graine, abandonnés compris ; chacun est noté, le vingtième aussi.
+   **Tests :** `PadlockGenerationTest › when no seed gives a padlock within the bound the generator fails, 20 candidates per seed`,
+   `PadlockGenerationTest › the twentieth candidate is rated too`.
 3. **Élimination** : un trou rectangulaire (il remplit sa boîte englobante) n'est pas une
    serrure.
+   **Tests :** `PadlockRatingTest › a rectangular hole is ruled out`.
 4. **Note**, entière : `10 × contour + 30 × variété − 3 × boîte`, où le contour compte les côtés
    de case du trou qui donnent sur le métal, la variété le nombre de types différents, la boîte
    l'aire de la boîte englobante du trou (le prototype notait `contour + 3 × variété − 0,3 × boîte`
    plus un bruit aléatoire : même ordre, sans arrondi ni bruit). À égalité, le premier candidat
    composé l'emporte, comme dans le générateur de musique.
-5. Si aucun candidat ne reste, on recommence avec la **graine suivante** (`seed + 1`), au plus
-   **100 graines** ; au-delà, c'est une erreur de programmation (`IllegalStateException`), pas un
-   état de l'écran. Les essais, les candidats et les graines sont des paramètres du générateur
-   pour que les tests puissent provoquer cet échec.
+   **Tests :** `PadlockRatingTest › the rating is 10 per edge of the outline, 30 per kind of piece, minus 3 per cell of the box`,
+   `PadlockGenerationTest › the best candidate is kept, the first one among equals`.
+5. Si aucun candidat ne reste, on recommence avec la **graine suivante** (`seed + 1` ;
+   après la plus grande graine vient la plus petite), au plus **100 graines** ; au-delà, c'est une erreur de programmation (`IllegalStateException`), pas un
+   état de l'écran. Le nombre de graines et la composition d'un candidat sont des paramètres du
+   générateur, pour que les tests puissent provoquer cet échec ; les essais sont un paramètre du
+   candidat.
+   **Tests :** `PadlockGenerationTest › when every candidate is given up the next seed is tried`,
+   `PadlockGenerationTest › when every candidate is ruled out the next seed is tried`,
+   `PadlockGenerationTest › negative seeds give padlocks and the seed after the largest one is the smallest one`,
+   `PadlockGenerationTest › a padlock of fewer than 3 or more than 6 pieces is refused before any candidate is composed`,
+   `PadlockGenerationTest › a generation tries one seed at least`,
+   `PadlockGenerationTest › when no seed gives a padlock within the bound the generator fails, 20 candidates per seed`,
+   `PadlockGenerationTest › every padlock of 500 seeds has the pieces asked and a hole that is no rectangle`.
 6. **Pièces données** au joueur : celles de la solution, rangées dans l'ordre de `PieceType`
    (I O T S Z J L), qui ne trahit pas la solution.
+   **Tests :** `PadlockTest › the pieces given to the player follow the order I O T S Z J L, not the solution`.
 
 ## Niveaux
 
 - Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
   serrure 4.
+  **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
+  `PadlockGenerationTest › there is no padlock before padlock 1`.
 - Chaque serrure a sa graine, tirée par l'application quand elle ouvre la serrure suivante (clé
   de navigation `LocksmithRoute(level, seed)`). La graine n'est pas affichée : la suite de
   `Random` n'est pas un contrat (ADR 0014), une graine partagée demanderait un générateur maison.
