@@ -2,16 +2,22 @@
 <resources>
     <string name="feature_home_title" translatable="false">BloX</string>
     <string name="feature_home_play">Jouer</string>
-    <!-- Affiché : le record plafonné, sur 6 chiffres. -->
-    <string name="feature_home_record_value">Record %1$s</string>
+    <!-- Rappel sous Jouer : le mode, le niveau sur deux chiffres, la musique ; coupé par une ellipse s'il est trop long. -->
+    <string name="feature_home_play_reminder">%1$s · Niveau %2$02d · %3$s</string>
+    <!-- Lu par TalkBack sur Jouer : le rappel en entier, en mots, sans les points ni le zéro du niveau. -->
+    <string name="feature_home_play_description">Jouer, %1$s, niveau %2$d, %3$s</string>
+    <!-- Puce Record de la barre : l'étiquette, en capitales, au-dessus du record plafonné, sur 6 chiffres. -->
+    <string name="feature_home_record">Record</string>
     <!-- Lu par TalkBack : la vraie valeur, non plafonnée. -->
     <string name="feature_home_record_description">Record %1$d</string>
-    <string name="feature_home_mode">Mode de jeu</string>
+    <string name="feature_home_mode">Mode</string>
     <string name="feature_home_mode_classic">Classique</string>
     <string name="feature_home_mode_modern">Moderne</string>
     <string name="feature_home_theme">Thème</string>
     <string name="feature_home_theme_original">Original</string>
     <string name="feature_home_theme_colorful">Couleurs</string>
+    <!-- Rangée du niveau dans la carte des réglages ; la jauge est lue « Niveau de départ » par TalkBack. -->
+    <string name="feature_home_level">Niveau</string>
     <string name="feature_home_start_level">Niveau de départ</string>
     <string name="feature_home_music">Musique</string>
     <string name="feature_home_music_korobeiniki">Korobeïniki</string>
