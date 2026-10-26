@@ -46,6 +46,7 @@ graph TD
     audio --> music[core:music]
 
     locksmith[core:locksmith] --> game
+    locksmith --> music
 
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
     class game,music,locksmith pure
@@ -64,7 +65,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `feature:locksmith` | Feature | *Prévu (P7, ADR 0025).* Écran du Serrurier, second jeu : serrure, pièces à poser, accords, indice. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
-| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`, P7.3) ; à venir, génération, partie, indice, suites d'accords. Les pièces sont des `Piece` de `core:game`. Dépend de `core:game`, et de `core:music` quand viendront les accords (P7.8) : seul module du domaine qui a des dépendances. |
+| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : seul module du domaine qui a des dépendances, ces deux-là. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel, effets sonores (`SoundEffectPlayer`, pistes statiques, P4.8). |
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |

@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> La grille (P7.3), la génération (P7.4, P7.5), la partie (P7.6) et l'indice (P7.7) sont implémentés ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
+> Le domaine est implémenté (P7.3 à P7.8) : grille, génération, partie, indice et accords. Le son et l'écran suivent la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -220,9 +220,15 @@ Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `t
 
 ## Accords
 
-Do majeur, un accord par pièce : après une pose acceptée, on joue l'accord de rang *n*, *n* étant
+Do majeur, tonique C4, un accord par pièce : après une pose acceptée, on joue l'accord de rang *n*, *n* étant
 le nombre de pièces sur la grille. La suite d'accords dépend du nombre de pièces de la serrure et
-finit toujours par la **cadence parfaite** V–I : la dernière pose résout sur I.
+finit toujours par la **cadence parfaite** V–I : la dernière pose résout sur I. Les accords
+entendus sont `PadlockGame.chords`, dans la tonalité `PadlockChords.KEY`, sur la suite
+`PadlockGame.progression` ; une reprise retire le
+dernier.
+**Tests :** `PadlockGameTest › the chords heard are one per piece on the grid, from C4 major, the last placement resolving on I`,
+`PadlockGameTest › a game plays the chords of its number of pieces`,
+`PadlockGameTest › a piece taken back takes its chord back`.
 
 | Pièces | Accords |
 |---|---|
@@ -231,7 +237,10 @@ finit toujours par la **cadence parfaite** V–I : la dernière pose résout sur
 | 5 | I – vi – IV – V – I |
 | 6 | I – vi – ii – IV – V – I |
 
-Ce sont des `Progression` de `core:music` (`Progression.parse("IV-V-I")`), sans type à part.
+Ce sont des `Progression` de `core:music` (`PadlockChords.progression(pieceCount)`), sans type à part.
+**Tests :** `PadlockChordsTest › a padlock plays one chord per piece and ends on the perfect cadence V then I`,
+`PadlockChordsTest › the chords of a padlock follow the table of the rules`,
+`PadlockChordsTest › there are no chords for a padlock of fewer than 3 or more than 6 pieces`.
 
 **Son** : arpège de l'accord et basse deux octaves plus bas, joués ensemble ; fanfare de
 résolution ; son de refus. Ce sont des effets sonores superposés (`SoundEffect`), joués par
@@ -242,7 +251,8 @@ la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
 
 Conception de `designer-jeu` (2026-10-26), en Couleurs v2, téléphone debout d'abord ; vue V35
 de la [maquette](maquette.md) (à dessiner). De haut en bas : barre (retour, « SERRURE 04 »,
-coups, cadenas d'état), bande des accords (une pilule par accord, la cadence V–I marquée),
+coups, cadenas d'état), bande des accords (une pilule par chiffre romain de `progression`,
+remplie pour chaque accord de `chords` ; la cadence V–I est la paire des deux dernières),
 serrure (8 × 8 cases de 42 dp au plus, selon la largeur, dans un rebord de métal), message,
 Indice et Recommencer, tuiles des pièces données, puis tourner à gauche, **Poser**, tourner à
 droite.

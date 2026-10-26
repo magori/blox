@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 178 / 239 | `███████████████░░░░░` **74 %** |
+| **Général** | 179 / 240 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : spécification, serrure, génération, partie et indice faits |
+| P7 | Le Serrurier, second jeu | En cours : domaine fait (`core:locksmith`), interface à faire |
 
 ---
 
@@ -1132,8 +1132,9 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   never names a piece already placed`, `the hint finds a way even when the player left the
   solution`, `the hint names the piece that blocks when no way is left`, `when no single piece
   unblocks the padlock the hint names the last piece placed` ; propriété : suivre les indices ouvre 200 serrures par nombre de pièces.
-- [ ] **P7.8** Suites d'accords (`Progression` de `core:music`, ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
-  par V–I ; accord de rang *n* après une pose, *n* pièces sur la grille.
+- [x] **P7.8** Suites d'accords (`PadlockChords`, `Progression` de `core:music` ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
+  par V–I, Do majeur sur C4 ; `PadlockGame.progression` et `PadlockGame.chords` (accord de rang *n*
+  après une pose, *n* pièces sur la grille).
 - [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
   fanfare de résolution, son de refus.
 - [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
@@ -1147,7 +1148,7 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
   captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
   P7.11.
-- [ ] **P7.13** Bande des accords et son : effets de chaque événement, préchauffage, réglage des
+- [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
 - [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
   serrure). Après P7.7 et P7.13.
@@ -1155,6 +1156,8 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
   et nuit, cartouche Serrurier sur V26, jetons métal et trou.
+- [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
+  « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
 
 ---
 

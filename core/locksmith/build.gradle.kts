@@ -5,4 +5,5 @@ plugins {
 // Domaine du Serrurier (ADR 0025) : seulement core:game et core:music, ni Android ni coroutines.
 dependencies {
     api(projects.core.game)
+    api(projects.core.music)
 }
