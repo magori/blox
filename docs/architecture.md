@@ -45,8 +45,10 @@ graph TD
 
     audio --> music[core:music]
 
+    locksmith[core:locksmith] --> game
+
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
-    class game,music pure
+    class game,music,locksmith pure
 ```
 
 Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Le graphe montre la
@@ -62,7 +64,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `feature:locksmith` | Feature | *Prévu (P7, ADR 0025).* Écran du Serrurier, second jeu : serrure, pièces à poser, accords, indice. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
-| `core:locksmith` | Kotlin pur | *Prévu (P7, ADR 0025).* Domaine du Serrurier ([règles](regles-serrurier.md)) : génération des serrures, partie, indice, suites d'accords ; les pièces sont des `Piece` de `core:game`. Dépend de `core:game` et `core:music`, seul module du domaine qui en a. |
+| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`, P7.3) ; à venir, génération, partie, indice, suites d'accords. Les pièces sont des `Piece` de `core:game`. Dépend de `core:game`, et de `core:music` quand viendront les accords (P7.8) : seul module du domaine qui a des dépendances. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel, effets sonores (`SoundEffectPlayer`, pistes statiques, P4.8). |
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
@@ -212,7 +214,7 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 
 | Où | Outils | Ce qu'on teste |
 |---|---|---|
-| `core:game`, `core:music` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
+| `core:game`, `core:music`, `core:locksmith` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
 | Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
 | `src/androidTest` (`feature:*`, `core:designsystem`, `core:board`, `app`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension` ou `runAndroidComposeUiTest`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, état des choix de l'accueil lu par TalkBack (`HomeScreenTest`), cycle de vie de l'écran de jeu (`GameScreenLifecycleTest`). Dans `app`, les parcours entre features sur le vrai `BloxNavDisplay` avec les faux partagés (`BloxNavDisplayTest` : Jouer, retour système, Rejouer, Menu), horloge pilotée à la main (une partie en cours demande une image à chaque image) et fins de partie rapides par la doublure `OneRowPerTickGameEngineFactory` (testFixtures de `core:game`) ; `ui-test-manifest` n'entre que dans l'APK debug de `app`, ni en release ni en `benchmarkRelease` (P5.5). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; compilés en CI (`assembleDebugAndroidTest`), pas exécutés. |
 | `src/screenshotTest` (`feature:*`, `core:designsystem`, `core:board`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Validé en CI (P5.8) : le rendu est identique au pixel près sous Windows, où les références sont générées, et sous Linux (42 captures à 0 % d'écart) ; la tolérance de 0,05 % est une marge, pas une nécessité observée. |

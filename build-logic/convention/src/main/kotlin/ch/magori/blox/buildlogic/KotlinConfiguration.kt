@@ -72,7 +72,7 @@ private fun KotlinJvmCompilerOptions.configureCommonKotlinOptions(target: JvmTar
  * coroutines-test (TestConfiguration.kt), y consentent toutes d'un coup ; ni le code de production,
  * ni les tests instrumentés, ni les tests de captures ne le font.
  *
- * Pas dans les modules Kotlin purs : `core:game` et `core:music` n'ont pas les coroutines, et un
+ * Pas dans les modules Kotlin purs : `core:game`, `core:music` et `core:locksmith` n'ont pas les coroutines, et un
  * marqueur d'opt-in introuvable est un avertissement, donc une erreur (`allWarningsAsErrors`).
  * Le Kotlin intégré d'AGP 9 (ADR 0010) expose les compilations par variante (`target.compilations`),
  * chacune avec sa tâche ; seuls les `kotlin.sourceSets` y sont vides.
