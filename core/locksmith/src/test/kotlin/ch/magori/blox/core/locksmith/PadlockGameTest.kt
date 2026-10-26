@@ -5,6 +5,12 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.music.Chord
+import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Progression
+import ch.magori.blox.core.music.RomanNumeral
+import ch.magori.blox.core.music.Scale
+import ch.magori.blox.core.music.ScaleType
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -252,7 +258,60 @@ class PadlockGameTest {
         assertThat(restarted).isEqualTo(PadlockGame.start(PADLOCK))
     }
 
+    @Test
+    fun `a game plays the chords of its number of pieces`() {
+        assertThat(PadlockGame.start(PADLOCK).progression).isEqualTo(Progression.parse("IV-V-I"))
+        assertThat(PadlockGame.start(STRIP).progression).isEqualTo(Progression.parse("I-IV-V-I"))
+    }
+
+    @Test
+    fun `the chords heard are one per piece on the grid, from C4 major, the last placement resolving on I`() {
+        // Given: a padlock of 4 pieces, I-IV-V-I
+        val start = PadlockGame.start(STRIP)
+
+        // When
+        val one = start.place(Position(3, 1)).game
+        val open = one.place(Position(3, 2)).game.place(Position(6, 1)).game.place(Position(8, 1)).game
+
+        // Then
+        assertThat(start.chords).isEmpty()
+        assertThat(one.chords).containsExactly(chord("I"))
+        assertThat(one.chords.single().root).isEqualTo(Pitch.parse("C4"))
+        assertThat(open.isOpen).isTrue
+        assertThat(open.chords).containsExactly(chord("I"), chord("IV"), chord("V"), chord("I"))
+    }
+
+    @Test
+    fun `a piece taken back takes its chord back`() {
+        // Given: two pieces placed, IV then V
+        val game = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(2, 1)).game
+
+        // When
+        val taken = game.takeBack(0).game
+
+        // Then
+        assertThat(taken.chords).containsExactly(chord("IV"))
+    }
+
     private companion object {
+        /** Two I on the left, two O on the right; given as I, I, O, O. */
+        val STRIP = Padlock.parse(
+            """
+            ##########
+            #11113344#
+            #22223344#
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
+        fun chord(numeral: String): Chord = Scale(Pitch.parse("C4"), ScaleType.MAJOR).chord(RomanNumeral.parse(numeral))
+
         /** O on rank 1, I on rank 2, T on rank 3; given as I, O, T. */
         val PADLOCK = Padlock.parse(
             """

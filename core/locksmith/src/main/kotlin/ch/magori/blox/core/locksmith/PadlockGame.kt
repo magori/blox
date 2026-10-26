@@ -6,6 +6,8 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.music.Chord
+import ch.magori.blox.core.music.Progression
 
 /**
  * A game of the Locksmith on [padlock]: the pieces [given] to the player, identified by their rank,
@@ -32,6 +34,16 @@ public data class PadlockGame private constructor(
 
     /** The ranks of the placed pieces, in the order they were placed. */
     public val placementOrder: List<Int> get() = placements.map { it.first }
+
+    /**
+     * The chords heard so far, in [PadlockChords.KEY]: one per piece on the grid, the first ones of the
+     * progression of the padlock, so that the last placement resolves on I.
+     */
+    public val chords: List<Chord>
+        get() = progression.numerals.take(placements.size).map(PadlockChords.KEY::chord)
+
+    /** The chords of this padlock, one per given piece, in the order they are heard. */
+    public val progression: Progression get() = PadlockChords.progression(given.size)
 
     /** Whether every given piece is placed: the padlock is open. */
     public val isOpen: Boolean get() = placements.size == given.size
