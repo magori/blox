@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 174 / 239 | `███████████████░░░░░` **73 %** |
+| **Général** | 175 / 239 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : spécification et serrure (`Padlock`) faites |
+| P7 | Le Serrurier, second jeu | En cours : spécification, serrure et candidat faits |
 
 ---
 
@@ -1107,9 +1107,9 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   union of the cells of the solution`, `two pieces of a solution cannot overlap`, `a padlock holds 3
   to 6 pieces`, `the hole stays inside the outer ring`, `every piece but the first touches an earlier
   one edge to edge`, `parse reads the hole and the pieces of the solution`.
-- [ ] **P7.4** Candidat (`PadlockGenerator`, interne) : 200 essais par pièce, pivot et cases dans
+- [x] **P7.4** Candidat (`PadlockGenerator`, interne) : 200 essais par pièce, pivot et cases dans
   les 8 × 8 intérieures, collées bord à bord, abandon sinon. Cas : `a candidate has the number of
-  pieces asked`, `a candidate is a valid padlock`, `a candidate that cannot place a piece is ruled
+  pieces asked`, `a candidate is a valid padlock whatever the random`, `a candidate that cannot place a piece is ruled
   out`, `the same random gives the same candidate`.
 - [ ] **P7.5** Composer, puis évaluer : `generate(pieceCount, seed)`, 20 candidats par graine
   (abandonnés compris), trou rectangulaire éliminé, note entière `10 × contour + 30 × variété −

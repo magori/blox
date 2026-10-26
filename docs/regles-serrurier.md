@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> Seule la grille est implémentée (P7.3) ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
+> La grille (P7.3) et le candidat (P7.4) sont implémentés ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -80,6 +80,15 @@ même graine donne toujours la même serrure.
    toutes ses cases sont dans les 8 × 8 intérieures, libres, et (sauf pour la première pièce) si
    l'une touche par un bord une case déjà prise. Si une pièce n'est pas placée en 200 essais, le
    candidat est abandonné.
+   **Tests :** `PadlockGeneratorTest › a candidate has the number of pieces asked`,
+   `PadlockGeneratorTest › a candidate is a valid padlock whatever the random`,
+   `PadlockGeneratorTest › a candidate that cannot place a piece is ruled out`,
+   `PadlockGeneratorTest › the same random gives the same candidate`,
+   `PadlockGeneratorTest › different randoms give different candidates`,
+   `PadlockGeneratorTest › each piece gets its own attempts`,
+   `PadlockGeneratorTest › almost every random gives a candidate of 6 pieces`,
+   `PadlockGeneratorTest › the first piece of a candidate takes every placement inside the ring`,
+   `PadlockGeneratorTest › over many randoms the candidates use every orientation of every type and every inner cell`.
 2. **20 candidats** par graine, abandonnés compris.
 3. **Élimination** : un trou rectangulaire (il remplit sa boîte englobante) n'est pas une
    serrure.

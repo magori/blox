@@ -29,7 +29,7 @@ public data class Padlock(public val solution: List<Piece>) {
 
     private fun touchesAnEarlierPiece(index: Int): Boolean {
         val earlier = solution.take(index).flatMap(Piece::cells).toSet()
-        return solution[index].cells.any { cell -> NEIGHBOURS.any { cell + it in earlier } }
+        return touchesByAnEdge(solution[index].cells, earlier)
     }
 
     public companion object {
@@ -38,7 +38,8 @@ public data class Padlock(public val solution: List<Piece>) {
 
         private val PIECE_COUNTS = 3..6
 
-        private val INSIDE = 1..SIZE - 2
+        /** The rows and columns inside the outer ring of metal. */
+        internal val INSIDE: IntRange = 1..SIZE - 2
 
         /** The four cells that share an edge with a cell, as offsets. */
         private val NEIGHBOURS = listOf(Position(1, 0), Position(-1, 0), Position(0, 1), Position(0, -1))
@@ -49,7 +50,13 @@ public data class Padlock(public val solution: List<Piece>) {
         private val RANKS = '1'..'6'
 
         /** Whether [position] is inside the outer ring of metal, where the hole may lie. */
-        private fun isInside(position: Position): Boolean = position.column in INSIDE && position.row in INSIDE
+        internal fun isInside(position: Position): Boolean = position.column in INSIDE && position.row in INSIDE
+
+        /** Whether one of [cells] shares an edge with one of [others]. */
+        internal fun touchesByAnEdge(
+            cells: Set<Position>,
+            others: Set<Position>,
+        ): Boolean = cells.any { cell -> NEIGHBOURS.any { cell + it in others } }
 
         /**
          * Reads a padlock from [SIZE] lines of [SIZE] characters, for tests: `#` is metal, a digit from
