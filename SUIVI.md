@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 176 / 239 | `███████████████░░░░░` **74 %** |
+| **Général** | 177 / 239 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : spécification, serrure et génération faites |
+| P7 | Le Serrurier, second jeu | En cours : spécification, serrure, génération et partie faites |
 
 ---
 
@@ -1121,11 +1121,11 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   the draws of the previous ones`, `when every candidate is ruled out the next seed is tried`, `the
   same seed gives the same padlock` ; propriété : toute serrure de 500 graines, de 3 à 6 pièces, est
   valide.
-- [ ] **P7.6** `PadlockGame`, partie immuable : pièces données par rang, chacune avec son
-  orientation ; choix, quart de tour, pose acceptée ou refusée (`OutOfHole` l'emporte sur
-  `Overlap`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
-  tout ignoré sauf Recommencer), recommencer, compteurs coups, refus, indices ; événements
-  `PiecePlaced`, `PlacementRefused`, `PieceTakenBack`, `PadlockOpened`.
+- [x] **P7.6** `PadlockGame`, partie immuable : pièces données par rang, chacune avec son
+  orientation ; choix, quart de tour, pose acceptée ou refusée (`Refusal.OUT_OF_HOLE` l'emporte sur
+  `OVERLAP`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
+  tout ignoré sauf Recommencer), recommencer, compteurs coups et refus (indices : P7.7) ; événements
+  `PiecePlaced`, `PlacementRefused`, `PieceTakenBack`, `PadlockOpened` dans un `PadlockUpdate`.
 - [ ] **P7.7** Indice : solveur de couverture exacte dans l'ordre fixé par les règles (rang,
   orientation, pivot) ; sinon la pièce posée la plus récente dont le retrait seul débloque, à
   défaut la dernière posée ; `HintGiven`. Cas : `the hint shows where a free piece fits`, `the hint
