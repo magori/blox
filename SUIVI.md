@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 190 / 255 | `███████████████░░░░░` **75 %** |
+| **Général** | 191 / 256 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1269,14 +1269,14 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   `LocksmithViewModel.Factory`, `LocksmithUiState`, écran minimal toujours en Couleurs. Une seule entrée
   publique du générateur, `Padlock.generate(level, seed)`, qui délègue à la surcharge interne :
   `seeds`, `compose`, `candidate` et `rating` restent internes.
-- [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
-  aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
-  captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
-  P7.11.
+- [x] **P7.12** Écran jouable : grille 10 × 10 (anneau de métal compris, cases de 42 dp au plus),
+  bande des accords, message, Indice et Recommencer, tuiles des pièces, tourner, Poser ; toucher qui
+  vise, pose par un second toucher, reprend une pièce posée ; aperçu, cases fautives barrées,
+  indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
 - [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
-- [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
-  serrure). Après P7.7 et P7.13.
+- [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
+  étant faits en P7.12. Après P7.7 et P7.13.
 - [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
@@ -1289,6 +1289,15 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
 - [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
   (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [ ] **P7.20** Serrurier, finitions de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
+  intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
+  en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; retours animés
+  de la pose, du refus (tremblement), de la serrure ouverte et de l'indice, chacun en « Effets réduits »
+  (ADR 0024) ; TalkBack : grille en collection, orientation de la pièce choisie, accords entendus, refus
+  répété annoncé, pièce désignée par l'indice nommée ; tuile choisie dont l'anneau descend avec la tuile ;
+  captures (aperçu refusé, pièce qui bloque, serrure ouverte) ; UI Test instrumenté (poser, refuser,
+  reprendre) ; stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le
+  nombre de pistes d'effets (ADR 0025).
 
 ---
 
