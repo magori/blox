@@ -1,6 +1,6 @@
 # 0022 — Choix du jeu : une feature à la racine de la pile
 
-- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md)
+- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md)
 - **Date** : 2026-10-25
 
 ## Contexte

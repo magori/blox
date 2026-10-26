@@ -16,4 +16,9 @@
     <string name="core_designsystem_choice_soon">Bientôt</string>
     <!-- Lu par TalkBack à la place du libellé d’un choix pas encore disponible ; son état désactivé dit le reste. -->
     <string name="core_designsystem_choice_unavailable">%1$s, bientôt</string>
+    <!-- Les curseurs à pas (P5.62) : boutons − et + de la jauge, tus pour TalkBack, qui lit un seul curseur. -->
+    <string name="core_designsystem_stepper_decrease">Moins</string>
+    <string name="core_designsystem_stepper_increase">Plus</string>
+    <!-- La valeur d’un curseur de volume, à droite de sa piste et lue par TalkBack : « 50 % », espace fine insécable. -->
+    <string name="core_designsystem_volume_percent">%1$d %%</string>
 </resources>
