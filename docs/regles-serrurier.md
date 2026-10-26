@@ -255,7 +255,8 @@ Ce sont des `Progression` de `core:music` (`PadlockChords.progression(pieceCount
 `PadlockChordsTest › there are no chords for a padlock of fewer than 3 or more than 6 pieces`.
 
 **Son** : arpège de l'accord et basse deux octaves plus bas, joués ensemble ; fanfare de
-résolution ; son de refus. Ce sont des effets sonores superposés (`SoundEffect`), joués par
+serrure ouverte ; son de refus (`LocksmithSounds`, valeurs dans [musique.md](musique.md#effets-sonores)). Ce
+sont des effets sonores superposés (`SoundEffect`), joués par
 `SoundEffectPlayer` et soumis au réglage des effets sonores. Une reprise ne coupe aucun son : seule
 la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
 
