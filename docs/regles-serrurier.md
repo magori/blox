@@ -130,13 +130,25 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
 
 - Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
   serrure 4.
+  La serrure *n* d'une graine est `Padlock.generate(level, seed)`, seule entrée publique du
+  générateur.
   **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
-  `PadlockGenerationTest › there is no padlock before padlock 1`.
+  `PadlockGenerationTest › there is no padlock before padlock 1`,
+  `PadlockGenerationTest › padlock n of a seed holds min of 6 and 2 plus n pieces`,
+  `PadlockGenerationTest › the same level and seed give the same padlock, another seed another one`,
+  `PadlockGenerationTest › there is no padlock 0`.
 - Chaque serrure a sa graine, tirée par l'application quand elle ouvre la serrure suivante (clé
-  de navigation `LocksmithRoute(level, seed)`). La graine n'est pas affichée : la suite de
-  `Random` n'est pas un contrat (ADR 0014), une graine partagée demanderait un générateur maison.
+  de navigation `LocksmithRoute(level, seed)`). La clé numérote les serrures dès 1, et la suivante
+  est `route.next(seed)`. La graine n'est pas affichée : la suite de `Random` n'est pas un contrat
+  (ADR 0014), une graine partagée demanderait un générateur maison.
+  **Tests :** `LocksmithRouteTest › padlocks are numbered from 1`,
+  `LocksmithRouteTest › the next padlock is one level up, on the seed it is given`,
+  `LocksmithViewModelTest › the screen opens on padlock n of the seed of its route, nothing placed`,
+  `LocksmithViewModelTest › the factory builds the padlock and the level of the route the entry hands it`,
+  `LocksmithViewModelTest › the factory fails clearly without the route of the entry`.
 - Après la mort du processus, la clé restaurée régénère la même serrure depuis sa graine, **sans
   pièce posée**.
+  **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`.
 - Le niveau n'est pas enregistré : la cartouche ouvre toujours la serrure 1. Reprendre à la
   dernière serrure demandera une préférence (point ouvert).
 
@@ -243,11 +255,16 @@ Ce sont des `Progression` de `core:music` (`PadlockChords.progression(pieceCount
 `PadlockChordsTest › there are no chords for a padlock of fewer than 3 or more than 6 pieces`.
 
 **Son** : arpège de l'accord et basse deux octaves plus bas, joués ensemble ; fanfare de
-résolution ; son de refus. Ce sont des effets sonores superposés (`SoundEffect`), joués par
+serrure ouverte ; son de refus (`LocksmithSounds`, valeurs dans [musique.md](musique.md#effets-sonores)). Ce
+sont des effets sonores superposés (`SoundEffect`), joués par
 `SoundEffectPlayer` et soumis au réglage des effets sonores. Une reprise ne coupe aucun son : seule
 la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
 
 ## Écran
+
+**Thème : Couleurs v2 seulement** (décision du développeur, 2026-10-26). L'écran du Serrurier est
+toujours dessiné en Couleurs, de jour ou de nuit selon le téléphone, quel que soit le thème choisi
+pour le Classique ; il n'a pas d'aspect Original.
 
 Conception de `designer-jeu` (2026-10-26), en Couleurs v2, téléphone debout d'abord ; vue V35
 de la [maquette](maquette.md) (à dessiner). De haut en bas : barre (retour, « SERRURE 04 »,
@@ -257,6 +274,32 @@ serrure (8 × 8 cases de 42 dp au plus, selon la largeur, dans un rebord de mét
 Indice et Recommencer, tuiles des pièces données, puis tourner à gauche, **Poser**, tourner à
 droite.
 
+- **Cases de la serrure** (`core:board`, `LockCell`, `LockCellCanvas`, en Couleurs seulement) : le
+  métal (`lock-metal`, à 3:1 au moins du trou et de la page, un rivet `lock-rivet` plus foncé au
+  centre) ; le trou (case vide du plateau, enfoncée par `lock-hole-inset`) ; la pièce posée (sa
+  bulle du plateau) ; l'aperçu qui tient (plat, cerné d'un contour `ink`) ; l'aperçu refusé (une
+  croix sur chaque case fautive) ; l'indice (teinte `lock-hint` et un point `ink`, sur une case
+  libre ou sur la pièce posée qui bloque). Aucun état ne repose sur la seule couleur.
+  **Tests :** `LockCellStylesTest › a metal cell is a square of lock metal with a rivet in its centre`,
+  `LockCellStylesTest › a rivet is darker than the metal, so that it does not read as a small hole`,
+  `LockCellStylesTest › the metal stands out from the hole and from the page by 3 to 1 at least`,
+  `LockCellStylesTest › a hole is an empty cell of the board sunk by the hole inset`,
+  `LockCellStylesTest › a placed piece has the bubble it has on the board`,
+  `LockCellStylesTest › a preview that fits differs from its placed piece by more than its colour`,
+  `LockCellStylesTest › a preview that does not fit is crossed out, so that the refusal does not rest on colour`,
+  `LockCellStylesTest › the cross of a refused preview reads on every piece, by its ink or by its halo`,
+  `LockCellStylesTest › a hint reads apart from the hole and from every preview without colour`,
+  `LockCellStylesTest › a placed piece named by the hint bears the hint mark`,
+  `LockCellStylesTest › the padlock has no style in the Original theme, the Locksmith is drawn in the Colorful theme only`,
+  `LockTokensTest › each colour token of the padlock is its colour in the code, day and night`,
+  `LockTokensTest › the hole inset of tokens json is the inner shadow of a hole, day and night`,
+  `LockTokensTest › every lock token of tokens json is coded in core board`.
+  Point ouvert : les pièces posées se détachent du métal à moins de 3:1 de jour (de 1,7:1 à
+  2,8:1), par leur forme et leur relief plus que par la couleur ; à juger par `designer-jeu`.
+- Les tuiles des pièces données dessinent la pièce ramenée en haut à gauche
+  (`Orientation.broughtToOrigin()`, comme la pièce suivante du Classique).
+  **Tests :** `OrientationTest › an orientation brought to the origin touches row 0 and column 0`,
+  `OrientationTest › bringing an orientation to the origin keeps its shape`.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
@@ -266,3 +309,12 @@ droite.
   marqué jusqu'à la pose suivante.
 - Serrure ouverte : carte avec les compteurs, **Serrure suivante** et **Rejouer cette serrure**.
 - Pas de bouton pour passer une serrure : l'indice débloque.
+- L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
+  l'action (deux refus à la suite restent deux retours) et l'indice affiché, jusqu'à la pose
+  acceptée suivante, une reprise ou Recommencer.
+  **Tests :** `LocksmithViewModelTest › a placement gives the next game and its events`,
+  `LocksmithViewModelTest › a refused placement tells its reason`,
+  `LocksmithViewModelTest › two refusals in a row are two moves the screen can tell apart`,
+  `LocksmithViewModelTest › a hint shows where a piece fits until the next placement`,
+  `LocksmithViewModelTest › taking a piece back gives the next game and its event`,
+  `LocksmithViewModelTest › restart keeps the padlock and starts it over, hint and events cleared`.
