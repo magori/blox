@@ -30,35 +30,77 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
     internal val uiState: StateFlow<LocksmithUiState> = state.asStateFlow()
 
     /** Selects the free given piece of [rank]. */
-    internal fun select(rank: Int): Unit = change { it.select(rank) }
+    internal fun select(rank: Int): Unit = arrange { it.copy(game = it.game.select(rank)) }
 
     /** Turns the selected piece a quarter turn by [rotation]. */
-    internal fun turn(rotation: Rotation): Unit = change { it.turn(rotation) }
+    internal fun turn(rotation: Rotation): Unit = arrange { it.copy(game = it.game.turn(rotation)) }
+
+    /**
+     * A touch of the padlock on [position]: on the preview, places it (refused over a placed piece, which the preview
+     * hides); on a placed piece, takes it back as a preview where it lay; elsewhere, aims the selected piece there.
+     */
+    internal fun tap(position: Position) {
+        val current = state.value
+        val rank = current.game.rankAt(position)
+        when {
+            current.preview?.cells?.contains(position) == true -> placeAim()
+            rank != null -> takeBack(rank)
+            else -> arrange { it.copy(aim = position) }
+        }
+    }
+
+    /** Places the preview, if there is one; it is gone once placed, kept where it is when refused. */
+    internal fun placeAim() {
+        state.value.aim?.let(::place)
+    }
 
     /** Places the selected piece, its pivot on [pivot]. */
     internal fun place(pivot: Position): Unit = judge { it.place(pivot) }
 
-    /** Takes the placed piece of [rank] back. */
-    internal fun takeBack(rank: Int): Unit = judge { it.takeBack(rank) }
+    /** Takes the placed piece of [rank] back: it becomes the preview, where it lay. */
+    internal fun takeBack(rank: Int) {
+        val pivot = state.value.game.placed[rank]?.pivot ?: return
+        judge(aimAfter = pivot) { it.takeBack(rank) }
+    }
 
     /** Asks for a hint, shown until the next placement accepted. */
     internal fun hint(): Unit = judge { it.hint() }
 
     /** Starts the same padlock over: nothing placed, no hint. */
-    internal fun restart(): Unit = state.update { it.copy(game = it.game.restart(), events = emptyList(), hint = null) }
+    internal fun restart(): Unit =
+        state.update { it.copy(game = it.game.restart(), events = emptyList(), hint = null, aim = null) }
 
-    /** An action that tells nothing to the screen but the next game. */
-    private fun change(action: (PadlockGame) -> PadlockGame) = state.update { it.copy(game = action(it.game)) }
+    /**
+     * An action of the player that the domain does not judge (choose, turn, aim): the events of the last judged action
+     * are forgotten, a refusal told no longer once the preview has changed, without counting a move. Nothing changes once
+     * the padlock is open.
+     */
+    private fun arrange(action: (LocksmithUiState) -> LocksmithUiState) = state.update { current ->
+        if (current.game.isOpen) current else action(current).copy(events = emptyList())
+    }
 
-    /** An action the domain judges: the next game, the events it tells, and the hint they leave shown. */
-    private fun judge(action: (PadlockGame) -> PadlockUpdate) = state.update { current ->
+    /**
+     * An action the domain judges, in one update: the next game, the events it tells, and the hint they leave shown;
+     * the preview is gone once a piece is placed, or put on [aimAfter]. An action the domain ignores (it tells no event)
+     * changes nothing, the events of the last one kept.
+     */
+    private fun judge(
+        aimAfter: Position? = null,
+        action: (PadlockGame) -> PadlockUpdate,
+    ) = state.update { current ->
         val (game, events) = action(current.game)
-        val hint = when (val first = events.firstOrNull()) {
+        if (events.isEmpty()) return@update current
+        val hint = when (val first = events.first()) {
             is PadlockEvent.HintGiven -> first.hint
             is PadlockEvent.PiecePlaced, is PadlockEvent.PieceTakenBack -> null
             else -> current.hint
         }
-        current.copy(game = game, events = events, move = current.move + 1, hint = hint)
+        val aim = when {
+            aimAfter != null -> aimAfter
+            events.any { it is PadlockEvent.PiecePlaced } -> null
+            else -> current.aim
+        }
+        current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim)
     }
 
     /**

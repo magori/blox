@@ -190,6 +190,7 @@ Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `t
   **Tests :** `PadlockGameTest › the order of the placements is kept, a piece taken back leaves it`,
   `PadlockGameTest › a piece taken back and placed again is the last placed`,
   `PadlockGameTest › two games whose pieces were placed in a different order are not equal`.
+- La partie dit quelle pièce posée couvre une case (`rankAt`) et où irait la pièce choisie, pivot sur  une case (`selectedAt`), comme `place` la poserait ; l'écran en tire son aperçu.  **Tests :** `PadlockGameTest › a cell tells the rank of the placed piece that covers it, if any`,  `PadlockGameTest › the selected piece put down on a cell is its type, in its orientation, its pivot there`,  `PadlockGameTest › an open padlock has no selected piece to put down`.
 - **Compteurs**, séparés :
   - **coups** : les poses acceptées, y compris celles reprises ensuite ;
   - **refus** : les poses refusées ;
@@ -303,10 +304,51 @@ droite.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
-  état de l'écran, le domaine ne juge que la pose.
-- Retours de la pose, du refus, de la serrure ouverte et de l'indice, chacun avec sa version
-  « Effets réduits » ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)). L'indice reste
-  marqué jusqu'à la pose suivante.
+  état de l'écran, le domaine ne juge que la pose. Toucher une pièce posée, ou sa tuile, la
+  reprend : elle redevient l'aperçu, là où elle était. Un refus garde l'aperçu en place ; tourner,
+  choisir ou déplacer l'aperçu oublie la raison du refus. Un toucher sur l'aperçu le pose, même au-dessus
+  d'une pièce posée (refusé : chevauchement) ; une fois la serrure ouverte, le toucher ne fait rien et
+  « Serrure suivante » remplace Poser. Indice est grisé tant qu'un indice est affiché.
+  **Tests :** `LocksmithTapTest › touching a cell aims the selected piece there, its pivot on that cell, nothing placed`,
+  `LocksmithTapTest › touching a cell outside the preview moves it there`,
+  `LocksmithTapTest › a second touch on the preview places it and the preview is gone`,
+  `LocksmithTapTest › a refused second touch keeps the preview where it is and tells why`,
+  `LocksmithTapTest › a refusal keeps the preview, the place button tells the reason`,
+  `LocksmithTapTest › the place button places the preview`,
+  `LocksmithTapTest › the place button does nothing without a preview`,
+  `LocksmithTapTest › touching a placed piece takes it back as a preview where it lay`,
+  `LocksmithTapTest › taking a placed piece back by its tile shows it as a preview where it lay`,
+  `LocksmithTapTest › touching the preview over a placed piece is refused as an overlap, nothing taken back`,
+  `LocksmithTapTest › moving or turning the preview after a refusal forgets the refusal, without counting a move`,
+  `LocksmithTapTest › once the padlock is open a touch changes nothing`,
+  `LocksmithTapTest › restart clears the preview`.
+- Ce que montre la grille : le trou, le métal, les pièces posées, l'indice (sur ses cases libres ou
+  sur la pièce qui bloque), puis l'aperçu par-dessus, chaque case fautive barrée.
+  **Tests :** `LockCellsTest › the screen draws the 10 by 10 cells of the padlock, the hole as holes and the rest as metal`,
+  `LockCellsTest › a preview cell on the ring of metal is drawn crossed out`,
+  `LockCellsTest › a placed piece shows its type on its cells`,
+  `LockCellsTest › the preview shows the selected piece, each cell off the hole or over a placed piece crossed out`,
+  `LockCellsTest › a preview over a placed piece crosses out the cells they share`,
+  `LockCellsTest › a hint marks the free cells where its piece fits`,
+  `LockCellsTest › a hint naming a placed piece marks that piece`,
+  `LockCellsTest › the preview is drawn over the hint`.
+- Le message sous la serrure dit, dans cet ordre : la serrure ouverte, la raison d'un refus, ce
+  que marque l'indice, puis comment jouer, avec ou sans aperçu. TalkBack le lit sans
+  interrompre ; chaque case se lit « Colonne c, ligne l : trou, métal, pièce… ».
+  **Tests :** `LocksmithMessageTest › without a preview the message says to touch the hole`,
+  `LocksmithMessageTest › with a preview the message says to touch it again or to place it`,
+  `LocksmithMessageTest › a refusal tells its reason`,
+  `LocksmithMessageTest › a refusal is told before the hint and the preview`,
+  `LocksmithMessageTest › a hint is told before the preview`,
+  `LocksmithMessageTest › a hint tells where a piece fits, or that a placed piece blocks`,
+  `LocksmithMessageTest › an open padlock says so, whatever came before`.
+  **Vues :** V35 (captures `LocksmithDay` et `LocksmithNight` de `LocksmithScreenshots.kt`).
+- Écart à la conception (P7.12) : la grille montre ses 10 × 10 cases, l'anneau de métal compris,
+  de 42 dp au plus, soit 35,8 dp sur un téléphone de 390 dp, sous les 48 dp d'une cible ; le
+  rebord mince autour des 8 × 8 intérieures (cases de 42 dp) reste à faire (P7.20).
+- Retours animés de la pose, du refus, de la serrure ouverte et de l'indice, chacun avec sa
+  version « Effets réduits » ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)) : à faire
+  (P7.20). L'indice reste marqué jusqu'à la pose suivante.
 - Serrure ouverte : carte avec les compteurs, **Serrure suivante** et **Rejouer cette serrure**.
 - Pas de bouton pour passer une serrure : l'indice débloque.
 - L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
