@@ -115,6 +115,12 @@ ni grille de trois colonnes (P5.30).
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 
+Prévu (P8) : un sixième choix, *Vivante*, une musique composée pour chaque partie, calme puis
+tendue quand la pile monte, qui accélère avec les niveaux. Spécification :
+[musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
+([graine-du-jour.md](graine-du-jour.md)). Les jeux musicaux Au tempo et Jardin musical ont leur
+propre son : [regles-au-tempo.md](regles-au-tempo.md), [jardin-musical.md](jardin-musical.md).
+
 ## Modèle
 
 ```

@@ -1,6 +1,6 @@
 # 0012 — L'horloge d'images appartient à l'écran, le ViewModel ne fait qu'avancer
 
-- **Statut** : Acceptée ; remplace le point « coroutine dans le scope du ViewModel » de l'[ADR 0006](0006-boucle-de-jeu-a-pas-fixe.md)
+- **Statut** : Acceptée ; remplace le point « coroutine dans le scope du ViewModel » de l'[ADR 0006](0006-boucle-de-jeu-a-pas-fixe.md) ; complétée par [0024](0024-retours-de-jeu-et-effets-reduits.md) ; amendée par [0028](0028-au-tempo-droptiming-et-horloge-audio.md) (horloge audio d'Au tempo)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -108,3 +108,14 @@ devient `FrameTicks.reset()`. La classe reste pure (sans coroutine ni horloge), 
 (`FrameTicksTest`) ; elle vit dans `core:designsystem` parce que les deux features en dépendent
 déjà et que le domaine ne doit pas connaître le temps réel (ADR 0006). `TICKS_PER_SECOND` y est
 public.
+
+## Amendement (ADR 0028, 2026-10-26)
+
+Pour Au tempo, le temps qui nourrit `FrameTicks` n'est plus celui de l'image mais le temps de la
+musique entendu, `Playback.heardNanos()` (`AudioTrack.getTimestamp`, latence comprise). L'écran
+continue de cadencer `onFrame` à chaque image ; à chaque image, le ViewModel d'Au tempo lit
+`heardNanos()` sur son propre `Playback` au lieu du temps d'image reçu. Le ViewModel lit donc une
+horloge, l'horloge audio, par une source de temps injectable que le faux lecteur double dans les
+tests. `heardNanos()` est monotone depuis `play` : il ne recule jamais, même en boucle. Pas de
+plafond de ticks par image, et repli sur l'horloge d'images si la musique est en échec. Le
+ViewModel reste le seul écrivain du `GameState`.
