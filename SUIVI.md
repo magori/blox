@@ -1159,7 +1159,8 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
-  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
+  et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
+  (claude.ai), dont `tokens.json` est la copie (ADR 0019).
 - [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
 
