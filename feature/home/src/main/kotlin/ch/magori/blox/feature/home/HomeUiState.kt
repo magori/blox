@@ -9,7 +9,7 @@ import ch.magori.blox.core.data.ThemeChoice
  * @property theme the chosen theme.
  * @property music the music chosen on the home screen, the one the games play when no [gameMusic] is chosen.
  * @property startLevel the chosen start level, always one of [startLevels].
- * @property startLevels the levels the mode lets a game start at, in increasing order.
+ * @property startLevels the levels the mode lets a game start at, one after the other: the gauge offers each of them.
  * @property record the best score, its real value: the screen caps what it shows.
  * @property listenable the musics the player may listen to before playing: those with a BloX score, and « Mon
  *   fichier » once a music file is picked.
@@ -22,7 +22,7 @@ internal data class HomeUiState(
     val theme: ThemeChoice,
     val music: MusicChoice,
     val startLevel: Int,
-    val startLevels: List<Int>,
+    val startLevels: IntRange,
     val record: Int,
     val listenable: List<MusicChoice>,
     val previewing: MusicChoice?,

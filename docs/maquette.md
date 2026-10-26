@@ -73,6 +73,21 @@ nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche vi
 `BloxNavDisplayTest › the system back on the cartridges leaves the application`,
 `HomeViewModelTest › changing the game stops the preview`.
 
+**V27 codé** (P5.75, `feature:home`, téléphone debout) : barre (Changer de jeu, puce Record « RECORD » et score sur
+6 chiffres, lue « Record N », Paramètres) ; Jouer XL avec le rappel « Classique · Niveau 05 · Korobeïniki » (coupé
+par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, Korobeïniki ») ; carte des
+réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
+Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
+et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
+`HomeColumn`) pour les formats de P5.84 ; logo et titre provisoires jusqu'au héros de P5.77.
+**Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
+`HomeScreenTest › the gauge chooses the start level and saves it`,
+`HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
+`HomeScreenTest › TalkBack reads the parts in the order of the screen`,
+`HomeScreenTest › in a normal font, on 360 dp, the tiles stand side by side, as high as each other`,
+`HomeScreenTest › in a font twice as large, on 360 dp, the tiles stand one above the other, each as wide as the line`,
+`LabelledControlTest › in a font twice as large, the label goes above and the gauge under it, centred on the line`.
+
 Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
 pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un
 téléphone). Seule la police normale est dessinée : les variantes en police ×2 (barre d'outils de

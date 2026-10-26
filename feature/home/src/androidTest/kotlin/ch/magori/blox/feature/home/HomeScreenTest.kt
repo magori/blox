@@ -28,6 +28,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
@@ -74,7 +75,7 @@ internal class HomeScreenTest {
         theme = ThemeChoice.COLORFUL,
         music = MusicChoice.MINUET,
         startLevel = 5,
-        startLevels = (0..9).toList(),
+        startLevels = 0..9,
         record = 0,
         listenable = emptyList(),
         previewing = null,
@@ -426,12 +427,15 @@ internal class HomeScreenTest {
         )
         val read = readingOrder(onRoot().fetchSemanticsNode()).filter { (name, _) -> name in expected }
         assertThat(read.map { it.first }).containsExactlyElementsOf(expected)
-        // And each part stands under the one before, or beside it on its line, after it
+        // And each part stands beside the one before on its line, after it, whatever their heights (a label is centred
+        // beside a taller group), or on a row under it
         read.zipWithNext().forEach { (before, after) ->
             val (a, b) = before.second to after.second
-            assertThat(b.top).describedAs("${after.first} after ${before.first}").isGreaterThanOrEqualTo(a.top)
-            if (b.top < a.bottom) {
+            val sameLine = b.top < a.bottom && b.bottom > a.top
+            if (sameLine) {
                 assertThat(b.left).describedAs("${after.first} beside ${before.first}").isGreaterThanOrEqualTo(a.left)
+            } else {
+                assertThat(b.top).describedAs("${after.first} under ${before.first}").isGreaterThanOrEqualTo(a.top)
             }
         }
     }
@@ -543,6 +547,43 @@ internal class HomeScreenTest {
         }
     }
 
+    @Test
+    @DisplayName("in a normal font, on 360 dp, the tiles stand side by side, as high as each other")
+    fun inANormalFontTheTilesStandSideBySide() = extension.use {
+        // Given the normal font, on 360 dp, in Couleurs (the pixel font of Original, wider, stacks them already: it
+        // stays readable, the tiles of Original are not drawn otherwise)
+        showHomeScreen(width = NARROW_PHONE, kind = BloxThemeKind.COLORFUL)
+
+        // Then
+        val (myMusics, compose) = tiles()
+        assertThat(compose.top).isEqualTo(myMusics.top)
+        assertThat(compose.left).isGreaterThanOrEqualTo(myMusics.right)
+        assertThat(compose.bottom).isEqualTo(myMusics.bottom)
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a font twice as large, on 360 dp, the tiles stand one above the other, each as wide as the line")
+    fun inALargeFontTheTilesStandOneAboveTheOther(kind: BloxThemeKind) = extension.use {
+        // Given a font twice as large, on 360 dp, where « Composer » no longer holds in half the line
+        showHomeScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
+
+        // Then
+        val (myMusics, compose) = tiles()
+        assertThat(compose.top).isGreaterThanOrEqualTo(myMusics.bottom)
+        listOf(myMusics, compose).forEach { tile ->
+            assertThat(tile.left.value).isCloseTo(16f, within(PIXEL_ROUNDING))
+            assertThat(tile.right.value).isCloseTo((NARROW_PHONE - 16.dp).value, within(PIXEL_ROUNDING))
+        }
+    }
+
+    /** Where the tiles Mes musiques and Composer une musique stand, once the home scrolled down to the last. */
+    private fun ComposeContext.tiles(): Pair<DpRect, DpRect> {
+        val myMusics = onNode(hasText("Mes musiques") and hasClickAction())
+        val compose = onNode(hasText("Composer une musique") and hasClickAction()).performScrollTo()
+        return myMusics.getUnclippedBoundsInRoot() to compose.getUnclippedBoundsInRoot()
+    }
+
     /** The text shown as [text], as laid out. */
     private fun ComposeContext.textLayout(text: String): TextLayoutResult {
         val label = onNode(hasText(text), useUnmergedTree = true).fetchSemanticsNode()
@@ -649,8 +690,8 @@ internal class HomeScreenTest {
         listOf(
             hasTestTag(PLAY_TAG),
             hasContentDescription("Écouter Menuet"),
-            hasText("Mes musiques") and hasClickAction(),
-            hasText("Composer une musique") and hasClickAction(),
+            tileIn("Mes musiques"),
+            tileIn("Composer une musique"),
         ).forEach { button ->
             iconOf(button)
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
@@ -713,6 +754,9 @@ internal class HomeScreenTest {
             assertThat(bounds.right).isLessThanOrEqualTo(NARROW_PHONE)
         }
     }
+
+    /** A tile in the tree of its parts, unmerged: the button, its label under it. */
+    private fun tileIn(label: String): SemanticsMatcher = hasClickAction() and hasAnyDescendant(hasText(label))
 
     /** The icon of the button [button] matches, alone in it. */
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =

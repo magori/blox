@@ -126,7 +126,7 @@ private fun HomeScreenPreview(
                 theme = theme,
                 music = MusicChoice.KOROBEINIKI,
                 startLevel = 5,
-                startLevels = (0..9).toList(),
+                startLevels = 0..9,
                 record = 12_340,
                 // A music file kept: « Mon fichier » shows its listen and change buttons.
                 listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),

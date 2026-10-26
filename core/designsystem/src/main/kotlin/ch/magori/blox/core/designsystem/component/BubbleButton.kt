@@ -119,7 +119,10 @@ internal fun BubbleButton(
         horizontalArrangement = Arrangement.spacedBy(IconSizes.gap, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CompositionLocalProvider(LocalContentColor provides look.ink, LocalTextStyle provides labelStyle(family)) {
+        CompositionLocalProvider(
+            LocalContentColor provides look.ink,
+            LocalTextStyle provides buttonLabelStyle(family),
+        ) {
             content()
         }
     }
@@ -165,17 +168,21 @@ private fun LabelledButton(
     }
 }
 
-/** Between the sides of a button of this family and its content: none for a disc, which centres its pictogram. */
-private val ButtonFamily.sidePadding: Dp
+/**
+ * Between the sides of a button of this family and its content: none for a disc, which centres its pictogram. A screen
+ * that decides whether labels hold in its buttons counts it.
+ */
+val ButtonFamily.sidePadding: Dp
     get() = if (this == ButtonFamily.ICON) 0.dp else BloxSpaces.space6
 
 /**
  * The style of the label of a button of [family]: `play-label` for Jouer, `button-label-strong` for a main button,
- * `button-label` otherwise, over the Material label, whose size Original keeps.
+ * `button-label` otherwise, over the Material label, whose size Original keeps. A screen that decides whether labels
+ * hold in its buttons measures them in it.
  */
 @Composable
 @ReadOnlyComposable
-private fun labelStyle(family: ButtonFamily): TextStyle {
+fun buttonLabelStyle(family: ButtonFamily): TextStyle {
     val typography = BloxTheme.typography
     val style = when (family) {
         ButtonFamily.PRIMARY_XL -> typography.playLabel

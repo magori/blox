@@ -68,12 +68,13 @@ private fun RecordChip(record: Int) {
     val shape = BloxTheme.shapes.pill
     val description = stringResource(R.string.feature_home_record_description, record)
     Row(
+        // Read as a whole, the size of the chip; as high as the discs beside it, so that the bar stays 48 dp high.
         modifier = Modifier
+            .clearAndSetSemantics { contentDescription = description }
             .heightIn(min = BloxSizes.minTouchTarget)
             .background(palette.panel, shape)
             .border(BloxBorders.frame, palette.panelBorder, shape)
-            .padding(horizontal = BloxSpaces.space4, vertical = BloxSpaces.space1)
-            .clearAndSetSemantics { contentDescription = description },
+            .padding(horizontal = BloxSpaces.space4),
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {

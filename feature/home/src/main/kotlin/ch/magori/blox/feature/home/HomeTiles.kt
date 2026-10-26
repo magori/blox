@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -22,7 +21,9 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.designsystem.component.buttonLabelStyle
 import ch.magori.blox.core.designsystem.component.holdSideBySide
+import ch.magori.blox.core.designsystem.component.sidePadding
 import ch.magori.blox.core.designsystem.component.widestWord
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -43,15 +44,14 @@ internal fun HomeTiles(
     val myMusics = stringResource(R.string.feature_home_my_musics)
     val compose = stringResource(R.string.feature_home_compose)
     val measurer = rememberTextMeasurer()
-    // The style of the label of a secondary button (BubbleButton), and its padding on each side.
-    val style = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.buttonLabel)
+    val style = buttonLabelStyle(ButtonFamily.SECONDARY)
     val density = LocalDensity.current
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val sideBySide = with(density) {
             holdSideBySide(
                 width = constraints.maxWidth,
                 gap = BloxSpaces.space3.roundToPx(),
-                padding = BloxSpaces.space6.roundToPx(),
+                padding = ButtonFamily.SECONDARY.sidePadding.roundToPx(),
                 weights = listOf(1f, 1f),
                 labels = listOf(myMusics, compose).map { measurer.widestWord(it, style) },
             )

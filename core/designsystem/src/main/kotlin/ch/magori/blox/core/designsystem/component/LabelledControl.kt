@@ -17,7 +17,8 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
  * A row of settings (the home, docs/design-system/README.md): [control] on the line of its [label], at its end, when
- * both fit; else the label goes above it, and the control takes the whole width, as in a large font. [action], if any,
+ * both fit; else the label goes above it, and the control stands under it, centred, as wide as it asks up to the
+ * whole line (a group of choices takes it all), as in a large font. [action], if any,
  * stands beside the label. TalkBack reads the label as a heading, then the control.
  */
 @Composable
@@ -48,13 +49,13 @@ fun LabelledControl(
                 placedControl.placeRelative(width - placedControl.width, (height - placedControl.height) / 2)
             }
         } else {
-            // Above: the label on its own line, the control under it, as wide as the line.
+            // Above: the label on its own line, the control under it, centred, as wide as it wants up to the line.
             val placedLabel = labelPart.measure(Constraints(maxWidth = width))
-            val placedControl = controlPart.measure(Constraints.fixedWidth(width))
+            val placedControl = controlPart.measure(Constraints(maxWidth = width))
             val spacing = BloxSpaces.space1.roundToPx()
             layout(width, placedLabel.height + spacing + placedControl.height) {
                 placedLabel.placeRelative(0, 0)
-                placedControl.placeRelative(0, placedLabel.height + spacing)
+                placedControl.placeRelative((width - placedControl.width) / 2, placedLabel.height + spacing)
             }
         }
     }

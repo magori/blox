@@ -88,17 +88,17 @@ private fun ThemeRow(
     )
 }
 
-/** The gauge of the start level, [level] of [levels], from the first to the last, read « Niveau de départ ». */
+/** The gauge of the start level, [level] of [levels], read « Niveau de départ ». */
 @Composable
 private fun LevelRow(
     level: Int,
-    levels: List<Int>,
+    levels: IntRange,
     onStartLevelChosen: (Int) -> Unit,
 ) {
     LabelledControl(label = stringResource(R.string.feature_home_level)) {
         LevelGauge(
             level = level,
-            levels = levels.first()..levels.last(),
+            levels = levels,
             onLevelChange = onStartLevelChosen,
             description = stringResource(R.string.feature_home_start_level),
         )
