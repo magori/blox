@@ -151,6 +151,24 @@ internal class BloxNavDisplayTest {
     }
 
     @Test
+    @DisplayName("on the Locksmith, the back button of the bar goes back to the cartridges")
+    fun onTheLocksmithTheBackButtonGoesBackToTheCartridges() {
+        runJourney {
+            // Given padlock 1, opened from the cartridges
+            showApp(openClassic = false)
+            tapLocksmithCartridge()
+
+            // When
+            onNodeWithContentDescription(string(LocksmithR.string.feature_locksmith_back)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertDoesNotExist()
+        }
+    }
+
+    @Test
     @DisplayName("a restored stack with a padlock on top shows that padlock again, nothing placed")
     fun aRestoredStackWithAPadlockOnTopShowsItAgain() {
         runJourney {

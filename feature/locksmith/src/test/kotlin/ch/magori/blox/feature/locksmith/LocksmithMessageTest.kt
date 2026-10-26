@@ -66,6 +66,13 @@ class LocksmithMessageTest {
     }
 
     @Test
+    fun `the padlock of the bar is closed until the padlock opens`() {
+        assertThat(padlockStatusOf(start)).isEqualTo(R.string.feature_locksmith_status_closed)
+        assertThat(padlockStatusOf(start.copy(game = start.game.solved())))
+            .isEqualTo(R.string.feature_locksmith_status_open)
+    }
+
+    @Test
     fun `an open padlock says so, whatever came before`() {
         // Given: every piece placed where the solution has it
         val open = start.game.solved()

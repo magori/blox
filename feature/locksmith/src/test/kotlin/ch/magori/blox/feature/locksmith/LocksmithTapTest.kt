@@ -23,6 +23,10 @@ class LocksmithTapTest {
     /** The first given piece, where the solution has it. */
     private val firstPiece: Piece = start.padlock.solution.first { it.type == start.given.first() }
 
+    /** The first metal cell inside the ring, in reading order: a pivot there leaves the hole. */
+    private val offHole: Position =
+        INSIDE_CELLS.first { it !in start.padlock.hole }
+
     @Test
     fun `touching a cell aims the selected piece there, its pivot on that cell, nothing placed`() {
         // When
@@ -31,6 +35,19 @@ class LocksmithTapTest {
         // Then
         assertThat(viewModel.uiState.value.aim).isEqualTo(Position(3, 3))
         assertThat(viewModel.uiState.value.game).isEqualTo(start)
+    }
+
+    @Test
+    fun `touching the ring of metal aims nothing, the pivot stays inside the 8 by 8`() {
+        // Given
+        viewModel.tap(Position(3, 3))
+
+        // When: a corner of the ring, then a cell of its edge
+        viewModel.tap(Position(0, 0))
+        viewModel.tap(Position(4, Padlock.SIZE - 1))
+
+        // Then
+        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(3, 3))
     }
 
     @Test
@@ -62,14 +79,14 @@ class LocksmithTapTest {
 
     @Test
     fun `a refused second touch keeps the preview where it is and tells why`() {
-        // Given: the preview with its pivot on the metal corner of the grid
-        viewModel.tap(Position(0, 0))
+        // Given: the preview with its pivot on a metal cell inside the ring
+        viewModel.tap(offHole)
 
         // When: a second touch on the pivot, a cell of the preview
-        viewModel.tap(Position(0, 0))
+        viewModel.tap(offHole)
 
         // Then
-        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(0, 0))
+        assertThat(viewModel.uiState.value.aim).isEqualTo(offHole)
         assertThat(viewModel.uiState.value.events)
             .containsExactly(PadlockEvent.PlacementRefused(rank = 0, reason = Refusal.OUT_OF_HOLE))
     }
@@ -77,7 +94,7 @@ class LocksmithTapTest {
     @Test
     fun `moving or turning the preview after a refusal forgets the refusal, without counting a move`() {
         // Given: a refusal
-        viewModel.tap(Position(0, 0))
+        viewModel.tap(offHole)
         viewModel.placeAim()
         val refused = viewModel.uiState.value
 
@@ -95,14 +112,14 @@ class LocksmithTapTest {
 
     @Test
     fun `a refusal keeps the preview, the place button tells the reason`() {
-        // Given: the preview on the metal corner of the grid
-        viewModel.tap(Position(0, 0))
+        // Given: the preview with its pivot on a metal cell inside the ring
+        viewModel.tap(offHole)
 
         // When
         viewModel.placeAim()
 
         // Then
-        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(0, 0))
+        assertThat(viewModel.uiState.value.aim).isEqualTo(offHole)
         assertThat(viewModel.uiState.value.events)
             .containsExactly(PadlockEvent.PlacementRefused(rank = 0, reason = Refusal.OUT_OF_HOLE))
     }
