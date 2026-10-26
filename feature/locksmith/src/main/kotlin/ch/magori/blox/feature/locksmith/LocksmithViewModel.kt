@@ -37,9 +37,11 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
 
     /**
      * A touch of the padlock on [position]: on the preview, places it (refused over a placed piece, which the preview
-     * hides); on a placed piece, takes it back as a preview where it lay; elsewhere, aims the selected piece there.
+     * hides); on a placed piece, takes it back as a preview where it lay; elsewhere, aims the selected piece there. The
+     * ring of metal is not touched: the pivot of the preview stays inside it.
      */
     internal fun tap(position: Position) {
+        if (!position.isInside) return
         val current = state.value
         val rank = current.game.rankAt(position)
         when {

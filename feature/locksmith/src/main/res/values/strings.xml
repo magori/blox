@@ -28,4 +28,15 @@
     <string name="feature_locksmith_message_hint">L’indice marque où une pièce tient.</string>
     <string name="feature_locksmith_message_blocking">La pièce marquée bloque : touche-la pour la reprendre.</string>
     <string name="feature_locksmith_message_open">Serrure ouverte !</string>
+    <string name="feature_locksmith_back">Retour</string>
+    <string name="feature_locksmith_status_closed">Serrure fermée</string>
+    <string name="feature_locksmith_status_open">Serrure ouverte</string>
+    <string name="feature_locksmith_cadence">cadence</string>
+    <string name="feature_locksmith_open_title">Serrure ouverte</string>
+    <string name="feature_locksmith_open_moves">Coups</string>
+    <string name="feature_locksmith_open_refusals">Refus</string>
+    <string name="feature_locksmith_open_hints">Indices</string>
+    <string name="feature_locksmith_open_counter">%1$s : %2$d</string>
+    <string name="feature_locksmith_open_cadence">La cadence V–I a fermé la phrase.</string>
+    <string name="feature_locksmith_replay">Rejouer cette serrure</string>
 </resources>

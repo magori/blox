@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 195 / 257 | `███████████████░░░░░` **76 %** |
+| **Général** | 197 / 258 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1275,7 +1275,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
 - [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
-- [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
+- [x] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
   étant faits en P7.12. Après P7.7 et P7.13.
 - [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
@@ -1289,15 +1289,18 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
 - [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
   (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
-- [ ] **P7.20** Serrurier, finitions de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
+- [x] **P7.20** Serrurier, mise en page de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
-  en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; retours animés
-  de la pose, du refus (tremblement), de la serrure ouverte et de l'indice, chacun en « Effets réduits »
-  (ADR 0024) ; TalkBack : grille en collection, orientation de la pièce choisie, accords entendus, refus
-  répété annoncé, pièce désignée par l'indice nommée ; tuile choisie dont l'anneau descend avec la tuile ;
-  captures (aperçu refusé, pièce qui bloque, serrure ouverte) ; UI Test instrumenté (poser, refuser,
-  reprendre) ; stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le
-  nombre de pistes d'effets (ADR 0025).
+  en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu
+  refusé, pièce qui bloque, serrure ouverte, petit écran). Le reste est passé en P7.22.
+- [ ] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
+  de la serrure ouverte et de l'indice, chacun en « Effets réduits » (ADR 0024) ; TalkBack : grille en
+  collection, orientation de la pièce choisie, accords entendus, refus répété annoncé, pièce désignée par
+  l'indice nommée, « Serrure ouverte » annoncé trois fois et focus sur la carte (à juger par `designer-jeu`) ;
+  tuile choisie dont l'anneau descend avec la tuile ; UI Test instrumenté (poser, refuser, reprendre) ;
+  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le nombre de pistes
+  d'effets jamais libérées (ADR 0025, P7.13) ; aperçu sur l'anneau en colonne 0 ou 9 coupé par le bord de
+  l'écran (à juger par `designer-jeu`).
 - [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).

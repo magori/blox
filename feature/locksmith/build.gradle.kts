@@ -28,4 +28,8 @@ dependencies {
     testImplementation(libs.kotlinx.serialization.json)
     // Tourner, poser, ouvrir une serrure dans les tests, comme les tests du domaine.
     testImplementation(testFixtures(projects.core.locksmith))
+    // Ouvrir une serrure dans les tests de l’écran, sur l’appareil.
+    androidTestImplementation(testFixtures(projects.core.locksmith))
+    // L'instrumentation, qui donne les chaînes de l'écran aux tests.
+    androidTestImplementation(libs.androidx.test.monitor)
 }

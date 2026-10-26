@@ -198,6 +198,12 @@ class LockCellStylesTest {
         }
     }
 
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(BloxThemeVariant::class, names = ["COLORFUL_LIGHT", "COLORFUL_DARK"])
+    fun `the rim of the padlock, drawn by the screen, is the metal of its cells`(variant: BloxThemeVariant) {
+        assertThat(lockMetal(variant)).isEqualTo(lockCellStyle(variant, LockCell.Metal).fill)
+    }
+
     private fun palette(variant: BloxThemeVariant) = when (variant) {
         BloxThemeVariant.COLORFUL_DARK -> BloxPalettes.ColorfulDark
         else -> BloxPalettes.ColorfulLight
