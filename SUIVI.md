@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 186 / 241 | `███████████████░░░░░` **77 %** |
+| **Général** | 187 / 241 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1139,9 +1139,9 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [x] **P7.8** Suites d'accords (`PadlockChords`, `Progression` de `core:music` ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
   par V–I, Do majeur sur C4 ; `PadlockGame.progression` et `PadlockGame.chords` (accord de rang *n*
   après une pose, *n* pièces sur la grille).
-- [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
-  fanfare de résolution, son de refus.
-- [x] **P7.10** Cases de la serrure (`core:board`, `LockCell`, `LockCellCanvas`, Couleurs seulement) pour une grille d'une autre taille que 10 × 20 :
+- [x] **P7.9** Effets d'accord (`core:music`, `LocksmithSounds`) : arpège d'un accord, basse deux octaves plus bas,
+  fanfare de serrure ouverte, son de refus ; `effectsOf(chord)` pour jouer et préchauffer.
+- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
   `lock-hint`, `lock-hole-inset` dans `tokens.json`, gardés par un test ; repères non colorés ; captures.
 - [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
@@ -1159,9 +1159,8 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
-  et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
-  (claude.ai), dont `tokens.json` est la copie (ADR 0019).
-- [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
+  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
+- [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
 
 ---
