@@ -37,5 +37,7 @@
     <string name="feature_home_settings_sounds">Sons et vibrations</string>
     <string name="feature_home_vibrations">Vibrations</string>
     <string name="feature_home_sound_effects">Effets sonores</string>
+    <string name="feature_home_vibrations_sub_line">Lignes effacées, fin de partie</string>
+    <string name="feature_home_sound_effects_sub_line">Rotation, lignes, fin de partie</string>
     <string name="feature_home_settings_next_game">Valable dès la partie suivante.</string>
 </resources>

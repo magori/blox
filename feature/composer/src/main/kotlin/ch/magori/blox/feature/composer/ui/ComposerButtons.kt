@@ -96,11 +96,10 @@ internal fun ToolButton(
 /**
  * A choice of the editor among others (a tab, the mode of the touches, a bar), read by TalkBack with its [role]: a
  * selected one is filled in [selectedColor], `accent` unless told otherwise, its label in [selectedInk]; an unselected
- * one is framed, as on the home screen. In every theme the two differ by 3:1 at least in luminance (`ChoiceColorsTest`
- * of the home screen, `TrackColorsTest` for the tabs), so that hue is not their only cue. A choice with a [mark] (the
- * bar played) shows a line under its label, in the colour of the label, and TalkBack reads the mark as its state. A
- * choice as wide as its label, rather than given its width, leaves [labelPadding] on each side of it. Its
- * [icon], decorative, goes above or before the label.
+ * one is framed. In every theme the two differ by 3:1 at least in luminance (`TrackColorsTest` checks it for the tabs),
+ * so that hue is not their only cue. A choice with a [mark] (the bar played) shows a line under its label, in the
+ * colour of the label, and TalkBack reads the mark as its state. A choice as wide as its label, rather than given its
+ * width, leaves [labelPadding] on each side of it. Its [icon], decorative, goes above or before the label.
  */
 @Composable
 internal fun ChoiceButton(

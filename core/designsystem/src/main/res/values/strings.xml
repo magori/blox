@@ -12,6 +12,9 @@
     </plurals>
     <string name="core_designsystem_window_delete_title">Supprimer « %1$s » ?</string>
     <string name="core_designsystem_window_delete">Supprimer</string>
+    <!-- L'état d'un interrupteur lu par TalkBack : « activé » et « désactivé » se confondraient avec une rangée indisponible. -->
+    <string name="core_designsystem_switch_on">Allumé</string>
+    <string name="core_designsystem_switch_off">Éteint</string>
     <!-- Les groupes de choix (P5.63) : un choix pas encore disponible, comme le mode Moderne. -->
     <string name="core_designsystem_choice_soon">Bientôt</string>
     <!-- Lu par TalkBack à la place du libellé d’un choix pas encore disponible ; son état désactivé dit le reste. -->

@@ -191,7 +191,7 @@ private fun labelStyle(family: ButtonFamily): TextStyle {
  * it down, then back up. [returnTicks] is where reduced effects (P5.71) may ask for no return at all.
  */
 @Stable
-private class PressMotion(private val returnTicks: Int) {
+internal class PressMotion(private val returnTicks: Int) {
     private var pressed by mutableStateOf(false)
     private var ticksSinceRelease by mutableIntStateOf(returnTicks)
 
@@ -224,7 +224,7 @@ private class PressMotion(private val returnTicks: Int) {
 
 /** The [PressMotion] of the button of [interactionSource], fed by each of its presses, releases and cancels. */
 @Composable
-private fun rememberPressMotion(interactionSource: InteractionSource): PressMotion {
+internal fun rememberPressMotion(interactionSource: InteractionSource): PressMotion {
     val motion = remember { PressMotion(BloxMotion.press) }
     LaunchedEffect(interactionSource) {
         val presses = mutableListOf<PressInteraction.Press>()

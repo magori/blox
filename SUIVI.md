@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 180 / 240 | `███████████████░░░░░` **75 %** |
+| **Général** | 181 / 240 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -828,7 +828,7 @@ composants.
   panel border`, `every family is 48 dp high at least, Play 72 and a main or secondary button 56`,
   `the label of each family stands out from its fill by 4,5 to 1 at least, at rest, pressed and coming back`,
   `a focused button bears a 3 dp outline in ink` ; captures de chaque famille et état, jour, nuit, Original.
-- [ ] **P5.61** Interrupteur et rangée de réglage (composant Switch) : `SettingSwitchRow` (pictogramme, libellé,
+- [x] **P5.61** Interrupteur et rangée de réglage (composant Switch) : `SettingSwitchRow` (pictogramme, libellé,
   sous-ligne, piste), toute la rangée est l'interrupteur ; état désactivé avec sa raison ; remplace `Setting` et
   `settingColors` (`feature:home`). Après P5.60.
   Cas : `TalkBack reads one switch per row, its label, its sub-line and its state`,
