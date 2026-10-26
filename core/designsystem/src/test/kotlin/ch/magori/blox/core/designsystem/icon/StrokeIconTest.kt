@@ -24,6 +24,15 @@ class StrokeIconTest {
         assertThat(path.strokeLineJoin).isEqualTo(StrokeJoin.Round)
     }
 
+    @Test
+    fun `the check is drawn 3 thick and the alert 2,5, as their drawings say`() {
+        // When
+        val paths = listOf(BloxIcon.CHECK, BloxIcon.ALERT).map { strokeIcon(it).root.single() as VectorPath }
+
+        // Then (docs/design-system/pictogrammes.md)
+        assertThat(paths.map { it.strokeLineWidth }).containsExactly(3f, 2.5f)
+    }
+
     @ParameterizedTest(name = "{0}")
     @EnumSource(BloxIcon::class)
     fun `every icon has strokes to draw`(icon: BloxIcon) {

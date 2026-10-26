@@ -49,4 +49,23 @@ internal class GlyphButtonTest {
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
     }
+
+    @ParameterizedTest
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("a bare icon button is 48 dp wide and high at least")
+    fun aBareIconButtonIsLargeEnough(kind: BloxThemeKind) = extension.use {
+        // Given a disc of nothing but its glyph
+        setContent {
+            BloxTheme(kind = kind) {
+                GlyphButton(description = "Plus d'actions", onClick = {}, emphasis = ButtonEmphasis.BARE) { ink ->
+                    Glyphs.more(this, ink)
+                }
+            }
+        }
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions")
+            .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+    }
 }
