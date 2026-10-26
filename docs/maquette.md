@@ -308,7 +308,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
   `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
-  `SettingsScreenTest › in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp`,
+  `SettingsScreenTest › in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least`,
   `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen`,
   `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,
   `SettingsScreenTest › while the saved settings are not read, the page shows its back arrow and its title, and no switch`,
@@ -323,7 +323,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `BloxNavDisplayTest › on the settings, the system back goes back to the home screen`,
   `SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
   `SwitchLookTest › the thumb stands out from its track by 3 to 1, on and off, and the check from the thumb`,
-  `SwitchLookTest › the track is framed in button outline, which stands out from the page by 3 to 1, on and off`.
+  `SwitchLookTest › the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`.
 
 ## Icônes
 

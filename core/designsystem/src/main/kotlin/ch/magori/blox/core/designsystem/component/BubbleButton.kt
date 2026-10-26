@@ -252,19 +252,3 @@ internal fun rememberPressMotion(interactionSource: InteractionSource): PressMot
     LaunchedEffect(motion.releases) { motion.comeBack() }
     return motion
 }
-
-/** Draws [ring], if any, around [shape], off its edge: drawn outside the bounds, it takes no room. Built once a size. */
-private fun Modifier.focusRing(
-    ring: FocusRing?,
-    shape: Shape,
-): Modifier = if (ring == null) {
-    this
-} else {
-    drawWithCache {
-        val width = ring.width.toPx()
-        val outline = grownOutline(shape, size, ring.gap.toPx() + width / 2, layoutDirection, this)
-        val path = Path().apply { addOutline(outline) }
-        val stroke = Stroke(width)
-        onDrawBehind { drawPath(path, ring.color, style = stroke) }
-    }
-}

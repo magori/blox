@@ -176,20 +176,22 @@ internal class SettingsScreenTest {
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
     @DisplayName(
-        "in a font twice as large, on 360 dp, the label of each setting keeps its size, its words whole, in a row of 48 dp",
+        "in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least",
     )
-    fun inALargeFontEachSettingLabelKeepsItsSizeAndItsWordsWhole(kind: BloxThemeKind) = extension.use {
+    fun inALargeFontEachSettingLabelKeepsItsWordsWholeAndMostOfItsSize(kind: BloxThemeKind) = extension.use {
         // Given a font twice as large, on the narrowest phone
         showSettingsScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
 
-        // Then no word is cut from one line to the next (« Vibratio / ns »), and no label shrinks: it is as large as
-        // the heading of the section, in the same style, which never shrinks; the row grows with it
+        // Then no word is cut from one line to the next (« Vibratio / ns »). Beside its pictogram, « Vibrations » in
+        // the pixel font of Original, 28 dp a letter, has 260 dp for its 280: it shrinks that little, never more;
+        // elsewhere the label is as large as the heading of the section, in the same style, which never shrinks
         val normalSize = textLayout("Sons et vibrations").layoutInput.style.fontSize
         listOf("Vibrations", "Effets sonores").forEach { setting ->
             val label = textLayout(setting)
             assertWordsWhole(label)
             assertThat(label.hasVisualOverflow).isFalse()
-            assertThat(label.layoutInput.style.fontSize.value).isGreaterThanOrEqualTo(normalSize.value)
+            assertThat(label.layoutInput.style.fontSize.value)
+                .isGreaterThanOrEqualTo(normalSize.value * LEAST_PART_OF_THE_SIZE)
             onNodeWithText(setting).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
         }
     }
@@ -250,3 +252,6 @@ internal class SettingsScreenTest {
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
+
+/** The least part of its size a label of a setting keeps in a large font, shrinking only so as not to cut a word. */
+private const val LEAST_PART_OF_THE_SIZE = 0.9f

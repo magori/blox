@@ -52,10 +52,6 @@ internal data class ButtonLook(
     val focusRing: FocusRing?,
 )
 
-/** The ring of the keyboard focus: [width] wide in [color], [gap] off the edge of the button. */
-@Immutable
-internal data class FocusRing(val color: Color, val width: Dp, val gap: Dp)
-
 /**
  * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant. Only its drop moves
  * on its way back up: its fill, its ink and its relief stay those of a pressed button until it is back at rest, so that

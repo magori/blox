@@ -331,12 +331,29 @@ que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 
 libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
 `keyColors`.
 
-**Réglages** (P5.37, `settingColors`) : une rangée de réglage prend les couleurs d'un choix non
-sélectionné (`choiceColors`) ; l'interrupteur éteint a une piste `panel` et un bouton `ink`, allumé
-une piste `accent` et un bouton `accentInk`. Allumé ou éteint, il est cadré en `buttonOutline`, à
-3:1 au moins de sa rangée (P5.57) ; en Original, dont le contour est la face des boutons, le cadre
-est à l'encre. L'état se lit aussi à la place du bouton (à gauche éteint, à droite allumé).
-Tests : `SwitchLookTest` (cités dans `docs/maquette.md`, V21).
+**Réglages** (P5.37, P5.61) : depuis P5.61, une rangée de réglage est `SettingSwitchRow` (`core:designsystem`,
+composant Switch) : pictogramme, libellé, sous-ligne et piste, toute la rangée étant l'interrupteur ; une
+rangée ne se désactive qu'avec sa raison, montrée à la place de la sous-ligne. Allumé, le pouce est à droite,
+plus grand et coché, la piste en `accent` avec le relief d'un bouton ; éteint, à gauche, sur une piste `button`
+(la page en Original). Pressée, la rangée se remplit en `buttonPressed`, le pouce grandit à 28 dp et revient en
+`motion-press` comme un bouton ; la piste est alors cadrée dans l'encre de la rangée pressée, à 3:1 au moins.
+Au repos, elle est cadrée en `buttonOutline` (l'encre en Original), à 3:1 sur la page. Désactivée : plate, piste
+`panelInset` cadrée de `panelBorder`, pouce et libellé en `label` ; en Original, où ces couleurs valent l'encre,
+le pouce est creux. Focus clavier : l'anneau des boutons (`FocusRing`). TalkBack lit une rangée comme un
+interrupteur, son libellé, sa sous-ligne et son état « Allumé » ou « Éteint ». En police agrandie, seule la piste
+passe à la ligne, à droite ; le libellé rétrécit au plus de 10 % pour garder ses mots entiers (Original ×2).
+Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
+**Tests :** `SwitchLookTest › a switch on has its thumb on the right, larger, checked, a switch off on the left`,
+`SwitchLookTest › a pressed row fills with button pressed and its thumb grows to 28 dp`,
+`SwitchLookTest › the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`,
+`SwitchLookTest › a focused row bears a 3 dp ring in ink, 3 dp off its edge`,
+`SwitchLookTest › in Original the thumb of a disabled row is hollow, its outline alone drawn`,
+`SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
+`SettingSwitchRowTest › TalkBack reads one switch per row, its label, its sub-line and its state`,
+`SettingSwitchRowTest › a disabled row reads as unavailable and its sub-line says why`,
+`SettingSwitchRowTest › TalkBack reads Allumé or Éteint as the state of a row, apart from its unavailability`,
+`SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
+captures `Switches*`. Vues : V21, V31.
 
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient

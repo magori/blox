@@ -49,19 +49,56 @@ internal class SwitchLookTest {
 
     @ParameterizedTest
     @EnumSource(BloxThemeVariant::class)
-    fun `the track is framed in button outline, which stands out from the page by 3 to 1, on and off`(
+    fun `the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`(
         variant: BloxThemeVariant,
     ) {
         // Given (P5.57): in Original, whose outline is the face of its buttons, the track is framed in ink
         val palette = paletteOf(variant)
         val outline = if (variant == BloxThemeVariant.ORIGINAL) palette.ink else palette.buttonOutline
 
-        // When
-        val frames = listOf(true, false).map { checked -> switchLook(variant, SwitchState(checked)).trackFrame }
+        listOf(true, false).forEach { checked ->
+            // When
+            val atRest = switchLook(variant, SwitchState(checked))
+            val pressed = switchLook(variant, SwitchState(checked, depth = 1f))
 
-        // Then (WCAG 2.1, 1.4.11): the frame, not the accent, makes the 3:1 of the track, whatever its state
-        assertThat(frames).containsOnly(outline)
-        assertThat(contrast(outline, palette.page)).isGreaterThanOrEqualTo(3.0)
+            // Then (WCAG 2.1, 1.4.11): the frame, not the accent, makes the 3:1 of the track, on the page at rest and
+            // on the fill of its row pressed, whatever its state
+            assertThat(atRest.trackFrame).isEqualTo(outline)
+            assertThat(contrast(atRest.trackFrame, palette.page)).isGreaterThanOrEqualTo(3.0)
+            assertThat(pressed.trackFrame).isEqualTo(pressed.label)
+            assertThat(contrast(pressed.trackFrame, pressed.rowFill)).isGreaterThanOrEqualTo(3.0)
+        }
+    }
+
+    @ParameterizedTest
+    @EnumSource(BloxThemeVariant::class)
+    fun `a focused row bears a 3 dp ring in ink, 3 dp off its edge`(variant: BloxThemeVariant) {
+        // When
+        val focused = switchLook(variant, SwitchState(checked = false, focused = true))
+        val notFocused = switchLook(variant, SwitchState(checked = false))
+
+        // Then (WCAG 2.2, 2.4.7), as a focused button
+        assertThat(focused.focusRing).isEqualTo(FocusRing(paletteOf(variant).ink, 3.dp, 3.dp))
+        assertThat(notFocused.focusRing).isNull()
+    }
+
+    @ParameterizedTest
+    @EnumSource(BloxThemeVariant::class)
+    fun `in Original the thumb of a disabled row is hollow, its outline alone drawn`(variant: BloxThemeVariant) {
+        // When
+        val disabled = listOf(true, false).map { checked ->
+            switchLook(variant, SwitchState(checked = checked, enabled = false))
+        }
+        val enabled = listOf(true, false).map { checked -> switchLook(variant, SwitchState(checked = checked)) }
+
+        // Then in Original, whose label, frames and inset are those of an enabled row, the hollow thumb tells it apart
+        // by its shape, not by a colour; elsewhere the thumbs stay full
+        val original = variant == BloxThemeVariant.ORIGINAL
+        assertThat(disabled).allSatisfy { assertThat(it.thumbHollow).isEqualTo(original) }
+        assertThat(enabled).allSatisfy { assertThat(it.thumbHollow).isFalse() }
+        // A hollow thumb on bears its check in the colour of its outline: the track shows through it
+        val disabledOn = disabled.first()
+        if (disabledOn.thumbHollow) assertThat(disabledOn.check).isEqualTo(disabledOn.thumb)
     }
 
     @ParameterizedTest
@@ -125,7 +162,8 @@ internal class SwitchLookTest {
         }
         val (on, off) = looks
         assertThat(on.thumbAtEnd).isTrue()
-        assertThat(on.check).isEqualTo(palette.panelInset)
+        // Full, its check in the colour of the track; hollow (Original), in the colour of its outline
+        assertThat(on.check).isEqualTo(if (on.thumbHollow) palette.label else palette.panelInset)
         assertThat(off.thumbAtEnd).isFalse()
     }
 

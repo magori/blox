@@ -13,20 +13,22 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
-/** A row of the sheet: its label, on or not, pressed or not, and the reason it is disabled, if it is. */
+/** A row of the sheet: its label, on or not, pressed or not, focused or not, and the reason it is disabled, if any. */
 private data class SheetRow(
     val label: String,
     val checked: Boolean,
     val pressed: Boolean = false,
+    val focused: Boolean = false,
     val disabledReason: String? = null,
 )
 
-/** The states a sheet shows: on and off, at rest and pressed, then disabled on and off. */
+/** The states a sheet shows: on and off, at rest and pressed, focused, then disabled on and off. */
 private val SheetRows = listOf(
     SheetRow("Effets sonores", checked = true),
     SheetRow("Vibrations", checked = false),
     SheetRow("Allumé, pressé", checked = true, pressed = true),
     SheetRow("Éteint, pressé", checked = false, pressed = true),
+    SheetRow("Focus", checked = false, focused = true),
     SheetRow("Effets réduits", checked = true, disabledReason = "Imposé par les réglages d’Android"),
     SheetRow("Vibration des touches", checked = false, disabledReason = "Cet appareil ne vibre pas"),
 )
@@ -47,6 +49,7 @@ private fun SwitchSheet(kind: BloxThemeKind) {
                     checked = row.checked,
                     onCheckedChange = {},
                     depth = { if (row.pressed) 1f else 0f },
+                    focused = row.focused,
                     interactionSource = null,
                     disabledReason = row.disabledReason,
                 )
@@ -57,25 +60,25 @@ private fun SwitchSheet(kind: BloxThemeKind) {
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 360, heightDp = 720)
 @Composable
 internal fun SwitchesOriginalPreview() {
     SwitchSheet(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 360, heightDp = 720)
 @Composable
 internal fun SwitchesColorfulPreview() {
     SwitchSheet(BloxThemeKind.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
 @Composable
 internal fun SwitchesOriginalLargeFontPreview() {
     SwitchSheet(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
 @Composable
 internal fun SwitchesColorfulLargeFontPreview() {
     SwitchSheet(BloxThemeKind.COLORFUL)

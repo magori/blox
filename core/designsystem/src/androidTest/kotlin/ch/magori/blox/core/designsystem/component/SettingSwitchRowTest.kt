@@ -1,7 +1,11 @@
 package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -16,7 +20,6 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
-import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isToggleable
@@ -24,6 +27,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.width
@@ -83,6 +87,56 @@ internal class SettingSwitchRowTest {
             .assertIsOff()
         onNodeWithText(VIBRATIONS_SUB_LINE).assertDoesNotExist()
         runOnIdle { assertThat(changes).isEmpty() }
+    }
+
+    @Test
+    @DisplayName("TalkBack reads Allumé or Éteint as the state of a row, apart from its unavailability")
+    fun talkBackReadsAlluméOrÉteintApartFromUnavailability() = extension.use {
+        // Given the sound effects on, the vibrations off and disabled: in French, TalkBack would read « désactivé »
+        // both for a switch off and for a row that cannot be touched
+        showRows(vibrationsDisabledReason = NO_VIBRATOR)
+
+        // Then « Effets sonores, …, interrupteur, allumé » and « Vibrations, …, interrupteur, éteint, désactivé »
+        onNode(isToggleable() and hasText(SOUNDS))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Allumé"))
+        onNode(isToggleable() and hasText(VIBRATIONS))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Éteint"))
+            .assertIsNotEnabled()
+    }
+
+    @Test
+    @DisplayName(
+        "in a font twice as large, a label too long beside the track keeps its pictogram beside it, " +
+            "and the track goes under it, on the right",
+    )
+    fun inALargeFontTheTrackGoesUnderTheLabelOnTheRight() = extension.use {
+        // Given « Vibrations » in Original, twice as large, on a phone of 360 dp: too long to stand beside the track
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+                    SettingSwitchRow(
+                        icon = BloxIcon.VIBRATE,
+                        label = VIBRATIONS,
+                        subLine = VIBRATIONS_SUB_LINE,
+                        checked = false,
+                        onCheckedChange = {},
+                        modifier = Modifier.width(360.dp),
+                    )
+                }
+            }
+        }
+
+        // Then the label stands on the first line, beside the slot of the pictogram, and the track under the
+        // sub-line, at the right end of the row
+        val row = onNode(isToggleable()).getUnclippedBoundsInRoot()
+        val label = onNodeWithText(VIBRATIONS, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val subLine = onNodeWithText(VIBRATIONS_SUB_LINE, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val track = onNode(hasTestTag(SWITCH_TRACK_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(label.left - row.left).isGreaterThanOrEqualTo(48.dp)
+        assertThat(label.top - row.top).isLessThan(16.dp)
+        assertThat(track.top).isGreaterThanOrEqualTo(subLine.bottom)
+        assertThat((row.right - track.right).value).isCloseTo(8f, within(1f))
     }
 
     @Test
@@ -152,11 +206,14 @@ internal class SettingSwitchRowTest {
         assertThat(thumbAndTrack(SOUNDS).thumb.width.value).isCloseTo(24f, within(0.5f))
     }
 
-    /** The bounds of the thumb and of the track of the row of [label]. */
+    /**
+     * The bounds of the thumb and of the track of the row of [label], in the order [showRows] draws them: the unmerged
+     * nodes of a thumb and of a track do not bear the text of their row.
+     */
     private fun ComposeContext.thumbAndTrack(label: String): ThumbAndTrack {
-        val inRow = hasAnyAncestor(isToggleable() and hasText(label))
-        val thumb = onNode(hasTestTag(SWITCH_THUMB_TAG) and inRow, useUnmergedTree = true)
-        val track = onNode(hasTestTag(SWITCH_TRACK_TAG) and inRow, useUnmergedTree = true)
+        val row = listOf(SOUNDS, VIBRATIONS).indexOf(label)
+        val thumb = onAllNodesWithTag(SWITCH_THUMB_TAG, useUnmergedTree = true)[row]
+        val track = onAllNodesWithTag(SWITCH_TRACK_TAG, useUnmergedTree = true)[row]
         return ThumbAndTrack(thumb.getUnclippedBoundsInRoot(), track.getUnclippedBoundsInRoot())
     }
 

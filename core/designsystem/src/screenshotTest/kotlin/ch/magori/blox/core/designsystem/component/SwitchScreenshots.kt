@@ -12,26 +12,26 @@ import com.android.tools.screenshot.PreviewTest
  */
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 360, heightDp = 720)
 @Composable
 private fun SwitchesOriginal() = SwitchesOriginalPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 640)
+@Preview(widthDp = 360, heightDp = 720)
 @Composable
 private fun SwitchesColorful() = SwitchesColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 640, uiMode = UI_MODE_NIGHT)
+@Preview(widthDp = 360, heightDp = 720, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun SwitchesColorfulNight() = SwitchesColorfulPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
 @Composable
 private fun SwitchesOriginalLargeFont() = SwitchesOriginalLargeFontPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
 @Composable
 private fun SwitchesColorfulLargeFont() = SwitchesColorfulLargeFontPreview()
