@@ -77,7 +77,8 @@ internal const val PLAY_TAG = "home_play"
  * this screen at once. A music with a BloX score may be listened to before playing. A music of the player chosen
  * for the games is the music selected, among the others. « Composer une musique » opens the music editor on a new
  * music, through [onCompose]; « Mes musiques », in the header of the music section, opens the list of the musics of
- * the player, through [onMyMusics]. The gear at the top right opens the settings page (V21), through [onSettings].
+ * the player, through [onMyMusics]. The gear at the top right opens the settings page (V21), through [onSettings]; the
+ * cartridge at the top left goes back to the choice of the game (V26), through [onChangeGame].
  */
 @Composable
 internal fun HomeScreen(
@@ -92,6 +93,7 @@ internal fun HomeScreen(
     onCompose: () -> Unit,
     onMyMusics: () -> Unit,
     onSettings: () -> Unit,
+    onChangeGame: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -105,7 +107,7 @@ internal fun HomeScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Header(onSettings = dropUnlessResumed { onSettings() })
+        Header(onChangeGame = dropUnlessResumed { onChangeGame() }, onSettings = dropUnlessResumed { onSettings() })
         Record(record = uiState.record)
         Section(title = R.string.feature_home_mode) {
             ChoiceRow {
@@ -251,14 +253,22 @@ private fun MusicActions(
 }
 
 /**
- * The logo and the title on one line, centred on the screen, and the gear button at the top right, which opens the
- * settings through [onSettings]. Room as wide as the gear stands on the left, so that the title stays in the middle.
+ * The logo and the title on one line, centred on the screen, between the disc « Changer de jeu » at the top left,
+ * which goes back to the choice of the game through [onChangeGame], and the gear button at the top right, which opens
+ * the settings through [onSettings]. Both are 48 dp, so that the title stays in the middle.
  * In a large font, the title shrinks rather than going on two lines.
  */
 @Composable
-private fun Header(onSettings: () -> Unit) {
+private fun Header(
+    onChangeGame: () -> Unit,
+    onSettings: () -> Unit,
+) {
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Spacer(Modifier.width(BloxSizes.minTouchTarget))
+        GlyphButton(
+            icon = BloxIcon.CARTRIDGE,
+            description = stringResource(R.string.feature_home_change_game),
+            onClick = onChangeGame,
+        )
         Row(
             modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.spacedBy(HEADER_SPACING, Alignment.CenterHorizontally),
@@ -501,6 +511,7 @@ private fun HomeScreenPreview(
             onCompose = {},
             onMyMusics = {},
             onSettings = {},
+            onChangeGame = {},
         )
     }
 }

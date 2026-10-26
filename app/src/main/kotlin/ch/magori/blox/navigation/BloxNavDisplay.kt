@@ -9,6 +9,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.feature.cartridges.Cartridge
+import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.cartridges.navigation.cartridgesEntry
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.composer.navigation.ComposerRoute
 import ch.magori.blox.feature.composer.navigation.composerEntry
@@ -31,7 +34,8 @@ import ch.magori.blox.feature.musics.navigation.myMusicsEntry
  * ou retirer une clé de la pile ; le retour système et le bouton Retour font la même chose.
  * Les deux décorateurs gardent l'état sauvegardable de chaque entrée et lient chaque ViewModel
  * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel. [deletedMusics] porte une musique supprimée
- * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler.
+ * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler. La pile s'ouvre sur le choix du jeu
+ * ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application.
  */
 @Composable
 fun BloxNavDisplay(
@@ -42,7 +46,7 @@ fun BloxNavDisplay(
     settingsViewModelFactory: SettingsViewModel.Factory,
     deletedMusics: DeletedMusicRelay,
     modifier: Modifier = Modifier,
-    backStack: NavBackStack<NavKey> = rememberNavBackStack(HomeRoute),
+    backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
     // Never below the first screen, whatever asks to go back once more.
     val goBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() }
@@ -57,12 +61,20 @@ fun BloxNavDisplay(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
+            cartridgesEntry(
+                onOpen = { cartridge ->
+                    when (cartridge) {
+                        Cartridge.CLASSIC -> backStack.add(HomeRoute)
+                    }
+                },
+            )
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).
                 onCompose = { backStack.add(ComposerRoute()) },
                 onMyMusics = { backStack.add(MyMusicsRoute) },
                 onSettings = { backStack.add(SettingsRoute) },
+                onChangeGame = { changeGame(backStack) },
                 viewModelFactory = homeViewModelFactory,
             )
             gameEntry(

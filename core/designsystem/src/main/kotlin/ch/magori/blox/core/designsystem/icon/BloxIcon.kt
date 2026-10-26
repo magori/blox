@@ -121,6 +121,12 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
 
     /** The key A: a rotation clockwise, the arrow in a loop of [REPLAY]. */
     ROTATE_RIGHT(LoopPixels, LOOP_STROKES),
+
+    /** Changer de jeu: a cartridge (pictogrammes.md, P5.87). */
+    CARTRIDGE(
+        listOf(".######.", ".#....#.", ".#....#.", ".######.", ".######.", ".######.", "..####..", "..#..#.."),
+        "M6 3h12v13l-2 5H8l-2-5zM9 7h6v6H9zM10 18h4",
+    ),
 }
 
 /** The arrow in a loop, turning clockwise: [BloxIcon.REPLAY] and [BloxIcon.ROTATE_RIGHT]. */

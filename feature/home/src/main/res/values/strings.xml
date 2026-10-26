@@ -32,6 +32,7 @@
     <string name="feature_home_my_musics">Mes musiques</string>
     <!-- Page Paramètres (V21), ouverte par l'engrenage de l'accueil, lu « Paramètres » par TalkBack. -->
     <string name="feature_home_settings">Paramètres</string>
+    <string name="feature_home_change_game">Changer de jeu</string>
     <string name="feature_home_settings_back">Retour</string>
     <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
     <string name="feature_home_settings_sounds">Sons et vibrations</string>

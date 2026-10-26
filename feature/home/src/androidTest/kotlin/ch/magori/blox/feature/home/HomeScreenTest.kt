@@ -566,6 +566,29 @@ internal class HomeScreenTest {
     }
 
     @Test
+    @DisplayName("the disc Changer de jeu, 48 dp, at the top left of the home screen, changes the game")
+    fun theChangeGameDiscChangesTheGame() = extension.use {
+        // Given a phone of 360 dp
+        var changed = 0
+        showHomeScreen(width = NARROW_PHONE, onChangeGame = { changed++ })
+        val disc = onNodeWithContentDescription("Changer de jeu")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
+            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        val bounds = disc.getUnclippedBoundsInRoot()
+        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
+        assertThat(bounds.left).isEqualTo(24.dp)
+        assertThat(bounds.right).isLessThanOrEqualTo(title.left)
+        assertThat(bounds.top).isLessThan(title.bottom)
+
+        // When
+        disc.performClick()
+
+        // Then
+        runOnIdle { assertThat(changed).isEqualTo(1) }
+    }
+
+    @Test
     @DisplayName("the gear button stands at the top right of the home screen, beside the title")
     fun theGearButtonStandsAtTheTopRight() = extension.use {
         // Given a phone of 360 dp
@@ -699,6 +722,7 @@ internal class HomeScreenTest {
         onCompose: () -> Unit = {},
         onMyMusics: () -> Unit = {},
         onSettings: () -> Unit = {},
+        onChangeGame: () -> Unit = {},
         withoutInsets: Boolean = false,
     ) {
         setContent {
@@ -722,6 +746,7 @@ internal class HomeScreenTest {
                         onCompose = onCompose,
                         onMyMusics = onMyMusics,
                         onSettings = onSettings,
+                        onChangeGame = onChangeGame,
                     )
                 }
             }

@@ -14,6 +14,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.FakeHighScoreRepository
@@ -38,18 +40,20 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.home.R as HomeR
 
 /**
  * The journeys that cross the features, on the navigation of the application ([BloxNavDisplay]) and the shared fakes:
- * home, game, game over, and the system back. Only `app` knows every feature (ADR 0011).
+ * choice of the game, home, game, game over, and the system back. Only `app` knows every feature (ADR 0011, 0022).
  *
  * The frames are handed by hand (`autoAdvance` off): a game under way asks for a frame at each frame, and would keep
  * Compose from ever being idle. [settle] lets the clock run long enough for a change of screen and its transition.
@@ -57,6 +61,107 @@ import ch.magori.blox.feature.home.R as HomeR
  */
 @OptIn(ExperimentalTestApi::class)
 internal class BloxNavDisplayTest {
+    @Test
+    @DisplayName("the application opens on the choice of the game")
+    fun theApplicationOpensOnTheChoiceOfTheGame() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given / When
+            showApp(openClassic = false)
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNode(hasTestTag(CLASSIC_CARTRIDGE_TAG)).assertIsDisplayed()
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the Classic cartridge opens the Classic home")
+    fun theClassicCartridgeOpensTheClassicHome() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When
+            tapClassicCartridge()
+
+            // Then
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the system back on the cartridges leaves the application")
+    fun theSystemBackOnTheCartridgesLeavesTheApplication() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When
+            pressSystemBack()
+
+            // Then the activity finishes: nothing of the application lies under the cartridges
+            assertThat(checkNotNull(activity).isFinishing).isTrue()
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game from the home goes back to the cartridges, and the system back then leaves")
+    fun changingTheGameFromTheHomeGoesBackToTheCartridges() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the home of the Classic, opened from the cartridges
+            showApp()
+
+            // When
+            tapChangeGame()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(string(HomeR.string.feature_home_play)).assertDoesNotExist()
+
+            // And the home did not stay under them
+            pressSystemBack()
+            assertThat(checkNotNull(activity).isFinishing).isTrue()
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game from a restored stack without cartridges puts them at its root")
+    fun changingTheGameFromARestoredStackWithoutCartridgesPutsThemAtItsRoot() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the home alone, as a stack saved before the cartridges came (ADR 0022) is restored
+            showApp(restoredStack = listOf(HomeRoute))
+
+            // When
+            tapChangeGame()
+
+            // Then the cartridges show, alone on the stack: the system back leaves the application
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            pressSystemBack()
+            assertThat(checkNotNull(activity).isFinishing).isTrue()
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game stops the music listened to on the home screen")
+    fun changingTheGameStopsTheMusicListenedTo() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given the minuet listened to on the home screen
+            val music = FakeMusicPlayer()
+            showApp(music = music, scoreOf = mapOf(MusicChoice.MINUET to Scores.minuet)::get)
+            listenToTheMinuet()
+            assertThat(music.playing).isNotNull()
+
+            // When
+            tapChangeGame()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(music.calls.last()).isEqualTo("stop")
+        }
+    }
+
     @Test
     @DisplayName("Jouer starts a game at the start level chosen on the home screen")
     fun playStartsAGameAtTheChosenLevel() {
@@ -248,12 +353,7 @@ internal class BloxNavDisplayTest {
             // Given the minuet listened to on the home screen
             val music = FakeMusicPlayer()
             showApp(music = music, scoreOf = mapOf(MusicChoice.MINUET to Scores.minuet)::get)
-            onNodeWithText(string(HomeR.string.feature_home_music_minuet)).performScrollTo().performClick()
-            settle()
-            onNodeWithContentDescription(listenDescription(string(HomeR.string.feature_home_music_minuet)))
-                .performScrollTo()
-                .performClick()
-            settle()
+            listenToTheMinuet()
             assertThat(music.playing).isNotNull()
 
             // When
@@ -294,15 +394,26 @@ internal class BloxNavDisplayTest {
         }
     }
 
+    /** Chooses the minuet on the home screen, then listens to it. */
+    private fun AndroidComposeUiTest<ComponentActivity>.listenToTheMinuet() {
+        val minuet = string(HomeR.string.feature_home_music_minuet)
+        onNodeWithText(minuet).performScrollTo().performClick()
+        settle()
+        onNodeWithContentDescription(listenDescription(minuet)).performScrollTo().performClick()
+        settle()
+    }
+
     /** « Écouter » and the name of the music [name], as TalkBack reads the listen button of the home screen. */
     private fun AndroidComposeUiTest<ComponentActivity>.listenDescription(name: String): String =
         checkNotNull(activity).getString(HomeR.string.feature_home_listen_description, name)
 
     /**
-     * The navigation of the application, on the home screen, with the shared fakes: no record, the default settings, no
-     * music file; the games made by [engineFactory], the musics played by [music], the scores of the music choices given
-     * by [scoreOf], the musics of the player in [library]; the settings page reads [settingsPreferences], the settings
-     * of the application unless given. Gives the settings of the application.
+     * The navigation of the application, with the shared fakes: no record, the default settings, no music file; the
+     * games made by [engineFactory], the musics played by [music], the scores of the music choices given by [scoreOf],
+     * the musics of the player in [library]; the settings page reads [settingsPreferences], the settings of the
+     * application unless given. It starts on the choice of the game and opens the home of the Classic, unless
+     * [openClassic] is false; or on [restoredStack], as a stack saved by an older version comes back. Gives the
+     * settings of the application.
      */
     private fun AndroidComposeUiTest<ComponentActivity>.showApp(
         engineFactory: GameEngineFactory = ClassicGameEngineFactory,
@@ -310,6 +421,8 @@ internal class BloxNavDisplayTest {
         library: FakeMusicLibrary = FakeMusicLibrary(),
         scoreOf: (MusicChoice) -> Score? = { null },
         settingsPreferences: FakeUserPreferencesRepository? = null,
+        openClassic: Boolean = true,
+        restoredStack: List<NavKey>? = null,
     ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
@@ -334,17 +447,38 @@ internal class BloxNavDisplayTest {
             gameMusic = { null },
         )
         mainClock.autoAdvance = false
+        val composerFactory = ComposerViewModel.Factory(music, library)
+        val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
+        val settingsFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences)
         setContent {
             BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                BloxNavDisplay(
-                    homeViewModelFactory = homeFactory,
-                    gameViewModelFactory = gameFactory,
-                    composerViewModelFactory = ComposerViewModel.Factory(music, library),
-                    myMusicsViewModelFactory = MyMusicsViewModel.Factory(library, music, deletedMusics),
-                    settingsViewModelFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences),
-                    deletedMusics = deletedMusics,
-                )
+                // The stack of the application unless one is restored: the first screen is the one it gives.
+                if (restoredStack == null) {
+                    BloxNavDisplay(
+                        homeFactory,
+                        gameFactory,
+                        composerFactory,
+                        myMusicsFactory,
+                        settingsFactory,
+                        deletedMusics,
+                    )
+                } else {
+                    BloxNavDisplay(
+                        homeFactory,
+                        gameFactory,
+                        composerFactory,
+                        myMusicsFactory,
+                        settingsFactory,
+                        deletedMusics,
+                        backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
+                    )
+                }
             }
+        }
+        if (restoredStack == null) {
+            advanceUntilShown(string(CartridgesR.string.feature_cartridges_title))
+            if (!openClassic) return preferences
+            tapClassicCartridge()
         }
         // The home screen shows once its view model read the settings, which may answer after a first advance.
         advanceUntilShown(string(HomeR.string.feature_home_play))
@@ -354,6 +488,18 @@ internal class BloxNavDisplayTest {
     /** Chooses the start level [level] on the home screen, by its cell: no other text of the screen can be taken for it. */
     private fun AndroidComposeUiTest<ComponentActivity>.chooseStartLevel(level: Int) {
         onNode(hasTestTag(START_LEVEL_TAG) and hasText(level.toString())).performScrollTo().performClick()
+        settle()
+    }
+
+    /** Taps the Classic cartridge on the choice of the game, and waits for its home. */
+    private fun AndroidComposeUiTest<ComponentActivity>.tapClassicCartridge() {
+        onNode(hasTestTag(CLASSIC_CARTRIDGE_TAG)).performClick()
+        settle()
+    }
+
+    /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
+    private fun AndroidComposeUiTest<ComponentActivity>.tapChangeGame() {
+        onNodeWithContentDescription(string(HomeR.string.feature_home_change_game)).performScrollTo().performClick()
         settle()
     }
 
@@ -407,6 +553,9 @@ internal class BloxNavDisplayTest {
 
         /** The tag of a start level cell of the home screen (`START_LEVEL_TAG` of feature:home, internal to it). */
         const val START_LEVEL_TAG = "home_start_level"
+
+        /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
+        const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
 
         /** Between two searches of the game over screen. */
         const val CHECK_MILLIS = 500L
