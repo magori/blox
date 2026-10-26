@@ -46,12 +46,12 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 /**
  * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then a card per section.
  * « Affichage »: Effets réduits, imposed by Android when it removes the animations, and where the theme is chosen.
- * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the vibrations
- * and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a game reads
- * them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first, in a window
- * whose safe answer comes first, then says « Record effacé ». While the saved settings are not read ([uiState] null),
- * the page and its header show, without the settings: none flashes off, and the way back is there at once. No logic
- * here: each gesture goes to its callback of [actions].
+ * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the
+ * vibrations and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a
+ * game reads them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first,
+ * in a window whose safe answer comes first, then says « Record effacé ». While the saved settings are not read
+ * ([uiState] null), the page and its header show, without the settings: none flashes off, and the way back is there at
+ * once. No logic here: each gesture goes to its callback of [actions].
  */
 @Composable
 internal fun SettingsScreen(

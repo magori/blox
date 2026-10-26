@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 182 / 240 | `███████████████░░░░░` **76 %** |
+| **Général** | 183 / 240 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -898,13 +898,13 @@ composants.
   `a confirmed clear clears the record and says « Record effacé »`,
   `a clear that cannot be written keeps the window open and says it failed` ; captures (téléphone, police ×2,
   jour, nuit, Original).
-- [ ] **P5.71** Effets réduits (`core:designsystem`, `app`, `feature:home`, ADR 0024) : `BloxEffects(reduced,
+- [x] **P5.71** Effets réduits (`core:designsystem`, `app`, `feature:home`, ADR 0024) : `BloxEffects(reduced,
   forcedBySystem)` porté par `BloxTheme`, résolu par une fonction pure depuis la préférence et
   `ValueAnimator.areAnimatorsEnabled()` (lu par `MainActivity` à chaque reprise) ; carte Affichage avec Effets
   réduits (allumé et bloqué quand Android l'impose, sans écraser le choix) et la note sur le thème ; les boutons
   pressés ne descendent plus en Effets réduits, mais une touche de jeu tenue garde sa descente de 2 dp : ce n'est pas
   une animation, et c'est le seul repère de A tenue de jour (1,4:1 contre A au repos ; décision de la revue de
-  P5.57). Cas : `a held key goes 2 dp down, reduced effects or not`. Après P5.70.
+  P5.57). Cas : `a held key goes 2 dp down with its tag and what TalkBack reads, reduced effects or not`. Après P5.70.
   Cas : `effects are reduced when the player asks for it`, `effects are reduced and forced when Android removes
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,

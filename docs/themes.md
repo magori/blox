@@ -438,6 +438,24 @@ chaque pas qu'une fois.
 `ButtonLookTest › a danger button is framed and labelled in danger at rest, filled in danger pressed` ;
 captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
 
+**Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
+`BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les
+animations d'Android, observées en continu (`SystemAnimations`, réglage `ANIMATOR_DURATION_SCALE`, écran partagé
+compris) ; le thème et le choix d'effets sont lus ensemble avant la première image (`AppTheme.appearance`). Carte
+Affichage en tête des Paramètres : Effets réduits (« Moins de mouvements et de particules ») ; quand Android
+retire les animations, l'interrupteur est allumé, bloqué et dit « Imposé par les réglages d'Android », sans
+écrire le choix enregistré ; sous la carte, « Le thème se choisit à l'accueil. ». En Effets réduits, un bouton
+pressé ne change que de couleur et revient aussitôt ; une touche de jeu tenue garde sa descente de 2 dp (seul
+repère de A tenue de jour). Un sous-titre de rangée de réglage peut prendre trois lignes.
+**Tests :** `BloxEffectsTest › effects are reduced when the player asks for it`,
+`BloxEffectsTest › effects are reduced and forced when Android removes the animations, whatever the choice`,
+`SystemAnimationsTest › removing the animations while the application runs is seen at once, and so is giving them back`,
+`AppThemeTest › the theme and the choice of effects are known together, and neither before the settings are read`,
+`ButtonLookTest › in reduced effects a pressed button changes its fill only`,
+`HeldKeyTest › a held key goes 2 dp down with its tag and what TalkBack reads, reduced effects or not`,
+`SettingsScreenTest › a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
+`SettingsScreenTest › in a font twice as large, on 360 dp, every sub-line shows whole, its words whole`.
+
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
 pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp

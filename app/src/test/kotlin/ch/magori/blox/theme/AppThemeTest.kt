@@ -29,7 +29,7 @@ class AppThemeTest {
         val preferences = FakeUserPreferencesRepository(initial = null)
         val appTheme = AppTheme(preferences, backgroundScope)
 
-        appTheme.kind.test {
+        appTheme.appearance.test {
             // Then no theme, not even the default one, before the settings are read
             assertThat(awaitItem()).isNull()
 
@@ -39,8 +39,8 @@ class AppThemeTest {
             preferences.setTheme(ThemeChoice.COLORFUL)
 
             // Then
-            assertThat(first).isEqualTo(BloxThemeKind.ORIGINAL)
-            assertThat(awaitItem()).isEqualTo(BloxThemeKind.COLORFUL)
+            assertThat(first?.kind).isEqualTo(BloxThemeKind.ORIGINAL)
+            assertThat(awaitItem()?.kind).isEqualTo(BloxThemeKind.COLORFUL)
         }
     }
 
@@ -53,7 +53,7 @@ class AppThemeTest {
         runCurrent()
 
         // When a new screen, such as a recreated activity, reads the theme
-        val known = appTheme.kind.value
+        val known = appTheme.appearance.value?.kind
 
         // Then it has it at once, with no default theme first
         assertThat(known).isEqualTo(BloxThemeKind.COLORFUL)
@@ -67,8 +67,8 @@ class AppThemeTest {
         val appTheme = AppTheme(preferences, backgroundScope)
         runCurrent()
 
-        appTheme.kind.test {
-            assertThat(awaitItem()).isEqualTo(BloxThemeKind.ORIGINAL)
+        appTheme.appearance.test {
+            assertThat(awaitItem()?.kind).isEqualTo(BloxThemeKind.ORIGINAL)
 
             // When
             preferences.setMusic(MusicChoice.NONE)
@@ -80,21 +80,23 @@ class AppThemeTest {
     }
 
     @Test
-    fun `the reduced effects of the application follow the saved choice, full until it is read`() = runTest {
+    fun `the theme and the choice of effects are known together, and neither before the settings are read`() = runTest {
         // Given settings not read yet
         val preferences = FakeUserPreferencesRepository(initial = null)
         val appTheme = AppTheme(preferences, backgroundScope)
 
-        appTheme.reducedEffects.test {
-            // Then full effects, the default, until they are read
-            assertThat(awaitItem()).isFalse()
+        appTheme.appearance.test {
+            // Then nothing, neither a theme nor full effects, before they are read
+            assertThat(awaitItem()).isNull()
 
-            // When they are read, then the player asks for reduced effects
-            preferences.state.value = UserPreferences.DEFAULT
-            preferences.setReducedEffects(true)
+            // When they are read, a player of the Colorful theme in reduced effects, who then asks for the full ones
+            preferences.state.value = UserPreferences.DEFAULT.copy(theme = ThemeChoice.COLORFUL, reducedEffects = true)
+            val first = awaitItem()
+            preferences.setReducedEffects(false)
 
-            // Then
-            assertThat(awaitItem()).isTrue()
+            // Then the first appearance already bears both, and follows the choice
+            assertThat(first).isEqualTo(AppAppearance(BloxThemeKind.COLORFUL, reducedEffects = true))
+            assertThat(awaitItem()).isEqualTo(AppAppearance(BloxThemeKind.COLORFUL, reducedEffects = false))
         }
     }
 }

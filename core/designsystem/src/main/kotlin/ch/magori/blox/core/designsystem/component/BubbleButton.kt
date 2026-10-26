@@ -95,7 +95,7 @@ internal fun BubbleButton(
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
     val state = ButtonState(enabled = enabled, depth = if (down) 1f else 0f, focused = focused)
     val effects = BloxTheme.effects
-    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state, effects)
+    val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
     val shape = BloxTheme.shapes.pill
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame

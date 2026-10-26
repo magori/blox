@@ -28,11 +28,12 @@ internal class BloxEffectsTest {
     }
 
     @Test
-    fun `the choice of the player comes back once Android animates again`() {
-        // Given full effects chosen, forced reduced while Android removed the animations
+    fun `the same choice of full effects resolves to full effects again once Android animates`() {
+        // Given full effects chosen, resolved to forced reduced effects while Android removes the animations
         val forced = BloxEffects.resolve(reducedChosen = false, systemAnimates = false)
 
-        // When Android animates again: the choice was never overwritten, only resolved anew
+        // When the same choice is resolved once Android animates again (that the choice is never overwritten while
+        // forced is SettingsScreenTest's: a forced switch asks for nothing)
         val back = BloxEffects.resolve(reducedChosen = false, systemAnimates = true)
 
         // Then

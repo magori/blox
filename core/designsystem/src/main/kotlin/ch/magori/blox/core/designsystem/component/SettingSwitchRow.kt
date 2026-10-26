@@ -147,7 +147,7 @@ internal fun SettingSwitchRow(
                         text = disabledReason ?: subLine,
                         color = look.subLine,
                         style = subLineStyle,
-                        maxLines = 2,
+                        maxLines = SUB_LINE_MAX_LINES,
                         autoSize = shrinkToWholeWords(subLineStyle.fontSize),
                     )
                 }
@@ -279,3 +279,9 @@ private val THUMB_GAP = 2.dp
 
 /** The check of a thumb on ([CheckMark], shared with the groups of choices). */
 private val CHECK_SIDE = 14.dp
+
+/**
+ * The lines a sub-line may take: three, so that the longest (« Moins de mouvements et de particules », « Imposé par les
+ * réglages d'Android ») stays whole in the pixel font of Original, twice as large, on 360 dp.
+ */
+private const val SUB_LINE_MAX_LINES = 3

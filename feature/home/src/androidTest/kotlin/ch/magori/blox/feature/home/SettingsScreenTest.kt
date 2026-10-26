@@ -51,6 +51,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalTestApi::class)
@@ -280,6 +281,30 @@ internal class SettingsScreenTest {
         }
     }
 
+    @ParameterizedTest(name = "in {0}, effects forced by Android {1}")
+    @CsvSource("ORIGINAL, false", "ORIGINAL, true", "COLORFUL, false", "COLORFUL, true")
+    @DisplayName("in a font twice as large, on 360 dp, every sub-line shows whole, its words whole")
+    fun inALargeFontEverySubLineShowsWhole(
+        kind: BloxThemeKind,
+        forced: Boolean,
+    ) = extension.use {
+        // Given a font twice as large, on the narrowest phone, Android imposing the reduced effects or not
+        showSettingsScreen(
+            width = NARROW_PHONE,
+            fontScale = 2f,
+            kind = kind,
+            effects = if (forced) BloxEffects(reduced = true, forcedBySystem = true) else BloxEffects.Full,
+        )
+
+        // Then nothing is cut, not even « Moins de mouvements et de particules » in the pixel font of Original
+        val reducedEffects = if (forced) "Imposé par les réglages d'Android" else "Moins de mouvements et de particules"
+        (listOf(reducedEffects) + SUB_LINES).forEach { subLine ->
+            val layout = textLayout(subLine)
+            assertWordsWhole(layout)
+            assertThat(layout.hasVisualOverflow).describedAs(subLine).isFalse()
+        }
+    }
+
     @Test
     @DisplayName(
         "the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them",
@@ -506,3 +531,10 @@ private val NARROW_PHONE = 360.dp
 
 /** The least part of its size a label of a setting keeps in a large font, shrinking only so as not to cut a word. */
 private const val LEAST_PART_OF_THE_SIZE = 0.9f
+
+/** The sub-lines of the switches after Effets réduits, in the order of the page. */
+private val SUB_LINES = listOf(
+    "Rotation, lignes, fin de partie",
+    "Lignes effacées, fin de partie",
+    "Un léger toucher à chaque touche",
+)

@@ -25,8 +25,8 @@ internal class HeldKeyTest {
     val extension = createComposeExtension()
 
     @Test
-    @DisplayName("a held key goes 2 dp down, reduced effects or not")
-    fun aHeldKeyGoesDownReducedEffectsOrNot() = extension.use {
+    @DisplayName("a held key goes 2 dp down with its tag and what TalkBack reads, reduced effects or not")
+    fun aHeldKeyGoesDownWithItsTagReducedEffectsOrNot() = extension.use {
         // Given the keys B and A, in full effects, then in reduced effects
         val controls = HeldControls(onChange = {})
         var effects by mutableStateOf(BloxEffects.Full)
