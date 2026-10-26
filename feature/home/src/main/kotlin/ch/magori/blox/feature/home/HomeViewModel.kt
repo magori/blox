@@ -190,6 +190,12 @@ class HomeViewModel(
     internal fun onSettings() = stopPreview()
 
     /**
+     * The player goes back to the choice of the game: the music being listened to stops at once, before the transition
+     * (leaving the stack would stop it too, but only once the home is gone).
+     */
+    internal fun onChangeGame() = stopPreview()
+
+    /**
      * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
      * the background, or a game in front), the music being listened to stops. A pause alone, behind a
      * dialog or in a split screen, lets it play on.

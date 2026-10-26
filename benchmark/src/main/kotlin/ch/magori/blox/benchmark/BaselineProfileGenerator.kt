@@ -7,7 +7,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import kotlin.time.Duration.Companion.seconds
 
 /**
- * Génère le profil de référence de l'application (P5.17) : le code du démarrage, de l'accueil et
+ * Génère le profil de référence de l'application (P5.17) : le code du démarrage, du choix du jeu, de l'accueil et
  * des premières secondes de partie (`GameScreen`, `BoardCanvas`, séquenceur, moteur) est compilé
  * à l'installation plutôt qu'interprété.
  *

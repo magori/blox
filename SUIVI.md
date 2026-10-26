@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 181 / 240 | `███████████████░░░░░` **75 %** |
+| **Général** | 182 / 241 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -909,7 +909,7 @@ composants.
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
   `in reduced effects a pressed button changes its fill only`.
-- [ ] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
+- [x] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
   à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
   du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
   fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
@@ -1031,6 +1031,10 @@ composants.
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
+- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+  console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
+  étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
+  inchangé (`CartridgesScreenTest`).
 
 ## P6 — Mode Moderne (plus tard)
 
