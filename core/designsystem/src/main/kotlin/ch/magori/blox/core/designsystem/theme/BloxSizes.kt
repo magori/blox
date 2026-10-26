@@ -26,6 +26,9 @@ object BloxSizes {
     /** The least height of a row of the settings on a tablet (`setting-row-tablet`). */
     val settingRowTablet = 64.dp
 
+    /** The slot of the pictogram of a row of the settings, on its start. */
+    val settingIcon = 40.dp
+
     /** The width of the track of a switch, a pill (`switch-track`). */
     val switchTrack = 52.dp
 

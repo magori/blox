@@ -338,7 +338,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
   à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
-  **Tests :** `SettingsScreenTest › TalkBack reads Vibrations and Effets sonores as switches, read off when off`,
+  **Tests :** `SettingsScreenTest › TalkBack reads each setting as a switch, read off when off`,
   `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,

@@ -27,6 +27,9 @@ enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
     /** Secondaire: Menu, Changer, the tiles, a pill of 56 dp. */
     SECONDARY(minHeight = 56.dp, isPrimary = false),
 
+    /** Danger: Effacer (the record), a secondary pill framed and labelled in `danger`, for what cannot be undone. */
+    DANGER(minHeight = 56.dp, isPrimary = false),
+
     /** Icône: a disc of 48 dp, of a pictogram alone (Paramètres, Écouter, Pause). */
     ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
 }
@@ -67,6 +70,7 @@ internal fun buttonLook(
     val bubble = when {
         !state.enabled -> colors.disabled
         family.isPrimary -> colors.primary
+        family == ButtonFamily.DANGER -> colors.danger
         else -> colors.secondary
     }
     val down = state.enabled && state.depth > 0f

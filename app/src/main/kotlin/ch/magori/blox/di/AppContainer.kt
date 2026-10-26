@@ -188,8 +188,12 @@ class AppContainer(context: Context) {
         musicLibrary,
     )
 
-    /** The settings page: the settings kept on the device, read by each game when it is created. */
-    val settingsViewModelFactory: SettingsViewModel.Factory = SettingsViewModel.Factory(userPreferences)
+    /**
+     * The settings page: the settings kept on the device, read by each game when it is created; the record, which it
+     * clears; the sound effects and the vibrations of the games, for a setting turned on to be felt once.
+     */
+    val settingsViewModelFactory: SettingsViewModel.Factory =
+        SettingsViewModel.Factory(userPreferences, highScores, soundEffects, haptics)
 
     /** The music editor: a music of the player, or a new one, listened to by the music player of the games. */
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)

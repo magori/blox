@@ -83,6 +83,35 @@ internal class VolumeSliderTest {
     }
 
     @Test
+    @DisplayName("a drag asks for each step once, and the knob follows the finger while the value has not come back")
+    fun aDragAsksForEachStepOnceAndTheKnobFollowsTheFinger() = extension.use {
+        // Given the slider at 50 %, whose value does not come back while the finger moves (a write that lags)
+        val asked = mutableListOf<Int>()
+        setSlider(onPercentChange = { asked += it }, percent = 50)
+        val track = onNodeWithTag(VOLUME_SLIDER_TRACK_TAG, useUnmergedTree = true)
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+
+        // When a finger drags the knob to 60 %, by several moves within that step
+        track.performTouchInput {
+            down(along(0.5f))
+            moveTo(along(0.58f))
+            moveTo(along(0.6f))
+            moveTo(along(0.61f))
+            moveTo(along(0.62f))
+        }
+
+        // Then 60 % is asked for once, and the slider shows it under the finger
+        assertThat(asked).containsExactly(60)
+        slider.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "60 %"))
+
+        // When the finger lifts, the value never having come back
+        track.performTouchInput { up() }
+
+        // Then the slider shows the value it is given
+        slider.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "50 %"))
+    }
+
+    @Test
     @DisplayName("a drag never takes the value out of its range")
     fun aDragNeverTakesTheValueOutOfItsRange() = extension.use {
         // Given the slider at 50 %

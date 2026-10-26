@@ -152,6 +152,18 @@ fun SecondaryButton(
     LabelledButton(ButtonFamily.SECONDARY, text, icon, onClick, modifier, enabled)
 }
 
+/** An action that cannot be undone (Effacer, the record), asked for before it is done: [icon], decorative, then [text]. */
+@Composable
+fun DangerButton(
+    text: String,
+    icon: BloxIcon,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    LabelledButton(ButtonFamily.DANGER, text, icon, onClick, modifier, enabled)
+}
+
 /** A button of [family] that shows [icon], decorative, then [text], centred on as many lines as it needs. */
 @Composable
 private fun LabelledButton(
@@ -187,7 +199,7 @@ fun buttonLabelStyle(family: ButtonFamily): TextStyle {
     val style = when (family) {
         ButtonFamily.PRIMARY_XL -> typography.playLabel
         ButtonFamily.PRIMARY -> typography.buttonLabelStrong
-        ButtonFamily.SECONDARY, ButtonFamily.ICON -> typography.buttonLabel
+        ButtonFamily.SECONDARY, ButtonFamily.DANGER, ButtonFamily.ICON -> typography.buttonLabel
     }
     return MaterialTheme.typography.labelLarge.merge(style)
 }

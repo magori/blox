@@ -22,6 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
@@ -114,8 +115,7 @@ internal fun SettingSwitchRow(
     SettingRowLayout(
         modifier = modifier
             .focusRing(look.focusRing, shape)
-            .fillMaxWidth()
-            .heightIn(min = BloxSizes.settingRow)
+            .settingRow()
             .background(look.rowFill, shape)
             .toggleable(
                 value = checked,
@@ -129,14 +129,12 @@ internal fun SettingSwitchRow(
             .padding(BloxSpaces.space2),
         labels = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(Modifier.size(ICON_SLOT), contentAlignment = Alignment.Center) {
-                    BloxIcon(icon, size = IconSizes.alone, tint = look.subLine)
-                }
+                SettingIcon(icon, tint = look.subLine)
                 Column(
                     modifier = Modifier.padding(start = BloxSpaces.space3).weight(1f),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
-                    val labelStyle = labelStyle()
+                    val labelStyle = settingLabelStyle()
                     Text(
                         text = label,
                         color = look.label,
@@ -165,7 +163,7 @@ internal fun SettingSwitchRow(
  * under them, on the right. Each line is centred in the height of the row.
  */
 @Composable
-private fun SettingRowLayout(
+internal fun SettingRowLayout(
     labels: @Composable () -> Unit,
     track: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -249,18 +247,29 @@ private fun Modifier.thumbFill(
  */
 @Composable
 @ReadOnlyComposable
-private fun labelStyle(): TextStyle {
+internal fun settingLabelStyle(): TextStyle {
     val choice = BloxTheme.typography.choice
     val style = if (BloxTheme.kind == BloxThemeKind.ORIGINAL) choice else choice.copy(fontWeight = FontWeight.Bold)
     return MaterialTheme.typography.labelLarge.merge(style)
 }
 
+/** The pictogram of a row of the settings, [icon] in [tint], centred in its slot of [BloxSizes.settingIcon]. */
+@Composable
+internal fun SettingIcon(
+    icon: BloxIcon,
+    tint: Color,
+) {
+    Box(Modifier.size(BloxSizes.settingIcon), contentAlignment = Alignment.Center) {
+        BloxIcon(icon, size = IconSizes.alone, tint = tint)
+    }
+}
+
+/** A row of the settings: as wide as its card, [BloxSizes.settingRow] high at least (`setting-row`). */
+internal fun Modifier.settingRow(): Modifier = fillMaxWidth().heightIn(min = BloxSizes.settingRow)
+
 /** The tags of the track and of the thumb of a switch, read by the tests. */
 internal const val SWITCH_TRACK_TAG = "switch_track"
 internal const val SWITCH_THUMB_TAG = "switch_thumb"
-
-/** The slot of the pictogram of a setting. */
-private val ICON_SLOT = 40.dp
 
 /** The height of the track of a switch (`switch-track`: 52 × 32). */
 private val TRACK_HEIGHT = 32.dp

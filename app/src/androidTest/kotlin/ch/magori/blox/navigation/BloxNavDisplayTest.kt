@@ -526,7 +526,12 @@ internal class BloxNavDisplayTest {
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
-        val settingsFactory = SettingsViewModel.Factory(settingsPreferences ?: preferences)
+        val settingsFactory = SettingsViewModel.Factory(
+            settingsPreferences ?: preferences,
+            highScores,
+            FakeSoundEffectPlayer(),
+            FakeHaptics(),
+        )
         setContent {
             BloxTheme(kind = BloxThemeKind.ORIGINAL) {
                 // The stack of the application unless one is restored: the first screen is the one it gives.
