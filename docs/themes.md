@@ -71,6 +71,30 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossDrawingTest › a square shape stays square, inside its frame and around it` ; captures `GlossSheetOriginal`,
 `GlossSheetColorful`, `GlossSheetColorfulNight`.
 
+**Curseur à pas et jauge du niveau** (P5.62, `core:designsystem`, composants Choice et Switch) : une logique
+pure, `SteppedValue` (interne), donne le pas le plus proche d'une position ou d'une valeur, sans sortir des
+bornes ; un nombre invalide (NaN) ne change rien. Le **curseur de volume** (`VolumeSlider`) va de 0 à 100 % par
+pas de 10 (la règle de `Volume`, `core:music`, que les features convertissent), valeur affichée en % ; la
+**jauge du niveau** (`LevelGauge`) a 10 barres de 8 dp, de 8 à 26 dp de haut, pleines en `accent` jusqu'au
+niveau et creuses au-delà (le niveau ne se lit pas qu'à la couleur : atteint et au-delà ne font que 1,6:1 de
+jour), et des boutons − et +, − désactivé au plus bas, + au plus haut. TalkBack ne lit qu'un curseur, qui
+avance d'un pas à la fois (− et + exclus). En Original, dont le `panel-border` est l'accent, les barres
+au-delà, la piste et le curseur désactivé sont en `button`. Désactivé : piste au-delà en `panel-inset` cadrée
+de `panel-border`. Les deux suivent le sens de lecture. Ils seront branchés sur les Paramètres (P5.70) et
+l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
+
+**Tests :** `SteppedValueTest`, `GaugeBarsTest`, `StepColorsTest`, `VolumeSliderTest`, `LevelGaugeTest`, dont
+`GaugeBarsTest › the bars up to the value are filled and those beyond it hollow, so the value does not read by colour alone`,
+`StepColorsTest › a disabled slider in Original, whose panel border is its accent, is drawn in button, never in its accent`,
+`VolumeSliderTest › TalkBack reads one slider with its value and moves it one step at a time`,
+`VolumeSliderTest › a touch on the track gives the nearest step`,
+`VolumeSliderTest › a drag never takes the value out of its range`,
+`VolumeSliderTest › in a language read from right to left, the track starts on its right`,
+`LevelGaugeTest › minus is disabled at the lowest step and plus at the highest`,
+`LevelGaugeTest › TalkBack reads one slider with its value and moves it one step at a time`,
+`LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level` ;
+captures `Stepper*`. Vues : V27, V31.
+
 **Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :

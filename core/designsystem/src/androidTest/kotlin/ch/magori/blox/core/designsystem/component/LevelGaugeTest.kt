@@ -1,9 +1,11 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -20,6 +22,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -123,14 +126,32 @@ internal class LevelGaugeTest {
         assertThat(asked).containsExactly(6, 3)
     }
 
+    @Test
+    @DisplayName("in a language read from right to left, the leftmost bar is the highest level")
+    fun inALanguageReadFromRightToLeftTheLeftmostBarIsTheHighestLevel() = extension.use {
+        // Given the gauge at the level 5, read from right to left
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }, layoutDirection = LayoutDirection.Rtl) { 5 }
+
+        // When the bar on the far left is touched, at its centre, 4 dp from the left
+        onNodeWithTag(LEVEL_GAUGE_BARS_TAG, useUnmergedTree = true)
+            .performTouchInput { click(Offset(4.dp.toPx(), centerY)) }
+
+        // Then
+        assertThat(asked).containsExactly(9)
+    }
+
     /** Shows a gauge of the levels 0 to 9 at [level], in Couleurs, that keeps the levels it is asked for. */
     private fun ComposeContext.setGauge(
         onLevelChange: (Int) -> Unit = {},
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
         level: () -> Int,
     ) {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                LevelGauge(level = level(), levels = 0..9, onLevelChange = onLevelChange, description = DESCRIPTION)
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    LevelGauge(level = level(), levels = 0..9, onLevelChange = onLevelChange, description = DESCRIPTION)
+                }
             }
         }
     }

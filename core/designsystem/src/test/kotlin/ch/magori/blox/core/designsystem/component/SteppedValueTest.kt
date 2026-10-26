@@ -2,9 +2,11 @@ package ch.magori.blox.core.designsystem.component
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
+import java.time.Duration
 
 class SteppedValueTest {
     @Test
@@ -88,5 +90,31 @@ class SteppedValueTest {
     @ValueSource(ints = [-10, 45, 110])
     fun `a value off its steps or out of their range is refused`(value: Int) {
         assertThatIllegalArgumentException().isThrownBy { SteppedValue(value = value, steps = 0..100 step 10) }
+    }
+
+    @Test
+    fun `a value is checked against its steps by arithmetic, without going through them`() {
+        // Given a billion steps: going through them one by one, boxed, would take seconds
+        val steps = 0..2_000_000_000 step 2
+
+        // Then the last one is accepted at once
+        assertTimeoutPreemptively(Duration.ofMillis(200)) {
+            assertThat(SteppedValue(2_000_000_000, steps).index).isEqualTo(1_000_000_000)
+        }
+    }
+
+    @Test
+    fun `steps that go down are refused`() {
+        assertThatIllegalArgumentException().isThrownBy { SteppedValue(value = 5, steps = 9 downTo 0) }
+    }
+
+    @Test
+    fun `a position or a value that is not a number leaves the value as it is`() {
+        // Given a volume, and what a faulty accessibility service could ask for
+        val volume = SteppedValue(value = 50, steps = 0..100 step 10)
+
+        // Then
+        assertThat(volume.nearestToValue(Float.NaN)).isEqualTo(volume)
+        assertThat(volume.nearestTo(Float.NaN)).isEqualTo(volume)
     }
 }

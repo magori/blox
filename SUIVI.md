@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 171 / 221 | `███████████████░░░░░` **77 %** |
+| **Général** | 172 / 223 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -835,7 +835,7 @@ composants.
   `a switch on has its thumb on the right, larger, checked, a switch off on the left`,
   `a pressed row fills with button pressed and its thumb grows to 28 dp`,
   `the track is framed in button outline, which stands out from the page by 3 to 1, on and off` ; captures.
-- [ ] **P5.62** Curseur à pas (composants Choice et Switch) : logique pure `SteppedValue` (valeur la plus proche
+- [x] **P5.62** Curseur à pas (composants Choice et Switch) : logique pure `SteppedValue` (valeur la plus proche
   d'une position, bornes, pas), curseur de volume (pas de 10 %, valeur en %) et jauge du niveau (10 barres, − et
   +), un seul curseur pour TalkBack. Après P5.60.
   Cas : `a touch on the track gives the nearest step`, `a drag never takes the value out of its range`,
@@ -1022,6 +1022,14 @@ composants.
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
+- [ ] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (et
+  haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
+  l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
+  `a focused slider bears the focus ring`.
+- [ ] **P5.91** Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
+  `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
+  du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
+  Original a disabled icon button stands out from the page less than an enabled one`.
 
 ## P6 — Mode Moderne (plus tard)
 

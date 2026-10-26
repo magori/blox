@@ -33,4 +33,13 @@ class GaugeBarsTest {
         assertThat(bars.map { it.color })
             .containsExactlyElementsOf(List(4) { palette.accent } + List(6) { palette.button })
     }
+
+    @Test
+    fun `the bars up to the value are filled and those beyond it hollow, so the value does not read by colour alone`() {
+        // When
+        val bars = gaugeBars(SteppedValue(3, 0..9), BloxPalettes.ColorfulLight)
+
+        // Then
+        assertThat(bars.map { it.filled }).containsExactlyElementsOf(List(4) { true } + List(6) { false })
+    }
 }

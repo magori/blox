@@ -1,6 +1,8 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -16,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipe
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -119,6 +122,37 @@ internal class VolumeSliderTest {
         assertThat(asked).isEmpty()
     }
 
+    @Test
+    @DisplayName("in a language read from right to left, the track starts on its right")
+    fun inALanguageReadFromRightToLeftTheTrackStartsOnItsRight() = extension.use {
+        // Given the slider at 50 %, read from right to left
+        val asked = mutableListOf<Int>()
+        setSlider(onPercentChange = { asked += it }, percent = 50, layoutDirection = LayoutDirection.Rtl)
+
+        // When the track is touched a third of the way from its left
+        onNodeWithTag(VOLUME_SLIDER_TRACK_TAG, useUnmergedTree = true).performTouchInput { click(along(0.34f)) }
+
+        // Then two thirds of the way from its start, on the right
+        assertThat(asked).containsExactly(70)
+    }
+
+    @Test
+    @DisplayName("a touch or TalkBack on the current value asks for nothing")
+    fun aTouchOrTalkBackOnTheCurrentValueAsksForNothing() = extension.use {
+        // Given the slider at 50 %
+        val asked = mutableListOf<Int>()
+        setSlider(onPercentChange = { asked += it }, percent = 50)
+
+        // When the track is touched at 50 %, and TalkBack asks for 50 % and for 52 %, nearest to 50 %
+        onNodeWithTag(VOLUME_SLIDER_TRACK_TAG, useUnmergedTree = true).performTouchInput { click(along(0.5f)) }
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        slider.performSemanticsAction(SemanticsActions.SetProgress) { it(50f) }
+        slider.performSemanticsAction(SemanticsActions.SetProgress) { it(52f) }
+
+        // Then
+        assertThat(asked).isEmpty()
+    }
+
     /** The point of the track [fraction] of the way the centre of the knob, of 28 dp, goes: from 14 dp to 14 dp off. */
     private fun TouchInjectionScope.along(fraction: Float): Offset {
         val inset = with(this) { 14.dp.toPx() }
@@ -130,15 +164,18 @@ internal class VolumeSliderTest {
         onPercentChange: (Int) -> Unit = {},
         percent: Int,
         enabled: Boolean = true,
+        layoutDirection: LayoutDirection = LayoutDirection.Ltr,
     ) {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                VolumeSlider(
-                    percent = percent,
-                    onPercentChange = onPercentChange,
-                    description = DESCRIPTION,
-                    enabled = enabled,
-                )
+                CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
+                    VolumeSlider(
+                        percent = percent,
+                        onPercentChange = onPercentChange,
+                        description = DESCRIPTION,
+                        enabled = enabled,
+                    )
+                }
             }
         }
     }

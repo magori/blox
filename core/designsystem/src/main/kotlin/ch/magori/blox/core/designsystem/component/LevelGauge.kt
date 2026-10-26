@@ -1,6 +1,7 @@
 package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,7 +11,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import ch.magori.blox.core.designsystem.R
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -44,6 +45,8 @@ private val HighestBar = 26.dp
  * of the nearest one. TalkBack reads one slider, [description] and
  * the level, and moves it one level at a time; − and +, there for a finger, are left out of it. [onLevelChange] is
  * given the level asked for, always one of [levels].
+ *
+ * @throws IllegalArgumentException if [level] is not one of [levels].
  */
 @Composable
 fun LevelGauge(
@@ -55,8 +58,7 @@ fun LevelGauge(
 ) {
     val value = SteppedValue(level, levels)
     val latestValue by rememberUpdatedState(value)
-    val latestChange by rememberUpdatedState(onLevelChange)
-    val change = remember { { next: SteppedValue -> latestChange(next.value) } }
+    val change = rememberStepChange(onLevelChange)
     Row(
         modifier = modifier.stepSemantics(value, description, state = level.toString(), onValueChange = change),
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
@@ -113,31 +115,39 @@ private fun GaugeBars(
         bars.forEach { bar ->
             Spacer(
                 Modifier.size(bar.width, HighestBar).wrapContentHeight(Alignment.Bottom).height(bar.height)
-                    .background(bar.color),
+                    .then(
+                        if (bar.filled) {
+                            Modifier.background(bar.color)
+                        } else {
+                            Modifier.border(BloxBorders.frame, bar.color)
+                        },
+                    ),
             )
         }
     }
 }
 
-/** A bar of the gauge: [width] by [height], in [color]. */
+/** A bar of the gauge: [width] by [height], in [color], [filled] with it or only framed by it. */
 @Immutable
-internal data class GaugeBar(val width: Dp, val height: Dp, val color: Color)
+internal data class GaugeBar(val width: Dp, val height: Dp, val color: Color, val filled: Boolean)
 
 /**
  * The bars of a gauge at [value], one a step, higher and higher from [LowestBar] to [HighestBar], in the
- * [stepColors] of [palette]: reached up to the value, beyond past it.
+ * [stepColors] of [palette]: filled in reached up to the value, hollow in beyond past it, so that the value does not
+ * read by colour alone (reached and beyond stand apart by less than 3:1 by day and in Original).
  */
 internal fun gaugeBars(
     value: SteppedValue,
     palette: BloxPalette,
 ): List<GaugeBar> {
     val colors = stepColors(palette)
-    return value.steps.map { step ->
-        val bar = value.copy(value = step)
+    return List(value.lastIndex + 1) { index ->
+        val reached = index <= value.index
         GaugeBar(
             width = BarWidth,
-            height = lerp(LowestBar, HighestBar, bar.fraction),
-            color = if (bar.index <= value.index) colors.reached else colors.beyond,
+            height = lerp(LowestBar, HighestBar, value.fractionOf(index)),
+            color = if (reached) colors.reached else colors.beyond,
+            filled = reached,
         )
     }
 }

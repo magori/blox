@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -19,7 +18,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -41,17 +42,22 @@ import ch.magori.blox.core.designsystem.theme.gloss
 internal const val VOLUME_SLIDER_TRACK_TAG = "volume_slider_track"
 
 /** The steps of a volume, in percent: from 0 to 100 by 10. */
-val VolumeSteps: IntProgression = 0..100 step 10
+internal val VolumeSteps: IntProgression = 0..100 step 10
 
 /** The height of the track of a volume slider, and the side of its knob. */
 private val TrackHeight = 6.dp
 private val KnobSize = 28.dp
+
+/** The frame of the track of a disabled slider, drawn on its edge: thin, the track being 6 dp high. */
+private val TrackFrame = 1.dp
 
 /**
  * A volume slider (docs/design-system/README.md, Paramètres): a track of 6 dp in `panel-border`, filled in `accent`
  * up to a knob of 28 dp in `button`, by steps of 10 % ([VolumeSteps]), its value in percent on its right. TalkBack
  * reads one slider, [description] and the value, and moves it 10 % at a time. [onPercentChange] is given the volume
  * asked for, always one of [VolumeSteps]; [enabled] false, the slider is flat, in `panel-inset`, and cannot be moved.
+ *
+ * @throws IllegalArgumentException if [percent] is not a multiple of 10 from 0 to 100.
  */
 @Composable
 fun VolumeSlider(
@@ -64,8 +70,7 @@ fun VolumeSlider(
     val value = SteppedValue(percent, VolumeSteps)
     val text = stringResource(R.string.core_designsystem_volume_percent, percent)
     val latestValue by rememberUpdatedState(value)
-    val latestChange by rememberUpdatedState(onPercentChange)
-    val change = remember { { next: SteppedValue -> latestChange(next.value) } }
+    val change = rememberStepChange(onPercentChange)
     Row(
         modifier = modifier.stepSemantics(value, description, state = text, enabled = enabled, onValueChange = change),
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
@@ -86,13 +91,7 @@ private fun Track(
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
-    val colors = if (enabled) {
-        stepColors(
-            palette,
-        )
-    } else {
-        StepColors(reached = palette.panelBorder, beyond = palette.panelInset)
-    }
+    val colors = if (enabled) stepColors(palette) else disabledStepColors(palette)
     val shape = BloxTheme.shapes.pill
     Box(
         modifier = modifier
@@ -106,28 +105,39 @@ private fun Track(
                 val track = shape.createOutline(Size(size.width, trackHeight), layoutDirection, this)
                 val fill = shape.createOutline(Size(reached, trackHeight), layoutDirection, this)
                 val fillLeft = if (layoutDirection == LayoutDirection.Rtl) size.width - reached else 0f
+                val frame = colors.frame
+                val frameStroke = Stroke(TrackFrame.toPx())
                 onDrawBehind {
                     translate(top = (size.height - trackHeight) / 2) {
                         drawOutline(track, colors.beyond)
+                        if (frame != null) drawOutline(track, frame, style = frameStroke)
                         translate(left = fillLeft) { drawOutline(fill, colors.reached) }
                     }
                 }
             },
     ) {
-        Knob(enabled, Modifier.align(BiasAlignment(horizontalBias = value.fraction * 2 - 1, verticalBias = 0f)))
+        Knob(
+            enabled,
+            colors.frame,
+            Modifier.align(BiasAlignment(horizontalBias = value.fraction * 2 - 1, verticalBias = 0f)),
+        )
     }
 }
 
-/** The knob of a slider: a bubble of [KnobSize] in `button`, framed by `button-outline`, flat when not [enabled]. */
+/**
+ * The knob of a slider: a bubble of [KnobSize] in `button`, framed by `button-outline`; flat when not [enabled], and
+ * framed by [disabledFrame] if there is one.
+ */
 @Composable
 private fun Knob(
     enabled: Boolean,
+    disabledFrame: Color?,
     modifier: Modifier = Modifier,
 ) {
     val buttons = BloxTheme.buttons
     val bubble = if (enabled) buttons.secondary else buttons.disabled
     val shape = BloxTheme.shapes.pill
-    val frame = bubble.frame
+    val frame = if (enabled) bubble.frame else disabledFrame ?: bubble.frame
     Box(
         modifier = modifier
             .size(KnobSize)

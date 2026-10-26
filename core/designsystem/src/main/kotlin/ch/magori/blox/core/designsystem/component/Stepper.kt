@@ -2,7 +2,11 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -21,18 +25,33 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * The colours of a slider or a gauge: [reached], up to its value, and [beyond], past it. `accent` and `panel-border`,
- * but where the palette has them the same (Original, whose frames are in its ink), `button` beyond: the value must
- * still show.
+ * The colours of a slider or a gauge: [reached], up to its value, [beyond], past it, and the [frame] of its track and of
+ * its knob, if they have one of their own.
  */
 @Immutable
-internal data class StepColors(val reached: Color, val beyond: Color)
+internal data class StepColors(val reached: Color, val beyond: Color, val frame: Color? = null)
 
-/** The [StepColors] of [palette]. */
-internal fun stepColors(palette: BloxPalette): StepColors = StepColors(
-    reached = palette.accent,
-    beyond = if (palette.panelBorder == palette.accent) palette.button else palette.panelBorder,
-)
+/**
+ * The [StepColors] of [palette]: `accent` up to the value, its [quietColor] beyond it.
+ */
+internal fun stepColors(palette: BloxPalette): StepColors =
+    StepColors(reached = palette.accent, beyond = quietColor(palette))
+
+/**
+ * The [StepColors] of a disabled slider in [palette], flat and quiet: its [quietColor] up to the value, `panel-inset`
+ * beyond it, the track and the knob framed in its [quietColor], as a disabled switch, so that the track still shows on
+ * the page (`panel-inset` alone is 1.02:1 on it by day).
+ */
+internal fun disabledStepColors(palette: BloxPalette): StepColors = quietColor(palette).let { quiet ->
+    StepColors(reached = quiet, beyond = palette.panelInset, frame = quiet)
+}
+
+/**
+ * `panel-border`, but where the palette has it the same as its `accent` (Original, whose frames are in its ink),
+ * `button`: what is not reached, or not enabled, must not look like what is.
+ */
+private fun quietColor(palette: BloxPalette): Color =
+    if (palette.panelBorder == palette.accent) palette.button else palette.panelBorder
 
 /**
  * What TalkBack reads of a slider at [value]: one slider, [description], then [state], whose steps are those of the
@@ -94,4 +113,14 @@ internal fun Modifier.stepTouch(
             }
         }
     }
+}
+
+/**
+ * What a slider does with the step it is asked for: gives its value to [onChange], the one of the last composition,
+ * through a function that stays the same, so that the touch and TalkBack, set up once, always call the current one.
+ */
+@Composable
+internal fun rememberStepChange(onChange: (Int) -> Unit): (SteppedValue) -> Unit {
+    val latest by rememberUpdatedState(onChange)
+    return remember { { next: SteppedValue -> latest(next.value) } }
 }
