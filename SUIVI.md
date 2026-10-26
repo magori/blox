@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 172 / 223 | `███████████████░░░░░` **77 %** |
+| **Général** | 173 / 239 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,6 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
+| P7 | Le Serrurier, second jeu | Spécification faite (P7.1) ; domaine à faire |
 
 ---
 
@@ -1089,6 +1090,68 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 - [ ] **P6.22** Mettre à jour la maquette : écran de jeu et fin de partie du mode Moderne,
   écran Réglages.
 
+## P7 — Le Serrurier, second jeu (`core:locksmith`, `feature:locksmith`)
+
+Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : ADR 0025. Le domaine
+(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend.
+
+- [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
+  0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
+  `docs/architecture.md`, vue V35.
+- [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
+  pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
+- [ ] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+  `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
+  `CLAUDE.md` ; `Padlock` (grille 10 × 10, trou, solution de `Piece`) et `Padlock.parse(ascii)`
+  pour les tests (pièces de la solution marquées par leur rang, `1` à `6`). Cas : `the hole is the
+  union of the cells of the solution`, `two pieces of a solution cannot overlap`, `a padlock holds 3
+  to 6 pieces`, `the hole stays inside the outer ring`, `every piece but the first touches an earlier
+  one edge to edge`, `parse reads the hole and the pieces of the solution`.
+- [ ] **P7.4** Candidat (`PadlockGenerator`, interne) : 200 essais par pièce, pivot et cases dans
+  les 8 × 8 intérieures, collées bord à bord, abandon sinon. Cas : `a candidate has the number of
+  pieces asked`, `a candidate is a valid padlock`, `a candidate that cannot place a piece is ruled
+  out`, `the same random gives the same candidate`.
+- [ ] **P7.5** Composer, puis évaluer : `generate(pieceCount, seed)`, 20 candidats par graine
+  (abandonnés compris), trou rectangulaire éliminé, note entière `10 × contour + 30 × variété −
+  3 × boîte`, premier composé à égalité, `seed + 1` si aucun ne reste, au plus 100 graines puis
+  `IllegalStateException` (paramètres injectables), pièces données dans l'ordre de `PieceType`,
+  `min(6, 2 + niveau)` pièces. Cas : `a rectangular hole is ruled out`, `a longer outline rates
+  higher`, `more kinds of pieces rate higher`, `the first candidate wins among equals`, `when every
+  candidate is ruled out the next seed is tried`, `when no seed gives a padlock within the bound the
+  generator fails`, `the same seed gives the same padlock` ; propriété : toute serrure de 500
+  graines, de 3 à 6 pièces, est valide.
+- [ ] **P7.6** `PadlockGame`, partie immuable : pièces données par rang, chacune avec son
+  orientation ; choix, quart de tour, pose acceptée ou refusée (`OutOfHole` l'emporte sur
+  `Overlap`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
+  tout ignoré sauf Recommencer), recommencer, compteurs coups, refus, indices ; événements
+  `PiecePlaced`, `PlacementRefused`, `PieceTakenBack`, `PadlockOpened`.
+- [ ] **P7.7** Indice : solveur de couverture exacte dans l'ordre fixé par les règles (rang,
+  orientation, pivot) ; sinon la pièce posée la plus récente dont le retrait seul débloque, à
+  défaut la dernière posée ; `HintGiven`. Cas : `the hint shows where a free piece fits`, `the hint
+  never names a piece already placed`, `the hint finds a way even when the player left the
+  solution`, `the hint names the piece that blocks when no way is left`, `when no single piece
+  unblocks the padlock the hint names the last piece placed`.
+- [ ] **P7.8** Suites d'accords (`Progression` de `core:music`) : une par nombre de pièces, finissant
+  par V–I ; accord de rang *n* après une pose, *n* pièces sur la grille.
+- [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
+  fanfare de résolution, son de refus.
+- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+  styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
+  `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
+- [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
+  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6.
+- [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
+  aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
+  captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
+  P7.11.
+- [ ] **P7.13** Bande des accords et son : effets de chaque événement, préchauffage, réglage des
+  effets sonores respecté. Après P7.8, P7.9 et P7.12.
+- [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
+  serrure). Après P7.7 et P7.13.
+- [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+  suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
+- [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
+  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
 
 ---
 

@@ -1,0 +1,169 @@
+# Règles du Serrurier
+
+Le Serrurier est le second jeu de BloX, une énigme sans chronomètre : poser des pièces dans le
+trou d'une serrure jusqu'à la remplir. Chaque pièce posée joue l'accord suivant d'une phrase qui
+finit sur la cadence parfaite V–I, et la serrure s'ouvre sur l'accord de tonique. Il mélange les
+deux domaines du projet : les pièces et leurs rotations de `core:game`, le principe « composer,
+puis évaluer » et les accords de `core:music` ([générateur de musique](generateur-musique.md)).
+
+Origine : prototype « Idée · Le Serrurier » de la maquette (2026-10-25), repris et corrigé par
+la conception de l'agent `designer-jeu` et le découpage de l'agent `architecte` (2026-10-26),
+décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-serrurier.md).
+
+> Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
+> **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
+> Aucune règle n'est encore implémentée (phase P7 de [SUIVI.md](../SUIVI.md)).
+
+> Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
+> `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
+> ligne de haut en bas, et dans une ligne de gauche à droite.
+
+## Vocabulaire
+
+| Terme | Code | Sens |
+|---|---|---|
+| Serrure | `Padlock` | Une grille, son trou et une solution. Le mot *lock* désigne déjà le verrouillage d'une pièce du Classique (`PieceLocked`, `LockDelay`). |
+| Pièce posée | `Piece` (`core:game`) | Un type, une orientation et la position de son pivot : le type existant sert tel quel. |
+| Pièces données | — | Les pièces de la solution remises au joueur, identifiées par leur **rang** dans cette liste (deux T sont deux pièces distinctes). |
+| Trou | — | Les cases à remplir. |
+| Métal | — | Les cases de la grille hors du trou. |
+
+## Grille
+
+- **10 × 10 cases.** L'anneau extérieur (colonnes et lignes 0 et 9) est toujours du métal : le
+  trou tient dans les **8 × 8 cases intérieures**. L'écran peut donc ne montrer que ces 8 × 8
+  cases, dans un rebord de métal.
+- Le trou est **l'union des cases d'une solution** : 3 à 6 pièces posées sans chevauchement,
+  chacune touchant une pièce précédente par un bord (pas seulement par un coin). Toute serrure a
+  donc au moins une solution ; elle n'est pas forcément unique.
+
+## Pièces
+
+- Les sept pièces I, O, T, S, Z, J, L, avec les **orientations du Classique**
+  (`ClassicRotationSystem`, 19 formes en tout) et leur **pivot**.
+- Une pièce donnée commence dans son orientation d'apparition (`spawnOrientation`) et garde son
+  orientation quand on en choisit une autre puis qu'on y revient.
+- **Tourner** : un quart de tour dans un sens ou dans l'autre, autour du pivot
+  (`RotationSystem.rotate`). O ne change pas.
+- **Poser sur une case** : la pièce devient une `Piece` dont le pivot est la case visée ; ses
+  cases (`Piece.cells`) peuvent sortir de la grille, c'est la serrure qui juge. Tourner une pièce
+  présentée ne la déplace donc pas sous le doigt (le prototype ancrait la case la plus à gauche
+  de la rangée du haut, qui change à chaque rotation).
+
+## Générer une serrure : composer, puis évaluer
+
+Même principe que la musique : on compose des candidats au hasard, on élimine, on note, on
+garde le meilleur. La génération est une **fonction pure de la graine**
+(`generate(pieceCount, seed)`, qui construit son `Random(seed)` elle-même) : aucun état
+modifiable de plus dans le domaine ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)), et une
+même graine donne toujours la même serrure.
+
+1. **Un candidat** : pour chaque pièce, jusqu'à **200 essais** d'un type, d'une orientation (parmi
+   toutes celles du type) et d'un pivot tiré dans les 8 × 8 intérieures. Un essai est retenu si
+   toutes ses cases sont dans les 8 × 8 intérieures, libres, et (sauf pour la première pièce) si
+   l'une touche par un bord une case déjà prise. Si une pièce n'est pas placée en 200 essais, le
+   candidat est abandonné.
+2. **20 candidats** par graine, abandonnés compris.
+3. **Élimination** : un trou rectangulaire (il remplit sa boîte englobante) n'est pas une
+   serrure.
+4. **Note**, entière : `10 × contour + 30 × variété − 3 × boîte`, où le contour compte les côtés
+   de case du trou qui donnent sur le métal, la variété le nombre de types différents, la boîte
+   l'aire de la boîte englobante du trou (le prototype notait `contour + 3 × variété − 0,3 × boîte`
+   plus un bruit aléatoire : même ordre, sans arrondi ni bruit). À égalité, le premier candidat
+   composé l'emporte, comme dans le générateur de musique.
+5. Si aucun candidat ne reste, on recommence avec la **graine suivante** (`seed + 1`), au plus
+   **100 graines** ; au-delà, c'est une erreur de programmation (`IllegalStateException`), pas un
+   état de l'écran. Les essais, les candidats et les graines sont des paramètres du générateur
+   pour que les tests puissent provoquer cet échec.
+6. **Pièces données** au joueur : celles de la solution, rangées dans l'ordre de `PieceType`
+   (I O T S Z J L), qui ne trahit pas la solution.
+
+## Niveaux
+
+- Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
+  serrure 4.
+- Chaque serrure a sa graine, tirée par l'application quand elle ouvre la serrure suivante (clé
+  de navigation `LocksmithRoute(level, seed)`). La graine n'est pas affichée : la suite de
+  `Random` n'est pas un contrat (ADR 0014), une graine partagée demanderait un générateur maison.
+- Après la mort du processus, la clé restaurée régénère la même serrure depuis sa graine, **sans
+  pièce posée**.
+- Le niveau n'est pas enregistré : la cartouche ouvre toujours la serrure 1. Reprendre à la
+  dernière serrure demandera une préférence (point ouvert).
+
+## Partie
+
+- **Choisir** une pièce donnée non posée, par son rang ; à l'ouverture et après chaque pose
+  acceptée, la première pièce non posée est choisie d'office.
+- **Poser** la pièce choisie, dans son orientation, avec son pivot sur une case :
+  - **acceptée** si toutes ses cases sont dans le trou et libres : événement `PiecePlaced` ;
+  - **refusée** sinon, avec la raison : une case sur le métal ou hors de la grille
+    (`OutOfHole`), une case sur une pièce posée (`Overlap`). Quand les deux s'appliquent,
+    `OutOfHole` l'emporte. Événement `PlacementRefused` ; la partie ne change pas, sauf le
+    compteur des refus.
+- **Reprendre** une pièce posée : elle quitte la grille et redevient la pièce choisie, avec son
+  orientation (`PieceTakenBack`).
+- **Serrure ouverte** quand toutes les pièces sont posées : la dernière pose émet `PiecePlaced`
+  puis `PadlockOpened`. Toute pose acceptée étant juste, il n'y a rien d'autre à vérifier. Ensuite,
+  choisir, tourner, poser, reprendre et demander un indice sont ignorés, sans événement ; seul
+  Recommencer reste possible.
+- **Recommencer** : même serrure, aucune pièce posée, compteurs à zéro.
+- La partie garde l'**ordre des poses** (pour l'indice).
+- **Compteurs**, séparés :
+  - **coups** : les poses acceptées, y compris celles reprises ensuite ;
+  - **refus** : les poses refusées ;
+  - **indices** : les indices demandés.
+
+## Indice
+
+- Un solveur de couverture exacte cherche comment remplir le trou restant avec les pièces non
+  posées (au plus 6 pièces et 24 cases : un retour arrière suffit). Ordre de recherche, pour que
+  l'indice soit toujours le même : la première case libre du trou dans l'ordre de lecture ; les
+  pièces non posées par rang ; pour chacune, ses orientations dans l'ordre de `orientations(type)` ;
+  pour chacune, les pivots qui font couvrir cette case, dans l'ordre de lecture.
+- S'il trouve : l'indice désigne la pièce qui couvre la première case libre dans la première
+  couverture trouvée : **son rang, son orientation et son pivot**. Il ne propose jamais une pièce
+  déjà posée (défaut du prototype), et trouve un chemin même quand le joueur s'est écarté de la
+  solution d'origine.
+- Sinon : l'indice désigne **une pièce posée qui bloque**, la plus récemment posée dont le retrait
+  seul rend la serrure de nouveau soluble ; si aucun retrait seul ne suffit, la dernière pièce
+  posée.
+- Chaque indice compte dans le compteur des indices (`HintGiven`).
+
+## Accords
+
+Do majeur, un accord par pièce : après une pose acceptée, on joue l'accord de rang *n*, *n* étant
+le nombre de pièces sur la grille. La suite d'accords dépend du nombre de pièces de la serrure et
+finit toujours par la **cadence parfaite** V–I : la dernière pose résout sur I.
+
+| Pièces | Accords |
+|---|---|
+| 3 | IV – V – I |
+| 4 | I – IV – V – I |
+| 5 | I – vi – IV – V – I |
+| 6 | I – vi – ii – IV – V – I |
+
+Ce sont des `Progression` de `core:music` (`Progression.parse("IV-V-I")`), sans type à part.
+
+**Son** : arpège de l'accord et basse deux octaves plus bas, joués ensemble ; fanfare de
+résolution ; son de refus. Ce sont des effets sonores superposés (`SoundEffect`), joués par
+`SoundEffectPlayer` et soumis au réglage des effets sonores. Une reprise ne coupe aucun son : seule
+la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
+
+## Écran
+
+Conception de `designer-jeu` (2026-10-26), en Couleurs v2, téléphone debout d'abord ; vue V35
+de la [maquette](maquette.md) (à dessiner). De haut en bas : barre (retour, « SERRURE 04 »,
+coups, cadenas d'état), bande des accords (une pilule par accord, la cadence V–I marquée),
+serrure (8 × 8 cases de 42 dp au plus, selon la largeur, dans un rebord de métal), message,
+Indice et Recommencer, tuiles des pièces données, puis tourner à gauche, **Poser**, tourner à
+droite.
+
+- **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
+  le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
+  toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
+  état de l'écran, le domaine ne juge que la pose.
+- Retours de la pose, du refus, de la serrure ouverte et de l'indice, chacun avec sa version
+  « Effets réduits » ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)). L'indice reste
+  marqué jusqu'à la pose suivante.
+- Serrure ouverte : carte avec les compteurs, **Serrure suivante** et **Rejouer cette serrure**.
+- Pas de bouton pour passer une serrure : l'indice débloque.

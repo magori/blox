@@ -160,6 +160,8 @@ lui-même.
 
 - `core:game` et `core:music` : **aucune dépendance** (ni Android, ni coroutines). Une nouvelle
   dépendance demande un ADR.
+- `core:locksmith` (prévu, P7) : seulement `core:game` et `core:music`, en `api` (ADR 0025), ni
+  Android ni coroutines. Il suit le TDD strict comme eux.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
   assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
   extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011).
@@ -211,7 +213,8 @@ du Classique, qui doit rester vert (ADR 0015).
   `Score` est la partition de `core:music`), `LinesCleared`, `StackDanger`. Mode Moderne :
   `Hold` (réserve), `HardDrop` (chute instantanée), `Ghost` (pièce fantôme), `LockDelay` (délai
   de verrouillage), `Bag` (sac de 7), `TSpin`, `Combo`, `BackToBack` (enchaînement de coups
-  difficiles). Garder ces noms.
+  difficiles). Le Serrurier (`core:locksmith`) : `Padlock` (la serrure ; *lock* est le
+  verrouillage du Classique), les pièces posées étant des `Piece`. Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent

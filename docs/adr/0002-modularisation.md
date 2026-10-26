@@ -1,6 +1,6 @@
 # 0002 — Modularisation `app` / `core` / `feature` et plugins de convention
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; amendée par [0025](0025-le-serrurier.md)
 - **Date** : 2026-10-18
 
 ## Contexte
