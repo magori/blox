@@ -282,6 +282,19 @@ class PadlockGameTest {
     }
 
     @Test
+    fun `the chords of a padlock are those of its progression, in C4 major, all heard once it is open`() {
+        // Given: a padlock of 4 pieces, I-IV-V-I
+        val start = PadlockGame.start(STRIP)
+
+        // When
+        val chords = start.progressionChords
+
+        // Then
+        assertThat(chords).containsExactly(chord("I"), chord("IV"), chord("V"), chord("I"))
+        assertThat(chords).isEqualTo(start.solved().chords)
+    }
+
+    @Test
     fun `a piece taken back takes its chord back`() {
         // Given: two pieces placed, IV then V
         val game = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(2, 1)).game

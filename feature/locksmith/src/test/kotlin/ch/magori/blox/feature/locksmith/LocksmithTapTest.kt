@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith
 
+import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.Position
@@ -11,11 +12,13 @@ import ch.magori.blox.core.locksmith.Refusal
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 /** The touch of the padlock: aim, place by a second touch, take a placed piece back (rules, Écran). */
+@ExtendWith(MainDispatcherExtension::class)
 class LocksmithTapTest {
     private val start = PadlockGame.start(Padlock.generate(level = 1, seed = 7))
-    private val viewModel = LocksmithViewModel(LocksmithRoute(level = 1, seed = 7))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 1, seed = 7))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece: Piece = start.padlock.solution.first { it.type == start.given.first() }
@@ -180,11 +183,7 @@ class LocksmithTapTest {
     fun `once the padlock is open a touch changes nothing`() {
         // Given: every piece placed where the solution has it
         start.padlock.solution.forEach { piece ->
-            viewModel.select(
-                viewModel.uiState.value.game.let { game ->
-                    game.given.indices.first { it !in game.placed && game.given[it] == piece.type }
-                },
-            )
+            viewModel.selectFree(piece.type)
             viewModel.turnTo(piece.orientation)
             viewModel.tap(piece.pivot)
             viewModel.placeAim()

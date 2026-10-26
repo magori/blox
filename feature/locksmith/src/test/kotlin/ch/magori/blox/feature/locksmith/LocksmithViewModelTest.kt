@@ -2,6 +2,9 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -15,10 +18,12 @@ import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
+@ExtendWith(MainDispatcherExtension::class)
 class LocksmithViewModelTest {
     private val start = PadlockGame.start(Padlock.generate(level = 2, seed = 7))
-    private val viewModel = LocksmithViewModel(LocksmithRoute(level = 2, seed = 7))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 2, seed = 7))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece = start.padlock.solution.first { it.type == start.given.first() }
@@ -140,7 +145,10 @@ class LocksmithViewModelTest {
         }
 
         // When
-        val built = LocksmithViewModel.Factory().create(LocksmithViewModel::class, extras)
+        val built = LocksmithViewModel.Factory(
+            FakeSoundEffectPlayer(),
+            FakeUserPreferencesRepository(),
+        ).create(LocksmithViewModel::class, extras)
 
         // Then
         assertThat(built.uiState.value.level).isEqualTo(3)
@@ -150,7 +158,10 @@ class LocksmithViewModelTest {
     @Test
     fun `the factory fails clearly without the route of the entry`() {
         assertThatIllegalArgumentException().isThrownBy {
-            LocksmithViewModel.Factory().create(LocksmithViewModel::class, CreationExtras.Empty)
+            LocksmithViewModel.Factory(
+                FakeSoundEffectPlayer(),
+                FakeUserPreferencesRepository(),
+            ).create(LocksmithViewModel::class, CreationExtras.Empty)
         }
     }
 }
