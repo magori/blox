@@ -42,7 +42,7 @@ internal class SystemBarsAppearanceTest {
 
             // When the theme chosen is drawn, in the mode of the system
             setContent {
-                BloxTheme(kind = kind, darkSystem = darkSystem) { BloxSystemBars() }
+                BloxTheme(kind = kind, darkSystem = darkSystem) { BloxSystemBars(BloxTheme.variant) }
             }
             waitForIdle()
 
@@ -58,7 +58,7 @@ internal class SystemBarsAppearanceTest {
             // Given Colorful by day: dark icons
             var darkSystem by mutableStateOf(false)
             setContent {
-                BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem) { BloxSystemBars() }
+                BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem) { BloxSystemBars(BloxTheme.variant) }
             }
             waitForIdle()
             assertLightAppearance(true)
