@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 172 / 221 | `████████████████░░░░` **78 %** |
+| **Général** | 181 / 240 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,6 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
+| P7 | Le Serrurier, second jeu | En cours : domaine fait (`core:locksmith`), interface à faire |
 
 ---
 
@@ -835,14 +836,14 @@ composants.
   `a switch on has its thumb on the right, larger, checked, a switch off on the left`,
   `a pressed row fills with button pressed and its thumb grows to 28 dp`,
   `the track is framed in button outline, which stands out from the page by 3 to 1, on and off` ; captures.
-- [ ] **P5.62** Curseur à pas (composants Choice et Switch) : logique pure `SteppedValue` (valeur la plus proche
+- [x] **P5.62** Curseur à pas (composants Choice et Switch) : logique pure `SteppedValue` (valeur la plus proche
   d'une position, bornes, pas), curseur de volume (pas de 10 %, valeur en %) et jauge du niveau (10 barres, − et
   +), un seul curseur pour TalkBack. Après P5.60.
   Cas : `a touch on the track gives the nearest step`, `a drag never takes the value out of its range`,
   `minus is disabled at the lowest step and plus at the highest`,
   `TalkBack reads one slider with its value and moves it one step at a time`,
   `each bar of the gauge is 8 dp wide and from 8 to 26 dp high, in accent up to the value` ; captures.
-- [ ] **P5.63** Groupe de choix (composant Choice) : `ChoiceGroup` (cadre `button-outline` autour du groupe,
+- [x] **P5.63** Groupe de choix (composant Choice) : `ChoiceGroup` (cadre `button-outline` autour du groupe,
   segment retenu en `accent` avec coche, segment indisponible avec `BIENTÔT`) ; remplace `Choice`, `ChoiceRow`,
   `ChoiceCheck` et `choiceColors` (`feature:home`). Après P5.60.
   Cas : `exactly one segment is selected, checked and in accent`,
@@ -1022,6 +1023,14 @@ composants.
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
+- [ ] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (et
+  haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
+  l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
+  `a focused slider bears the focus ring`.
+- [ ] **P5.91** Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
+  `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
+  du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
+  Original a disabled icon button stands out from the page less than an enabled one`.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1081,6 +1090,74 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 - [ ] **P6.22** Mettre à jour la maquette : écran de jeu et fin de partie du mode Moderne,
   écran Réglages.
 
+## P7 — Le Serrurier, second jeu (`core:locksmith`, `feature:locksmith`)
+
+Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : ADR 0025. Le domaine
+(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend.
+
+- [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
+  0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
+  `docs/architecture.md`, vue V35.
+- [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
+  pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
+- [x] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)` ; `api(core:music)` arrive avec P7.8),
+  `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
+  `CLAUDE.md` ; `Padlock` (grille 10 × 10, trou, solution de `Piece`) et `Padlock.parse(ascii)`
+  pour les tests (pièces de la solution marquées par leur rang, `1` à `6`). Cas : `the hole is the
+  union of the cells of the solution`, `two pieces of a solution cannot overlap`, `a padlock holds 3
+  to 6 pieces`, `the hole stays inside the outer ring`, `every piece but the first touches an earlier
+  one edge to edge`, `parse reads the hole and the pieces of the solution`.
+- [x] **P7.4** Candidat (`PadlockGenerator`, interne) : 200 essais par pièce, pivot et cases dans
+  les 8 × 8 intérieures, collées bord à bord, abandon sinon. Cas : `a candidate has the number of
+  pieces asked`, `a candidate is a valid padlock whatever the random`, `a candidate that cannot place a piece is ruled
+  out`, `the same random gives the same candidate`.
+- [x] **P7.5** Composer, puis évaluer : `generate(pieceCount, seed)`, 20 candidats par graine
+  (abandonnés compris), chacun avec son `Random` tiré d'un maître, trou rectangulaire éliminé, note
+  entière `10 × contour + 30 × variété − 3 × boîte`, premier composé à égalité, `seed + 1` si aucun
+  ne reste, au plus 100 graines puis `IllegalStateException` (graines et composition injectables),
+  pièces données dans l'ordre de `PieceType`, `min(6, 2 + niveau)` pièces. Cas : `a rectangular hole
+  is ruled out`, `the rating is 10 per edge of the outline, 30 per kind of piece, minus 3 per cell of
+  the box`, `the best candidate is kept, the first one among equals`, `a candidate does not depend on
+  the draws of the previous ones`, `when every candidate is ruled out the next seed is tried`, `the
+  same seed gives the same padlock` ; propriété : toute serrure de 500 graines, de 3 à 6 pièces, est
+  valide.
+- [x] **P7.6** `PadlockGame`, partie immuable : pièces données par rang, chacune avec son
+  orientation ; choix, quart de tour, pose acceptée ou refusée (`Refusal.OUT_OF_HOLE` l'emporte sur
+  `OVERLAP`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
+  tout ignoré sauf Recommencer), recommencer, compteurs coups et refus (indices : P7.7) ; événements
+  `PiecePlaced`, `PlacementRefused`, `PieceTakenBack`, `PadlockOpened` dans un `PadlockUpdate`.
+- [x] **P7.7** Indice (`PadlockGame.hint`, `PadlockSolver`) : solveur de couverture exacte dans l'ordre fixé par les règles (rang,
+  orientation, pivot) ; sinon la pièce posée la plus récente dont le retrait seul débloque, à
+  défaut la dernière posée ; `Hint.Fit` ou `Hint.Blocking` dans `HintGiven`, compteur `hints`. Cas : `the hint shows where a free piece fits and counts a hint`, `the hint
+  never names a piece already placed`, `the hint finds a way even when the player left the
+  solution`, `the hint names the piece that blocks when no way is left`, `when no single piece
+  unblocks the padlock the hint names the last piece placed` ; propriété : suivre les indices ouvre 200 serrures par nombre de pièces.
+- [x] **P7.8** Suites d'accords (`PadlockChords`, `Progression` de `core:music` ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
+  par V–I, Do majeur sur C4 ; `PadlockGame.progression` et `PadlockGame.chords` (accord de rang *n*
+  après une pose, *n* pièces sur la grille).
+- [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
+  fanfare de résolution, son de refus.
+- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+  styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
+  `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
+- [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
+  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
+  étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
+  surcharge interne : `seeds`, `compose`, `candidate` et `rating` restent internes.
+- [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
+  aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
+  captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
+  P7.11.
+- [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
+  effets sonores respecté. Après P7.8, P7.9 et P7.12.
+- [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
+  serrure). Après P7.7 et P7.13.
+- [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+  suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
+- [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
+  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
+- [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
+  « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
 
 ---
 

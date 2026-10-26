@@ -71,6 +71,30 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossDrawingTest › a square shape stays square, inside its frame and around it` ; captures `GlossSheetOriginal`,
 `GlossSheetColorful`, `GlossSheetColorfulNight`.
 
+**Curseur à pas et jauge du niveau** (P5.62, `core:designsystem`, composants Choice et Switch) : une logique
+pure, `SteppedValue` (interne), donne le pas le plus proche d'une position ou d'une valeur, sans sortir des
+bornes ; un nombre invalide (NaN) ne change rien. Le **curseur de volume** (`VolumeSlider`) va de 0 à 100 % par
+pas de 10 (la règle de `Volume`, `core:music`, que les features convertissent), valeur affichée en % ; la
+**jauge du niveau** (`LevelGauge`) a 10 barres de 8 dp, de 8 à 26 dp de haut, pleines en `accent` jusqu'au
+niveau et creuses au-delà (le niveau ne se lit pas qu'à la couleur : atteint et au-delà ne font que 1,6:1 de
+jour), et des boutons − et +, − désactivé au plus bas, + au plus haut. TalkBack ne lit qu'un curseur, qui
+avance d'un pas à la fois (− et + exclus). En Original, dont le `panel-border` est l'accent, les barres
+au-delà, la piste et le curseur désactivé sont en `button`. Désactivé : piste au-delà en `panel-inset` cadrée
+de `panel-border`. Les deux suivent le sens de lecture. Ils seront branchés sur les Paramètres (P5.70) et
+l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
+
+**Tests :** `SteppedValueTest`, `GaugeBarsTest`, `StepColorsTest`, `VolumeSliderTest`, `LevelGaugeTest`, dont
+`GaugeBarsTest › the bars up to the value are filled and those beyond it hollow, so the value does not read by colour alone`,
+`StepColorsTest › a disabled slider in Original, whose panel border is its accent, is drawn in button, never in its accent`,
+`VolumeSliderTest › TalkBack reads one slider with its value and moves it one step at a time`,
+`VolumeSliderTest › a touch on the track gives the nearest step`,
+`VolumeSliderTest › a drag never takes the value out of its range`,
+`VolumeSliderTest › in a language read from right to left, the track starts on its right`,
+`LevelGaugeTest › minus is disabled at the lowest step and plus at the highest`,
+`LevelGaugeTest › TalkBack reads one slider with its value and moves it one step at a time`,
+`LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level` ;
+captures `Stepper*`. Vues : V27, V31.
+
 **Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
@@ -317,6 +341,38 @@ Vues : V2, V3.
 
 ## Choix de l'accueil
 
+**Groupe de choix v2** (P5.63, `ChoiceGroup` dans `core:designsystem`, composant Choice) : il remplace les
+choix de l'accueil décrits ci-dessous (`Choice`, `ChoiceRow`, `Section`, l'ancienne `ChoiceCheck`, devenue
+`CheckMark`, partagée). Un groupe est cadré comme un bouton secondaire (`button`, cadre `buttonOutline` ; en
+Original, la page, cadrée de la face des boutons) ; le segment retenu est en `accent`, en pilule, avec sa coche
+en `accentInk` (la coche porte l'état : de jour, l'accent ne fait que 2,6:1 contre le groupe) ; un segment
+indisponible est en `label`, marqué « BIENTÔT », et ne se choisit pas (TalkBack : « Moderne, bientôt », puis
+l'état désactivé). Le libellé du groupe est un titre pour TalkBack, les segments un groupe de boutons radio.
+Un groupe qui ne tient pas sur la ligne de son libellé passe dessous, sur toute la largeur ; si un libellé
+devait encore rétrécir sous 75 % de sa taille (marges et coche gardées), les segments s'empilent. Segments de
+48 dp de haut, cadre compris ; focus clavier par l'anneau des boutons ; ordre inversé de droite à gauche.
+Provisoirement, jusqu'à la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
+(5 colonnes) et la musique (2 colonnes) sont des groupes sur plusieurs rangées : fond retenu en `md`, coche
+dans le coin. Libellés du groupe alignés au début de la ligne. `ChoiceColors.kt`, qui servait encore à `Setting`,
+est retiré avec lui (P5.61).
+
+**Tests :** `ChoiceLookTest › a selected segment is filled in accent and checked in the ink of its label`,
+`ChoiceLookTest › an unavailable segment is clear, its label in label, unchecked`,
+`ChoiceLookTest › a group is filled and framed as a secondary button, its frame standing out from the page by 3 to 1 at least`,
+`ChoiceLookTest › the label of a segment stands out from what is behind it by 4,5 to 1 at least, its check by 3 to 1`,
+`ChoiceLookTest › a segment focused by the keyboard bears a 3 dp ring in ink, as a button`,
+`ChoiceLayoutTest › cells stay side by side while their labels need not shrink below three quarters of their size`,
+`ChoiceLayoutTest › cells stack when their labels would shrink below three quarters of their size, margins and check kept`,
+`ChoiceLayoutTest › the check in the corner of a cell stays within its fill, whose corners are those of radius-md`,
+`ChoiceLayoutTest › a group asks for a selected choice that is available, and one column at least`,
+`ChoiceGroupTest › exactly one segment is selected and bears the check, the others neither`,
+`ChoiceGroupTest › an unavailable segment reads « Moderne, bientôt », disabled, and cannot be chosen`,
+`ChoiceGroupTest › a group too wide for its line puts its label above and takes the whole width`,
+`ChoiceGroupTest › each segment is 48 dp high as a target`,
+`ChoiceGroupTest › TalkBack reads the label as a heading, then the segments as one group of radio buttons`,
+`ChoiceGroupTest › in a group of several rows, an unavailable choice bears BIENTÔT too` ;
+captures `ChoiceGroups*`. Vues : V27.
+
 Un choix sélectionné (mode, thème, niveau de départ, musique) est rempli en `accent`, son
 libellé en `accentInk`. Il ne se distingue pas que par la teinte (WCAG 1.4.1) : les deux états
 diffèrent d'au moins 3:1 en luminance, et le choix non sélectionné est cadré quand le
@@ -328,7 +384,7 @@ choix non sélectionné est dessiné comme un encart du jeu : `panel`, cadre de 
 `panelBorder` (`BloxBorders.frame`, partagé avec les encarts et `SecondaryButton`), libellé en `ink`, forme
 `button` (carrée en Original) ; le choix sélectionné porte un cadre de sa propre couleur, pour
 que tous gardent la même taille. Les deux états se distinguent d'au moins 3:1 (WCAG 1.4.11), le
-libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code est `choiceColors` (`feature:home`), sur le modèle de
+libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). Aucun jeton de palette n'a changé. Le code était `choiceColors` (`feature:home`, retiré en P5.61 ; les segments sont dessinés par `segmentLook` depuis P5.63), sur le modèle de
 `keyColors`.
 
 **Réglages** (P5.37, P5.61) : depuis P5.61, une rangée de réglage est `SettingSwitchRow` (`core:designsystem`,
@@ -375,12 +431,11 @@ Contrastes mesurés en P5.26, avant Couleurs v2 (les valeurs v2 sont vérifiées
 | Libellé sélectionné (`accentInk` sur `accent`) | 8,0:1 | 7,5:1 |
 | Libellé non sélectionné (`ink` sur `panel`) | 5,7:1 (avant 4,0:1) | 14,6:1 |
 
-**Tests :** `ChoiceColorsTest › in every theme a selected choice tells its state by its check, standing out from it by 3 to 1 at least`,
-`ChoiceColorsTest › the label of a choice stands out from its background by a contrast of 4,5 to 1 at least`,
-`ChoiceColorsTest › an unselected choice is framed as a panel, a selected one in its own background`,
+**Tests :** `ChoiceLookTest › the label of a segment stands out from what is behind it by 4,5 to 1 at least, its check by 3 to 1`,
+`ChoiceLookTest › a group is filled and framed as a secondary button, its frame standing out from the page by 3 to 1 at least`,
 `ContrastTest › black on white has the greatest contrast, 21 to 1, whatever the order`,
 `HomeScreenTest › TalkBack reads each selected choice as selected, and the others as not selected`,
-`ChoiceColorsTest › a selected choice is checked in the ink of its label, an unselected one is not checked`,
+`ChoiceLookTest › a selected segment is filled in accent and checked in the ink of its label`,
 `ChoiceCheckTest › the check is a stroke down then up, drawn wholly within its square`,
 `ChoiceCheckTest › only a selected choice makes room for its check and its gap before its label`,
 `ChoiceCheckTest › the check is as large as its label, 24 dp at most, a quarter of the label away from it, 4 dp at least`,

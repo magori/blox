@@ -30,7 +30,8 @@ réutilisant l'existant, sans dette.
   jamais recopié dans une feature. Règle de 2 : on factorise à la deuxième occurrence.
 - **KISS / YAGNI** : pas d'abstraction sans deuxième usage réel ; pas de couche de use cases (le
   moteur est le domaine).
-- **Règles de dépendance du projet** : `core:game` et `core:music` sans dépendance ; une feature
+- **Règles de dépendance du projet** : `core:game` et `core:music` sans dépendance, `core:locksmith`
+  seulement sur eux (ADR 0025) ; une feature
   ne dépend jamais d'une autre ; la navigation est assemblée dans `app` (ADR 0011) ;
   `core:designsystem` ne connaît pas le domaine.
 - **Testabilité** : chaque tâche a ses cas de test listés (noms en phrases), domaine sans

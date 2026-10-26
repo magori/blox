@@ -1,6 +1,5 @@
 package ch.magori.blox.core.designsystem.component
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -23,12 +22,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.StrokeJoin
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -238,7 +232,7 @@ private fun SwitchTrack(
                 .thumbFill(look, shape),
             contentAlignment = Alignment.Center,
         ) {
-            look.check?.let { ThumbCheck(it, Modifier.size(CHECK_SIDE)) }
+            look.check?.let { CheckMark(it, Modifier.size(CHECK_SIDE)) }
         }
     }
 }
@@ -248,26 +242,6 @@ private fun Modifier.thumbFill(
     look: SwitchLook,
     shape: Shape,
 ): Modifier = if (look.thumbHollow) border(HOLLOW_THUMB_OUTLINE, look.thumb, shape) else background(look.thumb, shape)
-
-/**
- * The check of a thumb, in [color]: the `CHECK` pictogram of the design system (docs/design-system/pictogrammes.md),
- * a stroke of 3 on a grid of 24, rounded. Decorative: the row already says its state.
- */
-@Composable
-private fun ThumbCheck(
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    Canvas(modifier) {
-        val unit = size.minDimension / CHECK_GRID
-        val path = Path().apply {
-            moveTo(4 * unit, 12.5f * unit)
-            lineTo(9 * unit, 17.5f * unit)
-            lineTo(20 * unit, 6.5f * unit)
-        }
-        drawPath(path, color, style = Stroke(CHECK_STROKE * unit, cap = StrokeCap.Round, join = StrokeJoin.Round))
-    }
-}
 
 /**
  * The style of the label of a setting: `choice` in bold (Manrope 15/700), over the Material label, whose size Original
@@ -294,7 +268,5 @@ private val TRACK_HEIGHT = 32.dp
 /** Between the frame of a track and its thumb. */
 private val THUMB_GAP = 2.dp
 
-/** The check of a thumb on, and its grid and stroke (pictogram `CHECK`). */
+/** The check of a thumb on ([CheckMark], shared with the groups of choices). */
 private val CHECK_SIDE = 14.dp
-private const val CHECK_GRID = 24f
-private const val CHECK_STROKE = 3f

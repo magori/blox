@@ -7,8 +7,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
 /**
- * The texts of the screens on their backgrounds, in every theme: the keys of the game and the choices of the home
- * screen have their own tests (KeyColorsTest, ChoiceColorsTest).
+ * The texts of the screens on their backgrounds, in every theme: the keys of the game, the groups of choices and the
+ * switches have their own tests (KeyColorsTest, ChoiceLookTest, SwitchLookTest).
  */
 internal class PaletteContrastTest {
     /**

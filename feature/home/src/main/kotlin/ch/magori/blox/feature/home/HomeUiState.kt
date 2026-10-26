@@ -34,12 +34,6 @@ internal data class HomeUiState(
      * music selected.
      */
     val selectedMusic: MusicChoice? get() = music.takeIf { gameMusic == null }
-
-    /**
-     * The [startLevels] in rows of [START_LEVELS_PER_ROW], in order: 0 to 9 on two rows of five, so that each cell is
-     * 48 dp wide at least on a phone of 360 dp. The last row holds those left, fewer if their number is not a multiple.
-     */
-    val startLevelRows: List<List<Int>> get() = startLevels.chunked(START_LEVELS_PER_ROW)
 }
 
 /**

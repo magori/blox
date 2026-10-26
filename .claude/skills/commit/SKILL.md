@@ -27,7 +27,7 @@ Tâche : P1.3
 - **Gitmoji** : le caractère Unicode (`✨`), jamais le code (`:sparkles:`). Un seul, en tête.
 - **Type** : [Conventional Commits](https://www.conventionalcommits.org/fr/).
 - **Portée** : le module touché, sans deux-points ni préfixe `:` — `core-game`, `core-music`,
-  `core-audio`, `core-data`, `core-board`, `designsystem`, `feature-home`, `feature-game`, `app`,
+  `core-audio`, `core-data`, `core-board`, `core-locksmith`, `designsystem`, `feature-home`, `feature-game`, `app`,
   `build-logic`. Omise pour `docs`, `ci`, ou un changement transverse.
 - **Sujet** : en français, minuscule initiale, sans point final, 72 caractères au plus.
 - **Corps** : phrases courtes, 72 colonnes. Il explique la motivation, les choix faits et les

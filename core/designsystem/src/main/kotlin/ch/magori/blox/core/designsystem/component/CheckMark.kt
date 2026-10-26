@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.runtime.Composable
@@ -9,9 +9,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 
 /** A check drawn as one stroke through its three [points], start, bottom and end, [width] wide. */
 internal data class CheckStroke(val points: List<Offset>, val width: Float)
@@ -46,8 +46,8 @@ internal fun choiceInsets(
     ChoiceInsets(start = CHOICE_PADDING, check = 0.dp, gap = 0.dp, end = CHOICE_PADDING)
 }
 
-/** The room between the frame of a choice and what it holds, its label or its check. */
-internal val CHOICE_PADDING = 8.dp
+/** The room between the sides of a segment and what it holds, its label or its check: `space-3`. */
+internal val CHOICE_PADDING = BloxSpaces.space3
 
 /** The largest check, in a large font. */
 private val MAX_CHECK = 24.dp
@@ -58,20 +58,17 @@ private const val CHECK_GAP_EM = 0.25f
 /** The least room between a check and its label. */
 private val MIN_CHECK_GAP = 4.dp
 
-/** The tag of the check of a selected choice, read by the tests. */
-internal const val CHOICE_CHECK_TAG = "home_choice_check"
-
 /**
- * The check of a selected choice, in [color], drawn rather than taken from the Material icons, which this feature
- * does not depend on. Decorative: TalkBack already reads the choice as selected, so it has no description. Its
+ * A check, in [color], as wide as the smaller side of its box: the cue of a retained choice (ChoiceGroup), shared by
+ * what bears one. Decorative: TalkBack already reads the state of what bears it, so it has no description. Its
  * ends are square, so that, with half its width around each point, it stays within its square.
  */
 @Composable
-internal fun ChoiceCheck(
+fun CheckMark(
     color: Color,
     modifier: Modifier = Modifier,
 ) {
-    Canvas(modifier = modifier.testTag(CHOICE_CHECK_TAG)) {
+    Canvas(modifier = modifier) {
         val stroke = checkStroke(size.minDimension)
         val path = Path().apply {
             val (start, bottom, end) = stroke.points

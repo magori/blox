@@ -48,6 +48,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
+| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | à dessiner (P7.16) ; prototype d'origine « Idée · Le Serrurier » |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
@@ -136,10 +137,10 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   niveaux en deux lignes de 5 (0 à 4, puis 5 à 9 ; P5.29, décision du développeur), en cellules
   égales d'au moins 48 dp de large et de haut à 360 dp, écart de 4 dp ; une dernière ligne
   incomplète s'aligne sous les colonnes du dessus ; un seul groupe de boutons radio, lu de 0 à 9
-  (`HomeUiStateTest › the start levels 0 to 9 stand on two rows of five, 0 to 4 then 5 to 9`,
-  `HomeUiStateTest › a last row of fewer than five start levels holds those left, in order`,
-  `HomeUiStateTest › five start levels stand on a single full row`,
-  `HomeUiStateTest › eleven start levels stand on three rows, the last holding a single level`,
+  (`ChoiceRowsTest › ten choices in five columns stand on two rows of five, 0 to 4 then 5 to 9`,
+  `ChoiceRowsTest › a last row of fewer choices than columns holds those left, in order`,
+  `ChoiceRowsTest › as many choices as columns stand on a single full row`,
+  `ChoiceRowsTest › eleven choices in five columns stand on three rows, the last holding a single choice`,
   `HomeScreenTest › the start levels stand on two rows of five, 0 to 4 above 5 to 9, in cells as wide as one another`,
   `HomeScreenTest › a last row of fewer than five start levels is aligned on the cells of the row above, as wide`,
   `HomeScreenTest › TalkBack reads the start levels as one group of radio buttons, from 0 to 9`) ;

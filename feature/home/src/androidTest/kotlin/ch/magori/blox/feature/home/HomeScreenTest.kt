@@ -45,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.component.isChoiceCheck
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -75,6 +76,9 @@ internal class HomeScreenTest {
         listenable = emptyList(),
         previewing = null,
     )
+
+    /** A start level: a cell that may be touched, in the group of the start levels. */
+    private val startLevel = hasClickAction() and hasAnyAncestor(hasTestTag(START_LEVELS_TAG))
 
     @Test
     @DisplayName("TalkBack reads each selected choice as selected, and the others as not selected")
@@ -111,7 +115,7 @@ internal class HomeScreenTest {
         showHomeScreen()
 
         // Then
-        onNodeWithText("Moderne").assertIsNotEnabled().assertIsNotSelected()
+        onNodeWithContentDescription("Moderne, bientôt").assertIsNotEnabled().assertIsNotSelected()
         onNodeWithText("Classique").assertIsEnabled().assertIsSelected()
     }
 
@@ -124,7 +128,7 @@ internal class HomeScreenTest {
 
         // Then
         val classic = onNodeWithText("Classique").getUnclippedBoundsInRoot()
-        val modern = onNodeWithText("Moderne").getUnclippedBoundsInRoot()
+        val modern = onNodeWithContentDescription("Moderne, bientôt").getUnclippedBoundsInRoot()
         assertThat(modern.top).isEqualTo(classic.top)
         assertThat(modern.left).isGreaterThanOrEqualTo(classic.right)
     }
@@ -139,8 +143,12 @@ internal class HomeScreenTest {
         val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
         assertThat(gear.top.value).isCloseTo(16f, within(PIXEL_ROUNDING))
         val modes = onNodeWithText("Classique").getUnclippedBoundsInRoot()
-        val theme = onNodeWithText("Thème").getUnclippedBoundsInRoot()
-        assertThat((theme.top - modes.bottom).value).isCloseTo(16f, within(PIXEL_ROUNDING))
+        // A section starts with its label, above its group, or with its group, beside its label and taller
+        val theme = minOf(
+            onNodeWithText("Thème").getUnclippedBoundsInRoot().top,
+            onNodeWithText("Original").getUnclippedBoundsInRoot().top,
+        )
+        assertThat((theme - modes.bottom).value).isCloseTo(16f, within(PIXEL_ROUNDING))
     }
 
     @Test
@@ -286,9 +294,9 @@ internal class HomeScreenTest {
         showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
 
         // Then a cue other than colour (WCAG 2.1, 1.4.1), in the selected choices only
-        val checks = onAllNodes(hasTestTag(CHOICE_CHECK_TAG), useUnmergedTree = true)
+        val checks = onAllNodes(isChoiceCheck(), useUnmergedTree = true)
         assertThat(checks.fetchSemanticsNodes()).hasSize(4)
-        onAllNodes(hasTestTag(CHOICE_CHECK_TAG) and hasParent(isSelected()), useUnmergedTree = true)
+        onAllNodes(isChoiceCheck() and hasParent(isSelected()), useUnmergedTree = true)
             .assertCountEquals(4)
         // And decorative: TalkBack already says « sélectionné », it reads nothing more
         checks.assertAll(
@@ -313,7 +321,7 @@ internal class HomeScreenTest {
         // 48 dp is a touch area that may pass beyond what is drawn
         val targets = onAllNodes(hasClickAction())
         val count = targets.fetchSemanticsNodes().size
-        onAllNodes(hasClickAction() and hasTestTag(START_LEVEL_TAG)).assertCountEquals(uiState.startLevels.size)
+        onAllNodes(startLevel).assertCountEquals(uiState.startLevels.size)
         repeat(count) { index ->
             targets[index].assertWidthIsAtLeast(
                 BloxSizes.minTouchTarget,
@@ -359,7 +367,7 @@ internal class HomeScreenTest {
         showHomeScreen(width = NARROW_PHONE)
 
         // Then the cells take no room above or under their digit beyond the 48 dp of a finger
-        val levels = onAllNodes(hasTestTag(START_LEVEL_TAG))
+        val levels = onAllNodes(startLevel)
         repeat(uiState.startLevels.size) { index -> levels[index].assertHeightIsEqualTo(BloxSizes.minTouchTarget) }
     }
 
@@ -370,19 +378,19 @@ internal class HomeScreenTest {
         showHomeScreen(width = NARROW_PHONE, fontScale = 2f)
 
         // Then the cells, selected (5) or not (4), take no more height than their digit needs, as the other choices
-        val level = onNode(hasTestTag(START_LEVEL_TAG) and hasText("5")).getUnclippedBoundsInRoot()
+        val level = onNode(startLevel and hasText("5")).getUnclippedBoundsInRoot()
         val choice = onNodeWithText("Original").getUnclippedBoundsInRoot()
         // But for the rounding of their edges to the pixel, which depends on where the cells stand on the screen
         assertThat(
             (level.bottom - level.top).value,
         ).isCloseTo((choice.bottom - choice.top).value, within(PIXEL_ROUNDING))
-        val unselected = onNode(hasTestTag(START_LEVEL_TAG) and hasText("4")).getUnclippedBoundsInRoot()
+        val unselected = onNode(startLevel and hasText("4")).getUnclippedBoundsInRoot()
         assertThat(
             (level.bottom - level.top).value,
         ).isCloseTo((unselected.bottom - unselected.top).value, within(PIXEL_ROUNDING))
         // And the check, in the corner, touches neither the digit nor the frame
-        val inLevel = hasParent(hasTestTag(START_LEVEL_TAG))
-        val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val inLevel = hasParent(startLevel)
+        val check = onNode(isChoiceCheck() and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
         val digit = onNode(hasText("5") and inLevel, useUnmergedTree = true).getUnclippedBoundsInRoot()
         assertThat(check.left).isGreaterThanOrEqualTo(digit.right)
         assertThat(check.right).isLessThan(level.right)
@@ -397,7 +405,7 @@ internal class HomeScreenTest {
 
         // Then every level is a child of the same selectable group, in order, read as a radio button
         val group = SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup)
-        val levels = onAllNodes(hasTestTag(START_LEVEL_TAG) and hasParent(group)).fetchSemanticsNodes()
+        val levels = onAllNodes(startLevel and hasParent(group)).fetchSemanticsNodes()
         assertThat(levels.map { it.config[SemanticsProperties.Text].joinToString() })
             .containsExactly("0", "1", "2", "3", "4", "5", "6", "7", "8", "9")
         assertThat(levels.map { it.config[SemanticsProperties.Role] }).containsOnly(Role.RadioButton)
@@ -516,7 +524,7 @@ internal class HomeScreenTest {
 
     /** The start level cells, in the order of the tree, the order TalkBack reads them in. */
     private fun ComposeContext.startLevelCells(): List<Cell> {
-        val nodes = onAllNodes(hasTestTag(START_LEVEL_TAG))
+        val nodes = onAllNodes(startLevel)
         return List(nodes.fetchSemanticsNodes().size) { index ->
             val node = nodes[index]
             Cell(
