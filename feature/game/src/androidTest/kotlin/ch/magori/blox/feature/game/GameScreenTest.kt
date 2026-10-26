@@ -303,24 +303,24 @@ internal class GameScreenTest {
      * read them, and the place of each in that order.
      */
     internal enum class ScreenLayout(val size: DpSize, val parts: List<SemanticsMatcher>, val order: List<Float>) {
-        /** The next piece is in the side column, under the score. */
+        /** The next piece is in the side column, above the score: the column is read as one part. */
         PORTRAIT(
             DpSize(360.dp, 760.dp),
-            listOf(BOARD, SCORE, LEFT, A),
-            listOf(1f, 2f, 4f, 5f),
+            listOf(BOARD, NEXT, LEFT, A),
+            listOf(1f, 3f, 4f, 5f),
         ),
 
-        /** The arrows on the left, beside the score; the next piece on the right of the board. */
+        /** The arrows on the left, beside the score; the next piece on the right of the board, read before the score. */
         LANDSCAPE(
             DpSize(800.dp, 360.dp),
-            listOf(BOARD, SCORE, NEXT, LEFT, A),
+            listOf(BOARD, NEXT, SCORE, LEFT, A),
             listOf(1f, 2f, 3f, 4f, 5f),
         ),
     }
 
     @ParameterizedTest
     @EnumSource(ScreenLayout::class)
-    @DisplayName("TalkBack reads the board, the score, the next piece, the arrows, then B and A, each part as a whole")
+    @DisplayName("TalkBack reads the board, the next piece, the score, the arrows, then B and A, each part as a whole")
     fun talkBackReadsThePartsInOrder(layout: ScreenLayout) = extension.use {
         // Given
         showGameScreen(layout.size)

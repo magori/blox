@@ -463,12 +463,13 @@ private fun PlacedParts(
 
 /**
  * The order in which TalkBack reads the parts of the game, whatever their place: in landscape the arrows
- * are on the left, beside the score, and by their place alone they would be read first.
+ * are on the left, beside the score, and by their place alone they would be read first. The next piece comes before the
+ * score in every layout, as in the side column, where it is on top.
  */
 private enum class ReadingOrder {
     BOARD,
-    SCORES,
     NEXT,
+    SCORES,
     DIRECTIONS,
     ROTATIONS,
     ;

@@ -115,7 +115,7 @@ internal fun PanelLabel(
 /** A text from [maxFontSize], shrinking to fit; with [capToNormalFont], no larger than with the normal font. */
 @Composable
 @ReadOnlyComposable
-internal fun shrinkingFrom(
+private fun shrinkingFrom(
     maxFontSize: TextUnit,
     capToNormalFont: Boolean,
 ): TextAutoSize = if (capToNormalFont) shrinkToFitNotEnlarged(maxFontSize) else shrinkToFit(maxFontSize)

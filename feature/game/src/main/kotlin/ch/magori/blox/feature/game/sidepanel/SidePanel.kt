@@ -87,10 +87,10 @@ internal fun ScorePanels(
 }
 
 /**
- * The side column laid across, above the board of a very narrow window: score and level, then lines and next
- * piece, the next piece with cells of [cellSize] pixels, those of the board, the score with its record bar filled by
- * [recordFill]. The two panels of a row are as wide and as high as each other. [next] is null when the next piece is
- * hidden.
+ * The side column laid across, above the board of a very narrow window: next piece and score, then lines and level,
+ * in the order of the side column; the next piece with cells of [cellSize] pixels, those of the board, the score with
+ * its record bar filled by [recordFill]. The two panels of a row are as wide and as high as each other. [next] is null
+ * when the next piece is hidden.
  */
 @Composable
 internal fun ScoreGrid(
@@ -104,12 +104,12 @@ internal fun ScoreGrid(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
+            NextPiecePanel(next = next, cellSize = cellSize, modifier = Modifier.weight(1f).fillMaxHeight())
             ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight())
-            LevelPanel(level, Modifier.weight(1f).fillMaxHeight())
         }
         PanelRow {
             LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
-            NextPiecePanel(next = next, cellSize = cellSize, modifier = Modifier.weight(1f).fillMaxHeight())
+            LevelPanel(level, Modifier.weight(1f).fillMaxHeight())
         }
     }
 }

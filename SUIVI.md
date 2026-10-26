@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 181 / 240 | `███████████████░░░░░` **75 %** |
+| **Général** | 182 / 240 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -955,7 +955,7 @@ composants.
   level plus one for its two lines`, `the preview starts again with the new level when the level changes`,
   `in reduced effects the preview and the halo stand still`, `nothing on the home recomposes while the preview
   plays`.
-- [ ] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
+- [x] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
   devient l'autocollant NOUVEAU RECORD une fois battu et suit le score (`GameUiState.recordBeaten`) ; plateau en
   cadre `board` ; colonne SUIVANTE, SCORE avec barre de record de 4 dp, LIGNES, NIVEAU. Après P5.60, P5.74.
   Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new

@@ -54,8 +54,8 @@ internal data class GameLayout(
     val boardFrameInset: Float,
 ) {
     /**
-     * The frame of the board, [boardFrameInset] around its cells, in the gaps and margins around it: the cells keep
-     * their size, and the frame overlaps nothing, as the gaps beside the board are wider than it.
+     * The frame of the board, [boardFrameInset] around its cells: within the width of the space, lined up with the top
+     * bar and the controls, and otherwise in the gaps around the board, wider than it, so that it overlaps nothing.
      */
     val boardFrame: Rect get() = board.inflate(boardFrameInset)
 }
@@ -160,9 +160,12 @@ private fun portrait(
     stacked: Boolean,
 ): GameLayout = with(sizes) {
     val areaHeight = height - controlsHeight(stacked) - gap
-    val cellSize = cellFor(width - gap, areaHeight)
+    // The frame of the board on the left, in the width: lined up with the pause button and the arrows. On the right, it
+    // takes half the gap to the side column.
+    val cellSize = cellFor(width - gap - boardFrameInset, areaHeight)
     val next = nextWidth(cellSize)
-    val left = ((width - (cellSize * BOARD_COLUMNS + gap + next)) / 2).roundToPixel()
+    val left = ((width - (boardFrameInset + cellSize * BOARD_COLUMNS + gap + next)) / 2).roundToPixel() +
+        boardFrameInset
     val board = board(left, areaHeight, cellSize)
     GameLayout(
         cellSize = cellSize,
@@ -178,7 +181,7 @@ private fun portrait(
 }
 
 /**
- * Score and level, then lines and the next piece, in two rows across the width, the board under them, the
+ * The next piece and the score, then lines and level, in two rows across the width, the board under them, the
  * two groups of controls below: without the side column, the board takes the width of a very narrow window. Its
  * cells are [largestCell] at most.
  */
@@ -311,7 +314,7 @@ private class Sizes(density: Float, fontScale: Float, width: Float) {
         val board = height - scorePanel - scoreGap - gap
         return floor(
             minOf(
-                width / BOARD_COLUMNS,
+                (width - 2 * boardFrameInset) / BOARD_COLUMNS,
                 ((width - scoreGap) / 2 - nextInsets) / NEXT_COLUMNS,
                 (board - scorePanel) / BOARD_ROWS,
                 (board - scoreLabel) / (BOARD_ROWS + NEXT_ROWS),
@@ -319,9 +322,9 @@ private class Sizes(density: Float, fontScale: Float, width: Float) {
         ).coerceAtLeast(1f)
     }
 
-    /** The two rows of the score above the board, the second as high as the next piece of [cellSize] needs. */
+    /** The two rows of the score above the board, the first as high as the next piece of [cellSize] needs. */
     fun scoresHeight(cellSize: Float): Float =
-        scorePanel + scoreGap + maxOf(scorePanel, scoreLabel + NEXT_ROWS * cellSize)
+        maxOf(scorePanel, scoreLabel + NEXT_ROWS * cellSize) + scoreGap + scorePanel
 
     /** The column of the next piece: as wide as the side column, or as its 4 cells of [cellSize]. */
     fun nextWidth(cellSize: Float): Float = maxOf(side, NEXT_COLUMNS * cellSize + nextInsets)
