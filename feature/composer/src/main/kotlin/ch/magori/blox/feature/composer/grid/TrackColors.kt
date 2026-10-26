@@ -37,3 +37,28 @@ internal fun heldPart(
     palette: BloxPalette,
     track: Track,
 ): HeldPart = with(trackColors(palette, track)) { HeldPart(band = held, edge = note) }
+
+/**
+ * The colours of a cell of the grid: its [background], the [line] around it, between it and the cells next to it, the
+ * notes of the open track, and the watermark of the other, [echo].
+ */
+@Immutable
+internal data class CellColors(
+    val background: Color,
+    val line: Color,
+    val note: Color,
+    val held: HeldPart,
+    val echo: Color,
+)
+
+/** The colours of a cell of the grid in [palette], the open track being [track]. */
+internal fun cellColors(
+    palette: BloxPalette,
+    track: Track,
+): CellColors = CellColors(
+    background = palette.cellGround,
+    line = palette.gridLine,
+    note = trackColors(palette, track).note,
+    held = heldPart(palette, track),
+    echo = trackColors(palette, track.other).note,
+)

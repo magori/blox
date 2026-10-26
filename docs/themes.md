@@ -251,8 +251,8 @@ qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
 (`BloxPalettes.ColorfulLight`, `ColorfulDark`) prennent les valeurs de
 [`tokens.json`](design-system/tokens.json), seule source (ADR 0019) : le plugin de convention
 `blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
-compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
-`cell-ground` et `grid-line` (grille de l'éditeur, P5.88). Les jetons des pièces sont comparés
+compare chaque jeton à sa propriété ; une liste des jetons non codés, avec leur raison, est prévue mais vide
+(depuis P5.88, `cell-ground` et `grid-line` font la grille de l'éditeur). Les jetons des pièces sont comparés
 dans `core:board` (`PieceTokensTest`), avec le même lecteur, partagé par les doublures de test de
 `core:designsystem`.
 Le schéma Material part de la base claire ou sombre selon la variante, les icônes des barres système aussi
@@ -260,7 +260,12 @@ Le schéma Material part de la base claire ou sombre selon la variante, les icô
 soit le mode du téléphone, réappliquées quand le thème ou le mode change ; avant la lecture du thème, celles
 d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
-`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Les formes, polices et
+`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
+toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
+thème choisi : `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+`SystemBarsTest › the bars of every other screen follow the theme chosen`,
+`SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
+Les formes, polices et
 pictogrammes ne dépendent que du thème (`BloxTheme.kind`), pas du mode. Les styles de pièces, le
 dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux sont construits une
 fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une
@@ -320,7 +325,7 @@ lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches son
 composant non textuel), tenue ou non. La touche A est cadrée en `accentPressed` : l'accent seul ne
 se détache de la page du jour qu'à 2,3:1. Dans le thème Original, le cadre a la couleur du bouton
 (3,31:1 contre la page) : rien ne change à l'œil. Le bouton pause de la barre du haut porte les
-couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
+disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'une touche au repos, P2.23).
 
 **Tests :** `KeyColorsTest › a held key stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key looks other than a key not held`,
@@ -333,8 +338,6 @@ couleurs d'une touche au repos, cadre compris (P2.23, `pauseButtonColors`).
 `KeyColorsTest › a held key keeps the outline it has at rest`,
 `KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,
 `KeyDropTest › a held key goes 2 dp down`,
-`PauseButtonColorsTest › the pause button stands out from the page by its outline, by a contrast of 3 to 1 at least`,
-`PauseButtonColorsTest › the pause button has the face and the ink of a button, its glyph standing out by 3 to 1 at least`,
 `CellStylesTest › in the Original theme a piece has the fill, border and centre of docs themes md, framed by a joint`,
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
@@ -484,9 +487,7 @@ Contrastes mesurés en P5.26, avant Couleurs v2 (les valeurs v2 sont vérifiées
 `ChoiceCheckTest › the check is a stroke down then up, drawn wholly within its square`,
 `ChoiceCheckTest › only a selected choice makes room for its check and its gap before its label`,
 `ChoiceCheckTest › the check is as large as its label, 24 dp at most, a quarter of the label away from it, 4 dp at least`,
-`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`,
-`HomeScreenTest › in a normal font, every start level is 48 dp high, no more`,
-`HomeScreenTest › in a large font, every start level is as tall as the other choices, its check clear of its digit`.
+`HomeScreenTest › each selected choice bears a check, the others none, and TalkBack does not read it`.
 Vues : V1.
 
 
@@ -505,7 +506,7 @@ WCAG 2.2 (2.5.8, 24 px) et qu'Android (qui accepte une zone tactile plus grande 
 P5.29 (décision du développeur), font 59 dp de large à 360 dp : il n'y a plus d'exception.
 
 **Tests :** `PaletteContrastTest › a text stands out from its background by a contrast of 4,5 to 1 at least`,
-`HomeScreenTest › every button and choice, start levels included, is 48 dp wide and high at least on 360 dp`,
+`HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
 `GameScreenTest › every button of the screen is 48 dp wide and high at least`. Vues : V1 à V4.
 ## Éditeur de musique (maquette)
 
@@ -523,7 +524,12 @@ couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4
 valeurs Couleurs ci-dessous sont celles de la v1 : depuis P5.57, celles du jour et de la nuit
 viennent de `tokens.json` (`melody`, `bass`, `danger`…). De jour, la partie tenue d'une note,
 pastel, ne se détache de la case qu'à 2,1 à 2,3:1 : elle est bordée en haut et en bas, sur 2 dp,
-dans la couleur de sa piste, qui s'en détache d'au moins 3:1.
+dans la couleur de sa piste, qui s'en détache d'au moins 3:1. Depuis P5.88, les cases de la grille sont en `cellGround`
+et séparées par des lignes `gridLine` (jetons `cell-ground` et `grid-line`), et ces contrastes se mesurent sur
+la case (`TrackColorsTest › a cell of the grid is drawn on the cell ground, between lines of the grid, the notes of its tracks on it`,
+`TrackColorsTest › the lines of the grid stand out from its cells by night by a contrast of 1,3 to 1 at least` (de nuit,
+`grid-line` `#2A2D44`, P5.88 ; de jour, les lignes blanches se lisent contre les cases pâles),
+`TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`).
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|
@@ -660,9 +666,7 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `LargestSizeThatFitsTest › with the smallest size equal to the largest a text that does not fit has no size that fits`,
 `LargestSizeThatFitsTest › a text that fits only at the smallest size takes exactly the smallest size`,
 `LargestSizeThatFitsTest › the sizes tried grow with the logarithm of the number of steps`,
-`HomeScreenTest › in a font twice as large, on 360 dp, the label of Composer une musique is shown whole`,
-`HomeScreenTest › in a normal font, on 360 dp, the label of Composer une musique stays on one line`,
-`HomeScreenTest › in a font twice as large, in Original, each word of Composer une musique stays whole on its line`,
+`HomeScreenTest › in a font twice as large, on 360 dp, the labels of the tiles are shown whole, their words whole`,
 `LargestSizeThatFitsTest › when fitting is not monotonic, as a text that wraps may be, the size given was tried and fits`,
 `WordCutTest › a text on one line cuts no word`,
 `WordCutTest › a text that goes to the line between its words cuts no word`,

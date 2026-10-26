@@ -139,7 +139,9 @@ class GameViewModel internal constructor(
         // The record shown in the top bar: its real value, followed as it changes. Unreadable records are
         // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
-            highScores.highScore.collect { record -> state.update { it.copy(record = record) } }
+            highScores.highScore.collect { record ->
+                state.update { it.copy(record = record).withRecordBeaten(it.recordBeaten) }
+            }
         }
         // The music of the player chosen for the games (« Mes musiques »), which plays instead of the one chosen on the
         // home screen, even when that one is none; the settings are read only without it. At the normal tempo, as every
@@ -252,9 +254,16 @@ class GameViewModel internal constructor(
         if (wasPaused && gameState.isUnderWay) play(playback?.resume() ?: playMusic())
     }
 
-    /** The screen state of the game state, with what the engine does not know kept: the record, the game over. */
+    /**
+     * The screen state of the game state, with what the engine does not know kept: the record, whether it is beaten,
+     * the game over.
+     */
     private fun publish() {
-        state.update { gameState.toUiState(nextPieces::getValue).copy(record = it.record, gameOver = it.gameOver) }
+        state.update {
+            gameState.toUiState(nextPieces::getValue)
+                .copy(record = it.record, gameOver = it.gameOver)
+                .withRecordBeaten(it.recordBeaten)
+        }
     }
 
     /**

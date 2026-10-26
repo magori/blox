@@ -22,10 +22,10 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density = 2f)
 
-        // Then cells of 18 dp, the board and the side column centred above the two groups of controls
-        assertThat(layout.cellSize).isEqualTo(36f)
-        assertThat(layout.board).isEqualTo(Rect(left = 4f, top = 72f, right = 364f, bottom = 792f))
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 396f, top = 72f, right = 620f, bottom = 864f))
+        // Then cells of 17,5 dp, the board in its frame and the side column centred above the two groups of controls
+        assertThat(layout.cellSize).isEqualTo(35f)
+        assertThat(layout.board).isEqualTo(Rect(left = 17f, top = 82f, right = 367f, bottom = 782f))
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 399f, top = 82f, right = 623f, bottom = 864f))
         assertThat(layout.nextPiece).isNull()
         assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 896f, right = 344f, bottom = 1024f))
         assertThat(layout.rotations).isEqualTo(Rect(left = 384f, top = 896f, right = 624f, bottom = 1056f))
@@ -118,7 +118,7 @@ class GameLayoutTest {
     }
 
     @ParameterizedTest(name = "at {0} px per dp, cells of {1} px")
-    @CsvSource("2, 36", "2.625, 48", "3.5, 64")
+    @CsvSource("2, 35", "2.625, 46", "3.5, 61")
     fun `a phone in portrait keeps the side column beside the board, though the score above would give a larger one`(
         density: Float,
         cellSize: Float,
@@ -177,21 +177,21 @@ class GameLayoutTest {
 
     @Test
     fun `when the score above gives a board of the same size, the usual layout stays`() {
-        // Given a window of 220 × 516 dp at 2 px per dp: cells of 8 px with the score beside the board or above it
-        val (width, height) = available(widthDp = 220, heightDp = 516, density = 2f)
+        // Given a window of 220 × 508 dp at 2 px per dp: cells of 7 px with the score beside the board or above it
+        val (width, height) = available(widthDp = 220, heightDp = 508, density = 2f)
 
         // When
         val layout = gameLayout(width, height, density = 2f)
 
         // Then
-        assertThat(layout.cellSize).isEqualTo(8f)
+        assertThat(layout.cellSize).isEqualTo(7f)
         assertThat(layout.scoresAbove).isFalse()
     }
 
     @Test
     fun `when the score above does not fit either, the usual layout stays, cut`() {
         // Given a window of 200 × 900 dp at 2 px per dp: too narrow for the arrows, in every layout; the score above
-        // would give cells of 22 px, beside the side column 4 px
+        // would give cells of 22 px, beside the side column 3 px
         val (width, height) = available(widthDp = 200, heightDp = 900, density = 2f)
 
         // When
@@ -199,7 +199,7 @@ class GameLayoutTest {
 
         // Then the portrait layout, B A under the arrows, which go past the width
         assertThat(layout.scoresAbove).isFalse()
-        assertThat(layout.cellSize).isEqualTo(4f)
+        assertThat(layout.cellSize).isEqualTo(3f)
         assertThat(layout.rotations.top).isGreaterThanOrEqualTo(layout.directions.bottom)
         assertThat(layout.directions.right).isGreaterThan(width)
     }
@@ -261,6 +261,48 @@ class GameLayoutTest {
                 assertThat(part.overlaps(other)).describedAs("$part, $other").isFalse()
             }
         }
+    }
+
+    @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
+    @MethodSource("windowsWithRoom")
+    fun `the board is framed by 8 dp all around, clear of every other part, within the margins and the gaps`(
+        widthDp: Int,
+        heightDp: Int,
+        density: Float,
+    ) {
+        // Given
+        val (width, height) = available(widthDp, heightDp, density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then the frame takes 8 dp, in whole pixels, around the cells: out of the 16 dp of the gaps beside the board
+        // and of the 24 dp of the margins, never over the score, the next piece nor the controls
+        val inset = Math.round(8 * density).toFloat()
+        val frame = layout.boardFrame
+        assertThat(frame).isEqualTo(layout.board.inflate(inset))
+        assertThat(Rect(0f, 0f, width, height).inflate(16 * density).intersect(frame)).isEqualTo(frame)
+        listOfNotNull(layout.sidePanel, layout.nextPiece, layout.directions, layout.rotations).forEach { part ->
+            assertThat(frame.overlaps(part)).describedAs("$frame, $part").isFalse()
+        }
+    }
+
+    @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")
+    @MethodSource("windowsWithRoom")
+    fun `the frame of the board stays within the width of the space, lined up with the top bar and the controls`(
+        widthDp: Int,
+        heightDp: Int,
+        density: Float,
+    ) {
+        // Given
+        val (width, height) = available(widthDp, heightDp, density)
+
+        // When
+        val layout = gameLayout(width, height, density)
+
+        // Then the frame does not pass the pause button nor the arrows on the left, nor B A on the right, into the margins
+        assertThat(layout.boardFrame.left).isGreaterThanOrEqualTo(0f)
+        assertThat(layout.boardFrame.right).isLessThanOrEqualTo(width)
     }
 
     @ParameterizedTest(name = "{0} × {1} dp at {2} px per dp")

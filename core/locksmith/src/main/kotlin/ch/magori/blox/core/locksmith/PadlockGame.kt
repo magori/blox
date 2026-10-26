@@ -51,6 +51,12 @@ public data class PadlockGame private constructor(
     /** The orientation the given piece of [rank] is in. */
     public fun orientationOf(rank: Int): Orientation = orientations[requireGiven(rank)]
 
+    /** The rank of the placed piece that covers [cell], or `null` when none does. */
+    public fun rankAt(cell: Position): Int? = placements.firstOrNull { (_, piece) -> cell in piece.cells }?.first
+
+    /** The [selected] piece, in its orientation, its pivot on [pivot], as [place] would put it; `null` if none is. */
+    public fun selectedAt(pivot: Position): Piece? = selected?.let { Piece(given[it], orientations[it], pivot) }
+
     /** Selects the free given piece of [rank]; a placed one is taken back by [takeBack]. */
     public fun select(rank: Int): PadlockGame =
         if (isOpen || requireGiven(rank) in placementOrder) this else copy(selected = rank)
@@ -69,7 +75,7 @@ public data class PadlockGame private constructor(
      */
     public fun place(pivot: Position): PadlockUpdate {
         val rank = selected ?: return PadlockUpdate(this, emptyList())
-        val piece = Piece(given[rank], orientations[rank], pivot)
+        val piece = checkNotNull(selectedAt(pivot))
         val refusal = when {
             !piece.cells.all { it in padlock.hole } -> Refusal.OUT_OF_HOLE
             placements.any { (_, other) -> other.cells.any { it in piece.cells } } -> Refusal.OVERLAP

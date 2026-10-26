@@ -59,11 +59,12 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | Module | Type | Responsabilité |
 |---|---|---|
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
+| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Ne dépend que de `core:designsystem`. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
-| `feature:locksmith` | Feature | *Prévu (P7, ADR 0025).* Écran du Serrurier, second jeu : serrure, pièces à poser, accords, indice. |
+| `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level, seed)`, `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
 | `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : seul module du domaine qui a des dépendances, ces deux-là. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
@@ -88,7 +89,11 @@ changent beaucoup.
 1. **Une feature ne dépend jamais d'une autre feature.** La navigation entre features est
    assemblée dans `app`, qui seul les connaît toutes. Chaque feature définit sa clé `NavKey` et
    expose une extension d'`EntryProviderScope` qui déclare son entrée ; `app` possède la pile et
-   l'affiche avec `NavDisplay` (Navigation 3, [ADR 0011](adr/0011-navigation-3.md)).
+   l'affiche avec `NavDisplay` (Navigation 3, [ADR 0011](adr/0011-navigation-3.md)). La pile part des
+   cartouches (`CartridgesRoute`) ; la cartouche Classique empile l'accueil, et le disque « Changer de jeu » de
+   l'accueil revient aux cartouches par `changeGame` (fonction pure de `app` : dépile jusqu'à elles, ou les met à
+   la racine d'une pile restaurée qui ne les a pas). Le retour système sur les cartouches quitte l'application.
+   Le parcours mesuré (`BloxJourney`) passe par `cartridge_classic`.
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.
 3. **Le domaine ne connaît ni couleur, ni son, ni temps réel.** Un thème, un effet sonore,

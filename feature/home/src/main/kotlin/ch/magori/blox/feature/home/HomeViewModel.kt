@@ -30,13 +30,13 @@ import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlin.math.abs
 import kotlin.reflect.KClass
 
 /**
  * The home screen (V1): the saved settings, the record, and the choices of the player, saved as soon
- * as they are made. The start levels offered are those of the mode, from its [LevelProgression]; a
- * saved level out of them (saved by another mode) is shown as the closest of them. The player may
+ * as they are made. The start levels offered are those of the mode, from its [LevelProgression], one after
+ * the other (the gauge offers every level between its ends: a mode that skips one is refused); a saved
+ * level out of them (saved by another mode) is shown as the closest of them. The player may
  * listen to a music with a BloX score before playing (« Écouter »), on the [music] player the game
  * plays on too; [scoreOf] gives the score of a music choice, null for none (`app` defines it). « Mon
  * fichier » plays the music file the player picked in the picker of the system, kept in [musicFiles]; it
@@ -52,7 +52,12 @@ class HomeViewModel(
     private val musicFiles: MusicFileRepository,
     private val library: MusicLibrary,
 ) : ViewModel() {
-    private val startLevels: List<Int> = levelProgression.startLevels.map { it.value }
+    private val startLevels: IntRange = levelProgression.startLevels.map { it.value }.let { levels ->
+        require(levels.isNotEmpty()) { "A mode offers at least one start level" }
+        val range = levels.first()..levels.last()
+        require(levels == range.toList()) { "The start levels of a mode follow one another: $levels" }
+        range
+    }
 
     /**
      * The music file the player picked and the music of the player chosen for the games, the only readings of
@@ -83,7 +88,6 @@ class HomeViewModel(
     private var previewWatch: Job? = null
 
     init {
-        require(startLevels.isNotEmpty()) { "A mode offers at least one start level" }
         // A music of the player listened to stops once it is no longer the one of the games: deleted, or replaced,
         // from another screen. The home screen no longer shows it, nor its button to stop it.
         viewModelScope.launch {
@@ -190,6 +194,12 @@ class HomeViewModel(
     internal fun onSettings() = stopPreview()
 
     /**
+     * The player goes back to the choice of the game: the music being listened to stops at once, before the transition
+     * (leaving the stack would stop it too, but only once the home is gone).
+     */
+    internal fun onChangeGame() = stopPreview()
+
+    /**
      * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
      * the background, or a game in front), the music being listened to stops. A pause alone, behind a
      * dialog or in a split screen, lets it play on.
@@ -245,7 +255,7 @@ class HomeViewModel(
     ): HomeUiState = HomeUiState(
         theme = saved.theme,
         music = saved.music,
-        startLevel = startLevels.minBy { abs(it - saved.startLevel) },
+        startLevel = saved.startLevel.coerceIn(startLevels),
         startLevels = startLevels,
         record = record,
         listenable = MusicChoice.entries.filter { listenedMusicOf(it, sources.file) != null },

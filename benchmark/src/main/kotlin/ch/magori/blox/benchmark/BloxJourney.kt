@@ -14,11 +14,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.TimeSource
 
 /*
- * Le parcours mesuré : accueil, Jouer, quelques secondes de partie, pause. Les éléments se
- * trouvent par leur tag de test, exposé comme identifiant de ressource (`testTagsAsResourceId`,
- * posé par `MainActivity`) : le parcours ne dépend pas de la langue de l'appareil. Les tags sont
- * ceux de `HomeScreen` (`home_play`), `GameTopBar` (`game_pause`), `GameControls`
- * (`controlTestTag`) et `PauseScreen` (`pause_resume`).
+ * Le parcours mesuré : choix du jeu, cartouche Classique, accueil, Jouer, quelques secondes de
+ * partie, pause. Les éléments se trouvent par leur tag de test, exposé comme identifiant de
+ * ressource (`testTagsAsResourceId`, posé par `MainActivity`) : le parcours ne dépend pas de la
+ * langue de l'appareil. Les tags sont ceux de `Cartridge` (`cartridge_classic`), `HomeScreen`
+ * (`home_play`), `GameTopBar` (`game_pause`), `GameControls` (`controlTestTag`) et `PauseScreen`
+ * (`pause_resume`).
  */
 
 /**
@@ -37,10 +38,14 @@ internal fun MacrobenchmarkScope.launchFromHomeScreen() {
 }
 
 /**
- * Depuis l'accueil de BloX, lance une partie et attend l'écran de jeu. « Jouer » est le dernier élément de l'accueil,
- * qui défile : sur un petit écran, il est sous le bord, et l'accueil défile d'abord jusqu'en bas.
+ * Depuis le choix du jeu, ouvre la cartouche Classique, puis lance une partie de son accueil et attend l'écran de jeu.
+ * « Jouer » est le dernier élément de l'accueil, qui défile : sur un petit écran, il est sous le bord, et l'accueil
+ * défile d'abord jusqu'en bas.
  */
 internal fun MacrobenchmarkScope.startGame() {
+    device.clickWhenReady(By.res(CLASSIC_CARTRIDGE))
+    // Le choix du jeu défile aussi, sur un petit écran : on attend qu'il soit parti avant de chercher l'accueil.
+    device.wait(Until.gone(By.res(CLASSIC_CARTRIDGE)), UI_TIMEOUT.inWholeMilliseconds)
     device.scrollHomeToPlay()
     device.clickWhenReady(By.res(PLAY))
     device.awaitObject(By.res(PAUSE))
@@ -112,6 +117,7 @@ private fun UiDevice.awaitObject(selector: BySelector) {
 
 private const val TARGET_PACKAGE_ARGUMENT = "androidx.benchmark.targetPackageName"
 
+private const val CLASSIC_CARTRIDGE = "cartridge_classic"
 private const val PLAY = "home_play"
 private const val PAUSE = "game_pause"
 private const val RESUME = "pause_resume"

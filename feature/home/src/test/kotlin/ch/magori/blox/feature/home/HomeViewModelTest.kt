@@ -94,7 +94,7 @@ class HomeViewModelTest {
                     theme = ThemeChoice.COLORFUL,
                     music = MusicChoice.MINUET,
                     startLevel = 5,
-                    startLevels = (0..9).toList(),
+                    startLevels = 0..9,
                     record = 12_345,
                     listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
                     previewing = null,
@@ -256,34 +256,25 @@ class HomeViewModelTest {
         // When / Then
         viewModel.uiState.test {
             val shown = expectMostRecentItem()
-            assertThat(shown?.startLevels).containsExactly(3, 4, 5)
+            assertThat(shown?.startLevels).isEqualTo(3..5)
             assertThat(shown?.startLevel).isEqualTo(shownLevel)
         }
     }
 
-    @ParameterizedTest(name = "saved level {0} -> shown level {1}")
-    @CsvSource("3, 5", "2, 0", "8, 10", "12, 10")
-    fun `a saved level between the levels of the mode is shown as the closest of them`(
-        savedLevel: Int,
-        shownLevel: Int,
-    ) = runTest {
-        // Given a mode that starts at levels 0, 5 and 10
-        val preferences = FakeUserPreferencesRepository(UserPreferences.DEFAULT.copy(startLevel = savedLevel))
-        val viewModel =
-            HomeViewModel(
-                preferences,
-                FakeHighScoreRepository(),
-                startingAt(0, 5, 10),
-                music,
-                testScores,
-                musicFiles,
-                library,
-            )
-
-        // When / Then
-        viewModel.uiState.test {
-            assertThat(expectMostRecentItem()?.startLevel).isEqualTo(shownLevel)
-        }
+    @Test
+    fun `a mode whose start levels skip a level is refused, as the gauge offers every level between its ends`() {
+        assertThatIllegalArgumentException()
+            .isThrownBy {
+                HomeViewModel(
+                    FakeUserPreferencesRepository(),
+                    FakeHighScoreRepository(),
+                    startingAt(0, 5, 10),
+                    music,
+                    testScores,
+                    musicFiles,
+                    library,
+                )
+            }
     }
 
     @Test
@@ -511,6 +502,23 @@ class HomeViewModelTest {
 
             // When
             viewModel.onMyMusics()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
+    fun `changing the game stops the preview`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When the home leaves for the choice of the game: its view model is cleared, the preview would play on
+            viewModel.onChangeGame()
 
             // Then
             assertThat(music.calls).containsExactly("play MINUET", "stop")

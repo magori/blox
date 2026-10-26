@@ -238,7 +238,8 @@ cadre (4 px), pas à la seule couleur.
 ## Correspondance avec le code
 
 Les jetons d'interface correspondent aux propriétés de `BloxPalette` (`core:designsystem`) par une table explicite (ADR 0019) : la plupart en kebab-case, avec des exceptions (`board` → `boardBackground`, `label-off` → `outOfScale`, pistes dans `TrackColors`). 1 px de ce système vaut 1 dp dans le code.
-Les pièces (`piece-*`) vont dans `core:board` (`CellStyles`, ADR 0023). À ajouter dans le
+Les pièces (`piece-*`) vont dans `core:board` (`CellStyles`, ADR 0023), comme les cases du Serrurier (`lock-*` :
+`lock-metal`, `lock-rivet`, `lock-hint`, `lock-hole-inset`, dans `LockColors`, Couleurs seulement, P7.10). À ajouter dans le
 code pour ces retours : les volumes de la musique et des effets (`core:audio`), la vibration des
 touches, la capacité « l'appareil vibre » (`Haptics`), l'effacement du record (`core:data`), l'événement `LevelUp(level)` dans le moteur, le record battu en jeu
 (`GameUiState`), l'ancien record en fin de partie, un effet sonore « niveau », les préférences
