@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 187 / 241 | `████████████████░░░░` **78 %** |
+| **Général** | 188 / 241 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1141,7 +1141,7 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   après une pose, *n* pièces sur la grille).
 - [x] **P7.9** Effets d'accord (`core:music`, `LocksmithSounds`) : arpège d'un accord, basse deux octaves plus bas,
   fanfare de serrure ouverte, son de refus ; `effectsOf(chord)` pour jouer et préchauffer.
-- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+- [x] **P7.10** Cases de la serrure (`core:board`, `LockCell`, `LockCellCanvas`, Couleurs seulement) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
   `lock-hint`, `lock-hole-inset` dans `tokens.json`, gardés par un test ; repères non colorés ; captures.
 - [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
