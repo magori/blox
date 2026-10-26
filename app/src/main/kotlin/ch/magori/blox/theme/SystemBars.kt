@@ -8,19 +8,25 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.navigation3.runtime.NavKey
+import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 
 /**
- * Gives the system bars the style of [variant], the variant drawn under them ([systemBarVariant]), and again whenever it
- * changes: the player picks another theme, opens the Locksmith, or the mode of the system changes. Left to itself, `enableEdgeToEdge` follows the mode
- * of the system, and Original, light day and night, would get light icons on its light page at night.
+ * Gives the system bars the style of the variant drawn under them ([systemBarVariant]): that of the theme drawn, or the
+ * Colorful one of [darkSystem] under the Locksmith, the screen on [top] of the stack. Again whenever it changes: the
+ * player picks another theme, opens the Locksmith, or the mode of the system changes. [top] is read here alone, so that
+ * a change of screen recomposes these bars, not the navigation. Left to itself, `enableEdgeToEdge` follows the mode of
+ * the system, and Original, light day and night, would get light icons on its light page at night.
  */
 @Composable
-internal fun BloxSystemBars(variant: BloxThemeVariant) {
+internal fun BloxSystemBars(
+    top: () -> NavKey?,
+    darkSystem: Boolean,
+) {
     val activity = LocalActivity.current as? ComponentActivity ?: return
-    val darkIcons = hasDarkSystemBarIcons(variant)
+    val darkIcons = hasDarkSystemBarIcons(systemBarVariant(top(), BloxTheme.variant, darkSystem))
     SideEffect { activity.showSystemBars(darkIcons) }
 }
 

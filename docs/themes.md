@@ -260,7 +260,12 @@ Le schéma Material part de la base claire ou sombre selon la variante, les icô
 soit le mode du téléphone, réappliquées quand le thème ou le mode change ; avant la lecture du thème, celles
 d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
-`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Les formes, polices et
+`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
+toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
+thème choisi : `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+`SystemBarsTest › the bars of every other screen follow the theme chosen`,
+`SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
+Les formes, polices et
 pictogrammes ne dépendent que du thème (`BloxTheme.kind`), pas du mode. Les styles de pièces, le
 dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux sont construits une
 fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une

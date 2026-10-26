@@ -45,8 +45,8 @@ fun BloxNavDisplay(
     myMusicsViewModelFactory: MyMusicsViewModel.Factory,
     settingsViewModelFactory: SettingsViewModel.Factory,
     deletedMusics: DeletedMusicRelay,
+    locksmithViewModelFactory: LocksmithViewModel.Factory,
     modifier: Modifier = Modifier,
-    locksmithViewModelFactory: LocksmithViewModel.Factory = LocksmithViewModel.Factory(),
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
     // Never below the first screen, whatever asks to go back once more.
@@ -92,7 +92,10 @@ fun BloxNavDisplay(
                 viewModelFactory = myMusicsViewModelFactory,
             )
             settingsEntry(onBack = goBack, viewModelFactory = settingsViewModelFactory)
-            locksmithEntry(viewModelFactory = locksmithViewModelFactory)
+            locksmithEntry(
+                onNext = { open -> nextPadlock(backStack, open) },
+                viewModelFactory = locksmithViewModelFactory,
+            )
         },
     )
 }

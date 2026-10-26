@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 190 / 244 | `████████████████░░░░` **78 %** |
+| **Général** | 192 / 245 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1157,14 +1157,14 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   effets sonores respecté. Après P7.8, P7.9 et P7.12.
 - [ ] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
   étant faits en P7.12. Après P7.7 et P7.13.
-- [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
-  suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
+- [x] **P7.15** Cartouche « Le Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+  suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
   et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
   (claude.ai), dont `tokens.json` est la copie (ADR 0019).
 - [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
-- [ ] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
+- [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
   pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
 - [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
@@ -1178,6 +1178,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   captures (aperçu refusé, pièce qui bloque, serrure ouverte) ; UI Test instrumenté (poser, refuser,
   reprendre) ; stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le
   nombre de pistes d'effets (ADR 0025).
+- [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une  pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de  P7.15).
 
 ---
 

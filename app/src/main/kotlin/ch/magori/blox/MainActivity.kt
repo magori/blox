@@ -19,7 +19,6 @@ import ch.magori.blox.navigation.BloxNavDisplay
 import ch.magori.blox.theme.BloxSystemBars
 import ch.magori.blox.theme.hasDarkSystemBarIcons
 import ch.magori.blox.theme.showSystemBars
-import ch.magori.blox.theme.systemBarVariant
 
 class MainActivity : ComponentActivity() {
     private val container get() = (application as BloxApplication).container
@@ -34,11 +33,13 @@ class MainActivity : ComponentActivity() {
             // The theme chosen on the home screen colours every screen. It is known at once once the
             // settings are read; before, nothing is composed, and the first frame waits (see below).
             val themeKind by container.appTheme.kind.collectAsStateWithLifecycle()
-            // The stack belongs here, above the theme: the bars follow the screen on top (the Locksmith imposes its theme).
+            // The stack belongs here, above the theme: the bars follow the screen on top, as the Locksmith imposes its
+            // theme. The mode of the system is read once, for the theme and for the bars.
             val backStack = rememberNavBackStack(CartridgesRoute)
+            val darkSystem = isSystemInDarkTheme()
             themeKind?.let { kind ->
-                BloxTheme(kind = kind) {
-                    BloxSystemBars(systemBarVariant(backStack.lastOrNull(), BloxTheme.variant, isSystemInDarkTheme()))
+                BloxTheme(kind = kind, darkSystem = darkSystem) {
+                    BloxSystemBars(top = { backStack.lastOrNull() }, darkSystem = darkSystem)
                     BloxNavDisplay(
                         homeViewModelFactory = container.homeViewModelFactory,
                         gameViewModelFactory = container.gameViewModelFactory,

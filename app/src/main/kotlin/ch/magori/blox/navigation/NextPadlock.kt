@@ -5,9 +5,9 @@ import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import kotlin.random.Random
 
 /**
- * « Serrure suivante » after the [open] padlock: the next one, one level up on a seed drawn from [random], takes its
- * place on top of [backStack]. A different key, so a new view model (ADR 0011, 0025). Once [open] is no longer on top
- * (a second tap), nothing changes.
+ * The next padlock (`feature_locksmith_next`) after the [open] one: one level up, on a seed drawn from [random], it
+ * takes the place of [open] on top of [backStack]. A different key, so a new view model (ADR 0011, 0025). Once
+ * [open] is no longer on top (a second tap), nothing changes.
  */
 internal fun nextPadlock(
     backStack: MutableList<NavKey>,

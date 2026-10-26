@@ -1,11 +1,17 @@
 package ch.magori.blox.theme
 
+import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.home.navigation.HomeRoute
+import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.CsvSource
+import org.junit.jupiter.params.provider.MethodSource
 
 class SystemBarsTest {
     @ParameterizedTest(name = "{0} -> dark icons: {1}")
@@ -36,10 +42,21 @@ class SystemBarsTest {
         assertThat(systemBarVariant(LocksmithRoute(level = 1, seed = 1), chosen, darkSystem)).isEqualTo(expected)
     }
 
-    @ParameterizedTest(name = "chosen {0}")
-    @CsvSource("ORIGINAL", "COLORFUL_LIGHT", "COLORFUL_DARK")
-    fun `the bars of every other screen follow the theme chosen`(chosen: BloxThemeVariant) {
-        assertThat(systemBarVariant(CartridgesRoute, chosen, darkSystem = true)).isEqualTo(chosen)
-        assertThat(systemBarVariant(null, chosen, darkSystem = true)).isEqualTo(chosen)
+    @ParameterizedTest
+    @MethodSource("otherScreens")
+    fun `the bars of every other screen follow the theme chosen`(top: NavKey?) {
+        assertThat(BloxThemeVariant.entries).allSatisfy { chosen ->
+            assertThat(systemBarVariant(top, chosen, darkSystem = true)).isEqualTo(chosen)
+        }
+    }
+
+    private companion object {
+        @JvmStatic
+        fun otherScreens(): List<Arguments> = listOf(
+            argumentSet("the cartridges", CartridgesRoute),
+            argumentSet("the home", HomeRoute),
+            argumentSet("the settings", SettingsRoute),
+            argumentSet("an empty stack", null),
+        )
     }
 }

@@ -2,5 +2,5 @@
 <resources>
     <string name="feature_cartridges_title">Choix du jeu</string>
     <string name="feature_cartridges_classic">Classique</string>
-    <string name="feature_cartridges_locksmith">Le Serrurier</string>
+    <string name="feature_cartridges_locksmith">Serrurier</string>
 </resources>

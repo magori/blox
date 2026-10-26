@@ -149,6 +149,23 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
 - Après la mort du processus, la clé restaurée régénère la même serrure depuis sa graine, **sans
   pièce posée**.
   **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`.
+- La cartouche « Serrurier » ouvre la serrure 1 sur une graine tirée au hasard ; « Serrure
+  suivante » met à sa place la serrure d'un niveau de plus, sur une nouvelle graine, et un second
+  toucher ne saute pas deux serrures.
+  **Tests :** `OpenCartridgeTest › the Locksmith cartridge opens padlock 1 over the cartridges, on a seed drawn at random`,
+  `OpenCartridgeTest › a second tap on the Locksmith cartridge does not stack a second padlock`,
+  `NextPadlockTest › the next padlock takes the place of the open one, one level up, on a new seed`,
+  `NextPadlockTest › a second tap on next padlock does not move on twice`,
+  `BloxNavDisplayTest › the Locksmith cartridge opens padlock 1`,
+  `BloxNavDisplayTest › on the Locksmith, the system back goes back to the cartridges, and then leaves`,
+  `BloxNavDisplayTest › a restored stack with a padlock on top shows that padlock again, nothing placed`.
+  **Vues :** V26, V35.
+- Les barres système suivent la variante Couleurs du Serrurier (jour ou nuit selon le téléphone),
+  quel que soit le thème choisi pour le Classique ; ailleurs, le thème choisi.
+  **Tests :** `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+  `SystemBarsTest › the bars of every other screen follow the theme chosen`,
+  `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
+  **Vues :** V26, V35.
 - Le niveau n'est pas enregistré : la cartouche ouvre toujours la serrure 1. Reprendre à la
   dernière serrure demandera une préférence (point ouvert).
 
