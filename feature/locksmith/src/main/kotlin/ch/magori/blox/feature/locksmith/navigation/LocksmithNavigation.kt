@@ -10,6 +10,7 @@ import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import ch.magori.blox.feature.locksmith.LocksmithActions
 import ch.magori.blox.feature.locksmith.LocksmithScreen
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import kotlinx.serialization.Serializable
@@ -31,11 +32,14 @@ data class LocksmithRoute(val level: Int, val seed: Long) : NavKey {
 }
 
 /**
- * Déclare l'entrée du Serrurier (ADR 0011, 0025). `app` construit [viewModelFactory] ; la clé lui parvient par les
- * `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le
+ * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onNext] reçoit la serrure ouverte : `app` met la suivante à sa
+ * place. `app` construit [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le
  * ViewModel à la clé.
  */
-fun EntryProviderScope<NavKey>.locksmithEntry(viewModelFactory: LocksmithViewModel.Factory) {
+fun EntryProviderScope<NavKey>.locksmithEntry(
+    onNext: (open: LocksmithRoute) -> Unit,
+    viewModelFactory: LocksmithViewModel.Factory,
+) {
     entry<LocksmithRoute> { route ->
         // The default extras of the owner (saved state, application…) are kept; the route joins them.
         val owner = checkNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner for the locksmith entry" }
@@ -47,6 +51,20 @@ fun EntryProviderScope<NavKey>.locksmithEntry(viewModelFactory: LocksmithViewMod
         val viewModel: LocksmithViewModel =
             viewModel(viewModelStoreOwner = owner, factory = viewModelFactory, extras = extras)
         val state by viewModel.uiState.collectAsStateWithLifecycle()
-        LocksmithScreen(state = state)
+        LocksmithScreen(
+            state = state,
+            actions = remember(viewModel, route, onNext) {
+                LocksmithActions(
+                    onTap = viewModel::tap,
+                    onSelect = viewModel::select,
+                    onTakeBack = viewModel::takeBack,
+                    onTurn = viewModel::turn,
+                    onPlace = viewModel::placeAim,
+                    onHint = viewModel::hint,
+                    onRestart = viewModel::restart,
+                    onNext = { onNext(route) },
+                )
+            },
+        )
     }
 }
