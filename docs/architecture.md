@@ -60,7 +60,9 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
+| `feature:locksmith` | Feature | *Prévu (P7, ADR 0025).* Écran du Serrurier, second jeu : serrure, pièces à poser, accords, indice. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. |
+| `core:locksmith` | Kotlin pur | *Prévu (P7, ADR 0025).* Domaine du Serrurier ([règles](regles-serrurier.md)) : génération des serrures, partie, indice, suites d'accords ; les pièces sont des `Piece` de `core:game`. Dépend de `core:game` et `core:music`, seul module du domaine qui en a. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel, effets sonores (`SoundEffectPlayer`, pistes statiques, P4.8). |
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
