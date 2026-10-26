@@ -241,9 +241,9 @@ class PadlockGameTest {
 
     @Test
     fun `restarting keeps the padlock, clears the pieces placed and the counters`() {
-        // Given: the I placed, a refusal, the T turned
+        // Given: the I placed, a refusal, a hint, the T turned
         val game = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(1, 1)).game
-            .select(2).turn(Rotation.CLOCKWISE)
+            .hint().game.select(2).turn(Rotation.CLOCKWISE)
 
         // When
         val restarted = game.restart()

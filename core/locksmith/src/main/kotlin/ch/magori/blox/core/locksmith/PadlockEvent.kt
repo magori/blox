@@ -13,6 +13,9 @@ public sealed interface PadlockEvent {
     /** The placed piece of [rank] is taken back out of the hole. */
     public data class PieceTakenBack(public val rank: Int) : PadlockEvent
 
+    /** A [hint] is given. */
+    public data class HintGiven(public val hint: Hint) : PadlockEvent
+
     /** Every given piece is placed: the padlock opens. Follows the last [PiecePlaced]. */
     public data object PadlockOpened : PadlockEvent
 }
@@ -28,3 +31,12 @@ public enum class Refusal {
 
 /** A [game] after an action, and the [events] the action made happen, in order. */
 public data class PadlockUpdate(public val game: PadlockGame, public val events: List<PadlockEvent>)
+
+/** What the hint points at. */
+public sealed interface Hint {
+    /** The free given piece of [rank] fits as [piece], on the way to open the padlock. */
+    public data class Fit(public val rank: Int, public val piece: Piece) : Hint
+
+    /** The placed piece of [rank] blocks: taken back, it leaves a way to open the padlock. */
+    public data class Blocking(public val rank: Int) : Hint
+}

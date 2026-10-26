@@ -12,7 +12,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 
 > Traçabilité : comme pour le Classique, une règle implémentée reçoit une ligne
 > **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`.
-> La grille (P7.3), la génération (P7.4, P7.5) et la partie (P7.6) sont implémentées ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
+> La grille (P7.3), la génération (P7.4, P7.5), la partie (P7.6) et l'indice (P7.7) sont implémentés ; le reste suit la phase P7 de [SUIVI.md](../SUIVI.md).
 
 > Coordonnées : comme le plateau du Classique, la grille a son origine en haut à gauche,
 > `Position(column, row)`, les lignes croissant vers le bas. **Ordre de lecture** : ligne par
@@ -170,7 +170,8 @@ Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `t
   choisir, tourner, poser, reprendre et demander un indice sont ignorés, sans événement ; seul
   Recommencer reste possible.
   **Tests :** `PadlockGameTest › placing every piece opens the padlock, the last placement first`,
-  `PadlockGameTest › once the padlock is open nothing but restart is taken`.
+  `PadlockGameTest › once the padlock is open nothing but restart is taken`,
+  `PadlockHintTest › once the padlock is open no hint is given`.
 - **Recommencer** : même serrure, aucune pièce posée, compteurs à zéro.
   **Tests :** `PadlockGameTest › restarting keeps the padlock, clears the pieces placed and the counters`.
 - La partie garde l'**ordre des poses** (pour l'indice).
@@ -182,23 +183,40 @@ Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `t
   - **refus** : les poses refusées ;
   - **indices** : les indices demandés.
   **Tests :** `PadlockGameTest › a piece over the metal is refused as out of the hole and only the refusals count it`,
-  `PadlockGameTest › a placed piece is taken back, selected in its orientation, and the moves are kept` (les indices : P7.7).
+  `PadlockGameTest › a placed piece is taken back, selected in its orientation, and the moves are kept`,
+  `PadlockHintTest › the hint shows where a free piece fits and counts a hint`.
 
 ## Indice
 
 - Un solveur de couverture exacte cherche comment remplir le trou restant avec les pièces non
   posées (au plus 6 pièces et 24 cases : un retour arrière suffit). Ordre de recherche, pour que
   l'indice soit toujours le même : la première case libre du trou dans l'ordre de lecture ; les
-  pièces non posées par rang ; pour chacune, ses orientations dans l'ordre de `orientations(type)` ;
-  pour chacune, les pivots qui font couvrir cette case, dans l'ordre de lecture.
+  pièces non posées par rang (de plusieurs pièces d'un même type, seule la première est essayée,
+  les autres donneraient les mêmes couvertures) ; pour chacune, ses orientations dans l'ordre de
+  `orientations(type)`, chacune avec le pivot qui fait de cette case la première de la pièce dans
+  l'ordre de lecture (aucun autre ne peut convenir : c'est la première case libre).
+  **Tests :** `PadlockHintTest › the hint shows where a free piece fits and counts a hint`,
+  `PadlockHintTest › following the hints opens every padlock of 200 seeds`,
+  `PadlockHintTest › the hint tries the orientations of a piece in their order`,
+  `PadlockHintTest › the hint covers the first free cell in reading order`,
+  `PadlockHintTest › a hint is quick once a piece is placed anywhere in a padlock of 6 pieces`.
 - S'il trouve : l'indice désigne la pièce qui couvre la première case libre dans la première
   couverture trouvée : **son rang, son orientation et son pivot**. Il ne propose jamais une pièce
   déjà posée (défaut du prototype), et trouve un chemin même quand le joueur s'est écarté de la
-  solution d'origine.
+  solution d'origine. C'est un `Hint.Fit`.
+  **Tests :** `PadlockHintTest › the hint never names a piece already placed`,
+  `PadlockHintTest › the hint finds a way even when the player left the solution`.
 - Sinon : l'indice désigne **une pièce posée qui bloque**, la plus récemment posée dont le retrait
   seul rend la serrure de nouveau soluble ; si aucun retrait seul ne suffit, la dernière pièce
-  posée.
-- Chaque indice compte dans le compteur des indices (`HintGiven`).
+  posée. C'est un `Hint.Blocking`.
+  **Tests :** `PadlockHintTest › the hint names the piece that blocks when no way is left`,
+  `PadlockHintTest › the hint names the latest piece whose removal alone leaves a way`,
+  `PadlockHintTest › the hint names the latest of several pieces whose removal alone leaves a way`,
+  `PadlockHintTest › when no single piece unblocks the padlock the hint names the last piece placed`.
+- Chaque indice compte dans le compteur des indices (`PadlockGame.hints`) et émet `HintGiven` ; une
+  fois la serrure ouverte, aucun indice n'est donné.
+  **Tests :** `PadlockHintTest › the hint shows where a free piece fits and counts a hint`,
+  `PadlockHintTest › once the padlock is open no hint is given`.
 
 ## Accords
 
