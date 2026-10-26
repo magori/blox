@@ -1178,7 +1178,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   captures (aperçu refusé, pièce qui bloque, serrure ouverte) ; UI Test instrumenté (poser, refuser,
   reprendre) ; stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le
   nombre de pistes d'effets (ADR 0025).
-- [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une  pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de  P7.15).
+- [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
+  pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
+  P7.15).
 
 ---
 
