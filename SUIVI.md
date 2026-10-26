@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 177 / 239 | `███████████████░░░░░` **74 %** |
+| **Général** | 178 / 239 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : spécification, serrure, génération et partie faites |
+| P7 | Le Serrurier, second jeu | En cours : spécification, serrure, génération, partie et indice faits |
 
 ---
 
@@ -1126,12 +1126,12 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
   `OVERLAP`), reprise, ordre des poses, serrure ouverte (`PiecePlaced` puis `PadlockOpened`, puis
   tout ignoré sauf Recommencer), recommencer, compteurs coups et refus (indices : P7.7) ; événements
   `PiecePlaced`, `PlacementRefused`, `PieceTakenBack`, `PadlockOpened` dans un `PadlockUpdate`.
-- [ ] **P7.7** Indice : solveur de couverture exacte dans l'ordre fixé par les règles (rang,
+- [x] **P7.7** Indice (`PadlockGame.hint`, `PadlockSolver`) : solveur de couverture exacte dans l'ordre fixé par les règles (rang,
   orientation, pivot) ; sinon la pièce posée la plus récente dont le retrait seul débloque, à
-  défaut la dernière posée ; `HintGiven`. Cas : `the hint shows where a free piece fits`, `the hint
+  défaut la dernière posée ; `Hint.Fit` ou `Hint.Blocking` dans `HintGiven`, compteur `hints`. Cas : `the hint shows where a free piece fits and counts a hint`, `the hint
   never names a piece already placed`, `the hint finds a way even when the player left the
   solution`, `the hint names the piece that blocks when no way is left`, `when no single piece
-  unblocks the padlock the hint names the last piece placed`.
+  unblocks the padlock the hint names the last piece placed` ; propriété : suivre les indices ouvre 200 serrures par nombre de pièces.
 - [ ] **P7.8** Suites d'accords (`Progression` de `core:music`, ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
   par V–I ; accord de rang *n* après une pose, *n* pièces sur la grille.
 - [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,

@@ -11,8 +11,8 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
  * A game of the Locksmith on [padlock]: the pieces [given] to the player, identified by their rank,
  * each in its own orientation, those [placed] in the hole, in the order they were placed, the
  * [selected] one, and the counters of accepted placements ([moves], those taken back included) and
- * of [refusals]. Immutable: every action gives a new game. Once the padlock [isOpen], only [restart]
- * changes it. A rank that is not given is a programming error.
+ * of [refusals] and [hints]. Immutable: every action gives a new game. Once the padlock [isOpen], only
+ * [restart] changes it. A rank that is not given is a programming error.
  */
 @ConsistentCopyVisibility
 public data class PadlockGame private constructor(
@@ -22,6 +22,7 @@ public data class PadlockGame private constructor(
     public val selected: Int?,
     public val moves: Int,
     public val refusals: Int,
+    public val hints: Int,
 ) {
     /** The pieces given to the player, by rank. */
     public val given: List<PieceType> get() = padlock.givenPieces
@@ -68,7 +69,7 @@ public data class PadlockGame private constructor(
         val nowPlaced = placements + (rank to piece)
         val game = copy(
             placements = nowPlaced,
-            selected = given.indices.firstOrNull { free -> nowPlaced.none { it.first == free } },
+            selected = freeRanks(nowPlaced).firstOrNull(),
             moves = moves + 1,
         )
         val placedEvent = PadlockEvent.PiecePlaced(rank, piece)
@@ -84,6 +85,32 @@ public data class PadlockGame private constructor(
             listOf(PadlockEvent.PieceTakenBack(rank)),
         )
     }
+
+    /**
+     * A hint, counted in [hints]: where a free piece fits on a way to open the padlock, found by
+     * [PadlockSolver] in its fixed order; when no way is left, the latest placed piece whose removal
+     * alone leaves one, or else the last piece placed.
+     */
+    public fun hint(): PadlockUpdate {
+        if (isOpen) return PadlockUpdate(this, emptyList())
+        val hint = wayWith(placements)?.first()?.let { (rank, piece) -> Hint.Fit(rank, piece) }
+            ?: Hint.Blocking(
+                placementOrder.lastOrNull { rank -> wayWith(placements.filterNot { it.first == rank }) != null }
+                    // Nothing placed always leaves a way: a padlock is built from its solution.
+                    ?: checkNotNull(placementOrder.lastOrNull()) { "A padlock with nothing placed has a way" },
+            )
+        return PadlockUpdate(copy(hints = hints + 1), listOf(PadlockEvent.HintGiven(hint)))
+    }
+
+    /** A way to fill the hole left free by the [kept] placements with the other given pieces. */
+    private fun wayWith(kept: List<Pair<Int, Piece>>): List<Pair<Int, Piece>>? {
+        val free = padlock.hole - kept.flatMap { it.second.cells }.toSet()
+        return PadlockSolver.solve(free, freeRanks(kept).associateWith { given[it] })
+    }
+
+    /** The ranks of the given pieces left out of [placements], in order. */
+    private fun freeRanks(placements: List<Pair<Int, Piece>>): List<Int> =
+        given.indices.filter { rank -> placements.none { it.first == rank } }
 
     /** The same padlock, from the start: nothing placed, every counter back to zero. */
     public fun restart(): PadlockGame = start(padlock)
@@ -101,6 +128,7 @@ public data class PadlockGame private constructor(
             selected = 0,
             moves = 0,
             refusals = 0,
+            hints = 0,
         )
     }
 }

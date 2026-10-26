@@ -94,15 +94,9 @@ public data class Padlock(public val solution: List<Piece>) {
         ): Piece {
             val piece = PieceType.entries
                 .flatMap { type -> ClassicRotationSystem.orientations(type).map { Piece(type, it, Position(0, 0)) } }
-                .map { piece -> piece.copy(pivot = first(cells) - first(piece.cells)) }
+                .map { piece -> piece.copy(pivot = cells.firstInReadingOrder() - piece.cells.firstInReadingOrder()) }
                 .firstOrNull { it.cells == cells }
             return requireNotNull(piece) { "Rank $rank is not a Classic piece" }
         }
-
-        /** The first of [cells] in reading order. */
-        private fun first(cells: Set<Position>): Position = cells.minWith(compareBy(Position::row, Position::column))
-
-        private operator fun Position.minus(other: Position): Position =
-            Position(column - other.column, row - other.row)
     }
 }
