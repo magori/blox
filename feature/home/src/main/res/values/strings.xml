@@ -33,6 +33,12 @@
     <!-- Page Paramètres (V21), ouverte par l'engrenage de l'accueil, lu « Paramètres » par TalkBack. -->
     <string name="feature_home_settings">Paramètres</string>
     <string name="feature_home_settings_back">Retour</string>
+    <!-- Carte Affichage (P5.71) : Effets réduits, imposé quand Android supprime les animations, sans écraser le choix. -->
+    <string name="feature_home_settings_display">Affichage</string>
+    <string name="feature_home_reduced_effects">Effets réduits</string>
+    <string name="feature_home_reduced_effects_sub_line">Moins de mouvements et de particules</string>
+    <string name="feature_home_reduced_effects_forced">Imposé par les réglages d\'Android</string>
+    <string name="feature_home_settings_theme_note">Le thème se choisit à l\'accueil.</string>
     <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
     <string name="feature_home_settings_sounds">Sons et vibrations</string>
     <string name="feature_home_vibrations">Vibrations</string>

@@ -78,4 +78,23 @@ class AppThemeTest {
             expectNoEvents()
         }
     }
+
+    @Test
+    fun `the reduced effects of the application follow the saved choice, full until it is read`() = runTest {
+        // Given settings not read yet
+        val preferences = FakeUserPreferencesRepository(initial = null)
+        val appTheme = AppTheme(preferences, backgroundScope)
+
+        appTheme.reducedEffects.test {
+            // Then full effects, the default, until they are read
+            assertThat(awaitItem()).isFalse()
+
+            // When they are read, then the player asks for reduced effects
+            preferences.state.value = UserPreferences.DEFAULT
+            preferences.setReducedEffects(true)
+
+            // Then
+            assertThat(awaitItem()).isTrue()
+        }
+    }
 }

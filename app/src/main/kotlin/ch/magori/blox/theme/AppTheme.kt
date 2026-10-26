@@ -20,6 +20,14 @@ class AppTheme(preferences: UserPreferencesRepository, scope: CoroutineScope) {
     val kind: StateFlow<BloxThemeKind?> = preferences.preferences
         .map { themeKindOf(it.theme) }
         .stateIn(scope, SharingStarted.Eagerly, initialValue = null)
+
+    /**
+     * Whether the player asked for reduced effects (Paramètres, Affichage); false, the full effects, until the settings
+     * are read. Android may still impose them ([ch.magori.blox.core.designsystem.theme.BloxEffects.resolve]).
+     */
+    val reducedEffects: StateFlow<Boolean> = preferences.preferences
+        .map { it.reducedEffects }
+        .stateIn(scope, SharingStarted.Eagerly, initialValue = false)
 }
 
 /**

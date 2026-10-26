@@ -3,6 +3,7 @@ package ch.magori.blox.core.designsystem.component
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxMotion
@@ -67,6 +68,28 @@ internal class ButtonLookTest {
         // And its colours do not cross: they change at once, back at rest only
         assertThat(look.fill).isEqualTo(colors.primary.pressedFill)
         assertThat(look.ink).isEqualTo(colors.primary.pressedInk)
+    }
+
+    @Test
+    fun `in reduced effects a pressed button changes its fill only`() {
+        // Given a main button of the day, in reduced effects
+        val colors = BloxButtonColorSets.ColorfulLight
+        val reduced = BloxEffects(reduced = true, forcedBySystem = false)
+
+        // When it is pressed, then released
+        val pressed = buttonLook(
+            ButtonFamily.PRIMARY,
+            colors,
+            BloxGlossSets.ColorfulLight,
+            ButtonState(depth = pressDepth(pressed = true, ticksSinceRelease = 0, pressReturnTicks(reduced))),
+            reduced,
+        )
+        val released = pressDepth(pressed = false, ticksSinceRelease = 0, pressReturnTicks(reduced))
+
+        // Then it takes its pressed fill without going down, and is back at rest at once, with no way back up
+        assertThat(pressed.fill).isEqualTo(colors.primary.pressedFill)
+        assertThat(pressed.drop).isEqualTo(0.dp)
+        assertThat(released).isZero()
     }
 
     @ParameterizedTest(name = "{0}, {1}")

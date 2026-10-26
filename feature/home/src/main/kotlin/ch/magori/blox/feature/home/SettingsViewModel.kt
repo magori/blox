@@ -39,6 +39,7 @@ class SettingsViewModel(
     internal val uiState: StateFlow<SettingsUiState?> =
         combine(preferences.preferences, recordClearing) { saved, clearing ->
             SettingsUiState(
+                reducedEffects = saved.reducedEffects,
                 vibrations = saved.vibrations,
                 soundEffects = saved.soundEffects,
                 keyVibration = saved.keyVibration,
@@ -52,6 +53,9 @@ class SettingsViewModel(
             started = SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS),
             initialValue = null,
         )
+
+    /** Saves whether the player asks for reduced effects: the whole application follows at once, through its theme. */
+    internal fun onReducedEffectsChanged(reducedEffects: Boolean) = save { setReducedEffects(reducedEffects) }
 
     /** Saves whether the games play their sound effects; turned on, the rotation plays once. */
     internal fun onSoundEffectsChanged(soundEffects: Boolean) =

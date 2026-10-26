@@ -108,6 +108,7 @@ fun EntryProviderScope<NavKey>.settingsEntry(
         val actions = remember(viewModel, goBack) {
             SettingsActions(
                 onBack = goBack,
+                onReducedEffectsChanged = viewModel::onReducedEffectsChanged,
                 onSoundEffectsChanged = viewModel::onSoundEffectsChanged,
                 onEffectsVolumeChanged = viewModel::onEffectsVolumeChanged,
                 onMusicVolumeChanged = viewModel::onMusicVolumeChanged,

@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -59,13 +60,15 @@ internal data class ButtonLook(
  * How a button of [family] is drawn in [state], with the [colors] and the [glosses] of its variant. Only its drop moves
  * on its way back up: its fill, its ink and its relief stay those of a pressed button until it is back at rest, so that
  * a label and its fill never cross (in Original, the fill of a secondary button at rest is the colour of its label
- * pressed). A disabled button is flat and does not go down.
+ * pressed). A disabled button is flat and does not go down; in reduced [effects], no button goes down, its fill alone
+ * says it is pressed.
  */
 internal fun buttonLook(
     family: ButtonFamily,
     colors: BloxButtonColors,
     glosses: BloxGlosses,
     state: ButtonState,
+    effects: BloxEffects = BloxEffects.Full,
 ): ButtonLook {
     val bubble = when {
         !state.enabled -> colors.disabled
@@ -83,21 +86,28 @@ internal fun buttonLook(
             down -> glosses.buttonPressed
             else -> glosses.button
         },
-        drop = buttonDrop(state.enabled, state.depth),
+        drop = buttonDrop(state.enabled, state.depth, effects),
         focusRing = if (state.focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null,
     )
 }
 
-/** How far down a button [depth] down is drawn: [BloxSizes.pressDrop] all the way down, not at all when disabled. */
+/**
+ * How far down a button [depth] down is drawn: [BloxSizes.pressDrop] all the way down; not at all when disabled, nor in
+ * reduced [effects], where a move is no cue (a key of the game held is another matter: it keeps its drop, KeyDrop).
+ */
 internal fun buttonDrop(
     enabled: Boolean,
     depth: Float,
-): Dp = if (enabled) lerp(0.dp, BloxSizes.pressDrop, depth) else 0.dp
+    effects: BloxEffects,
+): Dp = if (enabled && !effects.reduced) lerp(0.dp, BloxSizes.pressDrop, depth) else 0.dp
+
+/** The ticks a released button takes to come back: `motion-press`, or none in reduced [effects], back at once. */
+internal fun pressReturnTicks(effects: BloxEffects): Int = if (effects.reduced) 0 else BloxMotion.press
 
 /**
  * How far down a button is, from 0 (at rest) to 1: all the way while [pressed], at once; released, it comes back up
  * in [returnTicks] ticks (`motion-press`), [ticksSinceRelease] after it was let go. With no tick to come back in, it is
- * back at once: what reduced effects will ask for, if they do (P5.71).
+ * back at once, as in reduced effects ([pressReturnTicks]).
  */
 internal fun pressDepth(
     pressed: Boolean,

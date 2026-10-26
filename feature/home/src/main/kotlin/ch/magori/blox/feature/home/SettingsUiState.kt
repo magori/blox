@@ -9,9 +9,12 @@ package ch.magori.blox.feature.home
  * @property effectsVolume the volume of the sound effects, in percent, a multiple of 10 from 0 to 100.
  * @property musicVolume the volume of the music, in percent, a multiple of 10 from 0 to 100.
  * @property canVibrate whether the device has a vibrator: without one, both vibrations are disabled, and say why.
+ * @property reducedEffects whether the player asked for reduced effects: off unless the player turned them on. Android
+ * may impose them, which the theme says (`BloxTheme.effects`), not this choice, kept as it was.
  * @property recordClearing where the clearing of the record stands.
  */
 internal data class SettingsUiState(
+    val reducedEffects: Boolean,
     val vibrations: Boolean,
     val soundEffects: Boolean,
     val keyVibration: Boolean,

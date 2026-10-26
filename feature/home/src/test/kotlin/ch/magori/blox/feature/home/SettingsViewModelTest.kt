@@ -88,6 +88,29 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `turning the reduced effects on saves them on and shows them on, then off again`() = runTest {
+        // Given the full effects, as by default
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel = settingsViewModel(preferences)
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onReducedEffectsChanged(true)
+
+            // Then
+            assertThat(preferences.state.value?.reducedEffects).isTrue()
+            assertThat(expectMostRecentItem()?.reducedEffects).isTrue()
+
+            // When
+            viewModel.onReducedEffectsChanged(false)
+
+            // Then
+            assertThat(preferences.state.value?.reducedEffects).isFalse()
+            assertThat(expectMostRecentItem()?.reducedEffects).isFalse()
+        }
+    }
+
+    @Test
     fun `turning the sound effects on saves them on and shows them on, then off again`() = runTest {
         // Given the sound effects turned off by the player: they are on by default
         val preferences = FakeUserPreferencesRepository(initial = UserPreferences.DEFAULT.copy(soundEffects = false))

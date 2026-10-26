@@ -80,6 +80,12 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
         "M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11",
     ),
 
+    /** Effets réduits, in the settings: rays of light, struck through (docs/design-system/pictogrammes.md). */
+    REDUCED_EFFECTS(
+        listOf("#..##...", ".#....#.", "..#.....", "#..#...#", "#...#..#", ".....#..", ".#....#.", "...##..#"),
+        "M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2 2M15.7 15.7l2 2M6.3 17.7l2-2M15.7 8.3l2-2M3 3l18 18",
+    ),
+
     /** Record du Classique, in the settings: a cup. */
     TROPHY(
         listOf(".######.", "#.####.#", "#.####.#", ".######.", "..####..", "...##...", "..####..", "........"),
