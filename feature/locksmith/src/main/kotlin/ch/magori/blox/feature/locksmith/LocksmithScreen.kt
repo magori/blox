@@ -57,6 +57,7 @@ import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
+import kotlin.math.floor
 
 /** What the player does on the screen of the Locksmith, handed to the view model and to `app` by the entry. */
 @Immutable
@@ -178,7 +179,8 @@ private fun PadlockGrid(
 ) {
     val cells = remember(state.game, state.hint, state.aim) { lockCells(state) }
     BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        val side = min(MAX_CELL, maxWidth / Padlock.SIZE)
+        // A whole number of pixels per cell, so that ten of them leave no seam between cells on any density.
+        val side = with(LocalDensity.current) { floor(min(MAX_CELL, maxWidth / Padlock.SIZE).toPx()).toDp() }
         Column {
             repeat(Padlock.SIZE) { row ->
                 Row {
