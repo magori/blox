@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 205 / 304 | `█████████████░░░░░░░` **67 %** |
+| **Général** | 206 / 304 | `██████████████░░░░░░` **68 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -664,7 +664,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   contrat ; passer par `androidTestImplementation(testFixtures(projects.core.data))` (revue P0.15).
 - [ ] **P5.33** Mesures sur téléphone (suite de P5.17) : `GameBenchmark` n'a jamais rendu de durée
   d'image (sur émulateur, aucune image, puis `home_play` introuvable en `benchmarkRelease` :
-  lenteur ou tags perdus par R8, à vérifier par `uiautomator dump`, `UI_TIMEOUT` à 10 s) ;
+  lenteur ou tags perdus par R8 ; P7.21 : `uiautomator dump` du `benchmarkRelease` montre bien les tags, R8
+  n'est donc pas en cause ; `LocksmithBenchmark` échoue de même sur `cartridge_locksmith`) ;
   remesurer le démarrage à froid avec et sans profil sur un appareil non partagé ; lancer
   `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
   recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
@@ -1312,7 +1313,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le nombre de pistes
   d'effets jamais libérées (ADR 0025, P7.13) ; aperçu sur l'anneau en colonne 0 ou 9 coupé par le bord de
   l'écran (à juger par `designer-jeu`).
-- [ ] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
+- [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
 

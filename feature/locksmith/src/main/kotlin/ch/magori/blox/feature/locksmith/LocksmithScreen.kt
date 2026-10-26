@@ -39,6 +39,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
@@ -381,6 +382,7 @@ private fun PadlockCell(
         cell = cell,
         size = side,
         modifier = Modifier
+            .testTag(cellTestTag(cell))
             .clickable(role = Role.Button, onClickLabel = action) { onTap(position) }
             .semantics { contentDescription = description },
     )
@@ -470,6 +472,7 @@ private fun Tray(
                 family = ButtonFamily.SECONDARY,
                 onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
                 modifier = Modifier
+                    .testTag(tileTestTag(rank))
                     .size(TILE)
                     .then(ring)
                     .semantics {
@@ -531,6 +534,7 @@ private fun Controls(
             text = stringResource(R.string.feature_locksmith_place),
             icon = BloxIcon.PLACE,
             onClick = actions.onPlace,
+            modifier = Modifier.testTag(PLACE_TAG),
             enabled = playing && state.aim != null,
         )
         GlyphButton(

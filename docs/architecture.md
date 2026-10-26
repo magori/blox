@@ -84,7 +84,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. Le thème choisi (`BloxThemeKind`) et le mode sombre du système donnent la variante dessinée, `BloxTheme.variant` (Original, Couleurs jour, Couleurs nuit, ADR 0020) ; les palettes Couleurs reprennent `docs/design-system/tokens.json`, comparé au code par un test (plugin `blox.design.tokens`, ADR 0019). |
 | `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Dépend de `core:game` et `core:designsystem`. |
-| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie) et génération du profil de référence de `app` (P5.17). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
+| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
 
 **Profil de référence.** `app` embarque un profil de référence généré par `:benchmark`
@@ -92,7 +92,8 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 `profileinstaller`. Les types de build de mesure (`nonMinifiedRelease`, `benchmarkRelease`)
 installent `ch.magori.blox.perf`, pour ne pas effacer l'application installée. Le parcours
 mesuré repère ses éléments par des `testTag` exposés comme identifiants de ressource, pas par
-leur texte. Commandes dans `CLAUDE.md` ; à régénérer quand le parcours ou l'écran de jeu
+leur texte (Serrurier : `LocksmithTestTags`, une case repérée par ce qu'elle montre, la serrure étant tirée
+au hasard). Commandes dans `CLAUDE.md` ; à régénérer quand le parcours ou l'écran de jeu
 changent beaucoup.
 
 ### Règles de dépendance
