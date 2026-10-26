@@ -3,10 +3,14 @@ package ch.magori.blox.navigation
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
@@ -14,6 +18,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -169,7 +174,7 @@ internal class BloxNavDisplayTest {
         runJourney {
             // Given the home screen, level 7 chosen in place of the default level, 0 (UserPreferences.DEFAULT)
             showApp()
-            onNode(hasTestTag(START_LEVEL_TAG) and hasText("0")).assertIsSelected()
+            onNode(startLevelGauge()).assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "0"))
             chooseStartLevel(7)
 
             // When
@@ -504,9 +509,15 @@ internal class BloxNavDisplayTest {
         return preferences
     }
 
-    /** Chooses the start level [level] on the home screen, by its cell: no other text of the screen can be taken for it. */
+    /** The gauge of the start level of the home screen, read « Niveau de départ ». */
+    private fun AndroidComposeUiTest<ComponentActivity>.startLevelGauge() =
+        hasContentDescription(string(HomeR.string.feature_home_start_level))
+
+    /** Moves the gauge of the start level of the home screen to [level], as TalkBack does. */
     private fun AndroidComposeUiTest<ComponentActivity>.chooseStartLevel(level: Int) {
-        onNode(hasTestTag(START_LEVEL_TAG) and hasText(level.toString())).performScrollTo().performClick()
+        onNode(startLevelGauge()).performScrollTo().performSemanticsAction(SemanticsActions.SetProgress) {
+            it(level.toFloat())
+        }
         settle()
     }
 
@@ -585,9 +596,6 @@ internal class BloxNavDisplayTest {
 
         /** A music of the player, chosen for the games. */
         const val GAME_MUSIC = "Thème du soir"
-
-        /** The tag of a start level cell of the home screen (`START_LEVEL_TAG` of feature:home, internal to it). */
-        const val START_LEVEL_TAG = "home_start_level"
 
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
