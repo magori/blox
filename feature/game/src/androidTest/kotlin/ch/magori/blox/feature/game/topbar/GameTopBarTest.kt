@@ -3,8 +3,12 @@ package ch.magori.blox.feature.game.topbar
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
@@ -12,6 +16,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -33,6 +38,8 @@ private val NARROWEST = (220 - 2 * 24).dp
 /** The width of the top bar on a phone of 360 dp, without the margins. */
 private val PHONE = (360 - 2 * 24).dp
 
+private const val BAR = "top_bar"
+
 /**
  * The top bar in the narrowest multi-window (P2.26), and on a phone: measured as each theme draws it, with the normal
  * font and the font twice as large, as the system scales it.
@@ -42,6 +49,9 @@ internal class GameTopBarTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
+
+    /** Whether the record shown is beaten, a new record: not unless a test says so. */
+    private var beaten by mutableStateOf(false)
 
     @ParameterizedTest(name = "{0}, font × {1}")
     @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
@@ -140,7 +150,75 @@ internal class GameTopBarTest {
         assertThat(title.center.y).isBetween(pause.top, pause.bottom)
     }
 
-    /** The top bar for [record], [width] wide, in [kind], with the system font scaled by [fontScale]. */
+    @ParameterizedTest(name = "{0}, font × {1}")
+    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @DisplayName("in the narrowest window the new record is shown whole, in both themes, font enlarged")
+    fun inTheNarrowestWindowTheNewRecordIsShownWhole(
+        kind: BloxThemeKind,
+        fontScale: Float,
+    ) = extension.use {
+        // Given a record beaten, the score of 98 790 the new record
+        beaten = true
+        showTopBar(kind, fontScale, record = 98_790)
+
+        // Then the sticker and the score, as laid out, are not cut
+        assertThat(textLayout(hasText("NOUVEAU RECORD")).hasVisualOverflow).isFalse()
+        assertThat(textLayout(hasText("098790")).hasVisualOverflow).isFalse()
+    }
+
+    @ParameterizedTest(name = "{0}, font × {1}, {2} dp")
+    @CsvSource(
+        "ORIGINAL, 1, 172",
+        "ORIGINAL, 2, 172",
+        "COLORFUL, 1, 172",
+        "COLORFUL, 2, 172",
+        "ORIGINAL, 1, 312",
+        "ORIGINAL, 2, 312",
+        "COLORFUL, 1, 312",
+        "COLORFUL, 2, 312",
+    )
+    @DisplayName("once the record is beaten, the bar keeps its height and the record its place: nothing moves")
+    fun onceTheRecordIsBeatenNothingMoves(
+        kind: BloxThemeKind,
+        fontScale: Float,
+        widthDp: Int,
+    ) = extension.use {
+        // Given the record of 98 760 shown
+        showTopBar(kind, fontScale, record = 98_760, width = widthDp.dp)
+        val bar = onNodeWithTag(BAR).fetchSemanticsNode().size
+        val record = onNodeWithContentDescription("Record : 98760").fetchSemanticsNode().boundsInRoot
+
+        // When the score beats it
+        runOnIdle { beaten = true }
+
+        // Then the new record takes the place of the record, the bar as high as before
+        val newRecord = onNodeWithContentDescription("Nouveau record : 98760").fetchSemanticsNode().boundsInRoot
+        assertThat(onNodeWithTag(BAR).fetchSemanticsNode().size).isEqualTo(bar)
+        assertThat(newRecord).isEqualTo(record)
+    }
+
+    @ParameterizedTest(name = "{0}, font × {1}")
+    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @DisplayName("on a phone of 360 dp the bar stays on one row once the record is beaten, font enlarged")
+    fun onAPhoneTheBarStaysOnOneRowOnceTheRecordIsBeaten(
+        kind: BloxThemeKind,
+        fontScale: Float,
+    ) = extension.use {
+        // Given
+        beaten = true
+        showTopBar(kind, fontScale, record = 98_790, width = PHONE)
+
+        // Then the title is right of the pause button, beside it, not above
+        val pause = onNodeWithContentDescription("Mettre en pause").fetchSemanticsNode().boundsInRoot
+        val title = onNode(hasText("MODE CLASSIQUE"), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        assertThat(title.left).isGreaterThanOrEqualTo(pause.right)
+        assertThat(title.center.y).isBetween(pause.top, pause.bottom)
+    }
+
+    /**
+     * The top bar for [record], a new record if [beaten], [width] wide, in [kind], with the system font scaled by
+     * [fontScale].
+     */
     private fun ComposeContext.showTopBar(
         kind: BloxThemeKind,
         fontScale: Float,
@@ -152,7 +230,11 @@ internal class GameTopBarTest {
             CompositionLocalProvider(LocalDensity provides density) {
                 BloxTheme(kind = kind) {
                     Box {
-                        GameTopBar(record = record, onPause = {}, modifier = Modifier.requiredWidth(width))
+                        GameTopBar(
+                            record = ShownRecord(record, beaten),
+                            onPause = {},
+                            modifier = Modifier.requiredWidth(width).testTag(BAR),
+                        )
                     }
                 }
             }

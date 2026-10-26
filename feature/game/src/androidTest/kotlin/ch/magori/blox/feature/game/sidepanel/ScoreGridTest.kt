@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import ch.magori.blox.core.board.next.nextPieceCells
@@ -20,6 +21,7 @@ import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.GameLayout
 import ch.magori.blox.feature.game.gameLayout
+import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -47,6 +49,46 @@ internal class ScoreGridTest {
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
+        // Given
+        val layout = showScoreGrid(kind, fontScale)
+
+        // When
+        val measured = onNodeWithTag(GRID).fetchSemanticsNode().size.height
+
+        // Then
+        assertThat(layout.scoresAbove).isTrue()
+        assertThat(measured.toFloat()).isLessThanOrEqualTo(layout.sidePanel.height)
+    }
+
+    @ParameterizedTest(name = "{0}, font × {1}")
+    @CsvSource("ORIGINAL, 1", "COLORFUL, 2")
+    @DisplayName("the score above the board shows the next piece and the score, then the lines and the level, in order")
+    fun theScoreAboveTheBoardShowsTheNextPieceFirst(
+        kind: BloxThemeKind,
+        fontScale: Float,
+    ) = extension.use {
+        // Given
+        showScoreGrid(kind, fontScale)
+
+        // When
+        fun bounds(description: String) = onNodeWithContentDescription(description).fetchSemanticsNode().boundsInRoot
+        val next = bounds("Suivante : pièce I")
+        val score = bounds("Score : 999999")
+        val lines = bounds("Lignes : 999")
+        val level = bounds("Niveau : 29")
+
+        // Then the next piece and the score on the first row, the lines and the level under them, each row from the left
+        assertThat(next.top).isEqualTo(score.top)
+        assertThat(lines.top).isEqualTo(level.top).isGreaterThan(next.bottom)
+        assertThat(next.left).isLessThan(score.left)
+        assertThat(lines.left).isLessThan(level.left)
+    }
+
+    /** The score above the board of a window of 220 × 640 dp, in [kind], the font scaled by [fontScale]; its layout. */
+    private fun ComposeContext.showScoreGrid(
+        kind: BloxThemeKind,
+        fontScale: Float,
+    ): GameLayout {
         lateinit var layout: GameLayout
         setContent {
             val density = Density(LocalDensity.current.density, fontScale)
@@ -67,6 +109,7 @@ internal class ScoreGridTest {
                             level = Level(29),
                             lines = Lines(999),
                             next = nextPieceCells(PieceType.I, ClassicRotationSystem),
+                            recordFill = 1f,
                             cellSize = layout.cellSize,
                             modifier = Modifier
                                 .requiredWidth(with(density) { layout.sidePanel.width.toDp() })
@@ -78,9 +121,6 @@ internal class ScoreGridTest {
             }
         }
 
-        val measured = onNodeWithTag(GRID).fetchSemanticsNode().size.height
-
-        assertThat(layout.scoresAbove).isTrue()
-        assertThat(measured.toFloat()).isLessThanOrEqualTo(layout.sidePanel.height)
+        return layout
     }
 }

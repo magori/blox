@@ -26,6 +26,7 @@ android {
 
 dependencies {
     implementation(projects.core.designsystem)
+    implementation(projects.feature.cartridges)
     implementation(projects.feature.home)
     implementation(projects.feature.game)
     implementation(projects.feature.composer)

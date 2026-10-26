@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 182 / 252 | `██████████████░░░░░░` **72 %** |
+| **Général** | 185 / 253 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -909,7 +909,7 @@ composants.
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
   `in reduced effects a pressed button changes its fill only`.
-- [ ] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
+- [x] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
   à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
   du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
   fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
@@ -932,7 +932,7 @@ composants.
   Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,
   `a cell under 16 dp has 2 dp corners and no gloss`, `an empty cell has the corners and the margin of a piece,
   without gloss`, `the painters are still built once while the piece moves` ; captures.
-- [ ] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
+- [x] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
   choisie par la taille disponible, P5.84) : barre (Changer de jeu, puce Record, Paramètres), Jouer XL avec le
   rappel « Classique · Niveau 05 · Korobeïniki », carte des réglages (Mode avec Moderne `BIENTÔT`, Thème, Niveau
   en jauge, rangée Musique), tuiles Mes musiques et Composer. Remplace les niveaux en deux lignes de 5 (P5.29,
@@ -940,7 +940,7 @@ composants.
   Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
   `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
   `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
-- [ ] **P5.76** Feuille Musique (`feature:home`) : feuille qui monte (`motion-card`), une rangée de 56 dp par
+- [ ] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
   musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
   fermer ; un seul aperçu à la fois ; feuille en `BloxSheet` et rangées en `SheetChoiceRow` (P5.96), Écouter en
   `ListenButton` (P5.94). Après P5.75, P5.94, P5.96.
@@ -955,7 +955,7 @@ composants.
   level plus one for its two lines`, `the preview starts again with the new level when the level changes`,
   `in reduced effects the preview and the halo stand still`, `nothing on the home recomposes while the preview
   plays`.
-- [ ] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
+- [x] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
   devient l'autocollant NOUVEAU RECORD une fois battu et suit le score (`GameUiState.recordBeaten`) ; plateau en
   cadre `board` ; colonne SUIVANTE, SCORE avec barre de record de 4 dp, LIGNES, NIVEAU. Après P5.60, P5.74.
   Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new
@@ -1151,6 +1151,10 @@ composants.
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
+- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+  console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
+  étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
+  inchangé (`CartridgesScreenTest`).
 
 ## P6 — Mode Moderne (plus tard)
 

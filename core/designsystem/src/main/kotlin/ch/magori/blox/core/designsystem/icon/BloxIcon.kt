@@ -146,6 +146,24 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
 
     /** The key A: a rotation clockwise, the arrow in a loop of [REPLAY]. */
     ROTATE_RIGHT(LoopPixels, LOOP_STROKES),
+
+    /** Changer de jeu: a cartridge (pictogrammes.md, P5.87). */
+    CARTRIDGE(
+        listOf(".######.", ".#....#.", ".#....#.", ".######.", ".######.", ".######.", "..####..", "..#..#.."),
+        "M6 3h12v13l-2 5H8l-2-5zM9 7h6v6H9zM10 18h4",
+    ),
+
+    /** The record chip of the home: a star (pictogrammes.md, P5.87). */
+    STAR(
+        listOf("...##...", "...##...", "########", ".######.", "..####..", ".##..##.", ".#....#.", "........"),
+        "M12 3.2l2.6 5.6 6.1.7-4.5 4.1 1.2 6.1L12 16.6l-5.4 3.1 1.2-6.1-4.5-4.1 6.1-.7z",
+    ),
+
+    /** The tile Composer une musique: a note and a pencil (pictogrammes.md, P5.87). */
+    COMPOSE(
+        listOf("..######", "..######", "..#....#", "..#..#.#", "..#.###.", "#####...", "####....", "........"),
+        "M9 18V5l11-2v6M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM14 21h2.5l5-5-2.5-2.5-5 5z",
+    ),
 }
 
 /** The arrow in a loop, turning clockwise: [BloxIcon.REPLAY] and [BloxIcon.ROTATE_RIGHT]. */
