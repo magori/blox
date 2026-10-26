@@ -38,18 +38,20 @@ import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
 /**
- * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then a card per section. « Sons et
- * vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the vibrations
- * and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a game reads
- * them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first, in a window
- * whose safe answer comes first, then says « Record effacé ». While the saved settings are not read ([uiState] null),
- * the page and its header show, without the settings: none flashes off, and the way back is there at once. No logic
- * here: each gesture goes to its callback of [actions].
+ * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then a card per section.
+ * « Affichage »: Effets réduits, imposed by Android when it removes the animations, and where the theme is chosen.
+ * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the
+ * vibrations and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a
+ * game reads them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first,
+ * in a window whose safe answer comes first, then says « Record effacé ». While the saved settings are not read
+ * ([uiState] null), the page and its header show, without the settings: none flashes off, and the way back is there at
+ * once. No logic here: each gesture goes to its callback of [actions].
  */
 @Composable
 internal fun SettingsScreen(
@@ -68,6 +70,7 @@ internal fun SettingsScreen(
     ) {
         Header(onBack = actions.onBack)
         if (uiState != null) {
+            Display(uiState.reducedEffects, actions.onReducedEffectsChanged)
             SoundsAndVibrations(uiState, actions)
             RecordSection(cleared = uiState.recordClearing == RecordClearing.CLEARED, onClear = actions.onClearRecord)
             RecordWindow(uiState.recordClearing, actions)
@@ -93,6 +96,32 @@ private fun Header(onBack: () -> Unit) {
             style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle),
             modifier = Modifier.weight(1f).semantics { heading() },
         )
+    }
+}
+
+/**
+ * « Affichage »: Effets réduits, as the player chose, but on and disabled while Android removes the animations, which
+ * it says (the effects of the theme, [BloxTheme.effects]): the choice is then neither shown nor touched, and comes back
+ * once Android animates again. Then the note: the theme is chosen on the home screen.
+ */
+@Composable
+private fun Display(
+    reducedEffects: Boolean,
+    onReducedEffectsChanged: (Boolean) -> Unit,
+) {
+    val forced = BloxTheme.effects.forcedBySystem
+    Section(title = stringResource(R.string.feature_home_settings_display)) {
+        Card {
+            SettingSwitchRow(
+                icon = BloxIcon.REDUCED_EFFECTS,
+                label = stringResource(R.string.feature_home_reduced_effects),
+                subLine = stringResource(R.string.feature_home_reduced_effects_sub_line),
+                checked = reducedEffects || forced,
+                onCheckedChange = onReducedEffectsChanged,
+                disabledReason = if (forced) stringResource(R.string.feature_home_reduced_effects_forced) else null,
+            )
+        }
+        Note(stringResource(R.string.feature_home_settings_theme_note))
     }
 }
 
@@ -263,18 +292,23 @@ private fun Note(
     )
 }
 
-/** The page in the theme [kind], as by default but for the music, lower, and the vibrations, on: each state seen. */
+/**
+ * The page in the theme [kind], as by default but for the music, lower, and the vibrations, on: each state seen; in
+ * [effects], full unless Android imposes the reduced ones.
+ */
 @Composable
 private fun SettingsScreenPreview(
     kind: BloxThemeKind,
     uiState: SettingsUiState = PreviewState,
+    effects: BloxEffects = BloxEffects.Full,
 ) {
-    BloxTheme(kind = kind) {
+    BloxTheme(kind = kind, effects = effects) {
         SettingsScreen(uiState = uiState, actions = SettingsActions.None)
     }
 }
 
 private val PreviewState = SettingsUiState(
+    reducedEffects = false,
     vibrations = true,
     soundEffects = true,
     keyVibration = false,
@@ -285,36 +319,51 @@ private val PreviewState = SettingsUiState(
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenOriginalPreview() {
     SettingsScreenPreview(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 1000)
+@Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenColorfulPreview() {
     SettingsScreenPreview(BloxThemeKind.COLORFUL)
 }
 
-@Preview(widthDp = 360, heightDp = 2000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 2400, fontScale = 2f)
 @Composable
 internal fun SettingsScreenLargeFontPreview() {
     SettingsScreenPreview(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360, heightDp = 2000, fontScale = 2f)
+@Preview(widthDp = 360, heightDp = 2400, fontScale = 2f)
 @Composable
 internal fun SettingsScreenColorfulLargeFontPreview() {
     SettingsScreenPreview(BloxThemeKind.COLORFUL)
 }
 
-/** Without a vibrator, the sound effects off, the record just cleared: every greyed setting, and « Record effacé ». */
-@Preview(widthDp = 360, heightDp = 1000)
+/**
+ * Android removing the animations, without a vibrator, the sound effects off, the record just cleared: every greyed
+ * setting, Effets réduits imposed, and « Record effacé ».
+ */
+@Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenGreyedPreview() {
+    SettingsScreenGreyed(BloxThemeKind.COLORFUL)
+}
+
+@Preview(widthDp = 360, heightDp = 1200)
+@Composable
+internal fun SettingsScreenOriginalGreyedPreview() {
+    SettingsScreenGreyed(BloxThemeKind.ORIGINAL)
+}
+
+@Composable
+private fun SettingsScreenGreyed(kind: BloxThemeKind) {
     SettingsScreenPreview(
-        BloxThemeKind.COLORFUL,
+        kind,
         PreviewState.copy(soundEffects = false, canVibrate = false, recordClearing = RecordClearing.CLEARED),
+        effects = BloxEffects(reduced = true, forcedBySystem = true),
     )
 }

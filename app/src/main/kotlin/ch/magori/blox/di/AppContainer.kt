@@ -44,7 +44,9 @@ import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.musicOf
 import ch.magori.blox.music.scoreOf
+import ch.magori.blox.theme.AndroidAnimationSetting
 import ch.magori.blox.theme.AppTheme
+import ch.magori.blox.theme.SystemAnimations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -103,6 +105,9 @@ class AppContainer(context: Context) {
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
+
+    /** Whether Android animates, observed for the whole life of the process: when it does not, effects are reduced. */
+    val systemAnimations: SystemAnimations = SystemAnimations(AndroidAnimationSetting(context), dataScope)
 
     /**
      * The music of the games and of the preview on the home screen: a single sequencer for the whole life

@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -50,6 +51,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalTestApi::class)
@@ -60,6 +62,7 @@ internal class SettingsScreenTest {
     val extension = createComposeExtension()
 
     private val uiState = SettingsUiState(
+        reducedEffects = false,
         vibrations = false,
         soundEffects = false,
         keyVibration = false,
@@ -165,14 +168,80 @@ internal class SettingsScreenTest {
     @Test
     @DisplayName("tapping a setting off turns it on, tapping a setting on turns it off")
     fun tappingASettingSwitchesIt() = extension.use {
-        // Given the vibrations and the key vibration off, the sound effects on
-        showSettingsScreen(uiState.copy(vibrations = false, soundEffects = true, keyVibration = false))
+        // Given the full effects, the vibrations and the key vibration off, the sound effects on
+        showSettingsScreen(
+            uiState.copy(reducedEffects = false, vibrations = false, soundEffects = true, keyVibration = false),
+        )
 
         // When
         SWITCHES.forEach { onNodeWithText(it).performScrollTo().performClick() }
 
         // Then
-        runOnIdle { assertThat(asked).containsExactly("sound effects false", "vibrations true", "key vibration true") }
+        runOnIdle {
+            assertThat(asked).containsExactly(
+                "reduced effects true",
+                "sound effects false",
+                "vibrations true",
+                "key vibration true",
+            )
+        }
+    }
+
+    @Test
+    @DisplayName(
+        "the card Affichage holds Effets réduits, which says what it does, then Le thème se choisit à l'accueil, " +
+            "above Sons et vibrations",
+    )
+    fun theCardAffichageHoldsReducedEffectsThenTheNoteOnTheTheme() = extension.use {
+        // Given
+        showSettingsScreen()
+
+        // Then
+        val heading = onNodeWithText("Affichage")
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+            .getUnclippedBoundsInRoot()
+        val row = onNode(
+            isToggleable() and hasText("Effets réduits") and hasText("Moins de mouvements et de particules"),
+        )
+            .assertIsOff()
+            .assertIsEnabled()
+            .getUnclippedBoundsInRoot()
+        val note = onNodeWithText("Le thème se choisit à l'accueil.").getUnclippedBoundsInRoot()
+        val sounds = onNodeWithText("Sons et vibrations").getUnclippedBoundsInRoot()
+        assertThat(row.top).isGreaterThanOrEqualTo(heading.bottom)
+        assertThat(note.top).isGreaterThanOrEqualTo(row.bottom)
+        assertThat(sounds.top).isGreaterThanOrEqualTo(note.bottom)
+    }
+
+    @Test
+    @DisplayName("a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off")
+    fun aForcedSwitchSaysWhyAndCannotBeTurnedOff() = extension.use {
+        // Given full effects chosen, but Android removing the animations
+        showSettingsScreen(
+            uiState.copy(reducedEffects = false),
+            effects = BloxEffects(reduced = true, forcedBySystem = true),
+        )
+
+        // When
+        val row = onNode(isToggleable() and hasText("Effets réduits") and hasText("Imposé par les réglages d'Android"))
+        row.performScrollTo().performClick()
+
+        // Then it shows on, as Android imposes it, and nothing is asked: the choice of the player stays as it was
+        row.assertIsOn().assertIsNotEnabled()
+        runOnIdle { assertThat(asked).isEmpty() }
+    }
+
+    @Test
+    @DisplayName("Effets réduits shows the choice of the player while Android animates")
+    fun reducedEffectsShowsTheChoiceWhileAndroidAnimates() = extension.use {
+        // Given reduced effects chosen, Android animating
+        showSettingsScreen(
+            uiState.copy(reducedEffects = true),
+            effects = BloxEffects(reduced = true, forcedBySystem = false),
+        )
+
+        // Then
+        onNodeWithText("Effets réduits").assertIsOn().assertIsEnabled()
     }
 
     @Test
@@ -209,6 +278,30 @@ internal class SettingsScreenTest {
             assertThat(label.layoutInput.style.fontSize.value)
                 .isGreaterThanOrEqualTo(normalSize.value * LEAST_PART_OF_THE_SIZE)
             onNodeWithText(setting).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
+        }
+    }
+
+    @ParameterizedTest(name = "in {0}, effects forced by Android {1}")
+    @CsvSource("ORIGINAL, false", "ORIGINAL, true", "COLORFUL, false", "COLORFUL, true")
+    @DisplayName("in a font twice as large, on 360 dp, every sub-line shows whole, its words whole")
+    fun inALargeFontEverySubLineShowsWhole(
+        kind: BloxThemeKind,
+        forced: Boolean,
+    ) = extension.use {
+        // Given a font twice as large, on the narrowest phone, Android imposing the reduced effects or not
+        showSettingsScreen(
+            width = NARROW_PHONE,
+            fontScale = 2f,
+            kind = kind,
+            effects = if (forced) BloxEffects(reduced = true, forcedBySystem = true) else BloxEffects.Full,
+        )
+
+        // Then nothing is cut, not even « Moins de mouvements et de particules » in the pixel font of Original
+        val reducedEffects = if (forced) "Imposé par les réglages d'Android" else "Moins de mouvements et de particules"
+        (listOf(reducedEffects) + SUB_LINES).forEach { subLine ->
+            val layout = textLayout(subLine)
+            assertWordsWhole(layout)
+            assertThat(layout.hasVisualOverflow).describedAs(subLine).isFalse()
         }
     }
 
@@ -404,9 +497,11 @@ internal class SettingsScreenTest {
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
+        effects: BloxEffects = BloxEffects.Full,
     ) {
         val actions = SettingsActions(
             onBack = { asked += "back" },
+            onReducedEffectsChanged = { asked += "reduced effects $it" },
             onSoundEffectsChanged = { asked += "sound effects $it" },
             onEffectsVolumeChanged = { asked += "effects volume $it" },
             onMusicVolumeChanged = { asked += "music volume $it" },
@@ -420,7 +515,7 @@ internal class SettingsScreenTest {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                BloxTheme(kind = kind) {
+                BloxTheme(kind = kind, effects = effects) {
                     SettingsScreen(modifier = Modifier.width(width), uiState = shown, actions = actions)
                 }
             }
@@ -429,10 +524,17 @@ internal class SettingsScreenTest {
 }
 
 /** The switches of the page, in its order. */
-private val SWITCHES = listOf("Effets sonores", "Vibrations", "Vibration des touches")
+private val SWITCHES = listOf("Effets réduits", "Effets sonores", "Vibrations", "Vibration des touches")
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
 
 /** The least part of its size a label of a setting keeps in a large font, shrinking only so as not to cut a word. */
 private const val LEAST_PART_OF_THE_SIZE = 0.9f
+
+/** The sub-lines of the switches after Effets réduits, in the order of the page. */
+private val SUB_LINES = listOf(
+    "Rotation, lignes, fin de partie",
+    "Lignes effacées, fin de partie",
+    "Un léger toucher à chaque touche",
+)

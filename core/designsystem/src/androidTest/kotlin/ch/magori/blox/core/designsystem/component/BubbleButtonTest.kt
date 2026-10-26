@@ -31,6 +31,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -77,6 +78,33 @@ internal class BubbleButtonTest {
         // Then still down at each frame of motion press, the last one just before its end, and back at rest after it
         assertThat(drops.take(returnFrames)).allSatisfy { assertThat(it).isPositive() }
         assertThat(drops.last()).isZero()
+    }
+
+    @Test
+    @DisplayName("in reduced effects a pressed button stays in place, and so does it once released")
+    fun inReducedEffectsAPressedButtonStaysInPlace() = extension.use {
+        // Given a button at rest, in reduced effects
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL, effects = BloxEffects(reduced = true, forcedBySystem = false)) {
+                SecondaryButton("Menu", BloxIcon.HOME, onClick = {})
+            }
+        }
+        mainClock.advanceTimeByFrame()
+        val atRest = labelTop()
+
+        // When it is pressed
+        onNodeWithText("Menu").performTouchInput { down(center) }
+        mainClock.advanceTimeByFrame()
+        val pressed = labelTop()
+
+        // And released
+        onNodeWithText("Menu").performTouchInput { up() }
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        assertThat(pressed).isEqualTo(atRest)
+        assertThat(labelTop()).isEqualTo(atRest)
     }
 
     @Test

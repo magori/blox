@@ -46,7 +46,6 @@ import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
-import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -97,12 +96,13 @@ internal fun BubbleButton(
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
     val state = ButtonState(enabled = enabled, depth = if (down) 1f else 0f, focused = focused)
+    val effects = BloxTheme.effects
     val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
     Row(
         modifier = modifier
-            .offset { IntOffset(0, buttonDrop(enabled, depth()).roundToPx()) }
+            .offset { IntOffset(0, buttonDrop(enabled, depth(), effects).roundToPx()) }
             .focusRing(look.focusRing, shape)
             .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight)
             .background(look.fill, shape)
@@ -208,7 +208,7 @@ fun buttonLabelStyle(family: ButtonFamily): TextStyle {
  * How far down a button is, as its presses and releases say: all the way at once when pressed, back up in
  * [returnTicks] ticks once released, counted on the frames of the screen (ADR 0006 and 0012). A press and its release
  * in one frame, as a brief tap in a parent that scrolls (whose press is held back until the finger lifts), still send
- * it down, then back up. [returnTicks] is where reduced effects (P5.71) may ask for no return at all.
+ * it down, then back up; in reduced effects there is no way back ([pressReturnTicks]), and such a tap may not show.
  */
 @Stable
 internal class PressMotion(private val returnTicks: Int) {
@@ -242,11 +242,15 @@ internal class PressMotion(private val returnTicks: Int) {
     }
 }
 
-/** The [PressMotion] of the button of [interactionSource], fed by each of its presses, releases and cancels. */
+/**
+ * The [PressMotion] of the button of [interactionSource], fed by each of its presses, releases and cancels; a new one,
+ * back at once, when the effects become reduced.
+ */
 @Composable
 internal fun rememberPressMotion(interactionSource: InteractionSource): PressMotion {
-    val motion = remember { PressMotion(BloxMotion.press) }
-    LaunchedEffect(interactionSource) {
+    val returnTicks = pressReturnTicks(BloxTheme.effects)
+    val motion = remember(returnTicks) { PressMotion(returnTicks) }
+    LaunchedEffect(interactionSource, motion) {
         val presses = mutableListOf<PressInteraction.Press>()
         interactionSource.interactions.collect { interaction ->
             when (interaction) {
@@ -269,6 +273,6 @@ internal fun rememberPressMotion(interactionSource: InteractionSource): PressMot
             }
         }
     }
-    LaunchedEffect(motion.releases) { motion.comeBack() }
+    LaunchedEffect(motion, motion.releases) { motion.comeBack() }
     return motion
 }

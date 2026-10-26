@@ -10,15 +10,22 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 /**
- * The theme of the whole application: the one chosen on the home screen and saved in [preferences].
- * Read from the start, in [scope], for the whole life of the process: once the settings are read, a new
- * screen (a recreated activity) knows the theme at once. [kind] is null until then, so that no default
- * theme flashes before. As a [StateFlow], it emits a theme only when it changes, not when another
- * setting does.
+ * How the whole application looks, as saved in the settings: the theme [kind] chosen on the home screen, and whether
+ * the player asked for [reducedEffects] (Paramètres, Affichage), which Android may still impose
+ * ([ch.magori.blox.core.designsystem.theme.BloxEffects.resolve]).
+ */
+data class AppAppearance(val kind: BloxThemeKind, val reducedEffects: Boolean)
+
+/**
+ * The appearance of the whole application, saved in [preferences]. Read from the start, in [scope], for the whole
+ * life of the process: once the settings are read, a new screen (a recreated activity) knows it at once. [appearance]
+ * is null until then, so that neither a default theme nor the full effects show before; the theme and the choice of
+ * effects come together, from the same reading. As a [StateFlow], it emits only when one of them changes, not when
+ * another setting does.
  */
 class AppTheme(preferences: UserPreferencesRepository, scope: CoroutineScope) {
-    val kind: StateFlow<BloxThemeKind?> = preferences.preferences
-        .map { themeKindOf(it.theme) }
+    val appearance: StateFlow<AppAppearance?> = preferences.preferences
+        .map { AppAppearance(themeKindOf(it.theme), it.reducedEffects) }
         .stateIn(scope, SharingStarted.Eagerly, initialValue = null)
 }
 
