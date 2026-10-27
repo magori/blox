@@ -31,14 +31,16 @@ import kotlinx.coroutines.sync.withLock
  * tempo of a game) are rendered in the background, if not cached yet, so that a change of tempo later
  * finds its buffer ready. A new tempo factor ([setTempoFactor]) is otherwise rendered once, in the
  * background, and cached too; the music keeps its sink and switches once that buffer is ready, at the
- * start of the next beat where a note starts in every voice ([switchBeats]), so that no note is cut.
+ * start of the next beat where a note starts in every voice ([switchBeats]), so that no note is cut. While a score
+ * plays, its cache keeps only the tempo playing, the tempo asked for, its normal tempo and the tempos prepared: a
+ * tempo left (a level of a live game) is released, and rendered anew if asked for again.
  * The samples are never resampled, which would change the pitch. A tempo rendering that fails leaves
  * the music at its tempo; a rendering under way never holds back a stop, nor the next play.
  *
  * Another score switched to ([switchTo]) is rendered in the background at the tempo asked for, then goes on
  * from the next bar line, on the first beat of its bar of the same rank, on the same sink. Once it plays, its
- * normal tempo and the tempos prepared are rendered too. The score it replaces stays in the cache: switching
- * back to it renders nothing. A score switched to while stopped resumes on the first beat of its bar of the same rank
+ * normal tempo and the tempos prepared are rendered too. The score it replaces stays in the cache, with the tempos it
+ * kept when it was left: switching back to it at the tempo it played at renders nothing. A score switched to while stopped resumes on the first beat of its bar of the same rank
  * as the bar the music stopped in.
  */
 public class ChiptuneSequencer internal constructor(
@@ -323,6 +325,8 @@ public class ChiptuneSequencer internal constructor(
                     }
                 }
                 cursor = cursor.fill(slice, from = written)
+                // Only the tempo playing, the one asked for, 1.0 and the tempos prepared stay ready.
+                buffers.releaseAllBut(playing = tempo, asked = asked)
                 playback.place = Place(cursor.position, buffer.size, score)
                 sink.write(slice)
             }

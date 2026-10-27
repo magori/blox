@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 220 / 307 | `██████████████░░░░░░` **72 %** |
+| **Général** | 221 / 307 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1344,14 +1344,14 @@ la Graine du jour l'impose.
   and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
   depend on the tense one`.
 - [x] **P8.4** `MusicChoice.LIVE` (`core:data`) et `musicOf` (`app`) : le choix enregistré, qui demande de composer
-  les deux ambiances au lieu d'une partition fixe (`ChosenMusic.Live`) ; règles de sauvegarde. Cas : `the live
+  les deux ambiances au lieu d'une partition fixe (`ChosenMusic.Live`, devenu `GameMusic.Live` en P8.6) ; règles de sauvegarde. Cas : `the live
   choice is saved and read back` (couvert par le test paramétré du contrat), `the live choice asks for a live music
   rather than a score`. Après P8.3. Choix caché de la feuille Musique jusqu'à P8.7 ; adaptateur provisoire de
   `AppContainer` (Vivante sans musique) à retirer en P8.6, avec le déplacement de `ChosenMusic` dans
   `feature:game` (revue de P8.4 : ce n'est pas un type de persistance).
 - [x] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
   `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
-- [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
+- [x] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
   par `switchTo` ; facteur de tempo = min(1 + 0,02 × niveaux gagnés, 1,30) **[à vérifier]**, multiplié au × 1,25
   du danger ; graine de la musique = graine de la partie ; chaque `LevelUp` déclenche un rendu, dont le coût est
   à mesurer sur téléphone. Après P8.2, P8.3, P8.5. Cas : `a live game starts on the
@@ -1359,6 +1359,8 @@ la Graine du jour l'impose.
   music`, `each level up speeds the music up by 2 percent, up to 1 point 3`, `the speed of the levels and the
   speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`, `a game already in
   danger when its music starts plays the tense music, a quarter faster` (`onStart` après des `onEvents`, revue de P8.5).
+  Fait avec le branchement de P8.4 : `GameMusic` (`feature:game`) remplace `ChosenMusic`, l'adaptateur provisoire
+  est retiré ; le lecteur libère les rendus des tempos quittés (revue de P8.6).
 - [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
@@ -1367,7 +1369,9 @@ la Graine du jour l'impose.
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
 - [ ] **P8.10** Préparer une partition d'avance (`prepareScore` ou switch préparé), pour que la première entrée en
-  danger ne rende rien ; à décider avec la mesure de P8.6 sur téléphone (revue de P8.2).
+  danger ne rende rien ; à décider avec la mesure de P8.6 sur téléphone (revue de P8.2). À mesurer aussi : le rendu
+  de chaque `LevelUp` de la Vivante, et le changement d'ambiance après un niveau gagné, qui rend l'autre partition
+  au nouveau facteur (les rendus des tempos quittés sont libérés depuis P8.6).
 
 ## P9 — Graine du jour (`core:game`, `core:data`, `feature:game`, `app`)
 

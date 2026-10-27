@@ -1,12 +1,12 @@
 package ch.magori.blox.music
 
-import ch.magori.blox.core.data.ChosenMusic
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.feature.game.music.GameMusic
 import kotlinx.coroutines.flow.first
 
 /**
@@ -37,14 +37,14 @@ internal fun scoreOf(choice: MusicChoice): Score? = when (choice) {
 internal fun musicOf(
     choice: MusicChoice,
     file: MusicFile?,
-): ChosenMusic? = when (choice) {
-    MusicChoice.MY_FILE -> ChosenMusic.Fixed(file ?: FALLBACK_SCORE)
-    MusicChoice.LIVE -> ChosenMusic.Live
-    MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.NONE -> scoreOf(choice)?.let(ChosenMusic::Fixed)
+): GameMusic? = when (choice) {
+    MusicChoice.MY_FILE -> GameMusic.Fixed(file ?: FALLBACK_SCORE)
+    MusicChoice.LIVE -> GameMusic.Live
+    MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.NONE -> scoreOf(choice)?.let(GameMusic::Fixed)
 }
 
 /** What a [choice] plays, with the music file kept in [this] repository. Read at the start of each game. */
-internal suspend fun MusicFileRepository.musicOf(choice: MusicChoice): ChosenMusic? = musicOf(choice, musicFile.first())
+internal suspend fun MusicFileRepository.musicOf(choice: MusicChoice): GameMusic? = musicOf(choice, musicFile.first())
 
 /**
  * The score of the music of the player chosen for the games in « Mes musiques », which a game plays instead of the
