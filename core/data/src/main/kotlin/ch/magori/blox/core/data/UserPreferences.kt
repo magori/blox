@@ -21,7 +21,8 @@ enum class MusicChoice {
         /**
          * What [MY_FILE] plays when it has no file to play: none kept (the settings restored on another device, the
          * file never leaving this one), or a file that can no longer be read. The game plays it; the home screen names
-         * it in place of [MY_FILE] when it knows there is no file.
+         * it in place of [MY_FILE] when it knows there is no file. It must be a music with a BloX score (Korobeïniki or
+         * the minuet): the application reads the score of it once, when it starts, and stops if there is none.
          */
         val MY_FILE_FALLBACK: MusicChoice = KOROBEINIKI
     }

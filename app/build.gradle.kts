@@ -66,6 +66,8 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.haptics))
     androidTestImplementation(testFixtures(projects.core.game))
+    // tapScrim : la feuille Musique fermée par un toucher sur son voile (P5.76).
+    androidTestImplementation(testFixtures(projects.core.designsystem))
     // `@StringRes` sur les textes lus dans les ressources des features.
     androidTestImplementation(libs.androidx.annotation)
     // `WindowInsetsControllerCompat` : l'apparence réelle des barres système (SystemBarsAppearanceTest).

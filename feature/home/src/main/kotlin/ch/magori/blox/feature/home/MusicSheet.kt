@@ -46,7 +46,7 @@ internal fun MusicSheetChoices(
         OFFERED_MUSICS.forEach { choice ->
             val gameMusic = uiState.gameMusic
             if (choice == MusicChoice.NONE && gameMusic != null) {
-                MusicRow(
+                MusicSheetRow(
                     choice = {
                         SheetChoiceRow(
                             label = gameMusic.name,
@@ -79,7 +79,7 @@ private fun ChoiceRow(
     music: MusicActions,
 ) {
     val name = stringResource(choice.label)
-    MusicRow(
+    MusicSheetRow(
         choice = {
             SheetChoiceRow(
                 label = name,
@@ -107,10 +107,11 @@ private fun ChoiceRow(
 /**
  * A row of the sheet: its [choice], which takes the room left, then its [extra] action, if any, then its [listen]
  * button, centred on the line. When the choice would get less room beside them than its longest word needs (a large
- * font), the extra action goes on a line of its own, under the row, at its end.
+ * font), the extra action goes on a line of its own, under the row, at its end. No action is measured wider than the
+ * row, nor placed before its start.
  */
 @Composable
-private fun MusicRow(
+private fun MusicSheetRow(
     choice: @Composable () -> Unit,
     extra: @Composable () -> Unit = {},
     listen: @Composable () -> Unit,
@@ -119,8 +120,8 @@ private fun MusicRow(
         val (choicePart, extraParts, listenParts) = parts
         val gap = BloxSpaces.space2.roundToPx()
         val width = constraints.maxWidth
-        val placedListen = listenParts.map { it.measure(Constraints()) }
-        val placedExtra = extraParts.map { it.measure(Constraints()) }
+        val placedListen = listenParts.map { it.measure(Constraints(maxWidth = width)) }
+        val placedExtra = extraParts.map { it.measure(Constraints(maxWidth = width)) }
         val listenWidth = placedListen.sumOf { it.width + gap }
         val extraWidth = placedExtra.sumOf { it.width + gap }
         val chosen = choicePart.single()
@@ -133,14 +134,14 @@ private fun MusicRow(
         layout(width, height) {
             val line = if (beside) height else lineHeight
             placedChoice.placeRelative(0, (line - placedChoice.height) / 2)
-            var x = choiceWidth + gap
+            var x = (choiceWidth + gap).coerceAtLeast(0)
             if (beside) {
                 placedExtra.forEach {
                     it.placeRelative(x, (line - it.height) / 2)
                     x += it.width + gap
                 }
             } else {
-                placedExtra.forEach { it.placeRelative(width - it.width, lineHeight) }
+                placedExtra.forEach { it.placeRelative((width - it.width).coerceAtLeast(0), lineHeight) }
             }
             placedListen.forEach { it.placeRelative(x, (line - it.height) / 2) }
         }

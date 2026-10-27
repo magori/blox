@@ -152,7 +152,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `HomeScreenTest › in the sheet, Mon fichier with a file offers Changer, which opens the picker, before its listen button`,
   `HomeScreenTest › Aucune shows the note barred`,
   `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
-  `HomeScreenTest › in a font twice as large, on 360 dp, the row Mon fichier keeps its words, Changer and Écouter whole`,
+  `HomeScreenTest › in a font twice as large, the row Mon fichier keeps its words whole, Changer beside or under Écouter`,
   `HomeViewModelTest › opening the settings stops the preview`,
   `HomeViewModelTest › opening the settings stops the music of the player listened to`,
   `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,

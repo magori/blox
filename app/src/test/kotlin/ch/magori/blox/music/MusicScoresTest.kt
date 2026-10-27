@@ -61,6 +61,12 @@ class MusicScoresTest {
     }
 
     @Test
+    fun `the fallback of my file is a music with a BloX score`() {
+        // When / Then: the fallback plays without a file, so it cannot be a file, the live music, nor no music
+        assertThat(scoreOf(MusicChoice.MY_FILE_FALLBACK)).isNotNull()
+    }
+
+    @Test
     fun `the music of a choice is read with the music file kept`() = runTest {
         // Given a music file kept
         val files = FakeMusicFileRepository(initial = myFile)

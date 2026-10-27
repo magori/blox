@@ -24,4 +24,13 @@ class HomeUiStateTest {
         // When / Then
         assertThat(withoutFile.remindedMusic).isEqualTo(MusicChoice.KOROBEINIKI)
     }
+
+    @Test
+    fun `with Mon fichier chosen and a file kept, the reminder names Mon fichier`() {
+        // Given Mon fichier chosen, its file kept
+        val withFile = home.copy(hasMusicFile = true)
+
+        // When / Then
+        assertThat(withFile.remindedMusic).isEqualTo(MusicChoice.MY_FILE)
+    }
 }

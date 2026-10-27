@@ -37,6 +37,7 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.component.tapScrim
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
@@ -498,7 +499,7 @@ internal class BloxNavDisplayTest {
         settle()
         onNode(hasText(minuet) and hasAnyAncestor(isDialog())).performClick()
         settle()
-        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
+        onNode(isDialog()).tapScrim()
         settle()
         onNodeWithContentDescription(listenDescription(minuet)).performScrollTo().performClick()
         settle()
@@ -715,6 +716,3 @@ internal class BloxNavDisplayTest {
         const val MAX_PLAY_MILLIS = 60_000L
     }
 }
-
-/** Where a touch lands on the scrim of a sheet: above its panel, which stands 48 dp at least under the top. */
-private val SCRIM_TAP = 24.dp

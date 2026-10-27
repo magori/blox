@@ -40,6 +40,9 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 /** The tag of the note struck through of « Aucune », decorative, read by the tests only. */
 internal const val MUSIC_NONE_TAG = "music_none"
 
+/** The tag of the slot of the listen button, left empty when there is nothing to listen to, read by the tests only. */
+internal const val MUSIC_SLOT_TAG = "music_slot"
+
 /**
  * The card of the settings of the next game (V27): Mode, Thème, Niveau and Musique, one row each, 16 dp apart, in a
  * `panel` of `radius-window` framed by `panel-border`. Each choice is saved by the view model as soon as it is made;
@@ -119,8 +122,9 @@ private fun LevelRow(
 
 /**
  * The row Musique: the listen button of the music selected, if it may be listened to (the music of the player for the
- * games included), or for « Aucune » a note struck through, which nothing reads; then the name of the music selected,
- * which opens the sheet Musique through [onOpenMusicSheet].
+ * games included), for « Aucune » a note struck through, which nothing reads, or its room left empty (« Mon fichier »
+ * without a file); then the name of the music chosen, which opens the sheet Musique through [onOpenMusicSheet]. The
+ * reminder under Jouer, not this row, names the music played in place of a file missing.
  */
 @Composable
 private fun MusicRow(
@@ -149,24 +153,35 @@ private fun MusicRow(
                     )
                 }
 
-                selected == MusicChoice.NONE -> NoMusic()
+                selected == MusicChoice.NONE -> {
+                    MusicSlot {
+                        BloxIcon(
+                            icon = BloxIcon.NOTE_OFF,
+                            modifier = Modifier.testTag(MUSIC_NONE_TAG),
+                            size = IconSizes.alone,
+                            tint = BloxTheme.palette.label,
+                        )
+                    }
+                }
+
+                // « Mon fichier » without a file: nothing to listen to, its room kept so that the name stays in place.
+                else -> MusicSlot(Modifier.testTag(MUSIC_SLOT_TAG)) {}
             }
             MusicSheetOpener(name, onOpenMusicSheet)
         }
     }
 }
 
-/** The note struck through of « Aucune », where a music has its listen button, as large; nothing reads it. */
+/**
+ * The room of the listen button of the row Musique, as large, holding [content] in its centre: the note struck through
+ * of « Aucune », or nothing. Nothing reads it.
+ */
 @Composable
-private fun NoMusic() {
-    Box(modifier = Modifier.size(BloxSizes.minTouchTarget), contentAlignment = Alignment.Center) {
-        BloxIcon(
-            icon = BloxIcon.NOTE_OFF,
-            modifier = Modifier.testTag(MUSIC_NONE_TAG),
-            size = IconSizes.alone,
-            tint = BloxTheme.palette.label,
-        )
-    }
+private fun MusicSlot(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
+    Box(modifier = modifier.size(BloxSizes.minTouchTarget), contentAlignment = Alignment.Center) { content() }
 }
 
 /**

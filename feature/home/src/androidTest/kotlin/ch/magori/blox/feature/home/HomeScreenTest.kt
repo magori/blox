@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.home
 
 import android.graphics.Bitmap
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.safeDrawing
@@ -10,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
@@ -60,7 +62,9 @@ import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.component.isChoiceCheck
+import ch.magori.blox.core.designsystem.component.tapScrim
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -161,11 +165,31 @@ internal class HomeScreenTest {
         openMusicSheet("Menuet")
 
         // When the scrim is touched, above the sheet
-        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
+        onNode(isDialog()).tapScrim()
 
         // Then the sheet is gone, and says so once (HomeViewModel stops the preview)
         onNode(isDialog()).assertDoesNotExist()
         runOnIdle { assertThat(closed).isEqualTo(1) }
+    }
+
+    @Test
+    @DisplayName("with Mon fichier chosen without a file, the row Musique keeps its name, after an empty slot of 48 dp")
+    fun withMyFileWithoutAFileTheRowKeepsItsNameAfterAnEmptySlot() = extension.use {
+        // Given Mon fichier chosen, without a file: nothing to listen to, Korobeïniki playing in its place
+        showHomeScreen(uiState.copy(music = MusicChoice.MY_FILE, hasMusicFile = false, listenable = emptyList()))
+
+        // Then the row names the choice made, after the room of a listen button, left empty
+        val opener = onNodeWithContentDescription("Musique : Mon fichier. Choisir une autre musique")
+            .getUnclippedBoundsInRoot()
+        val slot = onNode(hasTestTag(MUSIC_SLOT_TAG), useUnmergedTree = true)
+            .assertWidthIsEqualTo(BloxSizes.minTouchTarget)
+            .assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+            .getUnclippedBoundsInRoot()
+        assertThat(opener.left).isGreaterThanOrEqualTo(slot.right)
+        assertThat(slot.top).isLessThan(opener.bottom)
+        assertThat(slot.bottom).isGreaterThan(opener.top)
+        onAllNodes(hasContentDescription("Écouter", substring = true)).assertCountEquals(0)
     }
 
     @Test
@@ -254,27 +278,99 @@ internal class HomeScreenTest {
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a font twice as large, on 360 dp, the row Mon fichier keeps its words, Changer and Écouter whole")
+    @DisplayName("in a font twice as large, the row Mon fichier keeps its words whole, Changer beside or under Écouter")
     fun inALargeFontTheRowMyFileKeepsChangeAndListen(kind: BloxThemeKind) = extension.use {
-        // Given a music file kept, in a font twice as large, on 360 dp
-        showHomeScreen(
-            uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
-            width = NARROW_PHONE,
-            fontScale = 2f,
-            kind = kind,
-        )
-        openMusicSheet("Menuet")
+        // Given the sheet, a music file kept, in a font twice as large, on 360 dp
+        showSettledMusicSheet(NARROW_PHONE, fontScale = 2f, kind = kind)
 
-        // Then the choice keeps its words whole, Changer holds one line, and both buttons stand within the sheet
+        // Then the choice keeps its words whole, and Changer holds one line
         assertWordsWhole(textLayout("Un fichier audio de l'appareil"))
         val layout = textLayout("Changer")
         assertWordsWhole(layout)
         assertThat(layout.lineCount).isEqualTo(1)
-        val sheet = onNode(isDialog()).getUnclippedBoundsInRoot()
-        listOf("Changer de fichier", "Écouter Mon fichier").forEach { button ->
-            val bounds = onNode(inSheet(hasContentDescription(button))).getUnclippedBoundsInRoot()
-            assertThat(bounds.left).isGreaterThanOrEqualTo(sheet.left)
-            assertThat(bounds.right).isLessThanOrEqualTo(sheet.right)
+        // And Changer stands beside Écouter, before it, or under it when there is no room for the words of the choice
+        val (change, listen, name) = myFileRow()
+        assertThat(change.right <= listen.left || change.top >= listen.bottom).describedAs("beside or under").isTrue()
+        assertApart(change, listen, name)
+        assertWithinSheet(change, listen)
+    }
+
+    @Test
+    @DisplayName(
+        "in a font twice as large, in a narrow window, Changer goes under Écouter, at the end of the row, apart",
+    )
+    fun inALargeFontInANarrowWindowChangeGoesUnderListen() = extension.use {
+        // Given the sheet, a music file kept, in a font twice as large, in a window of 280 dp, narrower than any phone:
+        // beside Écouter, Changer would leave the choice less room than its longest word
+        showSettledMusicSheet(280.dp, fontScale = 2f, kind = BloxThemeKind.COLORFUL)
+
+        // Then
+        val (change, listen, name) = myFileRow()
+        assertThat(change.top).isGreaterThanOrEqualTo(listen.bottom)
+        assertThat(change.right.value).isCloseTo(listen.right.value, within(PIXEL_ROUNDING))
+        assertApart(change, listen, name)
+        assertWithinSheet(change, listen)
+    }
+
+    @Test
+    @DisplayName("in a normal font, Changer stands beside Écouter, before it, apart from the name Mon fichier")
+    fun inANormalFontChangeStandsBesideListen() = extension.use {
+        // Given the sheet, a music file kept, on 360 dp
+        showSettledMusicSheet(NARROW_PHONE, fontScale = 1f, kind = BloxThemeKind.COLORFUL)
+
+        // Then
+        val (change, listen, name) = myFileRow()
+        assertThat(listen.left).isGreaterThanOrEqualTo(change.right)
+        assertApart(change, listen, name)
+        assertWithinSheet(change, listen)
+    }
+
+    /**
+     * The sheet Musique come in, without its window, [width] wide, in a font [fontScale] times as large, in [kind]: its
+     * window would take the density of the device, not the one given to the test. A music file is kept.
+     */
+    private fun ComposeContext.showSettledMusicSheet(
+        width: Dp,
+        fontScale: Float,
+        kind: BloxThemeKind,
+    ) {
+        val state = uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true)
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+                BloxTheme(kind = kind, effects = STILL) {
+                    Box(Modifier.width(width).testTag(SETTLED_SHEET)) {
+                        SettledSheet(title = "Musique") { MusicSheetChoices(state, MusicActions.None) }
+                    }
+                }
+            }
+        }
+    }
+
+    /** Where Changer, Écouter and the name Mon fichier stand in its row of the sheet. */
+    private fun ComposeContext.myFileRow(): Triple<DpRect, DpRect, DpRect> = Triple(
+        onNodeWithContentDescription("Changer de fichier").getUnclippedBoundsInRoot(),
+        onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot(),
+        onNode(hasText("Mon fichier"), useUnmergedTree = true).getUnclippedBoundsInRoot(),
+    )
+
+    /** No two of [parts] overlap. */
+    private fun assertApart(vararg parts: DpRect) {
+        parts.toList().forEachIndexed { index, part ->
+            parts.drop(index + 1).forEach { other ->
+                val overlap = part.left < other.right && other.left < part.right &&
+                    part.top < other.bottom && other.top < part.bottom
+                assertThat(overlap).describedAs("$part over $other").isFalse()
+            }
+        }
+    }
+
+    /** Each of [parts] stands within the sheet, from side to side. */
+    private fun ComposeContext.assertWithinSheet(vararg parts: DpRect) {
+        val sheet = onNode(hasTestTag(SETTLED_SHEET)).getUnclippedBoundsInRoot()
+        parts.forEach { part ->
+            assertThat(part.left).isGreaterThanOrEqualTo(sheet.left)
+            assertThat(part.right).isLessThanOrEqualTo(sheet.right)
         }
     }
 
@@ -982,5 +1078,5 @@ private const val ONE_SECOND = 1_000L
 private val ABOVE_JOUER = 10.dp
 private val STRIP = 8.dp
 
-/** Where a touch lands on the scrim of a sheet: above its panel, which stands 48 dp at least under the top. */
-private val SCRIM_TAP = 24.dp
+/** The tag of the box the sheet come in is drawn in, without its window. */
+private const val SETTLED_SHEET = "settled_sheet"
