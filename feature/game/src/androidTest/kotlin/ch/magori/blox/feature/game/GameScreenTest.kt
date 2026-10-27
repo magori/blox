@@ -218,10 +218,14 @@ internal class GameScreenTest {
         // When the rows slide down, the sticker rises and the score counts, until they are over
         playFeedback(from = 119, to = 170)
 
-        // Then only the score was composed again, as it counted
-        assertThat(recompositions.recomposed.filter { "feature.game" in it })
-            .isNotEmpty()
-            .allSatisfy { assertThat(it).contains("ScoreValue") }
+        // Then only the score was composed again, as it counted: its value and the text it calls, once each time, and no
+        // other value (level, lines, record), whose text is the same function
+        val counts = recompositions.recomposed
+            .filter { "feature.game" in it }
+            .groupingBy { it.substringBefore(" (").substringAfterLast(".") }
+            .eachCount()
+        assertThat(counts.keys).containsExactlyInAnyOrder("ScoreValue", "ValueText", "shrinkingFrom")
+        assertThat(counts.getValue("ValueText")).isEqualTo(counts.getValue("ScoreValue"))
     }
 
     @Test
