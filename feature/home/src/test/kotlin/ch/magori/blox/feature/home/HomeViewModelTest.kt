@@ -408,6 +408,13 @@ class HomeViewModelTest {
         }
     }
 
+    @Test
+    fun `the live choice is not offered before its sheet row`() {
+        // Given / When / Then: a live game plays nothing until the game composes its music (P8.6, P8.7)
+        assertThat(OFFERED_MUSICS)
+            .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE, MusicChoice.NONE)
+    }
+
     @ParameterizedTest(name = "{0}")
     @EnumSource(names = ["NONE", "MY_FILE"])
     fun `a music without a BloX score cannot be listened to`(choice: MusicChoice) = runTest {

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 218 / 307 | `██████████████░░░░░░` **71 %** |
+| **Général** | 219 / 307 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1342,9 +1342,12 @@ la Graine du jour l'impose.
   music is a calm music and a tense one`, `the calm and the tense music have the same number of bars`, `the calm
   and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
   depend on the tense one`.
-- [ ] **P8.4** `MusicChoice.LIVE` (`core:data`) et `scoreOf` (`app`) : le choix enregistré, qui demande de composer
-  les deux ambiances au lieu d'une partition fixe ; règles de sauvegarde. Cas : `the live choice is saved and read
-  back`, `the live choice asks for a live music rather than a score`. Après P8.3.
+- [x] **P8.4** `MusicChoice.LIVE` (`core:data`) et `musicOf` (`app`) : le choix enregistré, qui demande de composer
+  les deux ambiances au lieu d'une partition fixe (`ChosenMusic.Live`) ; règles de sauvegarde. Cas : `the live
+  choice is saved and read back` (couvert par le test paramétré du contrat), `the live choice asks for a live music
+  rather than a score`. Après P8.3. Choix caché de la feuille Musique jusqu'à P8.7 ; adaptateur provisoire de
+  `AppContainer` (Vivante sans musique) à retirer en P8.6, avec le déplacement de `ChosenMusic` dans
+  `feature:game` (revue de P8.4 : ce n'est pas un type de persistance).
 - [x] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
   `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
 - [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,

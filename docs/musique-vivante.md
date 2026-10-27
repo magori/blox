@@ -21,6 +21,7 @@ boucle, focus audio, accélération du danger) est décrit dans [musique.md](mus
 | Terme | Code prévu | Sens |
 |---|---|---|
 | Musique vivante | `MusicChoice.LIVE` (`core:data`) | Le choix « Vivante » de la feuille Musique. |
+| Musique demandée | `ChosenMusic` (`core:data`) | Ce que le choix demande au jeu : une musique fixe (`Fixed`) ou la composition des deux ambiances (`Live`). |
 | Les deux ambiances | `LiveMusic` (`core:music`) | Une musique calme et une musique tendue, composées ensemble pour une partie. |
 | Direction musicale | `MusicDirection` (`feature:game`) | La traduction « événements de la partie → ordres au lecteur » (tempo, ambiance). |
 | Changer de partition | `Player.switchTo(score)` (`core:audio`) | Passer à une autre partition à la mesure suivante, au même rang. |
@@ -165,8 +166,19 @@ Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
 
 ## Choix « Vivante »
 
-- `MusicChoice.LIVE` s'ajoute aux choix enregistrés (`core:data`) ; `scoreOf` (dans `app`) ne
-  rend pas de partition fixe pour lui, mais la demande de composer les deux ambiances.
+- `MusicChoice.LIVE` s'ajoute aux choix enregistrés (`core:data`), sauvé par son nom « LIVE » comme les
+  autres ; une version plus ancienne qui ne le connaît pas retombe sur la valeur par défaut (Korobeïniki).
+  `scoreOf` (dans `app`) ne rend pas de partition fixe pour lui : c'est `musicOf`, ce que lit le jeu, qui
+  rend `ChosenMusic.Live`, la demande de composer les deux ambiances avec la graine de la partie ;
+  `scoreOf` reste la partition fixe de l'aperçu de l'accueil.
+  **Tests :** `UserPreferencesRepositoryContract › a saved music is read back`,
+  `DataStoreUserPreferencesRepositoryTest › the music is stored by its name, which must not change`,
+  `MusicScoresTest › the live choice asks for a live music rather than a score`,
+  `MusicScoresTest › each music choice plays its score, or none`,
+  `MusicScoresTest › the music of a choice is read with the music file kept`.
+- Tant que la feuille Musique n'a pas sa rangée « Vivante » (P8.7), le choix n'est pas proposé : sans
+  la direction musicale (P8.6), la partie serait muette.
+  **Tests :** `HomeViewModelTest › the live choice is not offered before its sheet row`.
 - « Vivante » prime comme les autres choix de l'accueil : la musique en jeu de « Mes musiques »
   garde sa priorité ([musique.md](musique.md)), et choisir Vivante la retire des parties, comme
   choisir Korobeïniki.
