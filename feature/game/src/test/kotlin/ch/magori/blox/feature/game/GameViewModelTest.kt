@@ -8,8 +8,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.data.DailyResults
 import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
@@ -298,7 +298,8 @@ class GameViewModelTest {
                 level = final.progress.level,
                 fourLineClears = final.progress.statistics.fourLineClears,
                 ticksPlayed = final.tickCount,
-                newRecord = true,
+                newBest = true,
+                resultsKept = true,
             ),
         )
     }
@@ -330,7 +331,8 @@ class GameViewModelTest {
 
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver)
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true))
     }
 
     @Test
@@ -344,7 +346,8 @@ class GameViewModelTest {
         playUntilGameOver(viewModel)
 
         // Then
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver)
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false))
     }
 
     @Test
@@ -384,7 +387,7 @@ class GameViewModelTest {
             writing.complete(Unit)
 
             // Then the game over shows once, with the answer, and further frames publish nothing
-            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newRecord = true))
+            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true))
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -428,7 +431,7 @@ class GameViewModelTest {
 
         // Then the next I is drawn upright, its cells brought to the origin
         assertThat(viewModel.uiState.value.next).isEqualTo(
-            NextPieceCells(
+            PieceCells(
                 type = PieceType.I,
                 cells = (0..3).map { row -> Position(column = 0, row = row) }.toSet(),
                 columns = 1,
@@ -680,7 +683,7 @@ class GameViewModelTest {
         val even = playUntil(viewModel, "the score reaches the record") { viewModel.uiState.value.score.value == 100 }
 
         // Then the record is not beaten yet
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
 
         // When the score passes it
         playUntil(viewModel, "the score passes the record", firstFrame = even + ONE_SIXTIETH_NANOS) {
@@ -688,7 +691,7 @@ class GameViewModelTest {
         }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isTrue()
+        assertThat(viewModel.uiState.value.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -701,7 +704,7 @@ class GameViewModelTest {
         playUntil(viewModel, "the game scores 200 points") { viewModel.uiState.value.score.value >= 200 }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
     }
 
     @Test
@@ -715,7 +718,7 @@ class GameViewModelTest {
         // Then the record the screen shows is the score, still beaten: the top bar does not go back to « Record »
         val over = viewModel.uiState.value
         assertThat(over.record).isEqualTo(over.score.value)
-        assertThat(over.recordBeaten).isTrue()
+        assertThat(over.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -1889,7 +1892,7 @@ class GameViewModelTest {
         assertThat(dailyResults.state.value).isEqualTo(
             DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
         )
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
     }
 
     @Test
@@ -1952,6 +1955,57 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a daily game over shows only once its try is written, so that Copier reads it`() {
+        // Given a daily game whose end takes its time to be written
+        val ending = CompletableDeferred<Unit>()
+        dailyResults.endGate = ending
+        val points = finalStateOfTheTestGame().progress.score.value
+        val viewModel = createViewModel(dailyRoute)
+
+        // When the game is over, its end still being written
+        playUntil(viewModel, "the try is ending") { dailyResults.ends > 0 }
+
+        // Then no game over shows, so no Copier
+        assertThat(viewModel.uiState.value.gameOver).isNull()
+
+        // When the end is written
+        ending.complete(Unit)
+
+        // Then the game over shows, the results already holding the try
+        assertThat(viewModel.uiState.value.gameOver).isNotNull()
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
+        )
+    }
+
+    @Test
+    fun `a daily game over whose try could not be written does not offer to copy its score`() {
+        // Given a daily game started, whose end cannot be written
+        val viewModel = createViewModel(dailyRoute)
+        dailyResults.failure = IOException("disk full")
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then the game over shows, without its results, which Copier would copy wrong
+        assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+    }
+
+    @Test
+    fun `a daily game over not counted, its date already passed, does not offer to copy its score`() {
+        // Given a daily game of the 26th, replayed once the results moved on to a try of the 27th
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26.plusDays(1), tries = 1, firstTry = 300, best = 300, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When its game is over: its try is ignored, the results stay those of the 27th
+        playUntilGameOver(viewModel)
+
+        // Then the game over shows, without Copier, which would copy nothing of the 26th
+        assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+    }
+
+    @Test
     fun `a daily game over then left ends its try once`() {
         // Given a daily game over
         val store = ViewModelStore()
@@ -2000,7 +2054,7 @@ class GameViewModelTest {
 
         // Then its game over shows a new best of the day
         assertThat(viewModel.uiState.value.gameOver?.score?.value).isPositive()
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
     }
 
     @Test
@@ -2014,7 +2068,7 @@ class GameViewModelTest {
         playUntilGameOver(viewModel)
 
         // Then its game over shows no new best
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
     }
 
     @Test
@@ -2047,7 +2101,7 @@ class GameViewModelTest {
         // Then nothing failed, and the game over showed, without a new best
         assertThat(appFailures).isEmpty()
         assertThat(viewModel.uiState.value.gameOver?.score?.value).isEqualTo(points)
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
     }
 
     @Test

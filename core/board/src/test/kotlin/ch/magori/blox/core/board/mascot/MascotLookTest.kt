@@ -23,6 +23,16 @@ class MascotLookTest {
     }
 
     @Test
+    fun `the Graine du jour mascot is a Z, as it comes in`() {
+        assertThat(MascotCharacter.DAILY.cells).containsExactlyInAnyOrder(
+            Position(0, 0),
+            Position(1, 0),
+            Position(1, 1),
+            Position(2, 1),
+        )
+    }
+
+    @Test
     fun `an awake mascot is a bubble of its piece, its face in the ink of the day, its accessory in yellow`() {
         // By day, the pastels of T and O; corners of 0,3 cell; a shadow under it
         assertThat(mascotLook(MascotCharacter.CLASSIC, night = false, asleep = false)).isEqualTo(
@@ -46,6 +56,22 @@ class MascotLookTest {
                 shadow = MascotShadow(color = Color(0xFFFFE45E).copy(alpha = 0.6f), drop = 0f, blur = 0.25f),
             ),
         )
+    }
+
+    @Test
+    fun `the Graine du jour mascot is a bubble of the Z, its sprout in the mint of the S`() {
+        assertThat(mascotLook(MascotCharacter.DAILY, night = false, asleep = false)).isEqualTo(
+            MascotLook(
+                fill = Color(0xFFFF94A6),
+                highlight = Color(0xFFFFE0E6),
+                corner = 0.3f,
+                accessory = Color(0xFF9DEDB9),
+                face = Color(0xFF1C1B2E),
+                shadow = MascotShadow(color = Color(90, 80, 160).copy(alpha = 0.3f), drop = 0.12f, blur = 0.16f),
+            ),
+        )
+        assertThat(mascotLook(MascotCharacter.DAILY, night = true, asleep = false).accessory)
+            .isEqualTo(Color(0xFF3DFF8F))
     }
 
     @Test

@@ -1,19 +1,25 @@
 package ch.magori.blox.feature.locksmith
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
@@ -28,6 +34,9 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.board.RecompositionRecorder
@@ -549,6 +558,44 @@ internal class LocksmithScreenTest {
         onNodeWithContentDescription("Serrure 03, ouverte").assertExists()
         onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Serrure ouverte")))
             .assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("the title of the bar is in capitals, its number on two digits, TalkBack reads it in words")
+    fun theTitleOfTheBarIsInCapitals() = extension.use {
+        // Given
+        showHosted(LocksmithUiState(level = 4, game = start))
+
+        // Then shown as SERRURE 04, read « Serrure 04, fermée » rather than spelt out letter by letter
+        onNodeWithText("SERRURE 04").assertContentDescriptionEquals("Serrure 04, fermée")
+        onAllNodes(hasText("Serrure 04")).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 320 dp, the title of the bar keeps its words whole")
+    fun inALargeFontTheTitleOfTheBarKeepsItsWordsWhole() = extension.use {
+        // Given a font twice as large, on the narrowest phone
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 3, game = start),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(320.dp),
+                )
+            }
+        }
+
+        // Then SERRURE and 03 each on a line or together, never a word cut from one line to the next
+        val node = onNode(hasText("SERRURE 03"), useUnmergedTree = true).fetchSemanticsNode()
+        val layouts = mutableListOf<TextLayoutResult>()
+        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        val layout = layouts.single()
+        val text = layout.layoutInput.text.text
+        val words = List(layout.lineCount) { line ->
+            text.substring(layout.getLineStart(line), layout.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
+        }.flatten()
+        assertThat(words).containsExactly("SERRURE", "03")
     }
 
     @Test

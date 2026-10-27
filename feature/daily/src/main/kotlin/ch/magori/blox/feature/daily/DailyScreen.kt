@@ -37,7 +37,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.board.next.NextPieceCanvas
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.GlyphButton
@@ -59,13 +59,19 @@ import java.time.LocalDate
 /** The tag of « Copier mon score », read by the tests. */
 internal const val DAILY_COPY_TAG = "daily_copy"
 
+/**
+ * The tag of Jouer, the same in every language, read by the journey of `:benchmark`, which copies it as it is: it does
+ * not see this module.
+ */
+internal const val DAILY_PLAY_TAG = "daily_play"
+
 /** What the player does on the entry of the Graine du jour, handed to `app` by the entry. */
 @Immutable
 internal class DailyActions(
     val onChangeGame: () -> Unit,
     val onSettings: () -> Unit,
     val onPlay: (date: LocalDate) -> Unit,
-    val onCopyScore: () -> Unit,
+    val onCopyScore: (date: LocalDate) -> Unit,
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -118,8 +124,9 @@ internal fun DailyScreen(
                 reminder = stringResource(R.string.feature_daily_play_reminder, uiState.startLevel),
                 description = stringResource(R.string.feature_daily_play_description, uiState.startLevel),
                 onClick = play,
+                modifier = Modifier.testTag(DAILY_PLAY_TAG),
             )
-            CopyScore(enabled = uiState.canCopy, onClick = actions.onCopyScore)
+            CopyScore(enabled = uiState.canCopy, onClick = { actions.onCopyScore(uiState.date) })
             Text(
                 text = stringResource(R.string.feature_daily_new_seed),
                 color = palette.label,

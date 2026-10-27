@@ -30,7 +30,8 @@ internal data class MascotShadow(val color: Color, val drop: Float, val blur: Fl
 
 /**
  * The look of [character] in Colorful, by day or at [night], awake or [asleep]: the colours of its piece (`piece-*`,
- * read from the styles of the cells, written once), its accessory in those of the O; asleep, in `cell-dead`.
+ * read from the styles of the cells, written once), its accessory in those of the O, or of the S for the sprout;
+ * asleep, in `cell-dead`.
  */
 internal fun mascotLook(
     character: MascotCharacter,
@@ -60,11 +61,20 @@ internal fun mascotLook(
         fill = body.fill,
         highlight = body.bubble?.highlight ?: body.fill,
         corner = corner,
-        accessory = pieceColor(variant, PieceType.O),
+        accessory = pieceColor(variant, accessoryPiece(character)),
         // The pastels and the neons are light: the face keeps the dark ink of the day on them, by night too.
         face = BloxPalettes.ColorfulLight.ink,
         shadow = shadow,
     )
+}
+
+/**
+ * The piece whose colour fills the accessory: the yellow of the O for the crown and the key, the mint of the S for the
+ * sprout.
+ */
+private fun accessoryPiece(character: MascotCharacter): PieceType = when (character) {
+    MascotCharacter.CLASSIC, MascotCharacter.LOCKSMITH -> PieceType.O
+    MascotCharacter.DAILY -> PieceType.S
 }
 
 private const val DAY_CORNER = 0.3f

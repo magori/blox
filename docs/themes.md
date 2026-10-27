@@ -191,7 +191,7 @@ verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il 
 les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
 redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
 78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
-réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des musiques (P5.99).
+réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des musiques (P5.99).
 **Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
 `ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
 `ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,

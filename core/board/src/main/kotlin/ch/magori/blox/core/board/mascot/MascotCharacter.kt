@@ -14,6 +14,9 @@ enum class MascotCharacter(internal val piece: PieceType) {
 
     /** The Locksmith: an O, holding a key; it stands for the « o » of the logo. */
     LOCKSMITH(PieceType.O),
+
+    /** The Graine du jour: a Z, a sprout growing from it. */
+    DAILY(PieceType.Z),
     ;
 
     /** The cells of its body, as its piece comes in, from (0, 0) at the top left. */

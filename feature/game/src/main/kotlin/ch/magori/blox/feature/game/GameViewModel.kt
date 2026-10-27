@@ -9,7 +9,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.audio.SoundEffectPlayer
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.data.DailyChallengeRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
@@ -39,6 +39,7 @@ import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.music.LiveMusicDirection
 import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.results.GameEnd
 import ch.magori.blox.feature.game.sound.soundEffectsFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -186,7 +187,7 @@ class GameViewModel internal constructor(
         // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
             results.best.collect { record ->
-                state.update { it.copy(record = record).withRecordBeaten(it.recordBeaten) }
+                state.update { it.copy(record = record).withBestBeaten(it.bestBeaten) }
             }
         }
         // The music of the variant of the game ([GameVariants]), at the normal tempo, as every new play of the player.
@@ -352,36 +353,40 @@ class GameViewModel internal constructor(
             gameState.toUiState(nextPieces::getValue)
                 .copy(record = it.record, gameOver = it.gameOver, feedback = feedback)
                 .withLeftHanded(it.leftHanded, gameState.isUnderWay)
-                .withRecordBeaten(it.recordBeaten)
+                .withBestBeaten(it.bestBeaten)
         }
     }
 
     /**
      * The game is over in [finalState]: its score is given to its [results] at once (the records, or the results of
      * the day), so that a record is not lost if the process dies; the game over screen shows once they answered
-     * whether it is a new one.
+     * whether it is a new one, so that what it offers to copy (a daily game) holds this game.
      */
     private fun onGameOver(finalState: GameState) {
         stopMusic()
         viewModelScope.launch {
-            val gameOver = finalState.toGameOverUiState(isNewRecord(finalState.progress.score.value))
+            val result = endResults(finalState.progress.score.value)
+            val gameOver = finalState.toGameOverUiState(
+                newBest = result?.newBest == true,
+                resultsKept = result?.kept == true,
+            )
             state.update { it.copy(gameOver = gameOver) }
         }
     }
 
     /**
-     * Gives [score] to the [results], once its start is written: whether it is a new record. Results that cannot be
-     * written (an [IOException], the contract of the repositories) do not stop the game over from showing, without a
-     * new record; any other failure is a bug, and is not swallowed here.
+     * Gives [score] to the [results], once its start is written: whether it is a new record, and whether they keep it.
+     * Results that cannot be written (an [IOException], the contract of the repositories) give null, and do not stop
+     * the game over from showing, without a new record; any other failure is a bug, and is not swallowed here.
      */
-    private suspend fun isNewRecord(score: Int): Boolean = try {
+    private suspend fun endResults(score: Int): GameEnd? = try {
         // Not cancellable: the score is saved even if the view model is cleared while it is being written.
         withContext(NonCancellable) {
             started?.join()
             results.end(score)
-        }.isNewRecord
+        }
     } catch (_: IOException) {
-        false
+        null
     }
 
     /**

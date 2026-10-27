@@ -48,11 +48,11 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
-| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | à dessiner (P7.16) ; prototype d'origine « Idée · Le Serrurier » |
-| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | à dessiner (P9.8, complétée en P10.14 et P11.13) ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
-| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | à dessiner (P8.8) ; [musique-vivante.md](musique-vivante.md) |
-| V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | à dessiner (P9.8) ; [graine-du-jour.md](graine-du-jour.md) |
-| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | à dessiner (P9.8) |
+| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
+| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7), complétée en P10.14 et P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
+| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8) ; [musique-vivante.md](musique-vivante.md) |
+| V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | dessinée (P9.8), codée (P9.5) ; [graine-du-jour.md](graine-du-jour.md) |
+| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
 | V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | à dessiner (P10.14) ; [jardin-musical.md](jardin-musical.md) |
 | V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
 
@@ -67,27 +67,31 @@ maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogr
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
 
-**V26 codé** (P5.72, `feature:cartridges` ; seconde cartouche « Serrurier », P7.15) : l'application s'ouvre sur le choix du jeu,
-Classique, qui ouvre l'accueil Classique, et Serrurier, qui ouvre la serrure 1 ; le disque « Changer de jeu » de l'accueil y revient ; le
-retour système y quitte l'application. Dessin de la planche depuis P5.92 : en tête, le logo BloX (`BloxLogo`, 42 dp
-dans une barre de 56 dp), lu « Choix du jeu » comme titre de l'écran (Original, figé, garde le titre écrit) ; les
-cartouches sont des boutons bulles (famille Icône, coins `radius-card`, appui de 2 dp) avec leur prise, une fenêtre
-en dégradé `iris` à 135° qui porte la mascotte du jeu (le T du Classique, le O du Serrurier ; aucune en Original),
-leur nom (`play-label` réduit pour tenir) et cinq broches ; côte à côte, ou l'une sous l'autre quand un nom ne tiendrait
-pas à sa plus petite taille (Original ×2). Dessous, la console, décorative et muette pour TalkBack : fente
-(`button-outline`), écran de cinq rangées vides du plateau (`BoardRowsCanvas`) avec la flèche INSERT et une fente
-pointillée, boutons aux couleurs des pièces T et S (`pieceColor`), bouton d'éjection désactivé. Écarts retenus : toucher
-une cartouche ouvre toujours son jeu (le glissement dans la console, Jouer et Éjecter de la planche ne sont pas
-codés, la flèche seule le suggère, sans son animation) ; ni engrenage dans la barre ni texte sous la console ; coins de
-la console en `radius-card` (28 dp au lieu de 40) ; cartouche pressée en `button-pressed` (blanche sur la planche).
+**V36 codé** (P9.7, `feature:cartridges` ; remplace la console de V26, codée en P5.72 et dessinée en P5.92, décision du
+développeur du 2026-10-27) : l'application s'ouvre sur le choix du jeu, Classique (accueil Classique), Serrurier
+(serrure 1) et Graine du jour (son écran d'entrée) ; le disque « Changer de jeu » y revient ; le retour système y
+quitte l'application. Toujours en Couleurs v2, quel que soit le thème choisi (`ColorfulTheme`, barres système
+comprises ; l'Original est figé). En tête, le logo BloX (barre de 56 dp, décoratif), puis « Choix du jeu », lu comme
+titre de l'écran ; une grille de deux colonnes d'au plus 171 dp (16 dp entre elles, 14 dp entre les rangées), la
+dernière cartouche seule centrée dessous, si bien que trois puis cinq cartouches y tiennent ; une seule colonne quand
+un mot d'un nom ne tient plus dans sa colonne à sa plus petite taille. Chaque cartouche est un bouton bulle (appui de
+2 dp) avec sa prise, une fenêtre `iris` qui porte la mascotte du jeu (le T du Classique, le O du Serrurier, le Z à la
+pousse de la Graine), son nom (deux lignes au plus, réduit en mots entiers) et cinq broches. La Graine porte
+l'autocollant « NOUVELLE » (`accent`, −6°, décoratif ; TalkBack lit « Nouvelle » après le nom) jusqu'au premier essai
+du jour. En bas, « Touche une cartouche pour l'ouvrir. ». Écarts retenus : pas d'engrenage Paramètres dans la barre,
+pas d'animation d'entrée de l'autocollant, qui ne descend pas avec la cartouche pressée ; coins de la cartouche en
+`radius-window` (24 au lieu de 22) ; corps de la mascotte de la Graine en `piece-z` (rose) et non orange, les mascottes
+prenant les jetons des pièces.
 **Tests :** `CartridgesScreenTest › TalkBack reads « Choix du jeu » as the heading of the screen`,
 `CartridgesScreenTest › a cartridge held down goes 2 dp down, as a bubble button`,
-`CartridgesScreenTest › each cartridge bears the mascot of its game in Colorful, none in Original, which is frozen`,
-`CartridgesScreenTest › in Colorful, on 360 dp, the two cartridges stand side by side, their tops level`,
-`CartridgesScreenTest › in Original, in a font twice as large, on 360 dp, the cartridges stand one above the other`,
-`CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on one line, unclipped`,
-`CartridgesScreenTest › TalkBack reads nothing of the console: the only buttons, focusable or disabled nodes are the cartridges`,
-`CartridgeTest › each cartridge bears the mascot of its game, the T of the Classic and the O of the Locksmith`,
+`CartridgesScreenTest › each cartridge bears the mascot of its game, whatever the theme: the choice of the game is drawn in Colorful`,
+`CartridgesScreenTest › in Colorful, on 360 dp, the cartridges stand on two columns, the last one alone centred below`,
+`CartridgesScreenTest › in a font twice as large, on 240 dp, the cartridges stand in one column: two names do not hold side by side`,
+`CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on two lines at most, unclipped`,
+`CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`,
+`CartridgeTest › each cartridge bears the mascot of its game, the T, the O or the Z`,
+`CartridgeTest › the cartridges are the Classic, the Locksmith and the Graine du jour, in this order`,
+`SystemBarsTest › the bars of the cartridges follow their colorful variant`,
 `CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
 `StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,
 `StrokeIconTest › the eject of the console of the choice of the game is filled, without strokes, as its drawing says` ;
@@ -95,7 +99,7 @@ captures `Cartridges*`.
 **Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
 `ChangeGameTest › changing the game from a restored stack without cartridges puts them at its root`,
 `CartridgesScreenTest › TalkBack reads the name of each cartridge, as a button of 48 dp at least`,
-`CartridgesScreenTest › the Classic cartridge opens the Classic`,
+`CartridgesScreenTest › a cartridge tapped is handed over, to open its game`,
 `BloxNavDisplayTest › the application opens on the choice of the game`,
 `BloxNavDisplayTest › the system back on the cartridges leaves the application`,
 `HomeViewModelTest › changing the game stops the preview`.

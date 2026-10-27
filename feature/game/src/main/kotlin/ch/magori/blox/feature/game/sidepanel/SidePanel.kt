@@ -27,9 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.board.next.NextPieceCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.board.next.nextPieceName
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Level
@@ -64,7 +64,7 @@ internal fun SidePanel(
     score: Points,
     level: Level,
     lines: Lines,
-    next: NextPieceCells?,
+    next: PieceCells?,
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
@@ -105,7 +105,7 @@ internal fun ScoreGrid(
     score: Points,
     level: Level,
     lines: Lines,
-    next: NextPieceCells?,
+    next: PieceCells?,
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
@@ -186,7 +186,7 @@ private fun LinesPanel(
  */
 @Composable
 internal fun NextPiecePanel(
-    next: NextPieceCells?,
+    next: PieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,

@@ -48,4 +48,15 @@ class DailyGameRouteTest {
         assertThat(second.seed).isEqualTo(first.seed)
         assertThat(second).isNotEqualTo(first)
     }
+
+    @Test
+    fun `the score copied at the game over is the one of the date of the game, even replayed after midnight`() {
+        // Given a daily game of the 26th, replayed once the phone is on the 27th, and a game of the Classic
+        val daily = newDailyGameRoute(LocalDate.of(2026, 10, 26), Random(7)).replayed(Random(8))
+        val classic = GameRoute(startLevel = 0, seed = 1L)
+
+        // When / Then
+        assertThat(dailyDateOf(daily)).isEqualTo(LocalDate.of(2026, 10, 26))
+        assertThat(dailyDateOf(classic)).isNull()
+    }
 }

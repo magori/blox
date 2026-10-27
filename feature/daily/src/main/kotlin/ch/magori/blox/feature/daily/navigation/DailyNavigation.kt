@@ -21,13 +21,13 @@ data object DailyRoute : NavKey
  * Déclare l'entrée de la Graine du jour (ADR 0011). `app` construit [viewModelFactory] (ADR 0013) et décide où mène
  * chaque action, que l'écran ne connaît pas : [onPlay] ouvre la partie de la date affichée (ses pièces sont celles
  * montrées), dont `app` tire la clé ; [onSettings] la page Paramètres ; [onChangeGame] revient au choix du jeu
- * (ADR 0022) ; [onCopyScore] copie le score du jour (P9.6).
+ * (ADR 0022) ; [onCopyScore] copie le score de la date affichée (P9.6).
  */
 fun EntryProviderScope<NavKey>.dailyEntry(
     onPlay: (date: LocalDate) -> Unit,
     onSettings: () -> Unit,
     onChangeGame: () -> Unit,
-    onCopyScore: () -> Unit,
+    onCopyScore: (date: LocalDate) -> Unit,
     viewModelFactory: DailyViewModel.Factory,
 ) {
     entry<DailyRoute> {
