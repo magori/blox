@@ -34,6 +34,7 @@ internal fun RenameDialog(
             title = stringResource(R.string.feature_musics_rename_title, dialog.name),
             name = name,
             onNameChanged = { name = cutName(it) },
+            maxLength = SavedMusic.MAX_NAME_LENGTH,
             problem = problem?.let { nameProblemMessage(it) },
             confirm = stringResource(R.string.feature_musics_rename_confirm),
             onConfirm = { onRenamed(name) },

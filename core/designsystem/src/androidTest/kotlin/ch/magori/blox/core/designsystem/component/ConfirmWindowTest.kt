@@ -34,11 +34,11 @@ internal class ConfirmWindowTest {
         val answers = mutableListOf<String>()
         showWindow(onConfirm = { answers += "confirm" }, onDismiss = { answers += "dismiss" })
 
-        // Then the question, then « Garder le record » before « Effacer le record », on the screen as for TalkBack
+        // Then the question, then « Garder le record » above « Effacer le record », on the screen as for TalkBack
         onNodeWithText("Effacer le record ?").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         val keep = onNode(hasText("Garder le record") and hasClickAction()).getUnclippedBoundsInRoot()
         val clear = onNode(hasText("Effacer le record") and hasClickAction()).getUnclippedBoundsInRoot()
-        assertThat(keep.left < clear.left || keep.bottom <= clear.top).isTrue()
+        assertThat(keep.bottom).isLessThanOrEqualTo(clear.top)
 
         // When
         onNode(hasText("Garder le record") and hasClickAction()).performClick()

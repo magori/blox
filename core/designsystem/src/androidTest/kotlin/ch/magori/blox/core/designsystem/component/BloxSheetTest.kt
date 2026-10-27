@@ -165,7 +165,7 @@ internal class BloxSheetTest {
                                 WindowButton(
                                     text = SAVE,
                                     onClick = {},
-                                    primary = true,
+                                    kind = WindowButtonKind.PRIMARY,
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             },

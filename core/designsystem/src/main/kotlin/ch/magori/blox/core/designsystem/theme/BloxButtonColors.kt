@@ -20,7 +20,8 @@ data class BubbleColors(
 /**
  * The colours of the bubble buttons of a variant (docs/design-system/README.md, Boutons): [primary] for Principal XL
  * and Principal, [secondary] for Secondaire and Icône, [danger] for what cannot be undone (Effacer, the record), filled
- * as a secondary button, [selected] for any of them that is the choice made (a measure, Utiliser), [bare] for a disc
+ * as a secondary button, [dangerFilled] for the answer of a window that deletes, filled in `danger` (held, only its
+ * relief and its drop change: tokens.json has no pressed danger), [selected] for any of them that is the choice made (a measure, Utiliser), [bare] for a disc
  * that shows nothing but its pictogram until it is pressed (« … », − and + of the tempo, the cross of a message),
  * [disabled] for any of them that cannot be touched, and the ring of the keyboard focus, [focus].
  */
@@ -29,6 +30,7 @@ data class BloxButtonColors(
     val primary: BubbleColors,
     val secondary: BubbleColors,
     val danger: BubbleColors,
+    val dangerFilled: BubbleColors,
     val selected: BubbleColors,
     val bare: BubbleColors,
     val disabled: BubbleColors,
@@ -66,6 +68,13 @@ internal object BloxButtonColorSets {
             palette.buttonOutline,
         ),
         danger = BubbleColors(palette.button, palette.danger, palette.danger, palette.dangerInk, palette.danger),
+        dangerFilled = BubbleColors(
+            palette.danger,
+            palette.dangerInk,
+            palette.danger,
+            palette.dangerInk,
+            palette.danger,
+        ),
         selected = BubbleColors(
             palette.accent,
             palette.accentInk,

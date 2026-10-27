@@ -5,6 +5,12 @@
     <string name="core_designsystem_window_failed">L\'opération a échoué.</string>
     <string name="core_designsystem_window_cancel">Annuler</string>
     <string name="core_designsystem_window_name">Nom</string>
+    <!-- Le compte des caractères d’un nom, sous son champ, lu par TalkBack à la place de « 9/40 » (P5.98). -->
+    <plurals name="core_designsystem_name_count">
+        <item quantity="one">%1$d caractère sur %2$d</item>
+        <item quantity="many">%1$d caractères sur %2$d</item>
+        <item quantity="other">%1$d caractères sur %2$d</item>
+    </plurals>
     <plurals name="core_designsystem_window_name_too_long">
         <item quantity="one">%1$d caractère au plus.</item>
         <item quantity="many">%1$d caractères au plus.</item>
