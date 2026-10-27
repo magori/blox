@@ -94,7 +94,7 @@ import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.ColorfulTheme
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -146,8 +146,8 @@ internal fun LocksmithScreen(
     modifier: Modifier = Modifier,
     feedbackTick: Int? = null,
 ) {
-    // The effects of the application kept: the theme imposed here would bring back the full ones.
-    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = BloxTheme.effects) {
+    // Drawn in the Colorful theme only (ADR 0025), the effects of the application kept.
+    ColorfulTheme {
         val card = openCardOf(state)
         val titleFocus = remember { FocusRequester() }
         val messageFocus = remember { FocusRequester() }

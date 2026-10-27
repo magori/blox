@@ -24,6 +24,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeMusicLibrary
@@ -52,6 +53,7 @@ import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -530,6 +532,8 @@ internal class BloxNavDisplayTest {
             FakeSoundEffectPlayer(),
             musicOf = { null },
             gameMusic = { null },
+            dailyChallenge = FakeDailyChallengeRepository(),
+            appScope = MainScope(),
         )
         // Below every screen: a system back that reaches it is one the navigation let go, to leave the application.
         val activity = checkNotNull(activity)
