@@ -333,7 +333,7 @@ internal class GameScreenLifecycleTest {
                 BloxTheme(kind = BloxThemeKind.ORIGINAL) {
                     val shown = size
                     Box(modifier = if (shown == null) Modifier else Modifier.requiredSize(shown)) {
-                        GameScreen(viewModel = game, onBack = onBack, onReplay = onReplay)
+                        GameScreen(viewModel = game, onBack = onBack, onReplay = onReplay, onCopy = {})
                     }
                 }
             }

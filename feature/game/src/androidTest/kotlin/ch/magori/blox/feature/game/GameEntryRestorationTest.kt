@@ -22,12 +22,15 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.navigation.gameEntry
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 /**
  * The game entry in a navigation display set up as `app` sets it up, through a save and restore of its
@@ -52,15 +55,39 @@ internal class GameEntryRestorationTest {
             onNodeWithText(resume).assertIsDisplayed()
         }
     }
+
+    @Test
+    @DisplayName("a daily game entry restored after the process died is the same try")
+    fun aDailyGameEntryRestoredAfterTheProcessDiedIsTheSameTry() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given a daily game under way, on a stack restorable as the application's
+            val daily = FakeDailyChallengeRepository()
+            val factory = silentGameViewModelFactory(dailyChallenge = daily)
+            val route = GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)
+            val restoration = StateRestorationTester(this)
+            restoration.setContent { GameStack(route, factory) }
+            waitForIdle()
+
+            // When its state is saved, the process dies with its view models, and the state is restored
+            restoration.emulateSaveAndRestore()
+            waitForIdle()
+
+            // Then its try was counted once
+            assertThat(daily.state.value?.tries).isEqualTo(1)
+        }
+    }
 }
 
 /**
- * A stack holding one game, with the decorators of `app`, in their order. Its view models live in the
- * store of [ProcessViewModels], which a restoration does not keep: it is remembered, not saved, so the
- * restored composition gets a new one, as a new process would.
+ * A stack holding one game, [route] (a Classic game by default), whose view model [factory] builds, with the decorators
+ * of `app`, in their order. Its view models live in the store of [ProcessViewModels], which a restoration does not
+ * keep: it is remembered, not saved, so the restored composition gets a new one, as a new process would.
  */
 @Composable
-private fun GameStack() {
+private fun GameStack(
+    route: GameRoute = GameRoute(startLevel = 0, seed = 1L),
+    factory: GameViewModel.Factory = remember { silentGameViewModelFactory() },
+) {
     val process = remember { ProcessViewModels() }
     // The process dies: its view models with it.
     DisposableEffect(process) { onDispose { process.viewModelStore.clear() } }
@@ -70,14 +97,14 @@ private fun GameStack() {
     ) {
         BloxTheme(kind = BloxThemeKind.ORIGINAL) {
             NavDisplay(
-                backStack = listOf<NavKey>(GameRoute(startLevel = 0, seed = 1L)),
+                backStack = listOf<NavKey>(route),
                 onBack = {},
                 entryDecorators = listOf(
                     rememberSaveableStateHolderNavEntryDecorator(),
                     rememberViewModelStoreNavEntryDecorator(),
                 ),
                 entryProvider = entryProvider {
-                    gameEntry(onBack = {}, onReplay = {}, viewModelFactory = silentGameViewModelFactory())
+                    gameEntry(onBack = {}, onReplay = {}, onCopy = {}, viewModelFactory = factory)
                 },
             )
         }

@@ -2,40 +2,35 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import ch.magori.blox.core.designsystem.R
-import ch.magori.blox.core.designsystem.theme.BloxAlphas
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.shrinkFloor
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
@@ -64,14 +59,16 @@ fun WindowDialog(
 }
 
 /**
- * A window: a panel of the theme, its [title], a heading, then its [content], scrolling when the font is large. The
- * [titleModifier] lets a screen give its title the focus.
+ * A window: a panel of the theme, its [title] in [titleStyle], `screen-title` unless told otherwise, then its [content],
+ * scrolling when the font is large. The title of a window goes over titleSmall, whose size Original keeps: its pixel font
+ * stays as large as before Couleurs v2. The [titleModifier] lets a screen give its title the focus.
  */
 @Composable
 fun WindowPanel(
     title: String,
     modifier: Modifier = Modifier,
     titleModifier: Modifier = Modifier,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall.merge(BloxTheme.typography.screenTitle),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
@@ -85,11 +82,7 @@ fun WindowPanel(
             .padding(WindowPadding),
         verticalArrangement = Arrangement.spacedBy(WindowGap),
     ) {
-        PanelTitle(
-            text = title,
-            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
-            modifier = titleModifier,
-        )
+        PanelTitle(text = title, style = titleStyle, modifier = titleModifier)
         content()
     }
 }
@@ -143,9 +136,10 @@ fun WindowFailure(modifier: Modifier = Modifier) {
 }
 
 /**
- * An answer of a window, framed as a panel, its [text] on as many lines as it needs ([WrappingLabel]). The answer
- * the window expects, [primary], is filled in `accent`; the one that deletes, [danger], in `danger`. Disabled, it is
- * greyed out and announced as such.
+ * An answer of a window, a bubble button of its [kind] ([WindowButtonKind]): the safe one, Secondaire; the one the
+ * window expects, Principal; the one that deletes, filled in `danger` beside the trash. Its [text] goes to the line
+ * between its words only, centred; a word too wide shrinks, down to [shrinkFloor], rather than be cut. Disabled, it is
+ * flat and announced as such.
  */
 @Composable
 fun WindowButton(
@@ -153,39 +147,26 @@ fun WindowButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    primary: Boolean = false,
-    danger: Boolean = false,
+    kind: WindowButtonKind = WindowButtonKind.SECONDARY,
 ) {
-    val palette = BloxTheme.palette
-    val fill = when {
-        danger -> palette.danger
-        primary -> palette.accent
-        else -> null
-    }
-    FramedBox(
-        background = fill ?: palette.panel,
-        frame = fill ?: palette.panelBorder,
-        labelPadding = AnswerLabelPadding,
-        modifier = modifier
-            .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-    ) {
-        WrappingLabel(
+    BubbleButton(family = kind.family, onClick = onClick, modifier = modifier, enabled = enabled) {
+        kind.icon?.let { BloxIcon(it) }
+        val style = LocalTextStyle.current.shrinkingLineHeight()
+        Text(
             text = text,
-            color = when {
-                danger -> palette.dangerInk
-                primary -> palette.accentInk
-                else -> palette.ink
-            },
+            style = style,
+            textAlign = TextAlign.Center,
+            autoSize = shrinkToWholeWords(style.fontSize),
+            // Off the edges of the pill when it goes to the line (« Prendre « X 2 » », twice as large).
+            modifier = Modifier.weight(1f, fill = false).padding(vertical = BloxSpaces.space1),
         )
     }
 }
 
 /**
- * The two answers of a window: [dismiss] (« Annuler » unless told otherwise), then [confirm], filled in `accent`, or in
- * `danger` when it deletes ([danger]); [confirm] is disabled unless [confirmEnabled], [dismiss] unless
- * [dismissEnabled]. Side by side when each word of their labels holds whole in half the width; one above the other otherwise, in the same order, rather than cut a word
- * or shrink a font made larger (« Annuler » in the pixel font, twice as large, on 360 dp).
+ * The two answers of a window, one above the other, each as wide as the window, read by TalkBack in this order: the
+ * safe one first, [dismiss] (« Annuler » unless told otherwise), then [confirm], the answer the window expects, or the
+ * one that deletes ([danger]); [confirm] is disabled unless [confirmEnabled], [dismiss] unless [dismissEnabled].
  */
 @Composable
 fun WindowAnswers(
@@ -198,45 +179,35 @@ fun WindowAnswers(
     danger: Boolean = false,
     dismissEnabled: Boolean = true,
 ) {
-    val answers: @Composable (Modifier) -> Unit = { sizing ->
-        WindowButton(text = dismiss, onClick = onDismiss, enabled = dismissEnabled, modifier = sizing)
+    Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(AnswerGap)) {
+        WindowButton(
+            text = dismiss,
+            onClick = onDismiss,
+            enabled = dismissEnabled,
+            modifier = Modifier.fillMaxWidth(),
+        )
         WindowButton(
             text = confirm,
             onClick = onConfirm,
             enabled = confirmEnabled,
-            primary = true,
-            danger = danger,
-            modifier = sizing,
+            kind = if (danger) WindowButtonKind.DANGER else WindowButtonKind.PRIMARY,
+            modifier = Modifier.fillMaxWidth(),
         )
     }
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        val style = wrappingLabelStyle
-        val measurer = rememberTextMeasurer()
-        val density = LocalDensity.current
-        val widest = remember(style, density, dismiss, confirm) {
-            listOf(measurer.widestWord(dismiss, style), measurer.widestWord(confirm, style))
-        }
-        val sideBySide = with(density) {
-            holdSideBySide(
-                width = constraints.maxWidth,
-                gap = AnswerGap.roundToPx(),
-                padding = framedBoxPaddingPx(AnswerLabelPadding),
-                weights = listOf(1f, 1f),
-                labels = widest,
-            )
-        }
-        if (sideBySide) {
-            Row(horizontalArrangement = Arrangement.spacedBy(AnswerGap)) { answers(Modifier.weight(1f)) }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(WindowGap)) { answers(Modifier.fillMaxWidth()) }
-        }
-    }
+}
+
+/**
+ * What an answer of a window is: [SECONDARY], the safe one (Annuler, Garder…); [PRIMARY], the one the window expects;
+ * [DANGER], the one that deletes, filled in `danger` beside the trash. Each a bubble button of its [family], with its
+ * [icon], decorative, if it has one.
+ */
+enum class WindowButtonKind(internal val family: ButtonFamily, internal val icon: BloxIcon?) {
+    SECONDARY(ButtonFamily.SECONDARY, null),
+    PRIMARY(ButtonFamily.PRIMARY, null),
+    DANGER(ButtonFamily.DANGER_FILLED, BloxIcon.TRASH),
 }
 
 /** Inside a window, between its parts, and between its two answers. */
 private val WindowPadding = 12.dp
 private val WindowGap = 12.dp
-private val AnswerGap = 4.dp
-
-/** On each side of the label of an answer, within its frame. */
-private val AnswerLabelPadding = 0.dp
+private val AnswerGap = BloxSpaces.space2

@@ -119,12 +119,16 @@ import kotlin.math.roundToInt
  * The system back follows [backAction]: it pauses the game, resumes it as Reprendre does (the curtain of the pause
  * opens, then the game goes on), or, once the game is over or while the window is too small to play, leaves it as the
  * navigation does.
+ *
+ * The screen says what the variant of the game says ([GameViewModel.labels]): its title, its best to beat, and, for a
+ * daily game, Copier at the game over, given to [onCopy].
  */
 @Composable
 internal fun GameScreen(
     viewModel: GameViewModel,
     onBack: () -> Unit,
     onReplay: () -> Unit,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // The state itself, never its value: this root reads only what the system back needs, and so does
@@ -183,6 +187,8 @@ internal fun GameScreen(
         modifier = modifier,
         onTooSmallToPlayChange = { tooSmallToPlay = it },
         pauseCurtain = pauseCurtain,
+        labels = viewModel.labels,
+        onCopy = dropUnlessResumed(block = onCopy),
     )
 }
 
@@ -214,6 +220,9 @@ private fun <T> rememberPart(
  *
  * Each part of the screen reads only the part of the state it shows: a move of the piece draws the
  * board again, and recomposes nothing.
+ *
+ * The title, the label of the best to beat and its sticker, the badge of the game over and whether it offers Copier
+ * ([onCopy]) are those of the variant of the game, its [labels] (ADR 0026).
  */
 @Composable
 internal fun GameScreen(
@@ -223,6 +232,8 @@ internal fun GameScreen(
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
+    labels: GameLabels,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
     onTooSmallToPlayChange: (Boolean) -> Unit = {},
     pauseCurtain: PauseCurtainState = rememberPauseCurtainState { uiState().paused },
@@ -256,6 +267,8 @@ internal fun GameScreen(
             onPause = pause,
             onResume = onResume,
             pauseCurtain = pauseCurtain,
+            labels = labels,
+            onCopy = onCopy,
         )
     }
 }
@@ -271,6 +284,8 @@ private fun Screens(
     onPause: () -> Unit,
     onResume: () -> Unit,
     pauseCurtain: PauseCurtainState,
+    labels: GameLabels,
+    onCopy: () -> Unit,
 ) {
     val gameOver = rememberPart(uiState) { it.gameOver }.value
     val paused by rememberPart(uiState) { it.paused }
@@ -306,6 +321,8 @@ private fun Screens(
             onReplay = onReplay,
             onMenu = onBack,
             modifier = menuModifier(Menu.GAME_OVER),
+            labels = labels,
+            onCopy = onCopy,
         )
     } else {
         Game(
@@ -316,6 +333,7 @@ private fun Screens(
             focus = gameFocus,
             curtain = { pauseCurtain.curtain },
             underCard = menu == Menu.PAUSE,
+            labels = labels,
         )
         // Over the game, once the curtain hides the board.
         if (menu == Menu.PAUSE) {
@@ -378,6 +396,7 @@ private fun Game(
     focus: FocusRequester,
     curtain: () -> PauseCurtain?,
     underCard: Boolean,
+    labels: GameLabels,
     modifier: Modifier = Modifier,
 ) {
     // Before it is beaten, the record changes once, when the records give it; then it follows the score.
@@ -401,7 +420,7 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay)
+        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay, labels = labels)
         if (tooSmallToPlay) {
             TooSmallMessage(
                 modifier = Modifier
@@ -634,9 +653,19 @@ private val previewState = GameUiState(
 private fun GameScreenPreview(
     kind: BloxThemeKind,
     uiState: GameUiState,
+    labels: GameLabels = GameLabels.Classic,
 ) {
     BloxTheme(kind = kind) {
-        GameScreen(uiState = { uiState }, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
+        GameScreen(
+            uiState = { uiState },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            labels = labels,
+            onCopy = {},
+        )
     }
 }
 
@@ -687,6 +716,8 @@ private fun CurtainPreview(effects: BloxEffects) {
             onControl = {},
             onPause = {},
             onResume = {},
+            labels = GameLabels.Classic,
+            onCopy = {},
             pauseCurtain = curtain,
         )
     }
@@ -787,4 +818,12 @@ internal fun GameScreenNewRecordPreview() {
 @Composable
 internal fun GameScreenNewRecordOriginalPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
+}
+
+// A daily game (V39): GRAINE DU JOUR and the best of the day in the top bar, in the Colorful theme only (ADR 0026).
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenDailyPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState, GameLabels.Daily)
 }

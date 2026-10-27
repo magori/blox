@@ -6,10 +6,11 @@ import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
 
 /*
- * Screenshot tests of the music editor (views V8 and V11), and of its windows (save, V9 and V12, and the question before
- * leaving), in both themes coded so far, the dice rolled, its message, and the windows, also with the font twice as
- * large, from the previews of the production code, with the same `@Preview` configuration. Renaming a test breaks its link to its reference image:
- * regenerate them with `./gradlew updateDebugScreenshotTest`.
+ * Screenshot tests of the music editor (views V8, V11 and V33), and of its windows (save, V9 and V12, and the question
+ * before leaving), in both themes coded so far, the sheet of the dice (V33, Couleurs only), the message of the dice,
+ * and the windows, also with the font twice as large, from the previews of the production code, with the same
+ * `@Preview` configuration. Renaming a test breaks its link to its reference image: regenerate them with
+ * `./gradlew updateDebugScreenshotTest`.
  */
 
 @PreviewTest
@@ -28,6 +29,11 @@ private fun ComposerColorful() = ComposerColorfulPreview()
 private fun ComposerColorfulNight() = ComposerColorfulPreview()
 
 @PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun ComposerColorfulLargeFont() = ComposerColorfulLargeFontPreview()
+
+@PreviewTest
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 private fun ComposerEmpty() = ComposerEmptyPreview()
@@ -35,27 +41,17 @@ private fun ComposerEmpty() = ComposerEmptyPreview()
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
-private fun ComposerDiceOriginal() = ComposerDiceOriginalPreview()
-
-@PreviewTest
-@Preview(widthDp = 360, heightDp = 760)
-@Composable
-private fun ComposerDiceColorful() = ComposerDiceColorfulPreview()
+private fun DiceSheetColorful() = DiceSheetColorfulPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
-private fun ComposerDiceColorfulNight() = ComposerDiceColorfulPreview()
+private fun DiceSheetColorfulNight() = DiceSheetColorfulPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
 @Composable
-private fun ComposerDiceOriginalLargeFont() = ComposerDiceOriginalLargeFontPreview()
-
-@PreviewTest
-@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
-@Composable
-private fun ComposerDiceColorfulLargeFont() = ComposerDiceColorfulLargeFontPreview()
+private fun DiceSheetColorfulLargeFont() = DiceSheetColorfulLargeFontPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 240)
