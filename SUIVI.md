@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 242 / 320 | `███████████████░░░░░` **76 %** |
+| **Général** | 243 / 320 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1471,7 +1471,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 
 - [x] **P10.1** Spécification et décision : `docs/jardin-musical.md`, ADR 0027, modules prévus dans
   `docs/architecture.md`, vue V40 numérotée (à dessiner). Fait le 2026-10-26.
-- [ ] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
+- [x] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
   règle de 2 ; captures du Serrurier inchangées. Avant P10.10.
 - [ ] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
   partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en

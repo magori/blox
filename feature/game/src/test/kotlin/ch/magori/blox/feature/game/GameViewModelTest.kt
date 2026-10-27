@@ -8,8 +8,8 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.data.DailyResults
 import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
@@ -429,7 +429,7 @@ class GameViewModelTest {
 
         // Then the next I is drawn upright, its cells brought to the origin
         assertThat(viewModel.uiState.value.next).isEqualTo(
-            NextPieceCells(
+            PieceCells(
                 type = PieceType.I,
                 cells = (0..3).map { row -> Position(column = 0, row = row) }.toSet(),
                 columns = 1,
