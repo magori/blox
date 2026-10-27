@@ -21,7 +21,7 @@ boucle, focus audio, accélération du danger) est décrit dans [musique.md](mus
 | Terme | Code prévu | Sens |
 |---|---|---|
 | Musique vivante | `MusicChoice.LIVE` (`core:data`) | Le choix « Vivante » de la feuille Musique. |
-| Musique demandée | `ChosenMusic` (`core:data`) | Ce que le choix demande au jeu : une musique fixe (`Fixed`) ou la composition des deux ambiances (`Live`). |
+| Musique de la partie | `GameMusic` (`feature:game`) | Ce que le choix demande au jeu : une musique fixe (`Fixed`) ou la composition des deux ambiances (`Live`) ; `null`, aucune musique. Contrat entre `app` et le jeu, sans persistance. |
 | Les deux ambiances | `LiveMusic` (`core:music`) | Une musique calme et une musique tendue, composées ensemble pour une partie. |
 | Direction musicale | `MusicDirection` (`feature:game`) | La traduction « événements de la partie → ordres au lecteur » (tempo, ambiance). |
 | Changer de partition | `Player.switchTo(score)` (`core:audio`) | Passer à une autre partition à la mesure suivante, au même rang. |
@@ -78,13 +78,20 @@ La traduction des événements en ordres au lecteur sort de `feature:game` dans 
   du moteur. Le lecteur est passé en paramètre : une direction sans état peut être un objet, une
   direction à état (Vivante) une instance par partie. `onStart` peut venir après des `onEvents`
   (musique lancée en retard, reprise sans `Playback`) : la direction répond alors de son état.
-- **`ClassicMusicDirection`** (objet sans état, ex-`MusicTempo.kt`, P8.5) : tempo × 1,25 en danger,
-  retour à × 1,0 à la sortie du danger ([musique.md](musique.md#accélération)) ; le tempo du danger
-  est préparé dès `onStart`. Pur refactoring, sous les tests existants du tempo ; `GameViewModel`
-  passe par elle.
+- La direction est choisie avec la musique (`GameMusic`), une instance par partie, et part de l'état
+  de la partie au moment où la musique est connue (lecture lente, composition) : niveau de départ,
+  niveau atteint, danger. Une partie sans musique n'a pas de direction et n'envoie aucun ordre au
+  lecteur (avant P8.6, elle envoyait les tempos du danger pour rien).
+  **Tests :** `GameViewModelTest › a game with no music gives the player no order`.
+- **`ClassicMusicDirection`** (ex-`MusicTempo.kt`, P8.5 ; classe à état depuis P8.6) : tempo × 1,25 en
+  danger, retour à × 1,0 à la sortie du danger ([musique.md](musique.md#accélération)) ; le tempo du
+  danger est préparé dès `onStart`. Une partie déjà en danger quand sa musique part joue un quart plus
+  vite dès le départ (revue de P8.5 : elle repartait à × 1,0).
   **Tests :** `ClassicMusicDirectionTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
   `ClassicMusicDirectionTest › the danger tempo is prepared as soon as the music starts`,
-  `ClassicMusicDirectionTest › each change of danger of the game gives its tempo to the player, in order, and nothing else does`.
+  `ClassicMusicDirectionTest › each change of danger of the game gives its tempo to the player, in order, and nothing else does`,
+  `ClassicMusicDirectionTest › a game already in danger when its music starts plays a quarter faster`,
+  `GameViewModelTest › a music read once the stack is in danger plays a quarter faster`.
 - **`LiveMusicDirection`** ajoute deux règles à celles du Classique :
   - **ambiance** : la partie commence sur la musique calme ; `StackDanger(on)` passe à la tendue,
     `StackDanger(off)` revient à la calme. Les seuils sont ceux du moteur (la pile entre en danger
@@ -93,14 +100,40 @@ La traduction des événements en ordres au lecteur sort de `feature:game` dans 
     (après la mesure 3 de la calme vient la mesure 4 de la tendue) ;
   - **accélération** : chaque `LevelUp` règle le facteur de tempo (`setTempoFactor`) à
     **min(1 + 0,02 × niveaux gagnés, 1,30)**, les niveaux gagnés comptant depuis le niveau de
-    départ (accroissement additif, non composé) ; valeurs **[à vérifier]** en jouant. Ce facteur
-    se **multiplie** au × 1,25 du danger.
-- **Rendu** : `prepareTempo` ne prépare que la partition jouée en dernier. L'entrée en danger fait
-  à la fois `switchTo(tendue)` et × 1,25 : la tendue est rendue au seul tempo du danger, pendant
-  l'attente de la barre de mesure, puis reste en cache (voir
-  [Changer de partition à la mesure](#changer-de-partition-à-la-mesure)) ; seule la première entrée
-  en danger d'une partie la rend. Chaque `LevelUp` déclenche un nouveau rendu ; son coût est
-  **à mesurer** sur téléphone (P8.6).
+    départ (accroissement additif, non composé) ; valeurs **[à vérifier]** en jouant
+    (`LEVEL_SPEED_UP`, `MAX_LEVEL_TEMPO`). Ce facteur se **multiplie** au × 1,25 du danger.
+  - Les événements d'un même tick sont d'abord appliqués à l'état (niveau, danger) ; la direction
+    n'envoie ensuite qu'un ordre de chaque sorte, dans cet ordre : `setTempoFactor` si le facteur a
+    changé, puis `switchTo` si l'ambiance a changé. Au plafond, un `LevelUp` n'envoie rien.
+  - Une partie déjà en danger, ou montée de niveau, quand sa musique part, part sur la tendue, ou au
+    tempo de son niveau. La graine de la musique est la graine de la partie (`GameRoute.seed`) ; la
+    musique vivante est composée hors du fil principal, et pas du tout si la partie est déjà finie.
+  **Tests :** `LiveMusicDirectionTest › a live game starts on the calm music`,
+  `LiveMusicDirectionTest › entering the danger switches to the tense music`,
+  `LiveMusicDirectionTest › leaving the danger switches back to the calm music`,
+  `LiveMusicDirectionTest › each level up speeds the music up by 2 percent, up to 1 point 3`,
+  `LiveMusicDirectionTest › the speed of the levels and the speed of the danger multiply`,
+  `LiveMusicDirectionTest › a level up and the end of the danger on the same tick give one tempo, then the switch`,
+  `LiveMusicDirectionTest › a game already in danger when its music starts plays the tense music, a quarter faster`,
+  `LiveMusicDirectionTest › a game gone up a level when its music starts plays the calm music at the speed of its level`,
+  `LiveMusicDirectionTest › a direction built after a level up starts at the speed of its level`,
+  `GameViewModelTest › a live game plays the calm music composed from the seed of the game`,
+  `GameViewModelTest › a live game plays the tense music while its stack is in danger`,
+  `GameViewModelTest › a live music composed once the stack is in danger starts on the tense music`,
+  `GameViewModelTest › a live music composed after a level up starts at the speed of the level`,
+  `GameViewModelTest › the music resumes after a pause in the mood of the moment`,
+  `GameViewModelTest › a live music chosen once the game is over is not composed`.
+- **Rendu** : `prepareTempo` ne prépare que la partition jouée en dernier. L'entrée en danger envoie
+  × 1,25 puis `switchTo(tendue)` : la tendue est rendue au seul tempo du danger, pendant l'attente de
+  la barre de mesure (voir [Changer de partition à la mesure](#changer-de-partition-à-la-mesure)).
+  Le lecteur ne garde, pour la partition qui joue, que les rendus utiles : le tempo joué, le tempo
+  demandé, × 1,0 et les tempos préparés ; les autres sont libérés quand on les quitte (sans quoi un
+  rendu par niveau gagné s'accumulait, jusqu'à une centaine de mégaoctets). La partition quittée garde
+  le rendu du tempo auquel elle jouait : passer de la calme à la tendue et revenir **au même niveau** ne
+  rend rien ; après un `LevelUp`, le changement d'ambiance rend l'autre partition au nouveau facteur,
+  et revenir à un tempo quitté le rend de nouveau. Chaque `LevelUp` sous le plafond déclenche un
+  rendu ; son coût est **à mesurer** sur téléphone (P8.10).
+  **Tests :** `ChiptuneSequencerTempoTest › the buffers of a tempo left are released`.
 - Chaque ambiance garde son propre tempo (celui de sa forme) ; le facteur s'applique aux deux.
 - La pause, la reprise, la fin de partie, Rejouer et la perte du focus se passent comme pour
   toute partition ([musique.md](musique.md)) : la reprise repart dans l'ambiance du moment, au
@@ -131,9 +164,10 @@ Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
   (à l'entrée en danger, `setTempoFactor(1,25)` et `switchTo(tendue)` arrivent ensemble : la
   tendue est rendue au seul tempo du danger, jamais à × 1,0 d'abord), pendant l'attente de la
   barre de mesure. Le lecteur garde ensuite un cache par partition, pour celles que la lecture a
-  jouées ou demandées : revenir à la calme, ou entrer de nouveau en danger, même après une pause,
-  ne rend rien. Seule la **première** entrée en danger d'une partie rend donc la tendue
-  (P8.10 : la préparer d'avance, à décider avec la mesure de P8.6) ;
+  jouées ou demandées, réduit aux rendus utiles (voir **Rendu** plus haut) : revenir à la calme, ou
+  entrer de nouveau en danger, au même tempo, même après une pause, ne rend rien. La **première** entrée
+  en danger d'une partie rend la tendue, et après un niveau gagné le changement d'ambiance rend l'autre
+  partition au nouveau facteur (P8.10 : la préparer d'avance, à décider avec la mesure sur téléphone) ;
 - la capacité existe à chaque étage du lecteur : le contrat `MusicPlayerContract` et le faux
   lecteur, mais aussi `ChiptuneSequencer`, `FocusedMusicPlayer` et `MusicSwitch` ;
 - elle est **réservée aux partitions** : `MusicPlayer = Player<Music>`, et pour un `MusicFile`
@@ -169,15 +203,15 @@ Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
 - `MusicChoice.LIVE` s'ajoute aux choix enregistrés (`core:data`), sauvé par son nom « LIVE » comme les
   autres ; une version plus ancienne qui ne le connaît pas retombe sur la valeur par défaut (Korobeïniki).
   `scoreOf` (dans `app`) ne rend pas de partition fixe pour lui : c'est `musicOf`, ce que lit le jeu, qui
-  rend `ChosenMusic.Live`, la demande de composer les deux ambiances avec la graine de la partie ;
+  rend `GameMusic.Live` (`feature:game`), la demande de composer les deux ambiances avec la graine de la partie ;
   `scoreOf` reste la partition fixe de l'aperçu de l'accueil.
   **Tests :** `UserPreferencesRepositoryContract › a saved music is read back`,
   `DataStoreUserPreferencesRepositoryTest › the music is stored by its name, which must not change`,
   `MusicScoresTest › the live choice asks for a live music rather than a score`,
   `MusicScoresTest › each music choice plays its score, or none`,
   `MusicScoresTest › the music of a choice is read with the music file kept`.
-- Tant que la feuille Musique n'a pas sa rangée « Vivante » (P8.7), le choix n'est pas proposé : sans
-  la direction musicale (P8.6), la partie serait muette.
+- Tant que la feuille Musique n'a pas sa rangée « Vivante » (P8.7), le choix n'est pas proposé ; la
+  partie, elle, joue la musique vivante depuis P8.6.
   **Tests :** `HomeViewModelTest › the live choice is not offered before its sheet row`.
 - « Vivante » prime comme les autres choix de l'accueil : la musique en jeu de « Mes musiques »
   garde sa priorité ([musique.md](musique.md)), et choisir Vivante la retire des parties, comme

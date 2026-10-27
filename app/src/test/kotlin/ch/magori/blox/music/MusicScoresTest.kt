@@ -1,11 +1,11 @@
 package ch.magori.blox.music
 
-import ch.magori.blox.core.data.ChosenMusic
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.feature.game.music.GameMusic
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -31,33 +31,33 @@ class MusicScoresTest {
     @Test
     fun `my file plays the music file chosen`() {
         // When / Then
-        assertThat(musicOf(MusicChoice.MY_FILE, myFile)).isEqualTo(ChosenMusic.Fixed(myFile))
+        assertThat(musicOf(MusicChoice.MY_FILE, myFile)).isEqualTo(GameMusic.Fixed(myFile))
     }
 
     @Test
     fun `my file without a file chosen plays Korobeiniki, as on another device the settings were restored on`() {
         // When / Then
-        assertThat(musicOf(MusicChoice.MY_FILE, file = null)).isEqualTo(ChosenMusic.Fixed(Scores.korobeiniki))
+        assertThat(musicOf(MusicChoice.MY_FILE, file = null)).isEqualTo(GameMusic.Fixed(Scores.korobeiniki))
     }
 
     @ParameterizedTest(name = "{0}")
     @EnumSource(names = ["KOROBEINIKI", "MINUET", "NONE"])
     fun `the other choices play their score, or none, whatever the file chosen`(choice: MusicChoice) {
         // When / Then
-        assertThat(musicOf(choice, myFile)).isEqualTo(scoreOf(choice)?.let(ChosenMusic::Fixed))
+        assertThat(musicOf(choice, myFile)).isEqualTo(scoreOf(choice)?.let(GameMusic::Fixed))
     }
 
     @Test
     fun `the live choice asks for a live music rather than a score`() {
         // When / Then: the two moods are composed for each game, from its seed, and not by the choice
-        assertThat(musicOf(MusicChoice.LIVE, myFile)).isEqualTo(ChosenMusic.Live)
-        assertThat(musicOf(MusicChoice.LIVE, file = null)).isEqualTo(ChosenMusic.Live)
+        assertThat(musicOf(MusicChoice.LIVE, myFile)).isEqualTo(GameMusic.Live)
+        assertThat(musicOf(MusicChoice.LIVE, file = null)).isEqualTo(GameMusic.Live)
     }
 
     @Test
     fun `a music file that cannot be played falls back on the score of my file without a file`() {
         // When / Then: the fallback of the player (MusicSwitch) is the one of the settings restored without their file
-        assertThat(ChosenMusic.Fixed(FALLBACK_SCORE)).isEqualTo(musicOf(MusicChoice.MY_FILE, file = null))
+        assertThat(GameMusic.Fixed(FALLBACK_SCORE)).isEqualTo(musicOf(MusicChoice.MY_FILE, file = null))
     }
 
     @Test
@@ -67,10 +67,10 @@ class MusicScoresTest {
         val noFile = FakeMusicFileRepository()
 
         // When / Then
-        assertThat(files.musicOf(MusicChoice.MY_FILE)).isEqualTo(ChosenMusic.Fixed(myFile))
-        assertThat(noFile.musicOf(MusicChoice.MY_FILE)).isEqualTo(ChosenMusic.Fixed(Scores.korobeiniki))
-        assertThat(files.musicOf(MusicChoice.MINUET)).isEqualTo(ChosenMusic.Fixed(Scores.minuet))
-        assertThat(files.musicOf(MusicChoice.LIVE)).isEqualTo(ChosenMusic.Live)
+        assertThat(files.musicOf(MusicChoice.MY_FILE)).isEqualTo(GameMusic.Fixed(myFile))
+        assertThat(noFile.musicOf(MusicChoice.MY_FILE)).isEqualTo(GameMusic.Fixed(Scores.korobeiniki))
+        assertThat(files.musicOf(MusicChoice.MINUET)).isEqualTo(GameMusic.Fixed(Scores.minuet))
+        assertThat(files.musicOf(MusicChoice.LIVE)).isEqualTo(GameMusic.Live)
     }
 
     private companion object {

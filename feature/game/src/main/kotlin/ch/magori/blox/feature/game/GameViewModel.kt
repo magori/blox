@@ -24,6 +24,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.haptics.Haptics
+import ch.magori.blox.core.music.LiveMusic
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.SoundEffects
@@ -31,9 +32,12 @@ import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.ClassicMusicDirection
+import ch.magori.blox.feature.game.music.GameMusic
+import ch.magori.blox.feature.game.music.LiveMusicDirection
 import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.sound.soundEffectsFor
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -63,8 +67,9 @@ class GameViewModel internal constructor(
     private val music: MusicPlayer,
     private val haptics: Haptics,
     private val soundEffects: SoundEffectPlayer,
-    private val musicOf: suspend (MusicChoice) -> Music?,
+    private val musicOf: suspend (MusicChoice) -> GameMusic?,
     private val gameMusic: suspend () -> Score?,
+    private val composeLive: suspend (seed: Long) -> LiveMusic,
     savedState: SavedStateHandle,
 ) : ViewModel() {
     private val engine = engineFactory.create(route.seed)
@@ -101,13 +106,16 @@ class GameViewModel internal constructor(
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
 
     /**
-     * The music of this game, from « Mes musiques » or the settings: a score, or the music file of the player; null
-     * when none is played.
+     * The music this game plays from its start, from « Mes musiques » or the settings: a score, the music file of the
+     * player, or the calm music of its live music; null when none is played.
      */
     private var gameSong: Music? = null
 
-    /** What the music of this game does as the game goes. */
-    private val musicDirection: MusicDirection = ClassicMusicDirection
+    /**
+     * What the music of this game does as the game goes, chosen with its music ([directMusic]); null until the music is
+     * known, or when the game has none.
+     */
+    private var musicDirection: MusicDirection? = null
 
     /**
      * The music of this game, playing or stopped: stopping it leaves the music of another game alone. Kept
@@ -154,7 +162,10 @@ class GameViewModel internal constructor(
         // new play of the player. Unreadable musics give none, unreadable settings the defaults (the contracts of the
         // repositories).
         viewModelScope.launch {
-            gameSong = gameMusic() ?: musicOf(preferences.preferences.first().music)
+            directMusic(
+                gameMusic()?.let(GameMusic::Fixed) ?: musicOf(preferences.preferences.first().music),
+                route.seed,
+            )
             // The musics or the settings may answer once the game is paused or over: the music then waits, or never
             // comes.
             if (gameState.isUnderWay) play(playMusic())
@@ -169,6 +180,41 @@ class GameViewModel internal constructor(
             state.update { it.withLeftHanded(settings.leftHanded, gameState.isUnderWay) }
             // At once, so that the first rotation does not wait for its track to open.
             if (soundEffectsOn) soundEffects.warmUp(SoundEffects.all)
+        }
+    }
+
+    /**
+     * [chosen] is the music of this game: the song it plays and its [musicDirection], the Classic one for a music played
+     * as it is, the live one for the live music, composed from the [seed] of the game ([composeLive]), which starts on
+     * its calm music; a game already over composes none, which it would never play. Nothing for no music. The direction
+     * starts from where the game stands once its music is known: a music read or composed late may come after a level
+     * up, or once the stack is in danger.
+     */
+    private suspend fun directMusic(
+        chosen: GameMusic?,
+        seed: Long,
+    ) {
+        when (chosen) {
+            null -> Unit
+
+            is GameMusic.Fixed -> {
+                gameSong = chosen.music
+                musicDirection = ClassicMusicDirection(inDanger = gameState.stackInDanger)
+            }
+
+            GameMusic.Live -> {
+                if (gameState.phase is Phase.GameOver) return
+                val live = composeLive(seed)
+                gameSong = live.calm.score
+                musicDirection = gameState.let {
+                    LiveMusicDirection(
+                        live,
+                        startLevel = it.progress.startLevel,
+                        level = it.progress.level,
+                        inDanger = it.stackInDanger,
+                    )
+                }
+            }
         }
     }
 
@@ -205,10 +251,11 @@ class GameViewModel internal constructor(
     }
 
     /**
-     * Plays the music of this game from its start, then lets the [musicDirection] prepare what it will need (the
-     * Classic, its danger tempo). Null when the game has no music.
+     * Plays the music of this game from its start, then lets the [musicDirection] start: it prepares what it will need
+     * (the Classic, its danger tempo), and answers for where the game stands (a tempo, the tense music of a live game
+     * already in danger). Null when the game has no music.
      */
-    private fun playMusic(): Playback? = gameSong?.let { music.play(it).also { musicDirection.onStart(music) } }
+    private fun playMusic(): Playback? = gameSong?.let { music.play(it).also { musicDirection?.onStart(music) } }
 
     /**
      * The screen starts drawing frames again (first display, back from another screen or from the
@@ -236,7 +283,7 @@ class GameViewModel internal constructor(
             val update = engine.tick(gameState)
             gameState = update.state
             if (GameEvent.GameOver in update.events) over = true
-            musicDirection.onEvents(update.events, music)
+            musicDirection?.onEvents(update.events, music)
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
             if (soundEffectsOn) soundEffectsFor(update.events).forEach(soundEffects::play)
         }
@@ -320,10 +367,12 @@ class GameViewModel internal constructor(
     /**
      * Builds the view model of a game. The feature defines it, `app` builds it; the route comes in the
      * [CreationExtras] under [RouteKey], since only the navigation entry knows it (ADR 0013). [musicOf]
-     * gives the music of a choice, a score or the music file of the player, null for none; `app` reads it with the
-     * music file kept, under the contract of `MusicFileRepository`: never an [IOException]. [gameMusic] reads
-     * the score of the music of the player chosen for the games, null for none; `app` reads it from its musics, under
-     * the contract of `MusicLibrary.gameMusic`: never an [IOException], unreadable musics give none.
+     * gives the music of a choice, null for none: a score or the music file of the player ([GameMusic.Fixed]), or the
+     * live music ([GameMusic.Live]); `app` reads it with the music file kept, under the contract of
+     * `MusicFileRepository`: never an [IOException]. [gameMusic] reads the score of the music of the player chosen for
+     * the games, null for none; `app` reads it from its musics, under the contract of `MusicLibrary.gameMusic`: never an
+     * [IOException], unreadable musics give none. The live music of a game is composed from its seed off the main
+     * thread.
      */
     class Factory(
         private val engineFactory: GameEngineFactory,
@@ -332,7 +381,7 @@ class GameViewModel internal constructor(
         private val music: MusicPlayer,
         private val haptics: Haptics,
         private val soundEffects: SoundEffectPlayer,
-        private val musicOf: suspend (MusicChoice) -> Music?,
+        private val musicOf: suspend (MusicChoice) -> GameMusic?,
         private val gameMusic: suspend () -> Score?,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
@@ -354,6 +403,7 @@ class GameViewModel internal constructor(
                 soundEffects,
                 musicOf,
                 gameMusic,
+                ::composeLiveMusic,
                 savedState,
             ) as T
         }
@@ -370,6 +420,13 @@ class GameViewModel internal constructor(
         private const val MAX_TICKS_PER_FRAME = 4
     }
 }
+
+/**
+ * The live music of a game composed from its [seed], off the main thread: composing it costs some tens of milliseconds
+ * (docs/musique-vivante.md, Composer les deux ambiances).
+ */
+private suspend fun composeLiveMusic(seed: Long): LiveMusic =
+    withContext(Dispatchers.Default) { LiveMusic.compose(seed) }
 
 /** The input of the engine for [this] change of a button of the screen. */
 private fun ControlChange.toInput(): Input {

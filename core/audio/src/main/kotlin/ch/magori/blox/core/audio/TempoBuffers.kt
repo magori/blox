@@ -82,6 +82,21 @@ internal class TempoBuffers(
         }
     }
 
+    /**
+     * Releases the buffers of the tempos other than [playing], [asked] and the tempos prepared: a tempo left, as a
+     * level of a live game, is not kept for the whole life of the score, and is rendered anew if asked for again.
+     */
+    fun releaseAllBut(
+        playing: Double,
+        asked: Double,
+    ) {
+        val factors = buffers.keys.iterator()
+        while (factors.hasNext()) {
+            val factor = factors.next()
+            if (factor != playing && factor != asked && factor !in prepared) factors.remove()
+        }
+    }
+
     /** Cancels the renderings under way: another score plays. */
     fun abandon() {
         scope.cancel()

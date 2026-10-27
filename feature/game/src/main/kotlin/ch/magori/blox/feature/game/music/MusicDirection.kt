@@ -25,3 +25,6 @@ internal interface MusicDirection {
         player: MusicPlayer,
     )
 }
+
+/** How much faster the music plays while the stack is in danger: a quarter (docs/musique.md, Accélération). */
+internal const val DANGER_TEMPO_FACTOR: Double = 1.25
