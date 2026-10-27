@@ -351,6 +351,17 @@ droite.
   (`Orientation.broughtToOrigin()`, comme la pièce suivante du Classique).
   **Tests :** `OrientationTest › an orientation brought to the origin touches row 0 and column 0`,
   `OrientationTest › bringing an orientation to the origin keeps its shape`.
+- La tuile est `PieceTile` (`core:board`, partagée avec le Jardin musical, P10.2) : bouton
+  secondaire de 52 dp (une taille donnée par l'écran l'emporte, la pièce restant centrée, 10 dp par
+  case), anneau `accent` de 4 dp sur la tuile choisie, case vide pour une pièce posée, toujours
+  touchable ; TalkBack la lit comme un bouton par son nom seul, son orientation en état, jamais
+  annoncée ; la pièce dessinée n'a pas de nœud à elle. Ses cases viennent de
+  `pieceCells(type, orientation)` (`core:board/piece`).
+  **Tests :** `PieceCellsTest › a piece in any orientation, as a tile shows it, is its cells brought to the origin, with its size`,
+  `PieceTileTest › a tile is a button read by the name and the state it is given, chosen, its piece without a node of its own`,
+  `PieceTileTest › without a piece, a tile is an empty slot, not chosen, which a touch still reaches`,
+  `PieceTileTest › the size the screen gives a tile wins over that of a touch target, as the wide tiles of the garden` ;
+  captures `PieceTiles`, `PieceTilesNight`. Vues : V35.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
