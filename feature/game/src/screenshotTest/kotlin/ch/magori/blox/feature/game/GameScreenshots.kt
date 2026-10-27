@@ -303,3 +303,9 @@ private fun GameOverDailyNewBest() = GameOverDailyNewBestPreview()
 @Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameOverDailyNewBestNight() = GameOverDailyNewBestPreview()
+
+/** The game over of a daily game, font enlarged: « Ancien meilleur 098760 » under the score still fits. */
+@PreviewTest
+@Preview(fontScale = 2f)
+@Composable
+private fun GameOverDailyLargeFont() = GameOverDailyNewBestPreview()

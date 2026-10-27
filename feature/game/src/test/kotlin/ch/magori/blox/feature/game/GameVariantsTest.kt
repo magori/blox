@@ -32,6 +32,7 @@ class GameVariantsTest {
                 best = R.string.feature_game_top_record,
                 newBest = R.string.feature_game_top_new_record,
                 gameOverNewBest = R.string.feature_game_over_new_record,
+                gameOverPreviousBest = R.string.feature_game_over_previous_record,
                 copyOffered = false,
             ),
         )
@@ -47,6 +48,7 @@ class GameVariantsTest {
                 best = R.string.feature_game_daily_best,
                 newBest = R.string.feature_game_daily_top_new_best,
                 gameOverNewBest = R.string.feature_game_daily_new_best,
+                gameOverPreviousBest = R.string.feature_game_daily_previous_best,
                 copyOffered = true,
             ),
         )

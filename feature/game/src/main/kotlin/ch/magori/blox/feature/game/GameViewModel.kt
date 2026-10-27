@@ -353,6 +353,7 @@ class GameViewModel internal constructor(
             val gameOver = finalState.toGameOverUiState(
                 newBest = result?.newBest == true,
                 resultsKept = result?.kept == true,
+                previousBest = result?.previousBest ?: 0,
             )
             state.update { it.copy(gameOver = gameOver) }
         }

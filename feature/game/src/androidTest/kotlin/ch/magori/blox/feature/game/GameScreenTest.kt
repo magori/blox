@@ -284,6 +284,48 @@ internal class GameScreenTest {
         onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
     }
 
+    /**
+     * A game over of 12 340 points, of a variant ([labels]), and the best before it, beaten or not: the line [shown]
+     * under the score, and what TalkBack reads of it after the score ([spoken]); none without a best before.
+     */
+    internal enum class BestRecalled(
+        val labels: GameLabels,
+        val newBest: Boolean,
+        val previousBest: Int,
+        val shown: String?,
+        val spoken: String?,
+    ) {
+        RECORD_BEATEN(GameLabels.Classic, newBest = true, 9_800, "Ancien record 009800", "Ancien record : 9800"),
+        RECORD_NOT_BEATEN(GameLabels.Classic, newBest = false, 98_760, "Record 098760", "Record : 98760"),
+        DAILY_BEST_BEATEN(GameLabels.Daily, newBest = true, 9_800, "Ancien meilleur 009800", "Ancien meilleur : 9800"),
+        DAILY_BEST_NOT_BEATEN(GameLabels.Daily, newBest = false, 98_760, "Meilleur 098760", "Meilleur : 98760"),
+        FIRST_GAME(GameLabels.Classic, newBest = true, 0, shown = null, spoken = null),
+        FIRST_TRY_OF_THE_DAY(GameLabels.Daily, newBest = true, 0, shown = null, spoken = null),
+    }
+
+    @ParameterizedTest
+    @EnumSource(BestRecalled::class)
+    @DisplayName("the game over recalls the best before the game under the score, read with it; nothing without one")
+    fun theGameOverRecallsTheBestBeforeTheGame(case: BestRecalled) = extension.use {
+        // Given a game over, and the best before it
+        uiState = ShownScreen.GAME_OVER.change(uiState)
+            .let { it.copy(gameOver = it.gameOver?.copy(newBest = case.newBest, previousBest = case.previousBest)) }
+
+        // When its game over shows
+        showGameScreen(labels = case.labels)
+
+        // Then TalkBack reads the score, then the best: the one beaten, or the one still to beat
+        onNodeWithContentDescription(listOfNotNull("Score : 12340", case.spoken).joinToString()).assertIsDisplayed()
+        // And the line shows under the score; without a best before, no line, neither label nor zeros
+        if (case.shown != null) {
+            onNodeWithText(case.shown, useUnmergedTree = true).assertIsDisplayed()
+        } else {
+            listOf("Ancien", "Record", "Meilleur", "000000").forEach {
+                onNodeWithText(it, substring = true, useUnmergedTree = true).assertDoesNotExist()
+            }
+        }
+    }
+
     @Test
     @DisplayName("the side column shows the next piece, then the score, the lines and the level, from the top")
     fun theSideColumnShowsTheNextPieceFirst() = extension.use {
@@ -403,6 +445,7 @@ internal class GameScreenTest {
                     ticksPlayed = 3_600,
                     newBest = false,
                     resultsKept = true,
+                    previousBest = 0,
                 ),
             )
         }),
