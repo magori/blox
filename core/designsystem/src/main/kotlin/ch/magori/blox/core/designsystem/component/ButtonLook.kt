@@ -112,7 +112,11 @@ internal fun buttonLook(
             !state.enabled || state.emphasis == ButtonEmphasis.BARE -> Gloss.None
             else -> glosses.button
         },
-        focusRing = if (state.focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null,
+        focusRing = if (state.focused) {
+            FocusRing(if (state.onInk) colors.focusOnInk else colors.focus, BloxBorders.focus, BloxBorders.focusGap)
+        } else {
+            null
+        },
     )
 }
 

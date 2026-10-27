@@ -373,6 +373,19 @@ internal class ButtonLookTest {
         assertThat(contrast(pressed.ink, pressed.fill)).isGreaterThanOrEqualTo(4.5)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("colorfulVariants")
+    fun `the focus ring of a bare button on ink stands out from ink by 3 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When focused by the keyboard, on the ink of a message
+        val ring = variant.look(ButtonFamily.ICON, BARE_ON_INK.copy(focused = true)).focusRing
+
+        // Then (WCAG 2.1, 2.4.7 and 1.4.11)
+        assertThat(contrast(ring!!.color, variant.palette.ink)).isGreaterThanOrEqualTo(3.0)
+    }
+
     @ParameterizedTest
     @EnumSource(ButtonFamily::class)
     fun `only a main or a secondary button may be compact, 48 dp high`(family: ButtonFamily) {

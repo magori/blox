@@ -40,6 +40,25 @@ internal class MenuItemLookTest {
         assertThat(contrast(deleting.ink, deleting.fill)).isGreaterThanOrEqualTo(4.5)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("colorful")
+    fun `a focused item bears a ring in ink, which stands out from the panel by 3 to 1 at least`(
+        theme: String,
+        palette: BloxPalette,
+    ) {
+        // When focused by the keyboard, an item and a deleting one
+        val rings = listOf(false, true).map { danger ->
+            menuItemLook(palette, danger = danger, pressed = false, focused = true).focusRing
+        }
+
+        // Then each bears a ring in ink (WCAG 2.1, 2.4.7 and 1.4.11), and none unfocused
+        rings.forEach { ring ->
+            assertThat(ring?.color).isEqualTo(palette.ink)
+            assertThat(contrast(ring!!.color, palette.panel)).isGreaterThanOrEqualTo(3.0)
+        }
+        assertThat(menuItemLook(palette, danger = false, pressed = false).focusRing).isNull()
+    }
+
     companion object {
         @JvmStatic
         fun colorful(): List<Arguments> = listOf(

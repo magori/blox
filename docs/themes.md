@@ -153,6 +153,28 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
 
+**Menu « … » et message temporaire** (P5.97, `core:designsystem`) : `BloxMenu` et `BloxMenuItem` remplacent le
+`DropdownMenu` de Material : panneau `panel` cadré de `panel-border`, `radius-md`, ombre `menu-shadow` (jeton
+ajouté à `tokens.json`, `BloxGlosses.menu`, aucune ombre en Original), posé sous l'extrémité de son bouton « … »
+ou au-dessus s'il manque de place, toujours dans la fenêtre ; rangées de 48 dp, pictogramme décoratif, variante
+`danger`, variante cochée lue comme une case cochée ; un appui hors du panneau, même dans la marge de son ombre,
+ou le retour le ferme ; TalkBack annonce son ouverture (« Menu ») ; au clavier, le focus va sur la première
+rangée, qui porte un anneau, et l'écran le rend au bouton « … » à la fermeture. `SnackMessage` remplace les
+Snackbar : fond `ink`, texte `page`, `radius-snack`, action en texte et croix en disques nus sur `ink` (anneau de
+focus en `page`), lu poliment par TalkBack ; l'action passe sous le texte plutôt que de le couper. Sa durée
+d'affichage vient de `messageTimeoutMillis` : 4 s, 10 s avec une action, ou ce que recommande Android
+(WCAG 2.2.1).
+**Tests :** `BloxMenuTest › a menu item is 48 dp high, read as its label, its icon adding nothing`,
+`BloxMenuTest › a checked item is read as a checked check box and bears a check`,
+`BloxMenuTest › a touch in the margin around the panel of a menu closes it`,
+`BloxMenuTest › TalkBack announces the menu as it opens, by its title`,
+`MenuItemLookTest › a deleting item is in danger, icon and label`,
+`SnackMessageTest › a message is read politely by TalkBack as it shows`,
+`SnackMessageTest › in a font twice as large the action of a message goes under its text, no word cut`,
+`SnackMessageLookTest › the text of a message stands out from ink by 4,5 to 1 at least, day and night`,
+`MessageTimeoutTest › without accessibility settings a message stays 4 seconds, and 10 with an action` ;
+captures `Menu*`, `SnackMessage*`.
+
 **Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
 `BoardCanvasTest › nothing recomposes while the piece moves`,
 `BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,

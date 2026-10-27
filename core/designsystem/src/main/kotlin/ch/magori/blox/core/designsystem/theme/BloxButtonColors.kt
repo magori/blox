@@ -23,7 +23,8 @@ data class BubbleColors(
  * as a secondary button, [selected] for any of them that is the choice made (a measure, Utiliser), [bare] for a disc
  * that shows nothing but its pictogram until it is pressed (« … », − and + of the tempo, the cross of a message),
  * [bareOnInk] for such a disc on the ink of a message (its cross, its action), in the colour of the page, [disabled]
- * for any of them that cannot be touched, and the ring of the keyboard focus, [focus].
+ * for any of them that cannot be touched, and the ring of the keyboard focus, [focus], or [focusOnInk] around such a
+ * disc on the ink of a message.
  */
 @Immutable
 data class BloxButtonColors(
@@ -35,6 +36,7 @@ data class BloxButtonColors(
     val bareOnInk: BubbleColors,
     val disabled: BubbleColors,
     val focus: Color,
+    val focusOnInk: Color,
 )
 
 internal object BloxButtonColorSets {
@@ -79,6 +81,7 @@ internal object BloxButtonColorSets {
         bareOnInk = bare(palette, palette.page),
         disabled = flat(palette.panelInset, palette.label, palette.panelBorder),
         focus = palette.ink,
+        focusOnInk = palette.page,
     )
 
     /**

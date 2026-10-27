@@ -5,26 +5,36 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 
-/** How an item of a menu is drawn: its [fill] behind it, and its [ink], that of its icon and its label. */
+/**
+ * How an item of a menu is drawn: its [fill] behind it, its [ink], that of its icon and its label, and the ring of the
+ * keyboard focus around it, [focusRing], if it has the focus.
+ */
 @Immutable
-internal data class MenuItemLook(val fill: Color, val ink: Color)
+internal data class MenuItemLook(val fill: Color, val ink: Color, val focusRing: FocusRing? = null)
 
 /**
  * How an item of a menu is drawn in [palette]: on the panel in `ink`, or in `danger` when it deletes. [pressed], it
  * takes the fill and the ink of a pressed secondary button, or, when it deletes, of a pressed danger button: `danger`
- * on `button-pressed` would not be read (4,3 to 1 by day).
+ * on `button-pressed` would not be read (4,3 to 1 by day). [focused] by the keyboard, it bears a ring in `ink`, as a
+ * button does, but against its edge: the panel has no more room around it.
  */
 internal fun menuItemLook(
     palette: BloxPalette,
     danger: Boolean,
     pressed: Boolean,
-): MenuItemLook = when {
-    pressed && danger -> MenuItemLook(fill = palette.danger, ink = palette.dangerInk)
-    pressed -> MenuItemLook(fill = palette.buttonPressed, ink = palette.buttonInk)
-    danger -> MenuItemLook(fill = Color.Transparent, ink = palette.danger)
-    else -> MenuItemLook(fill = Color.Transparent, ink = palette.ink)
+    focused: Boolean = false,
+): MenuItemLook {
+    val look = when {
+        pressed && danger -> MenuItemLook(fill = palette.danger, ink = palette.dangerInk)
+        pressed -> MenuItemLook(fill = palette.buttonPressed, ink = palette.buttonInk)
+        danger -> MenuItemLook(fill = Color.Transparent, ink = palette.danger)
+        else -> MenuItemLook(fill = Color.Transparent, ink = palette.ink)
+    }
+    return if (focused) look.copy(focusRing = FocusRing(palette.ink, BloxBorders.focus, gap = 0.dp)) else look
 }
 
 /**

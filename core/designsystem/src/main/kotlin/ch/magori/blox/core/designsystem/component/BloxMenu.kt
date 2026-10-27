@@ -3,9 +3,13 @@ package ch.magori.blox.core.designsystem.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -31,9 +35,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.dropShadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.shadow.Shadow
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.paneTitle
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntRect
@@ -43,6 +51,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupPositionProvider
 import androidx.compose.ui.window.PopupProperties
+import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -51,10 +60,13 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /** The tag of the icon of a [BloxMenuItem], decorative, read by the tests only. */
-const val MENU_ITEM_ICON_TAG = "menu_item_icon"
+internal const val MENU_ITEM_ICON_TAG = "menu_item_icon"
 
 /** The tag of the check of a checked [BloxMenuItem], decorative, read by the tests only. */
-const val MENU_ITEM_CHECK_TAG = "menu_item_check"
+internal const val MENU_ITEM_CHECK_TAG = "menu_item_check"
+
+/** The tag of the panel of a [BloxMenu], read by the tests only. */
+internal const val MENU_PANEL_TAG = "menu_panel"
 
 /** How narrow and how wide a menu may be: wide enough for « Supprimer », its lines wrapping beyond. */
 private val MENU_MIN_WIDTH = 160.dp
@@ -64,7 +76,8 @@ private val MENU_MAX_WIDTH = 280.dp
  * The menu « … » of what opens it (a card, the bar of the editor), shown while [expanded]: its [content], its
  * [BloxMenuItem]s, in a panel over the screen, under the end of what opens it, or above it when there is no room under
  * it. The system back, or a touch outside it, calls [onDismissRequest]; touching an item does not close it, the screen
- * does. Put it beside what opens it, in the same box.
+ * does. Put it beside what opens it, in the same box. TalkBack announces it as it opens; from the keyboard, the focus
+ * goes to its first item, and the screen gives it back to what opened it once it closes (a `FocusRequester` on « … »).
  */
 @Composable
 fun BloxMenu(
@@ -82,16 +95,20 @@ fun BloxMenu(
     Popup(
         popupPositionProvider = position,
         onDismissRequest = onDismissRequest,
-        properties = PopupProperties(focusable = true),
+        // Not clipped: against an edge of the screen, Android would move its window, and the panel with it, by the room
+        // of its shadow; menuPosition keeps the panel itself within the window.
+        properties = PopupProperties(focusable = true, clippingEnabled = false),
     ) {
-        MenuPanel(modifier = modifier.padding(room), content = content)
+        Box(modifier = Modifier.dismissedOutside(roomPx, onDismissRequest).padding(room)) {
+            MenuPanel(modifier = modifier, content = content)
+        }
     }
 }
 
 /**
  * The panel of a menu: `panel` framed by `panel-border`, `radius-md`, its shadow `menu-shadow`, as wide as its widest
  * item between [MENU_MIN_WIDTH] and [MENU_MAX_WIDTH], scrolling when it is higher than the window. The previews draw it
- * without its window.
+ * without its window. TalkBack reads it as a pane, titled « Menu », and announces it as it shows.
  */
 @Composable
 internal fun MenuPanel(
@@ -101,8 +118,11 @@ internal fun MenuPanel(
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.md
     val shadow = BloxTheme.glosses.menu
+    val title = stringResource(R.string.core_designsystem_menu)
     Column(
         modifier = modifier
+            .testTag(MENU_PANEL_TAG)
+            .semantics { paneTitle = title }
             .dropShadow(
                 shape,
                 Shadow(radius = shadow.blur, color = shadow.color, offset = DpOffset(0.dp, shadow.offsetY)),
@@ -120,7 +140,7 @@ internal fun MenuPanel(
 /**
  * An item of a [BloxMenu]: [icon], decorative, then [text], read alone by TalkBack, 48 dp high at least; in `danger`,
  * icon and label, when it deletes ([danger]). Pressed, it takes the fill of a pressed button, or `danger` when it
- * deletes.
+ * deletes; focused by the keyboard, it bears a ring in `ink`.
  */
 @Composable
 fun BloxMenuItem(
@@ -131,8 +151,7 @@ fun BloxMenuItem(
     danger: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val look = menuItemLook(BloxTheme.palette, danger, pressed)
+    val look = rememberMenuItemLook(interactionSource, danger)
     MenuRow(
         look = look,
         modifier = modifier.clickable(interactionSource = interactionSource, indication = null, onClick = onClick),
@@ -154,8 +173,7 @@ fun BloxMenuItem(
     modifier: Modifier = Modifier,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-    val pressed by interactionSource.collectIsPressedAsState()
-    val look = menuItemLook(BloxTheme.palette, danger = false, pressed = pressed)
+    val look = rememberMenuItemLook(interactionSource, danger = false)
     MenuRow(
         look = look,
         modifier = modifier.toggleable(
@@ -183,6 +201,7 @@ private fun MenuRow(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = BloxSizes.minTouchTarget)
+            .focusRing(look.focusRing, BloxTheme.shapes.md)
             .background(look.fill, BloxTheme.shapes.md)
             .padding(horizontal = BloxSpaces.space3),
         horizontalArrangement = Arrangement.spacedBy(IconSizes.menuGap),
@@ -220,4 +239,30 @@ private class MenuPositionProvider(private val room: Int) : PopupPositionProvide
         val position = menuPosition(anchorBounds, windowSize, panel)
         return IntOffset(position.x - room, position.y - room)
     }
+}
+
+/**
+ * Calls [onDismissRequest] when a touch falls in the margin of [room] pixels around the panel, left for its shadow, as
+ * it would outside the window of the menu.
+ */
+private fun Modifier.dismissedOutside(
+    room: Int,
+    onDismissRequest: () -> Unit,
+): Modifier = pointerInput(room, onDismissRequest) {
+    awaitEachGesture {
+        val down = awaitFirstDown(requireUnconsumed = false).position
+        val outside = down.x < room || down.y < room || down.x > size.width - room || down.y > size.height - room
+        if (outside) onDismissRequest()
+    }
+}
+
+/** How an item of a menu is drawn, pressed, focused or not as its [interactionSource] says, deleting or not ([danger]). */
+@Composable
+private fun rememberMenuItemLook(
+    interactionSource: MutableInteractionSource,
+    danger: Boolean,
+): MenuItemLook {
+    val pressed by interactionSource.collectIsPressedAsState()
+    val focused by interactionSource.collectIsFocusedAsState()
+    return menuItemLook(BloxTheme.palette, danger, pressed, focused)
 }
