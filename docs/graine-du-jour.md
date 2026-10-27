@@ -28,15 +28,30 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 
 - Les règles sont celles du Classique (`ClassicRules`), sans aucun changement : rotation,
   gravité, score, niveaux, danger ([règles du mode Classique](regles-mode-classique.md)).
+- La partie du jour est la variante `Daily(date, id)` de `GameRoute` (`feature:game`, ADR 0026) :
+  `GameRoute.daily(date, seed, id)` ; `newDailyGameRoute(clock)` (`app`) lit la date une fois, à
+  Jouer, et en tire la graine. La date est dans la route, sauvée en texte ISO ; l'`id` donne une clé
+  neuve à chaque partie et à Rejouer (ADR 0011). Seul `GameVariants.setupOf` (`feature:game`)
+  distingue les variantes : moteurs, résultats et musique ; Rejouer est porté par la variante
+  (`GameRoute.replayed`).
+  **Tests :** `GameRouteTest › the date of a daily route is saved as its ISO text`,
+  `GameRouteTest › replaying a classic game draws a new seed, at the same level`,
+  `GameRouteTest › replaying a daily game keeps its date and its seed, under a new id`,
+  `DailyGameRouteTest › two daily games of the same day are two games, with two keys`,
+  `GameRouteSavingTest › a daily route comes back from the saved state with its date, its seed and its id`,
+  `GameRouteSavingTest › a classic route comes back from the saved state as it was`.
 - **Niveau de départ imposé : 5**, quel que soit le niveau choisi à l'accueil (décision du
-  développeur).
+  développeur) ; la route d'une partie du jour refuse un autre niveau.
+  **Tests :** `GameRouteTest › a daily game starts at level 5 whatever the level chosen`.
 - **Musique imposée : Vivante** ([musique-vivante.md](musique-vivante.md)), composée sur la graine
   du jour, quelle que soit la musique choisie à l'accueil. Elle prime aussi sur la « musique en
   jeu » de « Mes musiques », dont la priorité sur le choix de l'accueil est décrite dans
   [musique.md](musique.md) : la Graine du jour joue toujours la Vivante. Le volume de la musique et le réglage
   des effets sonores restent ceux du joueur. La musique n'est **pas** un contrat : deux versions
   de l'application peuvent jouer deux musiques différentes pour une même date.
-- Thème, commandes, vibrations, Effets réduits : ceux du joueur.
+  **Tests :** `GameViewModelTest › a daily game plays the live music whatever the music chosen`.
+- Commandes, vibrations, Effets réduits : ceux du joueur. Le thème est imposé (Couleurs, voir
+  **Écran**).
 
 ## Graine
 
@@ -44,18 +59,19 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `AAAAMMJJ` : `DailySeed.of(LocalDate)` rend la graine `20261026` pour le 26 octobre 2026
   (`20270105` pour le 5 janvier 2027 : mois et jour toujours sur deux chiffres), du même type que la
   graine d'une partie (`Long`) ; un jour plus récent donne une graine plus grande.
-  L'horloge est injectée (`DailySeed.today(Clock)`), pour que les tests fixent la date. Le
-  branchement (P9.4) passe une horloge dans le fuseau du système, lue à chaque Jouer
+  L'horloge est injectée (`newDailyGameRoute(clock)`, `app`), pour que les tests fixent la date ;
+  par défaut une horloge dans le fuseau du système, lue à chaque Jouer
   (`Clock.systemDefaultZone()`) : jamais l'horloge UTC de `AppContainer`, qui donnerait le mauvais
   jour autour de minuit, ni une horloge gardée pour la vie du processus, qui manquerait un
   changement de fuseau.
   **Tests :** `DailySeedTest › the seed of a day is its date written year month day`,
-  `DailySeedTest › the date is the local date of the phone`,
+  `DailyGameRouteTest › the date is the local date of the phone`,
   `DailySeedTest › two days give two seeds`,
   `DailySeedTest › a later day gives a greater seed, from one year to the next`.
 - **Une partie commencée un jour compte pour ce jour-là** : la date est dans la clé de la partie
-  (`GameRoute`, variante `DAILY`), pas relue à la fin. Rejouer garde la graine de la partie
+  (`GameRoute`, variante `Daily`), pas relue à la fin. Rejouer garde la graine de la partie
   terminée, même après minuit.
+  **Tests :** `ReplayTest › replaying a daily game keeps its seed, even after midnight`.
 - Deux joueurs dans deux fuseaux n'ont pas la même graine au même instant, mais ont la même
   graine pour la même date : c'est voulu (« la graine du 26 octobre »).
 
@@ -93,6 +109,9 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `StableRandomTest › a number drawn in an empty range is refused`,
   `StableRandomTest › a number drawn between two bounds is the lower bound plus a draw in the width`,
   `StableRandomTest › a number drawn between two bounds is refused when the range is empty or wider than the largest int`.
+- Une partie du jour tire ses pièces par `ClassicRandomizer.stable(seed)` (`StableClassicEngines`,
+  passé par la fabrique du jeu).
+  **Tests :** `GameViewModelTest › a daily game draws the pieces of its seed`.
 - Les parties Classiques ordinaires gardent leur graine tirée au hasard ; elles peuvent passer à
   `StableRandom` sans rien changer à leurs règles.
 
@@ -168,6 +187,41 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   change de téléphone en cours de journée perd donc ses essais du jour.
   **Tests :** `BackupRulesTest › the file of the daily challenge never leaves the device`.
 
+**Côté partie** (P9.4). Le jeu passe par un port, `GameResults` (`feature:game`, interne : `best`,
+`start`, `end`, `leave`), et deux adaptateurs : le Classique (`best` = record, `end` = `submit`, rien
+au début ni en quittant) et le jour (`DailyGameResults`, lié à la date de la route : `startTry`,
+`endTry`, meilleur de cette date, 0 pour une autre).
+
+- L'essai commence avec la partie (`start`, dans une portée d'application, pour qu'un départ rapide
+  ne l'annule pas) ; une partie restaurée après la mort du processus ne le recommence pas (marque
+  dans le `SavedStateHandle`).
+- La fin de partie, et le départ avant la fin (Pause puis Menu, Changer de jeu : `leave`, lancé
+  depuis `onCleared`), attendent l'écriture du début avant d'écrire la fin ; une partie finie puis
+  quittée ne finit son essai qu'une fois. Les écritures du jour passent par un même verrou équitable,
+  demandé sur le fil principal dans l'ordre des parties : quitter un essai puis en lancer un autre
+  garde les points du premier. Cas limite : si le début de A s'écrit encore quand on quitte A et que B
+  démarre, la fin de A passe après le début de B.
+- Une partie du jour n'entre jamais dans les records ; une partie Classique quittée avant sa fin
+  n'envoie rien aux records.
+- Si les résultats du jour ne peuvent être écrits (`IOException`), la partie continue et sa fin
+  s'affiche sans nouveau meilleur ; toute autre erreur remonte.
+- En jeu, le meilleur du jour remplace le record (0 pour les résultats d'une autre date).
+
+**Tests :** `GameViewModelTest › a daily try is counted as soon as the game starts`,
+`GameViewModelTest › a daily game restored after the process died is the same try`,
+`GameViewModelTest › a daily game never enters the Classic records`,
+`GameViewModelTest › a daily game over ends its try only after its start`,
+`GameViewModelTest › a daily game left before its end counts as a try`,
+`GameViewModelTest › a daily game left while its try is still being started ends it after its start`,
+`GameViewModelTest › a try left then a new try started keeps the points of the first`,
+`GameViewModelTest › a daily game over then left ends its try once`,
+`GameViewModelTest › a daily game shows the best of its date in place of the record, 0 for the results of another date`,
+`GameViewModelTest › a classic game left before its end submits nothing`,
+`GameViewModelTest › when the results of the day cannot be written the game goes on, and its game over shows without a new best`,
+`GameViewModelTest › when the results of the day cannot be written a game left before its end fails nothing`,
+`GameViewModelTest › a programming error while a daily try starts is not swallowed`,
+`GameEntryRestorationTest › a daily game entry restored after the process died is the same try`.
+
 ## Copier mon score
 
 - Texte copié (presse-papiers du système), pour la date en cours :
@@ -186,9 +240,15 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 **Thème : Couleurs v2 seulement** (jour et nuit selon le téléphone), comme le Serrurier
 (décision du développeur, 2026-10-26) : l'écran d'entrée et la partie de la Graine du jour sont
 toujours dessinés en Couleurs, quel que soit le thème choisi pour le Classique ; leurs barres
-système suivent cette variante (`systemBarVariant`, P7.18), qui doit donc connaître la variante
-`DAILY` de `GameRoute` : c'est une différence par variante admise par l'ADR 0026 (thème imposé et
-barres système).
+système suivent cette variante (`systemBarVariant`, P7.18), qui connaît la variante
+`Daily` de `GameRoute` : c'est une différence par variante admise par l'ADR 0026 (thème imposé et
+barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulTheme`
+(`core:designsystem`, partagé avec le Serrurier), qui garde les Effets réduits du joueur.
+**Tests :** `GameRouteTest › a daily game is drawn in the colorful theme, a classic game in the theme chosen`,
+`GameThemeTest › a daily game is drawn in the colorful variant whatever the theme chosen, with the effects of the player`,
+`GameThemeTest › a classic game is drawn in the theme chosen`,
+`ColorfulThemeTest › the colorful theme draws in the colorful variant of the system mode, keeping the effects around it`,
+`SystemBarsTest › the bars of a daily game follow its colorful variant`.
 
 **Écran d'entrée** (vue **V38**, à dessiner), sur le modèle de l'accueil v2 (V27) :
 

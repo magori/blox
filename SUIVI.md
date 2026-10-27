@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 217 / 304 | `██████████████░░░░░░` **71 %** |
+| **Général** | 229 / 309 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1399,10 +1399,10 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
   fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
   de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
-- [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
+- [x] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
   `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
   musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
-  compté à son début **[à vérifier]**, une partie restaurée après la mort du processus reste le même essai ; thème
+  compté à son début (décision du développeur, 2026-10-27), une partie restaurée après la mort du processus reste le même essai ; thème
   Couleurs imposé et barres système (`systemBarVariant` connaît la variante, ADR 0026). Après P1.20, P8.6, P9.2,
   P9.3. Cas : `a daily game starts at
   level 5 whatever the level chosen`, `a daily game plays the live music whatever the music chosen`, `a daily game
