@@ -85,7 +85,7 @@ par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, 
 réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
 Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
 et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
-`HomeColumn`) pour les formats de P5.84 ; logo et titre provisoires jusqu'au héros de P5.77.
+`HomeColumn`) pour les formats de P5.84 ; logo BloX v2, aperçu du plateau et halo de Jouer depuis P5.77.
 **Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
 `HomeScreenTest › the gauge chooses the start level and saves it`,
 `HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
@@ -327,8 +327,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   score, niveau, lignes, Reprendre, Menu) monte sur un voile ; le jeu reste affiché dessous, inerte pour TalkBack,
   le focus et les touches. Reprendre, le retour du système, Start, Échap ou P rouvrent le rideau, et la partie ne
   repart qu'une fois le rideau ouvert ; une pause demandée pendant l'ouverture le referme depuis l'endroit atteint.
-  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte de la
-  carte avec P5.77.
+  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte
+  Classique endormie au-dessus de « Pause » (P5.77), que TalkBack ne lit pas.
   **Tests :** `PauseCurtainTest › the curtain shuts in 12 ticks, the duration of motion-curtain, before the card shows`,
   `PauseCurtainTest › in reduced effects the curtain fades over every row, shut in 8 ticks, the duration of motion-reduced-fade`,
   `PauseCurtainStateTest › a pause while the curtain opens brings it back down from where it stood, the game never let go on`,

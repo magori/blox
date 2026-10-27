@@ -194,7 +194,7 @@ le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
 `logoColors(variant)` (`LogoColors`, exactement quatre couleurs, `core:board` depuis P5.74) : en
 Original, les remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S, jour et nuit. Elles
 sont lues dans les styles des pièces, sans être recopiées ; `feature:home` dépend de `core:board`
-pour cela (ADR 0023). Le logo v2 arrive en P5.77.
+pour cela (ADR 0023). En Couleurs, le logo v2 le remplace depuis P5.77 (« Héros de l'accueil »).
 
 **Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
 `AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
@@ -459,6 +459,48 @@ Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
 `SettingSwitchRowTest › TalkBack reads Allumé or Éteint as the state of a row, apart from its unavailability`,
 `SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
 captures `Switches*`. Vues : V21, V31.
+
+**Héros de l'accueil** (P5.77, `feature:home`, `core:board`, V27) : en Couleurs, le logo BloX v2 (`BloxLogo`, Bagel
+Fat One en dégradé `iris`, la mascotte Serrurier à la place du « o », `docs/design-system/pictogrammes.md`), lu
+comme le titre de l'écran, centré sous la barre ; une ombre floue ne dessine que son flou, les lettres restant
+transparentes (`SOFT_SHADOW`, partagée dans `core:board`). Original garde son logo de quatre cases. Dessous, un
+aperçu du plateau (`BoardRowsCanvas`, les 6 rangées du bas en cases de 14 dp, `boardRowsSize`) rejoue un T qui
+tombe à la gravité du niveau choisi et efface deux lignes, montrées effacées 2 s ; son score est réel (100 × (niveau
++ 1) par ligne, `000600` au niveau 5) ; un nouveau niveau relance l'aperçu. Halo de Jouer (`PlayHalo`) : rien
+pendant 3 s, puis trois impulsions (à 3, 4 et 5 s, d'1 s chacune, pilule qui s'élargit de 12 dp en s'effaçant, en
+`accent-ring`), puis une toutes les 10 s après la troisième ; un toucher sur l'accueil le remet à 3 s. L'aperçu, le
+score et le halo ont chacun leur calque, invalidé seulement quand leur valeur change : rien ne recompose.
+**Effets réduits** : l'aperçu montre son état final (lignes effacées et points), aucun halo. Bagel Fat One reste
+embarquée. Point ouvert : le flou de l'ombre (`BlurMaskFilter`) est net sous l'API 28, à juger sur un appareil.
+**Tests :** `PreviewReplayTest › the preview drops a row every ticks per row of the chosen level`,
+`PreviewReplayTest › the preview scores 100 times the level plus one for its two lines`,
+`PreviewReplayTest › a preview given a new level starts again with a new T, at the gravity of that level`,
+`PreviewReplayTest › the preview goes on where it is when the level stays the same`,
+`PreviewReplayTest › the preview plays again once its two lines have shown cleared for 2 seconds`,
+`PreviewReplayTest › the still preview, for reduced effects, shows its two lines cleared and their points`,
+`PreviewReplayTest › the preview scores 000000, then 000600 once its lines clear at level 5, and 000600 at once still`,
+`HomeMotionTest › the ticks of the screen play the preview at the level chosen and bring the halo of Jouer`,
+`HomeMotionTest › the preview starts again with the new level when the level changes`,
+`HomeMotionTest › a touch on the home puts the halo off for 3 seconds again`,
+`HomeMotionTest › the preview notifies a change only when the T drops a row or locks`,
+`HomeMotionTest › the halo notifies no change while it is off`,
+`PlayHaloTest › the halo of Jouer stays off for 3 seconds`,
+`PlayHaloTest › the halo of Jouer pulses 3 times after 3 seconds, then once every 10 seconds after the third`,
+`PlayHaloTest › the halo is a pill around Jouer, which grows to its full spread as it fades`,
+`PlayHaloTest › without a pulse, there is no halo to draw`,
+`LogoLookTest › by day, Bl goes from iris-1 through iris-2 to iris-3 and X back, over a rim, a lilac and a shadow`,
+`LogoLookTest › by night, Bl goes from iris-1 to iris-3 and X to the pink of the night, in a halo over a dark shadow`,
+`LogoLookTest › a blurred shadow is drawn as its blur alone, the letters it is cast by left transparent`,
+`LogoLookTest › a shadow without blur is drawn as the letters in its colour, lower`,
+`DisplayedCellsTest › the cells of the bottom rows are the last rows of the board, the piece drawn over them`,
+`DisplayedCellsTest › asking more rows than the board has, or none, is refused`,
+`BoardRowsSizeTest › the bottom rows of the board take ten cells across and one cell per row`,
+`BoardCanvasTest › the bottom rows of a board are drawn again as it changes, without recomposing, TalkBack reading nothing`,
+`HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
+`HomeScreenTest › nothing on the home recomposes while the preview plays`,
+`HomeScreenTest › a touch on the home puts the halo of Jouer off for 3 seconds again`,
+`HomeScreenTest › in reduced effects the preview and the halo stand still` ;
+captures `Logo*`, `HomeColorful*`. Vue : V27.
 
 **Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
 et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
