@@ -83,7 +83,7 @@ nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche vi
 6 chiffres, lue « Record N », Paramètres) ; Jouer XL avec le rappel « Classique · Niveau 05 · Korobeïniki » (coupé
 par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, Korobeïniki ») ; carte des
 réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
-Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
+Musique (une rangée qui ouvre la feuille Musique, P5.76, voir ci-dessous) ; tuiles Mes musiques
 et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
 `HomeColumn`) pour les formats de P5.84 ; logo BloX v2, aperçu du plateau et halo de Jouer depuis P5.77.
 **Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
