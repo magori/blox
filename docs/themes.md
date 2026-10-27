@@ -57,7 +57,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
 `OriginalShapesTest › the Original theme has square corners and no gloss`,
 `GlossTokensTest › each shadow of tokens json is the gloss of the code, day and night`,
-`GlossTokensTest › every shadow token of tokens json is a gloss of the code`,
+`GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
 `MotionTokensTest › every duration token of tokens json is in the code`,
@@ -159,6 +159,24 @@ Secondaire. Pictogrammes `CHECK` et `ALERT`, chacun avec son épaisseur de trait
 `ButtonLookTest › only a main or a secondary button may be compact, 48 dp high`,
 `BubbleButtonTest › a selected button is read as selected by TalkBack, a plain one is not` ; captures `ButtonVariants*`.
 
+**Écouter et égaliseur** (P5.94, `core:designsystem`) : `ListenButton` remplace les boutons Écouter de l'accueil et
+de l'éditeur. C'est un `GlyphButton` de la famille Icône (48 dp, ou la taille donnée), triangle `PLAY` au repos,
+carré `STOP` pendant l'écoute, état **en cours** (aspect pressé) ; TalkBack lit « Écouter X » ou « Arrêter X », le
+verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il n'a plus de libellé visible.
+`Equalizer` : trois barres de 3 × 14 dp, 2 dp entre elles, en `accent`, coins de la moitié de leur largeur (1,5 dp ;
+les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
+redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
+78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
+réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des musiques (P5.99).
+**Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
+`ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
+`ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
+`ListenButtonTest › a listen button playing is drawn as the button of its square, active, and not as at rest`,
+`EqualizerMotionTest › the equalizer moves its three bars between 35 and 100 percent of their height in 30 ticks`,
+`EqualizerTest › in reduced effects or in Original the equalizer stands still`,
+`EqualizerTest › the equalizer is left out by TalkBack`,
+`EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
@@ -167,6 +185,28 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 état dérivé (`rememberPart`). Les recompositions se mesurent sur appareil avec un traceur de
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
+
+**Menu « … » et message temporaire** (P5.97, `core:designsystem`) : `BloxMenu` et `BloxMenuItem` remplacent le
+`DropdownMenu` de Material : panneau `panel` cadré de `panel-border`, `radius-md`, ombre `menu-shadow` (jeton
+ajouté à `tokens.json`, `BloxGlosses.menu`, aucune ombre en Original), posé sous l'extrémité de son bouton « … »
+ou au-dessus s'il manque de place, toujours dans la fenêtre ; rangées de 48 dp, pictogramme décoratif, variante
+`danger`, variante cochée lue comme une case cochée ; un appui hors du panneau, même dans la marge de son ombre,
+ou le retour le ferme ; TalkBack annonce son ouverture (« Menu ») ; au clavier, le focus va sur la première
+rangée, qui porte un anneau, et l'écran le rend au bouton « … » à la fermeture. `SnackMessage` remplace les
+Snackbar : fond `ink`, texte `page`, `radius-snack`, action en texte et croix en disques nus sur `ink` (anneau de
+focus en `page`), lu poliment par TalkBack ; l'action passe sous le texte plutôt que de le couper. Sa durée
+d'affichage vient de `messageTimeoutMillis` : 4 s, 10 s avec une action, ou ce que recommande Android
+(WCAG 2.2.1).
+**Tests :** `BloxMenuTest › a menu item is 48 dp high, read as its label, its icon adding nothing`,
+`BloxMenuTest › a checked item is read as a checked check box and bears a check`,
+`BloxMenuTest › a touch in the margin around the panel of a menu closes it`,
+`BloxMenuTest › TalkBack announces the menu as it opens, by its title`,
+`MenuItemLookTest › a deleting item is in danger, icon and label`,
+`SnackMessageTest › a message is read politely by TalkBack as it shows`,
+`SnackMessageTest › in a font twice as large the action of a message goes under its text, no word cut`,
+`SnackMessageLookTest › the text of a message stands out from ink by 4,5 to 1 at least, day and night`,
+`MessageTimeoutTest › without accessibility settings a message stays 4 seconds, and 10 with an action` ;
+captures `Menu*`, `SnackMessage*`.
 
 **Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
 `BoardCanvasTest › nothing recomposes while the piece moves`,
@@ -348,7 +388,7 @@ Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « Polices �
 (`BloxSizes.pressDrop`, partagé avec les boutons bulles). Elle se distingue de la page par son cadre (au moins 3:1) et de la même
 touche au repos d'au moins 1,5:1 ; de jour, A tenue ne se distingue de A au repos que par ce
 décalage (une teinte ne peut être à la fois à 1,5:1 de l'accent et à 4,5:1 sous l'encre). Les
-lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches sont des pictogrammes
+pictogrammes de rotation de B et A (28 dp, sans lettre depuis P5.79) et les flèches sont des pictogrammes
 (3:1).
 
 **Cadre des touches** (P2.22, P5.57) : chaque touche est entourée d'un cadre de 2 dp
@@ -363,8 +403,6 @@ disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'un
 `KeyColorsTest › a held key stands out from the key at rest by a contrast of 1,5 to 1 at least`,
 `KeyColorsTest › for A in the day the held key differs from it at rest by less than 1,5 to 1, so its 2 dp drop tells it`,
 `KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
-`KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
-`KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
 `KeyColorsTest › a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key keeps the outline it has at rest`,
 `KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,
@@ -618,6 +656,24 @@ la case (`TrackColorsTest › a cell of the grid is drawn on the cell ground, be
 `TrackColorsTest › the lines of the grid stand out from its cells by night by a contrast of 1,3 to 1 at least` (de nuit,
 `grid-line` `#2A2D44`, P5.88 ; de jour, les lignes blanches se lisent contre les cases pâles),
 `TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`).
+
+**Notes en bulles** (P5.103, V33, Couleurs seulement) : une note est dessinée comme une cellule du plateau,
+par le même peintre (`BubblePainter` et `bubbleLook`, `core:designsystem`, partagés avec `core:board`) :
+dégradé du reflet de sa piste (`melody-hi`, `bass-hi`) en haut à sa couleur à 55 % de sa hauteur, coins
+`radius-cell` et relief `cell-gloss` dès 16 dp sur son plus petit côté, coins de 2 dp sans relief en dessous (une
+double croche, environ 14 dp de large, reste plate). De nuit, `melody` et `bass` valent `piece-t` et `piece-l` :
+leurs reflets sont ceux de ces pièces (`#DCCBFF`, `#FFD7B0`). Les peintres sont construits une fois par aspect,
+taille et densité, gardés au plus à 64, sans allocation au dessin. La grille est posée dans un bloc `board` cadré
+de 2 dp de `panel-border` (`radius-md`, marge de 8 dp), la ligne « TEMPS 1 2 3 4 » en `stat-label` capitales, et un
+fondu de 24 dp vers `board` marque le bas tant que des lignes restent dessous. Original garde sa grille
+(`BubbleDrawingTest › a bubble is lit from its highlight at the top and is in its colour from 55 percent of its height down`,
+`NotePaintersTest › a note under 16 dp has 2 dp corners and no gloss`,
+`NotePaintersTest › a note of 16 dp and more has the corners of radius cell and the gloss of cell gloss`,
+`NotePaintersTest › the painters of the notes are built once per size and variant, not at each touch`,
+`NotePaintersTest › the painters of the notes are built anew once more than 64 sizes are kept`,
+`NotePaintersTest › the painters of the notes are built again when the density changes`,
+`TrackColorsTest › the highlight and the colour of each track are those of tokens json, day and night`,
+`PaletteTokensTest`). Vue : V33.
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|

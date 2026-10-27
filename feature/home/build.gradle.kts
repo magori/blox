@@ -43,4 +43,6 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.designsystem))
     // RecompositionRecorder : rien ne recompose pendant que l'aperçu joue (P5.77).
     androidTestImplementation(testFixtures(projects.core.board))
+    // Le contraste et les palettes nommées (schéma des touches de Gaucher).
+    testImplementation(testFixtures(projects.core.designsystem))
 }

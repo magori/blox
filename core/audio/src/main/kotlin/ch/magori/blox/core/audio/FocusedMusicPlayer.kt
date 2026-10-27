@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Music
+import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -43,12 +44,19 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
      */
     private var prepared: Set<Double> = emptySet()
 
+    /** The playback started last, refused the focus or not: the one a switch goes to. */
+    private var last: Started? = null
+
     override fun play(music: Music): Playback {
         prepared = emptySet()
         return start { player.play(music).also { prepared.forEach(player::prepareTempo) } }
     }
 
     override fun setTempoFactor(factor: Double): Unit = player.setTempoFactor(factor)
+
+    override fun switchTo(score: Score) {
+        last?.switchTo(score)
+    }
 
     override fun setVolume(volume: Volume): Unit = player.setVolume(volume)
 
@@ -60,14 +68,28 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
     /**
      * Asks for the focus, unless it is held already by the playback [begin] replaces, then [begin]s
      * playing, or waits for the focus to come back if it is away for a while. Refused the focus, it plays
-     * nothing; the playback it gives tries again when resumed.
+     * nothing; the playback it gives tries again when resumed. The score [switched] to before it begins is switched
+     * to once it does.
      */
-    private fun start(begin: () -> Playback): Playback {
-        if (current == null && !focus.request(::onFocusEvent)) return Refused(begin)
-        return FocusedPlayback(begin).also {
+    private fun start(
+        switched: Score? = null,
+        begin: () -> Playback,
+    ): Playback {
+        if (current == null && !focus.request(::onFocusEvent)) return Refused(begin, switched).also { last = it }
+        return FocusedPlayback(begin, switched).also {
+            last = it
             current?.replaced()
             current = it
         }
+    }
+
+    /** A playback this player gave, refused the focus or not. */
+    private interface Started : Playback {
+        /**
+         * Goes on with [score]: [player] switches to it once this playback has begun to play; until then, the score
+         * [player] played last belongs to another playback, so [score] is kept for the beginning.
+         */
+        fun switchTo(score: Score)
     }
 
     private fun onFocusEvent(event: FocusEvent) {
@@ -93,7 +115,7 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
      * the playback of [player] stopped by a pause is no longer followed once the state changed, so this
      * score never tells, for an instant, that it stopped.
      */
-    private inner class FocusedPlayback(begin: () -> Playback) : Playback {
+    private inner class FocusedPlayback(begin: () -> Playback, private var switched: Score?) : Started {
         /**
          * Tells whether this score plays: the state of the playback of [player] under way; [WAITING] while the
          * focus is away; [OVER] once stopped, replaced, or once the music stopped by itself.
@@ -118,12 +140,18 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
         /** The playback of [player] under way; null while the focus is away, or once stopped. */
         private var playing: Playback? = null
 
+        /** Whether it played once: until then, the score [player] played last belongs to another playback. */
+        private var begun = false
+
         init {
             if (!focusAway) play()
         }
 
         private fun play() {
             playing = next().also {
+                if (!begun) switched?.let(player::switchTo)
+                begun = true
+                switched = null
                 next = it::resume
                 state.value = it.isPlaying
             }
@@ -157,7 +185,11 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
             focus.abandon()
         }
 
-        override fun resume(): Playback = start(next)
+        override fun switchTo(score: Score) {
+            if (begun) player.switchTo(score) else switched = score
+        }
+
+        override fun resume(): Playback = start(switched, next)
 
         /** Another score plays in its place, with the focus it held: this one is over. */
         fun replaced() = end()
@@ -170,12 +202,16 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
     }
 
     /** A score refused the focus: it plays nothing, and asks again when resumed. Over from the start. */
-    private inner class Refused(private val begin: () -> Playback) : Playback {
+    private inner class Refused(private val begin: () -> Playback, private var switched: Score?) : Started {
         override val isPlaying: Flow<Boolean> = OVER
 
         override fun stop() {}
 
-        override fun resume(): Playback = start(begin)
+        override fun switchTo(score: Score) {
+            switched = score
+        }
+
+        override fun resume(): Playback = start(switched, begin)
     }
 
     private companion object {

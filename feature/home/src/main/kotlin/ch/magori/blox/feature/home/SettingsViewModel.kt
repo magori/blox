@@ -40,6 +40,7 @@ class SettingsViewModel(
         combine(preferences.preferences, recordClearing) { saved, clearing ->
             SettingsUiState(
                 reducedEffects = saved.reducedEffects,
+                leftHanded = saved.leftHanded,
                 vibrations = saved.vibrations,
                 soundEffects = saved.soundEffects,
                 keyVibration = saved.keyVibration,
@@ -56,6 +57,9 @@ class SettingsViewModel(
 
     /** Saves whether the player asks for reduced effects: the whole application follows at once, through its theme. */
     internal fun onReducedEffectsChanged(reducedEffects: Boolean) = save { setReducedEffects(reducedEffects) }
+
+    /** Saves whether the player is left handed: the keys of the next game are laid out for the left hand. */
+    internal fun onLeftHandedChanged(leftHanded: Boolean) = save { setLeftHanded(leftHanded) }
 
     /** Saves whether the games play their sound effects; turned on, the rotation plays once. */
     internal fun onSoundEffectsChanged(soundEffects: Boolean) =

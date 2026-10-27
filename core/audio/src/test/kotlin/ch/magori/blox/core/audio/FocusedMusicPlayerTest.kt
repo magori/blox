@@ -449,8 +449,101 @@ class FocusedMusicPlayerTest {
         assertThat(first.isPlaying.first()).isFalse()
     }
 
+    @Test
+    fun `a switch while the focus is lost for a while is played when the focus comes back`() {
+        // Given a score paused by a focus lost for a while
+        music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+
+        // When another score is switched to, then the focus comes back
+        music.switchTo(minuet)
+        focus.send(FocusEvent.GAIN)
+
+        // Then the score switched to plays
+        assertThat(player.playing).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
+    fun `a switch while a score waits for the focus to play it is played with the focus`() {
+        // Given a score played while the focus is lost for a while: it waits for the focus to come back
+        music.play(korobeiniki)
+        focus.send(FocusEvent.TRANSIENT_LOSS)
+        music.play(minuet)
+
+        // When another score is switched to, then the focus comes back
+        music.switchTo(third)
+        focus.send(FocusEvent.GAIN)
+
+        // Then the score switched to plays
+        assertThat(player.playing).isEqualTo(third.id)
+    }
+
+    @Test
+    fun `a switch while the focus is refused is played once resumed with the focus`() {
+        // Given a score refused the focus, as during a phone call
+        focus.granted = false
+        val playback = music.play(korobeiniki)
+
+        // When another score is switched to, then the game resumes once the call is over
+        music.switchTo(minuet)
+        focus.granted = true
+        playback.resume()
+
+        // Then the score switched to plays
+        assertThat(player.playing).isEqualTo(ScoreId.MINUET)
+    }
+
+    @Test
+    fun `a new play forgets the switch asked for the score refused the focus`() {
+        // Given a score refused the focus, switched to another one
+        focus.granted = false
+        music.play(korobeiniki)
+        music.switchTo(minuet)
+        focus.granted = true
+
+        // When a new score is played
+        music.play(korobeiniki)
+
+        // Then it plays, not the score switched to before
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `a switch while the focus is refused leaves the score stopped before untouched`() {
+        // Given a score stopped, as a game paused, then a preview refused the focus, as during a phone call
+        val stopped = music.play(korobeiniki)
+        stopped.stop()
+        focus.granted = false
+        music.play(minuet)
+
+        // When another score is switched to, then the game resumes once the call is over
+        music.switchTo(third)
+        focus.granted = true
+        stopped.resume()
+
+        // Then the game plays its own score, not the one switched to for the preview
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
+    @Test
+    fun `a refused score resumed after another play is not switched to the score asked for the other`() {
+        // Given a game refused the focus, then a preview refused too, switched to another score
+        focus.granted = false
+        val game = music.play(korobeiniki)
+        music.play(minuet)
+        music.switchTo(third)
+
+        // When the game resumes once the focus is granted
+        focus.granted = true
+        game.resume()
+
+        // Then it plays its own score
+        assertThat(player.playing).isEqualTo(ScoreId.KOROBEINIKI)
+    }
+
     private companion object {
         val note = Note(Pitch.parse("E5"), beats = 4.0)
+        val third = scoreOf(MusicPlayerContract.THIRD)
         val korobeiniki = scoreOf(ScoreId.KOROBEINIKI)
         val minuet = scoreOf(ScoreId.MINUET)
 

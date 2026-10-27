@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.blox.android.feature)
     alias(libs.plugins.blox.android.screenshot)
+    // Le reflet et la couleur des notes, jetons melody-hi, melody, bass-hi et bass de docs/design-system/tokens.json,
+    // comparés aux bulles des notes par TrackColorsTest (ADR 0019).
+    alias(libs.plugins.blox.design.tokens)
 }
 
 android {

@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.game.controls
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
@@ -117,7 +116,7 @@ internal class KeyColorsTest {
     }
 
     @ParameterizedTest(name = "{0}, {1}, held: {3}")
-    @MethodSource("keysHeldOrNot")
+    @MethodSource("allKeysHeldOrNot")
     fun `the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`(
         theme: String,
         button: ControlButton,
@@ -127,30 +126,9 @@ internal class KeyColorsTest {
         // When
         val colors = keyColors(palette, button, held)
 
-        // Then (WCAG 2.1, 1.4.11: the glyph that tells the key, an arrow or a letter)
+        // Then (WCAG 2.1, 1.4.11: the glyph that tells the key, a triangle or a pictogram of rotation, alone on B and
+        // A since Couleurs v2: their letter is left to TalkBack, which reads it in the name of the key)
         assertThat(contrast(colors.ink, colors.background)).isGreaterThanOrEqualTo(3.0)
-    }
-
-    @ParameterizedTest(name = "{0}, {1}, held: {3}")
-    @MethodSource("lettersHeldOrNot")
-    fun `the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`(
-        theme: String,
-        button: ControlButton,
-        palette: BloxPalette,
-        held: Boolean,
-    ) {
-        // When
-        val colors = keyColors(palette, button, held)
-
-        // Then (WCAG 2.1, 1.4.3: text; large text, as the letters are, asks for 3:1)
-        assertThat(contrast(colors.ink, colors.background)).isGreaterThanOrEqualTo(3.0)
-    }
-
-    @Test
-    fun `the letters A and B are large text, bold and of 18,66 sp at least`() {
-        // Then (WCAG 2.1: 14 pt bold, 18.66 sp, is large text)
-        assertThat(KeyLetterStyle.fontWeight ?: FontWeight.Normal).isGreaterThanOrEqualTo(FontWeight.Bold)
-        assertThat(KeyLetterStyle.fontSize.value).isGreaterThanOrEqualTo(18.66f)
     }
 
     companion object {
@@ -167,7 +145,7 @@ internal class KeyColorsTest {
         }
 
         @JvmStatic
-        fun keysHeldOrNot(): List<Arguments> = keys().flatMap { key ->
+        fun allKeysHeldOrNot(): List<Arguments> = allKeys().flatMap { key ->
             listOf(true, false).map { Arguments.of(*key.get(), it) }
         }
 
@@ -181,14 +159,6 @@ internal class KeyColorsTest {
         @JvmStatic
         fun allKeys(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
             ControlButton.entries.map { Arguments.of(theme, it, palette) }
-        }
-
-        /** The keys with a letter, A and B, held or not, in each theme. */
-        @JvmStatic
-        fun lettersHeldOrNot(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
-            listOf(ControlButton.A, ControlButton.B).flatMap { button ->
-                listOf(true, false).map { Arguments.of(theme, button, palette, it) }
-            }
         }
     }
 }

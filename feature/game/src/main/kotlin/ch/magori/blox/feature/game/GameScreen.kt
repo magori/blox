@@ -382,6 +382,7 @@ private fun Game(
 ) {
     // Before it is beaten, the record changes once, when the records give it; then it follows the score.
     val record by rememberPart(uiState) { it.shownRecord() }
+    val leftHanded by rememberPart(uiState) { it.leftHanded }
     val controls = rememberHeldControls(onControl)
     // The buttons still held are let go as the game pauses: it stays on screen, under the curtain.
     LaunchedEffect(controls) {
@@ -417,12 +418,16 @@ private fun Game(
                 val fontScale = LocalDensity.current.fontScale
                 val width = constraints.maxWidth.toFloat()
                 val height = constraints.maxHeight.toFloat()
-                val layout =
-                    remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
+                // Until the settings answer, the room of the keys is kept, but no key is shown: none moves once they answer.
+                val known = leftHanded
+                val layout = remember(width, height, density, fontScale, known) {
+                    gameLayout(width, height, density, fontScale, known == true)
+                }
                 Play(
                     uiState = uiState,
                     layout = layout,
                     controls = controls,
+                    keysShown = known != null,
                     curtain = curtain,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -462,9 +467,9 @@ private data class SideColumn(
 private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, recordBarFill(score, record))
 
 /**
- * The board, the side column and the touch controls of [controls], each where [layout] puts it. The score column
- * scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or over
- * the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
+ * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it.
+ * The score column scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or
+ * over the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
  * cells, that covers the board and the next piece.
  */
 @Composable
@@ -472,6 +477,7 @@ private fun Play(
     uiState: () -> GameUiState,
     layout: GameLayout,
     controls: HeldControls,
+    keysShown: Boolean,
     curtain: () -> PauseCurtain?,
     modifier: Modifier = Modifier,
 ) {
@@ -534,13 +540,21 @@ private fun Play(
                 )
             }
         }
-        val directionSpacing = with(LocalDensity.current) { layout.directionSpacing.toDp() }
-        DirectionPad(
-            controls = controls,
-            modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
-            spacing = directionSpacing,
-        )
-        RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS))
+        if (keysShown) {
+            val directionSpacing = with(LocalDensity.current) { layout.directionSpacing.toDp() }
+            DirectionPad(
+                controls = controls,
+                modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
+                keys = layout.keys,
+                spacing = directionSpacing,
+            )
+            RotationPad(
+                controls = controls,
+                modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
+                keys = layout.keys,
+                leftHanded = layout.leftHanded,
+            )
+        }
     }
 }
 
@@ -638,6 +652,13 @@ internal fun GameScreenOriginalPreview() {
 @Composable
 internal fun GameScreenColorfulPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+/** For a left handed player: B and A on the left, the arrows on the right. */
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenLeftHandedPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(leftHanded = true))
 }
 
 @Preview(widthDp = 360, heightDp = 760)

@@ -68,13 +68,36 @@ fun SettingSwitchRow(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     disabledReason: String? = null,
+) = SettingSwitchRow(
+    pictogram = { tint -> BloxIcon(icon, size = IconSizes.alone, tint = tint) },
+    label = label,
+    subLine = subLine,
+    checked = checked,
+    onCheckedChange = onCheckedChange,
+    modifier = modifier,
+    disabledReason = disabledReason,
+)
+
+/**
+ * A setting as above, whose [pictogram], drawn in the tint it is given, is not a [BloxIcon]: the sketch of the keys
+ * of Gaucher, for instance. It is centred in the slot of 40 dp.
+ */
+@Composable
+fun SettingSwitchRow(
+    pictogram: @Composable (tint: Color) -> Unit,
+    label: String,
+    subLine: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    disabledReason: String? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
     val depth = remember(motion) { { motion.depth } }
     SettingSwitchRow(
-        icon = icon,
+        pictogram = pictogram,
         label = label,
         subLine = subLine,
         checked = checked,
@@ -94,7 +117,7 @@ fun SettingSwitchRow(
  */
 @Composable
 internal fun SettingSwitchRow(
-    icon: BloxIcon,
+    pictogram: @Composable (tint: Color) -> Unit,
     label: String,
     subLine: String,
     checked: Boolean,
@@ -129,7 +152,7 @@ internal fun SettingSwitchRow(
             .padding(BloxSpaces.space2),
         labels = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SettingIcon(icon, tint = look.subLine)
+                SettingPictogram { pictogram(look.subLine) }
                 Column(
                     modifier = Modifier.padding(start = BloxSpaces.space3).weight(1f),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
@@ -259,9 +282,13 @@ internal fun SettingIcon(
     icon: BloxIcon,
     tint: Color,
 ) {
-    Box(Modifier.size(BloxSizes.settingIcon), contentAlignment = Alignment.Center) {
-        BloxIcon(icon, size = IconSizes.alone, tint = tint)
-    }
+    SettingPictogram { BloxIcon(icon, size = IconSizes.alone, tint = tint) }
+}
+
+/** The pictogram of a row of the settings, [content], centred in its slot of [BloxSizes.settingIcon]. */
+@Composable
+internal fun SettingPictogram(content: @Composable () -> Unit) {
+    Box(Modifier.size(BloxSizes.settingIcon), contentAlignment = Alignment.Center) { content() }
 }
 
 /** A row of the settings: as wide as its card, [BloxSizes.settingRow] high at least (`setting-row`). */

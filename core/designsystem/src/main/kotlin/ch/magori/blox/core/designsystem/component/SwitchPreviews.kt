@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -43,7 +44,13 @@ private fun SwitchSheet(kind: BloxThemeKind) {
         ) {
             SheetRows.forEach { row ->
                 SettingSwitchRow(
-                    icon = if (row.checked) BloxIcon.NOTE else BloxIcon.VIBRATE,
+                    pictogram = { tint ->
+                        BloxIcon(
+                            if (row.checked) BloxIcon.NOTE else BloxIcon.VIBRATE,
+                            size = IconSizes.alone,
+                            tint = tint,
+                        )
+                    },
                     label = row.label,
                     subLine = "Rotation, lignes, fin de partie",
                     checked = row.checked,

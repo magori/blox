@@ -1,12 +1,14 @@
 package ch.magori.blox.core.music
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.assertj.core.api.Assertions.assertThatIllegalStateException
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.random.Random
 
 /**
  * The choice of the best candidate and the music it gives. The rules that hold over the seeds look at generations
@@ -211,6 +213,48 @@ class MusicGeneratorTest {
         assertThat(melody.take(6)).containsExactly("A4", "B4", "A4", "E4", "F#4", "G#4")
         assertThat(melody.takeLast(4)).containsExactly("B4", "B4", "G#4", "B4")
         assertThat(bass.take(4)).containsExactly("A2", "A3", "A2", "E2")
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Category::class)
+    fun `a music composed with an imposed tonic is in that tonic`(category: Category) {
+        // When each tonic is imposed in turn
+        val musics = Category.TONICS.associateWith { tonic -> MusicGenerator.generate(category, 0, AN_ID, tonic) }
+
+        // Then its notes are those of candidates all composed in that tonic, not a label put on another key
+        assertThat(musics).allSatisfy { tonic, music ->
+            val generation = MusicGenerator.choose(category, 0, tonic = tonic)
+            assertThat(generation.rounds.flatten()).allSatisfy { assertThat(it.form.scale.tonic).isEqualTo(tonic) }
+            assertThat(music).isEqualTo(MusicGenerator.assemble(generation, category, seed = 0, id = AN_ID))
+            assertThat(music.scale.tonic).isEqualTo(tonic)
+        }
+    }
+
+    @Test
+    fun `a tonic outside the tonics of the categories is refused`() {
+        // Given C2, two octaves under the tonics, where the melody would leave its range
+        val tonic = Pitch.parse("C2")
+
+        // When / Then
+        assertThatIllegalArgumentException()
+            .isThrownBy { MusicGenerator.generate(Category.CALM, 0, AN_ID, tonic) }
+            .withMessageContaining("C2")
+    }
+
+    @ParameterizedTest(name = "seed {0}")
+    @MethodSource("fewSeeds")
+    fun `without an imposed tonic the tonic is drawn as before`(seed: Long) {
+        // When
+        val generation = MusicGenerator.choose(Category.CALM, seed)
+
+        // Then each candidate draws its tonic from its own draw, as its form does without the generator
+        assertThat(generation.rounds.flatten()).allSatisfy { candidate ->
+            assertThat(candidate.form.scale.tonic).isIn(Category.TONICS)
+        }
+        assertThat(generation.rounds.flatten().map { it.form.scale.tonic }.toSet()).hasSizeGreaterThan(1)
+        val master = Random(seed)
+        val forms = List(MusicGenerator.CANDIDATES) { Form.compose(Category.CALM, Random(master.nextLong())) }
+        assertThat(generation.rounds.first().map { it.form }).isSubsetOf(forms)
     }
 
     @Test

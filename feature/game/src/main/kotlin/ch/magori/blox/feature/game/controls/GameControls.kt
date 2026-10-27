@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.systemGestureExclusion
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
@@ -27,12 +25,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -40,26 +38,15 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.LineHeightStyle
+import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.feature.game.R
-
-private val ArrowSize = 20.dp
-
-/**
- * The letters A and B: bold and of 20 sp, large text for WCAG 2.1 (14 pt bold, 18.66 sp), so that their ink
- * needs a contrast of 3:1 on the key, which `button` and `accent` give in both themes, held or not.
- */
-internal val KeyLetterStyle = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
+import ch.magori.blox.feature.game.ScreenMargin
 
 /**
  * The fingers on the touch controls of V2 and V3, shared by the two groups, [DirectionPad] (◀ ▼ ▶)
@@ -130,35 +117,57 @@ internal class HeldControls(private val onChange: (ControlChange) -> Unit) {
     }
 }
 
-/** ◀ ▼ ▶, half as low as B, [spacing] apart: [ControlSizes.directionsWidth] × [ControlSizes.directionsHeight]. */
+/**
+ * ◀ ▼ ▶, squares of [keys], [spacing] apart, ▼ lower by [KeySizes.arrowRaise]: [KeySizes.directionsWidth] ×
+ * [KeySizes.directionsHeight].
+ */
 @Composable
 internal fun DirectionPad(
     controls: HeldControls,
     modifier: Modifier = Modifier,
+    keys: KeySizes = KeySizes.Phone,
     spacing: Dp = ControlSizes.spacing,
 ) {
-    val keyModifier = Modifier.padding(top = ControlSizes.rotationStagger / 2)
+    val square = BloxTheme.shapes.md
     ControlGroup(spacing = spacing, modifier = modifier) {
-        ControlKey(ControlButton.LEFT, controls, ControlSizes.directionButton, keyModifier)
-        ControlKey(ControlButton.DOWN, controls, ControlSizes.directionButton, keyModifier)
-        ControlKey(ControlButton.RIGHT, controls, ControlSizes.directionButton, keyModifier)
+        ControlKey(ControlButton.LEFT, controls, keys.arrow, square)
+        ControlKey(ControlButton.DOWN, controls, keys.arrow, square, Modifier.padding(top = keys.arrowRaise))
+        ControlKey(ControlButton.RIGHT, controls, keys.arrow, square)
     }
 }
 
-/** B and A, B lower, [ControlSizes.spacing] apart: [ControlSizes.rotationsWidth] × [ControlSizes.rotationsHeight]. */
+/**
+ * B and A, discs of [keys], B lower by [ControlSizes.rotationStagger], [ControlSizes.rotationSpacing] apart:
+ * [KeySizes.rotationsWidth] × [KeySizes.rotationsHeight]. For the [leftHanded], as in a mirror, A on the outside, on the
+ * left; TalkBack still reads B, then A.
+ */
 @Composable
 internal fun RotationPad(
     controls: HeldControls,
     modifier: Modifier = Modifier,
+    keys: KeySizes = KeySizes.Phone,
+    leftHanded: Boolean = false,
 ) {
-    ControlGroup(spacing = ControlSizes.spacing, modifier = modifier) {
+    val disc = BloxTheme.shapes.pill
+    val b = @Composable {
         ControlKey(
             ControlButton.B,
             controls,
-            ControlSizes.rotationButton,
+            keys.rotation,
+            disc,
             Modifier.padding(top = ControlSizes.rotationStagger),
+            readingOrder = 1f,
         )
-        ControlKey(ControlButton.A, controls, ControlSizes.rotationButton)
+    }
+    val a = @Composable { ControlKey(ControlButton.A, controls, keys.rotation, disc, readingOrder = 2f) }
+    ControlGroup(spacing = ControlSizes.rotationSpacing, modifier = modifier) {
+        if (leftHanded) {
+            a()
+            b()
+        } else {
+            b()
+            a()
+        }
     }
 }
 
@@ -167,8 +176,8 @@ internal fun RotationPad(
  * The group is excluded from the system gestures (API 29 and above): in gesture navigation, the zone
  * of the Back gesture can be wider than the margins of the screen, and a thumb sliding from ◀ to ▼
  * would otherwise go back, which cancels the fingers and pauses the game. The system honours 200 dp
- * of exclusion per edge, which the groups fit: ◀ ▼ ▶ is [ControlSizes.directionsHeight] high, B A
- * [ControlSizes.rotationsHeight], and both together would still fit on one edge.
+ * of exclusion per edge, which the groups fit: ◀ ▼ ▶ is [KeySizes.directionsHeight] high, B A
+ * [KeySizes.rotationsHeight], and both together would still fit on one edge.
  */
 @Composable
 private fun ControlGroup(
@@ -183,19 +192,26 @@ private fun ControlGroup(
     )
 }
 
-/** Both groups on one row, as on a 360 dp wide phone, for the previews. */
+/** Both groups on one row, as on a phone, for the previews: for the left hand when [leftHanded]. */
 @Composable
 private fun ControlPad(
     controls: HeldControls,
     modifier: Modifier = Modifier,
+    keys: KeySizes = KeySizes.Phone,
+    leftHanded: Boolean = false,
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.Top,
     ) {
-        DirectionPad(controls)
-        RotationPad(controls)
+        if (leftHanded) {
+            RotationPad(controls, keys = keys, leftHanded = true)
+            DirectionPad(controls, keys = keys)
+        } else {
+            DirectionPad(controls, keys = keys)
+            RotationPad(controls, keys = keys)
+        }
     }
 }
 
@@ -205,17 +221,22 @@ private fun ControlPad(
  */
 internal fun controlTestTag(button: ControlButton): String = "control_${button.name.lowercase()}"
 
+/**
+ * The key of [button], [size] wide and high, in [shape], read by TalkBack by its name, at [readingOrder] in its group
+ * when it has one (B before A, wherever they stand).
+ */
 @Composable
 private fun ControlKey(
     button: ControlButton,
     controls: HeldControls,
     size: Dp,
+    shape: Shape,
     modifier: Modifier = Modifier,
+    readingOrder: Float? = null,
 ) {
     val held = button in controls.heldButtons
     val (background, outline, foreground) = keyColors(BloxTheme.palette, button, held)
     val description = stringResource(descriptionOf(button))
-    val shape = BloxTheme.shapes.md
     Box(
         // Held, the key goes down, whatever the effects: its drop is no animation, and the only cue of A held in the
         // day. Its tag and what TalkBack reads come after the drop, so that they follow the key where it is drawn.
@@ -229,6 +250,7 @@ private fun ControlKey(
             .clearAndSetSemantics {
                 contentDescription = description
                 role = Role.Button
+                readingOrder?.let { traversalIndex = it }
                 onClick {
                     controls.tap(button)
                     true
@@ -251,7 +273,10 @@ private fun ControlKey(
     }
 }
 
-/** The arrows are drawn, not typed: a Unicode arrow may be shown as an emoji. */
+/**
+ * The glyph of a key: on B and A, their pictogram of rotation alone, the letter left to TalkBack; on the arrows, a
+ * triangle, drawn, not typed: a Unicode arrow may be shown as an emoji.
+ */
 @Composable
 private fun Glyph(
     button: ControlButton,
@@ -259,70 +284,56 @@ private fun Glyph(
     modifier: Modifier = Modifier,
 ) {
     when (button) {
-        ControlButton.A -> RotationGlyph(BloxIcon.ROTATE_RIGHT, "A", color, modifier)
+        ControlButton.A -> BloxIcon(
+            BloxIcon.ROTATE_RIGHT,
+            size = ControlSizes.rotationGlyph,
+            tint = color,
+            modifier = modifier,
+        )
 
-        ControlButton.B -> RotationGlyph(BloxIcon.ROTATE_LEFT, "B", color, modifier)
+        ControlButton.B -> BloxIcon(
+            BloxIcon.ROTATE_LEFT,
+            size = ControlSizes.rotationGlyph,
+            tint = color,
+            modifier = modifier,
+        )
 
         else -> Spacer(
             modifier = modifier
-                .size(ArrowSize)
+                .size(ControlSizes.arrowGlyph)
                 .drawWithCache {
-                    val arrow = arrowPath(button, size.width, size.height)
+                    val arrow = arrowPath(button, size.width / ARROW_GRID)
                     onDrawBehind { drawPath(arrow, color) }
                 },
         )
     }
 }
 
-/**
- * The arrow of rotation [icon] above [letter], the button of the pad it stands for: the letter in [KeyLetterStyle],
- * its line no higher than the letter, shrunk to hold under the arrow in the key when the font is enlarged.
- */
-@Composable
-private fun RotationGlyph(
-    icon: BloxIcon,
-    letter: String,
-    color: Color,
-    modifier: Modifier = Modifier,
-) {
-    val density = LocalDensity.current
-    val size = with(density) { keyLetterHeight(KeyLetterStyle.fontSize.toDp()).toSp() }
-    Column(modifier = modifier, horizontalAlignment = Alignment.CenterHorizontally) {
-        BloxIcon(icon, size = ControlSizes.rotationArrow, tint = color)
-        Text(
-            text = letter,
-            color = color,
-            style = KeyLetterStyle.copy(fontSize = size, lineHeight = size, lineHeightStyle = TightLine),
-        )
-    }
-}
+/** The grid the triangles are drawn on, as in the design system: 22 × 22. */
+private const val ARROW_GRID = 22f
 
-/** A line of text as high as its font: the letter of a key and its arrow hold in the key. */
-private val TightLine = LineHeightStyle(alignment = LineHeightStyle.Alignment.Center, trim = LineHeightStyle.Trim.Both)
-
-/** A triangle pointing the way of [button] (left, down or right), filling [width] × [height]. */
+/** A triangle pointing the way of [button] (left, down or right), on the grid of [ARROW_GRID], of [unit] per step. */
 private fun arrowPath(
     button: ControlButton,
-    width: Float,
-    height: Float,
+    unit: Float,
 ): Path = Path().apply {
     when (button) {
         ControlButton.LEFT -> {
-            moveTo(0f, height / 2)
-            lineTo(width, 0f)
-            lineTo(width, height)
+            moveTo(4 * unit, 11 * unit)
+            lineTo(16 * unit, 4 * unit)
+            lineTo(16 * unit, 18 * unit)
         }
 
         ControlButton.RIGHT -> {
-            moveTo(width, height / 2)
-            lineTo(0f, 0f)
-            lineTo(0f, height)
+            moveTo(18 * unit, 11 * unit)
+            lineTo(6 * unit, 4 * unit)
+            lineTo(6 * unit, 18 * unit)
         }
 
         else -> {
-            moveTo(width / 2, height)
-            lineTo(0f, 0f)
-            lineTo(width, 0f)
+            moveTo(4 * unit, 5 * unit)
+            lineTo(18 * unit, 5 * unit)
+            lineTo(11 * unit, 18 * unit)
         }
     }
     close()
@@ -336,32 +347,37 @@ private fun descriptionOf(button: ControlButton): Int = when (button) {
     ControlButton.B -> R.string.feature_game_control_b
 }
 
-/** The controls as in the game screen: a 360 dp wide phone, with its 24 dp margins. */
+/** The controls as in the game screen: a phone of 412 dp, with its 16 dp margins; for the left hand when [leftHanded]. */
 @Composable
 private fun ControlsPreview(
     kind: BloxThemeKind,
     controls: HeldControls = remember { HeldControls {} },
+    leftHanded: Boolean = false,
 ) {
     BloxTheme(kind = kind) {
-        ControlPad(controls, Modifier.background(BloxTheme.palette.page).padding(24.dp))
+        ControlPad(
+            controls,
+            Modifier.background(BloxTheme.palette.page).padding(ScreenMargin),
+            leftHanded = leftHanded,
+        )
     }
 }
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 412)
 @Composable
 private fun GameControlsOriginalPreview() {
     ControlsPreview(BloxThemeKind.ORIGINAL)
 }
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 412)
 @Composable
 private fun GameControlsColorfulPreview() {
     ControlsPreview(BloxThemeKind.COLORFUL)
 }
 
-@Preview(widthDp = 360)
+@Preview(widthDp = 412)
 @Composable
 internal fun GameControlsHeldPreview() {
     val controls = remember {
@@ -371,4 +387,10 @@ internal fun GameControlsHeldPreview() {
         }
     }
     ControlsPreview(BloxThemeKind.COLORFUL, controls)
+}
+
+@Preview(widthDp = 412)
+@Composable
+internal fun GameControlsLeftHandedPreview() {
+    ControlsPreview(BloxThemeKind.COLORFUL, leftHanded = true)
 }

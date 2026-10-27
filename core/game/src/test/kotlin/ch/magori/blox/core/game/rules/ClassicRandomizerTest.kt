@@ -78,6 +78,14 @@ class ClassicRandomizerTest {
         assertThat(first).isNotEqualTo(second)
     }
 
+    @Test
+    fun `the first 20 pieces of seed 20261026 are fixed`() {
+        val pieces = piecesDrawnBy(ClassicRandomizer.stable(seed = 20261026L)).take(20)
+
+        // A contract between versions of the application (ADR 0026): changing it calls for a new ADR.
+        assertThat(pieces.joinToString(" ")).isEqualTo("Z T I Z O Z J L S Z T I J L Z O L Z I O")
+    }
+
     /** When: the randomizer draws the piece that follows [previous], the source giving [draws] in turn. */
     private fun nextPiece(
         previous: PieceType?,
