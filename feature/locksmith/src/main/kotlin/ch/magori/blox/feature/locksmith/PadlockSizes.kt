@@ -19,6 +19,19 @@ internal data class PadlockSizes(val cell: Int, val rim: Int) {
         gap: Int,
         open: Boolean,
     ): Int = if (open) 0 else (overflow - gap).coerceAtLeast(0)
+
+    /**
+     * A cell of the preview on the ring at the side of the padlock, [beyond] pixels left between the outer edge of the rim
+     * and the edge of the screen: whole when it passes the rim by its [overflow] [margin] pixels at least from that edge;
+     * otherwise cut there, its inner part kept under the rim.
+     */
+    fun sideCell(
+        beyond: Int,
+        margin: Int,
+    ): SideCell {
+        val width = if (beyond - margin >= overflow) cell else rim + beyond - margin
+        return SideCell(width = width, cross = (minOf(width, cell) * SIDE_CROSS).roundToInt())
+    }
 }
 
 /**
@@ -36,6 +49,15 @@ internal fun padlockSizes(
         .map { cell -> PadlockSizes(cell = cell, rim = (cell * RIM_PART).roundToInt()) }
         .first { cells * it.cell + 2 * it.rim <= width }
 }
+
+/**
+ * A cell of the preview on the ring at the side of the padlock, as wide as [width] pixels from the inner edge of the rim,
+ * its [cross] a square of that side, centred in it.
+ */
+internal data class SideCell(val width: Int, val cross: Int)
+
+/** The cross of a cell on the ring at the side, in parts of the smaller side of what is shown of it. */
+private const val SIDE_CROSS = 0.6f
 
 /** The rim of metal around the cells, in parts of a cell: thin, the ring of the padlock no longer drawn as cells. */
 private const val RIM_PART = 0.25f

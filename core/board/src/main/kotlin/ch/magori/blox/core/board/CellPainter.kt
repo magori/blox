@@ -41,12 +41,20 @@ internal fun paintersFor(
  * gloss built once from its [cellLayout]; it draws at the origin, without allocating anything. The joint, if any,
  * takes the edge of the cell in the colour of [background]; the fill, the border and the gloss are drawn inside it,
  * the ring of a gloss in the joint, and the dot and the cross, if any, over them all. A bubble is drawn by the
- * [BubblePainter] of the design system, as the notes of the music editor are.
+ * [BubblePainter] of the design system, as the notes of the music editor are. Cut to [width] pixels, it keeps its
+ * height and its corners, its cross a square of [crossSide] in the middle of what is left.
  */
-internal class CellPainter(style: CellStyle, side: Float, background: Color, density: Density) {
-    private val layout = cellLayout(style, side, density)
+internal class CellPainter(
+    style: CellStyle,
+    side: Float,
+    background: Color,
+    density: Density,
+    width: Float = side,
+    crossSide: Float? = null,
+) {
+    private val layout = cellLayout(style, side, density, width)
     private val joint = style.joint?.let { background }
-    private val cellSize = Size(side, side)
+    private val cellSize = Size(width, side)
     private val bubble: BubblePainter? = style.bubble?.let {
         BubblePainter(style.fill, it.highlight, layout.shape, layout.gloss, layout.fill.size, density)
     }
@@ -62,8 +70,8 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         }
     }
     private val centre: (DrawScope.() -> Unit)? = style.centre?.let { centreSquare(it, side) }
-    private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side) }
-    private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side) }
+    private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side, crossSide) }
+    private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side, layout.fill.center) }
 
     fun draw(scope: DrawScope) {
         val fill = layout.fill
@@ -85,17 +93,21 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
 /** How far from the edges of the fill the arms of a cross end: a quarter of it, the cross in its middle half. */
 private const val CROSS_MARGIN = 0.25f
 
-/** The two diagonals of [cross] across the middle of [fill], each drawn on its halo, in whole pixels. */
+/**
+ * The two diagonals of [cross] across the middle of [fill], each drawn on its halo, in whole pixels: across its middle
+ * half, or across a square of [crossSide] in its centre when the cell is cut.
+ */
 private fun crossOver(
     cross: CellCross,
     fill: Rect,
     side: Float,
+    crossSide: Float?,
 ): DrawScope.() -> Unit {
     val width = pixelsOf(cross.width, side)
     val halo = width * 2
-    val margin = fill.width * CROSS_MARGIN
-    val topLeft = Offset(fill.left + margin, fill.top + margin)
-    val bottomRight = Offset(fill.right - margin, fill.bottom - margin)
+    val half = (crossSide ?: (fill.width * (1 - 2 * CROSS_MARGIN))) / 2
+    val topLeft = Offset(fill.center.x - half, fill.center.y - half)
+    val bottomRight = Offset(fill.center.x + half, fill.center.y + half)
     val topRight = Offset(bottomRight.x, topLeft.y)
     val bottomLeft = Offset(topLeft.x, bottomRight.y)
     // The lines written out: a lambda taking a colour and a width would box them at each frame.
@@ -147,14 +159,14 @@ private fun roundedBorder(
     return { drawPath(path, color, style = stroke) }
 }
 
-/** The [dot] in the centre of a cell of [side] pixels, on its halo, half as wide again. */
+/** The [dot] on the [centre] of the fill of a cell of [side] pixels, cut or not, on its halo, half as wide again. */
 private fun centreDot(
     dot: CellDot,
     side: Float,
+    centre: Offset,
 ): DrawScope.() -> Unit {
     val radius = pixelsOf(dot.size, side) / 2
     val haloRadius = radius * DOT_HALO
-    val centre = Offset(side / 2, side / 2)
     return {
         drawCircle(dot.halo, radius = haloRadius, center = centre)
         drawCircle(dot.color, radius = radius, center = centre)

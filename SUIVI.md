@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 217 / 305 | `██████████████░░░░░░` **71 %** |
+| **Général** | 218 / 307 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1306,14 +1306,18 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
   en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu
   refusé, pièce qui bloque, serrure ouverte, petit écran). Le reste est passé en P7.22.
-- [ ] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
+- [x] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
   de la serrure ouverte et de l'indice, chacun en « Effets réduits » (ADR 0024) ; TalkBack : grille en
   collection, orientation de la pièce choisie, accords entendus, refus répété annoncé, pièce désignée par
-  l'indice nommée, « Serrure ouverte » annoncé trois fois et focus sur la carte (à juger par `designer-jeu`) ;
+  l'indice nommée, « Serrure ouverte » annoncé une seule fois et focus sur le titre de la carte ;
   tuile choisie dont l'anneau descend avec la tuile ; UI Test instrumenté (poser, refuser, reprendre) ;
-  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le nombre de pistes
-  d'effets jamais libérées (ADR 0025, P7.13) ; aperçu sur l'anneau en colonne 0 ou 9 coupé par le bord de
-  l'écran (à juger par `designer-jeu`).
+  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; aperçu sur l'anneau en
+  colonne 0 ou 9 rogné à 4 dp du bord de l'écran. La mesure des pistes d'effets passe en P7.24.
+- [ ] **P7.23** Serrurier, rendu à juger par `designer-jeu` (vu sur les captures de P7.22) : la croix de la case
+  rognée frôle ses bords ; le point d'encre de l'indice tourne au gris au sommet de la lueur ; la case rognée,
+  immobile, chevauche un peu sa voisine pendant le tremblement.
+- [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
+  P7.13), avec les mesures de P5.33.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).

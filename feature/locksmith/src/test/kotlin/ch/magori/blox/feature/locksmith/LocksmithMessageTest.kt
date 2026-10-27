@@ -36,6 +36,26 @@ class LocksmithMessageTest {
     }
 
     @Test
+    fun `a refusal is told with its number, so that TalkBack tells a second refusal in a row again`() {
+        // Given a piece aimed half on the metal, refused twice in a row
+        val aim = Position(1, 1)
+        val first = start.game.place(aim)
+        val second = first.game.place(aim)
+
+        // When
+        val told = listOf(first, second).mapIndexed { move, update ->
+            refusalNumberOf(start.copy(game = update.game, events = update.events, move = move + 1, aim = aim))
+        }
+
+        // Then the same reason, told under two numbers; none without a refusal
+        assertThat(
+            messageOf(start.copy(events = first.events)),
+        ).isEqualTo(messageOf(start.copy(events = second.events)))
+        assertThat(told).containsExactly(1, 2)
+        assertThat(refusalNumberOf(start)).isNull()
+    }
+
+    @Test
     fun `a refusal is told before the hint and the preview`() {
         // Given
         val state = start.copy(
@@ -46,6 +66,15 @@ class LocksmithMessageTest {
 
         // Then
         assertThat(messageOf(state)).isEqualTo(R.string.feature_locksmith_message_overlap)
+    }
+
+    @Test
+    fun `a turn tells the orientation of the chosen piece, before the hint and the preview`() {
+        // Given the piece just turned, a hint shown and the piece aimed
+        val state = start.copy(turned = true, hint = Hint.Blocking(0), aim = Position(3, 3))
+
+        // Then: TalkBack hears the new orientation from the message, the one region it announces
+        assertThat(messageOf(state)).isEqualTo(R.string.feature_locksmith_message_turned)
     }
 
     @Test
@@ -66,21 +95,35 @@ class LocksmithMessageTest {
     }
 
     @Test
-    fun `the padlock of the bar is closed until the padlock opens`() {
-        assertThat(padlockStatusOf(start)).isEqualTo(R.string.feature_locksmith_status_closed)
-        assertThat(padlockStatusOf(start.copy(game = start.game.solved())))
-            .isEqualTo(R.string.feature_locksmith_status_open)
+    fun `a hint names its piece, the one that fits or the placed one that blocks`() {
+        // Given
+        val piece = start.game.padlock.solution.last()
+        val fit = start.copy(hint = Hint.Fit(start.game.given.lastIndex, piece))
+        val blocking = start.copy(hint = Hint.Blocking(0))
+
+        // Then
+        assertThat(hintedPieceOf(fit)).isEqualTo(start.game.given.last())
+        assertThat(hintedPieceOf(blocking)).isEqualTo(start.game.given.first())
+        assertThat(hintedPieceOf(start)).isNull()
     }
 
     @Test
-    fun `an open padlock says so, whatever came before`() {
+    fun `the title of the bar tells the padlock closed until it opens`() {
+        // Then: the padlock drawn beside it says nothing to TalkBack, the title tells its state
+        assertThat(barTitleOf(start)).isEqualTo(R.string.feature_locksmith_title_closed)
+        assertThat(barTitleOf(start.copy(game = start.game.solved())))
+            .isEqualTo(R.string.feature_locksmith_title_open)
+    }
+
+    @Test
+    fun `an open padlock tells the cadence that closed the phrase, whatever came before`() {
         // Given: every piece placed where the solution has it
         val open = start.game.solved()
 
-        // Then
+        // Then: the card alone says « Serrure ouverte ! »
         assertThat(open.isOpen).isTrue
         assertThat(
             messageOf(start.copy(game = open, aim = Position(3, 3))),
-        ).isEqualTo(R.string.feature_locksmith_message_open)
+        ).isEqualTo(R.string.feature_locksmith_message_cadence)
     }
 }

@@ -1,6 +1,7 @@
 package ch.magori.blox.core.board.lock
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.unit.Dp
 import ch.magori.blox.core.game.model.PieceType
 
 /**
@@ -31,3 +32,11 @@ sealed interface LockCell {
      */
     data class Preview(val type: PieceType, val fits: Boolean) : LockCell
 }
+
+/**
+ * A cell of a padlock cut at the edge of the screen (the preview on the ring, at the side): drawn [width] wide, as high
+ * as a whole cell, its cross a square of [cross] in the middle of what is left. Which part is left belongs to the
+ * screen, which places it.
+ */
+@Immutable
+data class LockCellCut(val width: Dp, val cross: Dp)

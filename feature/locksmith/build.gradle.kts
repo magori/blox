@@ -39,4 +39,9 @@ dependencies {
     // features.
     testImplementation(testFixtures(projects.core.audio))
     testImplementation(testFixtures(projects.core.data))
+    // Le parcours de bout en bout de l’écran, sur l’appareil, avec son vrai ViewModel (P7.22).
+    androidTestImplementation(testFixtures(projects.core.audio))
+    androidTestImplementation(testFixtures(projects.core.data))
+    // RecompositionRecorder : le tremblement de la serrure ne recompose pas sa grille (P7.22).
+    androidTestImplementation(testFixtures(projects.core.board))
 }
