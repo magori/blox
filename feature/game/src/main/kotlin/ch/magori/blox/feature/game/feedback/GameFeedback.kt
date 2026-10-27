@@ -19,7 +19,7 @@ import kotlin.math.abs
 internal data class GameFeedback(
     val tick: Int = 0,
     val lock: LockedCells? = null,
-    val turn: KeyTurn? = null,
+    val turns: Map<ControlButton, Int> = emptyMap(),
     val clear: RowsClear? = null,
     val slide: RowsSlide? = null,
     val points: PointsGained? = null,
@@ -42,7 +42,7 @@ internal data class GameFeedback(
         return copy(
             tick = tick,
             lock = locked?.let { LockedCells(it.piece.cells, tick) } ?: lock,
-            turn = turned?.let { KeyTurn(it.rotation.key, tick) } ?: turn,
+            turns = turned?.let { turns + (it.rotation.key to tick) } ?: turns,
             // The clear starts with the lock that fills the rows: its length is what is left of it then.
             clear = when {
                 clearing == null -> null
@@ -54,14 +54,17 @@ internal data class GameFeedback(
         )
     }
 
-    /** How much the cell at [position] is lit, from 0 to 1: the cells of a piece that locked, for [LOCK_TICKS]. */
+    /**
+     * How much the cell at [column] and [row] is lit, from 0 to 1: the cells of a piece that locked, for [LOCK_TICKS].
+     */
     fun lockLight(
-        position: Position,
+        column: Int,
+        row: Int,
         reduced: Boolean,
     ): Float {
         val locked = lock?.takeUnless { reduced } ?: return 0f
         val elapsed = tick - locked.tick
-        if (position !in locked.cells || elapsed >= LOCK_TICKS) return 0f
+        if (elapsed >= LOCK_TICKS || locked.cells.none { it.column == column && it.row == row }) return 0f
         return LOCK_LIGHT * (LOCK_TICKS - elapsed) / LOCK_TICKS
     }
 
@@ -73,9 +76,9 @@ internal data class GameFeedback(
         button: ControlButton,
         reduced: Boolean,
     ): Float {
-        val turned = turn?.takeUnless { reduced } ?: return 0f
-        val elapsed = tick - turned.tick
-        if (button != turned.button || elapsed >= TURN_TICKS) return 0f
+        if (reduced) return 0f
+        val elapsed = tick - (turns[button] ?: return 0f)
+        if (elapsed >= TURN_TICKS) return 0f
         val behind = QUARTER_TURN * (TURN_TICKS - elapsed) / TURN_TICKS
         return if (button == ControlButton.A) -behind else behind
     }
@@ -84,22 +87,23 @@ internal data class GameFeedback(
     fun rowGlows(row: Int): Boolean = clear?.rows?.contains(row) == true
 
     /**
-     * How large the cell at [position] is drawn, 1 as it is, 0 not at all: the cells of the full rows pop by pairs, from
+     * How large the cell at [column] and [row] is drawn, 1 as it is, 0 not at all: the cells of the full rows pop by pairs, from
      * the centre to the edges, one pair after the other, the last one gone on the last tick of the clear. Each one swells
      * a little, then shrinks to nothing.
      */
     fun cellScale(
-        position: Position,
+        column: Int,
+        row: Int,
         reduced: Boolean,
     ): Float {
         val cleared = clear ?: return 1f
-        if (position.row !in cleared.rows) return 1f
+        if (row !in cleared.rows) return 1f
         // In reduced effects, the full rows glow at once, without their cells.
         if (reduced) return 0f
         // The pairs pop during the ticks of the clear after the one of the lock, a fifth of them each.
-        val pair = abs(2 * position.column - (COLUMNS - 1)) / 2
+        val pair = abs(2 * column - (ClassicBoard.columns - 1)) / 2
         val span = (cleared.duration - 1).coerceAtLeast(1).toFloat()
-        val progress = ((tick - cleared.tick) * PAIRS / span - pair).coerceIn(0f, 1f)
+        val progress = ((tick - cleared.tick) * (ClassicBoard.columns / 2) / span - pair).coerceIn(0f, 1f)
         return pop(progress)
     }
 
@@ -174,10 +178,6 @@ internal data class GameFeedback(
         const val TURN_TICKS = 6
 
         const val QUARTER_TURN = 90f
-
-        /** The columns of the board, which pop by pairs. */
-        const val COLUMNS = 10
-        const val PAIRS = COLUMNS / 2
     }
 }
 
@@ -205,10 +205,6 @@ private val Rotation.key: ControlButton
 @Immutable
 internal data class LockedCells(val cells: Set<Position>, val tick: Int)
 
-/** The key [button] whose rotation turned the piece on [tick]. */
-@Immutable
-internal data class KeyTurn(val button: ControlButton, val tick: Int)
-
 /** The full [rows] of a line clear, cleared [ticksLeft] ticks from now (`Phase.Clearing`). */
 @Immutable
 internal data class ClearingRows(val rows: List<Int>, val ticksLeft: Int)
@@ -227,15 +223,17 @@ internal data class RowsSlide(val rows: List<Int>, val tick: Int) {
      * How many rows [row] of the cleared board fell: as many as were cleared under the row it was. The new empty rows at
      * the top fell as many as were cleared.
      */
-    fun fall(row: Int): Int {
-        if (row < rows.size) return rows.size
-        val kept = (0 until BoardRows).filter { it !in rows }
-        return row - kept[row - rows.size]
+    fun fall(row: Int): Int = falls[row]
+
+    // Computed once, not for each row of each frame.
+    private val falls: IntArray = ClassicBoard.rows.let { boardRows ->
+        val kept = (0 until boardRows).filter { it !in rows }
+        IntArray(boardRows) { row -> if (row < rows.size) rows.size else row - kept[row - rows.size] }
     }
 }
 
-/** The rows of the board. */
-private val BoardRows = Board.empty().rows
+/** The board of the game, 10 × 20 cells: its columns pop by pairs, its rows slide, the sticker sits on it. */
+internal val ClassicBoard: Board = Board.empty()
 
 /** [progress], from 0 to 1, slower and slower towards its end. */
 private fun easeOut(progress: Float): Float = 1f - (1f - progress) * (1f - progress)

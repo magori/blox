@@ -12,16 +12,13 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.board.boardPoint
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.feature.game.ui.STICKER_TILT
 
 /** Around the text of the sticker « +points ». */
 private val StickerPaddingX = 8.dp
 private val StickerPaddingY = 4.dp
-
-/** The rows of the board the sticker is placed on. */
-private val BoardRows = Board.empty().rows
 
 /**
  * Over the board, the sticker « +points » that [sticker] gives on each frame: `accent-ink` on `accent`, in the font
@@ -41,7 +38,6 @@ internal fun PointsSticker(
         modifier = modifier
             .clearAndSetSemantics {}
             .drawWithCache {
-                val cell = size.height / BoardRows
                 val padding = Offset(StickerPaddingX.toPx(), StickerPaddingY.toPx())
                 onDrawBehind {
                     val look = sticker() ?: return@onDrawBehind
@@ -53,7 +49,7 @@ internal fun PointsSticker(
                         layoutDirection = layoutDirection,
                     )
                     val pill = Size(text.size.width + 2 * padding.x, text.size.height + 2 * padding.y)
-                    val centre = Offset(size.width / 2, (look.row - look.rise) * cell)
+                    val centre = boardPoint(size.width, size.height, ClassicBoard.columns / 2f, look.row - look.rise)
                     val topLeft = centre - Offset(pill.width / 2, pill.height / 2)
                     rotate(STICKER_TILT, pivot = centre) {
                         drawRoundRect(

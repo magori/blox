@@ -54,6 +54,17 @@ class GameFeedbackTest {
         assertThat(turnedByA.keyAngle(ControlButton.B, reduced = false)).isZero()
     }
 
+    @Test
+    fun `a turn of B leaves the turn of A going on`() {
+        // Given A turned the piece on tick 100, then B on tick 102
+        val turnedByA = GameFeedback().after(100, listOf(GameEvent.PieceRotated(lockedT, Rotation.CLOCKWISE)))
+        val turnedByB = turnedByA.after(102, listOf(GameEvent.PieceRotated(lockedT, Rotation.COUNTERCLOCKWISE)))
+
+        // Then the icon of A goes on turning where it stood, and that of B starts its own turn
+        assertThat(turnedByB.keyAngle(ControlButton.A, reduced = false)).isEqualTo(-60f)
+        assertThat(turnedByB.keyAngle(ControlButton.B, reduced = false)).isEqualTo(90f)
+    }
+
     @ParameterizedTest
     @ValueSource(ints = [17, 18, 19, 20])
     fun `the clear pops the cells by pairs from the centre within the clear delay`(clearDelay: Int) {
@@ -184,43 +195,24 @@ class GameFeedbackTest {
         }
     }
 
-    /**
-     * The feedback, on each tick, of a game whose rows 18 and 19 filled on [lockTick], cleared [clearDelay] ticks later:
-     * the ticks of the clear in `Phase.Clearing`, then the tick of [GameEvent.LinesCleared].
-     */
+    /** The feedback, on each tick, of a game whose rows 18 and 19 filled on [lockTick], cleared [clearDelay] ticks later. */
     private fun clearOfRows18And19(
         lockTick: Int,
         clearDelay: Int,
-    ): (Int) -> GameFeedback {
-        val rows = listOf(18, 19)
-        val locked = GameFeedback().after(
-            lockTick,
-            listOf(GameEvent.PieceLocked(lockedT)),
-            clearing = ClearingRows(rows, ticksLeft = clearDelay),
-            scoreBefore = Points(1_000),
-            score = Points(1_000),
-        )
-        return { tick ->
-            val elapsed = tick - lockTick
-            when {
-                elapsed < clearDelay -> locked.after(
-                    tick,
-                    emptyList(),
-                    ClearingRows(rows, clearDelay - elapsed),
-                    Points(1_000),
-                    Points(1_000),
-                )
+    ): (
+        Int,
+    ) -> GameFeedback =
+        lineClearFeedback(lockedT, listOf(18, 19), lockTick, clearDelay, Points(1_000), Points(1_100))
 
-                else -> locked.after(
-                    lockTick + clearDelay,
-                    listOf(GameEvent.LinesCleared(LineClear(2))),
-                    clearing = null,
-                    scoreBefore = Points(1_000),
-                    score = Points(1_100),
-                ).ticked(tick)
-            }
-        }
-    }
+    private fun GameFeedback.lockLight(
+        cell: Position,
+        reduced: Boolean,
+    ): Float = lockLight(cell.column, cell.row, reduced)
+
+    private fun GameFeedback.cellScale(
+        cell: Position,
+        reduced: Boolean,
+    ): Float = cellScale(cell.column, cell.row, reduced)
 
     /** [this] feedback once the game reached [tick] without any event, at the same score. */
     private fun GameFeedback.ticked(tick: Int): GameFeedback = after(tick = tick, events = emptyList())

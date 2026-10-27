@@ -37,6 +37,21 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 private val BoardShape = Board.empty()
 
 /**
+ * Where a [BoardCanvas] of [width] × [height] pixels draws the point at [column] and [row] of its board, in cells from
+ * the top-left corner of the board: the cells laid out as it lays them out, in whole pixels, centred. What is drawn over
+ * the board, such as a sticker, is placed by it.
+ */
+fun boardPoint(
+    width: Float,
+    height: Float,
+    column: Float,
+    row: Float,
+): Offset {
+    val geometry = BoardGeometry.fit(width, height, BoardShape.columns, BoardShape.rows)
+    return geometry.origin + Offset(column * geometry.cellSize, row * geometry.cellSize)
+}
+
+/**
  * Draws the [board] and the [piece] in play in [variant], on [background], the colour of the joints. No
  * logic here: the cells come from [displayedCells], their place from [BoardGeometry], their look from
  * the [CellPainter]s built by [paintersFor].
@@ -109,7 +124,8 @@ internal fun BoardCanvas(
 /**
  * The [cells] of the board, laid out by [geometry], drawn by [painters] as [effects] say, the glow in [glow]: row by row,
  * from the top, a row lifted drawn over the place of the rows above it, which are lifted as much or more, and so never
- * covers them. Where a lifted row stood, empty cells.
+ * covers them. Where a lifted row stood, empty cells. In a row that glows, the cells that swell are drawn last, over
+ * their neighbours. Nothing is allocated per cell.
  */
 private fun DrawScope.drawCells(
     cells: List<Cell>,
@@ -123,6 +139,32 @@ private fun DrawScope.drawCells(
     val origin = geometry.origin
     val empty = painters.getValue(Cell.Empty)
     val rowSize = Size(columns * side, side)
+    val centre = Offset(side / 2, side / 2)
+
+    // A local function: compiled to a method, it allocates nothing.
+    fun DrawScope.drawCell(
+        column: Int,
+        row: Int,
+        top: Float,
+        glows: Boolean,
+    ) {
+        val scale = effects.cellScale(column, row)
+        if (scale <= 0f) return
+        val painter = painters.getValue(cells[row * columns + column])
+        val light = effects.cellLight(column, row)
+        translate(origin.x + column * side, top) {
+            if (scale == 1f) {
+                painter.draw(this, withJoint = !glows)
+                if (light > 0f) painter.drawLight(this, glow, light)
+            } else {
+                scale(scale, pivot = centre) {
+                    painter.draw(this, withJoint = !glows)
+                    if (light > 0f) painter.drawLight(this, glow, light)
+                }
+            }
+        }
+    }
+
     clipRect(origin.x, origin.y, origin.x + rowSize.width, origin.y + BoardShape.rows * side) {
         for (row in 0 until BoardShape.rows) {
             val place = origin.y + row * side
@@ -134,18 +176,11 @@ private fun DrawScope.drawCells(
             val glows = effects.rowGlows(row)
             if (glows) drawRect(glow, topLeft = Offset(origin.x, top), size = rowSize)
             for (column in 0 until columns) {
-                val position = Position(column, row)
-                val painter = painters.getValue(cells[row * columns + column])
-                translate(origin.x + column * side, top) {
-                    val scale = effects.cellScale(position)
-                    if (scale > 0f) {
-                        scale(scale, pivot = Offset(side / 2, side / 2)) {
-                            painter.draw(this, withJoint = !glows)
-                            val light = effects.cellLight(position)
-                            if (light > 0f) painter.drawLight(this, glow, light)
-                        }
-                    }
-                }
+                if (effects.cellScale(column, row) <= 1f) drawCell(column, row, top, glows)
+            }
+            // The cells that swell, over their neighbours.
+            for (column in 0 until columns) {
+                if (effects.cellScale(column, row) > 1f) drawCell(column, row, top, glows)
             }
         }
     }

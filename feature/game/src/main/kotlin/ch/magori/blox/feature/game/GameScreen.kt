@@ -66,16 +66,13 @@ import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
-import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
-import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
-import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
@@ -86,10 +83,9 @@ import ch.magori.blox.feature.game.controls.RotationPad
 import ch.magori.blox.feature.game.controls.keySourceOf
 import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
-import ch.magori.blox.feature.game.feedback.ClearingRows
 import ch.magori.blox.feature.game.feedback.FeedbackEffects
-import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.feedback.PointsSticker
+import ch.magori.blox.feature.game.feedback.lineClearFeedback
 import ch.magori.blox.feature.game.feedback.rememberFeedbackEffects
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.CurtainPhase
@@ -809,9 +805,9 @@ internal fun GameScreenNewRecordOriginalPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
 }
 
-// The feedback of the game (V28): a T turned by A and locked, filling rows 18 and 19, 3 ticks later, its cells lit, A
-// turning, the middle cells popping; then the same rows cleared 4 ticks before, the rows above coming down, the sticker
-// « +600 » rising, the score counting.
+// The feedback of the game (V28): a T turned by A and locked, filling rows 18 and 19, 4 ticks later: its cells lit, A
+// turning, the middle cells gone, the next ones swelling; then the same rows cleared 4 ticks before: the rows above
+// coming down, the sticker « +600 » rising, the score counting.
 
 /** The T that fills rows 18 and 19, locked on tick 100. */
 private val previewLocked = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(6, 18))
@@ -829,27 +825,19 @@ private val previewFullRows = previewState.copy(
     piece = null,
 )
 
-/** The feedback of the game of [previewFullRows] on [tick]: the rows cleared on tick 118, for 600 points. */
-private fun previewFeedback(tick: Int): GameFeedback {
-    val before = Points(11_740)
-    val rows = listOf(18, 19)
-    val locked = GameFeedback().after(
-        100,
-        listOf(GameEvent.PieceRotated(previewLocked, Rotation.CLOCKWISE), GameEvent.PieceLocked(previewLocked)),
-        ClearingRows(rows, ticksLeft = 18),
-        before,
-        before,
+/** The feedback of the game of [previewFullRows] on each tick: the rows cleared on tick 118, for 600 points. */
+private val previewFeedback =
+    lineClearFeedback(
+        previewLocked,
+        listOf(18, 19),
+        lockTick = 100,
+        clearDelay = 18,
+        Points(11_740),
+        previewState.score,
     )
-    return if (tick < 118) {
-        locked.after(tick, emptyList(), ClearingRows(rows, ticksLeft = 118 - tick), before, before)
-    } else {
-        locked.after(118, listOf(GameEvent.LinesCleared(LineClear(2))), null, before, previewState.score)
-            .after(tick, emptyList(), null, previewState.score, previewState.score)
-    }
-}
 
-/** The game of [previewFullRows] 3 ticks after the lock that filled its rows. */
-private val clearingState = previewFullRows.copy(score = Points(11_740), feedback = previewFeedback(103))
+/** The game of [previewFullRows] 4 ticks after the lock that filled its rows. */
+private val clearingState = previewFullRows.copy(score = Points(11_740), feedback = previewFeedback(104))
 
 /** The game once the rows of [previewFullRows] were cleared, 4 ticks before. */
 private val clearedState = previewState.copy(

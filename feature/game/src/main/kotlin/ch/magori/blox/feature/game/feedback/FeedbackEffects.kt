@@ -7,7 +7,6 @@ import ch.magori.blox.core.board.BoardEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Points
-import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.feature.game.controls.ControlButton
 
 /**
@@ -23,9 +22,15 @@ internal class FeedbackEffects(private val feedback: () -> GameFeedback, private
 
         override fun rowGlows(row: Int): Boolean = feedback().rowGlows(row)
 
-        override fun cellScale(position: Position): Float = feedback().cellScale(position, reduced)
+        override fun cellScale(
+            column: Int,
+            row: Int,
+        ): Float = feedback().cellScale(column, row, reduced)
 
-        override fun cellLight(position: Position): Float = feedback().lockLight(position, reduced)
+        override fun cellLight(
+            column: Int,
+            row: Int,
+        ): Float = feedback().lockLight(column, row, reduced)
     }
 
     /** The angle of the icon of the key [button], in degrees, clockwise. */

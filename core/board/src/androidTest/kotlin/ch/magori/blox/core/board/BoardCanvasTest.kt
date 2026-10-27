@@ -205,10 +205,15 @@ internal class BoardCanvasTest {
 
         override fun rowGlows(row: Int): Boolean = row == 19
 
-        override fun cellScale(position: Position): Float =
-            if (position.row == 19) 1f - effectTick.toFloat() / EFFECT_TICKS else 1f
+        override fun cellScale(
+            column: Int,
+            row: Int,
+        ): Float = if (row == 19) 1f - effectTick.toFloat() / EFFECT_TICKS else 1f
 
-        override fun cellLight(position: Position): Float = if (position.row == 18) 0.5f else 0f
+        override fun cellLight(
+            column: Int,
+            row: Int,
+        ): Float = if (row == 18) 0.5f else 0f
     }
 
     /** The effects the board is drawn with, none unless a test gives some. */

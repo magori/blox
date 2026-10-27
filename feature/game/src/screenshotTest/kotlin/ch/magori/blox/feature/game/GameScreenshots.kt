@@ -122,9 +122,9 @@ private fun GameScreenNewRecordNight() = GameScreenNewRecordPreview()
 @Composable
 private fun GameScreenNewRecordOriginal() = GameScreenNewRecordOriginalPreview()
 
-// The feedback of the game (V28), at fixed ticks: rows being cleared 3 ticks after the lock (cells lit, A turning,
-// the middle cells popping), then cleared 4 ticks before (rows coming down, sticker « +600 », score counting); day,
-// night and large font, and in reduced effects.
+// The feedback of the game (V28), at fixed ticks: rows being cleared 4 ticks after the lock (cells lit, A turning, the
+// middle cells gone, the next ones swelling), then cleared 4 ticks before (rows coming down, sticker « +600 », score
+// counting); day, night and large font, and in reduced effects.
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760)

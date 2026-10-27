@@ -50,7 +50,6 @@ import ch.magori.blox.core.music.Scores
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
-import ch.magori.blox.feature.game.feedback.KeyTurn
 import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.navigation.GameRoute
@@ -60,6 +59,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
@@ -1236,7 +1236,7 @@ class GameViewModelTest {
         }
 
         // Then
-        assertThat(turned.turn).isEqualTo(KeyTurn(ControlButton.B, tick = 1))
+        assertThat(turned.turns).containsExactly(entry(ControlButton.B, 1))
         assertThat(viewModel.uiState.value.feedback.lock?.cells).hasSize(4)
     }
 

@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game
 
+import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
@@ -11,6 +12,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -19,13 +21,18 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -39,20 +46,19 @@ import ch.magori.blox.core.board.next.pieceName
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
-import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Direction
 import ch.magori.blox.core.game.model.Level
-import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
-import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
-import ch.magori.blox.feature.game.feedback.ClearingRows
+import ch.magori.blox.feature.game.controls.ControlButton
+import ch.magori.blox.feature.game.controls.controlTestTag
 import ch.magori.blox.feature.game.feedback.GameFeedback
+import ch.magori.blox.feature.game.feedback.lineClearFeedback
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -176,30 +182,8 @@ internal class GameScreenTest {
      * The feedback of the game on [tick]: a T turned by A, then locked, on tick 100, filling row 19, cleared on tick 118,
      * the score going from 12 240 to the 12 340 of [uiState].
      */
-    private fun feedbackOn(tick: Int): GameFeedback {
-        val t = checkNotNull(uiState.piece)
-        val locked = GameFeedback().after(
-            100,
-            listOf(GameEvent.PieceRotated(t, Rotation.CLOCKWISE), GameEvent.PieceLocked(t)),
-            ClearingRows(listOf(19), ticksLeft = 18),
-            Points(12_240),
-            Points(12_240),
-        )
-        return when {
-            tick < 118 -> locked.after(
-                tick,
-                emptyList(),
-                ClearingRows(listOf(19), 118 - tick),
-                Points(12_240),
-                Points(12_240),
-            )
-
-            else ->
-                locked
-                    .after(118, listOf(GameEvent.LinesCleared(LineClear(1))), null, Points(12_240), Points(12_340))
-                    .after(tick, emptyList(), null, Points(12_340), Points(12_340))
-        }
-    }
+    private fun feedbackOn(tick: Int): GameFeedback =
+        lineClearFeedback(checkNotNull(uiState.piece), listOf(19), 100, 18, Points(12_240), Points(12_340))(tick)
 
     /** Plays the feedback of [feedbackOn] from tick [from] to tick [to], drawing each tick. */
     private fun ComposeContext.playFeedback(
@@ -239,6 +223,39 @@ internal class GameScreenTest {
             .isNotEmpty()
             .allSatisfy { assertThat(it).contains("ScoreValue") }
     }
+
+    @Test
+    @DisplayName("the icon that turns is the one of A, the key that turned the piece, and B stays still")
+    fun theIconThatTurnsIsTheOneOfTheKeyThatTurnedThePiece() = extension.use {
+        // Given A turned the piece on tick 100
+        uiState = uiState.copy(feedback = feedbackOn(100))
+        showGameScreen()
+        val aOnTheTurn = keyImage(ControlButton.A)
+        val bOnTheTurn = keyImage(ControlButton.B)
+
+        // When the turn goes on, 3 ticks later
+        runOnIdle { uiState = uiState.copy(feedback = feedbackOn(103)) }
+
+        // Then
+        assertThat(keyImage(ControlButton.A).sameAs(aOnTheTurn)).isFalse()
+        assertThat(keyImage(ControlButton.B).sameAs(bOnTheTurn)).isTrue()
+    }
+
+    @Test
+    @DisplayName("the points sticker is not read by TalkBack")
+    fun thePointsStickerIsNotReadByTalkBack() = extension.use {
+        // Given row 19 cleared on tick 118 for 100 points, the sticker shown
+        uiState = uiState.copy(feedback = feedbackOn(120))
+        showGameScreen()
+
+        // Then no node says the points of the sticker
+        onAllNodesWithText("+100", substring = true).assertCountEquals(0)
+        onAllNodesWithContentDescription("+100", substring = true).assertCountEquals(0)
+    }
+
+    /** The key of [button] as it is drawn. */
+    private fun ComposeContext.keyImage(button: ControlButton): Bitmap =
+        onNodeWithTag(controlTestTag(button)).captureToImage().asAndroidBitmap()
 
     @Test
     @DisplayName("the effects are drawn over the game, and gone once over")
