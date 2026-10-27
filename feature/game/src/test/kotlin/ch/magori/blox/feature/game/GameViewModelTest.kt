@@ -1465,6 +1465,57 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the screen lays the keys out for the left hand when the player is left handed`() {
+        // Given a left handed player
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+
+        // When
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+    }
+
+    @Test
+    fun `the left handed choice is read once per game, at its start, and kept as the game goes on`() {
+        // Given a game started for a left handed player
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the choice is changed during the game, then the game goes on
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = false)
+        repeat(3) { viewModel.onFrame(it * ONE_SIXTIETH_NANOS) }
+
+        // Then the keys stay where the game started with them
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+    }
+
+    @Test
+    fun `until the settings answer the game shows no keys, does not run and takes no key`() {
+        // Given settings that have not answered yet, for a left handed player
+        val lateSettings = FakeUserPreferencesRepository(initial = null)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = lateSettings)
+
+        // When a key of a keyboard is pressed meanwhile
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+        viewModel.onControl(ControlChange.Released(ControlButton.LEFT))
+
+        // Then where the keys stand is not known yet: none is shown, and no frame is asked for
+        assertThat(viewModel.uiState.value.leftHanded).isNull()
+        assertThat(viewModel.uiState.value.running).isFalse()
+
+        // When the settings answer, then the game plays its first tick
+        lateSettings.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then the keys are laid out for the left hand, the game runs, and the key pressed before did nothing
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+        assertThat(viewModel.uiState.value.running).isTrue()
+        assertThat(viewModel.uiState.value.piece?.pivot?.column).isEqualTo(spawnedT.pivot.column)
+    }
+
+    @Test
     fun `with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`() {
         // Given settings that have not answered yet
         val lateSettings = FakeUserPreferencesRepository(initial = null)

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 211 / 304 | `██████████████░░░░░░` **69 %** |
+| **Général** | 212 / 304 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -972,7 +972,7 @@ composants.
   Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new
   record` (P5.56), `the record bar fills with the score up to the record`, `nothing on the screen recomposes
   when only the piece moves` ; captures.
-- [ ] **P5.79** Touches v2 et Gaucher (`feature:game`, `feature:home`) : flèches de 60 dp, B et A de 68 dp au
+- [x] **P5.79** Touches v2 et Gaucher (`feature:game`, `feature:home`) : flèches de 60 dp, B et A de 68 dp au
   pictogramme seul (nom lu par TalkBack), B plus bas ; tailles réduites sous 390 dp de large pour tenir à 360 dp
   ; préférence Gaucher lue à la création de la partie, `gameLayout(…, leftHanded)` ; rangée Gaucher dans
   Affichage avec son schéma. Après P5.65, P5.71, P5.78.
@@ -1009,7 +1009,7 @@ composants.
   Cas : `a new record shows the old record as « Ancien record »`, `a first positive score is shown as a new record, without an old record`, `without a new record the record is shown as «
   Record »`, `the stack goes out from the bottom, 2 ticks a row`, `in reduced effects the stack goes out at once
   and the score shows at once`, `the game loop stays stopped while the game over plays` ; captures.
-- [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et
+- [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et (avec les tailles de touches tablette, `key-*-tablet`, que P5.79 ne prend pas encore)
   tablettes debout et couchée pour l'accueil (deux colonnes), les Paramètres (Affichage et Record à gauche, Sons
   et vibrations à droite) et le jeu (mesures v2 par format) ; retrait de `screenOrientation="portrait"` (à
   trancher avec P2.8). Après P5.70, P5.77, P5.83.

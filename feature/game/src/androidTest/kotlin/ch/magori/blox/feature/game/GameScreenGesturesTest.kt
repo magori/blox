@@ -32,7 +32,7 @@ private const val MAX_EXCLUSION_DP = 200f
 
 /**
  * The controls against the system gestures. In gesture navigation, the system takes a swipe from the
- * left or right edge as Back, over a zone that can be wider than the 24 dp margins of the screen: a
+ * left or right edge as Back, over a zone that can be wider than the 16 dp margins of the screen: a
  * thumb on ◀ moving to ▼ would then cancel the fingers, and the game would pause. The controls exclude
  * their rectangles from these gestures (API 29 and above, where the gestures exist).
  *
