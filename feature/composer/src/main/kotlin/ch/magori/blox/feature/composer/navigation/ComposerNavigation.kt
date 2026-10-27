@@ -1,13 +1,11 @@
 package ch.magori.blox.feature.composer.navigation
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -45,19 +43,14 @@ fun EntryProviderScope<NavKey>.composerEntry(
     viewModelFactory: ComposerViewModel.Factory,
 ) {
     entry<ComposerRoute> { route ->
-        // The default extras of the owner (saved state, application…) are kept; the key of the music and the dice join
-        // them.
-        val owner = checkNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner for the composer entry" }
-        val defaults = (owner as? HasDefaultViewModelProviderFactory)?.defaultViewModelCreationExtras
-            ?: CreationExtras.Empty
-        val extras = remember(route, defaults) {
-            MutableCreationExtras(defaults).apply {
-                route.musicKey?.let { set(ComposerViewModel.MusicKey, it) }
-                if (route.rollDice) set(ComposerViewModel.RollDice, true)
-            }
+        // The default extras of the entry (saved state, application…) are kept; the key of the music and the dice join
+        // them (ADR 0013).
+        val defaults = LocalViewModelStoreOwner.current.defaultViewModelCreationExtras
+        val extras = CreationExtras(defaults) {
+            route.musicKey?.let { set(ComposerViewModel.MusicKey, it) }
+            if (route.rollDice) set(ComposerViewModel.RollDice, true)
         }
-        val viewModel: ComposerViewModel =
-            viewModel(viewModelStoreOwner = owner, factory = viewModelFactory, extras = extras)
+        val viewModel: ComposerViewModel = viewModel(factory = viewModelFactory, extras = extras)
         // Leaving counts only while the editor is resumed: once it is on its way out, a second exit pops nothing more.
         val lifecycle = LocalLifecycleOwner.current.lifecycle
         val currentBack by rememberUpdatedState(onBack)

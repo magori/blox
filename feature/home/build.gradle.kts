@@ -41,4 +41,6 @@ dependencies {
     testImplementation(testFixtures(projects.core.haptics))
     // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
     androidTestImplementation(testFixtures(projects.core.designsystem))
+    // Le contraste et les palettes nommées (schéma des touches de Gaucher).
+    testImplementation(testFixtures(projects.core.designsystem))
 }

@@ -22,14 +22,25 @@ class GlossTokensTest {
         assertThat(token.read(BloxGlossSets.ColorfulDark)).isEqualTo(cssGloss(written.night))
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("codedDropShadows")
+    fun `each drop shadow of tokens json is the drop shadow of the code, day and night`(token: CodedDropShadow) {
+        // Given the token as tokens json writes it
+        val written = DesignTokens.shadows.getValue(token.name)
+
+        // Then
+        assertThat(token.read(BloxGlossSets.ColorfulLight)).isEqualTo(cssDropShadow(written.day))
+        assertThat(token.read(BloxGlossSets.ColorfulDark)).isEqualTo(cssDropShadow(written.night))
+    }
+
     @Test
-    fun `every shadow token of tokens json is a gloss of the code`() {
+    fun `every shadow token of tokens json is a gloss or a drop shadow of the code`() {
         // Given the shadow tokens of tokens json, but those of the padlock of the Locksmith, `lock-*`, in the Colorful
         // theme only: coded with its cells in core:board, and compared to tokens json there (LockTokensTest)
         val tokens = DesignTokens.shadows.keys.filterNot { it.startsWith(LOCK_TOKEN) }
 
         // Then
-        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name })
+        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name } + CODED_DROPS.map { it.name })
     }
 
     @Test
@@ -47,6 +58,31 @@ class GlossTokensTest {
             GlossLayer.Inner(offsetY = (-2).dp, color = Color(red = 28, green = 27, blue = 46).copy(alpha = 0.16f)),
             GlossLayer.Ring(width = 1.dp, color = Color(red = 28, green = 27, blue = 46).copy(alpha = 0.14f)),
         )
+    }
+
+    @Test
+    fun `a drop shadow written in tokens json is read as its drop, its blur and its colour`() {
+        // Given a shadow under a panel, as tokens json writes it
+        val written = "0 4px 16px rgba(28,27,46,0.16)"
+
+        // When
+        val shadow = cssDropShadow(written)
+
+        // Then
+        assertThat(shadow).isEqualTo(
+            DropShadow(
+                offsetY = 4.dp,
+                blur = 16.dp,
+                color = Color(red = 28, green = 27, blue = 46).copy(alpha = 0.16f),
+            ),
+        )
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["inset 0 4px 16px #1C1B2E", "2px 4px 16px #1C1B2E", "0 4px 16px 2px #1C1B2E"])
+    fun `a drop shadow inset, moved sideways or spread is refused, the code could not draw it`(written: String) {
+        // Then
+        assertThatThrownBy { cssDropShadow(written) }.isInstanceOf(IllegalArgumentException::class.java)
     }
 
     @ParameterizedTest
@@ -67,6 +103,11 @@ class GlossTokensTest {
         override fun toString(): String = "$name → $property"
     }
 
+    /** A drop shadow token of tokens json, and the property of [BloxGlosses] that holds it. */
+    class CodedDropShadow(val name: String, private val property: String, val read: (BloxGlosses) -> DropShadow) {
+        override fun toString(): String = "$name → $property"
+    }
+
     companion object {
         /** The prefix of the shadows of the padlock of the Locksmith in tokens json. */
         private const val LOCK_TOKEN = "lock-"
@@ -77,7 +118,14 @@ class GlossTokensTest {
             CodedToken("cell-gloss", "cell") { it.cell },
         )
 
+        private val CODED_DROPS: List<CodedDropShadow> = listOf(
+            CodedDropShadow("menu-shadow", "menu") { it.menu },
+        )
+
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED
+
+        @JvmStatic
+        fun codedDropShadows(): List<CodedDropShadow> = CODED_DROPS
     }
 }

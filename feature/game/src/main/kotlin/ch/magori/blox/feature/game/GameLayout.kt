@@ -9,7 +9,10 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.roundToPixel
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.feature.game.controls.ControlSizes
+import ch.magori.blox.feature.game.controls.KeySizes
+import ch.magori.blox.feature.game.controls.fittingKeySizes
 import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
@@ -38,8 +41,8 @@ private const val LINE_HEIGHT = 1.37f
  * Where the game screen puts its parts, in pixels of the space given to [gameLayout]: the [board] of
  * square cells of [cellSize], the [sidePanel] (score, level, lines, and the next piece unless
  * [nextPiece] places it apart; above the board, two by two, when [scoresAbove]), and the two groups of
- * controls, [directions] (◀ ▼ ▶) and [rotations] (B A), the arrows [directionSpacing] apart. The board is framed
- * [boardFrameInset] around its cells ([boardFrame]).
+ * controls, [directions] (◀ ▼ ▶) and [rotations] (B A), of [keys], the arrows [directionSpacing] apart, B A on the
+ * left when [leftHanded]. The board is framed [boardFrameInset] around its cells ([boardFrame]).
  */
 @Immutable
 internal data class GameLayout(
@@ -52,6 +55,8 @@ internal data class GameLayout(
     val rotations: Rect,
     val directionSpacing: Float,
     val boardFrameInset: Float,
+    val keys: KeySizes,
+    val leftHanded: Boolean,
 ) {
     /**
      * The frame of the board, [boardFrameInset] around its cells: within the width of the space, lined up with the top
@@ -73,30 +78,48 @@ private val BoardFrameInset = BloxBorders.frame + 6.dp
  * than those of the usual layout at that width, so that a wider window never has a smaller board. When none
  * fits, a window too small for the controls, the portrait layout with one group above the other, its cells
  * of one pixel at least: what goes past the space is cut.
+ *
+ * The keys are the largest whose two groups fit the width side by side ([fittingKeySizes]), unless smaller ones leave
+ * cells larger by 1 dp at least, in a window too low: by less, a window resized by a few dp would change its keys back
+ * and forth. For the [leftHanded],
+ * the two groups swap sides, as in a mirror: B A on the left, ◀ ▼ ▶ on the right.
  */
 internal fun gameLayout(
     width: Float,
     height: Float,
     density: Float,
     fontScale: Float = 1f,
+    leftHanded: Boolean = false,
+): GameLayout = fittingKeySizes(Dp(width / density))
+    .map { keys -> gameLayout(width, height, density, fontScale, keys, leftHanded) }
+    .reduce { chosen, smaller -> if (smaller.cellSize >= chosen.cellSize + density) smaller else chosen }
+
+/** [gameLayout] with the keys of [keys]. */
+private fun gameLayout(
+    width: Float,
+    height: Float,
+    density: Float,
+    fontScale: Float,
+    keys: KeySizes,
+    leftHanded: Boolean,
 ): GameLayout {
-    val sizes = Sizes(density, fontScale, width)
+    val sizes = Sizes(density, fontScale, width, keys, leftHanded)
     val usual = usualLayout(width, height, sizes)
     val limit = sizes.scoresAboveBelow
     if (width >= limit) return usual
-    val largestCell = usualLayout(limit, height, Sizes(density, fontScale, limit)).cellSize
+    val largestCell = usualLayout(limit, height, Sizes(density, fontScale, limit, keys, leftHanded)).cellSize
     return listOf(true, false)
         .map { stacked -> scoresAbove(width, height, sizes, stacked, largestCell) }
         .filter { it.cellSize > usual.cellSize }
-        .largestThatFits(width, height)
+        .largestThatFits(width, height, sizes.groupGap)
         ?: usual
 }
 
 /** Under cells of this size, the game is hardly playable: the screen asks for a larger window (P2.24). */
 private val SmallestCell = 8.dp
 
-/** Around the game screen: the margins the controls are sized for (P2.5). */
-internal val ScreenMargin = 24.dp
+/** Around the game screen: the margins the controls are sized for (P2.5; 16 dp since Couleurs v2, P5.79). */
+internal val ScreenMargin = BloxSpaces.space4
 
 /** The top bar on one row: as high as its pause button. */
 private val TopBarRow = BloxSizes.minTouchTarget
@@ -128,25 +151,36 @@ private fun usualLayout(
 ): GameLayout {
     val stacked = portrait(width, height, sizes, stacked = true)
     return listOf(portrait(width, height, sizes, stacked = false), landscape(width, height, sizes), stacked)
-        .largestThatFits(width, height)
+        .largestThatFits(width, height, sizes.groupGap)
         ?: stacked
 }
 
-/** Of these layouts, the one with the largest board, among those that fit in [width] × [height]. */
+/**
+ * Of these layouts, the one with the largest board, among those that fit in [width] × [height], their groups of controls
+ * [groupGap] apart at least when side by side.
+ */
 private fun List<GameLayout>.largestThatFits(
     width: Float,
     height: Float,
-): GameLayout? = filter { it.fitsIn(width, height) }.maxByOrNull { it.cellSize }
+    groupGap: Float,
+): GameLayout? = filter { it.fitsIn(width, height, groupGap) }.maxByOrNull { it.cellSize }
 
-/** Every part inside [width] × [height], none over another. */
+/**
+ * Every part inside [width] × [height], none over another, and the two groups of controls, when side by side, [groupGap]
+ * apart at least: else a thumb on one would brush the other.
+ */
 private fun GameLayout.fitsIn(
     width: Float,
     height: Float,
+    groupGap: Float,
 ): Boolean {
     val parts = listOfNotNull(board, sidePanel, nextPiece, directions, rotations)
     val space = Rect(0f, 0f, width, height)
+    val sideBySide = directions.top < rotations.bottom && rotations.top < directions.bottom
+    val apart = maxOf(rotations.left - directions.right, directions.left - rotations.right)
     return parts.all { space.intersect(it) == it } &&
-        parts.withIndex().none { (index, part) -> parts.drop(index + 1).any { it.overlaps(part) } }
+        parts.withIndex().none { (index, part) -> parts.drop(index + 1).any { it.overlaps(part) } } &&
+        (!sideBySide || apart >= groupGap)
 }
 
 /**
@@ -173,10 +207,12 @@ private fun portrait(
         sidePanel = Rect(board.right + gap, board.top, board.right + gap + next, areaHeight),
         nextPiece = null,
         scoresAbove = false,
-        directions = directionsBelow(height, stacked),
+        directions = directionsBelow(width, height, stacked),
         rotations = rotationsBelow(width, height, stacked),
         directionSpacing = directionSpacing,
         boardFrameInset = boardFrameInset,
+        keys = keys,
+        leftHanded = leftHanded,
     )
 }
 
@@ -204,10 +240,12 @@ private fun scoresAbove(
         sidePanel = Rect(0f, top, width, top + scores),
         nextPiece = null,
         scoresAbove = true,
-        directions = directionsBelow(height, stacked),
+        directions = directionsBelow(width, height, stacked),
         rotations = rotationsBelow(width, height, stacked),
         directionSpacing = directionSpacing,
         boardFrameInset = boardFrameInset,
+        keys = keys,
+        leftHanded = leftHanded,
     )
 }
 
@@ -221,8 +259,8 @@ private fun landscape(
     height: Float,
     sizes: Sizes,
 ): GameLayout = with(sizes) {
-    val spanLeft = directionsWidth + gap
-    val spanRight = width - rotationsWidth - gap
+    val spanLeft = leftGroupWidth + gap
+    val spanRight = width - rightGroupWidth - gap
     val cellSize = cellFor(spanRight - spanLeft - side - gap - gap, height)
     val next = nextWidth(cellSize)
     val panels = side + gap + gap + next
@@ -234,10 +272,12 @@ private fun landscape(
         sidePanel = Rect(left, board.top, left + side, height),
         nextPiece = Rect(board.right + gap, board.top, board.right + gap + next, height),
         scoresAbove = false,
-        directions = directionsBelow(height, stacked = false),
+        directions = directionsBelow(width, height, stacked = false),
         rotations = rotationsBelow(width, height, stacked = false),
         directionSpacing = directionSpacing,
         boardFrameInset = boardFrameInset,
+        keys = keys,
+        leftHanded = leftHanded,
     )
 }
 
@@ -245,7 +285,7 @@ private fun landscape(
  * The sizes of the layout, in pixels. The controls are measured as Compose measures them: each button
  * and each spacing rounded to whole pixels, so that their rectangles hold them whole.
  */
-private class Sizes(density: Float, fontScale: Float, width: Float) {
+private class Sizes(density: Float, fontScale: Float, width: Float, val keys: KeySizes, val leftHanded: Boolean) {
     private val pixels = Density(density, fontScale)
 
     private fun Dp.px(): Float = with(pixels) { toPx() }
@@ -262,15 +302,18 @@ private class Sizes(density: Float, fontScale: Float, width: Float) {
     /** The narrowest width where the board beside the side column, as wide as the column, needs no score above it. */
     val scoresAboveBelow = gap + 2 * side
 
+    /** Between the two groups of controls, side by side. */
+    val groupGap = ControlSizes.groupGap.px()
+
     private val spacing = ControlSizes.spacing.wholePx()
-    private val directionButton = ControlSizes.directionButton.wholePx()
-    private val rotationButton = ControlSizes.rotationButton.wholePx()
+    private val directionButton = keys.arrow.wholePx()
+    private val rotationButton = keys.rotation.wholePx()
 
     /** Between two arrows: closer in a window narrower than them, down to touching. B A keep their spacing. */
     val directionSpacing = minOf(spacing, floor((width - 3 * directionButton) / 2)).coerceAtLeast(0f)
     val directionsWidth = 3 * directionButton + 2 * directionSpacing
-    private val directionsHeight = (ControlSizes.rotationStagger / 2).wholePx() + directionButton
-    val rotationsWidth = 2 * rotationButton + spacing
+    private val directionsHeight = keys.arrowRaise.wholePx() + directionButton
+    val rotationsWidth = 2 * rotationButton + ControlSizes.rotationSpacing.wholePx()
     private val rotationsHeight = ControlSizes.rotationStagger.wholePx() + rotationButton
 
     /** Around the preview of the next piece: the frame and the padding of its panel, on both sides. */
@@ -339,22 +382,35 @@ private class Sizes(density: Float, fontScale: Float, width: Float) {
         return Rect(left, top, left + cellSize * BOARD_COLUMNS, top + cellSize * BOARD_ROWS)
     }
 
-    /** ◀ ▼ ▶ at the bottom left of [height], above B A when [stacked]. */
+    /** The group on the left edge: ◀ ▼ ▶, or B A for the [leftHanded]. */
+    val leftGroupWidth get() = if (leftHanded) rotationsWidth else directionsWidth
+
+    /** The group on the right edge: B A, or ◀ ▼ ▶ for the [leftHanded]. */
+    val rightGroupWidth get() = if (leftHanded) directionsWidth else rotationsWidth
+
+    /** ◀ ▼ ▶ at the bottom left of [width] × [height] (right, for the [leftHanded]), above B A when [stacked]. */
     fun directionsBelow(
+        width: Float,
         height: Float,
         stacked: Boolean,
     ): Rect {
         val top = height - controlsHeight(stacked)
-        return Rect(0f, top, directionsWidth, top + directionsHeight)
+        return onItsEdge(Rect(0f, top, directionsWidth, top + directionsHeight), width)
     }
 
-    /** B A at the bottom right of [width] × [height]. */
+    /** B A at the bottom right of [width] × [height] (left, for the [leftHanded]). */
     fun rotationsBelow(
         width: Float,
         height: Float,
         stacked: Boolean,
     ): Rect {
         val top = height - if (stacked) rotationsHeight else controlsHeight(stacked = false)
-        return Rect(width - rotationsWidth, top, width, top + rotationsHeight)
+        return onItsEdge(Rect(width - rotationsWidth, top, width, top + rotationsHeight), width)
     }
+
+    /** [rect], laid out for the right hand, as it stands in [width]: mirrored for the [leftHanded]. */
+    private fun onItsEdge(
+        rect: Rect,
+        width: Float,
+    ): Rect = if (leftHanded) Rect(width - rect.right, rect.top, width - rect.left, rect.bottom) else rect
 }

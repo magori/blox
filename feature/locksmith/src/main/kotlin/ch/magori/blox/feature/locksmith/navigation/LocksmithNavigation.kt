@@ -2,10 +2,9 @@ package ch.magori.blox.feature.locksmith.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.lifecycle.HasDefaultViewModelProviderFactory
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -43,15 +42,10 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
     viewModelFactory: LocksmithViewModel.Factory,
 ) {
     entry<LocksmithRoute> { route ->
-        // The default extras of the owner (saved state, application…) are kept; the route joins them.
-        val owner = checkNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner for the locksmith entry" }
-        val defaults = (owner as? HasDefaultViewModelProviderFactory)?.defaultViewModelCreationExtras
-            ?: CreationExtras.Empty
-        val extras = remember(route, defaults) {
-            MutableCreationExtras(defaults).apply { set(LocksmithViewModel.RouteKey, route) }
-        }
-        val viewModel: LocksmithViewModel =
-            viewModel(viewModelStoreOwner = owner, factory = viewModelFactory, extras = extras)
+        // The default extras of the entry (saved state, application…) are kept; the route joins them (ADR 0013).
+        val defaults = LocalViewModelStoreOwner.current.defaultViewModelCreationExtras
+        val extras = CreationExtras(defaults) { set(LocksmithViewModel.RouteKey, route) }
+        val viewModel: LocksmithViewModel = viewModel(factory = viewModelFactory, extras = extras)
         val state by viewModel.uiState.collectAsStateWithLifecycle()
         LocksmithScreen(
             state = state,

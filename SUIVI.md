@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 209 / 304 | `██████████████░░░░░░` **69 %** |
+| **Général** | 213 / 304 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -972,7 +972,7 @@ composants.
   Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new
   record` (P5.56), `the record bar fills with the score up to the record`, `nothing on the screen recomposes
   when only the piece moves` ; captures.
-- [ ] **P5.79** Touches v2 et Gaucher (`feature:game`, `feature:home`) : flèches de 60 dp, B et A de 68 dp au
+- [x] **P5.79** Touches v2 et Gaucher (`feature:game`, `feature:home`) : flèches de 60 dp, B et A de 68 dp au
   pictogramme seul (nom lu par TalkBack), B plus bas ; tailles réduites sous 390 dp de large pour tenir à 360 dp
   ; préférence Gaucher lue à la création de la partie, `gameLayout(…, leftHanded)` ; rangée Gaucher dans
   Affichage avec son schéma. Après P5.65, P5.71, P5.78.
@@ -1009,7 +1009,7 @@ composants.
   Cas : `a new record shows the old record as « Ancien record »`, `a first positive score is shown as a new record, without an old record`, `without a new record the record is shown as «
   Record »`, `the stack goes out from the bottom, 2 ticks a row`, `in reduced effects the stack goes out at once
   and the score shows at once`, `the game loop stays stopped while the game over plays` ; captures.
-- [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et
+- [ ] **P5.84** Formats supplémentaires (optionnel, en dernier, décision du développeur) : téléphone couché et (avec les tailles de touches tablette, `key-*-tablet`, que P5.79 ne prend pas encore)
   tablettes debout et couchée pour l'accueil (deux colonnes), les Paramètres (Affichage et Record à gauche, Sons
   et vibrations à droite) et le jeu (mesures v2 par format) ; retrait de `screenOrientation="portrait"` (à
   trancher avec P2.8). Après P5.70, P5.77, P5.83.
@@ -1055,18 +1055,18 @@ composants.
     `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
     takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
     high as a target` ; captures.
-  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0026) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+  - [x] **P5.96** Feuille du bas (`core:designsystem`, ADR 0029) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
     panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
     `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
     ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée
     d'actions restant visible) ; `SheetChoiceRow` (rangée de 56 dp, rond puis `CheckMark` une fois retenue, libellé
-    et sous-ligne). ADR 0026 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
+    et sous-ligne). ADR 0029 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
     P5.71, P5.93.
     Cas : `a sheet is read as a dialog by TalkBack, its title first`, `the system back and a touch on the scrim close
     the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
     bottom inset keeps its last row of actions in sight, its content scrolling`, `a choice row is 56 dp high, read as
     a radio button with its label and its sub-line, the chosen one checked` ; captures.
-  - [ ] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
+  - [x] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
     `panel` cadré `radius-md`, rangées de 48 dp, pictogramme décoratif, variante `danger`, variante cochée ; ombre
     par un jeton à ajouter, ADR 0019), à la place du `DropdownMenu` de Material ; `SnackMessage` (fond `ink`, texte
     `page`, `radius-snack`, action en texte et croix en disque nu, région vive polie ; l'action passe sous le texte
@@ -1299,8 +1299,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
 - [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
   pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
-- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
-  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [x] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11). Fait sans fonction partagée : l'API de Lifecycle 2.11
+  suffit (amendement de l'ADR 0013).
 - [x] **P7.20** Serrurier, mise en page de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
   en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu

@@ -24,4 +24,8 @@
     <string name="core_designsystem_stepper_increase">Plus</string>
     <!-- La valeur d’un curseur de volume, à droite de sa piste et lue par TalkBack : « 50 % », espace fine insécable. -->
     <string name="core_designsystem_volume_percent">%1$d %%</string>
+    <!-- Les messages temporaires (P5.97) : la croix qui ferme un message, lue par TalkBack. -->
+    <string name="core_designsystem_message_close">Fermer le message</string>
+    <!-- Le titre du menu « … », annoncé par TalkBack à son ouverture. -->
+    <string name="core_designsystem_menu">Menu</string>
 </resources>

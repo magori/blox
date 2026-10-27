@@ -11,10 +11,12 @@ package ch.magori.blox.feature.home
  * @property canVibrate whether the device has a vibrator: without one, both vibrations are disabled, and say why.
  * @property reducedEffects whether the player asked for reduced effects: off unless the player turned them on. Android
  * may impose them, which the theme says (`BloxTheme.effects`), not this choice, kept as it was.
+ * @property leftHanded whether the keys of the games are laid out for the left hand: off unless the player turned it on.
  * @property recordClearing where the clearing of the record stands.
  */
 internal data class SettingsUiState(
     val reducedEffects: Boolean,
+    val leftHanded: Boolean = false,
     val vibrations: Boolean,
     val soundEffects: Boolean,
     val keyVibration: Boolean,

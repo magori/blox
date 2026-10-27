@@ -207,18 +207,25 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   ligne, réduite si la police du système est agrandie) ; aperçu de la pièce suivante dans un
   cadre de 4 × 2, pièce centrée au pixel près ; coins carrés (Original) ou arrondis de 16 dp (`md`, P5.59)
   (Couleurs). Score sur 6 chiffres, niveau sur 2 et lignes sur 3 au moins.
-- Commandes : ◀ ▼ ▶ à gauche ; rotation **B** (anti-horaire) et **A** (horaire) à droite,
-  décalés comme sur une console portable. Valeurs retenues en P2.5, reportées sur la
-  maquette (P2.14) : boutons de direction de 52 dp, de rotation de 56 dp, espacés de 8 dp ;
-  B plus bas de 24 dp ; flèches dessinées (triangles) ; sur B et A, flèche de rotation de 24 dp
-  (anti-horaire sur B, horaire sur A) au-dessus de la lettre (P5.54a), en 20 sp gras et non 13 sp
-  comme la maquette : à 13 sp la lettre serait du texte normal, à 4,5:1, que B au repos en
-  Original (4,04:1) et A tenu en Couleurs (4,48:1) n'atteignent pas ; en police agrandie, la
-  lettre se réduit à la place qui reste sous la flèche (28 dp) ; A en `accent`, les
-  autres en `button` ; un bouton tenu prend sa teinte « pressée » (`buttonPressed`, `accentPressed`) et garde son encre (P2.17) ; A et B en gras. Un bouton au repos
-  est entouré d'un cadre de 2 dp en `buttonOutline`, `#646B87` en thème Couleurs, invisible en
-  Original (P2.22, contraste de 3:1 avec la page). Le tout tient sur 360 dp de large
-  avec une marge de 24 dp, sans cible sous 48 dp.
+- Commandes (P5.79, touches v2) : ◀ ▼ ▶ d'un côté, rotation **B** (anti-horaire) et **A** (horaire) de
+  l'autre, décalés comme sur une console portable ; Gaucher (Paramètres, Affichage) les échange, lu au début de
+  chaque partie, et aucune touche n'est montrée avant la lecture des réglages. Tailles par la largeur : flèches de
+  60 dp et B et A de 68 dp dès 398 dp de large, 56 et 62 dès 374 dp, 52 et 56 en dessous (la plus grande taille
+  dont les deux groupes tiennent côte à côte, à 18 dp l'un de l'autre au moins ; sinon ils s'empilent ; des
+  touches plus petites seulement si la case y gagne 1 dp) ; tablette avec P5.84. Demandes du développeur
+  (2026-10-26) : ◀ et ▶ un tiers de touche plus hautes que ▼, 16 dp entre B et A ; 8 dp entre deux flèches ; B
+  plus bas que A de 24 dp. Flèches dessinées (triangles de 24 dp) ; B et A au pictogramme de rotation seul
+  (28 dp), lus « B, rotation anti-horaire » et « A, rotation horaire » (les lettres sont retirées, Original
+  compris). A en `accent` cadré `accentPressed`, les autres en `button` cadrées `buttonOutline` ; une touche
+  tenue prend sa teinte pressée, garde son cadre et descend de 2 dp (P5.57). Marge du jeu de 16 dp
+  (P5.79, auparavant 24), sans cible sous 48 dp ; TalkBack lit les flèches puis B puis A, dans les deux mains.
+  **Tests :** `KeySizesTest › the left and right arrows stand a third of a key above the down arrow`,
+  `KeySizesTest › B and A stand 16 dp apart`, `KeySizesTest › the keys fit a 360 dp phone with 16 dp margins`,
+  `GameLayoutTest › left handed puts B and A on the left and the arrows on the right`,
+  `GameLayoutTest › side by side, the two groups stand 18 dp apart at least, else stacked`,
+  `GameScreenTest › TalkBack reads « B, rotation anti-horaire » and « A, rotation horaire »`,
+  `GameScreenTest › the reading order stays arrows then B and A, left handed or not`,
+  `GameViewModelTest › until the settings answer the game shows no keys, does not run and takes no key`.
 - Pas de bouton de chute instantanée (absent du mode Classique).
 - Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (64 dp) et B A (80 dp), sont
   exclus des gestes système à partir d'Android 10. En navigation par gestes, un glissement qui
@@ -259,7 +266,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
   sous 8 dp près du seuil.
 
-  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 591 dp high, its cells under 8 dp, and playable 593 dp high`,
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 581 dp high, its cells under 8 dp, and playable 583 dp high`,
   `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
   `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
   `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,
@@ -271,12 +278,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   Captures : `GameScreenTooSmallOriginal`, `GameScreenTooSmallColorful`, `GameScreenTooSmallLargeFont`.
 
   **Tests :** `GameLayoutTest › a very narrow window puts the score above the board, for a board larger than beside the side column`,
-  `GameLayoutTest › the board never shrinks as the window widens, from the narrowest multi-window to a phone`,
+  `GameLayoutTest › the board never shrinks as the window widens, but by less than 1 dp where larger keys come in`,
   `GameLayoutTest › when the score above gives a board of the same size, the usual layout stays`,
   `GameLayoutTest › when the score above does not fit either, the usual layout stays, cut`,
   `GameLayoutTest › a phone in portrait keeps the side column beside the board, though the score above would give a larger one`,
   `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
-  `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
+  `GameLayoutTest › in a window of 200 dp at 2,625 px per dp the arrows come closer, to fit its width`,
   `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
   `SidePanelSizesTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
@@ -419,10 +426,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   `StrokeIconTest › a stroke icon is drawn on a grid of 24, in unfilled lines 2,25 thick, rounded at their ends and joins`,
   `StrokeIconTest › every icon has strokes to draw`,
   `IconStyleTest › the Original theme draws its icons in pixels`,
-  `IconStyleTest › the Colorful theme draws its icons in strokes`,
-  `KeyGlyphTest › the letter keeps its size when it holds under the arrow in the key`,
-  `KeyGlyphTest › the letter shrinks to hold under the arrow in the key when the font is enlarged`,
-  `KeyGlyphTest › a letter exactly as high as the room under the arrow keeps its size`.
+  `IconStyleTest › the Colorful theme draws its icons in strokes`.
 - Dans le code (P5.54b) : l'engrenage, le bouton écouter des cartes et la note d'*Utiliser* sont
   des icônes seules de 24 dp (`GlyphButton(icon)`, `IconSizes.alone`), lues une fois par le nom
   de leur bouton ; *En jeu* garde sa coche. *Au hasard* et *Nouvelle* : 18 dp, écart de 6 dp et
