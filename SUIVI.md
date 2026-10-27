@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 232 / 311 | `███████████████░░░░░` **75 %** |
+| **Général** | 235 / 313 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1084,7 +1084,7 @@ composants.
     other, the safe one first, as TalkBack reads them`, `a deleting answer is filled in danger with its trash icon, its
     label standing out by 4,5 to 1`, `the name field counts its characters out of 40, as TalkBack reads it`, `a refused
     name frames the field in danger and says why, read by TalkBack as it shows` ; captures.
-  - [ ] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
+  - [x] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
     « PENDANT LES PARTIES » ; une rangée par musique (Écouter, nom et ligne d'infos qui ouvrent l'éditeur,
     égaliseur et mesure jouée pendant l'écoute, jauge des huit mesures, pastille EN JEU, disque Utiliser / En jeu
     retenu avec coche, « … » en disque nu) ; état vide ; Au hasard et Nouvelle collés en bas sur un fondu.
@@ -1097,8 +1097,8 @@ composants.
     on 360 dp, in a font twice as large` ; captures.
   - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
-    `DeleteWindow` v2 ; « « X » est supprimée. » en `SnackMessage` avec Annuler et la croix ; Renommer en fenêtre
-    v2. `CardMenu`, `MenuItem`, `UndoMessage` retirés. Après P5.97, P5.98, P5.99.
+    `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
+    v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
@@ -1144,6 +1144,10 @@ composants.
 - [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
+- [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
+  Retour et titre `screen-title` lu comme un titre), qui remplace les barres de Paramètres, Mes musiques et du choix
+  du jeu, déjà divergentes (écart `space3` contre `space2`) ; règle de 2. Découverte à la revue de P5.99. Après
+  P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
@@ -1165,7 +1169,7 @@ composants.
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
-- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+- [x] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
   console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
   étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
   inchangé (`CartridgesScreenTest`).
@@ -1430,9 +1434,12 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
   parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
   être accessible au joueur).
-- [ ] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
+- [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
+- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+  générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
+  spécification (traçabilité à reprendre). Revue de P9.12.
 - [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.

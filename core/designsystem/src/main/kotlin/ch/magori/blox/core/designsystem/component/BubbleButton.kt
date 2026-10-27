@@ -62,7 +62,8 @@ import ch.magori.blox.core.designsystem.theme.grownOutline
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
  * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. Its [emphasis] says how
  * it stands out ([ButtonEmphasis]); [active], at work (Écouter while it plays), it keeps its pressed fill without
- * going down; its [size] may be compact, 48 dp high, for a main or a secondary button.
+ * going down; its [size] may be compact, 48 dp high, for a main or a secondary button. TalkBack says what a touch does,
+ * [onClickLabel], when its label alone does not (« La jouer pendant les parties »).
  */
 @Composable
 fun BubbleButton(
@@ -74,9 +75,22 @@ fun BubbleButton(
     emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
     active: Boolean = false,
     size: ButtonSize = ButtonSize.REGULAR,
+    onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
-    PressableBubbleButton(family, onClick, enabled, shape, emphasis, active, size, onInk = false, modifier, content)
+    PressableBubbleButton(
+        family = family,
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        emphasis = emphasis,
+        active = active,
+        size = size,
+        onInk = false,
+        modifier = modifier,
+        onClickLabel = onClickLabel,
+        content = content,
+    )
 }
 
 /**
@@ -117,6 +131,7 @@ private fun PressableBubbleButton(
     size: ButtonSize,
     onInk: Boolean,
     modifier: Modifier = Modifier,
+    onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -136,6 +151,7 @@ private fun PressableBubbleButton(
         size = size,
         shape = shape,
         onInk = onInk,
+        onClickLabel = onClickLabel,
         content = content,
     )
 }
@@ -145,7 +161,8 @@ private fun PressableBubbleButton(
  * as [depth] says, whatever its [interactionSource] says: the previews draw each state so, [BubbleButton] reads it from
  * its interactions. The depth is read only where the button is placed, so that its way back up moves it without
  * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads a
- * selected one as selected. [onInk], it stands on the ink of a message.
+ * selected one as selected, and what a touch does, [onClickLabel], if given. [onInk], it stands on the ink of a
+ * message.
  */
 @Composable
 internal fun BubbleButtonDrawing(
@@ -161,6 +178,7 @@ internal fun BubbleButtonDrawing(
     size: ButtonSize = ButtonSize.REGULAR,
     shape: Shape = BloxTheme.shapes.pill,
     onInk: Boolean = false,
+    onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
@@ -184,6 +202,7 @@ internal fun BubbleButtonDrawing(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
+                onClickLabel = onClickLabel,
                 role = Role.Button,
                 onClick = onClick,
             )

@@ -69,8 +69,29 @@ mascotte (`Mascotte`).
 
 **V26 codé** (P5.72, `feature:cartridges` ; seconde cartouche « Serrurier », P7.15) : l'application s'ouvre sur le choix du jeu,
 Classique, qui ouvre l'accueil Classique, et Serrurier, qui ouvre la serrure 1 ; le disque « Changer de jeu » de l'accueil y revient ; le
-retour système y quitte l'application. Le dessin est provisoire (titre, encart cadré, étiquette `accent` au
-nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche viennent avec P5.92.
+retour système y quitte l'application. Dessin de la planche depuis P5.92 : en tête, le logo BloX (`BloxLogo`, 42 dp
+dans une barre de 56 dp), lu « Choix du jeu » comme titre de l'écran (Original, figé, garde le titre écrit) ; les
+cartouches sont des boutons bulles (famille Icône, coins `radius-card`, appui de 2 dp) avec leur prise, une fenêtre
+en dégradé `iris` à 135° qui porte la mascotte du jeu (le T du Classique, le O du Serrurier ; aucune en Original),
+leur nom (`play-label` réduit pour tenir) et cinq broches ; côte à côte, ou l'une sous l'autre quand un nom ne tiendrait
+pas à sa plus petite taille (Original ×2). Dessous, la console, décorative et muette pour TalkBack : fente
+(`button-outline`), écran de cinq rangées vides du plateau (`BoardRowsCanvas`) avec la flèche INSERT et une fente
+pointillée, boutons aux couleurs des pièces T et S (`pieceColor`), bouton d'éjection désactivé. Écarts retenus : toucher
+une cartouche ouvre toujours son jeu (le glissement dans la console, Jouer et Éjecter de la planche ne sont pas
+codés, la flèche seule le suggère, sans son animation) ; ni engrenage dans la barre ni texte sous la console ; coins de
+la console en `radius-card` (28 dp au lieu de 40) ; cartouche pressée en `button-pressed` (blanche sur la planche).
+**Tests :** `CartridgesScreenTest › TalkBack reads « Choix du jeu » as the heading of the screen`,
+`CartridgesScreenTest › a cartridge held down goes 2 dp down, as a bubble button`,
+`CartridgesScreenTest › each cartridge bears the mascot of its game in Colorful, none in Original, which is frozen`,
+`CartridgesScreenTest › in Colorful, on 360 dp, the two cartridges stand side by side, their tops level`,
+`CartridgesScreenTest › in Original, in a font twice as large, on 360 dp, the cartridges stand one above the other`,
+`CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on one line, unclipped`,
+`CartridgesScreenTest › TalkBack reads nothing of the console: the only buttons, focusable or disabled nodes are the cartridges`,
+`CartridgeTest › each cartridge bears the mascot of its game, the T of the Classic and the O of the Locksmith`,
+`CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
+`StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,
+`StrokeIconTest › the eject of the console of the choice of the game is filled, without strokes, as its drawing says` ;
+captures `Cartridges*`.
 **Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
 `ChangeGameTest › changing the game from a restored stack without cartridges puts them at its root`,
 `CartridgesScreenTest › TalkBack reads the name of each cartridge, as a button of 48 dp at least`,

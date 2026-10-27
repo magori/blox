@@ -178,7 +178,7 @@ class GameViewModel internal constructor(
         // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
             results.best.collect { record ->
-                state.update { it.copy(record = record).withRecordBeaten(it.recordBeaten) }
+                state.update { it.copy(record = record).withBestBeaten(it.bestBeaten) }
             }
         }
         // The music of the variant of the game ([GameVariants]), at the normal tempo, as every new play of the player.
@@ -336,7 +336,7 @@ class GameViewModel internal constructor(
             gameState.toUiState(nextPieces::getValue)
                 .copy(record = it.record, gameOver = it.gameOver)
                 .withLeftHanded(it.leftHanded, gameState.isUnderWay)
-                .withRecordBeaten(it.recordBeaten)
+                .withBestBeaten(it.bestBeaten)
         }
     }
 
@@ -348,17 +348,17 @@ class GameViewModel internal constructor(
     private fun onGameOver(finalState: GameState) {
         stopMusic()
         viewModelScope.launch {
-            val gameOver = finalState.toGameOverUiState(isNewRecord(finalState.progress.score.value))
+            val gameOver = finalState.toGameOverUiState(isNewBest(finalState.progress.score.value))
             state.update { it.copy(gameOver = gameOver) }
         }
     }
 
     /**
-     * Gives [score] to the [results], once its start is written: whether it is a new record. Results that cannot be
-     * written (an [IOException], the contract of the repositories) do not stop the game over from showing, without a
-     * new record; any other failure is a bug, and is not swallowed here.
+     * Gives [score] to the [results], once its start is written: whether it is a new best (the record, or the best
+     * of the day). Results that cannot be written (an [IOException], the contract of the repositories) do not stop the
+     * game over from showing, without a new best; any other failure is a bug, and is not swallowed here.
      */
-    private suspend fun isNewRecord(score: Int): Boolean = try {
+    private suspend fun isNewBest(score: Int): Boolean = try {
         // Not cancellable: the score is saved even if the view model is cleared while it is being written.
         withContext(NonCancellable) {
             started?.join()

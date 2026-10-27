@@ -6,7 +6,7 @@ import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import com.android.tools.screenshot.PreviewTest
 
 /*
- * Screenshot tests of « Mes musiques » (views V7 and V10), in both themes coded so far, with the font of the system
+ * Screenshot tests of « Mes musiques » (view V32), in both themes coded so far, with the font of the system
  * normal and twice as large, from the previews of the production code, with the same `@Preview` configuration.
  * Renaming a test breaks its link to its reference image: regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
