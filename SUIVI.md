@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 232 / 311 | `███████████████░░░░░` **75 %** |
+| **Général** | 233 / 312 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1084,7 +1084,7 @@ composants.
     other, the safe one first, as TalkBack reads them`, `a deleting answer is filled in danger with its trash icon, its
     label standing out by 4,5 to 1`, `the name field counts its characters out of 40, as TalkBack reads it`, `a refused
     name frames the field in danger and says why, read by TalkBack as it shows` ; captures.
-  - [ ] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
+  - [x] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
     « PENDANT LES PARTIES » ; une rangée par musique (Écouter, nom et ligne d'infos qui ouvrent l'éditeur,
     égaliseur et mesure jouée pendant l'écoute, jauge des huit mesures, pastille EN JEU, disque Utiliser / En jeu
     retenu avec coche, « … » en disque nu) ; état vide ; Au hasard et Nouvelle collés en bas sur un fondu.
@@ -1097,8 +1097,8 @@ composants.
     on 360 dp, in a font twice as large` ; captures.
   - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
-    `DeleteWindow` v2 ; « « X » est supprimée. » en `SnackMessage` avec Annuler et la croix ; Renommer en fenêtre
-    v2. `CardMenu`, `MenuItem`, `UndoMessage` retirés. Après P5.97, P5.98, P5.99.
+    `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
+    v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
@@ -1144,6 +1144,10 @@ composants.
 - [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
+- [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
+  Retour et titre `screen-title` lu comme un titre), qui remplace les barres de Paramètres, Mes musiques et du choix
+  du jeu, déjà divergentes (écart `space3` contre `space2`) ; règle de 2. Découverte à la revue de P5.99. Après
+  P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
