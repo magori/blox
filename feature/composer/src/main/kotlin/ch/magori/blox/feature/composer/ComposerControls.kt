@@ -261,62 +261,6 @@ internal fun BarButtons(
     }
 }
 
-/**
- * *Écouter*, a round button that plays the music, or *Arrêter* while it is [listening]; disabled while there is nothing
- * to hear. Its glyph, a triangle or a square, says which; TalkBack reads its name.
- */
-@Composable
-internal fun ListenButton(
-    listening: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val palette = BloxTheme.palette
-    val description =
-        stringResource(if (listening) R.string.feature_composer_stop else R.string.feature_composer_listen)
-    Spacer(
-        modifier = modifier
-            .size(BloxSizes.minTouchTarget)
-            .alpha(if (enabled) 1f else BloxAlphas.DISABLED)
-            .clip(CircleShape)
-            .background(palette.accent)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
-            .semantics { contentDescription = description }
-            .drawBehind { if (listening) drawStop(palette.accentInk) else drawPlay(palette.accentInk) },
-    )
-}
-
-/** A square, in the middle of the button. */
-private fun DrawScope.drawStop(color: Color) {
-    val side = size.minDimension * GLYPH_PART * STOP_PART
-    drawRect(color, topLeft = Offset((size.width - side) / 2, (size.height - side) / 2), size = Size(side, side))
-}
-
-/** A triangle pointing right, in the middle of the button, nudged right so that it looks centred. */
-private fun DrawScope.drawPlay(color: Color) {
-    val side = size.minDimension * GLYPH_PART
-    val left = (size.width - side) / 2 + side * PLAY_NUDGE
-    val top = (size.height - side) / 2
-    val path = Path().apply {
-        moveTo(left, top)
-        lineTo(left + side * PLAY_WIDTH, size.height / 2)
-        lineTo(left, top + side)
-        close()
-    }
-    drawPath(path, color)
-}
-
-/** The glyphs of *Écouter* fill this part of the button. */
-private const val GLYPH_PART = 0.42f
-
-/** The square of *Arrêter*, smaller than the triangle, which looks smaller than its box. */
-private const val STOP_PART = 0.8f
-
-/** The triangle of *Écouter*: as wide as this part of its height, nudged right by this part of its height. */
-private const val PLAY_WIDTH = 0.9f
-private const val PLAY_NUDGE = 0.08f
-
 /** The tempo of the music, [bpm] beats per minute, between its buttons « − » and « + », disabled at the ends. */
 @Composable
 internal fun TempoPanel(

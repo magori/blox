@@ -71,15 +71,17 @@ internal data class Form(
          * The form of a music of [choice], drawn with [random]: the same draw gives the same form. The draws come in
          * this order: the category, the harmony, the tonic, the progression, the tempo, the motif, then the rhythm of
          * each bar that does not take up the motif, from the first bar to the last. The draws of the melody and the bass
-         * will come after those of the form, so that they leave it as it is.
+         * will come after those of the form, so that they leave it as it is. A [tonic] imposed takes the place of the
+         * draw of the tonic, which it skips.
          */
         fun compose(
             choice: CategoryChoice,
             random: Random,
+            tonic: Pitch? = null,
         ): Form {
             val category = choice.resolve(random)
             val harmony = category.harmonies.random(random)
-            val scale = Scale(Category.TONICS.random(random), harmony.scaleType)
+            val scale = Scale(tonic ?: Category.TONICS.random(random), harmony.scaleType)
             val progression = harmony.progressions.random(random)
             val tempo = category.tempo.draw(random)
             val motif = category.rhythms.random(random)

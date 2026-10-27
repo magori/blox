@@ -22,7 +22,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 
 class ChiptuneSequencerTempoTest {
@@ -40,6 +39,9 @@ class ChiptuneSequencerTempoTest {
         1.0 to FloatArray(12) { 100f + it },
         2.0 to FloatArray(6) { 200f + it },
         1.25 to FloatArray(9) { 300f + it },
+        1.02 to FloatArray(12) { 400f + it },
+        1.04 to FloatArray(12) { 500f + it },
+        1.06 to FloatArray(12) { 600f + it },
     )
 
     /** Each rendering: its tempo factor, and whether it ran on the rendering dispatcher. */
@@ -314,6 +316,20 @@ class ChiptuneSequencerTempoTest {
             assertThat(slices.flatten()).anyMatch { it < 200f }
             assertThat(rendered).containsExactly(1.0 to true, 2.0 to true)
         }
+
+    @Test
+    fun `the buffers of a tempo left are released`() = runTest {
+        // Given a score playing at 1.0, its danger tempo prepared, as a live game does
+        val sequencer = playing()
+        sequencer.prepareTempo(1.25)
+
+        // When it goes up to 1.02, then 1.04, then 1.06, as the levels of a live game, then back to 1.0, to the
+        // danger tempo, and to 1.04
+        listOf(1.02, 1.04, 1.06, 1.0, 1.25, 1.04).forEach { playAt(sequencer, it) }
+
+        // Then only the tempo playing, 1.0 and the tempo prepared stayed in the cache: 1.04, left, is rendered again
+        assertThat(rendered.map { it.first }).containsExactly(1.0, 1.25, 1.02, 1.04, 1.06, 1.04)
+    }
 
     @Test
     fun `the tempo changes at the start of the next beat, once the current beat is played`() = runTest {
@@ -659,6 +675,24 @@ class ChiptuneSequencerTempoTest {
         return playback
     }
 
+    /**
+     * Asks [sequencer] for the tempo [factor], then lets it render and write until it plays at it: a slice that ends
+     * with a sample of the buffer at [factor].
+     */
+    private suspend fun TestScope.playAt(
+        sequencer: ChiptuneSequencer,
+        factor: Double,
+    ) {
+        sequencer.setTempoFactor(factor)
+        val samples = buffers.getValue(factor).toSet()
+        repeat(MAX_SLICES_TO_A_TEMPO) {
+            val slice = nextSlice()
+            renderNow()
+            if (slice.last() in samples) return
+        }
+        throw AssertionError("The tempo $factor never played")
+    }
+
     /** A sequencer playing [played] at 1.0, its buffer rendered, before its first write is received. */
     private fun TestScope.playing(
         played: Score = score,
@@ -716,29 +750,8 @@ class ChiptuneSequencerTempoTest {
         sliceSize = sliceSize,
     )
 
-    /** Runs its work only when the test says so: a rendering not ready yet is a task left in it. */
-    private class ManualDispatcher : CoroutineDispatcher() {
-        private val tasks = ArrayDeque<Runnable>()
-        var running = false
-            private set
-
-        override fun dispatch(
-            context: CoroutineContext,
-            block: Runnable,
-        ) {
-            tasks.addLast(block)
-        }
-
-        /** Runs the work waiting, renderings included. */
-        fun runAll() {
-            while (tasks.isNotEmpty()) {
-                running = true
-                try {
-                    tasks.removeFirst().run()
-                } finally {
-                    running = false
-                }
-            }
-        }
+    private companion object {
+        /** Enough slices of 4 samples for a tempo asked for to be rendered and reach the next beat. */
+        const val MAX_SLICES_TO_A_TEMPO = 8
     }
 }

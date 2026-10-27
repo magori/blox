@@ -7,6 +7,7 @@ import androidx.compose.runtime.Immutable
 internal class SettingsActions(
     val onBack: () -> Unit,
     val onReducedEffectsChanged: (Boolean) -> Unit,
+    val onLeftHandedChanged: (Boolean) -> Unit,
     val onSoundEffectsChanged: (Boolean) -> Unit,
     val onEffectsVolumeChanged: (Int) -> Unit,
     val onMusicVolumeChanged: (Int) -> Unit,
@@ -18,6 +19,6 @@ internal class SettingsActions(
 ) {
     companion object {
         /** A page that does nothing: previews and screenshots. */
-        val None = SettingsActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+        val None = SettingsActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
     }
 }

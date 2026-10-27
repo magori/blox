@@ -35,9 +35,6 @@ object IconSizes {
     /** An icon above a label: the toolbar of the editor. */
     val aboveLabel = 14.dp
 
-    /** An icon beside a small label: MES MUSIQUES and Écouter, on the home screen. */
-    val besideSmallLabel = 14.dp
-
     /** An icon alone on a button, without a label: the gear, the listen button of a card, Utiliser. */
     val alone = 24.dp
 

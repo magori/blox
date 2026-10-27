@@ -241,4 +241,18 @@ class MusicSwitchTest {
         assertThat(scores.volume).isEqualTo(Volume(30))
         assertThat(files.volume).isEqualTo(Volume(30))
     }
+
+    @Test
+    fun `a switch while a music file plays changes nothing, the switch is reserved to the scores`() {
+        // Given a music file playing, a score played before it
+        switch.play(Scores.korobeiniki)
+        switch.play(myFile)
+
+        // When a score is switched to
+        switch.switchTo(Scores.minuet)
+
+        // Then the file plays on, and the score played before is not switched
+        assertThat(files.playing).isEqualTo(myFile)
+        assertThat(scores.calls).doesNotContain("switch ${Scores.minuet.id}")
+    }
 }

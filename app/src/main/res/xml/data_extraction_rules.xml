@@ -6,6 +6,8 @@
     A list of includes: only these files leave the device, anything else stays. Keep it so: a file
     that holds content URIs (a file of the user, as the music file of the home screen) must never be
     listed here, as its persistable permission (takePersistableUriPermission) does not move to another device.
+    Nor the results of the daily challenge (DAILY_CHALLENGE_FILE): restored on another phone, a first try would
+    no longer mean anything.
 -->
 <data-extraction-rules>
     <cloud-backup>

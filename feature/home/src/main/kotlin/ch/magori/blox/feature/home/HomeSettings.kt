@@ -19,6 +19,7 @@ import ch.magori.blox.core.designsystem.component.ChoiceGroup
 import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.LabelledControl
 import ch.magori.blox.core.designsystem.component.LevelGauge
+import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -119,7 +120,7 @@ private fun MusicChoices(
     val gameMusic = uiState.gameMusic
     // Each choice, and the music it chooses: none for the music of the player, already chosen.
     val musics: List<Pair<ChoiceItem, MusicChoice?>> = buildList {
-        MusicChoice.entries.forEach { music ->
+        OFFERED_MUSICS.forEach { music ->
             if (music == MusicChoice.NONE && gameMusic != null) {
                 val description = stringResource(R.string.feature_home_music_game_description, gameMusic.name)
                 add(ChoiceItem(gameMusic.name, description = description, maxLines = 2) to null)
@@ -158,12 +159,12 @@ private fun MusicActions(
     val selected = uiState.selectedMusic
     FlowRow(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2, Alignment.CenterHorizontally)) {
         if (gameMusic != null) {
-            ListenButton(musicName = gameMusic.name, previewed = gameMusic.previewed, onClick = onListenGameMusic)
+            ListenButton(playing = gameMusic.previewed, musicName = gameMusic.name, onClick = onListenGameMusic)
         } else if (selected != null) {
             if (selected in uiState.listenable) {
                 ListenButton(
+                    playing = selected == uiState.previewing,
                     musicName = stringResource(selected.label),
-                    previewed = selected == uiState.previewing,
                     onClick = { onListen(selected) },
                 )
             }
@@ -173,6 +174,12 @@ private fun MusicActions(
         }
     }
 }
+
+/**
+ * The music choices the sheet offers, in their order. « Vivante » waits for its row of the sheet (P8.7): until the game
+ * composes its live music (P8.6), a live game would play nothing.
+ */
+internal val OFFERED_MUSICS: List<MusicChoice> = MusicChoice.entries - MusicChoice.LIVE
 
 /** The music choices side by side, on as many rows as they need. */
 private const val MUSIC_COLUMNS = 2
@@ -191,5 +198,6 @@ internal val MusicChoice.label: Int
         MusicChoice.KOROBEINIKI -> R.string.feature_home_music_korobeiniki
         MusicChoice.MINUET -> R.string.feature_home_music_minuet
         MusicChoice.MY_FILE -> R.string.feature_home_music_my_file
+        MusicChoice.LIVE -> R.string.feature_home_music_live
         MusicChoice.NONE -> R.string.feature_home_music_none
     }

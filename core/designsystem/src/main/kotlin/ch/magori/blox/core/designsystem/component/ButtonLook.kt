@@ -64,7 +64,8 @@ enum class ButtonEmphasis { PLAIN, SELECTED, BARE }
 
 /**
  * What a button is: [enabled] or not, [depth], how far down it is, from 0 (at rest) to 1 (pressed), [focused] by the
- * keyboard or not, [active], at work (Écouter while it plays), or not, and how it stands out, [emphasis].
+ * keyboard or not, [active], at work (Écouter while it plays), or not, how it stands out, [emphasis], and whether it
+ * stands [onInk], the ground of a message, rather than on the page or a panel.
  */
 @Immutable
 internal data class ButtonState(
@@ -73,6 +74,7 @@ internal data class ButtonState(
     val focused: Boolean = false,
     val active: Boolean = false,
     val emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
+    val onInk: Boolean = false,
 )
 
 /**
@@ -113,13 +115,18 @@ internal fun buttonLook(
             !state.enabled || state.emphasis == ButtonEmphasis.BARE -> Gloss.None
             else -> glosses.button
         },
-        focusRing = if (state.focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null,
+        focusRing = if (state.focused) {
+            FocusRing(if (state.onInk) colors.focusOnInk else colors.focus, BloxBorders.focus, BloxBorders.focusGap)
+        } else {
+            null
+        },
     )
 }
 
 /**
  * The colours of a button of [family] in [state], among the [colors] of its variant. A selected button keeps its own
- * disabled: the choice made still shows; a bare one stays bare, its pictogram in the ink of the disabled.
+ * disabled: the choice made still shows; a bare one stays bare, its pictogram in the ink of the disabled, and on ink
+ * its pictogram is in the colour of the page.
  */
 private fun bubbleColors(
     family: ButtonFamily,
@@ -128,7 +135,10 @@ private fun bubbleColors(
 ): BubbleColors = when (state.emphasis) {
     ButtonEmphasis.SELECTED -> colors.selected
 
-    ButtonEmphasis.BARE -> if (state.enabled) colors.bare else colors.bare.copy(ink = colors.disabled.ink)
+    ButtonEmphasis.BARE -> {
+        val bare = if (state.onInk) colors.bareOnInk else colors.bare
+        if (state.enabled) bare else bare.copy(ink = colors.disabled.ink)
+    }
 
     ButtonEmphasis.PLAIN -> when {
         !state.enabled -> colors.disabled

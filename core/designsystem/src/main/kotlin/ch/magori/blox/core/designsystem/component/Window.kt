@@ -61,13 +61,14 @@ fun WindowDialog(
 /**
  * A window: a panel of the theme, its [title] in [titleStyle], `screen-title` unless told otherwise, then its [content],
  * scrolling when the font is large. The title of a window goes over titleSmall, whose size Original keeps: its pixel font
- * stays as large as before Couleurs v2.
+ * stays as large as before Couleurs v2. The [titleModifier] lets a screen give its title the focus.
  */
 @Composable
 fun WindowPanel(
     title: String,
     modifier: Modifier = Modifier,
     titleStyle: TextStyle = MaterialTheme.typography.titleSmall.merge(BloxTheme.typography.screenTitle),
+    titleModifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
@@ -81,7 +82,7 @@ fun WindowPanel(
             .padding(WindowPadding),
         verticalArrangement = Arrangement.spacedBy(WindowGap),
     ) {
-        PanelTitle(text = title, style = titleStyle)
+        PanelTitle(text = title, style = titleStyle, modifier = titleModifier)
         content()
     }
 }

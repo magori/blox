@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
+import ch.magori.blox.feature.game.controls.GameControlsLeftHandedPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
 import ch.magori.blox.feature.game.gameover.GameOverLargeFontPreview
@@ -46,6 +47,35 @@ private fun GameScreenColorful() = GameScreenColorfulPreview()
 @Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GameScreenColorfulNight() = GameScreenColorfulPreview()
+
+// A phone of 412 dp, its keys of a phone (60 and 68 dp); a phone of 390 dp, its keys halfway (56 and 62 dp).
+
+@PreviewTest
+@Preview(widthDp = 412, heightDp = 915)
+@Composable
+private fun GameScreenColorfulWide() = GameScreenColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 412, heightDp = 915, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenColorfulWideNight() = GameScreenColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GameScreenColorfulHalfway() = GameScreenColorfulPreview()
+
+// For a left handed player: B and A on the left, the arrows on the right.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenLeftHanded() = GameScreenLeftHandedPreview()
+
+@PreviewTest
+@Preview(widthDp = 412, heightDp = 915, fontScale = 2f)
+@Composable
+private fun GameScreenLeftHandedLargeFont() = GameScreenLeftHandedPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760)
@@ -174,17 +204,22 @@ private fun SidePanelLargeFont() = SidePanelLargeFontPreview()
 @Composable
 private fun SidePanelNoNextPiece() = SidePanelNoNextPiecePreview()
 
-// The controls, with keys held.
+// The controls of a phone of 412 dp, with keys held, and for a left handed player.
 
 @PreviewTest
-@Preview(widthDp = 360)
+@Preview(widthDp = 412)
 @Composable
 private fun ControlsHeld() = GameControlsHeldPreview()
 
 @PreviewTest
-@Preview(widthDp = 360, uiMode = UI_MODE_NIGHT)
+@Preview(widthDp = 412, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun ControlsHeldNight() = GameControlsHeldPreview()
+
+@PreviewTest
+@Preview(widthDp = 412)
+@Composable
+private fun ControlsLeftHanded() = GameControlsLeftHandedPreview()
 
 // The card of the pause alone (view V29).
 

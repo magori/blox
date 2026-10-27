@@ -5,8 +5,11 @@ import ch.magori.blox.core.music.Volume
 /** The theme chosen on the home screen (V1). The feature maps it to its theme. */
 enum class ThemeChoice { ORIGINAL, COLORFUL }
 
-/** The music chosen on the home screen (V1). The application maps it to its scores or the file player. */
-enum class MusicChoice { KOROBEINIKI, MINUET, MY_FILE, NONE }
+/**
+ * The music chosen on the home screen (V1). The application maps it to its scores, the file player, or for [LIVE] to
+ * a live music, composed for each game from its seed. Each choice is saved by its name, which must not change.
+ */
+enum class MusicChoice { KOROBEINIKI, MINUET, MY_FILE, LIVE, NONE }
 
 /**
  * The settings of the player, chosen on the home screen (V1) and in the settings. [startLevel] is never

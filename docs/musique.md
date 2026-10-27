@@ -42,8 +42,8 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `HomeViewModelTest › the preview plays on while the screen is still visible`,
 `HomeViewModelTest › leaving the home screen stops the preview`,
 `HomeViewModelTest › leaving the home screen with no music listened to lets the music of the game play, without any stop`,
-`ListenButtonTest › a music not being previewed offers to listen to it, and TalkBack says which`,
-`ListenButtonTest › the music being previewed offers to stop it, and TalkBack says which`,
+`ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
+`ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
 `ScoresTest › each arrangement is known by its own identifier`. Vue : V1.
 
 **Aperçu qui s'arrête de lui-même** (P4.23) : chaque lecture expose son état
@@ -505,7 +505,9 @@ réessaie à la reprise. La musique personnelle de « Mes musiques » garde la p
 `GameViewModelTest › a programming error while the music of the player chosen for the games is read is not swallowed`,
 `GameMusicScoreTest › without a music chosen for the games no score is read`,
 `GameMusicScoreTest › the score read is the one of the music chosen for the games`,
-`MusicTempoTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+`ClassicMusicDirectionTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+`ClassicMusicDirectionTest › the danger tempo is prepared as soon as the music starts`,
+`ClassicMusicDirectionTest › each change of danger of the game gives its tempo to the player, in order, and nothing else does`,
 `GameViewModelTest › at the start of the game the music of the settings plays, at the normal tempo`,
 `GameViewModelTest › with no music chosen nothing plays`,
 `GameViewModelTest › the game over stops the music`,

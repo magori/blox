@@ -23,14 +23,10 @@
     <string name="feature_home_music_korobeiniki">Korobeïniki</string>
     <string name="feature_home_music_minuet">Menuet</string>
     <string name="feature_home_music_my_file">Mon fichier</string>
+    <string name="feature_home_music_live">Vivante</string>
     <string name="feature_home_music_none">Aucune</string>
     <!-- La musique personnelle choisie pour les parties, lue par TalkBack : son nom, puis « en jeu ». -->
     <string name="feature_home_music_game_description">%1$s, en jeu</string>
-    <!-- Aperçu d'une musique avant de jouer : le bouton dit l'action, TalkBack dit aussi la musique. -->
-    <string name="feature_home_listen">Écouter</string>
-    <string name="feature_home_listen_description">Écouter %1$s</string>
-    <string name="feature_home_stop">Arrêter</string>
-    <string name="feature_home_stop_description">Arrêter %1$s</string>
     <string name="feature_home_change_file">Changer</string>
     <string name="feature_home_change_file_description">Changer de fichier</string>
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->
@@ -45,6 +41,9 @@
     <string name="feature_home_reduced_effects">Effets réduits</string>
     <string name="feature_home_reduced_effects_sub_line">Moins de mouvements et de particules</string>
     <string name="feature_home_reduced_effects_forced">Imposé par les réglages d\'Android</string>
+    <string name="feature_home_left_handed">Gaucher</string>
+    <string name="feature_home_left_handed_off">Flèches à gauche, B et A à droite</string>
+    <string name="feature_home_left_handed_on">B et A à gauche, flèches à droite</string>
     <string name="feature_home_settings_theme_note">Le thème se choisit à l\'accueil.</string>
     <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
     <string name="feature_home_settings_sounds">Sons et vibrations</string>

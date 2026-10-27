@@ -28,6 +28,8 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isOff
+import androidx.compose.ui.test.isOn
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -53,6 +55,7 @@ import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -145,6 +148,7 @@ internal class SettingsScreenTest {
 
         // Then
         mapOf(
+            "Gaucher" to "Flèches à gauche, B et A à droite",
             "Effets sonores" to "Rotation, lignes, fin de partie",
             "Vibrations" to "Lignes effacées, fin de partie",
             "Vibration des touches" to "Un léger toucher à chaque touche",
@@ -180,6 +184,7 @@ internal class SettingsScreenTest {
         runOnIdle {
             assertThat(asked).containsExactly(
                 "reduced effects true",
+                "left handed true",
                 "sound effects false",
                 "vibrations true",
                 "key vibration true",
@@ -211,6 +216,25 @@ internal class SettingsScreenTest {
         assertThat(row.top).isGreaterThanOrEqualTo(heading.bottom)
         assertThat(note.top).isGreaterThanOrEqualTo(row.bottom)
         assertThat(sounds.top).isGreaterThanOrEqualTo(note.bottom)
+    }
+
+    @ParameterizedTest(name = "left handed: {0}")
+    @ValueSource(booleans = [false, true])
+    @DisplayName("Gaucher stands under Effets réduits in Affichage, and says where the keys are, for either hand")
+    fun gaucherSaysWhereTheKeysAre(leftHanded: Boolean) = extension.use {
+        // Given a right handed player, or a left handed one
+        showSettingsScreen(uiState.copy(leftHanded = leftHanded))
+
+        // Then one switch, on for the left handed, whose sub-line says the layout of the keys of the next game
+        val subLine = if (leftHanded) "B et A à gauche, flèches à droite" else "Flèches à gauche, B et A à droite"
+        val reducedEffects = onNode(isToggleable() and hasText("Effets réduits")).getUnclippedBoundsInRoot()
+        val gaucher = onNode(isToggleable() and hasText("Gaucher") and hasText(subLine))
+            .assert(if (leftHanded) isOn() else isOff())
+            .assertIsEnabled()
+            .getUnclippedBoundsInRoot()
+        val note = onNodeWithText("Le thème se choisit à l'accueil.").getUnclippedBoundsInRoot()
+        assertThat(gaucher.top).isGreaterThanOrEqualTo(reducedEffects.bottom)
+        assertThat(note.top).isGreaterThanOrEqualTo(gaucher.bottom)
     }
 
     @Test
@@ -502,6 +526,7 @@ internal class SettingsScreenTest {
         val actions = SettingsActions(
             onBack = { asked += "back" },
             onReducedEffectsChanged = { asked += "reduced effects $it" },
+            onLeftHandedChanged = { asked += "left handed $it" },
             onSoundEffectsChanged = { asked += "sound effects $it" },
             onEffectsVolumeChanged = { asked += "effects volume $it" },
             onMusicVolumeChanged = { asked += "music volume $it" },
@@ -524,7 +549,7 @@ internal class SettingsScreenTest {
 }
 
 /** The switches of the page, in its order. */
-private val SWITCHES = listOf("Effets réduits", "Effets sonores", "Vibrations", "Vibration des touches")
+private val SWITCHES = listOf("Effets réduits", "Gaucher", "Effets sonores", "Vibrations", "Vibration des touches")
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
@@ -534,6 +559,7 @@ private const val LEAST_PART_OF_THE_SIZE = 0.9f
 
 /** The sub-lines of the switches after Effets réduits, in the order of the page. */
 private val SUB_LINES = listOf(
+    "Flèches à gauche, B et A à droite",
     "Rotation, lignes, fin de partie",
     "Lignes effacées, fin de partie",
     "Un léger toucher à chaque touche",

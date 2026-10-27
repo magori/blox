@@ -57,6 +57,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import kotlin.time.Duration.Companion.minutes
+import ch.magori.blox.core.designsystem.R as DesignR
 import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.home.R as HomeR
@@ -488,7 +489,7 @@ internal class BloxNavDisplayTest {
 
     /** « Écouter » and the name of the music [name], as TalkBack reads the listen button of the home screen. */
     private fun AndroidComposeUiTest<ComponentActivity>.listenDescription(name: String): String =
-        checkNotNull(activity).getString(HomeR.string.feature_home_listen_description, name)
+        checkNotNull(activity).getString(DesignR.string.core_designsystem_listen_named, name)
 
     /**
      * The navigation of the application, with the shared fakes: no record, the default settings, no music file; the

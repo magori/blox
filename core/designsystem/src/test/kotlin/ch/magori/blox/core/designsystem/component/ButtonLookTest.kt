@@ -354,6 +354,38 @@ internal class ButtonLookTest {
         assertThat(contrast(frame!!, variant.palette.page)).isGreaterThanOrEqualTo(3.0)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("colorfulVariants")
+    fun `a bare button on ink has its glyph in page at rest, and takes button pressed when pressed, both readable`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When at rest and pressed, on the ink of a message
+        val atRest = variant.look(ButtonFamily.ICON, BARE_ON_INK)
+        val pressed = variant.look(ButtonFamily.ICON, BARE_ON_INK.copy(depth = 1f))
+
+        // Then its glyph in page on the ink at rest
+        assertThat(atRest.fill).isEqualTo(Color.Transparent)
+        assertThat(atRest.ink).isEqualTo(variant.palette.page)
+        assertThat(contrast(atRest.ink, variant.palette.ink)).isGreaterThanOrEqualTo(4.5)
+        // And a disc of button pressed when pressed, its glyph standing out
+        assertThat(pressed.fill).isEqualTo(variant.palette.buttonPressed)
+        assertThat(contrast(pressed.ink, pressed.fill)).isGreaterThanOrEqualTo(4.5)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("colorfulVariants")
+    fun `the focus ring of a bare button on ink stands out from ink by 3 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When focused by the keyboard, on the ink of a message
+        val ring = variant.look(ButtonFamily.ICON, BARE_ON_INK.copy(focused = true)).focusRing
+
+        // Then (WCAG 2.1, 2.4.7 and 1.4.11)
+        assertThat(contrast(ring!!.color, variant.palette.ink)).isGreaterThanOrEqualTo(3.0)
+    }
+
     @ParameterizedTest
     @EnumSource(ButtonFamily::class)
     fun `only a main or a secondary button may be compact, 48 dp high`(family: ButtonFamily) {
@@ -381,6 +413,7 @@ internal class ButtonLookTest {
         /** A selected button, and a bare one, at rest. */
         private val SELECTED = ButtonState(emphasis = ButtonEmphasis.SELECTED)
         private val BARE = ButtonState(emphasis = ButtonEmphasis.BARE)
+        private val BARE_ON_INK = ButtonState(emphasis = ButtonEmphasis.BARE, onInk = true)
 
         private val VARIANTS = listOf(
             "Original" to Variant(BloxPalettes.Original, BloxButtonColorSets.Original, BloxGlossSets.Original),
@@ -392,6 +425,11 @@ internal class ButtonLookTest {
 
         @JvmStatic
         fun variants(): List<Arguments> = VARIANTS.map { (theme, variant) -> Arguments.of(theme, variant) }
+
+        /** The variants of the Colorful theme, day and night. */
+        @JvmStatic
+        fun colorfulVariants(): List<Arguments> = VARIANTS.filter { (theme, _) -> theme.startsWith("Couleurs") }
+            .map { (theme, variant) -> Arguments.of(theme, variant) }
 
         @JvmStatic
         fun variantsAndFamilies(): List<Arguments> = VARIANTS.flatMap { (theme, variant) ->

@@ -35,6 +35,7 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.keyName
+import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -242,7 +243,13 @@ internal fun ComposerContent(
                     onFaster = onFaster,
                     modifier = Modifier.weight(1f),
                 )
-                ListenButton(listening = played != null, enabled = uiState.canListen, onClick = onListen)
+                // 48 dp until the tempo becomes a pill (P5.102): at 56, « 120 temps/min » breaks at its slash in Original ×2.
+                ListenButton(
+                    playing = played != null,
+                    musicName = uiState.name,
+                    onClick = onListen,
+                    enabled = uiState.canListen,
+                )
             }
             // A line of its own: beside the tempo and *Écouter*, it leaves the tempo buttons no room on 360 dp.
             SaveButton(changed = editor.asksBeforeLeaving, onClick = onSave, modifier = Modifier.fillMaxWidth())

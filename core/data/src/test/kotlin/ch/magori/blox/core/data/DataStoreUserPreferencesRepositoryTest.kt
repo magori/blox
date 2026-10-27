@@ -322,6 +322,7 @@ class DataStoreUserPreferencesRepositoryTest : UserPreferencesRepositoryContract
             argumentSet("KOROBEINIKI", "KOROBEINIKI", MusicChoice.KOROBEINIKI),
             argumentSet("MINUET", "MINUET", MusicChoice.MINUET),
             argumentSet("MY_FILE", "MY_FILE", MusicChoice.MY_FILE),
+            argumentSet("LIVE", "LIVE", MusicChoice.LIVE),
             argumentSet("NONE", "NONE", MusicChoice.NONE),
         )
     }
