@@ -183,6 +183,28 @@ private fun rememberEntranceTicks(effects: BloxEffects): () -> Int {
 }
 
 /**
+ * A [BloxSheet] as it stands once come in, over what is drawn under it, without its window nor the bars of the system:
+ * what the previews of the screens draw, a window not showing in their screenshots. Touching it does nothing.
+ */
+@Composable
+fun SettledSheet(
+    title: String,
+    modifier: Modifier = Modifier,
+    actions: (@Composable ColumnScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    SheetFrame(
+        title = title,
+        onDismissRequest = {},
+        insets = WindowInsets(0),
+        entrance = { SheetEntrance.Settled },
+        modifier = modifier,
+        actions = actions,
+        content = content,
+    )
+}
+
+/**
  * What a sheet draws over the screen, without its window: the previews draw it so. Its scrim and its panel take what
  * [entrance] says when they are drawn; [modifier] applies to its panel.
  */

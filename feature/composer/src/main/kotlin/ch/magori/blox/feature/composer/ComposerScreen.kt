@@ -10,16 +10,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Snackbar
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,11 +34,12 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.keyName
+import ch.magori.blox.core.designsystem.component.SettledSheet
+import ch.magori.blox.core.designsystem.component.SnackMessage
+import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
-import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
-import ch.magori.blox.core.designsystem.theme.shrinkingLineHeight
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.Note
@@ -57,6 +57,7 @@ import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import ch.magori.blox.feature.composer.ui.ComposerSizes
 import ch.magori.blox.feature.composer.ui.ToolButton
+import kotlinx.coroutines.delay
 
 /**
  * The music editor (V8, V11) of [viewModel]; [onBack] leaves it, and [onDeleted] once its music is deleted, with what
@@ -151,9 +152,10 @@ internal fun ComposerScreen(
 
 /**
  * The editor as [uiState] shows it, from top to bottom: the header, the tabs, the toolbar, the grid of one bar, the bar
- * buttons, *Au hasard* and its categories, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over
- * the bottom of the grid until [onMessageShown]; its window, if any, answered through [dialogActions]. No logic here:
- * every touch goes to its callback.
+ * buttons, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over the bottom of the grid until
+ * [onMessageShown]; its window, if any, answered through [dialogActions]; the sheet « Au hasard » once the dice of the
+ * header is touched, open until a music is rolled ([onDice]) or it is closed. Whether the sheet is open is the screen's
+ * (ADR 0029): it has no rule. No other logic here: every touch goes to its callback.
  */
 @Composable
 internal fun ComposerContent(
@@ -184,6 +186,7 @@ internal fun ComposerContent(
     val editor = uiState.editor
     val lines = remember(editor, uiState.showOtherTrack) { GridLines(gridRows(editor, uiState.showOtherTrack)) }
     val played = uiState.played
+    var diceOpen by rememberSaveable { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxSize().background(BloxTheme.palette.page).safeDrawingPadding()) {
         Column(
             modifier = Modifier.fillMaxSize().padding(ComposerSizes.padding),
@@ -199,6 +202,7 @@ internal fun ComposerContent(
                 followPlayback = uiState.followPlayback,
                 onBack = onBack,
                 onRename = onRename,
+                onDice = { diceOpen = true },
                 onDelete = onDelete,
                 onOtherTrackShown = onOtherTrackShown,
                 onFollowPlayback = onFollowPlayback,
@@ -232,7 +236,6 @@ internal fun ComposerContent(
                 )
             }
             BarButtons(bar = editor.bar, playedBar = played?.bar, onBarChosen = onBarChosen)
-            DicePanel(choice = uiState.choice, onCategoryChosen = onCategoryChosen, onDice = onDice)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 TempoPanel(
                     bpm = editor.draft.tempo.bpm,
@@ -249,6 +252,17 @@ internal fun ComposerContent(
         }
     }
     ComposerDialogHost(dialog = uiState.dialog, name = uiState.name, actions = dialogActions)
+    if (diceOpen) {
+        DiceSheet(
+            choice = uiState.choice,
+            onCategoryChosen = onCategoryChosen,
+            onRoll = {
+                diceOpen = false
+                onDice()
+            },
+            onDismissRequest = { diceOpen = false },
+        )
+    }
 }
 
 /**
@@ -283,48 +297,25 @@ internal val Category.label: Int
         Category.DANCE -> R.string.feature_composer_category_dance
     }
 
-/** Shows [message], if any, for a while, in the ink of the page, then calls [onMessageShown]. */
+/**
+ * Shows [message], if any, as a [SnackMessage], for as long as a message stays ([messageTimeoutMillis]), then calls
+ * [onMessageShown]; a message the editor takes away before (its undo gone) goes at once.
+ */
 @Composable
 private fun ComposerMessageHost(
     message: ComposerMessage?,
     onMessageShown: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val text = message?.let { stringResource(it.text) }
-    // A preview, without time going by, shows the message as it stands.
-    val host = remember { SnackbarHostState() }
+    if (message == null) return
+    val timeout = messageTimeoutMillis(hasAction = false)
+    val shown by rememberUpdatedState(onMessageShown)
     LaunchedEffect(message) {
-        if (text != null) {
-            host.showSnackbar(text)
-            onMessageShown()
-        }
+        delay(timeout)
+        shown()
     }
-    SnackbarHost(hostState = host, modifier = modifier) { data -> MessageBar(data.visuals.message) }
+    SnackMessage(text = stringResource(message.text), modifier = modifier)
 }
-
-/**
- * A message of the editor, [text] in the colour of the page on the ink, on [MESSAGE_LINES] lines at most: with a large
- * font it shrinks rather than hide the grid, down to the floor of a text that shrinks.
- */
-@Composable
-private fun MessageBar(
-    text: String,
-    modifier: Modifier = Modifier,
-) {
-    val palette = BloxTheme.palette
-    Snackbar(
-        containerColor = palette.ink,
-        contentColor = palette.page,
-        shape = BloxTheme.shapes.snack,
-        modifier = modifier,
-    ) {
-        val style = MaterialTheme.typography.bodyMedium.shrinkingLineHeight()
-        Text(text = text, style = style, maxLines = MESSAGE_LINES, autoSize = shrinkToWholeWords(style.fontSize))
-    }
-}
-
-/** The most lines a message of the editor takes over the grid. */
-private const val MESSAGE_LINES = 3
 
 /** The text of a message of the editor. */
 @get:StringRes
@@ -371,6 +362,7 @@ private fun ComposerPreview(
     editor: EditorState,
     played: Cell? = null,
     choice: CategoryChoice = Surprise,
+    over: @Composable () -> Unit = {},
 ) {
     BloxTheme(kind = kind) {
         ComposerContent(
@@ -402,6 +394,7 @@ private fun ComposerPreview(
             onMessageShown = {},
             dialogActions = DialogActions.None,
         )
+        over()
     }
 }
 
@@ -426,19 +419,26 @@ internal fun ComposerEmptyPreview() {
     ComposerPreview(BloxThemeKind.ORIGINAL, EditorState.new())
 }
 
-/**
- * The editor once the dice rolled in Joyeux over a music, which *Annuler* brings back; its message shows apart
- * ([MessagePreview]), as the host of the messages shows it only once time goes by.
- */
+/** The sheet « Au hasard » open over the editor, Joyeux chosen: the screenshots render it without its window. */
 @Composable
-private fun DicePreview(kind: BloxThemeKind) {
-    val rolled = previewEditor()
-    ComposerPreview(
-        kind,
-        rolled.copy(draft = rolled.draft.copy(category = Category.JOYFUL), undoable = ScoreDraft.new()),
-        choice = Category.JOYFUL,
-    )
+private fun DiceSheetPreview() {
+    ComposerPreview(BloxThemeKind.COLORFUL, previewEditor(), choice = Category.JOYFUL) {
+        SettledSheet(
+            title = stringResource(R.string.feature_composer_dice),
+            actions = { RollButton(onRoll = {}) },
+        ) {
+            DiceChoices(choice = Category.JOYFUL, onCategoryChosen = {})
+        }
+    }
 }
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun DiceSheetColorfulPreview() = DiceSheetPreview()
+
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+internal fun DiceSheetColorfulLargeFontPreview() = DiceSheetPreview()
 
 /** The message that the dice can be undone, at the bottom of the page, as it shows over the bottom of the grid. */
 @Composable
@@ -448,7 +448,7 @@ private fun MessagePreview(kind: BloxThemeKind) {
             contentAlignment = Alignment.BottomCenter,
             modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(ComposerSizes.padding),
         ) {
-            MessageBar(stringResource(ComposerMessage.DICE_ROLLED.text))
+            SnackMessage(stringResource(ComposerMessage.DICE_ROLLED.text))
         }
     }
 }
@@ -475,30 +475,6 @@ internal fun MessageOriginalLargeFontPreview() {
 @Composable
 internal fun MessageColorfulLargeFontPreview() {
     MessagePreview(BloxThemeKind.COLORFUL)
-}
-
-@Preview(widthDp = 360, heightDp = 760)
-@Composable
-internal fun ComposerDiceOriginalPreview() {
-    DicePreview(BloxThemeKind.ORIGINAL)
-}
-
-@Preview(widthDp = 360, heightDp = 760)
-@Composable
-internal fun ComposerDiceColorfulPreview() {
-    DicePreview(BloxThemeKind.COLORFUL)
-}
-
-@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
-@Composable
-internal fun ComposerDiceOriginalLargeFontPreview() {
-    DicePreview(BloxThemeKind.ORIGINAL)
-}
-
-@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
-@Composable
-internal fun ComposerDiceColorfulLargeFontPreview() {
-    DicePreview(BloxThemeKind.COLORFUL)
 }
 
 /**

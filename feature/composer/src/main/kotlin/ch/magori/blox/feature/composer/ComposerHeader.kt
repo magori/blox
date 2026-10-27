@@ -53,8 +53,8 @@ private const val GLYPH_STROKE = 0.12f
 /**
  * The header of the editor: the back button, the title, the [name] of the music (« Nouvelle musique » until it is
  * named), to touch to rename it, with its pencil, and its info line on two lines at most, its [style], its [key]
- * and its [status]; and the menu « … »: *Renommer*, *Suivre la lecture*, *Montrer l'autre piste en filigrane* and,
- * for a saved music ([canDelete]), *Supprimer*.
+ * and its [status]; the dice, *Au hasard*, which opens its sheet ([onDice]); and the menu « … »: *Renommer*,
+ * *Suivre la lecture*, *Montrer l'autre piste en filigrane* and, for a saved music ([canDelete]), *Supprimer*.
  */
 @Composable
 internal fun ComposerHeader(
@@ -67,6 +67,7 @@ internal fun ComposerHeader(
     followPlayback: Boolean,
     onBack: () -> Unit,
     onRename: () -> Unit,
+    onDice: () -> Unit,
     onDelete: () -> Unit,
     onOtherTrackShown: (Boolean) -> Unit,
     onFollowPlayback: (Boolean) -> Unit,
@@ -110,6 +111,11 @@ internal fun ComposerHeader(
             }
             Spacer(modifier = Modifier.padding(start = 4.dp).size(PencilSize).drawBehind { drawPencil(palette.ink) })
         }
+        GlyphButton(
+            icon = BloxIcon.DICE,
+            description = stringResource(R.string.feature_composer_dice),
+            onClick = onDice,
+        )
         Box {
             var expanded by remember { mutableStateOf(false) }
             GlyphButton(description = stringResource(R.string.feature_composer_menu), onClick = { expanded = true }) {

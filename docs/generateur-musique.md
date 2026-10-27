@@ -1082,7 +1082,7 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
   `ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
   `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
-  `ComposerScreenTest › on a small phone with the largest font, the longest category chosen for the dice shows whole`.
+  `ComposerDiceSheetTest › on a small phone with the largest font, each choice of the sheet shows its words whole`.
   Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`.
 - **Barre d'outils** (P5.49) : une rangée si chaque libellé tient entier au plancher dans sa part ;
   sinon les modes (Poser, Allonger) au-dessus des outils (Annuler, Copier, Effacer), et, si les
@@ -1122,8 +1122,8 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerViewModelTest › copying or clearing the bar shows a message that says it can be undone`,
 `ComposerViewModelTest › the message that an action can be undone goes away once it is undone, or once the undo is taken away`,
 `ComposerViewModelTest › the message that the playback is no longer followed stays when the undo is taken away`,
-`ComposerScreenTest › Au hasard composes in the category chosen, read as a radio button, and a message tells Annuler`,
-`ComposerScreenTest › on a small phone with the largest font, the category chosen for the dice comes in sight, whole`,
+`ComposerDiceSheetTest › Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler`,
+`ComposerDiceSheetTest › choosing a category keeps the sheet open and the choice`,
 `ComposerViewModelFactoryTest › an entry of Au hasard gives an editor on a new music, rolled from a seed the factory draws`.
 Vues : V8, V11, V7, V10.
 
