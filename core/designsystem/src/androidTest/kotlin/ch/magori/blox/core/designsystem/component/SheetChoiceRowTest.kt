@@ -12,12 +12,14 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -78,7 +80,30 @@ internal class SheetChoiceRowTest {
         runOnIdle { assertThat(picks).containsExactly(OTHER) }
     }
 
+    @Test
+    @DisplayName("the choices of a sheet are one group for TalkBack, each read as one of them")
+    fun theChoicesOfASheetAreOneGroup() = extension.use {
+        // Given three choices of a sheet
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                SheetChoices {
+                    listOf(CHOSEN, OTHER, THIRD).forEach { label ->
+                        SheetChoiceRow(label = label, subLine = OTHER_SUB_LINE, selected = label == CHOSEN, onClick = {
+                        })
+                    }
+                }
+            }
+        }
+
+        // Then one group holds the three, which TalkBack reads « 2 sur 3 »
+        onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.SelectableGroup))
+            .onChildren()
+            .filter(isSelectable())
+            .assertCountEquals(3)
+    }
+
     private companion object {
+        const val THIRD = "Berceuse"
         const val CHOSEN = "Surprise"
         const val CHOSEN_SUB_LINE = "Un peu de tout"
         const val OTHER = "Marche"

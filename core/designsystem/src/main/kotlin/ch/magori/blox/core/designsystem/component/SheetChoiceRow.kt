@@ -8,12 +8,14 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,7 +34,7 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 
 /**
- * A choice of a sheet, one of a group (a parent under `Modifier.selectableGroup()`), [selected] or not: a round
+ * A choice of a sheet, one of a group ([SheetChoices]), [selected] or not: a round
  * framed in `button-outline`, filled in `accent` and bearing its check ([CheckMark]) once chosen, then its [label] and,
  * under it, its [subLine], which says what it is. The whole row, [BloxSizes.settingRow] high at least, is the choice,
  * for the finger and for TalkBack, which reads it once as a radio button: « Surprise, Un peu de tout, case d'option,
@@ -85,6 +87,18 @@ fun SheetChoiceRow(
             )
         }
     }
+}
+
+/**
+ * The choices of a sheet, its [content] of [SheetChoiceRow], one above the other: one group, which TalkBack reads as
+ * such, each choice as one of them (« 2 sur 8 »).
+ */
+@Composable
+fun SheetChoices(
+    modifier: Modifier = Modifier,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier = modifier.selectableGroup(), content = content)
 }
 
 /** The round of a choice: empty, framed in `button-outline`; chosen, filled in `accent`, its check in `accent-ink`. */

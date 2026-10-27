@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 206 / 304 | `██████████████░░░░░░` **68 %** |
+| **Général** | 207 / 304 | `██████████████░░░░░░` **68 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1055,7 +1055,7 @@ composants.
     `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
     takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
     high as a target` ; captures.
-  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0029) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+  - [x] **P5.96** Feuille du bas (`core:designsystem`, ADR 0029) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
     panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
     `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
     ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée

@@ -1,5 +1,7 @@
 package ch.magori.blox.core.designsystem.component
 
+import android.view.ContextThemeWrapper
+import android.view.View
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -18,14 +20,14 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -42,14 +44,17 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.compose.ui.window.DialogWindowProvider
+import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.findViewTreeViewModelStoreOwner
+import androidx.lifecycle.setViewTreeLifecycleOwner
+import androidx.lifecycle.setViewTreeViewModelStoreOwner
+import androidx.savedstate.findViewTreeSavedStateRegistryOwner
+import androidx.savedstate.setViewTreeSavedStateRegistryOwner
+import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
@@ -58,17 +63,18 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /*
- * The sheets of the screens (ADR 0026): a panel risen from the bottom of the screen, over a scrim, in a window of its
+ * The sheets of the screens (ADR 0029): a panel risen from the bottom of the screen, over a scrim, in a window of its
  * own, over the whole screen, so that TalkBack reads it alone, as a dialog. Its opening is the caller's: the state of
  * the screen, or its ViewModel, composes it while it is open.
  */
 
 /**
- * A sheet over the screen, risen from its bottom: a handle, its [title], read first by TalkBack, as a heading, then its
- * [content], which scrolls when it is too high, and its [actions], under it, always in sight. It rises in `motion-card`
- * on the frames of the screen, or fades in within `motion-reduced-fade` in reduced effects. The system back and a
- * touch on its scrim call [onDismissRequest]; it does not slide away under the finger. It stands above the keyboard
- * and the bars of the system, which its panel goes behind.
+ * A sheet over the screen, risen from its bottom: a handle, its [title], read first by TalkBack, as a heading, and its
+ * [content], which scroll together when they are too high, then its [actions], under them, always in sight. It rises
+ * in `motion-card` on the frames of the screen, or fades in within `motion-reduced-fade` in reduced effects; once come
+ * in, it stays in place when its screen is recreated (a rotation). The system back and a touch on its scrim call
+ * [onDismissRequest], once for the sheet; it does not slide away under the finger. It stands above the keyboard and
+ * the bars of the system, which its panel goes behind. [modifier] applies to its panel.
  */
 @Composable
 fun BloxSheet(
@@ -98,49 +104,75 @@ internal fun BloxSheet(
     actions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false,
-            windowTitle = title,
-        ),
-    ) {
-        OwnMotionAndScrim()
-        val effects = BloxTheme.effects
-        val ticks = rememberEntranceTicks(effects)
-        SheetFrame(
-            title = title,
-            onDismissRequest = onDismissRequest,
-            insets = insets,
-            entrance = { sheetEntrance(ticks(), effects) },
-            modifier = modifier,
-            actions = actions,
-            content = content,
-        )
+    val dismissOnce = rememberOnce(onDismissRequest)
+    val effects = BloxTheme.effects
+    val ticks = rememberEntranceTicks(effects)
+    SheetWindowTheme {
+        Dialog(
+            onDismissRequest = dismissOnce,
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false,
+                windowTitle = title,
+            ),
+        ) {
+            SheetFrame(
+                title = title,
+                onDismissRequest = dismissOnce,
+                insets = insets,
+                entrance = { sheetEntrance(ticks(), effects) },
+                modifier = modifier,
+                actions = actions,
+                content = content,
+            )
+        }
     }
 }
 
 /**
- * Leaves the sheet alone to come in and to darken the screen: its window neither dims what is behind it nor plays the
- * animation of the platform, which would come on top of `motion-card` and stay in reduced effects.
+ * Gives the window of a sheet its theme before it shows (`CoreDesignsystem.SheetWindow`): it neither dims what is
+ * behind it, the sheet drawing its own scrim, nor plays the animation of the platform, which would come on top of
+ * `motion-card` and stay in reduced effects. A dialog takes the theme of its window from the view it opens from: here
+ * a stand-in of the view of the screen, in its context given that theme, with its owners.
  */
 @Composable
-private fun OwnMotionAndScrim() {
-    val window = (LocalView.current.parent as? DialogWindowProvider)?.window
-    SideEffect {
-        window?.setDimAmount(0f)
-        window?.setWindowAnimations(0)
+private fun SheetWindowTheme(content: @Composable () -> Unit) {
+    val view = LocalView.current
+    val themed = remember(view) { sheetWindowAnchor(view) }
+    CompositionLocalProvider(LocalView provides themed, content = content)
+}
+
+/** A stand-in of [view], the view of a screen, which a sheet opens its window from: see [SheetWindowTheme]. */
+private fun sheetWindowAnchor(view: View): View =
+    View(ContextThemeWrapper(view.context, R.style.CoreDesignsystem_SheetWindow)).apply {
+        setViewTreeLifecycleOwner(view.findViewTreeLifecycleOwner())
+        setViewTreeViewModelStoreOwner(view.findViewTreeViewModelStoreOwner())
+        setViewTreeSavedStateRegistryOwner(view.findViewTreeSavedStateRegistryOwner())
+    }
+
+/** [action], done the first time it is asked for and never again: a sheet asks once to close. */
+@Composable
+private fun rememberOnce(action: () -> Unit): () -> Unit {
+    val current by rememberUpdatedState(action)
+    return remember {
+        var done = false
+        {
+            if (!done) {
+                done = true
+                current()
+            }
+        }
     }
 }
 
 /**
  * The ticks since the sheet opened, counted on the frames of the screen (ADR 0012) until it has come in: read where it
- * is drawn, they compose nothing again.
+ * is drawn, they compose nothing again. Saved with the screen, a sheet come in does not come in again once it is
+ * recreated.
  */
 @Composable
 private fun rememberEntranceTicks(effects: BloxEffects): () -> Int {
-    var ticks by remember { mutableIntStateOf(0) }
+    var ticks by rememberSaveable { mutableIntStateOf(0) }
     LaunchedEffect(effects) {
         val frames = FrameTicks()
         while (sheetEntrance(ticks, effects) != SheetEntrance.Settled) {
@@ -152,7 +184,7 @@ private fun rememberEntranceTicks(effects: BloxEffects): () -> Int {
 
 /**
  * What a sheet draws over the screen, without its window: the previews draw it so. Its scrim and its panel take what
- * [entrance] says when they are drawn.
+ * [entrance] says when they are drawn; [modifier] applies to its panel.
  */
 @Composable
 internal fun SheetFrame(
@@ -194,22 +226,19 @@ internal fun SheetFrame(
                 .padding(bottom = BloxSpaces.space4),
         ) {
             SheetHandle(palette.label)
-            Text(
-                text = title,
-                color = palette.ink,
-                // Cut at a syllable, never in the middle of one, when a word is wider than the sheet.
-                style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle)
-                    .copy(hyphens = Hyphens.Auto),
-                modifier = Modifier
-                    .padding(bottom = BloxSpaces.space1)
-                    .semantics { heading() },
-            )
+            // The title scrolls with the content: in a large font, over the keyboard, the actions keep their room.
             Column(
                 modifier = Modifier
                     .weight(1f, fill = false)
                     .verticalScroll(rememberScrollState()),
-                content = content,
-            )
+            ) {
+                PanelTitle(
+                    text = title,
+                    style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle),
+                    modifier = Modifier.padding(bottom = BloxSpaces.space1),
+                )
+                content()
+            }
             if (actions != null) {
                 Column(
                     modifier = Modifier.padding(top = BloxSpaces.space2),

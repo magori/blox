@@ -30,5 +30,13 @@ instables et gère le clavier à sa façon.
 - Un comportement identique dans les trois écrans, des captures déterministes.
 - Pas de geste de glissement : écart avec les habitudes d'Android, connu et voulu.
 - Le voile n'est pas atteint par TalkBack ; on ferme par le retour du système.
+- La feuille se ferme d'un coup, sans transition de sortie ; une demande de fermeture n'est transmise qu'une
+  fois. Une feuille ouverte réapparaît en place après une rotation, sans rejouer son entrée.
+- Les attributs de la fenêtre (sans animation ni assombrissement de la plateforme) sont posés avant son
+  affichage, pour que seule l'entrée de BloX se voie, Effets réduits compris. La fenêtre s'ouvre depuis une doublure de la
+  vue de l'écran, à un thème sans animation ni assombrissement ; elle ne reprend pas `FLAG_SECURE` (BloX ne s'en
+  sert pas).
+- La demande de fermeture n'est transmise qu'une fois par feuille : un appelant qui refuse de fermer ne la
+  reçoit plus (le garde repart à zéro quand la feuille est recomposée à neuf).
 - Le clavier se vérifie sur téléphone : aucun test instrumenté fiable ne fait monter l'IME (les tests injectent un
   encart).

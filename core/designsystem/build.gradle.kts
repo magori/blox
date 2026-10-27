@@ -20,6 +20,12 @@ dependencies {
     api(libs.androidx.compose.material3)
     // Le retour d'un bouton relâché, compté sur les images de l'écran dans un LaunchedEffect (BubbleButton).
     implementation(libs.kotlinx.coroutines.core)
+    // La fenêtre d'une feuille s'ouvre depuis une doublure de la vue de l'écran, à son thème : elle en reprend les
+    // propriétaires (cycle de vie, ViewModel, état sauvé) (BloxSheet).
+    implementation(libs.androidx.lifecycle.common)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.savedstate)
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
