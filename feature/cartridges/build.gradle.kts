@@ -13,10 +13,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.common)
     // `@StringRes` sur le nom de chaque cartouche.
     implementation(libs.androidx.annotation)
-    // La mascotte de chaque jeu, sur sa cartouche, et les cases vides de l'écran de la console (V26).
+    // La mascotte de chaque jeu, sur sa cartouche, et le logo (V36).
     implementation(projects.core.board)
-    // `Board` (le plateau vide de l'écran de la console) et `PieceType` (la couleur de ses boutons), employés ici.
-    implementation(projects.core.game)
+    // `Flow`, l'autocollant « NOUVELLE » que `app` passe à l'entrée.
+    api(libs.kotlinx.coroutines.core)
 
     // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
     androidTestImplementation(testFixtures(projects.core.designsystem))

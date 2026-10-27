@@ -11,6 +11,7 @@ import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
@@ -35,8 +36,8 @@ internal fun BloxSystemBars(
 
 /**
  * The variant whose page the system bars lie on, with [top] on top of the stack: the Colorful variant of the mode of the
- * system, [darkSystem], under the Locksmith, the entry of the daily seed and a daily game, which are drawn in the
- * Colorful theme only (ADR 0026); else the [chosen] variant.
+ * system, [darkSystem], under the choice of the game, the Locksmith, the entry of the daily seed and a daily game, which
+ * are drawn in the Colorful theme only (ADR 0026); else the [chosen] variant.
  */
 internal fun systemBarVariant(
     top: NavKey?,
@@ -45,8 +46,10 @@ internal fun systemBarVariant(
 ): BloxThemeVariant = if (isColorfulOnly(top)) BloxThemeVariant.of(BloxThemeKind.COLORFUL, darkSystem) else chosen
 
 /** Whether the screen [top] is drawn in the Colorful theme whatever the theme chosen. */
-private fun isColorfulOnly(top: NavKey?): Boolean =
-    top is LocksmithRoute || top is DailyRoute || (top is GameRoute && top.variant.colorfulOnly)
+private fun isColorfulOnly(top: NavKey?): Boolean = top is CartridgesRoute ||
+    top is LocksmithRoute ||
+    top is DailyRoute ||
+    (top is GameRoute && top.variant.colorfulOnly)
 
 /** Whether the icons of the system bars are dark, to be read on the page of [variant]: dark on a light page. */
 internal fun hasDarkSystemBarIcons(variant: BloxThemeVariant): Boolean = !variant.isDark

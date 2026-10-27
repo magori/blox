@@ -11,6 +11,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onAllNodesWithText
@@ -45,6 +46,7 @@ import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
 import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.NewCartridges
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.daily.DailyViewModel
@@ -193,6 +195,47 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 0)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("the Graine du jour cartridge, new before the first try of the day, opens its entry")
+    fun theGraineDuJourCartridgeNewOpensItsEntry() {
+        runJourney {
+            // Given the choice of the game, no try of the Graine du jour kept
+            showApp(openClassic = false)
+            settle()
+            onNode(hasTestTag(DAILY_CARTRIDGE_TAG))
+                .assert(hasStateDescription(string(CartridgesR.string.feature_cartridges_new)))
+
+            // When
+            onNode(hasTestTag(DAILY_CARTRIDGE_TAG)).performScrollTo().performClick()
+            advanceUntilShown(dailyTitle())
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("back on the cartridges, the Graine du jour bears its sticker from the first frame")
+    fun backOnTheCartridgesTheStickerShowsFromTheFirstFrame() {
+        runJourney {
+            // Given the home of the Classic, opened from the cartridges, no try of the Graine du jour kept
+            showApp()
+
+            // When the system back brings the cartridges back, up to the first frame that shows them
+            val activity = checkNotNull(activity)
+            runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
+            repeat(FIRST_FRAMES) {
+                if (onAllNodes(hasTestTag(DAILY_CARTRIDGE_TAG)).fetchSemanticsNodes().isEmpty()) {
+                    mainClock.advanceTimeByFrame()
+                }
+            }
+
+            // Then the sticker is already there: it does not blink in
+            onNode(hasTestTag(DAILY_CARTRIDGE_TAG))
+                .assert(hasStateDescription(string(CartridgesR.string.feature_cartridges_new)))
         }
     }
 
@@ -667,6 +710,7 @@ internal class BloxNavDisplayTest {
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
         val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
+        val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
         val dailyFactory = DailyViewModel.Factory(
             dailyChallenge,
             GameRoute.DAILY_START_LEVEL,
@@ -693,6 +737,7 @@ internal class BloxNavDisplayTest {
                         locksmithFactory,
                         dailyFactory,
                         { date -> copiedDailyScores += date },
+                        newCartridges,
                     )
                 } else {
                     BloxNavDisplay(
@@ -705,6 +750,7 @@ internal class BloxNavDisplayTest {
                         locksmithFactory,
                         dailyFactory,
                         { date -> copiedDailyScores += date },
+                        newCartridges,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
@@ -827,6 +873,10 @@ internal class BloxNavDisplayTest {
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
         const val LOCKSMITH_CARTRIDGE_TAG = "cartridge_locksmith"
+        const val DAILY_CARTRIDGE_TAG = "cartridge_daily"
+
+        /** The most frames a screen brought back by the system back takes to show its first frame. */
+        const val FIRST_FRAMES = 30
 
         /** The day of the entry of the daily seed, in the journeys. */
         val DAILY_DATE: LocalDate = LocalDate.of(2026, 10, 26)
