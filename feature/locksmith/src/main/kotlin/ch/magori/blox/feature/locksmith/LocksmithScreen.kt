@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -555,7 +556,11 @@ private fun OpenPadlockCard(
     card: OpenCard,
     actions: LocksmithActions,
 ) {
-    WindowPanel(title = stringResource(R.string.feature_locksmith_open_title)) {
+    WindowPanel(
+        title = stringResource(R.string.feature_locksmith_open_title),
+        // The title the card had before the windows took screen-title (P5.98): its design is the Serrurier's own.
+        titleStyle = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
+    ) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Counter(stringResource(R.string.feature_locksmith_open_moves), card.moves)
             Counter(stringResource(R.string.feature_locksmith_open_refusals), card.refusals)

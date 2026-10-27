@@ -45,7 +45,8 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
  * `radius-md`, the name on as many lines as it needs, never scrolled; a line break typed (*Entrée*) or pasted is a
  * space, and *Entrée* calls [onDone]. Under it, why the name cannot be taken, [problem], beside the alert, read by
  * TalkBack as it shows, and the count of its characters out of [maxLength] (« 9/40 », read « 9 caractères sur 40 »).
- * The box is framed in `ink` while it has the focus, in `danger` while the name is refused ([nameFieldFrame]).
+ * The box is framed in `button-outline`, in `ink` while it has the focus, in `danger` while the name is refused
+ * ([nameFieldFrame]).
  */
 @Composable
 fun NameField(
@@ -89,7 +90,7 @@ fun NameField(
                             .fillMaxWidth()
                             .heightIn(min = FieldHeight)
                             .background(palette.panelInset, shape)
-                            .then(if (frame == null) Modifier else Modifier.border(BloxBorders.frame, frame, shape))
+                            .border(BloxBorders.frame, frame, shape)
                             .padding(horizontal = BloxSpaces.space4, vertical = BloxSpaces.space2),
                     ) {
                         innerTextField()
@@ -137,16 +138,17 @@ private fun NameCount(
 
 /**
  * The frame of the box of a name field: in `danger` while the name is [refused], whether [focused] or not; in `ink`
- * while it has the focus; none otherwise, the box standing out by its `panel-inset`.
+ * while it has the focus; in `button-outline` otherwise, as all that is touched: its `panel-inset` alone barely stands
+ * out from the panel.
  */
 internal fun nameFieldFrame(
     focused: Boolean,
     refused: Boolean,
     palette: BloxPalette,
-): Color? = when {
+): Color = when {
     refused -> palette.danger
     focused -> palette.ink
-    else -> null
+    else -> palette.buttonOutline
 }
 
 /** The least height of the box of a name field. */

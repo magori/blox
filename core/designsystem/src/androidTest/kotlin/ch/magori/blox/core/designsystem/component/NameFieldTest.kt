@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -16,6 +17,7 @@ import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -61,10 +63,28 @@ internal class NameFieldTest {
             TAKEN,
         ).assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
         onNode(hasSetTextAction()).assert(SemanticsMatcher.expectValue(SemanticsProperties.Error, TAKEN))
-        // And its frame, on the left of the box at the bottom of the field, halfway up the box, in danger
+        // And its frame in danger
+        assertThat(frameColour()).isEqualTo(BloxPalettes.ColorfulLight.danger)
+    }
+
+    @Test
+    @DisplayName("the name field is framed in ink while it has the focus")
+    fun theNameFieldIsFramedInInkWhileItHasTheFocus() = extension.use {
+        // Given
+        showField(name = "Ma marche")
+
+        // When
+        onNode(hasSetTextAction()).requestFocus()
+
+        // Then
+        assertThat(frameColour()).isEqualTo(BloxPalettes.ColorfulLight.ink)
+    }
+
+    /** The colour of the frame of the field: on the left of the box at the bottom of the field, halfway up the box. */
+    private fun ComposeContext.frameColour(): Color {
         val pixels = onNode(hasSetTextAction()).captureToImage().toPixelMap()
         val halfABox = with(density) { 28.dp.roundToPx() }
-        assertThat(pixels[1, pixels.height - halfABox]).isEqualTo(BloxPalettes.ColorfulLight.danger)
+        return pixels[1, pixels.height - halfABox]
     }
 
     /** The field of a [name], refused for [problem] or not, 320 dp wide, in Couleurs by day. */
