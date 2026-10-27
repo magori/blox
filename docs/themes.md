@@ -317,7 +317,7 @@ Polices : Manrope, Unbounded et Bagel Fat One (licence OFL, section « Polices �
 (`BloxSizes.pressDrop`, partagé avec les boutons bulles). Elle se distingue de la page par son cadre (au moins 3:1) et de la même
 touche au repos d'au moins 1,5:1 ; de jour, A tenue ne se distingue de A au repos que par ce
 décalage (une teinte ne peut être à la fois à 1,5:1 de l'accent et à 4,5:1 sous l'encre). Les
-lettres A et B sont en gras à 20 sp (grand texte, seuil 3:1) ; les flèches sont des pictogrammes
+pictogrammes de rotation de B et A (28 dp, sans lettre depuis P5.79) et les flèches sont des pictogrammes
 (3:1).
 
 **Cadre des touches** (P2.22, P5.57) : chaque touche est entourée d'un cadre de 2 dp

@@ -2,11 +2,9 @@ package ch.magori.blox.feature.game
 
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.feature.game.controls.ControlSizes
 import ch.magori.blox.feature.game.controls.KeySizes
-import ch.magori.blox.feature.game.controls.keySizes
 import ch.magori.blox.feature.game.ui.PanelSizes
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -53,11 +51,12 @@ class GameLayoutTest {
         assertThat(rightHanded.leftHanded).isFalse()
     }
 
-    @ParameterizedTest(name = "{0} dp wide at {1} px per dp")
-    @CsvSource("412, 2.625", "390, 3", "360, 2", "220, 2")
-    fun `the keys are the largest whose two groups fit the width side by side`(
+    @ParameterizedTest(name = "{0} dp wide at {1} px per dp: {2}")
+    @CsvSource("412, 2.625, PHONE", "390, 3, HALFWAY", "360, 2, COMPACT", "220, 2, COMPACT")
+    internal fun `the keys are the largest whose two groups fit the width side by side`(
         widthDp: Int,
         density: Float,
+        expected: ExpectedKeys,
     ) {
         // Given a window high enough for its board to take the width
         val (width, height) = available(widthDp, heightDp = 800, density = density)
@@ -65,22 +64,66 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density)
 
-        // Then the keys that the width of the space chooses
-        assertThat(layout.keys).isEqualTo(keySizes((widthDp - 2 * 16).dp))
+        // Then those of a phone from 398 dp on, halfway from 374 dp on, compact below
+        assertThat(layout.keys).isEqualTo(expected.keys)
+    }
+
+    /** The keys expected of a window. */
+    internal enum class ExpectedKeys(val keys: KeySizes) {
+        PHONE(KeySizes.Phone),
+        HALFWAY(KeySizes.Halfway),
+        COMPACT(KeySizes.Compact),
+    }
+
+    @ParameterizedTest(name = "at {0} px per dp, left handed: {1}")
+    @CsvSource("1.5, false", "2, false", "2.625, false", "3.5, false", "2.625, true")
+    fun `side by side, the two groups stand 18 dp apart at least, else stacked`(
+        density: Float,
+        leftHanded: Boolean,
+    ) {
+        // Given windows of 300 to 420 dp wide, dp by dp, high enough for the controls side by side
+        (300..420).forEach { widthDp ->
+            val (width, height) = available(widthDp, heightDp = 900, density = density)
+
+            // When
+            val layout = gameLayout(width, height, density, leftHanded = leftHanded)
+
+            // Then
+            val (left, right) =
+                if (leftHanded) layout.rotations to layout.directions else layout.directions to layout.rotations
+            val sideBySide = layout.rotations.top < layout.directions.bottom
+            if (sideBySide) {
+                assertThat(right.left - left.right).describedAs("%d dp", widthDp).isGreaterThanOrEqualTo(18 * density)
+            }
+        }
     }
 
     @Test
     fun `a window too low for the largest keys takes smaller ones, for a larger board`() {
-        // Given a window of 412 × 640 dp at 2 px per dp, wide enough for the keys of a phone: under them, the board
-        // would have cells of 21,5 dp
+        // Given a window of 412 × 632 dp at 2 px per dp, wide enough for the keys of a phone: under them, the board
+        // would have cells of 21 dp, 21,5 under the keys halfway
+        val (width, height) = available(widthDp = 412, heightDp = 632, density = 2f)
+
+        // When
+        val layout = gameLayout(width, height, density = 2f)
+
+        // Then the compact keys, 12 dp lower, and cells of 22 dp
+        assertThat(layout.keys).isEqualTo(KeySizes.Compact)
+        assertThat(layout.cellSize).isEqualTo(44f)
+    }
+
+    @Test
+    fun `smaller keys are taken only for cells larger by 1 dp at least`() {
+        // Given a window of 412 × 640 dp at 2 px per dp: cells of 21,5 dp under the keys of a phone, 22 under the
+        // smaller ones, half a dp more only
         val (width, height) = available(widthDp = 412, heightDp = 640, density = 2f)
 
         // When
         val layout = gameLayout(width, height, density = 2f)
 
-        // Then the keys halfway, 6 dp lower, and cells of 22 dp
-        assertThat(layout.keys).isEqualTo(KeySizes.Halfway)
-        assertThat(layout.cellSize).isEqualTo(44f)
+        // Then the keys of a phone stay: a window resized by a few dp does not change its keys back and forth
+        assertThat(layout.keys).isEqualTo(KeySizes.Phone)
+        assertThat(layout.cellSize).isEqualTo(43f)
     }
 
     @Test
@@ -207,22 +250,24 @@ class GameLayoutTest {
 
     @ParameterizedTest(name = "{0} dp high at {1} px per dp")
     @CsvSource("640, 2", "640, 2.625", "760, 2", "760, 2.625", "900, 2", "900, 2.625", "1200, 2.625")
-    fun `the board never shrinks as the window widens, from the narrowest multi-window to a phone`(
+    fun `the board never shrinks as the window widens, but by less than 1 dp where larger keys come in`(
         heightDp: Int,
         density: Float,
     ) {
         // Given windows of 220 to 420 dp wide, dp by dp: the score above the board in the narrowest, the side
         // column beside it in the widest
-        val cells = (220..420).associateWith { widthDp ->
+        val layouts = (220..420).associateWith { widthDp ->
             val (width, height) = available(widthDp, heightDp, density)
-            gameLayout(width, height, density).cellSize
+            gameLayout(width, height, density)
         }
 
-        // When and Then: each window has cells as large as the one 1 dp narrower, at least
-        cells.entries.zipWithNext().forEach { (narrower, wider) ->
-            assertThat(wider.value)
-                .describedAs("%d dp: %s px, %d dp: %s px", narrower.key, narrower.value, wider.key, wider.value)
-                .isGreaterThanOrEqualTo(narrower.value)
+        // When and Then: each window has cells as large as the one 1 dp narrower, at least; smaller by less than 1 dp
+        // only where it takes larger keys, which smaller ones would beat by less than 1 dp
+        layouts.entries.zipWithNext().forEach { (narrower, wider) ->
+            val loss = narrower.value.cellSize - wider.value.cellSize
+            val sameKeys = wider.value.keys == narrower.value.keys
+            val described = assertThat(loss).describedAs("%d dp to %d dp, %s px lost", narrower.key, wider.key, loss)
+            if (sameKeys) described.isLessThanOrEqualTo(0f) else described.isLessThan(density)
         }
     }
 

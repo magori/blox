@@ -347,10 +347,18 @@ private fun Game(
                 val fontScale = LocalDensity.current.fontScale
                 val width = constraints.maxWidth.toFloat()
                 val height = constraints.maxHeight.toFloat()
-                val layout = remember(width, height, density, fontScale, leftHanded) {
-                    gameLayout(width, height, density, fontScale, leftHanded)
+                // Until the settings answer, the room of the keys is kept, but no key is shown: none moves once they answer.
+                val known = leftHanded
+                val layout = remember(width, height, density, fontScale, known) {
+                    gameLayout(width, height, density, fontScale, known == true)
                 }
-                Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
+                Play(
+                    uiState = uiState,
+                    layout = layout,
+                    controls = controls,
+                    keysShown = known != null,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
@@ -369,7 +377,7 @@ private data class SideColumn(
 private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, recordBarFill(score, record))
 
 /**
- * The board, the side column and the touch controls of [controls], each where [layout] puts it. The score column
+ * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it. The score column
  * scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or over
  * the controls. The board reads the board and the piece only while drawing.
  */
@@ -378,6 +386,7 @@ private fun Play(
     uiState: () -> GameUiState,
     layout: GameLayout,
     controls: HeldControls,
+    keysShown: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val scoreScroll = rememberScrollState()
@@ -428,19 +437,21 @@ private fun Play(
                 )
             }
         }
-        val directionSpacing = with(LocalDensity.current) { layout.directionSpacing.toDp() }
-        DirectionPad(
-            controls = controls,
-            modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
-            keys = layout.keys,
-            spacing = directionSpacing,
-        )
-        RotationPad(
-            controls = controls,
-            modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
-            keys = layout.keys,
-            leftHanded = layout.leftHanded,
-        )
+        if (keysShown) {
+            val directionSpacing = with(LocalDensity.current) { layout.directionSpacing.toDp() }
+            DirectionPad(
+                controls = controls,
+                modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
+                keys = layout.keys,
+                spacing = directionSpacing,
+            )
+            RotationPad(
+                controls = controls,
+                modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
+                keys = layout.keys,
+                leftHanded = layout.leftHanded,
+            )
+        }
     }
 }
 

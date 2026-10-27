@@ -93,7 +93,10 @@ class GameViewModel internal constructor(
     private var gameState: GameState = engine.start(Level(route.startLevel)).state.let { started ->
         if (savedState.contains(STARTED_KEY)) engine.apply(started, Input.Pause).state else started
     }
-    private val state = MutableStateFlow(gameState.toUiState(nextPieces::getValue))
+
+    // Until the settings answer, where the keys stand is not known: none is shown, and the game does not run.
+    private val state =
+        MutableStateFlow(gameState.toUiState(nextPieces::getValue).withLeftHanded(null, gameState.isUnderWay))
 
     internal val uiState: StateFlow<GameUiState> = state.asStateFlow()
 
@@ -160,7 +163,7 @@ class GameViewModel internal constructor(
             vibrations = settings.vibrations
             soundEffectsOn = settings.soundEffects
             keyVibration = settings.keyVibration
-            state.update { it.copy(leftHanded = settings.leftHanded) }
+            state.update { it.withLeftHanded(settings.leftHanded, gameState.isUnderWay) }
             // At once, so that the first rotation does not wait for its track to open.
             if (soundEffectsOn) soundEffects.warmUp(SoundEffects.all)
         }
@@ -262,7 +265,8 @@ class GameViewModel internal constructor(
     private fun publish() {
         state.update {
             gameState.toUiState(nextPieces::getValue)
-                .copy(record = it.record, gameOver = it.gameOver, leftHanded = it.leftHanded)
+                .copy(record = it.record, gameOver = it.gameOver)
+                .withLeftHanded(it.leftHanded, gameState.isUnderWay)
                 .withRecordBeaten(it.recordBeaten)
         }
     }
@@ -304,6 +308,8 @@ class GameViewModel internal constructor(
      * pause, not once it is over; a key released does not.
      */
     internal fun onControl(change: ControlChange) {
+        // Before the settings answer, no key is shown and the game does not run: a key of a keyboard does nothing.
+        if (state.value.leftHanded == null) return
         gameState = engine.apply(gameState, change.toInput()).state
         if (keyVibration && change is ControlChange.Pressed && gameState.isUnderWay) haptics.play(Haptic.KEY_PRESS)
     }

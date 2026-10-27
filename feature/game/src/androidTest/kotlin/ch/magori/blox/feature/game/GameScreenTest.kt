@@ -350,6 +350,20 @@ internal class GameScreenTest {
         onNode(A).assertContentDescriptionEquals("A, rotation horaire").assert(hasClickAction())
     }
 
+    @Test
+    @DisplayName("until the settings answer, where the keys stand is not known, and no key is shown")
+    fun noKeyIsShownUntilTheSettingsAnswer() = extension.use {
+        // Given settings that have not answered yet
+        uiState = uiState.copy(leftHanded = null, running = false)
+        showGameScreen()
+
+        // Then the board shows, no key; once they answer, the keys come
+        onNode(BOARD).assertExists()
+        listOf(LEFT, B, A).forEach { onNode(it).assertDoesNotExist() }
+        uiState = uiState.copy(leftHanded = true, running = true)
+        listOf(LEFT, B, A).forEach { onNode(it).assertExists() }
+    }
+
     @ParameterizedTest(name = "left handed: {0}")
     @ValueSource(booleans = [false, true])
     @DisplayName("the reading order stays arrows then B and A, left handed or not")

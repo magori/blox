@@ -80,7 +80,8 @@ private val BoardFrameInset = BloxBorders.frame + 6.dp
  * of one pixel at least: what goes past the space is cut.
  *
  * The keys are the largest whose two groups fit the width side by side ([fittingKeySizes]), unless smaller ones leave
- * a larger board, in a window too low: so that a wider window never has a smaller board either. For the [leftHanded],
+ * cells larger by 1 dp at least, in a window too low: by less, a window resized by a few dp would change its keys back
+ * and forth. For the [leftHanded],
  * the two groups swap sides, as in a mirror: B A on the left, ◀ ▼ ▶ on the right.
  */
 internal fun gameLayout(
@@ -91,8 +92,7 @@ internal fun gameLayout(
     leftHanded: Boolean = false,
 ): GameLayout = fittingKeySizes(Dp(width / density))
     .map { keys -> gameLayout(width, height, density, fontScale, keys, leftHanded) }
-    // The first of the largest boards: the largest keys, on a tie.
-    .maxBy { it.cellSize }
+    .reduce { chosen, smaller -> if (smaller.cellSize >= chosen.cellSize + density) smaller else chosen }
 
 /** [gameLayout] with the keys of [keys]. */
 private fun gameLayout(
@@ -111,7 +111,7 @@ private fun gameLayout(
     return listOf(true, false)
         .map { stacked -> scoresAbove(width, height, sizes, stacked, largestCell) }
         .filter { it.cellSize > usual.cellSize }
-        .largestThatFits(width, height)
+        .largestThatFits(width, height, sizes.groupGap)
         ?: usual
 }
 
@@ -151,25 +151,36 @@ private fun usualLayout(
 ): GameLayout {
     val stacked = portrait(width, height, sizes, stacked = true)
     return listOf(portrait(width, height, sizes, stacked = false), landscape(width, height, sizes), stacked)
-        .largestThatFits(width, height)
+        .largestThatFits(width, height, sizes.groupGap)
         ?: stacked
 }
 
-/** Of these layouts, the one with the largest board, among those that fit in [width] × [height]. */
+/**
+ * Of these layouts, the one with the largest board, among those that fit in [width] × [height], their groups of controls
+ * [groupGap] apart at least when side by side.
+ */
 private fun List<GameLayout>.largestThatFits(
     width: Float,
     height: Float,
-): GameLayout? = filter { it.fitsIn(width, height) }.maxByOrNull { it.cellSize }
+    groupGap: Float,
+): GameLayout? = filter { it.fitsIn(width, height, groupGap) }.maxByOrNull { it.cellSize }
 
-/** Every part inside [width] × [height], none over another. */
+/**
+ * Every part inside [width] × [height], none over another, and the two groups of controls, when side by side, [groupGap]
+ * apart at least: else a thumb on one would brush the other.
+ */
 private fun GameLayout.fitsIn(
     width: Float,
     height: Float,
+    groupGap: Float,
 ): Boolean {
     val parts = listOfNotNull(board, sidePanel, nextPiece, directions, rotations)
     val space = Rect(0f, 0f, width, height)
+    val sideBySide = directions.top < rotations.bottom && rotations.top < directions.bottom
+    val apart = maxOf(rotations.left - directions.right, directions.left - rotations.right)
     return parts.all { space.intersect(it) == it } &&
-        parts.withIndex().none { (index, part) -> parts.drop(index + 1).any { it.overlaps(part) } }
+        parts.withIndex().none { (index, part) -> parts.drop(index + 1).any { it.overlaps(part) } } &&
+        (!sideBySide || apart >= groupGap)
 }
 
 /**
@@ -290,6 +301,9 @@ private class Sizes(density: Float, fontScale: Float, width: Float, val keys: Ke
 
     /** The narrowest width where the board beside the side column, as wide as the column, needs no score above it. */
     val scoresAboveBelow = gap + 2 * side
+
+    /** Between the two groups of controls, side by side. */
+    val groupGap = ControlSizes.groupGap.px()
 
     private val spacing = ControlSizes.spacing.wholePx()
     private val directionButton = keys.arrow.wholePx()

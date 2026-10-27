@@ -1491,15 +1491,28 @@ class GameViewModelTest {
     }
 
     @Test
-    fun `until the settings answer the keys are laid out for the right hand`() {
-        // Given settings that never answer
-        val silentPreferences = FakeUserPreferencesRepository(initial = null)
+    fun `until the settings answer the game shows no keys, does not run and takes no key`() {
+        // Given settings that have not answered yet, for a left handed player
+        val lateSettings = FakeUserPreferencesRepository(initial = null)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = lateSettings)
 
-        // When
-        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = silentPreferences)
+        // When a key of a keyboard is pressed meanwhile
+        viewModel.onControl(ControlChange.Pressed(ControlButton.LEFT))
+        viewModel.onControl(ControlChange.Released(ControlButton.LEFT))
 
-        // Then
-        assertThat(viewModel.uiState.value.leftHanded).isFalse()
+        // Then where the keys stand is not known yet: none is shown, and no frame is asked for
+        assertThat(viewModel.uiState.value.leftHanded).isNull()
+        assertThat(viewModel.uiState.value.running).isFalse()
+
+        // When the settings answer, then the game plays its first tick
+        lateSettings.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+        viewModel.onFrame(frameNanos = 0L)
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+
+        // Then the keys are laid out for the left hand, the game runs, and the key pressed before did nothing
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+        assertThat(viewModel.uiState.value.running).isTrue()
+        assertThat(viewModel.uiState.value.piece?.pivot?.column).isEqualTo(spawnedT.pivot.column)
     }
 
     @Test
