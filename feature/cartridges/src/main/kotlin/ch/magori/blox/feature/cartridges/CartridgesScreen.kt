@@ -38,6 +38,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.board.logo.BloxLogo
@@ -58,8 +59,8 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 /**
  * The choice of the game (V26), the first screen of the application: the logo, read « Choix du jeu » as its heading,
  * then [cartridges], side by side ([Cartridges]), each read by TalkBack as a button of its name, above the console
- * waiting for one, a decoration. Tapping a cartridge hands it to [onOpen], which opens its home. In Original, frozen, the title is
- * written and the cartridges bear no mascot.
+ * waiting for one, a decoration. Tapping a cartridge hands it to [onOpen], which opens its home. In Original, frozen,
+ * the title is written and the cartridges bear no mascot.
  */
 @Composable
 internal fun CartridgesScreen(
@@ -97,24 +98,32 @@ private fun Cartridges(
     val style = cartridgeNameStyle()
     val names = cartridges.map { stringResource(it.label) }
     val density = LocalDensity.current
+    // Each name at the smallest size it may shrink to, measured once for this font and density.
+    val widest = remember(measurer, style, density, names) {
+        val smallest = style.copy(fontSize = density.shrinkFloor(style.fontSize))
+        names.map { measurer.widestWord(it, smallest) }
+    }
+    // The line of every name as high as the highest name at full size: the cartridges stand as high as each other.
+    val nameHeight = remember(measurer, style, density, names) {
+        with(density) { names.maxOf { measurer.measure(it, style).size.height }.toDp() }
+    }
     BoxWithConstraints(
         modifier = Modifier.widthIn(max = CARTRIDGE_WIDTH * cartridges.size + gap * (cartridges.size - 1)),
     ) {
         val sideBySide = with(density) {
-            val smallest = style.copy(fontSize = shrinkFloor(style.fontSize))
             holdSideBySide(
                 width = constraints.maxWidth,
                 gap = gap.roundToPx(),
                 padding = CARTRIDGE_PADDING.roundToPx(),
                 weights = cartridges.map { 1f },
-                labels = names.map { measurer.widestWord(it, smallest) },
+                labels = widest,
             )
         }
         // Taps count only while this screen is resumed: once a home is on its way, a second tap does nothing.
         if (sideBySide) {
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(gap)) {
                 cartridges.forEach { cartridge ->
-                    CartridgeCard(cartridge, dropUnlessResumed { onOpen(cartridge) }, Modifier.weight(1f))
+                    CartridgeCard(cartridge, nameHeight, dropUnlessResumed { onOpen(cartridge) }, Modifier.weight(1f))
                 }
             }
         } else {
@@ -125,6 +134,7 @@ private fun Cartridges(
                 cartridges.forEach { cartridge ->
                     CartridgeCard(
                         cartridge = cartridge,
+                        nameHeight = nameHeight,
                         onClick = dropUnlessResumed { onOpen(cartridge) },
                         modifier = Modifier.widthIn(max = CARTRIDGE_WIDTH).fillMaxWidth(),
                     )
@@ -164,11 +174,12 @@ private fun Title() {
 /**
  * A cartridge (V26): a bubble button in the corners of a card, its grip at the top, its window in the `iris` gradient
  * where the mascot of its game stands (none in Original), its name, and its pins at the bottom. It goes down as a
- * bubble button when pressed. One button for TalkBack, read by its name.
+ * bubble button when pressed. One button for TalkBack, read by its name, on a line [nameHeight] high.
  */
 @Composable
 private fun CartridgeCard(
     cartridge: Cartridge,
+    nameHeight: Dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -212,7 +223,7 @@ private fun CartridgeCard(
                     )
                 }
             }
-            CartridgeName(cartridge)
+            CartridgeName(cartridge, nameHeight)
             Pins()
         }
     }
@@ -220,15 +231,17 @@ private fun CartridgeCard(
 
 /**
  * The name of [cartridge], on one line, whole: in a large font, or on a narrow cartridge, it shrinks rather than being
- * cut inside a word. Its line keeps the height of the style, so that every cartridge stands as high as the others.
+ * cut inside a word. Its line is [height] high at least, that of the highest name at full size, so that every cartridge
+ * stands as high as the others; never less than the line of its style, which it would overflow.
  */
 @Composable
-private fun CartridgeName(cartridge: Cartridge) {
+private fun CartridgeName(
+    cartridge: Cartridge,
+    height: Dp,
+) {
     val style = cartridgeNameStyle()
-    val measurer = rememberTextMeasurer()
-    val lineHeight = remember(measurer, style) { measurer.measure(" ", style).size.height }
     Box(
-        modifier = Modifier.fillMaxWidth().height(with(LocalDensity.current) { lineHeight.toDp() }),
+        modifier = Modifier.fillMaxWidth().heightIn(min = height),
         contentAlignment = Alignment.Center,
     ) {
         Text(
@@ -277,7 +290,7 @@ private val CARTRIDGE_WIDTH = 220.dp
 /** Between the sides of a cartridge and what it bears, its name among them. */
 private val CARTRIDGE_PADDING = BloxSpaces.space3
 
-/** The bar of the title, as high as the bars of the other screens, and the logo in it. */
+/** The bar of the title, as high as the 56 dp bar of the mockup (V26), and the logo in it, 42 dp as there. */
 private val TITLE_BAR_HEIGHT = 56.dp
 private val LOGO_HEIGHT = 42.dp
 
@@ -290,7 +303,7 @@ private const val MASCOT_CELL = 38f / 188f
 private const val PINS = 5
 private const val PINS_WIDTH = 80f / 220f
 private val PIN_HEIGHT = 12.dp
-private val PIN_GAP = 4.dp
+private val PIN_GAP = BloxSpaces.space1
 
 @Composable
 private fun CartridgesPreview(kind: BloxThemeKind) {

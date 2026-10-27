@@ -15,8 +15,11 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
@@ -93,6 +96,8 @@ internal class CartridgesScreenTest {
         mainClock.autoAdvance = false
         showCartridges()
         mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
         val cartridge = onNode(hasText(nameOf(Cartridge.CLASSIC)) and hasClickAction())
         val atRest = cartridge.getBoundsInRoot().top
 
@@ -104,6 +109,48 @@ internal class CartridgesScreenTest {
         assertThat(
             (cartridge.getBoundsInRoot().top - atRest).value,
         ).isCloseTo(BloxSizes.pressDrop.value, within(HALF_DP))
+        cartridge.performTouchInput { up() }
+    }
+
+    @Test
+    @DisplayName(
+        "TalkBack reads nothing of the console: the only buttons, focusable or disabled nodes are the cartridges",
+    )
+    fun talkBackReadsNothingOfTheConsole() = extension.use {
+        // Given
+        showCartridges()
+
+        // Then, in the tree TalkBack reads: the eject, disabled, is neither found nor focused
+        val names = Cartridge.entries.map(::nameOf)
+        val buttons = onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .fetchSemanticsNodes()
+        assertThat(buttons.map { it.config[SemanticsProperties.Text].joinToString() })
+            .containsExactlyInAnyOrderElementsOf(names)
+        assertThat(onAllNodes(isFocusable()).fetchSemanticsNodes()).hasSize(names.size)
+        assertThat(onAllNodes(isNotEnabled()).fetchSemanticsNodes()).isEmpty()
+    }
+
+    @Test
+    @DisplayName("in Colorful, on 360 dp, the two cartridges stand side by side, their tops level")
+    fun inColorfulTheCartridgesStandSideBySide() = extension.use {
+        // Given
+        showCartridges(width = NARROW_PHONE)
+
+        // Then
+        val (first, second) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
+        assertThat(second.top).isEqualTo(first.top)
+        assertThat(second.left).isGreaterThanOrEqualTo(first.right)
+    }
+
+    @Test
+    @DisplayName("in Original, in a font twice as large, on 360 dp, the cartridges stand one above the other")
+    fun inOriginalInALargeFontTheCartridgesAreStacked() = extension.use {
+        // Given
+        showCartridges(kind = BloxThemeKind.ORIGINAL, width = NARROW_PHONE, fontScale = 2f)
+
+        // Then
+        val (first, second) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
+        assertThat(second.top).isGreaterThanOrEqualTo(first.bottom)
     }
 
     @ParameterizedTest(name = "in {0}")

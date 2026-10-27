@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.cartridges
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -111,15 +111,20 @@ private fun Screen() {
 private fun DashedSlot() {
     val color = BloxTheme.palette.label
     val shape = BloxTheme.shapes.cell
-    Canvas(Modifier.size(DASHED_SLOT_WIDTH, DASHED_SLOT_HEIGHT)) {
-        val stroke = DASHED_SLOT_STROKE.toPx()
-        val dash = DASH.toPx()
-        drawOutline(
-            outline = shape.createOutline(size, layoutDirection, this),
-            color = color,
-            style = Stroke(width = stroke, pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash))),
-        )
-    }
+    Spacer(
+        Modifier
+            .size(DASHED_SLOT_WIDTH, DASHED_SLOT_HEIGHT)
+            .drawWithCache {
+                // Built once per size, density and colour, not at each drawing.
+                val dash = DASH.toPx()
+                val outline = shape.createOutline(size, layoutDirection, this)
+                val stroke = Stroke(
+                    width = DASHED_SLOT_STROKE.toPx(),
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash)),
+                )
+                onDrawBehind { drawOutline(outline, color, style = stroke) }
+            },
+    )
 }
 
 /** A knob of the console, a disc in the colour of the piece [type], framed by `button-outline`. */
@@ -155,4 +160,9 @@ private val DASHED_SLOT_STROKE = 2.5.dp
 private val DASH = 5.dp
 
 private val KNOB_SIZE = 30.dp
+
+/**
+ * The eject in its disc of 48 dp, 22 dp as on the mockup: larger than an icon beside a label, as the pictogram of an
+ * icon button stands alone.
+ */
 private val EJECT_SIZE = 22.dp
