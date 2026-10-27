@@ -15,6 +15,7 @@ import ch.magori.blox.core.audio.StaticAudioTrack
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.audio.effectSampleRate
+import ch.magori.blox.core.data.ChosenMusic
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
@@ -174,7 +175,14 @@ class AppContainer(context: Context) {
         music,
         haptics,
         soundEffects,
-        musicFiles::musicOf,
+        // Temporary adapter, removed in P8.6 (wiring of the live music): the game does not compose the live music from
+        // its seed yet, « Vivante » plays nothing until then.
+        { choice ->
+            when (val chosen = musicFiles.musicOf(choice)) {
+                is ChosenMusic.Fixed -> chosen.music
+                ChosenMusic.Live, null -> null
+            }
+        },
         musicLibrary::gameMusicScore,
     )
 

@@ -23,6 +23,7 @@
     <string name="feature_home_music_korobeiniki">Korobeïniki</string>
     <string name="feature_home_music_minuet">Menuet</string>
     <string name="feature_home_music_my_file">Mon fichier</string>
+    <string name="feature_home_music_live">Vivante</string>
     <string name="feature_home_music_none">Aucune</string>
     <!-- La musique personnelle choisie pour les parties, lue par TalkBack : son nom, puis « en jeu ». -->
     <string name="feature_home_music_game_description">%1$s, en jeu</string>

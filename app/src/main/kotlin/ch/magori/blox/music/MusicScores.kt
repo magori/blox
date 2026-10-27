@@ -1,9 +1,9 @@
 package ch.magori.blox.music
 
+import ch.magori.blox.core.data.ChosenMusic
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
-import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
@@ -16,31 +16,35 @@ import kotlinx.coroutines.flow.first
 internal val FALLBACK_SCORE: Score = Scores.korobeiniki
 
 /**
- * The BloX score a music [choice] plays; null when the choice plays none of them: no music, or the file of the
- * player, which comes with its own player. The home screen offers to listen to the choices with a score.
+ * The BloX score a music [choice] plays the same from one game to the next; null when the choice has none: no music,
+ * the file of the player, which comes with its own player, or the live music, composed for each game ([musicOf]). The
+ * home screen offers to listen to the choices with a score.
  */
 internal fun scoreOf(choice: MusicChoice): Score? = when (choice) {
     MusicChoice.KOROBEINIKI -> Scores.korobeiniki
     MusicChoice.MINUET -> Scores.minuet
     MusicChoice.NONE -> null
     MusicChoice.MY_FILE -> null
+    MusicChoice.LIVE -> null
 }
 
 /**
- * The music a [choice] plays during a game, [file] being the music file the player chose, if any: « Mon fichier »
- * plays it, or [FALLBACK_SCORE] without one; the other choices their score, or nothing. A file that can no longer be
- * read falls back on [FALLBACK_SCORE] too, once played (`MusicSwitch`).
+ * What a [choice] plays during a game, [file] being the music file the player chose, if any: « Mon fichier » plays it,
+ * or [FALLBACK_SCORE] without one; « Vivante » asks the game to compose its live music, from its seed; the other
+ * choices their score, or nothing. A file that can no longer be read falls back on [FALLBACK_SCORE] too, once played
+ * (`MusicSwitch`).
  */
 internal fun musicOf(
     choice: MusicChoice,
     file: MusicFile?,
-): Music? = when (choice) {
-    MusicChoice.MY_FILE -> file ?: FALLBACK_SCORE
-    else -> scoreOf(choice)
+): ChosenMusic? = when (choice) {
+    MusicChoice.MY_FILE -> ChosenMusic.Fixed(file ?: FALLBACK_SCORE)
+    MusicChoice.LIVE -> ChosenMusic.Live
+    MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.NONE -> scoreOf(choice)?.let(ChosenMusic::Fixed)
 }
 
-/** The music a [choice] plays, with the music file kept in [this] repository. Read at the start of each game. */
-internal suspend fun MusicFileRepository.musicOf(choice: MusicChoice): Music? = musicOf(choice, musicFile.first())
+/** What a [choice] plays, with the music file kept in [this] repository. Read at the start of each game. */
+internal suspend fun MusicFileRepository.musicOf(choice: MusicChoice): ChosenMusic? = musicOf(choice, musicFile.first())
 
 /**
  * The score of the music of the player chosen for the games in « Mes musiques », which a game plays instead of the
