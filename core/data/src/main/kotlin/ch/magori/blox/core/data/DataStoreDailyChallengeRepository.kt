@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.temporal.ChronoField.EPOCH_DAY
 
 /**
  * The file of the results of the daily challenge. Apart from the records: a daily game never enters them. It never
@@ -58,9 +59,12 @@ class DataStoreDailyChallengeRepository(private val dataStore: DataStore<Prefere
         return kept
     }
 
-    /** The results kept, brought back within safe bounds: a date has at least one try, points are never negative. */
+    /**
+     * The results kept, brought back within safe bounds: a date has at least one try, points are never negative. A day
+     * out of the range of [LocalDate] is no date: the file then reads as an unreadable one, without a result.
+     */
     private fun Preferences.results(): DailyResults? {
-        val day = this[DATE] ?: return null
+        val day = this[DATE]?.takeIf { EPOCH_DAY.range().isValidValue(it) } ?: return null
         return DailyResults(
             date = LocalDate.ofEpochDay(day),
             tries = (this[TRIES] ?: 0).coerceAtLeast(1),

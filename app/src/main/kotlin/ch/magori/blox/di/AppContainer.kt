@@ -1,7 +1,12 @@
 package ch.magori.blox.di
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import ch.magori.blox.R
 import ch.magori.blox.core.audio.AudioFilePlayer
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
@@ -35,8 +40,15 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.daily.DailyScoreCopier
+import ch.magori.blox.daily.DailyScoreTexts
+import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.NewCartridges
+import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
+import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -236,6 +248,45 @@ class AppContainer(context: Context) {
     /** Builds the view model of the Locksmith (ADR 0025). */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
         LocksmithViewModel.Factory(soundEffects, userPreferences)
+
+    /**
+     * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
+     * the local date of the phone, read anew at each showing ([today], as its game), and the seed of that date, the one
+     * its game is given (DailySeed), so that the seven first pieces shown are those of the game.
+     */
+    val dailyViewModelFactory: DailyViewModel.Factory =
+        DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /**
+     * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
+     * of the day, in the texts of the application, put in the clipboard of the system; below Android 13, which shows
+     * nothing of a copy, a toast says it. On the main thread, for the whole life of the process.
+     */
+    internal val dailyScoreCopier: DailyScoreCopier = DailyScoreCopier(
+        results = dailyChallenge.results,
+        texts = DailyScoreTexts(
+            score = { seed, firstTry, best, tries ->
+                context.getString(R.string.daily_score_text, seed, firstTry, best, tries)
+            },
+            tries = { count, written ->
+                context.resources.getQuantityString(R.plurals.daily_score_tries, count, written)
+            },
+        ),
+        clipboard = { text ->
+            val clipboard = checkNotNull(context.getSystemService(ClipboardManager::class.java))
+            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.app_name), text))
+        },
+        confirm = { Toast.makeText(context, R.string.daily_score_copied, Toast.LENGTH_SHORT).show() },
+        sdkInt = Build.VERSION.SDK_INT,
+        scope = mainScope,
+    )
+
+    /**
+     * The cartridges that bear the sticker NOUVELLE on the choice of the game: the Graine du jour, until the first try of
+     * the local date of the phone ([today], read anew each time the cartridges show), from its results, read once and
+     * kept warm for the whole life of the process, as the DataStore.
+     */
+    val newCartridges: NewCartridges = NewCartridges(dailyChallenge.results, dataScope) { today() }
 }
 
 private const val TAG = "BloX"

@@ -37,6 +37,15 @@ internal fun cellStyle(
     }
 }
 
+/**
+ * The colour of a piece of [type] in [variant], the fill of its cells: for a drawing made of the colours of the pieces
+ * outside the board, as the knobs of the console of the choice of the game.
+ */
+fun pieceColor(
+    variant: BloxThemeVariant,
+    type: PieceType,
+): Color = cellStyle(variant, Cell.Filled(type)).fill
+
 private val ORIGINAL_DARK = Color(0xFF34503A)
 private val ORIGINAL_MEDIUM = Color(0xFF87A67F)
 private val ORIGINAL_LIGHT = Color(0xFFBFD6B6)

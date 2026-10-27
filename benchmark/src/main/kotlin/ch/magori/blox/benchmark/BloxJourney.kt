@@ -16,12 +16,13 @@ import kotlin.time.TimeSource
 /*
  * Les parcours mesurés. Classique : choix du jeu, cartouche Classique, accueil, Jouer, quelques
  * secondes de partie, pause. Serrurier : choix du jeu, cartouche Serrurier, puis quelques poses
- * (choisir une pièce, toucher le trou, Poser). Les éléments se trouvent par leur tag de test, exposé
+ * (choisir une pièce, toucher le trou, Poser). Graine du jour : choix du jeu, cartouche Graine du jour, son entrée,
+ * Jouer, quelques secondes de partie, pause. Les éléments se trouvent par leur tag de test, exposé
  * comme identifiant de ressource (`testTagsAsResourceId`, posé par `MainActivity`) : le parcours ne
  * dépend pas de la langue de l'appareil. Les tags sont ceux de `Cartridge` (`cartridge_classic`,
- * `cartridge_locksmith`), `HomeScreen` (`home_play`), `GameTopBar` (`game_pause`), `GameControls`
- * (`controlTestTag`), `PauseScreen` (`pause_resume`) et `LocksmithTestTags` (`cellTestTag`,
- * `tileTestTag`, `locksmith_place`), recopiés ici : ce module ne voit pas les features.
+ * `cartridge_locksmith`, `cartridge_daily`), `HomeScreen` (`home_play`), `DailyScreen` (`daily_play`), `GameTopBar`
+ * (`game_pause`), `GameControls` (`controlTestTag`), `PauseScreen` (`pause_resume`) et `LocksmithTestTags`
+ * (`cellTestTag`, `tileTestTag`, `locksmith_place`), recopiés ici : ce module ne voit pas les features.
  */
 
 /**
@@ -114,6 +115,20 @@ private fun UiDevice.scrollTo(selector: BySelector) {
 }
 
 /**
+ * Depuis le choix du jeu, ouvre la cartouche Graine du jour, puis lance la partie du jour de son entrée et attend l'écran
+ * de jeu. La cartouche est la troisième du choix, et « Jouer » est au milieu de l'entrée : sur un petit écran, chacun
+ * peut être sous le bord, et l'écran défile d'abord jusqu'à lui.
+ */
+internal fun MacrobenchmarkScope.startDailyGame() {
+    device.scrollTo(By.res(DAILY_CARTRIDGE))
+    device.clickWhenReady(By.res(DAILY_CARTRIDGE))
+    device.wait(Until.gone(By.res(DAILY_CARTRIDGE)), UI_TIMEOUT.inWholeMilliseconds)
+    device.scrollTo(By.res(DAILY_PLAY))
+    device.clickWhenReady(By.res(DAILY_PLAY))
+    device.awaitObject(By.res(PAUSE))
+}
+
+/**
  * Pose [count] fois la première pièce donnée : la choisit (ou la reprend, si elle est déjà posée), touche la première
  * case du trou que l'écran montre, puis Poser. La serrure, tirée d'une graine au hasard, est inconnue du parcours : la
  * pose est acceptée ou refusée, selon que la pièce tient là ; les deux passent par le domaine, les sons et le dessin.
@@ -174,6 +189,9 @@ private const val LOCKSMITH_CARTRIDGE = "cartridge_locksmith"
 private const val LOCKSMITH_PLACE = "locksmith_place"
 private const val LOCKSMITH_HOLE = "locksmith_cell_hole"
 private const val FIRST_TILE = "locksmith_tile_0"
+
+private const val DAILY_CARTRIDGE = "cartridge_daily"
+private const val DAILY_PLAY = "daily_play"
 
 private val COMMANDS = listOf(
     "control_left",

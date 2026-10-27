@@ -334,6 +334,7 @@ droite.
   `LockCellStylesTest › a rivet is darker than the metal, so that it does not read as a small hole`,
   `LockCellStylesTest › the metal stands out from the hole and from the page by 3 to 1 at least`,
   `LockCellStylesTest › a hole is an empty cell of the board sunk by the hole inset`,
+  `LockCellStylesTest › a hole is sunk, not raised, a shadow along its top and no light, no thickness at its bottom`,
   `LockCellStylesTest › a placed piece has the bubble it has on the board`,
   `LockCellStylesTest › a preview that fits differs from its placed piece by more than its colour`,
   `LockCellStylesTest › a preview that does not fit is crossed out, so that the refusal does not rest on colour`,
@@ -350,6 +351,17 @@ droite.
   (`Orientation.broughtToOrigin()`, comme la pièce suivante du Classique).
   **Tests :** `OrientationTest › an orientation brought to the origin touches row 0 and column 0`,
   `OrientationTest › bringing an orientation to the origin keeps its shape`.
+- La tuile est `PieceTile` (`core:board`, partagée avec le Jardin musical, P10.2) : bouton
+  secondaire de 52 dp (une taille donnée par l'écran l'emporte, la pièce restant centrée, 10 dp par
+  case), anneau `accent` de 4 dp sur la tuile choisie, case vide pour une pièce posée, toujours
+  touchable ; TalkBack la lit comme un bouton par son nom seul, son orientation en état, jamais
+  annoncée ; la pièce dessinée n'a pas de nœud à elle. Ses cases viennent de
+  `pieceCells(type, orientation)` (`core:board/piece`).
+  **Tests :** `PieceCellsTest › a piece in any orientation, as a tile shows it, is its cells brought to the origin, with its size`,
+  `PieceTileTest › a tile is a button read by the name and the state it is given, chosen, its piece without a node of its own`,
+  `PieceTileTest › without a piece, a tile is an empty slot, not chosen, which a touch still reaches`,
+  `PieceTileTest › the size the screen gives a tile wins over that of a touch target, as the wide tiles of the garden` ;
+  captures `PieceTiles`, `PieceTilesNight`. Vues : V35.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
@@ -440,13 +452,17 @@ droite.
   `PadlockSizesTest › once the padlock is open, no preview is left and no room is kept`.
 - Mise en page : une colonne qui défile (barre, accords, grille, message, Indice et Recommencer, tuiles), sous
   elle les commandes ancrées en bas (tourner, **Poser**, tourner), zone plafonnée à la moitié de la hauteur.
-  La barre a un bouton retour et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour
-  TalkBack : c'est le titre de la barre qui dit l'état, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
+  La barre a un bouton retour, son titre en capitales, « SERRURE 03 » (numéro sur deux chiffres ; en
+  grande police sur un écran étroit, il rapetisse en mots entiers plutôt que de couper un mot ; P7.25),
+  et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour TalkBack : c'est le titre
+  de la barre qui dit l'état, lu en casse normale, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
   deux dernières pilules des accords portent une accolade et le mot « cadence ». La tuile choisie et son anneau
   descendent ensemble quand on appuie (ce qu'un écran dessine autour d'un bouton suit le bouton).
   **Tests :** `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
   `LocksmithScreenTest › the padlock of the bar has no node, the title of the bar tells the padlock closed, then open`,
   `LocksmithScreenTest › the back button of the bar goes back`,
+  `LocksmithScreenTest › the title of the bar is in capitals, its number on two digits, TalkBack reads it in words`,
+  `LocksmithScreenTest › in a font twice as large, on 320 dp, the title of the bar keeps its words whole`,
   `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`,
   `BubbleButtonTest › what a screen draws around a button, as the ring of a chosen tile, goes down with it`.
 - Aperçu sur l'anneau en colonne 0 ou 9 : quand la place manque au-delà du rebord, la case qui déborde est

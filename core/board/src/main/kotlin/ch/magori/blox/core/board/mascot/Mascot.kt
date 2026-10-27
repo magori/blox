@@ -117,10 +117,11 @@ private fun CacheDrawScope.drawMascot(
     }
 }
 
-/** The centre of the face, in cells: on the bar of the T, in the middle of the O. */
+/** The centre of the face, in cells: on the bar of the T, in the middle of the O, on the top bar of the Z. */
 private fun faceCentre(character: MascotCharacter): Offset = when (character) {
     MascotCharacter.CLASSIC -> Offset(1.5f, 0.55f)
     MascotCharacter.LOCKSMITH -> Offset(1f, 0.9f)
+    MascotCharacter.DAILY -> Offset(1f, 0.55f)
 }
 
 private fun DrawScope.drawAwakeFace(
@@ -187,7 +188,10 @@ private fun DrawScope.drawZ(
     drawPath(path, color, style = Stroke(stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
 }
 
-/** The crown of the T or the key of the O, in a box of 0,95 cell over the top right corner, turned by 14°. */
+/**
+ * The crown of the T, the key of the O or the sprout of the Z, in a box of 0,95 cell over the top right corner, turned
+ * by 14°.
+ */
 private fun DrawScope.drawAccessory(
     character: MascotCharacter,
     width: Float,
@@ -199,6 +203,7 @@ private fun DrawScope.drawAccessory(
     val (outline, extra) = when (character) {
         MascotCharacter.CLASSIC -> CROWN to null
         MascotCharacter.LOCKSMITH -> KEY_RING to KEY_BIT
+        MascotCharacter.DAILY -> SPROUT to SPROUT_STEM
     }
     translate(left = width - ACCESSORY_LEFT * box, top = -ACCESSORY_UP * box) {
         rotate(ACCESSORY_TURN, pivot = Offset(box / 2, box / 2)) {
@@ -217,6 +222,8 @@ private fun pathOf(data: String): Path = PathParser().parsePathString(data).toPa
 private val CROWN = pathOf("M3 18 L4.5 7.5 L9 11.5 L12 5 L15 11.5 L19.5 7.5 L21 18 Z")
 private val KEY_RING = pathOf("M3.5 8 a4.5 4.5 0 1 0 9 0 a4.5 4.5 0 1 0 -9 0 Z")
 private val KEY_BIT = pathOf("M11.2 11.2 L20 20 M15.5 15.5 L18 13 M18 18 L20.5 15.5")
+private val SPROUT = pathOf("M12 13 C12 8 8 6 4 6 C4 10 7 13 12 13 Z M12 11 C12 6 16 4 20 4 C20 8 17 11 12 11 Z")
+private val SPROUT_STEM = pathOf("M12 21 V11")
 
 /** The grid of the accessories, as of the pictograms. */
 private const val ICON_GRID = 24f
@@ -262,7 +269,7 @@ private const val SMALL_Z = 0.3f
 private val SMALL_Z_AT = Offset(0.72f, -1.25f)
 private const val SMALL_Z_ALPHA = 0.55f
 
-/** The two mascots, awake, then the Classic one asleep, on the page. */
+/** The three mascots, awake, then the Classic one asleep, on the page. */
 @Composable
 private fun MascotsPreview() {
     BloxTheme(kind = BloxThemeKind.COLORFUL) {
@@ -273,6 +280,7 @@ private fun MascotsPreview() {
         ) {
             Mascot(MascotCharacter.CLASSIC, cellSize = 38.dp)
             Mascot(MascotCharacter.LOCKSMITH, cellSize = 25.dp)
+            Mascot(MascotCharacter.DAILY, cellSize = 25.dp)
             Mascot(MascotCharacter.CLASSIC, cellSize = 22.dp, asleep = true)
         }
     }

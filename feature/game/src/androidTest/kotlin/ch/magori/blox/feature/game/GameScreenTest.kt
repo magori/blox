@@ -37,9 +37,9 @@ import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.assertDrawnAsFresh
 import ch.magori.blox.core.board.drawnContent
 import ch.magori.blox.core.board.movePiece
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.board.next.pieceName
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -150,7 +150,7 @@ internal class GameScreenTest {
     internal enum class RecordShown(val change: (GameUiState) -> GameUiState) {
         UNKNOWN({ it.copy(record = null) }),
         SHOWN({ it.copy(record = 98_760) }),
-        BEATEN({ it.copy(record = 12_000, recordBeaten = true) }),
+        BEATEN({ it.copy(record = 12_000, bestBeaten = true) }),
     }
 
     @ParameterizedTest
@@ -192,7 +192,7 @@ internal class GameScreenTest {
         onNodeWithContentDescription("Record : 12360").assertIsDisplayed()
 
         // When the score beats it
-        runOnIdle { uiState = uiState.copy(score = Points(12_380), recordBeaten = true) }
+        runOnIdle { uiState = uiState.copy(score = Points(12_380), bestBeaten = true) }
 
         // Then the sticker in place of the record, the score as its value: TalkBack reads them as one
         onNodeWithContentDescription("Nouveau record : 12380").assertIsDisplayed()
@@ -223,7 +223,7 @@ internal class GameScreenTest {
         showGameScreen(labels = GameLabels.Daily)
 
         // When the score beats it
-        runOnIdle { uiState = uiState.copy(score = Points(12_380), recordBeaten = true) }
+        runOnIdle { uiState = uiState.copy(score = Points(12_380), bestBeaten = true) }
 
         // Then the sticker in place of the best, the score as its value
         onNodeWithContentDescription("Nouveau meilleur : 12380").assertIsDisplayed()
@@ -236,7 +236,7 @@ internal class GameScreenTest {
     )
     fun theGameOverOfADailyGameAnnouncesTheBestAndOffersToCopy() = extension.use {
         // Given a daily game over, whose score beat the best of the day
-        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newRecord = true)) }
+        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newBest = true)) }
         showGameScreen(labels = GameLabels.Daily)
 
         // When the player presses Rejouer, then Copier
@@ -256,13 +256,29 @@ internal class GameScreenTest {
     @DisplayName("the game over of a classic game offers no Copier")
     fun theGameOverOfAClassicGameOffersNoCopy() = extension.use {
         // Given a classic game over, whose score beat the record
-        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newRecord = true)) }
+        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newBest = true)) }
 
         // When its game over shows
         showGameScreen()
 
         // Then it announces the record, offers Rejouer, and nothing to copy
         onNodeWithText("NOUVEAU RECORD").assertIsDisplayed()
+        onNodeWithText(replay).assertExists()
+        onNodeWithText("Copier").assertDoesNotExist()
+        onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the game over of a daily game whose results could not be written offers no Copier")
+    fun theGameOverOfADailyGameNotWrittenOffersNoCopy() = extension.use {
+        // Given a daily game over, whose try could not be written: the results of the day do not hold it
+        uiState = ShownScreen.GAME_OVER.change(uiState)
+            .let { it.copy(gameOver = it.gameOver?.copy(resultsKept = false)) }
+
+        // When its game over shows
+        showGameScreen(labels = GameLabels.Daily)
+
+        // Then it offers Rejouer, and nothing to copy, which would copy the results without this game
         onNodeWithText(replay).assertExists()
         onNodeWithText("Copier").assertDoesNotExist()
         onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
@@ -292,7 +308,7 @@ internal class GameScreenTest {
         movePiece(times = 10) {
             moveDown()
             val next = uiState.next
-            uiState = uiState.copy(next = NextPieceCells(next.type, next.cells.toSet(), next.columns, next.rows))
+            uiState = uiState.copy(next = PieceCells(next.type, next.cells.toSet(), next.columns, next.rows))
         }
 
         // Then
@@ -385,7 +401,8 @@ internal class GameScreenTest {
                     level = Level(5),
                     fourLineClears = 1,
                     ticksPlayed = 3_600,
-                    newRecord = false,
+                    newBest = false,
+                    resultsKept = true,
                 ),
             )
         }),

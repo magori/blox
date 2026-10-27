@@ -65,7 +65,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
@@ -79,10 +78,8 @@ import ch.magori.blox.core.board.lock.LockCellCut
 import ch.magori.blox.core.board.lock.LockCellLight
 import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
-import ch.magori.blox.core.board.next.NextPieceCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.designsystem.component.BubbleButton
-import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.board.piece.pieceCells
+import ch.magori.blox.core.board.tile.PieceTile
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
@@ -95,6 +92,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -268,7 +266,8 @@ private fun TopBar(
         )
         val title = stringResource(barTitleOf(state), state.level)
         Text(
-            text = stringResource(R.string.feature_locksmith_title, state.level),
+            // In capitals, as the titles of the other screens; TalkBack reads the description, in words.
+            text = stringResource(R.string.feature_locksmith_title, state.level).uppercase(),
             modifier = Modifier
                 .weight(1f)
                 // Its text kept, TalkBack reads the description in its place.
@@ -278,6 +277,8 @@ private fun TopBar(
                 },
             color = BloxTheme.palette.ink,
             style = BloxTheme.typography.gameTitle,
+            // Wider in capitals: with a large font on a narrow screen, it shrinks rather than cut SERRURE.
+            autoSize = shrinkToWholeWords(BloxTheme.typography.gameTitle.fontSize),
         )
         Text(
             text = stringResource(R.string.feature_locksmith_moves, state.game.moves),
@@ -728,62 +729,20 @@ private fun Tray(
     Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
         game.given.forEachIndexed { rank, type ->
             val placed = rank in game.placed
-            val chosen = rank == game.selected
-            val name = stringResource(
-                if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
-                type.name,
-            )
-            val orientation = if (placed) null else stringResource(orientationOf(game, rank))
-            val ring = if (chosen) {
-                Modifier.border(SELECTED_RING, BloxTheme.palette.accent, BloxTheme.shapes.md)
-            } else {
-                Modifier
-            }
-            BubbleButton(
-                family = ButtonFamily.SECONDARY,
+            PieceTile(
+                piece = if (placed) null else pieceCells(type, game.orientationOf(rank)),
+                description = stringResource(
+                    if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
+                    type.name,
+                ),
                 onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
-                modifier = Modifier
-                    .testTag(tileTestTag(rank))
-                    .size(TILE)
-                    .then(ring)
-                    .semantics {
-                        contentDescription = name
-                        selected = chosen
-                        // Read on exploring it; a turn is told by the message, the one region announced.
-                        if (orientation != null) stateDescription = orientation
-                    },
-                shape = BloxTheme.shapes.md,
-            ) {
-                if (!placed) TilePiece(state, rank)
-            }
+                modifier = Modifier.testTag(tileTestTag(rank)),
+                chosen = rank == game.selected,
+                // Read on exploring it; a turn is told by the message, the one region announced.
+                stateDescription = if (placed) null else stringResource(orientationOf(game, rank)),
+            )
         }
     }
-}
-
-/**
- * The given piece of [rank], in its orientation, brought to the top left corner, drawn as the next piece of the
- * Classic, centred in its tile; the tile itself tells TalkBack its name.
- */
-@Composable
-private fun TilePiece(
-    state: LocksmithUiState,
-    rank: Int,
-) {
-    val cells = state.game.orientationOf(rank).broughtToOrigin().cells
-    val piece = NextPieceCells(
-        type = state.game.given[rank],
-        cells = cells,
-        columns = cells.maxOf { it.column } + 1,
-        rows = cells.maxOf { it.row } + 1,
-    )
-    NextPieceCanvas(
-        next = piece,
-        cellSize = with(LocalDensity.current) { TILE_CELL.toPx() },
-        modifier = Modifier
-            .size(TILE)
-            .clearAndSetSemantics {},
-        background = BloxTheme.palette.button,
-    )
 }
 
 /** Turn left, Place, turn right: anchored at the bottom of the screen, within reach of the thumb. */
@@ -891,15 +850,6 @@ private val STATUS_ICON = 24.dp
 
 /** How far the shackle of an open padlock rises out of its body, in parts of its height. */
 private const val SHACKLE_LIFT = 0.14f
-
-/** A tile of a given piece, at the size of a touch target. */
-private val TILE = 52.dp
-
-/** A cell of a piece in its tile. */
-private val TILE_CELL = 10.dp
-
-/** The ring of the chosen tile: thicker than the frame of a tile, so that the choice does not rest on colour alone. */
-private val SELECTED_RING = 4.dp
 
 /** How far a refusal shakes the padlock aside, at most. */
 internal val SHAKE = 6.dp

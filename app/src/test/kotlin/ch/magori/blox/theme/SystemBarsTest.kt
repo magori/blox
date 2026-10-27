@@ -3,6 +3,7 @@ package ch.magori.blox.theme
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.SettingsRoute
@@ -60,6 +61,36 @@ class SystemBarsTest {
         assertThat(systemBarVariant(daily, chosen, darkSystem)).isEqualTo(expected)
     }
 
+    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
+    @CsvSource(
+        "ORIGINAL, false, COLORFUL_LIGHT",
+        "ORIGINAL, true, COLORFUL_DARK",
+        "COLORFUL_LIGHT, true, COLORFUL_DARK",
+        "COLORFUL_DARK, false, COLORFUL_LIGHT",
+    )
+    fun `the bars of the entry of the daily seed follow its colorful variant`(
+        chosen: BloxThemeVariant,
+        darkSystem: Boolean,
+        expected: BloxThemeVariant,
+    ) {
+        assertThat(systemBarVariant(DailyRoute, chosen, darkSystem)).isEqualTo(expected)
+    }
+
+    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
+    @CsvSource(
+        "ORIGINAL, false, COLORFUL_LIGHT",
+        "ORIGINAL, true, COLORFUL_DARK",
+        "COLORFUL_LIGHT, true, COLORFUL_DARK",
+        "COLORFUL_DARK, false, COLORFUL_LIGHT",
+    )
+    fun `the bars of the cartridges follow their colorful variant`(
+        chosen: BloxThemeVariant,
+        darkSystem: Boolean,
+        expected: BloxThemeVariant,
+    ) {
+        assertThat(systemBarVariant(CartridgesRoute, chosen, darkSystem)).isEqualTo(expected)
+    }
+
     @ParameterizedTest
     @MethodSource("otherScreens")
     fun `the bars of every other screen follow the theme chosen`(top: NavKey?) {
@@ -71,7 +102,6 @@ class SystemBarsTest {
     private companion object {
         @JvmStatic
         fun otherScreens(): List<Arguments> = listOf(
-            argumentSet("the cartridges", CartridgesRoute),
             argumentSet("the home", HomeRoute),
             argumentSet("the settings", SettingsRoute),
             argumentSet("a classic game", GameRoute(startLevel = 0, seed = 1L)),

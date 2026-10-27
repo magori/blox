@@ -52,3 +52,13 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   `PieceRotated`, sans dépendance : il dit ce qui s'est passé, la feature en tire un son.
 - **Amendement (ADR 0027, 2026-10-26).** Modules `core:garden` (Kotlin pur, `api(core:game)` et
   `api(core:music)`) et `feature:garden` pour le Jardin musical, sur le modèle du Serrurier.
+- **Amendement (P9.5, 2026-10-27).** Module `feature:daily` pour l'écran d'entrée de la Graine du
+  jour (V38), plutôt qu'un écran de plus dans `feature:game` (décision du développeur) :
+  `feature:game` reste l'écran de jeu, de pause et de fin de partie, pour toutes ses variantes
+  (ADR 0026), et l'entrée a son propre ViewModel, ses résultats et son cycle de vie. Le module
+  ne dépend d'aucune autre feature : `core:data` (`DailyChallengeRepository`), `core:game`
+  (`ClassicRandomizer.stable`, pour les 7 premières pièces), `core:board` (leur dessin) et
+  `core:designsystem`. Il expose `DailyRoute` et `dailyEntry` ; `app` l'assemble (ADR 0011),
+  lui donne la date du jour, la graine (`DailySeed`) et le niveau imposé (ADR 0007, 0013), et
+  décide où mènent Jouer (la partie du jour de `feature:game`, à la date affichée), Paramètres,
+  Changer de jeu et Copier mon score.

@@ -1,6 +1,6 @@
 package ch.magori.blox.feature.game.topbar
 
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
@@ -34,7 +34,7 @@ class ShownRecordTest {
     @Test
     fun `once beaten the record shown follows the score, as the new record`() {
         // When
-        val shown = game.copy(recordBeaten = true).shownRecord()
+        val shown = game.copy(bestBeaten = true).shownRecord()
 
         // Then
         assertThat(shown).isEqualTo(ShownRecord(value = 12_380, beaten = true))

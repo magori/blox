@@ -14,6 +14,7 @@ graph TD
     app --> featureGame[feature:game]
     app --> featureComposer[feature:composer]
     app --> featureMusics[feature:musics]
+    app --> featureDaily[feature:daily]
     app --> designsystem[core:designsystem]
     app --> data[core:data]
     app --> audio[core:audio]
@@ -42,6 +43,11 @@ graph TD
     featureMusics --> data
     featureMusics --> audio
     featureMusics --> music
+
+    featureDaily --> designsystem
+    featureDaily --> data
+    featureDaily --> game
+    featureDaily --> board[core:board]
 
     audio --> music[core:music]
 
@@ -73,6 +79,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. Prévu : variantes Graine du jour et Au tempo de `GameRoute`, direction musicale (`MusicDirection`) de la Musique vivante (P8, P9, P11, ADR 0026). |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
+| `feature:daily` | Feature | Écran d'entrée de la Graine du jour (V38, P9.5, amendement de l'ADR 0002), toujours en thème Couleurs : clé `DailyRoute`, `DailyViewModel` et sa fabrique ; résultats du jour, 7 premières pièces de la graine, Jouer, Copier mon score. La partie elle-même est la variante `Daily` de `feature:game`. |
 | `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level, seed)`, `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
 | `feature:garden` | Feature | **Prévu (P10, ADR 0027).** Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |
@@ -83,7 +90,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. Le thème choisi (`BloxThemeKind`) et le mode sombre du système donnent la variante dessinée, `BloxTheme.variant` (Original, Couleurs jour, Couleurs nuit, ADR 0020) ; les palettes Couleurs reprennent `docs/design-system/tokens.json`, comparé au code par un test (plugin `blox.design.tokens`, ADR 0019). |
-| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Dépend de `core:game` et `core:designsystem`. |
+| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) ; tuile d'un bac de pièces `tile/PieceTile` et ses cases `piece/PieceCells` (Serrurier, Jardin musical, P10.2) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Dépend de `core:game` et `core:designsystem`. |
 | `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
 
@@ -165,10 +172,8 @@ graph LR
   comportement commun à un dépôt et à son faux est un contrat, une classe de tests abstraite
   que les deux exécutent (`HighScoreRepositoryContract`, `UserPreferencesRepositoryContract`) :
   les faux partagés des `testFixtures` de `core:data` ne peuvent plus s'écarter du vrai dépôt ;
-  erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
-  `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
-  `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
-  `DataStoreUserPreferencesRepositoryTest › a failure other than an IOException while the settings are read is not absorbed`,
+  erreurs de lecture, communes à chaque dépôt sur fichier, qui passe le contrat `DataStoreFileContract` (P9.10) : `DataStoreFileContract › a file that cannot be read reads as an empty one`,
+  `DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`,
   `HomeViewModelTest › unreadable records show 0 and the home screen goes on`,
   `HomeViewModelTest › a programming error while the records are read is not swallowed`,
   `GameViewModelTest › unreadable records show 0 and the game goes on`,

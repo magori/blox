@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 231 / 311 | `███████████████░░░░░` **74 %** |
+| **Général** | 245 / 320 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1084,7 +1084,7 @@ composants.
     other, the safe one first, as TalkBack reads them`, `a deleting answer is filled in danger with its trash icon, its
     label standing out by 4,5 to 1`, `the name field counts its characters out of 40, as TalkBack reads it`, `a refused
     name frames the field in danger and says why, read by TalkBack as it shows` ; captures.
-  - [ ] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
+  - [x] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
     « PENDANT LES PARTIES » ; une rangée par musique (Écouter, nom et ligne d'infos qui ouvrent l'éditeur,
     égaliseur et mesure jouée pendant l'écoute, jauge des huit mesures, pastille EN JEU, disque Utiliser / En jeu
     retenu avec coche, « … » en disque nu) ; état vide ; Au hasard et Nouvelle collés en bas sur un fondu.
@@ -1097,8 +1097,8 @@ composants.
     on 360 dp, in a font twice as large` ; captures.
   - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
-    `DeleteWindow` v2 ; « « X » est supprimée. » en `SnackMessage` avec Annuler et la croix ; Renommer en fenêtre
-    v2. `CardMenu`, `MenuItem`, `UndoMessage` retirés. Après P5.97, P5.98, P5.99.
+    `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
+    v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
@@ -1144,6 +1144,10 @@ composants.
 - [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
+- [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
+  Retour et titre `screen-title` lu comme un titre), qui remplace les barres de Paramètres, Mes musiques et du choix
+  du jeu, déjà divergentes (écart `space3` contre `space2`) ; règle de 2. Découverte à la revue de P5.99. Après
+  P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
@@ -1165,7 +1169,7 @@ composants.
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
-- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+- [x] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
   console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
   étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
   inchangé (`CartridgesScreenTest`).
@@ -1294,7 +1298,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   étant faits en P7.12. Après P7.7 et P7.13.
 - [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
-- [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
+- [x] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
   et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
   (claude.ai), dont `tokens.json` est la copie (ADR 0019).
 - [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
@@ -1322,6 +1326,12 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   contour au pic du tremblement est toléré.
 - [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
   P7.13), avec les mesures de P5.33.
+- [x] **P7.25** Écarts relevés en mettant la maquette V35 à jour (décision du développeur, 2026-10-27) : titre de la
+  barre en capitales, « SERRURE 03 », lu en casse normale, rapetissé en mots entiers en grande police ; trou de la
+  serrure enfoncé : le code suivait déjà le jeton `lock-hole-inset`, un test le fige (case vide et case de l'Indice).
+- [ ] **P7.26** Juger avec `designer-jeu` : le trou de la serrure paraît bombé de jour (plus clair que le métal,
+  jeton `lock-hole-inset` à revoir ?) ; sur écran étroit, le titre rapetisse sur deux lignes à côté de « Coups » (le
+  compteur devrait-il céder d'abord ?) ; mettre la maquette V35 à jour (titre en capitales). Revue de P7.25.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
@@ -1367,7 +1377,7 @@ la Graine du jour l'impose.
 - [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
-- [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
+- [x] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
 - [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
@@ -1395,7 +1405,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
   `every try is counted`, `a try of a newer date starts that date over`, `a try of an
   older date is ignored`.
-- [ ] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
+- [x] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
   qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
   fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
   de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
@@ -1409,33 +1419,50 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   draws the pieces of its seed`, `a daily game never enters the Classic records`, `replaying a daily game keeps
   its seed, even after midnight`, `a daily game left before its end counts as a try`, `a daily game restored after
   the process died is the same try`, `the bars of a daily game follow its colorful variant`.
-- [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
-  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
-  graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à part, `feature:daily`, qui amende l'ADR
-  0002 (décision du développeur, 2026-10-27). La date est relue à chaque affichage ; la bascule en direct à minuit
-  reste **[à vérifier]**. Après P9.4.
+- [x] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
+  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel court
+  « Niveau 05 · Vivante », « Nouvelle graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à
+  part, `feature:daily`, qui amende l'ADR 0002 (décision du développeur, 2026-10-27). La date est relue à chaque
+  affichage, sans bascule en direct à minuit (décision du développeur, 2026-10-27) ; Jouer joue la date affichée.
+  Après P9.4.
 - [x] **P9.11** La partie du jour à l'écran (V39, `feature:game`, découpée de P9.5) : titre « GRAINE DU JOUR »,
   meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
   JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés
   par `GameVariants.setupOf` (ADR 0026). Après P9.4.
-- [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
+- [x] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
   presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
   U+202F, sans plafond ni zéros de tête. Brancher les deux boutons, laissés sans effet par P9.5 et P9.11 : l'écran
   d'entrée et la fin de partie (`gameEntry(onCopy)`, dans `app`). Cas d'une fin d'essai dont l'écriture a échoué
   (`IOException`) : Copier en fin de partie ne doit pas copier un essai sans score (revue de P9.11). Cas : `the copied text gives the date, the first try,
   the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
   offered before the first try`. Après P9.3, P9.5.
-- [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
+- [x] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
   parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
   être accessible au joueur).
-- [ ] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
+- [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
+- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+  générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
+  spécification (traçabilité à reprendre). Revue de P9.12.
 - [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
   Après P9.4.
+- [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
+  Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
+  `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
+- [x] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  Après P9.4.
+- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`)
+  avec le parcours de la Graine du jour (cartouche, entrée, premières secondes de la partie) ajouté en P9.7.
+- [ ] **P9.17** Juger avec `designer-jeu` les écarts de V36 codée (P9.7) : contraste de la pousse menthe sur le coin
+  menthe de la fenêtre `iris` (jour), animation d'entrée de l'autocollant « NOUVELLE » et son appui, engrenage
+  Paramètres dans la barre ; reporter dans le design system publié les jetons `lock-*` et la mascotte de la Graine
+  (`pictogrammes.md`), restés hors de P7.16.
 
 ## P10 — Le Jardin musical, troisième jeu (`core:garden`, `feature:garden`)
 
@@ -1444,11 +1471,11 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 
 - [x] **P10.1** Spécification et décision : `docs/jardin-musical.md`, ADR 0027, modules prévus dans
   `docs/architecture.md`, vue V40 numérotée (à dessiner). Fait le 2026-10-26.
-- [ ] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
+- [x] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
   règle de 2 ; captures du Serrurier inchangées. Avant P10.10.
-- [ ] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
+- [x] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
   partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
-  paramètres (8 mesures pour l'éditeur, 2 pour le jardin), sans `Tempo` ni `Cell`, internes à `feature:composer`.
+  paramètres, comptée en croches (64 pour l'éditeur, ses 8 mesures ; 16 pour le jardin, ses 2 mesures), sans `Tempo` ni `Cell`, internes à `feature:composer`.
   Avant P10.12.
 - [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
   `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de

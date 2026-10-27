@@ -17,20 +17,23 @@ import ch.magori.blox.core.data.freeName
 import ch.magori.blox.core.data.isNameTaken
 import ch.magori.blox.core.data.proposedName
 import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.designsystem.frame.LoopPlayHead
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
 import ch.magori.blox.core.music.MusicGenerator
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.feature.composer.model.BARS
+import ch.magori.blox.feature.composer.model.CELLS_PER_BAR
 import ch.magori.blox.feature.composer.model.DraftForm
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.EditorState
-import ch.magori.blox.feature.composer.model.PlayHead
 import ch.magori.blox.feature.composer.model.SaveProblem
 import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Tempo
 import ch.magori.blox.feature.composer.model.Track
+import ch.magori.blox.feature.composer.model.cellAt
 import ch.magori.blox.feature.composer.model.renameProblem
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineStart
@@ -521,9 +524,10 @@ class ComposerViewModel internal constructor(
         // The watch starts once the music is shown as listened to: a playback that stopped already (the audio focus
         // refused) stops the listening at once, rather than before it began.
         val watch = viewModelScope.launch(start = CoroutineStart.LAZY) { watch(playback) }
-        listening = Listening(playback, draft.tempo, watch)
+        val started = Listening(playback, draft.tempo, watch)
+        listening = started
         update { it.copy(followPlayback = followChosen) }
-        show(PlayHead.START)
+        show(started.head)
         watch.start()
     }
 
@@ -534,13 +538,13 @@ class ComposerViewModel internal constructor(
     internal fun onFrame(frameNanos: Long) {
         val playing = listening ?: return
         val tempo = current.editor.draft.tempo
-        playing.head = playing.head.advance(playing.frames.advance(frameNanos), tempo)
+        playing.head = playing.head.advance(playing.frames.advance(frameNanos), tempo.bpm)
         show(playing.head)
     }
 
     /** Shows the cell of [head] as played, and its bar on the grid while the grid follows the playback. */
-    private fun show(head: PlayHead) = update {
-        val cell = head.cell
+    private fun show(head: LoopPlayHead) = update {
+        val cell = cellAt(head.eighth)
         val editor = if (it.followPlayback) it.editor.copy(bar = cell.bar) else it.editor
         it.copy(editor = editor, played = cell)
     }
@@ -653,6 +657,6 @@ class ComposerViewModel internal constructor(
         // No cap per frame, unlike a game: the music goes on in real time while frames are skipped, and the play head
         // catches up every tick to follow it.
         val frames = FrameTicks()
-        var head = PlayHead.START
+        var head = LoopPlayHead.start(eighthsPerLoop = BARS * CELLS_PER_BAR)
     }
 }

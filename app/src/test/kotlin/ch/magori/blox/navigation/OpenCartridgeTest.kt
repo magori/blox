@@ -4,6 +4,7 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.cartridges.Cartridge
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
@@ -58,5 +59,17 @@ class OpenCartridgeTest {
 
         // Then
         assertThat(backStack).containsExactly(CartridgesRoute, first)
+    }
+
+    @Test
+    fun `the Graine du jour cartridge opens its entry over the cartridges`() {
+        // Given the choice of the game
+        val backStack = NavBackStack<NavKey>(CartridgesRoute)
+
+        // When
+        openCartridge(backStack, Cartridge.DAILY)
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, DailyRoute)
     }
 }
