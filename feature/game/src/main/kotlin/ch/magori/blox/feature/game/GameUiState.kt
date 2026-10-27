@@ -1,7 +1,7 @@
 package ch.magori.blox.feature.game
 
 import androidx.compose.runtime.Immutable
-import ch.magori.blox.core.board.next.NextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
 import ch.magori.blox.core.game.engine.GameState
 import ch.magori.blox.core.game.engine.Phase
 import ch.magori.blox.core.game.model.Board
@@ -27,7 +27,7 @@ import kotlin.contracts.contract
 internal data class GameUiState(
     val board: Board,
     val piece: Piece?,
-    val next: NextPieceCells,
+    val next: PieceCells,
     val level: Level,
     val lines: Lines,
     val score: Points,
@@ -54,7 +54,7 @@ internal fun GameUiState.withLeftHanded(
  * paused or over, the score it submits to the records), and the game over screen state comes from
  * [toGameOverUiState].
  */
-internal fun GameState.toUiState(nextPiece: (PieceType) -> NextPieceCells): GameUiState = GameUiState(
+internal fun GameState.toUiState(nextPiece: (PieceType) -> PieceCells): GameUiState = GameUiState(
     board = board,
     piece = current,
     next = nextPiece(next),

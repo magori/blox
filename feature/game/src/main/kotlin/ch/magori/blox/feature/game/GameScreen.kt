@@ -61,8 +61,8 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.board.BoardCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -479,7 +479,7 @@ private data class SideColumn(
     val score: Points,
     val level: Level,
     val lines: Lines,
-    val next: NextPieceCells,
+    val next: PieceCells,
     val recordFill: Float?,
 )
 

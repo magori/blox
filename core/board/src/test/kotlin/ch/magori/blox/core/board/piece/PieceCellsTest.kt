@@ -1,4 +1,4 @@
-package ch.magori.blox.core.board.next
+package ch.magori.blox.core.board.piece
 
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.PieceType
@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
-class NextPieceCellsTest {
+class PieceCellsTest {
     @ParameterizedTest(name = "{0} -> {1}")
     @CsvSource(
         "I, IIII",
@@ -38,6 +38,13 @@ class NextPieceCellsTest {
         assertThat(nextPieceCells(PieceType.I, verticalI)).isEqualTo(cellsDrawn(PieceType.I, "I|I|I|I"))
     }
 
+    @Test
+    fun `a piece in any orientation, as a tile shows it, is its cells brought to the origin, with its size`() {
+        val right = ClassicRotationSystem.orientations(PieceType.L).first()
+
+        assertThat(pieceCells(PieceType.L, right)).isEqualTo(cellsDrawn(PieceType.L, "L.|L.|LL"))
+    }
+
     /**
      * The cells of a piece of [type] drawn in [drawing], rows separated by `|`: `.` for an empty cell, a
      * letter for a cell of the piece.
@@ -45,11 +52,11 @@ class NextPieceCellsTest {
     private fun cellsDrawn(
         type: PieceType,
         drawing: String,
-    ): NextPieceCells {
+    ): PieceCells {
         val rows = drawing.split('|')
         val cells = rows.flatMapIndexed { row, line ->
             line.mapIndexedNotNull { column, symbol -> Position(column, row).takeIf { symbol != '.' } }
         }.toSet()
-        return NextPieceCells(type, cells, columns = rows.first().length, rows = rows.size)
+        return PieceCells(type, cells, columns = rows.first().length, rows = rows.size)
     }
 }

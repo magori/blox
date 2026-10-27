@@ -37,9 +37,9 @@ import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.assertDrawnAsFresh
 import ch.magori.blox.core.board.drawnContent
 import ch.magori.blox.core.board.movePiece
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.board.next.pieceName
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -308,7 +308,7 @@ internal class GameScreenTest {
         movePiece(times = 10) {
             moveDown()
             val next = uiState.next
-            uiState = uiState.copy(next = NextPieceCells(next.type, next.cells.toSet(), next.columns, next.rows))
+            uiState = uiState.copy(next = PieceCells(next.type, next.cells.toSet(), next.columns, next.rows))
         }
 
         // Then

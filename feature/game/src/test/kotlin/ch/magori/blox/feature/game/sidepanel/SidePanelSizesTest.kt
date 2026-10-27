@@ -1,6 +1,6 @@
 package ch.magori.blox.feature.game.sidepanel
 
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
