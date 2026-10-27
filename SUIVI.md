@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 209 / 304 | `██████████████░░░░░░` **69 %** |
+| **Général** | 210 / 304 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1055,12 +1055,12 @@ composants.
     `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
     takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
     high as a target` ; captures.
-  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0026) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+  - [x] **P5.96** Feuille du bas (`core:designsystem`, ADR 0029) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
     panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
     `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
     ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée
     d'actions restant visible) ; `SheetChoiceRow` (rangée de 56 dp, rond puis `CheckMark` une fois retenue, libellé
-    et sous-ligne). ADR 0026 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
+    et sous-ligne). ADR 0029 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
     P5.71, P5.93.
     Cas : `a sheet is read as a dialog by TalkBack, its title first`, `the system back and a touch on the scrim close
     the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
