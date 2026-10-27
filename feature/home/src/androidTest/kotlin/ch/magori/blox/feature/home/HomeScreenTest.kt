@@ -21,11 +21,13 @@ import androidx.compose.ui.test.assertAll
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
@@ -233,7 +235,7 @@ internal class HomeScreenTest {
         onNodeWithContentDescription("Arrêter Menuet")
             .assertHasClickAction()
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Arrêter Menuet")))
-        iconOf(hasContentDescription("Arrêter Menuet"))
+        listenIconOf(hasContentDescription("Arrêter Menuet"))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
     }
@@ -252,24 +254,24 @@ internal class HomeScreenTest {
             kind = kind,
         )
 
-        // Then
-        listOf("Écouter", "Changer").forEach { label ->
-            val layout = textLayout(label)
-            assertWordsWhole(layout)
-            assertThat(layout.lineCount).isEqualTo(1)
-            // Within the screen: the label is not cut at its edge
-            val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
-            assertThat(shown.right).isLessThanOrEqualTo(NARROW_PHONE)
-        }
+        // Then the label of Changer whole, on one line, within the screen, as Écouter, a disc of its icon alone
+        val layout = textLayout("Changer")
+        assertWordsWhole(layout)
+        assertThat(layout.lineCount).isEqualTo(1)
+        // Within the screen: the label is not cut at its edge
+        val shown = onNode(hasText("Changer"), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(shown.right).isLessThanOrEqualTo(NARROW_PHONE)
+        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
+        assertThat(listen.right).isLessThanOrEqualTo(NARROW_PHONE)
     }
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
     @DisplayName(
-        "in a font twice as large, in a window too narrow for both, Changer goes under Écouter, each label on one line",
+        "in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line",
     )
-    fun inALargeFontInANarrowWindowChangeGoesUnderListen(kind: BloxThemeKind) = extension.use {
-        // Given Mon fichier selected, in a font twice as large, in a window where each button fits, but not both
+    fun inALargeFontInANarrowWindowListenAndChangeStandApart(kind: BloxThemeKind) = extension.use {
+        // Given Mon fichier selected, in a font twice as large, in a window narrower than any phone
         val width = 280.dp
         showHomeScreen(
             uiState.copy(music = MusicChoice.MY_FILE, listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
@@ -278,19 +280,17 @@ internal class HomeScreenTest {
             kind = kind,
         )
 
-        // Then
+        // Then side by side, or Changer under Écouter if they do not fit, never over each other nor out of the window
         val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
         val change = onNodeWithContentDescription("Changer de fichier").getUnclippedBoundsInRoot()
-        assertThat(change.top).isGreaterThanOrEqualTo(listen.bottom)
+        assertThat(change.left >= listen.right || change.top >= listen.bottom).isTrue()
         listOf(listen, change).forEach { button ->
             assertThat(button.left).isGreaterThanOrEqualTo(0.dp)
             assertThat(button.right).isLessThanOrEqualTo(width)
         }
-        listOf("Écouter", "Changer").forEach { label ->
-            val layout = textLayout(label)
-            assertWordsWhole(layout)
-            assertThat(layout.lineCount).isEqualTo(1)
-        }
+        val layout = textLayout("Changer")
+        assertWordsWhole(layout)
+        assertThat(layout.lineCount).isEqualTo(1)
     }
 
     @Test
@@ -688,12 +688,12 @@ internal class HomeScreenTest {
 
         // Then each bears one icon, decorative
         listOf(
-            hasTestTag(PLAY_TAG),
-            hasContentDescription("Écouter Menuet"),
-            tileIn("Mes musiques"),
-            tileIn("Composer une musique"),
-        ).forEach { button ->
-            iconOf(button)
+            iconOf(hasTestTag(PLAY_TAG)),
+            listenIconOf(hasContentDescription("Écouter Menuet")),
+            iconOf(tileIn("Mes musiques")),
+            iconOf(tileIn("Composer une musique")),
+        ).forEach { icon ->
+            icon
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
         }
@@ -726,8 +726,10 @@ internal class HomeScreenTest {
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a font twice as large, on 360 dp, Jouer and Écouter are shown whole, beside their icons")
-    fun inALargeFontJouerAndListenAreShownWholeBesideTheirIcons(kind: BloxThemeKind) = extension.use {
+    @DisplayName(
+        "in a font twice as large, on 360 dp, Jouer is shown whole beside its icon, and Écouter within the screen",
+    )
+    fun inALargeFontJouerIsShownWholeAndListenWithinTheScreen(kind: BloxThemeKind) = extension.use {
         // Given a font twice as large, on 360 dp, the minuet selected, which may be listened to
         showHomeScreen(
             uiState.copy(listenable = listOf(MusicChoice.MINUET)),
@@ -736,23 +738,25 @@ internal class HomeScreenTest {
             kind = kind,
         )
 
-        // Then each label is shown whole, on one line, beside its icon, within its button and the screen
-        listOf(
-            hasTestTag(PLAY_TAG) to "Jouer",
-            hasContentDescription("Écouter Menuet") to "Écouter",
-        ).forEach { (button, label) ->
-            val bounds = onNode(button).getUnclippedBoundsInRoot()
-            val icon = iconOf(button).getUnclippedBoundsInRoot()
-            val layout = textLayout(label)
-            assertThat(layout.lineCount).isEqualTo(1)
-            // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
-            assertThat(layout.getLineRight(0)).isLessThanOrEqualTo(layout.size.width.toFloat())
-            val shown = onNode(hasText(label), useUnmergedTree = true).getUnclippedBoundsInRoot()
-            assertThat(icon.right <= shown.left || icon.left >= shown.right).describedAs(label).isTrue()
-            assertThat(minOf(icon.left, shown.left)).isGreaterThanOrEqualTo(bounds.left)
-            assertThat(maxOf(icon.right, shown.right)).isLessThanOrEqualTo(bounds.right)
-            assertThat(bounds.right).isLessThanOrEqualTo(NARROW_PHONE)
-        }
+        // Then the label of Jouer is shown whole, on one line, beside its icon, within its button and the screen
+        val play = hasTestTag(PLAY_TAG)
+        val bounds = onNode(play).getUnclippedBoundsInRoot()
+        val icon = iconOf(play).getUnclippedBoundsInRoot()
+        val layout = textLayout("Jouer")
+        assertThat(layout.lineCount).isEqualTo(1)
+        // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
+        assertThat(layout.getLineRight(0)).isLessThanOrEqualTo(layout.size.width.toFloat())
+        val shown = onNode(hasText("Jouer"), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(icon.right <= shown.left || icon.left >= shown.right).isTrue()
+        assertThat(minOf(icon.left, shown.left)).isGreaterThanOrEqualTo(bounds.left)
+        assertThat(maxOf(icon.right, shown.right)).isLessThanOrEqualTo(bounds.right)
+        assertThat(bounds.right).isLessThanOrEqualTo(NARROW_PHONE)
+        // And Écouter, a disc of 48 dp whatever the font, within the screen
+        onNodeWithContentDescription("Écouter Menuet")
+            .assertWidthIsEqualTo(BloxSizes.minTouchTarget)
+            .assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+        assertThat(onNodeWithContentDescription("Écouter Menuet").getUnclippedBoundsInRoot().right)
+            .isLessThanOrEqualTo(NARROW_PHONE)
     }
 
     /** A tile in the tree of its parts, unmerged: the button, its label under it. */
@@ -761,6 +765,10 @@ internal class HomeScreenTest {
     /** The icon of the button [button] matches, alone in it. */
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
         onNode(hasTestTag(HOME_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
+
+    /** The icon of the listen button [button] matches, a disc of its icon alone. */
+    private fun ComposeContext.listenIconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
+        onNode(hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
 
     private fun ComposeContext.showHomeScreen(
         state: HomeUiState = uiState,

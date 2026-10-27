@@ -152,7 +152,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
   `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
   `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
-  `HomeScreenTest › in a font twice as large, in a window too narrow for both, Changer goes under Écouter, each label on one line`,
+  `HomeScreenTest › in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line`,
   `HomeViewModelTest › opening the settings stops the preview`,
   `HomeViewModelTest › opening the settings stops the music of the player listened to`,
   `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,
@@ -431,7 +431,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   icônes en tête, la corbeille en `danger` comme *Supprimer*.
   **Tests :** `HomeScreenTest › Jouer, Écouter and the tiles bear an icon that TalkBack does not read`,
   `HomeScreenTest › the gear button is read Paramètres once, its icon adding nothing`,
-  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer and Écouter are shown whole, beside their icons`,
+  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer is shown whole beside its icon, and Écouter within the screen`,
   `GlyphButtonTest › a button of an icon alone is 48 dp, read as a button of its description, its icon adding nothing`,
   `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
   `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,

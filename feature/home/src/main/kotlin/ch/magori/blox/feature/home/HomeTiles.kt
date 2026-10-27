@@ -30,6 +30,9 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 
+/** The tag of the icons of the home screen beside a label, decorative, read by the tests only. */
+internal const val HOME_ICON_TAG = "home_icon"
+
 /**
  * The tiles under the settings: « Mes musiques », which opens the musics of the player through [onMyMusics], and
  * « Composer une musique », which opens the editor on a new music through [onCompose]. Side by side and as high as each

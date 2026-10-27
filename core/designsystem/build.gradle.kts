@@ -20,6 +20,8 @@ dependencies {
     api(libs.androidx.compose.material3)
     // Le retour d'un bouton relâché, compté sur les images de l'écran dans un LaunchedEffect (BubbleButton).
     implementation(libs.kotlinx.coroutines.core)
+    // `@StringRes` sur les textes d'Écouter (ListenFace).
+    implementation(libs.androidx.annotation)
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
@@ -29,6 +31,10 @@ dependencies {
     // des features (mots entiers en police agrandie).
     testFixturesApi(libs.androidx.compose.ui.test.android)
     testFixturesImplementation(libs.assertj.core)
+    // RecompositionRecorder, une extension de JUnit 5 partagée par les tests de ce qui se dessine sans recomposer
+    // (ADR 0024) : l'égaliseur, la grille de l'éditeur.
+    testFixturesApi(platform(libs.junit.bom))
+    testFixturesApi(libs.junit.jupiter.api)
     // DesignTokens, le lecteur de docs/design-system/tokens.json, partagé avec core:board (jetons des pièces).
     testFixturesImplementation(libs.kotlinx.serialization.json)
 }
