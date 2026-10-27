@@ -22,7 +22,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.Executors
-import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration.Companion.seconds
 
 class ChiptuneSequencerTempoTest {
@@ -715,30 +714,4 @@ class ChiptuneSequencerTempoTest {
         writeDispatcher = StandardTestDispatcher(testScheduler),
         sliceSize = sliceSize,
     )
-
-    /** Runs its work only when the test says so: a rendering not ready yet is a task left in it. */
-    private class ManualDispatcher : CoroutineDispatcher() {
-        private val tasks = ArrayDeque<Runnable>()
-        var running = false
-            private set
-
-        override fun dispatch(
-            context: CoroutineContext,
-            block: Runnable,
-        ) {
-            tasks.addLast(block)
-        }
-
-        /** Runs the work waiting, renderings included. */
-        fun runAll() {
-            while (tasks.isNotEmpty()) {
-                running = true
-                try {
-                    tasks.removeFirst().run()
-                } finally {
-                    running = false
-                }
-            }
-        }
-    }
 }

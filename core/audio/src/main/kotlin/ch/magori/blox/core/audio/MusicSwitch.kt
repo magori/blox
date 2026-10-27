@@ -42,6 +42,14 @@ public class MusicSwitch(
 
     override fun prepareTempo(factor: Double): Unit = scores.prepareTempo(factor)
 
+    /**
+     * Switches the score playing, or the one stopped, the [fallback] of a music file that could not be played included;
+     * a music file is not switched.
+     */
+    override fun switchTo(score: Score) {
+        if (!currentIsFile) scores.switchTo(score)
+    }
+
     override fun setVolume(volume: Volume) {
         scores.setVolume(volume)
         files.setVolume(volume)

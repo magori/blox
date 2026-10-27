@@ -12,6 +12,7 @@ import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.music.Music
+import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Volume
 import ch.magori.blox.feature.composer.model.Cell
@@ -443,6 +444,8 @@ class ComposerViewModelTest {
             override fun setTempoFactor(factor: Double) = Unit
 
             override fun prepareTempo(factor: Double) = Unit
+
+            override fun switchTo(score: Score) = Unit
 
             override fun setVolume(volume: Volume) = Unit
         }
