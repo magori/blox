@@ -133,10 +133,11 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         falling: Phase.Falling,
     ): GameUpdate {
         val (controls, shifted) = shift(state.board, state.controls, falling.piece)
-        val turned = falling.copy(piece = rotate(state.board, controls, shifted))
+        val rotation = rotationOf(controls)
+        val turned = falling.copy(piece = rotation?.let { rotate(state.board, it, shifted) } ?: shifted)
         val dropped = drop(state.copy(controls = controls), turned)
-        if (turned.piece == shifted) return dropped
-        return dropped.copy(events = listOf(GameEvent.PieceRotated(turned.piece)) + dropped.events)
+        if (rotation == null || turned.piece == shifted) return dropped
+        return dropped.copy(events = listOf(GameEvent.PieceRotated(turned.piece, rotation)) + dropped.events)
     }
 
     /**
@@ -221,22 +222,22 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         return controls.copy(shift = repeat.next) to shifted
     }
 
+    /** The rotation asked on this tick, on a new press only: A turns clockwise, else B counterclockwise; null for none. */
+    private fun rotationOf(controls: Controls): Rotation? = when {
+        Button.A in controls.pressedSinceLastTick -> Rotation.CLOCKWISE
+        Button.B in controls.pressedSinceLastTick -> Rotation.COUNTERCLOCKWISE
+        else -> null
+    }
+
     /**
-     * The rotation on this tick, on a new press only: A turns [piece] clockwise, else B counterclockwise.
-     * The first candidate of the rotation system that fits wins; if none fits, the piece stays as it was.
+     * [piece] turned by [rotation]: the first candidate of the rotation system that fits wins; if none fits, the piece
+     * stays as it was.
      */
     private fun rotate(
         board: Board,
-        controls: Controls,
+        rotation: Rotation,
         piece: Piece,
-    ): Piece {
-        val rotation = when {
-            Button.A in controls.pressedSinceLastTick -> Rotation.CLOCKWISE
-            Button.B in controls.pressedSinceLastTick -> Rotation.COUNTERCLOCKWISE
-            else -> return piece
-        }
-        return rules.rotationSystem.candidates(piece, rotation).firstNotNullOfOrNull(board::place) ?: piece
-    }
+    ): Piece = rules.rotationSystem.candidates(piece, rotation).firstNotNullOfOrNull(board::place) ?: piece
 
     /**
      * The piece of [falling] could not drop: it locks on the board, and the rows it soft dropped in a row

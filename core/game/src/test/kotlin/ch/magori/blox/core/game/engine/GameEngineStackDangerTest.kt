@@ -98,7 +98,7 @@ class GameEngineStackDangerTest {
         // Then
         val turned = ClassicRotationSystem.candidates(T_ON_TOWER, Rotation.CLOCKWISE).single()
         assertThat(update.events).containsExactly(
-            GameEvent.PieceRotated(turned),
+            GameEvent.PieceRotated(turned, Rotation.CLOCKWISE),
             GameEvent.PieceLocked(turned),
             GameEvent.StackDanger(on = true),
         )

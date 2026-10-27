@@ -123,6 +123,50 @@ private fun GameScreenNewRecordNight() = GameScreenNewRecordPreview()
 @Composable
 private fun GameScreenNewRecordOriginal() = GameScreenNewRecordOriginalPreview()
 
+// The feedback of the game (V28), at fixed ticks: rows being cleared 4 ticks after the lock (cells lit, A turning, the
+// middle cells gone, the next ones swelling), then cleared 4 ticks before (rows coming down, sticker « +600 », score
+// counting); day, night and large font, and in reduced effects.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearing() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenClearingNight() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun GameScreenClearingLargeFont() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearingReduced() = GameScreenClearingReducedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenCleared() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenClearedNight() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun GameScreenClearedLargeFont() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearedReduced() = GameScreenClearedReducedPreview()
+
 // Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
 
 @PreviewTest

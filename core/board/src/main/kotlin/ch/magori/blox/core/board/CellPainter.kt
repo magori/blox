@@ -73,15 +73,25 @@ internal class CellPainter(
     private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side, crossSide) }
     private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side, layout.fill.center) }
 
-    fun draw(scope: DrawScope) {
-        drawBody(scope)
+    /** Draws the cell, with its joint unless [withJoint] is false: the background under it then shows around its fill. */
+    fun draw(
+        scope: DrawScope,
+        withJoint: Boolean = true,
+    ) {
+        drawBody(scope, withJoint)
         drawMarks(scope)
     }
 
-    /** The cell without its marks: its joint, its fill, its border, its centre and its gloss. */
-    fun drawBody(scope: DrawScope) {
+    /**
+     * The cell without its marks: its joint, unless [withJoint] is false, its fill, its border, its centre and its
+     * gloss.
+     */
+    fun drawBody(
+        scope: DrawScope,
+        withJoint: Boolean = true,
+    ) {
         val fill = layout.fill
-        joint?.let { scope.drawRect(it, size = cellSize) }
+        if (withJoint) joint?.let { scope.drawRect(it, size = cellSize) }
         if (bubble == null) {
             scope.drawRect(flatFill, topLeft = fill.topLeft, size = fill.size)
         } else {
@@ -97,6 +107,20 @@ internal class CellPainter(
     fun drawMarks(scope: DrawScope) {
         dot?.invoke(scope)
         cross?.invoke(scope)
+    }
+
+    /** Covers the fill of the cell, in its shape, with [color] at [alpha]: the cell lit. */
+    fun drawLight(
+        scope: DrawScope,
+        color: Color,
+        alpha: Float,
+    ) {
+        val fill = layout.fill
+        if (bubble == null) {
+            scope.drawRect(color, topLeft = fill.topLeft, size = fill.size, alpha = alpha)
+        } else {
+            scope.translate(fill.left, fill.top) { bubble.drawCover(this, color, alpha) }
+        }
     }
 }
 

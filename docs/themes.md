@@ -435,6 +435,41 @@ disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'un
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
 
+**Retours de jeu, première tranche** (P5.80, `feature:game`, ADR 0024) : `GameFeedback`, pur et compté en ticks, vit
+dans `GameUiState` ; l'écran ne lit ses valeurs qu'au dessin, par un calque posé sur le plateau (`BoardEffects`,
+`core:board`). La pause fige les effets. Une pièce posée éclaire ses quatre cases de `clear-glow` à 0,6, qui s'éteint
+en 8 ticks. Une rotation fait tourner de ±90° le pictogramme de **sa** touche, qui revient à 0 en 6 ticks ; chaque
+touche tourne pour elle-même (`PieceRotated` porte le sens : A horaire, B anti-horaire). L'effacement est calé sur
+`Phase.Clearing`, donc sur le délai NES : les rangées s'éclairent de `clear-glow`, leurs cases éclatent par paires
+depuis le centre (5 paires en durée − 1 ticks ; la case gonfle à 1,2 puis s'efface, dessinée en dernier dans sa
+rangée), puis les rangées du dessus glissent à leur place en 8 ticks (sortie douce). L'autocollant « +points »
+monte d'une case et demie en 45 ticks, penché de −4°, placé par la géométrie du plateau (`boardPoint`) ; TalkBack
+ne le lit pas. Le score compte jusqu'à sa nouvelle valeur en 30 ticks, seul son texte recompose. **Effets réduits** :
+rien ne bouge, les rangées effacées s'affichent en `clear-glow` sans leurs cases, le score s'affiche d'un coup et
+l'autocollant s'efface en 8 ticks au plus.
+
+**Tests :** `GameFeedbackTest › a lock lights its four cells for 8 ticks`,
+`GameFeedbackTest › a rotation turns the icon of its key by 90 degrees in 6 ticks`,
+`GameFeedbackTest › a turn of B leaves the turn of A going on`,
+`GameFeedbackTest › the clear pops the cells by pairs from the centre within the clear delay`,
+`GameFeedbackTest › once the rows are cleared the rows above them slide down to their place`,
+`GameFeedbackTest › the points sticker rises and fades in 45 ticks`,
+`GameFeedbackTest › the score counts up to its new value once the rows are cleared`,
+`GameFeedbackTest › in reduced effects nothing moves and the score shows at once`,
+`GameFeedbackTest › in reduced effects the sticker fades out in 8 ticks at most`,
+`GameViewModelTest › the clear the screen shows starts with the lock and lasts as long as the clear of the engine`,
+`GameViewModelTest › a rotation reaches the screen as the turn of its key, and a lock as its cells`,
+`GameViewModelTest › a paused game freezes its effects`,
+`BoardPointTest › a point of the board is where the canvas draws it, in a height that is no multiple of 20`,
+`BoardCanvasTest › the painters are built once while effects play`,
+`BoardCanvasTest › a board whose effects are at rest is drawn as a board without effects`,
+`GameScreenTest › nothing recomposes while an effect plays`,
+`GameScreenTest › while the score counts, only its text recomposes`,
+`GameScreenTest › the icon that turns is the one of A, the key that turned the piece, and B stays still`,
+`GameScreenTest › the points sticker is not read by TalkBack`,
+`GameScreenTest › the effects are drawn over the game, and gone once over` ;
+captures `GameScreenClearing*` et `GameScreenCleared*` (jour, nuit, grande police, Effets réduits). Vue : V28.
+
 ## Choix de l'accueil
 
 **Groupe de choix v2** (P5.63, `ChoiceGroup` dans `core:designsystem`, composant Choice) : il remplace les

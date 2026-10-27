@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.music.SoundEffects
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,7 +16,7 @@ class SoundEffectOfEventTest {
     @Test
     fun `a rotation gives the rotation effect`() {
         // When
-        val effect = soundEffectFor(GameEvent.PieceRotated(spawned(PieceType.T)))
+        val effect = soundEffectFor(GameEvent.PieceRotated(spawned(PieceType.T), Rotation.CLOCKWISE))
 
         // Then
         assertThat(effect).isEqualTo(SoundEffects.rotation)
@@ -121,7 +122,7 @@ class SoundEffectOfEventTest {
     fun `a rotation on the tick of a level up still plays, before the level up sound`() {
         // Given
         val events = listOf(
-            GameEvent.PieceRotated(spawned(PieceType.T)),
+            GameEvent.PieceRotated(spawned(PieceType.T), Rotation.CLOCKWISE),
             GameEvent.LinesCleared(LineClear(1)),
             GameEvent.LevelUp(Level(1)),
         )
