@@ -105,22 +105,68 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   - le nombre d'**essais** ;
   - le score du **premier essai** ;
   - le **meilleur** score.
-- Un essai est compté **à son début** **[à vérifier]** : le dépôt enregistre « essai commencé »
-  dès Jouer (essais + 1) ; tant qu'il n'est pas fini, le premier essai vaut **0**, puis son score.
-  Quitter (Pause puis Menu, Changer de jeu) garde les points du moment. Quitter ou tuer
-  l'application pour « refaire » son premier essai ne permet donc pas de connaître les pièces
-  sans que l'essai compte. Après la mort du processus, le ViewModel rejoue la partie de la route
-  depuis sa graine (ADR 0014) : c'est **le même essai**, qui n'est pas compté une seconde fois.
-- Un résultat se range sous **la date de sa partie** :
-  - même date que le dépôt : essais + 1, meilleur mis à jour ;
-  - date plus récente (ou dépôt vide) : le dépôt passe à cette date, premier essai = meilleur =
-    ce score, 1 essai ;
-  - date plus ancienne (une partie d'hier finie après une partie d'aujourd'hui) : ignoré.
+- Un essai est compté **à son début** (décision du développeur, 2026-10-27) : `startTry(date)`, dès
+  Jouer, ajoute un essai ; tant qu'il n'est pas fini, le premier essai vaut **0**, puis son score
+  (`endTry(date, points)`). Quitter (Pause puis Menu, Changer de jeu) garde les points du moment.
+  Quitter ou tuer l'application pour « refaire » son premier essai ne permet donc pas de connaître
+  les pièces sans que l'essai compte. Après la mort du processus, le ViewModel rejoue la partie de
+  la route depuis sa graine (ADR 0014) : c'est **le même essai**, qui n'est pas compté une seconde
+  fois (`startTry` n'est pas rappelé). Limite connue : la partie restaurée recommence au début, en
+  pause, avec les mêmes pièces ; le premier essai se rejoue donc en connaissant la suite.
+- Le premier essai ne se fige qu'une fois (`firstTryOver`) : à sa fin, ou dès qu'un deuxième essai
+  commence, puisqu'il ne peut plus être restauré. Un premier essai tué et jamais restauré vaut 0 pour
+  toujours ; une partie restaurée qui finit une seconde fois peut encore améliorer le meilleur.
+- Un essai se range sous **la date de sa partie**, celle de la graine de la route, pas la date du
+  téléphone à sa fin (Rejouer après minuit garde la date d'hier) :
+  - même date que le dépôt : le début ajoute un essai, la fin donne le premier essai (une fois) et
+    met à jour le meilleur ;
+  - date plus récente (ou dépôt vide) : le début repart à cette date, 1 essai, premier essai et
+    meilleur à 0 ; une fin sans début connu (début non écrit) y compte un essai entier, premier
+    essai = meilleur = ce score ; à date égale, une fin sans début n'ajoute pas d'essai ;
+  - date plus ancienne (une partie d'hier finie après une partie d'aujourd'hui) : ignoré, au début
+    comme à la fin.
+
+  La date gardée peut être plus récente qu'aujourd'hui (horloge reculée, voyage vers l'ouest) :
+  les essais du jour réel sont alors ignorés jusqu'à ce que la date la rattrape.
+- `endTry` rend, comme les records, un `RecordResult` calculé dans la même transaction : le meilleur
+  du jour d'avant (0 pour une date nouvelle) et s'il est battu ; un essai ignoré ne bat rien. Des
+  points négatifs sont refusés avant toute écriture. Deux débuts simultanés comptent deux essais.
+- La date est gardée en `epochDay` ; à la lecture, des valeurs manquantes ou négatives donnent des
+  valeurs sûres (au moins 1 essai quand une date est là, scores à 0 au moins). Un fichier illisible
+  donne « aucun résultat ».
 - Le dépôt ne garde pas d'historique ni de série de jours (hors périmètre).
-- Le dépôt a son contrat de test et son faux, partagés par les tests des features
-  (`DailyChallengeRepositoryContract`, en testFixtures, comme les autres dépôts de `core:data`).
-- Fichier exclu de la sauvegarde **[à vérifier]** : restauré sur un autre appareil, un premier
-  essai n'aurait plus de sens.
+- Le dépôt a son contrat de test (`DailyChallengeRepositoryContract`, dans les tests de `core:data`,
+  comme les autres contrats) et son faux (`FakeDailyChallengeRepository`, en testFixtures),
+  partagé par les tests des features.
+  **Tests :** `DailyChallengeRepositoryContract › without a try there is no result of the day`,
+  `DailyChallengeRepositoryContract › a try is counted as soon as it starts`,
+  `DailyChallengeRepositoryContract › the first try is worth 0 until it ends`,
+  `DailyChallengeRepositoryContract › the first try is the first and the best`,
+  `DailyChallengeRepositoryContract › a better try replaces the best, never the first`,
+  `DailyChallengeRepositoryContract › every try is counted`,
+  `DailyChallengeRepositoryContract › a try of a newer date starts that date over`,
+  `DailyChallengeRepositoryContract › a try of an older date is ignored`,
+  `DailyChallengeRepositoryContract › a try that ends on a newer date without its start counts as a whole first try`,
+  `DailyChallengeRepositoryContract › a first try that never ends stays worth 0`,
+  `DailyChallengeRepositoryContract › the first try ends only once`,
+  `DailyChallengeRepositoryContract › negative points are refused and leave the results`,
+  `DailyChallengeRepositoryContract › negative points are refused even when nothing can be written`,
+  `DailyChallengeRepositoryContract › the results flow emits each change, and nothing for a try that is ignored`,
+  `DailyChallengeRepositoryContract › the end of a first try beats the best of the day`,
+  `DailyChallengeRepositoryContract › an end below the best does not beat it`,
+  `DailyChallengeRepositoryContract › an ignored end beats nothing`,
+  `DailyChallengeRepositoryContract › concurrent starts are all counted`,
+  `DailyChallengeRepositoryContract › a start that cannot be written fails with an IOException and keeps the results`,
+  `DailyChallengeRepositoryContract › an end that cannot be written fails with an IOException and keeps the results`,
+  `DataStoreDailyChallengeRepositoryTest › the results survive a new repository on the same file`,
+  `DataStoreDailyChallengeRepositoryTest › an unreadable file gives no result of the day, and the next try is the first`,
+  `DataStoreDailyChallengeRepositoryTest › a file that cannot be read gives no result of the day`,
+  `DataStoreDailyChallengeRepositoryTest › a file with missing or negative values reads as safe values`,
+  `DataStoreDailyChallengeRepositoryTest › a failure other than an IOException while the results are read is not absorbed`.
+- Fichier exclu de la sauvegarde (décision du développeur, 2026-10-27), transfert d'appareil
+  compris : restauré sur un autre appareil, un premier essai n'aurait plus de sens. Un joueur qui
+  change de téléphone en cours de journée perd donc ses essais du jour.
+  **Tests :** `BackupRulesTest › the file of the daily challenge never leaves the device`.
 
 ## Copier mon score
 

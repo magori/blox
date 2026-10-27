@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 223 / 307 | `███████████████░░░░░` **73 %** |
+| **Général** | 224 / 308 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1384,13 +1384,18 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
   téléphone. Cas : `the seed of a day is its date written year month day`, `the date is the local date of the
   phone`, `two days give two seeds`.
-- [ ] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
+- [x] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
   en testFixtures : date en cours, essais, premier essai, meilleur ; un essai est compté **à son début**
-  **[à vérifier]** (premier essai à 0 tant qu'il n'est pas fini) ; règles de sauvegarde **[à vérifier]**. Cas :
+  (premier essai à 0 tant qu'il n'est pas fini) et le fichier est exclu de la sauvegarde (décisions du
+  développeur, 2026-10-27) ; `startTry` / `endTry`, qui rend un `RecordResult`. Cas :
   `without a try there is no result of the day`, `a try is counted as soon as it starts`, `the first try is worth 0
   until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
   `every try is counted`, `a try of a newer date starts that date over`, `a try of an
   older date is ignored`.
+- [ ] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
+  qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
+  fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
+  de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
 - [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
   `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
   musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
