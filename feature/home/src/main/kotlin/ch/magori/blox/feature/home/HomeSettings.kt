@@ -19,6 +19,7 @@ import ch.magori.blox.core.designsystem.component.ChoiceGroup
 import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.LabelledControl
 import ch.magori.blox.core.designsystem.component.LevelGauge
+import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -158,12 +159,12 @@ private fun MusicActions(
     val selected = uiState.selectedMusic
     FlowRow(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2, Alignment.CenterHorizontally)) {
         if (gameMusic != null) {
-            ListenButton(musicName = gameMusic.name, previewed = gameMusic.previewed, onClick = onListenGameMusic)
+            ListenButton(playing = gameMusic.previewed, musicName = gameMusic.name, onClick = onListenGameMusic)
         } else if (selected != null) {
             if (selected in uiState.listenable) {
                 ListenButton(
+                    playing = selected == uiState.previewing,
                     musicName = stringResource(selected.label),
-                    previewed = selected == uiState.previewing,
                     onClick = { onListen(selected) },
                 )
             }

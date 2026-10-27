@@ -128,6 +128,4 @@
     <string name="feature_composer_faster_glyph" translatable="false">+</string>
     <string name="feature_composer_slower">Ralentir</string>
     <string name="feature_composer_faster">Accélérer</string>
-    <string name="feature_composer_listen">Écouter</string>
-    <string name="feature_composer_stop">Arrêter</string>
 </resources>

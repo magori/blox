@@ -1129,8 +1129,10 @@ Vues : V8, V11, V7, V10.
 
 ### Éditeur : écoute (implémentée, P4.19c)
 
-- **Écouter / Arrêter** : bouton rond à droite du tempo (triangle ou carré, 48 dp), lu « Écouter » ou
-  « Arrêter ». Il joue la musique en cours par `MusicPlayer`, depuis la première case ; un seul
+- **Écouter / Arrêter** : bouton rond à droite du tempo, le `ListenButton` partagé avec l'accueil (P5.94) :
+  disque de la famille Icône, triangle ou carré, 48 dp (56 avec P5.102, quand le tempo sera une pilule : à
+  56 dp, « 120 temps/min » coupait ses mots en Original ×2), à l'aspect pressé pendant l'écoute ; lu
+  « Écouter » ou « Arrêter » suivis du nom de la musique, le verbe seul pour une musique sans nom. Il joue la musique en cours par `MusicPlayer`, depuis la première case ; un seul
   aperçu à la fois, comme à l'accueil (P4.7). Désactivé tant qu'aucune piste n'a de note. Une
   musique qui s'arrête d'elle-même (focus refusé ou perdu, sortie audio en échec), même aussitôt
   lancée, ramène le bouton à « Écouter ».
@@ -1190,7 +1192,8 @@ Vues : V8, V11, V7, V10.
 `TrackColorsTest › the outline of the column played stands out from the cells, empty or filled, and the page by 3 to 1 at least`,
 `ComposerScreenTest › Listen plays the music being edited, disabled while it has no note, and Stop stops it`,
 `ComposerScreenTest › the bar played is read as such; choosing another stops following the playback, as the menu shows`,
-`ComposerScreenTest › Stop stays within reach while the message about following the playback shows`.
+`ComposerScreenTest › Stop stays within reach while the message about following the playback shows`,
+`ComposerScreenTest › a named music is listened to under its name`.
 Vues : V8, V11, V14, V17.
 
 ### Enregistrer

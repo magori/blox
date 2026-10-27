@@ -159,6 +159,24 @@ Secondaire. Pictogrammes `CHECK` et `ALERT`, chacun avec son épaisseur de trait
 `ButtonLookTest › only a main or a secondary button may be compact, 48 dp high`,
 `BubbleButtonTest › a selected button is read as selected by TalkBack, a plain one is not` ; captures `ButtonVariants*`.
 
+**Écouter et égaliseur** (P5.94, `core:designsystem`) : `ListenButton` remplace les boutons Écouter de l'accueil et
+de l'éditeur. C'est un `GlyphButton` de la famille Icône (48 dp, ou la taille donnée), triangle `PLAY` au repos,
+carré `STOP` pendant l'écoute, état **en cours** (aspect pressé) ; TalkBack lit « Écouter X » ou « Arrêter X », le
+verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il n'a plus de libellé visible.
+`Equalizer` : trois barres de 3 × 14 dp, 2 dp entre elles, en `accent`, coins de la moitié de leur largeur (1,5 dp ;
+les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
+redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
+78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
+réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des musiques (P5.99).
+**Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
+`ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
+`ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
+`ListenButtonTest › a listen button playing is drawn as the button of its square, active, and not as at rest`,
+`EqualizerMotionTest › the equalizer moves its three bars between 35 and 100 percent of their height in 30 ticks`,
+`EqualizerTest › in reduced effects or in Original the equalizer stands still`,
+`EqualizerTest › the equalizer is left out by TalkBack`,
+`EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
