@@ -27,8 +27,8 @@ internal fun logoCells(variant: BloxThemeVariant): List<LogoCell> = with(logoCol
 }
 
 /**
- * The logo of four cells, in the colours of the current theme. Plain squares, the logo of v1 (the logo of v2 comes
- * in P5.77). Decorative: TalkBack skips it.
+ * The logo of four cells, in the colours of the current theme. Plain squares, the logo of v1, kept by Original (the
+ * logo of v2 is `BloxLogo`, P5.77). Decorative: TalkBack skips it.
  */
 @Composable
 internal fun HomeLogo(
