@@ -10,7 +10,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
@@ -24,6 +26,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
@@ -104,7 +107,6 @@ internal class MyMusicsScreenTest {
         )
 
         // Then
-        onNodeWithText("Pendant les parties : Thème du soir").assertExists()
         onNodeWithContentDescription("Lecture, mesure 3 sur 8", useUnmergedTree = true)
             .assertIsDisplayed()
             .assertShows("Lecture · mesure 3 sur 8")
@@ -120,6 +122,80 @@ internal class MyMusicsScreenTest {
 
         // Then
         runOnIdle { assertThat(calls).containsExactly("listen evening", "listen march") }
+    }
+
+    @Test
+    @DisplayName(
+        "listening to a music shows the equalizer and the bar played, and a gauge of eight bars that TalkBack leaves out",
+    )
+    fun listeningShowsTheEqualizerAndTheGauge() = extension.use {
+        // Given « Ma marche » listened to, at its third bar of eight
+        val listened = uiState.copy(
+            musics = listOf(uiState.musics[0], uiState.musics[1].copy(listening = Listening(bar = 3, bars = 8))),
+        )
+        var state by mutableStateOf(listened)
+        setMyMusics { state }
+
+        // Then its row alone bears the equalizer, beside the bar played, and the gauge of its eight bars
+        val inMarch = hasAnyAncestor(holding("Ma marche"))
+        onNode(hasTestTag(MUSICS_EQUALIZER_TAG) and inMarch, useUnmergedTree = true).assertIsDisplayed()
+        onAllNodes(hasTestTag(MUSICS_EQUALIZER_TAG), useUnmergedTree = true).assertCountEquals(1)
+        onNodeWithContentDescription("Lecture, mesure 3 sur 8", useUnmergedTree = true)
+            .assertShows("Lecture · mesure 3 sur 8")
+        onNode(hasTestTag(MUSICS_GAUGE_TAG), useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility))
+        onAllNodes(hasTestTag(MUSICS_GAUGE_BAR_TAG), useUnmergedTree = true).assertCountEquals(8)
+
+        // When the music stops
+        state = uiState
+
+        // Then
+        onAllNodes(hasTestTag(MUSICS_EQUALIZER_TAG), useUnmergedTree = true).assertCountEquals(0)
+        onAllNodes(hasTestTag(MUSICS_GAUGE_TAG), useUnmergedTree = true).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName(
+        "the card Pendant les parties names the music played during the games, or the music chosen on the home screen",
+    )
+    fun theCardPendantLesPartiesNamesTheGameMusic() = extension.use {
+        // Given
+        var state by mutableStateOf(uiState)
+        setMyMusics { state }
+
+        // Then the card shows its label in capitals and the name, read as one sentence
+        onNodeWithContentDescription("Pendant les parties : Thème du soir").assertIsDisplayed()
+        onNodeWithText("PENDANT LES PARTIES", useUnmergedTree = true).assertIsDisplayed()
+
+        // When no music of the player is played during the games
+        state = uiState.copy(gameMusic = null)
+
+        // Then
+        onNodeWithContentDescription("Pendant les parties : La musique choisie à l'accueil").assertIsDisplayed()
+        onNodeWithText("La musique choisie à l'accueil", useUnmergedTree = true).assertIsDisplayed()
+    }
+
+    @Test
+    @DisplayName("a row is read as listen, the name that opens the editor, the switch and the menu, in this order")
+    fun aRowIsReadInOrder() = extension.use {
+        // Given
+        showMyMusics()
+
+        // Then the buttons of the row of Thème du soir, in the order TalkBack reads them, from left to right
+        val buttons = onAllNodes(
+            hasClickAction() and
+                (hasText("Thème du soir") or hasContentDescription("Thème du soir", substring = true)),
+        ).fetchSemanticsNodes()
+        assertThat(buttons.map { it.spokenLabel() }).containsExactly(
+            "Écouter Thème du soir",
+            "Thème du soir",
+            "Thème du soir pendant les parties",
+            "Plus d'actions pour Thème du soir",
+        )
+        assertThat(buttons.map { it.boundsInRoot.left }).isSorted()
+        assertThat(buttons.map { it.config.getOrNull(SemanticsProperties.Role) }).containsOnly(Role.Button)
+        assertThat(buttons[1].config[SemanticsActions.OnClick].label).isEqualTo("Modifier")
     }
 
     @Test
@@ -210,16 +286,19 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("Utiliser and En jeu are read as a switch, on for the music played during the games, and choose it")
-    fun useAndInGameAreASwitch() = extension.use {
+    @DisplayName("the music played during the games bears EN JEU and its switch is selected")
+    fun theMusicInGameBearsEnJeuAndItsSwitchIsSelected() = extension.use {
         // Given
         showMyMusics()
 
-        // Then
-        onNodeWithContentDescription("Thème du soir pendant les parties")
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Switch))
-            .assertIsOn()
-        onNodeWithContentDescription("Ma marche pendant les parties").assertIsOff()
+        // Then its name bears EN JEU, which TalkBack leaves to the switch, read as selected
+        onNode(hasText("EN JEU") and hasAnyAncestor(holding("Thème du soir")), useUnmergedTree = true)
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility))
+        onAllNodesWithText("EN JEU", useUnmergedTree = true).assertCountEquals(1)
+        onNodeWithContentDescription("Thème du soir pendant les parties").assertIsSelected()
+        onNodeWithContentDescription("Ma marche pendant les parties")
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
 
         // When
         onNodeWithContentDescription("Ma marche pendant les parties").performClick()
@@ -430,27 +509,35 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("without a music, the list invites to compose one, and the games play the music of the home screen")
-    fun withoutAMusicTheListInvitesToComposeOne() = extension.use {
+    @DisplayName("without music the page says « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle")
+    fun withoutMusicThePageSaysSoAndKeepsItsButtons() = extension.use {
         // Given
         showMyMusics(MyMusicsUiState(musics = emptyList(), gameMusic = null))
 
-        // Then
-        onNodeWithText("Aucune musique pour l'instant. Compose la tienne, ou laisse le dé t'en proposer une.")
-            .assertExists()
-        onNodeWithText("Pendant les parties : la musique choisie à l'accueil").assertExists()
+        // Then the page says it on its own line, a heading for TalkBack, and invites to compose one
+        onNodeWithText("Aucune musique pour l'instant.")
+            .assertIsDisplayed()
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        onNodeWithText("Compose la tienne, ou laisse le dé t'en proposer une.").assertIsDisplayed()
+        onNode(hasClickAction() and hasText("Au hasard")).assertIsDisplayed()
+        onNode(hasClickAction() and hasText("Nouvelle")).assertIsDisplayed()
     }
 
     @Test
-    @DisplayName("every button is 48 dp wide and high at least")
-    fun everyButtonIsLargeEnough() = extension.use {
-        // Given
-        showMyMusics(uiState.copy(deleted = "Ma marche"))
+    @DisplayName("every target of the page is 48 dp at least on 360 dp, in a font twice as large")
+    fun everyTargetIsLargeEnough() = extension.use {
+        // Given a music listened to, the message of a deletion, a font twice as large, on 360 dp
+        val listened = uiState.musics[1].copy(listening = Listening(bar = 3, bars = 8))
+        showMyMusics(
+            uiState.copy(musics = listOf(uiState.musics[0], listened), deleted = "Ma marche"),
+            fontScale = 2f,
+            width = 360.dp,
+        )
 
-        // Then
+        // Then each button of the bar, of the rows, of the message and of the foot
         val targets = onAllNodes(hasClickAction())
         val count = targets.fetchSemanticsNodes().size
-        assertThat(count).isGreaterThan(1)
+        assertThat(count).isEqualTo(BAR_TARGETS + 2 * ROW_TARGETS + MESSAGE_TARGETS + FOOT_TARGETS)
         repeat(count) { index ->
             targets[index].assertWidthIsAtLeast(
                 BloxSizes.minTouchTarget,
@@ -480,20 +567,16 @@ internal class MyMusicsScreenTest {
         // Given Ma marche, neither listened to nor played during the games
         showMyMusics()
 
-        // Then Utiliser bears a note, decorative
-        val use = hasContentDescription("Ma marche pendant les parties")
-        iconOf(use).assertIsDecorative()
-        // And each button is read by its description alone, once
+        // Then each button is read by its description alone, once, and bears its icon, decorative
         listOf("Écouter Ma marche", "Ma marche pendant les parties").forEach { description ->
             onNodeWithContentDescription(description)
                 .assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf(description)))
             onAllNodes(hasContentDescription(description), useUnmergedTree = true).assertCountEquals(1)
+            onNode(
+                hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(hasContentDescription(description)),
+                useUnmergedTree = true,
+            ).assertIsDecorative()
         }
-        // And the listen button bears its icon, decorative
-        onNode(
-            hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(hasContentDescription("Écouter Ma marche")),
-            useUnmergedTree = true,
-        ).assertIsDecorative()
     }
 
     @Test
@@ -669,6 +752,10 @@ private fun SemanticsNodeInteraction.layout(): TextLayoutResult {
     return layouts.single()
 }
 
+/** What names this node first for TalkBack: its text, else its description. */
+private fun SemanticsNode.spokenLabel(): String? = config.getOrNull(SemanticsProperties.Text)?.firstOrNull()?.text
+    ?: config.getOrNull(SemanticsProperties.ContentDescription)?.firstOrNull()
+
 /** Asserts that this node shows [text]. */
 private fun SemanticsNodeInteraction.assertShows(text: String): SemanticsNodeInteraction {
     assertThat(layout().layoutInput.text.text).isEqualTo(text)
@@ -692,3 +779,12 @@ private fun SemanticsNodeInteraction.assertIsDecorative(): SemanticsNodeInteract
     assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
         .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
         .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
+
+/**
+ * The targets of the page: Retour; on a row, Écouter, the name, the switch and « … »; Annuler and the cross; Au hasard
+ * and Nouvelle.
+ */
+private const val BAR_TARGETS = 1
+private const val ROW_TARGETS = 4
+private const val MESSAGE_TARGETS = 2
+private const val FOOT_TARGETS = 2

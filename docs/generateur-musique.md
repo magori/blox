@@ -726,7 +726,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › each card tells the name, style, key and length of its music, or the bar played while listened`,
 `MyMusicsScreenTest › a card is a single row as high as its buttons, a long name on one line, Utiliser a square of 48 dp`,
 `MyMusicsScreenTest › with a font twice as large, the name and the info of a card stay on one line each, cut short`,
-`MyMusicsScreenTest › Utiliser and En jeu are read as a switch, on for the music played during the games, and choose it`,
+`MyMusicsScreenTest › the music played during the games bears EN JEU and its switch is selected`,
 `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
 `MyMusicsScreenTest › the dialog Renommer refuses a name taken, saying why, and renames with a free one`,
 `MyMusicsScreenTest › a name too long is refused with the most characters a name may have`,
@@ -738,8 +738,8 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › Au hasard and Nouvelle open the editor, and the back button goes back home`,
 `MyMusicsScreenTest › the back button and the title stay in place when the list scrolls`,
 `MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Libre`,
-`MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
-`MyMusicsScreenTest › every button is 48 dp wide and high at least`,
+`MyMusicsScreenTest › without music the page says « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`,
+`MyMusicsScreenTest › every target of the page is 48 dp at least on 360 dp, in a font twice as large`,
 `HomeViewModelTest › opening my musics stops the preview`,
 `HomeScreenTest › the tile Mes musiques, read as written, opens my musics`.
 Vues : V1, V7, V10.
