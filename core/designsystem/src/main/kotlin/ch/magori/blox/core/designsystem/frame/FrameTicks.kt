@@ -3,6 +3,14 @@ package ch.magori.blox.core.designsystem.frame
 /** Simulation ticks per second: 1 tick = 1 frame = 1/60 s (ADR 0006). */
 const val TICKS_PER_SECOND: Int = 60
 
+private const val MILLIS_PER_SECOND = 1_000
+
+/**
+ * [ticks] in milliseconds, a fraction dropped: the duration an animation of Compose takes for a `motion-*` duration
+ * of `BloxMotion`, on the clock of Compose rather than on the ticks of the game (ADR 0024).
+ */
+fun millisOf(ticks: Int): Int = ticks * MILLIS_PER_SECOND / TICKS_PER_SECOND
+
 /**
  * Turns the frame times of a screen into fixed ticks of 1/60 s (ADR 0006 and 0012). Shared by the screens that
  * receive frames from `withFrameNanos`: the game and the editor's play head.

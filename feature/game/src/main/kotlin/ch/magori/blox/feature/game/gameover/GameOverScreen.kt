@@ -1,8 +1,6 @@
 package ch.magori.blox.feature.game.gameover
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,8 +27,10 @@ import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.Statistic
 import ch.magori.blox.feature.game.ui.TitledScreen
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the game over screen, in one place; those shared with the side column are in [PanelSizes]. */
 private object GameOverSizes {
@@ -62,7 +60,7 @@ internal fun GameOverScreen(
         val scoreLabel = stringResource(R.string.feature_game_score)
         LabelledPanel(
             label = scoreLabel,
-            description = stringResource(R.string.feature_game_value_description, scoreLabel, texts.spokenScore),
+            description = valueDescription(scoreLabel, texts.spokenScore),
             contentAlignment = Alignment.CenterHorizontally,
         ) {
             ValueText(text = texts.score, maxFontSize = GameOverSizes.score)
@@ -71,13 +69,13 @@ internal fun GameOverScreen(
         Statistic(
             label = linesLabel,
             value = texts.lines,
-            description = stringResource(R.string.feature_game_value_description, linesLabel, texts.spokenLines),
+            description = valueDescription(linesLabel, texts.spokenLines),
         )
         val levelLabel = stringResource(R.string.feature_game_level)
         Statistic(
             label = levelLabel,
             value = texts.level,
-            description = stringResource(R.string.feature_game_value_description, levelLabel, texts.spokenLevel),
+            description = valueDescription(levelLabel, texts.spokenLevel),
         )
         Statistic(
             label = stringResource(R.string.feature_game_over_four_lines),
@@ -88,11 +86,7 @@ internal fun GameOverScreen(
         Statistic(
             label = durationLabel,
             value = texts.duration,
-            description = stringResource(
-                R.string.feature_game_value_description,
-                durationLabel,
-                spokenDuration(texts.spokenDuration),
-            ),
+            description = valueDescription(durationLabel, spokenDuration(texts.spokenDuration)),
         )
         PrimaryButton(
             text = stringResource(R.string.feature_game_over_replay),
@@ -121,30 +115,6 @@ private fun NewRecordBadge() {
             .background(palette.accent, BloxTheme.shapes.pill)
             .padding(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
     )
-}
-
-/** One statistic on a line: its [label] and its [value]; TalkBack reads [description]. */
-@Composable
-private fun Statistic(
-    label: String,
-    value: String,
-    description: String,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clearAndSetSemantics { contentDescription = description },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label.uppercase(),
-            color = BloxTheme.palette.label,
-            fontSize = PanelSizes.label,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        ValueText(text = value)
-    }
 }
 
 /** The duration as TalkBack says it: "1 minute et 5 secondes", "1 minute" or "5 secondes", from [speech]. */

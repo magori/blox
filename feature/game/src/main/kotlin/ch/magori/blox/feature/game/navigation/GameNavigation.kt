@@ -1,9 +1,7 @@
 package ch.magori.blox.feature.game.navigation
 
-import androidx.compose.runtime.remember
-import androidx.lifecycle.HasDefaultViewModelProviderFactory
+import androidx.lifecycle.defaultViewModelCreationExtras
 import androidx.lifecycle.viewmodel.CreationExtras
-import androidx.lifecycle.viewmodel.MutableCreationExtras
 import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -36,15 +34,10 @@ fun EntryProviderScope<NavKey>.gameEntry(
     viewModelFactory: GameViewModel.Factory,
 ) {
     entry<GameRoute> { route ->
-        // The default extras of the owner (saved state, application…) are kept; the route joins them.
-        val owner = checkNotNull(LocalViewModelStoreOwner.current) { "No ViewModelStoreOwner for the game entry" }
-        val defaults = (owner as? HasDefaultViewModelProviderFactory)?.defaultViewModelCreationExtras
-            ?: CreationExtras.Empty
-        val extras = remember(route, defaults) {
-            MutableCreationExtras(defaults).apply { set(GameViewModel.RouteKey, route) }
-        }
-        val viewModel: GameViewModel =
-            viewModel(viewModelStoreOwner = owner, factory = viewModelFactory, extras = extras)
+        // The default extras of the entry (saved state, application…) are kept; the route joins them (ADR 0013).
+        val defaults = LocalViewModelStoreOwner.current.defaultViewModelCreationExtras
+        val extras = CreationExtras(defaults) { set(GameViewModel.RouteKey, route) }
+        val viewModel: GameViewModel = viewModel(factory = viewModelFactory, extras = extras)
         GameScreen(viewModel = viewModel, onBack = onBack, onReplay = { onReplay(route) })
     }
 }

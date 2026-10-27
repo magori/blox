@@ -128,6 +128,21 @@ Effets réduits (P5.71) : retour immédiat par `returnTicks = 0`.
 `BubbleButtonTest › a button of each family is 48 dp high and wide at least, and as high as its family` ;
 captures `AccentButtons*` et `PlainButtons*` (Original, jour, nuit). Vues : V19, V21, V27 à V34.
 
+**Feuille du bas** (P5.96, ADR 0029) : `BloxSheet` monte dans une fenêtre plein écran, sans animation ni
+assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `panel-border` ouvert en bas, coins
+`radius-card` en haut, poignée, titre `screen-title` qui défile avec le contenu ; les actions restent fixes et
+visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
+en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
+étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
+sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres.
+**Tests :** `SheetEntranceTest › a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`,
+`BloxSheetTest › a sheet is read as a dialog by TalkBack, its title first`,
+`BloxSheetTest › the system back and a touch on the scrim close the sheet`,
+`BloxSheetTest › the window of a sheet neither dims the screen nor plays an animation of the platform, from its first frame`,
+`BloxSheetTest › a sheet asks once to close, sent back then touched on its scrim twice`,
+`SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
+`SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
+
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
 `accent`, cadré en `accentPressed` (3:1 sur la page de jour, comme la touche A), encre `accentInk`, et annoncé
@@ -184,7 +199,7 @@ captures `Menu*`, `SnackMessage*`.
 `GameScreenTest › nothing on the screen recomposes when only the piece moves`,
 `GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
 `GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
-`GameScreenTest › the pause screen takes the place of the game while it is paused`,
+`GameScreenTest › the card of the pause shows over the game while it is paused`,
 `GameScreenTest › the game over screen takes the place of the game once it is over`.
 Vues : V2, V3.
 

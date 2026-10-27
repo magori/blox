@@ -52,6 +52,24 @@ private fun GameScreenColorfulNight() = GameScreenColorfulPreview()
 @Composable
 private fun GameScreenPaused() = GameScreenPausedPreview()
 
+// The pause (view V29): the curtain shut and the card, day and night; the curtain halfway down, in
+// full effects (rows of empty cells) and in reduced ones (a fade), the card not shown yet.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenPausedNight() = GameScreenPausedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenCurtain() = GameScreenCurtainPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenCurtainReduced() = GameScreenCurtainReducedPreview()
+
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
 @Composable
@@ -168,7 +186,7 @@ private fun ControlsHeld() = GameControlsHeldPreview()
 @Composable
 private fun ControlsHeldNight() = GameControlsHeldPreview()
 
-// The pause screen.
+// The card of the pause alone (view V29).
 
 @PreviewTest
 @Preview

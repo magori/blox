@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
@@ -80,15 +81,27 @@ fun WindowPanel(
             .padding(WindowPadding),
         verticalArrangement = Arrangement.spacedBy(WindowGap),
     ) {
-        Text(
-            text = title,
-            color = palette.ink,
-            // Cut at a syllable, never in the middle of one, when a word is wider than the window.
-            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall).copy(hyphens = Hyphens.Auto),
-            modifier = Modifier.semantics { heading() },
-        )
+        PanelTitle(text = title, style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall))
         content()
     }
+}
+
+/**
+ * The title of a panel (a window, a sheet): [text] in `ink` and in [style], read by TalkBack as a heading, cut at a
+ * syllable, never in the middle of one, when a word is wider than the panel.
+ */
+@Composable
+internal fun PanelTitle(
+    text: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = BloxTheme.palette.ink,
+        style = style.copy(hyphens = Hyphens.Auto),
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 /**
