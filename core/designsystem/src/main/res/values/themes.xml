@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        La fenêtre d'une feuille (BloxSheet, ADR 0029) : posée sur le contexte de l'écran avant que la fenêtre ne
+        s'affiche, elle n'assombrit pas l'écran (la feuille dessine son voile `scrim`) et ne joue pas l'animation de
+        la plateforme (la feuille monte en `motion-card` sur l'horloge de Compose, ou se fond en Effets réduits).
+    -->
+    <style name="CoreDesignsystem.SheetWindow" parent="">
+        <item name="android:dialogTheme">@style/CoreDesignsystem.SheetDialog</item>
+    </style>
+
+    <style name="CoreDesignsystem.SheetDialog" parent="@android:style/ThemeOverlay.Material.Dialog">
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+</resources>

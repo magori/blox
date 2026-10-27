@@ -57,7 +57,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
 `OriginalShapesTest › the Original theme has square corners and no gloss`,
 `GlossTokensTest › each shadow of tokens json is the gloss of the code, day and night`,
-`GlossTokensTest › every shadow token of tokens json is a gloss of the code`,
+`GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
 `MotionTokensTest › every duration token of tokens json is in the code`,
@@ -128,6 +128,21 @@ Effets réduits (P5.71) : retour immédiat par `returnTicks = 0`.
 `BubbleButtonTest › a button of each family is 48 dp high and wide at least, and as high as its family` ;
 captures `AccentButtons*` et `PlainButtons*` (Original, jour, nuit). Vues : V19, V21, V27 à V34.
 
+**Feuille du bas** (P5.96, ADR 0029) : `BloxSheet` monte dans une fenêtre plein écran, sans animation ni
+assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `panel-border` ouvert en bas, coins
+`radius-card` en haut, poignée, titre `screen-title` qui défile avec le contenu ; les actions restent fixes et
+visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
+en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
+étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
+sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres.
+**Tests :** `SheetEntranceTest › a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`,
+`BloxSheetTest › a sheet is read as a dialog by TalkBack, its title first`,
+`BloxSheetTest › the system back and a touch on the scrim close the sheet`,
+`BloxSheetTest › the window of a sheet neither dims the screen nor plays an animation of the platform, from its first frame`,
+`BloxSheetTest › a sheet asks once to close, sent back then touched on its scrim twice`,
+`SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
+`SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
+
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
 `accent`, cadré en `accentPressed` (3:1 sur la page de jour, comme la touche A), encre `accentInk`, et annoncé
@@ -152,6 +167,28 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 état dérivé (`rememberPart`). Les recompositions se mesurent sur appareil avec un traceur de
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
+
+**Menu « … » et message temporaire** (P5.97, `core:designsystem`) : `BloxMenu` et `BloxMenuItem` remplacent le
+`DropdownMenu` de Material : panneau `panel` cadré de `panel-border`, `radius-md`, ombre `menu-shadow` (jeton
+ajouté à `tokens.json`, `BloxGlosses.menu`, aucune ombre en Original), posé sous l'extrémité de son bouton « … »
+ou au-dessus s'il manque de place, toujours dans la fenêtre ; rangées de 48 dp, pictogramme décoratif, variante
+`danger`, variante cochée lue comme une case cochée ; un appui hors du panneau, même dans la marge de son ombre,
+ou le retour le ferme ; TalkBack annonce son ouverture (« Menu ») ; au clavier, le focus va sur la première
+rangée, qui porte un anneau, et l'écran le rend au bouton « … » à la fermeture. `SnackMessage` remplace les
+Snackbar : fond `ink`, texte `page`, `radius-snack`, action en texte et croix en disques nus sur `ink` (anneau de
+focus en `page`), lu poliment par TalkBack ; l'action passe sous le texte plutôt que de le couper. Sa durée
+d'affichage vient de `messageTimeoutMillis` : 4 s, 10 s avec une action, ou ce que recommande Android
+(WCAG 2.2.1).
+**Tests :** `BloxMenuTest › a menu item is 48 dp high, read as its label, its icon adding nothing`,
+`BloxMenuTest › a checked item is read as a checked check box and bears a check`,
+`BloxMenuTest › a touch in the margin around the panel of a menu closes it`,
+`BloxMenuTest › TalkBack announces the menu as it opens, by its title`,
+`MenuItemLookTest › a deleting item is in danger, icon and label`,
+`SnackMessageTest › a message is read politely by TalkBack as it shows`,
+`SnackMessageTest › in a font twice as large the action of a message goes under its text, no word cut`,
+`SnackMessageLookTest › the text of a message stands out from ink by 4,5 to 1 at least, day and night`,
+`MessageTimeoutTest › without accessibility settings a message stays 4 seconds, and 10 with an action` ;
+captures `Menu*`, `SnackMessage*`.
 
 **Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
 `BoardCanvasTest › nothing recomposes while the piece moves`,

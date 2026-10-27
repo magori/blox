@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 209 / 304 | `██████████████░░░░░░` **69 %** |
+| **Général** | 212 / 304 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1055,18 +1055,18 @@ composants.
     `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
     takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
     high as a target` ; captures.
-  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0026) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+  - [x] **P5.96** Feuille du bas (`core:designsystem`, ADR 0029) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
     panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
     `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
     ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée
     d'actions restant visible) ; `SheetChoiceRow` (rangée de 56 dp, rond puis `CheckMark` une fois retenue, libellé
-    et sous-ligne). ADR 0026 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
+    et sous-ligne). ADR 0029 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
     P5.71, P5.93.
     Cas : `a sheet is read as a dialog by TalkBack, its title first`, `the system back and a touch on the scrim close
     the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
     bottom inset keeps its last row of actions in sight, its content scrolling`, `a choice row is 56 dp high, read as
     a radio button with its label and its sub-line, the chosen one checked` ; captures.
-  - [ ] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
+  - [x] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
     `panel` cadré `radius-md`, rangées de 48 dp, pictogramme décoratif, variante `danger`, variante cochée ; ombre
     par un jeton à ajouter, ADR 0019), à la place du `DropdownMenu` de Material ; `SnackMessage` (fond `ink`, texte
     `page`, `radius-snack`, action en texte et croix en disque nu, région vive polie ; l'action passe sous le texte
@@ -1299,8 +1299,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
 - [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
   pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
-- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
-  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [x] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11). Fait sans fonction partagée : l'API de Lifecycle 2.11
+  suffit (amendement de l'ADR 0013).
 - [x] **P7.20** Serrurier, mise en page de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
   en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu

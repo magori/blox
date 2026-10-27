@@ -27,7 +27,19 @@ data class Gloss(val layers: List<GlossLayer>) {
     }
 }
 
-/** The reliefs of the interface, the `shadow` tokens of docs/design-system/tokens.json (GlossTokensTest). */
+/**
+ * A shadow cast under a panel that stands over the screen (the menu « … »): [color], blurred over [blur], [offsetY]
+ * lower than the panel. CSS writes it `0 <offsetY> <blur> <color>`.
+ */
+@Immutable
+data class DropShadow(val offsetY: Dp, val blur: Dp, val color: Color) {
+    companion object {
+        /** No shadow: the Original theme. */
+        val None = DropShadow(offsetY = 0.dp, blur = 0.dp, color = Color.Transparent)
+    }
+}
+
+/** The reliefs and the drop shadow of the interface, the `shadow` tokens of tokens.json (GlossTokensTest). */
 @Immutable
 data class BloxGlosses(
     /** Every button and key at rest: a light at the top, a thickness at the bottom (`button-gloss`). */
@@ -36,6 +48,8 @@ data class BloxGlosses(
     val buttonPressed: Gloss,
     /** A cell of a piece of 16 dp and more (`cell-gloss`); by day a ring sets the pastels off the white board. */
     val cell: Gloss,
+    /** The shadow cast by the menu « … » under its panel (`menu-shadow`): it stands over the screen. */
+    val menu: DropShadow,
 )
 
 object BloxGlossSets {
@@ -47,8 +61,17 @@ object BloxGlossSets {
     private val CRUSHED = 1.dp
     private val CELL_THICKNESS = 2.dp
 
-    /** The Original theme is flat. */
-    val Original = BloxGlosses(button = Gloss.None, buttonPressed = Gloss.None, cell = Gloss.None)
+    /** The menu stands 4 dp over the screen, its shadow blurred over 16 dp. */
+    private val MENU_DROP = 4.dp
+    private val MENU_BLUR = 16.dp
+
+    /** The Original theme is flat: neither relief nor shadow. */
+    val Original = BloxGlosses(
+        button = Gloss.None,
+        buttonPressed = Gloss.None,
+        cell = Gloss.None,
+        menu = DropShadow.None,
+    )
 
     /** The Colorful theme by day. */
     val ColorfulLight = BloxGlosses(
@@ -61,6 +84,7 @@ object BloxGlossSets {
                 GlossLayer.Ring(width = 1.dp, color = INK_OF_DAY.copy(alpha = 0.14f)),
             ),
         ),
+        menu = DropShadow(MENU_DROP, MENU_BLUR, INK_OF_DAY.copy(alpha = 0.16f)),
     )
 
     /** The Colorful theme by night. */
@@ -68,6 +92,7 @@ object BloxGlossSets {
         button = Gloss(listOf(light(0.25f), shade(Color.Black, 0.45f, THICKNESS))),
         buttonPressed = Gloss(listOf(shade(Color.Black, 0.45f, CRUSHED))),
         cell = Gloss(listOf(light(0.55f), shade(Color.Black, 0.35f, CELL_THICKNESS))),
+        menu = DropShadow(MENU_DROP, MENU_BLUR, Color.Black.copy(alpha = 0.5f)),
     )
 
     /** A white light of [alpha] along the top, 1 dp high. */
