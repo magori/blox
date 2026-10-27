@@ -11,9 +11,14 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -26,6 +31,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -69,7 +75,54 @@ internal class CartridgesScreenTest {
 
     @ParameterizedTest(name = "in {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a font twice as large, on 360 dp, the name of each cartridge stays whole, on one line")
+    @DisplayName("TalkBack reads « Choix du jeu » as the heading of the screen")
+    fun talkBackReadsTheTitleAsTheHeading(kind: BloxThemeKind) = extension.use {
+        // Given
+        showCartridges(kind = kind)
+
+        // Then: as text in Original, as the name of the logo in Colorful
+        val title = InstrumentationRegistry.getInstrumentation().targetContext
+            .getString(R.string.feature_cartridges_title)
+        onNode(isHeading() and (hasText(title) or hasContentDescription(title))).assertExists()
+    }
+
+    @Test
+    @DisplayName("a cartridge held down goes 2 dp down, as a bubble button")
+    fun aCartridgeHeldDownGoesDown() = extension.use {
+        // Given a cartridge at rest, on a clock that only moves when told
+        mainClock.autoAdvance = false
+        showCartridges()
+        mainClock.advanceTimeByFrame()
+        val cartridge = onNode(hasText(nameOf(Cartridge.CLASSIC)) and hasClickAction())
+        val atRest = cartridge.getBoundsInRoot().top
+
+        // When it is held down, past the wait of a press in a column that scrolls
+        cartridge.performTouchInput { down(center) }
+        mainClock.advanceTimeBy(HOLD_MILLIS)
+
+        // Then it is 2 dp lower
+        assertThat(
+            (cartridge.getBoundsInRoot().top - atRest).value,
+        ).isCloseTo(BloxSizes.pressDrop.value, within(HALF_DP))
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("each cartridge bears the mascot of its game in Colorful, none in Original, which is frozen")
+    fun eachCartridgeBearsTheMascotOfItsGameInColorful(kind: BloxThemeKind) = extension.use {
+        // Given
+        showCartridges(kind = kind)
+
+        // Then: a decoration, inside the button that TalkBack reads by the name of the game
+        Cartridge.entries.forEach { cartridge ->
+            val mascots = onAllNodesWithTag(cartridge.mascotTag, useUnmergedTree = true).fetchSemanticsNodes()
+            assertThat(mascots).hasSize(if (kind == BloxThemeKind.COLORFUL) 1 else 0)
+        }
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a font twice as large, on 360 dp, the name of each cartridge stays whole, on one line, unclipped")
     fun inALargeFontTheNameOfEachCartridgeStaysWhole(kind: BloxThemeKind) = extension.use {
         // Given
         showCartridges(kind = kind, width = NARROW_PHONE, fontScale = 2f)
@@ -79,6 +132,7 @@ internal class CartridgesScreenTest {
             val layout = textLayout(nameOf(cartridge))
             assertWordsWhole(layout)
             assertThat(layout.lineCount).isEqualTo(1)
+            assertThat(layout.hasVisualOverflow).describedAs(nameOf(cartridge)).isFalse()
         }
     }
 
@@ -104,3 +158,9 @@ internal class CartridgesScreenTest {
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
+
+/** The slack of the drop of a pressed button, rounded to whole pixels. */
+private const val HALF_DP = 0.5f
+
+/** Longer than the wait before a press shows in a column that scrolls (`tapTimeout`, 100 ms). */
+private const val HOLD_MILLIS = 300L
