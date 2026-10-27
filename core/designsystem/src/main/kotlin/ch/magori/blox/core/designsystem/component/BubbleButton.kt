@@ -270,8 +270,11 @@ fun buttonLabelStyle(family: ButtonFamily): TextStyle {
     val typography = BloxTheme.typography
     val style = when (family) {
         ButtonFamily.PRIMARY_XL -> typography.playLabel
+
         ButtonFamily.PRIMARY -> typography.buttonLabelStrong
-        ButtonFamily.SECONDARY, ButtonFamily.DANGER, ButtonFamily.ICON -> typography.buttonLabel
+
+        ButtonFamily.SECONDARY, ButtonFamily.DANGER, ButtonFamily.DANGER_FILLED, ButtonFamily.ICON ->
+            typography.buttonLabel
     }
     return MaterialTheme.typography.labelLarge.merge(style)
 }

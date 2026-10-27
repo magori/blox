@@ -32,6 +32,9 @@ enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
     /** Danger: Effacer (the record), a secondary pill framed and labelled in `danger`, for what cannot be undone. */
     DANGER(minHeight = 56.dp, isPrimary = false),
 
+    /** Danger plein: Supprimer, the answer of a window that deletes, a pill of 56 dp filled in `danger`. */
+    DANGER_FILLED(minHeight = 56.dp, isPrimary = false),
+
     /** Icône: a disc of 48 dp, of a pictogram alone (Paramètres, Écouter, Pause). */
     ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
     ;
@@ -141,6 +144,7 @@ private fun bubbleColors(
         !state.enabled -> colors.disabled
         family.isPrimary -> colors.primary
         family == ButtonFamily.DANGER -> colors.danger
+        family == ButtonFamily.DANGER_FILLED -> colors.dangerFilled
         else -> colors.secondary
     }
 }

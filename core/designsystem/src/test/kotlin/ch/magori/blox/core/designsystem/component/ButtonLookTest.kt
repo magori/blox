@@ -139,9 +139,9 @@ internal class ButtonLookTest {
     @EnumSource(ButtonFamily::class)
     fun `every family is 48 dp high at least, Play 72 and a main or secondary button 56`(family: ButtonFamily) {
         // Then (touch-target; 48 dp wide at least on the screen, BubbleButtonTest): an icon a disc of 48, a danger
-        // button as high as a secondary one
+        // button, framed or filled, as high as a secondary one
         assertThat(family.minHeight).isGreaterThanOrEqualTo(BloxSizes.minTouchTarget)
-        assertThat(ButtonFamily.entries.map { it.minHeight }).containsExactly(72.dp, 56.dp, 56.dp, 56.dp, 48.dp)
+        assertThat(ButtonFamily.entries.map { it.minHeight }).containsExactly(72.dp, 56.dp, 56.dp, 56.dp, 56.dp, 48.dp)
     }
 
     @ParameterizedTest(name = "{0}")
