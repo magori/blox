@@ -85,7 +85,7 @@ d'ombre.
 
 ## Accueil
 
-L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 », V26 : une seule cartouche, Classique, aucune endormie) ; la cartouche
+L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 », V26 : Classique et Serrurier, chacune avec sa mascotte, au-dessus de la console) ; la cartouche
 Classique ouvre cet accueil, et son disque « Changer de jeu » y ramène.
 
 De haut en bas (téléphone debout ; en paysage, voir Mise en page) :

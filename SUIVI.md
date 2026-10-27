@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 232 / 311 | `███████████████░░░░░` **75 %** |
+| **Général** | 233 / 311 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1165,7 +1165,7 @@ composants.
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
-- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+- [x] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
   console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
   étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
   inchangé (`CartridgesScreenTest`).

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import ch.magori.blox.core.board.SOFT_SHADOW
 import ch.magori.blox.core.board.cellStyle
+import ch.magori.blox.core.board.pieceColor
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
@@ -59,7 +60,7 @@ internal fun mascotLook(
         fill = body.fill,
         highlight = body.bubble?.highlight ?: body.fill,
         corner = corner,
-        accessory = cellStyle(variant, Cell.Filled(PieceType.O)).fill,
+        accessory = pieceColor(variant, PieceType.O),
         // The pastels and the neons are light: the face keeps the dark ink of the day on them, by night too.
         face = BloxPalettes.ColorfulLight.ink,
         shadow = shadow,
