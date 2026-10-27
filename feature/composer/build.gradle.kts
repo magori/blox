@@ -48,6 +48,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.monitor)
     // L'activité des tests à la version de l'application : elle fournit le répartiteur du retour (NavigationBackHandler).
     androidTestRuntimeOnly(libs.androidx.activity)
+    // Le test de l'entrée la compose dans un NavDisplay décoré comme dans app (ADR 0013).
+    androidTestImplementation(libs.androidx.navigation3.ui)
+    androidTestImplementation(libs.androidx.lifecycle.viewmodel.navigation3)
     // LifecycleRegistry : le cycle de vie de l'entrée simulée par le test de la fabrique.
     androidTestImplementation(libs.androidx.lifecycle.runtime)
 }
