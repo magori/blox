@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 243 / 320 | `███████████████░░░░░` **76 %** |
+| **Général** | 244 / 320 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1473,9 +1473,9 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   `docs/architecture.md`, vue V40 numérotée (à dessiner). Fait le 2026-10-26.
 - [x] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
   règle de 2 ; captures du Serrurier inchangées. Avant P10.10.
-- [ ] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
+- [x] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
   partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
-  paramètres (8 mesures pour l'éditeur, 2 pour le jardin), sans `Tempo` ni `Cell`, internes à `feature:composer`.
+  paramètres, comptée en croches (64 pour l'éditeur, ses 8 mesures ; 16 pour le jardin, ses 2 mesures), sans `Tempo` ni `Cell`, internes à `feature:composer`.
   Avant P10.12.
 - [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
   `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de

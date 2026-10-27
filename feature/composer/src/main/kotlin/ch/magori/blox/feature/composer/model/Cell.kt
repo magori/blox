@@ -21,6 +21,9 @@ internal const val SIXTEENTHS: Int = BARS * SIXTEENTHS_PER_BAR
 /** The first sixteenth note of [bar], counted from 0, from the start of the music. */
 internal fun firstSixteenthOf(bar: Int): Int = bar * SIXTEENTHS_PER_BAR
 
+/** The cell of the [eighth] eighth note of the music, counted from 0 from its start. */
+internal fun cellAt(eighth: Int): Cell = Cell(bar = eighth / CELLS_PER_BAR, eighth = eighth % CELLS_PER_BAR)
+
 /** A cell of the grid: the [eighth] eighth note of [bar], both counted from 0. */
 internal data class Cell(val bar: Int, val eighth: Int) {
     init {
