@@ -806,18 +806,18 @@ internal fun GameScreenTooSmallLargeFontPreview() {
 // The record beaten during the game: the sticker NOUVEAU RECORD and the score in the top bar, the record bar full (V28).
 
 /** The game of [previewState], its score of 98 790 above the record of 98 760. */
-private val newRecordState = previewState.copy(score = Points(98_790), record = 98_760, recordBeaten = true)
+private val newBestState = previewState.copy(score = Points(98_790), record = 98_760, bestBeaten = true)
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 internal fun GameScreenNewRecordPreview() {
-    GameScreenPreview(BloxThemeKind.COLORFUL, newRecordState)
+    GameScreenPreview(BloxThemeKind.COLORFUL, newBestState)
 }
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 internal fun GameScreenNewRecordOriginalPreview() {
-    GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
+    GameScreenPreview(BloxThemeKind.ORIGINAL, newBestState)
 }
 
 // A daily game (V39): GRAINE DU JOUR and the best of the day in the top bar, in the Colorful theme only (ADR 0026).
