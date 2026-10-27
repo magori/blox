@@ -1,4 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name" translatable="false">BloX</string>
+    <!-- Below Android 13, which shows nothing of a copy: « Copier mon score » of the Graine du jour (P9.6). -->
+    <string name="daily_score_copied">Score copié</string>
+    <!-- « Copier mon score » of the Graine du jour (P9.6): the seed (its date, yyyyMMdd), the first try, the best, the
+         tries (daily_score_tries), the numbers already grouped by three. -->
+    <string name="daily_score_text">BloX %1$s · 1er %2$s · meilleur %3$s (%4$s)</string>
+    <plurals name="daily_score_tries">
+        <item quantity="one">%1$s essai</item>
+        <item quantity="other">%1$s essais</item>
+    </plurals>
 </resources>

@@ -34,7 +34,7 @@ internal data class GameUiState(
     val paused: Boolean = false,
     val running: Boolean = !paused,
     val record: Int? = null,
-    val recordBeaten: Boolean = false,
+    val bestBeaten: Boolean = false,
     val gameOver: GameOverUiState? = null,
     val leftHanded: Boolean? = false,
 )
@@ -66,13 +66,14 @@ internal fun GameState.toUiState(nextPiece: (PieceType) -> NextPieceCells): Game
 )
 
 /**
- * [this] state with its [GameUiState.recordBeaten] up to date: beaten once its score is above a record above 0, and
- * from then on, as [wasBeaten] says, even once the game over saves the score as the record. A record of 0, or not
- * read yet, is never beaten during the game: the first point would beat it (P5.56).
+ * [this] state with its [GameUiState.bestBeaten] up to date: beaten once its score is above a best above 0 (the
+ * record of the Classic, or the best of the day), and from then on, as [wasBeaten] says, even once the game over saves
+ * the score as the best. A best of 0, or not read yet, is never beaten during the game: the first point would beat it
+ * (P5.56).
  */
-internal fun GameUiState.withRecordBeaten(wasBeaten: Boolean): GameUiState {
+internal fun GameUiState.withBestBeaten(wasBeaten: Boolean): GameUiState {
     val beaten = wasBeaten || (record.isRecord() && score.value > record)
-    return if (beaten == recordBeaten) this else copy(recordBeaten = beaten)
+    return if (beaten == bestBeaten) this else copy(bestBeaten = beaten)
 }
 
 /**
@@ -88,12 +89,19 @@ internal fun Int?.isRecord(): Boolean {
 /** Whether [this] game goes on: neither paused nor over. */
 internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.GameOver
 
-/** The game over screen state of [this] final state, whose score made a [newRecord] or not. */
-internal fun GameState.toGameOverUiState(newRecord: Boolean): GameOverUiState = GameOverUiState(
+/**
+ * The game over screen state of [this] final state, whose score made a [newBest] or not, and that the results kept
+ * hold or not ([resultsKept]).
+ */
+internal fun GameState.toGameOverUiState(
+    newBest: Boolean,
+    resultsKept: Boolean,
+): GameOverUiState = GameOverUiState(
     score = progress.score,
     lines = progress.lines,
     level = progress.level,
     fourLineClears = progress.statistics.fourLineClears,
     ticksPlayed = tickCount,
-    newRecord = newRecord,
+    newBest = newBest,
+    resultsKept = resultsKept,
 )

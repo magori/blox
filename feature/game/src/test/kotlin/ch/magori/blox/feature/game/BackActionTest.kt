@@ -49,7 +49,8 @@ class BackActionTest {
             level = Level(0),
             fourLineClears = 0,
             ticksPlayed = 0,
-            newRecord = false,
+            newBest = false,
+            resultsKept = true,
         )
 
         // When / Then

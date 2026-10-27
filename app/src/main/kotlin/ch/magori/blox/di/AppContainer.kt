@@ -1,7 +1,12 @@
 package ch.magori.blox.di
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import ch.magori.blox.R
 import ch.magori.blox.core.audio.AudioFilePlayer
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
@@ -35,6 +40,8 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.daily.DailyScoreCopier
+import ch.magori.blox.daily.DailyScoreTexts
 import ch.magori.blox.daily.DailySeed
 import ch.magori.blox.daily.NewCartridges
 import ch.magori.blox.daily.today
@@ -249,6 +256,30 @@ class AppContainer(context: Context) {
      */
     val dailyViewModelFactory: DailyViewModel.Factory =
         DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /**
+     * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
+     * of the day, in the texts of the application, put in the clipboard of the system; below Android 13, which shows
+     * nothing of a copy, a toast says it. On the main thread, for the whole life of the process.
+     */
+    internal val dailyScoreCopier: DailyScoreCopier = DailyScoreCopier(
+        results = dailyChallenge.results,
+        texts = DailyScoreTexts(
+            score = { seed, firstTry, best, tries ->
+                context.getString(R.string.daily_score_text, seed, firstTry, best, tries)
+            },
+            tries = { count, written ->
+                context.resources.getQuantityString(R.plurals.daily_score_tries, count, written)
+            },
+        ),
+        clipboard = { text ->
+            val clipboard = checkNotNull(context.getSystemService(ClipboardManager::class.java))
+            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.app_name), text))
+        },
+        confirm = { Toast.makeText(context, R.string.daily_score_copied, Toast.LENGTH_SHORT).show() },
+        sdkInt = Build.VERSION.SDK_INT,
+        scope = mainScope,
+    )
 
     /**
      * The cartridges that bear the sticker NOUVELLE on the choice of the game: the Graine du jour, until the first try of

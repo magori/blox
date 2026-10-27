@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 237 / 314 | `███████████████░░░░░` **75 %** |
+| **Général** | 242 / 320 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1326,6 +1326,12 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   contour au pic du tremblement est toléré.
 - [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
   P7.13), avec les mesures de P5.33.
+- [x] **P7.25** Écarts relevés en mettant la maquette V35 à jour (décision du développeur, 2026-10-27) : titre de la
+  barre en capitales, « SERRURE 03 », lu en casse normale, rapetissé en mots entiers en grande police ; trou de la
+  serrure enfoncé : le code suivait déjà le jeton `lock-hole-inset`, un test le fige (case vide et case de l'Indice).
+- [ ] **P7.26** Juger avec `designer-jeu` : le trou de la serrure paraît bombé de jour (plus clair que le métal,
+  jeton `lock-hole-inset` à revoir ?) ; sur écran étroit, le titre rapetisse sur deux lignes à côté de « Coups » (le
+  compteur devrait-il céder d'abord ?) ; mettre la maquette V35 à jour (titre en capitales). Revue de P7.25.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
@@ -1399,7 +1405,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
   `every try is counted`, `a try of a newer date starts that date over`, `a try of an
   older date is ignored`.
-- [ ] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
+- [x] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
   qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
   fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
   de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
@@ -1423,7 +1429,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
   JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés
   par `GameVariants.setupOf` (ADR 0026). Après P9.4.
-- [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
+- [x] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
   presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
   U+202F, sans plafond ni zéros de tête. Brancher les deux boutons, laissés sans effet par P9.5 et P9.11 : l'écran
   d'entrée et la fin de partie (`gameEntry(onCopy)`, dans `app`). Cas d'une fin d'essai dont l'écriture a échoué
@@ -1434,9 +1440,19 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
   parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
   être accessible au joueur).
-- [ ] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
+- [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
+- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+  générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
+  spécification (traçabilité à reprendre). Revue de P9.12.
+- [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  Après P9.4.
+- [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
+  Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
+  `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
 - [x] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.

@@ -9,4 +9,4 @@ internal data class ShownRecord(val value: Int?, val beaten: Boolean)
 
 /** The record of [this] game, as the top bar shows it: once beaten, the score, which is the new record. */
 internal fun GameUiState.shownRecord(): ShownRecord =
-    if (recordBeaten) ShownRecord(value = score.value, beaten = true) else ShownRecord(value = record, beaten = false)
+    if (bestBeaten) ShownRecord(value = score.value, beaten = true) else ShownRecord(value = record, beaten = false)

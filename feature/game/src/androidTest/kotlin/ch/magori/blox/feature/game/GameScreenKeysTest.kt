@@ -71,7 +71,8 @@ internal class GameScreenKeysTest {
             level = Level(5),
             fourLineClears = 1,
             ticksPlayed = 3_600,
-            newRecord = false,
+            newBest = false,
+            resultsKept = true,
         ),
     )
 

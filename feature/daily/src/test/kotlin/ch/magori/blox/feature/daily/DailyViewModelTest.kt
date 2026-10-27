@@ -36,6 +36,24 @@ class DailyViewModelTest {
     }
 
     @Test
+    fun `copying is not offered before the first try`() = runTest {
+        // Given no try of today yet
+        val daily = FakeDailyChallengeRepository()
+        val viewModel = DailyViewModel(daily, startLevel = 5, today = { october26 }, seedOf = ::seedOf)
+
+        viewModel.uiState.test {
+            // Then nothing to copy
+            assertThat(checkNotNull(awaitItem()).canCopy).isFalse()
+
+            // When the first try of today starts
+            daily.startTry(october26)
+
+            // Then its score can be copied, even before it ends
+            assertThat(checkNotNull(awaitItem()).canCopy).isTrue()
+        }
+    }
+
+    @Test
     fun `the results of today show the tries, the first try and the best, and the score can be copied`() = runTest {
         // Given three tries today
         val results = DailyResults(october26, tries = 3, firstTry = 9_800, best = 18_200, firstTryOver = true)

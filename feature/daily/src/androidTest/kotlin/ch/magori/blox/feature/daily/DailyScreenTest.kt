@@ -92,10 +92,15 @@ internal class DailyScreenTest {
     @DisplayName("after a try, the tiles read the results and Copier mon score hands the copy to app")
     fun afterATryCopyingIsHandedToApp() = extension.use {
         // Given
-        val copies = mutableListOf<Unit>()
+        val copies = mutableListOf<LocalDate>()
         showDaily(
             beforeAnyTry.copy(tries = 5, firstTry = 9_800, best = 18_200),
-            DailyActions(onChangeGame = {}, onSettings = {}, onPlay = { _ -> }, onCopyScore = { copies += Unit }),
+            DailyActions(
+                onChangeGame = {},
+                onSettings = {},
+                onPlay = { _ -> },
+                onCopyScore = { date -> copies += date },
+            ),
         )
         onNodeWithContentDescription(
             string(R.string.feature_daily_tile_description, string(R.string.feature_daily_tries), 5),
@@ -107,7 +112,7 @@ internal class DailyScreenTest {
         onNode(hasTestTag(DAILY_COPY_TAG)).performScrollTo().assertIsEnabled().performClick()
 
         // Then
-        runOnIdle { assertThat(copies).hasSize(1) }
+        runOnIdle { assertThat(copies).containsExactly(LocalDate.of(2026, 10, 26)) }
     }
 
     @Test
@@ -129,7 +134,7 @@ internal class DailyScreenTest {
         val played = mutableListOf<LocalDate>()
         showDaily(
             beforeAnyTry,
-            DailyActions(onChangeGame = {}, onSettings = {}, onPlay = { played += it }, onCopyScore = {}),
+            DailyActions(onChangeGame = {}, onSettings = {}, onPlay = { played += it }, onCopyScore = { _ -> }),
         )
 
         // Then the reminder gives the level of the daily game, on two digits, read in words
@@ -161,7 +166,7 @@ internal class DailyScreenTest {
                             onChangeGame = { touched += "change game" },
                             onSettings = { touched += "settings" },
                             onPlay = { touched += "play" },
-                            onCopyScore = {},
+                            onCopyScore = { _ -> },
                         ),
                     )
                 }
@@ -195,7 +200,7 @@ internal class DailyScreenTest {
                 onChangeGame = { touched += "change game" },
                 onSettings = { touched += "settings" },
                 onPlay = { _ -> },
-                onCopyScore = {},
+                onCopyScore = { _ -> },
             ),
         )
 

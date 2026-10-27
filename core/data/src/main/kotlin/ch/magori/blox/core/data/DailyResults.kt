@@ -19,7 +19,13 @@ data class DailyResults(
     val firstTry: Int = 0,
     val best: Int = 0,
     val firstTryOver: Boolean = false,
-)
+) {
+    /** [firstTry] once it is final ([firstTryOver]); null while the first try may still change, shown « — ». */
+    val finalFirstTry: Int? get() = firstTry.takeIf { firstTryOver }
+
+    /** [best] once a try ended with points or the first try is over; null before, shown « — ». */
+    val knownBest: Int? get() = best.takeIf { firstTryOver || best > 0 }
+}
 
 /*
  * The rules of every DailyChallengeRepository, the DataStore one and the fake of the test fixtures alike: what a

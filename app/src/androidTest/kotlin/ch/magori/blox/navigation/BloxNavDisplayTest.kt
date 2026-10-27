@@ -25,6 +25,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.DailyResults
 import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
@@ -86,6 +87,9 @@ internal class BloxNavDisplayTest {
     /** The system backs that went through the navigation down to the activity. */
     private var backsToTheSystem = 0
 
+    /** The dates whose daily score the navigation asked to copy. */
+    private val copiedDailyScores = mutableListOf<LocalDate>()
+
     @Test
     @DisplayName("the application opens on the choice of the game")
     fun theApplicationOpensOnTheChoiceOfTheGame() {
@@ -139,7 +143,7 @@ internal class BloxNavDisplayTest {
             tapLocksmithCartridge()
 
             // Then
-            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertIsDisplayed()
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
         }
     }
@@ -175,7 +179,7 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
-            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertDoesNotExist()
+            onNodeWithText(padlockTitle(1)).assertDoesNotExist()
         }
     }
 
@@ -186,7 +190,7 @@ internal class BloxNavDisplayTest {
             // Given padlock 2 of seed 7 on top, as the system restores the stack after the death of the process
             showApp(
                 restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2, seed = 7)),
-                restoredShows = string(LocksmithR.string.feature_locksmith_title, 2),
+                restoredShows = padlockTitle(2),
             )
 
             // Then
@@ -280,6 +284,48 @@ internal class BloxNavDisplayTest {
             // Then
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
             onNodeWithText(dailyTitle()).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("Copier mon score on the entry of the daily seed copies the score of the date shown")
+    fun copyOnTheEntryOfTheDailySeedCopiesTheScoreOfTheDateShown() {
+        runJourney {
+            // Given the entry of the 26th of October, after a try that day
+            showApp(
+                restoredStack = listOf(CartridgesRoute, DailyRoute),
+                restoredShows = dailyTitle(),
+                dailyResults = DailyResults(DAILY_DATE, tries = 1, firstTry = 300, best = 300, firstTryOver = true),
+            )
+
+            // When
+            onNodeWithText(string(DailyR.string.feature_daily_copy_score)).performScrollTo().performClick()
+            settle()
+
+            // Then the copy of the score of that date is asked for
+            assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
+        }
+    }
+
+    @Test
+    @DisplayName("Copier at the game over of a daily game copies the score of the date of the game")
+    fun copyAtTheGameOverOfADailyGameCopiesTheScoreOfItsDate() {
+        runJourney {
+            // Given a daily game of the 26th of October, played from its entry until its game over
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
+            onNodeWithContentDescription(string(DailyR.string.feature_daily_play_description, 5))
+                .performScrollTo()
+                .performClick()
+            advanceUntilShown(string(GameR.string.feature_game_over_replay))
+
+            // When
+            onNodeWithContentDescription(string(GameR.string.feature_game_over_copy_description))
+                .performScrollTo()
+                .performClick()
+            settle()
+
+            // Then the copy of the score of the date of the game is asked for
+            assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
         }
     }
 
@@ -436,6 +482,21 @@ internal class BloxNavDisplayTest {
             settle()
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
             onNodeWithText(replay).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the game over of a classic game offers no Copier, and asks for no copy")
+    fun theGameOverOfAClassicGameAsksForNoCopy() {
+        runJourney {
+            // Given / When a classic game played until its game over screen shows
+            showApp(OneRowPerTickGameEngineFactory)
+            play()
+            advanceUntilShown(string(GameR.string.feature_game_over_replay))
+
+            // Then nothing to copy
+            onNodeWithContentDescription(string(GameR.string.feature_game_over_copy_description)).assertDoesNotExist()
+            assertThat(copiedDailyScores).isEmpty()
         }
     }
 
@@ -607,11 +668,12 @@ internal class BloxNavDisplayTest {
         openClassic: Boolean = true,
         restoredStack: List<NavKey>? = null,
         restoredShows: String? = null,
+        dailyResults: DailyResults? = null,
     ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
         val deletedMusics = DeletedMusicRelay()
-        val dailyChallenge = FakeDailyChallengeRepository()
+        val dailyChallenge = FakeDailyChallengeRepository(dailyResults)
         val homeFactory = HomeViewModel.Factory(
             preferences,
             highScores,
@@ -674,6 +736,7 @@ internal class BloxNavDisplayTest {
                         deletedMusics,
                         locksmithFactory,
                         dailyFactory,
+                        { date -> copiedDailyScores += date },
                         newCartridges,
                     )
                 } else {
@@ -686,6 +749,7 @@ internal class BloxNavDisplayTest {
                         deletedMusics,
                         locksmithFactory,
                         dailyFactory,
+                        { date -> copiedDailyScores += date },
                         newCartridges,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
@@ -724,7 +788,7 @@ internal class BloxNavDisplayTest {
     /** Taps the cartridge of the Locksmith on the choice of the game, and waits for its padlock 1. */
     private fun AndroidComposeUiTest<ComponentActivity>.tapLocksmithCartridge() {
         onNode(hasTestTag(LOCKSMITH_CARTRIDGE_TAG)).performClick()
-        advanceUntilShown(string(LocksmithR.string.feature_locksmith_title, 1))
+        advanceUntilShown(padlockTitle(1))
     }
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
@@ -782,6 +846,10 @@ internal class BloxNavDisplayTest {
         val label = string(GameR.string.feature_game_level)
         return checkNotNull(activity).getString(GameR.string.feature_game_value_description, label, "$level")
     }
+
+    /** The title of the bar of padlock [level], as the screen shows it: in capitals. */
+    private fun AndroidComposeUiTest<ComponentActivity>.padlockTitle(level: Int): String =
+        string(LocksmithR.string.feature_locksmith_title, level).uppercase()
 
     /** The title of the entry of the daily seed on [DAILY_DATE]. */
     private fun AndroidComposeUiTest<ComponentActivity>.dailyTitle(): String =

@@ -93,7 +93,8 @@ class GameOverTextsTest {
             level = Level(level),
             fourLineClears = fourLineClears,
             ticksPlayed = ticksPlayed,
-            newRecord = false,
+            newBest = false,
+            resultsKept = true,
         ),
     )
 }
