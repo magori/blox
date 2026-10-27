@@ -41,10 +41,7 @@ fun GlyphButton(
     active: Boolean = false,
     glyph: DrawScope.(ink: Color) -> Unit,
 ) {
-    AloneButton(description, onClick, enabled, emphasis, active, modifier) {
-        val ink = LocalContentColor.current
-        Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { glyph(ink) })
-    }
+    AloneButton(description, onClick, enabled, emphasis, active, modifier) { Glyph(glyph) }
 }
 
 /**
@@ -93,6 +90,33 @@ private fun AloneButton(
     ) {
         content()
     }
+}
+
+/**
+ * A bare disc of a glyph alone on the ink of a message (its cross), drawn by [glyph] in the colour of the page until it
+ * is pressed; TalkBack reads [description].
+ */
+@Composable
+internal fun GlyphButtonOnInk(
+    description: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    glyph: DrawScope.(ink: Color) -> Unit,
+) {
+    BareButtonOnInk(
+        family = ButtonFamily.ICON,
+        onClick = onClick,
+        modifier = modifier.semantics { contentDescription = description },
+    ) {
+        Glyph(glyph)
+    }
+}
+
+/** A glyph drawn by [glyph] in the ink of the button that bears it, [IconSizes.alone] square. */
+@Composable
+private fun Glyph(glyph: DrawScope.(ink: Color) -> Unit) {
+    val ink = LocalContentColor.current
+    Spacer(modifier = Modifier.size(IconSizes.alone).drawBehind { glyph(ink) })
 }
 
 /** The glyphs of the buttons, drawn in the box they are given. */

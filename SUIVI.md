@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 210 / 304 | `██████████████░░░░░░` **69 %** |
+| **Général** | 211 / 304 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1066,7 +1066,7 @@ composants.
     the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
     bottom inset keeps its last row of actions in sight, its content scrolling`, `a choice row is 56 dp high, read as
     a radio button with its label and its sub-line, the chosen one checked` ; captures.
-  - [ ] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
+  - [x] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
     `panel` cadré `radius-md`, rangées de 48 dp, pictogramme décoratif, variante `danger`, variante cochée ; ombre
     par un jeton à ajouter, ADR 0019), à la place du `DropdownMenu` de Material ; `SnackMessage` (fond `ink`, texte
     `page`, `radius-snack`, action en texte et croix en disque nu, région vive polie ; l'action passe sous le texte

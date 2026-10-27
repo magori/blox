@@ -23,6 +23,8 @@ class OriginalShapesTest {
                 pill = RectangleShape,
             ),
         )
-        assertThat(glosses).isEqualTo(BloxGlosses(button = Gloss.None, buttonPressed = Gloss.None, cell = Gloss.None))
+        assertThat(glosses).isEqualTo(
+            BloxGlosses(button = Gloss.None, buttonPressed = Gloss.None, cell = Gloss.None, menu = DropShadow.None),
+        )
     }
 }
