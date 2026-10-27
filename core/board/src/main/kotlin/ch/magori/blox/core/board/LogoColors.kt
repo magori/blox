@@ -3,7 +3,6 @@ package ch.magori.blox.core.board
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
-import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
 /**
@@ -27,7 +26,7 @@ private fun logoOf(
     variant: BloxThemeVariant,
     vararg pieces: PieceType,
 ): LogoColors {
-    val (topLeft, topRight, bottomLeft, bottomRight) = pieces.map { cellStyle(variant, Cell.Filled(it)).fill }
+    val (topLeft, topRight, bottomLeft, bottomRight) = pieces.map { pieceColor(variant, it) }
     return LogoColors(topLeft, topRight, bottomLeft, bottomRight)
 }
 

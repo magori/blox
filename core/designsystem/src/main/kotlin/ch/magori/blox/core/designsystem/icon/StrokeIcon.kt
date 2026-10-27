@@ -16,7 +16,7 @@ internal const val STROKE_WIDTH = 2.25f
 
 /**
  * The strokes of [icon] as a vector: unfilled lines as thick as it says on a grid of [STROKE_GRID], rounded at their
- * ends and joins, in black, to be tinted.
+ * ends and joins, in black, to be tinted; or, when it is filled, its shapes filled in black, without strokes.
  */
 internal fun strokeIcon(icon: BloxIcon): ImageVector = ImageVector.Builder(
     name = icon.name,
@@ -26,8 +26,8 @@ internal fun strokeIcon(icon: BloxIcon): ImageVector = ImageVector.Builder(
     viewportHeight = STROKE_GRID,
 ).addPath(
     pathData = addPathNodes(icon.strokes),
-    fill = null,
-    stroke = SolidColor(Color.Black),
+    fill = SolidColor(Color.Black).takeIf { icon.filled },
+    stroke = SolidColor(Color.Black).takeUnless { icon.filled },
     strokeLineWidth = icon.strokeWidth,
     strokeLineCap = StrokeCap.Round,
     strokeLineJoin = StrokeJoin.Round,
