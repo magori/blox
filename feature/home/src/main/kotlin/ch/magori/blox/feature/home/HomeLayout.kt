@@ -16,7 +16,7 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
  * The parts of the home (V27), each drawn on its own, so that a layout only places them: the [bar] (Changer de jeu,
- * the record, Paramètres), the [hero] (the logo, then the preview of P5.77), [play], the card of the [settings] and the
+ * the record, Paramètres), the [hero] (the logo, then the preview), [play], the card of the [settings] and the
  * [tiles].
  */
 internal class HomeParts(
