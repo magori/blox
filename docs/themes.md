@@ -57,7 +57,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
 `OriginalShapesTest › the Original theme has square corners and no gloss`,
 `GlossTokensTest › each shadow of tokens json is the gloss of the code, day and night`,
-`GlossTokensTest › every shadow token of tokens json is a gloss of the code`,
+`GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
 `MotionTokensTest › every duration token of tokens json is in the code`,

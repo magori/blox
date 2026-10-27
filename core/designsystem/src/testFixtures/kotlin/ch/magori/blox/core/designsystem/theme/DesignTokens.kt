@@ -109,9 +109,7 @@ private val SHADOWS = Regex(""",\s*(?![^(]*\))""")
  */
 fun cssGloss(written: String): Gloss = Gloss(
     written.trim().split(SHADOWS).map { shadow ->
-        val match = requireNotNull(SHADOW.matchEntire(shadow.trim())) { "Ombre CSS non lue : $shadow" }
-        val (inset, x, y, blur, spread, colour) = match.destructured
-        val lengths = listOf(x, y, blur, spread.ifEmpty { "0" }).map(::cssDp)
+        val (inset, lengths, colour) = cssShadow(shadow)
         when {
             inset.isNotEmpty() && lengths.withIndex().all { (index, length) -> index == 1 || length == 0.dp } ->
                 GlossLayer.Inner(offsetY = lengths[1], color = cssColor(colour))
@@ -123,3 +121,21 @@ fun cssGloss(written: String): Gloss = Gloss(
         }
     },
 )
+
+/**
+ * A drop shadow as tokens json writes it, one CSS `box-shadow` `0 y blur colour`: neither inset, nor moved sideways,
+ * nor spread, which the code does not draw, and refuses.
+ */
+fun cssDropShadow(written: String): DropShadow {
+    val (inset, lengths, colour) = cssShadow(written)
+    val (x, y, blur, spread) = lengths
+    require(inset.isEmpty() && x == 0.dp && spread == 0.dp) { "Ombre portée que le code ne dessine pas : $written" }
+    return DropShadow(offsetY = y, blur = blur, color = cssColor(colour))
+}
+
+/** One shadow of a CSS `box-shadow`: `inset` or nothing, its four lengths (x, y, blur, spread), its colour. */
+private fun cssShadow(written: String): Triple<String, List<Dp>, String> {
+    val match = requireNotNull(SHADOW.matchEntire(written.trim())) { "Ombre CSS non lue : $written" }
+    val (inset, x, y, blur, spread, colour) = match.destructured
+    return Triple(inset, listOf(x, y, blur, spread.ifEmpty { "0" }).map(::cssDp), colour)
+}

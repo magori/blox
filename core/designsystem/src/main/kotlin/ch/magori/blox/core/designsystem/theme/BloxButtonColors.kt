@@ -22,7 +22,8 @@ data class BubbleColors(
  * and Principal, [secondary] for Secondaire and Icône, [danger] for what cannot be undone (Effacer, the record), filled
  * as a secondary button, [selected] for any of them that is the choice made (a measure, Utiliser), [bare] for a disc
  * that shows nothing but its pictogram until it is pressed (« … », − and + of the tempo, the cross of a message),
- * [disabled] for any of them that cannot be touched, and the ring of the keyboard focus, [focus].
+ * [bareOnInk] for such a disc on the ink of a message (its cross, its action), in the colour of the page, [disabled]
+ * for any of them that cannot be touched, and the ring of the keyboard focus, [focus].
  */
 @Immutable
 data class BloxButtonColors(
@@ -31,6 +32,7 @@ data class BloxButtonColors(
     val danger: BubbleColors,
     val selected: BubbleColors,
     val bare: BubbleColors,
+    val bareOnInk: BubbleColors,
     val disabled: BubbleColors,
     val focus: Color,
 )
@@ -73,16 +75,26 @@ internal object BloxButtonColorSets {
             palette.accentInk,
             palette.accentPressed,
         ),
-        bare = BubbleColors(
-            Color.Transparent,
-            palette.ink,
-            palette.buttonPressed,
-            palette.buttonInk,
-            frame = null,
-            pressedFrame = palette.buttonOutline,
-        ),
+        bare = bare(palette, palette.ink),
+        bareOnInk = bare(palette, palette.page),
         disabled = flat(palette.panelInset, palette.label, palette.panelBorder),
         focus = palette.ink,
+    )
+
+    /**
+     * A disc of nothing but its pictogram, in [ink] at rest; pressed, a disc of `button-pressed` framed in
+     * `button-outline`, its pictogram in `button-ink`.
+     */
+    private fun bare(
+        palette: BloxPalette,
+        ink: Color,
+    ) = BubbleColors(
+        Color.Transparent,
+        ink,
+        palette.buttonPressed,
+        palette.buttonInk,
+        frame = null,
+        pressedFrame = palette.buttonOutline,
     )
 
     /** What does not move when pressed: [fill], [ink] and [frame], held as at rest. */
