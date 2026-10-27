@@ -11,6 +11,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -33,7 +39,8 @@ internal const val PLAY_TAG = "home_play"
 /**
  * Jouer (Principal XL), as wide as the column: « Jouer » above the [reminder] of the settings of the game (« Classique
  * · Niveau 05 · Korobeïniki »), cut by an ellipsis when too long, and a disc in `accent-ink` bearing the triangle in
- * `accent`, decorative. TalkBack reads [description], Jouer and the whole reminder in words.
+ * `accent`, decorative. TalkBack reads [description], Jouer and the whole reminder in words. Around it, its [halo] in
+ * `accent-ring` ([playHalo]), read while drawing only.
  */
 @Composable
 internal fun PlayButton(
@@ -41,12 +48,15 @@ internal fun PlayButton(
     description: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    halo: () -> Float = { 0f },
 ) {
+    val ring = BloxTheme.palette.accentRing
     BubbleButton(
         family = ButtonFamily.PRIMARY_XL,
         onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
+            .drawBehind { drawHalo(halo(), ring) }
             .testTag(PLAY_TAG)
             .semantics { contentDescription = description },
     ) {
@@ -78,3 +88,25 @@ private fun PlayDisc() {
 
 /** The disc of Jouer (docs/design-system/README.md, Boutons). */
 private val PLAY_DISC = 52.dp
+
+/**
+ * The halo of Jouer, [progress] into its pulse: a pill of [ring] around the button, which grows to [HALO_SPREAD] as it
+ * fades; nothing at 0.
+ */
+private fun DrawScope.drawHalo(
+    progress: Float,
+    ring: Color,
+) {
+    if (progress <= 0f) return
+    val spread = HALO_SPREAD.toPx() * progress
+    drawRoundRect(
+        color = ring,
+        alpha = 1f - progress,
+        topLeft = Offset(-spread, -spread),
+        size = Size(size.width + 2 * spread, size.height + 2 * spread),
+        cornerRadius = CornerRadius(size.height / 2 + spread),
+    )
+}
+
+/** How far the halo of Jouer goes around it at the end of a pulse. */
+private val HALO_SPREAD = 12.dp

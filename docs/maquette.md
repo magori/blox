@@ -144,7 +144,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17).
 - L'accueil défile sur un petit téléphone ; la planche V1 fait 861 px de haut.
   **Tests :** `HomeScreenTest › the gear button, 48 dp, read Paramètres, opens the settings`,
-  `HomeScreenTest › the logo and the title BloX stand on one line, under the bar`,
+  `HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
   `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
   `HomeScreenTest › on 360 dp, the two modes stand on one line`,
   `HomeScreenTest › the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings`,

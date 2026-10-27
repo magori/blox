@@ -41,4 +41,6 @@ dependencies {
     testImplementation(testFixtures(projects.core.haptics))
     // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
     androidTestImplementation(testFixtures(projects.core.designsystem))
+    // RecompositionRecorder : rien ne recompose pendant que l'aperçu joue (P5.77).
+    androidTestImplementation(testFixtures(projects.core.board))
 }

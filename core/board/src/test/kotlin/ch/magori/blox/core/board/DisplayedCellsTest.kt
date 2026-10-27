@@ -47,4 +47,28 @@ class DisplayedCellsTest {
         assertThat(cells.filter { it == Cell.Filled(PieceType.T) }).hasSize(1)
         assertThat(cells.filter { it == Cell.Filled(PieceType.I) }).hasSize(10)
     }
+
+    @Test
+    fun `the cells of the bottom rows are the last rows of the board, the piece drawn over them`() {
+        // Given a stack of two rows and a T landed on it, pointing down, its top row in row 17
+        val board = Board.parse(
+            """
+            ..........
+            IIII.....O
+            JJJ.....LL
+            """,
+        )
+        val tDown = ClassicRotationSystem.spawnOrientation(PieceType.T)
+        val piece = Piece(PieceType.T, tDown, pivot = Position(column = 5, row = 17))
+
+        // When only the bottom 2 rows are shown
+        val cells = displayedCells(board, piece, rows = 2)
+
+        // Then: the cell of column c and row 18 + r is at index r × 10 + c; the row of the T above them is not shown
+        assertThat(cells).hasSize(20)
+        assertThat(cells[0]).isEqualTo(Cell.Filled(PieceType.I))
+        assertThat(cells[5]).isEqualTo(Cell.Filled(PieceType.T))
+        assertThat(cells[19]).isEqualTo(Cell.Filled(PieceType.L))
+        assertThat(cells.filter { it == Cell.Filled(PieceType.T) }).hasSize(1)
+    }
 }
