@@ -42,6 +42,7 @@ import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.haptics.FakeHaptics
 import ch.magori.blox.core.haptics.Haptic
+import ch.magori.blox.core.music.LiveMusic
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
@@ -52,6 +53,7 @@ import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -60,6 +62,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.entry
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
@@ -94,8 +97,18 @@ class GameViewModelTest {
      * The music of each choice, as `app` gives it: Korobeiniki and the minuet, nothing else, unless a test chooses
      * otherwise.
      */
-    private var musicOf: suspend (MusicChoice) -> Music? = { choice ->
+    private var musicOf: suspend (MusicChoice) -> GameMusic? = { choice ->
         mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)[choice]
+            ?.let(GameMusic::Fixed)
+    }
+
+    /** The seeds the live music was composed from, in order. */
+    private val composedSeeds = mutableListOf<Long>()
+
+    /** Composes the live music of a seed, as `app` does, at once and on the thread of the test. */
+    private var composeLive: suspend (Long) -> LiveMusic = { seed ->
+        composedSeeds += seed
+        LiveMusic.compose(seed)
     }
 
     /** The score of the music of the player chosen for the games, as `app` reads it: none, unless a test chooses one. */
@@ -731,7 +744,7 @@ class GameViewModelTest {
         // Given « Mon fichier » chosen on the home screen, with a file
         val myFile = MusicFile("content://music/my-file")
         preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MY_FILE)
-        musicOf = { choice -> myFile.takeIf { choice == MusicChoice.MY_FILE } }
+        musicOf = { choice -> myFile.takeIf { choice == MusicChoice.MY_FILE }?.let(GameMusic::Fixed) }
 
         // When
         createViewModel(GameRoute(startLevel = 0, seed = 1L))
@@ -1082,6 +1095,129 @@ class GameViewModelTest {
 
         // Then
         assertThat(music.calls).noneMatch { it.startsWith("play") || it.startsWith("resume") }
+    }
+
+    @Test
+    fun `a music read once the stack is in danger plays a quarter faster`() {
+        // Given a game whose music of the player for the games is read late, after its stack entered the danger
+        val read = CompletableDeferred<Score?>()
+        gameMusic = { read.await() }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilStackIsHigh(viewModel)
+
+        // When
+        read.complete(personalScore)
+
+        // Then
+        assertThat(music.playing).isEqualTo(personalScore.id)
+        assertThat(music.tempo).isEqualTo(1.25)
+    }
+
+    @Test
+    fun `a live game plays the calm music composed from the seed of the game`() {
+        // Given « Vivante » chosen on the home screen, which `app` gives as the live music
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.LIVE)
+        musicOf = { choice -> GameMusic.Live.takeIf { choice == MusicChoice.LIVE } }
+
+        // When
+        createViewModel(GameRoute(startLevel = 0, seed = 7L))
+
+        // Then
+        assertThat(composedSeeds).containsExactly(7L)
+        assertThat(music.playedScores).containsExactly(LiveMusic.compose(7L).calm.score)
+    }
+
+    @Test
+    fun `a live game plays the tense music while its stack is in danger`() {
+        // Given a live game
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilInDanger(viewModel)
+
+        // Then
+        assertThat(music.playing).isEqualTo(LiveMusic.TENSE_ID)
+    }
+
+    @Test
+    fun `a live music composed once the stack is in danger starts on the tense music`() {
+        // Given a live game whose music is composed late, after its stack entered the danger
+        val composed = CompletableDeferred<LiveMusic>()
+        musicOf = { GameMusic.Live }
+        composeLive = { composed.await() }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilStackIsHigh(viewModel)
+
+        // When
+        composed.complete(LiveMusic.compose(1L))
+
+        // Then
+        assertThat(music.playing).isEqualTo(LiveMusic.TENSE_ID)
+        assertThat(music.tempo).isEqualTo(1.25)
+    }
+
+    @Test
+    fun `a live music composed after a level up starts at the speed of the level`() {
+        // Given a live game started at level 3, whose music is composed once its first line took it to level 4
+        val composed = CompletableDeferred<LiveMusic>()
+        musicOf = { GameMusic.Live }
+        composeLive = { composed.await() }
+        val viewModel = createViewModel(GameRoute(startLevel = 3, seed = 1L), oneLineLevelUpGame)
+        playUntil(viewModel, "the game reached level 4") { viewModel.uiState.value.level == Level(4) }
+
+        // When
+        composed.complete(LiveMusic.compose(1L))
+
+        // Then the level gained since the start speeds the calm music up
+        assertThat(music.playing).isEqualTo(LiveMusic.CALM_ID)
+        assertThat(music.tempo).isCloseTo(1.02, within(1e-9))
+    }
+
+    @Test
+    fun `the music resumes after a pause in the mood of the moment`() {
+        // Given a live game paused while its stack is in danger, on the tense music
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilInDanger(viewModel)
+        viewModel.onPause()
+
+        // When
+        viewModel.onResume()
+
+        // Then the tense music goes on, at the danger tempo
+        assertThat(music.calls.last()).isEqualTo("resume ${LiveMusic.TENSE_ID}")
+        assertThat(music.playing).isEqualTo(LiveMusic.TENSE_ID)
+        assertThat(music.tempo).isEqualTo(1.25)
+    }
+
+    @Test
+    fun `a live music chosen once the game is over is not composed`() {
+        // Given a live game over before the settings answered
+        preferences.state.value = null
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilGameOver(viewModel)
+
+        // When they answer
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.LIVE)
+
+        // Then the music it will never play is not composed
+        assertThat(composedSeeds).isEmpty()
+        assertThat(music.calls).isEmpty()
+    }
+
+    @Test
+    fun `a game with no music gives the player no order`() {
+        // Given no music chosen
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.NONE)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When its stack climbs into the danger
+        playUntilStackIsHigh(viewModel)
+
+        // Then
+        assertThat(music.calls).isEmpty()
     }
 
     @Test
@@ -1664,6 +1800,7 @@ class GameViewModelTest {
         soundEffects,
         musicOf,
         gameMusic,
+        composeLive,
         savedState,
     )
 
@@ -1718,6 +1855,9 @@ class GameViewModelTest {
 
         /** Enough ticks for the test game to fill the board and end, entry delays included. */
         const val MAX_TICKS = 5_000
+
+        /** The height at which the stack enters the danger, under the Classic rules (`ClassicStackDangerRule`). */
+        const val DANGER_HEIGHT = 15
 
         val oneTickPerRow = object : GravityTable {
             override fun ticksPerRow(level: Level): Ticks = Ticks(1)
@@ -1839,6 +1979,15 @@ class GameViewModelTest {
     /** Gives [viewModel] one frame per tick until its stack is in danger, the music faster; the time of that frame. */
     private fun playUntilInDanger(viewModel: GameViewModel): Long =
         playUntil(viewModel, "the stack is in danger") { music.tempo == 1.25 }
+
+    /**
+     * Gives [viewModel] one frame per tick until its stack is high enough to be in danger, whatever its music: the
+     * time of that last frame.
+     */
+    private fun playUntilStackIsHigh(viewModel: GameViewModel): Long =
+        playUntil(viewModel, "the stack is $DANGER_HEIGHT high") {
+            viewModel.uiState.value.board.stackHeight >= DANGER_HEIGHT
+        }
 
     /** Gives [viewModel] one frame per tick until it submitted the score; the time of that last frame. */
     private fun playUntilSubmitted(viewModel: GameViewModel): Long =

@@ -3,7 +3,6 @@ package ch.magori.blox.core.board
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -16,8 +15,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
-import ch.magori.blox.core.designsystem.theme.GlossBands
-import ch.magori.blox.core.designsystem.theme.glossBands
+import ch.magori.blox.core.designsystem.theme.BubblePainter
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 
@@ -42,14 +40,25 @@ internal fun paintersFor(
  * One cell of [side] pixels in [style], drawn on [background], at [density], with its shapes, its gradient and its
  * gloss built once from its [cellLayout]; it draws at the origin, without allocating anything. The joint, if any,
  * takes the edge of the cell in the colour of [background]; the fill, the border and the gloss are drawn inside it,
- * the ring of a gloss in the joint, and the dot and the cross, if any, over them all.
+ * the ring of a gloss in the joint, and the dot and the cross, if any, over them all. A bubble is drawn by the
+ * [BubblePainter] of the design system, as the notes of the music editor are. Cut to [width] pixels, it keeps its
+ * height and its corners, its cross a square of [crossSide] in the middle of what is left.
  */
-internal class CellPainter(style: CellStyle, side: Float, background: Color, density: Density) {
-    private val layout = cellLayout(style, side, density)
+internal class CellPainter(
+    style: CellStyle,
+    side: Float,
+    background: Color,
+    density: Density,
+    width: Float = side,
+    crossSide: Float? = null,
+) {
+    private val layout = cellLayout(style, side, density, width)
     private val joint = style.joint?.let { background }
-    private val cellSize = Size(side, side)
-    private val fillPath: Path? = if (layout.shape == RectangleShape) null else outlinePath(layout, density)
-    private val fill: DrawScope.() -> Unit = fillOf(style, layout.fill, fillPath)
+    private val cellSize = Size(width, side)
+    private val bubble: BubblePainter? = style.bubble?.let {
+        BubblePainter(style.fill, it.highlight, layout.shape, layout.gloss, layout.fill.size, density)
+    }
+    private val flatFill = style.fill
     private val border: (DrawScope.() -> Unit)? = layout.border?.let { edge ->
         style.border?.let { border ->
             val width = pixelsOf(border.width, side)
@@ -61,23 +70,41 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         }
     }
     private val centre: (DrawScope.() -> Unit)? = style.centre?.let { centreSquare(it, side) }
-    private val gloss: GlossBands? = layout.gloss.takeIf { it.layers.isNotEmpty() }?.let {
-        glossBands(it, layout.shape, layout.fill.size, LayoutDirection.Ltr, density)
-    }
-    private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side) }
-    private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side) }
+    private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side, crossSide) }
+    private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side, layout.fill.center) }
 
     /** Draws the cell, with its joint unless [withJoint] is false: the background under it then shows around its fill. */
     fun draw(
         scope: DrawScope,
         withJoint: Boolean = true,
     ) {
+        drawBody(scope, withJoint)
+        drawMarks(scope)
+    }
+
+    /**
+     * The cell without its marks: its joint, unless [withJoint] is false, its fill, its border, its centre and its
+     * gloss.
+     */
+    fun drawBody(
+        scope: DrawScope,
+        withJoint: Boolean = true,
+    ) {
+        val fill = layout.fill
         if (withJoint) joint?.let { scope.drawRect(it, size = cellSize) }
-        fill(scope)
+        if (bubble == null) {
+            scope.drawRect(flatFill, topLeft = fill.topLeft, size = fill.size)
+        } else {
+            scope.translate(fill.left, fill.top) { bubble.drawFill(this) }
+        }
         border?.invoke(scope)
         centre?.invoke(scope)
         // The ring of the gloss fits in the margin of the cell (cellLayout): it never covers a cell beside it.
-        gloss?.let { bands -> scope.translate(layout.fill.left, layout.fill.top) { bands.draw(this) } }
+        bubble?.let { scope.translate(fill.left, fill.top) { it.drawGloss(this) } }
+    }
+
+    /** The marks of the cell, over its body and whatever is drawn on it: its dot and its cross. */
+    fun drawMarks(scope: DrawScope) {
         dot?.invoke(scope)
         cross?.invoke(scope)
     }
@@ -88,11 +115,11 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         color: Color,
         alpha: Float,
     ) {
-        val path = fillPath
-        if (path == null) {
-            scope.drawRect(color, topLeft = layout.fill.topLeft, size = layout.fill.size, alpha = alpha)
+        val fill = layout.fill
+        if (bubble == null) {
+            scope.drawRect(color, topLeft = fill.topLeft, size = fill.size, alpha = alpha)
         } else {
-            scope.drawPath(path, color, alpha = alpha)
+            scope.translate(fill.left, fill.top) { bubble.drawCover(this, color, alpha) }
         }
     }
 }
@@ -100,17 +127,21 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
 /** How far from the edges of the fill the arms of a cross end: a quarter of it, the cross in its middle half. */
 private const val CROSS_MARGIN = 0.25f
 
-/** The two diagonals of [cross] across the middle of [fill], each drawn on its halo, in whole pixels. */
+/**
+ * The two diagonals of [cross] across the middle of [fill], each drawn on its halo, in whole pixels: across its middle
+ * half, or across a square of [crossSide] in its centre when the cell is cut.
+ */
 private fun crossOver(
     cross: CellCross,
     fill: Rect,
     side: Float,
+    crossSide: Float?,
 ): DrawScope.() -> Unit {
     val width = pixelsOf(cross.width, side)
-    val halo = width * 2
-    val margin = fill.width * CROSS_MARGIN
-    val topLeft = Offset(fill.left + margin, fill.top + margin)
-    val bottomRight = Offset(fill.right - margin, fill.bottom - margin)
+    val halo = crossHalo(cross, side)
+    val half = (crossSide ?: wholeCross(fill.width)) / 2
+    val topLeft = Offset(fill.center.x - half, fill.center.y - half)
+    val bottomRight = Offset(fill.center.x + half, fill.center.y + half)
     val topRight = Offset(bottomRight.x, topLeft.y)
     val bottomLeft = Offset(topLeft.x, bottomRight.y)
     // The lines written out: a lambda taking a colour and a width would box them at each frame.
@@ -122,38 +153,14 @@ private fun crossOver(
     }
 }
 
-/**
- * The fill of a cell: a square of its colour; or, for a bubble, its rounded shape, lit from the top as in the design
- * system, from the highlight at the top to the fill at 55 % of its height. [rect] is the fill, [path] its outline for a
- * bubble, null for a square.
- */
-private fun fillOf(
-    style: CellStyle,
-    rect: Rect,
-    path: Path?,
-): DrawScope.() -> Unit {
-    if (path == null) return { drawRect(style.fill, topLeft = rect.topLeft, size = rect.size) }
-    val highlight = style.bubble?.highlight ?: return { drawPath(path, style.fill) }
-    val brush = Brush.verticalGradient(
-        0f to highlight,
-        HIGHLIGHT_END to style.fill,
-        startY = rect.top,
-        endY = rect.bottom,
-    )
-    return { drawPath(path, brush) }
-}
+/** The width of the halo of [cross] in a cell of [side] pixels: twice its stroke. */
+internal fun crossHalo(
+    cross: CellCross,
+    side: Float,
+): Float = pixelsOf(cross.width, side) * 2
 
-/** The outline of the fill of [layout], in its rounded shape, at its place in the cell. */
-private fun outlinePath(
-    layout: CellLayout,
-    density: Density,
-): Path = Path().apply {
-    addOutline(layout.shape.createOutline(layout.fill.size, LayoutDirection.Ltr, density))
-    translate(layout.fill.topLeft)
-}
-
-/** Where the gradient of a bubble reaches the colour of its piece: 55 % of its height (components/Piece). */
-private const val HIGHLIGHT_END = 0.55f
+/** The side of the cross of a cell that is not cut, its fill [fill] pixels wide: across its middle half. */
+internal fun wholeCross(fill: Float): Float = fill * (1 - 2 * CROSS_MARGIN)
 
 /** The centre square, in whole pixels. */
 private fun centreSquare(
@@ -195,14 +202,14 @@ private fun roundedBorder(
     return { drawPath(path, color, style = stroke) }
 }
 
-/** The [dot] in the centre of a cell of [side] pixels, on its halo, half as wide again. */
+/** The [dot] on the [centre] of the fill of a cell of [side] pixels, cut or not, on its halo, half as wide again. */
 private fun centreDot(
     dot: CellDot,
     side: Float,
+    centre: Offset,
 ): DrawScope.() -> Unit {
     val radius = pixelsOf(dot.size, side) / 2
     val haloRadius = radius * DOT_HALO
-    val centre = Offset(side / 2, side / 2)
     return {
         drawCircle(dot.halo, radius = haloRadius, center = centre)
         drawCircle(dot.color, radius = radius, center = centre)

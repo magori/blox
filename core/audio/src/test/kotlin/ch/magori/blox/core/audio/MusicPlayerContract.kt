@@ -70,6 +70,7 @@ abstract class MusicPlayerContract {
 
     private val korobeiniki = scoreOf(ScoreId.KOROBEINIKI, Pitch.parse("E5"))
     private val minuet = scoreOf(ScoreId.MINUET, Pitch.parse("D5"))
+    private val third = scoreOf(THIRD, Pitch.parse("C5"))
 
     @Test
     fun `play plays the score at the normal tempo`() = runTest {
@@ -441,6 +442,100 @@ abstract class MusicPlayerContract {
     }
 
     @Test
+    fun `a switch keeps the tempo factor and the playback`() = runTest {
+        // Given a score playing faster, as a game in danger
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.player.setTempoFactor(1.25)
+        subject.heard()
+
+        // When another score is switched to, as the live music turns tense
+        subject.player.switchTo(minuet)
+
+        // Then it plays at the same tempo, under the same playback, which stops it
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.25))
+        assertThat(playback.isPlaying.first()).isTrue()
+        playback.stop()
+        assertThat(subject.heard()).isNull()
+    }
+
+    @Test
+    fun `a second switch before the bar line replaces the first`() = runTest {
+        // Given a score playing, another one switched to, its bar line not reached yet
+        val subject = playerUnderTest(this)
+        subject.player.play(korobeiniki)
+        subject.heard()
+        subject.player.switchTo(minuet)
+
+        // When a third score is switched to
+        subject.player.switchTo(third)
+
+        // Then only the last one plays
+        assertThat(subject.heard()).isEqualTo(Heard(THIRD, tempo = 1.0))
+    }
+
+    @Test
+    fun `a switch while the music is stopped is played at the resume`() = runTest {
+        // Given a score stopped, as a game paused
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+        playback.stop()
+
+        // When another score is switched to meanwhile
+        subject.player.switchTo(minuet)
+
+        // Then nothing plays until the score switched to resumes
+        assertThat(subject.heard()).isNull()
+        playback.resume()
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0))
+    }
+
+    @Test
+    fun `a switch while the music stopped by itself is played at the resume`() = runTest {
+        // Given a score whose music stopped by itself, as the audio output fails
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+        subject.fail()
+
+        // When another score is switched to meanwhile, then the game is paused and resumed
+        subject.player.switchTo(minuet)
+        playback.stop()
+        playback.resume()
+
+        // Then
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0))
+    }
+
+    @Test
+    fun `a switch before anything is played plays nothing`() = runTest {
+        // Given
+        val subject = playerUnderTest(this)
+
+        // When
+        subject.player.switchTo(minuet)
+
+        // Then
+        assertThat(subject.heard()).isNull()
+    }
+
+    @Test
+    fun `the tempos prepared are ready for the score switched to`() = runTest {
+        // Given a score playing, its danger tempo prepared, as a game does
+        val subject = playerUnderTest(this)
+        subject.player.play(korobeiniki)
+        subject.player.prepareTempo(1.25)
+        subject.heard()
+
+        // When another score is switched to
+        subject.player.switchTo(minuet)
+
+        // Then its danger tempo is ready too
+        assertThat(subject.prepared(ScoreId.MINUET)).containsExactly(1.25)
+    }
+
+    @Test
     fun `a volume set before a play applies to it`() = runTest {
         // Given the volume of the settings, applied as the application starts
         val subject = playerUnderTest(this)
@@ -498,4 +593,9 @@ abstract class MusicPlayerContract {
         beatsPerBar = 4,
         voices = listOf(Voice(Waveform.SQUARE, volume = 0.07, notes = List(4) { Note(pitch, beats = 1.0) })),
     )
+
+    companion object {
+        /** A third score, generated or written by the player: the live music switches between more than two. */
+        val THIRD: ScoreId = ScoreId.Personal("third")
+    }
 }

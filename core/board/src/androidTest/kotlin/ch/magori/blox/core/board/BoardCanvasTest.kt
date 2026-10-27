@@ -11,8 +11,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -103,6 +108,35 @@ internal class BoardCanvasTest {
         }
         drawnContent()
         recompositions.start()
+    }
+
+    @Test
+    @DisplayName(
+        "the bottom rows of a board are drawn again as it changes, without recomposing, TalkBack reading nothing",
+    )
+    fun theBottomRowsAreDrawnAgainWithoutRecomposing() = extension.use {
+        // Given the bottom 4 rows of the board, drawn once
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                BoardRowsCanvas(
+                    board = { board },
+                    piece = { piece },
+                    rows = 4,
+                    modifier = Modifier.size(240.dp, 96.dp).testTag(ROWS_TAG),
+                )
+            }
+        }
+        val before = drawnContent()
+        recompositions.start()
+
+        // When the stack changes, as when lines clear
+        runOnIdle { board = Board.parse("IIIIIIIIII") }
+        val after = drawnContent()
+
+        // Then it is drawn again, and only drawn; it is a decoration
+        assertThat(after.sameAs(before)).isFalse()
+        assertThat(recompositions.recomposed).isEmpty()
+        onNodeWithTag(ROWS_TAG).assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
     }
 
     @Test
@@ -326,3 +360,6 @@ internal class BoardCanvasTest {
 
 /** The ticks the effects of the tests play for. */
 private const val EFFECT_TICKS = 8
+
+/** The tag of the bottom rows of the board, read by the tests only. */
+private const val ROWS_TAG = "board_rows"

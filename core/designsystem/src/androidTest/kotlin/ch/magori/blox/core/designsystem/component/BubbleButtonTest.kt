@@ -1,7 +1,9 @@
 package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -29,6 +31,7 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -81,6 +84,34 @@ internal class BubbleButtonTest {
         // Then still down at each frame of motion press, the last one just before its end, and back at rest after it
         assertThat(drops.take(returnFrames)).allSatisfy { assertThat(it).isPositive() }
         assertThat(drops.last()).isZero()
+    }
+
+    @Test
+    @DisplayName("what a screen draws around a button, as the ring of a chosen tile, goes down with it")
+    fun whatAScreenDrawsAroundAButtonGoesDownWithIt() = extension.use {
+        // Given a button framed by its screen in a colour of its own, at rest
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Box(Modifier.background(Color.White).padding(8.dp)) {
+                    BubbleButton(
+                        family = ButtonFamily.SECONDARY,
+                        onClick = {},
+                        modifier = Modifier.testTag(TAG).border(4.dp, RING),
+                    ) { Text("Menu") }
+                }
+            }
+        }
+        mainClock.advanceTimeByFrame()
+        val atRest = ringTop()
+
+        // When it is pressed
+        onNodeWithTag(TAG).performTouchInput { down(center) }
+        mainClock.advanceTimeByFrame()
+
+        // Then its ring is 2 dp lower, with it
+        val drop = with(density) { 2.dp.toPx() }
+        assertThat(ringTop() - atRest).isCloseTo(drop.toInt(), within(1))
     }
 
     @Test
@@ -266,7 +297,15 @@ internal class BubbleButtonTest {
         return bounds.top.value
     }
 
+    /** The first row of the screen where the [RING] shows. */
+    private fun ComposeContext.ringTop(): Int {
+        val image = onRoot().captureToImage().toPixelMap()
+        return (0 until image.height).first { y -> (0 until image.width).any { x -> image[x, y] == RING } }
+    }
+
     private companion object {
+        /** A colour no theme draws a button in. */
+        val RING = Color(0xFFFF0000)
         const val TAG = "bubble"
         const val PILL = "pill"
         const val TILE = "tile"

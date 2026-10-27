@@ -22,6 +22,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -98,37 +100,83 @@ internal fun BoardCanvas(
     // Derived from the board alone: a move of the piece leaves it as it is, and recomposes nothing.
     val speech by remember(board) { derivedStateOf { boardSpeech(board()) } }
     val description = spokenBoard(speech)
-    Spacer(
-        modifier = modifier
-            .semantics { contentDescription = description }
-            .drawWithCache {
-                val columns = BoardShape.columns
-                val geometry = BoardGeometry.fit(size.width, size.height, columns, BoardShape.rows)
-                val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
-                onDrawBehind {
-                    val cells = displayedCells(board(), piece())
-                    if (effects == null) {
-                        for (index in cells.indices) {
-                            val left = geometry.origin.x + index % columns * geometry.cellSize
-                            val top = geometry.origin.y + index / columns * geometry.cellSize
-                            translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
-                        }
-                    } else {
-                        drawCells(cells, geometry, cellPainters, effects, glow)
-                    }
-                }
-            },
+    BoardDrawing(
+        board = board,
+        piece = piece,
+        rows = BoardShape.rows,
+        painters = painters,
+        variant = variant,
+        background = background,
+        modifier = modifier.semantics { contentDescription = description },
+        effects = effects,
+        glow = glow,
     )
 }
 
 /**
- * The [cells] of the board, laid out by [geometry], drawn by [painters] as [effects] say, the glow in [glow]: row by row,
- * from the top, a row lifted drawn over the place of the rows above it, which are lifted as much or more, and so never
- * covers them. Where a lifted row stood, empty cells. In a row that glows, the cells that swell are drawn last, over
- * their neighbours. Nothing is allocated per cell.
+ * Draws the bottom [rows] of the [board] and the [piece] in play over them, as [BoardCanvas] does, but decorative:
+ * TalkBack reads nothing of it, and nothing recomposes as the board changes. The preview of the home (P5.77), a stack
+ * and a piece that falls on it, is drawn so. [board] and [piece] are read only while drawing, as by [BoardCanvas], and
+ * must stay the same lambdas from one composition to the next. [rows] goes from 1 to the rows of the board; its size,
+ * in cells of a given side, is [boardRowsSize].
+ */
+@Composable
+fun BoardRowsCanvas(
+    board: () -> Board,
+    piece: () -> Piece?,
+    rows: Int,
+    modifier: Modifier = Modifier,
+    variant: BloxThemeVariant = BloxTheme.variant,
+    background: Color = BloxTheme.palette.boardBackground,
+) {
+    BoardDrawing(board, piece, rows, ::paintersFor, variant, background, modifier)
+}
+
+/** The size of the bottom [rows] of the board in cells of [cellSize]: the columns of the board across, a cell per row. */
+fun boardRowsSize(
+    rows: Int,
+    cellSize: Dp,
+): DpSize = DpSize(cellSize * BoardShape.columns, cellSize * rows)
+
+/**
+ * Draws the bottom [rows] of [board], with [piece] over them, in the cells of [painters], as [effects] say if any
+ * ([drawCells]): the geometry and the painters are built once per variant, size and background, the cells read at each
+ * drawing. A recomposition, when
+ * TalkBack has a new height to read, keeps the drawing as it is, and builds nothing again.
+ */
+@Composable
+private fun BoardDrawing(
+    board: () -> Board,
+    piece: () -> Piece?,
+    rows: Int,
+    painters: PaintersFactory,
+    variant: BloxThemeVariant,
+    background: Color,
+    modifier: Modifier = Modifier,
+    effects: BoardEffects? = null,
+    glow: Color = Color.Unspecified,
+) {
+    Spacer(
+        modifier = modifier.drawWithCache {
+            val geometry = BoardGeometry.fit(size.width, size.height, BoardShape.columns, rows)
+            val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
+            onDrawBehind {
+                drawCells(displayedCells(board(), piece(), rows), rows, geometry, cellPainters, effects ?: AtRest, glow)
+            }
+        },
+    )
+}
+
+/**
+ * The [cells] of the bottom [rows] of the board, laid out by [geometry], drawn by [painters] as [effects] say (rows counted
+ * from the top of those shown: only the whole board has effects), the glow in [glow]: row by row, from the top, a row
+ * lifted drawn over the place of the rows above it, which are lifted as much or more, and so never covers them. Where a
+ * lifted row stood, empty cells. In a row that glows, the cells that swell are drawn last, over their neighbours.
+ * Nothing is allocated per cell. At rest ([AtRest]), each cell is drawn at its place, as it is.
  */
 private fun DrawScope.drawCells(
     cells: List<Cell>,
+    rows: Int,
     geometry: BoardGeometry,
     painters: Map<Cell, CellPainter>,
     effects: BoardEffects,
@@ -165,8 +213,8 @@ private fun DrawScope.drawCells(
         }
     }
 
-    clipRect(origin.x, origin.y, origin.x + rowSize.width, origin.y + BoardShape.rows * side) {
-        for (row in 0 until BoardShape.rows) {
+    clipRect(origin.x, origin.y, origin.x + rowSize.width, origin.y + rows * side) {
+        for (row in 0 until rows) {
             val place = origin.y + row * side
             val lift = effects.rowLift(row) * side
             if (lift != 0f) {
@@ -242,3 +290,6 @@ internal fun BoardCanvasColorfulSmallPreview() {
         BoardCanvas({ previewBoard }, { previewPiece }, Modifier.size(120.dp, 240.dp))
     }
 }
+
+/** No effect: the board drawn as it is, by the same drawing as with effects. */
+private val AtRest = object : BoardEffects {}

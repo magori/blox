@@ -22,6 +22,12 @@ public object MusicGenerator {
      * tens of milliseconds on the JVM and more on a phone, as it composes and notes twenty candidates or more: make it
      * off the main thread.
      *
+     * A [tonic], one of [Category.TONICS], is imposed on every candidate instead of the tonic each one draws, so that
+     * two musics play in the same key (the calm and the tense one of a [LiveMusic]); without it, the music is the one
+     * the choice and the seed give.
+     *
+     * @throws IllegalArgumentException if [tonic] is not one of [Category.TONICS]: another one would take the voices out
+     * of their ranges.
      * @throws IllegalStateException if every candidate of every round is ruled out, sixty in a row, which breaks an
      * invariant of the generator rather than a chance of the draw: the most often ruled out, those of mysterious
      * without a bass, are about one in four.
@@ -30,8 +36,10 @@ public object MusicGenerator {
         choice: CategoryChoice,
         seed: Long,
         id: ScoreId.Personal,
+        tonic: Pitch? = null,
     ): GeneratedMusic {
-        val generation = choose(choice, seed)
+        require(tonic == null || tonic in Category.TONICS) { "The tonic $tonic is not one of ${Category.TONICS}" }
+        val generation = choose(choice, seed, tonic = tonic)
         return assemble(generation, choice, seed, id)
     }
 
@@ -58,12 +66,13 @@ public object MusicGenerator {
     /**
      * The candidates of the category of [choice] composed from [seed], round after round while none reaches [threshold], by
      * default the threshold of the category, [ROUNDS] at most, and the best of them all. Surprise draws its category
-     * first, once for all the candidates.
+     * first, once for all the candidates. A [tonic] is imposed on every candidate.
      */
     internal fun choose(
         choice: CategoryChoice,
         seed: Long,
         threshold: Double? = null,
+        tonic: Pitch? = null,
     ): Generation {
         val master = Random(seed)
         val category = choice.resolve(master)
@@ -71,7 +80,7 @@ public object MusicGenerator {
         val rounds = mutableListOf<List<Candidate>>()
         while (rounds.size < ROUNDS && rounds.flatten().none { it.quality.points >= enough }) {
             rounds += List(CANDIDATES) { Random(master.nextLong()) }.mapNotNull { random ->
-                Candidate.compose(Form.compose(category, random), random)
+                Candidate.compose(Form.compose(category, random, tonic), random)
             }
         }
         return Generation(category, rounds)

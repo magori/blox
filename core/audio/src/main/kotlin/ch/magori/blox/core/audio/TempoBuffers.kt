@@ -11,8 +11,9 @@ import kotlinx.coroutines.cancel
 
 /**
  * The buffers of one [score], one mixed buffer per tempo factor, and its renderings under way, on
- * [renderDispatcher]. It lives as long as its score is the one played: its renderings survive a stop, so
- * that a resume finds them done; [abandon] cancels them once another score plays. Used by one loop at a
+ * [renderDispatcher]. It lives as long as its score is one the playback played last played or was switched to:
+ * its renderings survive a stop, so that a resume finds them done, and a switch, so that switching back finds
+ * them ready; [abandon] cancels them once another score plays. Used by one loop at a
  * time, from the thread that writes the music. Its renderings are children of [parent], the job of the
  * sequencer: they end with the sequencer too.
  *
@@ -78,6 +79,21 @@ internal class TempoBuffers(
                 buffers[factor] = rendering.await()
                 done.remove()
             }
+        }
+    }
+
+    /**
+     * Releases the buffers of the tempos other than [playing], [asked] and the tempos prepared: a tempo left, as a
+     * level of a live game, is not kept for the whole life of the score, and is rendered anew if asked for again.
+     */
+    fun releaseAllBut(
+        playing: Double,
+        asked: Double,
+    ) {
+        val factors = buffers.keys.iterator()
+        while (factors.hasNext()) {
+            val factor = factors.next()
+            if (factor != playing && factor != asked && factor !in prepared) factors.remove()
         }
     }
 

@@ -1,9 +1,16 @@
 package ch.magori.blox.feature.composer.grid
 
+import ch.magori.blox.core.designsystem.theme.BloxGlossSets
+import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.core.designsystem.theme.DesignTokens
 import ch.magori.blox.core.designsystem.theme.contrast
+import ch.magori.blox.core.designsystem.theme.cssColor
 import ch.magori.blox.core.designsystem.theme.namedPalettes
+import ch.magori.blox.core.designsystem.theme.variantGlosses
+import ch.magori.blox.core.designsystem.theme.variantPalette
 import ch.magori.blox.feature.composer.model.Track
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -121,6 +128,28 @@ internal class TrackColorsTest {
         }
     }
 
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("colorfulVariantsAndTracks")
+    fun `the highlight and the colour of each track are those of tokens json, day and night`(
+        variant: BloxThemeVariant,
+        track: Track,
+    ) {
+        // Given the tokens of the track in tokens json: its colour, melody or bass, and its highlight, melody-hi or bass-hi
+        val token = track.name.lowercase()
+        val colour = DesignTokens.colours.getValue(token)
+        val highlight = DesignTokens.colours.getValue("$token-hi")
+
+        // When
+        val look = colorfulNoteLook(variant, track)
+
+        // Then: a bubble lit from the highlight at its top, in the colour of its track at the bottom, in the relief
+        // of the cells
+        val night = variant.isDark
+        assertThat(look.color).isEqualTo(cssColor(if (night) colour.night else colour.day))
+        assertThat(look.bubble?.highlight).isEqualTo(cssColor(if (night) highlight.night else highlight.day))
+        assertThat(look.bubble?.gloss).isEqualTo(variantGlosses(variant).cell)
+    }
+
     companion object {
         @JvmStatic
         fun themes(): List<Arguments> = namedPalettes.map { (theme, palette) -> Arguments.of(theme, palette) }
@@ -129,5 +158,23 @@ internal class TrackColorsTest {
         fun themesAndTracks(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
             Track.entries.map { Arguments.of(theme, palette, it) }
         }
+
+        @JvmStatic
+        fun colorfulVariantsAndTracks(): List<Arguments> = COLORFUL.flatMap { variant ->
+            Track.entries.map { Arguments.of(variant, it) }
+        }
+
+        private val COLORFUL = listOf(BloxThemeVariant.COLORFUL_LIGHT, BloxThemeVariant.COLORFUL_DARK)
+
+        /** The look of a note of [track] in a variant of the Colorful theme, as the grid draws it. */
+        fun colorfulNoteLook(
+            variant: BloxThemeVariant,
+            track: Track,
+        ): NoteLook = noteLook(
+            variant = variant,
+            palette = variantPalette(variant),
+            glosses = variantGlosses(variant),
+            track = track,
+        )
     }
 }

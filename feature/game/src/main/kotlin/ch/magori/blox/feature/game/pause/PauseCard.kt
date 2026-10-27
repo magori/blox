@@ -34,6 +34,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.board.mascot.Mascot
+import ch.magori.blox.core.board.mascot.MascotCharacter
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.frame.millisOf
@@ -43,6 +45,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
@@ -54,6 +57,15 @@ import ch.magori.blox.feature.game.ui.ScreenSizes
 import ch.magori.blox.feature.game.ui.Statistic
 import ch.magori.blox.feature.game.ui.valueDescription
 
+/** The tag of the mascot of the card, decorative, read by the tests only. */
+internal const val PAUSE_MASCOT_TAG = "pause_mascot"
+
+/** The cells of the mascot of the card on a phone (docs/design-system/pictogrammes.md, Mascotte). */
+private val MascotCell = 16.dp
+
+/** Room above the mascot for its « z », which rise over its top. */
+private val MascotRoom = 12.dp
+
 /** The card keeps the width of a phone on a larger screen. */
 private val CardMaxWidth = 360.dp
 
@@ -64,8 +76,8 @@ private const val CARD_RISE_FRACTION = 4
  * The card of the pause (view V29), shown once the curtain hides the board: « Pause », the [score], [level] and
  * [lines], Reprendre ([onResume]) and Menu ([onMenu]), on the `scrim` that veils the game and keeps its touches from
  * it. It comes in as `motion-card` says, by a fade of `motion-reduced-fade` in reduced effects; TalkBack announces it
- * by its pane title as it shows. No mascot yet: none is drawn in core:designsystem. No logic here: the curtain and
- * the resume belong to the game screen.
+ * by its pane title as it shows. In Colorful, the Classic mascot sleeps above « Pause », a decoration; Original, frozen,
+ * has none. No logic here: the curtain and the resume belong to the game screen.
  */
 @Composable
 internal fun PauseCard(
@@ -104,6 +116,14 @@ internal fun PauseCard(
                 verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                if (BloxTheme.variant != BloxThemeVariant.ORIGINAL) {
+                    Mascot(
+                        character = MascotCharacter.CLASSIC,
+                        cellSize = MascotCell,
+                        asleep = true,
+                        modifier = Modifier.padding(top = MascotRoom).testTag(PAUSE_MASCOT_TAG),
+                    )
+                }
                 Text(
                     text = title,
                     color = palette.ink,

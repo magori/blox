@@ -105,15 +105,18 @@ object BloxPalettes {
         gridLine = Color(0xFFCFE3C8),
         // The held tints of the mockup, #6E8F6A and #87A67F, stood out from the cells by 2.9:1 and 2.2:1 only: one
         // darker green, 3.1:1, for both, paler than both attacks.
-        // The open tab is filled in the accent, as every selected choice of this palette.
+        // The open tab is filled in the accent, as every selected choice of this palette. No bubble, no highlight: the
+        // note itself.
         melody = TrackColors(
             note = Color(0xFF34503A),
+            highlight = Color(0xFF34503A),
             held = Color(0xFF6A8A66),
             tab = Color(0xFF34503A),
             tabInk = Color(0xFFEEF5EA),
         ),
         bass = TrackColors(
             note = Color(0xFF5F7F5C),
+            highlight = Color(0xFF5F7F5C),
             held = Color(0xFF6A8A66),
             tab = Color(0xFF34503A),
             tabInk = Color(0xFFEEF5EA),
@@ -156,12 +159,14 @@ object BloxPalettes {
         // The open tab takes the colour of its notes.
         melody = TrackColors(
             note = Color(0xFF7C4DEB),
+            highlight = Color(0xFFE6DCFC),
             held = Color(0xFFB7A0F2),
             tab = Color(0xFF7C4DEB),
             tabInk = Color(0xFFFFFFFF),
         ),
         bass = TrackColors(
             note = Color(0xFFB4501A),
+            highlight = Color(0xFFF6D9C7),
             held = Color(0xFFE8A57C),
             tab = Color(0xFFB4501A),
             tabInk = Color(0xFFFFFFFF),
@@ -202,12 +207,14 @@ object BloxPalettes {
         gridLine = Color(0xFF2A2D44),
         melody = TrackColors(
             note = Color(0xFFA77BFF),
+            highlight = Color(0xFFDCCBFF),
             held = Color(0xFF6B4FB0),
             tab = Color(0xFFA77BFF),
             tabInk = Color(0xFF07080D),
         ),
         bass = TrackColors(
             note = Color(0xFFFF9E3D),
+            highlight = Color(0xFFFFD7B0),
             held = Color(0xFFA8662A),
             tab = Color(0xFFFF9E3D),
             tabInk = Color(0xFF07080D),

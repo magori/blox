@@ -85,7 +85,7 @@ par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, 
 réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
 Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
 et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
-`HomeColumn`) pour les formats de P5.84 ; logo et titre provisoires jusqu'au héros de P5.77.
+`HomeColumn`) pour les formats de P5.84 ; logo BloX v2, aperçu du plateau et halo de Jouer depuis P5.77.
 **Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
 `HomeScreenTest › the gauge chooses the start level and saves it`,
 `HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
@@ -129,8 +129,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - **Niveau de départ** : 0 à 9, sur deux lignes de 5 (P5.29).
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, la musique personnelle « En jeu »,
   *Aucune*, en rangées qui passent à la ligne, sans rien dessous. Une seule ligne d'actions, sous
-  tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, avec un
-  triangle ou un carré que TalkBack ne lit pas (« Écouter Menuet ») ; pour *Mon fichier*,
+  tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, un disque
+  de 48 dp à son seul pictogramme, triangle ou carré, lu « Écouter Menuet » (P5.94) ; pour *Mon fichier*,
   *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Un
   seul aperçu à la fois (P4.7), arrêté en changeant de choix, en ouvrant les Paramètres ou
   « Mes musiques ».
@@ -144,7 +144,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17).
 - L'accueil défile sur un petit téléphone ; la planche V1 fait 861 px de haut.
   **Tests :** `HomeScreenTest › the gear button, 48 dp, read Paramètres, opens the settings`,
-  `HomeScreenTest › the logo and the title BloX stand on one line, under the bar`,
+  `HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
   `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
   `HomeScreenTest › on 360 dp, the two modes stand on one line`,
   `HomeScreenTest › the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings`,
@@ -152,7 +152,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
   `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
   `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
-  `HomeScreenTest › in a font twice as large, in a window too narrow for both, Changer goes under Écouter, each label on one line`,
+  `HomeScreenTest › in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line`,
   `HomeViewModelTest › opening the settings stops the preview`,
   `HomeViewModelTest › opening the settings stops the music of the player listened to`,
   `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,
@@ -334,8 +334,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   score, niveau, lignes, Reprendre, Menu) monte sur un voile ; le jeu reste affiché dessous, inerte pour TalkBack,
   le focus et les touches. Reprendre, le retour du système, Start, Échap ou P rouvrent le rideau, et la partie ne
   repart qu'une fois le rideau ouvert ; une pause demandée pendant l'ouverture le referme depuis l'endroit atteint.
-  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte de la
-  carte avec P5.77.
+  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte
+  Classique endormie au-dessus de « Pause » (P5.77), que TalkBack ne lit pas.
   **Tests :** `PauseCurtainTest › the curtain shuts in 12 ticks, the duration of motion-curtain, before the card shows`,
   `PauseCurtainTest › in reduced effects the curtain fades over every row, shut in 8 ticks, the duration of motion-reduced-fade`,
   `PauseCurtainStateTest › a pause while the curtain opens brings it back down from where it stood, the game never let go on`,
@@ -401,7 +401,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   nets), dans l'esprit de la police Press Start 2P ; en Couleurs et Brume, traits arrondis de
   2,25 sur une grille de 24. Couleur du texte du bouton.
 - **Tailles** : 16 dp à côté d'un libellé, 14 dp au-dessus d'un libellé dans la barre d'outils
-  de l'éditeur et devant MES MUSIQUES et Écouter, 18 dp sur *Au hasard* et *Nouvelle*, 24 dp
+  de l'éditeur, 18 dp sur *Au hasard* et *Nouvelle*, 24 dp seul dans le disque d'Écouter (P5.94) et
   pour l'engrenage ; 6 à 8 dp entre l'icône et le libellé, 12 dp dans les menus.
 - **Jeu d'icônes** : lecture et arrêt (Jouer, Écouter / Arrêter, Reprendre), liste (MES
   MUSIQUES), note (COMPOSER UNE MUSIQUE, *Utiliser* et l'entrée du menu « … »), engrenage
@@ -435,7 +435,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   icônes en tête, la corbeille en `danger` comme *Supprimer*.
   **Tests :** `HomeScreenTest › Jouer, Écouter and the tiles bear an icon that TalkBack does not read`,
   `HomeScreenTest › the gear button is read Paramètres once, its icon adding nothing`,
-  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer and Écouter are shown whole, beside their icons`,
+  `HomeScreenTest › in a font twice as large, on 360 dp, Jouer is shown whole beside its icon, and Écouter within the screen`,
   `GlyphButtonTest › a button of an icon alone is 48 dp, read as a button of its description, its icon adding nothing`,
   `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
   `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,

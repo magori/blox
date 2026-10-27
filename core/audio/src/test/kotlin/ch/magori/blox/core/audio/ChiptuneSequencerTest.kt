@@ -716,7 +716,7 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
             const val SCORE_CODE = 1_000
 
             /** The scores the samples may tell, coded by their place in this list. */
-            val CODED: List<ScoreId> = listOf(ScoreId.KOROBEINIKI, ScoreId.MINUET)
+            val CODED: List<ScoreId> = listOf(ScoreId.KOROBEINIKI, ScoreId.MINUET, THIRD)
 
             fun codeOf(
                 score: ScoreId,

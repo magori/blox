@@ -10,7 +10,7 @@ import kotlin.math.roundToInt
  * start of the loop. Durations are multiples of an eighth note, exact in [Double].
  */
 internal fun switchBeats(score: Score): List<Int> {
-    val beats = score.voices.first().beats.roundToInt()
+    val beats = score.beatCount
     val starts = score.voices.map(::noteStarts)
     return (0 until beats).filter { beat -> starts.all { beat.toDouble() in it } }
 }
@@ -18,3 +18,7 @@ internal fun switchBeats(score: Score): List<Int> {
 /** The beats where the notes of [voice] start. */
 private fun noteStarts(voice: Voice): Set<Double> =
     voice.notes.runningFold(0.0) { start, note -> start + note.beats }.toSet()
+
+/** The number of beats of a score, the length of each of its voices: a whole number of bars. */
+internal val Score.beatCount: Int
+    get() = voices.first().beats.roundToInt()

@@ -197,7 +197,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [x] **P1.19** Types des points et des « lignes d'un coup » pour `ScoringRule` : `LineClear`
   (lot P1.16 / P1.15) et `Points` (P1.12c, rendu par `ScoringRule`) ; `CLAUDE.md` dit `Points`.
-- [ ] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
+- [x] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
   Jardin (P10.7) : générateur maison dont la suite ne dépend pas de la version de Kotlin
   (`kotlin.random.Random` ne garantit pas la sienne). `StableRandom` étend `kotlin.random.Random` ; `nextInt(n)`
   tire sans biais, par tirage avec rejet. Point d'entrée **public** `ClassicRandomizer.stable(seed)`
@@ -958,7 +958,7 @@ composants.
   Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
   `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
   TalkBack` ; captures.
-- [ ] **P5.77** Héros de l'accueil : (mascotte aussi sur la carte de la pause, P5.82) logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
+- [x] **P5.77** Héros de l'accueil : (mascotte aussi sur la carte de la pause, P5.82) logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
   ses quatre cases), plateau d'aperçu (`core:board`) qui rejoue un T tombant à la gravité du niveau choisi et
   effaçant deux lignes, score réel ; halo de Jouer (3 impulsions après 3 s, puis une toutes les 10 s, aucun en
   Effets réduits). Après P5.71, P5.74, P5.75, P5.87 (logo exporté).
@@ -1037,7 +1037,7 @@ composants.
     variant`, `an active button keeps the pressed fill at rest, without going down`, `a bare icon button has no
     fill, no frame and no gloss at rest, and takes button pressed when pressed`, `a bare icon button is 48 dp wide
     and high at least`, `a compact button is 48 dp high, in the colours of its family` ; captures.
-  - [ ] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
+  - [x] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
     `ListenButton(playing, description, size)` (disque de la famille Icône, triangle puis carré, état en cours
     pendant l'écoute ; 48 dp, 56 dans l'éditeur) remplace les copies de `feature:home` et de `ComposerControls.kt` ;
     `Equalizer` (trois barres de 3 × 14 en `accent`, de 35 % à 100 % en 30 ticks, sur l'horloge de Compose,
@@ -1120,7 +1120,7 @@ composants.
     en lecture`, `Annuler, Copier and Effacer are disabled when they have no effect`, `Enregistrer is the only button
     in accent on the editor, its dot shown while the music has changed`, `on 360 by 640 dp in a font twice as large
     every control is 48 dp and the grid keeps rows of 26 dp, scrolling` ; captures.
-  - [ ] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
+  - [x] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
     reflet de la piste à sa couleur, coins `radius-cell`, relief `cell-gloss` à 16 dp et plus) ; jetons `melody-hi`
     et `bass-hi` ajoutés à `tokens.json` (jour et nuit) et comparés ; grille dans un bloc `board` cadré
     `panel-border` ; ligne « TEMPS 1 2 3 4 » en `stat-label` ; fondu du bas tant que des lignes restent dessous.
@@ -1141,6 +1141,9 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
+- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+  `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
+  (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
@@ -1306,14 +1309,19 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
   en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu
   refusé, pièce qui bloque, serrure ouverte, petit écran). Le reste est passé en P7.22.
-- [ ] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
+- [x] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
   de la serrure ouverte et de l'indice, chacun en « Effets réduits » (ADR 0024) ; TalkBack : grille en
   collection, orientation de la pièce choisie, accords entendus, refus répété annoncé, pièce désignée par
-  l'indice nommée, « Serrure ouverte » annoncé trois fois et focus sur la carte (à juger par `designer-jeu`) ;
+  l'indice nommée, « Serrure ouverte » annoncé une seule fois et focus sur le titre de la carte ;
   tuile choisie dont l'anneau descend avec la tuile ; UI Test instrumenté (poser, refuser, reprendre) ;
-  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le nombre de pistes
-  d'effets jamais libérées (ADR 0025, P7.13) ; aperçu sur l'anneau en colonne 0 ou 9 coupé par le bord de
-  l'écran (à juger par `designer-jeu`).
+  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; aperçu sur l'anneau en
+  colonne 0 ou 9 rogné à 4 dp du bord de l'écran. La mesure des pistes d'effets passe en P7.24.
+- [x] **P7.23** Serrurier, rendu jugé par `designer-jeu` (vu sur les captures de P7.22) : la croix de la case
+  rognée frôle ses bords ; le point d'encre de l'indice tourne au gris au sommet de la lueur ; la case rognée,
+  immobile, chevauche un peu sa voisine pendant le tremblement. Corrigés tous trois ; le halo qui couvre le
+  contour au pic du tremblement est toléré.
+- [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
+  P7.13), avec les mesures de P5.33.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
@@ -1326,37 +1334,47 @@ la Graine du jour l'impose.
 
 - [x] **P8.1** Spécification et décision : `docs/musique-vivante.md`, ADR 0026 (amende 0014 et 0022), vue V37
   numérotée (à dessiner). Fait le 2026-10-26, avec les spécifications de P9 à P11 et les ADR 0027 et 0028.
-- [ ] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
+- [x] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
   même rang, au même facteur de tempo, sous le même jeton ; ajouté à `MusicPlayerContract` et au faux lecteur,
   et à chaque étage du lecteur (`ChiptuneSequencer`, `FocusedMusicPlayer`, `MusicSwitch`) ; réservé aux
   partitions, sans effet pour un `MusicFile` ; la partition demandée est préparée au tempo du moment (pour la
   tendue, celui du danger), sans rendu à l'entrée en danger. Cas : `a score switched to starts on the next bar, at the same rank`, `a switch keeps the tempo factor and the
   playback`, `a second switch before the bar line replaces the first`, `a switch while the music is stopped is
   played at the resume`.
-- [ ] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
+- [x] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
   (`Category.EPIC`), de même longueur et de même tonique, par `MusicGenerator.generate`. Après P8.9. Cas : `a live
   music is a calm music and a tense one`, `the calm and the tense music have the same number of bars`, `the calm
   and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
   depend on the tense one`.
-- [ ] **P8.4** `MusicChoice.LIVE` (`core:data`) et `scoreOf` (`app`) : le choix enregistré, qui demande de composer
-  les deux ambiances au lieu d'une partition fixe ; règles de sauvegarde. Cas : `the live choice is saved and read
-  back`, `the live choice asks for a live music rather than a score`. Après P8.3.
-- [ ] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
+- [x] **P8.4** `MusicChoice.LIVE` (`core:data`) et `musicOf` (`app`) : le choix enregistré, qui demande de composer
+  les deux ambiances au lieu d'une partition fixe (`ChosenMusic.Live`, devenu `GameMusic.Live` en P8.6) ; règles de sauvegarde. Cas : `the live
+  choice is saved and read back` (couvert par le test paramétré du contrat), `the live choice asks for a live music
+  rather than a score`. Après P8.3. Choix caché de la feuille Musique jusqu'à P8.7 ; adaptateur provisoire de
+  `AppContainer` (Vivante sans musique) à retirer en P8.6, avec le déplacement de `ChosenMusic` dans
+  `feature:game` (revue de P8.4 : ce n'est pas un type de persistance).
+- [x] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
   `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
-- [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
+- [x] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
   par `switchTo` ; facteur de tempo = min(1 + 0,02 × niveaux gagnés, 1,30) **[à vérifier]**, multiplié au × 1,25
   du danger ; graine de la musique = graine de la partie ; chaque `LevelUp` déclenche un rendu, dont le coût est
   à mesurer sur téléphone. Après P8.2, P8.3, P8.5. Cas : `a live game starts on the
   calm music`, `entering the danger switches to the tense music`, `leaving the danger switches back to the calm
   music`, `each level up speeds the music up by 2 percent, up to 1 point 3`, `the speed of the levels and the
-  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`.
+  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`, `a game already in
+  danger when its music starts plays the tense music, a quarter faster` (`onStart` après des `onEvents`, revue de P8.5).
+  Fait avec le branchement de P8.4 : `GameMusic` (`feature:game`) remplace `ChosenMusic`, l'adaptateur provisoire
+  est retiré ; le lecteur libère les rendus des tempos quittés (revue de P8.6).
 - [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
 - [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
-- [ ] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
+- [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
+- [ ] **P8.10** Préparer une partition d'avance (`prepareScore` ou switch préparé), pour que la première entrée en
+  danger ne rende rien ; à décider avec la mesure de P8.6 sur téléphone (revue de P8.2). À mesurer aussi : le rendu
+  de chaque `LevelUp` de la Vivante, et le changement d'ambiance après un niveau gagné, qui rend l'autre partition
+  au nouveau facteur (les rendus des tempos quittés sont libérés depuis P8.6).
 
 ## P9 — Graine du jour (`core:game`, `core:data`, `feature:game`, `app`)
 
@@ -1366,16 +1384,21 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 
 - [x] **P9.1** Spécification et décision : `docs/graine-du-jour.md`, amendement de l'ADR 0014 (la suite des pièces
   d'une graine devient un contrat) dans l'ADR 0026, vues V38 et V39 numérotées (à dessiner). Fait le 2026-10-26.
-- [ ] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
+- [x] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
   téléphone. Cas : `the seed of a day is its date written year month day`, `the date is the local date of the
   phone`, `two days give two seeds`.
-- [ ] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
+- [x] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
   en testFixtures : date en cours, essais, premier essai, meilleur ; un essai est compté **à son début**
-  **[à vérifier]** (premier essai à 0 tant qu'il n'est pas fini) ; règles de sauvegarde **[à vérifier]**. Cas :
+  (premier essai à 0 tant qu'il n'est pas fini) et le fichier est exclu de la sauvegarde (décisions du
+  développeur, 2026-10-27) ; `startTry` / `endTry`, qui rend un `RecordResult`. Cas :
   `without a try there is no result of the day`, `a try is counted as soon as it starts`, `the first try is worth 0
   until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
   `every try is counted`, `a try of a newer date starts that date over`, `a try of an
   older date is ignored`.
+- [ ] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
+  qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
+  fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
+  de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
 - [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
   `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
   musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
