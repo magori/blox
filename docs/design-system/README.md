@@ -60,7 +60,7 @@ de suite ; ils reviennent en `motion-press`. Focus clavier : contour de 3 px `in
 | Action | `accent`, `accent-ink`, `accent-pressed`, `accent-ring` | Une action principale par écran, la touche A, le choix retenu, l'interrupteur allumé, les autocollants. |
 | Jeu | `clear-glow`, `danger-soft`, `cell-dead` | Effacement des lignes, pile en danger, cases éteintes en fin de partie. |
 | Danger | `danger`, `danger-ink` | Supprimer, erreurs, cadre du plateau en danger. |
-| Musique | `melody`, `bass` (+ `-soft`), `track-ink`, `cell-ground`, `grid-line`, `label-off` | Une couleur par piste de l'éditeur, distinctes aussi par leur clarté. |
+| Musique | `melody`, `bass` (+ `-soft`, `-hi`), `track-ink`, `cell-ground`, `grid-line`, `label-off` | Une couleur par piste de l'éditeur, distinctes aussi par leur clarté ; `-hi` est le reflet du haut des notes en bulles (de nuit, celui des pièces T et L). |
 | Décor | `iris-1`, `iris-2`, `iris-3` | Dégradé du logo, reflet des 4 lignes, barre de record battu. Jamais derrière du texte. |
 
 L'accent du jour (`#B48CFF`) se détache peu de la page (2,3:1) : un bouton d'action se lit par

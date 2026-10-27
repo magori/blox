@@ -1,6 +1,8 @@
 package ch.magori.blox.feature.composer.grid
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -27,13 +29,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.AwaitPointerEventScope
 import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -54,6 +60,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.max
 import ch.magori.blox.core.designsystem.component.SingleLineText
+import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.feature.composer.R
@@ -65,6 +73,12 @@ import kotlin.math.min
 private object GridSizes {
     /** The column of the names of the lines. */
     val labelWidth = 44.dp
+
+    /** Inside the frame of the grid, around its lines, in Colorful (`space-2`). */
+    val blockPadding = 8.dp
+
+    /** The fade over the bottom of the grid while lines remain below. */
+    val fade = 24.dp
 
     /** The space that sets an octave apart from the octave above. */
     val octaveSpace = 6.dp
@@ -111,6 +125,10 @@ internal data class GridLines(val rows: List<RowView>)
  * lifted. While the open track is [empty], a hint says how to place a note. Each line is skipped when it did not
  * change: a touch recomposes the lines it changed only. While the music is listened to, an outline surrounds the
  * column played, the [playedEighth] cell of the bar, if it is the bar shown; drawn over the lines, it recomposes none.
+ *
+ * In Colorful (V33), the grid is a block of `board` framed in `panel-border`, « TEMPS 1 2 3 4 » in capitals, and its
+ * bottom fades while lines remain below; each note is a bubble ([noteLook]), its painter built once per look and size
+ * ([NotePainters]), never at a touch. Original keeps its flat grid.
  */
 @Composable
 internal fun NoteGrid(
@@ -124,33 +142,74 @@ internal fun NoteGrid(
 ) {
     val palette = BloxTheme.palette
     val colors = cellColors(palette, track)
+    val note = noteLook(BloxTheme.variant, palette, BloxTheme.glosses, track)
+    val dressed = note.dressed
     val outline = playedOutline(palette)
+    // Once, not at each touch: each painter is built on its first note of a look, a size and a density.
+    val painters = remember { NotePainters(::NotePainter) }
+    val scroll = rememberScrollState()
+    val fade = remember(scroll, palette.boardBackground) { Modifier.fadeBelow(scroll, palette.boardBackground) }
     Column(modifier = modifier) {
-        BeatLine()
-        BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth()) {
-            val rowHeight = rowHeight(lines, if (constraints.hasBoundedHeight) maxHeight else null)
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(rememberScrollState())
-                    .drawWithContent {
-                        drawContent()
-                        if (playedEighth != null) drawPlayedColumn(playedEighth, outline)
-                    },
-            ) {
-                lines.rows.forEach { row ->
-                    GridLine(
-                        row = row,
-                        colors = colors,
-                        outline = outline,
-                        onTouch = onTouch,
-                        onSlide = onSlide,
-                        modifier = Modifier.height(rowHeight + if (row.spaceAbove) GridSizes.octaveSpace else 0.dp),
-                    )
+        val block = if (dressed) Modifier.gridBlock(palette, BloxTheme.shapes.md) else Modifier
+        Column(modifier = Modifier.weight(1f).fillMaxWidth().then(block)) {
+            BeatLine(capitals = dressed)
+            BoxWithConstraints(modifier = Modifier.weight(1f).fillMaxWidth().then(if (dressed) fade else Modifier)) {
+                val rowHeight = rowHeight(lines, if (constraints.hasBoundedHeight) maxHeight else null)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(scroll)
+                        .drawWithContent {
+                            drawContent()
+                            if (playedEighth != null) drawPlayedColumn(playedEighth, outline)
+                        },
+                ) {
+                    lines.rows.forEach { row ->
+                        GridLine(
+                            row = row,
+                            colors = colors,
+                            note = note,
+                            painters = painters,
+                            outline = outline,
+                            onTouch = onTouch,
+                            onSlide = onSlide,
+                            modifier = Modifier.height(rowHeight + if (row.spaceAbove) GridSizes.octaveSpace else 0.dp),
+                        )
+                    }
                 }
             }
         }
         EmptyHint(shown = empty)
+    }
+}
+
+/**
+ * The block of the grid in Colorful (V33): the `board` of the game, framed by 2 dp of `panel-border`, corners
+ * `radius-md`, the lines inside it.
+ */
+private fun Modifier.gridBlock(
+    palette: BloxPalette,
+    shape: Shape,
+): Modifier = background(palette.boardBackground, shape)
+    .border(BloxBorders.frame, palette.panelBorder, shape)
+    .padding(GridSizes.blockPadding)
+
+/**
+ * A fade to [background] over the bottom of the grid while lines remain below, out of sight, under [scroll]: the grid
+ * says it goes on. Read while drawing, the scroll redraws the fade, and recomposes nothing; its gradient is built once
+ * per size.
+ */
+private fun Modifier.fadeBelow(
+    scroll: ScrollState,
+    background: Color,
+): Modifier = drawWithCache {
+    val height = min(GridSizes.fade.toPx(), size.height)
+    val top = size.height - height
+    val brush = Brush.verticalGradient(listOf(Color.Transparent, background), startY = top, endY = size.height)
+    val area = Size(size.width, height)
+    onDrawWithContent {
+        drawContent()
+        if (scroll.canScrollForward) drawRect(brush, topLeft = Offset(0f, top), size = area)
     }
 }
 
@@ -164,14 +223,18 @@ private fun rowHeight(
     return max((room - spaces) / lines.rows.size, GridSizes.minRowHeight)
 }
 
-/** « Temps 1 2 3 4 », each beat above its two cells. */
+/**
+ * « Temps 1 2 3 4 », each beat above its two cells, in `stat-label`: in [capitals], as the labels of the panels of the
+ * game, in Colorful (V33).
+ */
 @Composable
-private fun BeatLine() {
+private fun BeatLine(capitals: Boolean) {
     val palette = BloxTheme.palette
-    val style = MaterialTheme.typography.labelSmall
+    val style = MaterialTheme.typography.labelSmall.merge(BloxTheme.typography.statLabel)
+    val beats = stringResource(R.string.feature_composer_beats)
     Row(modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp), verticalAlignment = Alignment.CenterVertically) {
         SingleLineText(
-            text = stringResource(R.string.feature_composer_beats),
+            text = if (capitals) beats.uppercase() else beats,
             color = palette.label,
             style = style,
             modifier = Modifier.width(GridSizes.labelWidth),
@@ -198,6 +261,8 @@ private fun BeatLine() {
 private fun GridLine(
     row: RowView,
     colors: CellColors,
+    note: NoteLook,
+    painters: NotePainters<NotePainter>,
     outline: PlayedOutline,
     onTouch: (pitch: Pitch, eighth: Int) -> Unit,
     onSlide: (pitch: Pitch, fromEighth: Int, toEighth: Int) -> Unit,
@@ -246,7 +311,7 @@ private fun GridLine(
                         .weight(1f)
                         .fillMaxHeight()
                         .padding(start = gapBefore(eighth), bottom = GridSizes.cellGap)
-                        .drawBehind { drawCell(view, echo, colors) }
+                        .drawBehind { drawCell(view, echo, colors, note, painters) }
                         .testTag("composer_cell")
                         .semantics {
                             contentDescription = name
@@ -405,13 +470,15 @@ private fun DrawScope.drawCell(
     view: CellView,
     echo: Boolean,
     colors: CellColors,
+    note: NoteLook,
+    painters: NotePainters<NotePainter>,
 ) {
     drawRect(colors.background)
     if (view.isSplit) {
-        drawPart(view.first, left = 0f, width = size.width / 2, colors)
-        drawPart(view.second, left = size.width / 2, width = size.width / 2, colors)
+        drawPart(view.first, left = 0f, width = size.width / 2, colors, note, painters)
+        drawPart(view.second, left = size.width / 2, width = size.width / 2, colors, note, painters)
     } else {
-        drawPart(view.first, left = 0f, width = size.width, colors)
+        drawPart(view.first, left = 0f, width = size.width, colors, note, painters)
     }
     if (echo) {
         val radius = min(size.width, size.height) * ECHO_RADIUS
@@ -420,23 +487,25 @@ private fun DrawScope.drawCell(
     }
 }
 
-/** A part of a cell from [left], [width] wide: the attack of a note as a block, its held part as a band edged above and below. */
+/**
+ * A part of a cell from [left], [width] wide: the attack of a note in its [note] look, drawn by its painter of
+ * [painters], its held part as a band edged above and below.
+ */
 private fun DrawScope.drawPart(
     part: CellPart,
     left: Float,
     width: Float,
     colors: CellColors,
+    note: NoteLook,
+    painters: NotePainters<NotePainter>,
 ) {
     when (part) {
         CellPart.SILENT -> Unit
 
         CellPart.ATTACK -> {
             val inset = GridSizes.noteInset.toPx()
-            drawRect(
-                color = colors.note,
-                topLeft = Offset(left + inset, inset),
-                size = Size((width - 2 * inset).coerceAtLeast(1f), (size.height - 2 * inset).coerceAtLeast(1f)),
-            )
+            val noteSize = Size((width - 2 * inset).coerceAtLeast(1f), (size.height - 2 * inset).coerceAtLeast(1f))
+            translate(left + inset, inset) { painters.get(note, noteSize, density = this).draw(this) }
         }
 
         CellPart.HELD -> {

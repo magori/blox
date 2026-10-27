@@ -14,6 +14,7 @@ import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.designsystem.theme.contrast
+import ch.magori.blox.core.designsystem.theme.variantPalette
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
@@ -63,7 +64,7 @@ class LockCellStylesTest {
         // shadow at the top instead of a flat fill
         assertThat(style).isEqualTo(
             CellStyle(
-                fill = palette(variant).emptyCell,
+                fill = variantPalette(variant).emptyCell,
                 border = null,
                 centre = null,
                 joint = CellJoint.Fixed(width = 1.dp),
@@ -117,7 +118,7 @@ class LockCellStylesTest {
             val outline = requireNotNull(style.border) { "$type" }
             assertThat(outline.color).isEqualTo(lockColors(variant).ink)
             assertThat(outline.width * 42).isCloseTo(2f, offset(0.5f))
-            assertThat(contrast(outline.color, palette(variant).emptyCell)).isGreaterThanOrEqualTo(3.0)
+            assertThat(contrast(outline.color, variantPalette(variant).emptyCell)).isGreaterThanOrEqualTo(3.0)
         }
     }
 
@@ -177,7 +178,7 @@ class LockCellStylesTest {
 
         // Then the shape of the hole reads (WCAG 1.4.11), and the padlock from the page it lies on, in its rim
         assertThat(contrast(metal, lockCellStyle(variant, LockCell.Hole).fill)).isGreaterThanOrEqualTo(3.0)
-        assertThat(contrast(metal, palette(variant).page)).isGreaterThanOrEqualTo(3.0)
+        assertThat(contrast(metal, variantPalette(variant).page)).isGreaterThanOrEqualTo(3.0)
     }
 
     @ParameterizedTest(name = "{0}")
@@ -202,10 +203,5 @@ class LockCellStylesTest {
     @EnumSource(BloxThemeVariant::class, names = ["COLORFUL_LIGHT", "COLORFUL_DARK"])
     fun `the rim of the padlock, drawn by the screen, is the metal of its cells`(variant: BloxThemeVariant) {
         assertThat(lockMetal(variant)).isEqualTo(lockCellStyle(variant, LockCell.Metal).fill)
-    }
-
-    private fun palette(variant: BloxThemeVariant) = when (variant) {
-        BloxThemeVariant.COLORFUL_DARK -> BloxPalettes.ColorfulDark
-        else -> BloxPalettes.ColorfulLight
     }
 }
