@@ -652,14 +652,21 @@ voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des
 Module `feature:musics` (amendement de l'ADR 0002) ; on y arrive par le lien **MES MUSIQUES** de
 l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 
-- **Liste** : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché avant la lecture.
-  En-tête fixe (Retour, titre, « Pendant les parties : X » ou « la musique choisie à l'accueil »,
-  deux lignes au plus). Chaque carte tient sur une rangée (P5.52, demande du développeur) : 48 dp
-  de contenu, 56 dp avec la marge de 4 dp et le cadre ; de gauche à droite, écouter (48 dp), le
-  nom sur une ligne puis une ligne « style · tonalité · durée » (« Joyeux · sol majeur · 0:16 »,
-  durée des 8 mesures arrondie à la seconde), chacune coupée par une ellipse si elle ne tient pas,
-  l'interrupteur *Utiliser* / *En jeu* et le menu « … ». Pendant l'écoute, « Lecture · mesure n
-  sur 8 » remplace la ligne d'info, en couleur d'encre. En police agrandie, la rangée grandit au
+- **Liste** (Couleurs v2 depuis P5.99, V32) : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché
+  avant la lecture. Barre fixe : disque Retour et « Mes musiques » en `screen-title`, lu comme un titre. Dessous, la
+  carte « PENDANT LES PARTIES » (`panel-inset`, sans cadre, comme V32 la dessine : elle se distingue à peine de la
+  page, 1,02:1 de jour) : une note décorative, l'étiquette en `stat-label` et le nom de la musique des parties, ou
+  « La musique choisie à l'accueil » ; TalkBack la lit d'une phrase, « Pendant les parties : X ». Une rangée par
+  musique : de gauche à droite, Écouter (`ListenButton`, P5.94), le nom sur une ligne puis une ligne « style ·
+  tonalité · durée » (« Joyeux · sol majeur · 0:16 », durée des 8 mesures arrondie à la seconde) en `small`, qui
+  ouvrent l'éditeur, *Utiliser* / *En jeu* et le menu « … » en disque nu. Pendant l'écoute, l'égaliseur (P5.94)
+  précède « Lecture · mesure n sur 8 », et une jauge des huit mesures (jouées en `accent-pressed`, les autres en
+  `panel-border` : 2,3:1 de jour seulement, admis car TalkBack l'ignore et le texte dit la mesure) s'aligne sous le
+  nom. La musique des parties porte la pastille « EN JEU » (`accent`), que TalkBack ne lit pas. Sans musique,
+  « Aucune musique pour l'instant. » (titre) et « Compose la tienne, ou laisse le dé t'en proposer une. ». En bas,
+  *Au hasard* (Secondaire) et *Nouvelle* (Principal) collés sur un fondu de 24 dp, côte à côte si chaque libellé tient
+  dans sa moitié, sinon l'un sous l'autre (`SideBySideOrStacked`, partagé avec les tuiles de l'accueil) ; la liste
+  défile sous eux, et le pied défile à son tour s'il dépasse sa place. En police agrandie, la rangée grandit au
   lieu de rogner. Le tempo et la date de modification ne sont plus sur la carte (la date reste
   dans le fichier des musiques). TalkBack lit « Calme, fa majeur, 24 secondes », ou « Lecture,
   mesure 3 sur 8 » pendant l'écoute, sans les « · ».
@@ -669,11 +676,12 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   quittant la liste, en ouvrant l'éditeur et quand on supprime la musique écoutée ; elle continue
   derrière un dialogue. Comme dans l'éditeur, l'indication peut devancer le son (tampon audio,
   perte passagère du focus : P4.25).
-- ***Utiliser* / *En jeu*** : un bouton carré de 48 dp à droite du nom (P5.52), interrupteur pour
-  TalkBack (« X pendant les parties »), activé pour la musique jouée pendant les parties : note
-  de musique encadrée sur `panel` quand elle n'est pas en jeu, coche `accentInk` sur `accent`
-  quand elle l'est. Le toucher choisit la musique, ou rend celle de l'accueil si elle était en
-  jeu. La note est l'icône `NOTE` de 24 dp (P5.54b) ; la coche reste dessinée sur place.
+- ***Utiliser* / *En jeu*** : un disque de 48 dp à droite du nom (`GlyphButton`, P5.99) : note `NOTE` au repos,
+  coche `CHECK` retenue (`ButtonEmphasis.SELECTED`, en `accent`) pour la musique jouée pendant les parties. Ce n'est
+  plus un interrupteur pour TalkBack mais un bouton, annoncé « sélectionné » quand la musique est en jeu (règle des
+  boutons de la musique, P5.93), qui dit ce que fait un appui : « La jouer pendant les parties » ou « Ne plus la
+  jouer pendant les parties » (`onClickLabel`). Le toucher choisit la musique, ou rend celle de l'accueil si elle
+  était en jeu.
 - **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
   - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
     `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.
@@ -741,8 +749,16 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › without music the page says « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`,
 `MyMusicsScreenTest › every target of the page is 48 dp at least on 360 dp, in a font twice as large`,
 `HomeViewModelTest › opening my musics stops the preview`,
-`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`.
-Vues : V1, V7, V10.
+`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`,
+`MyMusicsScreenTest › the card Pendant les parties names the music played during the games, or the music chosen on the home screen`,
+`MyMusicsScreenTest › a row is read as listen, the name that opens the editor, the switch and the menu, in this order`,
+`MyMusicsScreenTest › listening to a music shows the equalizer and the bar played, and a gauge of eight bars that TalkBack leaves out`,
+`MyMusicsScreenTest › a foot higher than its room stays under the card of the games, and scrolls to Nouvelle`,
+`GaugeFillsTest › the gauge fills the bars played, the one playing included, and leaves the others empty`,
+`GlyphButtonTest › a button of an icon alone given what a touch does tells it to TalkBack, without one says nothing more`,
+`SideBySideOrStackedTest › items whose labels hold in their half stand side by side, as wide and as high as each other`,
+`SideBySideOrStackedTest › items whose labels do not hold in their half stand one above the other, each as wide as the line`.
+Le message de suppression passe par `SnackMessage` (P5.97) depuis P5.99. Vues : V1, V7, V10, V32.
 
 
 ### Mes musiques : stockage (implémenté, P4.22 tranche 1)
