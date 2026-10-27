@@ -18,7 +18,8 @@ public class ClassicRandomizer internal constructor(private val random: Random) 
      * A randomizer whose draws are reproducible: the same [seed] gives the same pieces.
      *
      * The sequence comes from `kotlin.random.Random(seed)`, which is not a contract between Kotlin
-     * versions: the same seed may give other pieces after a Kotlin upgrade.
+     * versions: the same seed may give other pieces after a Kotlin upgrade. For a sequence that must last from one
+     * version to the next, use [stable].
      */
     public constructor(seed: Long) : this(Random(seed))
 
@@ -30,9 +31,15 @@ public class ClassicRandomizer internal constructor(private val random: Random) 
         return romOrder[firstDraw]
     }
 
-    private companion object {
+    public companion object {
+        /**
+         * A randomizer whose sequence of pieces is a contract between versions of the application (ADR 0026):
+         * the same [seed] gives the same pieces, drawn from a [StableRandom].
+         */
+        public fun stable(seed: Long): ClassicRandomizer = ClassicRandomizer(StableRandom(seed))
+
         /** Pieces in the order of the ROM, indexed by the draw. */
-        val romOrder = listOf(
+        private val romOrder = listOf(
             PieceType.T,
             PieceType.J,
             PieceType.Z,
@@ -43,6 +50,6 @@ public class ClassicRandomizer internal constructor(private val random: Random) 
         )
 
         /** The first draw value that gives no piece, and calls for a second draw. */
-        val noPiece = romOrder.size
+        private val noPiece = romOrder.size
     }
 }
