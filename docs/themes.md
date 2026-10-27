@@ -134,7 +134,9 @@ assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `pan
 visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
 en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
 étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
-sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres.
+sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres. `SettledSheet` dessine une feuille
+posée, sans sa fenêtre, pour les aperçus et les captures (P5.101) ; `rememberOnce`, public, garde une action
+d'un second appel (fermeture, « Tirer une musique »).
 **Tests :** `SheetEntranceTest › a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`,
 `BloxSheetTest › a sheet is read as a dialog by TalkBack, its title first`,
 `BloxSheetTest › the system back and a touch on the scrim close the sheet`,
@@ -142,6 +144,28 @@ sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fen
 `BloxSheetTest › a sheet asks once to close, sent back then touched on its scrim twice`,
 `SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
 `SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
+
+**Fenêtres v2 et champ du nom** (P5.98, `core:designsystem`) : le titre de `WindowPanel` est en `screen-title`
+(fondu dans `titleSmall`), lu comme un titre par TalkBack ; un panneau qui n'est pas une fenêtre (carte « Serrure
+ouverte » du Serrurier) passe son propre style de titre. Les réponses (`WindowButton`, genre `WindowButtonKind` :
+Secondaire, Principal, Danger) sont des boutons bulles, toujours empilées sur toute la largeur, à 8 dp l'une de
+l'autre, la sûre d'abord, dans l'ordre où TalkBack les lit (décision du développeur, P5.86). Supprimer est rempli en
+`danger` avec la corbeille (`ButtonFamily.DANGER_FILLED`), libellé en `danger-ink` à 4,5:1 au moins ; pressé, il
+garde son remplissage. Le champ du nom (`NameField`, extrait de `NamingWindow`, longueur maximale en paramètre) :
+fond `panel-inset`, 56 dp de haut au moins, coins `radius-md`, le nom sur autant de lignes qu'il faut ; cadre de
+2 dp en `button-outline` au repos (3:1 au moins sur le panneau, WCAG 1.4.11), en `ink` au focus, en `danger` quand
+le nom est refusé ; compteur « n/40 » compté en caractères, lu « n caractères sur 40 » ; motif du refus précédé du
+pictogramme `ALERT` (16 dp, même à ×2), annoncé poliment par TalkBack. Renommer reste une fenêtre.
+**Tests :** `WindowPanelTest › the title of a window is in screen title, read as a heading`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
+`WindowButtonLookTest › a deleting answer is filled in danger with its trash icon, its label standing out by 4,5 to 1`,
+`NameFieldTest › the name field counts its characters out of 40, as TalkBack reads it`,
+`NameFieldTest › a refused name frames the field in danger and says why, read by TalkBack as it shows`,
+`NameFieldTest › the name field is framed in ink while it has the focus`,
+`NameFieldFrameTest › the name field is framed in button outline at rest, in ink while it has the focus, in danger when refused`,
+`NameFieldFrameTest › the frame of the name field at rest stands out from the panel by 3 to 1 at least` ;
+captures `*Window*` de `core:designsystem` et de `feature:composer`. Vues : V25, V32, V34.
 
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
@@ -806,12 +830,11 @@ réduirait toujours au plancher. `shrinkToFewestLines` vérifie désormais aussi
 quand il passe sur plusieurs lignes. `shrinkToWholeWords` permet plusieurs lignes et ne réduit que
 si le texte déborde ou coupe un mot ; il ne cherche pas le moins de lignes (message du dé, trois
 lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` garde l'interligne d'un
-texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) restent
-côte à côte si le mot le plus large de chacune tient dans sa moitié ; sinon elles s'empilent, la
-réponse sûre d'abord (ordre de lecture inchangé), chacune sur toute la largeur et en grande police
-plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp. La décision
-compte en pixels entiers, comme la rangée, sur la largeur de ligne mesurée (`ButtonRow.kt`, partagé
-avec la barre d'outils de l'éditeur, P5.49). Le texte d'une fenêtre (`WindowText`) garde ses mots
+texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) sont
+toujours empilées depuis P5.98 (section « Fenêtres v2 »), chacune sur toute la largeur, en grande
+police plutôt que réduite ; un mot trop long pour la largeur entière réduit. `ButtonRow.kt` (côte à
+côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour la barre d'outils de l'éditeur
+(P5.49) et les tuiles de l'accueil. Le texte d'une fenêtre (`WindowText`) garde ses mots
 entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
 moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
 pas la césure, désactivée pour le corps du texte). **Tests :**
@@ -855,11 +878,9 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `WordCutTest › a number cut between two digits is cut`,
 `ShrinkingLineHeightTest › a text that shrinks keeps the line height of its style in proportion to its size`,
 `ShrinkingLineHeightTest › a style without a line height in sp keeps its own`,
-`WindowAnswersTest › in a normal font, on 360 dp, the answers of a window stand side by side, the safe one first`,
-`WindowAnswersTest › in a font twice as large, in Original, on 360 dp, answers too wide side by side stand one above the other`,
-`WindowAnswersTest › in a font twice as large, in Colorful, on 360 dp, answers whose words hold whole stay side by side`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
 `WindowAnswersTest › in a font twice as large, a word too long for the whole width of an answer shrinks rather than be cut`,
-`WindowAnswersTest › in a normal font, in Original, on 320 dp, the answers of a window stand one above the other`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `EmbeddedFontsTest › the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,

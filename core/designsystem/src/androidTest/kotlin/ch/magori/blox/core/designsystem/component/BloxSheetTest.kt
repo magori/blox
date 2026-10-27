@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import ch.magori.blox.core.designsystem.state.SwappableRegistry
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -165,7 +166,7 @@ internal class BloxSheetTest {
                                 WindowButton(
                                     text = SAVE,
                                     onClick = {},
-                                    primary = true,
+                                    kind = WindowButtonKind.PRIMARY,
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             },
@@ -257,21 +258,6 @@ internal class BloxSheetTest {
     }
 
     /** The saved state of a screen, which a recreation swaps for one given back from what was saved. */
-    private class SwappableRegistry : SaveableStateRegistry {
-        var delegate: SaveableStateRegistry = SaveableStateRegistry(null) { true }
-
-        override fun canBeSaved(value: Any): Boolean = delegate.canBeSaved(value)
-
-        override fun consumeRestored(key: String): Any? = delegate.consumeRestored(key)
-
-        override fun registerProvider(
-            key: String,
-            valueProvider: () -> Any?,
-        ): SaveableStateRegistry.Entry = delegate.registerProvider(key, valueProvider)
-
-        override fun performSave(): Map<String, List<Any?>> = delegate.performSave()
-    }
-
     private companion object {
         const val TITLE = "Au hasard"
         const val FIRST_CHOICE = "Surprise"

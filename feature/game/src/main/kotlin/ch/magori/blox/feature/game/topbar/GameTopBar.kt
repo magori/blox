@@ -42,6 +42,7 @@ import ch.magori.blox.core.designsystem.theme.notEnlarged
 import ch.magori.blox.core.designsystem.theme.shrinkFloor
 import ch.magori.blox.core.designsystem.theme.shrinkToFewestLines
 import ch.magori.blox.core.designsystem.theme.shrinkToFit
+import ch.magori.blox.feature.game.GameLabels
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.PanelSizes
@@ -71,24 +72,26 @@ private object TopBarSizes {
  * [topBarRows]. A record whose value is unknown is hidden, in a place of the same size, so that nothing moves when it
  * comes; once beaten, the sticker NOUVEAU RECORD takes the place of its label, the score its value, in the same place
  * of the same size. The pause button does nothing unless [pauseEnabled]: under « Agrandissez la fenêtre », the game is
- * already paused.
+ * already paused. The title, the label of the record and its sticker are those of the variant of the game ([labels]):
+ * for a daily game (V39), GRAINE DU JOUR, the best of the day, MEILLEUR DU JOUR.
  */
 @Composable
 internal fun GameTopBar(
     record: ShownRecord,
     onPause: () -> Unit,
+    labels: GameLabels,
     modifier: Modifier = Modifier,
     pauseEnabled: Boolean = true,
 ) {
     val texts = topBarTexts(record.value ?: 0)
-    val title = stringResource(R.string.feature_game_top_title).uppercase()
-    val labels = RecordLabels(
-        record = stringResource(R.string.feature_game_top_record),
-        newRecord = stringResource(R.string.feature_game_top_new_record),
+    val title = stringResource(labels.title).uppercase()
+    val recordLabels = RecordLabels(
+        record = stringResource(labels.best),
+        newRecord = stringResource(labels.newBest),
     )
     val titleSize = BloxTheme.typography.gameTitle.fontSize.takeOrElse { TopBarSizes.title }
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, labels, texts.record)) {
+        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, recordLabels, texts.record)) {
             TopBarRows.ONE -> Row(
                 horizontalArrangement = Arrangement.spacedBy(TopBarSizes.gap),
                 verticalAlignment = Alignment.CenterVertically,
@@ -99,7 +102,7 @@ internal fun GameTopBar(
                 // where CLASSIQUE fits whole, rather than cut.
                 ModeTitle(text = title, autoSize = shrinkToFit(titleSize), modifier = Modifier.weight(1f))
                 // At most as wide as the title: with an enlarged font, the record shrinks rather than the title.
-                Record(record, texts, labels, modifier = Modifier.weight(1f, fill = false))
+                Record(record, texts, recordLabels, modifier = Modifier.weight(1f, fill = false))
             }
 
             // The title on the whole width, on one line if it holds there at its smallest size, on two otherwise:
@@ -123,7 +126,7 @@ internal fun GameTopBar(
                     Record(
                         record = record,
                         texts = texts,
-                        labels = labels,
+                        labels = recordLabels,
                         capToNormalFont = true,
                         modifier = Modifier.padding(start = TopBarSizes.gap),
                     )
@@ -300,6 +303,7 @@ private fun TopBarPreview(
         GameTopBar(
             record = record,
             onPause = {},
+            labels = GameLabels.Classic,
             modifier = Modifier
                 .width(360.dp)
                 .background(BloxTheme.palette.page)

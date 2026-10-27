@@ -106,6 +106,8 @@ internal class GameScreenGesturesTest {
                     onControl = {},
                     onPause = {},
                     onResume = {},
+                    labels = GameLabels.Classic,
+                    onCopy = {},
                 )
             }
         }

@@ -27,6 +27,7 @@ import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.DeleteWindow
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.WindowButton
+import ch.magori.blox.core.designsystem.component.WindowButtonKind
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.WindowPanel
 import ch.magori.blox.core.designsystem.component.WindowText
@@ -107,7 +108,7 @@ internal fun ComposerWindow(
             WindowButton(
                 text = stringResource(R.string.feature_composer_save),
                 onClick = actions.onSaveBeforeLeaving,
-                primary = true,
+                kind = WindowButtonKind.PRIMARY,
                 modifier = Modifier.fillMaxWidth(),
             )
             WindowButton(
@@ -152,6 +153,7 @@ private fun ComposerNamingWindow(
         title = title,
         name = dialog.name,
         onNameChanged = actions.onNameChanged,
+        maxLength = SavedMusic.MAX_NAME_LENGTH,
         problem = dialog.problem?.let { problemText(it) },
         confirm = confirm,
         onConfirm = onConfirm,
