@@ -13,6 +13,12 @@
     <string name="feature_game_value_description">%1$s : %2$s</string>
     <string name="feature_game_over_title">Partie terminée</string>
     <string name="feature_game_over_new_record">Nouveau record</string>
+    <!-- Sous le score de la fin de partie (V30), le record d’avant la partie quand elle l’a battu ; « Record » sinon. -->
+    <string name="feature_game_over_previous_record">Ancien record</string>
+    <!-- Sous le score de la fin de partie : le libellé du meilleur d’avant la partie, puis sa valeur sur 6 chiffres. -->
+    <string name="feature_game_over_best">%1$s %2$s</string>
+    <!-- Ce que TalkBack lit du score de la fin de partie et du meilleur d’avant, l’un après l’autre. -->
+    <string name="feature_game_over_score_and_best">%1$s, %2$s</string>
     <string name="feature_game_over_four_lines">4 lignes</string>
     <string name="feature_game_over_duration">Durée</string>
     <string name="feature_game_over_replay">Rejouer</string>
@@ -46,6 +52,8 @@
     <string name="feature_game_daily_top_new_best">Nouveau meilleur</string>
     <!-- En fin de partie, quand le meilleur du jour est battu (premier essai compris). -->
     <string name="feature_game_daily_new_best">Meilleur du jour</string>
+    <!-- Sous le score de la fin de partie (V39), le meilleur du jour d’avant l’essai quand il l’a battu ; « Meilleur » sinon. -->
+    <string name="feature_game_daily_previous_best">Ancien meilleur</string>
     <!-- Fin de partie de la Graine du jour : copie le score (texte et presse-papiers en P9.6). -->
     <string name="feature_game_over_copy">Copier</string>
     <!-- Ce que TalkBack lit du bouton Copier : ce qu’il fait. -->
