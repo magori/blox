@@ -7,14 +7,11 @@ import org.junit.jupiter.api.Test
 class EqualizerMotionTest {
     @Test
     fun `the equalizer moves its three bars between 35 and 100 percent of their height in 30 ticks`() {
-        // When over two rounds
-        val parts = (0..120).map { tick -> equalizerParts(tick) }
+        // When over two rounds, each of the three bars
+        val parts = (0..120).map { tick -> List(3) { bar -> equalizerPart(tick, bar) } }
 
-        // Then three bars, never under 35 % nor over 100 %
-        assertThat(parts).allSatisfy { bars ->
-            assertThat(bars).hasSize(3)
-            assertThat(bars).allSatisfy { part -> assertThat(part).isBetween(0.35f, 1f) }
-        }
+        // Then never under 35 % nor over 100 %
+        assertThat(parts.flatten()).allSatisfy { part -> assertThat(part).isBetween(0.35f, 1f) }
         // And the first one from 35 % up to 100 % in 30 ticks, back down in as many
         val first = parts.map { it[0] }
         assertThat(first[0]).isEqualTo(0.35f)

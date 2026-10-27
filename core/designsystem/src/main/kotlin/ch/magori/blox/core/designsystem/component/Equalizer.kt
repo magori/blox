@@ -24,10 +24,13 @@ import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
-/** A bar of the equalizer at its full height, its corners, and the gap between two bars. */
+/**
+ * A bar of the equalizer at its full height, its corners, and the gap between two bars. The corners of 2 of the
+ * mockup cannot be drawn on a bar 3 wide: they are half its width, its ends round.
+ */
 private val BarWidth = 3.dp
 private val BarHeight = 14.dp
-private val BarCorner = 2.dp
+private val BarCorner = BarWidth / 2
 private val BarGap = 2.dp
 
 /** The lowest part of its height a bar of the equalizer falls to. */
@@ -57,7 +60,7 @@ fun Equalizer(modifier: Modifier = Modifier) {
         modifier = modifier
             .size(BarWidth * BARS + BarGap * (BARS - 1), BarHeight)
             .semantics { hideFromAccessibility() }
-            .drawBehind { drawBars(equalizerParts(motion.tick), accent) },
+            .drawBehind { drawBars(motion.tick, accent) },
     )
 }
 
@@ -84,31 +87,35 @@ private class EqualizerMotion {
     }
 }
 
-/** The bars, each [parts] of the height of the box, side by side from the left, standing on the foot of the box. */
+/** The bars at [tick], side by side from the left, standing on the foot of the box. */
 private fun DrawScope.drawBars(
-    parts: List<Float>,
+    tick: Int,
     color: Color,
 ) {
     val width = BarWidth.toPx()
     val gap = BarGap.toPx()
-    val corner = BarCorner.toPx().coerceAtMost(width / 2)
-    parts.forEachIndexed { bar, part ->
-        val height = size.height * part
+    val corner = CornerRadius(BarCorner.toPx())
+    repeat(BARS) { bar ->
+        val height = size.height * equalizerPart(tick, bar)
         drawRoundRect(
             color = color,
             topLeft = Offset(bar * (width + gap), size.height - height),
             size = Size(width, height),
-            cornerRadius = CornerRadius(corner),
+            cornerRadius = corner,
         )
     }
 }
 
 /**
- * The part of their full height the three bars of the equalizer reach at [tick]: each from 35 % up to 100 % in 30
- * ticks and back down in as many, each 10 ticks ahead of the one before it, so that they start as rising stairs.
+ * The part of its full height the bar [bar] of the equalizer (0, 1 or 2) reaches at [tick]: each bar from 35 % up to
+ * 100 % in 30 ticks and back down in as many, each 10 ticks ahead of the one before it, so that they start as rising
+ * stairs. A number per bar rather than a list: the equalizer draws them on every frame, without allocating.
  */
-internal fun equalizerParts(tick: Int): List<Float> = List(BARS) { bar ->
+internal fun equalizerPart(
+    tick: Int,
+    bar: Int,
+): Float {
     val phase = (tick + bar * BAR_LEAD_TICKS) % (2 * RISE_TICKS)
     val rise = if (phase <= RISE_TICKS) phase else 2 * RISE_TICKS - phase
-    LOWEST_PART + (1f - LOWEST_PART) * rise / RISE_TICKS
+    return LOWEST_PART + (1f - LOWEST_PART) * rise / RISE_TICKS
 }
