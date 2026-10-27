@@ -12,7 +12,7 @@ Donne-lui uniquement :
 - les documents de `docs/` qui concernent les fichiers modifiés.
 
 Points à examiner :
-- règles de dépendance entre modules, pureté de `core:game`, `core:music` et `core:locksmith` (qui ne dépend que des deux premiers) ;
+- règles de dépendance entre modules, pureté de `core:game`, `core:music`, `core:locksmith` et `core:garden` (ces deux derniers ne dépendent que des deux premiers, en `api`) ;
 - conformité au comportement décrit dans la spécification ;
 - qualité des tests : un comportement par test, noms en phrases, cas limites, pas de doublon,
   pas de test qui teste l'implémentation plutôt que le comportement ;
