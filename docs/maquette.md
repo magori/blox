@@ -177,7 +177,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   (P3.7) : 2 × 2 cellules de 20 dp, joint fin, couleurs des pièces du thème
   (`docs/themes.md`), décoratif pour TalkBack. Les niveaux proposés sont ceux du mode
   (`LevelProgression`) ; un niveau enregistré hors de la liste s'affiche comme le plus proche.
-  Parcours (P5.5) : `HomeScreenTest › TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown`,
+  Parcours (P5.5) : `ScoreChipTest › TalkBack reads a score chip by its description alone, not the capped value shown`,
   `HomeScreenTest › the Modern mode is disabled, as TalkBack reads it, beside the Classic mode, selected`,
   `BloxNavDisplayTest › Jouer starts a game at the start level chosen on the home screen`.
 

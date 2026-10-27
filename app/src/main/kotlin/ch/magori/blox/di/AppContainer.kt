@@ -35,8 +35,12 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
+import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -236,6 +240,14 @@ class AppContainer(context: Context) {
     /** Builds the view model of the Locksmith (ADR 0025). */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
         LocksmithViewModel.Factory(soundEffects, userPreferences)
+
+    /**
+     * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
+     * the local date of the phone, read anew at each showing ([today], as its game), and the seed of that date, the one
+     * its game is given (DailySeed), so that the seven first pieces shown are those of the game.
+     */
+    val dailyViewModelFactory: DailyViewModel.Factory =
+        DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
 }
 
 private const val TAG = "BloX"

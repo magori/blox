@@ -32,6 +32,7 @@ dependencies {
     implementation(projects.feature.composer)
     implementation(projects.feature.musics)
     implementation(projects.feature.locksmith)
+    implementation(projects.feature.daily)
     implementation(projects.core.game)
     implementation(projects.core.data)
     implementation(projects.core.audio)
