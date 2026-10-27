@@ -334,6 +334,7 @@ droite.
   `LockCellStylesTest › a rivet is darker than the metal, so that it does not read as a small hole`,
   `LockCellStylesTest › the metal stands out from the hole and from the page by 3 to 1 at least`,
   `LockCellStylesTest › a hole is an empty cell of the board sunk by the hole inset`,
+  `LockCellStylesTest › a hole is sunk, not raised, a shadow along its top and no light, no thickness at its bottom`,
   `LockCellStylesTest › a placed piece has the bubble it has on the board`,
   `LockCellStylesTest › a preview that fits differs from its placed piece by more than its colour`,
   `LockCellStylesTest › a preview that does not fit is crossed out, so that the refusal does not rest on colour`,
@@ -440,13 +441,17 @@ droite.
   `PadlockSizesTest › once the padlock is open, no preview is left and no room is kept`.
 - Mise en page : une colonne qui défile (barre, accords, grille, message, Indice et Recommencer, tuiles), sous
   elle les commandes ancrées en bas (tourner, **Poser**, tourner), zone plafonnée à la moitié de la hauteur.
-  La barre a un bouton retour et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour
-  TalkBack : c'est le titre de la barre qui dit l'état, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
+  La barre a un bouton retour, son titre en capitales, « SERRURE 03 » (numéro sur deux chiffres ; en
+  grande police sur un écran étroit, il rapetisse en mots entiers plutôt que de couper un mot ; P7.25),
+  et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour TalkBack : c'est le titre
+  de la barre qui dit l'état, lu en casse normale, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
   deux dernières pilules des accords portent une accolade et le mot « cadence ». La tuile choisie et son anneau
   descendent ensemble quand on appuie (ce qu'un écran dessine autour d'un bouton suit le bouton).
   **Tests :** `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
   `LocksmithScreenTest › the padlock of the bar has no node, the title of the bar tells the padlock closed, then open`,
   `LocksmithScreenTest › the back button of the bar goes back`,
+  `LocksmithScreenTest › the title of the bar is in capitals, its number on two digits, TalkBack reads it in words`,
+  `LocksmithScreenTest › in a font twice as large, on 320 dp, the title of the bar keeps its words whole`,
   `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`,
   `BubbleButtonTest › what a screen draws around a button, as the ring of a chosen tile, goes down with it`.
 - Aperçu sur l'anneau en colonne 0 ou 9 : quand la place manque au-delà du rebord, la case qui déborde est

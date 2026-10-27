@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 233 / 312 | `███████████████░░░░░` **75 %** |
+| **Général** | 234 / 314 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1326,6 +1326,12 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   contour au pic du tremblement est toléré.
 - [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
   P7.13), avec les mesures de P5.33.
+- [x] **P7.25** Écarts relevés en mettant la maquette V35 à jour (décision du développeur, 2026-10-27) : titre de la
+  barre en capitales, « SERRURE 03 », lu en casse normale, rapetissé en mots entiers en grande police ; trou de la
+  serrure enfoncé : le code suivait déjà le jeton `lock-hole-inset`, un test le fige (case vide et case de l'Indice).
+- [ ] **P7.26** Juger avec `designer-jeu` : le trou de la serrure paraît bombé de jour (plus clair que le métal,
+  jeton `lock-hole-inset` à revoir ?) ; sur écran étroit, le titre rapetisse sur deux lignes à côté de « Coups » (le
+  compteur devrait-il céder d'abord ?) ; mettre la maquette V35 à jour (titre en capitales). Revue de P7.25.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).

@@ -95,6 +95,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -268,7 +269,8 @@ private fun TopBar(
         )
         val title = stringResource(barTitleOf(state), state.level)
         Text(
-            text = stringResource(R.string.feature_locksmith_title, state.level),
+            // In capitals, as the titles of the other screens; TalkBack reads the description, in words.
+            text = stringResource(R.string.feature_locksmith_title, state.level).uppercase(),
             modifier = Modifier
                 .weight(1f)
                 // Its text kept, TalkBack reads the description in its place.
@@ -278,6 +280,8 @@ private fun TopBar(
                 },
             color = BloxTheme.palette.ink,
             style = BloxTheme.typography.gameTitle,
+            // Wider in capitals: with a large font on a narrow screen, it shrinks rather than cut SERRURE.
+            autoSize = shrinkToWholeWords(BloxTheme.typography.gameTitle.fontSize),
         )
         Text(
             text = stringResource(R.string.feature_locksmith_moves, state.game.moves),
