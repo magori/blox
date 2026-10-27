@@ -180,10 +180,12 @@ Système de rotation de la NES :
   orientation qui n'appartient pas au type de la pièce est refusée. Tourner le O ne change rien.
   Une rotation réussie émet `PieceRotated` (la pièce tournée, avant la chute du même tick), en
   tête des événements du tick ; une rotation refusée et le O n'émettent rien (P4.8, tranché :
-  seulement si la pièce change). Il sert à l'effet sonore de rotation ; la rotation ne vibre pas.
+  seulement si la pièce change). Il porte aussi le sens de la rotation (P5.80), pour que l'écran fasse
+  tourner le pictogramme de la bonne touche. Il sert à l'effet sonore de rotation ; la rotation ne vibre pas.
 
   **Tests (événement) :** `GameEngineControlsTest › a piece that turns sends PieceRotated, with the piece as it turned`,
   `GameEngineControlsTest › a rotation refused, or one that leaves the O as it was, sends nothing`,
+  `GameEngineControlsTest › PieceRotated says which way the piece turned, clockwise with A, counterclockwise with B`,
   `GameEngineControlsTest › a piece that turns then locks on the same tick sends PieceRotated before PieceLocked`,
   `GameEngineControlsTest › the rotation comes before the drop in a tick`,
   `GameEngineStackDangerTest › a piece that turns then locks into the danger sends PieceRotated, then PieceLocked, then StackDanger`,

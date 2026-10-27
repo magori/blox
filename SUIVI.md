@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 212 / 304 | `██████████████░░░░░░` **70 %** |
+| **Général** | 213 / 304 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -979,7 +979,7 @@ composants.
   Cas : `left handed puts B and A on the left and the arrows on the right`, `the keys fit a 360 dp phone with 16
   dp margins`, `TalkBack reads « B, rotation anti-horaire » and « A, rotation horaire »`, `the reading order
   stays arrows then B and A, left handed or not`, `KeyColorsTest` revu ; captures.
-- [ ] **P5.80** Retours de jeu, première tranche (`feature:game`, ADR 0024) : `GameFeedback` (pur, en ticks)
+- [x] **P5.80** Retours de jeu, première tranche (`feature:game`, ADR 0024) : `GameFeedback` (pur, en ticks)
   dans `GameUiState` ; calque dessiné par-dessus le plateau, en phase de dessin ; pièce posée qui s'éclaire,
   pictogramme de A ou B qui tourne, effacement calé sur `Phase.Clearing` (rangées `clear-glow`, cases qui
   éclatent par paires), rangées qui glissent, autocollant « +points », score qui compte ; variantes Effets
