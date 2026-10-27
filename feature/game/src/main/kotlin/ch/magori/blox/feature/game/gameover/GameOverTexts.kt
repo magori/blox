@@ -11,7 +11,12 @@ import ch.magori.blox.feature.game.sidepanel.scoreText
 
 private const val SECONDS_PER_MINUTE = 60
 
-/** What the game over screen gets: the final values of the game, and whether they make a [newBest]. */
+/**
+ * What the game over screen gets: the final values of the game, whether they make a [newBest], and whether the
+ * results kept hold this game ([resultsKept]): the records written, for the Classic; for a daily game, its try written
+ * under its date, neither failed to write nor ignored as a try of a date already passed. Otherwise a daily game over
+ * does not offer to copy them: Copier would copy results without this game, or nothing.
+ */
 @Immutable
 internal data class GameOverUiState(
     val score: Points,
@@ -20,6 +25,7 @@ internal data class GameOverUiState(
     val fourLineClears: Int,
     val ticksPlayed: Int,
     val newBest: Boolean,
+    val resultsKept: Boolean,
 )
 
 /**

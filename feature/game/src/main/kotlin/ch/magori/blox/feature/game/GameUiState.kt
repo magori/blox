@@ -89,12 +89,19 @@ internal fun Int?.isRecord(): Boolean {
 /** Whether [this] game goes on: neither paused nor over. */
 internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.GameOver
 
-/** The game over screen state of [this] final state, whose score made a [newBest] or not. */
-internal fun GameState.toGameOverUiState(newBest: Boolean): GameOverUiState = GameOverUiState(
+/**
+ * The game over screen state of [this] final state, whose score made a [newBest] or not, and that the results kept
+ * hold or not ([resultsKept]).
+ */
+internal fun GameState.toGameOverUiState(
+    newBest: Boolean,
+    resultsKept: Boolean,
+): GameOverUiState = GameOverUiState(
     score = progress.score,
     lines = progress.lines,
     level = progress.level,
     fourLineClears = progress.statistics.fourLineClears,
     ticksPlayed = tickCount,
     newBest = newBest,
+    resultsKept = resultsKept,
 )

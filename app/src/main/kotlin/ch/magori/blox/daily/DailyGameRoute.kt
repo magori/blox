@@ -1,6 +1,7 @@
 package ch.magori.blox.daily
 
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.navigation.GameVariant
 import java.time.Clock
 import java.time.LocalDate
 import kotlin.random.Random
@@ -22,3 +23,9 @@ internal fun newDailyGameRoute(
     date: LocalDate,
     random: Random = Random.Default,
 ): GameRoute = GameRoute.daily(date, DailySeed.of(date), random.nextLong())
+
+/**
+ * The date of [route], a daily game, whose score Copier copies at its game over: the date of its seed, kept in its
+ * route, even replayed after midnight; null for another game.
+ */
+internal fun dailyDateOf(route: GameRoute): LocalDate? = (route.variant as? GameVariant.Daily)?.date

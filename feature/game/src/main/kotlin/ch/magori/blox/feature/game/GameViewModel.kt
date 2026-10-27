@@ -37,6 +37,7 @@ import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.music.LiveMusicDirection
 import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.results.GameEnd
 import ch.magori.blox.feature.game.sound.soundEffectsFor
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -343,29 +344,33 @@ class GameViewModel internal constructor(
     /**
      * The game is over in [finalState]: its score is given to its [results] at once (the records, or the results of
      * the day), so that a record is not lost if the process dies; the game over screen shows once they answered
-     * whether it is a new one.
+     * whether it is a new one, so that what it offers to copy (a daily game) holds this game.
      */
     private fun onGameOver(finalState: GameState) {
         stopMusic()
         viewModelScope.launch {
-            val gameOver = finalState.toGameOverUiState(isNewBest(finalState.progress.score.value))
+            val result = endResults(finalState.progress.score.value)
+            val gameOver = finalState.toGameOverUiState(
+                newBest = result?.newBest == true,
+                resultsKept = result?.kept == true,
+            )
             state.update { it.copy(gameOver = gameOver) }
         }
     }
 
     /**
-     * Gives [score] to the [results], once its start is written: whether it is a new best (the record, or the best
-     * of the day). Results that cannot be written (an [IOException], the contract of the repositories) do not stop the
-     * game over from showing, without a new best; any other failure is a bug, and is not swallowed here.
+     * Gives [score] to the [results], once its start is written: whether it is a new record, and whether they keep it.
+     * Results that cannot be written (an [IOException], the contract of the repositories) give null, and do not stop
+     * the game over from showing, without a new record; any other failure is a bug, and is not swallowed here.
      */
-    private suspend fun isNewBest(score: Int): Boolean = try {
+    private suspend fun endResults(score: Int): GameEnd? = try {
         // Not cancellable: the score is saved even if the view model is cleared while it is being written.
         withContext(NonCancellable) {
             started?.join()
             results.end(score)
-        }.isNewRecord
+        }
     } catch (_: IOException) {
-        false
+        null
     }
 
     /**

@@ -24,6 +24,7 @@ import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.DailyResults
 import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
@@ -83,6 +84,9 @@ import ch.magori.blox.feature.locksmith.R as LocksmithR
 internal class BloxNavDisplayTest {
     /** The system backs that went through the navigation down to the activity. */
     private var backsToTheSystem = 0
+
+    /** The dates whose daily score the navigation asked to copy. */
+    private val copiedDailyScores = mutableListOf<LocalDate>()
 
     @Test
     @DisplayName("the application opens on the choice of the game")
@@ -241,6 +245,48 @@ internal class BloxNavDisplayTest {
     }
 
     @Test
+    @DisplayName("Copier mon score on the entry of the daily seed copies the score of the date shown")
+    fun copyOnTheEntryOfTheDailySeedCopiesTheScoreOfTheDateShown() {
+        runJourney {
+            // Given the entry of the 26th of October, after a try that day
+            showApp(
+                restoredStack = listOf(CartridgesRoute, DailyRoute),
+                restoredShows = dailyTitle(),
+                dailyResults = DailyResults(DAILY_DATE, tries = 1, firstTry = 300, best = 300, firstTryOver = true),
+            )
+
+            // When
+            onNodeWithText(string(DailyR.string.feature_daily_copy_score)).performScrollTo().performClick()
+            settle()
+
+            // Then the copy of the score of that date is asked for
+            assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
+        }
+    }
+
+    @Test
+    @DisplayName("Copier at the game over of a daily game copies the score of the date of the game")
+    fun copyAtTheGameOverOfADailyGameCopiesTheScoreOfItsDate() {
+        runJourney {
+            // Given a daily game of the 26th of October, played from its entry until its game over
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
+            onNodeWithContentDescription(string(DailyR.string.feature_daily_play_description, 5))
+                .performScrollTo()
+                .performClick()
+            advanceUntilShown(string(GameR.string.feature_game_over_replay))
+
+            // When
+            onNodeWithContentDescription(string(GameR.string.feature_game_over_copy_description))
+                .performScrollTo()
+                .performClick()
+            settle()
+
+            // Then the copy of the score of the date of the game is asked for
+            assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
+        }
+    }
+
+    @Test
     @DisplayName("changing the game from the home goes back to the cartridges, and the system back then leaves")
     fun changingTheGameFromTheHomeGoesBackToTheCartridges() {
         runJourney {
@@ -393,6 +439,21 @@ internal class BloxNavDisplayTest {
             settle()
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
             onNodeWithText(replay).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the game over of a classic game offers no Copier, and asks for no copy")
+    fun theGameOverOfAClassicGameAsksForNoCopy() {
+        runJourney {
+            // Given / When a classic game played until its game over screen shows
+            showApp(OneRowPerTickGameEngineFactory)
+            play()
+            advanceUntilShown(string(GameR.string.feature_game_over_replay))
+
+            // Then nothing to copy
+            onNodeWithContentDescription(string(GameR.string.feature_game_over_copy_description)).assertDoesNotExist()
+            assertThat(copiedDailyScores).isEmpty()
         }
     }
 
@@ -564,11 +625,12 @@ internal class BloxNavDisplayTest {
         openClassic: Boolean = true,
         restoredStack: List<NavKey>? = null,
         restoredShows: String? = null,
+        dailyResults: DailyResults? = null,
     ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
         val deletedMusics = DeletedMusicRelay()
-        val dailyChallenge = FakeDailyChallengeRepository()
+        val dailyChallenge = FakeDailyChallengeRepository(dailyResults)
         val homeFactory = HomeViewModel.Factory(
             preferences,
             highScores,
@@ -630,6 +692,7 @@ internal class BloxNavDisplayTest {
                         deletedMusics,
                         locksmithFactory,
                         dailyFactory,
+                        { date -> copiedDailyScores += date },
                     )
                 } else {
                     BloxNavDisplay(
@@ -641,6 +704,7 @@ internal class BloxNavDisplayTest {
                         deletedMusics,
                         locksmithFactory,
                         dailyFactory,
+                        { date -> copiedDailyScores += date },
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }

@@ -94,6 +94,7 @@ class GameOverTextsTest {
             fourLineClears = fourLineClears,
             ticksPlayed = ticksPlayed,
             newBest = false,
+            resultsKept = true,
         ),
     )
 }
