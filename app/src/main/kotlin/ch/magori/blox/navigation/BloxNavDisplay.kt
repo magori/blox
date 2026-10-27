@@ -9,11 +9,14 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.daily.newDailyGameRoute
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.cartridges.navigation.cartridgesEntry
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.composer.navigation.ComposerRoute
 import ch.magori.blox.feature.composer.navigation.composerEntry
+import ch.magori.blox.feature.daily.DailyViewModel
+import ch.magori.blox.feature.daily.navigation.dailyEntry
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.home.HomeViewModel
@@ -46,6 +49,7 @@ fun BloxNavDisplay(
     settingsViewModelFactory: SettingsViewModel.Factory,
     deletedMusics: DeletedMusicRelay,
     locksmithViewModelFactory: LocksmithViewModel.Factory,
+    dailyViewModelFactory: DailyViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -98,6 +102,15 @@ fun BloxNavDisplay(
                 onBack = goBack,
                 onNext = { open -> nextPadlock(backStack, open) },
                 viewModelFactory = locksmithViewModelFactory,
+            )
+            dailyEntry(
+                // The game of the date shown, whose pieces the entry shows, even once the phone passed midnight.
+                onPlay = { date -> backStack.add(newDailyGameRoute(date)) },
+                onSettings = { backStack.add(SettingsRoute) },
+                onChangeGame = { changeGame(backStack) },
+                // P9.6 : « Copier mon score » copiera le texte du jour dans le presse-papiers.
+                onCopyScore = {},
+                viewModelFactory = dailyViewModelFactory,
             )
         },
     )

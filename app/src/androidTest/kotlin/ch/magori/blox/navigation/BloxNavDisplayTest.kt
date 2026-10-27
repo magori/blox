@@ -43,9 +43,13 @@ import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.daily.DailySeed
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.daily.DailyViewModel
+import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.GameViewModel
+import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
@@ -58,9 +62,11 @@ import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import kotlin.time.Duration.Companion.minutes
 import ch.magori.blox.core.designsystem.R as DesignR
 import ch.magori.blox.feature.cartridges.R as CartridgesR
+import ch.magori.blox.feature.daily.R as DailyR
 import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.home.R as HomeR
 import ch.magori.blox.feature.locksmith.R as LocksmithR
@@ -183,6 +189,54 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 0)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("the entry of the daily seed shows the day and its first pieces")
+    fun theEntryOfTheDailySeedShowsTheDayAndItsFirstPieces() {
+        runJourney {
+            // Given / When the entry on top of the cartridges, on the 26th of October 2026
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
+
+            // Then the first of the seven first pieces of seed 20261026
+            onNodeWithContentDescription(string(DailyR.string.feature_daily_piece, 1, "Z")).assertExists()
+        }
+    }
+
+    @Test
+    @DisplayName("Jouer on the entry of the daily seed opens the daily game, at level 5")
+    fun playOnTheEntryOfTheDailySeedOpensTheDailyGame() {
+        runJourney {
+            // Given
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
+
+            // When
+            onNodeWithContentDescription(string(DailyR.string.feature_daily_play_description, 5))
+                .performScrollTo()
+                .performClick()
+            settle()
+
+            // Then a game of level 5, whatever the level chosen on the home of the Classic
+            onNodeWithContentDescription(levelDescription(5)).assertIsDisplayed()
+            onNodeWithText(dailyTitle()).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game from the entry of the daily seed goes back to the cartridges")
+    fun changingTheGameFromTheEntryOfTheDailySeedGoesBackToTheCartridges() {
+        runJourney {
+            // Given
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
+
+            // When
+            onNodeWithContentDescription(string(DailyR.string.feature_daily_change_game)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(dailyTitle()).assertDoesNotExist()
         }
     }
 
@@ -514,6 +568,7 @@ internal class BloxNavDisplayTest {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
         val deletedMusics = DeletedMusicRelay()
+        val dailyChallenge = FakeDailyChallengeRepository()
         val homeFactory = HomeViewModel.Factory(
             preferences,
             highScores,
@@ -532,7 +587,7 @@ internal class BloxNavDisplayTest {
             FakeSoundEffectPlayer(),
             musicOf = { null },
             gameMusic = { null },
-            dailyChallenge = FakeDailyChallengeRepository(),
+            dailyChallenge = dailyChallenge,
             appScope = MainScope(),
         )
         // Below every screen: a system back that reaches it is one the navigation let go, to leave the application.
@@ -550,6 +605,12 @@ internal class BloxNavDisplayTest {
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
         val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
+        val dailyFactory = DailyViewModel.Factory(
+            dailyChallenge,
+            GameRoute.DAILY_START_LEVEL,
+            today = { DAILY_DATE },
+            seedOf = DailySeed::of,
+        )
         val settingsFactory = SettingsViewModel.Factory(
             settingsPreferences ?: preferences,
             highScores,
@@ -568,6 +629,7 @@ internal class BloxNavDisplayTest {
                         settingsFactory,
                         deletedMusics,
                         locksmithFactory,
+                        dailyFactory,
                     )
                 } else {
                     BloxNavDisplay(
@@ -578,6 +640,7 @@ internal class BloxNavDisplayTest {
                         settingsFactory,
                         deletedMusics,
                         locksmithFactory,
+                        dailyFactory,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
@@ -674,6 +737,10 @@ internal class BloxNavDisplayTest {
         return checkNotNull(activity).getString(GameR.string.feature_game_value_description, label, "$level")
     }
 
+    /** The title of the entry of the daily seed on [DAILY_DATE]. */
+    private fun AndroidComposeUiTest<ComponentActivity>.dailyTitle(): String =
+        string(DailyR.string.feature_daily_title, "26 octobre")
+
     private fun AndroidComposeUiTest<ComponentActivity>.string(
         @StringRes id: Int,
         vararg arguments: Any,
@@ -692,6 +759,9 @@ internal class BloxNavDisplayTest {
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
         const val LOCKSMITH_CARTRIDGE_TAG = "cartridge_locksmith"
+
+        /** The day of the entry of the daily seed, in the journeys. */
+        val DAILY_DATE: LocalDate = LocalDate.of(2026, 10, 26)
 
         /** Between two searches of the game over screen. */
         const val CHECK_MILLIS = 500L
