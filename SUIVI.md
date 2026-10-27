@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 234 / 313 | `███████████████░░░░░` **75 %** |
+| **Général** | 235 / 314 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1423,7 +1423,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
   JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés
   par `GameVariants.setupOf` (ADR 0026). Après P9.4.
-- [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
+- [x] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
   presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
   U+202F, sans plafond ni zéros de tête. Brancher les deux boutons, laissés sans effet par P9.5 et P9.11 : l'écran
   d'entrée et la fin de partie (`gameEntry(onCopy)`, dans `app`). Cas d'une fin d'essai dont l'écriture a échoué
@@ -1444,6 +1444,9 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
   Après P9.4.
+- [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
+  Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
+  `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
 
 ## P10 — Le Jardin musical, troisième jeu (`core:garden`, `feature:garden`)
 

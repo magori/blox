@@ -49,7 +49,8 @@ private object GameOverSizes {
  * No logic here: the texts come from [gameOverTexts]. It is a state of the game screen: TalkBack
  * announces it by its pane title. The badge is the one of the variant of the game ([labels]): MEILLEUR DU JOUR for a
  * daily game (V39), whose game over also offers Copier, between Rejouer and Menu, given to [onCopy]; TalkBack reads it
- * « Copier mon score », what it does, where the button shows the short label of V39.
+ * « Copier mon score », what it does, where the button shows the short label of V39. Not when the results kept do not
+ * hold this game ([GameOverUiState.resultsKept]): Copier would copy them without it, or nothing.
  */
 @Composable
 internal fun GameOverScreen(
@@ -100,7 +101,7 @@ internal fun GameOverScreen(
             onClick = onReplay,
             modifier = Modifier.fillMaxWidth(),
         )
-        if (labels.copyOffered) {
+        if (labels.copyOffered && state.resultsKept) {
             val copyDescription = stringResource(R.string.feature_game_over_copy_description)
             SecondaryButton(
                 text = stringResource(R.string.feature_game_over_copy),
@@ -154,6 +155,7 @@ private val previewState = GameOverUiState(
     fourLineClears = 3,
     ticksPlayed = 45_300,
     newBest = false,
+    resultsKept = true,
 )
 
 @Composable

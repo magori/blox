@@ -50,6 +50,7 @@ class BackActionTest {
             fourLineClears = 0,
             ticksPlayed = 0,
             newBest = false,
+            resultsKept = true,
         )
 
         // When / Then

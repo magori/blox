@@ -65,7 +65,7 @@ internal class DailyActions(
     val onChangeGame: () -> Unit,
     val onSettings: () -> Unit,
     val onPlay: (date: LocalDate) -> Unit,
-    val onCopyScore: () -> Unit,
+    val onCopyScore: (date: LocalDate) -> Unit,
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -119,7 +119,7 @@ internal fun DailyScreen(
                 description = stringResource(R.string.feature_daily_play_description, uiState.startLevel),
                 onClick = play,
             )
-            CopyScore(enabled = uiState.canCopy, onClick = actions.onCopyScore)
+            CopyScore(enabled = uiState.canCopy, onClick = { actions.onCopyScore(uiState.date) })
             Text(
                 text = stringResource(R.string.feature_daily_new_seed),
                 color = palette.label,

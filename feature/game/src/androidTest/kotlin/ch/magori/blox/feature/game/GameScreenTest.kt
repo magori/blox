@@ -269,6 +269,22 @@ internal class GameScreenTest {
     }
 
     @Test
+    @DisplayName("the game over of a daily game whose results could not be written offers no Copier")
+    fun theGameOverOfADailyGameNotWrittenOffersNoCopy() = extension.use {
+        // Given a daily game over, whose try could not be written: the results of the day do not hold it
+        uiState = ShownScreen.GAME_OVER.change(uiState)
+            .let { it.copy(gameOver = it.gameOver?.copy(resultsKept = false)) }
+
+        // When its game over shows
+        showGameScreen(labels = GameLabels.Daily)
+
+        // Then it offers Rejouer, and nothing to copy, which would copy the results without this game
+        onNodeWithText(replay).assertExists()
+        onNodeWithText("Copier").assertDoesNotExist()
+        onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
+    }
+
+    @Test
     @DisplayName("the side column shows the next piece, then the score, the lines and the level, from the top")
     fun theSideColumnShowsTheNextPieceFirst() = extension.use {
         // Given a phone in portrait: the next piece in the side column
@@ -386,6 +402,7 @@ internal class GameScreenTest {
                     fourLineClears = 1,
                     ticksPlayed = 3_600,
                     newBest = false,
+                    resultsKept = true,
                 ),
             )
         }),
