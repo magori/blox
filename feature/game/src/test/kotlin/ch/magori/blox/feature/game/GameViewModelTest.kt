@@ -296,7 +296,7 @@ class GameViewModelTest {
                 level = final.progress.level,
                 fourLineClears = final.progress.statistics.fourLineClears,
                 ticksPlayed = final.tickCount,
-                newRecord = true,
+                newBest = true,
             ),
         )
     }
@@ -328,7 +328,7 @@ class GameViewModelTest {
 
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newBest = false))
     }
 
     @Test
@@ -342,7 +342,7 @@ class GameViewModelTest {
         playUntilGameOver(viewModel)
 
         // Then
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newBest = false))
     }
 
     @Test
@@ -382,7 +382,7 @@ class GameViewModelTest {
             writing.complete(Unit)
 
             // Then the game over shows once, with the answer, and further frames publish nothing
-            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newRecord = true))
+            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newBest = true))
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -678,7 +678,7 @@ class GameViewModelTest {
         val even = playUntil(viewModel, "the score reaches the record") { viewModel.uiState.value.score.value == 100 }
 
         // Then the record is not beaten yet
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
 
         // When the score passes it
         playUntil(viewModel, "the score passes the record", firstFrame = even + ONE_SIXTIETH_NANOS) {
@@ -686,7 +686,7 @@ class GameViewModelTest {
         }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isTrue()
+        assertThat(viewModel.uiState.value.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -699,7 +699,7 @@ class GameViewModelTest {
         playUntil(viewModel, "the game scores 200 points") { viewModel.uiState.value.score.value >= 200 }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
     }
 
     @Test
@@ -713,7 +713,7 @@ class GameViewModelTest {
         // Then the record the screen shows is the score, still beaten: the top bar does not go back to « Record »
         val over = viewModel.uiState.value
         assertThat(over.record).isEqualTo(over.score.value)
-        assertThat(over.recordBeaten).isTrue()
+        assertThat(over.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -1821,7 +1821,7 @@ class GameViewModelTest {
         assertThat(dailyResults.state.value).isEqualTo(
             DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
         )
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
     }
 
     @Test
@@ -1932,7 +1932,7 @@ class GameViewModelTest {
 
         // Then its game over shows a new best of the day
         assertThat(viewModel.uiState.value.gameOver?.score?.value).isPositive()
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
     }
 
     @Test
@@ -1946,7 +1946,7 @@ class GameViewModelTest {
         playUntilGameOver(viewModel)
 
         // Then its game over shows no new best
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
     }
 
     @Test
@@ -1979,7 +1979,7 @@ class GameViewModelTest {
         // Then nothing failed, and the game over showed, without a new best
         assertThat(appFailures).isEmpty()
         assertThat(viewModel.uiState.value.gameOver?.score?.value).isEqualTo(points)
-        assertThat(viewModel.uiState.value.gameOver?.newRecord).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
     }
 
     @Test
