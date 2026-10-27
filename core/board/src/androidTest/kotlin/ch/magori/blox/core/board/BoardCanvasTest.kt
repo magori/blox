@@ -95,6 +95,7 @@ internal class BoardCanvasTest {
                             modifier = Modifier.size(with(density) { size.toDpSize() }),
                             background = background,
                             painters = countingPainters,
+                            effects = effects,
                         )
                     }
                 }
@@ -192,6 +193,64 @@ internal class BoardCanvasTest {
         assertThat(built.get()).isEqualTo(2)
     }
 
+    /** How far the effects of [playingEffects] went, from 0 to [EFFECT_TICKS]. */
+    private var effectTick by mutableIntStateOf(0)
+
+    /**
+     * Effects that play as [effectTick] goes on: the bottom row glows and its cells shrink, the rows above it come down
+     * from a cell higher, and row 18 is lit.
+     */
+    private val playingEffects = object : BoardEffects {
+        override fun rowLift(row: Int): Float = if (row < 19) 1f - effectTick.toFloat() / EFFECT_TICKS else 0f
+
+        override fun rowGlows(row: Int): Boolean = row == 19
+
+        override fun cellScale(position: Position): Float =
+            if (position.row == 19) 1f - effectTick.toFloat() / EFFECT_TICKS else 1f
+
+        override fun cellLight(position: Position): Float = if (position.row == 18) 0.5f else 0f
+    }
+
+    /** The effects the board is drawn with, none unless a test gives some. */
+    private var effects: BoardEffects? by mutableStateOf(null)
+
+    @Test
+    @DisplayName("the painters are built once while effects play")
+    fun paintersAreBuiltOnceWhileEffectsPlay() = extension.use {
+        // Given the board drawn with effects that play
+        effects = playingEffects
+        showBoard()
+        val first = drawnContent()
+
+        // When they play to their end
+        repeat(EFFECT_TICKS) {
+            runOnIdle { effectTick++ }
+            drawnContent()
+        }
+
+        // Then they were drawn, with the painters built once, and nothing recomposed
+        assertThat(drawnContent().sameAs(first)).isFalse()
+        assertThat(built.get()).isEqualTo(1)
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
+    @DisplayName("a board whose effects are at rest is drawn as a board without effects")
+    fun aBoardWhoseEffectsAreAtRestIsDrawnAsABoardWithoutEffects() = extension.use {
+        // Given the board drawn without effects
+        showBoard()
+        val withoutEffects = drawnContent()
+
+        // When it is drawn with effects at rest
+        runOnIdle {
+            effects = object : BoardEffects {}
+            generation++
+        }
+
+        // Then
+        assertThat(drawnContent().sameAs(withoutEffects)).isTrue()
+    }
+
     /** The board once a T locks on top of its stack, one row higher. */
     private val higherBoard = Board.parse(
         """
@@ -259,3 +318,6 @@ internal class BoardCanvasTest {
         onNodeWithContentDescription("Plateau : pile de 5 rangées sur 20").assertExists()
     }
 }
+
+/** The ticks the effects of the tests play for. */
+private const val EFFECT_TICKS = 8

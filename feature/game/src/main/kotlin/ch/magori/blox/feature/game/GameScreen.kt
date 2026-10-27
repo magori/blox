@@ -66,22 +66,31 @@ import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
+import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
 import ch.magori.blox.feature.game.controls.HeldControls
 import ch.magori.blox.feature.game.controls.Menu
+import ch.magori.blox.feature.game.controls.NoKeyAngle
 import ch.magori.blox.feature.game.controls.RotationPad
 import ch.magori.blox.feature.game.controls.keySourceOf
 import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
+import ch.magori.blox.feature.game.feedback.ClearingRows
+import ch.magori.blox.feature.game.feedback.FeedbackEffects
+import ch.magori.blox.feature.game.feedback.GameFeedback
+import ch.magori.blox.feature.game.feedback.PointsSticker
+import ch.magori.blox.feature.game.feedback.rememberFeedbackEffects
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.CurtainPhase
 import ch.magori.blox.feature.game.pause.PauseCard
@@ -470,7 +479,9 @@ private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, line
  * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it.
  * The score column scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or
  * over the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
- * cells, that covers the board and the next piece.
+ * cells, that covers the board and the next piece. In Couleurs, the effects of the game ([FeedbackEffects], ADR 0024)
+ * are read while drawing too: on the board, its sticker « +points » and the icons of B and A; only the score that counts
+ * up recomposes, its text alone.
  */
 @Composable
 private fun Play(
@@ -483,6 +494,8 @@ private fun Play(
 ) {
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
+    val effects = rememberFeedbackEffects(remember(uiState) { { uiState().feedback } })
+    val shownScore = remember(effects, uiState) { effects?.let { shown -> { shown.shownScore(uiState().score) } } }
     PlacedParts(modifier = modifier) {
         // First, under the board: its background and frame, around its cells.
         BoardFrame(modifier = Modifier.layoutId(layout.boardFrame))
@@ -490,7 +503,10 @@ private fun Play(
             board = { uiState().board },
             piece = { uiState().piece },
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
+            effects = effects?.board,
         )
+        // Over the board, its sticker « +points », under the curtain of the pause, which hides it with the board.
+        if (effects != null) PointsSticker(sticker = effects::sticker, modifier = Modifier.layoutId(layout.board))
         // Over the board, the curtain: a board of empty cells, of which only the rows it covers are drawn.
         BoardCanvas(
             board = EmptyBoard,
@@ -511,6 +527,7 @@ private fun Play(
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
+                shownScore = shownScore,
             )
 
             nextPiece == null -> SidePanel(
@@ -522,6 +539,7 @@ private fun Play(
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
+                shownScore = shownScore,
             )
 
             else -> {
@@ -531,6 +549,7 @@ private fun Play(
                     lines = side.lines,
                     recordFill = side.recordFill,
                     modifier = scores,
+                    shownScore = shownScore,
                 )
                 NextPiecePanel(
                     next = side.next,
@@ -553,6 +572,7 @@ private fun Play(
                 modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
                 keys = layout.keys,
                 leftHanded = layout.leftHanded,
+                keyAngle = effects?.let { it::keyAngle } ?: NoKeyAngle,
             )
         }
     }
@@ -787,4 +807,92 @@ internal fun GameScreenNewRecordPreview() {
 @Composable
 internal fun GameScreenNewRecordOriginalPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
+}
+
+// The feedback of the game (V28): a T turned by A and locked, filling rows 18 and 19, 3 ticks later, its cells lit, A
+// turning, the middle cells popping; then the same rows cleared 4 ticks before, the rows above coming down, the sticker
+// « +600 » rising, the score counting.
+
+/** The T that fills rows 18 and 19, locked on tick 100. */
+private val previewLocked = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(6, 18))
+
+/** The rows 18 and 19 full, under the stack of [previewState], once the T locked. */
+private val previewFullRows = previewState.copy(
+    board = Board.parse(
+        """
+        J.........
+        JJJ..OO..L
+        SSTTTTTTLL
+        IIIIJZTSSL
+        """,
+    ),
+    piece = null,
+)
+
+/** The feedback of the game of [previewFullRows] on [tick]: the rows cleared on tick 118, for 600 points. */
+private fun previewFeedback(tick: Int): GameFeedback {
+    val before = Points(11_740)
+    val rows = listOf(18, 19)
+    val locked = GameFeedback().after(
+        100,
+        listOf(GameEvent.PieceRotated(previewLocked, Rotation.CLOCKWISE), GameEvent.PieceLocked(previewLocked)),
+        ClearingRows(rows, ticksLeft = 18),
+        before,
+        before,
+    )
+    return if (tick < 118) {
+        locked.after(tick, emptyList(), ClearingRows(rows, ticksLeft = 118 - tick), before, before)
+    } else {
+        locked.after(118, listOf(GameEvent.LinesCleared(LineClear(2))), null, before, previewState.score)
+            .after(tick, emptyList(), null, previewState.score, previewState.score)
+    }
+}
+
+/** The game of [previewFullRows] 3 ticks after the lock that filled its rows. */
+private val clearingState = previewFullRows.copy(score = Points(11_740), feedback = previewFeedback(103))
+
+/** The game once the rows of [previewFullRows] were cleared, 4 ticks before. */
+private val clearedState = previewState.copy(
+    board = Board.parse(
+        """
+        J.........
+        JJJ..OO..L
+        """,
+    ),
+    piece = null,
+    feedback = previewFeedback(122),
+)
+
+@Composable
+private fun FeedbackPreview(
+    uiState: GameUiState,
+    effects: BloxEffects = BloxEffects.Full,
+) {
+    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+        GameScreen(uiState = { uiState }, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearingPreview() {
+    FeedbackPreview(clearingState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearingReducedPreview() {
+    FeedbackPreview(clearingState, BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearedPreview() {
+    FeedbackPreview(clearedState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearedReducedPreview() {
+    FeedbackPreview(clearedState, BloxEffects(reduced = true, forcedBySystem = false))
 }

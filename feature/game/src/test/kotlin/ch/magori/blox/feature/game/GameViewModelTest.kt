@@ -50,6 +50,8 @@ import ch.magori.blox.core.music.Scores
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.feedback.KeyTurn
+import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
@@ -1191,6 +1193,72 @@ class GameViewModelTest {
         assertThat(recreated.uiState.value.paused).isTrue()
         assertThat(recreated.uiState.value.gameOver).isNull()
         assertThat(highScores.submitted).hasSize(1)
+    }
+
+    @Test
+    fun `the clear the screen shows starts with the lock and lasts as long as the clear of the engine`() {
+        // Given a game whose first three pieces fill row 19, played until its rows are being cleared
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+        val lockFrame = playUntil(viewModel, "rows are cleared") { viewModel.uiState.value.feedback.clear != null }
+        val clear = checkNotNull(viewModel.uiState.value.feedback.clear)
+        val scoreAtLock = viewModel.uiState.value.score.value
+
+        // When the game goes on until the row is gone from the board
+        val clearedFrame = playUntil(viewModel, "row 19 is cleared", firstFrame = lockFrame + ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.board[Position(column = 0, row = 19)] == Cell.Empty
+        }
+
+        // Then the clear started on the tick of the lock, with the rows of the engine, and lasted as many ticks as it
+        // said; the rows above slide down from then on, and the sticker shows the points
+        val feedback = viewModel.uiState.value.feedback
+        assertThat(clear.rows).containsExactly(19)
+        assertThat(clear.tick).isEqualTo(feedback.tick - clear.duration)
+        assertThat((clearedFrame - lockFrame) / ONE_SIXTIETH_NANOS).isEqualTo(clear.duration.toLong())
+        assertThat(feedback.clear).isNull()
+        assertThat(feedback.slide).isEqualTo(RowsSlide(rows = listOf(19), tick = feedback.tick))
+        assertThat(
+            feedback.sticker(reduced = false)?.points,
+        ).isEqualTo(viewModel.uiState.value.score.value - scoreAtLock)
+    }
+
+    @Test
+    fun `a rotation reaches the screen as the turn of its key, and a lock as its cells`() {
+        // Given a game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+
+        // When B is pressed, then the next frame comes, and the game goes on until the piece locks
+        viewModel.onControl(ControlChange.Pressed(ControlButton.B))
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+        val turned = viewModel.uiState.value.feedback
+        playUntil(viewModel, "a piece locks", firstFrame = 2 * ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.feedback.lock != null
+        }
+
+        // Then
+        assertThat(turned.turn).isEqualTo(KeyTurn(ControlButton.B, tick = 1))
+        assertThat(viewModel.uiState.value.feedback.lock?.cells).hasSize(4)
+    }
+
+    @Test
+    fun `a paused game freezes its effects`() {
+        // Given a game played until a piece locked, then paused
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val lockFrame = playUntil(viewModel, "a piece locks") { viewModel.uiState.value.feedback.lock != null }
+        viewModel.onPause()
+        val paused = viewModel.uiState.value.feedback
+
+        // When frames still come, then the game resumes and the frames start again
+        (1..10).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+        val afterFrames = viewModel.uiState.value.feedback
+        viewModel.onResume()
+        viewModel.onFramesStarted()
+        (11..13).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+
+        // Then the effects stood still while paused, and go on from where they stood once resumed
+        assertThat(afterFrames).isEqualTo(paused)
+        assertThat(viewModel.uiState.value.feedback.tick).isEqualTo(paused.tick + 2)
+        assertThat(viewModel.uiState.value.feedback.lock).isEqualTo(paused.lock)
     }
 
     @Test

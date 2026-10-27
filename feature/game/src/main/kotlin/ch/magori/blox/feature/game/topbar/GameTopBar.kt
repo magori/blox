@@ -45,6 +45,7 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.PanelSizes
+import ch.magori.blox.feature.game.ui.STICKER_TILT
 import ch.magori.blox.feature.game.ui.ValueText
 import ch.magori.blox.feature.game.ui.valueDescription
 
@@ -62,9 +63,6 @@ private object TopBarSizes {
     /** Around the text of the sticker NOUVEAU RECORD: as high as the label RECORD it replaces, give or take. */
     val stickerPaddingX = 4.dp
     val stickerPaddingY = 2.dp
-
-    /** The sticker leans, as stuck by hand; not in Original, whose pixels would blur. */
-    const val STICKER_TILT = -4f
 }
 
 /**
@@ -261,7 +259,7 @@ private fun NewRecordSticker(
 ) {
     val palette = BloxTheme.palette
     val largest = if (capToNormalFont) LocalDensity.current.notEnlarged(PanelSizes.label) else PanelSizes.label
-    val tilt = if (BloxTheme.kind == BloxThemeKind.ORIGINAL) 0f else TopBarSizes.STICKER_TILT
+    val tilt = if (BloxTheme.kind == BloxThemeKind.ORIGINAL) 0f else STICKER_TILT
     Text(
         text = text.uppercase(),
         color = palette.accentInk,

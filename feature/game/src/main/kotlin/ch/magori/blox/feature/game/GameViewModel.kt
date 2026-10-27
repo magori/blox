@@ -29,6 +29,8 @@ import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.feedback.ClearingRows
+import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.DANGER_TEMPO
 import ch.magori.blox.feature.game.music.tempoFactorFor
@@ -83,6 +85,12 @@ class GameViewModel internal constructor(
      * (one or none in turn at 90 Hz): the game screen asks the display for 60 Hz while it shows ([gameDisplayMode]).
      */
     private val frames = FrameTicks(maxTicksPerFrame = MAX_TICKS_PER_FRAME)
+
+    /**
+     * What happened in the game and on which tick, for the effects the screen draws (ADR 0024): followed tick by tick,
+     * from the events and the phase of the engine.
+     */
+    private var feedback = GameFeedback()
 
     /**
      * The last state the engine returned: the only one it is given back (ADR 0014). A game whose process
@@ -230,8 +238,16 @@ class GameViewModel internal constructor(
         if (ticks == 0) return
         var over = false
         repeat(ticks) {
-            val update = engine.tick(gameState)
+            val before = gameState
+            val update = engine.tick(before)
             gameState = update.state
+            feedback = feedback.after(
+                tick = gameState.tickCount,
+                events = update.events,
+                clearing = gameState.phase.clearingRows(),
+                scoreBefore = before.progress.score,
+                score = gameState.progress.score,
+            )
             if (GameEvent.GameOver in update.events) over = true
             update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
@@ -265,7 +281,7 @@ class GameViewModel internal constructor(
     private fun publish() {
         state.update {
             gameState.toUiState(nextPieces::getValue)
-                .copy(record = it.record, gameOver = it.gameOver)
+                .copy(record = it.record, gameOver = it.gameOver, feedback = feedback)
                 .withLeftHanded(it.leftHanded, gameState.isUnderWay)
                 .withRecordBeaten(it.recordBeaten)
         }
@@ -382,3 +398,7 @@ private fun ControlChange.toInput(): Input {
         is ControlChange.Released -> Input.Release(engineButton)
     }
 }
+
+/** The full rows of [this] phase and the ticks left before they are cleared, while it clears them; null otherwise. */
+private fun Phase.clearingRows(): ClearingRows? =
+    (this as? Phase.Clearing)?.let { ClearingRows(it.rowsCleared.clearedRows, it.ticksLeft.value) }

@@ -9,7 +9,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -22,6 +27,7 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Board
+import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
@@ -41,6 +47,10 @@ private val BoardShape = Board.empty()
  * composition to the next, reading a state rather than capturing a value: a new lambda changes the
  * modifier, and the geometry and the painters are built again.
  *
+ * With [effects], each cell is drawn as they say on the frame (ADR 0024), read only while drawing as well: rows lifted
+ * above their place, rows that glow in [glow], their cells without joints, cells scaled around their centre or lit in
+ * [glow]. The board is clipped to its cells while rows are lifted.
+ *
  * TalkBack reads the height of the stack ([boardSpeech]), not the piece in play: a description that
  * followed the piece would change at each move, many times a second, and recompose the board as often.
  * The height changes only when a piece locks or rows are cleared.
@@ -52,8 +62,10 @@ fun BoardCanvas(
     modifier: Modifier = Modifier,
     variant: BloxThemeVariant = BloxTheme.variant,
     background: Color = BloxTheme.palette.boardBackground,
+    effects: BoardEffects? = null,
+    glow: Color = BloxTheme.palette.clearGlow,
 ) {
-    BoardCanvas(board, piece, painters = ::paintersFor, modifier, variant, background)
+    BoardCanvas(board, piece, painters = ::paintersFor, modifier, variant, background, effects, glow)
 }
 
 /** [BoardCanvas] with the [CellPainter]s built by [painters]: the tests count how often they are built. */
@@ -65,6 +77,8 @@ internal fun BoardCanvas(
     modifier: Modifier = Modifier,
     variant: BloxThemeVariant = BloxTheme.variant,
     background: Color = BloxTheme.palette.boardBackground,
+    effects: BoardEffects? = null,
+    glow: Color = BloxTheme.palette.clearGlow,
 ) {
     // Derived from the board alone: a move of the piece leaves it as it is, and recomposes nothing.
     val speech by remember(board) { derivedStateOf { boardSpeech(board()) } }
@@ -78,14 +92,63 @@ internal fun BoardCanvas(
                 val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
                 onDrawBehind {
                     val cells = displayedCells(board(), piece())
-                    for (index in cells.indices) {
-                        val left = geometry.origin.x + index % columns * geometry.cellSize
-                        val top = geometry.origin.y + index / columns * geometry.cellSize
-                        translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
+                    if (effects == null) {
+                        for (index in cells.indices) {
+                            val left = geometry.origin.x + index % columns * geometry.cellSize
+                            val top = geometry.origin.y + index / columns * geometry.cellSize
+                            translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
+                        }
+                    } else {
+                        drawCells(cells, geometry, cellPainters, effects, glow)
                     }
                 }
             },
     )
+}
+
+/**
+ * The [cells] of the board, laid out by [geometry], drawn by [painters] as [effects] say, the glow in [glow]: row by row,
+ * from the top, a row lifted drawn over the place of the rows above it, which are lifted as much or more, and so never
+ * covers them. Where a lifted row stood, empty cells.
+ */
+private fun DrawScope.drawCells(
+    cells: List<Cell>,
+    geometry: BoardGeometry,
+    painters: Map<Cell, CellPainter>,
+    effects: BoardEffects,
+    glow: Color,
+) {
+    val columns = BoardShape.columns
+    val side = geometry.cellSize
+    val origin = geometry.origin
+    val empty = painters.getValue(Cell.Empty)
+    val rowSize = Size(columns * side, side)
+    clipRect(origin.x, origin.y, origin.x + rowSize.width, origin.y + BoardShape.rows * side) {
+        for (row in 0 until BoardShape.rows) {
+            val place = origin.y + row * side
+            val lift = effects.rowLift(row) * side
+            if (lift != 0f) {
+                for (column in 0 until columns) translate(origin.x + column * side, place) { empty.draw(this) }
+            }
+            val top = place - lift
+            val glows = effects.rowGlows(row)
+            if (glows) drawRect(glow, topLeft = Offset(origin.x, top), size = rowSize)
+            for (column in 0 until columns) {
+                val position = Position(column, row)
+                val painter = painters.getValue(cells[row * columns + column])
+                translate(origin.x + column * side, top) {
+                    val scale = effects.cellScale(position)
+                    if (scale > 0f) {
+                        scale(scale, pivot = Offset(side / 2, side / 2)) {
+                            painter.draw(this, withJoint = !glows)
+                            val light = effects.cellLight(position)
+                            if (light > 0f) painter.drawLight(this, glow, light)
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 /** What TalkBack reads of the board, from [speech]. */

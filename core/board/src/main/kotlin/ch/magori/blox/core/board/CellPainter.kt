@@ -48,7 +48,8 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
     private val layout = cellLayout(style, side, density)
     private val joint = style.joint?.let { background }
     private val cellSize = Size(side, side)
-    private val fill: DrawScope.() -> Unit = fillOf(style, layout, density)
+    private val fillPath: Path? = if (layout.shape == RectangleShape) null else outlinePath(layout, density)
+    private val fill: DrawScope.() -> Unit = fillOf(style, layout.fill, fillPath)
     private val border: (DrawScope.() -> Unit)? = layout.border?.let { edge ->
         style.border?.let { border ->
             val width = pixelsOf(border.width, side)
@@ -66,8 +67,12 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
     private val cross: (DrawScope.() -> Unit)? = style.cross?.let { crossOver(it, layout.fill, side) }
     private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side) }
 
-    fun draw(scope: DrawScope) {
-        joint?.let { scope.drawRect(it, size = cellSize) }
+    /** Draws the cell, with its joint unless [withJoint] is false: the background under it then shows around its fill. */
+    fun draw(
+        scope: DrawScope,
+        withJoint: Boolean = true,
+    ) {
+        if (withJoint) joint?.let { scope.drawRect(it, size = cellSize) }
         fill(scope)
         border?.invoke(scope)
         centre?.invoke(scope)
@@ -75,6 +80,20 @@ internal class CellPainter(style: CellStyle, side: Float, background: Color, den
         gloss?.let { bands -> scope.translate(layout.fill.left, layout.fill.top) { bands.draw(this) } }
         dot?.invoke(scope)
         cross?.invoke(scope)
+    }
+
+    /** Covers the fill of the cell, in its shape, with [color] at [alpha]: the cell lit. */
+    fun drawLight(
+        scope: DrawScope,
+        color: Color,
+        alpha: Float,
+    ) {
+        val path = fillPath
+        if (path == null) {
+            scope.drawRect(color, topLeft = layout.fill.topLeft, size = layout.fill.size, alpha = alpha)
+        } else {
+            scope.drawPath(path, color, alpha = alpha)
+        }
     }
 }
 
@@ -105,19 +124,15 @@ private fun crossOver(
 
 /**
  * The fill of a cell: a square of its colour; or, for a bubble, its rounded shape, lit from the top as in the design
- * system, from the highlight at the top to the fill at 55 % of its height.
+ * system, from the highlight at the top to the fill at 55 % of its height. [rect] is the fill, [path] its outline for a
+ * bubble, null for a square.
  */
 private fun fillOf(
     style: CellStyle,
-    layout: CellLayout,
-    density: Density,
+    rect: Rect,
+    path: Path?,
 ): DrawScope.() -> Unit {
-    val rect = layout.fill
-    if (layout.shape == RectangleShape) return { drawRect(style.fill, topLeft = rect.topLeft, size = rect.size) }
-    val path = Path().apply {
-        addOutline(layout.shape.createOutline(rect.size, LayoutDirection.Ltr, density))
-        translate(rect.topLeft)
-    }
+    if (path == null) return { drawRect(style.fill, topLeft = rect.topLeft, size = rect.size) }
     val highlight = style.bubble?.highlight ?: return { drawPath(path, style.fill) }
     val brush = Brush.verticalGradient(
         0f to highlight,
@@ -126,6 +141,15 @@ private fun fillOf(
         endY = rect.bottom,
     )
     return { drawPath(path, brush) }
+}
+
+/** The outline of the fill of [layout], in its rounded shape, at its place in the cell. */
+private fun outlinePath(
+    layout: CellLayout,
+    density: Density,
+): Path = Path().apply {
+    addOutline(layout.shape.createOutline(layout.fill.size, LayoutDirection.Ltr, density))
+    translate(layout.fill.topLeft)
 }
 
 /** Where the gradient of a bubble reaches the colour of its piece: 55 % of its height (components/Piece). */

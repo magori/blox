@@ -8,6 +8,7 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import org.assertj.core.api.Assertions.assertThat
@@ -491,7 +492,10 @@ class GameEngineControlsTest {
 
         // Then the J turned, then dropped, without locking
         assertThat(ticked.events).containsExactly(
-            GameEvent.PieceRotated(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 10))),
+            GameEvent.PieceRotated(
+                Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 10)),
+                Rotation.CLOCKWISE,
+            ),
         )
         assertThat(ticked.state.current).isEqualTo(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 11)))
     }
@@ -549,7 +553,22 @@ class GameEngineControlsTest {
 
         // Then
         val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 10))
-        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned))
+        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned, Rotation.CLOCKWISE))
+    }
+
+    @Test
+    fun `PieceRotated says which way the piece turned, clockwise with A, counterclockwise with B`() {
+        // Given a T pointing down, A pressed in one game and B in another
+        val withA = engine.press(gameState(phase = Phase.Falling(T_AT_5_10)), Button.A)
+        val withB = engine.press(gameState(phase = Phase.Falling(T_AT_5_10)), Button.B)
+
+        // When
+        val turnedByA = engine.tick(withA).events.filterIsInstance<GameEvent.PieceRotated>().single()
+        val turnedByB = engine.tick(withB).events.filterIsInstance<GameEvent.PieceRotated>().single()
+
+        // Then
+        assertThat(turnedByA.rotation).isEqualTo(Rotation.CLOCKWISE)
+        assertThat(turnedByB.rotation).isEqualTo(Rotation.COUNTERCLOCKWISE)
     }
 
     @Test
@@ -578,7 +597,9 @@ class GameEngineControlsTest {
 
         // Then
         val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 18))
-        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned), GameEvent.PieceLocked(turned))
+        assertThat(
+            ticked.events,
+        ).containsExactly(GameEvent.PieceRotated(turned, Rotation.CLOCKWISE), GameEvent.PieceLocked(turned))
     }
 
     @Test
