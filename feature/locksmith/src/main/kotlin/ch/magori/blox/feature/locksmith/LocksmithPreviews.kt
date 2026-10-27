@@ -2,6 +2,7 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
@@ -70,11 +71,51 @@ private fun openState(): LocksmithUiState {
     return LocksmithUiState(level = 3, game = open, events = listOf(PadlockEvent.PadlockOpened), move = 8)
 }
 
-/** [state] under the Original theme of the application: the screen imposes the Colorful one. */
+/**
+ * The first given piece, turned, aimed by its pivot on the first cell inside the ring where it covers the ring at
+ * [column], 0 or 9, and nowhere above or below the 8 × 8, then placed there: refused, its cells on the ring at the side,
+ * cut at the edge of the screen.
+ */
+private fun refusedSideState(column: Int): LocksmithUiState {
+    val turns = generateSequence(start) { it.turn(Rotation.CLOCKWISE) }.take(ORIENTATIONS)
+    val (turned, aim) = turns.flatMap { game -> INSIDE_CELLS.asSequence().map { game to it } }
+        .first { (game, pivot) ->
+            val cells = game.selectedAt(pivot)!!.cells
+            cells.any { it.column == column } && cells.all { it.row in INSIDE }
+        }
+    val refused = turned.place(aim)
+    return LocksmithUiState(level = 3, game = refused.game, events = refused.events, move = 1, aim = aim)
+}
+
+/** The first piece of the solution placed where it lies: the last action, its feedback still to play. */
+private fun placedState(): LocksmithUiState {
+    val piece = start.padlock.solution.first()
+    val rank = start.given.indices.first { start.given[it] == piece.type }
+    val turned = generateSequence(start.select(rank)) { it.turn(Rotation.CLOCKWISE) }
+        .first { it.orientationOf(rank) == piece.orientation }
+    val placed = turned.place(piece.pivot)
+    return LocksmithUiState(level = 3, game = placed.game, events = placed.events, move = 1)
+}
+
+/** A hint asked at the start: where a piece fits. */
+private fun hintState(): LocksmithUiState {
+    val update = start.hint()
+    val hint = (update.events.single() as PadlockEvent.HintGiven).hint
+    return LocksmithUiState(level = 3, game = update.game, events = update.events, move = 1, hint = hint)
+}
+
+/**
+ * [state] under the Original theme of the application: the screen imposes the Colorful one, and keeps the [effects] of
+ * the application. The feedback of its last action frozen at [feedbackTick], or over.
+ */
 @Composable
-private fun LocksmithPreview(state: LocksmithUiState) {
-    BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        LocksmithScreen(state = state, actions = LocksmithActions.None)
+private fun LocksmithPreview(
+    state: LocksmithUiState,
+    feedbackTick: Int? = null,
+    effects: BloxEffects = BloxEffects.Full,
+) {
+    BloxTheme(kind = BloxThemeKind.ORIGINAL, effects = effects) {
+        LocksmithScreen(state = state, actions = LocksmithActions.None, feedbackTick = feedbackTick)
     }
 }
 
@@ -138,6 +179,79 @@ internal fun LocksmithOpenSmallDayPreview() {
 internal fun LocksmithOpenSmallNightPreview() {
     LocksmithPreview(openState())
 }
+
+/** A preview refused at the left edge, on the ring in column 0: its cells there cut 4 dp from the edge of the screen. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedLeftDayPreview() {
+    LocksmithPreview(refusedSideState(column = 0))
+}
+
+/** A preview refused at the right edge, on the ring in column 9. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedRightDayPreview() {
+    LocksmithPreview(refusedSideState(column = Padlock.SIZE - 1))
+}
+
+/** A preview refused at the left edge, the padlock shaken to the left, 4 ticks in: its cut cell stays in its margin. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedLeftShakeDayPreview() {
+    LocksmithPreview(refusedSideState(column = 0), feedbackTick = 4)
+}
+
+/** A preview refused at the left edge in reduced effects: its crossed cells lit, the cut one included, 2 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedLeftReducedDayPreview() {
+    LocksmithPreview(refusedSideState(column = 0), feedbackTick = 2, effects = REDUCED)
+}
+
+/** A piece just placed, its cells lit, 2 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithPlacedFeedbackDayPreview() {
+    LocksmithPreview(placedState(), feedbackTick = 2)
+}
+
+/** A refusal, the padlock shaken aside, 1 tick in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedShakeDayPreview() {
+    LocksmithPreview(refusedState(), feedbackTick = 1)
+}
+
+/** A refusal in reduced effects: no shake, the preview lit in danger, fading, 2 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedReducedDayPreview() {
+    LocksmithPreview(refusedState(), feedbackTick = 2, effects = REDUCED)
+}
+
+/** The padlock open, its hole lit from the bottom up, 6 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenWaveDayPreview() {
+    LocksmithPreview(openState(), feedbackTick = 6)
+}
+
+/** The padlock open in reduced effects: its whole hole lit at once, fading, 2 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenReducedDayPreview() {
+    LocksmithPreview(openState(), feedbackTick = 2, effects = REDUCED)
+}
+
+/** A hint, its cells at the height of their swell, 15 ticks in. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithHintSwellDayPreview() {
+    LocksmithPreview(hintState(), feedbackTick = 15)
+}
+
+/** Reduced effects, as the player chooses them. */
+private val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
 
 /** The orientations of a piece, at most. */
 private const val ORIENTATIONS = 4

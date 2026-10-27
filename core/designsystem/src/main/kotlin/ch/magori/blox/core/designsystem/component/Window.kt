@@ -63,11 +63,15 @@ fun WindowDialog(
     }
 }
 
-/** A window: a panel of the theme, its [title], then its [content], scrolling when the font is large. */
+/**
+ * A window: a panel of the theme, its [title], a heading, then its [content], scrolling when the font is large. The
+ * [titleModifier] lets a screen give its title the focus.
+ */
 @Composable
 fun WindowPanel(
     title: String,
     modifier: Modifier = Modifier,
+    titleModifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
@@ -81,7 +85,11 @@ fun WindowPanel(
             .padding(WindowPadding),
         verticalArrangement = Arrangement.spacedBy(WindowGap),
     ) {
-        PanelTitle(text = title, style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall))
+        PanelTitle(
+            text = title,
+            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
+            modifier = titleModifier,
+        )
         content()
     }
 }

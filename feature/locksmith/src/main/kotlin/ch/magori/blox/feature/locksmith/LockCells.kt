@@ -4,6 +4,7 @@ import ch.magori.blox.core.board.lock.LockCell
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.Padlock
+import ch.magori.blox.core.locksmith.PadlockGame
 
 /** The columns and the rows inside the ring of metal of a padlock: the 8 × 8 cells the screen shows and touches. */
 internal val INSIDE: IntRange = 1..Padlock.SIZE - 2
@@ -30,7 +31,7 @@ internal fun lockCells(state: LocksmithUiState): Map<Position, LockCell> {
         val rank = game.rankAt(cell)
         when {
             preview != null && cell in preview.cells ->
-                LockCell.Preview(preview.type, fits = cell in game.padlock.hole && rank == null)
+                LockCell.Preview(preview.type, fits = game.holds(cell))
 
             rank != null -> LockCell.Placed(game.given[rank], hinted = rank == blocking)
 
@@ -54,3 +55,6 @@ internal fun rimCells(state: LocksmithUiState): Map<Position, LockCell> {
         .filter { it.column in grid && it.row in grid && !it.isInside }
         .associateWith { LockCell.Preview(preview.type, fits = false) }
 }
+
+/** Whether a cell of a preview at [cell] fits: in the hole, over no placed piece; crossed out otherwise. */
+internal fun PadlockGame.holds(cell: Position): Boolean = cell in padlock.hole && rankAt(cell) == null

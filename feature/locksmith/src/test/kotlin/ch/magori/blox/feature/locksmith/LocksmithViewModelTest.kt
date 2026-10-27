@@ -57,6 +57,20 @@ class LocksmithViewModelTest {
     }
 
     @Test
+    fun `a turn is told by the screen until the next action`() {
+        // When the piece is turned
+        viewModel.turn(Rotation.CLOCKWISE)
+        val turned = viewModel.uiState.value.turned
+
+        // And then aimed
+        viewModel.tap(Position(3, 3))
+
+        // Then
+        assertThat(turned).isTrue
+        assertThat(viewModel.uiState.value.turned).isFalse
+    }
+
+    @Test
     fun `a placement gives the next game and its events`() {
         // When
         viewModel.turnTo(firstPiece.orientation)

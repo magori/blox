@@ -25,7 +25,8 @@ import ch.magori.blox.core.game.model.PieceType
  * drawn in the Colorful theme only, and an Original variant fails at once, at composition. Its joint takes the colour
  * of the metal, so that cells side by side make one padlock.
  * No logic here: the look comes from [lockCellStyle], the drawing from [CellPainter], as the cells of the board. The
- * grid, its rim and what TalkBack reads of it belong to the screen.
+ * grid, its rim and what TalkBack reads of it belong to the screen. A [cut] cell, at the edge of the screen, is as high,
+ * narrower, its cross recentred in what is left of it.
  */
 @Composable
 fun LockCellCanvas(
@@ -33,17 +34,25 @@ fun LockCellCanvas(
     size: Dp,
     modifier: Modifier = Modifier,
     variant: BloxThemeVariant = BloxTheme.variant,
+    cut: LockCellCut? = null,
 ) {
     require(variant.kind == BloxThemeKind.COLORFUL) {
         "The padlock of the Locksmith is drawn in the Colorful theme only, not in $variant: the screen must impose it."
     }
     Spacer(
         modifier = modifier
-            .size(size)
+            .size(width = cut?.width ?: size, height = size)
             .drawWithCache {
                 val style = lockCellStyle(variant, cell)
-                val side = this.size.minDimension.roundToPixel()
-                val painter = CellPainter(style, side, lockColors(variant).metal, Density(density, fontScale))
+                val side = this.size.height.roundToPixel()
+                val painter = CellPainter(
+                    style = style,
+                    side = side,
+                    background = lockColors(variant).metal,
+                    density = Density(density, fontScale),
+                    width = this.size.width.roundToPixel(),
+                    crossSide = cut?.cross?.toPx(),
+                )
                 onDrawBehind { painter.draw(this) }
             },
     )
