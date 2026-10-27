@@ -46,6 +46,6 @@ internal fun BarGauge(
 /** Each bar of the music [listening] to, played (the one playing included) or not, in their order. */
 internal fun gaugeFills(listening: Listening): List<Boolean> = List(listening.bars) { it < listening.bar }
 
-/** The height of a bar of the gauge, and the gap between two bars, as in the mockup. */
+/** The height of a bar of the gauge and the gap between two bars: `height: 4px`, `gap: 3px` in V32, no tokens. */
 private val GAUGE_HEIGHT = 4.dp
 private val GAUGE_GAP = 3.dp

@@ -1,14 +1,15 @@
 package ch.magori.blox.feature.musics
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Brush
@@ -21,10 +22,11 @@ import androidx.compose.ui.unit.Dp
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.MessageAction
+import ch.magori.blox.core.designsystem.component.SideBySideOrStacked
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.buttonLabelStyle
-import ch.magori.blox.core.designsystem.component.holdSideBySide
+import ch.magori.blox.core.designsystem.component.lineWidth
 import ch.magori.blox.core.designsystem.component.sidePadding
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
@@ -33,7 +35,8 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 
 /**
  * [content] in all the room it is given, and [bottom] over its foot, drawn above it. [content] learns how high
- * [bottom] is, the room to leave at its end so that its last line can scroll out from under it.
+ * [bottom] is, the room to leave at its end so that its last line can scroll out from under it. [bottom] gets no more
+ * than the whole room, from its top: what does not hold there must scroll within it.
  */
 @Composable
 internal fun AboveBottomActions(
@@ -48,7 +51,7 @@ internal fun AboveBottomActions(
         val contents = subcompose(BottomSlot.CONTENT) { content(bottomHeight.toDp()) }.map { it.measure(constraints) }
         layout(constraints.maxWidth, constraints.maxHeight) {
             contents.forEach { it.place(0, 0) }
-            bottoms.forEach { it.place(0, constraints.maxHeight - it.height) }
+            bottoms.forEach { it.place(0, (constraints.maxHeight - it.height).coerceAtLeast(0)) }
         }
     }
 }
@@ -58,7 +61,8 @@ private enum class BottomSlot { CONTENT, BOTTOM }
 
 /**
  * The foot of the page, on a fade from the page seen through to the page: « « X » est supprimée. » with *Annuler* and
- * its cross while the music [deleted] last may come back, then *Au hasard* and *Nouvelle* ([EditorButtons]).
+ * its cross while the music [deleted] last may come back, then *Au hasard* and *Nouvelle* ([EditorButtons]). Higher
+ * than the room it is given, as in a large font on a low window, it scrolls.
  */
 @Composable
 internal fun BottomActions(
@@ -74,6 +78,7 @@ internal fun BottomActions(
                 val solid = (FADE.toPx() / size.height).coerceAtMost(1f)
                 drawRect(Brush.verticalGradient(0f to page.copy(alpha = 0f), solid to page))
             }
+            .verticalScroll(rememberScrollState())
             .padding(top = FADE, bottom = BloxSpaces.space4),
         verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
     ) {
@@ -97,50 +102,41 @@ private fun EditorButtons(
     onRandom: () -> Unit,
     onNew: () -> Unit,
 ) {
-    val random = FootButton(ButtonFamily.SECONDARY, BloxIcon.DICE, stringResource(R.string.feature_musics_random))
-    val new = FootButton(ButtonFamily.PRIMARY, BloxIcon.PLUS, stringResource(R.string.feature_musics_new))
+    val buttons = listOf(
+        FootButton(ButtonFamily.SECONDARY, BloxIcon.DICE, stringResource(R.string.feature_musics_random), onRandom),
+        FootButton(ButtonFamily.PRIMARY, BloxIcon.PLUS, stringResource(R.string.feature_musics_new), onNew),
+    )
     val measurer = rememberTextMeasurer()
-    val styles = listOf(random, new).map { buttonLabelStyle(it.family) }
+    val styles = buttons.map { buttonLabelStyle(it.family) }
     val density = LocalDensity.current
-    BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
-        val sideBySide = with(density) {
-            val beside = (IconSizes.besideLabel + IconSizes.gap).roundToPx()
-            holdSideBySide(
-                width = constraints.maxWidth,
-                gap = BloxSpaces.space2.roundToPx(),
-                padding = ButtonFamily.SECONDARY.sidePadding.roundToPx(),
-                weights = listOf(1f, 1f),
-                labels = listOf(random, new).zip(styles) { button, style ->
-                    beside + measurer.measure(button.label, style, softWrap = false, maxLines = 1).size.width
-                },
-            )
-        }
-        if (sideBySide) {
-            Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
-                FootButton(random, onRandom, Modifier.weight(1f))
-                FootButton(new, onNew, Modifier.weight(1f))
-            }
-        } else {
-            Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
-                FootButton(random, onRandom, Modifier.fillMaxWidth())
-                FootButton(new, onNew, Modifier.fillMaxWidth())
-            }
-        }
+    val labels = buttons.map { it.label }
+    // A label on one line needs its own width, and its icon with the gap after it.
+    val widths = remember(measurer, styles, labels, density) {
+        val beside = with(density) { (IconSizes.besideLabel + IconSizes.gap).roundToPx() }
+        labels.zip(styles) { label, style -> beside + measurer.lineWidth(label, style) }
     }
+    SideBySideOrStacked(
+        labelWidths = widths,
+        padding = ButtonFamily.SECONDARY.sidePadding,
+        gap = BloxSpaces.space2,
+    ) { index, sizing -> FootButton(buttons[index], sizing) }
 }
 
-/** A button of the foot: its [family], its [icon] and its [label]. */
+/** A button of the foot: its [family], its [icon], its [label], and what touching it does, [onClick]. */
 @Immutable
-private data class FootButton(val family: ButtonFamily, val icon: BloxIcon, val label: String)
+private class FootButton(val family: ButtonFamily, val icon: BloxIcon, val label: String, val onClick: () -> Unit)
 
-/** The [button] of the foot: its icon, decorative, then its label on one line, shrunk if it must. */
+/**
+ * The [button] of the foot: its icon, decorative, then its label on one line, shrunk only if it must. Not a
+ * `PrimaryButton` nor a `SecondaryButton`, whose labels go to the line: stacked, in the pixel font twice as large,
+ * « Au hasard » after its die needs all but a few pixels of the line, and must not break.
+ */
 @Composable
 private fun FootButton(
     button: FootButton,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    BubbleButton(family = button.family, onClick = onClick, modifier = modifier) {
+    BubbleButton(family = button.family, onClick = button.onClick, modifier = modifier) {
         BloxIcon(button.icon, Modifier.testTag(MUSICS_ICON_TAG))
         SingleLineText(text = button.label, style = LocalTextStyle.current)
     }

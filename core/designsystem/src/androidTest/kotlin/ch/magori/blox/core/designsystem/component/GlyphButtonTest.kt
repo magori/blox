@@ -1,9 +1,12 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
@@ -16,7 +19,9 @@ import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.createComposeExtension
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
@@ -50,6 +55,32 @@ internal class GlyphButtonTest {
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Role))
     }
 
+    @Test
+    @DisplayName(
+        "a button of an icon alone given what a touch does tells it to TalkBack, without one says nothing more",
+    )
+    fun aButtonOfAnIconAloneTellsWhatATouchDoes() = extension.use {
+        // Given
+        setContent {
+            BloxTheme {
+                Column {
+                    GlyphButton(
+                        icon = BloxIcon.NOTE,
+                        description = "Ma marche pendant les parties",
+                        onClick = {},
+                        onClickLabel = "La jouer pendant les parties",
+                    )
+                    GlyphButton(icon = BloxIcon.GEAR, description = "Paramètres", onClick = {})
+                }
+            }
+        }
+
+        // Then
+        assertThat(onNodeWithContentDescription("Ma marche pendant les parties").clickLabel())
+            .isEqualTo("La jouer pendant les parties")
+        assertThat(onNodeWithContentDescription("Paramètres").clickLabel()).isNull()
+    }
+
     @ParameterizedTest
     @EnumSource(BloxThemeKind::class)
     @DisplayName("a bare icon button is 48 dp wide and high at least")
@@ -69,3 +100,6 @@ internal class GlyphButtonTest {
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
     }
 }
+
+/** What TalkBack says a touch on this node does, if anything. */
+private fun SemanticsNodeInteraction.clickLabel(): String? = fetchSemanticsNode().config[SemanticsActions.OnClick].label

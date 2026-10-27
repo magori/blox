@@ -30,6 +30,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -37,7 +39,6 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.getTextLayoutResult
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.hideFromAccessibility
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
@@ -61,6 +62,7 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.ScoreId
+import kotlin.math.min
 
 /** The tag of the icons of « Mes musiques », decorative, read by the tests only. */
 internal const val MUSICS_ICON_TAG = "musics_icon"
@@ -69,6 +71,9 @@ internal const val MUSICS_ICON_TAG = "musics_icon"
 internal const val MUSICS_EQUALIZER_TAG = "musics_equalizer"
 internal const val MUSICS_GAUGE_TAG = "musics_gauge"
 internal const val MUSICS_GAUGE_BAR_TAG = "musics_gauge_bar"
+
+/** The tag of the pill « EN JEU », read by the tests only: TalkBack leaves it out. */
+internal const val MUSICS_IN_GAME_TAG = "musics_in_game"
 
 /** What the player does on « Mes musiques »: the screen hands each action over, and decides nothing. */
 @Stable
@@ -208,7 +213,10 @@ private fun Header(onBack: () -> Unit) {
 private fun GameMusicCard(gameMusic: String?) {
     val palette = BloxTheme.palette
     val name = gameMusic ?: stringResource(R.string.feature_musics_game_music_home)
-    val description = stringResource(R.string.feature_musics_game_music, name)
+    val description = stringResource(
+        R.string.feature_musics_game_music,
+        gameMusic ?: stringResource(R.string.feature_musics_game_music_home_spoken),
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -220,7 +228,7 @@ private fun GameMusicCard(gameMusic: String?) {
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
     ) {
         BloxIcon(BloxIcon.NOTE, Modifier.testTag(MUSICS_ICON_TAG), size = IconSizes.alone, tint = palette.label)
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        Column(verticalArrangement = Arrangement.spacedBy(TEXT_GAP)) {
             Text(
                 text = stringResource(R.string.feature_musics_game_music_label),
                 color = palette.label,
@@ -242,12 +250,16 @@ private fun GameMusicCard(gameMusic: String?) {
 @ReadOnlyComposable
 private fun nameStyle(): TextStyle = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.buttonLabel)
 
-/** The least height of the card « PENDANT LES PARTIES », as in the mockup. */
+/** The least height of the card « PENDANT LES PARTIES »: `min-height: 64px` in V32, no token. */
 private val GAME_MUSIC_CARD_HEIGHT = 64.dp
 
+/** Between a name and the line under it, on the card and on a row: `gap: 2px` in V32, under the smallest token. */
+private val TEXT_GAP = 2.dp
+
 /**
- * The page without music, in the middle of its room: « Aucune musique pour l'instant. », a heading for TalkBack, then
- * the invitation to compose one, or to let the die offer one, in `label`.
+ * The page without music, in the middle of its room: « Aucune musique pour l'instant. », a heading for TalkBack, in
+ * `stat-value` (Manrope bold at 17, as V32 draws it), then the invitation to compose one, or to let the die offer one,
+ * in `label`.
  */
 @Composable
 private fun EmptyList(modifier: Modifier = Modifier) {
@@ -260,7 +272,7 @@ private fun EmptyList(modifier: Modifier = Modifier) {
         Text(
             text = stringResource(R.string.feature_musics_empty_title),
             color = palette.ink,
-            style = MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium.merge(BloxTheme.typography.statValue),
             textAlign = TextAlign.Center,
             modifier = Modifier.semantics { heading() },
         )
@@ -275,8 +287,8 @@ private fun EmptyList(modifier: Modifier = Modifier) {
 
 /**
  * The row of a music, in a panel (V32): Écouter; its name and its info line, which open the music in the editor;
- * *Utiliser*, or *En jeu*, the choice made; and its menu « … », a bare disc. While it is listened to, the gauge of its
- * bars stands under its name.
+ * *Utiliser*, or *En jeu*, the choice made, each saying what a touch does; and its menu « … », a bare disc. While it is
+ * listened to, the gauge of its bars stands under its name, as wide as it; the buttons stay level with the name.
  */
 @Composable
 private fun MusicRow(
@@ -286,74 +298,100 @@ private fun MusicRow(
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.md
     val listening = card.listening
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .background(palette.panel, shape)
             .border(BloxBorders.frame, palette.panelBorder, shape)
             .padding(BloxSpaces.space1),
+        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(ROW_GAP),
-        ) {
-            ListenButton(playing = listening != null, musicName = card.name, onClick = { actions.onListen(card.id) })
-            // Touching the name, or its info line, opens the music in the editor; TalkBack says so. 48 dp high at least.
-            Column(
-                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
-                modifier = Modifier
-                    .weight(1f)
-                    .heightIn(min = BloxSizes.minTouchTarget)
-                    .clickable(
-                        onClickLabel = stringResource(R.string.feature_musics_menu_edit),
-                        role = Role.Button,
-                        onClick = { actions.onEdit(card.id) },
-                    )
-                    .padding(horizontal = NAME_INSET),
-            ) {
-                Text(
-                    text = card.name,
-                    color = palette.ink,
-                    style = nameStyle(),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+        val levelWithName = Modifier.alignBy { it.measuredHeight / 2 }
+        ListenButton(
+            playing = listening != null,
+            musicName = card.name,
+            onClick = { actions.onListen(card.id) },
+            modifier = levelWithName,
+        )
+        Column(modifier = Modifier.weight(1f).alignBy(NameMiddle)) {
+            NameButton(card = card, onEdit = { actions.onEdit(card.id) })
+            if (listening != null) {
+                BarGauge(
+                    listening = listening,
+                    modifier = Modifier
+                        .padding(horizontal = NAME_INSET)
+                        .padding(top = TEXT_GAP, bottom = BloxSpaces.space1),
                 )
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    if (listening != null) Equalizer(Modifier.testTag(MUSICS_EQUALIZER_TAG))
-                    CardInfo(card = card, listening = listening, modifier = Modifier.weight(1f, fill = false))
-                    if (card.inGame) InGameBadge()
-                }
             }
-            // Utiliser, a note; En jeu, a check on the accent, the choice made, read as selected.
-            GlyphButton(
-                icon = if (card.inGame) BloxIcon.CHECK else BloxIcon.NOTE,
-                description = stringResource(R.string.feature_musics_use_description, card.name),
-                onClick = { actions.onUse(card.id) },
-                emphasis = if (card.inGame) ButtonEmphasis.SELECTED else ButtonEmphasis.PLAIN,
-            )
-            CardMenu(card = card, actions = actions)
         }
-        if (listening != null) {
-            // Under the name, from its start to the end of its info line.
-            BarGauge(
-                listening = listening,
-                modifier = Modifier.padding(
-                    start = BloxSizes.minTouchTarget + ROW_GAP + NAME_INSET,
-                    end = (BloxSizes.minTouchTarget + ROW_GAP) * 2 + NAME_INSET,
-                    top = 2.dp,
-                    bottom = BloxSpaces.space1,
-                ),
-            )
-        }
+        // Utiliser, a note; En jeu, a check on the accent, the choice made, read as selected.
+        GlyphButton(
+            icon = if (card.inGame) BloxIcon.CHECK else BloxIcon.NOTE,
+            description = stringResource(R.string.feature_musics_use_description, card.name),
+            onClick = { actions.onUse(card.id) },
+            modifier = levelWithName,
+            emphasis = if (card.inGame) ButtonEmphasis.SELECTED else ButtonEmphasis.PLAIN,
+            onClickLabel = stringResource(
+                if (card.inGame) R.string.feature_musics_menu_stop_using else R.string.feature_musics_menu_use,
+            ),
+        )
+        CardMenu(card = card, actions = actions, modifier = levelWithName)
     }
 }
 
 /**
- * « EN JEU », a pill in `accent`, after the info line of the music played during the games. TalkBack leaves it out:
- * the button *En jeu* beside it is read as selected.
+ * The name of a row and its info line, 48 dp high at least: touching them opens the music in the editor, which
+ * TalkBack says. Its middle is [NameMiddle], which the buttons of the row stand level with.
+ */
+@Composable
+private fun NameButton(
+    card: MusicCard,
+    onEdit: () -> Unit,
+) {
+    val listening = card.listening
+    Column(
+        verticalArrangement = Arrangement.spacedBy(TEXT_GAP, Alignment.CenterVertically),
+        modifier = Modifier
+            .markingItsMiddle()
+            .fillMaxWidth()
+            .heightIn(min = BloxSizes.minTouchTarget)
+            .clickable(
+                onClickLabel = stringResource(R.string.feature_musics_menu_edit),
+                role = Role.Button,
+                onClick = onEdit,
+            )
+            .padding(horizontal = NAME_INSET),
+    ) {
+        Text(
+            text = card.name,
+            color = BloxTheme.palette.ink,
+            style = nameStyle(),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(INFO_GAP),
+        ) {
+            if (listening != null) Equalizer(Modifier.testTag(MUSICS_EQUALIZER_TAG))
+            CardInfo(card = card, listening = listening, modifier = Modifier.weight(1f, fill = false))
+            if (card.inGame) InGameBadge()
+        }
+    }
+}
+
+/** The middle of the name of a row, which its buttons stand level with, whether the gauge is under it or not. */
+private val NameMiddle = HorizontalAlignmentLine(::min)
+
+/** Gives this element's middle as [NameMiddle]. */
+private fun Modifier.markingItsMiddle(): Modifier = layout { measurable, constraints ->
+    val placeable = measurable.measure(constraints)
+    layout(placeable.width, placeable.height, mapOf(NameMiddle to placeable.height / 2)) { placeable.place(0, 0) }
+}
+
+/**
+ * « EN JEU », a pill in `accent`, after the info line of the music played during the games. TalkBack leaves it out,
+ * even within the name it stands in: the button *En jeu* beside it is read as selected.
  */
 @Composable
 private fun InGameBadge() {
@@ -364,15 +402,18 @@ private fun InGameBadge() {
         style = MaterialTheme.typography.labelSmall.merge(BloxTheme.typography.statLabel),
         maxLines = 1,
         modifier = Modifier
+            .testTag(MUSICS_IN_GAME_TAG)
+            .clearAndSetSemantics {}
             .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = BloxSpaces.space2, vertical = 2.dp)
-            .semantics { hideFromAccessibility() },
+            .padding(horizontal = BloxSpaces.space2, vertical = TEXT_GAP),
     )
 }
 
-/** Between the buttons of a row and its name, and between the edges of its name and its texts. */
-private val ROW_GAP = BloxSpaces.space1
+/** Between the edges of a name and its texts: `padding: 0 4px` in V32. */
 private val NAME_INSET = BloxSpaces.space1
+
+/** Between the equalizer, the info line and the pill under a name: `gap: 6px` in V32, between two tokens. */
+private val INFO_GAP = 6.dp
 
 /**
  * The line under the name of a row, on one line, cut short if needed: its style, its key and its length, « Joyeux ·
@@ -424,9 +465,10 @@ private class LaidOutText {
 private fun CardMenu(
     card: MusicCard,
     actions: MyMusicsActions,
+    modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
-    Box {
+    Box(modifier) {
         var expanded by remember { mutableStateOf(false) }
         GlyphButton(
             description = stringResource(R.string.feature_musics_menu_description, card.name),

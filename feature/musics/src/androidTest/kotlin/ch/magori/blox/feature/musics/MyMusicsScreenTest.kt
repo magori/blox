@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.musics
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -43,6 +44,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.AnnotatedString
@@ -172,7 +174,7 @@ internal class MyMusicsScreenTest {
         state = uiState.copy(gameMusic = null)
 
         // Then
-        onNodeWithContentDescription("Pendant les parties : La musique choisie à l'accueil").assertIsDisplayed()
+        onNodeWithContentDescription("Pendant les parties : la musique choisie à l'accueil").assertIsDisplayed()
         onNodeWithText("La musique choisie à l'accueil", useUnmergedTree = true).assertIsDisplayed()
     }
 
@@ -195,7 +197,7 @@ internal class MyMusicsScreenTest {
         )
         assertThat(buttons.map { it.boundsInRoot.left }).isSorted()
         assertThat(buttons.map { it.config.getOrNull(SemanticsProperties.Role) }).containsOnly(Role.Button)
-        assertThat(buttons[1].config[SemanticsActions.OnClick].label).isEqualTo("Modifier")
+        onNode(hasClickAction() and hasText("Thème du soir")).assertClickLabel("Modifier")
     }
 
     @Test
@@ -221,8 +223,8 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("a card is a single row as high as its buttons, a long name on one line, Utiliser a square of 48 dp")
-    fun aCardIsASingleRow() = extension.use {
+    @DisplayName("a row is as high as its buttons, a long name on one line, Utiliser a disc of 48 dp")
+    fun aRowIsAsHighAsItsButtons() = extension.use {
         // Given
         showMyMusics(uiState.copy(musics = listOf(uiState.musics[0], uiState.musics[1].copy(name = LONG_NAME))))
 
@@ -286,19 +288,25 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("the music played during the games bears EN JEU and its switch is selected")
-    fun theMusicInGameBearsEnJeuAndItsSwitchIsSelected() = extension.use {
+    @DisplayName(
+        "the music played during the games bears EN JEU and its button is selected, each button saying what it does",
+    )
+    fun theMusicInGameBearsEnJeuAndItsButtonIsSelected() = extension.use {
         // Given
         showMyMusics()
 
-        // Then its name bears EN JEU, which TalkBack leaves to the switch, read as selected
-        onNode(hasText("EN JEU") and hasAnyAncestor(holding("Thème du soir")), useUnmergedTree = true)
+        // Then its name bears EN JEU, which TalkBack leaves to the button beside it, read as selected
+        onNode(hasTestTag(MUSICS_IN_GAME_TAG) and hasAnyAncestor(holding("Thème du soir")), useUnmergedTree = true)
             .assertIsDisplayed()
-            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.HideFromAccessibility))
-        onAllNodesWithText("EN JEU", useUnmergedTree = true).assertCountEquals(1)
-        onNodeWithContentDescription("Thème du soir pendant les parties").assertIsSelected()
+        onAllNodes(hasTestTag(MUSICS_IN_GAME_TAG), useUnmergedTree = true).assertCountEquals(1)
+        onNode(hasClickAction() and hasText("Thème du soir"))
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Text, listOf(AnnotatedString("Thème du soir"))))
+        onNodeWithContentDescription("Thème du soir pendant les parties")
+            .assertIsSelected()
+            .assertClickLabel("Ne plus la jouer pendant les parties")
         onNodeWithContentDescription("Ma marche pendant les parties")
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
+            .assertClickLabel("La jouer pendant les parties")
 
         // When
         onNodeWithContentDescription("Ma marche pendant les parties").performClick()
@@ -546,6 +554,21 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
+    @DisplayName("a foot higher than its room stays under the card of the games, and scrolls to Nouvelle")
+    fun aFootHigherThanItsRoomStaysUnderTheCard() = extension.use {
+        // Given the message of a deletion, in a font twice as large, on a window too low for the whole foot
+        showMyMusics(uiState.copy(deleted = "Ma marche"), fontScale = 2f, width = 360.dp, height = 420.dp)
+
+        // Then the foot does not cover the card above it
+        val card = onNodeWithContentDescription("Pendant les parties : Thème du soir").getUnclippedBoundsInRoot()
+        val message = onNodeWithText("« Ma marche » est supprimée.", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(message.top).isGreaterThanOrEqualTo(card.bottom)
+
+        // And its last button can be reached
+        onNode(hasClickAction() and hasText("Nouvelle")).performScrollTo().assertIsDisplayed()
+    }
+
+    @Test
     @DisplayName("Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone")
     fun auHasardAndNouvelleBearAnIconThatTalkBackDoesNotRead() = extension.use {
         // Given
@@ -649,23 +672,25 @@ internal class MyMusicsScreenTest {
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         width: Dp = Dp.Unspecified,
-    ) = setMyMusics(renameProblem, fontScale, kind, width) { state }
+        height: Dp = Dp.Unspecified,
+    ) = setMyMusics(renameProblem, fontScale, kind, width, height) { state }
 
     /**
      * Shows the list in the state [state] gives, read again when it changes, its font [fontScale] times as large, in the
-     * theme [kind], [width] wide.
+     * theme [kind], [width] wide and [height] high.
      */
     private fun ComposeContext.setMyMusics(
         renameProblem: (String) -> NameProblem? = { null },
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         width: Dp = Dp.Unspecified,
+        height: Dp = Dp.Unspecified,
         state: () -> MyMusicsUiState,
     ) {
         setContent {
             val density = Density(LocalDensity.current.density, fontScale)
             CompositionLocalProvider(LocalDensity provides density) {
-                ThemedMyMusics(renameProblem, kind, Modifier.width(width), state)
+                ThemedMyMusics(renameProblem, kind, Modifier.width(width).height(height), state)
             }
         }
     }
@@ -750,6 +775,12 @@ private fun SemanticsNodeInteraction.layout(): TextLayoutResult {
     val layouts = mutableListOf<TextLayoutResult>()
     fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
     return layouts.single()
+}
+
+/** Asserts that TalkBack says what touching this node does: [label]. */
+private fun SemanticsNodeInteraction.assertClickLabel(label: String): SemanticsNodeInteraction {
+    assertThat(fetchSemanticsNode().config[SemanticsActions.OnClick].label).isEqualTo(label)
+    return this
 }
 
 /** What names this node first for TalkBack: its text, else its description. */
