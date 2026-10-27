@@ -41,11 +41,14 @@ private object GameOverSizes {
 
     /** The largest size of the score; it shrinks to stay on one line. */
     val score = 40.sp
+
+    /** The best before the game, under the score. */
+    val previousBest = 14.sp
 }
 
 /**
- * The game over screen (views V4, V30): the title, the new best badge, the score in large, then the
- * lines, level, four-line clears and duration, and the buttons to replay or go back to the menu.
+ * The game over screen (views V4, V30): the title, the new best badge, the score in large with the best before the
+ * game under it, then the lines, level, four-line clears and duration, and the buttons to replay or go back to the menu.
  * No logic here: the texts come from [gameOverTexts]. It is a state of the game screen: TalkBack
  * announces it by its pane title. The badge is the one of the variant of the game ([labels]): MEILLEUR DU JOUR for a
  * daily game (V39), whose game over also offers Copier, between Rejouer and Menu, given to [onCopy]; TalkBack reads it
@@ -64,14 +67,7 @@ internal fun GameOverScreen(
     val texts = gameOverTexts(state)
     TitledScreen(title = stringResource(R.string.feature_game_over_title), modifier = modifier) {
         if (state.newBest) NewBestBadge(stringResource(labels.gameOverNewBest))
-        val scoreLabel = stringResource(R.string.feature_game_score)
-        LabelledPanel(
-            label = scoreLabel,
-            description = valueDescription(scoreLabel, texts.spokenScore),
-            contentAlignment = Alignment.CenterHorizontally,
-        ) {
-            ValueText(text = texts.score, maxFontSize = GameOverSizes.score)
-        }
+        ScorePanel(texts = texts, bestLabel = stringResource(labels.gameOverBest(state.newBest)))
         val linesLabel = stringResource(R.string.feature_game_lines)
         Statistic(
             label = linesLabel,
@@ -121,6 +117,41 @@ internal fun GameOverScreen(
     }
 }
 
+/**
+ * The final score in large, and under it the best before the game, if any ([GameOverTexts.previousBest]), under its
+ * [bestLabel]: « Ancien record 098760 » once beaten, « Record 098760 » otherwise (V30, V39). TalkBack reads them as one,
+ * at their real values: « Score : 123450, Ancien record : 98760 ».
+ */
+@Composable
+private fun ScorePanel(
+    texts: GameOverTexts,
+    bestLabel: String,
+) {
+    val scoreLabel = stringResource(R.string.feature_game_score)
+    val scoreDescription = valueDescription(scoreLabel, texts.spokenScore)
+    val previousBest = texts.previousBest
+    LabelledPanel(
+        label = scoreLabel,
+        description = previousBest?.let {
+            stringResource(
+                R.string.feature_game_over_score_and_best,
+                scoreDescription,
+                valueDescription(bestLabel, it.spoken),
+            )
+        } ?: scoreDescription,
+        contentAlignment = Alignment.CenterHorizontally,
+    ) {
+        ValueText(text = texts.score, maxFontSize = GameOverSizes.score)
+        if (previousBest != null) {
+            Text(
+                text = stringResource(R.string.feature_game_over_best, bestLabel, previousBest.shown),
+                color = BloxTheme.palette.label,
+                fontSize = GameOverSizes.previousBest,
+            )
+        }
+    }
+}
+
 @Composable
 private fun NewBestBadge(text: String) {
     val palette = BloxTheme.palette
@@ -156,17 +187,23 @@ private val previewState = GameOverUiState(
     ticksPlayed = 45_300,
     newBest = false,
     resultsKept = true,
+    previousBest = 0,
 )
 
+/**
+ * The game over in [kind], with the best before the game ([previousBest]) recalled under the score; none in the
+ * Original previews: that theme no longer changes, its captures stay as they were.
+ */
 @Composable
 private fun GameOverPreview(
     kind: BloxThemeKind,
     newBest: Boolean,
     labels: GameLabels,
+    previousBest: Int = 0,
 ) {
     BloxTheme(kind = kind) {
         GameOverScreen(
-            state = previewState.copy(newBest = newBest),
+            state = previewState.copy(newBest = newBest, previousBest = previousBest),
             onReplay = {},
             onMenu = {},
             labels = labels,
@@ -192,13 +229,13 @@ internal fun GameOverOriginalNewRecordPreview() {
 @Preview
 @Composable
 internal fun GameOverColorfulPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newBest = false, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = false, labels = GameLabels.Classic, previousBest = 150_000)
 }
 
 @Preview
 @Composable
 internal fun GameOverColorfulNewRecordPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Classic, previousBest = 98_760)
 }
 
 @Preview(fontScale = 2f)
@@ -211,5 +248,5 @@ internal fun GameOverLargeFontPreview() {
 @Preview
 @Composable
 internal fun GameOverDailyNewBestPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Daily)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Daily, previousBest = 98_760)
 }

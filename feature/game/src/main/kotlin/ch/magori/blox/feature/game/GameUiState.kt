@@ -99,6 +99,7 @@ internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.Ga
 internal fun GameState.toGameOverUiState(
     newBest: Boolean,
     resultsKept: Boolean,
+    previousBest: Int,
 ): GameOverUiState = GameOverUiState(
     score = progress.score,
     lines = progress.lines,
@@ -107,4 +108,5 @@ internal fun GameState.toGameOverUiState(
     ticksPlayed = tickCount,
     newBest = newBest,
     resultsKept = resultsKept,
+    previousBest = previousBest,
 )

@@ -629,6 +629,21 @@ première partie. Il est enregistré dès la fin de partie. Un score devient un 
 s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
 partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
 
+**Ancien record en fin de partie** (P9.14, V30, décision du développeur du 2026-10-27) : sous le
+score final, une ligne rappelle le record d'avant la partie, tel que le dépôt l'a rendu à la fin
+(`RecordResult.previous`) : « Ancien record 098760 » si la partie l'a battu, « Record 098760 »
+sinon. Valeur sur 6 chiffres comme le score (plafond 999 999) ; TalkBack la lit avec le score, à sa
+vraie valeur : « Score : 123450, Ancien record : 98760 ». Pas de ligne sans record d'avant (0,
+première partie) ni quand les records n'ont pu être écrits.
+**Tests :** `GameOverTextsTest › the best before the game is shown as a score, capped at 999 999, and read at its real value`,
+`GameOverTextsTest › without a best before the game no best is recalled`,
+`GameResultsTest › a classic game over tells the record before it, beaten or not`,
+`GameViewModelTest › a classic game over gets the record it had to beat`,
+`GameLabelsTest › the game over recalls the record as Ancien record once beaten, as Record otherwise`,
+`GameScreenTest › the game over recalls the best before the game under the score, read with it; nothing without one` ;
+captures `GameOverColorful`, `GameOverColorfulNight`, `GameOverColorfulNewRecord`, `GameOverColorfulNewRecordNight`.
+Vues : V30.
+
 **Effacer le record** (P5.66, pour les Paramètres v2) : le record revient à 0, et le score suivant
 qui dépasse 0 devient un nouveau record. Effacer sans record laisse 0. Une écriture impossible
 (disque plein) échoue avec une `IOException` et garde le record tel qu'il était ; le flux du record
