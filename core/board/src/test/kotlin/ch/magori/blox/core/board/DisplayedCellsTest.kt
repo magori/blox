@@ -7,6 +7,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 
 class DisplayedCellsTest {
@@ -70,5 +71,15 @@ class DisplayedCellsTest {
         assertThat(cells[5]).isEqualTo(Cell.Filled(PieceType.T))
         assertThat(cells[19]).isEqualTo(Cell.Filled(PieceType.L))
         assertThat(cells.filter { it == Cell.Filled(PieceType.T) }).hasSize(1)
+    }
+
+    @Test
+    fun `asking more rows than the board has, or none, is refused`() {
+        val board = Board.empty()
+
+        assertThatThrownBy { displayedCells(board, piece = null, rows = 21) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+        assertThatThrownBy { displayedCells(board, piece = null, rows = 0) }
+            .isInstanceOf(IllegalArgumentException::class.java)
     }
 }

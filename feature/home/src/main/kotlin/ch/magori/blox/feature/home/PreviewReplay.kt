@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.home
 
+import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Piece
@@ -42,6 +43,9 @@ internal data class PreviewReplay(val level: Level, val elapsed: Int = 0) {
     val points: Points
         get() = if (locked) ClassicScoringRule.pointsForLinesCleared(CLEARED.lineClear, level) else Points(0)
 
+    /** What the preview shows at this tick: equal from one tick to the next until the T drops a row or locks. */
+    val frame: PreviewFrame get() = PreviewFrame(board, piece, points)
+
     companion object {
         /** The rows of the board the preview shows, the bottom ones. */
         const val PREVIEW_ROWS: Int = 6
@@ -79,3 +83,13 @@ internal data class PreviewReplay(val level: Level, val elapsed: Int = 0) {
         private fun Piece.droppedBy(rows: Int): Piece = copy(pivot = pivot.copy(row = pivot.row + rows))
     }
 }
+
+/** What the preview shows: its [board], the T in play over it, [piece], none once it has locked, and its [points]. */
+internal data class PreviewFrame(val board: Board, val piece: Piece?, val points: Points)
+
+/** The score the preview shows beside its board, on 6 digits as in a game. */
+internal fun previewScore(frame: PreviewFrame): String = scoreText(frame.points.value)
+
+/** The scores the preview may show at [level]: none, then that of its two lines. Laid out once, chosen while drawing. */
+internal fun previewScores(level: Level): List<String> =
+    listOf(PreviewReplay(level).frame, PreviewReplay.still(level).frame).map(::previewScore)

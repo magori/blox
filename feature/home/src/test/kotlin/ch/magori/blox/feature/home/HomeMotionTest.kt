@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.runtime.snapshots.Snapshot
 import ch.magori.blox.core.game.model.Level
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -45,6 +46,55 @@ class HomeMotionTest {
 
         // Then no halo yet
         assertThat(motion.halo).isZero()
+    }
+
+    @Test
+    fun `the preview notifies a change only when the T drops a row or locks`() {
+        // Given the preview at level 9, a row every 6 ticks: 4 rows down to its hole, then it locks
+        val motion = HomeMotion(Level(9))
+
+        // When its first 30 ticks go by, one by one
+        val changes = changesOf({ motion.preview }, ticks = 30) {
+            motion.advance(ticks = 1, level = Level(9))
+        }
+
+        // Then 5 changes: 4 rows, then the lock, and nothing in between
+        assertThat(changes).isEqualTo(5)
+    }
+
+    @Test
+    fun `the halo notifies no change while it is off`() {
+        // Given the home just shown
+        val motion = HomeMotion(Level(0))
+
+        // When its first 3 seconds go by, the halo off
+        val changes = changesOf({ motion.halo }, ticks = 3 * SECOND - 1) {
+            motion.advance(ticks = 1, level = Level(0))
+        }
+
+        // Then nothing to draw again for it
+        assertThat(changes).isZero()
+    }
+
+    /**
+     * How many of [ticks] ticks, each applied by [tick] in a snapshot of its own as a frame applies it, change what
+     * [read] reads.
+     */
+    private fun changesOf(
+        read: () -> Any,
+        ticks: Int,
+        tick: () -> Unit,
+    ): Int {
+        val reads = mutableSetOf<Any>()
+        Snapshot.observe(readObserver = { reads += it }) { read() }
+        var changes = 0
+        val handle = Snapshot.registerApplyObserver { changed, _ -> if (changed.any { it in reads }) changes++ }
+        try {
+            repeat(ticks) { Snapshot.withMutableSnapshot(tick) }
+        } finally {
+            handle.dispose()
+        }
+        return changes
     }
 }
 

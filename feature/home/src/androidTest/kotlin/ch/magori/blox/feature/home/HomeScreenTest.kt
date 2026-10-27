@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.home
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.safeDrawing
@@ -44,6 +45,7 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -697,6 +699,37 @@ internal class HomeScreenTest {
     }
 
     @Test
+    @DisplayName("a touch on the home puts the halo of Jouer off for 3 seconds again")
+    fun aTouchOnTheHomePutsTheHaloOffAgain() = extension.use {
+        // Given the home in full effects, its frames handed by hand, nothing yet around Jouer
+        mainClock.autoAdvance = false
+        showHomeScreen(effects = BloxEffects.Full)
+        mainClock.advanceTimeByFrame()
+        val off = aboveJouer()
+
+        // When the halo pulses, three seconds and a half later, and the player touches the home (the logo)
+        mainClock.advanceTimeBy(HALF_A_PULSE_IN)
+        val pulsing = aboveJouer()
+        onNode(hasContentDescription("BloX") and isHeading()).performTouchInput {
+            down(center)
+            up()
+        }
+        mainClock.advanceTimeBy(ONE_SECOND)
+
+        // Then the halo showed above Jouer, and a second after the touch, it is off again
+        assertThat(pulsing.sameAs(off)).describedAs("the halo pulsing").isFalse()
+        assertThat(aboveJouer().sameAs(off)).describedAs("the halo off again").isTrue()
+    }
+
+    /** The strip of the screen just above Jouer, where its halo shows, under the preview. */
+    private fun ComposeContext.aboveJouer(): Bitmap {
+        val image = onRoot().captureToImage().asAndroidBitmap()
+        val top = onNode(hasTestTag(PLAY_TAG)).getUnclippedBoundsInRoot().top
+        val (from, height) = with(density) { (top - ABOVE_JOUER).roundToPx() to STRIP.roundToPx() }
+        return Bitmap.createBitmap(image, 0, from, image.width, height)
+    }
+
+    @Test
     @DisplayName("in reduced effects the preview and the halo stand still")
     fun inReducedEffectsThePreviewAndTheHaloStandStill() = extension.use {
         // Given the home in reduced effects, its frames handed by hand
@@ -876,3 +909,13 @@ private const val FOUR_SECONDS = 4_000L
  * frame at each frame, and would keep Compose from ever being idle while its clock runs by itself.
  */
 private val STILL = BloxEffects(reduced = true, forcedBySystem = false)
+
+/** Three seconds and a half: the first pulse of the halo half gone. */
+private const val HALF_A_PULSE_IN = 3_500L
+
+/** A second of the clock of the test, in milliseconds. */
+private const val ONE_SECOND = 1_000L
+
+/** The strip above Jouer where its halo shows: from 10 dp above it, 8 dp high, in the room between it and the hero. */
+private val ABOVE_JOUER = 10.dp
+private val STRIP = 8.dp

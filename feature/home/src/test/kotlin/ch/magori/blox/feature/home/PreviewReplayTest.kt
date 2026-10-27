@@ -97,6 +97,18 @@ class PreviewReplayTest {
         assertThat(still.points).isEqualTo(ended.points)
     }
 
+    @Test
+    fun `the preview scores 000000, then 000600 once its lines clear at level 5, and 000600 at once still`() {
+        // Given the preview at level 5
+        val start = PreviewReplay(Level(5))
+
+        // Then the score it shows, as in a game, on 6 digits; the two it may show, laid out before
+        assertThat(previewScore(start.frame)).isEqualTo("000000")
+        assertThat(previewScore(start.untilLocked().frame)).isEqualTo("000600")
+        assertThat(previewScore(PreviewReplay.still(Level(5)).frame)).isEqualTo("000600")
+        assertThat(previewScores(Level(5))).containsExactly("000000", "000600")
+    }
+
     /** This preview advanced one tick at a time until its T has locked. */
     private fun PreviewReplay.untilLocked(): PreviewReplay =
         generateSequence(this) { it.advancedBy(1) }.take(MAX_TICKS).first { it.piece == null }

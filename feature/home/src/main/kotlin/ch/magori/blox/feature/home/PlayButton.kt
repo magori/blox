@@ -3,6 +3,7 @@ package ch.magori.blox.feature.home
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.LocalTextStyle
@@ -13,10 +14,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -51,26 +51,34 @@ internal fun PlayButton(
     halo: () -> Float = { 0f },
 ) {
     val ring = BloxTheme.palette.accentRing
-    BubbleButton(
-        family = ButtonFamily.PRIMARY_XL,
-        onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .drawBehind { drawHalo(halo(), ring) }
-            .testTag(PLAY_TAG)
-            .semantics { contentDescription = description },
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            SingleLineText(text = stringResource(R.string.feature_home_play), style = LocalTextStyle.current)
-            Text(
-                text = reminder,
-                style = MaterialTheme.typography.labelMedium.merge(BloxTheme.typography.small)
-                    .copy(fontWeight = FontWeight.SemiBold),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+    Box(modifier = modifier.fillMaxWidth()) {
+        // The halo on a layer of its own, behind Jouer: each step of a pulse draws it alone again.
+        Spacer(
+            modifier = Modifier
+                .matchParentSize()
+                .graphicsLayer()
+                .drawBehind { drawHalo(halo(), ring) },
+        )
+        BubbleButton(
+            family = ButtonFamily.PRIMARY_XL,
+            onClick = onClick,
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(PLAY_TAG)
+                .semantics { contentDescription = description },
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                SingleLineText(text = stringResource(R.string.feature_home_play), style = LocalTextStyle.current)
+                Text(
+                    text = reminder,
+                    style = MaterialTheme.typography.labelMedium.merge(BloxTheme.typography.small)
+                        .copy(fontWeight = FontWeight.SemiBold),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+            PlayDisc()
         }
-        PlayDisc()
     }
 }
 
@@ -97,14 +105,13 @@ private fun DrawScope.drawHalo(
     progress: Float,
     ring: Color,
 ) {
-    if (progress <= 0f) return
-    val spread = HALO_SPREAD.toPx() * progress
+    val halo = haloRing(progress, size, HALO_SPREAD.toPx()) ?: return
     drawRoundRect(
         color = ring,
-        alpha = 1f - progress,
-        topLeft = Offset(-spread, -spread),
-        size = Size(size.width + 2 * spread, size.height + 2 * spread),
-        cornerRadius = CornerRadius(size.height / 2 + spread),
+        alpha = halo.alpha,
+        topLeft = halo.topLeft,
+        size = halo.size,
+        cornerRadius = CornerRadius(halo.corner),
     )
 }
 

@@ -1,6 +1,8 @@
 package ch.magori.blox.core.board.logo
 
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -41,5 +43,30 @@ class LogoLookTest {
                 ),
             ),
         )
+    }
+
+    @Test
+    fun `a blurred shadow is drawn as its blur alone, the letters it is cast by left transparent`() {
+        // Given the soft shadow of the day, 12 k lower, blurred over 14 k, k being 2 px
+        val shadow = LogoShadow(Color(0x4D5A50A0), drop = 12f, blur = 14f)
+
+        // When
+        val drawn = shadow.drawnAt(unit = 2f)
+
+        // Then no glyph with a hard edge: the blur alone, 24 px lower
+        assertThat(drawn).isEqualTo(
+            DrawnShadow(
+                letters = Color.Transparent,
+                lower = 0f,
+                blur = Shadow(Color(0x4D5A50A0), Offset(0f, 24f), 28f),
+            ),
+        )
+    }
+
+    @Test
+    fun `a shadow without blur is drawn as the letters in its colour, lower`() {
+        val drawn = LogoShadow(Color.White, drop = 2f, blur = 0f).drawnAt(unit = 2f)
+
+        assertThat(drawn).isEqualTo(DrawnShadow(letters = Color.White, lower = 4f, blur = null))
     }
 }

@@ -9,13 +9,14 @@ import ch.magori.blox.core.game.model.Position
  * The cells to draw, row by row: the cell of column `c` and of the `r`-th row shown is at index
  * `r × board.columns + c`. They are the bottom [rows] of the visible rows 0 to 19 of [board], all of them unless told
  * otherwise, with the cells of the [piece] in play drawn over them. Its cells above the rows shown, the hidden rows -2
- * and -1 included, are not drawn.
+ * and -1 included, are not drawn. Rejects fewer than 1 row, or more than the board has.
  */
 internal fun displayedCells(
     board: Board,
     piece: Piece?,
     rows: Int = board.rows,
 ): List<Cell> {
+    require(rows in 1..board.rows) { "Between 1 and ${board.rows} rows may be shown: $rows" }
     val firstRow = board.rows - rows
     val cells = MutableList(rows * board.columns) { index ->
         board[Position(column = index % board.columns, row = firstRow + index / board.columns)]

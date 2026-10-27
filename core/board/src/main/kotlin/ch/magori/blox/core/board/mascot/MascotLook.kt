@@ -2,6 +2,7 @@ package ch.magori.blox.core.board.mascot
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import ch.magori.blox.core.board.SOFT_SHADOW
 import ch.magori.blox.core.board.cellStyle
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
@@ -52,7 +53,7 @@ internal fun mascotLook(
     val shadow = if (night) {
         MascotShadow(color = body.fill.copy(alpha = NIGHT_HALO_ALPHA), drop = 0f, blur = NIGHT_HALO_BLUR)
     } else {
-        MascotShadow(color = DAY_SHADOW, drop = DAY_SHADOW_DROP, blur = DAY_SHADOW_BLUR)
+        MascotShadow(color = SOFT_SHADOW, drop = DAY_SHADOW_DROP, blur = DAY_SHADOW_BLUR)
     }
     return MascotLook(
         fill = body.fill,
@@ -68,8 +69,6 @@ internal fun mascotLook(
 private const val DAY_CORNER = 0.3f
 private const val NIGHT_CORNER = 0.26f
 
-/** rgba(90,80,160,0.3), as under the letters of the logo. */
-private val DAY_SHADOW = Color(red = 90, green = 80, blue = 160).copy(alpha = 0.3f)
 private const val DAY_SHADOW_DROP = 0.12f
 private const val DAY_SHADOW_BLUR = 0.16f
 private const val NIGHT_HALO_ALPHA = 0.6f

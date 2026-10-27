@@ -34,11 +34,11 @@ internal const val HOME_PREVIEW_TAG = "home_preview"
 /**
  * The home screen (V27, Couleurs v2), its parts laid out for a phone held upright ([HomeColumn]): the bar (Changer de
  * jeu, through [onChangeGame], the record, and the gear, which opens the settings page through [onSettings]), the hero
- * ([HomeHero]: logo and preview), Jouer with its halo and the reminder of the game it starts, the card of the settings (mode, theme, start level,
- * music, each chosen saved by the view model), and the tiles « Mes musiques », through [onMyMusics], and « Composer une
- * musique », through [onCompose]. It is drawn in the theme of the application, which follows the chosen theme: a new
- * choice colours this screen at once. Taps on what leaves the home count only while it is resumed: once a game is on
- * its way, a second tap does nothing.
+ * ([HomeHero]: logo and preview), Jouer with its halo and the reminder of the game it starts, the card of the settings
+ * (mode, theme, start level, music, each chosen saved by the view model), and the tiles « Mes musiques », through
+ * [onMyMusics], and « Composer une musique », through [onCompose]. It is drawn in the theme of the application, which
+ * follows the chosen theme: a new choice colours this screen at once. Taps on what leaves the home count only while it
+ * is resumed: once a game is on its way, a second tap does nothing.
  */
 @Composable
 internal fun HomeScreen(

@@ -15,7 +15,6 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -81,14 +80,8 @@ private fun LogoLetters(
         modifier = modifier.drawBehind {
             val unit = k.toPx()
             shadows.forEach { shadow ->
-                translate(top = shadow.drop * unit) {
-                    drawText(
-                        laidOut,
-                        color = shadow.color,
-                        shadow = Shadow(shadow.color, Offset.Zero, blurRadius = shadow.blur * unit)
-                            .takeIf { shadow.blur > 0f },
-                    )
-                }
+                val drawn = shadow.drawnAt(unit)
+                translate(top = drawn.lower) { drawText(laidOut, color = drawn.letters, shadow = drawn.blur) }
             }
         },
     )

@@ -1,7 +1,10 @@
 package ch.magori.blox.core.board.logo
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import ch.magori.blox.core.board.SOFT_SHADOW
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.IrisColors
 
@@ -30,7 +33,7 @@ private fun IrisColors.stops() = listOf(start, middle, end)
 
 /** By day, three drop shadows under every letter: a soft one, the lilac of `accent`, a white rim. */
 private val DAY_SHADOWS = listOf(
-    LogoShadow(Color(red = 90, green = 80, blue = 160).copy(alpha = 0.3f), drop = 12f, blur = 14f),
+    LogoShadow(SOFT_SHADOW, drop = 12f, blur = 14f),
     LogoShadow(BloxPalettes.ColorfulLight.accent, drop = 5f, blur = 0f),
     LogoShadow(Color.White, drop = 2f, blur = 0f),
 )
@@ -66,4 +69,16 @@ private val NIGHT = BloxPalettes.ColorfulDark.iris.let { iris ->
             NIGHT_SHADOW,
         ),
     )
+}
+
+/**
+ * How a [LogoShadow] is drawn under letters of [unit] pixels per `k`: a blurred one as its blur alone, the letters that
+ * cast it left transparent, so that no hard edge shows; one without blur as the letters in its colour, lower.
+ */
+internal data class DrawnShadow(val letters: Color, val lower: Float, val blur: Shadow?)
+
+internal fun LogoShadow.drawnAt(unit: Float): DrawnShadow = if (blur > 0f) {
+    DrawnShadow(letters = Color.Transparent, lower = 0f, blur = Shadow(color, Offset(0f, drop * unit), blur * unit))
+} else {
+    DrawnShadow(letters = color, lower = drop * unit, blur = null)
 }
