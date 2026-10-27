@@ -138,6 +138,24 @@ internal class GameScreenTest {
     }
 
     @Test
+    @DisplayName("nothing on the screen recomposes while the curtain of the pause comes down")
+    fun nothingRecomposesWhileTheCurtainComesDown() = extension.use {
+        // Given a game that pauses, the curtain starting to come down, its frames handed by hand
+        showGameScreen()
+        mainClock.autoAdvance = false
+        runOnIdle { uiState = uiState.copy(paused = true) }
+        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeByFrame()
+
+        // When the curtain comes down, for half its 12 ticks
+        recompositions.start()
+        mainClock.advanceTimeBy(FRAME_MILLIS * 6)
+
+        // Then it is only drawn again
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
     @DisplayName("the side column does not recompose while the piece moves")
     fun theSideColumnDoesNotRecomposeWhileThePieceMoves() = extension.use {
         // Given the screen of a game under way
@@ -199,8 +217,8 @@ internal class GameScreenTest {
     }
 
     @Test
-    @DisplayName("the pause screen takes the place of the game while it is paused")
-    fun thePauseScreenTakesThePlaceOfTheGameWhileItIsPaused() = extension.use {
+    @DisplayName("the card of the pause shows over the game while it is paused")
+    fun theCardOfThePauseShowsOverTheGameWhileItIsPaused() = extension.use {
         showGameScreen()
 
         runOnIdle { uiState = uiState.copy(paused = true) }
@@ -307,6 +325,9 @@ internal class GameScreenTest {
     }
 
     private companion object {
+        /** The duration of a frame of the clock of the test. */
+        const val FRAME_MILLIS = 16L
+
         val BOARD = hasContentDescription("Plateau : pile de 3 rangées sur 20")
         val SCORE = hasContentDescription("Score : 12340")
         val NEXT = hasContentDescription("Suivante : pièce I")

@@ -51,8 +51,8 @@ internal object SidePanelSizes {
 /**
  * The side column of the game screen: score, level, lines and next piece, each in a panel. No
  * logic here: the texts come from [scoreText], [levelText] and [linesText], the preview from
- * [NextPieceCanvas], with cells of [cellSize] pixels, those of the board. [next] is null when the
- * next piece is hidden (pause, option).
+ * [NextPieceCanvas], with cells of [cellSize] pixels, those of the board, and [previewModifier] (the curtain of the
+ * pause). [next] is null when the next piece is hidden (pause, option).
  */
 @Composable
 internal fun SidePanel(
@@ -62,10 +62,11 @@ internal fun SidePanel(
     next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         ScorePanels(score = score, level = level, lines = lines)
-        NextPiecePanel(next = next, cellSize = cellSize)
+        NextPiecePanel(next = next, cellSize = cellSize, previewModifier = previewModifier)
     }
 }
 
@@ -87,7 +88,8 @@ internal fun ScorePanels(
 /**
  * The side column laid across, above the board of a very narrow window: score and level, then lines and next
  * piece, the next piece with cells of [cellSize] pixels, those of the board. The two panels of a row are as wide
- * and as high as each other. [next] is null when the next piece is hidden.
+ * and as high as each other, the preview of the next piece with [previewModifier]. [next] is null when the next piece
+ * is hidden.
  */
 @Composable
 internal fun ScoreGrid(
@@ -97,6 +99,7 @@ internal fun ScoreGrid(
     next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
@@ -105,7 +108,12 @@ internal fun ScoreGrid(
         }
         PanelRow {
             LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
-            NextPiecePanel(next = next, cellSize = cellSize, modifier = Modifier.weight(1f).fillMaxHeight())
+            NextPiecePanel(
+                next = next,
+                cellSize = cellSize,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                previewModifier = previewModifier,
+            )
         }
     }
 }
@@ -144,12 +152,16 @@ private fun LinesPanel(
     ValuePanel(stringResource(R.string.feature_game_lines), linesText(lines), lines.value, modifier)
 }
 
-/** The next piece in its panel, with cells of [cellSize] pixels, those of the board. */
+/**
+ * The next piece in its panel, with cells of [cellSize] pixels, those of the board; its preview takes
+ * [previewModifier] (the curtain of the pause).
+ */
 @Composable
 internal fun NextPiecePanel(
     next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     val nextLabel = stringResource(R.string.feature_game_next)
     val nextName = nextPieceName(next)
@@ -162,7 +174,7 @@ internal fun NextPiecePanel(
         NextPieceCanvas(
             next = next,
             cellSize = cellSize,
-            modifier = Modifier
+            modifier = previewModifier
                 .fillMaxWidth()
                 .height(previewHeight),
         )

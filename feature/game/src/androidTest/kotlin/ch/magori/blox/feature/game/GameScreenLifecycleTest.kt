@@ -69,9 +69,9 @@ internal class GameScreenLifecycleTest {
             // When another window comes in front of it: ON_PAUSE, the frames still drawn (STARTED)
             runOnUiThread { lifecycle.registry.currentState = Lifecycle.State.STARTED }
 
-            // Then the game waits for the player, paused, as the next frame shows
+            // Then the game waits for the player, paused, as the card shows once the curtain is down
             runOnIdle { assertThat(game.uiState.value.paused).isTrue() }
-            mainClock.advanceTimeByFrame()
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
             onNodeWithText(string(R.string.feature_game_pause_resume)).assertIsDisplayed()
         }
     }
@@ -190,11 +190,11 @@ internal class GameScreenLifecycleTest {
     @DisplayName("paused, a window that becomes too small to play shows the message in place of the pause screen")
     fun pausedAWindowThatBecomesTooSmallShowsTheMessageInPlaceOfThePauseScreen() {
         runAndroidComposeUiTest<ComponentActivity> {
-            // Given a game paused in a window large enough: the pause screen
+            // Given a game paused in a window large enough: the card of the pause, once the curtain is down
             val game = showGame()
             mainClock.advanceTimeBy(FRAME_MILLIS * 5)
             runOnUiThread { game.onPause() }
-            mainClock.advanceTimeByFrame()
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
             onNodeWithText(string(R.string.feature_game_pause_resume)).assertIsDisplayed()
 
             // When the window becomes too small to play
@@ -232,10 +232,11 @@ internal class GameScreenLifecycleTest {
                 assertThat(game.uiState.value.piece).isEqualTo(piece)
             }
 
-            // And once the window is large enough and the game resumed, its first frame moves nothing
+            // And once the window is large enough and the game resumed, the curtain open, its first frame moves nothing
             size = null
-            mainClock.advanceTimeByFrame()
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
             onNodeWithText(string(R.string.feature_game_pause_resume)).performClick()
+            advanceUntilResumed(game)
             mainClock.advanceTimeByFrame()
             runOnIdle { assertThat(game.uiState.value.piece).isEqualTo(piece) }
         }
@@ -252,12 +253,13 @@ internal class GameScreenLifecycleTest {
 
             // When the window grows
             size = null
-            mainClock.advanceTimeBy(FRAME_MILLIS * 5)
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
 
-            // Then the pause screen, the game still paused, until Reprendre
+            // Then the card of the pause, the game still paused, until Reprendre has opened the curtain
             onNodeWithText(string(R.string.feature_game_too_small)).assertDoesNotExist()
             runOnIdle { assertThat(game.uiState.value.paused).isTrue() }
             onNodeWithText(string(R.string.feature_game_pause_resume)).performClick()
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
             runOnIdle { assertThat(game.uiState.value.paused).isFalse() }
         }
     }
@@ -327,6 +329,15 @@ internal class GameScreenLifecycleTest {
         }
     }
 
+    /** Hands frames, one at a time, until the curtain of the pause is open and [game] goes on. */
+    private fun AndroidComposeUiTest<ComponentActivity>.advanceUntilResumed(game: GameViewModel) {
+        var frames = 0
+        while (runOnIdle { game.uiState.value.paused }) {
+            check(frames++ < CURTAIN_MILLIS / FRAME_MILLIS) { "The game did not resume once the curtain was open" }
+            mainClock.advanceTimeByFrame()
+        }
+    }
+
     private fun AndroidComposeUiTest<ComponentActivity>.string(id: Int): String = checkNotNull(activity).getString(id)
 
     private fun pieceRow(game: GameViewModel): Int = checkNotNull(game.uiState.value.piece).pivot.row
@@ -343,6 +354,9 @@ internal class GameScreenLifecycleTest {
 
         /** The duration of a frame of the clock of the test. */
         const val FRAME_MILLIS = 16L
+
+        /** More than the 12 ticks of the curtain of the pause (`motion-curtain`), with the frame that starts it. */
+        const val CURTAIN_MILLIS = FRAME_MILLIS * 16
 
         /** Ten seconds in pause: far more than the four ticks a frame may give. */
         const val PAUSE_MILLIS = 10_000L

@@ -23,11 +23,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusTarget
 import androidx.compose.ui.focus.onFocusChanged
@@ -41,6 +43,7 @@ import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.isTraversalGroup
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.traversalIndex
@@ -60,6 +63,7 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.board.BoardCanvas
 import ch.magori.blox.core.board.next.NextPieceCells
 import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Board
@@ -79,15 +83,24 @@ import ch.magori.blox.feature.game.controls.keySourceOf
 import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
 import ch.magori.blox.feature.game.gameover.GameOverScreen
-import ch.magori.blox.feature.game.pause.PauseScreen
+import ch.magori.blox.feature.game.pause.CurtainPhase
+import ch.magori.blox.feature.game.pause.PauseCard
+import ch.magori.blox.feature.game.pause.PauseCurtain
+import ch.magori.blox.feature.game.pause.PauseCurtainEffect
+import ch.magori.blox.feature.game.pause.PauseCurtainState
+import ch.magori.blox.feature.game.pause.drawnAsCurtain
+import ch.magori.blox.feature.game.pause.hiddenByCurtain
+import ch.magori.blox.feature.game.pause.rememberPauseCurtainState
 import ch.magori.blox.feature.game.sidepanel.NextPiecePanel
 import ch.magori.blox.feature.game.sidepanel.ScoreGrid
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
+import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
 import ch.magori.blox.feature.game.topbar.GameTopBar
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlin.math.roundToInt
 
@@ -101,8 +114,9 @@ import kotlin.math.roundToInt
  * player resumes it. A recreation of the activity (dark theme, language, window size) goes through
  * `ON_PAUSE` too, and so pauses the game: this is intended.
  *
- * The system back follows [backAction]: it pauses the game, resumes it, or, once the game is over or while the
- * window is too small to play, leaves it as the navigation does.
+ * The system back follows [backAction]: it pauses the game, resumes it as Reprendre does (the curtain of the pause
+ * opens, then the game goes on), or, once the game is over or while the window is too small to play, leaves it as the
+ * navigation does.
  */
 @Composable
 internal fun GameScreen(
@@ -139,13 +153,14 @@ internal fun GameScreen(
     LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
     var tooSmallToPlay by remember { mutableStateOf(false) }
     val backAction by rememberPart(uiState) { backAction(it, tooSmallToPlay) }
+    val pauseCurtain = rememberPauseCurtainState { uiStateHolder.value.paused }
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
         isBackEnabled = backAction != BackAction.LEAVE,
         onBackCompleted = {
             when (backAction) {
                 BackAction.PAUSE -> viewModel.onPause()
-                BackAction.RESUME -> viewModel.onResume()
+                BackAction.RESUME -> pauseCurtain.resume()
                 BackAction.LEAVE -> Unit
             }
         },
@@ -160,6 +175,7 @@ internal fun GameScreen(
         onResume = viewModel::onResume,
         modifier = modifier,
         onTooSmallToPlayChange = { tooSmallToPlay = it },
+        pauseCurtain = pauseCurtain,
     )
 }
 
@@ -177,14 +193,16 @@ private fun <T> rememberPart(
 
 /**
  * The game screen for the state given by [uiState]: the top bar ([onPause], the record), the board, the
- * side column and the controls, whose changes go to [onControl]. Paused, the pause screen in their
- * place, the board hidden: Reprendre is [onResume], Menu is [onBack]. Once the game is over, the game
- * over screen, which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
+ * side column and the controls, whose changes go to [onControl]. Paused, the curtain of [pauseCurtain], of empty
+ * cells, comes down over the board and the next piece, then the card of the pause shows over the game: Reprendre
+ * opens the curtain, and only once it is open does the game go on, by [onResume]; Menu is [onBack]. The curtain moves
+ * on the frame clock of Compose, the loop of the game stopped (ADR 0024). Once the game is over, the game over
+ * screen, which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
  *
  * In a window too small to play ([tooSmallToPlay], measured inside the system bars whatever shows), the message
- * « Agrandissez la fenêtre » in place of the board and of the pause screen, under the top bar, its pause button
+ * « Agrandissez la fenêtre » in place of the board and of the card of the pause, under the top bar, its pause button
  * disabled. The game is paused by [onPause] once the composition that shows the message is applied, before the next
- * frame and its ticks; the pause screen comes back only with a window large enough, where Reprendre resumes the
+ * frame and its ticks; the card comes back only with a window large enough, where Reprendre resumes the
  * game. Whether the window is too small goes to [onTooSmallToPlayChange] at the same time.
  *
  * Each part of the screen reads only the part of the state it shows: a move of the piece draws the
@@ -200,6 +218,7 @@ internal fun GameScreen(
     onResume: () -> Unit,
     modifier: Modifier = Modifier,
     onTooSmallToPlayChange: (Boolean) -> Unit = {},
+    pauseCurtain: PauseCurtainState = rememberPauseCurtainState { uiState().paused },
 ) {
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
@@ -223,6 +242,7 @@ internal fun GameScreen(
             onControl = onControl,
             onPause = onPause,
             onResume = onResume,
+            pauseCurtain = pauseCurtain,
         )
     }
 }
@@ -237,52 +257,82 @@ private fun Screens(
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
+    pauseCurtain: PauseCurtainState,
 ) {
     val gameOver = rememberPart(uiState) { it.gameOver }.value
     val paused by rememberPart(uiState) { it.paused }
-    // Each of the three screens takes the focus as it shows, so that the keys of a keyboard or a pad reach it.
-    val focus = remember { FocusRequester() }
+    PauseCurtainEffect(state = pauseCurtain, paused = paused, onResume = onResume)
+    val curtainShut by remember(pauseCurtain) {
+        derivedStateOf { pauseCurtain.curtain?.phase == CurtainPhase.CLOSED }
+    }
+    // The game and each menu take the focus as they show, so that the keys of a keyboard or a pad reach them.
+    val gameFocus = remember { FocusRequester() }
+    val menuFocus = remember { FocusRequester() }
     val menu = when {
         gameOver != null -> Menu.GAME_OVER
-        paused -> Menu.PAUSE
+        curtainShut && !tooSmallToPlay -> Menu.PAUSE
         else -> null
     }
-    LaunchedEffect(menu) { focus.requestFocus() }
+    LaunchedEffect(menu) { (if (menu == null) gameFocus else menuFocus).requestFocus() }
     val focusManager = LocalFocusManager.current
     // Whether the menu itself holds the focus, none of its buttons: an arrow then moves it into the buttons.
     var menuFocused by remember { mutableStateOf(false) }
     val menuModifier = { shown: Menu ->
         Modifier
             .onFocusChanged { menuFocused = it.isFocused }
-            .takingKeys(focus) {
+            .takingKeys(menuFocus) {
                 val repeatCount = it.nativeKeyEvent.repeatCount
-                menuKey(shown, it.key, it.type, repeatCount, menuFocused, onResume) {
+                menuKey(shown, it.key, it.type, repeatCount, menuFocused, pauseCurtain::resume) {
                     focusManager.moveFocus(FocusDirection.Enter)
                 }
             }
     }
-    when {
-        gameOver != null -> GameOverScreen(
+    if (gameOver != null) {
+        GameOverScreen(
             state = gameOver,
             onReplay = onReplay,
             onMenu = onBack,
             modifier = menuModifier(Menu.GAME_OVER),
         )
-
-        paused && !tooSmallToPlay -> PauseScreen(
-            onResume = onResume,
-            onMenu = onBack,
-            modifier = menuModifier(Menu.PAUSE),
-        )
-
-        else -> Game(
+    } else {
+        Game(
             uiState = uiState,
             tooSmallToPlay = tooSmallToPlay,
             onControl = onControl,
             onPause = onPause,
-            focus = focus,
+            focus = gameFocus,
+            curtain = { pauseCurtain.curtain },
+            underCard = menu == Menu.PAUSE,
         )
+        // Over the game, once the curtain hides the board.
+        if (menu == Menu.PAUSE) {
+            PausedCard(
+                uiState = uiState,
+                onResume = pauseCurtain::resume,
+                onMenu = onBack,
+                modifier = menuModifier(Menu.PAUSE),
+            )
+        }
     }
+}
+
+/** The card of the pause, with the score, level and lines of the game given by [uiState]. */
+@Composable
+private fun PausedCard(
+    uiState: () -> GameUiState,
+    onResume: () -> Unit,
+    onMenu: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val side by rememberPart(uiState, GameUiState::sideColumn)
+    PauseCard(
+        score = side.score,
+        level = side.level,
+        lines = side.lines,
+        onResume = onResume,
+        onMenu = onMenu,
+        modifier = modifier,
+    )
 }
 
 /**
@@ -302,6 +352,9 @@ private fun Modifier.takingKeys(
  * In a window [tooSmallToPlay], the message « Agrandissez la fenêtre » in place of the board, the side column and
  * the controls, the pause button disabled: the game is already paused. The keys still reach the controls, which the
  * paused game ignores, rather than the system, where B and Escape would leave the game.
+ *
+ * The [curtain] of the pause covers the board and the next piece; [underCard], under the card of the pause, TalkBack
+ * reads nothing of the game, and neither the focus nor a key of the system goes into it.
  */
 @Composable
 private fun Game(
@@ -310,12 +363,19 @@ private fun Game(
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     focus: FocusRequester,
+    curtain: () -> PauseCurtain?,
+    underCard: Boolean,
     modifier: Modifier = Modifier,
 ) {
     val record by rememberPart(uiState) { it.record }
     val controls = rememberHeldControls(onControl)
+    // The buttons still held are let go as the game pauses: it stays on screen, under the curtain.
+    LaunchedEffect(controls) {
+        snapshotFlow { uiState().paused }.filter { it }.collect { controls.cancel() }
+    }
     Column(
         modifier = modifier
+            .then(if (underCard) UnderCard else Modifier)
             .takingKeys(focus) {
                 val source = keySourceOf(it.nativeKeyEvent.source)
                 controls.key(it.key, it.type, it.nativeKeyEvent.repeatCount, source, onPause)
@@ -345,11 +405,35 @@ private fun Game(
                 val height = constraints.maxHeight.toFloat()
                 val layout =
                     remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
-                Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
+                Play(
+                    uiState = uiState,
+                    layout = layout,
+                    controls = controls,
+                    curtain = curtain,
+                    modifier = Modifier.fillMaxSize(),
+                )
             }
         }
     }
 }
+
+/**
+ * The game under the card of the pause: TalkBack reads nothing of it, and the focus, moved by the arrows of the
+ * system, neither takes it nor goes into it, but goes to the buttons of the card.
+ */
+private val UnderCard: Modifier = Modifier
+    .clearAndSetSemantics {}
+    .focusProperties {
+        canFocus = false
+        onEnter = { cancelFocusChange() }
+    }
+
+/** The cells of the curtain of the pause: empty ones only. */
+private val EmptyCells = Board.empty()
+
+// Lambdas made once: the curtain keeps its painters from one composition to the next (BoardCanvas).
+private val EmptyBoard: () -> Board = { EmptyCells }
+private val NoPiece: () -> Piece? = { null }
 
 /** What the side column shows: it changes when a piece locks, not when it moves. */
 @Immutable
@@ -360,13 +444,15 @@ private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, line
 /**
  * The board, the side column and the touch controls of [controls], each where [layout] puts it. The score column
  * scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or over
- * the controls. The board reads the board and the piece only while drawing.
+ * the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
+ * cells, that covers the board and the next piece.
  */
 @Composable
 private fun Play(
     uiState: () -> GameUiState,
     layout: GameLayout,
     controls: HeldControls,
+    curtain: () -> PauseCurtain?,
     modifier: Modifier = Modifier,
 ) {
     val scoreScroll = rememberScrollState()
@@ -377,8 +463,16 @@ private fun Play(
             piece = { uiState().piece },
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
         )
+        // Over the board, the curtain: a board of empty cells, of which only the rows it covers are drawn.
+        BoardCanvas(
+            board = EmptyBoard,
+            piece = NoPiece,
+            modifier = Modifier.layoutId(layout.board).drawnAsCurtain(curtain, EmptyCells.rows),
+        )
         val nextPiece = layout.nextPiece
         val scores = Modifier.placedAt(layout.sidePanel, ReadingOrder.SCORES).verticalScroll(scoreScroll)
+        // Over the next piece, the curtain in the colour of its panel, where empty cells are not drawn.
+        val nextCurtain = Modifier.hiddenByCurtain(curtain, SidePanelSizes.PREVIEW_ROWS, BloxTheme.palette.panel)
         when {
             layout.scoresAbove -> ScoreGrid(
                 score = side.score,
@@ -387,6 +481,7 @@ private fun Play(
                 next = side.next,
                 cellSize = layout.cellSize,
                 modifier = scores,
+                previewModifier = nextCurtain,
             )
 
             nextPiece == null -> SidePanel(
@@ -396,6 +491,7 @@ private fun Play(
                 next = side.next,
                 cellSize = layout.cellSize,
                 modifier = scores,
+                previewModifier = nextCurtain,
             )
 
             else -> {
@@ -404,6 +500,7 @@ private fun Play(
                     next = side.next,
                     cellSize = layout.cellSize,
                     modifier = Modifier.placedAt(nextPiece, ReadingOrder.NEXT).wrapContentHeight(Alignment.Top),
+                    previewModifier = nextCurtain,
                 )
             }
         }
@@ -516,6 +613,43 @@ internal fun GameScreenColorfulPreview() {
 @Composable
 internal fun GameScreenPausedPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(paused = true))
+}
+
+// The curtain of the pause halfway down, in full effects (rows of empty cells) and in reduced ones (a fade).
+
+/** The game of [previewState] paused, its curtain 6 ticks down with [effects], the card not shown yet. */
+@Composable
+private fun CurtainPreview(effects: BloxEffects) {
+    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+        val paused = previewState.copy(paused = true)
+        val curtain = remember {
+            PauseCurtainState(paused = false, effects = effects).apply {
+                follow(paused = true, effects = effects)
+                advance(ticks = 6)
+            }
+        }
+        GameScreen(
+            uiState = { paused },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            pauseCurtain = curtain,
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenCurtainPreview() {
+    CurtainPreview(BloxEffects.Full)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenCurtainReducedPreview() {
+    CurtainPreview(BloxEffects(reduced = true, forcedBySystem = false))
 }
 
 @Preview(widthDp = 360, heightDp = 760, fontScale = 2f)

@@ -1,8 +1,6 @@
 package ch.magori.blox.feature.game.gameover
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -13,8 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +27,7 @@ import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.Statistic
 import ch.magori.blox.feature.game.ui.TitledScreen
 import ch.magori.blox.feature.game.ui.ValueText
 
@@ -121,30 +118,6 @@ private fun NewRecordBadge() {
             .background(palette.accent, BloxTheme.shapes.pill)
             .padding(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
     )
-}
-
-/** One statistic on a line: its [label] and its [value]; TalkBack reads [description]. */
-@Composable
-private fun Statistic(
-    label: String,
-    value: String,
-    description: String,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clearAndSetSemantics { contentDescription = description },
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label.uppercase(),
-            color = BloxTheme.palette.label,
-            fontSize = PanelSizes.label,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        ValueText(text = value)
-    }
 }
 
 /** The duration as TalkBack says it: "1 minute et 5 secondes", "1 minute" or "5 secondes", from [speech]. */
