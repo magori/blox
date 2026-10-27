@@ -44,9 +44,7 @@ private val SMALL_BUBBLE_CORNERS = RoundedCornerShape(2.dp)
  */
 class BubblePainter(fill: Color, highlight: Color?, shape: Shape, gloss: Gloss, size: Size, density: Density) {
     private val path = Path().apply { addOutline(shape.createOutline(size, LayoutDirection.Ltr, density)) }
-    private val brush: Brush? = highlight?.let {
-        Brush.verticalGradient(0f to it, HIGHLIGHT_END to fill, startY = 0f, endY = size.height)
-    }
+    private val brush: Brush? = highlight?.let { bubbleGradient(it, fill, size.height) }
     private val color = fill
     private val bands: GlossBands? = gloss.takeIf { it.layers.isNotEmpty() }?.let {
         glossBands(it, shape, size, LayoutDirection.Ltr, density)
@@ -68,6 +66,16 @@ class BubblePainter(fill: Color, highlight: Color?, shape: Shape, gloss: Gloss, 
         drawGloss(scope)
     }
 }
+
+/**
+ * The fill of a bubble [height] pixels high, from its top: [highlight] at the top, [fill] from 55 % of its height down
+ * (components/Piece).
+ */
+internal fun bubbleGradient(
+    highlight: Color,
+    fill: Color,
+    height: Float,
+): Brush = Brush.verticalGradient(0f to highlight, HIGHLIGHT_END to fill, startY = 0f, endY = height)
 
 /** Where the gradient of a bubble reaches its colour: 55 % of its height (components/Piece). */
 private const val HIGHLIGHT_END = 0.55f

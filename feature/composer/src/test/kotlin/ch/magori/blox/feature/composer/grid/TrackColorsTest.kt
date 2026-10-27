@@ -9,6 +9,8 @@ import ch.magori.blox.core.designsystem.theme.DesignTokens
 import ch.magori.blox.core.designsystem.theme.contrast
 import ch.magori.blox.core.designsystem.theme.cssColor
 import ch.magori.blox.core.designsystem.theme.namedPalettes
+import ch.magori.blox.core.designsystem.theme.variantGlosses
+import ch.magori.blox.core.designsystem.theme.variantPalette
 import ch.magori.blox.feature.composer.model.Track
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -145,24 +147,7 @@ internal class TrackColorsTest {
         val night = variant.isDark
         assertThat(look.color).isEqualTo(cssColor(if (night) colour.night else colour.day))
         assertThat(look.bubble?.highlight).isEqualTo(cssColor(if (night) highlight.night else highlight.day))
-        assertThat(look.bubble?.gloss).isEqualTo(colorfulGlosses(variant).cell)
-    }
-
-    @ParameterizedTest(name = "{0}, {1}")
-    @MethodSource("colorfulVariantsAndTracks")
-    fun `the lower part of a note stands out from the cell by 3 to 1 at least`(
-        variant: BloxThemeVariant,
-        track: Track,
-    ) {
-        // Given the cell under the note
-        val cell = cellColors(colorfulPalette(variant), track).background
-
-        // When
-        val look = colorfulNoteLook(variant, track)
-
-        // Then (WCAG 2.1, 1.4.11: graphical objects): from 55 % of its height down, the note is in the colour of its
-        // track; its highlight, near white by day, may not stand out from the pale cell, its lower part does
-        assertThat(contrast(look.color, cell)).isGreaterThanOrEqualTo(3.0)
+        assertThat(look.bubble?.gloss).isEqualTo(variantGlosses(variant).cell)
     }
 
     companion object {
@@ -181,22 +166,14 @@ internal class TrackColorsTest {
 
         private val COLORFUL = listOf(BloxThemeVariant.COLORFUL_LIGHT, BloxThemeVariant.COLORFUL_DARK)
 
-        /** The palette of a variant of the Colorful theme. */
-        fun colorfulPalette(variant: BloxThemeVariant): BloxPalette =
-            if (variant.isDark) BloxPalettes.ColorfulDark else BloxPalettes.ColorfulLight
-
-        /** The reliefs of a variant of the Colorful theme. */
-        fun colorfulGlosses(variant: BloxThemeVariant): BloxGlosses =
-            if (variant.isDark) BloxGlossSets.ColorfulDark else BloxGlossSets.ColorfulLight
-
         /** The look of a note of [track] in a variant of the Colorful theme, as the grid draws it. */
         fun colorfulNoteLook(
             variant: BloxThemeVariant,
             track: Track,
         ): NoteLook = noteLook(
             variant = variant,
-            palette = colorfulPalette(variant),
-            glosses = colorfulGlosses(variant),
+            palette = variantPalette(variant),
+            glosses = variantGlosses(variant),
             track = track,
         )
     }

@@ -45,7 +45,6 @@ import androidx.compose.ui.input.pointer.PointerId
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.changedToUp
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -64,7 +63,6 @@ import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.feature.composer.R
 import ch.magori.blox.feature.composer.model.CELLS_PER_BAR
@@ -143,15 +141,12 @@ internal fun NoteGrid(
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
-    val variant = BloxTheme.variant
-    // Original is frozen (P5.86): its grid stays that of V8, flat, unframed.
-    val dressed = variant != BloxThemeVariant.ORIGINAL
     val colors = cellColors(palette, track)
-    val note = noteLook(variant, palette, BloxTheme.glosses, track)
+    val note = noteLook(BloxTheme.variant, palette, BloxTheme.glosses, track)
+    val dressed = note.dressed
     val outline = playedOutline(palette)
-    val density = LocalDensity.current
-    // Once per density, not at each touch: each painter is built on its first note of a look and a size.
-    val painters = remember(density) { NotePainters { look, size -> NotePainter(look, size, density) } }
+    // Once, not at each touch: each painter is built on its first note of a look, a size and a density.
+    val painters = remember { NotePainters(::NotePainter) }
     val scroll = rememberScrollState()
     val fade = remember(scroll, palette.boardBackground) { Modifier.fadeBelow(scroll, palette.boardBackground) }
     Column(modifier = modifier) {
@@ -510,7 +505,7 @@ private fun DrawScope.drawPart(
         CellPart.ATTACK -> {
             val inset = GridSizes.noteInset.toPx()
             val noteSize = Size((width - 2 * inset).coerceAtLeast(1f), (size.height - 2 * inset).coerceAtLeast(1f))
-            translate(left + inset, inset) { painters.get(note, noteSize).draw(this) }
+            translate(left + inset, inset) { painters.get(note, noteSize, density = this).draw(this) }
         }
 
         CellPart.HELD -> {

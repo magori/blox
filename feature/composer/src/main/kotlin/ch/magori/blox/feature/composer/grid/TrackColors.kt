@@ -69,7 +69,13 @@ internal data class NoteBubble(val highlight: Color, val gloss: Gloss)
  * grid stays as it was).
  */
 @Immutable
-internal data class NoteLook(val color: Color, val bubble: NoteBubble?)
+internal data class NoteLook(val color: Color, val bubble: NoteBubble?) {
+    /**
+     * Whether the grid of these notes is dressed as V33, a block framed, « TEMPS » in capitals, its bottom fading: with
+     * bubbles only. Original, frozen (P5.86), keeps its flat grid. The one place that tells them apart.
+     */
+    val dressed: Boolean get() = bubble != null
+}
 
 /**
  * The look of a note of [track] in [variant], whose colours are [palette] and reliefs [glosses]: in Colorful, a bubble

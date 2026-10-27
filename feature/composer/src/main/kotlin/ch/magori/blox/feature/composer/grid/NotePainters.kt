@@ -18,29 +18,45 @@ internal fun NoteBubble.lookAt(
 ): BubbleLook = bubbleLook(with(density) { size.minDimension.toDp() }, gloss)
 
 /**
- * The painters of the notes, each one built by [build] once for its look and its size, then kept: a touch draws the
- * line again, never builds a painter again. A grid has few sizes of note (the cells, a beat apart or not, their
- * halves), and a theme two looks, one per track: the painters are looked up one by one, without allocating anything.
+ * The painters of the notes, each one built by [build] once for its look, its size and the density, then kept: a touch
+ * draws the line again, never builds a painter again; a change of density builds them again. A grid has few sizes of
+ * note (the cells, a beat apart or not, their halves), and a theme two looks, one per track: the painters are looked up one by one, without allocating anything.
  * Should a window resized many times leave more than [MAX_PAINTERS], they are built anew.
  */
 @Stable
-internal class NotePainters<T : Any>(private val build: (look: NoteLook, size: Size) -> T) {
+internal class NotePainters<T : Any>(private val build: (look: NoteLook, size: Size, density: Density) -> T) {
     private val built = ArrayList<Built<T>>()
 
-    /** The painter of a note of [look] and [size], built on the first call. */
+    /** How many painters are kept. */
+    val kept: Int get() = built.size
+
+    /** The painter of a note of [look] and [size] at [density], built on the first call. */
     fun get(
         look: NoteLook,
         size: Size,
+        density: Density,
     ): T {
         for (index in built.indices) {
             val kept = built[index]
-            if (kept.width == size.width && kept.height == size.height && kept.look == look) return kept.painter
+            if (kept.matches(look, size, density)) return kept.painter
         }
         if (built.size >= MAX_PAINTERS) built.clear()
-        return build(look, size).also { built += Built(look, size.width, size.height, it) }
+        return build(look, size, density).also { built += Built(look, size.width, size.height, density.density, it) }
     }
 
-    private class Built<T>(val look: NoteLook, val width: Float, val height: Float, val painter: T)
+    private class Built<T>(
+        val look: NoteLook,
+        val width: Float,
+        val height: Float,
+        val density: Float,
+        val painter: T,
+    ) {
+        fun matches(
+            look: NoteLook,
+            size: Size,
+            density: Density,
+        ) = width == size.width && height == size.height && this.density == density.density && this.look == look
+    }
 }
 
 /** Far more painters than a grid needs: a few sizes, two looks. */

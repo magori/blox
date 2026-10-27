@@ -5,6 +5,7 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
+import ch.magori.blox.core.designsystem.theme.variantGlosses
 import ch.magori.blox.core.game.model.Cell
 import ch.magori.blox.core.game.model.PieceType
 import org.assertj.core.api.Assertions.assertThat
@@ -60,7 +61,7 @@ class CellStylesTest {
             assertThat(style.centre).isNull()
             assertThat(style.joint).isEqualTo(CellJoint.Fixed(width = 1.dp))
             assertThat(style.bubble?.highlight).isNotNull()
-            assertThat(style.bubble?.gloss).isEqualTo(cellGloss(variant))
+            assertThat(style.bubble?.gloss).isEqualTo(variantGlosses(variant).cell)
         }
     }
 
@@ -99,10 +100,4 @@ class CellStylesTest {
     }
 
     private fun rgb(hex: String): Color = Color(0xFF000000 or hex.toLong(radix = 16))
-
-    /** The gloss of the cells of a Colorful variant, by day or by night. */
-    private fun cellGloss(variant: BloxThemeVariant): Gloss = when (variant) {
-        BloxThemeVariant.COLORFUL_LIGHT -> BloxGlossSets.ColorfulLight.cell
-        else -> BloxGlossSets.ColorfulDark.cell
-    }
 }
