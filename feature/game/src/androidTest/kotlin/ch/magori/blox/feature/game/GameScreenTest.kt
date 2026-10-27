@@ -25,8 +25,12 @@ import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.RecompositionRecorder
@@ -101,8 +105,18 @@ internal class GameScreenTest {
 
     private val moveDown = { uiState = uiState.copy(piece = uiState.piece?.moved(Direction.DOWN)) }
 
-    /** The game screen for [uiState], drawn once, the size of the device or of [size], even larger than the device. */
-    private fun ComposeContext.showGameScreen(size: DpSize? = null) {
+    /** The times Rejouer and Copier were pressed. */
+    private var replays = 0
+    private var copies = 0
+
+    /**
+     * The game screen for [uiState], drawn once, the size of the device or of [size], even larger than the device, with
+     * the [labels] of its variant.
+     */
+    private fun ComposeContext.showGameScreen(
+        size: DpSize? = null,
+        labels: GameLabels = GameLabels.Classic,
+    ) {
         setContent {
             resume = stringResource(R.string.feature_game_pause_resume)
             replay = stringResource(R.string.feature_game_over_replay)
@@ -117,10 +131,12 @@ internal class GameScreenTest {
                         GameScreen(
                             uiState = { uiState },
                             onBack = {},
-                            onReplay = {},
+                            onReplay = { replays++ },
                             onControl = {},
                             onPause = {},
                             onResume = {},
+                            labels = labels,
+                            onCopy = { copies++ },
                         )
                     }
                 }
@@ -184,6 +200,75 @@ internal class GameScreenTest {
     }
 
     @Test
+    @DisplayName("a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record")
+    fun aDailyGameIsTitledGraineDuJourAndShowsTheBestOfTheDay() = extension.use {
+        // Given a daily game, whose best of the day is 12 360
+        uiState = uiState.copy(record = 12_360)
+
+        // When its screen shows
+        showGameScreen(labels = GameLabels.Daily)
+
+        // Then its title, read as a heading, and its best, read as one
+        onNode(hasText("GRAINE DU JOUR") and isHeading()).assertIsDisplayed()
+        onNodeWithText("MODE CLASSIQUE").assertDoesNotExist()
+        onNodeWithContentDescription("Meilleur : 12360").assertIsDisplayed()
+        onNodeWithContentDescription("Record : 12360").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such")
+    fun onceTheBestOfTheDayIsBeatenTheTopBarShowsTheNewBest() = extension.use {
+        // Given a daily game whose score of 12 340 is under the best of the day
+        uiState = uiState.copy(record = 12_360)
+        showGameScreen(labels = GameLabels.Daily)
+
+        // When the score beats it
+        runOnIdle { uiState = uiState.copy(score = Points(12_380), recordBeaten = true) }
+
+        // Then the sticker in place of the best, the score as its value
+        onNodeWithContentDescription("Nouveau meilleur : 12380").assertIsDisplayed()
+        onNodeWithContentDescription("Meilleur : 12360").assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName(
+        "the game over of a daily game announces MEILLEUR DU JOUR; Rejouer and Copier, read Copier mon score, act",
+    )
+    fun theGameOverOfADailyGameAnnouncesTheBestAndOffersToCopy() = extension.use {
+        // Given a daily game over, whose score beat the best of the day
+        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newRecord = true)) }
+        showGameScreen(labels = GameLabels.Daily)
+
+        // When the player presses Rejouer, then Copier
+        onNodeWithText("MEILLEUR DU JOUR").assertIsDisplayed()
+        onNodeWithText("NOUVEAU RECORD").assertDoesNotExist()
+        onNodeWithText(replay).performScrollTo().performClick()
+        // Copier shows its short label; TalkBack reads what it does, as one button
+        onNodeWithText("Copier").assertExists()
+        onNodeWithContentDescription("Copier mon score").assert(hasClickAction()).performScrollTo().performClick()
+
+        // Then each one did its part, once
+        assertThat(replays).isEqualTo(1)
+        assertThat(copies).isEqualTo(1)
+    }
+
+    @Test
+    @DisplayName("the game over of a classic game offers no Copier")
+    fun theGameOverOfAClassicGameOffersNoCopy() = extension.use {
+        // Given a classic game over, whose score beat the record
+        uiState = ShownScreen.GAME_OVER.change(uiState).let { it.copy(gameOver = it.gameOver?.copy(newRecord = true)) }
+
+        // When its game over shows
+        showGameScreen()
+
+        // Then it announces the record, offers Rejouer, and nothing to copy
+        onNodeWithText("NOUVEAU RECORD").assertIsDisplayed()
+        onNodeWithText(replay).assertExists()
+        onNodeWithText("Copier").assertDoesNotExist()
+        onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
+    }
+
+    @Test
     @DisplayName("the side column shows the next piece, then the score, the lines and the level, from the top")
     fun theSideColumnShowsTheNextPieceFirst() = extension.use {
         // Given a phone in portrait: the next piece in the side column
@@ -223,7 +308,11 @@ internal class GameScreenTest {
     }
 
     /** A value shown beside the board, read by TalkBack as its [label] and its [spokenValue]. */
-    internal enum class ShownField(@param:StringRes val label: Int, val change: (GameUiState) -> GameUiState) {
+    internal enum class ShownField(
+        @param:StringRes val label: Int,
+        val change: (GameUiState) -> GameUiState,
+        val labels: GameLabels = GameLabels.Classic,
+    ) {
         SCORE(R.string.feature_game_score, { it.copy(score = Points(12_380)) }),
         LEVEL(R.string.feature_game_level, { it.copy(level = Level(6)) }),
         LINES(R.string.feature_game_lines, { it.copy(lines = Lines(60)) }),
@@ -231,6 +320,9 @@ internal class GameScreenTest {
 
         /** Read from the records once the game has started: null at first. */
         RECORD(R.string.feature_game_top_record, { it.copy(record = 98_760) }),
+
+        /** The best of the day, in place of the record of a daily game. */
+        DAILY_BEST(R.string.feature_game_daily_best, { it.copy(record = 98_760) }, GameLabels.Daily),
         ;
 
         /** The new value as TalkBack reads it, once [change] is made. */
@@ -241,7 +333,7 @@ internal class GameScreenTest {
             LEVEL -> "6"
             LINES -> "60"
             NEXT -> pieceName(PieceType.O)
-            RECORD -> "98760"
+            RECORD, DAILY_BEST -> "98760"
         }
     }
 
@@ -250,7 +342,7 @@ internal class GameScreenTest {
     @DisplayName("the screen shows the new value of each field beside the board once it changes")
     fun theScreenShowsTheNewValueOfEachFieldOnceItChanges(field: ShownField) = extension.use {
         shownField = field
-        showGameScreen()
+        showGameScreen(labels = field.labels)
         onNodeWithContentDescription(fieldDescription).assertDoesNotExist()
 
         runOnIdle { uiState = field.change(uiState) }

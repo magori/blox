@@ -7,6 +7,7 @@ import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
 import ch.magori.blox.feature.game.controls.GameControlsLeftHandedPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
+import ch.magori.blox.feature.game.gameover.GameOverDailyNewBestPreview
 import ch.magori.blox.feature.game.gameover.GameOverLargeFontPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalPreview
@@ -279,3 +280,26 @@ private fun GameOverColorfulNewRecordNight() = GameOverColorfulNewRecordPreview(
 @Preview(fontScale = 2f)
 @Composable
 private fun GameOverLargeFont() = GameOverLargeFontPreview()
+
+// A daily game (view V39), in the Colorful theme only, day and night: GRAINE DU JOUR and the best of the day in the
+// top bar; its game over, MEILLEUR DU JOUR, then Rejouer, Copier and Menu.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenDaily() = GameScreenDailyPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenDailyNight() = GameScreenDailyPreview()
+
+@PreviewTest
+@Preview
+@Composable
+private fun GameOverDailyNewBest() = GameOverDailyNewBestPreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameOverDailyNewBestNight() = GameOverDailyNewBestPreview()

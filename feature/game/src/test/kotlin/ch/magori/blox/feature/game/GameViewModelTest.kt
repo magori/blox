@@ -1912,6 +1912,44 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the screen gets the labels of the variant of its game`() {
+        // When a classic game and a daily game start
+        val classic = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val daily = createViewModel(dailyRoute)
+
+        // Then each screen says what its variant says: the daily game its title, its best and Copier
+        assertThat(classic.labels).isEqualTo(GameLabels.Classic)
+        assertThat(daily.labels).isEqualTo(GameLabels.Daily)
+    }
+
+    @Test
+    fun `the first try of the day beats the best of the day at its game over`() {
+        // Given no result of the day: the best of the day is 0, never beaten during the game
+        val viewModel = createViewModel(dailyRoute)
+
+        // When the first try is played until it is over, with points
+        playUntilGameOver(viewModel)
+
+        // Then its game over shows a new best of the day
+        assertThat(viewModel.uiState.value.gameOver?.score?.value).isPositive()
+        assertThat(viewModel.uiState.value.gameOver?.newRecord).isTrue()
+    }
+
+    @Test
+    fun `a daily game over below the best of the day shows no new best`() {
+        // Given a best of the day that no game can beat
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26, tries = 1, firstTry = Int.MAX_VALUE, best = Int.MAX_VALUE, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its game over shows no new best
+        assertThat(viewModel.uiState.value.gameOver?.newRecord).isFalse()
+    }
+
+    @Test
     fun `a classic game left before its end submits nothing`() {
         // Given a classic game under way, with points
         val store = ViewModelStore()

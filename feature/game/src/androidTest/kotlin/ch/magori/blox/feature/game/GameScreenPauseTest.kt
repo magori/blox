@@ -162,7 +162,7 @@ internal class GameScreenPauseTest {
         mainClock.autoAdvance = false
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
-                GameScreen(viewModel = game, onBack = {}, onReplay = {})
+                GameScreen(viewModel = game, onBack = {}, onReplay = {}, onCopy = {})
             }
         }
         return game
