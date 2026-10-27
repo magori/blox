@@ -23,6 +23,8 @@ dependencies {
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
+    // L'instrumentation, qui envoie le retour du système aux feuilles (BloxSheetTest).
+    androidTestImplementation(libs.androidx.test.monitor)
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
 
     // textLayout et assertWordsWhole : les lignes d'un texte affiché, lues par les tests instrumentés des fenêtres et
