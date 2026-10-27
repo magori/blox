@@ -51,12 +51,14 @@ data class GameRoute(val startLevel: Int, val seed: Long, val variant: GameVaria
 /**
  * Déclare l'entrée Jeu dans le fournisseur d'entrées de l'application (ADR 0011). `app` construit
  * [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). [onReplay] reçoit la
- * partie terminée : `app` met une nouvelle clé à sa place (ADR 0011). Le décorateur
+ * partie terminée : `app` met une nouvelle clé à sa place (ADR 0011). [onCopy] reçoit la partie du jour terminée
+ * dont le joueur copie le score (Copier, proposé à la fin d'une partie du jour seulement). Le décorateur
  * `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.gameEntry(
     onBack: () -> Unit,
     onReplay: (finished: GameRoute) -> Unit,
+    onCopy: (finished: GameRoute) -> Unit,
     viewModelFactory: GameViewModel.Factory,
 ) {
     entry<GameRoute> { route ->
@@ -66,7 +68,12 @@ fun EntryProviderScope<NavKey>.gameEntry(
         val viewModel: GameViewModel = viewModel(factory = viewModelFactory, extras = extras)
         // The Classic follows the theme chosen; the daily game is drawn in the Colorful theme only (ADR 0026).
         GameTheme(route.variant) {
-            GameScreen(viewModel = viewModel, onBack = onBack, onReplay = { onReplay(route) })
+            GameScreen(
+                viewModel = viewModel,
+                onBack = onBack,
+                onReplay = { onReplay(route) },
+                onCopy = { onCopy(route) },
+            )
         }
     }
 }

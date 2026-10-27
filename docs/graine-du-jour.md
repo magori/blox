@@ -266,10 +266,35 @@ barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulThem
   minuit **[à vérifier]** (sinon, à son prochain affichage).
 
 **En jeu** (vue **V39**, à dessiner) : l'écran de jeu v2 (V28), titre « GRAINE DU JOUR », le
-meilleur du jour à la place du record. Pause comme V29.
+meilleur du jour à la place du record, sous le libellé « MEILLEUR ». Une fois battu, l'autocollant
+« NOUVEAU MEILLEUR » et le score prennent sa place, comme « NOUVEAU RECORD » au Classique ; lu
+« Nouveau meilleur : 12 380 ». « MEILLEUR DU JOUR » reste l'étiquette de la valeur (V38) et
+l'annonce de fin de partie, pas l'autocollant en jeu. Un meilleur de 0 (premier essai du jour)
+n'est jamais battu en cours de partie, comme le record (P5.56). La barre tient sur une rangée
+avec ces libellés, police agrandie comprise. Pause comme V29. Ce qui change d'une variante à
+l'autre (titre, libellé du meilleur, ses annonces, Copier proposé) vient de `GameLabels`, donné
+par `GameVariants.setupOf` (ADR 0026) : l'écran ne connaît pas la variante.
+**Tests :** `GameVariantsTest › a daily game is titled Graine du jour, shows the best of the day and offers to copy the score`,
+`GameVariantsTest › a classic game is titled Mode classique, shows the record and offers no copy`,
+`GameViewModelTest › the screen gets the labels of the variant of its game`,
+`GameScreenTest › a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record`,
+`GameScreenTest › once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such`,
+`GameTopBarTest › on a phone of 360 dp the bar stays on one row once the record is beaten, font enlarged`
+et les autres cas de largeur de `GameTopBarTest`, joués aussi avec les libellés du jour ;
+captures `GameScreenDaily`, `GameScreenDailyNight`.
 
-**Fin de partie** (V39) : comme V30 ; « MEILLEUR DU JOUR » si le meilleur du jour est battu (au
-premier essai aussi), puis **Rejouer** (même graine) et **Copier**.
+**Fin de partie** (V39) : comme V30 ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
+battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis **Rejouer** (même
+graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
+qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
+(`gameEntry(onCopy)`), que `app` branche en P9.6 : d'ici là, il ne fait rien, et la partie du jour
+n'est pas encore accessible au joueur (sa cartouche vient en P9.7, après P9.6).
+**Tests :** `GameViewModelTest › the first try of the day beats the best of the day at its game over`,
+`GameViewModelTest › a daily game over below the best of the day shows no new best`,
+`GameScreenTest › the game over of a daily game announces MEILLEUR DU JOUR; Rejouer and Copier, read Copier mon score, act`,
+`GameScreenTest › the game over of a classic game offers no Copier`,
+`GameRouteTest › replaying a daily game keeps its date and its seed, under a new id` ;
+captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`.
 
 **Cartouche** « Graine du jour » sur le choix du jeu (V36) : elle porte l'autocollant
 « NOUVELLE » **jusqu'au premier essai du jour** ; elle ouvre l'écran d'entrée.

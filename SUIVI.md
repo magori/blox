@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 229 / 309 | `███████████████░░░░░` **74 %** |
+| **Général** | 230 / 311 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1411,17 +1411,27 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   the process died is the same try`, `the bars of a daily game follow its colorful variant`.
 - [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
   26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
-  graine à minuit » ; en jeu, titre « GRAINE DU JOUR » et meilleur du jour (V39) ; fin de partie « MEILLEUR DU
-  JOUR », Rejouer, Copier ; TalkBack ; captures jour et nuit. Module à trancher ici (dans `feature:game`, ou une
-  feature à part, qui amenderait l'ADR 0002). Après P9.4.
+  graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à part, `feature:daily`, qui amende l'ADR
+  0002 (décision du développeur, 2026-10-27). La date est relue à chaque affichage ; la bascule en direct à minuit
+  reste **[à vérifier]**. Après P9.4.
+- [x] **P9.11** La partie du jour à l'écran (V39, `feature:game`, découpée de P9.5) : titre « GRAINE DU JOUR »,
+  meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
+  JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés
+  par `GameVariants.setupOf` (ADR 0026). Après P9.4.
 - [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
   presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
-  U+202F, sans plafond ni zéros de tête. Cas : `the copied text gives the date, the first try,
+  U+202F, sans plafond ni zéros de tête. Brancher les deux boutons, laissés sans effet par P9.5 et P9.11 : l'écran
+  d'entrée et la fin de partie (`gameEntry(onCopy)`, dans `app`). Cas d'une fin d'essai dont l'écriture a échoué
+  (`IOException`) : Copier en fin de partie ne doit pas copier un essai sans score (revue de P9.11). Cas : `the copied text gives the date, the first try,
   the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
-  offered before the first try`. Après P9.3.
+  offered before the first try`. Après P9.3, P9.5.
 - [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
-  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5.
+  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
+  être accessible au joueur).
+- [ ] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
+  `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
+  accord avec `GameLabels.newBest` (revue de P9.11).
 - [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.

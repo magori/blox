@@ -40,7 +40,7 @@ internal class GameScreenFramesTest {
                 val viewModel: GameViewModel = viewModel(factory = silentGameViewModelFactory(), extras = extras)
                 game = viewModel
                 BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                    GameScreen(viewModel = viewModel, onBack = {}, onReplay = {})
+                    GameScreen(viewModel = viewModel, onBack = {}, onReplay = {}, onCopy = {})
                 }
             }
 
@@ -88,7 +88,7 @@ internal class GameScreenFramesTest {
                 if (shown) {
                     val viewModel: GameViewModel = viewModel(factory = silentGameViewModelFactory(), extras = extras)
                     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-                        GameScreen(viewModel = viewModel, onBack = {}, onReplay = {})
+                        GameScreen(viewModel = viewModel, onBack = {}, onReplay = {}, onCopy = {})
                     }
                 }
             }

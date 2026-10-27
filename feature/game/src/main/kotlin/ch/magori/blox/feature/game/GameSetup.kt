@@ -18,10 +18,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 
 /**
- * What a game takes from its variant (ADR 0026): the engines that deal its pieces, where its results go, and the music
- * it plays (null for none).
+ * What a game takes from its variant (ADR 0026): the engines that deal its pieces, where its results go, what its screen
+ * says of it ([labels]), and the music it plays (null for none).
  */
-internal class GameSetup(val engines: GameEngineFactory, val results: GameResults, val music: suspend () -> GameMusic?)
+internal class GameSetup(
+    val engines: GameEngineFactory,
+    val results: GameResults,
+    val labels: GameLabels,
+    val music: suspend () -> GameMusic?,
+)
 
 /**
  * The setup of each variant: the only place where the view model of a game depends on its variant (ADR 0026).
@@ -43,10 +48,19 @@ internal class GameVariants(
     private val dailyEngines: GameEngineFactory,
 ) {
     fun setupOf(variant: GameVariant): GameSetup = when (variant) {
-        GameVariant.Classic -> GameSetup(classicEngines, ClassicGameResults(highScores), ::classicMusic)
+        GameVariant.Classic -> GameSetup(
+            classicEngines,
+            ClassicGameResults(highScores),
+            GameLabels.Classic,
+            ::classicMusic,
+        )
 
         // The live music, whatever the music chosen, on the home screen or for the games.
-        is GameVariant.Daily -> GameSetup(dailyEngines, DailyGameResults(daily, variant.date, dailyWrites)) {
+        is GameVariant.Daily -> GameSetup(
+            dailyEngines,
+            DailyGameResults(daily, variant.date, dailyWrites),
+            GameLabels.Daily,
+        ) {
             GameMusic.Live
         }
     }

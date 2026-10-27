@@ -81,6 +81,9 @@ class GameViewModel internal constructor(
     /** Reads the music of this game, as its variant says (ADR 0026): null for none. */
     private val gameMusic = setup.music
 
+    /** What the screen says of the variant of this game (ADR 0026): its title, its best to beat, Copier or not. */
+    internal val labels: GameLabels = setup.labels
+
     /**
      * The cells of the next piece shown, for each type, in the spawn orientation of the rules of the engine:
      * computed once, so that a frame neither computes them again nor hands the screen a new instance.

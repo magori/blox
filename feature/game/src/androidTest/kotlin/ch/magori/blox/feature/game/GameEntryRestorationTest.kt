@@ -104,7 +104,7 @@ private fun GameStack(
                     rememberViewModelStoreNavEntryDecorator(),
                 ),
                 entryProvider = entryProvider {
-                    gameEntry(onBack = {}, onReplay = {}, viewModelFactory = factory)
+                    gameEntry(onBack = {}, onReplay = {}, onCopy = {}, viewModelFactory = factory)
                 },
             )
         }

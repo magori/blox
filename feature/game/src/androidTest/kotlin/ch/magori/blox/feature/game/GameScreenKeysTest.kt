@@ -300,6 +300,8 @@ internal class GameScreenKeysTest {
                     onControl = { changes += it },
                     onPause = { uiState = uiState.copy(paused = true) },
                     onResume = { uiState = uiState.copy(paused = false) },
+                    labels = GameLabels.Classic,
+                    onCopy = {},
                 )
             }
         }
