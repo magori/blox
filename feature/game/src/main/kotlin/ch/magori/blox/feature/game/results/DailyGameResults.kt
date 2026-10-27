@@ -1,8 +1,8 @@
 package ch.magori.blox.feature.game.results
 
 import ch.magori.blox.core.data.DailyChallengeRepository
-import ch.magori.blox.core.data.RecordResult
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -28,7 +28,11 @@ internal class DailyGameResults(
 
     override suspend fun start() = writes.withLock { daily.startTry(date) }
 
-    override suspend fun end(points: Int): RecordResult = writes.withLock { daily.endTry(date, points) }
+    /** The try ends; it is kept unless the results moved on to a newer date, which ignores it. */
+    override suspend fun end(points: Int): GameEnd = writes.withLock {
+        val record = daily.endTry(date, points)
+        GameEnd(record.isNewRecord, kept = daily.results.firstOrNull()?.date == date)
+    }
 
     override suspend fun leave(points: Int) {
         end(points)

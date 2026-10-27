@@ -50,8 +50,8 @@ class DailyViewModel(
             firstPieces = firstPiecesOf(seedOf(date)),
             startLevel = startLevel,
             tries = ofToday?.tries ?: 0,
-            firstTry = ofToday?.takeIf { it.firstTryOver }?.firstTry,
-            best = ofToday?.takeIf { it.firstTryOver || it.best > 0 }?.best,
+            firstTry = ofToday?.finalFirstTry,
+            best = ofToday?.knownBest,
         )
     }
 

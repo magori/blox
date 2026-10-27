@@ -233,16 +233,50 @@ au début ni en quittant) et le jour (`DailyGameResults`, lié à la date de la 
 
 ## Copier mon score
 
-- Texte copié (presse-papiers du système), pour la date en cours :
-  « BloX · Graine du 26 octobre (20261026) · 1er essai 9 800 · meilleur 18 200 en 5 essais ».
-  La date `AAAAMMJJ` y est écrite (décision du développeur), pour qu'on compare des scores de la
-  même graine ; le jour en toutes lettres la rend lisible. Le libellé exact est **[à vérifier]**.
+- Texte copié dans le presse-papiers du système, **court** (décision du développeur,
+  2026-10-27) : « BloX 20261026 · 1er 9 800 · meilleur 18 200 (5 essais) ». On y trouve la date
+  des résultats en `AAAAMMJJ` (celle de la graine, pour comparer des scores de la même graine), le
+  score du premier essai, le meilleur du jour et le nombre d'essais, « (1 essai) » au singulier.
+  Le texte vient des ressources de `app` (`daily_score_text`, pluriel `daily_score_tries`).
 - Nombres groupés par trois avec U+202F (espace fine insécable), à leur **valeur réelle**, sans
   plafond ni zéros de tête (contrairement à l'écran de jeu, qui affiche 6 chiffres plafonnés,
-  `ScoreText.kt`) ; « en 1 essai » au singulier.
-- Désactivé avant le premier essai du jour.
-- Android 13 et plus montrent déjà une confirmation de copie ; en dessous, un message
-  « Score copié » s'affiche **[à vérifier]**.
+  `ScoreText.kt`). Un premier essai pas encore fini s'écrit « — », comme sur l'écran d'entrée ;
+  de même le meilleur tant qu'aucun essai n'est fini ni n'a rapporté de point.
+- `app` compose le texte à partir des résultats du jour, **lus au moment de l'appui** : sur
+  l'écran d'entrée, ceux de la date affichée (bouton désactivé avant le premier essai) ; en fin
+  de partie, ceux de la date de la partie (sa graine), même rejouée après minuit. La fin de
+  partie n'apparaît qu'une fois l'essai écrit : la copie le contient. Elle ne propose Copier que
+  si les résultats gardés contiennent cette partie, un essai écrit sous sa date : pas si
+  l'écriture a échoué (`IOException`), ni si l'essai a été ignoré parce que les résultats sont
+  déjà à une date plus récente (P9.9). Sans résultats de la date demandée, rien n'est copié.
+- La copie ne prend pas le verrou des écritures du jour : quitter une partie puis copier aussitôt
+  depuis l'entrée peut lire les résultats d'avant cette fin, comme les tuiles affichées à cet
+  instant.
+- Android 13 et plus confirment eux-mêmes la copie ; en dessous, un message « Score copié »
+  (Toast parti d'`app`) l'annonce (décision du développeur, 2026-10-27).
+
+**Tests :** `DailyScoreTextTest › the copied text gives the date, the first try, the best and the tries`,
+`DailyScoreTextTest › one try is written in the singular`,
+`DailyScoreTextTest › numbers are grouped by three`,
+`DailyScoreTextTest › numbers are written whole, beyond the six digits the screen shows, without leading zeros`,
+`DailyScoreTextTest › a try worth nothing is written 0`,
+`DailyScoreTextTest › a first try not over is written with a dash, as the entry shows it`,
+`DailyScoreTextTest › a best given by a later try shows beside a first try not over`,
+`DailyScoreCopierTest › copying puts the text of the results of the date in the clipboard`,
+`DailyScoreCopierTest › the results of another date are never copied under the date asked for`,
+`DailyScoreCopierTest › without results nothing is copied`,
+`DailyScoreCopierTest › the copy reads the results when it is asked for, the try that just ended included`,
+`DailyScoreCopierTest › below Android 13 a message says the score is copied`,
+`DailyScoreCopierTest › from Android 13 the system says it, the app adds no message`,
+`DailyGameRouteTest › the score copied at the game over is the one of the date of the game, even replayed after midnight`,
+`DailyViewModelTest › copying is not offered before the first try`,
+`BloxNavDisplayTest › Copier mon score on the entry of the daily seed copies the score of the date shown`,
+`BloxNavDisplayTest › Copier at the game over of a daily game copies the score of the date of the game`,
+`BloxNavDisplayTest › the game over of a classic game offers no Copier, and asks for no copy`,
+`GameViewModelTest › a daily game over shows only once its try is written, so that Copier reads it`,
+`GameViewModelTest › a daily game over whose try could not be written does not offer to copy its score`,
+`GameViewModelTest › a daily game over not counted, its date already passed, does not offer to copy its score`,
+`GameScreenTest › the game over of a daily game whose results could not be written offers no Copier`.
 
 ## Écran
 
@@ -277,7 +311,8 @@ l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres
   par `app`), ouvre une partie du jour neuve **à la date affichée** : les pièces vues sont celles
   jouées, même si minuit est passé entre-temps. Le rappel est court (le titre dit déjà « Graine du … ») pour tenir en entier sur 360 dp (décision du développeur, 2026-10-27) ;
 - « Copier mon score », actif dès le premier essai du jour commencé ; désactivé avant, avec la
-  sous-ligne « Joue une partie pour copier ton score ». Le texte copié vient en P9.6 ;
+  sous-ligne « Joue une partie pour copier ton score ». Il copie les résultats de la date affichée
+  (voir Copier mon score) ;
 - en bas : « Nouvelle graine à minuit ».
 - Jouer, Changer de jeu et Paramètres ne comptent qu'écran actif (`dropUnlessResumed`, comme
   l'accueil) : un double appui ne lance pas deux parties, donc pas deux essais.
@@ -336,8 +371,8 @@ captures `GameScreenDaily`, `GameScreenDailyNight`.
 battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis **Rejouer** (même
 graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
 qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
-(`gameEntry(onCopy)`), que `app` branche en P9.6 : d'ici là, il ne fait rien, et la partie du jour
-n'est pas encore accessible au joueur (sa cartouche vient en P9.7, après P9.6).
+(`gameEntry(onCopy)`), et `app` copie les résultats de la date de la partie (voir Copier mon
+score) ; il n'est pas proposé si l'essai n'a pas été gardé sous cette date.
 **Tests :** `GameViewModelTest › the first try of the day beats the best of the day at its game over`,
 `GameViewModelTest › a daily game over below the best of the day shows no new best`,
 `GameScreenTest › the game over of a daily game announces MEILLEUR DU JOUR; Rejouer and Copier, read Copier mon score, act`,

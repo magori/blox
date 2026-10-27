@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.daily.dailyDateOf
 import ch.magori.blox.daily.newDailyGameRoute
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.cartridges.navigation.cartridgesEntry
@@ -30,6 +31,7 @@ import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
 import ch.magori.blox.feature.musics.navigation.myMusicsEntry
+import java.time.LocalDate
 
 /**
  * Pile de navigation de l'application (ADR 0011). C'est le seul endroit qui connaît
@@ -38,7 +40,8 @@ import ch.magori.blox.feature.musics.navigation.myMusicsEntry
  * Les deux décorateurs gardent l'état sauvegardable de chaque entrée et lient chaque ViewModel
  * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel. [deletedMusics] porte une musique supprimée
  * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler. La pile s'ouvre sur le choix du jeu
- * ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application.
+ * ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application. [onCopyDailyScore] copie le score de la
+ * Graine du jour d'une date, celle de l'écran d'entrée ou de la partie terminée (P9.6).
  */
 @Composable
 fun BloxNavDisplay(
@@ -50,6 +53,7 @@ fun BloxNavDisplay(
     deletedMusics: DeletedMusicRelay,
     locksmithViewModelFactory: LocksmithViewModel.Factory,
     dailyViewModelFactory: DailyViewModel.Factory,
+    onCopyDailyScore: (date: LocalDate) -> Unit,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -79,8 +83,8 @@ fun BloxNavDisplay(
             gameEntry(
                 onBack = goBack,
                 onReplay = { finished -> replay(backStack, finished) },
-                // P9.6 : copier le score de la partie du jour (texte et presse-papiers).
-                onCopy = {},
+                // The score of the date of the game, even replayed after midnight; only a daily game offers Copier.
+                onCopy = { finished -> dailyDateOf(finished)?.let(onCopyDailyScore) },
                 viewModelFactory = gameViewModelFactory,
             )
             composerEntry(
@@ -108,8 +112,7 @@ fun BloxNavDisplay(
                 onPlay = { date -> backStack.add(newDailyGameRoute(date)) },
                 onSettings = { backStack.add(SettingsRoute) },
                 onChangeGame = { changeGame(backStack) },
-                // P9.6 : « Copier mon score » copiera le texte du jour dans le presse-papiers.
-                onCopyScore = {},
+                onCopyScore = onCopyDailyScore,
                 viewModelFactory = dailyViewModelFactory,
             )
         },
