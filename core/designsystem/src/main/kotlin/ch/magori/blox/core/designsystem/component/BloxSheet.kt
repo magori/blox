@@ -150,9 +150,12 @@ private fun sheetWindowAnchor(view: View): View =
         setViewTreeSavedStateRegistryOwner(view.findViewTreeSavedStateRegistryOwner())
     }
 
-/** [action], done the first time it is asked for and never again: a sheet asks once to close. */
+/**
+ * [action], done the first time it is asked for and never again while the caller stays composed: a sheet asks once to
+ * close, its action is done once though touched twice before it goes.
+ */
 @Composable
-private fun rememberOnce(action: () -> Unit): () -> Unit {
+fun rememberOnce(action: () -> Unit): () -> Unit {
     val current by rememberUpdatedState(action)
     return remember {
         var done = false

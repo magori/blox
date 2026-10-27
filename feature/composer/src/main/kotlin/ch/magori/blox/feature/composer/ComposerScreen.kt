@@ -413,6 +413,12 @@ internal fun ComposerColorfulPreview() {
     ComposerPreview(BloxThemeKind.COLORFUL, previewEditor(), played = Cell(bar = 0, eighth = 2))
 }
 
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+internal fun ComposerColorfulLargeFontPreview() {
+    ComposerPreview(BloxThemeKind.COLORFUL, previewEditor(), played = Cell(bar = 0, eighth = 2))
+}
+
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 internal fun ComposerEmptyPreview() {
@@ -423,11 +429,8 @@ internal fun ComposerEmptyPreview() {
 @Composable
 private fun DiceSheetPreview() {
     ComposerPreview(BloxThemeKind.COLORFUL, previewEditor(), choice = Category.JOYFUL) {
-        SettledSheet(
-            title = stringResource(R.string.feature_composer_dice),
-            actions = { RollButton(onRoll = {}) },
-        ) {
-            DiceChoices(choice = Category.JOYFUL, onCategoryChosen = {})
+        DiceSheetContent(choice = Category.JOYFUL, onCategoryChosen = {}, onRoll = {}) { title, actions, content ->
+            SettledSheet(title = title, actions = actions, content = content)
         }
     }
 }

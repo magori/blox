@@ -87,7 +87,9 @@ internal fun ComposerHeader(
                 .heightIn(min = BloxSizes.minTouchTarget)
                 .clip(BloxTheme.shapes.md)
                 .clickable(role = Role.Button, onClick = onRename)
-                .semantics(mergeDescendants = true) { contentDescription = renameTitle },
+                .semantics(mergeDescendants = true) { contentDescription = renameTitle }
+                // Clear of the rounded corners of the button: none cuts a glyph of the name or of its line.
+                .padding(NameInset),
         ) {
             Column(modifier = Modifier.weight(1f, fill = false)) {
                 Text(
@@ -230,3 +232,9 @@ private fun DrawScope.drawPencil(color: Color) {
 
 /** The pencil after the title. */
 private val PencilSize = 16.dp
+
+/**
+ * Around the name and its line, within the button that renames: a corner of `radius-md` (16 dp) cuts no deeper than
+ * 30 % of its radius into the corner of what it holds, so 6 dp keep them clear of it.
+ */
+private val NameInset = 6.dp

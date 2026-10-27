@@ -7,9 +7,9 @@ import com.android.tools.screenshot.PreviewTest
 
 /*
  * Screenshot tests of the music editor (views V8, V11 and V33), and of its windows (save, V9 and V12, and the question
- * before leaving), in both themes coded so far, the sheet of the dice (V33, Couleurs only), the message of the dice, and
- * the windows, also with the font twice as large, from the previews of the production code, with the same `@Preview`
- * configuration. Renaming a test breaks its link to its reference image: regenerate them with
+ * before leaving), in both themes coded so far, the sheet of the dice (V33, Couleurs only), the message of the dice,
+ * and the windows, also with the font twice as large, from the previews of the production code, with the same
+ * `@Preview` configuration. Renaming a test breaks its link to its reference image: regenerate them with
  * `./gradlew updateDebugScreenshotTest`.
  */
 
@@ -27,6 +27,11 @@ private fun ComposerColorful() = ComposerColorfulPreview()
 @Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun ComposerColorfulNight() = ComposerColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun ComposerColorfulLargeFont() = ComposerColorfulLargeFontPreview()
 
 @PreviewTest
 @Preview(widthDp = 360, heightDp = 760)

@@ -10,6 +10,7 @@ import ch.magori.blox.core.designsystem.component.BloxSheet
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SheetChoiceRow
 import ch.magori.blox.core.designsystem.component.SheetChoices
+import ch.magori.blox.core.designsystem.component.rememberOnce
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
@@ -18,8 +19,8 @@ import ch.magori.blox.core.music.Surprise
 /**
  * The sheet « Au hasard » of the dice of the bar (V33): Surprise and the seven categories, each with what it sounds
  * like, the one chosen, [choice], checked; touching another chooses it through [onCategoryChosen], the sheet staying
- * open. *Tirer une musique* calls [onRoll], which rolls and closes it; the system back and the scrim call
- * [onDismissRequest].
+ * open. *Tirer une musique* calls [onRoll], which rolls and closes it, once for the sheet though touched twice before
+ * it goes; the system back and the scrim call [onDismissRequest].
  */
 @Composable
 internal fun DiceSheet(
@@ -28,41 +29,56 @@ internal fun DiceSheet(
     onRoll: () -> Unit,
     onDismissRequest: () -> Unit,
 ) {
-    BloxSheet(
-        title = stringResource(R.string.feature_composer_dice),
-        onDismissRequest = onDismissRequest,
-        actions = { RollButton(onRoll) },
-    ) {
-        DiceChoices(choice, onCategoryChosen)
+    val rollOnce = rememberOnce(onRoll)
+    DiceSheetContent(choice = choice, onCategoryChosen = onCategoryChosen, onRoll = rollOnce) {
+            title,
+            actions,
+            content,
+        ->
+        BloxSheet(title = title, onDismissRequest = onDismissRequest, actions = actions, content = content)
     }
 }
 
-/** The choices of the dice, in the order of the specification, [choice] checked. */
+/** The frame a sheet is drawn in, given its title, its actions and its content: a sheet, or a sheet settled. */
+internal typealias SheetFrameOf = @Composable (
+    title: String,
+    actions: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
+) -> Unit
+
+/**
+ * What the sheet « Au hasard » holds, its title, its choices, [choice] checked, and *Tirer une musique*, drawn in
+ * [frame]: a `BloxSheet` on the screen, a `SettledSheet` in the previews, which so show the sheet as it is.
+ */
 @Composable
-internal fun DiceChoices(
+internal fun DiceSheetContent(
     choice: CategoryChoice,
     onCategoryChosen: (CategoryChoice) -> Unit,
+    onRoll: () -> Unit,
+    frame: SheetFrameOf,
 ) {
-    SheetChoices {
-        DiceChoiceList.forEach {
-            SheetChoiceRow(
-                label = stringResource(it.choiceLabel),
-                subLine = stringResource(it.subLine),
-                selected = it == choice,
-                onClick = { onCategoryChosen(it) },
+    frame(
+        stringResource(R.string.feature_composer_dice),
+        {
+            PrimaryButton(
+                text = stringResource(R.string.feature_composer_dice_roll),
+                icon = BloxIcon.DICE,
+                onClick = onRoll,
+                modifier = Modifier.fillMaxWidth(),
             )
-        }
-    }
-}
-
-/** *Tirer une musique*, the action of the sheet, as wide as it. */
-@Composable
-internal fun ColumnScope.RollButton(onRoll: () -> Unit) {
-    PrimaryButton(
-        text = stringResource(R.string.feature_composer_dice_roll),
-        icon = BloxIcon.DICE,
-        onClick = onRoll,
-        modifier = Modifier.fillMaxWidth(),
+        },
+        {
+            SheetChoices {
+                DiceChoiceList.forEach {
+                    SheetChoiceRow(
+                        label = stringResource(it.choiceLabel),
+                        subLine = stringResource(it.subLine),
+                        selected = it == choice,
+                        onClick = { onCategoryChosen(it) },
+                    )
+                }
+            }
+        },
     )
 }
 
