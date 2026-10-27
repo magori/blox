@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 246 / 321 | `███████████████░░░░░` **77 %** |
+| **Général** | 247 / 322 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1481,12 +1481,16 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
   paramètres, comptée en croches (64 pour l'éditeur, ses 8 mesures ; 16 pour le jardin, ses 2 mesures), sans `Tempo` ni `Cell`, internes à `feature:composer`.
   Avant P10.12.
-- [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+- [x] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
   `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de
   `CLAUDE.md` ; `Garden` immuable (16 × 14, poser, refuser, reprendre, effacer) et `Garden.parse(ascii)`. Cas : `a
   piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
   refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
   piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
+- [ ] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
+  par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
+  lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
+  publique de `core:game` (`explicitApi`).
 - [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord

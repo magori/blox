@@ -49,7 +49,7 @@ jobs:
         run: ./gradlew buildHealth
 
       - name: Tests du domaine (Kotlin pur)
-        run: ./gradlew :core:game:test :core:music:test :core:locksmith:test
+        run: ./gradlew :core:game:test :core:music:test :core:locksmith:test :core:garden:test
 
       - name: Tests unitaires Android
         run: ./gradlew testDebugUnitTest
