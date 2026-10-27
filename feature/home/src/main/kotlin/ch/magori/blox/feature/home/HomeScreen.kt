@@ -1,13 +1,18 @@
 package ch.magori.blox.feature.home
 
+import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.heading
@@ -19,19 +24,21 @@ import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.shrinkToFit
+import ch.magori.blox.core.game.model.Level
 
-/** The tag of the logo, decorative, read by the tests only. */
-internal const val HOME_LOGO_TAG = "home_logo"
+/** The tag of the preview board, decorative, read by the tests only. */
+internal const val HOME_PREVIEW_TAG = "home_preview"
 
 /**
  * The home screen (V27, Couleurs v2), its parts laid out for a phone held upright ([HomeColumn]): the bar (Changer de
- * jeu, through [onChangeGame], the record, and the gear, which opens the settings page through [onSettings]), the logo
- * and the title, Jouer and the reminder of the game it starts, the card of the settings (mode, theme, start level,
- * music, each chosen saved by the view model), and the tiles « Mes musiques », through [onMyMusics], and « Composer une
- * musique », through [onCompose]. It is drawn in the theme of the application, which follows the chosen theme: a new
- * choice colours this screen at once. Taps on what leaves the home count only while it is resumed: once a game is on
- * its way, a second tap does nothing.
+ * jeu, through [onChangeGame], the record, and the gear, which opens the settings page through [onSettings]), the hero
+ * ([HomeHero]: logo and preview), Jouer with its halo and the reminder of the game it starts, the card of the settings
+ * (mode, theme, start level, music, each chosen saved by the view model), and the tiles « Mes musiques », through
+ * [onMyMusics], and « Composer une musique », through [onCompose]. It is drawn in the theme of the application, which
+ * follows the chosen theme: a new choice colours this screen at once. Taps on what leaves the home count only while it
+ * is resumed: once a game is on its way, a second tap does nothing.
  */
 @Composable
 internal fun HomeScreen(
@@ -58,12 +65,20 @@ internal fun HomeScreen(
     val music = uiState.gameMusic?.name ?: stringResource(uiState.music.label)
     val reminder = stringResource(R.string.feature_home_play_reminder, mode, uiState.startLevel, music)
     val playDescription = stringResource(R.string.feature_home_play_description, mode, uiState.startLevel, music)
+    // Original keeps its hero of v1, still; in Colorful, the preview and the halo move, unless the effects are reduced.
+    val original = BloxTheme.variant == BloxThemeVariant.ORIGINAL
+    val still = BloxTheme.effects.reduced
+    // A preview of Android Studio, and its capture, shows the T as it comes in: a still and certain instant.
+    val inspected = LocalInspectionMode.current
+    val level = Level(uiState.startLevel)
+    val motion = rememberHomeMotion(level, plays = !original && !still && !inspected)
+    val halo = remember(motion) { { motion.halo } }
     HomeColumn(
-        modifier = modifier,
+        modifier = modifier.touched(motion),
         parts = HomeParts(
             bar = { HomeBar(record = uiState.record, onChangeGame = changeGame, onSettings = openSettings) },
-            hero = { HomeTitle() },
-            play = { PlayButton(reminder = reminder, description = playDescription, onClick = play) },
+            hero = { if (original) HomeTitle() else HomeHero(level, motion, still) },
+            play = { PlayButton(reminder = reminder, description = playDescription, onClick = play, halo = halo) },
             settings = {
                 HomeSettings(
                     uiState = uiState,
@@ -81,8 +96,8 @@ internal fun HomeScreen(
 }
 
 /**
- * The logo and the title on one line, centred, until the hero of P5.77 (logo v2 and preview board). In a large font,
- * the title shrinks rather than going on two lines.
+ * The hero of Original, as in v1: the logo of four cells and the title on one line, centred (P5.77 leaves it so). In a
+ * large font, the title shrinks rather than going on two lines.
  */
 @Composable
 private fun HomeTitle() {
@@ -91,7 +106,7 @@ private fun HomeTitle() {
         horizontalArrangement = Arrangement.spacedBy(HEADER_SPACING, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        HomeLogo(modifier = Modifier.testTag(HOME_LOGO_TAG), cellSize = LOGO_CELL_SIZE)
+        HomeLogo(cellSize = LOGO_CELL_SIZE)
         val style = MaterialTheme.typography.displaySmall
         Text(
             text = stringResource(R.string.feature_home_title),
@@ -102,6 +117,14 @@ private fun HomeTitle() {
             autoSize = shrinkToFit(style.fontSize),
             modifier = Modifier.semantics { heading() },
         )
+    }
+}
+
+/** Each touch on the home, wherever it lands, restarts the wait of the halo of Jouer; the touch goes on unchanged. */
+private fun Modifier.touched(motion: HomeMotion): Modifier = pointerInput(motion) {
+    awaitEachGesture {
+        awaitPointerEvent(PointerEventPass.Initial)
+        motion.touched()
     }
 }
 

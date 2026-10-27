@@ -8,6 +8,8 @@
     <string name="feature_home_play_description">Jouer, %1$s, niveau %2$d, %3$s</string>
     <!-- Puce Record de la barre : l'étiquette, en capitales, au-dessus du record plafonné, sur 6 chiffres. -->
     <string name="feature_home_record">Record</string>
+    <!-- Le score à côté du plateau d'aperçu, comme dans une partie. -->
+    <string name="feature_home_preview_score">Score</string>
     <!-- Lu par TalkBack : la vraie valeur, non plafonnée. -->
     <string name="feature_home_record_description">Record %1$d</string>
     <string name="feature_home_mode">Mode</string>
@@ -23,14 +25,10 @@
     <string name="feature_home_music_korobeiniki">Korobeïniki</string>
     <string name="feature_home_music_minuet">Menuet</string>
     <string name="feature_home_music_my_file">Mon fichier</string>
+    <string name="feature_home_music_live">Vivante</string>
     <string name="feature_home_music_none">Aucune</string>
     <!-- La musique personnelle choisie pour les parties, lue par TalkBack : son nom, puis « en jeu ». -->
     <string name="feature_home_music_game_description">%1$s, en jeu</string>
-    <!-- Aperçu d'une musique avant de jouer : le bouton dit l'action, TalkBack dit aussi la musique. -->
-    <string name="feature_home_listen">Écouter</string>
-    <string name="feature_home_listen_description">Écouter %1$s</string>
-    <string name="feature_home_stop">Arrêter</string>
-    <string name="feature_home_stop_description">Arrêter %1$s</string>
     <string name="feature_home_change_file">Changer</string>
     <string name="feature_home_change_file_description">Changer de fichier</string>
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->

@@ -170,8 +170,10 @@ internal fun BubbleButtonDrawing(
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
     Row(
-        modifier = modifier
+        // The drop first: what the screen draws around the button, the ring of a chosen tile, goes down with it.
+        modifier = Modifier
             .offset { IntOffset(0, buttonDrop(enabled, depth(), effects).roundToPx()) }
+            .then(modifier)
             .focusRing(look.focusRing, shape)
             .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(size))
             .background(look.fill, shape)
@@ -268,8 +270,11 @@ fun buttonLabelStyle(family: ButtonFamily): TextStyle {
     val typography = BloxTheme.typography
     val style = when (family) {
         ButtonFamily.PRIMARY_XL -> typography.playLabel
+
         ButtonFamily.PRIMARY -> typography.buttonLabelStrong
-        ButtonFamily.SECONDARY, ButtonFamily.DANGER, ButtonFamily.ICON -> typography.buttonLabel
+
+        ButtonFamily.SECONDARY, ButtonFamily.DANGER, ButtonFamily.DANGER_FILLED, ButtonFamily.ICON ->
+            typography.buttonLabel
     }
     return MaterialTheme.typography.labelLarge.merge(style)
 }

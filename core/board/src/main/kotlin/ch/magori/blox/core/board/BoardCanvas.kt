@@ -17,6 +17,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -69,22 +71,71 @@ internal fun BoardCanvas(
     // Derived from the board alone: a move of the piece leaves it as it is, and recomposes nothing.
     val speech by remember(board) { derivedStateOf { boardSpeech(board()) } }
     val description = spokenBoard(speech)
+    BoardDrawing(
+        board = board,
+        piece = piece,
+        rows = BoardShape.rows,
+        painters = painters,
+        variant = variant,
+        background = background,
+        modifier = modifier.semantics { contentDescription = description },
+    )
+}
+
+/**
+ * Draws the bottom [rows] of the [board] and the [piece] in play over them, as [BoardCanvas] does, but decorative:
+ * TalkBack reads nothing of it, and nothing recomposes as the board changes. The preview of the home (P5.77), a stack
+ * and a piece that falls on it, is drawn so. [board] and [piece] are read only while drawing, as by [BoardCanvas], and
+ * must stay the same lambdas from one composition to the next. [rows] goes from 1 to the rows of the board; its size,
+ * in cells of a given side, is [boardRowsSize].
+ */
+@Composable
+fun BoardRowsCanvas(
+    board: () -> Board,
+    piece: () -> Piece?,
+    rows: Int,
+    modifier: Modifier = Modifier,
+    variant: BloxThemeVariant = BloxTheme.variant,
+    background: Color = BloxTheme.palette.boardBackground,
+) {
+    BoardDrawing(board, piece, rows, ::paintersFor, variant, background, modifier)
+}
+
+/** The size of the bottom [rows] of the board in cells of [cellSize]: the columns of the board across, a cell per row. */
+fun boardRowsSize(
+    rows: Int,
+    cellSize: Dp,
+): DpSize = DpSize(cellSize * BoardShape.columns, cellSize * rows)
+
+/**
+ * Draws the bottom [rows] of [board], with [piece] over them, in the cells of [painters]: the geometry and the
+ * painters are built once per variant, size and background, the cells read at each drawing. A recomposition, when
+ * TalkBack has a new height to read, keeps the drawing as it is, and builds nothing again.
+ */
+@Composable
+private fun BoardDrawing(
+    board: () -> Board,
+    piece: () -> Piece?,
+    rows: Int,
+    painters: PaintersFactory,
+    variant: BloxThemeVariant,
+    background: Color,
+    modifier: Modifier = Modifier,
+) {
     Spacer(
-        modifier = modifier
-            .semantics { contentDescription = description }
-            .drawWithCache {
-                val columns = BoardShape.columns
-                val geometry = BoardGeometry.fit(size.width, size.height, columns, BoardShape.rows)
-                val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
-                onDrawBehind {
-                    val cells = displayedCells(board(), piece())
-                    for (index in cells.indices) {
-                        val left = geometry.origin.x + index % columns * geometry.cellSize
-                        val top = geometry.origin.y + index / columns * geometry.cellSize
-                        translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
-                    }
+        modifier = modifier.drawWithCache {
+            val columns = BoardShape.columns
+            val geometry = BoardGeometry.fit(size.width, size.height, columns, rows)
+            val cellPainters = painters(variant, geometry.cellSize, background, Density(density, fontScale))
+            onDrawBehind {
+                val cells = displayedCells(board(), piece(), rows)
+                for (index in cells.indices) {
+                    val left = geometry.origin.x + index % columns * geometry.cellSize
+                    val top = geometry.origin.y + index / columns * geometry.cellSize
+                    translate(left, top) { cellPainters.getValue(cells[index]).draw(this) }
                 }
-            },
+            }
+        },
     )
 }
 

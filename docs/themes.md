@@ -145,6 +145,28 @@ d'un second appel (fermeture, « Tirer une musique »).
 `SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
 `SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
 
+**Fenêtres v2 et champ du nom** (P5.98, `core:designsystem`) : le titre de `WindowPanel` est en `screen-title`
+(fondu dans `titleSmall`), lu comme un titre par TalkBack ; un panneau qui n'est pas une fenêtre (carte « Serrure
+ouverte » du Serrurier) passe son propre style de titre. Les réponses (`WindowButton`, genre `WindowButtonKind` :
+Secondaire, Principal, Danger) sont des boutons bulles, toujours empilées sur toute la largeur, à 8 dp l'une de
+l'autre, la sûre d'abord, dans l'ordre où TalkBack les lit (décision du développeur, P5.86). Supprimer est rempli en
+`danger` avec la corbeille (`ButtonFamily.DANGER_FILLED`), libellé en `danger-ink` à 4,5:1 au moins ; pressé, il
+garde son remplissage. Le champ du nom (`NameField`, extrait de `NamingWindow`, longueur maximale en paramètre) :
+fond `panel-inset`, 56 dp de haut au moins, coins `radius-md`, le nom sur autant de lignes qu'il faut ; cadre de
+2 dp en `button-outline` au repos (3:1 au moins sur le panneau, WCAG 1.4.11), en `ink` au focus, en `danger` quand
+le nom est refusé ; compteur « n/40 » compté en caractères, lu « n caractères sur 40 » ; motif du refus précédé du
+pictogramme `ALERT` (16 dp, même à ×2), annoncé poliment par TalkBack. Renommer reste une fenêtre.
+**Tests :** `WindowPanelTest › the title of a window is in screen title, read as a heading`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
+`WindowButtonLookTest › a deleting answer is filled in danger with its trash icon, its label standing out by 4,5 to 1`,
+`NameFieldTest › the name field counts its characters out of 40, as TalkBack reads it`,
+`NameFieldTest › a refused name frames the field in danger and says why, read by TalkBack as it shows`,
+`NameFieldTest › the name field is framed in ink while it has the focus`,
+`NameFieldFrameTest › the name field is framed in button outline at rest, in ink while it has the focus, in danger when refused`,
+`NameFieldFrameTest › the frame of the name field at rest stands out from the panel by 3 to 1 at least` ;
+captures `*Window*` de `core:designsystem` et de `feature:composer`. Vues : V25, V32, V34.
+
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
 `accent`, cadré en `accentPressed` (3:1 sur la page de jour, comme la touche A), encre `accentInk`, et annoncé
@@ -160,6 +182,24 @@ Secondaire. Pictogrammes `CHECK` et `ALERT`, chacun avec son épaisseur de trait
 `ButtonLookTest › a disabled bare icon button stays bare, its glyph in label`,
 `ButtonLookTest › only a main or a secondary button may be compact, 48 dp high`,
 `BubbleButtonTest › a selected button is read as selected by TalkBack, a plain one is not` ; captures `ButtonVariants*`.
+
+**Écouter et égaliseur** (P5.94, `core:designsystem`) : `ListenButton` remplace les boutons Écouter de l'accueil et
+de l'éditeur. C'est un `GlyphButton` de la famille Icône (48 dp, ou la taille donnée), triangle `PLAY` au repos,
+carré `STOP` pendant l'écoute, état **en cours** (aspect pressé) ; TalkBack lit « Écouter X » ou « Arrêter X », le
+verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il n'a plus de libellé visible.
+`Equalizer` : trois barres de 3 × 14 dp, 2 dp entre elles, en `accent`, coins de la moitié de leur largeur (1,5 dp ;
+les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
+redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
+78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
+réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des musiques (P5.99).
+**Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
+`ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
+`ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
+`ListenButtonTest › a listen button playing is drawn as the button of its square, active, and not as at rest`,
+`EqualizerMotionTest › the equalizer moves its three bars between 35 and 100 percent of their height in 30 ticks`,
+`EqualizerTest › in reduced effects or in Original the equalizer stands still`,
+`EqualizerTest › the equalizer is left out by TalkBack`,
+`EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
@@ -218,7 +258,7 @@ le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
 `logoColors(variant)` (`LogoColors`, exactement quatre couleurs, `core:board` depuis P5.74) : en
 Original, les remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S, jour et nuit. Elles
 sont lues dans les styles des pièces, sans être recopiées ; `feature:home` dépend de `core:board`
-pour cela (ADR 0023). Le logo v2 arrive en P5.77.
+pour cela (ADR 0023). En Couleurs, le logo v2 le remplace depuis P5.77 (« Héros de l'accueil »).
 
 **Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
 `AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
@@ -482,6 +522,48 @@ Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
 `SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
 captures `Switches*`. Vues : V21, V31.
 
+**Héros de l'accueil** (P5.77, `feature:home`, `core:board`, V27) : en Couleurs, le logo BloX v2 (`BloxLogo`, Bagel
+Fat One en dégradé `iris`, la mascotte Serrurier à la place du « o », `docs/design-system/pictogrammes.md`), lu
+comme le titre de l'écran, centré sous la barre ; une ombre floue ne dessine que son flou, les lettres restant
+transparentes (`SOFT_SHADOW`, partagée dans `core:board`). Original garde son logo de quatre cases. Dessous, un
+aperçu du plateau (`BoardRowsCanvas`, les 6 rangées du bas en cases de 14 dp, `boardRowsSize`) rejoue un T qui
+tombe à la gravité du niveau choisi et efface deux lignes, montrées effacées 2 s ; son score est réel (100 × (niveau
++ 1) par ligne, `000600` au niveau 5) ; un nouveau niveau relance l'aperçu. Halo de Jouer (`PlayHalo`) : rien
+pendant 3 s, puis trois impulsions (à 3, 4 et 5 s, d'1 s chacune, pilule qui s'élargit de 12 dp en s'effaçant, en
+`accent-ring`), puis une toutes les 10 s après la troisième ; un toucher sur l'accueil le remet à 3 s. L'aperçu, le
+score et le halo ont chacun leur calque, invalidé seulement quand leur valeur change : rien ne recompose.
+**Effets réduits** : l'aperçu montre son état final (lignes effacées et points), aucun halo. Bagel Fat One reste
+embarquée. Point ouvert : le flou de l'ombre (`BlurMaskFilter`) est net sous l'API 28, à juger sur un appareil.
+**Tests :** `PreviewReplayTest › the preview drops a row every ticks per row of the chosen level`,
+`PreviewReplayTest › the preview scores 100 times the level plus one for its two lines`,
+`PreviewReplayTest › a preview given a new level starts again with a new T, at the gravity of that level`,
+`PreviewReplayTest › the preview goes on where it is when the level stays the same`,
+`PreviewReplayTest › the preview plays again once its two lines have shown cleared for 2 seconds`,
+`PreviewReplayTest › the still preview, for reduced effects, shows its two lines cleared and their points`,
+`PreviewReplayTest › the preview scores 000000, then 000600 once its lines clear at level 5, and 000600 at once still`,
+`HomeMotionTest › the ticks of the screen play the preview at the level chosen and bring the halo of Jouer`,
+`HomeMotionTest › the preview starts again with the new level when the level changes`,
+`HomeMotionTest › a touch on the home puts the halo off for 3 seconds again`,
+`HomeMotionTest › the preview notifies a change only when the T drops a row or locks`,
+`HomeMotionTest › the halo notifies no change while it is off`,
+`PlayHaloTest › the halo of Jouer stays off for 3 seconds`,
+`PlayHaloTest › the halo of Jouer pulses 3 times after 3 seconds, then once every 10 seconds after the third`,
+`PlayHaloTest › the halo is a pill around Jouer, which grows to its full spread as it fades`,
+`PlayHaloTest › without a pulse, there is no halo to draw`,
+`LogoLookTest › by day, Bl goes from iris-1 through iris-2 to iris-3 and X back, over a rim, a lilac and a shadow`,
+`LogoLookTest › by night, Bl goes from iris-1 to iris-3 and X to the pink of the night, in a halo over a dark shadow`,
+`LogoLookTest › a blurred shadow is drawn as its blur alone, the letters it is cast by left transparent`,
+`LogoLookTest › a shadow without blur is drawn as the letters in its colour, lower`,
+`DisplayedCellsTest › the cells of the bottom rows are the last rows of the board, the piece drawn over them`,
+`DisplayedCellsTest › asking more rows than the board has, or none, is refused`,
+`BoardRowsSizeTest › the bottom rows of the board take ten cells across and one cell per row`,
+`BoardCanvasTest › the bottom rows of a board are drawn again as it changes, without recomposing, TalkBack reading nothing`,
+`HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
+`HomeScreenTest › nothing on the home recomposes while the preview plays`,
+`HomeScreenTest › a touch on the home puts the halo of Jouer off for 3 seconds again`,
+`HomeScreenTest › in reduced effects the preview and the halo stand still` ;
+captures `Logo*`, `HomeColorful*`. Vue : V27.
+
 **Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
 et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
 effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
@@ -713,12 +795,11 @@ réduirait toujours au plancher. `shrinkToFewestLines` vérifie désormais aussi
 quand il passe sur plusieurs lignes. `shrinkToWholeWords` permet plusieurs lignes et ne réduit que
 si le texte déborde ou coupe un mot ; il ne cherche pas le moins de lignes (message du dé, trois
 lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` garde l'interligne d'un
-texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) restent
-côte à côte si le mot le plus large de chacune tient dans sa moitié ; sinon elles s'empilent, la
-réponse sûre d'abord (ordre de lecture inchangé), chacune sur toute la largeur et en grande police
-plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp. La décision
-compte en pixels entiers, comme la rangée, sur la largeur de ligne mesurée (`ButtonRow.kt`, partagé
-avec la barre d'outils de l'éditeur, P5.49). Le texte d'une fenêtre (`WindowText`) garde ses mots
+texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) sont
+toujours empilées depuis P5.98 (section « Fenêtres v2 »), chacune sur toute la largeur, en grande
+police plutôt que réduite ; un mot trop long pour la largeur entière réduit. `ButtonRow.kt` (côte à
+côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour la barre d'outils de l'éditeur
+(P5.49) et les tuiles de l'accueil. Le texte d'une fenêtre (`WindowText`) garde ses mots
 entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
 moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
 pas la césure, désactivée pour le corps du texte). **Tests :**
@@ -762,11 +843,9 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `WordCutTest › a number cut between two digits is cut`,
 `ShrinkingLineHeightTest › a text that shrinks keeps the line height of its style in proportion to its size`,
 `ShrinkingLineHeightTest › a style without a line height in sp keeps its own`,
-`WindowAnswersTest › in a normal font, on 360 dp, the answers of a window stand side by side, the safe one first`,
-`WindowAnswersTest › in a font twice as large, in Original, on 360 dp, answers too wide side by side stand one above the other`,
-`WindowAnswersTest › in a font twice as large, in Colorful, on 360 dp, answers whose words hold whole stay side by side`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
 `WindowAnswersTest › in a font twice as large, a word too long for the whole width of an answer shrinks rather than be cut`,
-`WindowAnswersTest › in a normal font, in Original, on 320 dp, the answers of a window stand one above the other`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `EmbeddedFontsTest › the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,

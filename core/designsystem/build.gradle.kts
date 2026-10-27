@@ -20,6 +20,8 @@ dependencies {
     api(libs.androidx.compose.material3)
     // Le retour d'un bouton relâché, compté sur les images de l'écran dans un LaunchedEffect (BubbleButton).
     implementation(libs.kotlinx.coroutines.core)
+    // `@StringRes` sur les textes d'Écouter (ListenFace).
+    implementation(libs.androidx.annotation)
     // La fenêtre d'une feuille s'ouvre depuis une doublure de la vue de l'écran, à son thème : elle en reprend les
     // propriétaires (cycle de vie, ViewModel, état sauvé) (BloxSheet).
     implementation(libs.androidx.lifecycle.common)
@@ -37,6 +39,10 @@ dependencies {
     // des features (mots entiers en police agrandie).
     testFixturesApi(libs.androidx.compose.ui.test.android)
     testFixturesImplementation(libs.assertj.core)
+    // RecompositionRecorder, une extension de JUnit 5 partagée par les tests de ce qui se dessine sans recomposer
+    // (ADR 0024) : l'égaliseur, la grille de l'éditeur.
+    testFixturesApi(platform(libs.junit.bom))
+    testFixturesApi(libs.junit.jupiter.api)
     // DesignTokens, le lecteur de docs/design-system/tokens.json, partagé avec core:board (jetons des pièces).
     testFixturesImplementation(libs.kotlinx.serialization.json)
 }

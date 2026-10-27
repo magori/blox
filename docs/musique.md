@@ -42,8 +42,8 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `HomeViewModelTest › the preview plays on while the screen is still visible`,
 `HomeViewModelTest › leaving the home screen stops the preview`,
 `HomeViewModelTest › leaving the home screen with no music listened to lets the music of the game play, without any stop`,
-`ListenButtonTest › a music not being previewed offers to listen to it, and TalkBack says which`,
-`ListenButtonTest › the music being previewed offers to stop it, and TalkBack says which`,
+`ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
+`ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
 `ScoresTest › each arrangement is known by its own identifier`. Vue : V1.
 
 **Aperçu qui s'arrête de lui-même** (P4.23) : chaque lecture expose son état

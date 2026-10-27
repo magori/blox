@@ -51,6 +51,7 @@ import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -484,6 +485,22 @@ internal class ComposerScreenTest {
         // Then
         assertThat(music.playing).isNull()
         onNodeWithContentDescription("Écouter").assertExists()
+    }
+
+    @Test
+    @DisplayName("a named music is listened to under its name")
+    fun aNamedMusicIsListenedToUnderItsName() = extension.use {
+        // Given a saved music, « Fête », a note on its first cell
+        val id = ScoreId.Personal("fete")
+        val draft = EditorState.new().touch(Pitch.parse("C5"), eighth = 0).draft
+        runBlocking { library.save(SavedMusic(id, "Fête", draft.category, draft.scale, draft.toScore(id))) }
+
+        // When the editor opens it
+        val opened = editor(musicKey = "fete")
+        setContent { BloxTheme { ComposerScreen(viewModel = opened, onBack = {}, onDeleted = {}) } }
+
+        // Then TalkBack reads its listen button with its name
+        onNodeWithContentDescription("Écouter Fête").assertIsEnabled()
     }
 
     @Test

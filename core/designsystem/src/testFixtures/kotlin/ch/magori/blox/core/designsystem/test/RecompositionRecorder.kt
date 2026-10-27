@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.composer
+package ch.magori.blox.core.designsystem.test
 
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.CompositionTracer
@@ -9,16 +9,18 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import java.util.concurrent.CopyOnWriteArrayList
 
 /**
- * Records the composable functions executed again once [start] is called, named as the compiler names them in its
- * trace markers: `ch.magori.blox.feature.composer.grid.GridLine (NoteGrid.kt:150)`. Registered as an extension, it is
- * the tracer of the composer during each test. A function skipped because its parameters did not change is not
- * recorded.
+ * Records the composable functions executed again once [start] is called, sub-compositions included
+ * (that of `BoxWithConstraints`, for instance), named as the compiler names them in its trace markers:
+ * `ch.magori.blox.feature.game.Play (GameScreen.kt:233)`. Registered as an extension, it is the tracer
+ * of the composer during each test. Shared by the instrumented tests of what draws without composing again (ADR
+ * 0024): the equalizer and the grid of the editor.
  *
- * The same recorder as in the instrumented tests of `feature:game`: a feature cannot share its test sources with
- * another, and a test-fixtures module for one class of an internal API of Compose would weigh more than this copy.
+ * A function skipped because its parameters did not change is not recorded, nor is a scope invalidated
+ * by a derived state whose value did not change: the composer enters it only to read its states again,
+ * without executing it. A `CompositionObserver` would count those as recompositions.
  */
 @OptIn(InternalComposeTracingApi::class)
-internal class RecompositionRecorder :
+class RecompositionRecorder :
     BeforeEachCallback,
     AfterEachCallback,
     CompositionTracer {

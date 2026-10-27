@@ -76,8 +76,8 @@ fun WrappingLabel(
  */
 internal fun framedBoxPadding(labelPadding: Dp): Dp = BloxBorders.frame + 1.dp + labelPadding
 
-/** The style of a [WrappingLabel]; the answers of a window measure their words with it. */
-internal val wrappingLabelStyle: TextStyle
+/** The style of a [WrappingLabel]. */
+private val wrappingLabelStyle: TextStyle
     @Composable
     @ReadOnlyComposable
     get() = MaterialTheme.typography.labelMedium.shrinkingLineHeight()

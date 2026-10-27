@@ -16,7 +16,8 @@ import kotlin.math.ceil
 internal data class CellLayout(val fill: Rect, val border: Rect?, val shape: Shape, val gloss: Gloss)
 
 /**
- * The parts of a cell of [side] pixels in [style], at [density]. The joint takes its width on each edge, in whole
+ * The parts of a cell of [side] pixels in [style], at [density], cut to [width] pixels when narrower (a cell of the
+ * Locksmith at the edge of the screen), as high and as round. The joint takes its width on each edge, in whole
  * pixels, 1 px at least: two cells side by side are apart by twice as much. A bubble has the look of [bubbleLook] at
  * the size of the cell, joint included: the corners of `radius-cell` and its gloss from 16 dp; below, corners of 2 dp
  * and no gloss (docs/design-system/components/Piece).
@@ -25,6 +26,7 @@ internal fun cellLayout(
     style: CellStyle,
     side: Float,
     density: Density,
+    width: Float = side,
 ): CellLayout {
     val inset = when (val joint = style.joint) {
         null -> 0f
@@ -34,7 +36,7 @@ internal fun cellLayout(
         // Rounded up: the ring of a gloss, as wide, fits in it at every density.
         is CellJoint.Fixed -> ceil(with(density) { joint.width.toPx() }).coerceAtLeast(1f)
     }
-    val fill = Rect(inset, inset, side - inset, side - inset)
+    val fill = Rect(inset, inset, width - inset, side - inset)
     val look = style.bubble?.let { bubbleLook(with(density) { side.toDp() }, it.gloss) }
     return CellLayout(
         fill = fill,

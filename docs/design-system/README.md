@@ -203,6 +203,9 @@ de l'éditeur utilisent un italique imité.
 - `radius-window` (24 px) : carte des réglages, plateau sur tablette ; `radius-card` (28 px) :
   cartes Pause et Fin, feuille Musique.
 - Espacements sur une grille de 4 : `space-1` (4), `space-2` (8), `space-3` (12), `space-4` (16) et `space-6` (24) ; pas de `space-5`.
+  Marge des écrans : `space-4` sur téléphone. Seule exception : la case de l'aperçu du Serrurier posée sur
+  l'anneau en colonne 0 ou 9 peut déborder jusqu'à `space-1` du bord, rognée là (P7.22), et jusqu'à 3 dp sur les
+  écrans les plus étroits, pour que sa croix garde 10 dp (P7.23).
 
 ## Pictogrammes
 

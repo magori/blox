@@ -10,12 +10,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * A music player that notes what it is told, in order (`play <id>`, `play file <uri>`, `stop`, `resume <id>`,
- * `resume file <uri>`, `tempo <factor>`), the scores it was told to play ([playedScores]), and keeps the identifier of the score [playing] or the music file
- * [playingFile], the [tempo] it plays at, the tempos [prepared] and the [volume] set, which [calls] does not note. As
- * the real one, it plays one music at a time: stopping a playback that was replaced leaves the new one playing; a new
- * play starts at the normal tempo and forgets the tempos prepared, a resume goes on at the tempo asked for, with the
- * tempos prepared; the volume stays as it was set; a tempo factor that is not positive and finite is refused. The
- * music may stop by itself ([fail]), as when the real one fails. It keeps the contract of the real one
+ * `resume file <uri>`, `tempo <factor>`, `switch <id>`), the scores it was told to play ([playedScores]), and keeps the
+ * identifier of the score [playing] or the music file [playingFile], the [tempo] it plays at, the tempos [prepared] and
+ * the [volume] set, which [calls] does not note. As the real one, it plays one music at a time: stopping a playback
+ * that was replaced leaves the new one playing; a new play starts at the normal tempo and forgets the tempos prepared,
+ * a resume goes on at the tempo asked for, with the tempos prepared; a switch goes on at once with the score switched
+ * to, under the same playback, at the same tempo, or keeps it for the resume of a playback stopped, and changes
+ * nothing while a music file plays; the volume stays as it was set; a tempo factor that is not positive and finite is
+ * refused. The music may stop by itself ([fail]), as when the real one fails. It keeps the contract of the real one
  * (`MusicPlayerContract`).
  */
 class FakeMusicPlayer : MusicPlayer {
@@ -58,6 +60,13 @@ class FakeMusicPlayer : MusicPlayer {
         prepared = prepared + factor
     }
 
+    override fun switchTo(score: Score) {
+        calls += "switch ${score.id}"
+        val playback = current?.takeIf { it.music is Score } ?: return
+        playback.music = score
+        if (playing != null) playing = score.id
+    }
+
     override fun setVolume(volume: Volume) {
         this.volume = volume
         volumesSet += volume
@@ -88,7 +97,7 @@ class FakeMusicPlayer : MusicPlayer {
         playingFile = null
     }
 
-    private inner class FakePlayback(private val music: Music) : Playback {
+    private inner class FakePlayback(var music: Music) : Playback {
         private val state = MutableStateFlow(true)
 
         override val isPlaying: Flow<Boolean> = state

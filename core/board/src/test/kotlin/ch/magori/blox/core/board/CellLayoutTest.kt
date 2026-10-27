@@ -110,6 +110,24 @@ class CellLayoutTest {
         assertThat(ring.width.value * density).isLessThanOrEqualTo(layout.fill.left)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(BloxThemeVariant::class, names = ["COLORFUL_LIGHT", "COLORFUL_DARK"])
+    fun `a cell cut to a narrower width keeps its height, its joint and its corners, its fill as narrow`(
+        variant: BloxThemeVariant,
+    ) {
+        // Given a cell of a piece of 84 px at a density of 2, 42 dp, and the same cut to 46 px, 23 dp
+        val style = cellStyle(variant, Cell.Filled(PieceType.T))
+        val whole = cellLayout(style, side = 84f, DENSITY)
+
+        // When
+        val cut = cellLayout(style, side = 84f, DENSITY, width = 46f)
+
+        // Then
+        assertThat(cut.fill).isEqualTo(whole.fill.copy(right = 46f - whole.fill.left))
+        assertThat(cut.border).isEqualTo(whole.border?.let { cut.fill })
+        assertThat(cut.shape).isEqualTo(whole.shape)
+    }
+
     private companion object {
         val DENSITY = Density(2f)
         val DAY_GLOSS = BloxGlossSets.ColorfulLight.cell

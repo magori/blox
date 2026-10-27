@@ -56,4 +56,31 @@ class FakeMusicPlayerTest : MusicPlayerContract() {
         assertThat(fake.playingFile).isNull()
         assertThat(fake.playing).isEqualTo(Scores.korobeiniki.id)
     }
+
+    @Test
+    fun `a switch is noted by the identifier of the score switched to`() {
+        // Given
+        val fake = FakeMusicPlayer()
+        fake.play(Scores.korobeiniki)
+
+        // When
+        fake.switchTo(Scores.minuet)
+
+        // Then
+        assertThat(fake.calls).containsExactly("play KOROBEINIKI", "switch MINUET")
+    }
+
+    @Test
+    fun `a switch while a music file plays changes nothing`() {
+        // Given
+        val fake = FakeMusicPlayer()
+        fake.play(myFile)
+
+        // When
+        fake.switchTo(Scores.minuet)
+
+        // Then
+        assertThat(fake.playingFile).isEqualTo(myFile)
+        assertThat(fake.playing).isNull()
+    }
 }

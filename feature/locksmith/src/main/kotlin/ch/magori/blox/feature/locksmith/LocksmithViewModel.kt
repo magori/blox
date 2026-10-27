@@ -59,7 +59,7 @@ class LocksmithViewModel internal constructor(
     internal fun select(rank: Int): Unit = arrange { it.copy(game = it.game.select(rank)) }
 
     /** Turns the selected piece a quarter turn by [rotation]. */
-    internal fun turn(rotation: Rotation): Unit = arrange { it.copy(game = it.game.turn(rotation)) }
+    internal fun turn(rotation: Rotation): Unit = arrange { it.copy(game = it.game.turn(rotation), turned = true) }
 
     /**
      * A touch of the padlock on [position]: on the preview, places it (refused over a placed piece, which the preview
@@ -95,8 +95,9 @@ class LocksmithViewModel internal constructor(
     internal fun hint(): Unit = judge { it.hint() }
 
     /** Starts the same padlock over: nothing placed, no hint. */
-    internal fun restart(): Unit =
-        state.update { it.copy(game = it.game.restart(), events = emptyList(), hint = null, aim = null) }
+    internal fun restart(): Unit = state.update {
+        it.copy(game = it.game.restart(), events = emptyList(), hint = null, aim = null, turned = false)
+    }
 
     /**
      * An action of the player that the domain does not judge (choose, turn, aim): the events of the last judged action
@@ -104,7 +105,7 @@ class LocksmithViewModel internal constructor(
      * the padlock is open.
      */
     private fun arrange(action: (LocksmithUiState) -> LocksmithUiState) = state.update { current ->
-        if (current.game.isOpen) current else action(current).copy(events = emptyList())
+        if (current.game.isOpen) current else action(current.copy(turned = false)).copy(events = emptyList())
     }
 
     /**
@@ -130,7 +131,8 @@ class LocksmithViewModel internal constructor(
             events.any { it is PadlockEvent.PiecePlaced } -> null
             else -> current.aim
         }
-        state.value = current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim)
+        state.value =
+            current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim, turned = false)
         soundCuesFor(update).forEach(::play)
     }
 
