@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 183 / 240 | `███████████████░░░░░` **76 %** |
+| **Général** | 184 / 240 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -947,7 +947,7 @@ composants.
   Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
   `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
   TalkBack` ; captures.
-- [ ] **P5.77** Héros de l'accueil : logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
+- [ ] **P5.77** Héros de l'accueil : (mascotte aussi sur la carte de la pause, P5.82) logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
   ses quatre cases), plateau d'aperçu (`core:board`) qui rejoue un T tombant à la gravité du niveau choisi et
   effaçant deux lignes, score réel ; halo de Jouer (3 impulsions après 3 s, puis une toutes les 10 s, aucun en
   Effets réduits). Après P5.71, P5.74, P5.75, P5.87 (logo exporté).
@@ -984,7 +984,7 @@ composants.
   Cas : `four lines run the iridescent border once`, `a level up announces the new level to TalkBack`,
   `the danger frame is 4 dp and stays until the danger ends`, `nothing flashes more than 3 times a second`,
   `there are 40 particles at most`, variantes Effets réduits.
-- [ ] **P5.82** Pause en rideau : rideau de cases vides sur le plateau et la pièce suivante (`motion-curtain`),
+- [x] **P5.82** Pause en rideau : rideau de cases vides sur le plateau et la pièce suivante (`motion-curtain`),
   puis la carte (mascotte, score, niveau, lignes, Reprendre, Menu) ; Reprendre rouvre le rideau puis relance la
   partie ; horloge de Compose, la boucle de jeu reste arrêtée. Après P5.60, P5.78.
   Cas : `the curtain hides the board and the next piece before the card shows`, `the game resumes only once the

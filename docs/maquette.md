@@ -282,6 +282,22 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   en page que V4 (marges de 24 et 16 dp, cibles de 48 dp au moins). TalkBack annonce l'écran
   (P2.6, maquetté le 2026-10-20). Dans le prototype, le bouton pause de V2, V3, V5 et V6 l'ouvre.
 
+- **Pause v2 en rideau** (P5.82, V29) : un rideau de cases vides descend rangée par rangée sur le plateau et la
+  pièce suivante (12 ticks, `motion-curtain` ; fondu de 8 ticks en Effets réduits), puis la carte (« Pause »,
+  score, niveau, lignes, Reprendre, Menu) monte sur un voile ; le jeu reste affiché dessous, inerte pour TalkBack,
+  le focus et les touches. Reprendre, le retour du système, Start, Échap ou P rouvrent le rideau, et la partie ne
+  repart qu'une fois le rideau ouvert ; une pause demandée pendant l'ouverture le referme depuis l'endroit atteint.
+  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte de la
+  carte avec P5.77.
+  **Tests :** `PauseCurtainTest › the curtain shuts in 12 ticks, the duration of motion-curtain, before the card shows`,
+  `PauseCurtainTest › in reduced effects the curtain fades over every row, shut in 8 ticks, the duration of motion-reduced-fade`,
+  `PauseCurtainStateTest › a pause while the curtain opens brings it back down from where it stood, the game never let go on`,
+  `GameScreenPauseTest › the curtain hides the board and the next piece before the card shows`,
+  `GameScreenPauseTest › the game resumes only once the curtain is open`,
+  `GameScreenPauseTest › the system back resumes as Reprendre does`,
+  `GameScreenLifecycleTest › a screen no longer in front while the curtain opens keeps the game paused, its card shown again`,
+  `GameScreenKeysTest › under the card of the pause, the arrows and Tab keep the focus on its buttons, and play nothing`.
+
 ### V20 — Jeu, fenêtre très étroite
 - 220 × 640 : score et niveau, puis lignes et pièce suivante en grille 2 × 2 au-dessus du plateau
   (cellule de 10), flèches rapprochées, B A dessous ; en Original, le titre passe au-dessus du
