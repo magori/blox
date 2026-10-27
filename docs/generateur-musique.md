@@ -1166,7 +1166,7 @@ Vues : V8, V11, V7, V10, V33.
   lancée, ramène le bouton à « Écouter ».
 - **Colonne jouée** : `Playback` ne dit pas sa position ; l'écran envoie ses images
   (`withFrameNanos`, ADR 0012), `FrameTicks` (`core:designsystem`, partagée avec le jeu, sans plafond ici) les convertit en ticks entiers (sans dérive, tous les
-  ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `PlayHead` avance de
+  ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `LoopPlayHead` (`core:designsystem/frame`, partagée avec le Jardin musical, P10.3 ; boucle de 64 croches, 8 mesures) avance de
   ticks × bpm (une case par croche, 15 ticks à 120 temps par minute), boucle après la mesure 8 et
   suit un changement de tempo depuis l'endroit où elle se trouve. La colonne porte un contour en
   deux traits, une ligne `ink` de 2 dp et un halo intérieur `boardBackground` de 1 dp : aucune
@@ -1192,10 +1192,14 @@ Vues : V8, V11, V7, V10, V33.
 - La partition jouée a l'identité de la musique, neuve ou enregistrée (P4.19d) ; avant, elle
   avait l'identité provisoire `Personal("editor")`.
 
-**Tests :** `PlayHeadTest › the play head starts on the first cell of the first bar`,
-`PlayHeadTest › the play head moves on a cell each eighth note, 15 ticks at 120 beats per minute`,
-`PlayHeadTest › the play head comes back to the first cell after the eighth bar, as the music loops`,
-`PlayHeadTest › after a change of tempo, the play head moves on at the new tempo from where it stood`,
+**Tests :** `LoopPlayHeadTest › the play head starts on the first eighth of the loop`,
+`LoopPlayHeadTest › the play head moves on an eighth each eighth note, 15 ticks at 120 beats per minute`,
+`LoopPlayHeadTest › the play head comes back to the first eighth after the last one, as the music loops`,
+`LoopPlayHeadTest › after a change of tempo, the play head moves on at the new tempo from where it stood`,
+`LoopPlayHeadTest › a loop of zero eighths or less is refused`,
+`LoopPlayHeadTest › a tempo of zero beats per minute or less is refused`,
+`LoopPlayHeadTest › a negative number of ticks is refused`,
+`CellTest › the eighth note of the music lies on a cell, the ninth on the first cell of the second bar`,
 `FrameTicksTest › the first frame only sets the time reference`,
 `FrameTicksTest › each frame gives the whole ticks of 1 60th of a second since the frame before, the rest carried over`,
 `FrameTicksTest › a frame time going back takes no tick away, and the ticks go on from it`,
