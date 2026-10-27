@@ -1,6 +1,6 @@
 # 0013 — Les fabriques de ViewModel entrent par les entrées de navigation
 
-- **Statut** : Acceptée ; précise l'[ADR 0007](0007-injection-manuelle.md)
+- **Statut** : Acceptée ; précise l'[ADR 0007](0007-injection-manuelle.md) ; amendée en P5.13 et P7.19
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -52,3 +52,32 @@ donc partir des `defaultViewModelCreationExtras` du propriétaire fourni par
 `rememberViewModelStoreNavEntryDecorator` et y ajouter la route, sans les remplacer ; et ce
 décorateur doit suivre `rememberSaveableStateHolderNavEntryDecorator`, qui fournit le registre
 d'état propre à l'entrée.
+
+## Amendement (P7.19, 2026-10-27)
+
+Les entrées Jeu, Éditeur et Serrurier lisaient leurs extras de la même façon, en neuf lignes écrites trois fois :
+le propriétaire tiré de `LocalViewModelStoreOwner` et vérifié non nul, ses extras par défaut obtenus par un
+transtypage en `HasDefaultViewModelProviderFactory` (sinon `CreationExtras.Empty`), une copie mutable mémorisée
+avec `remember` et complétée par la clé, puis le propriétaire repassé à `viewModel(…)`.
+
+Lifecycle 2.11 fournit chacune de ces étapes. Une entrée s'écrit désormais :
+
+```kotlin
+val defaults = LocalViewModelStoreOwner.current.defaultViewModelCreationExtras
+val extras = CreationExtras(defaults) { set(GameViewModel.RouteKey, route) }
+val viewModel: GameViewModel = viewModel(factory = viewModelFactory, extras = extras)
+```
+
+- `ViewModelStoreOwner?.defaultViewModelCreationExtras` (paquet `androidx.lifecycle`) remplace le transtypage et le
+  repli sur `CreationExtras.Empty`.
+- `CreationExtras(initialExtras) { … }` part de ces extras par défaut, sans les remplacer (amendement P5.13), et y
+  ajoute la clé de la feature.
+- `viewModel(…)` prend lui-même le propriétaire de `LocalViewModelStoreOwner`, avec la même vérification.
+- `remember` disparaît : les extras ne servent qu'à la création du ViewModel, que le magasin de l'entrée garde ; les
+  reconstruire à une recomposition ne coûte qu'une petite table.
+
+Ce qui reste commun aux trois entrées tient en deux appels de bibliothèque ; la clé et sa forme (route entière,
+clé de musique facultative, dé) sont propres à chaque feature. Une fonction partagée n'ajouterait qu'un nom de plus :
+il n'y en a pas. `ComposerEntryTest` compose l'entrée de l'éditeur dans un `NavDisplay` décoré comme dans `app` et
+prouve que la clé de la musique et le dé parviennent à la fabrique, les extras par défaut gardés (sans eux,
+`createSavedStateHandle` échouerait) ; `GameEntryRestorationTest` fait de même pour le jeu.

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 208 / 304 | `██████████████░░░░░░` **68 %** |
+| **Général** | 209 / 304 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1299,8 +1299,9 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
 - [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
   pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
   du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
-- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
-  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [x] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11). Fait sans fonction partagée : l'API de Lifecycle 2.11
+  suffit (amendement de l'ADR 0013).
 - [x] **P7.20** Serrurier, mise en page de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
   intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
   en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu
