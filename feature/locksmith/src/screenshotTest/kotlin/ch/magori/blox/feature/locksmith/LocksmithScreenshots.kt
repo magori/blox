@@ -10,8 +10,9 @@ import com.android.tools.screenshot.PreviewTest
  * application: the screen draws itself in the Colorful theme. A preview refused, its cells on the ring drawn over the
  * rim, on the side and at the bottom, clear of the message; a hint on a placed piece that blocks; the padlock open, its
  * card, and on a small screen in large text, where the card keeps to its share of the height. A preview refused on the
- * ring at the left and at the right, cut at the edge of the screen. The feedback of an action, frozen at one tick: a
- * placement, a refusal, an opening, a hint, and in reduced effects a refusal and an opening. From the previews of the
+ * ring at the left and at the right, cut at the edge of the screen, and shaken to each side, narrowed rather than out of
+ * its margin. The feedback of an action, frozen at one tick: a placement, a refusal, an opening, a hint, and in reduced
+ * effects a refusal and an opening. From the previews of the
  * production code, with the same `@Preview` configuration. Renaming a test breaks its link to its reference image:
  * regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
@@ -115,3 +116,8 @@ private fun LocksmithRefusedLeftShakeDay() = LocksmithRefusedLeftShakeDayPreview
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun LocksmithRefusedLeftReducedDay() = LocksmithRefusedLeftReducedDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun LocksmithRefusedRightShakeDay() = LocksmithRefusedRightShakeDayPreview()

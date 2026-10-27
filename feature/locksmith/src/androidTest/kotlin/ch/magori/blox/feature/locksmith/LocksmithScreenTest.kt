@@ -5,14 +5,18 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -20,15 +24,19 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.hasTextExactly
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.board.RecompositionRecorder
+import ch.magori.blox.core.board.lock.LockCell
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.designsystem.theme.BloxEffects
+import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.locksmith.Hint
@@ -43,6 +51,7 @@ import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -269,6 +278,97 @@ internal class LocksmithScreenTest {
 
         // Then
         assertThat(recompositions.recomposed.filter { "PadlockGrid" in it || "PadlockCell" in it }).isEmpty()
+    }
+
+    @Test
+    @DisplayName("a cell of the preview at the side, narrowed as the padlock shakes, recomposes nothing")
+    fun aCellAtTheSideRecomposesNothingWhileThePadlockShakes() = extension.use {
+        // Given a refusal on the ring at the left, its first frame drawn
+        mainClock.autoAdvance = false
+        val state = showHosted(LocksmithUiState(level = 1, game = start))
+        mainClock.advanceTimeByFrame()
+        runOnIdle { state.value = refusedAt(column = 0) }
+        mainClock.advanceTimeByFrame()
+        recompositions.start()
+
+        // When the shake plays to its end
+        repeat(FRAMES_OF_A_SHAKE) { mainClock.advanceTimeByFrame() }
+
+        // Then
+        assertThat(recompositions.recomposed.filter { "PadlockGrid" in it || "Cell" in it }).isEmpty()
+    }
+
+    @Test
+    @DisplayName("at the peak of a shake to the right, the right cell keeps to its neighbour, its cross centred")
+    fun atTheHeightOfAShakeTheCellAtTheRightKeepsAgainstItsNeighbour() = extension.use {
+        // Given a refusal on the ring at the right, frozen on its first tick, the padlock shaken to the right
+        val refused = refusedAt(column = Padlock.SIZE - 1)
+        val palette = showFrozen(refused, feedbackTick = 0)
+        val atTheSide = refused.preview!!.cells.first { it.column == Padlock.SIZE - 1 && it.row in INSIDE_ROWS }
+
+        // When
+        val shown = onNode(hasTestTag(rimCellTestTag(atTheSide))).getBoundsInRoot()
+        val neighbour = cell(Position(atTheSide.column - 1, atTheSide.row)).getBoundsInRoot()
+        val image = onRoot().captureToImage().asAndroidBitmap()
+        val pixels = density.density
+        val y = ((shown.top + shown.bottom).value / 2 * pixels).toInt()
+        val from = (shown.left.value * pixels).toInt()
+        // From the edge of the screen inwards, the page up to the outer edge of what is drawn of the cell
+        val to = (image.width - 1 downTo from).first { image.getPixel(it, y) != palette.page.toArgb() } + 1
+
+        // Then its inner edge is the outer edge of its neighbour, and its cross is in the middle of what is drawn
+        assertThat(shown.left.value).isCloseTo(neighbour.right.value, within(0.01f))
+        assertThat(Integer.toHexString(image.getPixel((from + to) / 2, y)))
+            .isEqualTo(Integer.toHexString(palette.ink.toArgb()))
+    }
+
+    @Test
+    @DisplayName("the grid does not recompose while the cells of a hint swell")
+    fun theGridDoesNotRecomposeWhileAHintSwells() = extension.use {
+        // Given a hint, its first frame drawn
+        mainClock.autoAdvance = false
+        val state = showHosted(LocksmithUiState(level = 1, game = start))
+        mainClock.advanceTimeByFrame()
+        runOnIdle { state.value = hinted() }
+        mainClock.advanceTimeByFrame()
+        recompositions.start()
+
+        // When its swell plays to its end
+        repeat(FRAMES_OF_A_SWELL) { mainClock.advanceTimeByFrame() }
+
+        // Then
+        assertThat(recompositions.recomposed.filter { "PadlockGrid" in it || "PadlockCell" in it }).isEmpty()
+    }
+
+    @Test
+    @DisplayName("at the height of its swell, the dot of a cell marked by a hint stays in ink")
+    fun atTheHeightOfItsSwellTheDotOfAHintStaysInInk() = extension.use {
+        // Given a hint, its cells at the height of their swell, 15 ticks of 30 in
+        val ink = showFrozen(hinted(), feedbackTick = 15).ink.toArgb()
+
+        // When
+        val dot = centreOf(onAllNodes(hasTestTag(cellTestTag(LockCell.Hint)))[0])
+
+        // Then the light passes under the dot, not over it
+        assertThat(Integer.toHexString(dot)).isEqualTo(Integer.toHexString(ink))
+    }
+
+    @Test
+    @DisplayName("in reduced effects, the cross of a refused preview stays in ink at the height of its light")
+    fun inReducedEffectsTheCrossOfARefusalStaysInInk() = extension.use {
+        // Given a refusal in reduced effects, its preview lit at its brightest, on its first tick
+        val aim = Position(1, 1)
+        val refused = shown(start.place(aim)).copy(aim = aim)
+        val reduced = BloxEffects(reduced = true, forcedBySystem = false)
+        val ink = showFrozen(refused, feedbackTick = 0, effects = reduced).ink.toArgb()
+
+        // When
+        val type = start.given.first()
+        val description = string(R.string.feature_locksmith_cell_preview_refused, type.name)
+        val centre = centreOf(onAllNodes(hasContentDescription(description, substring = true))[0])
+
+        // Then the light in danger passes under the cross, not over it
+        assertThat(Integer.toHexString(centre)).isEqualTo(Integer.toHexString(ink))
     }
 
     @Test
@@ -600,8 +700,62 @@ internal class LocksmithScreenTest {
         /** The frames of a shake, 18 ticks, and a few more. */
         const val FRAMES_OF_A_SHAKE = 24
 
+        /** The frames of the swell of a hint, 30 ticks, and a few more. */
+        const val FRAMES_OF_A_SWELL = 36
+
+        /** The orientations of a piece, at most. */
+        const val ORIENTATIONS = 4
+
+        /** The rows of the padlock inside its ring. */
+        val INSIDE_ROWS = 1..Padlock.SIZE - 2
+
         /** Longer than the wait of a column that scrolls before it lets a press through to a button. */
         const val HELD_MILLIS = 500L
+    }
+
+    /**
+     * The screen after a placement refused on the ring in [column], 0 or 9, its first piece turned and aimed by its pivot
+     * on the first cell inside the ring where it covers a cell of that column inside the rows of the padlock.
+     */
+    private fun refusedAt(column: Int): LocksmithUiState {
+        val turns = generateSequence(start) { it.turn(Rotation.CLOCKWISE) }.take(ORIENTATIONS)
+        val (turned, aim) = turns.flatMap { game -> INSIDE_CELLS.asSequence().map { game to it } }
+            .first { (game, pivot) ->
+                game.selectedAt(pivot)!!.cells.any { it.column == column && it.row in INSIDE_ROWS }
+            }
+        return shown(turned.place(aim)).copy(aim = aim)
+    }
+
+    /** The screen after a hint asked at the start: where a piece fits. */
+    private fun hinted(): LocksmithUiState {
+        val update = start.hint()
+        return shown(update).copy(hint = (update.events.single() as PadlockEvent.HintGiven).hint)
+    }
+
+    /**
+     * The screen of [state] in [effects], its feedback frozen at [feedbackTick]; its palette, that of the Colorful theme
+     * the screen imposes, by day or by night as the device is.
+     */
+    private fun ComposeContext.showFrozen(
+        state: LocksmithUiState,
+        feedbackTick: Int,
+        effects: BloxEffects = BloxEffects(reduced = false, forcedBySystem = false),
+    ): BloxPalette {
+        var palette: BloxPalette? = null
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+                palette = BloxTheme.palette
+                LocksmithScreen(state = state, actions = LocksmithActions.None, feedbackTick = feedbackTick)
+            }
+        }
+        waitForIdle()
+        return checkNotNull(palette)
+    }
+
+    /** The colour of the pixel in the centre of [node], as drawn, in ARGB. */
+    private fun centreOf(node: SemanticsNodeInteraction): Int {
+        val image = node.captureToImage().asAndroidBitmap()
+        return image.getPixel(image.width / 2, image.height / 2)
     }
 
     private fun string(

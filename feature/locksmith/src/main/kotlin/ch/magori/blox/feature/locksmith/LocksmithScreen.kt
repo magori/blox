@@ -40,7 +40,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
@@ -68,6 +67,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -75,6 +75,8 @@ import androidx.compose.ui.zIndex
 import ch.magori.blox.core.board.lock.LockCell
 import ch.magori.blox.core.board.lock.LockCellCanvas
 import ch.magori.blox.core.board.lock.LockCellCut
+import ch.magori.blox.core.board.lock.LockCellLight
+import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
 import ch.magori.blox.core.board.next.NextPieceCanvas
 import ch.magori.blox.core.board.next.NextPieceCells
@@ -429,8 +431,9 @@ private fun CadenceBracket(color: Color) {
  * rim and beyond it, crossed out ([rimCells]), neither touched nor read: the rim is too thin to hold a cross. Above and
  * below, the room of such a cell is kept ([PadlockSizes.overflow]): it covers neither the chords nor the message, and
  * the padlock does not move with the aim. At the sides, such a cell is cut [BloxSpaces.space1] from the edge of the
- * screen when it would pass it ([PadlockSizes.sideCell]), [SIDE_MARGIN] being left between the column and that edge. The
- * [feedback] of the last action lights its cells and shakes the padlock, at the [tick] read in the drawing alone.
+ * screen when it would pass it ([PadlockSizes.sideCell]), [SIDE_MARGIN] being left between the column and that edge;
+ * shaken with the padlock, it narrows rather than come closer to that edge ([SideCell.shownAt]). The [feedback] of the
+ * last action lights its cells and shakes the padlock, at the [tick] read in the drawing alone.
  */
 @Composable
 private fun PadlockGrid(
@@ -452,52 +455,48 @@ private fun PadlockGrid(
         val side = with(density) { sizes.cell.toDp() }
         val thickness = with(density) { sizes.rim.toDp() }
         val room = with(density) { sizes.room(gap = BloxSpaces.space3.roundToPx(), open = state.game.isOpen).toDp() }
-        val cut = with(density) {
-            val plate = INSIDE.count() * sizes.cell + 2 * sizes.rim
-            val beyond = (width.toInt() - plate) / 2 + SIDE_MARGIN.roundToPx()
-            val sideCell = sizes.sideCell(beyond = beyond, margin = BloxSpaces.space1.roundToPx())
-            if (sideCell.width < sizes.cell) LockCellCut(sideCell.width.toDp(), sideCell.cross.toDp()) else null
+        val amplitude = with(density) { SHAKE.toPx() }
+        val sideCell = remember(sizes, width, density) {
+            with(density) {
+                val beyond = sizes.beyond(width = width.toInt(), sideMargin = SIDE_MARGIN.roundToPx())
+                sizes.sideCell(beyond = beyond, margin = BloxSpaces.space1.roundToPx(), density = this)
+            }
         }
-        // Read in the drawing alone: the light of a cell, frame by frame, recomposes nothing.
-        val glowOf: (Position) -> Float = remember(feedback, tick, effects) {
-            { cell -> feedback?.glow(cell, tick(), effects) ?: 0f }
+        val cut = remember(sideCell, amplitude) { sideCell.cut(amplitude) }
+        // Read in the drawing alone: the light of a cell and the shake, frame by frame, recompose nothing.
+        val glows = remember(feedback, tick, effects) {
+            CellGlows { cell -> feedback?.glow(cell, tick(), effects) ?: 0f }
+        }
+        val shift = remember(feedback, tick, effects, amplitude) {
+            PadlockShift { (feedback?.shake(tick(), effects) ?: 0f) * amplitude }
         }
         Box(modifier = Modifier.padding(vertical = room)) {
             Box(
                 modifier = Modifier
-                    .graphicsLayer { translationX = (feedback?.shake(tick(), effects) ?: 0f) * SHAKE.toPx() }
+                    .graphicsLayer { translationX = shift.pixels() }
                     .background(lockMetal(BloxTheme.variant), RoundedCornerShape(thickness))
                     .padding(thickness),
             ) {
                 Column(
-                    modifier = Modifier
-                        .semantics {
-                            collectionInfo =
-                                CollectionInfo(rowCount = INSIDE.count(), columnCount = INSIDE.count())
-                        }
-                        .drawWithContent {
-                            drawContent()
-                            drawGlow(glowOf, glow)
-                        },
+                    modifier = Modifier.semantics {
+                        collectionInfo = CollectionInfo(rowCount = INSIDE.count(), columnCount = INSIDE.count())
+                    },
                 ) {
                     for (row in INSIDE) {
                         Row {
                             for (column in INSIDE) {
                                 val position = Position(column, row)
-                                PadlockCell(cells[position] ?: LockCell.Metal, position, side, hinted, onTap)
+                                val cell = cells[position] ?: LockCell.Metal
+                                PadlockCell(cell, position, side, hinted, onTap, glows, glow)
                             }
                         }
                     }
                 }
-                rim.filterKeys { cut == null || it.column in INSIDE }.forEach { (position, cell) ->
-                    RimCell(cell, position, side, cut = null, glowOf = glowOf, glow = glow)
-                }
-            }
-            // Cut at the edge of the screen, they do not shake with the padlock: they would leave their margin.
-            if (cut != null) {
-                Box(modifier = Modifier.padding(thickness)) {
-                    rim.filterKeys { it.column !in INSIDE }.forEach { (position, cell) ->
-                        RimCell(cell, position, side, cut, glowOf, glow)
+                rim.forEach { (position, cell) ->
+                    if (position.column in INSIDE) {
+                        RimCell(cell, position, side, glows, glow)
+                    } else {
+                        SideRimCell(cell, position, side, sideCell, cut, shift, glows, glow)
                     }
                 }
             }
@@ -505,65 +504,81 @@ private fun PadlockGrid(
     }
 }
 
+/** How far the padlock is shaken aside, in pixels, to the right when positive, read in the drawing alone. */
+private fun interface PadlockShift {
+    fun pixels(): Float
+}
+
+/** How bright each cell of the padlock is lit, from 0 to 1, read in the drawing alone. */
+private fun interface CellGlows {
+    fun at(cell: Position): Float
+}
+
+/** The light of the cell at [position], in [color], as [glows] say, read in the drawing alone. */
+@Composable
+private fun lightOf(
+    glows: CellGlows,
+    position: Position,
+    color: Color,
+): LockCellLight = remember(glows, position, color) { LockCellLight({ glows.at(position) }, color) }
+
 /**
- * A cell of the preview on the ring, [cell] at [position], a whole cell of [side] beyond the rim, or [cut] at the
- * edge of the screen: a cell on the left then keeps its inner part, against the rim. Neither touched nor read. Lit in
- * [glow] as [glowOf] says.
+ * A cell of the preview on the ring above or below the padlock, [cell] at [position], a whole cell of [side] beyond the
+ * rim. Neither touched nor read. Lit in [glow] as [glows] say.
  */
 @Composable
 private fun RimCell(
     cell: LockCell,
     position: Position,
     side: Dp,
-    cut: LockCellCut?,
-    glowOf: (Position) -> Float,
+    glows: CellGlows,
+    glow: Color,
+) {
+    LockCellCanvas(
+        cell = cell,
+        size = side,
+        modifier = Modifier
+            .offset(x = side * (position.column - INSIDE.first), y = side * (position.row - INSIDE.first))
+            .clearAndSetSemantics { testTag = rimCellTestTag(position) },
+        light = lightOf(glows, position, glow),
+    )
+}
+
+/**
+ * A cell of the preview on the ring at the side of the padlock, [cell] at [position], in column 0 or 9: [cut] as
+ * [sideCell] says, as much of it shown as the edge of the screen leaves while the padlock is shaken by [shift]; a cell
+ * on the left keeps its inner part, against the rim. Whole, its cut carries no cross of its own, and it keeps that of a
+ * whole cell. Neither touched nor read. Lit in [glow] as [glows] say.
+ */
+@Composable
+private fun SideRimCell(
+    cell: LockCell,
+    position: Position,
+    side: Dp,
+    sideCell: SideCell,
+    cut: LockCellCut,
+    shift: PadlockShift,
+    glows: CellGlows,
     glow: Color,
 ) {
     val onTheLeft = position.column < INSIDE.first
-    val left = cut?.takeIf { onTheLeft }?.let { -it.width } ?: (side * (position.column - INSIDE.first))
+    val shown = remember(sideCell, shift, onTheLeft) {
+        LockCellShown { sideCell.shownAt(shift.pixels(), onTheLeft) }
+    }
+    val left = if (onTheLeft) with(LocalDensity.current) { -cut.width.toDp() } else side * INSIDE.count()
     LockCellCanvas(
         cell = cell,
         size = side,
         modifier = Modifier
             .offset(x = left, y = side * (position.row - INSIDE.first))
-            .clearAndSetSemantics {}
-            .drawWithContent {
-                drawContent()
-                drawLight(Offset.Zero, size, glowOf(position), glow)
-            },
+            .clearAndSetSemantics { testTag = rimCellTestTag(position) },
         cut = cut,
+        shown = shown,
+        light = lightOf(glows, position, glow),
     )
 }
 
-/** The light of each cell inside the ring that [glowOf] lights, in [color], from the top left cell inside the ring. */
-private fun DrawScope.drawGlow(
-    glowOf: (Position) -> Float,
-    color: Color,
-) {
-    val side = size.width / INSIDE.count()
-    for (cell in INSIDE_CELLS) {
-        val topLeft = Offset(side * (cell.column - INSIDE.first), side * (cell.row - INSIDE.first))
-        drawLight(topLeft, Size(side, side), glowOf(cell), color)
-    }
-}
-
-/** The light of a cell at [topLeft], of [size], [glow] bright, in [color]; nothing when it is not lit. */
-private fun DrawScope.drawLight(
-    topLeft: Offset,
-    size: Size,
-    glow: Float,
-    color: Color,
-) {
-    if (glow <= 0f) return
-    drawRoundRect(
-        color = color,
-        topLeft = topLeft,
-        size = size,
-        cornerRadius = CornerRadius(size.height * GLOW_CORNER),
-        alpha = glow * GLOW_ALPHA,
-    )
-}
-
+/** A cell inside the ring, [cell] at [position], touched by [onTap]; lit in [glow] as [glows] say. */
 @Composable
 private fun PadlockCell(
     cell: LockCell,
@@ -571,6 +586,8 @@ private fun PadlockCell(
     side: Dp,
     hinted: PieceType?,
     onTap: (Position) -> Unit,
+    glows: CellGlows,
+    glow: Color,
 ) {
     val description = cellDescription(cell, position, hinted)
     val action = stringResource(
@@ -595,6 +612,7 @@ private fun PadlockCell(
                     columnSpan = 1,
                 )
             },
+        light = lightOf(glows, position, glow),
     )
 }
 
@@ -857,7 +875,7 @@ private fun Counter(
 private const val BOTTOM_SHARE = 0.5f
 
 /** The largest cell of the padlock; 8 cells and their rim fit the width of a phone of 390 dp, margins included. */
-private val MAX_CELL = 42.dp
+internal val MAX_CELL = 42.dp
 
 /** The narrowest pill of a chord. */
 private val CHORD_PILL = 44.dp
@@ -881,13 +899,7 @@ private val TILE_CELL = 10.dp
 private val SELECTED_RING = 4.dp
 
 /** How far a refusal shakes the padlock aside, at most. */
-private val SHAKE = 6.dp
-
-/** How bright a cell lit by a feedback is at most: its cell shows through. */
-private const val GLOW_ALPHA = 0.7f
-
-/** The corners of the light of a cell, in parts of the cell. */
-private const val GLOW_CORNER = 0.18f
+internal val SHAKE = 6.dp
 
 /** The margin of the column of the screen on each side, which the padlock counts to cut a cell at the edge. */
-private val SIDE_MARGIN = BloxSpaces.space4
+internal val SIDE_MARGIN = BloxSpaces.space4

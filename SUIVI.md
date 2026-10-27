@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 219 / 307 | `██████████████░░░░░░` **71 %** |
+| **Général** | 220 / 307 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1313,9 +1313,10 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   tuile choisie dont l'anneau descend avec la tuile ; UI Test instrumenté (poser, refuser, reprendre) ;
   stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; aperçu sur l'anneau en
   colonne 0 ou 9 rogné à 4 dp du bord de l'écran. La mesure des pistes d'effets passe en P7.24.
-- [ ] **P7.23** Serrurier, rendu à juger par `designer-jeu` (vu sur les captures de P7.22) : la croix de la case
+- [x] **P7.23** Serrurier, rendu jugé par `designer-jeu` (vu sur les captures de P7.22) : la croix de la case
   rognée frôle ses bords ; le point d'encre de l'indice tourne au gris au sommet de la lueur ; la case rognée,
-  immobile, chevauche un peu sa voisine pendant le tremblement.
+  immobile, chevauche un peu sa voisine pendant le tremblement. Corrigés tous trois ; le halo qui couvre le
+  contour au pic du tremblement est toléré.
 - [ ] **P7.24** Mesurer sur téléphone le nombre de pistes d'effets jamais libérées par le Serrurier (ADR 0025,
   P7.13), avec les mesures de P5.33.
 - [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
