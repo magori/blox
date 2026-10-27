@@ -332,8 +332,6 @@ disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'un
 `KeyColorsTest › a held key stands out from the key at rest by a contrast of 1,5 to 1 at least`,
 `KeyColorsTest › for A in the day the held key differs from it at rest by less than 1,5 to 1, so its 2 dp drop tells it`,
 `KeyColorsTest › the glyph of a key stands out from its face, by a contrast of 3 to 1 at least`,
-`KeyColorsTest › the letters A and B, large text, stand out from their key by a contrast of 3 to 1 at least`,
-`KeyColorsTest › the letters A and B are large text, bold and of 18,66 sp at least`,
 `KeyColorsTest › a key at rest stands out from the page by its outline, by a contrast of 3 to 1 at least`,
 `KeyColorsTest › a held key keeps the outline it has at rest`,
 `KeyColorsTest › the key A is framed in the pressed shade of the accent, held or not`,

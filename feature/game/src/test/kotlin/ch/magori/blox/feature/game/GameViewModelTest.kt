@@ -1465,6 +1465,44 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the screen lays the keys out for the left hand when the player is left handed`() {
+        // Given a left handed player
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+
+        // When
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // Then
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+    }
+
+    @Test
+    fun `the left handed choice is read once per game, at its start, and kept as the game goes on`() {
+        // Given a game started for a left handed player
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = true)
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the choice is changed during the game, then the game goes on
+        preferences.state.value = UserPreferences.DEFAULT.copy(leftHanded = false)
+        repeat(3) { viewModel.onFrame(it * ONE_SIXTIETH_NANOS) }
+
+        // Then the keys stay where the game started with them
+        assertThat(viewModel.uiState.value.leftHanded).isTrue()
+    }
+
+    @Test
+    fun `until the settings answer the keys are laid out for the right hand`() {
+        // Given settings that never answer
+        val silentPreferences = FakeUserPreferencesRepository(initial = null)
+
+        // When
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), userPreferences = silentPreferences)
+
+        // Then
+        assertThat(viewModel.uiState.value.leftHanded).isFalse()
+    }
+
+    @Test
     fun `with the sound effects on, the game warms them all up as soon as the settings answer, before any plays`() {
         // Given settings that have not answered yet
         val lateSettings = FakeUserPreferencesRepository(initial = null)

@@ -253,7 +253,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
   sous 8 dp près du seuil.
 
-  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 591 dp high, its cells under 8 dp, and playable 593 dp high`,
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 581 dp high, its cells under 8 dp, and playable 583 dp high`,
   `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
   `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
   `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,
@@ -270,7 +270,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameLayoutTest › when the score above does not fit either, the usual layout stays, cut`,
   `GameLayoutTest › a phone in portrait keeps the side column beside the board, though the score above would give a larger one`,
   `GameLayoutTest › with the font twice as large, the score above reserves the height of its larger texts`,
-  `GameLayoutTest › in the narrowest window at 2,625 px per dp the arrows come closer, to fit its width`,
+  `GameLayoutTest › in a window of 200 dp at 2,625 px per dp the arrows come closer, to fit its width`,
   `GameLayoutTest › a window too narrow for the arrows even touching puts them touching, cut at the right`,
   `SidePanelSizesTest › every next piece fits the preview the layout reserves, 4 cells wide and 2 high`,
   `ScoreGridTest › the score above the board fits the height the layout reserves for it, in both themes, font enlarged`.
@@ -397,10 +397,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   `StrokeIconTest › a stroke icon is drawn on a grid of 24, in unfilled lines 2,25 thick, rounded at their ends and joins`,
   `StrokeIconTest › every icon has strokes to draw`,
   `IconStyleTest › the Original theme draws its icons in pixels`,
-  `IconStyleTest › the Colorful theme draws its icons in strokes`,
-  `KeyGlyphTest › the letter keeps its size when it holds under the arrow in the key`,
-  `KeyGlyphTest › the letter shrinks to hold under the arrow in the key when the font is enlarged`,
-  `KeyGlyphTest › a letter exactly as high as the room under the arrow keeps its size`.
+  `IconStyleTest › the Colorful theme draws its icons in strokes`.
 - Dans le code (P5.54b) : l'engrenage, le bouton écouter des cartes et la note d'*Utiliser* sont
   des icônes seules de 24 dp (`GlyphButton(icon)`, `IconSizes.alone`), lues une fois par le nom
   de leur bouton ; *En jeu* garde sa coche. *Au hasard* et *Nouvelle* : 18 dp, écart de 6 dp et

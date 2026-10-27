@@ -20,7 +20,7 @@ import kotlin.contracts.contract
  * and its score submitted to the records: the screen then shows the game over. [running] says whether the
  * game runs, neither paused nor over: the screen hands frames only then (ADR 0012), and draws none for nothing
  * on the pause or the game over screen; it turns false as soon as the engine ends the game, before the records
- * answer.
+ * answer. [leftHanded] lays the keys out for the left hand: B and A on the left, the arrows on the right.
  */
 @Immutable
 internal data class GameUiState(
@@ -35,6 +35,7 @@ internal data class GameUiState(
     val record: Int? = null,
     val recordBeaten: Boolean = false,
     val gameOver: GameOverUiState? = null,
+    val leftHanded: Boolean = false,
 )
 
 /**

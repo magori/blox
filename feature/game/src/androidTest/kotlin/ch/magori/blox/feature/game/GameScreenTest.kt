@@ -17,6 +17,8 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
@@ -55,6 +57,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
 internal class GameScreenTest {
@@ -336,10 +339,55 @@ internal class GameScreenTest {
         assertThat(parts.map { it.parent?.config?.getOrNull(SemanticsProperties.IsTraversalGroup) }).containsOnly(true)
     }
 
-    /** The part of the game screen that holds [node], or [node] itself: the first that has a place in the order. */
+    @Test
+    @DisplayName("TalkBack reads « B, rotation anti-horaire » and « A, rotation horaire »")
+    fun talkBackReadsTheNamesOfBAndA() = extension.use {
+        // Given
+        showGameScreen()
+
+        // Then the name of each key, which shows its pictogram only, as one button
+        onNode(B).assertContentDescriptionEquals("B, rotation anti-horaire").assert(hasClickAction())
+        onNode(A).assertContentDescriptionEquals("A, rotation horaire").assert(hasClickAction())
+    }
+
+    @ParameterizedTest(name = "left handed: {0}")
+    @ValueSource(booleans = [false, true])
+    @DisplayName("the reading order stays arrows then B and A, left handed or not")
+    fun theReadingOrderStaysArrowsThenBAndA(leftHanded: Boolean) = extension.use {
+        // Given a left handed player, or not
+        uiState = uiState.copy(leftHanded = leftHanded)
+        showGameScreen()
+
+        // When
+        val arrows = placedPart(onNode(LEFT, useUnmergedTree = true).fetchSemanticsNode())
+        val rotations = placedPart(onNode(A, useUnmergedTree = true).fetchSemanticsNode())
+        val b = onNode(B, useUnmergedTree = true).fetchSemanticsNode()
+        val a = onNode(A, useUnmergedTree = true).fetchSemanticsNode()
+
+        // Then the groups are where the hand puts them, B and A mirrored too, A outside, for the left hand…
+        if (leftHanded) {
+            assertThat(rotations.boundsInRoot.right).isLessThanOrEqualTo(arrows.boundsInRoot.left)
+            assertThat(a.boundsInRoot.right).isLessThanOrEqualTo(b.boundsInRoot.left)
+        } else {
+            assertThat(arrows.boundsInRoot.right).isLessThanOrEqualTo(rotations.boundsInRoot.left)
+            assertThat(b.boundsInRoot.right).isLessThanOrEqualTo(a.boundsInRoot.left)
+        }
+        // …and read in the same order: the arrows, then B, then A
+        assertThat(arrows.config[SemanticsProperties.TraversalIndex])
+            .isLessThan(rotations.config[SemanticsProperties.TraversalIndex])
+        assertThat(
+            b.config[SemanticsProperties.TraversalIndex],
+        ).isLessThan(a.config[SemanticsProperties.TraversalIndex])
+    }
+
+    /**
+     * The part of the game screen that holds [node], or [node] itself: the first group that has a place in the order.
+     */
     private fun placedPart(node: SemanticsNode): SemanticsNode {
         var part: SemanticsNode = node
-        while (SemanticsProperties.TraversalIndex !in part.config) {
+        while (SemanticsProperties.TraversalIndex !in part.config ||
+            part.config.getOrNull(SemanticsProperties.IsTraversalGroup) != true
+        ) {
             part = checkNotNull(part.parent) { "No part of the screen holds $node" }
         }
         return part
@@ -352,6 +400,7 @@ internal class GameScreenTest {
         val LINES = hasContentDescription("Lignes : 52")
         val LEVEL = hasContentDescription("Niveau : 5")
         val LEFT = hasTestTag("control_left")
+        val B = hasTestTag("control_b")
         val A = hasTestTag("control_a")
     }
 }

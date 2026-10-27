@@ -115,6 +115,7 @@ fun EntryProviderScope<NavKey>.settingsEntry(
             SettingsActions(
                 onBack = goBack,
                 onReducedEffectsChanged = viewModel::onReducedEffectsChanged,
+                onLeftHandedChanged = viewModel::onLeftHandedChanged,
                 onSoundEffectsChanged = viewModel::onSoundEffectsChanged,
                 onEffectsVolumeChanged = viewModel::onEffectsVolumeChanged,
                 onMusicVolumeChanged = viewModel::onMusicVolumeChanged,

@@ -153,13 +153,14 @@ class GameViewModel internal constructor(
             // comes.
             if (gameState.isUnderWay) play(playMusic())
         }
-        // Whether the game and its keys vibrate and the game plays its sound effects, from the settings, read once,
-        // apart: the music of the player does not wait for them.
+        // Whether the game and its keys vibrate, the game plays its sound effects and its keys are laid out for the left
+        // hand, from the settings, read once, apart: the music of the player does not wait for them.
         viewModelScope.launch {
             val settings = preferences.preferences.first()
             vibrations = settings.vibrations
             soundEffectsOn = settings.soundEffects
             keyVibration = settings.keyVibration
+            state.update { it.copy(leftHanded = settings.leftHanded) }
             // At once, so that the first rotation does not wait for its track to open.
             if (soundEffectsOn) soundEffects.warmUp(SoundEffects.all)
         }
@@ -261,7 +262,7 @@ class GameViewModel internal constructor(
     private fun publish() {
         state.update {
             gameState.toUiState(nextPieces::getValue)
-                .copy(record = it.record, gameOver = it.gameOver)
+                .copy(record = it.record, gameOver = it.gameOver, leftHanded = it.leftHanded)
                 .withRecordBeaten(it.recordBeaten)
         }
     }

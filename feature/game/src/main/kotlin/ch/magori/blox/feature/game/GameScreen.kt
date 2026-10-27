@@ -316,6 +316,7 @@ private fun Game(
 ) {
     // Before it is beaten, the record changes once, when the records give it; then it follows the score.
     val record by rememberPart(uiState) { it.shownRecord() }
+    val leftHanded by rememberPart(uiState) { it.leftHanded }
     val controls = rememberHeldControls(onControl)
     Column(
         modifier = modifier
@@ -346,8 +347,9 @@ private fun Game(
                 val fontScale = LocalDensity.current.fontScale
                 val width = constraints.maxWidth.toFloat()
                 val height = constraints.maxHeight.toFloat()
-                val layout =
-                    remember(width, height, density, fontScale) { gameLayout(width, height, density, fontScale) }
+                val layout = remember(width, height, density, fontScale, leftHanded) {
+                    gameLayout(width, height, density, fontScale, leftHanded)
+                }
                 Play(uiState = uiState, layout = layout, controls = controls, modifier = Modifier.fillMaxSize())
             }
         }
@@ -430,9 +432,15 @@ private fun Play(
         DirectionPad(
             controls = controls,
             modifier = Modifier.placedAt(layout.directions, ReadingOrder.DIRECTIONS),
+            keys = layout.keys,
             spacing = directionSpacing,
         )
-        RotationPad(controls = controls, modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS))
+        RotationPad(
+            controls = controls,
+            modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
+            keys = layout.keys,
+            leftHanded = layout.leftHanded,
+        )
     }
 }
 
@@ -530,6 +538,13 @@ internal fun GameScreenOriginalPreview() {
 @Composable
 internal fun GameScreenColorfulPreview() {
     GameScreenPreview(BloxThemeKind.COLORFUL, previewState)
+}
+
+/** For a left handed player: B and A on the left, the arrows on the right. */
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenLeftHandedPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState.copy(leftHanded = true))
 }
 
 @Preview(widthDp = 360, heightDp = 760)
