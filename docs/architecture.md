@@ -14,6 +14,7 @@ graph TD
     app --> featureGame[feature:game]
     app --> featureComposer[feature:composer]
     app --> featureMusics[feature:musics]
+    app --> featureDaily[feature:daily]
     app --> designsystem[core:designsystem]
     app --> data[core:data]
     app --> audio[core:audio]
@@ -42,6 +43,11 @@ graph TD
     featureMusics --> data
     featureMusics --> audio
     featureMusics --> music
+
+    featureDaily --> designsystem
+    featureDaily --> data
+    featureDaily --> game
+    featureDaily --> board[core:board]
 
     audio --> music[core:music]
 
@@ -73,6 +79,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. Prévu : variantes Graine du jour et Au tempo de `GameRoute`, direction musicale (`MusicDirection`) de la Musique vivante (P8, P9, P11, ADR 0026). |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
+| `feature:daily` | Feature | Écran d'entrée de la Graine du jour (V38, P9.5, amendement de l'ADR 0002), toujours en thème Couleurs : clé `DailyRoute`, `DailyViewModel` et sa fabrique ; résultats du jour, 7 premières pièces de la graine, Jouer, Copier mon score. La partie elle-même est la variante `Daily` de `feature:game`. |
 | `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level, seed)`, `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
 | `feature:garden` | Feature | **Prévu (P10, ADR 0027).** Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |

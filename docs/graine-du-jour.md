@@ -29,7 +29,7 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 - Les règles sont celles du Classique (`ClassicRules`), sans aucun changement : rotation,
   gravité, score, niveaux, danger ([règles du mode Classique](regles-mode-classique.md)).
 - La partie du jour est la variante `Daily(date, id)` de `GameRoute` (`feature:game`, ADR 0026) :
-  `GameRoute.daily(date, seed, id)` ; `newDailyGameRoute(clock)` (`app`) lit la date une fois, à
+  `GameRoute.daily(date, seed, id)` ; `newDailyGameRoute(date)` (`app`) reçoit la date affichée par l'écran d'entrée à
   Jouer, et en tire la graine. La date est dans la route, sauvée en texte ISO ; l'`id` donne une clé
   neuve à chaque partie et à Rejouer (ADR 0011). Seul `GameVariants.setupOf` (`feature:game`)
   distingue les variantes : moteurs, résultats et musique ; Rejouer est porté par la variante
@@ -38,6 +38,7 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `GameRouteTest › replaying a classic game draws a new seed, at the same level`,
   `GameRouteTest › replaying a daily game keeps its date and its seed, under a new id`,
   `DailyGameRouteTest › two daily games of the same day are two games, with two keys`,
+  `DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
   `GameRouteSavingTest › a daily route comes back from the saved state with its date, its seed and its id`,
   `GameRouteSavingTest › a classic route comes back from the saved state as it was`.
 - **Niveau de départ imposé : 5**, quel que soit le niveau choisi à l'accueil (décision du
@@ -55,12 +56,12 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 
 ## Graine
 
-- **Date** : la date **locale du téléphone** (fuseau du téléphone) au moment de Jouer, écrite
+- **Date** : la date **locale du téléphone** (fuseau du téléphone) affichée par l'écran d'entrée quand on appuie sur Jouer, écrite
   `AAAAMMJJ` : `DailySeed.of(LocalDate)` rend la graine `20261026` pour le 26 octobre 2026
   (`20270105` pour le 5 janvier 2027 : mois et jour toujours sur deux chiffres), du même type que la
   graine d'une partie (`Long`) ; un jour plus récent donne une graine plus grande.
-  L'horloge est injectée (`newDailyGameRoute(clock)`, `app`), pour que les tests fixent la date ;
-  par défaut une horloge dans le fuseau du système, lue à chaque Jouer
+  L'horloge est injectée (`today(clock)`, seule source du jour dans `app`), pour que les tests fixent la date ;
+  par défaut une horloge dans le fuseau du système, lue à chaque affichage de l'écran d'entrée
   (`Clock.systemDefaultZone()`) : jamais l'horloge UTC de `AppContainer`, qui donnerait le mauvais
   jour autour de minuit, ni une horloge gardée pour la vie du processus, qui manquerait un
   changement de fuseau.
@@ -250,20 +251,60 @@ barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulThem
 `ColorfulThemeTest › the colorful theme draws in the colorful variant of the system mode, keeping the effects around it`,
 `SystemBarsTest › the bars of a daily game follow its colorful variant`.
 
-**Écran d'entrée** (vue **V38**, à dessiner), sur le modèle de l'accueil v2 (V27) :
+**Écran d'entrée** (vue **V38**, à dessiner ; `feature:daily`, clé `DailyRoute`, amendement de
+l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres système comprises :
 
-- barre : Changer de jeu, puce « MEILLEUR DU JOUR » (le meilleur score du jour, ou « — »),
-  Paramètres ;
-- titre « Graine du 26 octobre » ;
-- encart « LES 7 PREMIÈRES » : les 7 premières pièces de la graine, numérotées de 1 à 7, tirées du
-  `ClassicRandomizer` de la partie (non touchables, lues par TalkBack « Pièce 1 : T… ») ;
-- trois tuiles : **Essais**, **Premier essai**, **Meilleur** ;
-- **Jouer** XL, avec le rappel « Graine du jour · Niveau 05 · Vivante » ;
-- « Copier mon score », désactivé avant le premier essai, avec la sous-ligne « Joue une partie
-  pour copier ton score » ;
+- barre : Changer de jeu (retour au choix du jeu), puce « MEILLEUR DU JOUR » (le meilleur du jour
+  sur 6 chiffres, ou « — » ; TalkBack lit la vraie valeur, ou « aucun essai »), Paramètres (la
+  page Paramètres de l'accueil). La puce et le bouton Jouer sont ceux de l'accueil, partagés dans
+  `core:designsystem` (`ScoreChip`, `PlayButton`) ;
+- titre « Graine du 26 octobre » : la date locale du téléphone en lettres, « 1er » le premier du
+  mois ;
+- encart « LES 7 PREMIÈRES » : les 7 premières pièces de `ClassicRandomizer.stable(DailySeed.of(date))`,
+  la suite même de la partie, numérotées de 1 à 7, non touchables, lues « Pièce 1 : Z » ;
+- trois tuiles : **Essais**, **Premier essai**, **Meilleur** : les résultats du dépôt si leur date
+  est aujourd'hui, sinon « — » ; un essai commencé mais pas fini laisse « — » au premier essai, et
+  au meilleur tant qu'il vaut 0 ; scores sur 6 chiffres, lus à leur vraie valeur ;
+- **Jouer** XL, avec le rappel « Niveau 05 · Vivante », lu « Jouer, niveau 5, Vivante » (le niveau imposé, donné
+  par `app`), ouvre une partie du jour neuve **à la date affichée** : les pièces vues sont celles
+  jouées, même si minuit est passé entre-temps. Le rappel est court (le titre dit déjà « Graine du … ») pour tenir en entier sur 360 dp (décision du développeur, 2026-10-27) ;
+- « Copier mon score », actif dès le premier essai du jour commencé ; désactivé avant, avec la
+  sous-ligne « Joue une partie pour copier ton score ». Le texte copié vient en P9.6 ;
 - en bas : « Nouvelle graine à minuit ».
-- L'écran suit le changement de date : ouvert à 23 h 59, il passe à la graine du lendemain à
-  minuit **[à vérifier]** (sinon, à son prochain affichage).
+- Jouer, Changer de jeu et Paramètres ne comptent qu'écran actif (`dropUnlessResumed`, comme
+  l'accueil) : un double appui ne lance pas deux parties, donc pas deux essais.
+- La date est relue à chaque affichage de l'écran et à chaque retour au premier plan, sans
+  minuteur : ouvert à 23 h 59, l'écran passe à la graine du lendemain à son prochain affichage.
+  C'est la version retenue (décision du développeur, 2026-10-27) : pas de bascule en direct à minuit.
+
+**Tests :** `DailyViewModelTest › without a try today, no result is shown and the score cannot be copied`,
+`DailyViewModelTest › the results of today show the tries, the first try and the best, and the score can be copied`,
+`DailyViewModelTest › the results of another day are not those of today`,
+`DailyViewModelTest › a try started but not ended shows a dash for the first try and the best`,
+`DailyViewModelTest › a best of 0 is shown once the first try is over`,
+`DailyViewModelTest › the seven first are the first pieces of the daily game, drawn from the seed of the day`,
+`DailyViewModelTest › the date is read again each time the screen shows, with the pieces and results of that day`,
+`DailyViewModelTest › the reminder under Jouer gives the start level of the daily game, as app gives it`,
+`DailyViewModelTest › the factory builds the view model on the results, the date and the seeds given by app`,
+`DayInLettersTest › the day is written in letters, the day of the month then the month`,
+`DayInLettersTest › the first of the month is written 1er, as in French`,
+`DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
+`SystemBarsTest › the bars of the entry of the daily seed follow its colorful variant`,
+`DailyScreenTest › the title gives the day in letters`,
+`DailyScreenTest › TalkBack reads each of the seven first pieces with its rank, and none can be touched`,
+`DailyScreenTest › before the first try, the tiles and the best of the day show a dash, and copying is disabled`,
+`DailyScreenTest › after a try, the tiles read the results and Copier mon score hands the copy to app`,
+`DailyScreenTest › Jouer, read with the level received and its reminder in words, hands the date shown to app`,
+`DailyScreenTest › on 360 dp, in a normal font, the reminder under Jouer holds whole on one line, without an ellipsis`,
+`DailyScreenTest › Jouer, Changer de jeu and Paramètres count only while the entry is resumed`,
+`DailyScreenTest › the bar changes the game and opens the settings through app`,
+`ScoreChipTest › a score chip is 48 dp high at least, as the discs beside it, even in a font twice as large`,
+`PlayButtonTest › a reminder too long for Jouer is cut by an ellipsis on one line, and TalkBack still reads it whole`,
+`BloxNavDisplayTest › the entry of the daily seed shows the day and its first pieces`,
+`BloxNavDisplayTest › Jouer on the entry of the daily seed opens the daily game, at level 5`,
+`BloxNavDisplayTest › changing the game from the entry of the daily seed goes back to the cartridges` ;
+captures `DailyBeforeAnyTryDay`, `DailyBeforeAnyTryNight`, `DailyAfterTriesDay`, `DailyAfterTriesNight`,
+`DailyLargeFontDay`.
 
 **En jeu** (vue **V39**, à dessiner) : l'écran de jeu v2 (V28), titre « GRAINE DU JOUR », le
 meilleur du jour à la place du record, sous le libellé « MEILLEUR ». Une fois battu, l'autocollant
