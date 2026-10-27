@@ -74,6 +74,12 @@ internal class CellPainter(
     private val dot: (DrawScope.() -> Unit)? = style.dot?.let { centreDot(it, side, layout.fill.center) }
 
     fun draw(scope: DrawScope) {
+        drawBody(scope)
+        drawMarks(scope)
+    }
+
+    /** The cell without its marks: its joint, its fill, its border, its centre and its gloss. */
+    fun drawBody(scope: DrawScope) {
         val fill = layout.fill
         joint?.let { scope.drawRect(it, size = cellSize) }
         if (bubble == null) {
@@ -85,6 +91,10 @@ internal class CellPainter(
         centre?.invoke(scope)
         // The ring of the gloss fits in the margin of the cell (cellLayout): it never covers a cell beside it.
         bubble?.let { scope.translate(fill.left, fill.top) { it.drawGloss(this) } }
+    }
+
+    /** The marks of the cell, over its body and whatever is drawn on it: its dot and its cross. */
+    fun drawMarks(scope: DrawScope) {
         dot?.invoke(scope)
         cross?.invoke(scope)
     }
@@ -104,8 +114,8 @@ private fun crossOver(
     crossSide: Float?,
 ): DrawScope.() -> Unit {
     val width = pixelsOf(cross.width, side)
-    val halo = width * 2
-    val half = (crossSide ?: (fill.width * (1 - 2 * CROSS_MARGIN))) / 2
+    val halo = crossHalo(cross, side)
+    val half = (crossSide ?: wholeCross(fill.width)) / 2
     val topLeft = Offset(fill.center.x - half, fill.center.y - half)
     val bottomRight = Offset(fill.center.x + half, fill.center.y + half)
     val topRight = Offset(bottomRight.x, topLeft.y)
@@ -118,6 +128,15 @@ private fun crossOver(
         drawLine(cross.color, bottomLeft, topRight, strokeWidth = width, cap = StrokeCap.Round)
     }
 }
+
+/** The width of the halo of [cross] in a cell of [side] pixels: twice its stroke. */
+internal fun crossHalo(
+    cross: CellCross,
+    side: Float,
+): Float = pixelsOf(cross.width, side) * 2
+
+/** The side of the cross of a cell that is not cut, its fill [fill] pixels wide: across its middle half. */
+internal fun wholeCross(fill: Float): Float = fill * (1 - 2 * CROSS_MARGIN)
 
 /** The centre square, in whole pixels. */
 private fun centreSquare(

@@ -451,12 +451,43 @@ droite.
   `BubbleButtonTest › what a screen draws around a button, as the ring of a chosen tile, goes down with it`.
 - Aperçu sur l'anneau en colonne 0 ou 9 : quand la place manque au-delà du rebord, la case qui déborde est
   rognée à 4 dp du bord de l'écran, sa croix entière dedans ; avec assez de place, elle est entière. La case
-  rognée garde sa hauteur, son joint et ses coins. Exception à la marge des écrans du design system, notée
-  dans son README.
+  rognée garde sa hauteur, son joint et ses coins. Sa croix, du même trait que celle d'une case entière, vaut
+  le remplissage moins le halo et 2 dp de chaque côté (11 dp à 390 dp, 14 dp à 320 dp), en pixels entiers,
+  plafonnée à la croix d'une case entière ; au repos, croix et halo gardent 2 dp de fond de chaque côté. Si la
+  croix tombait sous 10 dp (écrans étroits à forte densité), la case est rognée plus près du bord, à 3 dp au
+  plus près ; si même là elle reste sous 10 dp, la case est rognée à 3 dp et la croix est la plus grande
+  possible, sans amincir le trait. Exception à la marge des écrans du design system, notée dans son README.
+  Pendant le tremblement d'un refus, la case de côté tremble avec la serrure : son bord intérieur suit sa
+  voisine, son bord extérieur ne s'approche jamais du bord de l'écran plus qu'au repos (elle s'étrécit, en
+  pixels entiers), sa croix garde sa taille et se recentre sur ce qui est montré. Au pic du tremblement, le
+  halo de la croix couvre le contour de la case pendant quelques images : toléré (décision de P7.23), la
+  croix et son halo restent entiers dans la case montrée.
   **Tests :** `PadlockSizesTest › at 390 dp, a cell of the preview on the ring at the side is cut 4 dp from the edge, its cross whole within`,
   `PadlockSizesTest › with room enough beyond the rim, a cell of the preview on the ring at the side is whole`,
   `PadlockSizesTest › a cell of the preview on the ring at the side never passes the edge of the screen less the margin`,
+  `PadlockSizesTest › the cross of a cell cut at the side keeps 2 dp of its fill on each side of its halo, and 10 dp at least`,
+  `PadlockSizesTest › on the narrowest screen, 320 dp, the cross of a cell cut at the side is 14 dp`,
+  `PadlockSizesTest › where its cross would fall under 10 dp, a cell at the side is cut a little closer to the edge, 3 dp at least`,
+  `PadlockSizesTest › where even 3 dp from the edge its cross falls under 10 dp, a cell at the side is cut 3 dp from it`,
+  `PadlockSizesTest › shownAt keeps the inner edge of a cell at the side where the padlock puts it, at rest or shaken`,
+  `PadlockSizesTest › shownAt trims a cell at the side by whole pixels, its outer edge never closer to the edge than at rest`,
+  `PadlockSizesTest › shaken by a fraction of a pixel, a cell at the side is trimmed by the whole pixel above`,
+  `PadlockSizesTest › the narrowest a cell at the side is drawn is reached at the height of the shake, never passed during it`,
+  `PadlockSizesTest › at the peak of the shake, the cross of a side cell and its halo stay within what is shown, joints included`,
+  `PadlockSizesTest › at 390 dp, a cell at the side stands 4 dp from the edge of the screen at rest`,
+  `LockCutCrossTest › a cell of 42 cut to 23, its cross takes its fill less its halo and 2 dp on each side`,
+  `LockCutCrossTest › at rest, the cross of a cut cell and its halo keep 2 dp on each side within its joints`,
+  `LockCutCrossTest › a cell cut wide enough keeps the cross of a whole cell, across half its fill`,
+  `LockCutCrossTest › a whole cell of an odd fill keeps the cross of the cells that are not cut, half a pixel included`,
+  `LockCutCrossTest › a whole cell at the side, its cut without a cross of its own, keeps the cross of a cell not cut`,
+  `LockCutCrossTest › the cross of a cut cell is a whole number of pixels`,
+  `LockCutCrossTest › the cross of a cut cell fits a width as wide as its reach, and no narrower`,
+  `LockCutCrossTest › the cross of a cut cell is the same in every Colorful variant and for every piece`,
+  `LocksmithScreenTest › at the peak of a shake to the right, the right cell keeps to its neighbour, its cross centred`,
+  `LocksmithScreenTest › a cell of the preview at the side, narrowed as the padlock shakes, recomposes nothing`,
   `CellLayoutTest › a cell cut to a narrower width keeps its height, its joint and its corners, its fill as narrow`.
+  **Vues :** V35 (captures `LocksmithRefusedLeft`, `LocksmithRefusedRight`, `LocksmithRefusedLeftShake` et
+  `LocksmithRefusedRightShake`, en `Day`).
 - Retours animés ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)), en ticks (`LocksmithFeedback`,
   pur), dessinés sans recomposer la grille :
   - **pose** : les cases de la pièce s'allument 8 ticks, de moins en moins ; en Effets réduits, rien, comme le
@@ -471,7 +502,12 @@ droite.
     pour que rien ne clignote ; en Effets réduits, allumées d'un coup, éteintes en 8 ticks. L'indice reste
     marqué jusqu'à la pose suivante ;
   - reprendre, choisir, tourner ou viser ne donnent aucun retour.
-  L'écran garde les Effets réduits de l'application (le `BloxTheme` Couleurs les perdait, corrigé).
+  L'écran garde les Effets réduits de l'application (le `BloxTheme` Couleurs les perdait, corrigé). La lumière
+  d'une case est peinte par le peintre des cases (`LockCellCanvas`, `core:board`), entre le corps de la case et
+  ses marques : le point d'encre de l'indice et la croix d'un refus restent en encre au sommet de la lumière.
+  **Tests :** `LocksmithScreenTest › at the height of its swell, the dot of a cell marked by a hint stays in ink`,
+  `LocksmithScreenTest › in reduced effects, the cross of a refused preview stays in ink at the height of its light`,
+  `LocksmithScreenTest › the grid does not recompose while the cells of a hint swell`.
   **Tests :** `LocksmithFeedbackTest › a placement lights the cells of its piece for 8 ticks, dimmer at each tick`,
   `LocksmithFeedbackTest › in reduced effects a placement lights nothing, as a lock of the Classic, the pill of its chord telling it`,
   `LocksmithFeedbackTest › a refusal shakes the padlock side to side for 18 ticks from its first, less and less, then puts it back`,

@@ -194,11 +194,21 @@ internal fun LocksmithRefusedRightDayPreview() {
     LocksmithPreview(refusedSideState(column = Padlock.SIZE - 1))
 }
 
-/** A preview refused at the left edge, the padlock shaken to the left, 4 ticks in: its cut cell stays in its margin. */
+/** A preview refused at the left edge, the padlock shaken to the left, 4 ticks in: its cut cell narrows in its margin. */
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 internal fun LocksmithRefusedLeftShakeDayPreview() {
     LocksmithPreview(refusedSideState(column = 0), feedbackTick = 4)
+}
+
+/**
+ * A preview refused at the right edge, the padlock at the height of its shake to the right, on its first tick: its cut
+ * cell narrows rather than leave its margin, its cross whole within.
+ */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithRefusedRightShakeDayPreview() {
+    LocksmithPreview(refusedSideState(column = Padlock.SIZE - 1), feedbackTick = 0)
 }
 
 /** A preview refused at the left edge in reduced effects: its crossed cells lit, the cut one included, 2 ticks in. */
