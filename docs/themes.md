@@ -134,7 +134,9 @@ assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `pan
 visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
 en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
 étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
-sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres.
+sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres. `SettledSheet` dessine une feuille
+posée, sans sa fenêtre, pour les aperçus et les captures (P5.101) ; `rememberOnce`, public, garde une action
+d'un second appel (fermeture, « Tirer une musique »).
 **Tests :** `SheetEntranceTest › a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`,
 `BloxSheetTest › a sheet is read as a dialog by TalkBack, its title first`,
 `BloxSheetTest › the system back and a touch on the scrim close the sheet`,
