@@ -67,8 +67,8 @@ fun WindowDialog(
 fun WindowPanel(
     title: String,
     modifier: Modifier = Modifier,
-    titleStyle: TextStyle = MaterialTheme.typography.titleSmall.merge(BloxTheme.typography.screenTitle),
     titleModifier: Modifier = Modifier,
+    titleStyle: TextStyle = MaterialTheme.typography.titleSmall.merge(BloxTheme.typography.screenTitle),
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
