@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 208 / 304 | `██████████████░░░░░░` **68 %** |
+| **Général** | 209 / 304 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1120,7 +1120,7 @@ composants.
     en lecture`, `Annuler, Copier and Effacer are disabled when they have no effect`, `Enregistrer is the only button
     in accent on the editor, its dot shown while the music has changed`, `on 360 by 640 dp in a font twice as large
     every control is 48 dp and the grid keeps rows of 26 dp, scrolling` ; captures.
-  - [ ] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
+  - [x] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
     reflet de la piste à sa couleur, coins `radius-cell`, relief `cell-gloss` à 16 dp et plus) ; jetons `melody-hi`
     et `bass-hi` ajoutés à `tokens.json` (jour et nuit) et comparés ; grille dans un bloc `board` cadré
     `panel-border` ; ligne « TEMPS 1 2 3 4 » en `stat-label` ; fondu du bas tant que des lignes restent dessous.

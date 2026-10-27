@@ -562,6 +562,24 @@ la case (`TrackColorsTest › a cell of the grid is drawn on the cell ground, be
 `grid-line` `#2A2D44`, P5.88 ; de jour, les lignes blanches se lisent contre les cases pâles),
 `TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`).
 
+**Notes en bulles** (P5.103, V33, Couleurs seulement) : une note est dessinée comme une cellule du plateau,
+par le même peintre (`BubblePainter` et `bubbleLook`, `core:designsystem`, partagés avec `core:board`) :
+dégradé du reflet de sa piste (`melody-hi`, `bass-hi`) en haut à sa couleur à 55 % de sa hauteur, coins
+`radius-cell` et relief `cell-gloss` dès 16 dp sur son plus petit côté, coins de 2 dp sans relief en dessous (une
+double croche, environ 14 dp de large, reste plate). De nuit, `melody` et `bass` valent `piece-t` et `piece-l` :
+leurs reflets sont ceux de ces pièces (`#DCCBFF`, `#FFD7B0`). Les peintres sont construits une fois par aspect,
+taille et densité, gardés au plus à 64, sans allocation au dessin. La grille est posée dans un bloc `board` cadré
+de 2 dp de `panel-border` (`radius-md`, marge de 8 dp), la ligne « TEMPS 1 2 3 4 » en `stat-label` capitales, et un
+fondu de 24 dp vers `board` marque le bas tant que des lignes restent dessous. Original garde sa grille
+(`BubbleDrawingTest › a bubble is lit from its highlight at the top and is in its colour from 55 percent of its height down`,
+`NotePaintersTest › a note under 16 dp has 2 dp corners and no gloss`,
+`NotePaintersTest › a note of 16 dp and more has the corners of radius cell and the gloss of cell gloss`,
+`NotePaintersTest › the painters of the notes are built once per size and variant, not at each touch`,
+`NotePaintersTest › the painters of the notes are built anew once more than 64 sizes are kept`,
+`NotePaintersTest › the painters of the notes are built again when the density changes`,
+`TrackColorsTest › the highlight and the colour of each track are those of tokens json, day and night`,
+`PaletteTokensTest`). Vue : V33.
+
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|
 | Mélodie | `#34503A` | `#3FC5E8` | `#6366F1` | `#818CF8` |
