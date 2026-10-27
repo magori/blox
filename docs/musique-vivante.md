@@ -12,9 +12,9 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md). Le reste de la musique (lecture en
 boucle, focus audio, accélération du danger) est décrit dans [musique.md](musique.md).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P8 de [SUIVI.md](../SUIVI.md)).
-> Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à
-> l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
+> Traçabilité : les règles implémentées portent leur ligne **Tests :** `ClasseDeTest › nom du test`
+> et, si elles se voient à l'écran, **Vues :** `V…` ; les autres attendent leur tâche de la phase P8
+> de [SUIVI.md](../SUIVI.md).
 
 ## Vocabulaire
 
@@ -58,9 +58,18 @@ boucle, focus audio, accélération du danger) est décrit dans [musique.md](mus
 La traduction des événements en ordres au lecteur sort de `feature:game` dans une stratégie,
 `MusicDirection`, choisie au début de la partie selon la musique :
 
-- **`ClassicMusicDirection`** reprend `MusicTempo.kt` tel quel : tempo × 1,25 en danger, retour
-  à × 1,0 à la sortie du danger ([musique.md](musique.md#accélération)). C'est d'abord un pur
-  refactoring, sous les tests existants du tempo.
+- **`MusicDirection`** (`feature:game/music`, interne) a deux entrées : `onStart(player)`, juste
+  après le départ de la musique, et `onEvents(events, player)`, à chaque tick, avec les événements
+  du moteur. Le lecteur est passé en paramètre : une direction sans état peut être un objet, une
+  direction à état (Vivante) une instance par partie. `onStart` peut venir après des `onEvents`
+  (musique lancée en retard, reprise sans `Playback`) : la direction répond alors de son état.
+- **`ClassicMusicDirection`** (objet sans état, ex-`MusicTempo.kt`, P8.5) : tempo × 1,25 en danger,
+  retour à × 1,0 à la sortie du danger ([musique.md](musique.md#accélération)) ; le tempo du danger
+  est préparé dès `onStart`. Pur refactoring, sous les tests existants du tempo ; `GameViewModel`
+  passe par elle.
+  **Tests :** `ClassicMusicDirectionTest › the music speeds up by a quarter while the stack is in danger, and goes back to its tempo after`,
+  `ClassicMusicDirectionTest › the danger tempo is prepared as soon as the music starts`,
+  `ClassicMusicDirectionTest › each change of danger of the game gives its tempo to the player, in order, and nothing else does`.
 - **`LiveMusicDirection`** ajoute deux règles à celles du Classique :
   - **ambiance** : la partie commence sur la musique calme ; `StackDanger(on)` passe à la tendue,
     `StackDanger(off)` revient à la calme. Les seuils sont ceux du moteur (la pile entre en danger

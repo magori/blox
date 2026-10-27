@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 213 / 304 | `██████████████░░░░░░` **70 %** |
+| **Général** | 214 / 304 | `██████████████░░░░░░` **70 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1341,7 +1341,7 @@ la Graine du jour l'impose.
 - [ ] **P8.4** `MusicChoice.LIVE` (`core:data`) et `scoreOf` (`app`) : le choix enregistré, qui demande de composer
   les deux ambiances au lieu d'une partition fixe ; règles de sauvegarde. Cas : `the live choice is saved and read
   back`, `the live choice asks for a live music rather than a score`. Après P8.3.
-- [ ] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
+- [x] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
   `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
 - [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
   par `switchTo` ; facteur de tempo = min(1 + 0,02 × niveaux gagnés, 1,30) **[à vérifier]**, multiplié au × 1,25
@@ -1349,7 +1349,8 @@ la Graine du jour l'impose.
   à mesurer sur téléphone. Après P8.2, P8.3, P8.5. Cas : `a live game starts on the
   calm music`, `entering the danger switches to the tense music`, `leaving the danger switches back to the calm
   music`, `each level up speeds the music up by 2 percent, up to 1 point 3`, `the speed of the levels and the
-  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`.
+  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`, `a game already in
+  danger when its music starts plays the tense music, a quarter faster` (`onStart` après des `onEvents`, revue de P8.5).
 - [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.

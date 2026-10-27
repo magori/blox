@@ -30,8 +30,8 @@ import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.haptics.hapticFor
-import ch.magori.blox.feature.game.music.DANGER_TEMPO
-import ch.magori.blox.feature.game.music.tempoFactorFor
+import ch.magori.blox.feature.game.music.ClassicMusicDirection
+import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.sound.soundEffectsFor
 import kotlinx.coroutines.Job
@@ -105,6 +105,9 @@ class GameViewModel internal constructor(
      * when none is played.
      */
     private var gameSong: Music? = null
+
+    /** What the music of this game does as the game goes. */
+    private val musicDirection: MusicDirection = ClassicMusicDirection
 
     /**
      * The music of this game, playing or stopped: stopping it leaves the music of another game alone. Kept
@@ -202,10 +205,10 @@ class GameViewModel internal constructor(
     }
 
     /**
-     * Plays the music of this game from its start, its danger tempo prepared at once: entering the danger,
-     * the most tense moment of the game, then renders nothing. Null when the game has no music.
+     * Plays the music of this game from its start, then lets the [musicDirection] prepare what it will need (the
+     * Classic, its danger tempo). Null when the game has no music.
      */
-    private fun playMusic(): Playback? = gameSong?.let { music.play(it).also { music.prepareTempo(DANGER_TEMPO) } }
+    private fun playMusic(): Playback? = gameSong?.let { music.play(it).also { musicDirection.onStart(music) } }
 
     /**
      * The screen starts drawing frames again (first display, back from another screen or from the
@@ -233,7 +236,7 @@ class GameViewModel internal constructor(
             val update = engine.tick(gameState)
             gameState = update.state
             if (GameEvent.GameOver in update.events) over = true
-            update.events.filterIsInstance<GameEvent.StackDanger>().forEach { music.setTempoFactor(tempoFactorFor(it)) }
+            musicDirection.onEvents(update.events, music)
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
             if (soundEffectsOn) soundEffectsFor(update.events).forEach(soundEffects::play)
         }
