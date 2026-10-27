@@ -37,6 +37,7 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the side column, in one place. */
 internal object SidePanelSizes {
@@ -52,7 +53,8 @@ internal object SidePanelSizes {
  * The side column of the game screen (views V3, V28): the next piece at the top, near where it appears, then score,
  * lines and level, each in a panel. No logic here: the texts come from [scoreText], [levelText] and [linesText], the
  * fill of the record bar under the score, [recordFill], from [recordBarFill], the preview from [NextPieceCanvas], with
- * cells of [cellSize] pixels, those of the board. [next] is null when the next piece is hidden (pause, option).
+ * cells of [cellSize] pixels, those of the board, and [previewModifier] (the curtain of the pause). [next] is null
+ * when the next piece is hidden (pause, option).
  */
 @Composable
 internal fun SidePanel(
@@ -63,9 +65,10 @@ internal fun SidePanel(
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        NextPiecePanel(next = next, cellSize = cellSize)
+        NextPiecePanel(next = next, cellSize = cellSize, previewModifier = previewModifier)
         ScorePanels(score = score, level = level, lines = lines, recordFill = recordFill)
     }
 }
@@ -88,9 +91,9 @@ internal fun ScorePanels(
 
 /**
  * The side column laid across, above the board of a very narrow window: next piece and score, then lines and level,
- * in the order of the side column; the next piece with cells of [cellSize] pixels, those of the board, the score with
- * its record bar filled by [recordFill]. The two panels of a row are as wide and as high as each other. [next] is null
- * when the next piece is hidden.
+ * in the order of the side column; the next piece with cells of [cellSize] pixels, those of the board, its preview
+ * with [previewModifier], the score with its record bar filled by [recordFill]. The two panels of a row are as wide
+ * and as high as each other. [next] is null when the next piece is hidden.
  */
 @Composable
 internal fun ScoreGrid(
@@ -101,10 +104,16 @@ internal fun ScoreGrid(
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
-            NextPiecePanel(next = next, cellSize = cellSize, modifier = Modifier.weight(1f).fillMaxHeight())
+            NextPiecePanel(
+                next = next,
+                cellSize = cellSize,
+                modifier = Modifier.weight(1f).fillMaxHeight(),
+                previewModifier = previewModifier,
+            )
             ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight())
         }
         PanelRow {
@@ -151,25 +160,29 @@ private fun LinesPanel(
     ValuePanel(stringResource(R.string.feature_game_lines), linesText(lines), lines.value, modifier)
 }
 
-/** The next piece in its panel, with cells of [cellSize] pixels, those of the board. */
+/**
+ * The next piece in its panel, with cells of [cellSize] pixels, those of the board; its preview takes
+ * [previewModifier] (the curtain of the pause).
+ */
 @Composable
 internal fun NextPiecePanel(
     next: NextPieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
+    previewModifier: Modifier = Modifier,
 ) {
     val nextLabel = stringResource(R.string.feature_game_next)
     val nextName = nextPieceName(next)
     val previewHeight = with(LocalDensity.current) { (cellSize * SidePanelSizes.PREVIEW_ROWS).toDp() }
     LabelledPanel(
         label = nextLabel,
-        description = stringResource(R.string.feature_game_value_description, nextLabel, nextName),
+        description = valueDescription(nextLabel, nextName),
         modifier = modifier,
     ) {
         NextPieceCanvas(
             next = next,
             cellSize = cellSize,
-            modifier = Modifier
+            modifier = previewModifier
                 .fillMaxWidth()
                 .height(previewHeight),
         )
@@ -185,7 +198,7 @@ private fun ValuePanel(
 ) {
     LabelledPanel(
         label = label,
-        description = stringResource(R.string.feature_game_value_description, label, rawValue.toString()),
+        description = valueDescription(label, rawValue.toString()),
         modifier = modifier,
     ) {
         ValueText(text = value)

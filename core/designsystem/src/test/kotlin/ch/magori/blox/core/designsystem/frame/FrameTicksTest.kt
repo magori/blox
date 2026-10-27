@@ -173,4 +173,11 @@ class FrameTicksTest {
         /** 1/60 s rounded up to the next nanosecond: 16 666 666.67 ns. */
         const val ONE_SIXTIETH_NANOS = 16_666_667L
     }
+
+    @Test
+    fun `ticks are turned into milliseconds for the animations of Compose, a fraction dropped`() {
+        assertThat(millisOf(ticks = 12)).isEqualTo(200)
+        assertThat(millisOf(ticks = 18)).isEqualTo(300)
+        assertThat(millisOf(ticks = 8)).isEqualTo(133)
+    }
 }

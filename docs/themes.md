@@ -162,7 +162,7 @@ version).
 `GameScreenTest › nothing on the screen recomposes when only the piece moves`,
 `GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
 `GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
-`GameScreenTest › the pause screen takes the place of the game while it is paused`,
+`GameScreenTest › the card of the pause shows over the game while it is paused`,
 `GameScreenTest › the game over screen takes the place of the game once it is over`.
 Vues : V2, V3.
 
