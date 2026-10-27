@@ -67,8 +67,9 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
  * [description] instead, if given. A choice that is not [available] bears « BIENTÔT » and cannot be chosen. Its
  * [icon], decorative, stands before its label, as large as the check, which takes its place once the choice is
  * selected (a group of one row only: on several, the check stands in a corner). Selected, it is filled in
- * [selectedColors] rather than in `accent`, if given: the colour of a track of the editor (TrackColors.tab, tabInk),
- * its ink standing out from its fill by 4.5:1 at least.
+ * [selectedColors] rather than in `accent`, if given: the colour of a track of the editor (TrackColors.tab, tabInk).
+ * The caller guarantees that their ink stands out from their fill by 4.5:1 at least (WCAG 2.1, 1.4.3): the label and
+ * the check are drawn in it, and the segment does not check it.
  */
 @Immutable
 data class ChoiceItem(
@@ -238,7 +239,8 @@ private data class GroupShape(private val single: Shape, private val several: Sh
  * A segment, as wide as the others of its row and [BloxSizes.minTouchTarget] high at least, frame of the group
  * included: the whole cell is its target. Its fill, when [selected], stands [SEGMENT_INSET] inside it, clear of the
  * frame, and so does the ring of the keyboard focus. Its check stands before its label, in the place of its icon if it
- * has one, or in its top corner if [checkInCorner]; « BIENTÔT » after the label of a choice not yet available, or under it when short of room.
+ * has one, or in its top corner if [checkInCorner]; « BIENTÔT » after the label of a choice not yet available, or
+ * under it when short of room.
  */
 @Composable
 private fun Segment(

@@ -2,8 +2,10 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -20,6 +22,7 @@ import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
@@ -113,10 +116,47 @@ internal class ChoiceSegmentsTest {
         )
         showSegments(choices, selected = 1, kind = BloxThemeKind.COLORFUL)
 
-        // Then the bass, retained, is filled in its colour: beside its start, at the height of its middle
+        // Then the bass, retained, is filled in its colour: halfway between the edge of its segment and its check, at
+        // the height of the middle of its check
+        val segment = onNodeWithText("Basse").getUnclippedBoundsInRoot()
+        val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and hasAnySibling(hasText("Basse")), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
         val image = onNodeWithText("Basse").captureToImage().toPixelMap()
-        val x = with(density) { FILL_PROBE.roundToPx() }
-        assertThat(image[x, image.height / 2]).isEqualTo(palette.bass.tab)
+        val (x, y) = with(density) {
+            ((check.left - segment.left) / 2).roundToPx() to ((check.top + check.bottom) / 2 - segment.top).roundToPx()
+        }
+        assertThat(image[x, y]).isEqualTo(palette.bass.tab)
+    }
+
+    @Test
+    @DisplayName(
+        "right to left, a segment bears its icon, or the selected one its check, at the start of its line, its right",
+    )
+    fun rightToLeftTheIconAndTheCheckStandAtTheRightOfTheLabel() = extension.use {
+        // Given the tools of the editor, Poser retained, right to left
+        showSegments(
+            tools,
+            selected = 0,
+            name = "Outil",
+            kind = BloxThemeKind.COLORFUL,
+            direction = LayoutDirection.Rtl,
+        )
+
+        // Then the first tool stands at the right, Allonger at the left
+        val place = onNodeWithText("Poser").getUnclippedBoundsInRoot()
+        val extend = onNodeWithText("Allonger").getUnclippedBoundsInRoot()
+        assertThat(extend.right).isLessThanOrEqualTo(place.left)
+        // And the icon of Allonger and the check of Poser stand at the right of their labels, within their segments
+        val icon = onNode(hasTestTag(CHOICE_ICON_TAG) and hasAnySibling(hasText("Allonger")), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val extendLabel = onNode(hasText("Allonger"), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(icon.left).isGreaterThanOrEqualTo(extendLabel.right)
+        assertThat(icon.right).isLessThanOrEqualTo(extend.right)
+        val check = onNode(hasTestTag(CHOICE_CHECK_TAG) and hasAnySibling(hasText("Poser")), useUnmergedTree = true)
+            .getUnclippedBoundsInRoot()
+        val placeLabel = onNode(hasText("Poser"), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertThat(check.left).isGreaterThanOrEqualTo(placeLabel.right)
+        assertThat(check.right).isLessThanOrEqualTo(place.right)
     }
 
     @Test
@@ -141,17 +181,20 @@ internal class ChoiceSegmentsTest {
         name: String = "Piste",
         onChosen: (Int) -> Unit = {},
         kind: BloxThemeKind = BloxThemeKind.ORIGINAL,
+        direction: LayoutDirection = LayoutDirection.Ltr,
     ) {
         setContent {
-            BloxTheme(kind = kind, darkSystem = false) {
-                ChoiceSegments(
-                    name = name,
-                    choices = choices,
-                    selected = selected,
-                    onChosen = onChosen,
-                    // Clear of the bars of the system, which a touch at the top of the screen would open.
-                    modifier = Modifier.safeDrawingPadding().width(360.dp),
-                )
+            CompositionLocalProvider(LocalLayoutDirection provides direction) {
+                BloxTheme(kind = kind, darkSystem = false) {
+                    ChoiceSegments(
+                        name = name,
+                        choices = choices,
+                        selected = selected,
+                        onChosen = onChosen,
+                        // Clear of the bars of the system, which a touch at the top of the screen would open.
+                        modifier = Modifier.safeDrawingPadding().width(360.dp),
+                    )
+                }
             }
         }
     }
@@ -159,6 +202,3 @@ internal class ChoiceSegmentsTest {
 
 /** A pixel, in dp, at most: the rounding of an edge. */
 private const val PIXEL = 0.5f
-
-/** Where the fill of a segment is probed, from its start: past its frame and the gap, short of its label. */
-private val FILL_PROBE = 7.dp
