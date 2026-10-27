@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 231 / 311 | `███████████████░░░░░` **74 %** |
+| **Général** | 232 / 311 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1409,11 +1409,12 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   draws the pieces of its seed`, `a daily game never enters the Classic records`, `replaying a daily game keeps
   its seed, even after midnight`, `a daily game left before its end counts as a try`, `a daily game restored after
   the process died is the same try`, `the bars of a daily game follow its colorful variant`.
-- [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
-  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
-  graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à part, `feature:daily`, qui amende l'ADR
-  0002 (décision du développeur, 2026-10-27). La date est relue à chaque affichage ; la bascule en direct à minuit
-  reste **[à vérifier]**. Après P9.4.
+- [x] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
+  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel court
+  « Niveau 05 · Vivante », « Nouvelle graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à
+  part, `feature:daily`, qui amende l'ADR 0002 (décision du développeur, 2026-10-27). La date est relue à chaque
+  affichage, sans bascule en direct à minuit (décision du développeur, 2026-10-27) ; Jouer joue la date affichée.
+  Après P9.4.
 - [x] **P9.11** La partie du jour à l'écran (V39, `feature:game`, découpée de P9.5) : titre « GRAINE DU JOUR »,
   meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
   JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés

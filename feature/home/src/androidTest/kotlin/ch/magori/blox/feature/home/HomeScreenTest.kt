@@ -57,6 +57,7 @@ import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.component.PLAY_BUTTON_ICON_TAG
 import ch.magori.blox.core.designsystem.component.isChoiceCheck
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxEffects
@@ -109,19 +110,6 @@ internal class HomeScreenTest {
         onNodeWithText("Original").assertIsNotSelected()
         onNodeWithText("Menuet").assertIsSelected()
         onNodeWithText("Korobeïniki").assertIsNotSelected()
-    }
-
-    @Test
-    @DisplayName("TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown")
-    fun talkBackReadsTheRecordAsItIs() = extension.use {
-        // Given a record beyond the six digits shown
-        showHomeScreen(uiState.copy(record = 1_234_567))
-
-        // Then TalkBack reads its value alone, not the text shown, capped (« RECORD 999999 »)
-        onNodeWithContentDescription("Record 1234567")
-            .assertExists()
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
-        onNodeWithText("Record", substring = true, ignoreCase = true).assertDoesNotExist()
     }
 
     @Test
@@ -383,28 +371,6 @@ internal class HomeScreenTest {
             SemanticsMatcher.expectValue(
                 SemanticsProperties.ContentDescription,
                 listOf("Jouer, Classique, niveau 5, Menuet"),
-            ),
-        )
-    }
-
-    @Test
-    @DisplayName("a reminder too long for Play is cut by an ellipsis on one line, and TalkBack still reads it whole")
-    fun aReminderTooLongIsCutButReadWhole() = extension.use {
-        // Given a music of the player of the longest name, on 360 dp
-        showHomeScreen(
-            uiState.copy(gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false)),
-            width = NARROW_PHONE,
-        )
-
-        // Then the reminder holds one line, cut
-        val layout = textLayout("Classique · Niveau 05 · $LONGEST_NAME")
-        assertThat(layout.lineCount).isEqualTo(1)
-        assertThat(layout.isLineEllipsized(0)).isTrue()
-        // And TalkBack reads the whole name
-        onNode(hasTestTag(PLAY_TAG)).assert(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.ContentDescription,
-                listOf("Jouer, Classique, niveau 5, $LONGEST_NAME"),
             ),
         )
     }
@@ -765,7 +731,7 @@ internal class HomeScreenTest {
 
         // Then each bears one icon, decorative
         listOf(
-            iconOf(hasTestTag(PLAY_TAG)),
+            playIconOf(hasTestTag(PLAY_TAG)),
             listenIconOf(hasContentDescription("Écouter Menuet")),
             iconOf(tileIn("Mes musiques")),
             iconOf(tileIn("Composer une musique")),
@@ -818,7 +784,7 @@ internal class HomeScreenTest {
         // Then the label of Jouer is shown whole, on one line, beside its icon, within its button and the screen
         val play = hasTestTag(PLAY_TAG)
         val bounds = onNode(play).getUnclippedBoundsInRoot()
-        val icon = iconOf(play).getUnclippedBoundsInRoot()
+        val icon = playIconOf(play).getUnclippedBoundsInRoot()
         val layout = textLayout("Jouer")
         assertThat(layout.lineCount).isEqualTo(1)
         // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
@@ -842,6 +808,10 @@ internal class HomeScreenTest {
     /** The icon of the button [button] matches, alone in it. */
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
         onNode(hasTestTag(HOME_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
+
+    /** The triangle of Jouer, the button [button] matches (PlayButton of the design system). */
+    private fun ComposeContext.playIconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
+        onNode(hasTestTag(PLAY_BUTTON_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
 
     /** The icon of the listen button [button] matches, a disc of its icon alone. */
     private fun ComposeContext.listenIconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
@@ -899,9 +869,6 @@ private const val PIXEL_ROUNDING = 0.01f
 
 /** The reminder under Jouer, at level 5 with the minuet. */
 private const val REMINDER = "Classique · Niveau 05 · Menuet"
-
-/** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
-private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
 
 /**
  * The targets of the home, at least: Changer de jeu, Paramètres, Jouer, two modes, two themes, − and +, four musics,

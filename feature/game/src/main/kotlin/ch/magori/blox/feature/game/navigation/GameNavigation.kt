@@ -43,8 +43,8 @@ data class GameRoute(val startLevel: Int, val seed: Long, val variant: GameVaria
             id: Long,
         ): GameRoute = GameRoute(DAILY_START_LEVEL, seed, GameVariant.Daily(date, id))
 
-        /** The start level imposed on the daily game (docs/graine-du-jour.md). */
-        private const val DAILY_START_LEVEL = 5
+        /** The start level imposed on the daily game (docs/graine-du-jour.md), recalled by its entry. */
+        const val DAILY_START_LEVEL = 5
     }
 }
 
