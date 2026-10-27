@@ -53,6 +53,7 @@ import ch.magori.blox.core.music.Scores
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.navigation.GameRoute
@@ -67,6 +68,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -298,6 +300,7 @@ class GameViewModelTest {
                 ticksPlayed = final.tickCount,
                 newBest = true,
                 resultsKept = true,
+                previousBest = 100,
             ),
         )
     }
@@ -330,7 +333,20 @@ class GameViewModelTest {
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true))
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true, previousBest = Int.MAX_VALUE))
+    }
+
+    @Test
+    fun `a classic game over gets the record it had to beat`() {
+        // Given a record of 100 points, that the game beats
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the record before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(100)
     }
 
     @Test
@@ -345,7 +361,7 @@ class GameViewModelTest {
 
         // Then
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false))
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false, previousBest = 0))
     }
 
     @Test
@@ -385,7 +401,8 @@ class GameViewModelTest {
             writing.complete(Unit)
 
             // Then the game over shows once, with the answer, and further frames publish nothing
-            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true))
+            assertThat(awaitItem().gameOver)
+                .isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true, previousBest = 100))
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -1360,6 +1377,72 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the clear the screen shows starts with the lock and lasts as long as the clear of the engine`() {
+        // Given a game whose first three pieces fill row 19, played until its rows are being cleared
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+        val lockFrame = playUntil(viewModel, "rows are cleared") { viewModel.uiState.value.feedback.clear != null }
+        val clear = checkNotNull(viewModel.uiState.value.feedback.clear)
+        val scoreAtLock = viewModel.uiState.value.score.value
+
+        // When the game goes on until the row is gone from the board
+        val clearedFrame = playUntil(viewModel, "row 19 is cleared", firstFrame = lockFrame + ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.board[Position(column = 0, row = 19)] == Cell.Empty
+        }
+
+        // Then the clear started on the tick of the lock, with the rows of the engine, and lasted as many ticks as it
+        // said; the rows above slide down from then on, and the sticker shows the points
+        val feedback = viewModel.uiState.value.feedback
+        assertThat(clear.rows).containsExactly(19)
+        assertThat(clear.tick).isEqualTo(feedback.tick - clear.duration)
+        assertThat((clearedFrame - lockFrame) / ONE_SIXTIETH_NANOS).isEqualTo(clear.duration.toLong())
+        assertThat(feedback.clear).isNull()
+        assertThat(feedback.slide).isEqualTo(RowsSlide(rows = listOf(19), tick = feedback.tick))
+        assertThat(
+            feedback.sticker(reduced = false)?.points,
+        ).isEqualTo(viewModel.uiState.value.score.value - scoreAtLock)
+    }
+
+    @Test
+    fun `a rotation reaches the screen as the turn of its key, and a lock as its cells`() {
+        // Given a game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+
+        // When B is pressed, then the next frame comes, and the game goes on until the piece locks
+        viewModel.onControl(ControlChange.Pressed(ControlButton.B))
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+        val turned = viewModel.uiState.value.feedback
+        playUntil(viewModel, "a piece locks", firstFrame = 2 * ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.feedback.lock != null
+        }
+
+        // Then
+        assertThat(turned.turns).containsExactly(entry(ControlButton.B, 1))
+        assertThat(viewModel.uiState.value.feedback.lock?.cells).hasSize(4)
+    }
+
+    @Test
+    fun `a paused game freezes its effects`() {
+        // Given a game played until a piece locked, then paused
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val lockFrame = playUntil(viewModel, "a piece locks") { viewModel.uiState.value.feedback.lock != null }
+        viewModel.onPause()
+        val paused = viewModel.uiState.value.feedback
+
+        // When frames still come, then the game resumes and the frames start again
+        (1..10).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+        val afterFrames = viewModel.uiState.value.feedback
+        viewModel.onResume()
+        viewModel.onFramesStarted()
+        (11..13).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+
+        // Then the effects stood still while paused, and go on from where they stood once resumed
+        assertThat(afterFrames).isEqualTo(paused)
+        assertThat(viewModel.uiState.value.feedback.tick).isEqualTo(paused.tick + 2)
+        assertThat(viewModel.uiState.value.feedback.lock).isEqualTo(paused.lock)
+    }
+
+    @Test
     fun `clearing one line vibrates the short pulse`() {
         // Given a game whose first three pieces fill row 19
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
@@ -1933,8 +2016,9 @@ class GameViewModelTest {
         // When its game is over: its try is ignored, the results stay those of the 27th
         playUntilGameOver(viewModel)
 
-        // Then the game over shows, without Copier, which would copy nothing of the 26th
+        // Then the game over shows, without Copier, which would copy nothing of the 26th, nor the best of the 27th
         assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isZero()
     }
 
     @Test
@@ -2001,6 +2085,20 @@ class GameViewModelTest {
 
         // Then its game over shows no new best
         assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
+    }
+
+    @Test
+    fun `a daily game over gets the best of the day it had to beat`() {
+        // Given a best of the day of 1 point, that the game beats
+        dailyResults.state.value = DailyResults(OCTOBER_26, tries = 1, firstTry = 1, best = 1, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the best before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(1)
     }
 
     @Test

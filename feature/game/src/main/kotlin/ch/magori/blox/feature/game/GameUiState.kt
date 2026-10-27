@@ -10,6 +10,7 @@ import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
+import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
@@ -21,7 +22,8 @@ import kotlin.contracts.contract
  * game runs, neither paused nor over: the screen hands frames only then (ADR 0012), and draws none for nothing
  * on the pause or the game over screen; it turns false as soon as the engine ends the game, before the records
  * answer. [leftHanded] lays the keys out for the left hand: B and A on the left, the arrows on the right; null while the
- * settings have not answered, when the screen shows no key and the game does not run.
+ * settings have not answered, when the screen shows no key and the game does not run. [feedback] is what happened in the
+ * game and on which tick, which the screen draws over the game (ADR 0024).
  */
 @Immutable
 internal data class GameUiState(
@@ -37,6 +39,7 @@ internal data class GameUiState(
     val bestBeaten: Boolean = false,
     val gameOver: GameOverUiState? = null,
     val leftHanded: Boolean? = false,
+    val feedback: GameFeedback = GameFeedback(),
 )
 
 /**
@@ -96,6 +99,7 @@ internal val GameState.isUnderWay: Boolean get() = !paused && phase !is Phase.Ga
 internal fun GameState.toGameOverUiState(
     newBest: Boolean,
     resultsKept: Boolean,
+    previousBest: Int,
 ): GameOverUiState = GameOverUiState(
     score = progress.score,
     lines = progress.lines,
@@ -104,4 +108,5 @@ internal fun GameState.toGameOverUiState(
     ticksPlayed = tickCount,
     newBest = newBest,
     resultsKept = resultsKept,
+    previousBest = previousBest,
 )

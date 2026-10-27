@@ -73,6 +73,7 @@ internal class GameScreenKeysTest {
             ticksPlayed = 3_600,
             newBest = false,
             resultsKept = true,
+            previousBest = 0,
         ),
     )
 

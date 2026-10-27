@@ -180,10 +180,12 @@ Système de rotation de la NES :
   orientation qui n'appartient pas au type de la pièce est refusée. Tourner le O ne change rien.
   Une rotation réussie émet `PieceRotated` (la pièce tournée, avant la chute du même tick), en
   tête des événements du tick ; une rotation refusée et le O n'émettent rien (P4.8, tranché :
-  seulement si la pièce change). Il sert à l'effet sonore de rotation ; la rotation ne vibre pas.
+  seulement si la pièce change). Il porte aussi le sens de la rotation (P5.80), pour que l'écran fasse
+  tourner le pictogramme de la bonne touche. Il sert à l'effet sonore de rotation ; la rotation ne vibre pas.
 
   **Tests (événement) :** `GameEngineControlsTest › a piece that turns sends PieceRotated, with the piece as it turned`,
   `GameEngineControlsTest › a rotation refused, or one that leaves the O as it was, sends nothing`,
+  `GameEngineControlsTest › PieceRotated says which way the piece turned, clockwise with A, counterclockwise with B`,
   `GameEngineControlsTest › a piece that turns then locks on the same tick sends PieceRotated before PieceLocked`,
   `GameEngineControlsTest › the rotation comes before the drop in a tick`,
   `GameEngineStackDangerTest › a piece that turns then locks into the danger sends PieceRotated, then PieceLocked, then StackDanger`,
@@ -626,6 +628,21 @@ la NES au-delà de 999 lignes est **[à vérifier]**).
 première partie. Il est enregistré dès la fin de partie. Un score devient un **nouveau record**
 s'il dépasse strictement le record d'avant la partie (égaler ne suffit pas, 0 à la première
 partie non plus). Un fichier illisible ou corrompu compte comme « pas de record ».
+
+**Ancien record en fin de partie** (P9.14, V30, décision du développeur du 2026-10-27) : sous le
+score final, une ligne rappelle le record d'avant la partie, tel que le dépôt l'a rendu à la fin
+(`RecordResult.previous`) : « Ancien record 098760 » si la partie l'a battu, « Record 098760 »
+sinon. Valeur sur 6 chiffres comme le score (plafond 999 999) ; TalkBack la lit avec le score, à sa
+vraie valeur : « Score : 123450, Ancien record : 98760 ». Pas de ligne sans record d'avant (0,
+première partie) ni quand les records n'ont pu être écrits.
+**Tests :** `GameOverTextsTest › the best before the game is shown as a score, capped at 999 999, and read at its real value`,
+`GameOverTextsTest › without a best before the game no best is recalled`,
+`GameResultsTest › a classic game over tells the record before it, beaten or not`,
+`GameViewModelTest › a classic game over gets the record it had to beat`,
+`GameLabelsTest › the game over recalls the record as Ancien record once beaten, as Record otherwise`,
+`GameScreenTest › the game over recalls the best before the game under the score, read with it; nothing without one` ;
+captures `GameOverColorful`, `GameOverColorfulNight`, `GameOverColorfulNewRecord`, `GameOverColorfulNewRecordNight`.
+Vues : V30.
 
 **Effacer le record** (P5.66, pour les Paramètres v2) : le record revient à 0, et le score suivant
 qui dépasse 0 devient un nouveau record. Effacer sans record laisse 0. Une écriture impossible

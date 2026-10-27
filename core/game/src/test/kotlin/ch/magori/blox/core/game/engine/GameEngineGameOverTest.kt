@@ -112,7 +112,7 @@ class GameEngineGameOverTest {
         val turned = ClassicRotationSystem.candidates(T_ON_THE_FLOOR, Rotation.CLOCKWISE).single()
         assertThat(
             updates.first().events,
-        ).containsExactly(GameEvent.PieceRotated(turned), GameEvent.PieceLocked(turned))
+        ).containsExactly(GameEvent.PieceRotated(turned, Rotation.CLOCKWISE), GameEvent.PieceLocked(turned))
         assertThat(updates.last().events).containsExactly(GameEvent.GameOver)
         assertThat(updates.drop(1).dropLast(1).flatMap { it.events }).isEmpty()
     }

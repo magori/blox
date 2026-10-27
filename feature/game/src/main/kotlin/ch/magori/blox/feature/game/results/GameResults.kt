@@ -15,7 +15,7 @@ internal interface GameResults {
     /** The game starts: once per game, never for a game restored after the process died. */
     suspend fun start()
 
-    /** The game is over with [points]: whether they beat the best, and whether the results kept hold them. */
+    /** The game is over with [points]: whether they beat the best, the best before them, and whether they are kept. */
     suspend fun end(points: Int): GameEnd
 
     /** The game is left before its end (Pause then Menu, Changer de jeu), with the [points] of the moment. */
@@ -24,9 +24,10 @@ internal interface GameResults {
 
 /**
  * The end of a game told to its results: whether its points beat the best ([newBest]), and whether the results kept
- * hold them ([kept]): a daily try of a date already passed is ignored, its results stay those of the newer date.
+ * hold them ([kept]): a daily try of a date already passed is ignored, its results stay those of the newer date. The
+ * [previousBest] is the best before them, which they had to beat (0 if there was none).
  */
-internal data class GameEnd(val newBest: Boolean, val kept: Boolean)
+internal data class GameEnd(val newBest: Boolean, val kept: Boolean, val previousBest: Int)
 
 /**
  * The Classic: its score goes to the [records] at its end, and their record is the best to beat. Its start counts
@@ -37,7 +38,10 @@ internal class ClassicGameResults(private val records: HighScoreRepository) : Ga
 
     override suspend fun start() = Unit
 
-    override suspend fun end(points: Int): GameEnd = GameEnd(records.submit(points).isNewRecord, kept = true)
+    override suspend fun end(points: Int): GameEnd {
+        val record = records.submit(points)
+        return GameEnd(record.isNewRecord, kept = true, previousBest = record.previous)
+    }
 
     override suspend fun leave(points: Int) = Unit
 }

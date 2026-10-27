@@ -60,6 +60,15 @@ class BubblePainter(fill: Color, highlight: Color?, shape: Shape, gloss: Gloss, 
         bands?.draw(scope)
     }
 
+    /** Covers the bubble, in its shape, with [color] at [alpha], over what is drawn before it: a bubble lit, for instance. */
+    fun drawCover(
+        scope: DrawScope,
+        color: Color,
+        alpha: Float,
+    ) {
+        scope.drawPath(path, color, alpha = alpha)
+    }
+
     /** Draws the fill, then the gloss, in [scope]. */
     fun draw(scope: DrawScope) {
         drawFill(scope)

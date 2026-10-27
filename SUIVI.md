@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 245 / 320 | `███████████████░░░░░` **77 %** |
+| **Général** | 248 / 322 | `███████████████░░░░░` **77 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -979,7 +979,7 @@ composants.
   Cas : `left handed puts B and A on the left and the arrows on the right`, `the keys fit a 360 dp phone with 16
   dp margins`, `TalkBack reads « B, rotation anti-horaire » and « A, rotation horaire »`, `the reading order
   stays arrows then B and A, left handed or not`, `KeyColorsTest` revu ; captures.
-- [ ] **P5.80** Retours de jeu, première tranche (`feature:game`, ADR 0024) : `GameFeedback` (pur, en ticks)
+- [x] **P5.80** Retours de jeu, première tranche (`feature:game`, ADR 0024) : `GameFeedback` (pur, en ticks)
   dans `GameUiState` ; calque dessiné par-dessus le plateau, en phase de dessin ; pièce posée qui s'éclaire,
   pictogramme de A ou B qui tourne, effacement calé sur `Phase.Clearing` (rangées `clear-glow`, cases qui
   éclatent par paires), rangées qui glissent, autocollant « +points », score qui compte ; variantes Effets
@@ -1003,7 +1003,7 @@ composants.
   Reprendre does` ; captures.
 - [ ] **P5.83** Fin de partie v2 : pile qui s'éteint rangée par rangée de bas en haut (`cell-dead`, 2 ticks par
   rangée, sur l'horloge de Compose), carte, NOUVEAU RECORD avec confettis, score qui compte, « Record » ou «
-  Ancien record » (`GameOverUiState.previousRecord`, de `RecordResult.previous`), lignes, niveau, 4 lignes, durée,
+  Ancien record » (`GameOverUiState.previousBest`, P9.14, de `RecordResult.previous`), lignes, niveau, 4 lignes, durée,
   Rejouer, Menu. Après P5.81, P5.82.
   En fin de partie, un premier score positif reste un nouveau record (spécification actuelle), contrairement au jeu (P5.78).
   Cas : `a new record shows the old record as « Ancien record »`, `a first positive score is shown as a new record, without an old record`, `without a new record the record is shown as «
@@ -1446,9 +1446,13 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
+- [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
+  (décision du développeur, 2026-10-27) : sous le score, le meilleur d'avant la partie (`GameEnd.previousBest`), « Ancien
+  … » s'il est battu, « Record » / « Meilleur » sinon ; rien s'il valait 0, si l'écriture a échoué ou si l'essai du jour
+  n'est pas gardé ; libellés par variante (`GameLabels`, ADR 0026).
 - [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
-  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  (dépôt déjà passé à aujourd'hui) : « Partie d'entraînement » en fin de partie (décision du développeur, 2026-10-27).
   Après P9.4.
 - [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
   Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
@@ -1477,12 +1481,16 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
   paramètres, comptée en croches (64 pour l'éditeur, ses 8 mesures ; 16 pour le jardin, ses 2 mesures), sans `Tempo` ni `Cell`, internes à `feature:composer`.
   Avant P10.12.
-- [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+- [x] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
   `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de
   `CLAUDE.md` ; `Garden` immuable (16 × 14, poser, refuser, reprendre, effacer) et `Garden.parse(ascii)`. Cas : `a
   piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
   refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
   piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
+- [ ] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
+  par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
+  lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
+  publique de `core:game` (`explicitApi`).
 - [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord

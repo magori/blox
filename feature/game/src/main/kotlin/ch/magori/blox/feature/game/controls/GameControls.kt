@@ -26,6 +26,7 @@ import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
@@ -139,7 +140,8 @@ internal fun DirectionPad(
 /**
  * B and A, discs of [keys], B lower by [ControlSizes.rotationStagger], [ControlSizes.rotationSpacing] apart:
  * [KeySizes.rotationsWidth] × [KeySizes.rotationsHeight]. For the [leftHanded], as in a mirror, A on the outside, on the
- * left; TalkBack still reads B, then A.
+ * left; TalkBack still reads B, then A. The icon of each key is drawn at the angle [keyAngle] gives, in degrees, read only
+ * while drawing (ADR 0024): it turns as the piece turns without recomposing anything.
  */
 @Composable
 internal fun RotationPad(
@@ -147,6 +149,7 @@ internal fun RotationPad(
     modifier: Modifier = Modifier,
     keys: KeySizes = KeySizes.Phone,
     leftHanded: Boolean = false,
+    keyAngle: (ControlButton) -> Float = NoKeyAngle,
 ) {
     val disc = BloxTheme.shapes.pill
     val b = @Composable {
@@ -157,9 +160,19 @@ internal fun RotationPad(
             disc,
             Modifier.padding(top = ControlSizes.rotationStagger),
             readingOrder = 1f,
+            glyphAngle = { keyAngle(ControlButton.B) },
         )
     }
-    val a = @Composable { ControlKey(ControlButton.A, controls, keys.rotation, disc, readingOrder = 2f) }
+    val a = @Composable {
+        ControlKey(
+            ControlButton.A,
+            controls,
+            keys.rotation,
+            disc,
+            readingOrder = 2f,
+            glyphAngle = { keyAngle(ControlButton.A) },
+        )
+    }
     ControlGroup(spacing = ControlSizes.rotationSpacing, modifier = modifier) {
         if (leftHanded) {
             a()
@@ -223,7 +236,7 @@ internal fun controlTestTag(button: ControlButton): String = "control_${button.n
 
 /**
  * The key of [button], [size] wide and high, in [shape], read by TalkBack by its name, at [readingOrder] in its group
- * when it has one (B before A, wherever they stand).
+ * when it has one (B before A, wherever they stand); its glyph drawn at the angle [glyphAngle] gives, read while drawing.
  */
 @Composable
 private fun ControlKey(
@@ -233,6 +246,7 @@ private fun ControlKey(
     shape: Shape,
     modifier: Modifier = Modifier,
     readingOrder: Float? = null,
+    glyphAngle: () -> Float = NoGlyphAngle,
 ) {
     val held = button in controls.heldButtons
     val (background, outline, foreground) = keyColors(BloxTheme.palette, button, held)
@@ -269,7 +283,7 @@ private fun ControlKey(
             },
         contentAlignment = Alignment.Center,
     ) {
-        Glyph(button, foreground)
+        Glyph(button, foreground, Modifier.graphicsLayer { rotationZ = glyphAngle() })
     }
 }
 
@@ -308,6 +322,10 @@ private fun Glyph(
         )
     }
 }
+
+/** No key turns its icon: the keys without effects, as in Original. */
+internal val NoKeyAngle: (ControlButton) -> Float = { 0f }
+private val NoGlyphAngle: () -> Float = { 0f }
 
 /** The grid the triangles are drawn on, as in the design system: 22 × 22. */
 private const val ARROW_GRID = 22f

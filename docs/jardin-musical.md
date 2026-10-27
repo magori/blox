@@ -39,14 +39,38 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
   partir de Do 3 pour la pentatonique.
 - Une pièce posée a toutes ses cases dans la grille et ne chevauche aucune autre pièce ; sinon la
   pose est **refusée**, avec sa raison : `OUT_OF_GRID` (l'équivalent du `OUT_OF_HOLE` du
-  Serrurier), puis `OVERLAP`, la première l'emportant, comme au Serrurier. Il n'y a pas de limite au nombre de pièces, ni d'état « fini ».
+  Serrurier), puis `OVERLAP`, la première l'emportant, comme au Serrurier. Une pièce peut toucher
+  une autre pièce. Il n'y a pas de limite au nombre de pièces, ni d'état « fini ». Une pièce posée
+  se reprend (ses cases redeviennent libres ; reprendre une pièce absente ne change rien) ; « Tout
+  effacer » vide le jardin. Le jardin (`Garden`, `core:garden`) est une valeur immuable : chaque
+  action en rend un nouveau.
+  **Tests :** `GardenTest › a piece inside the grid on free cells is placed`,
+  `GardenTest › a piece off the grid is refused`,
+  `GardenTest › a piece along the edges of the grid is placed`,
+  `GardenTest › a piece over a placed one is refused as an overlap`,
+  `GardenTest › a piece both off the grid and over a placed one is refused as off the grid`,
+  `GardenTest › the piece placed on a cell is found there`,
+  `GardenTest › a placed piece is taken back`,
+  `GardenTest › taking back a piece that is not placed leaves the garden as is`,
+  `GardenTest › clearing the garden leaves it empty`.
 - Pièces : les sept, avec les **orientations du Classique** (`ClassicRotationSystem`) et leur
   pivot ; une pièce donnée commence dans son orientation d'apparition. On en pose autant qu'on
-  veut de chaque type.
-- Pour les tests, un jardin s'écrit en ASCII, comme une serrure : `.` pour une case libre, la
-  lettre du type sur les cases d'une pièce, chaque pièce reconnue par son orientation et son
-  pivot ; deux pièces de même type qui se touchent s'écrivent avec un chiffre de rang
-  **[à vérifier]** en P10.4.
+  veut de chaque type. Une orientation qui n'est pas une orientation Classique du type est une
+  erreur de programmation.
+  **Tests :** `GardenTest › a piece takes a Classic orientation of its type`.
+- Pour les tests, un jardin s'écrit en ASCII (`Garden.parse`), 14 lignes de 16 caractères : `.`
+  pour une case libre, la lettre du type sur les cases d'une pièce. Chaque région d'une même
+  marque reliée par les côtés est une pièce, reconnue par son orientation Classique et son pivot.
+  Deux pièces de même type qui se touchent : l'une s'écrit avec un chiffre (`1` à `9`), dont le
+  type se lit à sa forme (décision P10.4 ; les 19 formes Classiques sont distinctes ; au
+  Serrurier, toutes les pièces s'écrivent par leur rang). Une grille d'une autre taille, une marque
+  inconnue ou une région qui ne forme pas une pièce de sa marque sont refusées, avec un message
+  qui dit où.
+  **Tests :** `GardenTest › parse reads the pieces of a garden`,
+  `GardenTest › parse reads apart two pieces of the same type that do not touch`,
+  `GardenTest › parse tells apart two touching pieces of the same type when one is written with a digit`,
+  `GardenTest › parse reads back every Classic piece placed in a garden, by its letter or by a digit`,
+  `GardenTest › parse rejects a grid not 16 by 14, an unknown mark, cells that make no piece of their mark`.
 
 ## Ambiances
 

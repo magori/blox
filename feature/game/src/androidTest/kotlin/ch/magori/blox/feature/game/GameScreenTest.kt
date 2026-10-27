@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.game
 
+import android.graphics.Bitmap
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.requiredSize
@@ -11,6 +12,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
@@ -19,15 +21,20 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -52,6 +59,10 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.feature.game.controls.ControlButton
+import ch.magori.blox.feature.game.controls.controlTestTag
+import ch.magori.blox.feature.game.feedback.GameFeedback
+import ch.magori.blox.feature.game.feedback.lineClearFeedback
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -183,6 +194,106 @@ internal class GameScreenTest {
         assertThat(recompositions.recomposed).isEmpty()
     }
 
+    /**
+     * The feedback of the game on [tick]: a T turned by A, then locked, on tick 100, filling row 19, cleared on tick 118,
+     * the score going from 12 240 to the 12 340 of [uiState].
+     */
+    private fun feedbackOn(tick: Int): GameFeedback =
+        lineClearFeedback(checkNotNull(uiState.piece), listOf(19), 100, 18, Points(12_240), Points(12_340))(tick)
+
+    /** Plays the feedback of [feedbackOn] from tick [from] to tick [to], drawing each tick. */
+    private fun ComposeContext.playFeedback(
+        from: Int,
+        to: Int,
+    ) = (from..to).forEach { tick ->
+        runOnIdle { uiState = uiState.copy(feedback = feedbackOn(tick)) }
+        drawnContent()
+    }
+
+    @Test
+    @DisplayName("nothing recomposes while an effect plays")
+    fun nothingRecomposesWhileAnEffectPlays() = extension.use {
+        // Given a T that turned and locked on tick 100, filling row 19
+        uiState = uiState.copy(feedback = feedbackOn(100))
+        showGameScreen()
+
+        // When the light of the lock, the turn of A and the clear of the row play, up to its last tick
+        playFeedback(from = 101, to = 117)
+
+        // Then they are only drawn again
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
+    @DisplayName("while the score counts, only its text recomposes")
+    fun whileTheScoreCountsOnlyItsTextRecomposes() = extension.use {
+        // Given row 19 cleared on tick 118, the score of 12 340 shown
+        uiState = uiState.copy(feedback = feedbackOn(118))
+        showGameScreen()
+
+        // When the rows slide down, the sticker rises and the score counts, until they are over
+        playFeedback(from = 119, to = 170)
+
+        // Then only the score was composed again, as it counted: its value and the text it calls, once each time, and no
+        // other value (level, lines, record), whose text is the same function
+        val counts = recompositions.recomposed
+            .filter { "feature.game" in it }
+            .groupingBy { it.substringBefore(" (").substringAfterLast(".") }
+            .eachCount()
+        assertThat(counts.keys).containsExactlyInAnyOrder("ScoreValue", "ValueText", "shrinkingFrom")
+        assertThat(counts.getValue("ValueText")).isEqualTo(counts.getValue("ScoreValue"))
+    }
+
+    @Test
+    @DisplayName("the icon that turns is the one of A, the key that turned the piece, and B stays still")
+    fun theIconThatTurnsIsTheOneOfTheKeyThatTurnedThePiece() = extension.use {
+        // Given A turned the piece on tick 100
+        uiState = uiState.copy(feedback = feedbackOn(100))
+        showGameScreen()
+        val aOnTheTurn = keyImage(ControlButton.A)
+        val bOnTheTurn = keyImage(ControlButton.B)
+
+        // When the turn goes on, 3 ticks later
+        runOnIdle { uiState = uiState.copy(feedback = feedbackOn(103)) }
+
+        // Then
+        assertThat(keyImage(ControlButton.A).sameAs(aOnTheTurn)).isFalse()
+        assertThat(keyImage(ControlButton.B).sameAs(bOnTheTurn)).isTrue()
+    }
+
+    @Test
+    @DisplayName("the points sticker is not read by TalkBack")
+    fun thePointsStickerIsNotReadByTalkBack() = extension.use {
+        // Given row 19 cleared on tick 118 for 100 points, the sticker shown
+        uiState = uiState.copy(feedback = feedbackOn(120))
+        showGameScreen()
+
+        // Then no node says the points of the sticker
+        onAllNodesWithText("+100", substring = true).assertCountEquals(0)
+        onAllNodesWithContentDescription("+100", substring = true).assertCountEquals(0)
+    }
+
+    /** The key of [button] as it is drawn. */
+    private fun ComposeContext.keyImage(button: ControlButton): Bitmap =
+        onNodeWithTag(controlTestTag(button)).captureToImage().asAndroidBitmap()
+
+    @Test
+    @DisplayName("the effects are drawn over the game, and gone once over")
+    fun theEffectsAreDrawnOverTheGameAndGoneOnceOver() = extension.use {
+        // Given the screen without effects
+        showGameScreen()
+        val atRest = drawnContent()
+
+        // When a T turns and locks, filling row 19, then once its effects are over
+        runOnIdle { uiState = uiState.copy(feedback = feedbackOn(105)) }
+        val playing = drawnContent()
+        runOnIdle { uiState = uiState.copy(feedback = feedbackOn(200)) }
+
+        // Then
+        assertThat(playing.sameAs(atRest)).isFalse()
+        assertThat(drawnContent().sameAs(atRest)).isTrue()
+    }
+
     @Test
     @DisplayName("once the record is beaten, the top bar shows NOUVEAU RECORD and the score, read as the new record")
     fun onceTheRecordIsBeatenTheTopBarShowsTheNewRecord() = extension.use {
@@ -282,6 +393,48 @@ internal class GameScreenTest {
         onNodeWithText(replay).assertExists()
         onNodeWithText("Copier").assertDoesNotExist()
         onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
+    }
+
+    /**
+     * A game over of 12 340 points, of a variant ([labels]), and the best before it, beaten or not: the line [shown]
+     * under the score, and what TalkBack reads of it after the score ([spoken]); none without a best before.
+     */
+    internal enum class BestRecalled(
+        val labels: GameLabels,
+        val newBest: Boolean,
+        val previousBest: Int,
+        val shown: String?,
+        val spoken: String?,
+    ) {
+        RECORD_BEATEN(GameLabels.Classic, newBest = true, 9_800, "Ancien record 009800", "Ancien record : 9800"),
+        RECORD_NOT_BEATEN(GameLabels.Classic, newBest = false, 98_760, "Record 098760", "Record : 98760"),
+        DAILY_BEST_BEATEN(GameLabels.Daily, newBest = true, 9_800, "Ancien meilleur 009800", "Ancien meilleur : 9800"),
+        DAILY_BEST_NOT_BEATEN(GameLabels.Daily, newBest = false, 98_760, "Meilleur 098760", "Meilleur : 98760"),
+        FIRST_GAME(GameLabels.Classic, newBest = true, 0, shown = null, spoken = null),
+        FIRST_TRY_OF_THE_DAY(GameLabels.Daily, newBest = true, 0, shown = null, spoken = null),
+    }
+
+    @ParameterizedTest
+    @EnumSource(BestRecalled::class)
+    @DisplayName("the game over recalls the best before the game under the score, read with it; nothing without one")
+    fun theGameOverRecallsTheBestBeforeTheGame(case: BestRecalled) = extension.use {
+        // Given a game over, and the best before it
+        uiState = ShownScreen.GAME_OVER.change(uiState)
+            .let { it.copy(gameOver = it.gameOver?.copy(newBest = case.newBest, previousBest = case.previousBest)) }
+
+        // When its game over shows
+        showGameScreen(labels = case.labels)
+
+        // Then TalkBack reads the score, then the best: the one beaten, or the one still to beat
+        onNodeWithContentDescription(listOfNotNull("Score : 12340", case.spoken).joinToString()).assertIsDisplayed()
+        // And the line shows under the score; without a best before, no line, neither label nor zeros
+        if (case.shown != null) {
+            onNodeWithText(case.shown, useUnmergedTree = true).assertIsDisplayed()
+        } else {
+            listOf("Ancien", "Record", "Meilleur", "000000").forEach {
+                onNodeWithText(it, substring = true, useUnmergedTree = true).assertDoesNotExist()
+            }
+        }
     }
 
     @Test
@@ -403,6 +556,7 @@ internal class GameScreenTest {
                     ticksPlayed = 3_600,
                     newBest = false,
                     resultsKept = true,
+                    previousBest = 0,
                 ),
             )
         }),
