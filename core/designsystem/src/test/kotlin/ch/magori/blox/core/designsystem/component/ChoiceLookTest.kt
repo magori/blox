@@ -5,6 +5,7 @@ import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
+import ch.magori.blox.core.designsystem.theme.TrackColors
 import ch.magori.blox.core.designsystem.theme.contrast
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
@@ -107,6 +108,27 @@ internal class ChoiceLookTest {
         assertThat(notFocused.focusRing).isNull()
     }
 
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("tracks")
+    fun `a selected segment takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`(
+        theme: String,
+        track: String,
+        colors: BloxButtonColors,
+        given: TrackColors,
+    ) {
+        // Given the colours of an open track
+        val selectedColors = ChoiceColors(fill = given.tab, ink = given.tabInk)
+
+        // When
+        val selected = segmentLook(colors, selected = true, available = true, selectedColors = selectedColors)
+        val unselected = segmentLook(colors, selected = false, available = true, selectedColors = selectedColors)
+
+        // Then filled in them, its label and its check in their ink; the others as ever
+        assertThat(selected).isEqualTo(SegmentLook(fill = given.tab, ink = given.tabInk, check = given.tabInk))
+        assertThat(contrast(selected.ink, given.tab)).isGreaterThanOrEqualTo(4.5)
+        assertThat(unselected).isEqualTo(segmentLook(colors, selected = false, available = true))
+    }
+
     companion object {
         @JvmStatic
         fun variants(): List<Arguments> = listOf(
@@ -114,6 +136,17 @@ internal class ChoiceLookTest {
             Arguments.of("Couleurs, jour", BloxPalettes.ColorfulLight, BloxButtonColorSets.ColorfulLight),
             Arguments.of("Couleurs, nuit", BloxPalettes.ColorfulDark, BloxButtonColorSets.ColorfulDark),
         )
+
+        /** Each variant, with the colours of its melody, then of its bass. */
+        @JvmStatic
+        fun tracks(): List<Arguments> = variants().flatMap { variant ->
+            val (theme, palette, colors) = variant.get()
+            val tracks = palette as BloxPalette
+            listOf(
+                Arguments.of(theme, "mélodie", colors, tracks.melody),
+                Arguments.of(theme, "basse", colors, tracks.bass),
+            )
+        }
 
         /** Each variant, with a segment selected, unselected, and unavailable. */
         @JvmStatic

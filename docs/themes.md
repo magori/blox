@@ -177,7 +177,7 @@ version).
 `GameScreenTest › nothing on the screen recomposes when only the piece moves`,
 `GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
 `GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
-`GameScreenTest › the pause screen takes the place of the game while it is paused`,
+`GameScreenTest › the card of the pause shows over the game while it is paused`,
 `GameScreenTest › the game over screen takes the place of the game once it is over`.
 Vues : V2, V3.
 
@@ -388,7 +388,7 @@ devait encore rétrécir sous 75 % de sa taille (marges et coche gardées), les 
 Provisoirement, jusqu'à la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
 (5 colonnes) et la musique (2 colonnes) sont des groupes sur plusieurs rangées : fond retenu en `md`, coche
 dans le coin. Libellés du groupe alignés au début de la ligne. `ChoiceColors.kt`, qui servait encore à `Setting`,
-est retiré avec lui (P5.61).
+est retiré avec lui (P5.61) ; le type `ChoiceColors` de P5.95 (couleurs retenues d'un segment) n'a rien à voir avec lui.
 
 **Tests :** `ChoiceLookTest › a selected segment is filled in accent and checked in the ink of its label`,
 `ChoiceLookTest › an unavailable segment is clear, its label in label, unchecked`,
@@ -406,6 +406,21 @@ est retiré avec lui (P5.61).
 `ChoiceGroupTest › TalkBack reads the label as a heading, then the segments as one group of radio buttons`,
 `ChoiceGroupTest › in a group of several rows, an unavailable choice bears BIENTÔT too` ;
 captures `ChoiceGroups*`. Vues : V27.
+
+**Segments sans titre** (P5.95, `ChoiceSegments`) : les segments d'un groupe de choix sans libellé visible, nommés
+pour TalkBack par la description du groupe (« Piste », « Outil »), pour les pistes et les outils de l'éditeur
+(P5.102). Un segment peut porter un pictogramme décoratif (`ChoiceItem.icon`) que la coche remplace quand il est
+retenu ; sa place est réservée, le libellé ne bouge pas. Les couleurs du segment retenu peuvent être données
+(`ChoiceItem.selectedColors`, `ChoiceColors(fill, ink)`, ici les couleurs de la piste) ; l'appelant garantit alors
+4,5:1 entre l'encre et le fond. Les pictogrammes ne vont que dans un groupe d'une rangée. TalkBack lit le nom du
+groupe comme un arrêt à part : à vérifier sur appareil avec P5.102.
+**Tests :** `ChoiceSegmentsTest › segments without a visible label are one group of radio buttons, read under the name given to TalkBack`,
+`ChoiceSegmentsTest › a segment bears its icon before its label, and the selected one its check in its place`,
+`ChoiceSegmentsTest › a selected segment is filled in the colours given to its choice`,
+`ChoiceSegmentsTest › each segment is 48 dp high as a target`,
+`ChoiceLookTest › a selected segment takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`,
+`ChoiceLayoutTest › only a group of one row bears icons, where its check takes the place of an icon` ; captures
+`ChoiceSegments*`.
 
 Un choix sélectionné (mode, thème, niveau de départ, musique) est rempli en `accent`, son
 libellé en `accentInk`. Il ne se distingue pas que par la teinte (WCAG 1.4.1) : les deux états

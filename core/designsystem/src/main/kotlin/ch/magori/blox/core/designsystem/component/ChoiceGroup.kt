@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.R
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxShapes
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -63,7 +64,12 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 
 /**
  * A choice of a [ChoiceGroup]: its [label], on one line or up to [maxLines], shrinking if need be, read by TalkBack as
- * [description] instead, if given. A choice that is not [available] bears « BIENTÔT » and cannot be chosen.
+ * [description] instead, if given. A choice that is not [available] bears « BIENTÔT » and cannot be chosen. Its
+ * [icon], decorative, stands before its label, as large as the check, which takes its place once the choice is
+ * selected (a group of one row only: on several, the check stands in a corner). Selected, it is filled in
+ * [selectedColors] rather than in `accent`, if given: the colour of a track of the editor (TrackColors.tab, tabInk).
+ * The caller guarantees that their ink stands out from their fill by 4.5:1 at least (WCAG 2.1, 1.4.3): the label and
+ * the check are drawn in it, and the segment does not check it.
  */
 @Immutable
 data class ChoiceItem(
@@ -71,7 +77,13 @@ data class ChoiceItem(
     val available: Boolean = true,
     val description: String? = null,
     val maxLines: Int = 1,
+    val icon: BloxIcon? = null,
+    val selectedColors: ChoiceColors? = null,
 )
+
+/** The colours of a selected segment: its [fill], and its label and its check in [ink]. */
+@Immutable
+data class ChoiceColors(val fill: Color, val ink: Color)
 
 /**
  * A group of [choices] of which one, [selected], is retained (docs/design-system/components/Choice): the segments
@@ -103,6 +115,24 @@ fun ChoiceGroup(
 }
 
 /**
+ * The segments of a [ChoiceGroup] without a label shown above or beside them, where what stands around them says what
+ * they choose (the tracks and the tools of the music editor, V33): TalkBack reads them as one group of radio buttons
+ * named [name]. They take the width of their line; the rest is as [ChoiceGroup].
+ */
+@Composable
+fun ChoiceSegments(
+    name: String,
+    choices: List<ChoiceItem>,
+    selected: Int,
+    onChosen: (index: Int) -> Unit,
+    modifier: Modifier = Modifier,
+    columns: Int = choices.size,
+) {
+    checkChoices(choices, selected, columns)
+    Segments(choices, selected, onChosen, columns, modifier.semantics { contentDescription = name })
+}
+
+/**
  * The box of the segments, filled and framed as a secondary button, its [choices] on rows of [columns], or of fewer
  * when the line is too narrow for so many, down to one under the other: each choice keeps the room of its label, as
  * in a large font.
@@ -113,6 +143,7 @@ private fun Segments(
     selected: Int,
     onChosen: (index: Int) -> Unit,
     columns: Int,
+    modifier: Modifier = Modifier,
 ) {
     val look = groupLook(BloxTheme.buttons)
     val shapes = BloxTheme.shapes
@@ -131,7 +162,7 @@ private fun Segments(
                 )
             }
         },
-        modifier = Modifier
+        modifier = modifier
             .background(look.fill, shape)
             .border(BloxBorders.frame, look.frame, shape)
             .selectableGroup(),
@@ -207,8 +238,9 @@ private data class GroupShape(private val single: Shape, private val several: Sh
 /**
  * A segment, as wide as the others of its row and [BloxSizes.minTouchTarget] high at least, frame of the group
  * included: the whole cell is its target. Its fill, when [selected], stands [SEGMENT_INSET] inside it, clear of the
- * frame, and so does the ring of the keyboard focus. Its check stands before its label, or in its top corner if
- * [checkInCorner]; « BIENTÔT » after the label of a choice not yet available, or under it when short of room.
+ * frame, and so does the ring of the keyboard focus. Its check stands before its label, in the place of its icon if it
+ * has one, or in its top corner if [checkInCorner]; « BIENTÔT » after the label of a choice not yet available, or
+ * under it when short of room.
  */
 @Composable
 private fun Segment(
@@ -219,7 +251,7 @@ private fun Segment(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val focused by interactionSource.collectIsFocusedAsState()
-    val look = segmentLook(BloxTheme.buttons, selected, choice.available, focused)
+    val look = segmentLook(BloxTheme.buttons, selected, choice.available, focused, choice.selectedColors)
     val description = if (choice.available) {
         choice.description
     } else {
@@ -228,7 +260,8 @@ private fun Segment(
     val fillShape = segmentFillShape(checkInCorner, BloxTheme.shapes)
     val style = MaterialTheme.typography.labelLarge.merge(BloxTheme.typography.choice)
     val labelSize = with(LocalDensity.current) { style.fontSize.toDp() }
-    val insets = choiceInsets(selected = selected, label = labelSize)
+    // A choice with an icon keeps the room of its check, selected or not: its check takes the place of its icon.
+    val insets = choiceInsets(selected = selected || choice.icon != null, label = labelSize)
     // The check in the corner of a narrow cell: every cell keeps its room on both sides of its label, selected or not,
     // so that the check never touches it and the label stays in the middle, under the labels of the other rows.
     val sides = if (checkInCorner) CORNER_CHECK_INSET + CORNER_CHECK_SIZE else 0.dp
@@ -272,10 +305,14 @@ private fun Segment(
                 modifier = Modifier.padding(start = insets.start, end = insets.end),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                look.check?.let {
-                    CheckMark(it, Modifier.testTag(CHOICE_CHECK_TAG).size(insets.check))
-                    Spacer(Modifier.width(insets.gap))
+                val check = look.check
+                val icon = choice.icon
+                if (check != null) {
+                    CheckMark(check, Modifier.testTag(CHOICE_CHECK_TAG).size(insets.check))
+                } else if (icon != null) {
+                    BloxIcon(icon, Modifier.testTag(CHOICE_ICON_TAG), size = insets.check, tint = look.ink)
                 }
+                if (check != null || icon != null) Spacer(Modifier.width(insets.gap))
                 LabelAndSoon(choice, look.ink, style, read, Modifier.weight(1f, fill = false))
             }
         }
@@ -353,6 +390,9 @@ internal fun choiceRows(
 /** The tag of the check of a selected choice, read by the tests (testFixtures: `isChoiceCheck`). */
 internal const val CHOICE_CHECK_TAG = "choice_check"
 
+/** The tag of the icon of a choice, read by the tests. */
+internal const val CHOICE_ICON_TAG = "choice_icon"
+
 /** The tag of « BIENTÔT », read by the tests. */
 internal const val CHOICE_SOON_TAG = "choice_soon"
 
@@ -402,7 +442,8 @@ internal fun segmentFillShape(
 ): Shape = if (checkInCorner) shapes.md else shapes.pill
 
 /**
- * Checks what a group is asked to show: [selected] is one of [choices], available, and [columns] is one at least.
+ * Checks what a group is asked to show: [selected] is one of [choices], available, [columns] is one at least, and
+ * the choices bear no icon unless they stand on one row.
  */
 internal fun checkChoices(
     choices: List<ChoiceItem>,
@@ -413,4 +454,7 @@ internal fun checkChoices(
         "The selected choice, $selected, is not one of the ${choices.size} choices, or is not available."
     }
     require(columns >= 1) { "A group has one column at least, not $columns." }
+    require(columns >= choices.size || choices.none { it.icon != null }) {
+        "Only a group of one row bears icons: on several, the check stands in the corner, not in the place of an icon."
+    }
 }

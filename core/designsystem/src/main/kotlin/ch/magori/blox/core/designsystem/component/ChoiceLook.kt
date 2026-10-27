@@ -15,7 +15,8 @@ internal data class SegmentLook(val fill: Color?, val ink: Color, val check: Col
 
 /**
  * How a segment is drawn with the [colors] of the buttons of its variant (docs/design-system/README.md, Groupe de
- * choix): [selected], it is filled as a main button, in `accent`, and checked in the ink of its label; else clear on
+ * choix): [selected], it is filled as a main button, in `accent`, or in [selectedColors] if given (the colour of a
+ * track, TrackColors.tab), and checked in the ink of its label; else clear on
  * its group, its label in the ink of a secondary button, or in `label`, as a disabled button, when it is not
  * [available]. Colour is not the only cue (WCAG 2.1, 1.4.1): the selected segment alone bears a check. [focused] by the
  * keyboard, it bears the ring of the buttons (WCAG 2.1, 2.4.7).
@@ -25,9 +26,11 @@ internal fun segmentLook(
     selected: Boolean,
     available: Boolean,
     focused: Boolean = false,
+    selectedColors: ChoiceColors? = null,
 ): SegmentLook {
+    val retained = selectedColors ?: ChoiceColors(fill = colors.primary.fill, ink = colors.primary.ink)
     val look = when {
-        selected -> SegmentLook(fill = colors.primary.fill, ink = colors.primary.ink, check = colors.primary.ink)
+        selected -> SegmentLook(fill = retained.fill, ink = retained.ink, check = retained.ink)
         available -> SegmentLook(fill = null, ink = colors.secondary.ink, check = null)
         else -> SegmentLook(fill = null, ink = colors.disabled.ink, check = null)
     }
