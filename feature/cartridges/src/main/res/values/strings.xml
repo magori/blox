@@ -3,4 +3,8 @@
     <string name="feature_cartridges_title">Choix du jeu</string>
     <string name="feature_cartridges_classic">Classique</string>
     <string name="feature_cartridges_locksmith">Serrurier</string>
+    <string name="feature_cartridges_daily">Graine du jour</string>
+    <!-- L'autocollant d'une cartouche, écrit en capitales, lu par TalkBack après son nom. -->
+    <string name="feature_cartridges_new">Nouvelle</string>
+    <string name="feature_cartridges_hint">Touche une cartouche pour l’ouvrir.</string>
 </resources>

@@ -59,6 +59,12 @@ import java.time.LocalDate
 /** The tag of « Copier mon score », read by the tests. */
 internal const val DAILY_COPY_TAG = "daily_copy"
 
+/**
+ * The tag of Jouer, the same in every language, read by the journey of `:benchmark`, which copies it as it is: it does
+ * not see this module.
+ */
+internal const val DAILY_PLAY_TAG = "daily_play"
+
 /** What the player does on the entry of the Graine du jour, handed to `app` by the entry. */
 @Immutable
 internal class DailyActions(
@@ -118,6 +124,7 @@ internal fun DailyScreen(
                 reminder = stringResource(R.string.feature_daily_play_reminder, uiState.startLevel),
                 description = stringResource(R.string.feature_daily_play_description, uiState.startLevel),
                 onClick = play,
+                modifier = Modifier.testTag(DAILY_PLAY_TAG),
             )
             CopyScore(enabled = uiState.canCopy, onClick = actions.onCopyScore)
             Text(

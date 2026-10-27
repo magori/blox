@@ -36,6 +36,7 @@ import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.NewCartridges
 import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.daily.DailyViewModel
@@ -248,6 +249,13 @@ class AppContainer(context: Context) {
      */
     val dailyViewModelFactory: DailyViewModel.Factory =
         DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /**
+     * The cartridges that bear the sticker NOUVELLE on the choice of the game: the Graine du jour, until the first try of
+     * the local date of the phone ([today], read anew each time the cartridges show), from its results, read once and
+     * kept warm for the whole life of the process, as the DataStore.
+     */
+    val newCartridges: NewCartridges = NewCartridges(dailyChallenge.results, dataScope) { today() }
 }
 
 private const val TAG = "BloX"
