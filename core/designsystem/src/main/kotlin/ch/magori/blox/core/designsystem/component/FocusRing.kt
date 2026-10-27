@@ -23,14 +23,20 @@ internal fun buttonFocusRing(color: Color): FocusRing = FocusRing(color, BloxBor
 internal fun Modifier.focusRing(
     ring: FocusRing?,
     shape: Shape,
-): Modifier = if (ring == null) {
-    this
-} else {
-    drawWithCache {
-        val width = ring.width.toPx()
-        val outline = grownOutline(shape, size, ring.gap.toPx() + width / 2, layoutDirection, this)
-        val path = Path().apply { addOutline(outline) }
-        val stroke = Stroke(width)
-        onDrawBehind { drawPath(path, ring.color, style = stroke) }
-    }
+): Modifier = if (ring == null) this else focusRing(shape) { ring }
+
+/**
+ * Draws the ring [ring] gives, if any, around [shape], as above; [ring] is read where the ring is drawn, so that the
+ * ring comes and goes without composing again. Built once a size and a ring.
+ */
+internal fun Modifier.focusRing(
+    shape: Shape,
+    ring: () -> FocusRing?,
+): Modifier = drawWithCache {
+    val current = ring() ?: return@drawWithCache onDrawBehind {}
+    val width = current.width.toPx()
+    val outline = grownOutline(shape, size, current.gap.toPx() + width / 2, layoutDirection, this)
+    val path = Path().apply { addOutline(outline) }
+    val stroke = Stroke(width)
+    onDrawBehind { drawPath(path, current.color, style = stroke) }
 }

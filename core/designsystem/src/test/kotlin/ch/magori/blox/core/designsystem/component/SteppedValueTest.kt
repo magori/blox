@@ -55,18 +55,16 @@ class SteppedValueTest {
     }
 
     @Test
-    fun `an arrow key moves the value one step, right and up raising it, never out of its range`() {
+    fun `an arrow key moves the value one step, right raising it, never out of its range`() {
         // Given a level from 0 to 9, read from left to right
         val steps = 0..9
         val ltr = LayoutDirection.Ltr
 
-        // Then right and up raise it a step, left and down lower it; the first and the last steps stay
+        // Then right raises it a step, left lowers it; the first and the last steps stay
         assertThat(SteppedValue(5, steps).afterArrow(Arrow.RIGHT, ltr).value).isEqualTo(6)
-        assertThat(SteppedValue(5, steps).afterArrow(Arrow.UP, ltr).value).isEqualTo(6)
         assertThat(SteppedValue(5, steps).afterArrow(Arrow.LEFT, ltr).value).isEqualTo(4)
-        assertThat(SteppedValue(5, steps).afterArrow(Arrow.DOWN, ltr).value).isEqualTo(4)
         assertThat(SteppedValue(9, steps).afterArrow(Arrow.RIGHT, ltr).value).isEqualTo(9)
-        assertThat(SteppedValue(0, steps).afterArrow(Arrow.DOWN, ltr).value).isEqualTo(0)
+        assertThat(SteppedValue(0, steps).afterArrow(Arrow.LEFT, ltr).value).isEqualTo(0)
     }
 
     @Test
@@ -75,11 +73,9 @@ class SteppedValueTest {
         val level = SteppedValue(5, 0..9)
         val rtl = LayoutDirection.Rtl
 
-        // Then the arrows move it the way they point, up and down keeping their meaning
+        // Then the arrows move it the way they point
         assertThat(level.afterArrow(Arrow.LEFT, rtl).value).isEqualTo(6)
         assertThat(level.afterArrow(Arrow.RIGHT, rtl).value).isEqualTo(4)
-        assertThat(level.afterArrow(Arrow.UP, rtl).value).isEqualTo(6)
-        assertThat(level.afterArrow(Arrow.DOWN, rtl).value).isEqualTo(4)
     }
 
     @Test

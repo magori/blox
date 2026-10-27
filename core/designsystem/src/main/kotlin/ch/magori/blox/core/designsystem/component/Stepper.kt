@@ -145,15 +145,36 @@ internal fun Modifier.stepTouch(
 /**
  * What a finger and the keyboard do with a slider. The step a finger holds while it drags the slider, [held], or null
  * when no finger drags it: what the slider shows then, rather than its value, which lags behind the finger until the
- * value asked for is written and given back. Whether the slider has the focus of the keyboard, [focused].
+ * value asked for is written and given back. Whether the slider has the focus of the keyboard, [focused]. The step an
+ * arrow last asked for, so that the next arrow goes on from it while the value has not come back ([fromKeys]).
  */
 @Stable
 internal class StepGesture {
     var held: SteppedValue? by mutableStateOf(null)
     var focused: Boolean by mutableStateOf(false)
 
+    /** The step an arrow last asked for, with what the slider showed then: read by the keys only, not drawn. */
+    private var keyed: Pair<SteppedValue, SteppedValue>? = null
+
     /** What a slider at [value] shows: the step held by the finger, if any, else [value]. */
     fun shown(value: SteppedValue): SteppedValue = held ?: value
+
+    /**
+     * Where the next arrow moves a slider at [value] from: the step an arrow last asked for, as long as the slider
+     * shows what it showed then (the value has not come back); else what it shows, the step asked for being dropped.
+     */
+    fun fromKeys(value: SteppedValue): SteppedValue {
+        val shown = shown(value)
+        return keyed?.takeIf { (then, _) -> then == shown }?.second ?: shown
+    }
+
+    /** Notes [asked], asked for by an arrow while the slider at [value] showed what it shows. */
+    fun keyAsked(
+        value: SteppedValue,
+        asked: SteppedValue,
+    ) {
+        keyed = shown(value) to asked
+    }
 }
 
 /** The [StepGesture] of a slider, kept across its compositions. */
@@ -171,11 +192,12 @@ internal fun rememberStepChange(onChange: (Int) -> Unit): (SteppedValue) -> Unit
 }
 
 /**
- * Lets the keyboard focus a slider at [value], and move it a step an arrow ([afterArrow]) in [layoutDirection]: the
- * step asked for is passed to [onValueChange] if it is another. Focused, the slider bears the ring of the buttons, in
- * [ringColor], around [shape]; not [enabled], it takes no focus. It keeps its arrows even at the end of its range, so
- * that the focus does not leave it when it cannot go further, but leaves those of the buttons it holds (− and + of a
- * gauge) to them. [value] and [onValueChange] are read at each key, as for a touch ([stepTouch]).
+ * Lets the keyboard or a pad focus a slider at [value], and move it a step by left or right ([afterArrow]) in
+ * [layoutDirection], as a seek bar of Android: the step asked for is passed to [onValueChange], and the next arrow goes
+ * on from it while the value has not come back ([StepGesture.fromKeys]). An arrow that would not move it (at the end
+ * of its range), up and down, and the arrows of the buttons it holds (− and + of a gauge) are left to the focus, so
+ * that a pad, which has no Tab, can always leave it. Focused, the slider bears the ring of the buttons, in [ringColor],
+ * around [shape]; not [enabled], it takes no focus. [value] and [onValueChange] are read at each key, as for a touch.
  */
 internal fun Modifier.stepKeys(
     layoutDirection: LayoutDirection,
@@ -186,15 +208,18 @@ internal fun Modifier.stepKeys(
     enabled: Boolean = true,
     value: () -> SteppedValue,
 ): Modifier = this
-    .focusRing(if (gesture.focused) buttonFocusRing(ringColor) else null, shape)
+    .focusRing(shape) { if (gesture.focused) buttonFocusRing(ringColor) else null }
     .onFocusChanged { gesture.focused = it.isFocused }
     .onKeyEvent { event ->
         val arrow = event.arrow()
         if (!gesture.focused || arrow == null) return@onKeyEvent false
+        val given = value()
+        val current = gesture.fromKeys(given)
+        val next = current.afterArrow(arrow, layoutDirection)
+        if (next == current) return@onKeyEvent false
         if (event.type == KeyEventType.KeyDown) {
-            val current = gesture.shown(value())
-            val next = current.afterArrow(arrow, layoutDirection)
-            if (next != current) onValueChange(next)
+            gesture.keyAsked(given, next)
+            onValueChange(next)
         }
         true
     }
@@ -204,26 +229,23 @@ internal fun Modifier.stepKeys(
 private fun KeyEvent.arrow(): Arrow? = when (key) {
     Key.DirectionLeft -> Arrow.LEFT
     Key.DirectionRight -> Arrow.RIGHT
-    Key.DirectionUp -> Arrow.UP
-    Key.DirectionDown -> Arrow.DOWN
     else -> null
 }
 
-/** An arrow key of a keyboard. */
-internal enum class Arrow { LEFT, RIGHT, UP, DOWN }
+/**
+ * An arrow along a slider, of a keyboard or of the cross of a pad. Up and down are not: they move the focus, as for a
+ * seek bar of Android, so that a pad, which has no Tab, can leave a slider in a column.
+ */
+internal enum class Arrow { LEFT, RIGHT }
 
 /**
- * The step [arrow] asks of a slider at this value, never out of its range: up raises it and down lowers it; left and
- * right move it the way they point along the track, which starts on the left, or on the right in a [layoutDirection]
- * read from right to left.
+ * The step [arrow] asks of a slider at this value, never out of its range: it moves it the way it points along the
+ * track, which starts on the left, or on the right in a [layoutDirection] read from right to left.
  */
 internal fun SteppedValue.afterArrow(
     arrow: Arrow,
     layoutDirection: LayoutDirection,
 ): SteppedValue {
     val towardsEnd = if (layoutDirection == LayoutDirection.Rtl) Arrow.LEFT else Arrow.RIGHT
-    return when (arrow) {
-        Arrow.UP, towardsEnd -> increased()
-        else -> decreased()
-    }
+    return if (arrow == towardsEnd) increased() else decreased()
 }
