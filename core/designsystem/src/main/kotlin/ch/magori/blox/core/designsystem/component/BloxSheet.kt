@@ -183,6 +183,28 @@ private fun rememberEntranceTicks(effects: BloxEffects): () -> Int {
 }
 
 /**
+ * A sheet as [BloxSheet] draws it once come in, but without its window, which a preview does not draw: the previews of
+ * the screens, and their captures, draw their sheets so, over the screen drawn under it.
+ */
+@Composable
+fun BloxSheetPreview(
+    title: String,
+    modifier: Modifier = Modifier,
+    actions: (@Composable ColumnScope.() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    SheetFrame(
+        title = title,
+        onDismissRequest = {},
+        insets = WindowInsets(0),
+        entrance = { SheetEntrance.Settled },
+        modifier = modifier,
+        actions = actions,
+        content = content,
+    )
+}
+
+/**
  * What a sheet draws over the screen, without its window: the previews draw it so. Its scrim and its panel take what
  * [entrance] says when they are drawn; [modifier] applies to its panel.
  */

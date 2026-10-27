@@ -4,39 +4,54 @@ import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
+import ch.magori.blox.core.designsystem.component.BubbleButton
+import ch.magori.blox.core.designsystem.component.ButtonEmphasis
+import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.designsystem.component.ButtonSize
 import ch.magori.blox.core.designsystem.component.ChoiceGroup
 import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.LabelledControl
 import ch.magori.blox.core.designsystem.component.LevelGauge
 import ch.magori.blox.core.designsystem.component.ListenButton
+import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
+/** The tag of the note struck through of « Aucune », decorative, read by the tests only. */
+internal const val MUSIC_NONE_TAG = "music_none"
+
 /**
  * The card of the settings of the next game (V27): Mode, Thème, Niveau and Musique, one row each, 16 dp apart, in a
- * `panel` of `radius-window` framed by `panel-border`. Each choice is saved by the view model as soon as it is made.
+ * `panel` of `radius-window` framed by `panel-border`. Each choice is saved by the view model as soon as it is made;
+ * the row Musique opens the sheet Musique through [onOpenMusicSheet].
  */
 @Composable
 internal fun HomeSettings(
     uiState: HomeUiState,
     onThemeChosen: (ThemeChoice) -> Unit,
     onStartLevelChosen: (Int) -> Unit,
-    onMusicChosen: (MusicChoice) -> Unit,
-    onListen: (MusicChoice) -> Unit,
-    onListenGameMusic: () -> Unit,
-    onChangeMusicFile: () -> Unit,
+    music: MusicActions,
+    onOpenMusicSheet: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
@@ -52,11 +67,7 @@ internal fun HomeSettings(
         ModeRow()
         ThemeRow(uiState.theme, onThemeChosen)
         LevelRow(uiState.startLevel, uiState.startLevels, onStartLevelChosen)
-        // Until the sheet Musique (P5.76): the choices of P5.63, and one line of actions under them.
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            MusicChoices(uiState, onMusicChosen)
-            MusicActions(uiState, onListen, onListenGameMusic, onChangeMusicFile)
-        }
+        MusicRow(uiState, music, onOpenMusicSheet)
     }
 }
 
@@ -107,71 +118,77 @@ private fun LevelRow(
 }
 
 /**
- * The music choices, on two columns. The music of the player played during the games, if any, stands before
- * « Aucune », the only music selected: shown by its name, on two lines if need be (a name of 40 characters, shrunk to
- * one line, could no longer be read), and read as the music of the games. Choosing it again does nothing. It stays
- * until another music is chosen, then leaves the home: the tile « Mes musiques » leads to it again.
+ * The row Musique: the listen button of the music selected, if it may be listened to (the music of the player for the
+ * games included), or for « Aucune » a note struck through, which nothing reads; then the name of the music selected,
+ * which opens the sheet Musique through [onOpenMusicSheet].
  */
 @Composable
-private fun MusicChoices(
+private fun MusicRow(
     uiState: HomeUiState,
-    onMusicChosen: (MusicChoice) -> Unit,
-) {
-    val gameMusic = uiState.gameMusic
-    // Each choice, and the music it chooses: none for the music of the player, already chosen.
-    val musics: List<Pair<ChoiceItem, MusicChoice?>> = buildList {
-        OFFERED_MUSICS.forEach { music ->
-            if (music == MusicChoice.NONE && gameMusic != null) {
-                val description = stringResource(R.string.feature_home_music_game_description, gameMusic.name)
-                add(ChoiceItem(gameMusic.name, description = description, maxLines = 2) to null)
-            }
-            add(ChoiceItem(stringResource(music.label)) to music)
-        }
-    }
-    val selected = if (gameMusic != null) {
-        musics.indexOfFirst { (_, music) -> music == null }
-    } else {
-        musics.indexOfFirst { (_, music) -> music == uiState.selectedMusic }
-    }
-    ChoiceGroup(
-        label = stringResource(R.string.feature_home_music),
-        choices = musics.map { (choice, _) -> choice },
-        selected = selected,
-        onChosen = { index -> musics[index].second?.let(onMusicChosen) },
-        columns = MUSIC_COLUMNS,
-    )
-}
-
-/**
- * The line of actions under the music choices, for the music selected only: *Écouter* or *Arrêter* for a music that may
- * be listened to, the music of the player for the games included, and *Changer* for « Mon fichier » with a file kept.
- * Nothing for « Aucune ». The actions stand side by side, or one under the other in a large font.
- */
-@OptIn(ExperimentalLayoutApi::class)
-@Composable
-private fun MusicActions(
-    uiState: HomeUiState,
-    onListen: (MusicChoice) -> Unit,
-    onListenGameMusic: () -> Unit,
-    onChangeMusicFile: () -> Unit,
+    music: MusicActions,
+    onOpenMusicSheet: () -> Unit,
 ) {
     val gameMusic = uiState.gameMusic
     val selected = uiState.selectedMusic
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2, Alignment.CenterHorizontally)) {
-        if (gameMusic != null) {
-            ListenButton(playing = gameMusic.previewed, musicName = gameMusic.name, onClick = onListenGameMusic)
-        } else if (selected != null) {
-            if (selected in uiState.listenable) {
-                ListenButton(
-                    playing = selected == uiState.previewing,
-                    musicName = stringResource(selected.label),
-                    onClick = { onListen(selected) },
-                )
+    val name = gameMusic?.name ?: stringResource(uiState.music.label)
+    LabelledControl(label = stringResource(R.string.feature_home_music)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+        ) {
+            when {
+                gameMusic != null -> {
+                    ListenButton(playing = gameMusic.previewed, musicName = name, onClick = music.onListenGameMusic)
+                }
+
+                selected != null && selected in uiState.listenable -> {
+                    ListenButton(
+                        playing = selected == uiState.previewing,
+                        musicName = name,
+                        onClick = { music.onListen(selected) },
+                    )
+                }
+
+                selected == MusicChoice.NONE -> NoMusic()
             }
-            if (selected == MusicChoice.MY_FILE && uiState.hasMusicFile) {
-                ChangeMusicFileButton(onClick = onChangeMusicFile)
-            }
+            MusicSheetOpener(name, onOpenMusicSheet)
         }
+    }
+}
+
+/** The note struck through of « Aucune », where a music has its listen button, as large; nothing reads it. */
+@Composable
+private fun NoMusic() {
+    Box(modifier = Modifier.size(BloxSizes.minTouchTarget), contentAlignment = Alignment.Center) {
+        BloxIcon(
+            icon = BloxIcon.NOTE_OFF,
+            modifier = Modifier.testTag(MUSIC_NONE_TAG),
+            size = IconSizes.alone,
+            tint = BloxTheme.palette.label,
+        )
+    }
+}
+
+/**
+ * The name of the music selected, [name], and a chevron down: a bare button, which opens the sheet Musique through
+ * [onClick]. TalkBack reads it « Musique : [name]. Choisir une autre musique ».
+ */
+@Composable
+private fun MusicSheetOpener(
+    name: String,
+    onClick: () -> Unit,
+) {
+    val description = stringResource(R.string.feature_home_music_open, name)
+    BubbleButton(
+        family = ButtonFamily.SECONDARY,
+        onClick = onClick,
+        shape = BloxTheme.shapes.md,
+        emphasis = ButtonEmphasis.BARE,
+        size = ButtonSize.COMPACT,
+        modifier = Modifier.semantics { contentDescription = description },
+    ) {
+        Text(text = name, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.weight(1f, fill = false))
+        BloxIcon(BloxIcon.CHEVRON_DOWN)
     }
 }
 
@@ -181,9 +198,6 @@ private fun MusicActions(
  */
 internal val OFFERED_MUSICS: List<MusicChoice> = MusicChoice.entries - MusicChoice.LIVE
 
-/** The music choices side by side, on as many rows as they need. */
-private const val MUSIC_COLUMNS = 2
-
 @get:StringRes
 private val ThemeChoice.label: Int
     get() = when (this) {
@@ -191,7 +205,7 @@ private val ThemeChoice.label: Int
         ThemeChoice.COLORFUL -> R.string.feature_home_theme_colorful
     }
 
-/** The name of a music choice, as on its segment and in the reminder under Jouer. */
+/** The name of a music choice, as in the sheet Musique, on its row of the card and in the reminder under Jouer. */
 @get:StringRes
 internal val MusicChoice.label: Int
     get() = when (this) {

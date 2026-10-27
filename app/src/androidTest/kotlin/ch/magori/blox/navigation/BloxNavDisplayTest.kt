@@ -3,6 +3,7 @@ package ch.magori.blox.navigation
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
@@ -10,16 +11,21 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
@@ -478,10 +484,19 @@ internal class BloxNavDisplayTest {
     private fun runJourney(block: suspend AndroidComposeUiTest<ComponentActivity>.() -> Unit) =
         runAndroidComposeUiTest<ComponentActivity>(testTimeout = JOURNEY_TIMEOUT, block = block)
 
-    /** Chooses the minuet on the home screen, then listens to it. */
+    /**
+     * Chooses the minuet on the home screen, in the sheet Musique, which a touch on its scrim closes, then listens to it on
+     * the row Musique of the card.
+     */
     private fun AndroidComposeUiTest<ComponentActivity>.listenToTheMinuet() {
         val minuet = string(HomeR.string.feature_home_music_minuet)
-        onNodeWithText(minuet).performScrollTo().performClick()
+        val korobeiniki = string(HomeR.string.feature_home_music_korobeiniki)
+        val openSheet = checkNotNull(activity).getString(HomeR.string.feature_home_music_open, korobeiniki)
+        onNodeWithContentDescription(openSheet).performScrollTo().performClick()
+        settle()
+        onNode(hasText(minuet) and hasAnyAncestor(isDialog())).performClick()
+        settle()
+        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
         settle()
         onNodeWithContentDescription(listenDescription(minuet)).performScrollTo().performClick()
         settle()
@@ -696,3 +711,6 @@ internal class BloxNavDisplayTest {
         const val MAX_PLAY_MILLIS = 60_000L
     }
 }
+
+/** Where a touch lands on the scrim of a sheet: above its panel, which stands 48 dp at least under the top. */
+private val SCRIM_TAP = 24.dp

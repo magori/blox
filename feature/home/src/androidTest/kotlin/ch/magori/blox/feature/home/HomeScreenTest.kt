@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
@@ -31,6 +32,7 @@ import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
@@ -39,6 +41,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -98,6 +101,200 @@ internal class HomeScreenTest {
     private val gauge = hasContentDescription("Niveau de départ")
 
     @Test
+    @DisplayName("choosing a music saves it and keeps the sheet open")
+    fun choosingAMusicSavesItAndKeepsTheSheetOpen() = extension.use {
+        // Given the sheet Musique open, the minuet chosen
+        val chosen = mutableListOf<MusicChoice>()
+        showHomeScreen(music = MusicActions.None.copy(onMusicChosen = { chosen += it }))
+        openMusicSheet("Menuet")
+
+        // When
+        onNode(hasText("Korobeïniki") and hasAnyAncestor(isDialog())).performClick()
+
+        // Then Korobeïniki is handed over to be saved (HomeViewModel saves it), and the sheet stays
+        runOnIdle { assertThat(chosen).containsExactly(MusicChoice.KOROBEINIKI) }
+        onNode(isDialog()).assertExists()
+    }
+
+    /** Opens the sheet Musique from the row Musique of the card, [music] being the music it shows. */
+    private fun ComposeContext.openMusicSheet(music: String) {
+        onNodeWithContentDescription("Musique : $music. Choisir une autre musique").performScrollTo().performClick()
+    }
+
+    /** What matches [matcher] in the sheet open. */
+    private fun inSheet(matcher: SemanticsMatcher): SemanticsMatcher = matcher and hasAnyAncestor(isDialog())
+
+    @Test
+    @DisplayName("listening to a music stops the one previewed")
+    fun listeningToAMusicStopsTheOnePreviewed() = extension.use {
+        // Given the minuet listened to, in the sheet, where Korobeïniki may be listened to too
+        val listened = mutableListOf<MusicChoice>()
+        showHomeScreen(
+            uiState.copy(
+                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
+                previewing = MusicChoice.MINUET,
+            ),
+            music = MusicActions.None.copy(onListen = { listened += it }),
+        )
+        openMusicSheet("Menuet")
+        // Each music bears its own listen button, the one listened to only offering to stop
+        onAllNodes(inSheet(hasContentDescription("Arrêter", substring = true))).assertCountEquals(1)
+        onNode(inSheet(hasContentDescription("Arrêter Menuet"))).assertExists()
+
+        // When
+        onNode(inSheet(hasContentDescription("Écouter Korobeïniki"))).performClick()
+
+        // Then Korobeïniki is asked for (HomeViewModel stops the minuet before playing it), in the sheet still open
+        runOnIdle { assertThat(listened).containsExactly(MusicChoice.KOROBEINIKI) }
+        onNode(isDialog()).assertExists()
+    }
+
+    @Test
+    @DisplayName("closing the sheet stops the preview")
+    fun closingTheSheetStopsThePreview() = extension.use {
+        // Given the sheet open, the minuet listened to
+        var closed = 0
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.MINUET), previewing = MusicChoice.MINUET),
+            music = MusicActions.None.copy(onSheetClosed = { closed++ }),
+        )
+        openMusicSheet("Menuet")
+
+        // When the scrim is touched, above the sheet
+        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
+
+        // Then the sheet is gone, and says so once (HomeViewModel stops the preview)
+        onNode(isDialog()).assertDoesNotExist()
+        runOnIdle { assertThat(closed).isEqualTo(1) }
+    }
+
+    @Test
+    @DisplayName("Aucune shows the note barred")
+    fun noneShowsTheNoteBarred() = extension.use {
+        // Given Aucune chosen
+        showHomeScreen(uiState.copy(music = MusicChoice.NONE, listenable = listOf(MusicChoice.KOROBEINIKI)))
+
+        // Then the row Musique bears the note struck through, which TalkBack does not read, and nothing to listen to
+        onNode(hasTestTag(MUSIC_NONE_TAG), useUnmergedTree = true)
+            .assertExists()
+            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        onAllNodes(hasContentDescription("Écouter", substring = true)).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("the sheet is read as a dialog by TalkBack")
+    fun theSheetIsReadAsADialogByTalkBack() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET)))
+
+        // When the row Musique, a button, is touched
+        onNodeWithContentDescription("Musique : Menuet. Choisir une autre musique")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+        openMusicSheet("Menuet")
+
+        // Then a dialog, its title first, then its musics in their order, each a radio button, the minuet chosen
+        val read = readingOrder(onNode(isDialog()).fetchSemanticsNode()).map { it.first }
+        assertThat(read.first()).isEqualTo("Musique")
+        val musics = listOf("Korobeïniki", "Menuet", "Mon fichier", "Aucune")
+        assertThat(musics.map { music -> read.indexOfFirst { it.startsWith(music) } }).isSorted().doesNotContain(-1)
+        musics.forEach { music ->
+            onNode(inSheet(hasText(music)))
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+                .assertHeightIsAtLeast(BloxSizes.settingRow)
+        }
+        onNode(inSheet(hasText("Menuet"))).assertIsSelected()
+        onNode(inSheet(hasText("Korobeïniki"))).assertIsNotSelected()
+    }
+
+    @Test
+    @DisplayName(
+        "with Mon fichier chosen without a file, the reminder under Jouer names Korobeïniki, played in its place",
+    )
+    fun withMyFileWithoutAFileTheReminderNamesKorobeiniki() = extension.use {
+        // Given Mon fichier chosen, without a file (the settings restored on another device)
+        showHomeScreen(uiState.copy(music = MusicChoice.MY_FILE, hasMusicFile = false))
+
+        // Then
+        onNode(hasText("Classique · Niveau 05 · Korobeïniki"), useUnmergedTree = true).assertExists()
+        onNode(hasTestTag(PLAY_TAG)).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.ContentDescription,
+                listOf("Jouer, Classique, niveau 5, Korobeïniki"),
+            ),
+        )
+    }
+
+    @Test
+    @DisplayName(
+        "in the sheet, Mon fichier with a file offers Changer, which opens the picker, before its listen button",
+    )
+    fun inTheSheetMyFileOffersChange() = extension.use {
+        // Given a music file kept
+        var changed = 0
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
+            music = MusicActions.None.copy(onChangeMusicFile = { changed++ }),
+        )
+        openMusicSheet("Menuet")
+
+        // Then Changer stands on the line of Mon fichier, before Écouter
+        val change = onNode(inSheet(hasContentDescription("Changer de fichier")))
+        val listen = onNode(inSheet(hasContentDescription("Écouter Mon fichier"))).getUnclippedBoundsInRoot()
+        val bounds = change.getUnclippedBoundsInRoot()
+        assertThat(bounds.right).isLessThanOrEqualTo(listen.left)
+        assertThat(bounds.top).isLessThan(listen.bottom)
+        assertThat(bounds.bottom).isGreaterThan(listen.top)
+
+        // When
+        change.performClick()
+
+        // Then
+        runOnIdle { assertThat(changed).isEqualTo(1) }
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("in a font twice as large, on 360 dp, the row Mon fichier keeps its words, Changer and Écouter whole")
+    fun inALargeFontTheRowMyFileKeepsChangeAndListen(kind: BloxThemeKind) = extension.use {
+        // Given a music file kept, in a font twice as large, on 360 dp
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
+            width = NARROW_PHONE,
+            fontScale = 2f,
+            kind = kind,
+        )
+        openMusicSheet("Menuet")
+
+        // Then the choice keeps its words whole, Changer holds one line, and both buttons stand within the sheet
+        assertWordsWhole(textLayout("Un fichier audio de l'appareil"))
+        val layout = textLayout("Changer")
+        assertWordsWhole(layout)
+        assertThat(layout.lineCount).isEqualTo(1)
+        val sheet = onNode(isDialog()).getUnclippedBoundsInRoot()
+        listOf("Changer de fichier", "Écouter Mon fichier").forEach { button ->
+            val bounds = onNode(inSheet(hasContentDescription(button))).getUnclippedBoundsInRoot()
+            assertThat(bounds.left).isGreaterThanOrEqualTo(sheet.left)
+            assertThat(bounds.right).isLessThanOrEqualTo(sheet.right)
+        }
+    }
+
+    @Test
+    @DisplayName("in the sheet, a music of the player for the games is the only music selected, read with its sub-line")
+    fun inTheSheetTheMusicOfThePlayerIsTheOnlyMusicSelected() = extension.use {
+        // Given
+        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
+        openMusicSheet("Thème du soir")
+
+        // Then it stands before Aucune, chosen, and TalkBack says it is the music of the games
+        onNode(inSheet(hasText("Thème du soir")))
+            .assertIsSelected()
+            .assert(hasText("Ma musique · en jeu"))
+        onAllNodes(inSheet(isSelected())).assertCountEquals(1)
+        val theme = onNode(inSheet(hasText("Thème du soir"))).getUnclippedBoundsInRoot()
+        assertThat(theme.bottom).isLessThanOrEqualTo(onNode(inSheet(hasText("Aucune"))).getUnclippedBoundsInRoot().top)
+    }
+
+    @Test
     @DisplayName("TalkBack reads each selected choice as selected, and the others as not selected")
     fun talkBackReadsEachSelectedChoiceAsSelected() = extension.use {
         // Given
@@ -107,8 +304,6 @@ internal class HomeScreenTest {
         onNodeWithText("Classique").assertIsSelected()
         onNodeWithText("Couleurs").assertIsSelected()
         onNodeWithText("Original").assertIsNotSelected()
-        onNodeWithText("Menuet").assertIsSelected()
-        onNodeWithText("Korobeïniki").assertIsNotSelected()
     }
 
     @Test
@@ -171,71 +366,6 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName(
-        "the music choices bear nothing under them: one line of actions, under them all, is for the music selected",
-    )
-    fun oneLineOfActionsIsForTheMusicSelected() = extension.use {
-        // Given the minuet selected, among musics that may all be listened to, a music file kept
-        showHomeScreen(
-            uiState.copy(
-                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
-                hasMusicFile = true,
-            ),
-        )
-
-        // Then only the minuet may be listened to, under every choice
-        val listen = onNodeWithContentDescription("Écouter Menuet").assertHasClickAction().getUnclippedBoundsInRoot()
-        onNodeWithContentDescription("Écouter Korobeïniki").assertDoesNotExist()
-        onNodeWithContentDescription("Écouter Mon fichier").assertDoesNotExist()
-        onNodeWithContentDescription("Changer de fichier").assertDoesNotExist()
-        listOf("Korobeïniki", "Menuet", "Mon fichier", "Aucune").forEach { choice ->
-            assertThat(listen.top).isGreaterThanOrEqualTo(onNodeWithText(choice).getUnclippedBoundsInRoot().bottom)
-        }
-    }
-
-    @Test
-    @DisplayName(
-        "with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side",
-    )
-    fun withMyFileTheLineOfActionsOffersToListenAndToChange() = extension.use {
-        // Given
-        showHomeScreen(
-            uiState.copy(
-                music = MusicChoice.MY_FILE,
-                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
-                hasMusicFile = true,
-            ),
-            width = NARROW_PHONE,
-        )
-
-        // Then
-        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
-        val change = onNodeWithContentDescription(
-            "Changer de fichier",
-        ).assertHasClickAction().getUnclippedBoundsInRoot()
-        assertThat(change.top).isEqualTo(listen.top)
-        assertThat(change.left).isGreaterThanOrEqualTo(listen.right)
-        assertThat(listen.top).isGreaterThanOrEqualTo(onNodeWithText("Aucune").getUnclippedBoundsInRoot().bottom)
-    }
-
-    @Test
-    @DisplayName("with Aucune selected, there is nothing to listen to nor to change")
-    fun withNoneThereIsNoAction() = extension.use {
-        // Given
-        showHomeScreen(
-            uiState.copy(
-                music = MusicChoice.NONE,
-                listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
-                hasMusicFile = true,
-            ),
-        )
-
-        // Then
-        onAllNodes(hasContentDescription("Écouter", substring = true)).assertCountEquals(0)
-        onNodeWithContentDescription("Changer de fichier").assertDoesNotExist()
-    }
-
-    @Test
     @DisplayName("the music selected being listened to offers to stop it, under a glyph that TalkBack does not read")
     fun theMusicSelectedBeingListenedToOffersToStopIt() = extension.use {
         // Given
@@ -251,81 +381,22 @@ internal class HomeScreenTest {
             .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
     }
 
-    @ParameterizedTest(name = "in {0}")
-    @EnumSource(BloxThemeKind::class)
-    @DisplayName(
-        "in a font twice as large, on 360 dp, the labels of the line of actions are shown whole, on one line each",
-    )
-    fun inALargeFontTheLabelsOfTheLineOfActionsAreShownWhole(kind: BloxThemeKind) = extension.use {
-        // Given Mon fichier selected, in a font twice as large, on 360 dp
-        showHomeScreen(
-            uiState.copy(music = MusicChoice.MY_FILE, listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
-            width = NARROW_PHONE,
-            fontScale = 2f,
-            kind = kind,
-        )
-
-        // Then the label of Changer whole, on one line, within the screen, as Écouter, a disc of its icon alone
-        val layout = textLayout("Changer")
-        assertWordsWhole(layout)
-        assertThat(layout.lineCount).isEqualTo(1)
-        // Within the screen: the label is not cut at its edge
-        val shown = onNode(hasText("Changer"), useUnmergedTree = true).getUnclippedBoundsInRoot()
-        assertThat(shown.right).isLessThanOrEqualTo(NARROW_PHONE)
-        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
-        assertThat(listen.right).isLessThanOrEqualTo(NARROW_PHONE)
-    }
-
-    @ParameterizedTest(name = "in {0}")
-    @EnumSource(BloxThemeKind::class)
-    @DisplayName(
-        "in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line",
-    )
-    fun inALargeFontInANarrowWindowListenAndChangeStandApart(kind: BloxThemeKind) = extension.use {
-        // Given Mon fichier selected, in a font twice as large, in a window narrower than any phone
-        val width = 280.dp
-        showHomeScreen(
-            uiState.copy(music = MusicChoice.MY_FILE, listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true),
-            width = width,
-            fontScale = 2f,
-            kind = kind,
-        )
-
-        // Then side by side, or Changer under Écouter if they do not fit, never over each other nor out of the window
-        val listen = onNodeWithContentDescription("Écouter Mon fichier").getUnclippedBoundsInRoot()
-        val change = onNodeWithContentDescription("Changer de fichier").getUnclippedBoundsInRoot()
-        assertThat(change.left >= listen.right || change.top >= listen.bottom).isTrue()
-        listOf(listen, change).forEach { button ->
-            assertThat(button.left).isGreaterThanOrEqualTo(0.dp)
-            assertThat(button.right).isLessThanOrEqualTo(width)
-        }
-        val layout = textLayout("Changer")
-        assertWordsWhole(layout)
-        assertThat(layout.lineCount).isEqualTo(1)
-    }
-
     @Test
     @DisplayName("each selected choice bears a check, the others none, and TalkBack does not read it")
     fun eachSelectedChoiceBearsACheckThatTalkBackDoesNotRead() = extension.use {
-        // Given « Classique », « Couleurs » and the music of the player for the games, which has a description
-        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
+        // Given « Classique » and « Couleurs » (the musics are chosen in their sheet, which bears its own checks)
+        showHomeScreen()
 
         // Then a cue other than colour (WCAG 2.1, 1.4.1), in the selected choices only
         val checks = onAllNodes(isChoiceCheck(), useUnmergedTree = true)
-        assertThat(checks.fetchSemanticsNodes()).hasSize(3)
+        assertThat(checks.fetchSemanticsNodes()).hasSize(2)
         onAllNodes(isChoiceCheck() and hasParent(isSelected()), useUnmergedTree = true)
-            .assertCountEquals(3)
+            .assertCountEquals(2)
         // And decorative: TalkBack already says « sélectionné », it reads nothing more
         checks.assertAll(
             SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription) and
                 SemanticsMatcher.keyNotDefined(SemanticsProperties.Text),
         )
-        // nor adds anything to the description of a selected choice
-        onNodeWithContentDescription("Thème du soir, en jeu")
-            .assertIsSelected()
-            .assert(
-                SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Thème du soir, en jeu")),
-            )
     }
 
     @Test
@@ -433,7 +504,7 @@ internal class HomeScreenTest {
         val expected = listOf(
             "Changer de jeu", "Record 0", "Paramètres", "BloX", "Jouer, Classique, niveau 5, Menuet",
             "Mode", "Classique", "Moderne, bientôt", "Thème", "Original", "Couleurs", "Niveau", "Niveau de départ",
-            "Musique", "Korobeïniki", "Menuet", "Mon fichier", "Aucune", "Écouter Menuet", "Mes musiques",
+            "Musique", "Écouter Menuet", "Musique : Menuet. Choisir une autre musique", "Mes musiques",
             "Composer une musique",
         )
         val read = readingOrder(onRoot().fetchSemanticsNode()).filter { (name, _) -> name in expected }
@@ -463,27 +534,13 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("a music of the player for the games is read as such, the only music selected, a 48 dp radio button")
-    fun theMusicOfThePlayerIsTheOnlyMusicSelected() = extension.use {
-        // Given
-        showHomeScreen(uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)))
-
-        // Then TalkBack says it is the music of the games, not only its name
-        onNodeWithContentDescription("Thème du soir, en jeu")
-            .assertIsSelected()
-            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
-            .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
-        onNodeWithText("Menuet").assertIsNotSelected()
-    }
-
-    @Test
     @DisplayName("listening to the music of the player for the games calls for it")
     fun listeningToTheMusicOfThePlayerCallsForIt() = extension.use {
         // Given
         var listened = 0
         showHomeScreen(
             uiState.copy(gameMusic = GameMusicUi(name = "Thème du soir", previewed = false)),
-            onListenGameMusic = { listened++ },
+            music = MusicActions.None.copy(onListenGameMusic = { listened++ }),
         )
 
         // When
@@ -853,7 +910,7 @@ internal class HomeScreenTest {
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         effects: BloxEffects = STILL,
-        onListenGameMusic: () -> Unit = {},
+        music: MusicActions = MusicActions.None,
         onStartLevelChosen: (Int) -> Unit = {},
         onPlay: (Int) -> Unit = {},
         onCompose: () -> Unit = {},
@@ -874,10 +931,7 @@ internal class HomeScreenTest {
                             ),
                         uiState = state,
                         onThemeChosen = {},
-                        onMusicChosen = {},
-                        onListen = {},
-                        onListenGameMusic = onListenGameMusic,
-                        onChangeMusicFile = {},
+                        music = music,
                         onStartLevelChosen = onStartLevelChosen,
                         onPlay = onPlay,
                         onCompose = onCompose,
@@ -904,10 +958,10 @@ private const val REMINDER = "Classique · Niveau 05 · Menuet"
 private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
 
 /**
- * The targets of the home, at least: Changer de jeu, Paramètres, Jouer, two modes, two themes, − and +, four musics,
+ * The targets of the home, at least: Changer de jeu, Paramètres, Jouer, two modes, two themes, − and +, the row Musique,
  * Écouter, two tiles.
  */
-private const val HOME_TARGETS = 16
+private const val HOME_TARGETS = 13
 
 /** Four seconds of the clock of the test, in milliseconds. */
 private const val FOUR_SECONDS = 4_000L
@@ -927,3 +981,6 @@ private const val ONE_SECOND = 1_000L
 /** The strip above Jouer where its halo shows: from 10 dp above it, 8 dp high, in the room between it and the hero. */
 private val ABOVE_JOUER = 10.dp
 private val STRIP = 8.dp
+
+/** Where a touch lands on the scrim of a sheet: above its panel, which stands 48 dp at least under the top. */
+private val SCRIM_TAP = 24.dp

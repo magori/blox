@@ -9,7 +9,23 @@ enum class ThemeChoice { ORIGINAL, COLORFUL }
  * The music chosen on the home screen (V1). The application maps it to its scores, the file player, or for [LIVE] to
  * a live music, composed for each game from its seed. Each choice is saved by its name, which must not change.
  */
-enum class MusicChoice { KOROBEINIKI, MINUET, MY_FILE, LIVE, NONE }
+enum class MusicChoice {
+    KOROBEINIKI,
+    MINUET,
+    MY_FILE,
+    LIVE,
+    NONE,
+    ;
+
+    companion object {
+        /**
+         * What [MY_FILE] plays when it has no file to play: none kept (the settings restored on another device, the
+         * file never leaving this one), or a file that can no longer be read. The game plays it; the home screen names
+         * it in place of [MY_FILE] when it knows there is no file.
+         */
+        val MY_FILE_FALLBACK: MusicChoice = KOROBEINIKI
+    }
+}
 
 /**
  * The settings of the player, chosen on the home screen (V1) and in the settings. [startLevel] is never

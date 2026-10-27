@@ -2,7 +2,6 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,11 +32,8 @@ private fun DiceSheetPreview() {
         Box(Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(BloxSpaces.space4)) {
             WindowText("Thème du soir")
         }
-        SheetFrame(
+        BloxSheetPreview(
             title = "Au hasard",
-            onDismissRequest = {},
-            insets = WindowInsets(0),
-            entrance = { SheetEntrance.Settled },
             actions = {
                 PrimaryButton(
                     text = "Tirer une musique",

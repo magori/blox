@@ -108,7 +108,7 @@ ni grille de trois colonnes (P5.30).
 `HomeViewModelTest › choosing another music stops the music of the player listened to`,
 `HomeViewModelTest › a music of the player listened to stops once it is no longer played during the games`,
 `HomeViewModelTest › without a music of the player for the games, there is nothing of it to listen to`,
-`HomeScreenTest › a music of the player for the games is read as such, the only music selected, a 48 dp radio button`,
+`HomeScreenTest › in the sheet, a music of the player for the games is the only music selected, read with its sub-line`,
 `HomeScreenTest › listening to the music of the player for the games calls for it`,
 `HomeScreenTest › the music of the player being listened to offers to stop it`. Vue : V1.
 
