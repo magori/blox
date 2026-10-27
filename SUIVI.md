@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 221 / 307 | `██████████████░░░░░░` **72 %** |
+| **Général** | 222 / 307 | `██████████████░░░░░░` **72 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1381,7 +1381,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 
 - [x] **P9.1** Spécification et décision : `docs/graine-du-jour.md`, amendement de l'ADR 0014 (la suite des pièces
   d'une graine devient un contrat) dans l'ADR 0026, vues V38 et V39 numérotées (à dessiner). Fait le 2026-10-26.
-- [ ] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
+- [x] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
   téléphone. Cas : `the seed of a day is its date written year month day`, `the date is the local date of the
   phone`, `two days give two seeds`.
 - [ ] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux

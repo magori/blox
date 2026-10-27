@@ -11,8 +11,8 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) ; la suite des pièces d'une graine
 devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P9 de [SUIVI.md](../SUIVI.md),
-> après P1.20). Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si
+> Traçabilité : seule la graine d'une date est implémentée (P9.2) ; le reste suit en phase P9 de
+> [SUIVI.md](../SUIVI.md), après P1.20. Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si
 > elle se voit à l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
 
 ## Vocabulaire
@@ -41,8 +41,18 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 ## Graine
 
 - **Date** : la date **locale du téléphone** (fuseau du téléphone) au moment de Jouer, écrite
-  `AAAAMMJJ` : `DailySeed.of(LocalDate)` rend la graine `20261026` pour le 26 octobre 2026.
-  L'horloge est injectée (`Clock`), pour que les tests fixent la date.
+  `AAAAMMJJ` : `DailySeed.of(LocalDate)` rend la graine `20261026` pour le 26 octobre 2026
+  (`20270105` pour le 5 janvier 2027 : mois et jour toujours sur deux chiffres), du même type que la
+  graine d'une partie (`Long`) ; un jour plus récent donne une graine plus grande.
+  L'horloge est injectée (`DailySeed.today(Clock)`), pour que les tests fixent la date. Le
+  branchement (P9.4) passe une horloge dans le fuseau du système, lue à chaque Jouer
+  (`Clock.systemDefaultZone()`) : jamais l'horloge UTC de `AppContainer`, qui donnerait le mauvais
+  jour autour de minuit, ni une horloge gardée pour la vie du processus, qui manquerait un
+  changement de fuseau.
+  **Tests :** `DailySeedTest › the seed of a day is its date written year month day`,
+  `DailySeedTest › the date is the local date of the phone`,
+  `DailySeedTest › two days give two seeds`,
+  `DailySeedTest › a later day gives a greater seed, from one year to the next`.
 - **Une partie commencée un jour compte pour ce jour-là** : la date est dans la clé de la partie
   (`GameRoute`, variante `DAILY`), pas relue à la fin. Rejouer garde la graine de la partie
   terminée, même après minuit.
