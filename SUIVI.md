@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 214 / 304 | `██████████████░░░░░░` **70 %** |
+| **Général** | 216 / 304 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1333,7 +1333,7 @@ la Graine du jour l'impose.
   tendue, celui du danger), sans rendu à l'entrée en danger. Cas : `a score switched to starts on the next bar, at the same rank`, `a switch keeps the tempo factor and the
   playback`, `a second switch before the bar line replaces the first`, `a switch while the music is stopped is
   played at the resume`.
-- [ ] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
+- [x] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
   (`Category.EPIC`), de même longueur et de même tonique, par `MusicGenerator.generate`. Après P8.9. Cas : `a live
   music is a calm music and a tense one`, `the calm and the tense music have the same number of bars`, `the calm
   and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
@@ -1355,7 +1355,7 @@ la Graine du jour l'impose.
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
 - [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
-- [ ] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
+- [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
 

@@ -37,11 +37,25 @@ boucle, focus audio, accélération du danger) est décrit dans [musique.md](mus
 - Les deux ont **la même tonique**. `Form.compose` tire d'ordinaire la tonique dans
   `Category.TONICS` (Do, Ré, Fa, Sol, La) pour chaque musique : des graines séparées donneraient
   souvent deux tonalités. La tendue est donc composée avec la tonique tirée pour la calme, ce qui
-  demande une nouvelle capacité de `MusicGenerator`, la **tonique imposée** (P8.9). Les deux
-  ambiances gardent leurs tempos propres.
+  demande une nouvelle capacité de `MusicGenerator`, la **tonique imposée** (P8.9,
+  [generateur-musique.md](generateur-musique.md)). Les deux ambiances gardent leurs tempos propres.
+  `LiveMusic` vérifie cet invariant à sa construction ; les catégories et la longueur, elles, sont
+  celles que donne `compose`.
+- Les deux partitions portent des identités fixes, `LiveMusic.CALM_ID` et `LiveMusic.TENSE_ID`
+  (`ScoreId.Personal("live-calm")` et `("live-tense")`), qui ne nomment aucune musique de la
+  bibliothèque. Un nouveau cas de `ScoreId` a été écarté : il aurait cassé les `when` exhaustifs
+  des autres modules.
 - C'est une **fonction pure de la graine** : la même graine rend les deux mêmes musiques. Chaque
-  musique est composée avec sa propre graine, tirée de la graine de la partie, si bien que la
-  calme ne dépend pas de la tendue. Comme toute musique du générateur, la suite n'est pas un
+  musique est composée avec sa propre graine, tirée de la graine de la partie (`Random(seed)`, la
+  calme d'abord), si bien que la calme ne dépend pas de la tendue.
+  **Tests :** `LiveMusicTest › a live music is a calm music and a tense one`,
+  `LiveMusicTest › the calm and the tense music have the same number of bars`,
+  `LiveMusicTest › the calm and the tense music are known by their ids, the same from one game to the next`,
+  `LiveMusicTest › the calm and the tense music share their tonic`,
+  `LiveMusicTest › two musics of different tonics are not a live music`,
+  `LiveMusicTest › the same seed gives the same two musics`,
+  `LiveMusicTest › the calm music does not depend on the tense one`.
+- Comme toute musique du générateur, la suite n'est pas un
   contrat entre versions de Kotlin ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)) : seule
   la suite des pièces d'une graine en est un (Graine du jour, [graine-du-jour.md](graine-du-jour.md)).
 - La graine de la musique est celle de la partie (`GameRoute`) : une nouvelle partie et Rejouer
