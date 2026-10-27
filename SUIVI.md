@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 235 / 314 | `███████████████░░░░░` **75 %** |
+| **Général** | 236 / 314 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1399,7 +1399,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
   `every try is counted`, `a try of a newer date starts that date over`, `a try of an
   older date is ignored`.
-- [ ] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
+- [x] **P9.10** Contrat commun des fichiers Preferences de `core:data` : les tests « fichier illisible », « fichier
   qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
   fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
   de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
