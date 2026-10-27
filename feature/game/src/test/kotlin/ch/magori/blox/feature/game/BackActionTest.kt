@@ -51,6 +51,7 @@ class BackActionTest {
             ticksPlayed = 0,
             newBest = false,
             resultsKept = true,
+            previousBest = 0,
         )
 
         // When / Then

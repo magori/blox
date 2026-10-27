@@ -28,10 +28,14 @@ internal class DailyGameResults(
 
     override suspend fun start() = writes.withLock { daily.startTry(date) }
 
-    /** The try ends; it is kept unless the results moved on to a newer date, which ignores it. */
+    /**
+     * The try ends; it is kept unless the results moved on to a newer date, which ignores it: its best before is then
+     * none, that of the newer date being another day's.
+     */
     override suspend fun end(points: Int): GameEnd = writes.withLock {
         val record = daily.endTry(date, points)
-        GameEnd(record.isNewRecord, kept = daily.results.firstOrNull()?.date == date)
+        val kept = daily.results.firstOrNull()?.date == date
+        GameEnd(record.isNewRecord, kept = kept, previousBest = if (kept) record.previous else 0)
     }
 
     override suspend fun leave(points: Int) {

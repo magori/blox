@@ -79,6 +79,26 @@ class GameOverTextsTest {
         assertThat(texts.spokenDuration).isEqualTo(DurationSpeech(minutes = 1, seconds = 5))
     }
 
+    @ParameterizedTest(name = "best before {0} -> {1}, read {2}")
+    @CsvSource("98760, 098760, 98760", "1234567, 999999, 1234567")
+    fun `the best before the game is shown as a score, capped at 999 999, and read at its real value`(
+        previousBest: Int,
+        shown: String,
+        spoken: String,
+    ) {
+        assertThat(textsFor(previousBest = previousBest).previousBest).isEqualTo(PreviousBestTexts(shown, spoken))
+    }
+
+    @Test
+    fun `without a best before the game no best is recalled`() {
+        assertThat(textsFor(previousBest = 0).previousBest).isNull()
+    }
+
+    @Test
+    fun `when the results kept do not hold the game no best is recalled`() {
+        assertThat(textsFor(previousBest = 98_760, resultsKept = false).previousBest).isNull()
+    }
+
     /** When: the game over screen gets these values; other values do not matter to the test. */
     private fun textsFor(
         score: Int = 0,
@@ -86,6 +106,8 @@ class GameOverTextsTest {
         level: Int = 0,
         fourLineClears: Int = 0,
         ticksPlayed: Int = 0,
+        previousBest: Int = 0,
+        resultsKept: Boolean = true,
     ): GameOverTexts = gameOverTexts(
         GameOverUiState(
             score = Points(score),
@@ -94,7 +116,8 @@ class GameOverTextsTest {
             fourLineClears = fourLineClears,
             ticksPlayed = ticksPlayed,
             newBest = false,
-            resultsKept = true,
+            resultsKept = resultsKept,
+            previousBest = previousBest,
         ),
     )
 }

@@ -298,6 +298,7 @@ class GameViewModelTest {
                 ticksPlayed = final.tickCount,
                 newBest = true,
                 resultsKept = true,
+                previousBest = 100,
             ),
         )
     }
@@ -330,7 +331,20 @@ class GameViewModelTest {
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true))
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true, previousBest = Int.MAX_VALUE))
+    }
+
+    @Test
+    fun `a classic game over gets the record it had to beat`() {
+        // Given a record of 100 points, that the game beats
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the record before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(100)
     }
 
     @Test
@@ -345,7 +359,7 @@ class GameViewModelTest {
 
         // Then
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false))
+            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false, previousBest = 0))
     }
 
     @Test
@@ -385,7 +399,8 @@ class GameViewModelTest {
             writing.complete(Unit)
 
             // Then the game over shows once, with the answer, and further frames publish nothing
-            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true))
+            assertThat(awaitItem().gameOver)
+                .isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true, previousBest = 100))
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -1933,8 +1948,9 @@ class GameViewModelTest {
         // When its game is over: its try is ignored, the results stay those of the 27th
         playUntilGameOver(viewModel)
 
-        // Then the game over shows, without Copier, which would copy nothing of the 26th
+        // Then the game over shows, without Copier, which would copy nothing of the 26th, nor the best of the 27th
         assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isZero()
     }
 
     @Test
@@ -2001,6 +2017,20 @@ class GameViewModelTest {
 
         // Then its game over shows no new best
         assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
+    }
+
+    @Test
+    fun `a daily game over gets the best of the day it had to beat`() {
+        // Given a best of the day of 1 point, that the game beats
+        dailyResults.state.value = DailyResults(OCTOBER_26, tries = 1, firstTry = 1, best = 1, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the best before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(1)
     }
 
     @Test

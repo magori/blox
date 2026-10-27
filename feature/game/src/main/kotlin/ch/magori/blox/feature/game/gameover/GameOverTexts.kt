@@ -5,6 +5,7 @@ import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
+import ch.magori.blox.feature.game.isRecord
 import ch.magori.blox.feature.game.sidepanel.levelText
 import ch.magori.blox.feature.game.sidepanel.linesText
 import ch.magori.blox.feature.game.sidepanel.scoreText
@@ -15,7 +16,9 @@ private const val SECONDS_PER_MINUTE = 60
  * What the game over screen gets: the final values of the game, whether they make a [newBest], and whether the
  * results kept hold this game ([resultsKept]): the records written, for the Classic; for a daily game, its try written
  * under its date, neither failed to write nor ignored as a try of a date already passed. Otherwise a daily game over
- * does not offer to copy them: Copier would copy results without this game, or nothing.
+ * does not offer to copy them: Copier would copy results without this game, or nothing. [previousBest] is the best the
+ * game had to beat (the record, or the best of the day), as the results gave it at its end: 0 if there was none, or if
+ * they could not say.
  */
 @Immutable
 internal data class GameOverUiState(
@@ -26,6 +29,7 @@ internal data class GameOverUiState(
     val ticksPlayed: Int,
     val newBest: Boolean,
     val resultsKept: Boolean,
+    val previousBest: Int,
 )
 
 /**
@@ -44,12 +48,13 @@ internal data class GameOverTexts(
     val spokenLevel: String,
     val spokenFourLineClears: String,
     val spokenDuration: DurationSpeech,
+    val previousBest: PreviousBestTexts?,
 )
 
 /**
  * The texts of the game over screen for [state]: the score, lines and level as in the side column,
  * the number of four-line clears, and the duration of the ticks played as `mm:ss`; TalkBack reads
- * the raw values and the duration as a [DurationSpeech].
+ * the raw values and the duration as a [DurationSpeech]; the [previousBest] the game had to beat, if any.
  */
 internal fun gameOverTexts(state: GameOverUiState): GameOverTexts = GameOverTexts(
     score = scoreText(state.score),
@@ -62,7 +67,16 @@ internal fun gameOverTexts(state: GameOverUiState): GameOverTexts = GameOverText
     spokenLevel = state.level.value.toString(),
     spokenFourLineClears = state.fourLineClears.toString(),
     spokenDuration = durationSpeech(durationParts(state.ticksPlayed)),
+    previousBest = previousBestTexts(state),
 )
+
+/**
+ * The best [state]'s game had to beat, as its game over recalls it: none if there was none (0, as before the first game
+ * or the first try of the day), nor when the results kept do not hold the game, whose best would then be another's.
+ */
+private fun previousBestTexts(state: GameOverUiState): PreviousBestTexts? = state.previousBest
+    .takeIf { state.resultsKept && it.isRecord() }
+    ?.let { PreviousBestTexts(shown = scoreText(Points(it)), spoken = it.toString()) }
 
 /** A duration in whole [minutes] and the [seconds] left, 0 to 59. */
 internal data class DurationParts(val minutes: Int, val seconds: Int)
@@ -96,3 +110,6 @@ internal fun durationSpeech(parts: DurationParts): DurationSpeech = DurationSpee
     minutes = parts.minutes.takeIf { it > 0 || parts.seconds == 0 },
     seconds = parts.seconds.takeIf { it > 0 },
 )
+
+/** The best the game had to beat, as the game over recalls it: [shown] as a score, [spoken] at its real value. */
+internal data class PreviousBestTexts(val shown: String, val spoken: String)

@@ -372,7 +372,18 @@ battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis *
 graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
 qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
 (`gameEntry(onCopy)`), et `app` copie les résultats de la date de la partie (voir Copier mon
-score) ; il n'est pas proposé si l'essai n'a pas été gardé sous cette date.
+score) ; il n'est pas proposé si l'essai n'a pas été gardé sous cette date. Sous le score, le
+meilleur du jour d'avant l'essai (P9.14) : « Ancien meilleur 098760 » s'il est battu, « Meilleur
+098760 » sinon, lu « Score : 123450, Ancien meilleur : 98760 » ; aucune ligne au premier essai du
+jour (meilleur d'avant : 0), ni si l'essai n'est pas gardé sous sa date (il ne dit alors aucun
+meilleur d'avant). Le libellé vient de `GameLabels.gameOverBest`.
+**Tests :** `GameResultsTest › a daily game over tells the best of its day before it, 0 at the first try`,
+`GameResultsTest › a daily try ignored, its date already passed, tells no best before it`,
+`GameViewModelTest › a daily game over gets the best of the day it had to beat`,
+`GameOverTextsTest › when the results kept do not hold the game no best is recalled`,
+`GameLabelsTest › the game over recalls the best of the day as Ancien meilleur once beaten, as Meilleur otherwise`,
+`GameScreenTest › the game over recalls the best before the game under the score, read with it; nothing without one` ;
+captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`, `GameOverDailyLargeFont`.
 **Tests :** `GameViewModelTest › the first try of the day beats the best of the day at its game over`,
 `GameViewModelTest › a daily game over below the best of the day shows no new best`,
 `GameScreenTest › the game over of a daily game announces MEILLEUR DU JOUR; Rejouer and Copier, read Copier mon score, act`,
