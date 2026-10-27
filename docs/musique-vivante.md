@@ -95,9 +95,11 @@ La traduction des événements en ordres au lecteur sort de `feature:game` dans 
     départ (accroissement additif, non composé) ; valeurs **[à vérifier]** en jouant. Ce facteur
     se **multiplie** au × 1,25 du danger.
 - **Rendu** : `prepareTempo` ne prépare que la partition jouée en dernier. L'entrée en danger fait
-  à la fois `switchTo(tendue)` et × 1,25 : `switchTo` **prépare la tendue au tempo du danger**,
-  pour qu'elle ne soit pas rendue au moment le plus tendu. Chaque `LevelUp` déclenche un nouveau
-  rendu ; son coût est **à mesurer** sur téléphone (P8.6).
+  à la fois `switchTo(tendue)` et × 1,25 : la tendue est rendue au seul tempo du danger, pendant
+  l'attente de la barre de mesure, puis reste en cache (voir
+  [Changer de partition à la mesure](#changer-de-partition-à-la-mesure)) ; seule la première entrée
+  en danger d'une partie la rend. Chaque `LevelUp` déclenche un nouveau rendu ; son coût est
+  **à mesurer** sur téléphone (P8.6).
 - Chaque ambiance garde son propre tempo (celui de sa forme) ; le facteur s'applique aux deux.
 - La pause, la reprise, la fin de partie, Rejouer et la perte du focus se passent comme pour
   toute partition ([musique.md](musique.md)) : la reprise repart dans l'ambiance du moment, au
@@ -111,17 +113,55 @@ Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
 [Jardin musical](jardin-musical.md) :
 
 - la partition en cours joue jusqu'à la fin de sa mesure ; la nouvelle commence à la mesure de
-  **même rang** (modulo sa longueur), sur le premier temps ;
+  **même rang** (modulo sa longueur), sur le premier temps ; un `switchTo` juste après `play` joue
+  la nouvelle partition depuis son début, sans rendre l'autre ;
 - le facteur de tempo en cours est gardé ;
 - le jeton de lecture (`Playback`) reste le même : une partie n'arrête toujours que sa propre
   musique ;
-- un second `switchTo` avant la barre de mesure remplace le premier (seul le dernier compte) ;
-- si la musique est arrêtée ou morte, `switchTo` ne fait que retenir la partition, jouée à la
-  reprise ;
+- un second `switchTo` avant la barre de mesure remplace le premier (seul le dernier compte) et
+  abandonne le rendu demandé pour lui ;
+- si la musique est arrêtée ou morte, `switchTo` ne fait que retenir la partition ; la reprise la
+  joue depuis le **premier temps de la mesure de même rang** (modulo sa longueur) que celle où la
+  musique s'est arrêtée ; avant tout `play`, `switchTo` ne fait rien ;
+- `FocusedMusicPlayer` : une partition qui attend le focus, ou à qui il est refusé, garde la
+  partition demandée pour elle-même et la joue à son lancement ; elle ne touche pas à la lecture
+  arrêtée d'un autre propriétaire ;
+- **rendu et cache** : la partition demandée est rendue en arrière-plan au tempo demandé du moment
+  (à l'entrée en danger, `setTempoFactor(1,25)` et `switchTo(tendue)` arrivent ensemble : la
+  tendue est rendue au seul tempo du danger, jamais à × 1,0 d'abord), pendant l'attente de la
+  barre de mesure. Le lecteur garde ensuite un cache par partition, pour celles que la lecture a
+  jouées ou demandées : revenir à la calme, ou entrer de nouveau en danger, même après une pause,
+  ne rend rien. Seule la **première** entrée en danger d'une partie rend donc la tendue
+  (P8.10 : la préparer d'avance, à décider avec la mesure de P8.6) ;
 - la capacité existe à chaque étage du lecteur : le contrat `MusicPlayerContract` et le faux
   lecteur, mais aussi `ChiptuneSequencer`, `FocusedMusicPlayer` et `MusicSwitch` ;
 - elle est **réservée aux partitions** : `MusicPlayer = Player<Music>`, et pour un `MusicFile`
-  (« Mon fichier ») `switchTo` est sans effet.
+  (« Mon fichier ») `switchTo` est sans effet ; la partition de secours d'un fichier illisible,
+  elle, change.
+
+**Tests :** `ChiptuneSequencerSwitchTest › a score switched to starts on the next bar, at the same rank`,
+`ChiptuneSequencerSwitchTest › a score switched to past its length starts on the bar of the same rank modulo its length`,
+`ChiptuneSequencerSwitchTest › a switch while stopped resumes on the first beat of the bar of the same rank`,
+`ChiptuneSequencerSwitchTest › switching back to the score switched from renders nothing`,
+`ChiptuneSequencerSwitchTest › a second switch before the bar line gives up the rendering of the first`,
+`ChiptuneSequencerSwitchTest › a score switched to as the danger begins is rendered at the danger tempo, not at the tempo before`,
+`ChiptuneSequencerSwitchTest › a playback resumed keeps the score switched from ready`,
+`ChiptuneSequencerSwitchTest › a switch right after a play plays the score switched to from its start, without rendering the other`,
+`MusicPlayerContract › a switch keeps the tempo factor and the playback`,
+`MusicPlayerContract › a second switch before the bar line replaces the first`,
+`MusicPlayerContract › a switch while the music is stopped is played at the resume`,
+`MusicPlayerContract › a switch while the music stopped by itself is played at the resume`,
+`MusicPlayerContract › a switch before anything is played plays nothing`,
+`MusicPlayerContract › the tempos prepared are ready for the score switched to`,
+`FocusedMusicPlayerTest › a switch while the focus is lost for a while is played when the focus comes back`,
+`FocusedMusicPlayerTest › a switch while a score waits for the focus to play it is played with the focus`,
+`FocusedMusicPlayerTest › a switch while the focus is refused is played once resumed with the focus`,
+`FocusedMusicPlayerTest › a new play forgets the switch asked for the score refused the focus`,
+`FocusedMusicPlayerTest › a switch while the focus is refused leaves the score stopped before untouched`,
+`FocusedMusicPlayerTest › a refused score resumed after another play is not switched to the score asked for the other`,
+`MusicSwitchTest › a switch while a music file plays changes nothing, the switch is reserved to the scores`,
+`FakeMusicPlayerTest › a switch is noted by the identifier of the score switched to`,
+`FakeMusicPlayerTest › a switch while a music file plays changes nothing`.
 
 ## Choix « Vivante »
 

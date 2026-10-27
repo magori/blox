@@ -6,9 +6,9 @@ import ch.magori.blox.core.music.Score
 import kotlinx.coroutines.flow.Flow
 
 /**
- * What a game needs of the music: play a score, or a music file of the player, in a loop, and change the
- * tempo of the scores. A [MusicFile] plays at its own speed: the tempo of the danger belongs to the BloX
- * scores. [MusicSwitch] plays both kinds, one at a time.
+ * What a game needs of the music: play a score, or a music file of the player, in a loop, switch to another score
+ * at the bar line, and change the tempo of the scores. A [MusicFile] plays at its own speed: the tempo of the danger
+ * belongs to the BloX scores. [MusicSwitch] plays both kinds, one at a time.
  */
 public typealias MusicPlayer = Player<Music>
 
@@ -41,6 +41,17 @@ public interface Player<in M : Music> : VolumeControl {
      * prepares nothing.
      */
     public fun prepareTempo(factor: Double)
+
+    /**
+     * Goes on with [score] in place of the score played last: the score playing ends its bar, then [score]
+     * starts on the first beat of its bar of the same rank (modulo its length), at the tempo factor asked
+     * for, with the tempos prepared, once it is rendered. The [Playback] stays the same: it stops [score], and
+     * resumes it. A second switch before the bar line replaces the first. While the music is stopped, or
+     * stopped by itself, [score] is only kept, to be played at the resume, from the first beat of its bar of the
+     * same rank as the bar the music stopped in. Reserved to the scores: it does nothing while a music file plays,
+     * nor before anything is played.
+     */
+    public fun switchTo(score: Score)
 }
 
 /** A music played by a [Player]: a score, or a music file, which resumes from the place it stopped at. */

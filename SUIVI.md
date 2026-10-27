@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 216 / 304 | `██████████████░░░░░░` **71 %** |
+| **Général** | 217 / 305 | `██████████████░░░░░░` **71 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1326,7 +1326,7 @@ la Graine du jour l'impose.
 
 - [x] **P8.1** Spécification et décision : `docs/musique-vivante.md`, ADR 0026 (amende 0014 et 0022), vue V37
   numérotée (à dessiner). Fait le 2026-10-26, avec les spécifications de P9 à P11 et les ADR 0027 et 0028.
-- [ ] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
+- [x] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
   même rang, au même facteur de tempo, sous le même jeton ; ajouté à `MusicPlayerContract` et au faux lecteur,
   et à chaque étage du lecteur (`ChiptuneSequencer`, `FocusedMusicPlayer`, `MusicSwitch`) ; réservé aux
   partitions, sans effet pour un `MusicFile` ; la partition demandée est préparée au tempo du moment (pour la
@@ -1358,6 +1358,8 @@ la Graine du jour l'impose.
 - [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
+- [ ] **P8.10** Préparer une partition d'avance (`prepareScore` ou switch préparé), pour que la première entrée en
+  danger ne rende rien ; à décider avec la mesure de P8.6 sur téléphone (revue de P8.2).
 
 ## P9 — Graine du jour (`core:game`, `core:data`, `feature:game`, `app`)
 
