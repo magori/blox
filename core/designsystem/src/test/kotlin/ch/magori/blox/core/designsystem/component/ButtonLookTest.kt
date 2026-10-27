@@ -1,5 +1,6 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxButtonColorSets
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
@@ -195,10 +196,192 @@ internal class ButtonLookTest {
         }
     }
 
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("variantsAndFamilies")
+    fun `a selected button is filled in accent, framed and pressed in accent pressed, its ink in accent ink`(
+        theme: String,
+        family: ButtonFamily,
+        variant: Variant,
+    ) {
+        // When at rest and pressed
+        val atRest = variant.look(family, SELECTED)
+        val pressed = variant.look(family, SELECTED.copy(depth = 1f))
+
+        // Then
+        val palette = variant.palette
+        assertThat(listOf(atRest.fill, atRest.frame, atRest.ink))
+            .containsExactly(palette.accent, palette.accentPressed, palette.accentInk)
+        assertThat(listOf(pressed.fill, pressed.frame, pressed.ink))
+            .containsExactly(palette.accentPressed, palette.accentPressed, palette.accentInk)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `the frame of a selected button stands out from the page by 3 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When
+        val frame = variant.look(ButtonFamily.SECONDARY, SELECTED).frame
+
+        // Then (WCAG 2.1, 1.4.11): by day, the accent itself is only 2,3 to 1 on the page
+        assertThat(contrast(frame!!, variant.palette.page)).isGreaterThanOrEqualTo(3.0)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a disabled selected button stays in accent, flat and in place`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When, even pressed
+        val state = SELECTED.copy(enabled = false, depth = 1f)
+        val look = variant.look(ButtonFamily.SECONDARY, state)
+
+        // Then the choice made still shows, without relief
+        val palette = variant.palette
+        assertThat(listOf(look.fill, look.frame, look.ink))
+            .containsExactly(palette.accent, palette.accentPressed, palette.accentInk)
+        assertThat(look.gloss).isEqualTo(Gloss.None)
+        assertThat(buttonDrop(state.enabled, state.depth, BloxEffects.Full)).isEqualTo(0.dp)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `the ink of a selected button stands out from its fill by 4,5 to 1 at least, at rest and pressed`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When (its colours are the same in every family)
+        val looks = listOf(0f, 1f).map { depth -> variant.look(ButtonFamily.SECONDARY, SELECTED.copy(depth = depth)) }
+
+        // Then (WCAG 2.1, 1.4.3)
+        assertThat(looks).allSatisfy { look -> assertThat(contrast(look.ink, look.fill)).isGreaterThanOrEqualTo(4.5) }
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("variantsAndFamilies")
+    fun `an active button keeps the pressed fill at rest, without going down`(
+        theme: String,
+        family: ButtonFamily,
+        variant: Variant,
+    ) {
+        // Given the same button pressed
+        val pressed = variant.look(family, ButtonState(depth = 1f))
+
+        // When it is active, at rest (Écouter while it plays)
+        val state = ButtonState(active = true)
+        val active = variant.look(family, state)
+
+        // Then it looks pressed, in place
+        assertThat(active).isEqualTo(pressed)
+        assertThat(buttonDrop(state.enabled, state.depth, BloxEffects.Full)).isEqualTo(0.dp)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a bare icon button has no fill, no frame and no gloss at rest, and takes button pressed when pressed`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When at rest and pressed
+        val atRest = variant.look(ButtonFamily.ICON, BARE)
+        val pressed = variant.look(ButtonFamily.ICON, BARE.copy(depth = 1f))
+
+        // Then nothing but its glyph at rest
+        assertThat(atRest.fill).isEqualTo(Color.Transparent)
+        assertThat(atRest.frame).isNull()
+        assertThat(atRest.gloss).isEqualTo(Gloss.None)
+        // And a disc of button pressed when pressed
+        assertThat(pressed.fill).isEqualTo(variant.palette.buttonPressed)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a disabled bare icon button stays bare, its glyph in label`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When, even pressed (− of the tempo at its slowest)
+        val state = BARE.copy(enabled = false, depth = 1f)
+        val look = variant.look(ButtonFamily.ICON, state)
+
+        // Then
+        assertThat(look.fill).isEqualTo(Color.Transparent)
+        assertThat(look.frame).isNull()
+        assertThat(look.ink).isEqualTo(variant.palette.label)
+        assertThat(look.gloss).isEqualTo(Gloss.None)
+        assertThat(buttonDrop(state.enabled, state.depth, BloxEffects.Full)).isEqualTo(0.dp)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `the glyph of a bare button stands out from the page by 3 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When
+        val ink = variant.look(ButtonFamily.ICON, BARE).ink
+
+        // Then (WCAG 2.1, 1.4.11)
+        assertThat(contrast(ink, variant.palette.page)).isGreaterThanOrEqualTo(3.0)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `the glyph of a pressed bare button stands out from button pressed by 4,5 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When
+        val look = variant.look(ButtonFamily.ICON, BARE.copy(depth = 1f))
+
+        // Then
+        assertThat(contrast(look.ink, look.fill)).isGreaterThanOrEqualTo(4.5)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("variants")
+    fun `a pressed bare button is framed in button outline, which stands out from the page by 3 to 1 at least`(
+        theme: String,
+        variant: Variant,
+    ) {
+        // When
+        val frame = variant.look(ButtonFamily.ICON, BARE.copy(depth = 1f)).frame
+
+        // Then (by day, button pressed is only 1,4 to 1 on the page)
+        assertThat(frame).isEqualTo(variant.palette.buttonOutline)
+        assertThat(contrast(frame!!, variant.palette.page)).isGreaterThanOrEqualTo(3.0)
+    }
+
+    @ParameterizedTest
+    @EnumSource(ButtonFamily::class)
+    fun `only a main or a secondary button may be compact, 48 dp high`(family: ButtonFamily) {
+        // When
+        val height = runCatching { family.minHeight(ButtonSize.COMPACT) }
+
+        // Then
+        if (family == ButtonFamily.PRIMARY || family == ButtonFamily.SECONDARY) {
+            assertThat(height.getOrThrow()).isEqualTo(48.dp)
+        } else {
+            assertThat(height.exceptionOrNull()).isInstanceOf(IllegalArgumentException::class.java)
+        }
+    }
+
     /** A variant of a theme: its palette, the colours of its buttons and its reliefs. */
-    internal class Variant(val palette: BloxPalette, val colors: BloxButtonColors, val glosses: BloxGlosses)
+    internal class Variant(val palette: BloxPalette, val colors: BloxButtonColors, val glosses: BloxGlosses) {
+        /** How a button of [family] in [state] is drawn in this variant. */
+        fun look(
+            family: ButtonFamily,
+            state: ButtonState,
+        ) = buttonLook(family, colors, glosses, state)
+    }
 
     companion object {
+        /** A selected button, and a bare one, at rest. */
+        private val SELECTED = ButtonState(emphasis = ButtonEmphasis.SELECTED)
+        private val BARE = ButtonState(emphasis = ButtonEmphasis.BARE)
+
         private val VARIANTS = listOf(
             "Original" to Variant(BloxPalettes.Original, BloxButtonColorSets.Original, BloxGlossSets.Original),
             "Couleurs, jour" to

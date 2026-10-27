@@ -39,17 +39,25 @@ public data class PadlockGame private constructor(
      * The chords heard so far, in [PadlockChords.KEY]: one per piece on the grid, the first ones of the
      * progression of the padlock, so that the last placement resolves on I.
      */
-    public val chords: List<Chord>
-        get() = progression.numerals.take(placements.size).map(PadlockChords.KEY::chord)
+    public val chords: List<Chord> get() = progressionChords.take(placements.size)
 
     /** The chords of this padlock, one per given piece, in the order they are heard. */
     public val progression: Progression get() = PadlockChords.progression(given.size)
+
+    /** The chords of the [progression], in [PadlockChords.KEY]: all of them are heard once the padlock is open. */
+    public val progressionChords: List<Chord> get() = progression.numerals.map(PadlockChords.KEY::chord)
 
     /** Whether every given piece is placed: the padlock is open. */
     public val isOpen: Boolean get() = placements.size == given.size
 
     /** The orientation the given piece of [rank] is in. */
     public fun orientationOf(rank: Int): Orientation = orientations[requireGiven(rank)]
+
+    /** The rank of the placed piece that covers [cell], or `null` when none does. */
+    public fun rankAt(cell: Position): Int? = placements.firstOrNull { (_, piece) -> cell in piece.cells }?.first
+
+    /** The [selected] piece, in its orientation, its pivot on [pivot], as [place] would put it; `null` if none is. */
+    public fun selectedAt(pivot: Position): Piece? = selected?.let { Piece(given[it], orientations[it], pivot) }
 
     /** Selects the free given piece of [rank]; a placed one is taken back by [takeBack]. */
     public fun select(rank: Int): PadlockGame =
@@ -69,7 +77,7 @@ public data class PadlockGame private constructor(
      */
     public fun place(pivot: Position): PadlockUpdate {
         val rank = selected ?: return PadlockUpdate(this, emptyList())
-        val piece = Piece(given[rank], orientations[rank], pivot)
+        val piece = checkNotNull(selectedAt(pivot))
         val refusal = when {
             !piece.cells.all { it in padlock.hole } -> Refusal.OUT_OF_HOLE
             placements.any { (_, other) -> other.cells.any { it in piece.cells } } -> Refusal.OVERLAP

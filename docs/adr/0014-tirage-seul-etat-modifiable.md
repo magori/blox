@@ -1,6 +1,6 @@
 # 0014 — Le tirage des pièces est le seul état modifiable du domaine
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; amendée par [0026](0026-jeux-musicaux-variantes-du-classique.md) (la suite des pièces d'une graine devient un contrat)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -46,3 +46,12 @@ et un ViewModel neuf rejoue la partie de la route depuis sa graine, en pause et 
 d'après un simple marqueur « partie commencée » rangé dans le `SavedStateHandle` de l'entrée.
 Aucun état du moteur n'est sauvé ; le score d'une partie terminée l'a été dès la fin de partie,
 et n'est pas soumis à nouveau. L'écran de fin n'est pas restauré.
+
+## Amendement (ADR 0026, 2026-10-26)
+
+La Graine du jour partage une graine entre joueurs : la **suite des pièces d'une graine devient un
+contrat** entre versions. Le tirage du Classique passe sur un générateur maison, `StableRandom`
+(P1.20), qui étend `kotlin.random.Random`, par un point d'entrée public, `ClassicRandomizer.stable(seed)`
+(le constructeur `ClassicRandomizer(random)` reste `internal`), et un test fige les 20 premières
+pièces de la graine 20261026. La musique composée sur une graine n'est pas un contrat. Le tirage
+reste le seul état modifiable du domaine.

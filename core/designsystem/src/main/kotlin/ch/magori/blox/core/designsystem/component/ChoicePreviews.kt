@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
@@ -58,4 +59,40 @@ internal fun ChoiceGroupsOriginalPreview() {
 @Composable
 internal fun ChoiceGroupsColorfulPreview() {
     ChoiceSheet(BloxThemeKind.COLORFUL)
+}
+
+/**
+ * The segments of the music editor in the theme [kind], without a label: the tracks, the melody then the bass
+ * retained, each filled in its own colour, and the tools, Poser retained, its check in the place of its icon.
+ */
+@Composable
+private fun ChoiceSegmentsSheet(kind: BloxThemeKind) {
+    BloxTheme(kind = kind) {
+        val palette = BloxTheme.palette
+        val tracks = listOf(
+            ChoiceItem("Mélodie", selectedColors = ChoiceColors(palette.melody.tab, palette.melody.tabInk)),
+            ChoiceItem("Basse", selectedColors = ChoiceColors(palette.bass.tab, palette.bass.tabInk)),
+        )
+        val tools = listOf(ChoiceItem("Poser", icon = BloxIcon.PLACE), ChoiceItem("Allonger", icon = BloxIcon.EXTEND))
+        Column(
+            modifier = Modifier.fillMaxSize().background(palette.page).padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            ChoiceSegments(name = "Piste", choices = tracks, selected = 0, onChosen = {})
+            ChoiceSegments(name = "Piste", choices = tracks, selected = 1, onChosen = {})
+            ChoiceSegments(name = "Outil", choices = tools, selected = 0, onChosen = {})
+        }
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 240)
+@Composable
+internal fun ChoiceSegmentsOriginalPreview() {
+    ChoiceSegmentsSheet(BloxThemeKind.ORIGINAL)
+}
+
+@Preview(widthDp = 360, heightDp = 240)
+@Composable
+internal fun ChoiceSegmentsColorfulPreview() {
+    ChoiceSegmentsSheet(BloxThemeKind.COLORFUL)
 }

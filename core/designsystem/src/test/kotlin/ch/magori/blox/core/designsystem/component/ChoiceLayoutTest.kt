@@ -5,6 +5,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
+import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxShapeSets
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -82,5 +83,15 @@ internal class ChoiceLayoutTest {
         assertThatIllegalArgumentException().isThrownBy { checkChoices(choices, selected = 2, columns = 2) }
         assertThatIllegalArgumentException().isThrownBy { checkChoices(choices, selected = -1, columns = 2) }
         assertThatIllegalArgumentException().isThrownBy { checkChoices(choices, selected = 0, columns = 0) }
+    }
+
+    @Test
+    fun `only a group of one row bears icons, where its check takes the place of an icon`() {
+        // Given
+        val tools = listOf(ChoiceItem("Poser", icon = BloxIcon.PLACE), ChoiceItem("Allonger", icon = BloxIcon.EXTEND))
+
+        // Then on one row, and not on two, where the check stands in the corner of its cell
+        checkChoices(tools, selected = 0, columns = 2)
+        assertThatIllegalArgumentException().isThrownBy { checkChoices(tools, selected = 0, columns = 1) }
     }
 }

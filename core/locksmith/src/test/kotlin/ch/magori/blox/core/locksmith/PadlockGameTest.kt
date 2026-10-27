@@ -282,6 +282,19 @@ class PadlockGameTest {
     }
 
     @Test
+    fun `the chords of a padlock are those of its progression, in C4 major, all heard once it is open`() {
+        // Given: a padlock of 4 pieces, I-IV-V-I
+        val start = PadlockGame.start(STRIP)
+
+        // When
+        val chords = start.progressionChords
+
+        // Then
+        assertThat(chords).containsExactly(chord("I"), chord("IV"), chord("V"), chord("I"))
+        assertThat(chords).isEqualTo(start.solved().chords)
+    }
+
+    @Test
     fun `a piece taken back takes its chord back`() {
         // Given: two pieces placed, IV then V
         val game = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(2, 1)).game
@@ -291,6 +304,39 @@ class PadlockGameTest {
 
         // Then
         assertThat(taken.chords).containsExactly(chord("IV"))
+    }
+
+    @Test
+    fun `a cell tells the rank of the placed piece that covers it, if any`() {
+        // Given: the I placed on row 1, columns 3 to 6
+        val game = PadlockGame.start(PADLOCK).place(Position(5, 1)).game
+
+        // Then
+        assertThat(game.rankAt(Position(4, 1))).isEqualTo(0)
+        assertThat(game.rankAt(Position(2, 1))).isNull()
+    }
+
+    @Test
+    fun `the selected piece put down on a cell is its type, in its orientation, its pivot there`() {
+        // Given: the T selected and turned
+        val game = PadlockGame.start(PADLOCK).select(2).turn(Rotation.CLOCKWISE)
+
+        // When
+        val piece = game.selectedAt(Position(4, 4))
+
+        // Then
+        assertThat(piece).isEqualTo(Piece(PieceType.T, T_TURNED, Position(4, 4)))
+        assertThat(game.place(Position(4, 4)).events.single()).isInstanceOf(PadlockEvent.PlacementRefused::class.java)
+    }
+
+    @Test
+    fun `an open padlock has no selected piece to put down`() {
+        // Given
+        val open = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(2, 1)).game
+            .place(Position(4, 2)).game
+
+        // Then
+        assertThat(open.selectedAt(Position(4, 4))).isNull()
     }
 
     private companion object {

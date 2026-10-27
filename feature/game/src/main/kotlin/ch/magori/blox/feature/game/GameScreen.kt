@@ -96,7 +96,9 @@ import ch.magori.blox.feature.game.sidepanel.ScoreGrid
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
+import ch.magori.blox.feature.game.sidepanel.recordBarFill
 import ch.magori.blox.feature.game.topbar.GameTopBar
+import ch.magori.blox.feature.game.topbar.shownRecord
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -378,7 +380,8 @@ private fun Game(
     underCard: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val record by rememberPart(uiState) { it.record }
+    // Before it is beaten, the record changes once, when the records give it; then it follows the score.
+    val record by rememberPart(uiState) { it.shownRecord() }
     val controls = rememberHeldControls(onControl)
     // The buttons still held are let go as the game pauses: it stays on screen, under the curtain.
     LaunchedEffect(controls) {
@@ -448,9 +451,15 @@ private val NoPiece: () -> Piece? = { null }
 
 /** What the side column shows: it changes when a piece locks, not when it moves. */
 @Immutable
-private data class SideColumn(val score: Points, val level: Level, val lines: Lines, val next: NextPieceCells)
+private data class SideColumn(
+    val score: Points,
+    val level: Level,
+    val lines: Lines,
+    val next: NextPieceCells,
+    val recordFill: Float?,
+)
 
-private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next)
+private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, recordBarFill(score, record))
 
 /**
  * The board, the side column and the touch controls of [controls], each where [layout] puts it. The score column
@@ -469,6 +478,8 @@ private fun Play(
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
     PlacedParts(modifier = modifier) {
+        // First, under the board: its background and frame, around its cells.
+        BoardFrame(modifier = Modifier.layoutId(layout.boardFrame))
         BoardCanvas(
             board = { uiState().board },
             piece = { uiState().piece },
@@ -490,6 +501,7 @@ private fun Play(
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
+                recordFill = side.recordFill,
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
@@ -500,13 +512,20 @@ private fun Play(
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
+                recordFill = side.recordFill,
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
             )
 
             else -> {
-                ScorePanels(score = side.score, level = side.level, lines = side.lines, modifier = scores)
+                ScorePanels(
+                    score = side.score,
+                    level = side.level,
+                    lines = side.lines,
+                    recordFill = side.recordFill,
+                    modifier = scores,
+                )
                 NextPiecePanel(
                     next = side.next,
                     cellSize = layout.cellSize,
@@ -552,12 +571,13 @@ private fun PlacedParts(
 
 /**
  * The order in which TalkBack reads the parts of the game, whatever their place: in landscape the arrows
- * are on the left, beside the score, and by their place alone they would be read first.
+ * are on the left, beside the score, and by their place alone they would be read first. The next piece comes before the
+ * score in every layout, as in the side column, where it is on top.
  */
 private enum class ReadingOrder {
     BOARD,
-    SCORES,
     NEXT,
+    SCORES,
     DIRECTIONS,
     ROTATIONS,
     ;
@@ -729,4 +749,21 @@ internal fun GameScreenTooSmallColorfulPreview() {
 @Composable
 internal fun GameScreenTooSmallLargeFontPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, previewState.copy(paused = true))
+}
+
+// The record beaten during the game: the sticker NOUVEAU RECORD and the score in the top bar, the record bar full (V28).
+
+/** The game of [previewState], its score of 98 790 above the record of 98 760. */
+private val newRecordState = previewState.copy(score = Points(98_790), record = 98_760, recordBeaten = true)
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenNewRecordPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, newRecordState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenNewRecordOriginalPreview() {
+    GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
 }

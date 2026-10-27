@@ -36,6 +36,7 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
@@ -214,6 +215,10 @@ class AppContainer(context: Context) {
      */
     val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
+
+    /** Builds the view model of the Locksmith (ADR 0025). */
+    val locksmithViewModelFactory: LocksmithViewModel.Factory =
+        LocksmithViewModel.Factory(soundEffects, userPreferences)
 }
 
 private const val TAG = "BloX"

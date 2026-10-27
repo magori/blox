@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -58,7 +60,9 @@ import ch.magori.blox.core.designsystem.theme.grownOutline
  * once, and comes back in `motion-press` once released; [enabled] false, it is flat, in `label` framed by
  * `panel-border`, and cannot be touched; focused by the keyboard, it bears a ring of 3 dp in `ink`. Its [content] is
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
- * button.
+ * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. Its [emphasis] says how
+ * it stands out ([ButtonEmphasis]); [active], at work (Écouter while it plays), it keeps its pressed fill without
+ * going down; its [size] may be compact, 48 dp high, for a main or a secondary button.
  */
 @Composable
 fun BubbleButton(
@@ -66,47 +70,69 @@ fun BubbleButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    shape: Shape = BloxTheme.shapes.pill,
+    emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
+    active: Boolean = false,
+    size: ButtonSize = ButtonSize.REGULAR,
     content: @Composable RowScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
     val depth = remember(motion) { { motion.depth } }
-    BubbleButton(family, enabled, focused, depth, onClick, interactionSource, modifier, content)
+    BubbleButtonDrawing(
+        family = family,
+        onClick = onClick,
+        interactionSource = interactionSource,
+        depth = depth,
+        modifier = modifier,
+        enabled = enabled,
+        focused = focused,
+        emphasis = emphasis,
+        active = active,
+        size = size,
+        shape = shape,
+        content = content,
+    )
 }
 
 /**
- * A bubble button of [family], [enabled] and [focused] or not, as far down as [depth] says, whatever its
- * [interactionSource] says: the previews draw each state so, the button above reads it from its interactions. The
- * depth is read only where the button is placed, so that its way back up moves it without composing it again; its
- * colours and relief change twice, when it goes down and when it is back.
+ * A bubble button of [family], [enabled], [focused] and [active] or not, standing out as [emphasis] says, as far down
+ * as [depth] says, whatever its [interactionSource] says: the previews draw each state so, [BubbleButton] reads it from
+ * its interactions. The depth is read only where the button is placed, so that its way back up moves it without
+ * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads a
+ * selected one as selected.
  */
 @Composable
-internal fun BubbleButton(
+internal fun BubbleButtonDrawing(
     family: ButtonFamily,
-    enabled: Boolean,
-    focused: Boolean,
-    depth: () -> Float,
     onClick: () -> Unit,
     interactionSource: MutableInteractionSource?,
+    depth: () -> Float,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    focused: Boolean = false,
+    emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
+    active: Boolean = false,
+    size: ButtonSize = ButtonSize.REGULAR,
+    shape: Shape = BloxTheme.shapes.pill,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
-    val state = ButtonState(enabled = enabled, depth = if (down) 1f else 0f, focused = focused)
+    val state = ButtonState(enabled, if (down) 1f else 0f, focused, active, emphasis)
     val effects = BloxTheme.effects
     val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
-    val shape = BloxTheme.shapes.pill
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
     Row(
         modifier = modifier
             .offset { IntOffset(0, buttonDrop(enabled, depth(), effects).roundToPx()) }
             .focusRing(look.focusRing, shape)
-            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight)
+            .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(size))
             .background(look.fill, shape)
             .gloss(look.gloss, shape, frameWidth)
             .then(if (frame == null) Modifier else Modifier.border(frameWidth, frame, shape))
+            .then(if (emphasis == ButtonEmphasis.SELECTED) Modifier.semantics { selected = true } else Modifier)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
@@ -118,7 +144,10 @@ internal fun BubbleButton(
         horizontalArrangement = Arrangement.spacedBy(IconSizes.gap, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        CompositionLocalProvider(LocalContentColor provides look.ink, LocalTextStyle provides labelStyle(family)) {
+        CompositionLocalProvider(
+            LocalContentColor provides look.ink,
+            LocalTextStyle provides buttonLabelStyle(family),
+        ) {
             content()
         }
     }
@@ -176,17 +205,21 @@ private fun LabelledButton(
     }
 }
 
-/** Between the sides of a button of this family and its content: none for a disc, which centres its pictogram. */
-private val ButtonFamily.sidePadding: Dp
+/**
+ * Between the sides of a button of this family and its content: none for a disc, which centres its pictogram. A screen
+ * that decides whether labels hold in its buttons counts it.
+ */
+val ButtonFamily.sidePadding: Dp
     get() = if (this == ButtonFamily.ICON) 0.dp else BloxSpaces.space6
 
 /**
  * The style of the label of a button of [family]: `play-label` for Jouer, `button-label-strong` for a main button,
- * `button-label` otherwise, over the Material label, whose size Original keeps.
+ * `button-label` otherwise, over the Material label, whose size Original keeps. A screen that decides whether labels
+ * hold in its buttons measures them in it.
  */
 @Composable
 @ReadOnlyComposable
-private fun labelStyle(family: ButtonFamily): TextStyle {
+fun buttonLabelStyle(family: ButtonFamily): TextStyle {
     val typography = BloxTheme.typography
     val style = when (family) {
         ButtonFamily.PRIMARY_XL -> typography.playLabel

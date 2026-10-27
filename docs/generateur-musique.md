@@ -83,10 +83,14 @@ de Wikipédia) ; ils ne sont plus **[à vérifier]**.
   pour mineur, minuscules suivies de `°` pour diminué ; une altération `♭` ou `#` au plus,
   en tête, déplace la fondamentale d'un demi-ton. La qualité vient du chiffrage, pas de la
   gamme : le V majeur d'une gamme mineure s'écrit `V`. Les suites s'écrivent avec `-` ou `–`.
+  `RomanNumeral.name` est l'écriture inverse, la seule que `parse` accepte (pour les pilules du
+  Serrurier, P7.17).
   `RomanNumeralTest › a numeral names the root degree, in capitals if major, small if minor, small with a ring if diminished`,
   `RomanNumeralTest › a flat or a sharp before the numeral moves its root a semitone from the degree`,
   `RomanNumeralTest › a name that is not one numeral from I to VII in one case, after one flat or sharp at most, is refused`,
   `RomanNumeralTest › a degree outside 1 to 7 is refused`,
+  `RomanNumeralTest › a numeral is named by its accidental then its degree, capitals if major, small if minor, ringed if diminished`,
+  `RomanNumeralTest › every numeral is read back from its name`,
   `ScaleTest › a numeral builds its chord on the matching degree of the scale`,
   `ScaleTest › the case of the numeral sets the chord, even with a note outside the scale like the major V in minor`,
   `ScaleTest › a flat numeral builds its chord a semitone under the degree of the scale`,
@@ -729,7 +733,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
 `MyMusicsScreenTest › every button is 48 dp wide and high at least`,
 `HomeViewModelTest › opening my musics stops the preview`,
-`HomeScreenTest › the link MES MUSIQUES, in the header of the music section, read as written, opens my musics`.
+`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`.
 Vues : V1, V7, V10.
 
 
@@ -1040,7 +1044,7 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerScreenTest › the tempo buttons change the tempo shown`,
 `ComposerScreenTest › every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars`,
 `HomeViewModelTest › opening the music editor stops the preview`,
-`HomeScreenTest › the button Composer une musique, shown in capitals and read as written, opens the music editor`.
+`HomeScreenTest › the tile Composer une musique, read as written, opens the music editor`.
 
 ### Éditeur : dé (implémenté, P4.20)
 

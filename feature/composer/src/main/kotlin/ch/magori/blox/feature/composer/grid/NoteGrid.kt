@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer.grid
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -103,10 +104,6 @@ private const val ECHO_RADIUS = 0.14f
 @Immutable
 internal data class GridLines(val rows: List<RowView>)
 
-/** The colours of a cell: its [background], the notes of the open track, and the watermark of the other, [echo]. */
-@Immutable
-private data class CellColors(val background: Color, val note: Color, val held: HeldPart, val echo: Color)
-
 /**
  * The grid of one bar of the open [track] (V8, V11): the line « Temps 1 2 3 4 », then its [lines], as high as the room
  * allows but [GridSizes.minRowHeight] at least, scrolling when they do not fit. Touching a cell calls [onTouch] with
@@ -126,14 +123,7 @@ internal fun NoteGrid(
     modifier: Modifier = Modifier,
 ) {
     val palette = BloxTheme.palette
-    val notes = trackColors(palette, track)
-    val colors =
-        CellColors(
-            palette.boardBackground,
-            notes.note,
-            heldPart(palette, track),
-            trackColors(palette, track.other).note,
-        )
+    val colors = cellColors(palette, track)
     val outline = playedOutline(palette)
     Column(modifier = modifier) {
         BeatLine()
@@ -199,9 +189,10 @@ private fun BeatLine() {
 }
 
 /**
- * A line of the grid: its name, then its eight cells. The name of a line out of the scale is dimmer, and in italics:
- * its colour is not its only cue. While a finger slides along the line, the cells it crosses are framed with the
- * [outline] of the column played; read in the draw phase, the frame recomposes nothing.
+ * A line of the grid: its name, then its eight cells, the gaps between them in the line of the grid. The name of a
+ * line out of the scale is dimmer, and in italics: its colour is not its only cue. While a finger slides along the
+ * line, the cells it crosses are framed with the [outline] of the column played; read in the draw phase, the frame
+ * recomposes nothing.
  */
 @Composable
 private fun GridLine(
@@ -232,6 +223,7 @@ private fun GridLine(
             modifier = Modifier
                 .weight(1f)
                 .fillMaxHeight()
+                .background(colors.line)
                 .pointerInput(row.pitch) {
                     detectCellGestures(
                         onTouch = { eighth -> touch(row.pitch, eighth) },

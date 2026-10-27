@@ -36,7 +36,7 @@ class GameBenchmark {
             packageName = targetPackageName,
             metrics = listOf(FrameTimingMetric()),
             compilationMode = compilationMode,
-            iterations = ITERATIONS,
+            iterations = FRAME_ITERATIONS,
             startupMode = StartupMode.COLD,
             setupBlock = { launchFromHomeScreen() },
         ) {
@@ -47,7 +47,6 @@ class GameBenchmark {
     }
 
     private companion object {
-        const val ITERATIONS = 5
         val PLAYING_TIME = 8.seconds
     }
 }

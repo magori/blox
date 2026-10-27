@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_locksmith_title">Serrure %1$02d</string>
+    <string name="feature_locksmith_moves">Coups : %1$d</string>
+    <string name="feature_locksmith_hint">Indice</string>
+    <string name="feature_locksmith_restart">Recommencer</string>
+    <string name="feature_locksmith_place">Poser</string>
+    <string name="feature_locksmith_next">Serrure suivante</string>
+    <string name="feature_locksmith_turn_left">Tourner à gauche</string>
+    <string name="feature_locksmith_turn_right">Tourner à droite</string>
+    <string name="feature_locksmith_tile">Pièce %1$s</string>
+    <string name="feature_locksmith_tile_placed">Pièce %1$s, posée : la reprendre</string>
+    <string name="feature_locksmith_cell">Colonne %1$d, ligne %2$d : %3$s</string>
+    <string name="feature_locksmith_cell_metal">métal</string>
+    <string name="feature_locksmith_cell_hole">trou</string>
+    <string name="feature_locksmith_cell_hint">indice</string>
+    <string name="feature_locksmith_cell_placed">pièce %1$s posée</string>
+    <string name="feature_locksmith_cell_placed_hinted">pièce %1$s posée, marquée par l’indice : elle bloque</string>
+    <string name="feature_locksmith_cell_preview">aperçu de %1$s, tient ici</string>
+    <string name="feature_locksmith_cell_preview_refused">aperçu de %1$s, ne tient pas ici</string>
+    <string name="feature_locksmith_action_aim">présenter la pièce ici</string>
+    <string name="feature_locksmith_action_place">poser la pièce</string>
+    <string name="feature_locksmith_action_take_back">reprendre la pièce</string>
+    <string name="feature_locksmith_message_aim">Touche le trou pour y présenter la pièce choisie.</string>
+    <string name="feature_locksmith_message_preview">Touche encore l’aperçu ou Poser ; touche ailleurs pour le déplacer.</string>
+    <string name="feature_locksmith_message_out_of_hole">La pièce bute sur le métal.</string>
+    <string name="feature_locksmith_message_overlap">La pièce chevauche une pièce posée.</string>
+    <string name="feature_locksmith_message_hint">L’indice marque où une pièce tient.</string>
+    <string name="feature_locksmith_message_blocking">La pièce marquée bloque : touche-la pour la reprendre.</string>
+    <string name="feature_locksmith_message_open">Serrure ouverte !</string>
+    <string name="feature_locksmith_back">Retour</string>
+    <string name="feature_locksmith_status_closed">Serrure fermée</string>
+    <string name="feature_locksmith_status_open">Serrure ouverte</string>
+    <string name="feature_locksmith_cadence">cadence</string>
+    <string name="feature_locksmith_open_title">Serrure ouverte</string>
+    <string name="feature_locksmith_open_moves">Coups</string>
+    <string name="feature_locksmith_open_refusals">Refus</string>
+    <string name="feature_locksmith_open_hints">Indices</string>
+    <string name="feature_locksmith_open_counter">%1$s : %2$d</string>
+    <string name="feature_locksmith_open_cadence">La cadence V–I a fermé la phrase.</string>
+    <string name="feature_locksmith_replay">Rejouer cette serrure</string>
+</resources>

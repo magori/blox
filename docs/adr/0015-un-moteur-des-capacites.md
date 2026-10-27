@@ -1,6 +1,6 @@
 # 0015 — Mode Moderne : un moteur, des capacités
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; amendée par [0028](0028-au-tempo-droptiming-et-horloge-audio.md) (politique `DropTiming`)
 - **Date** : 2026-10-18
 - **Amende** : [0004](0004-regles-nes-comme-reference.md) (conséquence « le mode Moderne
   fournira d'autres implémentations sans toucher au moteur »)
@@ -67,3 +67,10 @@ Pas d'énumération `Mode` dans `core:game` : `Rules` ne porte que des capacité
   - aucune marque n'est utilisée.
 - Risque à surveiller : un moteur qui se remplit de conditions par mode. Chaque différence passe
   par une politique ou une capacité de `Rules`, jamais par un test du mode dans le moteur.
+
+## Amendement (ADR 0028, 2026-10-26)
+
+Une politique de plus, `DropTiming` (`ClassicDropTiming`, qui délègue à `GravityTable`, extrait
+d'abord sous les tests du Classique ; `TempoDropTiming` pour Au tempo). Elle chevauche P6.11
+(gravité de plus d'une ligne par tick) : quand P6 reprendra, c'est `DropTiming` qui rendra le
+nombre de lignes.

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 184 / 240 | `███████████████░░░░░` **77 %** |
+| **Général** | 208 / 304 | `██████████████░░░░░░` **68 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -38,6 +38,10 @@ périmètre, modifier la liste ci-dessous.
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
 | P7 | Le Serrurier, second jeu | En cours : domaine fait (`core:locksmith`), interface à faire |
+| P8 | Musique vivante, la musique du Classique qui suit la partie | Spécification faite ; à faire |
+| P9 | Graine du jour, les mêmes pièces pour tous chaque jour | Spécification faite ; à faire après P1.20 et P8 |
+| P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
+| P11 | Au tempo, la pièce tombe en rythme | Spécification faite ; à faire en dernier, après une mesure sur téléphone |
 
 ---
 
@@ -193,9 +197,15 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [x] **P1.19** Types des points et des « lignes d'un coup » pour `ScoringRule` : `LineClear`
   (lot P1.16 / P1.15) et `Points` (P1.12c, rendu par `ScoringRule`) ; `CLAUDE.md` dit `Points`.
-- [ ] **P1.20** Graine stable entre versions, seulement si une graine est gardée ou partagée
-  (partie rejouée, défi du jour) : générateur maison dans `rules` et test qui fige les 20
-  premières pièces d'une graine (`kotlin.random.Random` ne garantit pas sa suite, ADR 0014).
+- [ ] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
+  Jardin (P10.7) : générateur maison dont la suite ne dépend pas de la version de Kotlin
+  (`kotlin.random.Random` ne garantit pas la sienne). `StableRandom` étend `kotlin.random.Random` ; `nextInt(n)`
+  tire sans biais, par tirage avec rejet. Point d'entrée **public** `ClassicRandomizer.stable(seed)`
+  (`explicitApi`), le constructeur `ClassicRandomizer(random)` restant `internal` ; un test fige les 20 premières
+  pièces de la graine 20261026 : la suite des pièces d'une graine devient un contrat (ADR 0026, qui amende
+  l'ADR 0014). Algorithme à choisir ici ([graine-du-jour.md](docs/graine-du-jour.md)) ; glossaire de `CLAUDE.md`
+  (`StableRandom`). Cas : `the same seed gives the same numbers`, `a number drawn in a range takes every value of
+  the range`, `the first 20 pieces of seed 20261026 are fixed`.
 
 ## P2 — Écran de jeu jouable (`feature:game`)
 
@@ -654,7 +664,8 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   contrat ; passer par `androidTestImplementation(testFixtures(projects.core.data))` (revue P0.15).
 - [ ] **P5.33** Mesures sur téléphone (suite de P5.17) : `GameBenchmark` n'a jamais rendu de durée
   d'image (sur émulateur, aucune image, puis `home_play` introuvable en `benchmarkRelease` :
-  lenteur ou tags perdus par R8, à vérifier par `uiautomator dump`, `UI_TIMEOUT` à 10 s) ;
+  lenteur ou tags perdus par R8 ; P7.21 : `uiautomator dump` du `benchmarkRelease` montre bien les tags, R8
+  n'est donc pas en cause ; `LocksmithBenchmark` échoue de même sur `cartridge_locksmith`) ;
   remesurer le démarrage à froid avec et sans profil sur un appareil non partagé ; lancer
   `GameScreenTest` et `BoardCanvasTest` pour confirmer que les `testTag` n'ajoutent aucune
   recomposition (P5.11) ; les tests écartés par `enabledRules` sont ignorés pour Gradle mais
@@ -909,7 +920,7 @@ composants.
   the animations, whatever the choice`, `the choice of the player comes back once Android animates again`,
   `a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
   `in reduced effects a pressed button changes its fill only`.
-- [ ] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
+- [x] **P5.72** Choix du jeu, cartouches (nouvelle feature `feature:cartridges`, ADR 0022) : `CartridgesRoute`
   à la racine de la pile, cartouche Classique seule (liste à une entrée ; aucune cartouche endormie, décision
   du développeur), qui ouvre l'accueil ; disque « Changer de jeu » de l'accueil par `changeGame` (`app`,
   fonction pure : dépile jusqu'aux cartouches, ou les met à la racine si la pile restaurée n'en a pas) ;
@@ -932,7 +943,7 @@ composants.
   Cas : `each piece token of tokens json is the fill and the highlight of its piece, day and night`,
   `a cell under 16 dp has 2 dp corners and no gloss`, `an empty cell has the corners and the margin of a piece,
   without gloss`, `the painters are still built once while the piece moves` ; captures.
-- [ ] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
+- [x] **P5.75** Accueil v2, structure (`feature:home`, maquette Couleurs v2, téléphone debout ; mise en page
   choisie par la taille disponible, P5.84) : barre (Changer de jeu, puce Record, Paramètres), Jouer XL avec le
   rappel « Classique · Niveau 05 · Korobeïniki », carte des réglages (Mode avec Moderne `BIENTÔT`, Thème, Niveau
   en jauge, rangée Musique), tuiles Mes musiques et Composer. Remplace les niveaux en deux lignes de 5 (P5.29,
@@ -940,10 +951,10 @@ composants.
   Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
   `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
   `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
-- [ ] **P5.76** Feuille Musique (`feature:home`) : feuille qui monte (`motion-card`), une rangée de 56 dp par
+- [ ] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
   musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
-  fermer ; un seul aperçu à la fois ; `ListenButton` partagé (`core:designsystem`) à la place des copies de
-  `feature:home` et `feature:composer`. Après P5.75.
+  fermer ; un seul aperçu à la fois ; feuille en `BloxSheet` et rangées en `SheetChoiceRow` (P5.96), Écouter en
+  `ListenButton` (P5.94). Après P5.75, P5.94, P5.96.
   Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
   `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
   TalkBack` ; captures.
@@ -955,7 +966,7 @@ composants.
   level plus one for its two lines`, `the preview starts again with the new level when the level changes`,
   `in reduced effects the preview and the halo stand still`, `nothing on the home recomposes while the preview
   plays`.
-- [ ] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
+- [x] **P5.78** Jeu v2, barre et colonne (`feature:game`) : Pause en disque, « MODE CLASSIQUE », record qui
   devient l'autocollant NOUVEAU RECORD une fois battu et suit le score (`GameUiState.recordBeaten`) ; plateau en
   cadre `board` ; colonne SUIVANTE, SCORE avec barre de record de 4 dp, LIGNES, NIVEAU. Après P5.60, P5.74.
   Cas : `the record is beaten once the score is above a record above 0`, `without a record the game shows no new
@@ -1004,17 +1015,137 @@ composants.
   trancher avec P2.8). Après P5.70, P5.77, P5.83.
   Cas : `on a phone in landscape the home puts logo, preview and tiles on the left`, `the settings take two
   columns in landscape`, `each format keeps every target at 48 dp`, captures des quatre formats.
-- [ ] **P5.85** (optionnel, en fin de lot : Original n'a plus à suivre Couleurs au 1 pour 1, décision du développeur du 2026-10-26) Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
+- [x] **P5.85** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Mettre à jour la maquette : écrans v2 en thème Original (choix du jeu, accueil, jeu, pause, fin de
   partie, Paramètres), valeurs Original des rôles nouveaux (P5.57) ; tailles des touches sous 390 dp (P5.79).
-- [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer : à découper une fois leurs
-  maquettes dessinées (V32 à V34, jour, dessinées le 2026-10-25) (conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les
-  parties », notes tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en
-  feuille au-dessus du clavier, coches sur les choix retenus).
+- [ ] **P5.86** Couleurs v2 de « Mes musiques », de l'éditeur et d'Enregistrer (V32 à V34, jour, dessinées le
+  2026-10-25 ; conception de l'agent `designer-jeu` validée le 2026-10-25 : carte « Pendant les parties », notes
+  tenues bordées, mesures en 2 × 4, dé en feuille, une seule couleur d'action, Enregistrer en feuille au-dessus du
+  clavier, coches sur les choix retenus). Composants partagés d'abord (`core:designsystem`), puis les écrans ;
+  Original n'a pas de travail propre, il doit seulement rester utilisable. Découpée le 2026-10-26 par l'agent
+  `architecte` ; décisions du développeur : taille compacte de 48 dp, réponses des fenêtres toujours empilées (la
+  sûre d'abord), Renommer en fenêtre v2. Tranches :
+  - [x] **P5.93** Boutons bulles, états et variantes de la musique (`core:designsystem`, composant Button) :
+    état retenu (`selected` : fond et cadre `accent`, encre `accent-ink`, pressé `accent-pressed`) pour les mesures
+    et le disque Utiliser / En jeu ; état en cours (`active` : fond `button-pressed` sans descente) pour Écouter
+    pendant l'écoute ; disque nu (`GlyphButton(…, bare = true)` : ni fond, ni cadre, ni relief au repos,
+    `button-pressed` pressé, 48 dp) pour « … », − et + du tempo et la croix des messages et des feuilles ; taille
+    compacte de 48 dp (`compact`) des familles Principal et Secondaire, en pilule ou en tuile `radius-md` ;
+    pictogrammes `CHECK` et `ALERT` dans `BloxIcon`. Design system (README, Boutons) mis à jour des deux côtés.
+    Après P5.60, P5.75.
+    Cas : `a selected button is filled and framed in accent, its ink in accent ink, and pressed in accent pressed`,
+    `the ink of a selected button stands out from its fill by 4,5 to 1 at least, at rest and pressed, in every
+    variant`, `an active button keeps the pressed fill at rest, without going down`, `a bare icon button has no
+    fill, no frame and no gloss at rest, and takes button pressed when pressed`, `a bare icon button is 48 dp wide
+    and high at least`, `a compact button is 48 dp high, in the colours of its family` ; captures.
+  - [ ] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
+    `ListenButton(playing, description, size)` (disque de la famille Icône, triangle puis carré, état en cours
+    pendant l'écoute ; 48 dp, 56 dans l'éditeur) remplace les copies de `feature:home` et de `ComposerControls.kt` ;
+    `Equalizer` (trois barres de 3 × 14 en `accent`, de 35 % à 100 % en 30 ticks, sur l'horloge de Compose,
+    dessinées sans recomposer), immobile en Effets réduits et en Original. Après P5.71, P5.75, P5.93.
+    Cas : `the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of
+    the music`, `a music playing keeps its listen button in the pressed fill`, `the equalizer moves its three bars
+    between 35 and 100 percent of their height in 30 ticks`, `in reduced effects or in Original the equalizer stands
+    still`, `the equalizer is left out by TalkBack`, `nothing recomposes while the equalizer moves` ; captures.
+  - [x] **P5.95** Segments de choix sans titre, à pictogramme et à couleur de piste (`core:designsystem`, composant
+    Choice) : `ChoiceSegments` public (segments de `ChoiceGroup` sans `LabelledControl`, nommés pour TalkBack),
+    `ChoiceItem.icon` (pictogramme avant le libellé, remplacé par la coche sur le segment retenu), couleurs
+    retenues par segment (`ChoiceItem.selectedColors`, ici `TrackColors.tab` et `tabInk`) ; pistes et mesures lues
+    comme des boutons radio. Après P5.63, P5.75.
+    Cas : `segments without a visible label are one group of radio buttons, read under the name given to TalkBack`,
+    `a segment bears its icon before its label, and the selected one its check in its place`, `a selected segment
+    takes the colours given to it, its label standing out by 4,5 to 1 at least, day and night`, `each segment is 48 dp
+    high as a target` ; captures.
+  - [ ] **P5.96** Feuille du bas (`core:designsystem`, ADR 0026) : `BloxSheet` (fenêtre plein écran, voile `scrim`,
+    panneau `panel` cadré de `panel-border` sans bord bas, coins `radius-card` en haut, poignée, titre ; monte en
+    `motion-card`, fondu de `motion-reduced-fade` en Effets réduits ; retour du système et toucher du voile la
+    ferment, sans glissement ; au-dessus du clavier et des barres système, le contenu défile, la dernière rangée
+    d'actions restant visible) ; `SheetChoiceRow` (rangée de 56 dp, rond puis `CheckMark` une fois retenue, libellé
+    et sous-ligne). ADR 0026 (feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran). Après
+    P5.71, P5.93.
+    Cas : `a sheet is read as a dialog by TalkBack, its title first`, `the system back and a touch on the scrim close
+    the sheet`, `a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`, `a sheet lifted by a
+    bottom inset keeps its last row of actions in sight, its content scrolling`, `a choice row is 56 dp high, read as
+    a radio button with its label and its sub-line, the chosen one checked` ; captures.
+  - [ ] **P5.97** Menu « … » et message temporaire (`core:designsystem`) : `BloxMenu` et `BloxMenuItem` (panneau
+    `panel` cadré `radius-md`, rangées de 48 dp, pictogramme décoratif, variante `danger`, variante cochée ; ombre
+    par un jeton à ajouter, ADR 0019), à la place du `DropdownMenu` de Material ; `SnackMessage` (fond `ink`, texte
+    `page`, `radius-snack`, action en texte et croix en disque nu, région vive polie ; l'action passe sous le texte
+    plutôt que de le couper), à la place de `UndoMessage` et `MessageBar`. Après P5.93.
+    Cas : `a menu item is 48 dp high, read as its label, its icon adding nothing`, `a deleting item is in danger,
+    icon and label`, `a checked item is read as a checked check box and bears a check`, `a message is read politely
+    by TalkBack as it shows`, `the text of a message stands out from ink by 4,5 to 1 at least, day and night`, `in a
+    font twice as large the action of a message goes under its text, no word cut` ; captures.
+  - [ ] **P5.98** Fenêtres v2 et champ du nom (`core:designsystem`) : titre de `WindowPanel` en `screen-title` ;
+    `WindowButton` en bulles (Secondaire, Principal, Danger plein avec la corbeille), réponses toujours empilées sur
+    toute la largeur, la sûre d'abord ; `NameField` extrait de `NamingWindow` (fond `panel-inset`, 56 dp,
+    `radius-md`, cadre au focus et `danger` en erreur, compteur « n/40 », erreur avec `ALERT`) ; Renommer reste une
+    fenêtre (v2) ; `ButtonRow` et `holdSideBySide` retirés s'ils ne servent plus. Après P5.70, P5.93.
+    Cas : `the title of a window is in screen title, read as a heading`, `the answers of a window stand one above the
+    other, the safe one first, as TalkBack reads them`, `a deleting answer is filled in danger with its trash icon, its
+    label standing out by 4,5 to 1`, `the name field counts its characters out of 40, as TalkBack reads it`, `a refused
+    name frames the field in danger and says why, read by TalkBack as it shows` ; captures.
+  - [ ] **P5.99** Mes musiques v2, liste (`feature:musics`, V32) : barre (disque Retour, « Mes musiques ») ; carte
+    « PENDANT LES PARTIES » ; une rangée par musique (Écouter, nom et ligne d'infos qui ouvrent l'éditeur,
+    égaliseur et mesure jouée pendant l'écoute, jauge des huit mesures, pastille EN JEU, disque Utiliser / En jeu
+    retenu avec coche, « … » en disque nu) ; état vide ; Au hasard et Nouvelle collés en bas sur un fondu.
+    `UseSwitch`, `TextButtonBox`, `BottomButtons` retirés. Après P5.93, P5.94.
+    Cas : `the card Pendant les parties names the music played during the games, or the music chosen on the home
+    screen`, `a row is read as listen, the name that opens the editor, the switch and the menu, in this order`,
+    `listening to a music shows the equalizer and the bar played, and a gauge of eight bars that TalkBack leaves out`,
+    `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
+    « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
+    on 360 dp, in a font twice as large` ; captures.
+  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+    `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
+    `DeleteWindow` v2 ; « « X » est supprimée. » en `SnackMessage` avec Annuler et la croix ; Renommer en fenêtre
+    v2. `CardMenu`, `MenuItem`, `UndoMessage` retirés. Après P5.97, P5.98, P5.99.
+    Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
+    Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
+    read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+  - [ ] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
+    feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
+    cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
+    P5.93, P5.96.
+    Cas : `the dice of the bar opens the sheet Au hasard, read as a dialog`, `the sheet offers Surprise and the seven
+    categories, each with what it sounds like, the chosen one checked`, `choosing a category keeps the sheet open and
+    the choice`, `Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler` ;
+    captures.
+  - [ ] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
+    dé, « … » en `BloxMenu`) ; pistes et Poser / Allonger en `ChoiceSegments` (coche sur le retenu) ; Annuler,
+    Copier, Effacer compacts ; mesures en 2 × 4, mesure jouée lue « en lecture » ; tempo en pilule (disques nus de
+    48 dp) et Écouter de 56 dp ; Enregistrer seul en `accent`, toujours en accent, point devant tant que la musique a
+    changé ; messages en `SnackMessage`. Composants locaux de l'éditeur retirés. Après P5.94, P5.95, P5.97, P5.101.
+    Cas : `the bar of the editor reads Retour, the name to rename, Au hasard and the menu, in this order`, `the open
+    track is filled in its colour and checked`, `the bars stand on two rows of four, the bar played marked and read
+    en lecture`, `Annuler, Copier and Effacer are disabled when they have no effect`, `Enregistrer is the only button
+    in accent on the editor, its dot shown while the music has changed`, `on 360 by 640 dp in a font twice as large
+    every control is 48 dp and the grid keeps rows of 26 dp, scrolling` ; captures.
+  - [ ] **P5.103** Éditeur v2, grille (`feature:composer`, `core:designsystem`, V33) : notes en bulles (dégradé du
+    reflet de la piste à sa couleur, coins `radius-cell`, relief `cell-gloss` à 16 dp et plus) ; jetons `melody-hi`
+    et `bass-hi` ajoutés à `tokens.json` (jour et nuit) et comparés ; grille dans un bloc `board` cadré
+    `panel-border` ; ligne « TEMPS 1 2 3 4 » en `stat-label` ; fondu du bas tant que des lignes restent dessous.
+    Après P5.88.
+    Cas : `the highlight and the colour of each track are those of tokens json, day and night`, `the lower part of a
+    note stands out from the cell by 3 to 1 at least`, `a note under 16 dp has 2 dp corners and no gloss`, `the
+    painters of the notes are built once per size and variant, not at each touch` ; captures.
+  - [ ] **P5.104** Enregistrer en feuille (`feature:composer`, V34) : `ComposerDialog.Save` en `BloxSheet`
+    au-dessus du clavier ; « La grille est vide. » en tête ; `NameField` ; Style en `ChoiceGroup` de huit segments,
+    le retenu coché ; « Jouer pendant les parties » en `SettingSwitchRow` ; Annuler (Secondaire) et Enregistrer
+    (Principal, désactivé tant qu'un problème demeure). `StyleChoice`, `ForGamesBox` retirés. Après P5.95, P5.96,
+    P5.98, P5.102.
+    Cas : `Enregistrer opens a sheet above the keyboard, the name field focused`, `an empty grid says « La grille
+    est vide. » at the top of the sheet and Enregistrer is disabled`, `a taken name frames the field in danger, says why
+    and offers the free name`, `the eight styles are one group of radio buttons, the chosen one checked`, `Annuler and
+    the system back close the sheet and save nothing`, `in a font twice as large on 360 by 640 dp the sheet scrolls
+    and keeps Annuler and Enregistrer in sight` ; captures.
+  - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
+    fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
+    de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
   vecteurs prêts pour `core:designsystem` ; avant P5.70, P5.71, P5.77 et P5.79.
-- [ ] **P5.88** Grille de l'éditeur en Couleurs v2 (`feature:composer`) : jetons `cell-ground` et `grid-line` de
+- [x] **P5.88** Grille de l'éditeur en Couleurs v2 (`feature:composer`) : jetons `cell-ground` et `grid-line` de
   `tokens.json`, listés comme non codés dans `PaletteTokensTest` (P5.57), à coder dans `BloxPalette` avec leur
   valeur Original et à retirer de la liste ; cases et lignes de la grille de `NoteGrid` dans ces couleurs.
   Avec P5.86. Cas : la case et la ligne de grille tirées de `tokens.json`, la note et sa partie tenue toujours à
@@ -1027,10 +1158,14 @@ composants.
   haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
   l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
   `a focused slider bears the focus ring`.
-- [ ] **P5.91** (optionnel, en fin de lot, comme P5.85) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
+- [x] **P5.91** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
   `panel-inset` et cadre sombre le font ressortir plus qu'un bouton actif (− au niveau 0 sur la jauge). Repère
   du désactivé qui le fait reculer, à valider avec le designer, comme le pouce creux de P5.61. Cas : `in
   Original a disabled icon button stands out from the page less than an enabled one`.
+- [ ] **P5.92** Choix du jeu au dessin de la maquette (`feature:cartridges`, V26, découvert en P5.72) : la
+  console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
+  étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
+  inchangé (`CartridgesScreenTest`).
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1093,12 +1228,13 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 ## P7 — Le Serrurier, second jeu (`core:locksmith`, `feature:locksmith`)
 
 Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : ADR 0025. Le domaine
-(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend.
+(P7.3 à P7.8) ne demande que P7.1 ; chaque tâche d'interface dit ce qu'elle attend. Interface en thème
+Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pas d'aspect Original.
 
 - [x] **P7.1** Spécification et décision : `docs/regles-serrurier.md`, ADR 0025 (amende 0002 et
   0022), glossaire et règle de dépendance dans `CLAUDE.md`, modules prévus dans
   `docs/architecture.md`, vue V35.
-- [ ] **P7.2** `Orientation` ramenée en haut à gauche (`core:game`), partagée par les tuiles des
+- [x] **P7.2** `Orientation.broughtToOrigin()`, ramenée en haut à gauche (`core:game`), partagée par les tuiles des
   pièces données et `nextPieceCells` (`core:board`), règle de 2. Avant P7.10.
 - [x] **P7.3** Module `core:locksmith` (`blox.jvm.library`, `api(core:game)` ; `api(core:music)` arrive avec P7.8),
   `:core:locksmith:test` dans la CI et dans les commandes et la définition de terminé de
@@ -1135,29 +1271,257 @@ Règles : [docs/regles-serrurier.md](docs/regles-serrurier.md). Architecture : A
 - [x] **P7.8** Suites d'accords (`PadlockChords`, `Progression` de `core:music` ajouté en `api` à `core:locksmith`) : une par nombre de pièces, finissant
   par V–I, Do majeur sur C4 ; `PadlockGame.progression` et `PadlockGame.chords` (accord de rang *n*
   après une pose, *n* pièces sur la grille).
-- [ ] **P7.9** Effets d'accord (`core:music`) : arpège d'un accord, basse deux octaves plus bas,
-  fanfare de résolution, son de refus.
-- [ ] **P7.10** Case partagée (`core:board`) pour une grille d'une autre taille que 10 × 20 :
+- [x] **P7.9** Effets d'accord (`core:music`, `LocksmithSounds`) : arpège d'un accord, basse deux octaves plus bas,
+  fanfare de serrure ouverte, son de refus ; `effectsOf(chord)` pour jouer et préchauffer.
+- [x] **P7.10** Cases de la serrure (`core:board`, `LockCell`, `LockCellCanvas`, Couleurs seulement) pour une grille d'une autre taille que 10 × 20 :
   styles métal, trou, pièce, aperçu, indice et refus ; jetons `lock-metal`, `lock-rivet`,
-  `hole-inset`, `hint-fill` dans `tokens.json`, gardés par un test ; captures. Après P7.2.
-- [ ] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
-  `LocksmithViewModel.Factory`, `LocksmithUiState`. Après P7.5 et P7.6. Rendre publique une seule entrée
-  étroite du générateur (`generate(pieceCount, seed)` ou par niveau, `pieceCount`), qui délègue à la
-  surcharge interne : `seeds`, `compose`, `candidate` et `rating` restent internes.
-- [ ] **P7.12** Écran : serrure 8 × 8 dans son rebord (cases de 42 dp au plus), tuiles des pièces,
-  aperçu, tourner, Poser, reprendre ; TalkBack ; retours de pose et de refus avec Effets réduits ;
-  captures et UI Test. Mesurer d'abord le nombre de pistes d'effets (ADR 0025). Après P7.10 et
-  P7.11.
-- [ ] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
-  effets sonores respecté. Après P7.8, P7.9 et P7.12.
-- [ ] **P7.14** Indice, Recommencer, carte « Serrure ouverte » (Serrure suivante, Rejouer cette
-  serrure). Après P7.7 et P7.13.
-- [ ] **P7.15** Cartouche Serrurier (`feature:cartridges`, `app`, `AppContainer`) ; serrure
-  suivante par remplacement de la clé dans `app`. Après P5.72 et P7.14.
+  `lock-hint`, `lock-hole-inset` dans `tokens.json`, gardés par un test ; repères non colorés ; captures.
+- [x] **P7.11** `feature:locksmith`, squelette : `LocksmithRoute(level, seed)`, `locksmithEntry`,
+  `LocksmithViewModel.Factory`, `LocksmithUiState`, écran minimal toujours en Couleurs. Une seule entrée
+  publique du générateur, `Padlock.generate(level, seed)`, qui délègue à la surcharge interne :
+  `seeds`, `compose`, `candidate` et `rating` restent internes.
+- [x] **P7.12** Écran jouable : grille 10 × 10 (anneau de métal compris, cases de 42 dp au plus),
+  bande des accords, message, Indice et Recommencer, tuiles des pièces, tourner, Poser ; toucher qui
+  vise, pose par un second toucher, reprend une pièce posée ; aperçu, cases fautives barrées,
+  indice ; TalkBack (cases, tuiles, message) ; captures jour et nuit. Retours animés reportés (P7.20).
+- [x] **P7.13** Bande des accords et son (après P7.17) : effets de chaque événement, préchauffage, réglage des
+  effets sonores respecté. Après P7.8, P7.9 et P7.12. La bande des accords est celle de P7.12 ; sa paire V–I
+  reste en P7.20.
+- [x] **P7.14** Carte « Serrure ouverte » (compteurs, Serrure suivante, Rejouer cette serrure), Indice et Recommencer
+  étant faits en P7.12. Après P7.7 et P7.13.
+- [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
+  suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
 - [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
-  et nuit, cartouche Serrurier sur V26, jetons métal et trou.
-- [ ] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
+  et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
+  (claude.ai), dont `tokens.json` est la copie (ADR 0019).
+- [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
   « I », « vi », « vii° », « ♭VII »), pour les pilules de la bande des accords. Avant P7.13.
+- [x] **P7.18** Barres système du Serrurier : leurs icônes suivent la variante Couleurs de l'écran, non le thème choisi
+  pour le Classique (Original et mode nuit : icônes sombres sur page sombre). `app` choisit la variante d'après la clé
+  du haut de la pile (fonction pure), test JVM et `BloxNavDisplayTest` (aller et retour). Avec P7.15 (revue de P7.11).
+- [ ] **P7.19** Lecture des `CreationExtras` d'une entrée (propriétaire, extras par défaut, clé) écrite trois fois
+  (`GameNavigation`, `ComposerNavigation`, `LocksmithNavigation`) : une fonction partagée, règle de 2 (revue de P7.11).
+- [x] **P7.20** Serrurier, mise en page de l'écran (revue de P7.12) : rebord de métal mince autour des 8 × 8
+  intérieures pour des cases de 42 dp (cibles de 48 dp approchées), anneau non touchable ; commandes ancrées
+  en bas ; bouton retour et cadenas d'état de la barre ; cadence V–I marquée comme une paire ; captures (aperçu
+  refusé, pièce qui bloque, serrure ouverte, petit écran). Le reste est passé en P7.22.
+- [ ] **P7.22** Serrurier, finitions restantes (de P7.20) : retours animés de la pose, du refus (tremblement),
+  de la serrure ouverte et de l'indice, chacun en « Effets réduits » (ADR 0024) ; TalkBack : grille en
+  collection, orientation de la pièce choisie, accords entendus, refus répété annoncé, pièce désignée par
+  l'indice nommée, « Serrure ouverte » annoncé trois fois et focus sur la carte (à juger par `designer-jeu`) ;
+  tuile choisie dont l'anneau descend avec la tuile ; UI Test instrumenté (poser, refuser, reprendre) ;
+  stabilité Compose des types de `core:locksmith` (`-Pblox.composeReports=true`) ; mesurer le nombre de pistes
+  d'effets jamais libérées (ADR 0025, P7.13) ; aperçu sur l'anneau en colonne 0 ou 9 coupé par le bord de
+  l'écran (à juger par `designer-jeu`).
+- [x] **P7.21** Parcours Macrobenchmark et profil de référence du Serrurier : ouvrir la cartouche, poser une
+  pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
+  P7.15).
+
+## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
+
+Règles : [docs/musique-vivante.md](docs/musique-vivante.md). Architecture : ADR 0026. Un choix de musique du
+Classique, « Vivante », sans cartouche ni écran à lui ; les règles du jeu ne changent pas. Ordre : P8 d'abord,
+la Graine du jour l'impose.
+
+- [x] **P8.1** Spécification et décision : `docs/musique-vivante.md`, ADR 0026 (amende 0014 et 0022), vue V37
+  numérotée (à dessiner). Fait le 2026-10-26, avec les spécifications de P9 à P11 et les ADR 0027 et 0028.
+- [ ] **P8.2** `Player.switchTo(score)` (`core:audio`) : la nouvelle partition commence à la mesure suivante, au
+  même rang, au même facteur de tempo, sous le même jeton ; ajouté à `MusicPlayerContract` et au faux lecteur,
+  et à chaque étage du lecteur (`ChiptuneSequencer`, `FocusedMusicPlayer`, `MusicSwitch`) ; réservé aux
+  partitions, sans effet pour un `MusicFile` ; la partition demandée est préparée au tempo du moment (pour la
+  tendue, celui du danger), sans rendu à l'entrée en danger. Cas : `a score switched to starts on the next bar, at the same rank`, `a switch keeps the tempo factor and the
+  playback`, `a second switch before the bar line replaces the first`, `a switch while the music is stopped is
+  played at the resume`.
+- [ ] **P8.3** `LiveMusic.compose(seed)` (`core:music`) : une musique calme (`Category.CALM`) et une tendue
+  (`Category.EPIC`), de même longueur et de même tonique, par `MusicGenerator.generate`. Après P8.9. Cas : `a live
+  music is a calm music and a tense one`, `the calm and the tense music have the same number of bars`, `the calm
+  and the tense music share their tonic`, `the same seed gives the same two musics`, `the calm music does not
+  depend on the tense one`.
+- [ ] **P8.4** `MusicChoice.LIVE` (`core:data`) et `scoreOf` (`app`) : le choix enregistré, qui demande de composer
+  les deux ambiances au lieu d'une partition fixe ; règles de sauvegarde. Cas : `the live choice is saved and read
+  back`, `the live choice asks for a live music rather than a score`. Après P8.3.
+- [ ] **P8.5** Extraire `MusicDirection` (`feature:game`), pur refactoring : `ClassicMusicDirection` reprend
+  `MusicTempo.kt` tel quel, sous les tests existants du tempo, qui restent verts.
+- [ ] **P8.6** `LiveMusicDirection` : calme au départ, tendue sur `StackDanger(on)`, calme sur `StackDanger(off)`,
+  par `switchTo` ; facteur de tempo = min(1 + 0,02 × niveaux gagnés, 1,30) **[à vérifier]**, multiplié au × 1,25
+  du danger ; graine de la musique = graine de la partie ; chaque `LevelUp` déclenche un rendu, dont le coût est
+  à mesurer sur téléphone. Après P8.2, P8.3, P8.5. Cas : `a live game starts on the
+  calm music`, `entering the danger switches to the tense music`, `leaving the danger switches back to the calm
+  music`, `each level up speeds the music up by 2 percent, up to 1 point 3`, `the speed of the levels and the
+  speed of the danger multiply`, `the music resumes after a pause in the mood of the moment`.
+- [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
+  graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
+  ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
+- [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
+- [ ] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
+  Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
+  music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
+
+## P9 — Graine du jour (`core:game`, `core:data`, `feature:game`, `app`)
+
+Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0026 (amende 0014 et 0022).
+**Préalable : P1.20** (`StableRandom`, suite des pièces figée pour la graine 20261026), et la Musique vivante
+(P8), imposée. Écrans en Couleurs v2 seulement, jour et nuit.
+
+- [x] **P9.1** Spécification et décision : `docs/graine-du-jour.md`, amendement de l'ADR 0014 (la suite des pièces
+  d'une graine devient un contrat) dans l'ADR 0026, vues V38 et V39 numérotées (à dessiner). Fait le 2026-10-26.
+- [ ] **P9.2** `DailySeed.of(LocalDate)` (`app`), horloge injectée : la graine `AAAAMMJJ` de la date locale du
+  téléphone. Cas : `the seed of a day is its date written year month day`, `the date is the local date of the
+  phone`, `two days give two seeds`.
+- [ ] **P9.3** `DailyChallengeRepository` (`core:data`, DataStore, fichier à part), avec son contrat et son faux
+  en testFixtures : date en cours, essais, premier essai, meilleur ; un essai est compté **à son début**
+  **[à vérifier]** (premier essai à 0 tant qu'il n'est pas fini) ; règles de sauvegarde **[à vérifier]**. Cas :
+  `without a try there is no result of the day`, `a try is counted as soon as it starts`, `the first try is worth 0
+  until it ends`, `the first try is the first and the best`, `a better try replaces the best, never the first`,
+  `every try is counted`, `a try of a newer date starts that date over`, `a try of an
+  older date is ignored`.
+- [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
+  `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
+  musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
+  compté à son début **[à vérifier]**, une partie restaurée après la mort du processus reste le même essai ; thème
+  Couleurs imposé et barres système (`systemBarVariant` connaît la variante, ADR 0026). Après P1.20, P8.6, P9.2,
+  P9.3. Cas : `a daily game starts at
+  level 5 whatever the level chosen`, `a daily game plays the live music whatever the music chosen`, `a daily game
+  draws the pieces of its seed`, `a daily game never enters the Classic records`, `replaying a daily game keeps
+  its seed, even after midnight`, `a daily game left before its end counts as a try`, `a daily game restored after
+  the process died is the same try`, `the bars of a daily game follow its colorful variant`.
+- [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
+  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
+  graine à minuit » ; en jeu, titre « GRAINE DU JOUR » et meilleur du jour (V39) ; fin de partie « MEILLEUR DU
+  JOUR », Rejouer, Copier ; TalkBack ; captures jour et nuit. Module à trancher ici (dans `feature:game`, ou une
+  feature à part, qui amenderait l'ADR 0002). Après P9.4.
+- [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
+  presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
+  U+202F, sans plafond ni zéros de tête. Cas : `the copied text gives the date, the first try,
+  the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
+  offered before the first try`. Après P9.3.
+- [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
+  colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
+  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5.
+- [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  Après P9.4.
+
+## P10 — Le Jardin musical, troisième jeu (`core:garden`, `feature:garden`)
+
+Règles : [docs/jardin-musical.md](docs/jardin-musical.md). Architecture : ADR 0027 (amende 0002 et 0022), sur le
+modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Couleurs v2 seulement, jour et nuit.
+
+- [x] **P10.1** Spécification et décision : `docs/jardin-musical.md`, ADR 0027, modules prévus dans
+  `docs/architecture.md`, vue V40 numérotée (à dessiner). Fait le 2026-10-26.
+- [ ] **P10.2** `PieceTile` dans `core:board` : les tuiles du bac du Serrurier (`Tray`, `TilePiece`) partagées,
+  règle de 2 ; captures du Serrurier inchangées. Avant P10.10.
+- [ ] **P10.3** `LoopPlayHead` dans `core:designsystem/frame` : la tête de lecture de l'éditeur (`PlayHead`)
+  partagée, règle de 2 ; tests de l'éditeur verts. `LoopPlayHead` prend la longueur de boucle et le tempo en
+  paramètres (8 mesures pour l'éditeur, 2 pour le jardin), sans `Tempo` ni `Cell`, internes à `feature:composer`.
+  Avant P10.12.
+- [ ] **P10.4** Module `core:garden` (`blox.jvm.library`, `api(core:game)`, `api(core:music)`),
+  `:core:garden:test` dans la CI, commandes, glossaire (`Garden`, `GardenMood`) et règle de dépendance de
+  `CLAUDE.md` ; `Garden` immuable (16 × 14, poser, refuser, reprendre, effacer) et `Garden.parse(ascii)`. Cas : `a
+  piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
+  refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
+  piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
+- [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
+  lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
+  plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
+  of its group`, `changing the mood keeps the pieces where they are`.
+- [ ] **P10.6** `Garden.toScore(mood)` : une case = une croche ; colonne par colonne, les cases d'une même pièce se
+  partagent la croche en arpège montant ; une voix par ligne à volume fixe et la basse **[à vérifier]**, sans
+  changer `core:music` ; durées exactes (la dernière part d'une croche partagée en prend le reste). Cas : `a cell
+  plays its note for its eighth`, `a piece with one cell per column plays its notes column after column`, `a
+  standing piece plays its notes as a rising arpeggio within the eighth`, `a column of three cells keeps the length
+  of the bar exact`, `two pieces in the same column sound together`, `an empty garden plays the bass alone`,
+  `fourteen notes at once never go above the peak of a generated music`.
+- [ ] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
+  20 candidats, note **[à vérifier]**. Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
+  composed garden holds 6 pieces placed without overlap`, `the best candidate is kept, the first one among equals`,
+  `a candidate does not depend on the draws of the previous ones`.
+- [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
+  case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
+  colorés ; jetons gardés par un test ; captures jour et nuit.
+- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+  `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
+  Après P10.4.
+- [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
+  22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
+  effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
+  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9.
+- [ ] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
+  lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
+  read back, its mood too`, `an unreadable garden gives an empty one`.
+- [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
+  lecture (`LoopPlayHead`) et pilule d'accord ; aperçu sonore par un ensemble fini d'effets jamais libérés
+  (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
+- [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
+  Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
+  le premier).
+- [ ] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
+  du jardin dans le design system publié (ADR 0019).
+- [ ] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
+  lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
+  8 ticks). Après P10.10, P10.12.
+
+## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
+
+Règles : [docs/regles-au-tempo.md](docs/regles-au-tempo.md). Architecture : ADR 0026 et ADR 0028 (amende 0012 et
+0015). En dernier : la phase commence par une mesure sur téléphone. Le Classique reste vert à chaque tâche ; P6
+reste gelée (`ScoringRule` intouchée, chevauchement avec P6.11 noté dans l'ADR 0028). Écran en Couleurs v2
+seulement, jour et nuit.
+
+- [x] **P11.1** Spécification et décision : `docs/regles-au-tempo.md`, ADR 0028, vue V41 numérotée (à dessiner).
+  Fait le 2026-10-26.
+- [ ] **P11.2** Mesure sur téléphone (sans code de production) : précision d'`AudioTrack.getTimestamp`, latence
+  (haut-parleur, casque filaire, Bluetooth), dérive entre horloge audio et horloge d'images ; fixe la fenêtre
+  « sur le temps » (N = 5 ou 6 ticks **[à vérifier]**) ; résultats dans la spécification et `JOURNAL.md`.
+- [ ] **P11.3** `Playback.heardNanos()` (`core:audio`) et ticks d'Au tempo nourris par le temps entendu, sans
+  plafond, repli sur l'horloge d'images (ADR 0028, amendement de l'ADR 0012) : le ViewModel lit `heardNanos()` à
+  chaque image ; temps monotone depuis `play`, tick 0 au premier échantillon entendu, reprise à la position
+  `tickCount mod phrase`. Après P11.2. Cas : `the heard time is the time of the music played, latency included`,
+  `a stopped playback has no heard time`, `the heard time never goes back, even when the music loops`, `the ticks
+  follow the heard time without a cap`, `the ticks stay in phase with the accompaniment after a pause`, `when the
+  music fails the ticks fall back on the frame clock without a jump`.
+- [ ] **P11.4** Extraire `DropTiming` de `Rules`, pur refactoring : `ClassicDropTiming` délègue à `GravityTable`,
+  tests du Classique verts ; parties de référence enregistrées avant l'extraction, pour la propriété de P11.8 ;
+  glossaire de `CLAUDE.md` (`DropTiming`). Cas
+  : `the classic drop timing follows the gravity table of the level`.
+- [ ] **P11.5** `Meter` (`core:game`, paquet `tempo`) : croche en ticks entiers, noire, mesure, phrase, temps et
+  mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
+  beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
+  beat`, `the tempo is 1800 over the ticks per eighth`.
+- [ ] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
+  falls one row on every eighth`, `a piece that appears between two eighths falls on the next one`, `the level does
+  not change the fall`, `the soft drop stays the one of the Classic`.
+- [ ] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
+  (dans `PieceLocked` ou l'état, à trancher) ; événements `OnBeat` et `CadenceCleared` ; + 80 et × 2 sur le temps
+  **[à vérifier]** ; le tick de verrouillage est retenu et la cadence appliquée au `LinesCleared` qui suit, ses
+  points lus par l'écart des `Points` ; glossaire de `CLAUDE.md` (`TempoScore`). Après P11.5. Cas : `lines locked
+  in bar 4 and cleared in bar 1 still make a cadence`, `a piece locked on the beat by the held soft drop earns 80 points`, `a piece
+  locked by gravity alone earns no beat bonus`, `a piece locked out of the window earns nothing`, `lines cleared on
+  the beat in bar 4 earn their points twice`, `lines cleared off the beat in bar 4 earn no cadence bonus`, `the
+  total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
+  locked`.
+- [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; propriété de non-régression du
+  Classique : les parties de référence de P11.4 rendent les mêmes états. Après P11.6. Cas : `tempo rules are the
+  classic rules but for the drop timing`, `the classic games recorded before the drop timing are played the same`.
+- [ ] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
+  temps/min, joués au facteur `18 / ticksPerEighth` ; préférence Métronome **[à vérifier]** (activé par défaut).
+  Cas : `the accompaniment clicks on every quarter, louder on beat 1`, `the bass plays I V vi IV, one bar each`, `the
+  tempo factor is 18 over the ticks per eighth`, `without the metronome the bass plays on`.
+- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `TempoRules`, horloge audio, accompagnement, total moteur +
+  bonus, records dans un fichier DataStore à part (inclus dans la sauvegarde **[à vérifier]**, `BackupRulesTest`) ;
+  `SteadyMusicDirection`, sans accélération (le danger ne change pas le tempo) ; thème Couleurs imposé et barres
+  système (`systemBarVariant` connaît la variante, ADR 0026) ; tempo de la v1 120 temps/min et départ au niveau 0
+  **[à vérifier]**. Après P11.3, P11.7, P11.8, P11.9. Cas : `a tempo game falls on the eighths of its tempo`, `a tempo
+  game enters only its own records`, `the score shown is the points plus the bonuses`, `the danger does not change
+  the tempo of a tempo game`.
+- [ ] **P11.11** Panneau des temps (V41) : titre « AU TEMPO » et son record, encarts TEMPO (4 disques, « MESURE
+  2/4 », bpm) et SUR LE TEMPS (« 12 / 40 »), autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 », reflet du
+  temps 1 (3 par seconde au plus), interrupteur Métronome dans la carte Pause, chacun en « Effets réduits » (ADR
+  0024) ; TalkBack ; captures jour et nuit. Après P11.10.
+- [ ] **P11.12** Cartouche « Au tempo » (`feature:cartridges`, `app`) : ouvre une partie ; parcours Macrobenchmark.
+  Après P11.10 et P9.7.
+- [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36.
 
 ---
 

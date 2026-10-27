@@ -2,6 +2,7 @@ package ch.magori.blox.core.music
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
@@ -53,6 +54,44 @@ class RomanNumeralTest {
 
         // Then
         assertThat(numeral).isEqualTo(RomanNumeral(degree, quality, accidental))
+    }
+
+    @ParameterizedTest(name = "degree {0}, {1}, {2} is named {3}")
+    @CsvSource(
+        "1, MAJOR, NATURAL, I",
+        "6, MINOR, NATURAL, vi",
+        "7, DIMINISHED, NATURAL, vii°",
+        "7, MAJOR, FLAT, ♭VII",
+        "2, MINOR, FLAT, ♭ii",
+        "6, DIMINISHED, FLAT, ♭vi°",
+        "1, MAJOR, SHARP, #I",
+        "4, MINOR, SHARP, #iv",
+        "4, DIMINISHED, SHARP, #iv°",
+    )
+    fun `a numeral is named by its accidental then its degree, capitals if major, small if minor, ringed if diminished`(
+        degree: Int,
+        quality: ChordQuality,
+        accidental: Accidental,
+        name: String,
+    ) {
+        // Given
+        val numeral = RomanNumeral(degree, quality, accidental)
+
+        // When / Then
+        assertThat(numeral.name).isEqualTo(name)
+    }
+
+    @Test
+    fun `every numeral is read back from its name`() {
+        // Given
+        val numerals = Accidental.entries.flatMap { accidental ->
+            (1..7).flatMap { degree ->
+                ChordQuality.entries.map { quality -> RomanNumeral(degree, quality, accidental) }
+            }
+        }
+
+        // When / Then
+        assertThat(numerals).allSatisfy { assertThat(RomanNumeral.parse(it.name)).isEqualTo(it) }
     }
 
     @ParameterizedTest(name = "\"{0}\" is refused")

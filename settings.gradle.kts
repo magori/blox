@@ -42,6 +42,8 @@ include(":core:data")
 include(":core:designsystem")
 include(":core:board")
 
+include(":feature:cartridges")
+include(":feature:locksmith")
 include(":feature:home")
 include(":feature:game")
 include(":feature:composer")

@@ -45,3 +45,7 @@ public data class Envelope(public val attackMillis: Int, public val releaseMilli
     /** The attack and the release together: the shortest blip the envelope fits in. */
     internal val millis: Int get() = attackMillis + releaseMillis
 }
+
+/** The blips written as pitch names and lengths in milliseconds: `blipsOf("C6" to 40, "G6" to 80)`. */
+internal fun blipsOf(vararg blips: Pair<String, Int>): List<Blip> =
+    blips.map { (pitch, millis) -> Blip(Pitch.parse(pitch), millis) }
