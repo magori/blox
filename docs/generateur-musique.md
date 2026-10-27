@@ -1056,11 +1056,18 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 
 ### Éditeur : dé (implémenté, P4.20)
 
-- **Panneau** : une ligne sous les boutons de mesure, *Au hasard* (la moitié de la ligne au plus, sur
-  deux lignes en police agrandie) puis les choix *Surprise* et les sept catégories, boutons radio dans
-  une rangée qui défile ; le choix retenu est rempli de l'accent et amené à l'écran. *Surprise* est
-  choisi d'abord ; le choix n'est pas gardé après la mort du processus. **Écarts** avec V8 et V11 :
-  pas de coche, rangée défilante, cibles de 48 dp.
+- **Feuille** (P5.101, ADR 0029) : un disque « Au hasard » (pictogramme du dé, famille Icône, au repos)
+  dans la barre, entre le nom et « … », ouvre une feuille du bas (`BloxSheet`) titrée « Au hasard », lue
+  comme une fenêtre : *Surprise* et les sept catégories, en `SheetChoiceRow` lues comme des boutons radio,
+  le choix retenu coché, chacune avec une ligne qui dit ce qu'elle sonne (« L'une des sept, au hasard »,
+  « Vive et sautillante, en majeur », « Lente, avec beaucoup d'air », « Des notes fortes, au galop »,
+  « De longues notes qui descendent », « Des notes tenues, un peu étranges », « Rapide, tout en
+  arpèges », « Deux temps bien marqués » : textes du développeur) ; dessous, « Tirer une musique »
+  (Principal, toute la largeur). Choisir une catégorie garde la feuille ouverte ; Tirer la ferme, puis
+  lance le dé, une seule fois même touché deux fois dans la même image (`rememberOnce`). Le retour ou le
+  voile la ferment. L'ouverture est gardée par l'écran (`rememberSaveable`) : la feuille revient ouverte,
+  avec son choix, quand l'écran est recréé. *Surprise* est choisi d'abord ; le choix n'est pas gardé
+  après la mort du processus.
 - **Tirage** : `MusicGenerator.generate(choice, seed, id)` avec une graine tirée à chaque lancer d'un
   `Random` injecté (la fabrique donne `Random.Default`), hors du thread principal ; l'identité de la
   musique est gardée. Un second appui pendant le calcul ne fait rien ; le dé ne se lance pas derrière
@@ -1070,20 +1077,21 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 - **Annuler** : un seul niveau ; le dé sur une grille vide (même vidée par *Effacer*) ne garde pas
   d'annulation. Le dé, *Copier* et *Effacer* affichent un message qui rappelle qu'on peut annuler
   (« Musique tirée au hasard. « Annuler » ramène l'ancienne. »), et ce message disparaît dès que
-  l'annulation n'existe plus.
+  l'annulation n'existe plus. Tous les messages de l'éditeur passent par `SnackMessage` (P5.97) depuis
+  P5.101, sans bouton d'action : *Annuler* reste dans la barre d'outils.
 - **Depuis « Mes musiques »** : `ComposerRoute(rollDice = true)` ouvre une musique neuve tirée sur
   *Surprise*, sans annulation ; une entrée restaurée après la mort du processus garde sa musique et ne
   relance pas. `rollDice` avec une musique enregistrée est refusé.
-- Police ×2 (P5.47) : un choix n'est jamais plus large que la rangée visible et son libellé réduit
-  pour tenir ; *Au hasard* prend au plus 45 % de la rangée, pour que « Mélancolique » tienne en
-  entier sur 360 dp. Le tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur
-  deux lignes au plus, sans couper « temps/min » ; le message d'annulation tient sur trois lignes
-  au plus (`shrinkToWholeWords`). **Tests :**
+- Police ×2 (P5.47) : chaque choix de la feuille montre son libellé et sa ligne en mots entiers. Le
+  tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur deux lignes au plus, sans
+  couper « temps/min » ; en Couleurs, le message d'annulation tient sur trois lignes au plus (en
+  Original, figé, il peut en prendre davantage, `SnackMessage` n'ayant pas de plafond). **Tests :**
   `ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
   `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
   `ComposerDiceSheetTest › on a small phone with the largest font, each choice of the sheet shows its words whole`.
-  Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`.
+  Captures : `DiceSheetColorful`, `DiceSheetColorfulNight`, `DiceSheetColorfulLargeFont`,
+  `MessageOriginalLargeFont`.
 - **Barre d'outils** (P5.49) : une rangée si chaque libellé tient entier au plancher dans sa part ;
   sinon les modes (Poser, Allonger) au-dessus des outils (Annuler, Copier, Effacer), et, si les
   outils ne tiennent pas côte à côte non plus, chaque outil sur toute la largeur (Original ×2 à
@@ -1124,8 +1132,12 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerViewModelTest › the message that the playback is no longer followed stays when the undo is taken away`,
 `ComposerDiceSheetTest › Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler`,
 `ComposerDiceSheetTest › choosing a category keeps the sheet open and the choice`,
+`ComposerDiceSheetTest › the dice of the bar opens the sheet Au hasard, read as a dialog`,
+`ComposerDiceSheetTest › the sheet offers Surprise and the seven categories, each with what it sounds like, the chosen one checked`,
+`ComposerDiceSheetTest › the sheet open, a category chosen, comes back open with its choice when the screen is recreated`,
+`ComposerDiceSheetTest › two touches on Tirer une musique in one frame roll once, and Annuler brings back the music`,
 `ComposerViewModelFactoryTest › an entry of Au hasard gives an editor on a new music, rolled from a seed the factory draws`.
-Vues : V8, V11, V7, V10.
+Vues : V8, V11, V7, V10, V33.
 
 ### Éditeur : écoute (implémentée, P4.19c)
 
@@ -1422,7 +1434,10 @@ modifiée » ou « non enregistrée », sur deux lignes au plus.
 `ComposerSavingTest › saving, then renaming, in the editor dates the music by the clock of the library each time`,
 `MyMusicsScreenTest › each card shows its style, its key and its length on one line, without its tempo nor its last change`,
 `ComposerScreenTest › the line under the title tells the style, the key, and whether the music is new, changed or saved`,
-`ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`.
+`ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`,
+`ComposerScreenTest › in Couleurs on 360 dp, at either font size, the line under the name stays whole, clear of its button corners`.
+Depuis le disque du dé (P5.101), la ligne sous le nom garde 6 dp de marge dans le bouton du nom ; ces deux tests
+de police agrandie valent pour Couleurs : en Original ×2, figé, elle peut déborder. Capture : `ComposerColorfulLargeFont`.
 Vues : V7 à V18.
 
 ### Noms et fenêtres communs à l'éditeur et à la liste (P5.45)

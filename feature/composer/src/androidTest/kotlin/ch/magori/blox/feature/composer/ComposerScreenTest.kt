@@ -185,8 +185,7 @@ internal class ComposerScreenTest {
 
     @Test
     @DisplayName(
-        "in Couleurs on 360 dp, in the normal font and twice as large, " +
-            "the line under the name keeps its words whole, clear of the corners of its button",
+        "in Couleurs on 360 dp, at either font size, the line under the name stays whole, clear of its button corners",
     )
     fun theLineUnderTheNameStaysWholeInCouleurs() = extension.use {
         // Given a new music, on a phone 360 dp wide, in Couleurs, in the normal font
