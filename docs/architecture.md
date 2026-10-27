@@ -172,10 +172,8 @@ graph LR
   comportement commun à un dépôt et à son faux est un contrat, une classe de tests abstraite
   que les deux exécutent (`HighScoreRepositoryContract`, `UserPreferencesRepositoryContract`) :
   les faux partagés des `testFixtures` de `core:data` ne peuvent plus s'écarter du vrai dépôt ;
-  erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
-  `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
-  `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
-  `DataStoreUserPreferencesRepositoryTest › a failure other than an IOException while the settings are read is not absorbed`,
+  erreurs de lecture, communes à chaque dépôt sur fichier, qui passe le contrat `DataStoreFileContract` (P9.10) : `DataStoreFileContract › a file that cannot be read reads as an empty one`,
+  `DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`,
   `HomeViewModelTest › unreadable records show 0 and the home screen goes on`,
   `HomeViewModelTest › a programming error while the records are read is not swallowed`,
   `GameViewModelTest › unreadable records show 0 and the game goes on`,
