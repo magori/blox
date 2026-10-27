@@ -44,7 +44,7 @@ private object GameOverSizes {
 }
 
 /**
- * The game over screen (views V4, V30): the title, the new record badge, the score in large, then the
+ * The game over screen (views V4, V30): the title, the new best badge, the score in large, then the
  * lines, level, four-line clears and duration, and the buttons to replay or go back to the menu.
  * No logic here: the texts come from [gameOverTexts]. It is a state of the game screen: TalkBack
  * announces it by its pane title. The badge is the one of the variant of the game ([labels]): MEILLEUR DU JOUR for a
@@ -62,7 +62,7 @@ internal fun GameOverScreen(
 ) {
     val texts = gameOverTexts(state)
     TitledScreen(title = stringResource(R.string.feature_game_over_title), modifier = modifier) {
-        if (state.newRecord) NewRecordBadge(stringResource(labels.gameOverNewBest))
+        if (state.newBest) NewBestBadge(stringResource(labels.gameOverNewBest))
         val scoreLabel = stringResource(R.string.feature_game_score)
         LabelledPanel(
             label = scoreLabel,
@@ -121,7 +121,7 @@ internal fun GameOverScreen(
 }
 
 @Composable
-private fun NewRecordBadge(text: String) {
+private fun NewBestBadge(text: String) {
     val palette = BloxTheme.palette
     Text(
         text = text.uppercase(),
@@ -153,18 +153,18 @@ private val previewState = GameOverUiState(
     level = Level(8),
     fourLineClears = 3,
     ticksPlayed = 45_300,
-    newRecord = false,
+    newBest = false,
 )
 
 @Composable
 private fun GameOverPreview(
     kind: BloxThemeKind,
-    newRecord: Boolean,
+    newBest: Boolean,
     labels: GameLabels,
 ) {
     BloxTheme(kind = kind) {
         GameOverScreen(
-            state = previewState.copy(newRecord = newRecord),
+            state = previewState.copy(newBest = newBest),
             onReplay = {},
             onMenu = {},
             labels = labels,
@@ -178,36 +178,36 @@ private fun GameOverPreview(
 @Preview
 @Composable
 internal fun GameOverOriginalPreview() {
-    GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = false, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.ORIGINAL, newBest = false, labels = GameLabels.Classic)
 }
 
 @Preview
 @Composable
 internal fun GameOverOriginalNewRecordPreview() {
-    GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = true, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.ORIGINAL, newBest = true, labels = GameLabels.Classic)
 }
 
 @Preview
 @Composable
 internal fun GameOverColorfulPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newRecord = false, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = false, labels = GameLabels.Classic)
 }
 
 @Preview
 @Composable
 internal fun GameOverColorfulNewRecordPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newRecord = true, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Classic)
 }
 
 @Preview(fontScale = 2f)
 @Composable
 internal fun GameOverLargeFontPreview() {
-    GameOverPreview(BloxThemeKind.ORIGINAL, newRecord = true, labels = GameLabels.Classic)
+    GameOverPreview(BloxThemeKind.ORIGINAL, newBest = true, labels = GameLabels.Classic)
 }
 
 /** The game over of a daily game (V39): MEILLEUR DU JOUR, then Rejouer, Copier and Menu; in the Colorful theme only. */
 @Preview
 @Composable
 internal fun GameOverDailyNewBestPreview() {
-    GameOverPreview(BloxThemeKind.COLORFUL, newRecord = true, labels = GameLabels.Daily)
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Daily)
 }

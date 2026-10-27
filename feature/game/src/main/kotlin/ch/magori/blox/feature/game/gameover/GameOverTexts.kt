@@ -11,7 +11,7 @@ import ch.magori.blox.feature.game.sidepanel.scoreText
 
 private const val SECONDS_PER_MINUTE = 60
 
-/** What the game over screen gets: the final values of the game, and whether they make a [newRecord]. */
+/** What the game over screen gets: the final values of the game, and whether they make a [newBest]. */
 @Immutable
 internal data class GameOverUiState(
     val score: Points,
@@ -19,7 +19,7 @@ internal data class GameOverUiState(
     val level: Level,
     val fourLineClears: Int,
     val ticksPlayed: Int,
-    val newRecord: Boolean,
+    val newBest: Boolean,
 )
 
 /**

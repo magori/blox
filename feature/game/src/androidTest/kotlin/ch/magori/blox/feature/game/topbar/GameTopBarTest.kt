@@ -261,10 +261,10 @@ internal class GameTopBarTest {
         runOnIdle { beaten = true }
 
         // Then the new record takes the place of the record, the bar as high as before
-        val newRecord =
+        val newBest =
             onNodeWithContentDescription("${variant.sticker} : 98760").fetchSemanticsNode().boundsInRoot
         assertThat(onNodeWithTag(BAR).fetchSemanticsNode().size).isEqualTo(bar)
-        assertThat(newRecord).isEqualTo(record)
+        assertThat(newBest).isEqualTo(record)
     }
 
     @ParameterizedTest(name = "{0}, {1}, font × {2}")
