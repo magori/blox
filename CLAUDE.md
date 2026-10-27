@@ -41,8 +41,8 @@ TDD) et `/revue [branche|fichier]` (revue des changements selon ces conventions)
 
 ## TDD strict
 
-Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game`, `core:music` et `core:locksmith`,
-et pour toute logique testable ailleurs :
+Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game`, `core:music`, `core:locksmith`
+et `core:garden`, et pour toute logique testable ailleurs :
 
 1. **Rouge** : écrire un seul test qui échoue, pour la plus petite règle suivante. Le lancer
    et montrer l'échec.
@@ -60,6 +60,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew :core:game:test       # domaine (JUnit 5, JVM, sans émulateur)
 ./gradlew :core:music:test      # partitions
 ./gradlew :core:locksmith:test  # le Serrurier
+./gradlew :core:garden:test     # le Jardin musical
 ./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
 ./gradlew ktlintCheck           # style Kotlin (ktlintFormat corrige)
 ./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
@@ -130,7 +131,7 @@ lui-même.
 
 | Type de module | Plugin(s) à appliquer | Tests fournis par le plugin |
 |---|---|---|
-| Kotlin pur (`core:game`, `core:music`, `core:locksmith`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
+| Kotlin pur (`core:game`, `core:music`, `core:locksmith`, `core:garden`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`, `core:haptics`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`, `core:board`) | `blox.android.library` + `blox.android.library.compose` | idem |
 | Feature (`feature:cartridges`, `feature:home`, `feature:game`, `feature:daily`…) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
@@ -163,6 +164,8 @@ lui-même.
   dépendance demande un ADR.
 - `core:locksmith` : seulement `core:game` et `core:music`, en `api` (ADR 0025), ni
   Android ni coroutines. Il suit le TDD strict comme eux.
+- `core:garden` : seulement `core:game` et `core:music`, en `api` (ADR 0027), ni Android ni
+  coroutines. Il suit le TDD strict comme eux.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
   assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
   extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011). La
@@ -219,7 +222,9 @@ du Classique, qui doit rester vert (ADR 0015).
   difficiles). Le Serrurier (`core:locksmith`) : `Padlock` (la serrure ; *lock* est le
   verrouillage du Classique), les pièces posées étant des `Piece`. La Graine du jour :
   `StableRandom` (générateur stable, SplitMix64, dont la suite est un contrat entre versions ;
-  `ClassicRandomizer.stable(seed)`). Garder ces noms.
+  `ClassicRandomizer.stable(seed)`). Le Jardin musical (`core:garden`) : `Garden` (la grille de
+  16 × 14 et les pièces qui y sont posées), `GardenMood` (une ambiance : gamme, accords, tempo).
+  Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
@@ -252,7 +257,7 @@ Une tâche de [SUIVI.md](SUIVI.md) n'est terminée qu'après ces étapes, **dans
 La commande `/fin-de-tache` les déroule.
 
 1. **Tests verts.**
-   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test testDebugUnitTest`,
+   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test :core:garden:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
    ou une dépendance a changé ; si une interface a
