@@ -69,11 +69,30 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   pour que le tirage l'accepte sans changer.
 - **La suite des pièces d'une graine est un contrat** entre versions de l'application : un test
   fige les **20 premières pièces** de la graine `20261026` (P1.20). Changer le générateur ou le
-  tirage casse ce test : c'est voulu, une telle modification demande un nouvel ADR.
-- `StableRandom` est une fonction pure de sa graine (algorithme maison, documenté dans son code)
-  **[à vérifier]** : l'algorithme exact (par exemple SplitMix64 ou xorshift) se choisit en P1.20.
-  `nextInt(n)` tire **sans biais, par tirage avec rejet** ; un test vérifie qu'il prend chaque
-  valeur de l'intervalle (`takes every value of the range`).
+  tirage casse ce test : c'est voulu, une telle modification demande un nouvel ADR. Les 20 pièces
+  de la graine `20261026` : `Z T I Z O Z J L S Z T I J L Z O L Z I O`.
+  **Tests :** `ClassicRandomizerTest › the first 20 pieces of seed 20261026 are fixed`.
+- `StableRandom` est une fonction pure de sa graine : **SplitMix64** (Steele, Lea et Flood, « Fast
+  Splittable Pseudorandom Number Generators », OOPSLA 2014), constantes standard ; algorithme choisi
+  par le développeur le 2026-10-27. Ses premières valeurs pour la graine 0 sont les valeurs publiées
+  (`0xE220A8397B1DCDAF`…). `nextBits(n)` prend les n bits de poids fort du nombre suivant (0 à 32) ;
+  `nextInt(n)` tire **sans biais, par tirage avec rejet** (les 31 bits de poids fort, leur reste
+  par n, un nouveau nombre quand le reste tombe dans la dernière série incomplète) ;
+  `nextInt(from, until)` vaut `from` plus un tirage dans la largeur. Le contrat couvre `nextLong`,
+  `nextBits`, `nextInt(until)`, `nextInt(from, until)`, et ce qui passe par eux (`List.random`,
+  `shuffle`) ; les autres tirages de `Random` viennent de la bibliothèque standard et ne sont pas
+  garantis.
+  **Tests :** `StableRandomTest › the first numbers of seed 0 are the published SplitMix64 values`,
+  `StableRandomTest › the same seed gives the same numbers`,
+  `StableRandomTest › bits are taken from the high end of the next number`,
+  `StableRandomTest › bits are drawn 0 to 32 at a time`,
+  `StableRandomTest › a number drawn in a range is the remainder of the high 31 bits of the next number`,
+  `StableRandomTest › a number drawn in a range takes every value of the range`,
+  `StableRandomTest › a number drawn in a large range is not biased toward its low values`,
+  `StableRandomTest › a draw that would bias the range is replaced by the next number`,
+  `StableRandomTest › a number drawn in an empty range is refused`,
+  `StableRandomTest › a number drawn between two bounds is the lower bound plus a draw in the width`,
+  `StableRandomTest › a number drawn between two bounds is refused when the range is empty or wider than the largest int`.
 - Les parties Classiques ordinaires gardent leur graine tirée au hasard ; elles peuvent passer à
   `StableRandom` sans rien changer à leurs règles.
 

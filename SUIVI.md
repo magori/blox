@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 222 / 307 | `██████████████░░░░░░` **72 %** |
+| **Général** | 223 / 307 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -197,7 +197,7 @@ Référence : [docs/regles-mode-classique.md](docs/regles-mode-classique.md). To
   conventions) ; JUnit 5 déclaré en `-api` / `-params` + moteur en `testRuntimeOnly`.
 - [x] **P1.19** Types des points et des « lignes d'un coup » pour `ScoringRule` : `LineClear`
   (lot P1.16 / P1.15) et `Points` (P1.12c, rendu par `ScoringRule`) ; `CLAUDE.md` dit `Points`.
-- [ ] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
+- [x] **P1.20** Générateur stable `StableRandom` (`rules`), **préalable de la Graine du jour (P9)** et du dé du
   Jardin (P10.7) : générateur maison dont la suite ne dépend pas de la version de Kotlin
   (`kotlin.random.Random` ne garantit pas la sienne). `StableRandom` étend `kotlin.random.Random` ; `nextInt(n)`
   tire sans biais, par tirage avec rejet. Point d'entrée **public** `ClassicRandomizer.stable(seed)`
