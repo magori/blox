@@ -32,3 +32,17 @@ Cinq cartouches, sur deux colonnes : Classique, Serrurier, Jardin musical, Au te
 jour. La cartouche Graine du jour porte l'autocollant « NOUVELLE » jusqu'au premier essai du jour,
 d'après un état que `app` lui passe. La Musique vivante n'a pas de cartouche : c'est un choix de
 musique de l'accueil Classique, comme le mode Moderne en est un réglage.
+
+## Amendement (P9.7, 2026-10-27)
+
+La grille de V36 remplace la console de V26 (décision du développeur). Deux colonnes d'au plus
+171 dp ; une dernière cartouche seule est centrée dessous, si bien que trois puis cinq cartouches
+tiennent dans la même grille ; une seule colonne quand un mot d'un nom ne tient plus dans sa
+colonne à la plus petite taille. Trois cartouches pour l'instant (Classique, Serrurier, Graine du
+jour) : le Jardin et Au tempo s'ajouteront avec P10.13 et P11.12, sans cartouche endormie. Le
+choix du jeu est dessiné en Couleurs v2 quel que soit le thème choisi (`ColorfulTheme`, barres
+système comprises), l'Original étant figé. La feature reste sans ViewModel : l'autocollant
+« NOUVELLE » vient d'un flux `Flow<Set<Cartridge>>` passé à `cartridgesEntry`, que `app` tire des
+résultats de la Graine du jour et de `today(clock)` (`NewCartridges`, résultats gardés chauds pour que l'autocollant ne clignote pas au retour), la date relue à chaque
+retour de l'écran ou de l'application au premier plan (pas de bascule en direct à minuit, comme
+l'écran d'entrée). La feature ne connaît ni les résultats ni la date.

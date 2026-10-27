@@ -380,8 +380,28 @@ score) ; il n'est pas proposé si l'essai n'a pas été gardé sous cette date.
 `GameRouteTest › replaying a daily game keeps its date and its seed, under a new id` ;
 captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`.
 
-**Cartouche** « Graine du jour » sur le choix du jeu (V36) : elle porte l'autocollant
-« NOUVELLE » **jusqu'au premier essai du jour** ; elle ouvre l'écran d'entrée.
+**Cartouche** « Graine du jour » sur le choix du jeu (V36, P9.7) : troisième cartouche, mascotte Z
+avec une pousse (corps `piece-z`, pousse `piece-s`) ; elle ouvre l'écran d'entrée (`DailyRoute`).
+Elle porte l'autocollant « NOUVELLE » **jusqu'au premier essai du jour** : il disparaît dès que les
+résultats gardés sont datés d'aujourd'hui (un essai compte dès son début), et revient le
+lendemain, la date étant relue chaque fois que le choix du jeu revient ou que l'application revient
+au premier plan (pas de bascule en direct à minuit, comme l'écran d'entrée). TalkBack lit « Graine
+du jour », puis « Nouvelle » ; l'autocollant lui-même est décoratif.
+**Tests :** `NewCartridgesTest › the Graine du jour is new before any try`,
+`NewCartridgesTest › the Graine du jour is no longer new once a try of today started`,
+`NewCartridgesTest › the Graine du jour is new again the next day, the date read anew at each reading of the results`,
+`NewCartridgesTest › once the results are read, the cartridges new today are known at once, without waiting for a collection`,
+`NewCartridgesTest › before the results are read, no cartridge is new, so no sticker shows that may have to go`,
+`BloxNavDisplayTest › back on the cartridges, the Graine du jour bears its sticker from the first frame`,
+`OpenCartridgeTest › the Graine du jour cartridge opens its entry over the cartridges`,
+`BloxNavDisplayTest › the Graine du jour cartridge, new before the first try of the day, opens its entry`,
+`CartridgesScreenTest › the Graine du jour, new, bears the sticker NOUVELLE, which TalkBack reads after its name`,
+`CartridgesScreenTest › a cartridge that is not new bears no sticker, and TalkBack reads its name alone`,
+`CartridgeTest › the tag of the Graine du jour cartridge is cartridge_daily, which the journey of benchmark copies as it is`,
+`MascotLookTest › the Graine du jour mascot is a Z, as it comes in`,
+`MascotLookTest › the Graine du jour mascot is a bubble of the Z, its sprout in the mint of the S`,
+`DailyTagsTest › the tag of Jouer stays daily_play, which the journey of benchmark copies as it is` ;
+captures `CartridgesDay`, `CartridgesNight`, `CartridgesLargeFont`, `Mascots*`.
 
 ## Points ouverts
 

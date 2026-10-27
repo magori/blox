@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
                         locksmithViewModelFactory = container.locksmithViewModelFactory,
                         dailyViewModelFactory = container.dailyViewModelFactory,
                         onCopyDailyScore = container.dailyScoreCopier::copy,
+                        newCartridges = container.newCartridges,
                         backStack = backStack,
                         // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
                         // finds the play button, the keys and the pause by them, whatever the language.

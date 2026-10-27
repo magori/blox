@@ -43,6 +43,7 @@ import ch.magori.blox.core.haptics.SystemHaptics
 import ch.magori.blox.daily.DailyScoreCopier
 import ch.magori.blox.daily.DailyScoreTexts
 import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.NewCartridges
 import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.daily.DailyViewModel
@@ -279,6 +280,13 @@ class AppContainer(context: Context) {
         sdkInt = Build.VERSION.SDK_INT,
         scope = mainScope,
     )
+
+    /**
+     * The cartridges that bear the sticker NOUVELLE on the choice of the game: the Graine du jour, until the first try of
+     * the local date of the phone ([today], read anew each time the cartridges show), from its results, read once and
+     * kept warm for the whole life of the process, as the DataStore.
+     */
+    val newCartridges: NewCartridges = NewCartridges(dailyChallenge.results, dataScope) { today() }
 }
 
 private const val TAG = "BloX"

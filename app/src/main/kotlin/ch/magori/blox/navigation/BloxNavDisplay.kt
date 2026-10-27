@@ -9,6 +9,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import ch.magori.blox.daily.NewCartridges
 import ch.magori.blox.daily.dailyDateOf
 import ch.magori.blox.daily.newDailyGameRoute
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
@@ -39,9 +40,10 @@ import java.time.LocalDate
  * ou retirer une clé de la pile ; le retour système et le bouton Retour font la même chose.
  * Les deux décorateurs gardent l'état sauvegardable de chaque entrée et lient chaque ViewModel
  * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel. [deletedMusics] porte une musique supprimée
- * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler. La pile s'ouvre sur le choix du jeu
- * ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application. [onCopyDailyScore] copie le score de la
- * Graine du jour d'une date, celle de l'écran d'entrée ou de la partie terminée (P9.6).
+ * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler ; [newCartridges] les cartouches qui portent
+ * l'autocollant « NOUVELLE » (la Graine du jour avant le premier essai du jour) ; [onCopyDailyScore] copie le score de
+ * la Graine du jour d'une date, celle de l'écran d'entrée ou de la partie terminée (P9.6). La pile s'ouvre sur le choix
+ * du jeu ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application.
  */
 @Composable
 fun BloxNavDisplay(
@@ -54,6 +56,7 @@ fun BloxNavDisplay(
     locksmithViewModelFactory: LocksmithViewModel.Factory,
     dailyViewModelFactory: DailyViewModel.Factory,
     onCopyDailyScore: (date: LocalDate) -> Unit,
+    newCartridges: NewCartridges,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -70,7 +73,11 @@ fun BloxNavDisplay(
             rememberViewModelStoreNavEntryDecorator(),
         ),
         entryProvider = entryProvider {
-            cartridgesEntry(onOpen = { cartridge -> openCartridge(backStack, cartridge) })
+            cartridgesEntry(
+                newCartridges = newCartridges.updates,
+                currentNewCartridges = newCartridges::current,
+                onOpen = { cartridge -> openCartridge(backStack, cartridge) },
+            )
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).

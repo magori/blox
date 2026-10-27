@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 237 / 316 | `███████████████░░░░░` **75 %** |
+| **Général** | 242 / 320 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1298,7 +1298,7 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   étant faits en P7.12. Après P7.7 et P7.13.
 - [x] **P7.15** Cartouche « Serrurier » (`feature:cartridges`, `app`, `AppContainer`) ; serrure
   suivante par remplacement de la clé dans `app` (`nextPadlock`), bouton « Serrure suivante » de P7.12.
-- [ ] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
+- [x] **P7.16** Mettre à jour la maquette (depuis claude.ai) : V35, Serrurier en Couleurs v2 jour
   et nuit, cartouche Serrurier sur V26 ; reporter les jetons `lock-*` (P7.10) dans le design system publié
   (claude.ai), dont `tokens.json` est la copie (ADR 0019).
 - [x] **P7.17** Nom affichable d'un chiffre romain (`core:music`, `RomanNumeral.name`, l'inverse de `parse` :
@@ -1377,7 +1377,7 @@ la Graine du jour l'impose.
 - [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
-- [ ] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
+- [x] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
 - [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a
   music composed with an imposed tonic is in that tonic`, `without an imposed tonic the tonic is drawn as before`.
@@ -1436,7 +1436,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   (`IOException`) : Copier en fin de partie ne doit pas copier un essai sans score (revue de P9.11). Cas : `the copied text gives the date, the first try,
   the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
   offered before the first try`. Après P9.3, P9.5.
-- [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
+- [x] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
   parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
   être accessible au joueur).
@@ -1453,6 +1453,16 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
   Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
   `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
+- [x] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
+  Après P9.4.
+- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`)
+  avec le parcours de la Graine du jour (cartouche, entrée, premières secondes de la partie) ajouté en P9.7.
+- [ ] **P9.17** Juger avec `designer-jeu` les écarts de V36 codée (P9.7) : contraste de la pousse menthe sur le coin
+  menthe de la fenêtre `iris` (jour), animation d'entrée de l'autocollant « NOUVELLE » et son appui, engrenage
+  Paramètres dans la barre ; reporter dans le design system publié les jetons `lock-*` et la mascotte de la Graine
+  (`pictogrammes.md`), restés hors de P7.16.
 
 ## P10 — Le Jardin musical, troisième jeu (`core:garden`, `feature:garden`)
 

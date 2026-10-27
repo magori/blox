@@ -10,16 +10,20 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
@@ -62,30 +66,58 @@ internal class CartridgesScreenTest {
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
     }
 
-    @Test
-    @DisplayName("the Classic cartridge opens the Classic")
-    fun theClassicCartridgeOpensTheClassic() = extension.use {
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(Cartridge::class)
+    @DisplayName("a cartridge tapped is handed over, to open its game")
+    fun aCartridgeTappedIsHandedOver(cartridge: Cartridge) = extension.use {
         // Given
         val opened = mutableListOf<Cartridge>()
         showCartridges(onOpen = opened::add)
 
         // When
-        onNode(hasText(nameOf(Cartridge.CLASSIC)) and hasClickAction()).performClick()
+        onNode(hasText(nameOf(cartridge)) and hasClickAction()).performClick()
 
         // Then
-        runOnIdle { assertThat(opened).containsExactly(Cartridge.CLASSIC) }
+        runOnIdle { assertThat(opened).containsExactly(cartridge) }
     }
 
-    @ParameterizedTest(name = "in {0}")
+    @ParameterizedTest(name = "under {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("the Graine du jour, new, bears the sticker NOUVELLE, which TalkBack reads after its name")
+    fun theGraineDuJourNewBearsTheSticker(kind: BloxThemeKind) = extension.use {
+        // Given
+        showCartridges(kind = kind, newCartridges = setOf(Cartridge.DAILY))
+
+        // Then: the sticker is a decoration, its word read as the state of the button
+        val sticker = string(R.string.feature_cartridges_new)
+        onNodeWithText(sticker.uppercase(), useUnmergedTree = true).assertIsDisplayed()
+        onNode(hasText(nameOf(Cartridge.DAILY)) and hasClickAction()).assert(hasStateDescription(sticker))
+    }
+
+    @Test
+    @DisplayName("a cartridge that is not new bears no sticker, and TalkBack reads its name alone")
+    fun aCartridgeNotNewBearsNoSticker() = extension.use {
+        // Given the Graine du jour already tried today
+        showCartridges(newCartridges = emptySet())
+
+        // Then
+        val sticker = string(R.string.feature_cartridges_new)
+        assertThat(onAllNodesWithText(sticker.uppercase(), useUnmergedTree = true).fetchSemanticsNodes()).isEmpty()
+        Cartridge.entries.forEach { cartridge ->
+            onNode(hasText(nameOf(cartridge)) and hasClickAction())
+                .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
+        }
+    }
+
+    @ParameterizedTest(name = "under {0}")
     @EnumSource(BloxThemeKind::class)
     @DisplayName("TalkBack reads « Choix du jeu » as the heading of the screen")
     fun talkBackReadsTheTitleAsTheHeading(kind: BloxThemeKind) = extension.use {
         // Given
         showCartridges(kind = kind)
 
-        // Then: as text in Original, as the name of the logo in Colorful
-        val title = InstrumentationRegistry.getInstrumentation().targetContext
-            .getString(R.string.feature_cartridges_title)
+        // Then
+        val title = string(R.string.feature_cartridges_title)
         onNode(isHeading() and (hasText(title) or hasContentDescription(title))).assertExists()
     }
 
@@ -113,14 +145,12 @@ internal class CartridgesScreenTest {
     }
 
     @Test
-    @DisplayName(
-        "TalkBack reads nothing of the console: the only buttons, focusable or disabled nodes are the cartridges",
-    )
-    fun talkBackReadsNothingOfTheConsole() = extension.use {
-        // Given
-        showCartridges()
+    @DisplayName("the only buttons, focusable or disabled nodes of the screen are the cartridges")
+    fun theOnlyButtonsAreTheCartridges() = extension.use {
+        // Given, the Graine du jour new: its sticker is no button
+        showCartridges(newCartridges = setOf(Cartridge.DAILY))
 
-        // Then, in the tree TalkBack reads: the eject, disabled, is neither found nor focused
+        // Then, in the tree TalkBack reads
         val names = Cartridge.entries.map(::nameOf)
         val buttons = onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .fetchSemanticsNodes()
@@ -131,54 +161,67 @@ internal class CartridgesScreenTest {
     }
 
     @Test
-    @DisplayName("in Colorful, on 360 dp, the two cartridges stand side by side, their tops level")
-    fun inColorfulTheCartridgesStandSideBySide() = extension.use {
+    @DisplayName("in Colorful, on 360 dp, the cartridges stand on two columns, the last one alone centred below")
+    fun inColorfulTheCartridgesStandOnTwoColumns() = extension.use {
         // Given
         showCartridges(width = NARROW_PHONE)
 
-        // Then
-        val (first, second) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
+        // Then: the Classic and the Locksmith side by side, their tops level, the Graine du jour under them, centred
+        val (first, second, third) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
         assertThat(second.top).isEqualTo(first.top)
         assertThat(second.left).isGreaterThanOrEqualTo(first.right)
+        assertThat(third.top).isGreaterThanOrEqualTo(first.bottom)
+        assertThat((third.right - third.left).value).isCloseTo((first.right - first.left).value, within(HALF_DP))
+        assertThat(((third.left + third.right) / 2).value)
+            .isCloseTo(((first.left + second.right) / 2).value, within(HALF_DP))
     }
 
     @Test
-    @DisplayName("in Original, in a font twice as large, on 360 dp, the cartridges stand one above the other")
-    fun inOriginalInALargeFontTheCartridgesAreStacked() = extension.use {
+    @DisplayName(
+        "in a font twice as large, on 240 dp, the cartridges stand in one column: two names do not hold side by side",
+    )
+    fun inALargeFontOnANarrowWindowTheCartridgesAreStacked() = extension.use {
         // Given
-        showCartridges(kind = BloxThemeKind.ORIGINAL, width = NARROW_PHONE, fontScale = 2f)
+        showCartridges(width = TOO_NARROW, fontScale = 2f)
 
         // Then
-        val (first, second) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
-        assertThat(second.top).isGreaterThanOrEqualTo(first.bottom)
+        Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }.zipWithNext { above, below ->
+            assertThat(below.top).isGreaterThanOrEqualTo(above.bottom)
+        }
     }
 
-    @ParameterizedTest(name = "in {0}")
+    @ParameterizedTest(name = "under {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("each cartridge bears the mascot of its game in Colorful, none in Original, which is frozen")
-    fun eachCartridgeBearsTheMascotOfItsGameInColorful(kind: BloxThemeKind) = extension.use {
+    @DisplayName(
+        "each cartridge bears the mascot of its game, whatever the theme: the choice of the game is drawn in Colorful",
+    )
+    fun eachCartridgeBearsTheMascotOfItsGame(kind: BloxThemeKind) = extension.use {
         // Given
         showCartridges(kind = kind)
 
         // Then: a decoration, inside the button that TalkBack reads by the name of the game
         Cartridge.entries.forEach { cartridge ->
             val mascots = onAllNodesWithTag(cartridge.mascotTag, useUnmergedTree = true).fetchSemanticsNodes()
-            assertThat(mascots).hasSize(if (kind == BloxThemeKind.COLORFUL) 1 else 0)
+            assertThat(mascots).hasSize(1)
         }
     }
 
-    @ParameterizedTest(name = "in {0}")
+    @ParameterizedTest(name = "under {0}")
     @EnumSource(BloxThemeKind::class)
-    @DisplayName("in a font twice as large, on 360 dp, the name of each cartridge stays whole, on one line, unclipped")
+    @DisplayName(
+        "in a font twice as large, on 360 dp, the name of each cartridge stays whole, on two lines at most, unclipped",
+    )
     fun inALargeFontTheNameOfEachCartridgeStaysWhole(kind: BloxThemeKind) = extension.use {
         // Given
         showCartridges(kind = kind, width = NARROW_PHONE, fontScale = 2f)
 
         // Then
+        val (first, second) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
+        assertThat(second.top).describedAs("still two columns").isEqualTo(first.top)
         Cartridge.entries.forEach { cartridge ->
             val layout = textLayout(nameOf(cartridge))
             assertWordsWhole(layout)
-            assertThat(layout.lineCount).isEqualTo(1)
+            assertThat(layout.lineCount).isLessThanOrEqualTo(2)
             assertThat(layout.hasVisualOverflow).describedAs(nameOf(cartridge)).isFalse()
         }
     }
@@ -188,23 +231,33 @@ internal class CartridgesScreenTest {
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
+        newCartridges: Set<Cartridge> = emptySet(),
     ) {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
                 BloxTheme(kind = kind) {
-                    CartridgesScreen(cartridges = Cartridge.entries, onOpen = onOpen, modifier = Modifier.width(width))
+                    CartridgesScreen(
+                        cartridges = Cartridge.entries,
+                        newCartridges = newCartridges,
+                        onOpen = onOpen,
+                        modifier = Modifier.width(width),
+                    )
                 }
             }
         }
     }
 
-    private fun nameOf(cartridge: Cartridge): String =
-        InstrumentationRegistry.getInstrumentation().targetContext.getString(cartridge.label)
+    private fun nameOf(cartridge: Cartridge): String = string(cartridge.label)
+
+    private fun string(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
 }
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
+
+/** A window too narrow for the names of two cartridges side by side in a font twice as large. */
+private val TOO_NARROW = 240.dp
 
 /** The slack of the drop of a pressed button, rounded to whole pixels. */
 private const val HALF_DP = 0.5f
