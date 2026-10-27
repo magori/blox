@@ -1,10 +1,14 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -19,8 +23,11 @@ import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -39,6 +46,9 @@ internal class LevelGaugeTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
+
+    /** The colour of the ring of the focus in the theme of the gauge shown. */
+    private var focusColor = Color.Unspecified
 
     @Test
     @DisplayName("minus is disabled at the lowest step and plus at the highest")
@@ -171,16 +181,77 @@ internal class LevelGaugeTest {
         assertThat(asked).containsExactly(9)
     }
 
-    /** Shows a gauge of the levels 0 to 9 at [level], in Couleurs, that keeps the levels it is asked for. */
+    @Test
+    @DisplayName("an arrow key moves the slider one step, never out of its range")
+    fun anArrowKeyMovesTheSliderOneStepNeverOutOfItsRange() = extension.use {
+        // Given the gauge at its highest level, focused by the keyboard
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { 9 }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        gauge.requestFocus()
+
+        // When the arrows right and up ask for more, then left and down for less
+        listOf(Key.DirectionRight, Key.DirectionUp, Key.DirectionLeft, Key.DirectionDown).forEach { arrow ->
+            gauge.performKeyInput { pressKey(arrow) }
+        }
+
+        // Then nothing past the level 9, and a level down for each of the others
+        assertThat(asked).containsExactly(8, 8)
+    }
+
+    @Test
+    @DisplayName("an arrow key on minus or plus does not move the gauge")
+    fun anArrowKeyOnMinusOrPlusDoesNotMoveTheGauge() = extension.use {
+        // Given the gauge at the level 5, its plus focused by the keyboard
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { 5 }
+        val plus = onNodeWithContentDescription(PLUS)
+        plus.requestFocus()
+
+        // When an arrow is pressed
+        plus.performKeyInput { pressKey(Key.DirectionLeft) }
+
+        // Then it is the focus that may move, not the level
+        assertThat(asked).isEmpty()
+    }
+
+    @Test
+    @DisplayName("a focused slider bears the focus ring")
+    fun aFocusedSliderBearsTheFocusRing() = extension.use {
+        // Given the gauge, the keyboard in use
+        setGauge(keyboard = true) { 5 }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        val unfocused = colorOnFocusRingOf(gauge)
+
+        // When it takes the focus
+        gauge.requestFocus()
+
+        // Then the ring of the buttons shows around it, where nothing was drawn before
+        assertThat(colorOnFocusRingOf(gauge)).isEqualTo(focusColor).isNotEqualTo(unfocused)
+    }
+
+    /**
+     * Shows a gauge of the levels 0 to 9 at [level], in Couleurs, off the edges of the screen, that keeps the levels it
+     * is asked for; [focusColor] is then the colour of the ring of the focus of its theme.
+     */
     private fun ComposeContext.setGauge(
         onLevelChange: (Int) -> Unit = {},
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        keyboard: Boolean = false,
         level: () -> Int,
     ) {
         setContent {
+            if (keyboard) KeyboardInUse()
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                focusColor = BloxTheme.buttons.focus
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                    LevelGauge(level = level(), levels = 0..9, onLevelChange = onLevelChange, description = DESCRIPTION)
+                    LevelGauge(
+                        level = level(),
+                        levels = 0..9,
+                        onLevelChange = onLevelChange,
+                        description = DESCRIPTION,
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                    )
                 }
             }
         }

@@ -42,9 +42,10 @@ private val HighestBar = 26.dp
 /**
  * The gauge of a level (docs/design-system/components/Choice): a bar a level of [levels], up to [level] in `accent`,
  * between − and +, − disabled at the lowest level and + at the highest; a touch or a drag on the bars gives the level
- * of the nearest one. TalkBack reads one slider, [description] and
- * the level, and moves it one level at a time; − and +, there for a finger, are left out of it. [onLevelChange] is
- * given the level asked for, always one of [levels].
+ * of the nearest one. TalkBack reads one slider, [description] and the level, and moves it one level at a time; − and
+ * +, there for a finger, are left out of it. Focused by the keyboard, it bears the ring of the buttons, and its arrows
+ * move it a level, left and right the way they point along the bars. [onLevelChange] is given the level asked for,
+ * always one of [levels].
  *
  * @throws IllegalArgumentException if [level] is not one of [levels].
  */
@@ -61,8 +62,11 @@ fun LevelGauge(
     val value = gesture.shown(given)
     val latestValue by rememberUpdatedState(given)
     val change = rememberStepChange(onLevelChange)
+    val direction = LocalLayoutDirection.current
     Row(
-        modifier = modifier.stepSemantics(value, description, state = value.value.toString(), onValueChange = change),
+        modifier = modifier
+            .stepSemantics(value, description, state = value.value.toString(), onValueChange = change)
+            .stepKeys(direction, BloxTheme.buttons.focus, BloxTheme.shapes.md, gesture, change) { latestValue },
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -74,7 +78,7 @@ fun LevelGauge(
         )
         GaugeBars(
             value,
-            Modifier.stepTouch(BarWidth / 2, LocalLayoutDirection.current, {
+            Modifier.stepTouch(BarWidth / 2, direction, {
                 latestValue
             }, gesture, change),
         )

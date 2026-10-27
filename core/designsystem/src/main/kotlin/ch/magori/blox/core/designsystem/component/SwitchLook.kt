@@ -5,7 +5,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
-import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
@@ -64,7 +63,7 @@ internal fun switchLook(
     val bubble = buttons.secondary
     val on = state.checked
     val size = thumbSize(on, state.enabled, state.depth)
-    val focusRing = if (state.focused) FocusRing(buttons.focus, BloxBorders.focus, BloxBorders.focusGap) else null
+    val focusRing = if (state.focused) buttonFocusRing(buttons.focus) else null
     return if (state.enabled) {
         val down = state.depth > 0f
         // Original, whose outline is the face of its buttons, frames its tracks in ink (P5.57).

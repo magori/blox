@@ -1,7 +1,11 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -15,8 +19,11 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
@@ -35,6 +42,9 @@ internal class VolumeSliderTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
+
+    /** The colour of the ring of the focus in the theme of the slider shown. */
+    private var focusColor = Color.Unspecified
 
     @Test
     @DisplayName("TalkBack reads one slider with its value and moves it one step at a time")
@@ -182,26 +192,66 @@ internal class VolumeSliderTest {
         assertThat(asked).isEmpty()
     }
 
+    @Test
+    @DisplayName("an arrow key moves the slider one step, never out of its range")
+    fun anArrowKeyMovesTheSliderOneStepNeverOutOfItsRange() = extension.use {
+        // Given the slider at 100 %, focused by the keyboard
+        val asked = mutableListOf<Int>()
+        setSlider(onPercentChange = { asked += it }, percent = 100, keyboard = true)
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        slider.requestFocus()
+
+        // When the arrows right and up ask for more, then left and down for less
+        listOf(Key.DirectionRight, Key.DirectionUp, Key.DirectionLeft, Key.DirectionDown).forEach { arrow ->
+            slider.performKeyInput { pressKey(arrow) }
+        }
+
+        // Then nothing past 100 %, and a step down for each of the others
+        assertThat(asked).containsExactly(90, 90)
+    }
+
+    @Test
+    @DisplayName("a focused slider bears the focus ring")
+    fun aFocusedSliderBearsTheFocusRing() = extension.use {
+        // Given the slider, the keyboard in use
+        setSlider(percent = 50, keyboard = true)
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        val unfocused = colorOnFocusRingOf(slider)
+
+        // When it takes the focus
+        slider.requestFocus()
+
+        // Then the ring of the buttons shows around it, where nothing was drawn before
+        assertThat(colorOnFocusRingOf(slider)).isEqualTo(focusColor).isNotEqualTo(unfocused)
+    }
+
     /** The point of the track [fraction] of the way the centre of the knob, of 28 dp, goes: from 14 dp to 14 dp off. */
     private fun TouchInjectionScope.along(fraction: Float): Offset {
         val inset = with(this) { 14.dp.toPx() }
         return Offset(inset + (width - 2 * inset) * fraction, centerY)
     }
 
-    /** Shows a volume slider at [percent], in Couleurs, that keeps the volumes it is asked for. */
+    /**
+     * Shows a volume slider at [percent], in Couleurs, off the edges of the screen, that keeps the volumes it is asked
+     * for; [focusColor] is then the colour of the ring of the focus of its theme.
+     */
     private fun ComposeContext.setSlider(
         onPercentChange: (Int) -> Unit = {},
         percent: Int,
         enabled: Boolean = true,
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        keyboard: Boolean = false,
     ) {
         setContent {
+            if (keyboard) KeyboardInUse()
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                focusColor = BloxTheme.buttons.focus
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     VolumeSlider(
                         percent = percent,
                         onPercentChange = onPercentChange,
                         description = DESCRIPTION,
+                        modifier = Modifier.padding(horizontal = 16.dp),
                         enabled = enabled,
                     )
                 }

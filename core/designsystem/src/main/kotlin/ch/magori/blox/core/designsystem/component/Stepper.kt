@@ -1,5 +1,6 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
@@ -11,7 +12,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.contentDescription
@@ -134,12 +143,14 @@ internal fun Modifier.stepTouch(
 }
 
 /**
- * The step a finger holds while it drags a slider, [held], or null when no finger drags it: what the slider shows
- * then, rather than its value, which lags behind the finger until the value asked for is written and given back.
+ * What a finger and the keyboard do with a slider. The step a finger holds while it drags the slider, [held], or null
+ * when no finger drags it: what the slider shows then, rather than its value, which lags behind the finger until the
+ * value asked for is written and given back. Whether the slider has the focus of the keyboard, [focused].
  */
 @Stable
 internal class StepGesture {
     var held: SteppedValue? by mutableStateOf(null)
+    var focused: Boolean by mutableStateOf(false)
 
     /** What a slider at [value] shows: the step held by the finger, if any, else [value]. */
     fun shown(value: SteppedValue): SteppedValue = held ?: value
@@ -157,4 +168,62 @@ internal fun rememberStepGesture(): StepGesture = remember { StepGesture() }
 internal fun rememberStepChange(onChange: (Int) -> Unit): (SteppedValue) -> Unit {
     val latest by rememberUpdatedState(onChange)
     return remember { { next: SteppedValue -> latest(next.value) } }
+}
+
+/**
+ * Lets the keyboard focus a slider at [value], and move it a step an arrow ([afterArrow]) in [layoutDirection]: the
+ * step asked for is passed to [onValueChange] if it is another. Focused, the slider bears the ring of the buttons, in
+ * [ringColor], around [shape]; not [enabled], it takes no focus. It keeps its arrows even at the end of its range, so
+ * that the focus does not leave it when it cannot go further, but leaves those of the buttons it holds (− and + of a
+ * gauge) to them. [value] and [onValueChange] are read at each key, as for a touch ([stepTouch]).
+ */
+internal fun Modifier.stepKeys(
+    layoutDirection: LayoutDirection,
+    ringColor: Color,
+    shape: Shape,
+    gesture: StepGesture,
+    onValueChange: (SteppedValue) -> Unit,
+    enabled: Boolean = true,
+    value: () -> SteppedValue,
+): Modifier = this
+    .focusRing(if (gesture.focused) buttonFocusRing(ringColor) else null, shape)
+    .onFocusChanged { gesture.focused = it.isFocused }
+    .onKeyEvent { event ->
+        val arrow = event.arrow()
+        if (!gesture.focused || arrow == null) return@onKeyEvent false
+        if (event.type == KeyEventType.KeyDown) {
+            val current = gesture.shown(value())
+            val next = current.afterArrow(arrow, layoutDirection)
+            if (next != current) onValueChange(next)
+        }
+        true
+    }
+    .focusable(enabled)
+
+/** The arrow of this key, or null if it is not an arrow. */
+private fun KeyEvent.arrow(): Arrow? = when (key) {
+    Key.DirectionLeft -> Arrow.LEFT
+    Key.DirectionRight -> Arrow.RIGHT
+    Key.DirectionUp -> Arrow.UP
+    Key.DirectionDown -> Arrow.DOWN
+    else -> null
+}
+
+/** An arrow key of a keyboard. */
+internal enum class Arrow { LEFT, RIGHT, UP, DOWN }
+
+/**
+ * The step [arrow] asks of a slider at this value, never out of its range: up raises it and down lowers it; left and
+ * right move it the way they point along the track, which starts on the left, or on the right in a [layoutDirection]
+ * read from right to left.
+ */
+internal fun SteppedValue.afterArrow(
+    arrow: Arrow,
+    layoutDirection: LayoutDirection,
+): SteppedValue {
+    val towardsEnd = if (layoutDirection == LayoutDirection.Rtl) Arrow.LEFT else Arrow.RIGHT
+    return when (arrow) {
+        Arrow.UP, towardsEnd -> increased()
+        else -> decreased()
+    }
 }

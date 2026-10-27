@@ -3,15 +3,12 @@ package ch.magori.blox.core.designsystem.component
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.state.ToggleableState
@@ -149,8 +146,7 @@ internal class BloxMenuTest {
         // Given the keyboard in use, and the menu not yet open
         var expanded by mutableStateOf(false)
         setContent {
-            val inputMode = LocalInputModeManager.current
-            LaunchedEffect(Unit) { inputMode.requestInputMode(InputMode.Keyboard) }
+            KeyboardInUse()
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 Box {
                     BloxMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
