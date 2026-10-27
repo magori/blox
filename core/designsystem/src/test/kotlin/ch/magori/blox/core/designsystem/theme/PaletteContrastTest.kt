@@ -38,10 +38,31 @@ internal class PaletteContrastTest {
         assertThat(contrast(pair.text(palette), pair.background(palette))).isGreaterThanOrEqualTo(4.5)
     }
 
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("tabs")
+    fun `the label of the open tab of a track stands out from it by 4,5 to 1 at least, day and night`(
+        theme: String,
+        track: String,
+        colors: TrackColors,
+    ) {
+        // When / Then (WCAG 2.1, 1.4.3): the open track of the editor, and a segment retained in its colours
+        // (ChoiceItem.selectedColors), its label and check in tabInk on tab
+        assertThat(contrast(colors.tabInk, colors.tab)).isGreaterThanOrEqualTo(4.5)
+    }
+
     companion object {
         @JvmStatic
         fun texts(): List<Arguments> = namedPalettes.flatMap { (theme, palette) ->
             TextPair.entries.map { pair -> Arguments.of(theme, pair, palette) }
+        }
+
+        /** The tracks of Couleurs, by day and by night; Original no longer changes. */
+        @JvmStatic
+        fun tabs(): List<Arguments> = listOf(
+            "Couleurs, jour" to BloxPalettes.ColorfulLight,
+            "Couleurs, nuit" to BloxPalettes.ColorfulDark,
+        ).flatMap { (theme, palette) ->
+            listOf(Arguments.of(theme, "mélodie", palette.melody), Arguments.of(theme, "basse", palette.bass))
         }
     }
 }

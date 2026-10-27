@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 207 / 304 | `██████████████░░░░░░` **68 %** |
+| **Général** | 208 / 304 | `██████████████░░░░░░` **68 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1046,7 +1046,7 @@ composants.
     the music`, `a music playing keeps its listen button in the pressed fill`, `the equalizer moves its three bars
     between 35 and 100 percent of their height in 30 ticks`, `in reduced effects or in Original the equalizer stands
     still`, `the equalizer is left out by TalkBack`, `nothing recomposes while the equalizer moves` ; captures.
-  - [ ] **P5.95** Segments de choix sans titre, à pictogramme et à couleur de piste (`core:designsystem`, composant
+  - [x] **P5.95** Segments de choix sans titre, à pictogramme et à couleur de piste (`core:designsystem`, composant
     Choice) : `ChoiceSegments` public (segments de `ChoiceGroup` sans `LabelledControl`, nommés pour TalkBack),
     `ChoiceItem.icon` (pictogramme avant le libellé, remplacé par la coche sur le segment retenu), couleurs
     retenues par segment (`ChoiceItem.selectedColors`, ici `TrackColors.tab` et `tabInk`) ; pistes et mesures lues
