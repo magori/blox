@@ -115,6 +115,12 @@ ni grille de trois colonnes (P5.30).
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 
+Prévu (P8) : un sixième choix, *Vivante*, une musique composée pour chaque partie, calme puis
+tendue quand la pile monte, qui accélère avec les niveaux. Spécification :
+[musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
+([graine-du-jour.md](graine-du-jour.md)). Les jeux musicaux Au tempo et Jardin musical ont leur
+propre son : [regles-au-tempo.md](regles-au-tempo.md), [jardin-musical.md](jardin-musical.md).
+
 ## Modèle
 
 ```
@@ -311,6 +317,28 @@ rien du jeu de 1989.
 | 4 lignes | carrée | 0,09 | 2 / 15 ms | C5, E5, G5, C6, E6, G6 (50 ms chacune), C7 150 ms | 450 ms |
 | Fin de partie | triangle | 0,2 | 2 / 30 ms | G4 120, E4 120, C4 120, G3 240 | 600 ms |
 
+Le Serrurier a ses propres effets (`LocksmithSounds`, P7.9), hors de `SoundEffects.all` que le
+Classique préchauffe ; leurs volumes et enveloppes se lisent sur ceux du Classique :
+
+| Effet | Onde | Volume | Enveloppe | Notes | Durée |
+|---|---|---|---|---|---|
+| Arpège d'un accord | carrée | celui des lignes (0,08) | 2 / 15 ms | fondamentale 70, tierce 70, quinte 300 | 440 ms |
+| Basse d'un accord | triangle | celui de la fin de partie (0,2) | 2 / 30 ms | fondamentale deux octaves plus bas, de C2 à C4 | 440 ms |
+| Serrure ouverte | carrée | celui des 4 lignes (0,09) | 2 / 15 ms | C5, E5, G5 (60 ms chacune), C6 240 | 420 ms |
+| Refus | carrée | 0,06 | 2 / 15 ms | C3 90, B2 90 | 180 ms |
+
+L'arpège et la basse d'un accord (`effectsOf(chord)`) sont deux effets, joués ensemble sur deux
+pistes.
+**Tests :** `LocksmithSoundsTest › an arpeggio plays the root the third and the fifth upwards, the fifth held, as loud as the lines cleared`,
+`LocksmithSoundsTest › the bass plays the root two octaves down for the whole arpeggio, on the triangle, as loud as the game over`,
+`LocksmithSoundsTest › the arpeggio and the bass of a chord are two distinct effects, so that they play on two tracks`,
+`LocksmithSoundsTest › a chord whose bass would fall out of the range of the basses, C2 to C4, is refused`,
+`LocksmithSoundsTest › the bass of a chord on C4 to C6 is in the range of the basses, its ends included`,
+`LocksmithSoundsTest › every triad on C4 to B4 has an arpeggio and a bass in the range of the basses`,
+`LocksmithSoundsTest › the opening flourish climbs the tonic chord, C5 to C6, in 420 ms, as loud as four lines cleared`,
+`LocksmithSoundsTest › the refusal falls a semitone, C3 then B2, in 180 ms on the square`,
+`LocksmithSoundsTest › every locksmith effect stays within the volume of the effects on its waveform`.
+
 Pour situer : la mélodie des musiques est à 0,07 et la basse à 0,16. Ces volumes sont ensuite multipliés par le gain du
 réglage « Volume des effets » ou « Volume de la musique » (P5.68, `docs/regles-mode-classique.md`,
 Préférences v2) : chaque lecteur prend un `Volume` par l'interface `VolumeControl`, et les sorties
@@ -323,7 +351,9 @@ Préférences v2) : chaque lecteur prend un `Volume` par l'interface `VolumeCont
   à défaut), dans sa propre piste `AudioTrack` statique, puis seulement rejoué ; deux effets
   différents se superposent, un effet rejoué repart du début (coupure nette possible). Les pistes
   demandent le mode basse latence, que le système peut refuser. Elles sont préparées dès que la
-  partie sait les effets activés, et vivent autant que le processus (cinq petits tampons).
+  partie sait les effets activés, et vivent autant que le processus : cinq petits tampons pour le
+  Classique, et jusqu'à douze de plus pour le Serrurier (cinq accords en arpège et basse, la
+  serrure ouverte, le refus), nombre à mesurer sur appareil (ADR 0025).
 - **Sans focus audio** (`USAGE_GAME`, `CONTENT_TYPE_SONIFICATION`) : le système mixe l'effet
   par-dessus la musique sans la couper.
 - **Échecs** silencieux et journalisés : un rendu, une ouverture ou une lecture qui échoue ne

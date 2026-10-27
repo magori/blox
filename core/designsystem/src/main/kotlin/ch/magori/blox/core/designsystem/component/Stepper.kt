@@ -4,9 +4,12 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
@@ -90,30 +93,61 @@ internal fun Modifier.stepSemantics(
  * last bars, goes), passed to [onValueChange] if it is another; a finger before the start or past the end gives the
  * first or the last step. A drag starts only once the finger has moved sideways, so that a parent that scrolls still
  * scrolls. [value] and [onValueChange] are read at each touch: a drag goes on while the value it changes is composed
- * again. Both detectors start at once, not dispatched: the first touch, which starts them, is not lost.
+ * again. During a drag, [gesture] holds the step under the finger: the slider shows it, and a step is asked for once,
+ * when the finger reaches it, even while the value given back lags (a write that takes its time); once the finger
+ * lifts, the slider shows its value again. Both detectors start at once, not dispatched: the first touch, which starts
+ * them, is not lost.
  */
 internal fun Modifier.stepTouch(
     inset: Dp,
     layoutDirection: LayoutDirection,
     value: () -> SteppedValue,
+    gesture: StepGesture,
     onValueChange: (SteppedValue) -> Unit,
-): Modifier = pointerInput(inset, layoutDirection) {
+): Modifier = pointerInput(inset, layoutDirection, gesture) {
     val moveTo = { x: Float ->
         val start = inset.toPx()
         val along = (x - start) / (size.width - 2 * start).coerceAtLeast(1f)
-        val nearest = value().nearestTo(if (layoutDirection == LayoutDirection.Rtl) 1 - along else along)
-        if (nearest != value()) onValueChange(nearest)
+        val current = gesture.shown(value())
+        val nearest = current.nearestTo(if (layoutDirection == LayoutDirection.Rtl) 1 - along else along)
+        if (nearest != current) {
+            if (gesture.held != null) gesture.held = nearest
+            onValueChange(nearest)
+        }
     }
     coroutineScope {
         launch(start = CoroutineStart.UNDISPATCHED) { detectTapGestures { moveTo(it.x) } }
         launch(start = CoroutineStart.UNDISPATCHED) {
-            detectHorizontalDragGestures(onDragStart = { moveTo(it.x) }) { change, _ ->
+            detectHorizontalDragGestures(
+                onDragStart = {
+                    gesture.held = value()
+                    moveTo(it.x)
+                },
+                onDragEnd = { gesture.held = null },
+                onDragCancel = { gesture.held = null },
+            ) { change, _ ->
                 change.consume()
                 moveTo(change.position.x)
             }
         }
     }
 }
+
+/**
+ * The step a finger holds while it drags a slider, [held], or null when no finger drags it: what the slider shows
+ * then, rather than its value, which lags behind the finger until the value asked for is written and given back.
+ */
+@Stable
+internal class StepGesture {
+    var held: SteppedValue? by mutableStateOf(null)
+
+    /** What a slider at [value] shows: the step held by the finger, if any, else [value]. */
+    fun shown(value: SteppedValue): SteppedValue = held ?: value
+}
+
+/** The [StepGesture] of a slider, kept across its compositions. */
+@Composable
+internal fun rememberStepGesture(): StepGesture = remember { StepGesture() }
 
 /**
  * What a slider does with the step it is asked for: gives its value to [onChange], the one of the last composition,

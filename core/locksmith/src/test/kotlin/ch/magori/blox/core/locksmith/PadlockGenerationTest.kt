@@ -150,6 +150,26 @@ class PadlockGenerationTest {
         assertThatIllegalArgumentException().isThrownBy { PadlockGenerator.generate(4, 1, seeds = 0) }
     }
 
+    @ParameterizedTest(name = "padlock {0}: {1} pieces")
+    @CsvSource("1, 3", "2, 4", "3, 5", "4, 6", "5, 6")
+    fun `padlock n of a seed holds min of 6 and 2 plus n pieces`(
+        level: Int,
+        pieces: Int,
+    ) {
+        assertThat(Padlock.generate(level, seed = 2026).givenPieces).hasSize(pieces)
+    }
+
+    @Test
+    fun `the same level and seed give the same padlock, another seed another one`() {
+        assertThat(Padlock.generate(3, seed = 2026)).isEqualTo(Padlock.generate(3, seed = 2026))
+            .isNotEqualTo(Padlock.generate(3, seed = 2027))
+    }
+
+    @Test
+    fun `there is no padlock 0`() {
+        assertThatIllegalArgumentException().isThrownBy { Padlock.generate(0, seed = 2026) }
+    }
+
     @ParameterizedTest(name = "level {0}: {1} pieces")
     @CsvSource("1, 3", "2, 4", "3, 5", "4, 6", "5, 6", "20, 6")
     fun `padlock n holds min of 6 and 2 plus n pieces`(

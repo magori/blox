@@ -36,6 +36,7 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.music.FALLBACK_SCORE
@@ -43,7 +44,9 @@ import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.musicOf
 import ch.magori.blox.music.scoreOf
+import ch.magori.blox.theme.AndroidAnimationSetting
 import ch.magori.blox.theme.AppTheme
+import ch.magori.blox.theme.SystemAnimations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -102,6 +105,9 @@ class AppContainer(context: Context) {
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
+
+    /** Whether Android animates, observed for the whole life of the process: when it does not, effects are reduced. */
+    val systemAnimations: SystemAnimations = SystemAnimations(AndroidAnimationSetting(context), dataScope)
 
     /**
      * The music of the games and of the preview on the home screen: a single sequencer for the whole life
@@ -187,8 +193,12 @@ class AppContainer(context: Context) {
         musicLibrary,
     )
 
-    /** The settings page: the settings kept on the device, read by each game when it is created. */
-    val settingsViewModelFactory: SettingsViewModel.Factory = SettingsViewModel.Factory(userPreferences)
+    /**
+     * The settings page: the settings kept on the device, read by each game when it is created; the record, which it
+     * clears; the sound effects and the vibrations of the games, for a setting turned on to be felt once.
+     */
+    val settingsViewModelFactory: SettingsViewModel.Factory =
+        SettingsViewModel.Factory(userPreferences, highScores, soundEffects, haptics)
 
     /** The music editor: a music of the player, or a new one, listened to by the music player of the games. */
     val composerViewModelFactory: ComposerViewModel.Factory = ComposerViewModel.Factory(music, musicLibrary)
@@ -205,6 +215,10 @@ class AppContainer(context: Context) {
      */
     val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
+
+    /** Builds the view model of the Locksmith (ADR 0025). */
+    val locksmithViewModelFactory: LocksmithViewModel.Factory =
+        LocksmithViewModel.Factory(soundEffects, userPreferences)
 }
 
 private const val TAG = "BloX"

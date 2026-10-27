@@ -21,6 +21,8 @@ import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
 import ch.magori.blox.feature.home.navigation.settingsEntry
+import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.navigation.locksmithEntry
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
@@ -43,6 +45,7 @@ fun BloxNavDisplay(
     myMusicsViewModelFactory: MyMusicsViewModel.Factory,
     settingsViewModelFactory: SettingsViewModel.Factory,
     deletedMusics: DeletedMusicRelay,
+    locksmithViewModelFactory: LocksmithViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -89,6 +92,11 @@ fun BloxNavDisplay(
                 viewModelFactory = myMusicsViewModelFactory,
             )
             settingsEntry(onBack = goBack, viewModelFactory = settingsViewModelFactory)
+            locksmithEntry(
+                onBack = goBack,
+                onNext = { open -> nextPadlock(backStack, open) },
+                viewModelFactory = locksmithViewModelFactory,
+            )
         },
     )
 }

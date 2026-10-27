@@ -2,10 +2,14 @@ package ch.magori.blox.core.designsystem.icon
 
 /**
  * The icons of BloX (maquette, section Icônes), each drawn twice: [pixels], 8 lines of 8 pixels, full (`#`) or empty
- * (`.`), for the Original theme; [strokes], the path data of its strokes on a grid of 24 (as an SVG `d`), for the
- * others. [BloxIcon] (the composable) draws the one of the theme.
+ * (`.`), for the Original theme; [strokes], the path data of its strokes on a grid of 24 (as an SVG `d`), [strokeWidth]
+ * thick, for the others. [BloxIcon] (the composable) draws the one of the theme.
  */
-enum class BloxIcon(internal val pixels: List<String>, internal val strokes: String) {
+enum class BloxIcon(
+    internal val pixels: List<String>,
+    internal val strokes: String,
+    internal val strokeWidth: Float = STROKE_WIDTH,
+) {
     /** Jouer, Écouter, Reprendre. */
     PLAY(
         listOf("..#.....", "..##....", "..###...", "..####..", "..####..", "..###...", "..##....", "..#....."),
@@ -65,6 +69,31 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
     VIBRATE(
         listOf("..####..", "..#..#..", "#.#..#.#", "#.#..#.#", "#.#..#.#", "..#..#..", "..####..", "........"),
         "M8 3h8a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM3 8v8M21 8v8",
+    ),
+
+    /** Vibration des touches, in the settings: a finger that touches. */
+    TOUCH(
+        listOf("...#....", "...#....", "...###..", "#..####.", "##.####.", ".######.", "..####..", "..####.."),
+        "M10 11V5.5a1.5 1.5 0 0 1 3 0V11M13 10.5a1.5 1.5 0 0 1 3 0V12M16 11.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1.5" +
+            "a5 5 0 0 1-4-2l-3-4a1.4 1.4 0 0 1 2.1-1.9L10 15",
+    ),
+
+    /** The volumes, in the settings: a loudspeaker and its waves. */
+    VOLUME(
+        listOf("...#....", "..##..#.", "####.#.#", "####.#.#", "####.#.#", "..##..#.", "...#....", "........"),
+        "M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11",
+    ),
+
+    /** Effets réduits, in the settings: rays of light, struck through (docs/design-system/pictogrammes.md). */
+    REDUCED_EFFECTS(
+        listOf("#..##...", ".#....#.", "..#.....", "#..#...#", "#...#..#", ".....#..", ".#....#.", "...##..#"),
+        "M12 3v3M12 18v3M3 12h3M18 12h3M6.3 6.3l2 2M15.7 15.7l2 2M6.3 17.7l2-2M15.7 8.3l2-2M3 3l18 18",
+    ),
+
+    /** Record du Classique, in the settings: a cup. */
+    TROPHY(
+        listOf(".######.", "#.####.#", "#.####.#", ".######.", "..####..", "...##...", "..####..", "........"),
+        "M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8.5 20h7M10 17h4",
     ),
 
     /** Menu: a house. */
@@ -144,6 +173,20 @@ enum class BloxIcon(internal val pixels: List<String>, internal val strokes: Str
     COMPOSE(
         listOf("..######", "..######", "..#....#", "..#..#.#", "..#.###.", "#####...", "####....", "........"),
         "M9 18V5l11-2v6M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM14 21h2.5l5-5-2.5-2.5-5 5z",
+    ),
+
+    /** The choice made (Utiliser, En jeu, the sheets): a check (pictogrammes.md, P5.87). */
+    CHECK(
+        listOf("........", ".......#", "......##", "#....##.", "##..##..", ".####...", "..##....", "........"),
+        "M4 12.5l5 5L20 6.5",
+        strokeWidth = 3f,
+    ),
+
+    /** A message of error (Enregistrer): an exclamation mark in a circle (pictogrammes.md, P5.87). */
+    ALERT(
+        listOf("..####..", ".#....#.", "#..##..#", "#..##..#", "#......#", "#..##..#", ".#....#.", "..####.."),
+        "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v6M12 16.5v.5",
+        strokeWidth = 2.5f,
     ),
 }
 

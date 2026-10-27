@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -19,7 +20,9 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
@@ -31,6 +34,7 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -77,6 +81,33 @@ internal class BubbleButtonTest {
         // Then still down at each frame of motion press, the last one just before its end, and back at rest after it
         assertThat(drops.take(returnFrames)).allSatisfy { assertThat(it).isPositive() }
         assertThat(drops.last()).isZero()
+    }
+
+    @Test
+    @DisplayName("in reduced effects a pressed button stays in place, and so does it once released")
+    fun inReducedEffectsAPressedButtonStaysInPlace() = extension.use {
+        // Given a button at rest, in reduced effects
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL, effects = BloxEffects(reduced = true, forcedBySystem = false)) {
+                SecondaryButton("Menu", BloxIcon.HOME, onClick = {})
+            }
+        }
+        mainClock.advanceTimeByFrame()
+        val atRest = labelTop()
+
+        // When it is pressed
+        onNodeWithText("Menu").performTouchInput { down(center) }
+        mainClock.advanceTimeByFrame()
+        val pressed = labelTop()
+
+        // And released
+        onNodeWithText("Menu").performTouchInput { up() }
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        assertThat(pressed).isEqualTo(atRest)
+        assertThat(labelTop()).isEqualTo(atRest)
     }
 
     @Test
@@ -156,6 +187,45 @@ internal class BubbleButtonTest {
             .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
             .assertHeightIsAtLeast(family.minHeight)
+    }
+
+    @ParameterizedTest
+    @EnumSource(ButtonFamily::class, names = ["PRIMARY", "SECONDARY"])
+    @DisplayName("a compact main or secondary button is 48 dp high")
+    fun aCompactButtonIs48DpHigh(family: ButtonFamily) = extension.use {
+        // Given a compact button of the family, as wide as a measure
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                BubbleButton(
+                    family = family,
+                    onClick = {},
+                    size = ButtonSize.COMPACT,
+                    modifier = Modifier.testTag(TAG).width(160.dp),
+                ) { Text("Ok") }
+            }
+        }
+
+        // Then
+        onNodeWithTag(TAG).assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+    }
+
+    @Test
+    @DisplayName("a selected button is read as selected by TalkBack, a plain one is not")
+    fun aSelectedButtonIsReadAsSelected() = extension.use {
+        // Given the choice made and another
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Column {
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {
+                    }, emphasis = ButtonEmphasis.SELECTED) { Text("Mesure 1") }
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {}) { Text("Mesure 2") }
+                }
+            }
+        }
+
+        // Then
+        onNodeWithText("Mesure 1").assertIsSelected()
+        onNodeWithText("Mesure 2").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
     }
 
     @Test

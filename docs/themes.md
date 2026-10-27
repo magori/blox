@@ -128,6 +128,22 @@ Effets réduits (P5.71) : retour immédiat par `returnTicks = 0`.
 `BubbleButtonTest › a button of each family is 48 dp high and wide at least, and as high as its family` ;
 captures `AccentButtons*` et `PlainButtons*` (Original, jour, nuit). Vues : V19, V21, V27 à V34.
 
+**États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
+(`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
+`accent`, cadré en `accentPressed` (3:1 sur la page de jour, comme la touche A), encre `accentInk`, et annoncé
+« sélectionné » par TalkBack ; désactivé, il reste en `accent`, à plat. Un bouton **en cours** (Écouter pendant
+l'écoute) garde l'aspect pressé sans descendre. Un **disque nu** (« … », − et + du tempo, croix) n'a ni fond, ni
+cadre, ni relief au repos ; pressé, il prend `buttonPressed` et un cadre `buttonOutline` ; désactivé, il reste nu,
+pictogramme en `label`. La taille **compacte** (48 dp, décision du développeur) ne vaut que pour Principal et
+Secondaire. Pictogrammes `CHECK` et `ALERT`, chacun avec son épaisseur de trait.
+**Tests :** `ButtonLookTest › a selected button is filled in accent, framed and pressed in accent pressed, its ink in accent ink`,
+`ButtonLookTest › the frame of a selected button stands out from the page by 3 to 1 at least`,
+`ButtonLookTest › a disabled selected button stays in accent, flat and in place`,
+`ButtonLookTest › a pressed bare button is framed in button outline, which stands out from the page by 3 to 1 at least`,
+`ButtonLookTest › a disabled bare icon button stays bare, its glyph in label`,
+`ButtonLookTest › only a main or a secondary button may be compact, 48 dp high`,
+`BubbleButtonTest › a selected button is read as selected by TalkBack, a plain one is not` ; captures `ButtonVariants*`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
@@ -251,8 +267,8 @@ qui met en pause une partie en cours (ADR 0020). Les palettes de jour et de nuit
 (`BloxPalettes.ColorfulLight`, `ColorfulDark`) prennent les valeurs de
 [`tokens.json`](design-system/tokens.json), seule source (ADR 0019) : le plugin de convention
 `blox.design.tokens` passe ce fichier aux tests de `core:designsystem`, et `PaletteTokensTest`
-compare chaque jeton à sa propriété. Les jetons non codés y sont listés avec leur raison :
-`cell-ground` et `grid-line` (grille de l'éditeur, P5.88). Les jetons des pièces sont comparés
+compare chaque jeton à sa propriété ; une liste des jetons non codés, avec leur raison, est prévue mais vide
+(depuis P5.88, `cell-ground` et `grid-line` font la grille de l'éditeur). Les jetons des pièces sont comparés
 dans `core:board` (`PieceTokensTest`), avec le même lecteur, partagé par les doublures de test de
 `core:designsystem`.
 Le schéma Material part de la base claire ou sombre selon la variante, les icônes des barres système aussi
@@ -260,7 +276,12 @@ Le schéma Material part de la base claire ou sombre selon la variante, les icô
 soit le mode du téléphone, réappliquées quand le thème ou le mode change ; avant la lecture du thème, celles
 d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
-`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Les formes, polices et
+`SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
+toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
+thème choisi : `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+`SystemBarsTest › the bars of every other screen follow the theme chosen`,
+`SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
+Les formes, polices et
 pictogrammes ne dépendent que du thème (`BloxTheme.kind`), pas du mode. Les styles de pièces, le
 dessin du plateau et de la pièce suivante prennent la variante ; leurs pinceaux sont construits une
 fois par variante, taille et fond. La cellule vide prend `emptyCell`, séparée du plateau par une
@@ -424,6 +445,51 @@ Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
 `SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
 captures `Switches*`. Vues : V21, V31.
 
+**Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
+et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
+effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
+converti en `Volume`), Vibrations, Vibration des touches (« Un léger toucher à chaque touche ») ; sans vibreur, les
+deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Valable dès la partie suivante. ». Un
+réglage allumé se fait sentir une fois, après un enregistrement réussi : la rotation pour les effets, la
+vibration des lignes ou d'une touche pour les vibrations. Record : `SettingActionRow`, Effacer en bout de ligne
+(dessous en grande police), lu « Effacer le record du Classique » ; il ouvre une `ConfirmWindow` (générique,
+`DeleteWindow` réécrite dessus) qui propose d'abord « Garder le record » ; pendant l'écriture, la fenêtre reste
+ouverte, réponses désactivées ; un échec la garde ouverte et le dit ; un succès la ferme et « Record effacé »
+s'affiche dans une région vive présente dès l'ouverture de la page. Effacer est un bouton `DANGER` (cadre et
+libellé `danger`, rempli pressé). Les curseurs gardent le pas sous le doigt pendant un glissé et ne demandent
+chaque pas qu'une fois.
+**Tests :** `SettingsViewModelTest › turning the sound effects on plays the rotation once`,
+`SettingsViewModelTest › turning a vibration on vibrates once`,
+`SettingsViewModelTest › clearing the record asks first, and keeping it changes nothing`,
+`SettingsViewModelTest › a confirmed clear clears the record and says « Record effacé »`,
+`SettingsViewModelTest › a clear that cannot be written keeps the window open and says it failed`,
+`SettingsViewModelTest › while the record is being cleared, the window stays open and answers nothing more`,
+`SettingsScreenTest › without a vibrator both vibrations are disabled and say « Cet appareil ne vibre pas »`,
+`SettingsScreenTest › the volume of the effects is disabled while the sound effects are off`,
+`SettingsScreenTest › once cleared, the page says « Record effacé » in a live region there from the start, and the window is gone`,
+`ConfirmWindowTest › the window asks its question as a heading, then offers the safe answer first, each calling its own`,
+`VolumeSliderTest › a drag asks for each step once, and the knob follows the finger while the value has not come back`,
+`ButtonLookTest › a danger button is framed and labelled in danger at rest, filled in danger pressed` ;
+captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
+
+**Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
+`BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les
+animations d'Android, observées en continu (`SystemAnimations`, réglage `ANIMATOR_DURATION_SCALE`, écran partagé
+compris) ; le thème et le choix d'effets sont lus ensemble avant la première image (`AppTheme.appearance`). Carte
+Affichage en tête des Paramètres : Effets réduits (« Moins de mouvements et de particules ») ; quand Android
+retire les animations, l'interrupteur est allumé, bloqué et dit « Imposé par les réglages d'Android », sans
+écrire le choix enregistré ; sous la carte, « Le thème se choisit à l'accueil. ». En Effets réduits, un bouton
+pressé ne change que de couleur et revient aussitôt ; une touche de jeu tenue garde sa descente de 2 dp (seul
+repère de A tenue de jour). Un sous-titre de rangée de réglage peut prendre trois lignes.
+**Tests :** `BloxEffectsTest › effects are reduced when the player asks for it`,
+`BloxEffectsTest › effects are reduced and forced when Android removes the animations, whatever the choice`,
+`SystemAnimationsTest › removing the animations while the application runs is seen at once, and so is giving them back`,
+`AppThemeTest › the theme and the choice of effects are known together, and neither before the settings are read`,
+`ButtonLookTest › in reduced effects a pressed button changes its fill only`,
+`HeldKeyTest › a held key goes 2 dp down with its tag and what TalkBack reads, reduced effects or not`,
+`SettingsScreenTest › a forced switch reads « Imposé par les réglages d'Android » and cannot be turned off`,
+`SettingsScreenTest › in a font twice as large, on 360 dp, every sub-line shows whole, its words whole`.
+
 **Coche** (P5.42, essai demandé par le développeur) : le choix sélectionné porte une coche
 dessinée (un trait qui descend puis remonte, bouts carrés) en `accentInk`, repère qui ne tient
 pas à la couleur (WCAG 1.4.1). Elle se place avant le libellé, aussi haute que lui (1 em, 24 dp
@@ -489,7 +555,12 @@ couleur de sa piste en Couleurs (mélodie cyan, basse orange), son libellé à 4
 valeurs Couleurs ci-dessous sont celles de la v1 : depuis P5.57, celles du jour et de la nuit
 viennent de `tokens.json` (`melody`, `bass`, `danger`…). De jour, la partie tenue d'une note,
 pastel, ne se détache de la case qu'à 2,1 à 2,3:1 : elle est bordée en haut et en bas, sur 2 dp,
-dans la couleur de sa piste, qui s'en détache d'au moins 3:1.
+dans la couleur de sa piste, qui s'en détache d'au moins 3:1. Depuis P5.88, les cases de la grille sont en `cellGround`
+et séparées par des lignes `gridLine` (jetons `cell-ground` et `grid-line`), et ces contrastes se mesurent sur
+la case (`TrackColorsTest › a cell of the grid is drawn on the cell ground, between lines of the grid, the notes of its tracks on it`,
+`TrackColorsTest › the lines of the grid stand out from its cells by night by a contrast of 1,3 to 1 at least` (de nuit,
+`grid-line` `#2A2D44`, P5.88 ; de jour, les lignes blanches se lisent contre les cases pâles),
+`TrackColorsTest › the attack of a note and the edges of its held part stand out from the cell by a contrast of 3 to 1 at least`).
 
 | Jeton | Original | Couleurs | Brume clair | Brume sombre |
 |---|---|---|---|---|

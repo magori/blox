@@ -16,18 +16,22 @@ enum class BloxThemeKind { ORIGINAL, COLORFUL }
 
 private val LocalBloxThemeVariant = staticCompositionLocalOf { BloxThemeVariant.ORIGINAL }
 
+private val LocalBloxEffects = staticCompositionLocalOf { BloxEffects.Full }
+
 /**
  * The theme [kind], in its variant for the mode of the system, [darkSystem]: the Colorful theme follows it, day and
- * night. Switching the mode recreates the activity, which pauses a game in play (ADR 0020).
+ * night. Switching the mode recreates the activity, which pauses a game in play (ADR 0020). Its [effects], full or
+ * reduced, are those every screen reads (ADR 0024).
  */
 @Composable
 fun BloxTheme(
     kind: BloxThemeKind = BloxThemeKind.ORIGINAL,
     darkSystem: Boolean = isSystemInDarkTheme(),
+    effects: BloxEffects = BloxEffects.Full,
     content: @Composable () -> Unit,
 ) {
     val variant = BloxThemeVariant.of(kind, darkSystem)
-    CompositionLocalProvider(LocalBloxThemeVariant provides variant) {
+    CompositionLocalProvider(LocalBloxThemeVariant provides variant, LocalBloxEffects provides effects) {
         val colorScheme = remember(variant) { colorSchemeOf(variant) }
         val typography = remember(kind) { BloxTypographies.of(kind).toMaterial() }
         MaterialTheme(
@@ -73,6 +77,15 @@ object BloxTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalBloxThemeVariant.current
+
+    /**
+     * The effects of the interface, full or reduced, as the player chose them or as Android imposes them: what a
+     * screen reads before it moves anything (ADR 0024).
+     */
+    val effects: BloxEffects
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalBloxEffects.current
 
     /** The current theme, as the player chose it: its shapes, fonts and icons are the same day and night. */
     val kind: BloxThemeKind

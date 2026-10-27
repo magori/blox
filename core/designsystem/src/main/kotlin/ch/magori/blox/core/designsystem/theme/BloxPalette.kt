@@ -30,8 +30,9 @@ data class BloxPalette(
     val buttonOutline: Color,
     val buttonInk: Color,
     /**
-     * A button held down: it stands out from [page] by 3:1 at least, [buttonInk] on it too, and from
-     * [button], the same button at rest, by 1.5:1 at least.
+     * A button held down: [buttonInk] stands out from it by 3:1 at least, and it from [button], the same button at
+     * rest, by 1.5:1 at least. It may not stand out from [page] (1.4:1 by day): what is held keeps a frame in
+     * [buttonOutline].
      */
     val buttonPressed: Color,
     val accent: Color,
@@ -51,6 +52,10 @@ data class BloxPalette(
     val cellDead: Color,
     /** The iridescent gradient: the logo, the sheen of four lines, the bar of a record beaten. */
     val iris: IrisColors,
+    /** A cell of the grid of the music editor, under its note. */
+    val cellGround: Color,
+    /** The lines between the cells of the grid of the music editor. */
+    val gridLine: Color,
     /** The notes of the melody in the music editor. */
     val melody: TrackColors,
     /** The notes of the bass in the music editor. */
@@ -95,6 +100,9 @@ object BloxPalettes {
         cellDead = Color(0xFFBFD6B6),
         // No iridescence: the ink, flat.
         iris = IrisColors(start = Color(0xFF34503A), middle = Color(0xFF34503A), end = Color(0xFF34503A)),
+        // The cells of the board, between lines of the page.
+        cellGround = Color(0xFFDCEBD5),
+        gridLine = Color(0xFFCFE3C8),
         // The held tints of the mockup, #6E8F6A and #87A67F, stood out from the cells by 2.9:1 and 2.2:1 only: one
         // darker green, 3.1:1, for both, paler than both attacks.
         // The open tab is filled in the accent, as every selected choice of this palette.
@@ -143,6 +151,8 @@ object BloxPalettes {
         clearGlow = Color(0xFFFFFFFF),
         cellDead = Color(0xFFD9DBE6),
         iris = IrisColors(start = Color(0xFFC9A7FF), middle = Color(0xFF9FF0D0), end = Color(0xFFFFC6A8)),
+        cellGround = Color(0xFFF6F7FB),
+        gridLine = Color(0xFFFFFFFF),
         // The open tab takes the colour of its notes.
         melody = TrackColors(
             note = Color(0xFF7C4DEB),
@@ -188,6 +198,8 @@ object BloxPalettes {
         clearGlow = Color(0xFFF2F4FA).copy(alpha = 0.9f),
         cellDead = Color(0xFF2A2D3A),
         iris = IrisColors(start = Color(0xFFC6FF3D), middle = Color(0xFF3DFFD0), end = Color(0xFFA77BFF)),
+        cellGround = Color(0xFF12131B),
+        gridLine = Color(0xFF2A2D44),
         melody = TrackColors(
             note = Color(0xFFA77BFF),
             held = Color(0xFF6B4FB0),

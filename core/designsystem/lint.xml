@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Règles Compose de Slack : la variante du thème du design system (dont se déduisent palette et genre) est un CompositionLocal volontaire,
-     comme MaterialTheme. Toute autre création reste signalée. -->
+<!-- Règles Compose de Slack : la variante du thème du design system (dont se déduisent palette et genre) et ses effets,
+     complets ou réduits (ADR 0024), sont des CompositionLocal volontaires, comme MaterialTheme. Toute autre création
+     reste signalée. -->
 <lint>
     <issue id="ComposeCompositionLocalUsage">
-        <option name="allowed-composition-locals" value="LocalBloxThemeVariant" />
+        <option name="allowed-composition-locals" value="LocalBloxThemeVariant,LocalBloxEffects" />
     </issue>
 </lint>

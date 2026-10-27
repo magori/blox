@@ -93,6 +93,36 @@ internal class LevelGaugeTest {
     }
 
     @Test
+    @DisplayName("a drag asks for each level once, and the gauge follows the finger while the level has not come back")
+    fun aDragAsksForEachLevelOnceAndTheGaugeFollowsTheFinger() = extension.use {
+        // Given the gauge at the level 5, whose level does not come back while the finger moves (a write that lags)
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }) { 5 }
+        val bars = onNodeWithTag(LEVEL_GAUGE_BARS_TAG, useUnmergedTree = true)
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+
+        // When a finger drags from the bar of the level 5 to the bar of the level 7, by several moves within it: bars
+        // of 8 dp, 4 dp apart, the centre of the bar of a level 4 + 12 dp a level from the start
+        bars.performTouchInput {
+            down(Offset(64.dp.toPx(), centerY))
+            moveTo(Offset(86.dp.toPx(), centerY))
+            moveTo(Offset(87.dp.toPx(), centerY))
+            moveTo(Offset(88.dp.toPx(), centerY))
+            moveTo(Offset(89.dp.toPx(), centerY))
+        }
+
+        // Then the level 7 is asked for once, and the gauge shows it under the finger
+        assertThat(asked).containsExactly(7)
+        gauge.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "7"))
+
+        // When the finger lifts, the level never having come back
+        bars.performTouchInput { up() }
+
+        // Then the gauge shows the level it is given
+        gauge.assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "5"))
+    }
+
+    @Test
     @DisplayName("TalkBack reads one slider with its value and moves it one step at a time")
     fun talkBackReadsOneSliderAndMovesItOneStepAtATime() = extension.use {
         // Given the gauge at the level 5

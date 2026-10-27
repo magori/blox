@@ -217,9 +217,11 @@ private fun ControlKey(
     val description = stringResource(descriptionOf(button))
     val shape = BloxTheme.shapes.md
     Box(
+        // Held, the key goes down, whatever the effects: its drop is no animation, and the only cue of A held in the
+        // day. Its tag and what TalkBack reads come after the drop, so that they follow the key where it is drawn.
         modifier = modifier
-            .testTag(controlTestTag(button))
             .offset(y = keyDrop(held))
+            .testTag(controlTestTag(button))
             .size(size)
             .clip(shape)
             .background(background)

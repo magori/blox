@@ -11,6 +11,9 @@ import java.util.Locale
 enum class Cartridge(@param:StringRes internal val label: Int) {
     /** The rules of 1989. */
     CLASSIC(R.string.feature_cartridges_classic),
+
+    /** The Locksmith, a puzzle of pieces and chords (ADR 0025). */
+    LOCKSMITH(R.string.feature_cartridges_locksmith),
     ;
 
     /**

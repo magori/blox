@@ -1,6 +1,6 @@
 # 0002 — Modularisation `app` / `core` / `feature` et plugins de convention
 
-- **Statut** : Acceptée ; amendée par [0025](0025-le-serrurier.md)
+- **Statut** : Acceptée ; amendée par [0025](0025-le-serrurier.md) et [0027](0027-le-jardin-musical.md)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -50,3 +50,5 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   synthétiseur et `AudioTrack`, et dont la feature de jeu dépend déjà. À l'inverse de `core:haptics`,
   ils passent par le même service système que la musique. Le moteur gagne l'événement
   `PieceRotated`, sans dépendance : il dit ce qui s'est passé, la feature en tire un son.
+- **Amendement (ADR 0027, 2026-10-26).** Modules `core:garden` (Kotlin pur, `api(core:game)` et
+  `api(core:music)`) et `feature:garden` pour le Jardin musical, sur le modèle du Serrurier.
