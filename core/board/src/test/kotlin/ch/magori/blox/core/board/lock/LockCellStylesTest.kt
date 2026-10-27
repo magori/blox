@@ -13,6 +13,7 @@ import ch.magori.blox.core.board.cellStyle
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
+import ch.magori.blox.core.designsystem.theme.GlossLayer
 import ch.magori.blox.core.designsystem.theme.contrast
 import ch.magori.blox.core.designsystem.theme.variantPalette
 import ch.magori.blox.core.game.model.Cell
@@ -22,7 +23,9 @@ import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.assertj.core.api.Assertions.offset
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.EnumSource
+import org.junit.jupiter.params.provider.MethodSource
 
 class LockCellStylesTest {
     @ParameterizedTest(name = "{0}")
@@ -71,6 +74,28 @@ class LockCellStylesTest {
                 bubble = CellBubble(highlight = null, gloss = lockColors(variant).holeInset),
             ),
         )
+    }
+
+    @ParameterizedTest(name = "{0}, {1}")
+    @MethodSource("holeCells")
+    fun `a hole is sunk, not raised, a shadow along its top and no light, no thickness at its bottom`(
+        variant: BloxThemeVariant,
+        cell: LockCell,
+    ) {
+        // When a cell of the hole, empty or marked by the hint
+        val hole = lockCellStyle(variant, cell)
+
+        // Then its relief is only bands along its top (a positive offset), each darker than the hole: the rim of the
+        // metal casts its shadow into it. A bubble of the board is the other way round, lit at the top, thick at the
+        // bottom (a negative offset)
+        val layers = requireNotNull(hole.bubble).gloss.layers
+        assertThat(layers).isNotEmpty.allSatisfy { layer ->
+            assertThat(layer).isInstanceOf(GlossLayer.Inner::class.java)
+            val band = layer as GlossLayer.Inner
+            assertThat(band.offsetY).isGreaterThan(0.dp)
+            assertThat(band.color.compositeOver(hole.fill).luminance()).isLessThan(hole.fill.luminance())
+        }
+        assertThat(requireNotNull(hole.bubble).highlight).isNull()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -203,5 +228,12 @@ class LockCellStylesTest {
     @EnumSource(BloxThemeVariant::class, names = ["COLORFUL_LIGHT", "COLORFUL_DARK"])
     fun `the rim of the padlock, drawn by the screen, is the metal of its cells`(variant: BloxThemeVariant) {
         assertThat(lockMetal(variant)).isEqualTo(lockCellStyle(variant, LockCell.Metal).fill)
+    }
+
+    private companion object {
+        /** Each Colorful variant with each cell of the hole, sunk by `lock-hole-inset`: empty, or marked by the hint. */
+        @JvmStatic
+        fun holeCells(): List<Arguments> = listOf(BloxThemeVariant.COLORFUL_LIGHT, BloxThemeVariant.COLORFUL_DARK)
+            .flatMap { variant -> listOf(LockCell.Hole, LockCell.Hint).map { cell -> Arguments.of(variant, cell) } }
     }
 }

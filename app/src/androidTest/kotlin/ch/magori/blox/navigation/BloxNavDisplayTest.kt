@@ -141,7 +141,7 @@ internal class BloxNavDisplayTest {
             tapLocksmithCartridge()
 
             // Then
-            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertIsDisplayed()
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
         }
     }
@@ -177,7 +177,7 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
-            onNodeWithText(string(LocksmithR.string.feature_locksmith_title, 1)).assertDoesNotExist()
+            onNodeWithText(padlockTitle(1)).assertDoesNotExist()
         }
     }
 
@@ -188,7 +188,7 @@ internal class BloxNavDisplayTest {
             // Given padlock 2 of seed 7 on top, as the system restores the stack after the death of the process
             showApp(
                 restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2, seed = 7)),
-                restoredShows = string(LocksmithR.string.feature_locksmith_title, 2),
+                restoredShows = padlockTitle(2),
             )
 
             // Then
@@ -742,7 +742,7 @@ internal class BloxNavDisplayTest {
     /** Taps the cartridge of the Locksmith on the choice of the game, and waits for its padlock 1. */
     private fun AndroidComposeUiTest<ComponentActivity>.tapLocksmithCartridge() {
         onNode(hasTestTag(LOCKSMITH_CARTRIDGE_TAG)).performClick()
-        advanceUntilShown(string(LocksmithR.string.feature_locksmith_title, 1))
+        advanceUntilShown(padlockTitle(1))
     }
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
@@ -800,6 +800,10 @@ internal class BloxNavDisplayTest {
         val label = string(GameR.string.feature_game_level)
         return checkNotNull(activity).getString(GameR.string.feature_game_value_description, label, "$level")
     }
+
+    /** The title of the bar of padlock [level], as the screen shows it: in capitals. */
+    private fun AndroidComposeUiTest<ComponentActivity>.padlockTitle(level: Int): String =
+        string(LocksmithR.string.feature_locksmith_title, level).uppercase()
 
     /** The title of the entry of the daily seed on [DAILY_DATE]. */
     private fun AndroidComposeUiTest<ComponentActivity>.dailyTitle(): String =
