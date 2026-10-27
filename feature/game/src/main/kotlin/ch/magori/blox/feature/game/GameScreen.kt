@@ -888,7 +888,16 @@ private fun FeedbackPreview(
     effects: BloxEffects = BloxEffects.Full,
 ) {
     BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
-        GameScreen(uiState = { uiState }, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
+        GameScreen(
+            uiState = { uiState },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            labels = GameLabels.Classic,
+            onCopy = {},
+        )
     }
 }
 
