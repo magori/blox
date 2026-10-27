@@ -32,11 +32,13 @@ data class LocksmithRoute(val level: Int, val seed: Long) : NavKey {
 }
 
 /**
- * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onNext] reçoit la serrure ouverte : `app` met la suivante à sa
- * place. `app` construit [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le
- * ViewModel à la clé.
+ * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onBack] est le bouton retour de la barre : `app` dépile.
+ * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. `app` construit [viewModelFactory] ; la clé
+ * lui parvient par les `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de
+ * `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.locksmithEntry(
+    onBack: () -> Unit,
     onNext: (open: LocksmithRoute) -> Unit,
     viewModelFactory: LocksmithViewModel.Factory,
 ) {
@@ -53,8 +55,9 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
         val state by viewModel.uiState.collectAsStateWithLifecycle()
         LocksmithScreen(
             state = state,
-            actions = remember(viewModel, route, onNext) {
+            actions = remember(viewModel, route, onBack, onNext) {
                 LocksmithActions(
+                    onBack = onBack,
                     onTap = viewModel::tap,
                     onSelect = viewModel::select,
                     onTakeBack = viewModel::takeBack,

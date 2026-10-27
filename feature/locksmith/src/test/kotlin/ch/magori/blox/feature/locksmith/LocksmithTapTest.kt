@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith
 
+import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.Position
@@ -11,14 +12,20 @@ import ch.magori.blox.core.locksmith.Refusal
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 
 /** The touch of the padlock: aim, place by a second touch, take a placed piece back (rules, Écran). */
+@ExtendWith(MainDispatcherExtension::class)
 class LocksmithTapTest {
     private val start = PadlockGame.start(Padlock.generate(level = 1, seed = 7))
-    private val viewModel = LocksmithViewModel(LocksmithRoute(level = 1, seed = 7))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 1, seed = 7))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece: Piece = start.padlock.solution.first { it.type == start.given.first() }
+
+    /** The first metal cell inside the ring, in reading order: a pivot there leaves the hole. */
+    private val offHole: Position =
+        INSIDE_CELLS.first { it !in start.padlock.hole }
 
     @Test
     fun `touching a cell aims the selected piece there, its pivot on that cell, nothing placed`() {
@@ -28,6 +35,19 @@ class LocksmithTapTest {
         // Then
         assertThat(viewModel.uiState.value.aim).isEqualTo(Position(3, 3))
         assertThat(viewModel.uiState.value.game).isEqualTo(start)
+    }
+
+    @Test
+    fun `touching the ring of metal aims nothing, the pivot stays inside the 8 by 8`() {
+        // Given
+        viewModel.tap(Position(3, 3))
+
+        // When: a corner of the ring, then a cell of its edge
+        viewModel.tap(Position(0, 0))
+        viewModel.tap(Position(4, Padlock.SIZE - 1))
+
+        // Then
+        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(3, 3))
     }
 
     @Test
@@ -59,14 +79,14 @@ class LocksmithTapTest {
 
     @Test
     fun `a refused second touch keeps the preview where it is and tells why`() {
-        // Given: the preview with its pivot on the metal corner of the grid
-        viewModel.tap(Position(0, 0))
+        // Given: the preview with its pivot on a metal cell inside the ring
+        viewModel.tap(offHole)
 
         // When: a second touch on the pivot, a cell of the preview
-        viewModel.tap(Position(0, 0))
+        viewModel.tap(offHole)
 
         // Then
-        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(0, 0))
+        assertThat(viewModel.uiState.value.aim).isEqualTo(offHole)
         assertThat(viewModel.uiState.value.events)
             .containsExactly(PadlockEvent.PlacementRefused(rank = 0, reason = Refusal.OUT_OF_HOLE))
     }
@@ -74,7 +94,7 @@ class LocksmithTapTest {
     @Test
     fun `moving or turning the preview after a refusal forgets the refusal, without counting a move`() {
         // Given: a refusal
-        viewModel.tap(Position(0, 0))
+        viewModel.tap(offHole)
         viewModel.placeAim()
         val refused = viewModel.uiState.value
 
@@ -92,14 +112,14 @@ class LocksmithTapTest {
 
     @Test
     fun `a refusal keeps the preview, the place button tells the reason`() {
-        // Given: the preview on the metal corner of the grid
-        viewModel.tap(Position(0, 0))
+        // Given: the preview with its pivot on a metal cell inside the ring
+        viewModel.tap(offHole)
 
         // When
         viewModel.placeAim()
 
         // Then
-        assertThat(viewModel.uiState.value.aim).isEqualTo(Position(0, 0))
+        assertThat(viewModel.uiState.value.aim).isEqualTo(offHole)
         assertThat(viewModel.uiState.value.events)
             .containsExactly(PadlockEvent.PlacementRefused(rank = 0, reason = Refusal.OUT_OF_HOLE))
     }
@@ -180,11 +200,7 @@ class LocksmithTapTest {
     fun `once the padlock is open a touch changes nothing`() {
         // Given: every piece placed where the solution has it
         start.padlock.solution.forEach { piece ->
-            viewModel.select(
-                viewModel.uiState.value.game.let { game ->
-                    game.given.indices.first { it !in game.placed && game.given[it] == piece.type }
-                },
-            )
+            viewModel.selectFree(piece.type)
             viewModel.turnTo(piece.orientation)
             viewModel.tap(piece.pivot)
             viewModel.placeAim()

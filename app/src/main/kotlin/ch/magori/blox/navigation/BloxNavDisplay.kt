@@ -93,6 +93,7 @@ fun BloxNavDisplay(
             )
             settingsEntry(onBack = goBack, viewModelFactory = settingsViewModelFactory)
             locksmithEntry(
+                onBack = goBack,
                 onNext = { open -> nextPadlock(backStack, open) },
                 viewModelFactory = locksmithViewModelFactory,
             )

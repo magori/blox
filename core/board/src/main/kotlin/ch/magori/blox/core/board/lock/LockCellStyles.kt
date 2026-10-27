@@ -41,6 +41,12 @@ internal fun lockColors(variant: BloxThemeVariant): LockColors = when (variant) 
 }
 
 /**
+ * The metal of the padlock in [variant], a Colorful variant (`lock-metal`): the colour of the rim the screen draws
+ * around the cells, so that rim and metal cells make one plate.
+ */
+fun lockMetal(variant: BloxThemeVariant): Color = lockColors(variant).metal
+
+/**
  * The style of [cell] of a padlock in [variant], a Colorful variant, drawn on the metal ([LockColors.metal]): a metal
  * cell is a flat square, so that metal cells side by side make one plate; the other cells are bubbles of the board,
  * framed by their joint in the metal.

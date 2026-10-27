@@ -49,6 +49,12 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | à dessiner (P7.16) ; prototype d'origine « Idée · Le Serrurier » |
+| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | à dessiner (P9.8, complétée en P10.14 et P11.13) ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
+| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | à dessiner (P8.8) ; [musique-vivante.md](musique-vivante.md) |
+| V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | à dessiner (P9.8) ; [graine-du-jour.md](graine-du-jour.md) |
+| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | à dessiner (P9.8) |
+| V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | à dessiner (P10.14) ; [jardin-musical.md](jardin-musical.md) |
+| V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
@@ -322,6 +328,22 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   22 sp, boutons **Reprendre** (plein, `accent`) et **Menu** (contour, `panelBorder`), même mise
   en page que V4 (marges de 24 et 16 dp, cibles de 48 dp au moins). TalkBack annonce l'écran
   (P2.6, maquetté le 2026-10-20). Dans le prototype, le bouton pause de V2, V3, V5 et V6 l'ouvre.
+
+- **Pause v2 en rideau** (P5.82, V29) : un rideau de cases vides descend rangée par rangée sur le plateau et la
+  pièce suivante (12 ticks, `motion-curtain` ; fondu de 8 ticks en Effets réduits), puis la carte (« Pause »,
+  score, niveau, lignes, Reprendre, Menu) monte sur un voile ; le jeu reste affiché dessous, inerte pour TalkBack,
+  le focus et les touches. Reprendre, le retour du système, Start, Échap ou P rouvrent le rideau, et la partie ne
+  repart qu'une fois le rideau ouvert ; une pause demandée pendant l'ouverture le referme depuis l'endroit atteint.
+  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte de la
+  carte avec P5.77.
+  **Tests :** `PauseCurtainTest › the curtain shuts in 12 ticks, the duration of motion-curtain, before the card shows`,
+  `PauseCurtainTest › in reduced effects the curtain fades over every row, shut in 8 ticks, the duration of motion-reduced-fade`,
+  `PauseCurtainStateTest › a pause while the curtain opens brings it back down from where it stood, the game never let go on`,
+  `GameScreenPauseTest › the curtain hides the board and the next piece before the card shows`,
+  `GameScreenPauseTest › the game resumes only once the curtain is open`,
+  `GameScreenPauseTest › the system back resumes as Reprendre does`,
+  `GameScreenLifecycleTest › a screen no longer in front while the curtain opens keeps the game paused, its card shown again`,
+  `GameScreenKeysTest › under the card of the pause, the arrows and Tab keep the focus on its buttons, and play nothing`.
 
 ### V20 — Jeu, fenêtre très étroite
 - 220 × 640 : score et niveau, puis lignes et pièce suivante en grille 2 × 2 au-dessus du plateau

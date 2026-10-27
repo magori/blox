@@ -1,6 +1,6 @@
 # 0022 — Choix du jeu : une feature à la racine de la pile
 
-- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md)
+- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md), [0026](0026-jeux-musicaux-variantes-du-classique.md) et [0027](0027-le-jardin-musical.md)
 - **Date** : 2026-10-25
 
 ## Contexte
@@ -25,3 +25,10 @@ de n'afficher que la cartouche Classique, sans cartouche « endormie » (2026-10
 - Un toucher de plus à chaque lancement.
 - Le parcours Macrobenchmark (`BloxJourney`) et le profil de référence sont à refaire (P5.72).
 - Le retour système sur les cartouches quitte l'application.
+
+## Amendement (ADR 0026 et 0027, 2026-10-26)
+
+Cinq cartouches, sur deux colonnes : Classique, Serrurier, Jardin musical, Au tempo et Graine du
+jour. La cartouche Graine du jour porte l'autocollant « NOUVELLE » jusqu'au premier essai du jour,
+d'après un état que `app` lui passe. La Musique vivante n'a pas de cartouche : c'est un choix de
+musique de l'accueil Classique, comme le mode Moderne en est un réglage.

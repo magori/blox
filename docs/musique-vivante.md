@@ -1,0 +1,136 @@
+# Musique vivante
+
+La musique vivante est un **choix de musique du mode Classique**, « Vivante », à côté de
+*Korobeïniki*, *Menuet*, *Mon fichier*, de la musique en jeu et d'*Aucune*. Ce n'est pas un jeu :
+elle n'a ni cartouche ni écran à elle (décision du développeur, 2026-10-26). La partie suit les
+règles du Classique (`ClassicRules`) sans aucun changement ; seule la musique change : composée
+pour la partie par le [générateur](generateur-musique.md), elle passe d'une ambiance calme à une
+ambiance tendue quand la pile monte, et accélère avec les niveaux.
+
+Origine : cadrage « quatre modes musicaux » des agents `architecte` et `designer-jeu`
+(2026-10-26), décisions du développeur le 2026-10-26. Architecture :
+[ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md). Le reste de la musique (lecture en
+boucle, focus audio, accélération du danger) est décrit dans [musique.md](musique.md).
+
+> Traçabilité : Aucune règle n'est encore implémentée (phase P8 de [SUIVI.md](../SUIVI.md)).
+> Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à
+> l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
+
+## Vocabulaire
+
+| Terme | Code prévu | Sens |
+|---|---|---|
+| Musique vivante | `MusicChoice.LIVE` (`core:data`) | Le choix « Vivante » de la feuille Musique. |
+| Les deux ambiances | `LiveMusic` (`core:music`) | Une musique calme et une musique tendue, composées ensemble pour une partie. |
+| Direction musicale | `MusicDirection` (`feature:game`) | La traduction « événements de la partie → ordres au lecteur » (tempo, ambiance). |
+| Changer de partition | `Player.switchTo(score)` (`core:audio`) | Passer à une autre partition à la mesure suivante, au même rang. |
+
+## Composer les deux ambiances
+
+- `LiveMusic.compose(seed)` rend **deux musiques** composées par `MusicGenerator.generate` :
+  - la musique **calme**, de catégorie `Category.CALM` (pentatonique majeure, `I–vi–IV–V` ou
+    `I–IV`, 70 à 95 temps/min) ;
+  - la musique **tendue**, de catégorie `Category.EPIC` (mineur naturel, `i–VI–III–VII` ou
+    `i–VII–VI–VII`, 110 à 140 temps/min).
+- Les deux ont **la même longueur** : le même nombre de mesures (8 mesures de 4 temps, la forme
+  du générateur). C'est ce qui permet de passer de l'une à l'autre au même rang de mesure.
+- Les deux ont **la même tonique**. `Form.compose` tire d'ordinaire la tonique dans
+  `Category.TONICS` (Do, Ré, Fa, Sol, La) pour chaque musique : des graines séparées donneraient
+  souvent deux tonalités. La tendue est donc composée avec la tonique tirée pour la calme, ce qui
+  demande une nouvelle capacité de `MusicGenerator`, la **tonique imposée** (P8.9). Les deux
+  ambiances gardent leurs tempos propres.
+- C'est une **fonction pure de la graine** : la même graine rend les deux mêmes musiques. Chaque
+  musique est composée avec sa propre graine, tirée de la graine de la partie, si bien que la
+  calme ne dépend pas de la tendue. Comme toute musique du générateur, la suite n'est pas un
+  contrat entre versions de Kotlin ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)) : seule
+  la suite des pièces d'une graine en est un (Graine du jour, [graine-du-jour.md](graine-du-jour.md)).
+- La graine de la musique est celle de la partie (`GameRoute`) : une nouvelle partie et Rejouer
+  donnent une nouvelle musique ; la Graine du jour donne la même musique à tout le monde, ce
+  jour-là, sur une même version.
+- On ne reprend pas le `composeLoop` du prototype de la maquette : le générateur existant suffit.
+- La composition coûte quelques dizaines de millisecondes (voir `MusicGenerator.generate`) : elle
+  est faite hors du fil principal, avant la première pièce. Si elle n'est pas prête, la partie
+  commence en silence et la musique part dès qu'elle l'est. **[à vérifier]** sur un téléphone
+  d'entrée de gamme : faut-il la composer dès le choix « Vivante », pendant l'accueil ?
+
+## Diriger la musique pendant la partie
+
+La traduction des événements en ordres au lecteur sort de `feature:game` dans une stratégie,
+`MusicDirection`, choisie au début de la partie selon la musique :
+
+- **`ClassicMusicDirection`** reprend `MusicTempo.kt` tel quel : tempo × 1,25 en danger, retour
+  à × 1,0 à la sortie du danger ([musique.md](musique.md#accélération)). C'est d'abord un pur
+  refactoring, sous les tests existants du tempo.
+- **`LiveMusicDirection`** ajoute deux règles à celles du Classique :
+  - **ambiance** : la partie commence sur la musique calme ; `StackDanger(on)` passe à la tendue,
+    `StackDanger(off)` revient à la calme. Les seuils sont ceux du moteur (la pile entre en danger
+    à 15 lignes, en sort à 12 ou moins, `ClassicStackDangerRule`). Le passage se fait par
+    `Player.switchTo` : la nouvelle partition commence **à la mesure suivante, au même rang**
+    (après la mesure 3 de la calme vient la mesure 4 de la tendue) ;
+  - **accélération** : chaque `LevelUp` règle le facteur de tempo (`setTempoFactor`) à
+    **min(1 + 0,02 × niveaux gagnés, 1,30)**, les niveaux gagnés comptant depuis le niveau de
+    départ (accroissement additif, non composé) ; valeurs **[à vérifier]** en jouant. Ce facteur
+    se **multiplie** au × 1,25 du danger.
+- **Rendu** : `prepareTempo` ne prépare que la partition jouée en dernier. L'entrée en danger fait
+  à la fois `switchTo(tendue)` et × 1,25 : `switchTo` **prépare la tendue au tempo du danger**,
+  pour qu'elle ne soit pas rendue au moment le plus tendu. Chaque `LevelUp` déclenche un nouveau
+  rendu ; son coût est **à mesurer** sur téléphone (P8.6).
+- Chaque ambiance garde son propre tempo (celui de sa forme) ; le facteur s'applique aux deux.
+- La pause, la reprise, la fin de partie, Rejouer et la perte du focus se passent comme pour
+  toute partition ([musique.md](musique.md)) : la reprise repart dans l'ambiance du moment, au
+  tempo du moment.
+- `GameOver` arrête la musique, sans retour à la calme. `LinesCleared` ne change rien de plus que
+  ce qu'il change déjà (le danger peut finir avec lui).
+
+## Changer de partition à la mesure
+
+Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
+[Jardin musical](jardin-musical.md) :
+
+- la partition en cours joue jusqu'à la fin de sa mesure ; la nouvelle commence à la mesure de
+  **même rang** (modulo sa longueur), sur le premier temps ;
+- le facteur de tempo en cours est gardé ;
+- le jeton de lecture (`Playback`) reste le même : une partie n'arrête toujours que sa propre
+  musique ;
+- un second `switchTo` avant la barre de mesure remplace le premier (seul le dernier compte) ;
+- si la musique est arrêtée ou morte, `switchTo` ne fait que retenir la partition, jouée à la
+  reprise ;
+- la capacité existe à chaque étage du lecteur : le contrat `MusicPlayerContract` et le faux
+  lecteur, mais aussi `ChiptuneSequencer`, `FocusedMusicPlayer` et `MusicSwitch` ;
+- elle est **réservée aux partitions** : `MusicPlayer = Player<Music>`, et pour un `MusicFile`
+  (« Mon fichier ») `switchTo` est sans effet.
+
+## Choix « Vivante »
+
+- `MusicChoice.LIVE` s'ajoute aux choix enregistrés (`core:data`) ; `scoreOf` (dans `app`) ne
+  rend pas de partition fixe pour lui, mais la demande de composer les deux ambiances.
+- « Vivante » prime comme les autres choix de l'accueil : la musique en jeu de « Mes musiques »
+  garde sa priorité ([musique.md](musique.md)), et choisir Vivante la retire des parties, comme
+  choisir Korobeïniki.
+- **Écouter** sous Vivante joue la musique calme d'une graine tirée au hasard **[à vérifier]**
+  (alternative : ne rien proposer à l'écoute).
+- Le réglage des effets sonores, le volume de la musique et les Effets réduits ne changent pas.
+
+## Écran
+
+Pas d'écran à part ; thème : celui que le joueur a choisi pour le Classique (ce n'est pas un écran
+propre au mode).
+
+- **Feuille Musique** (V27, P5.76) : un sixième choix, « Vivante », avec sa coche et Écouter,
+  sous-ligne « Calme, puis tendue quand la pile monte ». Vue **V37** (à dessiner).
+- **Rappel sous Jouer** : « Classique · Niveau 05 · Vivante ».
+- **En jeu** (V28) : rien ne change. On retire du prototype les étiquettes Calme / Tendu et la
+  jauge « Pile » : le danger se voit déjà sur le plateau et s'entend.
+- **Carte Pause** (V29) : la musique y est nommée « Vivante · calme » ou « Vivante · tendue »,
+  selon l'ambiance au moment de la pause. Vue **V37**.
+
+Événements utilisés, tous déjà émis par le moteur : `StackDanger`, `LevelUp`, `LinesCleared`,
+`GameOver`.
+
+## Points ouverts
+
+- La valeur de l'accélération par niveau et son plafond (ci-dessus, **[à vérifier]**).
+- Passer à la mesure suivante peut tarder jusqu'à une mesure entière (jusqu'à 3,4 s à
+  70 temps/min, 2,5 s à 95) :
+  à juger en jouant ; un passage au temps suivant demanderait une autre capacité du lecteur.
+- Une troisième ambiance (fin de partie proche) est hors périmètre.

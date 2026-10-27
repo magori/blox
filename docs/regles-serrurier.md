@@ -259,6 +259,8 @@ dernier.
 **Tests :** `PadlockGameTest › the chords heard are one per piece on the grid, from C4 major, the last placement resolving on I`,
 `PadlockGameTest › a game plays the chords of its number of pieces`,
 `PadlockGameTest › a piece taken back takes its chord back`.
+Tous les accords de la serrure, entendus ou non, sont `PadlockGame.progressionChords` ; `chords` en est le début.
+**Tests :** `PadlockGameTest › the chords of a padlock are those of its progression, in C4 major, all heard once it is open`.
 
 | Pièces | Accords |
 |---|---|
@@ -277,6 +279,36 @@ serrure ouverte ; son de refus (`LocksmithSounds`, valeurs dans [musique.md](mus
 sont des effets sonores superposés (`SoundEffect`), joués par
 `SoundEffectPlayer` et soumis au réglage des effets sonores. Une reprise ne coupe aucun son : seule
 la pilule de l'accord s'éteint à l'écran. Pas de vibration pour l'instant.
+
+- Chaque événement de la dernière action donne ses sons (`soundCuesFor`, fonction pure de `feature:locksmith`) :
+  une pose acceptée, l'arpège et la basse de son accord (celui de rang *n*) ; la serrure ouverte, en plus, la
+  fanfare, **après l'arpège final** (sa durée plus 10 ms, soit 450 ms aujourd'hui) ; un refus, le son de refus ;
+  une reprise et un indice, rien. Choisir, tourner, viser et recommencer ne jouent rien.
+  **Tests :** `PadlockSoundCuesTest › a placement plays the arpeggio and the bass of its chord`,
+  `PadlockSoundCuesTest › the second placement plays the chord of IV`,
+  `PadlockSoundCuesTest › the last placement adds the opening flourish after the final chord`,
+  `PadlockSoundCuesTest › the flourish waits for the final chord to end`,
+  `PadlockSoundCuesTest › a refusal plays the refusal`,
+  `PadlockSoundCuesTest › taking back and a hint play nothing`,
+  `LocksmithSoundTest › a placement plays the arpeggio and the bass of its chord`,
+  `LocksmithSoundTest › the second placement plays the chord of IV`,
+  `LocksmithSoundTest › the last placement adds the opening flourish after the final chord`,
+  `LocksmithSoundTest › a refusal plays the refusal`,
+  `LocksmithSoundTest › taking back, a hint and choosing play nothing`.
+- Le réglage des effets sonores est lu une fois, à l'ouverture de l'écran, comme au Classique : effets coupés,
+  ni son ni préchauffage.
+  **Tests :** `LocksmithSoundTest › no sound when the sound effects are off`,
+  `LocksmithSoundTest › nothing is warmed up when the sound effects are off`.
+- À l'ouverture de l'écran, les effets de la serrure sont préchauffés, chacun une fois : les accords de sa
+  suite, la fanfare et le refus.
+  **Tests :** `PadlockSoundCuesTest › the effects warmed up are those of every chord of the padlock, the flourish and the refusal, once each`,
+  `LocksmithSoundTest › the effects of the padlock are warmed up when its screen opens`.
+- Une fanfare encore en attente meurt avec l'écran quitté (retour, ou « Serrure suivante » qui remplace
+  l'entrée) : elle ne sonne pas sur la serrure suivante. Une action à l'écran, Recommencer compris, ne coupe
+  aucun son.
+  **Tests :** `LocksmithSoundTest › the opening flourish still waiting dies with the screen left`.
+- Point ouvert : les pistes d'effets préchauffées ne sont jamais libérées (jusqu'à 12 de plus que le Classique,
+  environ 1 Mo) ; à mesurer sur un téléphone (`dumpsys media.audio_flinger`, P7.20).
 
 ## Écran
 
@@ -324,8 +356,9 @@ droite.
   état de l'écran, le domaine ne juge que la pose. Toucher une pièce posée, ou sa tuile, la
   reprend : elle redevient l'aperçu, là où elle était. Un refus garde l'aperçu en place ; tourner,
   choisir ou déplacer l'aperçu oublie la raison du refus. Un toucher sur l'aperçu le pose, même au-dessus
-  d'une pièce posée (refusé : chevauchement) ; une fois la serrure ouverte, le toucher ne fait rien et
-  « Serrure suivante » remplace Poser. Indice est grisé tant qu'un indice est affiché.
+  d'une pièce posée (refusé : chevauchement) ; une fois la serrure ouverte, le toucher ne fait rien.
+  Indice est grisé tant qu'un indice est affiché. L'anneau de métal ne se touche pas : le pivot
+  reste toujours dans les 8 × 8.
   **Tests :** `LocksmithTapTest › touching a cell aims the selected piece there, its pivot on that cell, nothing placed`,
   `LocksmithTapTest › touching a cell outside the preview moves it there`,
   `LocksmithTapTest › a second touch on the preview places it and the preview is gone`,
@@ -338,10 +371,15 @@ droite.
   `LocksmithTapTest › touching the preview over a placed piece is refused as an overlap, nothing taken back`,
   `LocksmithTapTest › moving or turning the preview after a refusal forgets the refusal, without counting a move`,
   `LocksmithTapTest › once the padlock is open a touch changes nothing`,
+  `LocksmithTapTest › touching the ring of metal aims nothing, the pivot stays inside the 8 by 8`,
   `LocksmithTapTest › restart clears the preview`.
-- Ce que montre la grille : le trou, le métal, les pièces posées, l'indice (sur ses cases libres ou
-  sur la pièce qui bloque), puis l'aperçu par-dessus, chaque case fautive barrée.
-  **Tests :** `LockCellsTest › the screen draws the 10 by 10 cells of the padlock, the hole as holes and the rest as metal`,
+- Ce que montre la grille : les 8 × 8 cases intérieures (le trou, le métal, les pièces posées,
+  l'indice sur ses cases libres ou sur la pièce qui bloque, puis l'aperçu par-dessus, chaque case
+  fautive barrée), dans un rebord de métal d'un quart de case (`lockMetal`, le métal des cases). Une
+  case de l'aperçu sur l'anneau est dessinée barrée, en case entière qui déborde le rebord ; celles
+  hors de la grille 10 × 10 ne sont pas dessinées.
+  **Tests :** `LockCellsTest › the screen draws the 8 by 8 cells inside the ring, the hole as holes and the rest as metal`,
+  `LockCellStylesTest › the rim of the padlock, drawn by the screen, is the metal of its cells`,
   `LockCellsTest › a preview cell on the ring of metal is drawn crossed out`,
   `LockCellsTest › a placed piece shows its type on its cells`,
   `LockCellsTest › the preview shows the selected piece, each cell off the hole or over a placed piece crossed out`,
@@ -359,14 +397,42 @@ droite.
   `LocksmithMessageTest › a hint is told before the preview`,
   `LocksmithMessageTest › a hint tells where a piece fits, or that a placed piece blocks`,
   `LocksmithMessageTest › an open padlock says so, whatever came before`.
-  **Vues :** V35 (captures `LocksmithDay` et `LocksmithNight` de `LocksmithScreenshots.kt`).
-- Écart à la conception (P7.12) : la grille montre ses 10 × 10 cases, l'anneau de métal compris,
-  de 42 dp au plus, soit 35,8 dp sur un téléphone de 390 dp, sous les 48 dp d'une cible ; le
-  rebord mince autour des 8 × 8 intérieures (cases de 42 dp) reste à faire (P7.20).
+  **Vues :** V35 (captures `LocksmithRefused`, `LocksmithRefusedBottom`, `LocksmithBlocking`, `LocksmithOpen`
+  et `LocksmithOpenSmall`, chacune `Day` et `Night`, de `LocksmithScreenshots.kt`).
+- Tailles (`padlockSizes`, fonction pure) : case de 42 dp au plus, sinon la largeur divisée par 8,5, en pixels
+  entiers ; rebord d'un quart de case arrondi ; huit cases et deux rebords tiennent toujours dans la largeur.
+  Tant que la serrure est fermée, la place du débord d'une case de l'aperçu (case moins rebord, moins l'écart
+  avec les voisins) est gardée au-dessus et au-dessous de la plaque, pour que la croix ne couvre ni la
+  cadence ni le message et que la grille ne saute pas ; une fois ouverte, plus d'aperçu, plus de place gardée.
+  **Tests :** `PadlockSizesTest › the cells take their largest size when the width allows it`,
+  `PadlockSizesTest › on a narrow width, eight cells and the rim on both sides fit, in a whole number of pixels`,
+  `PadlockSizesTest › when the rim rounds up, eight cells and the rim still fit the width`,
+  `PadlockSizesTest › the rim is a quarter of a cell, rounded to a whole number of pixels`,
+  `PadlockSizesTest › a cell of the preview on the ring overflows the rim by a cell less the rim, the room kept above and below`,
+  `PadlockSizesTest › while the padlock is closed, the room kept is the overflow less the gap to the neighbours`,
+  `PadlockSizesTest › once the padlock is open, no preview is left and no room is kept`.
+- Mise en page : une colonne qui défile (barre, accords, grille, message, Indice et Recommencer, tuiles), sous
+  elle les commandes ancrées en bas (tourner, **Poser**, tourner), zone plafonnée à la moitié de la hauteur.
+  La barre a un bouton retour et un cadenas d'état (24 dp, anse levée une fois ouverte), lu « Serrure fermée »
+  ou « Serrure ouverte ». Les deux dernières pilules des accords portent une accolade et le mot « cadence ».
+  **Tests :** `LocksmithMessageTest › the padlock of the bar is closed until the padlock opens`,
+  `LocksmithScreenTest › the back button of the bar goes back`,
+  `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`.
 - Retours animés de la pose, du refus, de la serrure ouverte et de l'indice, chacun avec sa
   version « Effets réduits » ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)) : à faire
   (P7.20). L'indice reste marqué jusqu'à la pose suivante.
-- Serrure ouverte : carte avec les compteurs, **Serrure suivante** et **Rejouer cette serrure**.
+- **Serrure ouverte** : une carte remplace les commandes du bas ; Indice, Recommencer et les tuiles
+  disparaissent, le message reste. Elle montre trois compteurs (coups, refus, indices, lus « Coups : n »), une
+  phrase sur la cadence, **Serrure suivante** (bouton principal) et **Rejouer cette serrure** (secondaire), et
+  défile si la place manque.
+  **Tests :** `OpenCardTest › there is no card while the padlock is closed`,
+  `OpenCardTest › an open padlock shows its moves, its refusals and its hints, each one its own counter`,
+  `LocksmithScreenTest › on the card of an open padlock, Serrure suivante goes to the next padlock`,
+  `LocksmithScreenTest › on the card of an open padlock, Rejouer cette serrure restarts the padlock`,
+  `LocksmithScreenTest › once the padlock is open, neither Place, nor Hint, nor the tiles are left`,
+  `LocksmithScreenTest › while the padlock is closed, the card is not shown`.
+  Point ouvert, à juger par `designer-jeu` : TalkBack entend « Serrure ouverte » au cadenas, au message (seul en
+  zone annoncée) et au titre de la carte, et rien ne place le focus sur la carte.
 - Pas de bouton pour passer une serrure : l'indice débloque.
 - L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
   l'action (deux refus à la suite restent deux retours) et l'indice affiché, jusqu'à la pose

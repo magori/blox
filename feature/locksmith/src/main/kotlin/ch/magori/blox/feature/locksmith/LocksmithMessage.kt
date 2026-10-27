@@ -22,3 +22,8 @@ internal fun messageOf(state: LocksmithUiState): Int {
         else -> R.string.feature_locksmith_message_aim
     }
 }
+
+/** What TalkBack reads of the padlock of the bar of [state]: closed, then open once the padlock is. */
+@StringRes
+internal fun padlockStatusOf(state: LocksmithUiState): Int =
+    if (state.game.isOpen) R.string.feature_locksmith_status_open else R.string.feature_locksmith_status_closed

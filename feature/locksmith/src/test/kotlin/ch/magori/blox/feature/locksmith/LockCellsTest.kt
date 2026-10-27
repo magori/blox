@@ -11,15 +11,16 @@ import ch.magori.blox.core.locksmith.PadlockGame
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** The cells of the padlock the screen draws, its 10 × 10, the ring of metal included. */
+/** The cells of the padlock the screen draws: its 8 × 8 inside the ring of metal, and the preview over the ring. */
 class LockCellsTest {
     @Test
-    fun `the screen draws the 10 by 10 cells of the padlock, the hole as holes and the rest as metal`() {
+    fun `the screen draws the 8 by 8 cells inside the ring, the hole as holes and the rest as metal`() {
         // When
         val cells = lockCells(LocksmithUiState(level = 1, game = PadlockGame.start(PADLOCK)))
 
         // Then
-        val grid = (0 until Padlock.SIZE).flatMap { row -> (0 until Padlock.SIZE).map { Position(it, row) } }
+        val inside = 1..Padlock.SIZE - 2
+        val grid = inside.flatMap { row -> inside.map { Position(it, row) } }
         assertThat(cells.keys).containsExactlyInAnyOrderElementsOf(grid)
         assertThat(cells.filterValues { it == LockCell.Hole }.keys).isEqualTo(PADLOCK.hole)
         assertThat(cells.filterKeys { it !in PADLOCK.hole }.values).containsOnly(LockCell.Metal)
@@ -31,11 +32,10 @@ class LockCellsTest {
         val state = LocksmithUiState(level = 1, game = PadlockGame.start(PADLOCK), aim = Position(1, 1))
 
         // When
-        val cells = lockCells(state)
+        val rim = rimCells(state)
 
-        // Then: (0, 1) is on the ring, (-1, 1) off the grid and not drawn
-        assertThat(cells[Position(0, 1)]).isEqualTo(LockCell.Preview(PieceType.I, fits = false))
-        assertThat(cells).doesNotContainKey(Position(-1, 1))
+        // Then: (0, 1) is on the ring, drawn over the rim; (-1, 1) off the grid and not drawn; the others inside
+        assertThat(rim).isEqualTo(mapOf(Position(0, 1) to LockCell.Preview(PieceType.I, fits = false)))
     }
 
     @Test

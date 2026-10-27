@@ -217,7 +217,8 @@ class AppContainer(context: Context) {
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
 
     /** Builds the view model of the Locksmith (ADR 0025). */
-    val locksmithViewModelFactory: LocksmithViewModel.Factory = LocksmithViewModel.Factory()
+    val locksmithViewModelFactory: LocksmithViewModel.Factory =
+        LocksmithViewModel.Factory(soundEffects, userPreferences)
 }
 
 private const val TAG = "BloX"

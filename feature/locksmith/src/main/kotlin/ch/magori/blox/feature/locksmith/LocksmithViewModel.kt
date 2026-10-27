@@ -2,7 +2,10 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import ch.magori.blox.core.audio.SoundEffectPlayer
+import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.locksmith.Padlock
@@ -10,24 +13,47 @@ import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.PadlockUpdate
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import ch.magori.blox.feature.locksmith.sound.SoundCue
+import ch.magori.blox.feature.locksmith.sound.soundCuesFor
+import ch.magori.blox.feature.locksmith.sound.warmUpEffectsOf
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /**
  * The game of one [LocksmithRoute]: its padlock, generated from the seed of the route (ADR 0014, 0025), played by the
- * actions of the player, which the domain judges. The only writer of the state of the screen. A rank that is not given
- * is a programming error of the screen, refused by the domain.
+ * actions of the player, which the domain judges. The only writer of the state of the screen. It plays the sound
+ * effects of the judged actions (the chords, the opening flourish, the refusal), warmed up at the opening, unless the
+ * settings turn them off. A rank that is not given is a programming error of the screen, refused by the domain.
  */
-class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel() {
+class LocksmithViewModel internal constructor(
+    route: LocksmithRoute,
+    private val soundEffects: SoundEffectPlayer,
+    preferences: UserPreferencesRepository,
+) : ViewModel() {
     private val state = MutableStateFlow(
         LocksmithUiState(level = route.level, game = PadlockGame.start(Padlock.generate(route.level, route.seed))),
     )
 
     /** What the screen shows. */
     internal val uiState: StateFlow<LocksmithUiState> = state.asStateFlow()
+
+    /** Whether the padlock plays its sound effects, from the settings; false until they answer, as in the game. */
+    private var soundEffectsOn = false
+
+    init {
+        // Read once, at the opening of the screen, as the game does. Unreadable settings give the defaults (the contract
+        // of the repository).
+        viewModelScope.launch {
+            soundEffectsOn = preferences.preferences.first().soundEffects
+            if (soundEffectsOn) soundEffects.warmUp(warmUpEffectsOf(state.value.game))
+        }
+    }
 
     /** Selects the free given piece of [rank]. */
     internal fun select(rank: Int): Unit = arrange { it.copy(game = it.game.select(rank)) }
@@ -37,9 +63,11 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
 
     /**
      * A touch of the padlock on [position]: on the preview, places it (refused over a placed piece, which the preview
-     * hides); on a placed piece, takes it back as a preview where it lay; elsewhere, aims the selected piece there.
+     * hides); on a placed piece, takes it back as a preview where it lay; elsewhere, aims the selected piece there. The
+     * ring of metal is not touched: the pivot of the preview stays inside it.
      */
     internal fun tap(position: Position) {
+        if (!position.isInside) return
         val current = state.value
         val rank = current.game.rankAt(position)
         when {
@@ -87,9 +115,11 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
     private fun judge(
         aimAfter: Position? = null,
         action: (PadlockGame) -> PadlockUpdate,
-    ) = state.update { current ->
-        val (game, events) = action(current.game)
-        if (events.isEmpty()) return@update current
+    ) {
+        val current = state.value
+        val update = action(current.game)
+        val (game, events) = update
+        if (events.isEmpty()) return
         val hint = when (val first = events.first()) {
             is PadlockEvent.HintGiven -> first.hint
             is PadlockEvent.PiecePlaced, is PadlockEvent.PieceTakenBack -> null
@@ -100,14 +130,33 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
             events.any { it is PadlockEvent.PiecePlaced } -> null
             else -> current.aim
         }
-        current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim)
+        state.value = current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim)
+        soundCuesFor(update).forEach(::play)
+    }
+
+    /**
+     * Plays [cue], at once or once its wait is over: an action on the screen meanwhile cuts no sound, but a cue still
+     * waiting dies with the screen left, so that it is not heard over the next one.
+     */
+    private fun play(cue: SoundCue) {
+        if (!soundEffectsOn) return
+        if (cue.afterMillis == 0L) {
+            soundEffects.play(cue.effect)
+        } else {
+            viewModelScope.launch {
+                delay(cue.afterMillis)
+                soundEffects.play(cue.effect)
+            }
+        }
     }
 
     /**
      * Builds the view model of an entry of the Locksmith (ADR 0013). The route of the entry comes in the
-     * creation extras under `RouteKey`, since only the navigation entry knows it.
+     * creation extras under `RouteKey`, since only the navigation entry knows it; the player of the sound effects and the
+     * settings come from the application, which owns them (ADR 0007).
      */
-    class Factory : ViewModelProvider.Factory {
+    class Factory(private val soundEffects: SoundEffectPlayer, private val preferences: UserPreferencesRepository) :
+        ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
@@ -115,7 +164,7 @@ class LocksmithViewModel internal constructor(route: LocksmithRoute) : ViewModel
             val route =
                 requireNotNull(extras[RouteKey]) { "The route of the padlock is missing from the creation extras" }
             @Suppress("UNCHECKED_CAST") // The only view model this factory builds.
-            return LocksmithViewModel(route) as T
+            return LocksmithViewModel(route, soundEffects, preferences) as T
         }
     }
 
