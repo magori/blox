@@ -1428,12 +1428,12 @@ Vues : V7 à V18.
 - **Fenêtres** (`core:designsystem`, `NamingWindow`, `DeleteWindow`, `Window*`) : les fenêtres
   Renommer, Enregistrer et Supprimer des deux écrans sont les mêmes composables, aux textes passés
   en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. Les fenêtres
-  de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses côte à côte, la sûre d'abord
+  de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses empilées (P5.98), la sûre d'abord
   (TalkBack les lit dans cet ordre), motif de refus du nom annoncé par TalkBack, erreur du champ en
   `ink` (le texte la porte), note de suppression en `ink`. Un seul texte d'échec, « L'opération a
   échoué. ». « Une autre musique porte déjà ce nom. » et « Garder la musique » restent dans chaque
   feature : `core:designsystem` ne parle pas de musique et `core:data` n'a pas de ressources.
-- En police ×2, les réponses qui ne tiennent pas côte à côte s'empilent, sans couper de mot (P5.48, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
+- En police ×2, les réponses, toujours empilées, gardent leurs mots entiers (P5.48, P5.98, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
 
 **Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,
 `MusicNamesTest › the music being renamed may keep its own name, in another case or not`,
