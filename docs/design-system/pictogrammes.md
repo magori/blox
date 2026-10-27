@@ -142,3 +142,11 @@ console du choix du jeu (18 dp) et dans la pause (16 dp sur téléphone, 22 sur 
 - **Ombre** : le jour `rgba(90,80,160,0.3)` décalée de `0,12 × c` vers le bas et floutée de
   `0,16 × c` ; la nuit, un halo de la couleur du corps à 60 % flouté de `0,25 × c` (aucun endormie).
 - TalkBack lit le nom du jeu, « endormi » en plus quand elle dort ; décorative à côté d'un libellé.
+- **Codée** (P5.77, `core:board`, `Mascot`, `MascotLook`) : le visage garde l'encre du jour, même la nuit, sur
+  le corps clair de la pièce ; endormie, elle est pâle la nuit (`cell-dead`). Dans la carte de la pause, elle est
+  décorative (TalkBack ne la lit pas, « Pause » suit). **Tests :**
+  `MascotLookTest › the Classic mascot is a T pointing down and the Locksmith mascot an O`,
+  `MascotLookTest › an awake mascot is a bubble of its piece, its face in the ink of the day, its accessory in yellow`,
+  `MascotLookTest › an asleep mascot is in cell-dead, flat, its face in ink, without accessory nor shadow`,
+  `GameScreenPauseTest › the card shows the Classic mascot asleep above Pause, a decoration TalkBack does not read` ;
+  captures `Mascots*`, `Pause*`.

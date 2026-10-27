@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 226 / 310 | `███████████████░░░░░` **73 %** |
+| **Général** | 232 / 312 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -958,7 +958,7 @@ composants.
   Cas : `choosing a music saves it and keeps the sheet open`, `listening to a music stops the one previewed`,
   `closing the sheet stops the preview`, `Aucune shows the note barred`, `the sheet is read as a dialog by
   TalkBack` ; captures.
-- [ ] **P5.77** Héros de l'accueil : (mascotte aussi sur la carte de la pause, P5.82) logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
+- [x] **P5.77** Héros de l'accueil : (mascotte aussi sur la carte de la pause, P5.82) logo BloX v2 (Bagel Fat One en dégradé `iris`, mascotte ; Original garde
   ses quatre cases), plateau d'aperçu (`core:board`) qui rejoue un T tombant à la gravité du niveau choisi et
   effaçant deux lignes, score réel ; halo de Jouer (3 impulsions après 3 s, puis une toutes les 10 s, aucun en
   Effets réduits). Après P5.71, P5.74, P5.75, P5.87 (logo exporté).
@@ -1075,7 +1075,7 @@ composants.
     icon and label`, `a checked item is read as a checked check box and bears a check`, `a message is read politely
     by TalkBack as it shows`, `the text of a message stands out from ink by 4,5 to 1 at least, day and night`, `in a
     font twice as large the action of a message goes under its text, no word cut` ; captures.
-  - [ ] **P5.98** Fenêtres v2 et champ du nom (`core:designsystem`) : titre de `WindowPanel` en `screen-title` ;
+  - [x] **P5.98** Fenêtres v2 et champ du nom (`core:designsystem`) : titre de `WindowPanel` en `screen-title` ;
     `WindowButton` en bulles (Secondaire, Principal, Danger plein avec la corbeille), réponses toujours empilées sur
     toute la largeur, la sûre d'abord ; `NameField` extrait de `NamingWindow` (fond `panel-inset`, 56 dp,
     `radius-md`, cadre au focus et `danger` en erreur, compteur « n/40 », erreur avec `ALERT`) ; Renommer reste une
@@ -1102,7 +1102,7 @@ composants.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
-  - [ ] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
+  - [x] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
     feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
     cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
     P5.93, P5.96.
@@ -1403,29 +1403,40 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   qui ne peut être lu » et « échec autre qu'une `IOException` » sont recopiés dans chaque dépôt DataStore (quatre
   fois depuis P9.3, revue de P9.3) ; les mettre en commun (règle de 2). Y ajouter le cas d'une date hors des bornes
   de `LocalDate` dans le fichier du jour, qui lèverait une `DateTimeException` à la lecture.
-- [ ] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
+- [x] **P9.4** Variante `DAILY` de `GameRoute` (`feature:game`, `app`) : graine du jour par
   `ClassicRandomizer.stable(seed)`, niveau 5 et musique Vivante imposés (y compris sur la musique en jeu de « Mes
   musiques »), résultats dans le dépôt du jour et jamais dans les records ; Rejouer garde la graine ; l'essai est
-  compté à son début **[à vérifier]**, une partie restaurée après la mort du processus reste le même essai ; thème
+  compté à son début (décision du développeur, 2026-10-27), une partie restaurée après la mort du processus reste le même essai ; thème
   Couleurs imposé et barres système (`systemBarVariant` connaît la variante, ADR 0026). Après P1.20, P8.6, P9.2,
   P9.3. Cas : `a daily game starts at
   level 5 whatever the level chosen`, `a daily game plays the live music whatever the music chosen`, `a daily game
   draws the pieces of its seed`, `a daily game never enters the Classic records`, `replaying a daily game keeps
   its seed, even after midnight`, `a daily game left before its end counts as a try`, `a daily game restored after
   the process died is the same try`, `the bars of a daily game follow its colorful variant`.
-- [ ] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
-  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel, « Nouvelle
-  graine à minuit » ; en jeu, titre « GRAINE DU JOUR » et meilleur du jour (V39) ; fin de partie « MEILLEUR DU
-  JOUR », Rejouer, Copier ; TalkBack ; captures jour et nuit. Module à trancher ici (dans `feature:game`, ou une
-  feature à part, qui amenderait l'ADR 0002). Après P9.4.
+- [x] **P9.5** Écran d'entrée (V38) : barre (Changer de jeu, « MEILLEUR DU JOUR », Paramètres), titre « Graine du
+  26 octobre », les 7 premières pièces, tuiles Essais, Premier essai, Meilleur, Jouer XL et son rappel court
+  « Niveau 05 · Vivante », « Nouvelle graine à minuit » ; TalkBack ; captures jour et nuit. Dans une feature à
+  part, `feature:daily`, qui amende l'ADR 0002 (décision du développeur, 2026-10-27). La date est relue à chaque
+  affichage, sans bascule en direct à minuit (décision du développeur, 2026-10-27) ; Jouer joue la date affichée.
+  Après P9.4.
+- [x] **P9.11** La partie du jour à l'écran (V39, `feature:game`, découpée de P9.5) : titre « GRAINE DU JOUR »,
+  meilleur du jour à la place du record, « NOUVEAU MEILLEUR » en jeu une fois battu ; fin de partie « MEILLEUR DU
+  JOUR », Rejouer, Copier (lu « Copier mon score ») ; les libellés par variante viennent de `GameLabels`, donnés
+  par `GameVariants.setupOf` (ADR 0026). Après P9.4.
 - [ ] **P9.6** « Copier mon score » : texte pur (date en lettres et `AAAAMMJJ`, premier essai, meilleur, essais),
   presse-papiers, bouton désactivé avant le premier essai ; nombres à leur valeur réelle, groupés par trois avec
-  U+202F, sans plafond ni zéros de tête. Cas : `the copied text gives the date, the first try,
+  U+202F, sans plafond ni zéros de tête. Brancher les deux boutons, laissés sans effet par P9.5 et P9.11 : l'écran
+  d'entrée et la fin de partie (`gameEntry(onCopy)`, dans `app`). Cas d'une fin d'essai dont l'écriture a échoué
+  (`IOException`) : Copier en fin de partie ne doit pas copier un essai sans score (revue de P9.11). Cas : `the copied text gives the date, the first try,
   the best and the tries`, `one try is written in the singular`, `numbers are grouped by three`, `copying is not
-  offered before the first try`. Après P9.3.
+  offered before the first try`. Après P9.3, P9.5.
 - [ ] **P9.7** Cartouche « Graine du jour » (`feature:cartridges`, `app`) : choix du jeu à cinq cartouches sur deux
   colonnes (amendement de l'ADR 0022), autocollant « NOUVELLE » jusqu'au premier essai du jour, passé par `app` ;
-  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5.
+  parcours Macrobenchmark et profil de référence. Après P9.3, P9.5, P9.6 (aucun bouton Copier sans effet ne doit
+  être accessible au joueur).
+- [ ] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
+  `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
+  accord avec `GameLabels.newBest` (revue de P9.11).
 - [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
 - [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
   (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.

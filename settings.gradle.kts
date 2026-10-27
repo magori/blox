@@ -48,6 +48,7 @@ include(":feature:home")
 include(":feature:game")
 include(":feature:composer")
 include(":feature:musics")
+include(":feature:daily")
 
 // Mesures (Macrobenchmark) et génération du profil de référence de l'application (P5.17).
 include(":benchmark")

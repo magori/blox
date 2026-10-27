@@ -10,7 +10,7 @@ import kotlin.math.sign
 
 /*
  * Whether buttons framed as panels ([FramedBox]) hold side by side, their labels whole, or have to stand one above the
- * other: the answers of a window, the toolbar of the editor. Counted in whole pixels, as the layout counts them.
+ * other: the toolbar of the editor, the tiles of the home. Counted in whole pixels, as the layout counts them.
  */
 
 /**

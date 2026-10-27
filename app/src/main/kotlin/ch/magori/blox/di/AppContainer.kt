@@ -15,6 +15,9 @@ import ch.magori.blox.core.audio.StaticAudioTrack
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.audio.effectSampleRate
+import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
+import ch.magori.blox.core.data.DailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreDailyChallengeRepository
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
@@ -32,8 +35,12 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
+import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -70,14 +77,23 @@ class AppContainer(context: Context) {
     private val dataScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
-     * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them. For the
-     * whole life of the process, as [dataScope] and the players: it is never cancelled.
+     * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them; and the
+     * writes of the daily games, asked for there at once, in the order of the games. For the whole life of the process,
+     * as [dataScope] and the players: it is never cancelled.
      */
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     /** The record, in `files/datastore/records.preferences_pb`: the game and the home screen share it. */
     private val highScores: HighScoreRepository = DataStoreHighScoreRepository(
         preferencesDataStore(dataScope) { dataStoreFile(filesDir, RECORDS_FILE) },
+    )
+
+    /**
+     * The results of the daily game, in `files/datastore/daily_challenge.preferences_pb`, apart from the record: the
+     * backup rules leave it out, so that a first try never comes back on another device.
+     */
+    private val dailyChallenge: DailyChallengeRepository = DataStoreDailyChallengeRepository(
+        preferencesDataStore(dataScope) { dataStoreFile(filesDir, DAILY_CHALLENGE_FILE) },
     )
 
     /** The settings, in `files/datastore/settings.preferences_pb`, apart from the record. */
@@ -165,7 +181,10 @@ class AppContainer(context: Context) {
 
     /**
      * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for
-     * the games, else the one chosen on the home screen; the vibrations; the sound effects.
+     * the games, else the one chosen on the home screen; the vibrations; the sound effects. The daily game: its results
+     * (ADR 0026), asked for on the main thread for the whole life of the process: a game left before its end still
+     * gives its points once its view model is cleared, and the writes of the games keep their order (the DataStore
+     * does its work on its own scope).
      */
     val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(
         ClassicGameEngineFactory,
@@ -176,6 +195,8 @@ class AppContainer(context: Context) {
         soundEffects,
         musicFiles::musicOf,
         musicLibrary::gameMusicScore,
+        dailyChallenge,
+        mainScope,
     )
 
     /**
@@ -219,6 +240,14 @@ class AppContainer(context: Context) {
     /** Builds the view model of the Locksmith (ADR 0025). */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
         LocksmithViewModel.Factory(soundEffects, userPreferences)
+
+    /**
+     * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
+     * the local date of the phone, read anew at each showing ([today], as its game), and the seed of that date, the one
+     * its game is given (DailySeed), so that the seven first pieces shown are those of the game.
+     */
+    val dailyViewModelFactory: DailyViewModel.Factory =
+        DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
 }
 
 private const val TAG = "BloX"

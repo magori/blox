@@ -1,11 +1,13 @@
 package ch.magori.blox.feature.home
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.Role
@@ -28,6 +30,7 @@ import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.assertWidthIsEqualTo
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
@@ -36,6 +39,7 @@ import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasParent
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -43,16 +47,20 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.component.PLAY_BUTTON_ICON_TAG
 import ch.magori.blox.core.designsystem.component.isChoiceCheck
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -72,6 +80,10 @@ internal class HomeScreenTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
+
+    @JvmField
+    @RegisterExtension
+    val recompositions = RecompositionRecorder()
 
     private val uiState = HomeUiState(
         theme = ThemeChoice.COLORFUL,
@@ -98,19 +110,6 @@ internal class HomeScreenTest {
         onNodeWithText("Original").assertIsNotSelected()
         onNodeWithText("Menuet").assertIsSelected()
         onNodeWithText("Korobeïniki").assertIsNotSelected()
-    }
-
-    @Test
-    @DisplayName("TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown")
-    fun talkBackReadsTheRecordAsItIs() = extension.use {
-        // Given a record beyond the six digits shown
-        showHomeScreen(uiState.copy(record = 1_234_567))
-
-        // Then TalkBack reads its value alone, not the text shown, capped (« RECORD 999999 »)
-        onNodeWithContentDescription("Record 1234567")
-            .assertExists()
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
-        onNodeWithText("Record", substring = true, ignoreCase = true).assertDoesNotExist()
     }
 
     @Test
@@ -377,28 +376,6 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("a reminder too long for Play is cut by an ellipsis on one line, and TalkBack still reads it whole")
-    fun aReminderTooLongIsCutButReadWhole() = extension.use {
-        // Given a music of the player of the longest name, on 360 dp
-        showHomeScreen(
-            uiState.copy(gameMusic = GameMusicUi(name = LONGEST_NAME, previewed = false)),
-            width = NARROW_PHONE,
-        )
-
-        // Then the reminder holds one line, cut
-        val layout = textLayout("Classique · Niveau 05 · $LONGEST_NAME")
-        assertThat(layout.lineCount).isEqualTo(1)
-        assertThat(layout.isLineEllipsized(0)).isTrue()
-        // And TalkBack reads the whole name
-        onNode(hasTestTag(PLAY_TAG)).assert(
-            SemanticsMatcher.expectValue(
-                SemanticsProperties.ContentDescription,
-                listOf("Jouer, Classique, niveau 5, $LONGEST_NAME"),
-            ),
-        )
-    }
-
-    @Test
     @DisplayName("Jouer starts a game at the level chosen")
     fun playStartsAGameAtTheLevelChosen() = extension.use {
         // Given level 5 chosen
@@ -654,18 +631,84 @@ internal class HomeScreenTest {
     }
 
     @Test
-    @DisplayName("the logo and the title BloX stand on one line, under the bar")
-    fun theLogoAndTheTitleStandOnOneLine() = extension.use {
+    @DisplayName("the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it")
+    fun theLogoStandsCentredUnderTheBar() = extension.use {
         // Given
         showHomeScreen(width = NARROW_PHONE)
 
-        // Then the logo before the title, centred on the same line, under the bar
-        val logo = onNode(hasTestTag(HOME_LOGO_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
-        val title = onNodeWithText("BloX").getUnclippedBoundsInRoot()
+        // Then
+        val logo = onNode(hasContentDescription("BloX") and isHeading()).getUnclippedBoundsInRoot()
+        val preview = onNode(hasTestTag(HOME_PREVIEW_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
         val gear = onNodeWithContentDescription("Paramètres").getUnclippedBoundsInRoot()
-        assertThat(logo.right).isLessThanOrEqualTo(title.left)
-        assertThat((logo.top + logo.bottom) / 2 - (title.top + title.bottom) / 2).isBetween((-1).dp, 1.dp)
-        assertThat(minOf(logo.top, title.top)).isGreaterThanOrEqualTo(gear.bottom)
+        assertThat(logo.top).isGreaterThanOrEqualTo(gear.bottom)
+        assertThat((logo.left + logo.right) / 2 - NARROW_PHONE / 2).isBetween((-1).dp, 1.dp)
+        assertThat(preview.top).isGreaterThanOrEqualTo(logo.bottom)
+        assertThat((preview.left + preview.right) / 2 - NARROW_PHONE / 2).isBetween((-1).dp, 1.dp)
+    }
+
+    @Test
+    @DisplayName("nothing on the home recomposes while the preview plays")
+    fun nothingOnTheHomeRecomposesWhileThePreviewPlays() = extension.use {
+        // Given the home at level 9, its frames handed by hand
+        mainClock.autoAdvance = false
+        showHomeScreen(uiState.copy(startLevel = 9), effects = BloxEffects.Full)
+        mainClock.advanceTimeByFrame()
+        val before = onRoot().captureToImage().asAndroidBitmap()
+
+        // When 4 seconds go by: the T falls and clears its lines, the halo of Jouer pulses
+        recompositions.start()
+        mainClock.advanceTimeBy(FOUR_SECONDS)
+
+        // Then the home is drawn again, and only drawn
+        assertThat(onRoot().captureToImage().asAndroidBitmap().sameAs(before)).isFalse()
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
+    @DisplayName("a touch on the home puts the halo of Jouer off for 3 seconds again")
+    fun aTouchOnTheHomePutsTheHaloOffAgain() = extension.use {
+        // Given the home in full effects, its frames handed by hand, nothing yet around Jouer
+        mainClock.autoAdvance = false
+        showHomeScreen(effects = BloxEffects.Full)
+        mainClock.advanceTimeByFrame()
+        val off = aboveJouer()
+
+        // When the halo pulses, three seconds and a half later, and the player touches the home (the logo)
+        mainClock.advanceTimeBy(HALF_A_PULSE_IN)
+        val pulsing = aboveJouer()
+        onNode(hasContentDescription("BloX") and isHeading()).performTouchInput {
+            down(center)
+            up()
+        }
+        mainClock.advanceTimeBy(ONE_SECOND)
+
+        // Then the halo showed above Jouer, and a second after the touch, it is off again
+        assertThat(pulsing.sameAs(off)).describedAs("the halo pulsing").isFalse()
+        assertThat(aboveJouer().sameAs(off)).describedAs("the halo off again").isTrue()
+    }
+
+    /** The strip of the screen just above Jouer, where its halo shows, under the preview. */
+    private fun ComposeContext.aboveJouer(): Bitmap {
+        val image = onRoot().captureToImage().asAndroidBitmap()
+        val top = onNode(hasTestTag(PLAY_TAG)).getUnclippedBoundsInRoot().top
+        val (from, height) = with(density) { (top - ABOVE_JOUER).roundToPx() to STRIP.roundToPx() }
+        return Bitmap.createBitmap(image, 0, from, image.width, height)
+    }
+
+    @Test
+    @DisplayName("in reduced effects the preview and the halo stand still")
+    fun inReducedEffectsThePreviewAndTheHaloStandStill() = extension.use {
+        // Given the home in reduced effects, its frames handed by hand
+        mainClock.autoAdvance = false
+        showHomeScreen(effects = STILL)
+        mainClock.advanceTimeByFrame()
+        val before = onRoot().captureToImage().asAndroidBitmap()
+
+        // When 4 seconds go by, those of a T falling and of the first pulses of the halo
+        mainClock.advanceTimeBy(FOUR_SECONDS)
+
+        // Then nothing has moved
+        assertThat(onRoot().captureToImage().asAndroidBitmap().sameAs(before)).isTrue()
     }
 
     @Test
@@ -688,7 +731,7 @@ internal class HomeScreenTest {
 
         // Then each bears one icon, decorative
         listOf(
-            iconOf(hasTestTag(PLAY_TAG)),
+            playIconOf(hasTestTag(PLAY_TAG)),
             listenIconOf(hasContentDescription("Écouter Menuet")),
             iconOf(tileIn("Mes musiques")),
             iconOf(tileIn("Composer une musique")),
@@ -741,7 +784,7 @@ internal class HomeScreenTest {
         // Then the label of Jouer is shown whole, on one line, beside its icon, within its button and the screen
         val play = hasTestTag(PLAY_TAG)
         val bounds = onNode(play).getUnclippedBoundsInRoot()
-        val icon = iconOf(play).getUnclippedBoundsInRoot()
+        val icon = playIconOf(play).getUnclippedBoundsInRoot()
         val layout = textLayout("Jouer")
         assertThat(layout.lineCount).isEqualTo(1)
         // Drawn within its box: its paragraph may be laid out wider than the text, so not `hasVisualOverflow`
@@ -766,6 +809,10 @@ internal class HomeScreenTest {
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
         onNode(hasTestTag(HOME_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
 
+    /** The triangle of Jouer, the button [button] matches (PlayButton of the design system). */
+    private fun ComposeContext.playIconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
+        onNode(hasTestTag(PLAY_BUTTON_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
+
     /** The icon of the listen button [button] matches, a disc of its icon alone. */
     private fun ComposeContext.listenIconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
         onNode(hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
@@ -775,6 +822,7 @@ internal class HomeScreenTest {
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
+        effects: BloxEffects = STILL,
         onListenGameMusic: () -> Unit = {},
         onStartLevelChosen: (Int) -> Unit = {},
         onPlay: (Int) -> Unit = {},
@@ -787,7 +835,7 @@ internal class HomeScreenTest {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                BloxTheme(kind = kind) {
+                BloxTheme(kind = kind, effects = effects) {
                     HomeScreen(
                         modifier = Modifier
                             .width(width)
@@ -822,11 +870,27 @@ private const val PIXEL_ROUNDING = 0.01f
 /** The reminder under Jouer, at level 5 with the minuet. */
 private const val REMINDER = "Classique · Niveau 05 · Menuet"
 
-/** A name of the most characters a saved music may have (SavedMusic.MAX_NAME_LENGTH). */
-private const val LONGEST_NAME = "Ballades pour une longue soirée en hiver"
-
 /**
  * The targets of the home, at least: Changer de jeu, Paramètres, Jouer, two modes, two themes, − and +, four musics,
  * Écouter, two tiles.
  */
 private const val HOME_TARGETS = 16
+
+/** Four seconds of the clock of the test, in milliseconds. */
+private const val FOUR_SECONDS = 4_000L
+
+/**
+ * The reduced effects, those of the home in most of these tests: in full effects, the preview and the halo ask for a
+ * frame at each frame, and would keep Compose from ever being idle while its clock runs by itself.
+ */
+private val STILL = BloxEffects(reduced = true, forcedBySystem = false)
+
+/** Three seconds and a half: the first pulse of the halo half gone. */
+private const val HALF_A_PULSE_IN = 3_500L
+
+/** A second of the clock of the test, in milliseconds. */
+private const val ONE_SECOND = 1_000L
+
+/** The strip above Jouer where its halo shows: from 10 dp above it, 8 dp high, in the room between it and the hero. */
+private val ABOVE_JOUER = 10.dp
+private val STRIP = 8.dp

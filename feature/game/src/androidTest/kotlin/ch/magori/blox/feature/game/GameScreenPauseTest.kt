@@ -6,8 +6,11 @@ import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.AndroidComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -19,6 +22,7 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.OneRowPerTickGameEngineFactory
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.pause.PAUSE_MASCOT_TAG
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
@@ -116,6 +120,21 @@ internal class GameScreenPauseTest {
     }
 
     @Test
+    @DisplayName("the card shows the Classic mascot asleep above Pause, a decoration TalkBack does not read")
+    fun theCardShowsTheMascotAsleepAbovePause() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given a game paused, its card shown
+            showPausedGame()
+
+            // Then the mascot stands above the title, and is not read
+            val mascot = onNode(hasTestTag(PAUSE_MASCOT_TAG), useUnmergedTree = true)
+            val title = onNodeWithText(string(R.string.feature_game_pause_title)).getUnclippedBoundsInRoot()
+            assertThat(mascot.getUnclippedBoundsInRoot().bottom).isLessThanOrEqualTo(title.top)
+            mascot.assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.ContentDescription))
+        }
+    }
+
+    @Test
     @DisplayName("TalkBack reads the card once it shows, by its title, and nothing of the game under it")
     fun talkBackReadsTheCardOnceItShows() {
         runAndroidComposeUiTest<ComponentActivity> {
@@ -143,7 +162,7 @@ internal class GameScreenPauseTest {
         mainClock.autoAdvance = false
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
-                GameScreen(viewModel = game, onBack = {}, onReplay = {})
+                GameScreen(viewModel = game, onBack = {}, onReplay = {}, onCopy = {})
             }
         }
         return game

@@ -38,6 +38,18 @@
     <string name="feature_game_top_pause">Mettre en pause</string>
     <string name="feature_game_top_record">Record</string>
     <string name="feature_game_top_new_record">Nouveau record</string>
+    <!-- Partie de la Graine du jour (V39, P9.5) : titre, meilleur du jour à la place du record, et son annonce une fois
+         battu, en jeu et en fin de partie. -->
+    <string name="feature_game_daily_title">Graine du jour</string>
+    <string name="feature_game_daily_best">Meilleur</string>
+    <!-- En jeu, à la place de « Meilleur » une fois battu, comme « Nouveau record » à la place de « Record ». -->
+    <string name="feature_game_daily_top_new_best">Nouveau meilleur</string>
+    <!-- En fin de partie, quand le meilleur du jour est battu (premier essai compris). -->
+    <string name="feature_game_daily_new_best">Meilleur du jour</string>
+    <!-- Fin de partie de la Graine du jour : copie le score (texte et presse-papiers en P9.6). -->
+    <string name="feature_game_over_copy">Copier</string>
+    <!-- Ce que TalkBack lit du bouton Copier : ce qu’il fait. -->
+    <string name="feature_game_over_copy_description">Copier mon score</string>
     <!-- À la place du plateau, quand la fenêtre est trop petite pour jouer (cellules de moins de 8 dp, P2.24). -->
     <string name="feature_game_too_small">Agrandissez la fenêtre</string>
 </resources>

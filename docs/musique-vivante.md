@@ -60,8 +60,8 @@ boucle, focus audio, accélération du danger) est décrit dans [musique.md](mus
   contrat entre versions de Kotlin ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)) : seule
   la suite des pièces d'une graine en est un (Graine du jour, [graine-du-jour.md](graine-du-jour.md)).
 - La graine de la musique est celle de la partie (`GameRoute`) : une nouvelle partie et Rejouer
-  donnent une nouvelle musique ; la Graine du jour donne la même musique à tout le monde, ce
-  jour-là, sur une même version.
+  donnent une nouvelle musique au Classique ; la Graine du jour, dont Rejouer garde la graine,
+  donne la même musique à tout le monde, ce jour-là, sur une même version.
 - On ne reprend pas le `composeLoop` du prototype de la maquette : le générateur existant suffit.
 - La composition coûte quelques dizaines de millisecondes (voir `MusicGenerator.generate`) : elle
   est faite hors du fil principal, avant la première pièce. Si elle n'est pas prête, la partie

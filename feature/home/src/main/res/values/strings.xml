@@ -8,6 +8,8 @@
     <string name="feature_home_play_description">Jouer, %1$s, niveau %2$d, %3$s</string>
     <!-- Puce Record de la barre : l'étiquette, en capitales, au-dessus du record plafonné, sur 6 chiffres. -->
     <string name="feature_home_record">Record</string>
+    <!-- Le score à côté du plateau d'aperçu, comme dans une partie. -->
+    <string name="feature_home_preview_score">Score</string>
     <!-- Lu par TalkBack : la vraie valeur, non plafonnée. -->
     <string name="feature_home_record_description">Record %1$d</string>
     <string name="feature_home_mode">Mode</string>

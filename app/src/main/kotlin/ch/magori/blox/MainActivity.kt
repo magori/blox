@@ -55,6 +55,7 @@ class MainActivity : ComponentActivity() {
                         settingsViewModelFactory = container.settingsViewModelFactory,
                         deletedMusics = container.deletedMusics,
                         locksmithViewModelFactory = container.locksmithViewModelFactory,
+                        dailyViewModelFactory = container.dailyViewModelFactory,
                         backStack = backStack,
                         // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
                         // finds the play button, the keys and the pause by them, whatever the language.
