@@ -387,16 +387,43 @@ droite.
   `LockCellsTest › a hint marks the free cells where its piece fits`,
   `LockCellsTest › a hint naming a placed piece marks that piece`,
   `LockCellsTest › the preview is drawn over the hint`.
-- Le message sous la serrure dit, dans cet ordre : la serrure ouverte, la raison d'un refus, ce
-  que marque l'indice, puis comment jouer, avec ou sans aperçu. TalkBack le lit sans
-  interrompre ; chaque case se lit « Colonne c, ligne l : trou, métal, pièce… ».
+- Le message sous la serrure dit, dans cet ordre : la serrure ouverte et la cadence qui a fermé la
+  phrase (« La cadence V–I a fermé la phrase. », lue « cinq majeur, un majeur »), la raison d'un refus
+  sous son numéro (« Refus 2 : … », pour que TalkBack redise un deuxième refus de suite), l'orientation
+  de la pièce qu'on vient de tourner (« Pièce T, un quart de tour à droite. », comptée en quarts de tour
+  depuis sa forme de départ, jusqu'à l'action suivante), ce que marque l'indice en nommant sa pièce
+  (« L'indice marque où tient la pièce L. », ou la pièce posée qui bloque), puis comment jouer, avec ou
+  sans aperçu. Le message est la seule zone annoncée (polie) tant que la serrure est fermée, et ne
+  l'est plus une fois ouverte : le titre de la carte prend alors le focus. Chaque case se lit
+  « Colonne c, ligne l : trou, métal, pièce… », une case de l'indice « indice : la pièce L tient ici » ;
+  la grille se lit comme une collection de 8 rangées et 8 colonnes, l'anneau laissé de côté. Le bandeau
+  des accords se lit par degré et qualité (« cinq majeur »), jamais par son chiffre romain, que TalkBack
+  lirait comme un mot : « Accords entendus : … À venir : … ».
   **Tests :** `LocksmithMessageTest › without a preview the message says to touch the hole`,
   `LocksmithMessageTest › with a preview the message says to touch it again or to place it`,
   `LocksmithMessageTest › a refusal tells its reason`,
+  `LocksmithMessageTest › a refusal is told with its number, so that TalkBack tells a second refusal in a row again`,
   `LocksmithMessageTest › a refusal is told before the hint and the preview`,
+  `LocksmithMessageTest › a turn tells the orientation of the chosen piece, before the hint and the preview`,
   `LocksmithMessageTest › a hint is told before the preview`,
   `LocksmithMessageTest › a hint tells where a piece fits, or that a placed piece blocks`,
-  `LocksmithMessageTest › an open padlock says so, whatever came before`.
+  `LocksmithMessageTest › a hint names its piece, the one that fits or the placed one that blocks`,
+  `LocksmithMessageTest › an open padlock tells the cadence that closed the phrase, whatever came before`,
+  `LocksmithViewModelTest › a turn is told by the screen until the next action`,
+  `LocksmithReadingTest › the orientation of a piece is read in quarter turns from where it started, clockwise`,
+  `LocksmithReadingTest › a piece of two orientations is upright or turned a quarter, either way, and an O always upright`,
+  `LocksmithReadingTest › the band of the chords reads those heard, then those to come`,
+  `LocksmithReadingTest › a chord is read by its degree and its quality, not by its numeral, which TalkBack would read as a word`,
+  `LocksmithReadingTest › the band says when no chord is heard yet, and when they all are`,
+  `LocksmithReadingTest › the cadence that closed the phrase is read by its two chords, V then I`,
+  `LocksmithScreenTest › the grid is read as a collection of 8 rows and 8 columns, each cell at its place, the ring left out`,
+  `LocksmithScreenTest › turning the chosen piece tells its new orientation by the message, its tile keeping it to be read`,
+  `LocksmithScreenTest › after a placement, and after a choice, the message is the one region TalkBack announces`,
+  `LocksmithScreenTest › once open, the message reads the cadence by its chords, as the band does`,
+  `LocksmithScreenTest › the band of the chords reads the chords heard and those to come, by their degree`,
+  `LocksmithScreenTest › a second refusal in a row is told again, under its number`,
+  `LocksmithScreenTest › the piece named by the hint is read in the message and on the cells it marks`,
+  `LocksmithScreenTest › the message is a polite live region while the padlock is closed, and no longer once it is open`.
   **Vues :** V35 (captures `LocksmithRefused`, `LocksmithRefusedBottom`, `LocksmithBlocking`, `LocksmithOpen`
   et `LocksmithOpenSmall`, chacune `Day` et `Night`, de `LocksmithScreenshots.kt`).
 - Tailles (`padlockSizes`, fonction pure) : case de 42 dp au plus, sinon la largeur divisée par 8,5, en pixels
@@ -413,14 +440,98 @@ droite.
   `PadlockSizesTest › once the padlock is open, no preview is left and no room is kept`.
 - Mise en page : une colonne qui défile (barre, accords, grille, message, Indice et Recommencer, tuiles), sous
   elle les commandes ancrées en bas (tourner, **Poser**, tourner), zone plafonnée à la moitié de la hauteur.
-  La barre a un bouton retour et un cadenas d'état (24 dp, anse levée une fois ouverte), lu « Serrure fermée »
-  ou « Serrure ouverte ». Les deux dernières pilules des accords portent une accolade et le mot « cadence ».
-  **Tests :** `LocksmithMessageTest › the padlock of the bar is closed until the padlock opens`,
+  La barre a un bouton retour et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour
+  TalkBack : c'est le titre de la barre qui dit l'état, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
+  deux dernières pilules des accords portent une accolade et le mot « cadence ». La tuile choisie et son anneau
+  descendent ensemble quand on appuie (ce qu'un écran dessine autour d'un bouton suit le bouton).
+  **Tests :** `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
+  `LocksmithScreenTest › the padlock of the bar has no node, the title of the bar tells the padlock closed, then open`,
   `LocksmithScreenTest › the back button of the bar goes back`,
-  `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`.
-- Retours animés de la pose, du refus, de la serrure ouverte et de l'indice, chacun avec sa
-  version « Effets réduits » ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)) : à faire
-  (P7.20). L'indice reste marqué jusqu'à la pose suivante.
+  `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`,
+  `BubbleButtonTest › what a screen draws around a button, as the ring of a chosen tile, goes down with it`.
+- Aperçu sur l'anneau en colonne 0 ou 9 : quand la place manque au-delà du rebord, la case qui déborde est
+  rognée à 4 dp du bord de l'écran, sa croix entière dedans ; avec assez de place, elle est entière. La case
+  rognée garde sa hauteur, son joint et ses coins. Sa croix, du même trait que celle d'une case entière, vaut
+  le remplissage moins le halo et 2 dp de chaque côté (11 dp à 390 dp, 14 dp à 320 dp), en pixels entiers,
+  plafonnée à la croix d'une case entière ; au repos, croix et halo gardent 2 dp de fond de chaque côté. Si la
+  croix tombait sous 10 dp (écrans étroits à forte densité), la case est rognée plus près du bord, à 3 dp au
+  plus près ; si même là elle reste sous 10 dp, la case est rognée à 3 dp et la croix est la plus grande
+  possible, sans amincir le trait. Exception à la marge des écrans du design system, notée dans son README.
+  Pendant le tremblement d'un refus, la case de côté tremble avec la serrure : son bord intérieur suit sa
+  voisine, son bord extérieur ne s'approche jamais du bord de l'écran plus qu'au repos (elle s'étrécit, en
+  pixels entiers), sa croix garde sa taille et se recentre sur ce qui est montré. Au pic du tremblement, le
+  halo de la croix couvre le contour de la case pendant quelques images : toléré (décision de P7.23), la
+  croix et son halo restent entiers dans la case montrée.
+  **Tests :** `PadlockSizesTest › at 390 dp, a cell of the preview on the ring at the side is cut 4 dp from the edge, its cross whole within`,
+  `PadlockSizesTest › with room enough beyond the rim, a cell of the preview on the ring at the side is whole`,
+  `PadlockSizesTest › a cell of the preview on the ring at the side never passes the edge of the screen less the margin`,
+  `PadlockSizesTest › the cross of a cell cut at the side keeps 2 dp of its fill on each side of its halo, and 10 dp at least`,
+  `PadlockSizesTest › on the narrowest screen, 320 dp, the cross of a cell cut at the side is 14 dp`,
+  `PadlockSizesTest › where its cross would fall under 10 dp, a cell at the side is cut a little closer to the edge, 3 dp at least`,
+  `PadlockSizesTest › where even 3 dp from the edge its cross falls under 10 dp, a cell at the side is cut 3 dp from it`,
+  `PadlockSizesTest › shownAt keeps the inner edge of a cell at the side where the padlock puts it, at rest or shaken`,
+  `PadlockSizesTest › shownAt trims a cell at the side by whole pixels, its outer edge never closer to the edge than at rest`,
+  `PadlockSizesTest › shaken by a fraction of a pixel, a cell at the side is trimmed by the whole pixel above`,
+  `PadlockSizesTest › the narrowest a cell at the side is drawn is reached at the height of the shake, never passed during it`,
+  `PadlockSizesTest › at the peak of the shake, the cross of a side cell and its halo stay within what is shown, joints included`,
+  `PadlockSizesTest › at 390 dp, a cell at the side stands 4 dp from the edge of the screen at rest`,
+  `LockCutCrossTest › a cell of 42 cut to 23, its cross takes its fill less its halo and 2 dp on each side`,
+  `LockCutCrossTest › at rest, the cross of a cut cell and its halo keep 2 dp on each side within its joints`,
+  `LockCutCrossTest › a cell cut wide enough keeps the cross of a whole cell, across half its fill`,
+  `LockCutCrossTest › a whole cell of an odd fill keeps the cross of the cells that are not cut, half a pixel included`,
+  `LockCutCrossTest › a whole cell at the side, its cut without a cross of its own, keeps the cross of a cell not cut`,
+  `LockCutCrossTest › the cross of a cut cell is a whole number of pixels`,
+  `LockCutCrossTest › the cross of a cut cell fits a width as wide as its reach, and no narrower`,
+  `LockCutCrossTest › the cross of a cut cell is the same in every Colorful variant and for every piece`,
+  `LocksmithScreenTest › at the peak of a shake to the right, the right cell keeps to its neighbour, its cross centred`,
+  `LocksmithScreenTest › a cell of the preview at the side, narrowed as the padlock shakes, recomposes nothing`,
+  `CellLayoutTest › a cell cut to a narrower width keeps its height, its joint and its corners, its fill as narrow`.
+  **Vues :** V35 (captures `LocksmithRefusedLeft`, `LocksmithRefusedRight`, `LocksmithRefusedLeftShake` et
+  `LocksmithRefusedRightShake`, en `Day`).
+- Retours animés ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)), en ticks (`LocksmithFeedback`,
+  pur), dessinés sans recomposer la grille :
+  - **pose** : les cases de la pièce s'allument 8 ticks, de moins en moins ; en Effets réduits, rien, comme le
+    verrouillage du Classique : la pilule de l'accord suffit ;
+  - **refus** : la serrure tremble de côté 18 ticks, de moins en moins, dès sa deuxième image, puis revient en
+    place ; seules les cases barrées (anneau compris) sont concernées ; en Effets réduits, pas de tremblement,
+    l'aperçu s'allume et s'éteint en 8 ticks. Deux refus de suite sont deux retours, chacun rejoué depuis le
+    début ; un écran affiché sur un refus déjà fait (retour à l'écran) ne tremble pas ;
+  - **serrure ouverte** : le trou s'allume rangée par rangée depuis le bas, 2 ticks entre deux rangées ; en
+    Effets réduits, tout le trou d'un coup, éteint en 8 ticks ;
+  - **indice** : ses cases (ou la pièce posée qui bloque) gonflent d'une seule lueur de 30 ticks, une fois,
+    pour que rien ne clignote ; en Effets réduits, allumées d'un coup, éteintes en 8 ticks. L'indice reste
+    marqué jusqu'à la pose suivante ;
+  - reprendre, choisir, tourner ou viser ne donnent aucun retour.
+  L'écran garde les Effets réduits de l'application (le `BloxTheme` Couleurs les perdait, corrigé). La lumière
+  d'une case est peinte par le peintre des cases (`LockCellCanvas`, `core:board`), entre le corps de la case et
+  ses marques : le point d'encre de l'indice et la croix d'un refus restent en encre au sommet de la lumière.
+  **Tests :** `LocksmithScreenTest › at the height of its swell, the dot of a cell marked by a hint stays in ink`,
+  `LocksmithScreenTest › in reduced effects, the cross of a refused preview stays in ink at the height of its light`,
+  `LocksmithScreenTest › the grid does not recompose while the cells of a hint swell`.
+  **Tests :** `LocksmithFeedbackTest › a placement lights the cells of its piece for 8 ticks, dimmer at each tick`,
+  `LocksmithFeedbackTest › in reduced effects a placement lights nothing, as a lock of the Classic, the pill of its chord telling it`,
+  `LocksmithFeedbackTest › a refusal shakes the padlock side to side for 18 ticks from its first, less and less, then puts it back`,
+  `LocksmithFeedbackTest › a refusal concerns the cells it crosses out alone, those on the ring included`,
+  `LocksmithFeedbackTest › in reduced effects a refusal does not shake, its preview lit and fading in 8 ticks`,
+  `LocksmithFeedbackTest › an open padlock lights its hole row by row from the bottom up, each row 2 ticks after the one below`,
+  `LocksmithFeedbackTest › in reduced effects an open padlock lights its whole hole at once, fading in 8 ticks`,
+  `LocksmithFeedbackTest › a hint lights the cells it marks in one swell of 30 ticks, once, so that nothing flashes`,
+  `LocksmithFeedbackTest › in reduced effects a hint lights its cells at once, fading in 8 ticks`,
+  `LocksmithFeedbackTest › a hint naming a placed piece that blocks lights that piece`,
+  `LocksmithFeedbackTest › taking a piece back, choosing, turning or aiming shows no feedback`,
+  `LocksmithFeedbackTest › two refusals in a row are two feedbacks, each one played from its start`,
+  `LocksmithScreenTest › the screen keeps the reduced effects of the application: a button pressed stays in place`,
+  `LocksmithScreenTest › after a refusal, the padlock is shaken from its second frame, and back in place 18 ticks later`,
+  `LocksmithScreenTest › in reduced effects, a refusal never shakes the padlock`,
+  `LocksmithScreenTest › a screen shown with a refusal already made is not shaken`,
+  `LocksmithScreenTest › the grid does not recompose while the padlock shakes`,
+  `LocksmithScreenTest › with its view model: a placement refused, then accepted, then taken back`.
+  **Vues :** V35 (captures `LocksmithPlacedFeedback`, `LocksmithRefusedShake`, `LocksmithRefusedReduced`,
+  `LocksmithRefusedLeft`, `LocksmithRefusedLeftShake`, `LocksmithRefusedLeftReduced`, `LocksmithRefusedRight`,
+  `LocksmithHintSwell`, `LocksmithOpenWave` et `LocksmithOpenReduced`, en `Day`).
+- Les types de `core:locksmith` que reçoit l'écran sont immuables et déclarés stables dans
+  `compose-stability.conf`.
+  **Tests :** `LocksmithImmutabilityTest › every instance field of the classes the screen receives is final`.
 - **Serrure ouverte** : une carte remplace les commandes du bas ; Indice, Recommencer et les tuiles
   disparaissent, le message reste. Elle montre trois compteurs (coups, refus, indices, lus « Coups : n »), une
   phrase sur la cadence, **Serrure suivante** (bouton principal) et **Rejouer cette serrure** (secondaire), et
@@ -431,8 +542,15 @@ droite.
   `LocksmithScreenTest › on the card of an open padlock, Rejouer cette serrure restarts the padlock`,
   `LocksmithScreenTest › once the padlock is open, neither Place, nor Hint, nor the tiles are left`,
   `LocksmithScreenTest › while the padlock is closed, the card is not shown`.
-  Point ouvert, à juger par `designer-jeu` : TalkBack entend « Serrure ouverte » au cadenas, au message (seul en
-  zone annoncée) et au titre de la carte, et rien ne place le focus sur la carte.
+  TalkBack n'entend « Serrure ouverte ! » qu'une fois : le titre de la carte est un en-tête, seul nœud à le
+  dire, et prend le focus à l'ouverture ; après **Rejouer cette serrure**, le focus revient au message. Rien ne
+  prend le focus tant que l'état ne change pas (retour à l'écran compris).
+  **Tests :** `LocksmithFocusTest › the title of the card takes the focus when the padlock opens`,
+  `LocksmithFocusTest › replaying an open padlock gives the focus to the message`,
+  `LocksmithFocusTest › nothing takes the focus while the padlock stays closed or stays open, as on coming back to the screen`,
+  `LocksmithScreenTest › on opening, « Serrure ouverte ! » is a heading and takes the focus`,
+  `LocksmithScreenTest › once open, a single node says « Serrure ouverte ! »`,
+  `LocksmithScreenTest › after Rejouer cette serrure, the message takes the focus`.
 - Pas de bouton pour passer une serrure : l'indice débloque.
 - L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
   l'action (deux refus à la suite restent deux retours) et l'indice affiché, jusqu'à la pose

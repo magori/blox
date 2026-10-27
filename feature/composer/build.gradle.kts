@@ -1,6 +1,9 @@
 plugins {
     alias(libs.plugins.blox.android.feature)
     alias(libs.plugins.blox.android.screenshot)
+    // Le reflet et la couleur des notes, jetons melody-hi, melody, bass-hi et bass de docs/design-system/tokens.json,
+    // comparés aux bulles des notes par TrackColorsTest (ADR 0019).
+    alias(libs.plugins.blox.design.tokens)
 }
 
 android {
@@ -48,6 +51,9 @@ dependencies {
     androidTestImplementation(libs.androidx.test.monitor)
     // L'activité des tests à la version de l'application : elle fournit le répartiteur du retour (NavigationBackHandler).
     androidTestRuntimeOnly(libs.androidx.activity)
+    // Le test de l'entrée la compose dans un NavDisplay décoré comme dans app (ADR 0013).
+    androidTestImplementation(libs.androidx.navigation3.ui)
+    androidTestImplementation(libs.androidx.lifecycle.viewmodel.navigation3)
     // LifecycleRegistry : le cycle de vie de l'entrée simulée par le test de la fabrique.
     androidTestImplementation(libs.androidx.lifecycle.runtime)
 }

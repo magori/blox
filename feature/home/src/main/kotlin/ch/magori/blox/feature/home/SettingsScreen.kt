@@ -45,7 +45,8 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
 /**
  * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then a card per section.
- * « Affichage »: Effets réduits, imposed by Android when it removes the animations, and where the theme is chosen.
+ * « Affichage »: Effets réduits, imposed by Android when it removes the animations, Gaucher, and where the theme is
+ * chosen.
  * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the
  * vibrations and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a
  * game reads them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first,
@@ -70,7 +71,7 @@ internal fun SettingsScreen(
     ) {
         Header(onBack = actions.onBack)
         if (uiState != null) {
-            Display(uiState.reducedEffects, actions.onReducedEffectsChanged)
+            Display(uiState, actions)
             SoundsAndVibrations(uiState, actions)
             RecordSection(cleared = uiState.recordClearing == RecordClearing.CLEARED, onClear = actions.onClearRecord)
             RecordWindow(uiState.recordClearing, actions)
@@ -102,12 +103,13 @@ private fun Header(onBack: () -> Unit) {
 /**
  * « Affichage »: Effets réduits, as the player chose, but on and disabled while Android removes the animations, which
  * it says (the effects of the theme, [BloxTheme.effects]): the choice is then neither shown nor touched, and comes back
- * once Android animates again. Then the note: the theme is chosen on the home screen.
+ * once Android animates again. Gaucher, whose sub-line says where the keys of the next game stand, beside its sketch of
+ * them, which turns over with it. Then the note: the theme is chosen on the home screen.
  */
 @Composable
 private fun Display(
-    reducedEffects: Boolean,
-    onReducedEffectsChanged: (Boolean) -> Unit,
+    uiState: SettingsUiState,
+    actions: SettingsActions,
 ) {
     val forced = BloxTheme.effects.forcedBySystem
     Section(title = stringResource(R.string.feature_home_settings_display)) {
@@ -116,9 +118,20 @@ private fun Display(
                 icon = BloxIcon.REDUCED_EFFECTS,
                 label = stringResource(R.string.feature_home_reduced_effects),
                 subLine = stringResource(R.string.feature_home_reduced_effects_sub_line),
-                checked = reducedEffects || forced,
-                onCheckedChange = onReducedEffectsChanged,
+                checked = uiState.reducedEffects || forced,
+                onCheckedChange = actions.onReducedEffectsChanged,
                 disabledReason = if (forced) stringResource(R.string.feature_home_reduced_effects_forced) else null,
+            )
+            Separator()
+            val leftHanded = uiState.leftHanded
+            SettingSwitchRow(
+                pictogram = { tint -> KeysSketch(leftHanded, tint) },
+                label = stringResource(R.string.feature_home_left_handed),
+                subLine = stringResource(
+                    if (leftHanded) R.string.feature_home_left_handed_on else R.string.feature_home_left_handed_off,
+                ),
+                checked = leftHanded,
+                onCheckedChange = actions.onLeftHandedChanged,
             )
         }
         Note(stringResource(R.string.feature_home_settings_theme_note))
@@ -329,6 +342,13 @@ internal fun SettingsScreenOriginalPreview() {
 @Composable
 internal fun SettingsScreenColorfulPreview() {
     SettingsScreenPreview(BloxThemeKind.COLORFUL)
+}
+
+/** For a left handed player: Gaucher on, its sketch turned over. */
+@Preview(widthDp = 360, heightDp = 1200)
+@Composable
+internal fun SettingsScreenLeftHandedPreview() {
+    SettingsScreenPreview(BloxThemeKind.COLORFUL, PreviewState.copy(leftHanded = true))
 }
 
 @Preview(widthDp = 360, heightDp = 2400, fontScale = 2f)

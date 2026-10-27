@@ -186,7 +186,10 @@ graph LR
   URI de contenu ne doit jamais y figurer : la permission persistante ne suit pas l'appareil, et
   l'identifiant du document révélerait le nom d'un fichier de l'utilisateur : c'est le cas de
   `music_file.preferences_pb`, l'URI de « Mon fichier » (P4.6, ADR 0018,
-  `BackupRulesTest › the music file of my file never leaves the device`). Le chemin vient de
+  `BackupRulesTest › the music file of my file never leaves the device`). Les résultats de la
+  Graine du jour (`daily_challenge.preferences_pb`, P9.3) ne la suivent pas non plus : un premier
+  essai n'a de sens que sur l'appareil où il a été joué
+  (`BackupRulesTest › the file of the daily challenge never leaves the device`). Le chemin vient de
   `dataStoreFile(filesDir, name)` (`app`, `files/datastore/<nom>`), les noms de `RECORDS_FILE` et
   `SETTINGS_FILE` (`core:data`).
 

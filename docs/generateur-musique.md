@@ -172,6 +172,14 @@ son rythme. Choix de conception, **[à vérifier]** à l'écoute.
   `FormTest › no bar copies the one before it, rhythm and chords alike, not even bar 1 after bar 8 in the loop`,
   `HarmonyTest › a progression that plays the same chords in two bars running, outside the cadences, is refused`,
   `HarmonyTest › a progression may come back to its tonic on bar 4, as the half cadence plays the fifth there`.
+- **Tonique imposée** (P8.9) : `MusicGenerator.generate(…, tonic)` peut recevoir une tonique,
+  prise dans `Category.TONICS` (une autre est refusée, `IllegalArgumentException`). Elle vaut pour
+  chaque candidat de chaque tour, et saute le tirage de la tonique ; sans elle, rien ne change, la
+  même graine rend la même musique. C'est ce qui met les deux ambiances de la
+  [musique vivante](musique-vivante.md) dans la même tonalité.
+  **Tests :** `MusicGeneratorTest › a music composed with an imposed tonic is in that tonic`,
+  `MusicGeneratorTest › without an imposed tonic the tonic is drawn as before`,
+  `MusicGeneratorTest › a tonic outside the tonics of the categories is refused`.
 - **Reproductible.** Tirages dans cet ordre : catégorie (Surprise), harmonie, tonique, suite,
   tempo, motif, puis les cellules de chaque mesure ; la mélodie et la basse tireront après. Une
   caractérisation fige cet ordre (graine 42, Joyeux : do majeur, `I–IV–V–I`, 133 temps/min).

@@ -60,7 +60,7 @@ de suite ; ils reviennent en `motion-press`. Focus clavier : contour de 3 px `in
 | Action | `accent`, `accent-ink`, `accent-pressed`, `accent-ring` | Une action principale par écran, la touche A, le choix retenu, l'interrupteur allumé, les autocollants. |
 | Jeu | `clear-glow`, `danger-soft`, `cell-dead` | Effacement des lignes, pile en danger, cases éteintes en fin de partie. |
 | Danger | `danger`, `danger-ink` | Supprimer, erreurs, cadre du plateau en danger. |
-| Musique | `melody`, `bass` (+ `-soft`), `track-ink`, `cell-ground`, `grid-line`, `label-off` | Une couleur par piste de l'éditeur, distinctes aussi par leur clarté. |
+| Musique | `melody`, `bass` (+ `-soft`, `-hi`), `track-ink`, `cell-ground`, `grid-line`, `label-off` | Une couleur par piste de l'éditeur, distinctes aussi par leur clarté ; `-hi` est le reflet du haut des notes en bulles (de nuit, celui des pièces T et L). |
 | Décor | `iris-1`, `iris-2`, `iris-3` | Dégradé du logo, reflet des 4 lignes, barre de record battu. Jamais derrière du texte. |
 
 L'accent du jour (`#B48CFF`) se détache peu de la page (2,3:1) : un bouton d'action se lit par
@@ -203,6 +203,9 @@ de l'éditeur utilisent un italique imité.
 - `radius-window` (24 px) : carte des réglages, plateau sur tablette ; `radius-card` (28 px) :
   cartes Pause et Fin, feuille Musique.
 - Espacements sur une grille de 4 : `space-1` (4), `space-2` (8), `space-3` (12), `space-4` (16) et `space-6` (24) ; pas de `space-5`.
+  Marge des écrans : `space-4` sur téléphone. Seule exception : la case de l'aperçu du Serrurier posée sur
+  l'anneau en colonne 0 ou 9 peut déborder jusqu'à `space-1` du bord, rognée là (P7.22), et jusqu'à 3 dp sur les
+  écrans les plus étroits, pour que sa croix garde 10 dp (P7.23).
 
 ## Pictogrammes
 

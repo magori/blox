@@ -22,9 +22,17 @@ dependencies {
     implementation(libs.kotlinx.coroutines.core)
     // `@StringRes` sur les textes d'Écouter (ListenFace).
     implementation(libs.androidx.annotation)
+    // La fenêtre d'une feuille s'ouvre depuis une doublure de la vue de l'écran, à son thème : elle en reprend les
+    // propriétaires (cycle de vie, ViewModel, état sauvé) (BloxSheet).
+    implementation(libs.androidx.lifecycle.common)
+    implementation(libs.androidx.lifecycle.runtime)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.savedstate)
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
+    // L'instrumentation, qui envoie le retour du système aux feuilles (BloxSheetTest).
+    androidTestImplementation(libs.androidx.test.monitor)
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
 
     // textLayout et assertWordsWhole : les lignes d'un texte affiché, lues par les tests instrumentés des fenêtres et

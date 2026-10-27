@@ -217,7 +217,9 @@ du Classique, qui doit rester vert (ADR 0015).
   `Hold` (réserve), `HardDrop` (chute instantanée), `Ghost` (pièce fantôme), `LockDelay` (délai
   de verrouillage), `Bag` (sac de 7), `TSpin`, `Combo`, `BackToBack` (enchaînement de coups
   difficiles). Le Serrurier (`core:locksmith`) : `Padlock` (la serrure ; *lock* est le
-  verrouillage du Classique), les pièces posées étant des `Piece`. Garder ces noms.
+  verrouillage du Classique), les pièces posées étant des `Piece`. La Graine du jour :
+  `StableRandom` (générateur stable, SplitMix64, dont la suite est un contrat entre versions ;
+  `ClassicRandomizer.stable(seed)`). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent

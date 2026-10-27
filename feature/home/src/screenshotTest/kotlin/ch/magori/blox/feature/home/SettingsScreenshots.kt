@@ -51,3 +51,15 @@ private fun SettingsGreyedNight() = SettingsScreenGreyedPreview()
 @Preview(widthDp = 360, heightDp = 1200)
 @Composable
 private fun SettingsOriginalGreyed() = SettingsScreenOriginalGreyedPreview()
+
+// Gaucher on: its sub-line and its sketch turned over, by day and by night.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1200)
+@Composable
+private fun SettingsLeftHanded() = SettingsScreenLeftHandedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1200, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun SettingsLeftHandedNight() = SettingsScreenLeftHandedPreview()

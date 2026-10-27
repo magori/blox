@@ -2,7 +2,10 @@ package ch.magori.blox.feature.composer.grid
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
+import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxPalette
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.designsystem.theme.TrackColors
 import ch.magori.blox.feature.composer.model.Track
 
@@ -40,16 +43,11 @@ internal fun heldPart(
 
 /**
  * The colours of a cell of the grid: its [background], the [line] around it, between it and the cells next to it, the
- * notes of the open track, and the watermark of the other, [echo].
+ * [held] part of a note of the open track (its attack has its own look, [NoteLook]), and the watermark of the other,
+ * [echo].
  */
 @Immutable
-internal data class CellColors(
-    val background: Color,
-    val line: Color,
-    val note: Color,
-    val held: HeldPart,
-    val echo: Color,
-)
+internal data class CellColors(val background: Color, val line: Color, val held: HeldPart, val echo: Color)
 
 /** The colours of a cell of the grid in [palette], the open track being [track]. */
 internal fun cellColors(
@@ -58,7 +56,39 @@ internal fun cellColors(
 ): CellColors = CellColors(
     background = palette.cellGround,
     line = palette.gridLine,
-    note = trackColors(palette, track).note,
     held = heldPart(palette, track),
     echo = trackColors(palette, track.other).note,
 )
+
+/** The bubble of a note: lit from [highlight] at its top down to the colour of its track, in the relief [gloss]. */
+@Immutable
+internal data class NoteBubble(val highlight: Color, val gloss: Gloss)
+
+/**
+ * How the attack of a note is drawn: in its [color], as a [bubble] (Colorful, V33), or flat without one (Original, whose
+ * grid stays as it was).
+ */
+@Immutable
+internal data class NoteLook(val color: Color, val bubble: NoteBubble?) {
+    /**
+     * Whether the grid of these notes is dressed as V33, a block framed, « TEMPS » in capitals, its bottom fading: with
+     * bubbles only. Original, frozen (P5.86), keeps its flat grid. The one place that tells them apart.
+     */
+    val dressed: Boolean get() = bubble != null
+}
+
+/**
+ * The look of a note of [track] in [variant], whose colours are [palette] and reliefs [glosses]: in Colorful, a bubble
+ * as a cell of a piece (docs/design-system/components/Piece), in the colours of its track and the relief of the cells.
+ */
+internal fun noteLook(
+    variant: BloxThemeVariant,
+    palette: BloxPalette,
+    glosses: BloxGlosses,
+    track: Track,
+): NoteLook = with(trackColors(palette, track)) {
+    NoteLook(
+        color = note,
+        bubble = if (variant == BloxThemeVariant.ORIGINAL) null else NoteBubble(highlight, glosses.cell),
+    )
+}

@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.unit.dp
@@ -62,11 +63,15 @@ fun WindowDialog(
     }
 }
 
-/** A window: a panel of the theme, its [title], then its [content], scrolling when the font is large. */
+/**
+ * A window: a panel of the theme, its [title], a heading, then its [content], scrolling when the font is large. The
+ * [titleModifier] lets a screen give its title the focus.
+ */
 @Composable
 fun WindowPanel(
     title: String,
     modifier: Modifier = Modifier,
+    titleModifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
@@ -80,15 +85,31 @@ fun WindowPanel(
             .padding(WindowPadding),
         verticalArrangement = Arrangement.spacedBy(WindowGap),
     ) {
-        Text(
+        PanelTitle(
             text = title,
-            color = palette.ink,
-            // Cut at a syllable, never in the middle of one, when a word is wider than the window.
-            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall).copy(hyphens = Hyphens.Auto),
-            modifier = Modifier.semantics { heading() },
+            style = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
+            modifier = titleModifier,
         )
         content()
     }
+}
+
+/**
+ * The title of a panel (a window, a sheet): [text] in `ink` and in [style], read by TalkBack as a heading, cut at a
+ * syllable, never in the middle of one, when a word is wider than the panel.
+ */
+@Composable
+internal fun PanelTitle(
+    text: String,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = text,
+        color = BloxTheme.palette.ink,
+        style = style.copy(hyphens = Hyphens.Auto),
+        modifier = modifier.semantics { heading() },
+    )
 }
 
 /**

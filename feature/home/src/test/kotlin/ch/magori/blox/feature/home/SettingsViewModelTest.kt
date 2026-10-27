@@ -111,6 +111,31 @@ class SettingsViewModelTest {
     }
 
     @Test
+    fun `turning left handed on saves it on and shows it on, then off again`() = runTest {
+        // Given a right handed player, as by default
+        val preferences = FakeUserPreferencesRepository()
+        val viewModel = settingsViewModel(preferences)
+
+        viewModel.uiState.test {
+            assertThat(awaitItem()?.leftHanded).isFalse()
+
+            // When
+            viewModel.onLeftHandedChanged(true)
+
+            // Then
+            assertThat(preferences.state.value?.leftHanded).isTrue()
+            assertThat(expectMostRecentItem()?.leftHanded).isTrue()
+
+            // When
+            viewModel.onLeftHandedChanged(false)
+
+            // Then
+            assertThat(preferences.state.value?.leftHanded).isFalse()
+            assertThat(expectMostRecentItem()?.leftHanded).isFalse()
+        }
+    }
+
+    @Test
     fun `turning the sound effects on saves them on and shows them on, then off again`() = runTest {
         // Given the sound effects turned off by the player: they are on by default
         val preferences = FakeUserPreferencesRepository(initial = UserPreferences.DEFAULT.copy(soundEffects = false))

@@ -29,4 +29,8 @@
     <string name="core_designsystem_listen_named">Écouter %1$s</string>
     <string name="core_designsystem_stop">Arrêter</string>
     <string name="core_designsystem_stop_named">Arrêter %1$s</string>
+    <!-- Les messages temporaires (P5.97) : la croix qui ferme un message, lue par TalkBack. -->
+    <string name="core_designsystem_message_close">Fermer le message</string>
+    <!-- Le titre du menu « … », annoncé par TalkBack à son ouverture. -->
+    <string name="core_designsystem_menu">Menu</string>
 </resources>

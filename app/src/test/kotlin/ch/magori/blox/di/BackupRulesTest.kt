@@ -1,5 +1,6 @@
 package ch.magori.blox.di
 
+import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
 import ch.magori.blox.core.data.RECORDS_FILE
@@ -58,11 +59,27 @@ class BackupRulesTest {
         val myMusicFile = datastorePath(MY_MUSIC_FILE)
 
         // Then no backup takes it, whatever the version of Android
+        everyBackup().forEach { assertThat(it).doesNotContain(myMusicFile) }
+    }
+
+    @Test
+    fun `the file of the daily challenge never leaves the device`() {
+        // Given the file of the results of the day, whose first try would mean nothing on another phone
+        val dailyChallengeFile = datastorePath(DAILY_CHALLENGE_FILE)
+
+        // Then no backup takes it, whatever the version of Android: no include names it, nor a directory holding it
+        everyBackup().flatten().forEach { include ->
+            assertThat(dailyChallengeFile == include || dailyChallengeFile.startsWith(include.removeSuffix("/") + "/"))
+                .withFailMessage { "The include $include takes $dailyChallengeFile" }
+                .isFalse()
+        }
+    }
+
+    /** The files that each backup includes: the cloud backup and the device transfer from Android 12, then before. */
+    private fun everyBackup(): List<List<String>> {
         val rules = appResource("xml/data_extraction_rules.xml")
         val sections = listOf("cloud-backup", "device-transfer").map { included(rules, "/data-extraction-rules/$it") }
-        (sections + listOf(included(appResource("xml/backup_rules.xml"), "/full-backup-content"))).forEach {
-            assertThat(it).doesNotContain(myMusicFile)
-        }
+        return sections + listOf(included(appResource("xml/backup_rules.xml"), "/full-backup-content"))
     }
 
     /** The files that the rules under [section] include, as `domain:path`. */

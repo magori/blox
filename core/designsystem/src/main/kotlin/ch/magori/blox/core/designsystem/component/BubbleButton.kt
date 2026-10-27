@@ -76,6 +76,49 @@ fun BubbleButton(
     size: ButtonSize = ButtonSize.REGULAR,
     content: @Composable RowScope.() -> Unit,
 ) {
+    PressableBubbleButton(family, onClick, enabled, shape, emphasis, active, size, onInk = false, modifier, content)
+}
+
+/**
+ * A bare button of [family] on the ink of a message (its action, its cross): nothing but its [content], in the colour
+ * of the page, until it is pressed; [size] as for any bubble button.
+ */
+@Composable
+internal fun BareButtonOnInk(
+    family: ButtonFamily,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    size: ButtonSize = ButtonSize.REGULAR,
+    content: @Composable RowScope.() -> Unit,
+) {
+    PressableBubbleButton(
+        family = family,
+        onClick = onClick,
+        modifier = modifier,
+        enabled = true,
+        shape = BloxTheme.shapes.pill,
+        emphasis = ButtonEmphasis.BARE,
+        active = false,
+        size = size,
+        onInk = true,
+        content = content,
+    )
+}
+
+/** A [BubbleButtonDrawing] that goes down and comes back up as its presses and releases say, [onInk] or not. */
+@Composable
+private fun PressableBubbleButton(
+    family: ButtonFamily,
+    onClick: () -> Unit,
+    enabled: Boolean,
+    shape: Shape,
+    emphasis: ButtonEmphasis,
+    active: Boolean,
+    size: ButtonSize,
+    onInk: Boolean,
+    modifier: Modifier = Modifier,
+    content: @Composable RowScope.() -> Unit,
+) {
     val interactionSource = remember { MutableInteractionSource() }
     val motion = rememberPressMotion(interactionSource)
     val focused by interactionSource.collectIsFocusedAsState()
@@ -92,6 +135,7 @@ fun BubbleButton(
         active = active,
         size = size,
         shape = shape,
+        onInk = onInk,
         content = content,
     )
 }
@@ -101,7 +145,7 @@ fun BubbleButton(
  * as [depth] says, whatever its [interactionSource] says: the previews draw each state so, [BubbleButton] reads it from
  * its interactions. The depth is read only where the button is placed, so that its way back up moves it without
  * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads a
- * selected one as selected.
+ * selected one as selected. [onInk], it stands on the ink of a message.
  */
 @Composable
 internal fun BubbleButtonDrawing(
@@ -116,17 +160,20 @@ internal fun BubbleButtonDrawing(
     active: Boolean = false,
     size: ButtonSize = ButtonSize.REGULAR,
     shape: Shape = BloxTheme.shapes.pill,
+    onInk: Boolean = false,
     content: @Composable RowScope.() -> Unit,
 ) {
     val down by remember(depth) { derivedStateOf { depth() > 0f } }
-    val state = ButtonState(enabled, if (down) 1f else 0f, focused, active, emphasis)
+    val state = ButtonState(enabled, if (down) 1f else 0f, focused, active, emphasis, onInk)
     val effects = BloxTheme.effects
     val look = buttonLook(family, BloxTheme.buttons, BloxTheme.glosses, state)
     val frame = look.frame
     val frameWidth = if (frame == null) 0.dp else BloxBorders.frame
     Row(
-        modifier = modifier
+        // The drop first: what the screen draws around the button, the ring of a chosen tile, goes down with it.
+        modifier = Modifier
             .offset { IntOffset(0, buttonDrop(enabled, depth(), effects).roundToPx()) }
+            .then(modifier)
             .focusRing(look.focusRing, shape)
             .sizeIn(minWidth = BloxSizes.minTouchTarget, minHeight = family.minHeight(size))
             .background(look.fill, shape)
