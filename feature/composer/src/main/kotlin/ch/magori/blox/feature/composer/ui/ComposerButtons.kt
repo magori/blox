@@ -40,7 +40,6 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.FramedBox
 import ch.magori.blox.core.designsystem.component.SingleLineText
-import ch.magori.blox.core.designsystem.component.WrappingLabel
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxAlphas
@@ -59,10 +58,9 @@ internal object ComposerSizes {
 /**
  * A button of the editor, framed as a panel: [text] on it, [description] read by TalkBack in its place when the text
  * alone is too short to say what it does. Disabled when it has no effect: greyed out, and announced as such. A
- * [primary] button, *Enregistrer* with changes to save, is filled in `accent`. A label that [wraps] goes on several
- * lines when it does not fit, rather than shrinking. A button as wide as its label, rather than given its width,
- * leaves [labelPadding] on each side of it. Its [icon], decorative, goes above or before the label. The answers of a
- * window are `WindowButton` (core:designsystem).
+ * [primary] button, *Enregistrer* with changes to save, is filled in `accent`. A button as wide as its label, rather
+ * than given its width, leaves [labelPadding] on each side of it. Its [icon], decorative, goes above or before the
+ * label. The answers of a window are `WindowButton` (core:designsystem).
  */
 @Composable
 internal fun ToolButton(
@@ -72,7 +70,6 @@ internal fun ToolButton(
     enabled: Boolean = true,
     description: String? = null,
     primary: Boolean = false,
-    wraps: Boolean = false,
     labelPadding: Dp = 0.dp,
     icon: ToolIcon? = null,
 ) {
@@ -87,9 +84,7 @@ internal fun ToolButton(
             .described(description),
     ) {
         val ink = if (primary) palette.accentInk else palette.ink
-        IconAndLabel(icon, ink) {
-            if (wraps) WrappingLabel(text = text, color = ink) else ButtonLabel(text = text, color = ink)
-        }
+        IconAndLabel(icon, ink) { ButtonLabel(text = text, color = ink) }
     }
 }
 
@@ -206,9 +201,7 @@ private fun Modifier.described(description: String?): Modifier =
 
 /**
  * Radio buttons among [choices], each named by [label], the [selected] one filled; a touch chooses its choice through
- * [onChosen]. They stand on one line, each sized by [choiceModifier], [labelPadding] on each side of its label, or, when
- * they [scroll], each as wide as its label,
- * no wider than the line, the line scrolling sideways when they do not fit, the one selected brought in sight.
+ * [onChosen]. They stand on one line, each sized by [choiceModifier], [labelPadding] on each side of its label.
  */
 @Composable
 internal fun <T> ChoiceGroup(
@@ -217,46 +210,24 @@ internal fun <T> ChoiceGroup(
     onChosen: (T) -> Unit,
     label: @Composable (T) -> String,
     modifier: Modifier = Modifier,
-    scroll: Boolean = false,
     labelPadding: Dp = 0.dp,
     choiceModifier: RowScope.(T) -> Modifier = { Modifier },
     icon: (T) -> ToolIcon? = { null },
 ) {
-    // A line of choices, each sized by [sizing].
-    val line: @Composable (Modifier, Modifier) -> Unit = { lineModifier, sizing ->
-        Row(
-            modifier = lineModifier.selectableGroup(),
-            horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
-        ) {
-            choices.forEach { choice ->
-                val isSelected = choice == selected
-                // The choice made comes in sight on a line that scrolls, whole.
-                val sight = remember { BringIntoViewRequester() }
-                LaunchedEffect(isSelected, scroll) { if (isSelected && scroll) sight.bringIntoView() }
-                ChoiceButton(
-                    text = label(choice),
-                    selected = isSelected,
-                    onClick = { onChosen(choice) },
-                    role = Role.RadioButton,
-                    labelPadding = if (scroll) ScrolledLabelPadding else labelPadding,
-                    icon = icon(choice),
-                    modifier = choiceModifier(choice).bringIntoViewRequester(sight).then(sizing),
-                )
-            }
-        }
-    }
-    if (scroll) {
-        // A choice never wider than the line, its label shrinking to fit: in sight, it shows whole.
-        BoxWithConstraints(modifier = modifier) {
-            line(
-                Modifier.horizontalScroll(rememberScrollState()),
-                Modifier.widthIn(min = BloxSizes.minTouchTarget, max = maxOf(maxWidth, BloxSizes.minTouchTarget)),
+    Row(
+        modifier = modifier.selectableGroup(),
+        horizontalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
+    ) {
+        choices.forEach { choice ->
+            ChoiceButton(
+                text = label(choice),
+                selected = choice == selected,
+                onClick = { onChosen(choice) },
+                role = Role.RadioButton,
+                labelPadding = labelPadding,
+                icon = icon(choice),
+                modifier = choiceModifier(choice),
             )
         }
-    } else {
-        line(modifier, Modifier)
     }
 }
-
-/** The room on each side of the label of a choice as wide as its label. */
-private val ScrolledLabelPadding = 6.dp

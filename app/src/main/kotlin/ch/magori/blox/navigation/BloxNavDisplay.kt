@@ -75,6 +75,8 @@ fun BloxNavDisplay(
             gameEntry(
                 onBack = goBack,
                 onReplay = { finished -> replay(backStack, finished) },
+                // P9.6 : copier le score de la partie du jour (texte et presse-papiers).
+                onCopy = {},
                 viewModelFactory = gameViewModelFactory,
             )
             composerEntry(

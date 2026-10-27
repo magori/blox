@@ -150,9 +150,12 @@ private fun sheetWindowAnchor(view: View): View =
         setViewTreeSavedStateRegistryOwner(view.findViewTreeSavedStateRegistryOwner())
     }
 
-/** [action], done the first time it is asked for and never again: a sheet asks once to close. */
+/**
+ * [action], done the first time it is asked for and never again while the caller stays composed: a sheet asks once to
+ * close, its action is done once though touched twice before it goes.
+ */
 @Composable
-private fun rememberOnce(action: () -> Unit): () -> Unit {
+fun rememberOnce(action: () -> Unit): () -> Unit {
     val current by rememberUpdatedState(action)
     return remember {
         var done = false
@@ -183,11 +186,11 @@ private fun rememberEntranceTicks(effects: BloxEffects): () -> Int {
 }
 
 /**
- * A sheet as [BloxSheet] draws it once come in, but without its window, which a preview does not draw: the previews of
- * the screens, and their captures, draw their sheets so, over the screen drawn under it.
+ * A [BloxSheet] as it stands once come in, over what is drawn under it, without its window nor the bars of the system:
+ * what the previews of the screens draw, a window not showing in their screenshots. Touching it does nothing.
  */
 @Composable
-fun BloxSheetPreview(
+fun SettledSheet(
     title: String,
     modifier: Modifier = Modifier,
     actions: (@Composable ColumnScope.() -> Unit)? = null,

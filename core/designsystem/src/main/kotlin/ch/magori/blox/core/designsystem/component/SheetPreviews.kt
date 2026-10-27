@@ -32,7 +32,7 @@ private fun DiceSheetPreview() {
         Box(Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(BloxSpaces.space4)) {
             WindowText("Thème du soir")
         }
-        BloxSheetPreview(
+        SettledSheet(
             title = "Au hasard",
             actions = {
                 PrimaryButton(

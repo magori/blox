@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
-import ch.magori.blox.core.designsystem.component.BloxSheetPreview
+import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
@@ -185,7 +185,7 @@ private fun HomeScreenPreview(
             onChangeGame = {},
         )
         if (sheet) {
-            BloxSheetPreview(title = stringResource(R.string.feature_home_music)) {
+            SettledSheet(title = stringResource(R.string.feature_home_music)) {
                 MusicSheetChoices(uiState, MusicActions.None)
             }
         }

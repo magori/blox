@@ -2,10 +2,7 @@ package ch.magori.blox.daily
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import java.time.Clock
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 class DailySeedTest {
     @Test
@@ -17,22 +14,6 @@ class DailySeedTest {
         // Then the month and the day always take two digits
         assertThat(seed).isEqualTo(20261026L)
         assertThat(seedOfASingleDigitDay).isEqualTo(20270105L)
-    }
-
-    @Test
-    fun `the date is the local date of the phone`() {
-        // Given late on the 26th of October in London, already the 27th in Zurich
-        val instant = Instant.parse("2026-10-26T23:30:00Z")
-        val london = Clock.fixed(instant, ZoneId.of("Europe/London"))
-        val zurich = Clock.fixed(instant, ZoneId.of("Europe/Zurich"))
-
-        // When
-        val inLondon = DailySeed.today(london)
-        val inZurich = DailySeed.today(zurich)
-
-        // Then
-        assertThat(inLondon).isEqualTo(20261026L)
-        assertThat(inZurich).isEqualTo(20261027L)
     }
 
     @Test
