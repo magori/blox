@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 208 / 304 | `██████████████░░░░░░` **68 %** |
+| **Général** | 209 / 305 | `██████████████░░░░░░` **69 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1037,7 +1037,7 @@ composants.
     variant`, `an active button keeps the pressed fill at rest, without going down`, `a bare icon button has no
     fill, no frame and no gloss at rest, and takes button pressed when pressed`, `a bare icon button is 48 dp wide
     and high at least`, `a compact button is 48 dp high, in the colours of its family` ; captures.
-  - [ ] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
+  - [x] **P5.94** Écouter partagé et égaliseur (`core:designsystem`, `feature:home`, `feature:composer`) :
     `ListenButton(playing, description, size)` (disque de la famille Icône, triangle puis carré, état en cours
     pendant l'écoute ; 48 dp, 56 dans l'éditeur) remplace les copies de `feature:home` et de `ComposerControls.kt` ;
     `Equalizer` (trois barres de 3 × 14 en `accent`, de 35 % à 100 % en 30 ticks, sur l'horloge de Compose,
@@ -1141,6 +1141,9 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
+- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+  `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
+  (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en

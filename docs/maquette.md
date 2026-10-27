@@ -129,8 +129,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - **Niveau de départ** : 0 à 9, sur deux lignes de 5 (P5.29).
 - **Musique** : *Korobeïniki*, *Menuet*, *Mon fichier*, la musique personnelle « En jeu »,
   *Aucune*, en rangées qui passent à la ligne, sans rien dessous. Une seule ligne d'actions, sous
-  tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, avec un
-  triangle ou un carré que TalkBack ne lit pas (« Écouter Menuet ») ; pour *Mon fichier*,
+  tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, un disque
+  de 48 dp à son seul pictogramme, triangle ou carré, lu « Écouter Menuet » (P5.94) ; pour *Mon fichier*,
   *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Un
   seul aperçu à la fois (P4.7), arrêté en changeant de choix, en ouvrant les Paramètres ou
   « Mes musiques ».
@@ -394,7 +394,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   nets), dans l'esprit de la police Press Start 2P ; en Couleurs et Brume, traits arrondis de
   2,25 sur une grille de 24. Couleur du texte du bouton.
 - **Tailles** : 16 dp à côté d'un libellé, 14 dp au-dessus d'un libellé dans la barre d'outils
-  de l'éditeur et devant MES MUSIQUES et Écouter, 18 dp sur *Au hasard* et *Nouvelle*, 24 dp
+  de l'éditeur, 18 dp sur *Au hasard* et *Nouvelle*, 24 dp seul dans le disque d'Écouter (P5.94) et
   pour l'engrenage ; 6 à 8 dp entre l'icône et le libellé, 12 dp dans les menus.
 - **Jeu d'icônes** : lecture et arrêt (Jouer, Écouter / Arrêter, Reprendre), liste (MES
   MUSIQUES), note (COMPOSER UNE MUSIQUE, *Utiliser* et l'entrée du menu « … »), engrenage
