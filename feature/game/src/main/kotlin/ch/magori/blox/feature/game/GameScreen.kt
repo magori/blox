@@ -149,17 +149,22 @@ internal fun GameScreen(
     }
     // The simulation runs at 60 Hz: so does the display, while the game screen shows, paused or over included.
     GameDisplayModeEffect()
-    // A game over or a game already paused ignores the pause.
-    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { viewModel.onPause() }
     var tooSmallToPlay by remember { mutableStateOf(false) }
     val backAction by rememberPart(uiState) { backAction(it, tooSmallToPlay) }
     val pauseCurtain = rememberPauseCurtainState { uiStateHolder.value.paused }
+    // Every pause of the screen brings the curtain back down if Reprendre was opening it: the game must not go on.
+    val pause = {
+        pauseCurtain.pause()
+        viewModel.onPause()
+    }
+    // A game over or a game already paused ignores the pause.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) { pause() }
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
         isBackEnabled = backAction != BackAction.LEAVE,
         onBackCompleted = {
             when (backAction) {
-                BackAction.PAUSE -> viewModel.onPause()
+                BackAction.PAUSE -> pause()
                 BackAction.RESUME -> pauseCurtain.resume()
                 BackAction.LEAVE -> Unit
             }
@@ -230,9 +235,15 @@ internal fun GameScreen(
             tooSmallToPlay(width.toFloat(), height.toFloat(), density.density)
         }
         val running by rememberPart(uiState) { it.running }
+        // A pause of the screen also brings back down the curtain that Reprendre was opening.
+        val pause = {
+            pauseCurtain.pause()
+            onPause()
+        }
         SideEffect {
             onTooSmallToPlayChange(tooSmall)
-            if (tooSmall && running) onPause()
+            // While the curtain opens the game is still paused, but it would go on at the end: it pauses too.
+            if (tooSmall && (running || pauseCurtain.curtain?.phase == CurtainPhase.OPENING)) pause()
         }
         Screens(
             uiState = uiState,
@@ -240,7 +251,7 @@ internal fun GameScreen(
             onBack = onBack,
             onReplay = onReplay,
             onControl = onControl,
-            onPause = onPause,
+            onPause = pause,
             onResume = onResume,
             pauseCurtain = pauseCurtain,
         )

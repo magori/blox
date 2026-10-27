@@ -9,6 +9,7 @@ import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocused
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onRoot
@@ -223,6 +224,43 @@ internal class GameScreenKeysTest {
 
         // Then
         onNode(isFocused() and hasClickAction()).assertExists()
+    }
+
+    @Test
+    @DisplayName("under the card of the pause, the arrows and Tab keep the focus on its buttons, and play nothing")
+    fun underTheCardOfThePauseTheKeysStayOnItsButtons() = extension.use {
+        // Given a game paused, its card shown, the focus on one of its buttons
+        uiState = underWay.copy(paused = true)
+        showGameScreen()
+        val instrumentation = InstrumentationRegistry.getInstrumentation()
+        repeat(times = 2) {
+            if (onAllNodes(isFocused() and hasClickAction()).fetchSemanticsNodes().isEmpty()) {
+                instrumentation.sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_DOWN)
+                waitForIdle()
+            }
+        }
+
+        // When the arrows and Tab are pressed, sent by the system, many times over
+        repeat(times = 4) {
+            listOf(
+                KeyEvent.KEYCODE_DPAD_DOWN,
+                KeyEvent.KEYCODE_DPAD_RIGHT,
+                KeyEvent.KEYCODE_TAB,
+                KeyEvent.KEYCODE_DPAD_LEFT,
+                KeyEvent.KEYCODE_DPAD_UP,
+            ).forEach { instrumentation.sendKeyDownUpSync(it) }
+        }
+        waitForIdle()
+
+        // Then the focus is still on Reprendre or Menu, nothing went to the game under the card, which still waits
+        val context = instrumentation.targetContext
+        val buttons = hasText(context.getString(R.string.feature_game_pause_resume)) or
+            hasText(context.getString(R.string.feature_game_pause_menu))
+        onNode(isFocused() and hasClickAction() and buttons).assertExists()
+        runOnIdle {
+            assertThat(changes).isEmpty()
+            assertThat(uiState.paused).isTrue()
+        }
     }
 
     @Test

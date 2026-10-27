@@ -50,6 +50,7 @@ import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.PanelSizes
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the top bar, in one place; the touch target is [BloxSizes.minTouchTarget]. */
 private object TopBarSizes {
@@ -201,7 +202,7 @@ private fun Record(
     val description = if (record == null) {
         label
     } else {
-        stringResource(R.string.feature_game_value_description, label, texts.spokenRecord)
+        valueDescription(label, texts.spokenRecord)
     }
     Column(
         horizontalAlignment = Alignment.End,

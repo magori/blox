@@ -25,6 +25,10 @@ internal class PauseCurtainState(paused: Boolean, effects: BloxEffects) {
     var curtain: PauseCurtain? by mutableStateOf(if (paused) PauseCurtain.closed(effects) else null)
         private set
 
+    /** Whether the curtain comes down or goes up: it needs frames. */
+    val moving: Boolean
+        get() = curtain?.phase.let { it == CurtainPhase.CLOSING || it == CurtainPhase.OPENING }
+
     /** Whether the curtain is open again after Reprendre: the game may go on. */
     val gameMayGoOn: Boolean get() = curtain?.phase == CurtainPhase.OPEN
 
@@ -38,7 +42,15 @@ internal class PauseCurtainState(paused: Boolean, effects: BloxEffects) {
 
     /** Reprendre: the curtain opens from where it stands, at once if it had not come yet. */
     fun resume() {
-        curtain = (curtain ?: PauseCurtain.closing(BloxEffects.Full)).opening()
+        curtain = curtain?.opening() ?: PauseCurtain.open()
+    }
+
+    /**
+     * The screen pauses the game: a curtain that Reprendre was opening comes back down from where it stands (the game,
+     * still paused, must not go on). A game that pauses brings its curtain down by [follow].
+     */
+    fun pause() {
+        curtain = curtain?.comingDown()
     }
 
     /** The curtain [ticks] later. */
@@ -60,7 +72,8 @@ internal fun rememberPauseCurtainState(paused: () -> Boolean): PauseCurtainState
 
 /**
  * Moves the curtain of [state] as the game is [paused] or not, on the frame clock of Compose (ADR 0012, 0024): the
- * loop of the game is stopped while the curtain moves. Once Reprendre has opened it, the game goes on by [onResume].
+ * loop of the game is stopped while the curtain moves. Once Reprendre has opened it ([PauseCurtainState.gameMayGoOn]),
+ * the game goes on by [onResume].
  */
 @Composable
 internal fun PauseCurtainEffect(
@@ -72,17 +85,16 @@ internal fun PauseCurtainEffect(
     LaunchedEffect(state, paused) { state.follow(paused, effects) }
     val resume by rememberUpdatedState(onResume)
     LaunchedEffect(state) {
-        snapshotFlow { state.curtain?.phase }.collectLatest { phase ->
-            when (phase) {
-                CurtainPhase.CLOSING, CurtainPhase.OPENING -> {
-                    val ticks = FrameTicks()
-                    while (true) withFrameNanos { state.advance(ticks.advance(it)) }
-                }
-
-                CurtainPhase.OPEN -> resume()
-
-                CurtainPhase.CLOSED, null -> Unit
+        // One clock for every move: turning back, from down to up or up to down, loses no frame.
+        val ticks = FrameTicks()
+        snapshotFlow { state.moving }.collectLatest { moving ->
+            if (moving) {
+                ticks.reset()
+                while (true) withFrameNanos { state.advance(ticks.advance(it)) }
             }
         }
+    }
+    LaunchedEffect(state) {
+        snapshotFlow { state.gameMayGoOn }.collect { mayGoOn -> if (mayGoOn) resume() }
     }
 }

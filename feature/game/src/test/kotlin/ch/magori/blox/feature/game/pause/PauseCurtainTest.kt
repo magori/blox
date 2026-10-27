@@ -91,6 +91,15 @@ class PauseCurtainTest {
         // Then it is open
         assertThat(open.phase).isEqualTo(CurtainPhase.OPEN)
     }
+
+    @Test
+    fun `an open curtain lets the game go on, and covers nothing`() {
+        val open = PauseCurtain.open()
+
+        assertThat(open.phase).isEqualTo(CurtainPhase.OPEN)
+        assertThat(open.coveredRows(rows = 20)).isZero()
+    }
+
     private companion object {
         val Reduced = BloxEffects(reduced = true, forcedBySystem = false)
     }

@@ -37,6 +37,7 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the side column, in one place. */
 internal object SidePanelSizes {
@@ -168,7 +169,7 @@ internal fun NextPiecePanel(
     val previewHeight = with(LocalDensity.current) { (cellSize * SidePanelSizes.PREVIEW_ROWS).toDp() }
     LabelledPanel(
         label = nextLabel,
-        description = stringResource(R.string.feature_game_value_description, nextLabel, nextName),
+        description = valueDescription(nextLabel, nextName),
         modifier = modifier,
     ) {
         NextPieceCanvas(
@@ -190,7 +191,7 @@ private fun ValuePanel(
 ) {
     LabelledPanel(
         label = label,
-        description = stringResource(R.string.feature_game_value_description, label, rawValue.toString()),
+        description = valueDescription(label, rawValue.toString()),
         modifier = modifier,
     ) {
         ValueText(text = value)

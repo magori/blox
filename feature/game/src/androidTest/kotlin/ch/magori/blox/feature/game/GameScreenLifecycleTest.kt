@@ -77,6 +77,28 @@ internal class GameScreenLifecycleTest {
     }
 
     @Test
+    @DisplayName("a screen no longer in front while the curtain opens keeps the game paused, its card shown again")
+    fun aScreenNoLongerInFrontWhileTheCurtainOpensKeepsTheGamePaused() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given a game paused, its card shown, then Reprendre, the curtain halfway up
+            val game = showGame()
+            mainClock.advanceTimeBy(FRAME_MILLIS * 5)
+            runOnUiThread { game.onPause() }
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
+            onNodeWithText(string(R.string.feature_game_pause_resume)).performClick()
+            mainClock.advanceTimeBy(FRAME_MILLIS * 6)
+
+            // When another window comes in front of it: ON_PAUSE
+            runOnUiThread { lifecycle.registry.currentState = Lifecycle.State.STARTED }
+            mainClock.advanceTimeBy(CURTAIN_MILLIS)
+
+            // Then the game still waits for the player, behind its card
+            runOnIdle { assertThat(game.uiState.value.paused).isTrue() }
+            onNodeWithText(string(R.string.feature_game_pause_resume)).assertIsDisplayed()
+        }
+    }
+
+    @Test
     @DisplayName("a paused game asks for no frame: Compose becomes idle")
     fun aPausedGameAsksForNoFrame() {
         runAndroidComposeUiTest<ComponentActivity> {

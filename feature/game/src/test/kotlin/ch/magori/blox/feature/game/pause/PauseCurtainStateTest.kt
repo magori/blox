@@ -66,4 +66,36 @@ class PauseCurtainStateTest {
         // Then
         assertThat(state.gameMayGoOn).isTrue()
     }
+
+    @Test
+    fun `a pause while the curtain opens brings it back down from where it stood, the game never let go on`() {
+        // Given a curtain halfway up after Reprendre
+        val state = PauseCurtainState(paused = true, effects = BloxEffects.Full)
+        state.resume()
+        state.advance(ticks = 6)
+
+        // When the screen pauses again (ON_PAUSE, the system back, a window too small), then the curtain moves on
+        state.pause()
+        state.advance(ticks = 6)
+
+        // Then it came back down from halfway, and is shut: the card shows again, the game still waits
+        assertThat(state.curtain?.phase).isEqualTo(CurtainPhase.CLOSED)
+    }
+
+    @Test
+    fun `the curtain moves while it comes down or goes up, and stays still once shut, once open or without one`() {
+        // Given a game under way: no curtain
+        val state = PauseCurtainState(paused = false, effects = BloxEffects.Full)
+        assertThat(state.moving).isFalse()
+
+        // When / Then: down, shut, up, open
+        state.follow(paused = true, effects = BloxEffects.Full)
+        assertThat(state.moving).isTrue()
+        state.advance(ticks = 12)
+        assertThat(state.moving).isFalse()
+        state.resume()
+        assertThat(state.moving).isTrue()
+        state.advance(ticks = 12)
+        assertThat(state.moving).isFalse()
+    }
 }

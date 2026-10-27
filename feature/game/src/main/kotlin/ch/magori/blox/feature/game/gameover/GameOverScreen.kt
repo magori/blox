@@ -30,6 +30,7 @@ import ch.magori.blox.feature.game.ui.ScreenSizes
 import ch.magori.blox.feature.game.ui.Statistic
 import ch.magori.blox.feature.game.ui.TitledScreen
 import ch.magori.blox.feature.game.ui.ValueText
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the game over screen, in one place; those shared with the side column are in [PanelSizes]. */
 private object GameOverSizes {
@@ -59,7 +60,7 @@ internal fun GameOverScreen(
         val scoreLabel = stringResource(R.string.feature_game_score)
         LabelledPanel(
             label = scoreLabel,
-            description = stringResource(R.string.feature_game_value_description, scoreLabel, texts.spokenScore),
+            description = valueDescription(scoreLabel, texts.spokenScore),
             contentAlignment = Alignment.CenterHorizontally,
         ) {
             ValueText(text = texts.score, maxFontSize = GameOverSizes.score)
@@ -68,13 +69,13 @@ internal fun GameOverScreen(
         Statistic(
             label = linesLabel,
             value = texts.lines,
-            description = stringResource(R.string.feature_game_value_description, linesLabel, texts.spokenLines),
+            description = valueDescription(linesLabel, texts.spokenLines),
         )
         val levelLabel = stringResource(R.string.feature_game_level)
         Statistic(
             label = levelLabel,
             value = texts.level,
-            description = stringResource(R.string.feature_game_value_description, levelLabel, texts.spokenLevel),
+            description = valueDescription(levelLabel, texts.spokenLevel),
         )
         Statistic(
             label = stringResource(R.string.feature_game_over_four_lines),
@@ -85,11 +86,7 @@ internal fun GameOverScreen(
         Statistic(
             label = durationLabel,
             value = texts.duration,
-            description = stringResource(
-                R.string.feature_game_value_description,
-                durationLabel,
-                spokenDuration(texts.spokenDuration),
-            ),
+            description = valueDescription(durationLabel, spokenDuration(texts.spokenDuration)),
         )
         PrimaryButton(
             text = stringResource(R.string.feature_game_over_replay),

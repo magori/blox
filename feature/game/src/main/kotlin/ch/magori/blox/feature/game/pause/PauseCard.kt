@@ -36,7 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
-import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
+import ch.magori.blox.core.designsystem.frame.millisOf
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
@@ -52,14 +52,13 @@ import ch.magori.blox.feature.game.sidepanel.linesText
 import ch.magori.blox.feature.game.sidepanel.scoreText
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import ch.magori.blox.feature.game.ui.Statistic
+import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The card keeps the width of a phone on a larger screen. */
 private val CardMaxWidth = 360.dp
 
 /** The card rises from a quarter of its height under its place. */
 private const val CARD_RISE_FRACTION = 4
-
-private const val MILLIS_PER_SECOND = 1_000
 
 /**
  * The card of the pause (view V29), shown once the curtain hides the board: « Pause », the [score], [level] and
@@ -145,7 +144,7 @@ private fun CardStatistic(
     Statistic(
         label = label,
         value = value,
-        description = stringResource(R.string.feature_game_value_description, label, rawValue.toString()),
+        description = valueDescription(label, rawValue.toString()),
     )
 }
 
@@ -156,9 +155,6 @@ private fun cardEnter(effects: BloxEffects): EnterTransition = if (effects.reduc
     fadeIn(tween(millisOf(BloxMotion.card))) +
         slideInVertically(tween(millisOf(BloxMotion.card))) { it / CARD_RISE_FRACTION }
 }
-
-/** [ticks] in milliseconds, for the animations of Compose. */
-private fun millisOf(ticks: Int): Int = ticks * MILLIS_PER_SECOND / TICKS_PER_SECOND
 
 @Composable
 private fun PausePreview(kind: BloxThemeKind) {

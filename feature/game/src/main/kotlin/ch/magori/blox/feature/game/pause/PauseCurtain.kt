@@ -41,6 +41,9 @@ internal data class PauseCurtain(val shut: Int, val duration: Int, val closing: 
     fun advance(ticks: Int): PauseCurtain =
         copy(shut = if (closing) minOf(duration, shut + ticks) else maxOf(0, shut - ticks))
 
+    /** The curtain coming back down, from where it stands. */
+    fun comingDown(): PauseCurtain = copy(closing = true)
+
     /** The curtain going back up. */
     fun opening(): PauseCurtain = copy(closing = false)
 
@@ -52,6 +55,9 @@ internal data class PauseCurtain(val shut: Int, val duration: Int, val closing: 
             closing = true,
             fades = effects.reduced,
         )
+
+        /** A curtain already open: Reprendre came before the curtain, the game may go on at once. */
+        fun open(): PauseCurtain = PauseCurtain(shut = 0, duration = BloxMotion.curtain, closing = false, fades = false)
 
         /** A curtain already shut: the game showed paused, after a recreation of the activity for instance. */
         fun closed(effects: BloxEffects): PauseCurtain = closing(effects).let { it.advance(it.duration) }
