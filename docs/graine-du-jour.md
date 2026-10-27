@@ -153,7 +153,15 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   points négatifs sont refusés avant toute écriture. Deux débuts simultanés comptent deux essais.
 - La date est gardée en `epochDay` ; à la lecture, des valeurs manquantes ou négatives donnent des
   valeurs sûres (au moins 1 essai quand une date est là, scores à 0 au moins). Un fichier illisible
-  donne « aucun résultat ».
+  donne « aucun résultat », et l'essai suivant est le premier. Un jour hors des bornes de
+  `LocalDate` n'est pas une date : le fichier se lit comme un fichier illisible, « aucun
+  résultat », et le prochain début ou la prochaine fin repart à sa date, comme sur un dépôt vide
+  (les essais gardés pour cette non-date sont perdus) ; la lecture n'échoue pas. Les bornes
+  elles-mêmes (`LocalDate.MIN`, `LocalDate.MAX`) se lisent normalement. Comme chaque dépôt sur
+  fichier, il passe `DataStoreFileContract` (P9.10).
+  **Tests :** `DataStoreDailyChallengeRepositoryTest › a date out of the range of LocalDate in the file gives no result of the day, and the next try is the first`,
+  `DataStoreDailyChallengeRepositoryTest › a date at a bound of the range of LocalDate in the file is read as it is`,
+  `DataStoreDailyChallengeRepositoryTest › a try that ends on a file whose date is out of range counts as a whole first try`.
 - Le dépôt ne garde pas d'historique ni de série de jours (hors périmètre).
 - Le dépôt a son contrat de test (`DailyChallengeRepositoryContract`, dans les tests de `core:data`,
   comme les autres contrats) et son faux (`FakeDailyChallengeRepository`, en testFixtures),
@@ -179,10 +187,10 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `DailyChallengeRepositoryContract › a start that cannot be written fails with an IOException and keeps the results`,
   `DailyChallengeRepositoryContract › an end that cannot be written fails with an IOException and keeps the results`,
   `DataStoreDailyChallengeRepositoryTest › the results survive a new repository on the same file`,
-  `DataStoreDailyChallengeRepositoryTest › an unreadable file gives no result of the day, and the next try is the first`,
-  `DataStoreDailyChallengeRepositoryTest › a file that cannot be read gives no result of the day`,
+  `DataStoreFileContract › an unreadable file reads as an empty one, and what is written next is kept`,
+  `DataStoreFileContract › a file that cannot be read reads as an empty one`,
   `DataStoreDailyChallengeRepositoryTest › a file with missing or negative values reads as safe values`,
-  `DataStoreDailyChallengeRepositoryTest › a failure other than an IOException while the results are read is not absorbed`.
+  `DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`.
 - Fichier exclu de la sauvegarde (décision du développeur, 2026-10-27), transfert d'appareil
   compris : restauré sur un autre appareil, un premier essai n'aurait plus de sens. Un joueur qui
   change de téléphone en cours de journée perd donc ses essais du jour.
