@@ -99,5 +99,21 @@ class CellStylesTest {
         )
     }
 
+    @ParameterizedTest(name = "{0}: T {1}, S {2}")
+    @CsvSource(
+        "ORIGINAL, EEF5EA, 87A67F",
+        "COLORFUL_LIGHT, C3A2FF, 9DEDB9",
+        "COLORFUL_DARK, A77BFF, 3DFF8F",
+    )
+    fun `the colour of a piece is the fill of its cells in the variant`(
+        variant: BloxThemeVariant,
+        t: String,
+        s: String,
+    ) {
+        // When / Then: the knobs of the console of the choice of the game take them (V26)
+        assertThat(pieceColor(variant, PieceType.T)).isEqualTo(rgb(t))
+        assertThat(pieceColor(variant, PieceType.S)).isEqualTo(rgb(s))
+    }
+
     private fun rgb(hex: String): Color = Color(0xFF000000 or hex.toLong(radix = 16))
 }
