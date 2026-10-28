@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 264 / 350 | `███████████████░░░░░` **75 %** |
+| **Général** | 265 / 350 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1528,7 +1528,7 @@ Mes jardins (demande du développeur, 2026-10-28 : « enregistrer les musiques �
 remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musiques, que l'éditeur ne saurait ouvrir
 (2 mesures, jusqu'à 15 voix, triolets, tempos hors pas de 10).
 
-- [ ] **P10.24** Spécification « Mes jardins » dans `jardin-musical.md` et amendement de l'ADR 0027 (plusieurs
+- [x] **P10.24** Spécification « Mes jardins » dans `jardin-musical.md` et amendement de l'ADR 0027 (plusieurs
   jardins, lien du jardin en cours, limite de 30, rôle de `garden.bin` et `gardens.bin`) ; trancher la place du disque
   dans la barre V40 à 360 dp (4ᵉ disque, ou le dé dans la rangée d'information) et les noms proposés.
 - [x] **P10.25** Règles de nom communes (`MusicNames` rendu générique dans `core:data` : `nameProblem`, `freeName` sur
