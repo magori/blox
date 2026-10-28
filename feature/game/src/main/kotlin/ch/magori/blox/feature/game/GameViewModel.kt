@@ -370,6 +370,7 @@ class GameViewModel internal constructor(
                 newBest = result?.newBest == true,
                 resultsKept = result?.kept == true,
                 previousBest = result?.previousBest ?: 0,
+                practice = result?.kept == false,
             )
             state.update { it.copy(gameOver = gameOver) }
         }
