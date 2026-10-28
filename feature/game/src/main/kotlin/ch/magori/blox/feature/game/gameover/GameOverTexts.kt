@@ -18,7 +18,7 @@ private const val SECONDS_PER_MINUTE = 60
  * under its date, neither failed to write nor ignored as a try of a date already passed. Otherwise a daily game over
  * does not offer to copy them: Copier would copy results without this game, or nothing. [previousBest] is the best the
  * game had to beat (the record, or the best of the day), as the results gave it at its end: 0 if there was none, or if
- * they could not say.
+ * they could not say. A daily game whose try was ignored, its date already passed, is a [practice] game.
  */
 @Immutable
 internal data class GameOverUiState(
@@ -30,7 +30,12 @@ internal data class GameOverUiState(
     val newBest: Boolean,
     val resultsKept: Boolean,
     val previousBest: Int,
-)
+    val practice: Boolean,
+) {
+    init {
+        require(!(practice && resultsKept)) { "A practice game, not counted, keeps no results" }
+    }
+}
 
 /**
  * The texts of the game over screen: those shown, formatted as in the game, and those read by

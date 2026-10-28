@@ -1,6 +1,6 @@
 package ch.magori.blox.core.board.lock
 
-import androidx.compose.ui.graphics.Color
+import ch.magori.blox.core.board.CodedColour
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.DesignTokens
 import ch.magori.blox.core.designsystem.theme.cssColor
@@ -18,7 +18,7 @@ import org.junit.jupiter.params.provider.MethodSource
 class LockTokensTest {
     @ParameterizedTest(name = "{0}")
     @MethodSource("colourTokens")
-    fun `each colour token of the padlock is its colour in the code, day and night`(token: CodedToken) {
+    fun `each colour token of the padlock is its colour in the code, day and night`(token: CodedColour) {
         // Given the token as tokens json writes it
         val written = DesignTokens.colours.getValue(token.name)
 
@@ -46,21 +46,16 @@ class LockTokensTest {
         assertThat(tokens).containsExactlyInAnyOrderElementsOf(colourTokens().map { it.name } + HOLE_INSET)
     }
 
-    /** A colour token of tokens json, and the property of [LockColors] that holds it in a variant. */
-    class CodedToken(val name: String, private val property: String, val read: (BloxThemeVariant) -> Color) {
-        override fun toString(): String = "$name → $property"
-    }
-
     companion object {
         /** The prefix of the tokens of the padlock in tokens json. */
         private const val LOCK_TOKEN = "lock-"
         private const val HOLE_INSET = "lock-hole-inset"
 
         @JvmStatic
-        fun colourTokens(): List<CodedToken> = listOf(
-            CodedToken("lock-metal", "metal") { lockColors(it).metal },
-            CodedToken("lock-rivet", "rivet") { lockColors(it).rivet },
-            CodedToken("lock-hint", "hintFill") { lockColors(it).hintFill },
+        fun colourTokens(): List<CodedColour> = listOf(
+            CodedColour("lock-metal", "metal") { lockColors(it).metal },
+            CodedColour("lock-rivet", "rivet") { lockColors(it).rivet },
+            CodedColour("lock-hint", "hintFill") { lockColors(it).hintFill },
         )
     }
 }

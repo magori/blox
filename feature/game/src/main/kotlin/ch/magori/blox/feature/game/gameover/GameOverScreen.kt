@@ -53,7 +53,8 @@ private object GameOverSizes {
  * announces it by its pane title. The badge is the one of the variant of the game ([labels]): MEILLEUR DU JOUR for a
  * daily game (V39), whose game over also offers Copier, between Rejouer and Menu, given to [onCopy]; TalkBack reads it
  * « Copier mon score », what it does, where the button shows the short label of V39. Not when the results kept do not
- * hold this game ([GameOverUiState.resultsKept]): Copier would copy them without it, or nothing.
+ * hold this game ([GameOverUiState.resultsKept]): Copier would copy them without it, or nothing. A daily game not
+ * counted, its date already passed ([GameOverUiState.practice]), says so under the title: « Partie d’entraînement ».
  */
 @Composable
 internal fun GameOverScreen(
@@ -67,6 +68,7 @@ internal fun GameOverScreen(
     val texts = gameOverTexts(state)
     TitledScreen(title = stringResource(R.string.feature_game_over_title), modifier = modifier) {
         if (state.newBest) NewBestBadge(stringResource(labels.gameOverNewBest))
+        if (state.practice) PracticeNote()
         ScorePanel(texts = texts, bestLabel = stringResource(labels.gameOverBest(state.newBest)))
         val linesLabel = stringResource(R.string.feature_game_lines)
         Statistic(
@@ -152,6 +154,20 @@ private fun ScorePanel(
     }
 }
 
+/**
+ * The game was only practice ([GameOverUiState.practice]): a daily game replayed once the day changed, whose try is
+ * not counted (P9.9). A plain line in the colour of the labels, not a badge: it is no achievement.
+ */
+@Composable
+private fun PracticeNote() {
+    Text(
+        text = stringResource(R.string.feature_game_over_practice),
+        color = BloxTheme.palette.label,
+        fontSize = PanelSizes.label,
+        style = BloxTheme.typography.title,
+    )
+}
+
 @Composable
 private fun NewBestBadge(text: String) {
     val palette = BloxTheme.palette
@@ -188,6 +204,7 @@ private val previewState = GameOverUiState(
     newBest = false,
     resultsKept = true,
     previousBest = 0,
+    practice = false,
 )
 
 /**
@@ -200,10 +217,16 @@ private fun GameOverPreview(
     newBest: Boolean,
     labels: GameLabels,
     previousBest: Int = 0,
+    practice: Boolean = false,
 ) {
     BloxTheme(kind = kind) {
         GameOverScreen(
-            state = previewState.copy(newBest = newBest, previousBest = previousBest),
+            state = previewState.copy(
+                newBest = newBest,
+                previousBest = previousBest,
+                practice = practice,
+                resultsKept = !practice,
+            ),
             onReplay = {},
             onMenu = {},
             labels = labels,
@@ -249,4 +272,11 @@ internal fun GameOverLargeFontPreview() {
 @Composable
 internal fun GameOverDailyNewBestPreview() {
     GameOverPreview(BloxThemeKind.COLORFUL, newBest = true, labels = GameLabels.Daily, previousBest = 98_760)
+}
+
+/** The game over of a daily game not counted, its date already passed (P9.9): « Partie d’entraînement », no Copier. */
+@Preview
+@Composable
+internal fun GameOverDailyPracticePreview() {
+    GameOverPreview(BloxThemeKind.COLORFUL, newBest = false, labels = GameLabels.Daily, practice = true)
 }

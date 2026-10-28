@@ -239,6 +239,58 @@ class GardenTest {
         assertThat(byDigit).isEqualTo(garden)
     }
 
+    @Test
+    fun `an empty garden is calm`() {
+        // Given / When
+        val garden = Garden.EMPTY
+
+        // Then
+        assertThat(garden.mood).isEqualTo(GardenMood.CALM)
+    }
+
+    @Test
+    fun `changing the mood keeps the pieces where they are`() {
+        // Given: a calm garden with an O and a T
+        val garden = Garden.EMPTY
+            .placed(piece(PieceType.O, column = 3, row = 4))
+            .placed(piece(PieceType.T, column = 6, row = 5))
+
+        // When
+        val epic = garden.withMood(GardenMood.EPIC)
+
+        // Then: the same cells, heard in the other scale
+        assertThat(epic.mood).isEqualTo(GardenMood.EPIC)
+        assertThat(epic.pieces).isEqualTo(garden.pieces)
+        assertThat(garden.mood).isEqualTo(GardenMood.CALM)
+    }
+
+    @Test
+    fun `placing or taking back a piece keeps the mood`() {
+        // Given: a mysterious garden
+        val garden = Garden.EMPTY.withMood(GardenMood.MYSTERIOUS)
+        val o = piece(PieceType.O, column = 3, row = 4)
+
+        // When
+        val placed = garden.placed(o)
+        val takenBack = placed.takeBack(o)
+
+        // Then
+        assertThat(placed.mood).isEqualTo(GardenMood.MYSTERIOUS)
+        assertThat(takenBack.mood).isEqualTo(GardenMood.MYSTERIOUS)
+    }
+
+    @Test
+    fun `clearing the garden keeps its mood`() {
+        // Given: a joyful garden with an O
+        val garden = Garden.EMPTY.withMood(GardenMood.JOYFUL).placed(piece(PieceType.O, column = 3, row = 4))
+
+        // When
+        val cleared = garden.clear()
+
+        // Then
+        assertThat(cleared).isEqualTo(Garden.EMPTY.withMood(GardenMood.JOYFUL))
+    }
+
     private fun Garden.placed(piece: Piece): Garden = (place(piece) as GardenPlacement.Placed).garden
 
     private companion object {

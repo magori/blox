@@ -301,6 +301,7 @@ class GameViewModelTest {
                 newBest = true,
                 resultsKept = true,
                 previousBest = 100,
+                practice = false,
             ),
         )
     }
@@ -333,7 +334,14 @@ class GameViewModelTest {
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = true, previousBest = Int.MAX_VALUE))
+            .isEqualTo(
+                final.toGameOverUiState(
+                    newBest = false,
+                    resultsKept = true,
+                    previousBest = Int.MAX_VALUE,
+                    practice = false,
+                ),
+            )
     }
 
     @Test
@@ -361,7 +369,9 @@ class GameViewModelTest {
 
         // Then
         assertThat(viewModel.uiState.value.gameOver)
-            .isEqualTo(final.toGameOverUiState(newBest = false, resultsKept = false, previousBest = 0))
+            .isEqualTo(
+                final.toGameOverUiState(newBest = false, resultsKept = false, previousBest = 0, practice = false),
+            )
     }
 
     @Test
@@ -402,7 +412,9 @@ class GameViewModelTest {
 
             // Then the game over shows once, with the answer, and further frames publish nothing
             assertThat(awaitItem().gameOver)
-                .isEqualTo(final.toGameOverUiState(newBest = true, resultsKept = true, previousBest = 100))
+                .isEqualTo(
+                    final.toGameOverUiState(newBest = true, resultsKept = true, previousBest = 100, practice = false),
+                )
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -2007,6 +2019,19 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a daily game over whose try could not be written is not told a practice game`() {
+        // Given a daily game started, whose end cannot be written
+        val viewModel = createViewModel(dailyRoute)
+        dailyResults.failure = IOException("disk full")
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then its try may well count once written again: nothing says it was only practice
+        assertThat(viewModel.uiState.value.gameOver?.practice).isFalse()
+    }
+
+    @Test
     fun `a daily game over not counted, its date already passed, does not offer to copy its score`() {
         // Given a daily game of the 26th, replayed once the results moved on to a try of the 27th
         dailyResults.state.value =
@@ -2019,6 +2044,20 @@ class GameViewModelTest {
         // Then the game over shows, without Copier, which would copy nothing of the 26th, nor the best of the 27th
         assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
         assertThat(viewModel.uiState.value.gameOver?.previousBest).isZero()
+    }
+
+    @Test
+    fun `a daily game over not counted, its date already passed, is told a practice game`() {
+        // Given a daily game of the 26th, replayed once the results moved on to a try of the 27th
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26.plusDays(1), tries = 1, firstTry = 300, best = 300, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When its game is over: its try is ignored
+        playUntilGameOver(viewModel)
+
+        // Then its game over tells the player it was a practice game
+        assertThat(viewModel.uiState.value.gameOver?.practice).isTrue()
     }
 
     @Test

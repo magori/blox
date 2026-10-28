@@ -81,7 +81,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `feature:daily` | Feature | Écran d'entrée de la Graine du jour (V38, P9.5, amendement de l'ADR 0002), toujours en thème Couleurs : clé `DailyRoute`, `DailyViewModel` et sa fabrique ; résultats du jour, 7 premières pièces de la graine, Jouer, Copier mon score. La partie elle-même est la variante `Daily` de `feature:game`. |
 | `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level, seed)`, `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
-| `feature:garden` | Feature | **Prévu (P10, ADR 0027).** Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
+| `feature:garden` | Feature | (squelette P10.9, ADR 0027) Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |
 | `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden` (prévu), l'un des deux modules du domaine qui dépendent de ces deux-là. |
 | `core:garden` | Kotlin pur | Domaine du Jardin musical (P10.4, ADR 0027 ; `Garden` fait, le reste à venir) ([règles](jardin-musical.md)) : le jardin immuable (`Garden`), les ambiances (`GardenMood`), la partition (`Garden.toScore`) et le dé (`GardenComposer`). `api(core:game)` et `api(core:music)`, comme `core:locksmith`. |
@@ -184,7 +184,9 @@ graph LR
   **Sauvegarde Android** (P5.28) : Auto Backup et le transfert d'appareil ne prennent que
   `files/datastore/records.preferences_pb`, `files/datastore/settings.preferences_pb` et
   `files/datastore/musics.bin` (les musiques créées par le joueur, sans URI de contenu ;
-  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)). Les
+  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)) et `files/datastore/garden.bin`
+  (le jardin du Jardin musical, lui aussi une création du joueur ; P10.11, décision du développeur
+  du 2026-10-28). Les
   règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
   `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
@@ -199,8 +201,14 @@ graph LR
   `SETTINGS_FILE` (`core:data`).
 
   **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
-  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record, the settings, the musics`,
-  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics`.
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics, the garden`.
+
+  Le jardin gardé (`GardenRepository`, `GARDEN_FILE`, P10.11) est le `Garden` de `core:garden`
+  (dépendance `api`, sans type parallèle, ADR 0027), dans un format binaire versionné de BloX sur
+  Okio, comme les musiques ; les deux formats partagent `binaryDataStore` (copie `.corrupt` d'un
+  fichier illisible comprise), `readCount`, `readText` et `writeText` (`BinaryFiles.kt`). Il passe
+  `DataStoreFileContract`.
 
 ## Boucle de jeu
 

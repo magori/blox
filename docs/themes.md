@@ -60,7 +60,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
-`MotionTokensTest › every duration token of tokens json is in the code`,
+`MotionTokensTest › every duration token of tokens json is in the code or listed as not coded, with its reason`,
 `GlossTokensTest › a shadow blurred or moved sideways is refused, the code could not draw it`,
 `GlossTokensTest › a ring of a negative width is refused`,
 `GlossDrawingTest › two calls with the same gloss, shape and frame give the same modifier, so a recomposition keeps its bands`,
@@ -357,7 +357,7 @@ d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
 `SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
 toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
-thème choisi : `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+thème choisi : `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `SystemBarsTest › the bars of every other screen follow the theme chosen`,
 `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
 Les formes, polices et

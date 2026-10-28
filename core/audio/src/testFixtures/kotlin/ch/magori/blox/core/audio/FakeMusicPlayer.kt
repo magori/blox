@@ -25,6 +25,9 @@ class FakeMusicPlayer : MusicPlayer {
 
     /** The scores played ([play], not resumed), in order: what they hold, which [calls] does not tell. */
     val playedScores = mutableListOf<Score>()
+
+    /** The scores switched to ([switchTo]), in order, even while nothing plays: what they hold, not told by [calls]. */
+    val switchedScores = mutableListOf<Score>()
     var playing: ScoreId? = null
         private set
     var playingFile: MusicFile? = null
@@ -62,6 +65,7 @@ class FakeMusicPlayer : MusicPlayer {
 
     override fun switchTo(score: Score) {
         calls += "switch ${score.id}"
+        switchedScores += score
         val playback = current?.takeIf { it.music is Score } ?: return
         playback.music = score
         if (playing != null) playing = score.id

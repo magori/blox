@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 248 / 322 | `███████████████░░░░░` **77 %** |
+| **Général** | 260 / 327 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1450,18 +1450,14 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
   (décision du développeur, 2026-10-27) : sous le score, le meilleur d'avant la partie (`GameEnd.previousBest`), « Ancien
   … » s'il est battu, « Record » / « Meilleur » sinon ; rien s'il valait 0, si l'écriture a échoué ou si l'essai du jour
   n'est pas gardé ; libellés par variante (`GameLabels`, ADR 0026).
-- [ ] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
-- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
-  (dépôt déjà passé à aujourd'hui) : « Partie d'entraînement » en fin de partie (décision du développeur, 2026-10-27).
+- [x] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
+- [x] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
+  (dépôt déjà passé à aujourd'hui) : « Partie d’entraînement » en fin de partie (décision du développeur, 2026-10-27).
   Après P9.4.
 - [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
   Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
   `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
-- [x] **P9.8** Mettre à jour la maquette (depuis claude.ai) : V36 (cinq cartouches), V38 et V39.
-- [ ] **P9.9** Point ouvert : prévenir le joueur quand une partie rejouée avec la graine d'hier n'est pas comptée
-  (dépôt déjà passé à aujourd'hui), par exemple « Graine d'hier : non comptée » en fin de partie **[à vérifier]**.
-  Après P9.4.
-- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`)
+- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`), parcours du Jardin compris (P10.13), de préférence après l'écran jouable (P10.10),
   avec le parcours de la Graine du jour (cartouche, entrée, premières secondes de la partie) ajouté en P9.7.
 - [ ] **P9.17** Juger avec `designer-jeu` les écarts de V36 codée (P9.7) : contraste de la pousse menthe sur le coin
   menthe de la fenêtre `iris` (jour), animation d'entrée de l'autocollant « NOUVELLE » et son appui, engrenage
@@ -1487,45 +1483,73 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
   refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
   piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
-- [ ] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
+- [x] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
   par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
   lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
   publique de `core:game` (`explicitApi`).
-- [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
+- [ ] **P10.17** Régler à l'oreille, sur un téléphone, les valeurs de départ du Jardin (décisions du développeur
+  des 2026-10-27 et 28, en constantes nommées) : tempos des ambiances, tonique de Calme, octave de la basse, volumes
+  (0,06 et 0,16) et poids de la note du dé (`GardenRating`). Après P10.12.
+- [x] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
+  d'`AppContainer`), l'écran s'ouvre sur le jardin gardé et chaque changement est gardé ; une écriture ratée
+  (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
+  autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après
+  P10.9, P10.11.
+- [ ] **P10.19** Mettre en commun les noms de notes et d'accords lus par TalkBack (éditeur de musique, Serrurier,
+  Jardin ; revue de P10.10, règle de 2) : `chordTellingOf` et ses chaînes vers `core:designsystem`, comme `ChordPill`.
+  Les lectures divergent déjà : le Serrurier lit un ♭VII « 7 majeur », le Jardin « 7 bémol majeur ». Cas : `a flat
+  seventh is told 7 flat major on the Locksmith too`.
+- [ ] **P10.20** Juger avec `designer-jeu` la lecture des cases du Jardin sans octave (« mi » revient 2 ou 3 fois dans
+  une colonne : « mi grave / aigu » ?), les 4 ambiances sur 2 lignes à 360 dp, et Poser sur un aperçu refusé qui
+  n'annonce rien de nouveau (revue de P10.10).
+- [ ] **P10.21** Mesurer sur un téléphone le nombre de pistes audio ouvertes avec le Jardin : ses 25 notes
+  d'aperçu s'ajoutent aux effets du jeu, jamais libérés (ADR 0025) ; si la limite approche, réduire l'ensemble ou
+  libérer à la sortie du jardin. Après P10.12.
+- [ ] **P10.22** Recaler la tête de lecture (Jardin, éditeur de musique) sur le son réellement entendu : elle suit
+  le temps des images, pas la position du lecteur, d'où un décalage de la latence audio (revue de P10.12). Après P10.12.
+- [ ] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
+  les 4 écrans qui écoutent (accueil, Mes musiques, éditeur, Jardin), par un `LifecycleEventEffect` partagé (revue de
+  P10.12, règle de 2). Après P10.12.
+- [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
-  of its group`, `changing the mood keeps the pieces where they are`.
-- [ ] **P10.6** `Garden.toScore(mood)` : une case = une croche ; colonne par colonne, les cases d'une même pièce se
-  partagent la croche en arpège montant ; une voix par ligne à volume fixe et la basse **[à vérifier]**, sans
+  of its group`, `changing the mood keeps the pieces where they are`. L'ambiance devient une propriété du jardin (`Garden.mood`, calme par défaut).
+- [x] **P10.6** `Garden.toScore()` (l'ambiance est celle du jardin, P10.5) : une case = une croche ; colonne par colonne, les cases d'une même pièce se
+  partagent la croche en arpège montant ; une voix par ligne à volume fixe (0,06) et la basse (0,16, octave Do 2), pleine échelle jamais dépassée (décision du développeur, 2026-10-28), sans
   changer `core:music` ; durées exactes (la dernière part d'une croche partagée en prend le reste). Cas : `a cell
   plays its note for its eighth`, `a piece with one cell per column plays its notes column after column`, `a
   standing piece plays its notes as a rising arpeggio within the eighth`, `a column of three cells keeps the length
   of the bar exact`, `two pieces in the same column sound together`, `an empty garden plays the bass alone`,
-  `fourteen notes at once never go above the peak of a generated music`.
-- [ ] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
-  20 candidats, note **[à vérifier]**. Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
-  composed garden holds 6 pieces placed without overlap`, `the best candidate is kept, the first one among equals`,
+  `fourteen notes at once and the bass reach full scale without going above it`.
+- [x] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
+  20 candidats (décision du développeur, 2026-10-27), note de départ à régler à l'oreille (P10.17). Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
+  composed garden holds 6 pieces placed without overlap` (devenu `every seed composes a garden of 6 pieces`), `the best candidate is kept, the first one among equals`,
   `a candidate does not depend on the draws of the previous ones`.
-- [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
-  case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
-  colorés ; jetons gardés par un test ; captures jour et nuit.
-- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+- [x] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
+  case libre, groupe en bande (`garden-band`), note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
+  colorés ; jetons gardés par un test ; captures jour et nuit. Reporter dans `docs/design-system/tokens.json` les jetons
+  `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
+  pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
+  seulement ; contour d'aperçu et croix d'au moins 2 dp à 22 dp (designer-jeu, P10.14).
+- [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
-- [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
+- [x] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
   22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
   effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
-  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9.
-- [ ] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
+  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9. Maquette V40 (P10.14) : bac de 4 × 84 dp à 6 dp d'écart, « Retirer »
+  hors du groupe de choix pour TalkBack, rangée d'information sur 2 lignes (« Do mineur harmonique · 100 bpm » ne
+  tient pas à côté de « Tout effacer »).
+- [x] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
   lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
   read back, its mood too`, `an unreadable garden gives an empty one`.
-- [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
+- [x] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
   lecture (`LoopPlayHead`) et pilule d'accord ; aperçu sonore par un ensemble fini d'effets jamais libérés
-  (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
-- [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
+  (l'union des hauteurs des 4 ambiances, 25), préchauffé à l'ouverture ; mesure des pistes reportée en P10.21 (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
+- [x] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
   Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
-  le premier).
-- [ ] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
+  le premier). Ordre de V36 à quatre cartouches (P10.14) : Classique, Serrurier, Jardin musical, Graine du jour.
+- [x] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
   du jardin dans le design system publié (ADR 0019).
 - [ ] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de

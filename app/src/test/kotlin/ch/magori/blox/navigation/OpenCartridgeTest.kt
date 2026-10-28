@@ -5,6 +5,7 @@ import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.cartridges.Cartridge
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.daily.navigation.DailyRoute
+import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
@@ -71,5 +72,17 @@ class OpenCartridgeTest {
 
         // Then
         assertThat(backStack).containsExactly(CartridgesRoute, DailyRoute)
+    }
+
+    @Test
+    fun `the Jardin musical cartridge opens the musical garden over the cartridges`() {
+        // Given the choice of the game
+        val backStack = NavBackStack<NavKey>(CartridgesRoute)
+
+        // When
+        openCartridge(backStack, Cartridge.GARDEN)
+
+        // Then: the screen of the garden reads the garden kept itself
+        assertThat(backStack).containsExactly(CartridgesRoute, GardenRoute)
     }
 }

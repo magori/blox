@@ -33,6 +33,7 @@ dependencies {
     implementation(projects.feature.musics)
     implementation(projects.feature.locksmith)
     implementation(projects.feature.daily)
+    implementation(projects.feature.garden)
     implementation(projects.core.game)
     implementation(projects.core.data)
     implementation(projects.core.audio)
@@ -67,6 +68,8 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.haptics))
     androidTestImplementation(testFixtures(projects.core.game))
+    // Le jardin du faux dépôt (FakeGardenRepository), que reçoit la fabrique du Jardin.
+    androidTestImplementation(projects.core.garden)
     // tapScrim : la feuille Musique fermée par un toucher sur son voile (P5.76).
     androidTestImplementation(testFixtures(projects.core.designsystem))
     // `@StringRes` sur les textes lus dans les ressources des features.

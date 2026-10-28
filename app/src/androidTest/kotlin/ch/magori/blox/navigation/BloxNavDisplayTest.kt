@@ -33,6 +33,7 @@ import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.DailyResults
 import ch.magori.blox.core.data.FakeDailyChallengeRepository
+import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeMusicLibrary
@@ -60,6 +61,8 @@ import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.GardenViewModel
+import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
@@ -78,6 +81,7 @@ import ch.magori.blox.core.designsystem.R as DesignR
 import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.daily.R as DailyR
 import ch.magori.blox.feature.game.R as GameR
+import ch.magori.blox.feature.garden.R as GardenR
 import ch.magori.blox.feature.home.R as HomeR
 import ch.magori.blox.feature.locksmith.R as LocksmithR
 
@@ -333,6 +337,43 @@ internal class BloxNavDisplayTest {
 
             // Then the copy of the score of the date of the game is asked for
             assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
+        }
+    }
+
+    @Test
+    @DisplayName(
+        "the Jardin musical cartridge opens the musical garden, and the system back goes back to the cartridges",
+    )
+    fun theJardinMusicalCartridgeOpensTheMusicalGarden() {
+        runJourney {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When: the third cartridge, below the edge on a small screen
+            onNode(hasTestTag(GARDEN_CARTRIDGE_TAG)).performScrollTo().performClick()
+            advanceUntilShown(gardenTitle())
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+            pressSystemBack()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game from the musical garden goes back to the cartridges")
+    fun changingTheGameFromTheMusicalGardenGoesBackToTheCartridges() {
+        runJourney {
+            // Given the garden on top of the cartridges, as the system restores the stack after the death of the process
+            showApp(restoredStack = listOf(CartridgesRoute, GardenRoute), restoredShows = gardenTitle())
+
+            // When
+            onNodeWithContentDescription(string(GardenR.string.feature_garden_change_game)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(gardenTitle()).assertDoesNotExist()
         }
     }
 
@@ -727,6 +768,8 @@ internal class BloxNavDisplayTest {
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
         val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
+        val gardenFactory =
+            GardenViewModel.Factory(FakeGardenRepository(), MainScope(), music, FakeSoundEffectPlayer(), preferences)
         val dailyFactory = DailyViewModel.Factory(
             dailyChallenge,
             GameRoute.DAILY_START_LEVEL,
@@ -754,6 +797,7 @@ internal class BloxNavDisplayTest {
                         dailyFactory,
                         { date -> copiedDailyScores += date },
                         newCartridges,
+                        gardenFactory,
                     )
                 } else {
                     BloxNavDisplay(
@@ -767,6 +811,7 @@ internal class BloxNavDisplayTest {
                         dailyFactory,
                         { date -> copiedDailyScores += date },
                         newCartridges,
+                        gardenFactory,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
@@ -871,6 +916,10 @@ internal class BloxNavDisplayTest {
     private fun AndroidComposeUiTest<ComponentActivity>.dailyTitle(): String =
         string(DailyR.string.feature_daily_title, "26 octobre")
 
+    /** The title of the bar of the musical garden, as the screen shows it: in capitals. */
+    private fun AndroidComposeUiTest<ComponentActivity>.gardenTitle(): String =
+        string(GardenR.string.feature_garden_title).uppercase()
+
     private fun AndroidComposeUiTest<ComponentActivity>.string(
         @StringRes id: Int,
         vararg arguments: Any,
@@ -889,6 +938,7 @@ internal class BloxNavDisplayTest {
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
         const val LOCKSMITH_CARTRIDGE_TAG = "cartridge_locksmith"
+        const val GARDEN_CARTRIDGE_TAG = "cartridge_garden"
         const val DAILY_CARTRIDGE_TAG = "cartridge_daily"
 
         /** The most frames a screen brought back by the system back takes to show its first frame. */

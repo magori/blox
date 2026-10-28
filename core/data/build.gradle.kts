@@ -11,6 +11,10 @@ android {
 dependencies {
     // Les musiques enregistrées gardent des partitions, des gammes et des catégories de core:music.
     api(projects.core.music)
+    // Le jardin gardé (P10.11) est le Garden du domaine, sans type parallèle (ADR 0027).
+    api(projects.core.garden)
+    // Le format du jardin gardé écrit et relit les pièces (Piece, Orientation, Position) de core:game.
+    implementation(projects.core.game)
     api(libs.androidx.datastore.core)
     api(libs.androidx.datastore.preferences.core)
     api(libs.kotlinx.coroutines.core)
@@ -27,4 +31,6 @@ dependencies {
 
     // Le faux des musiques enregistrées (FakeMusicLibrary) donne des identités de partitions de core:music.
     testFixturesApi(projects.core.music)
+    // Le faux du jardin gardé (FakeGardenRepository) donne des Garden de core:garden.
+    testFixturesApi(projects.core.garden)
 }

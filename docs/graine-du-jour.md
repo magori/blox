@@ -248,7 +248,7 @@ au début ni en quittant) et le jour (`DailyGameResults`, lié à la date de la 
   partie n'apparaît qu'une fois l'essai écrit : la copie le contient. Elle ne propose Copier que
   si les résultats gardés contiennent cette partie, un essai écrit sous sa date : pas si
   l'écriture a échoué (`IOException`), ni si l'essai a été ignoré parce que les résultats sont
-  déjà à une date plus récente (P9.9). Sans résultats de la date demandée, rien n'est copié.
+  déjà à une date plus récente (« Partie d’entraînement », P9.9). Sans résultats de la date demandée, rien n'est copié.
 - La copie ne prend pas le verrou des écritures du jour : quitter une partie puis copier aussitôt
   depuis l'entrée peut lire les résultats d'avant cette fin, comme les tuiles affichées à cet
   instant.
@@ -291,7 +291,7 @@ barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulThem
 `GameThemeTest › a daily game is drawn in the colorful variant whatever the theme chosen, with the effects of the player`,
 `GameThemeTest › a classic game is drawn in the theme chosen`,
 `ColorfulThemeTest › the colorful theme draws in the colorful variant of the system mode, keeping the effects around it`,
-`SystemBarsTest › the bars of a daily game follow its colorful variant`.
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 
 **Écran d'entrée** (vue **V38**, à dessiner ; `feature:daily`, clé `DailyRoute`, amendement de
 l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres système comprises :
@@ -332,7 +332,7 @@ l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres
 `DayInLettersTest › the day is written in letters, the day of the month then the month`,
 `DayInLettersTest › the first of the month is written 1er, as in French`,
 `DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
-`SystemBarsTest › the bars of the entry of the daily seed follow its colorful variant`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `DailyScreenTest › the title gives the day in letters`,
 `DailyScreenTest › TalkBack reads each of the seven first pieces with its rank, and none can be touched`,
 `DailyScreenTest › before the first try, the tiles and the best of the day show a dash, and copying is disabled`,
@@ -391,6 +391,18 @@ captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`, `GameOverDailyLarg
 `GameRouteTest › replaying a daily game keeps its date and its seed, under a new id` ;
 captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`.
 
+**Partie d’entraînement** (P9.9, décision du développeur, 2026-10-27) : une partie du jour rejouée
+avec la graine d'hier, alors que les résultats sont déjà passés à aujourd'hui, n'est pas comptée ;
+sa fin de partie le dit par la ligne « Partie d’entraînement », sous le titre, à la place du badge
+(une ligne simple, couleur des libellés : ce n'est pas un exploit), sans Copier ni meilleur
+d'avant. Une fin d'essai qui n'a pu être écrite n'est pas une partie d'entraînement : l'essai
+pourra compter (`GameEnd.kept` faux mais rendu, contre aucun résultat).
+**Tests :** `GameViewModelTest › a daily game over not counted, its date already passed, is told a practice game`,
+`GameViewModelTest › a daily game over whose try could not be written is not told a practice game`,
+`GameScreenTest › the game over of a daily game not counted tells a practice game, and a counted one does not`,
+`GameOverTextsTest › a practice game over cannot keep its results` ;
+captures `GameOverDailyPractice`, `GameOverDailyPracticeNight`, `GameOverDailyPracticeLargeFont`.
+
 **Cartouche** « Graine du jour » sur le choix du jeu (V36, P9.7) : troisième cartouche, mascotte Z
 avec une pousse (corps `piece-z`, pousse `piece-s`) ; elle ouvre l'écran d'entrée (`DailyRoute`).
 Elle porte l'autocollant « NOUVELLE » **jusqu'au premier essai du jour** : il disparaît dès que les
@@ -417,7 +429,4 @@ captures `CartridgesDay`, `CartridgesNight`, `CartridgesLargeFont`, `Mascots*`.
 ## Points ouverts
 
 - L'essai compté à son début (ci-dessus) et la sauvegarde du fichier.
-- Rejouer après minuit : une partie rejouée avec la graine d'hier est ignorée si le dépôt est déjà
-  passé à aujourd'hui, sans que rien ne prévienne le joueur. Proposition : un message en fin de
-  partie, « Graine d'hier : non comptée ».
 - Une série de jours, un historique, un classement en ligne : hors périmètre.

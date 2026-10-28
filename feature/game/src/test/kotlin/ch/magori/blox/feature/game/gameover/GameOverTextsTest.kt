@@ -4,6 +4,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -99,6 +100,25 @@ class GameOverTextsTest {
         assertThat(textsFor(previousBest = 98_760, resultsKept = false).previousBest).isNull()
     }
 
+    @Test
+    fun `a practice game over cannot keep its results`() {
+        // Given / When a game over told practice, whose try was not counted, but said to keep its results
+        // Then it is refused: a try not counted is not kept, and Copier would copy results without it
+        assertThatThrownBy {
+            GameOverUiState(
+                score = Points(0),
+                lines = Lines(0),
+                level = Level(0),
+                fourLineClears = 0,
+                ticksPlayed = 0,
+                newBest = false,
+                resultsKept = true,
+                previousBest = 0,
+                practice = true,
+            )
+        }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
     /** When: the game over screen gets these values; other values do not matter to the test. */
     private fun textsFor(
         score: Int = 0,
@@ -118,6 +138,7 @@ class GameOverTextsTest {
             newBest = false,
             resultsKept = resultsKept,
             previousBest = previousBest,
+            practice = false,
         ),
     )
 }

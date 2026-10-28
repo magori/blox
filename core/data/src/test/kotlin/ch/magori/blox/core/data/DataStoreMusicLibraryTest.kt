@@ -10,13 +10,8 @@ import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.job
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.Buffer
 import okio.Path.Companion.toPath
@@ -394,14 +389,6 @@ class DataStoreMusicLibraryTest :
         scope: CoroutineScope,
         clock: Clock,
     ): MusicLibrary = libraryIn(scope, clock)
-
-    /** Runs [block] in a scope of its own, then closes it: the DataStores living in it release the file. */
-    private suspend fun <T> TestScope.inScopeClosedAfter(block: suspend (CoroutineScope) -> T): T {
-        val scope = CoroutineScope(StandardTestDispatcher(testScheduler) + Job())
-        val result = block(scope)
-        scope.coroutineContext.job.cancelAndJoin()
-        return result
-    }
 
     /**
      * The start of a musics file: « BLXM », [version], the key of the music played during the games, the count of

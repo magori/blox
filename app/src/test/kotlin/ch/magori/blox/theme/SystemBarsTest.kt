@@ -5,6 +5,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
@@ -30,65 +31,14 @@ class SystemBarsTest {
         assertThat(hasDarkSystemBarIcons(variant)).isEqualTo(expectedDarkIcons)
     }
 
-    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
-    @CsvSource(
-        "ORIGINAL, false, COLORFUL_LIGHT",
-        "ORIGINAL, true, COLORFUL_DARK",
-        "COLORFUL_LIGHT, true, COLORFUL_DARK",
-        "COLORFUL_DARK, false, COLORFUL_LIGHT",
-    )
-    fun `the bars of the locksmith follow its colorful variant, whatever the theme chosen`(
-        chosen: BloxThemeVariant,
-        darkSystem: Boolean,
-        expected: BloxThemeVariant,
+    @ParameterizedTest
+    @MethodSource("colorfulOnlyScreens")
+    fun `the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`(
+        top: NavKey,
     ) {
-        assertThat(systemBarVariant(LocksmithRoute(level = 1, seed = 1), chosen, darkSystem)).isEqualTo(expected)
-    }
-
-    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
-    @CsvSource(
-        "ORIGINAL, false, COLORFUL_LIGHT",
-        "ORIGINAL, true, COLORFUL_DARK",
-        "COLORFUL_LIGHT, true, COLORFUL_DARK",
-        "COLORFUL_DARK, false, COLORFUL_LIGHT",
-    )
-    fun `the bars of a daily game follow its colorful variant`(
-        chosen: BloxThemeVariant,
-        darkSystem: Boolean,
-        expected: BloxThemeVariant,
-    ) {
-        val daily = GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)
-        assertThat(systemBarVariant(daily, chosen, darkSystem)).isEqualTo(expected)
-    }
-
-    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
-    @CsvSource(
-        "ORIGINAL, false, COLORFUL_LIGHT",
-        "ORIGINAL, true, COLORFUL_DARK",
-        "COLORFUL_LIGHT, true, COLORFUL_DARK",
-        "COLORFUL_DARK, false, COLORFUL_LIGHT",
-    )
-    fun `the bars of the entry of the daily seed follow its colorful variant`(
-        chosen: BloxThemeVariant,
-        darkSystem: Boolean,
-        expected: BloxThemeVariant,
-    ) {
-        assertThat(systemBarVariant(DailyRoute, chosen, darkSystem)).isEqualTo(expected)
-    }
-
-    @ParameterizedTest(name = "chosen {0}, system dark {1} -> {2}")
-    @CsvSource(
-        "ORIGINAL, false, COLORFUL_LIGHT",
-        "ORIGINAL, true, COLORFUL_DARK",
-        "COLORFUL_LIGHT, true, COLORFUL_DARK",
-        "COLORFUL_DARK, false, COLORFUL_LIGHT",
-    )
-    fun `the bars of the cartridges follow their colorful variant`(
-        chosen: BloxThemeVariant,
-        darkSystem: Boolean,
-        expected: BloxThemeVariant,
-    ) {
-        assertThat(systemBarVariant(CartridgesRoute, chosen, darkSystem)).isEqualTo(expected)
+        assertThat(COLORFUL_CASES).allSatisfy { (chosen, darkSystem, expected) ->
+            assertThat(systemBarVariant(top, chosen, darkSystem)).isEqualTo(expected)
+        }
     }
 
     @ParameterizedTest
@@ -100,6 +50,23 @@ class SystemBarsTest {
     }
 
     private companion object {
+        /** The theme chosen and the mode of the system, and the variant of the bars of a screen drawn in colorful only. */
+        val COLORFUL_CASES = listOf(
+            Triple(BloxThemeVariant.ORIGINAL, false, BloxThemeVariant.COLORFUL_LIGHT),
+            Triple(BloxThemeVariant.ORIGINAL, true, BloxThemeVariant.COLORFUL_DARK),
+            Triple(BloxThemeVariant.COLORFUL_LIGHT, true, BloxThemeVariant.COLORFUL_DARK),
+            Triple(BloxThemeVariant.COLORFUL_DARK, false, BloxThemeVariant.COLORFUL_LIGHT),
+        )
+
+        @JvmStatic
+        fun colorfulOnlyScreens(): List<Arguments> = listOf(
+            argumentSet("the cartridges", CartridgesRoute),
+            argumentSet("the locksmith", LocksmithRoute(level = 1, seed = 1)),
+            argumentSet("a daily game", GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)),
+            argumentSet("the entry of the daily seed", DailyRoute),
+            argumentSet("the musical garden", GardenRoute),
+        )
+
         @JvmStatic
         fun otherScreens(): List<Arguments> = listOf(
             argumentSet("the home", HomeRoute),
