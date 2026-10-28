@@ -19,7 +19,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0011](0011-navigation-3.md) | Navigation 3 : la pile de navigation appartient à l'application | Acceptée ; point P2.10 consigné dans 0013 ; fin de partie tranchée en P2.7 ; amendée par 0022 |
 | [0012](0012-horloge-d-images-cote-ecran.md) | L'horloge d'images appartient à l'écran, le ViewModel ne fait qu'avancer | Acceptée ; complétée par 0024 ; amendée par 0028 |
 | [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) | Les fabriques de ViewModel entrent par les entrées de navigation | Acceptée ; amendée en P5.13 et P7.19 |
-| [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée ; amendée par 0026 |
+| [0014](0014-tirage-seul-etat-modifiable.md) | Le tirage des pièces est le seul état modifiable du domaine | Acceptée ; amendée par 0026 et P7.28 |
 | [0015](0015-un-moteur-des-capacites.md) | Mode Moderne : un moteur, des capacités | Acceptée ; amende 0004 ; amendée par 0028 |
 | [0016](0016-polices-embarquees.md) | Polices embarquées, chiffres à chasse fixe | Acceptée ; amendée par 0021 |
 | [0017](0017-format-des-musiques-enregistrees.md) | Format des musiques enregistrées | Acceptée |
@@ -30,7 +30,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0022](0022-choix-du-jeu-a-la-racine.md) | Choix du jeu : une feature à la racine de la pile | Acceptée ; amende 0011 ; amendée par 0025, 0026 et 0027 |
 | [0023](0023-rendu-du-plateau-dans-core-board.md) | Le rendu du plateau dans `core:board` | Acceptée ; amende 0005 ; amendée le 2026-10-28 (noms de notes et d’accords, P10.19) |
 | [0024](0024-retours-de-jeu-et-effets-reduits.md) | Retours de jeu cadencés par les ticks, dessinés sans recomposition ; Effets réduits portés par le thème | Acceptée ; complète 0012 |
-| [0025](0025-le-serrurier.md) | Le Serrurier : un second jeu, `core:locksmith` et `feature:locksmith` | Acceptée ; amende 0002 et 0022 |
+| [0025](0025-le-serrurier.md) | Le Serrurier : un second jeu, `core:locksmith` et `feature:locksmith` | Acceptée ; amende 0002 et 0022 ; amendée (progression, P7.28) |
 | [0026](0026-jeux-musicaux-variantes-du-classique.md) | Jeux musicaux : variantes du Classique et records (Musique vivante, Graine du jour, Au tempo) | Acceptée ; amende 0014 et 0022 |
 | [0027](0027-le-jardin-musical.md) | Le Jardin musical : `core:garden` et `feature:garden` | Acceptée ; amende 0002 et 0022 |
 | [0028](0028-au-tempo-droptiming-et-horloge-audio.md) | Au tempo : politique `DropTiming` et horloge audio comme source des ticks | Acceptée ; amende 0012 et 0015 |
