@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 250 / 321 | `████████████████░░░░` **78 %** |
+| **Général** | 251 / 321 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1507,14 +1507,19 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   `a candidate does not depend on the draws of the previous ones`.
 - [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
   case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
-  colorés ; jetons gardés par un test ; captures jour et nuit.
+  colorés ; jetons gardés par un test ; captures jour et nuit. Reporter dans `docs/design-system/tokens.json` les jetons
+  `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
+  pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
+  seulement ; contour d'aperçu et croix d'au moins 2 dp à 22 dp (designer-jeu, P10.14).
 - [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
 - [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
   22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
   effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
-  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9.
+  nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9. Maquette V40 (P10.14) : bac de 4 × 84 dp à 6 dp d'écart, « Retirer »
+  hors du groupe de choix pour TalkBack, rangée d'information sur 2 lignes (« Do mineur harmonique · 100 bpm » ne
+  tient pas à côté de « Tout effacer »).
 - [ ] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
   lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
   read back, its mood too`, `an unreadable garden gives an empty one`.
@@ -1523,8 +1528,8 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
 - [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
   Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
-  le premier).
-- [ ] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
+  le premier). Ordre de V36 à quatre cartouches (P10.14) : Classique, Serrurier, Jardin musical, Graine du jour.
+- [x] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
   du jardin dans le design system publié (ADR 0019).
 - [ ] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
