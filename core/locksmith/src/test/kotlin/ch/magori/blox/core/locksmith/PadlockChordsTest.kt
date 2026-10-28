@@ -11,7 +11,14 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class PadlockChordsTest {
     @ParameterizedTest(name = "{0} pieces: {1}")
-    @CsvSource("3, IV-V-I", "4, I-IV-V-I", "5, I-vi-IV-V-I", "6, I-vi-ii-IV-V-I")
+    @CsvSource(
+        "3, IV-V-I",
+        "4, I-IV-V-I",
+        "5, I-vi-IV-V-I",
+        "6, I-vi-ii-IV-V-I",
+        "7, I-V-vi-iii-IV-V-I",
+        "8, I-V-vi-iii-IV-ii-V-I",
+    )
     fun `the chords of a padlock follow the table of the rules`(
         pieces: Int,
         chords: String,
@@ -29,8 +36,8 @@ class PadlockChordsTest {
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [2, 7])
-    fun `there are no chords for a padlock of fewer than 3 or more than 6 pieces`(pieces: Int) {
+    @ValueSource(ints = [2, 9])
+    fun `there are no chords for a padlock of fewer than 3 or more than 8 pieces`(pieces: Int) {
         assertThatIllegalArgumentException().isThrownBy { PadlockChords.progression(pieces) }
     }
 }
