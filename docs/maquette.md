@@ -109,7 +109,7 @@ captures `Cartridges*`.
 6 chiffres, lue « Record N », Paramètres) ; Jouer XL avec le rappel « Classique · Niveau 05 · Korobeïniki » (coupé
 par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, Korobeïniki ») ; carte des
 réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
-Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
+Musique (une rangée qui ouvre la feuille Musique, P5.76, voir ci-dessous) ; tuiles Mes musiques
 et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
 `HomeColumn`) pour les formats de P5.84 ; logo BloX v2, aperçu du plateau et halo de Jouer depuis P5.77.
 **Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
@@ -174,11 +174,11 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
   `HomeScreenTest › on 360 dp, the two modes stand on one line`,
   `HomeScreenTest › the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings`,
-  `HomeScreenTest › the music choices bear nothing under them: one line of actions, under them all, is for the music selected`,
-  `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
-  `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
+  `HomeScreenTest › choosing a music saves it and keeps the sheet open`,
+  `HomeScreenTest › in the sheet, Mon fichier with a file offers Changer, which opens the picker, before its listen button`,
+  `HomeScreenTest › Aucune shows the note barred`,
   `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
-  `HomeScreenTest › in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line`,
+  `HomeScreenTest › in a font twice as large, the row Mon fichier keeps its words whole, Changer beside or under Écouter`,
   `HomeViewModelTest › opening the settings stops the preview`,
   `HomeViewModelTest › opening the settings stops the music of the player listened to`,
   `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,

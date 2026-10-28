@@ -3,6 +3,7 @@ package ch.magori.blox.navigation
 import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
@@ -10,17 +11,22 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasStateDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
+import androidx.compose.ui.unit.dp
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.rememberNavBackStack
 import ch.magori.blox.core.audio.FakeMusicPlayer
@@ -34,6 +40,7 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.designsystem.component.tapScrim
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
@@ -679,10 +686,19 @@ internal class BloxNavDisplayTest {
     private fun runJourney(block: suspend AndroidComposeUiTest<ComponentActivity>.() -> Unit) =
         runAndroidComposeUiTest<ComponentActivity>(testTimeout = JOURNEY_TIMEOUT, block = block)
 
-    /** Chooses the minuet on the home screen, then listens to it. */
+    /**
+     * Chooses the minuet on the home screen, in the sheet Musique, which a touch on its scrim closes, then listens to it on
+     * the row Musique of the card.
+     */
     private fun AndroidComposeUiTest<ComponentActivity>.listenToTheMinuet() {
         val minuet = string(HomeR.string.feature_home_music_minuet)
-        onNodeWithText(minuet).performScrollTo().performClick()
+        val korobeiniki = string(HomeR.string.feature_home_music_korobeiniki)
+        val openSheet = checkNotNull(activity).getString(HomeR.string.feature_home_music_open, korobeiniki)
+        onNodeWithContentDescription(openSheet).performScrollTo().performClick()
+        settle()
+        onNode(hasText(minuet) and hasAnyAncestor(isDialog())).performClick()
+        settle()
+        onNode(isDialog()).tapScrim()
         settle()
         onNodeWithContentDescription(listenDescription(minuet)).performScrollTo().performClick()
         settle()

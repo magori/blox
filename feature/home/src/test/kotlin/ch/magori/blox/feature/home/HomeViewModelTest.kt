@@ -551,6 +551,23 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `closing the sheet stops the preview`() = runTest {
+        // Given a music listened to in the sheet Musique
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When
+            viewModel.onMusicSheetClosed()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
     fun `the preview stops when the screen goes to the background, never the music of a game started since`() =
         runTest {
             // Given the minuet listened to, then a game that starts with Korobeiniki
