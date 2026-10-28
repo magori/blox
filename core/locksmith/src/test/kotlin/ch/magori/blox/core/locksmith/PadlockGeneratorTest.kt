@@ -4,16 +4,18 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.StableRandom
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatCode
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 import kotlin.random.Random
 
 class PadlockGeneratorTest {
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [3, 4, 5, 6])
+    @ValueSource(ints = [3, 4, 5, 6, 7, 8])
     fun `a candidate has the number of pieces asked`(count: Int) {
         // When
         val padlock = PadlockGenerator.candidate(count, Random(1))
@@ -24,7 +26,7 @@ class PadlockGeneratorTest {
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [3, 4, 5, 6])
+    @ValueSource(ints = [3, 4, 5, 6, 7, 8])
     fun `a candidate is a valid padlock whatever the random`(count: Int) {
         // Given: 300 seeds
         val seeds = 1..300L
@@ -34,6 +36,35 @@ class PadlockGeneratorTest {
 
         // Then
         assertThatCode(build).doesNotThrowAnyException()
+    }
+
+    @ParameterizedTest(name = "{0}: {1}")
+    @CsvSource("WITHOUT_S_Z, IOTJL", "S_Z_T, TSZ")
+    fun `a candidate draws its pieces from its set`(
+        set: String,
+        types: String,
+    ) {
+        // When
+        val candidates = (1..100L).mapNotNull { seed ->
+            PadlockGenerator.candidate(8, StableRandom(seed), types = PieceSet.valueOf(set))
+        }
+
+        // Then: every type of the set, and no other, is drawn
+        assertThat(candidates.flatMap { it.givenPieces }.toSet())
+            .containsExactlyInAnyOrderElementsOf(types.map { PieceType.valueOf(it.toString()) })
+    }
+
+    @Test
+    fun `a candidate of one of each holds the seven types once`() {
+        // When
+        val candidates = (1..100L).mapNotNull { seed ->
+            PadlockGenerator.candidate(7, StableRandom(seed), types = PieceSet.ONE_OF_EACH)
+        }
+
+        // Then
+        assertThat(candidates).hasSizeGreaterThanOrEqualTo(90).allSatisfy { padlock ->
+            assertThat(padlock.givenPieces).isEqualTo(PieceType.entries)
+        }
     }
 
     @Test

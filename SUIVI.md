@@ -1361,7 +1361,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [x] **P7.28** Spécification et décision : section « Progression » de `regles-serrurier.md` (le point ouvert
   « Reprendre à la dernière serrure » est fermé), amendements des ADR 0025 et 0014 (la génération d'une serrure
   devient un contrat). Après P7.27.
-- [ ] **P7.29** Génération stable (`core:locksmith`) : `StableRandom`, graine = niveau, courbe de P7.27,
+- [x] **P7.29** Génération stable (`core:locksmith`) : `StableRandom`, graine = niveau, courbe de P7.27,
   `Padlock.ofLevel(level)`, test de contrat (serrures 1 à 5 en ASCII, empreinte des serrures 1 à 200). Après P7.28.
 - [ ] **P7.30** `LocksmithRoute(level)` sans graine, `next()`, route restaurée ; `app` (`nextPadlock`,
   `OpenCartridgeTest`, `NextPadlockTest`). Après P7.29.

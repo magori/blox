@@ -45,7 +45,7 @@ public data class Padlock(public val solution: List<Piece>) {
         public const val SIZE: Int = 10
 
         /** How many pieces a padlock holds. */
-        internal val PIECE_COUNTS: IntRange = 3..6
+        internal val PIECE_COUNTS: IntRange = 3..8
 
         /** The rows and columns inside the outer ring of metal. */
         internal val INSIDE: IntRange = 1..SIZE - 2
@@ -53,17 +53,24 @@ public data class Padlock(public val solution: List<Piece>) {
         private const val METAL = '#'
 
         /** The characters that mark the pieces of a solution, by rank. */
-        private val RANKS = '1'..'6'
+        private val RANKS = '1'..'8'
 
         /**
-         * Padlock [level] (from 1) of [seed]: the best of the padlocks of its number of pieces composed from
-         * that seed, always the same for the same level and seed (`PadlockGenerator`, a pure function of the
-         * seed, ADR 0014).
+         * Padlock [level] (from 1) of [seed], as the screen draws it until P7.30: the best of the padlocks of
+         * `PadlockGenerator.pieceCount` pieces (6 at most, as before the tiers), composed from that seed on
+         * `kotlin.random.Random`, whose sequence is no contract, without the types, the shapes nor the preference of
+         * solutions of the tiers. [ofLevel] replaces it.
          */
         public fun generate(
             level: Int,
             seed: Long,
         ): Padlock = PadlockGenerator.generate(PadlockGenerator.pieceCount(level), seed)
+
+        /**
+         * Padlock [level] (from 1), the same for everyone and for ever: its seed is the level, and its generation is a
+         * contract, changed only by an ADR (`PadlockGenerator.ofLevel`, ADR 0014 amended by P7.28).
+         */
+        public fun ofLevel(level: Int): Padlock = PadlockGenerator.ofLevel(level)
 
         /** Whether [position] is inside the outer ring of metal, where the hole may lie. */
         internal fun isInside(position: Position): Boolean = position.column in INSIDE && position.row in INSIDE
@@ -76,7 +83,7 @@ public data class Padlock(public val solution: List<Piece>) {
 
         /**
          * Reads a padlock from [SIZE] lines of [SIZE] characters, for tests: `#` is metal, a digit from
-         * `1` to `6` is a cell of the piece of that rank in the solution, ranks following each other from
+         * `1` to `8` is a cell of the piece of that rank in the solution, ranks following each other from
          * `1`. Each piece takes the Classic orientation and the pivot that cover its cells. Blank lines
          * around the grid are ignored.
          */

@@ -4,6 +4,7 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.StableRandom
 import kotlin.random.Random
 
 /**
@@ -20,10 +21,19 @@ internal object PadlockGenerator {
     /** How many seeds a generation tries, one after the other, before it gives up. */
     const val SEEDS: Int = 100
 
-    /** How many pieces padlock [level] holds, from 1: two more than its level, six at most. */
+    /** How many solutions of a padlock its rating counts, at most. */
+    const val SOLUTIONS_COUNTED: Int = 5
+
+    /** The most pieces of a padlock of [Padlock.generate], before the tiers. */
+    private const val LEGACY_MOST_PIECES = 6
+
+    /**
+     * How many pieces padlock [level] of [Padlock.generate] holds, from 1: two more than its level, six at most, as
+     * before the tiers, until P7.30. [ofLevel] takes the pieces of its [PadlockProfile].
+     */
     fun pieceCount(level: Int): Int {
         require(level >= 1) { "Padlocks are numbered from 1, got $level" }
-        return minOf(Padlock.PIECE_COUNTS.last, 2 + level)
+        return minOf(LEGACY_MOST_PIECES, 2 + level)
     }
 
     /**
@@ -33,7 +43,7 @@ internal object PadlockGenerator {
      * not depend on the draws of the previous ones. When every candidate is given up or ruled out,
      * the next seed (`seed + 1`, the largest seed followed by the smallest one) is tried, [seeds]
      * seeds at most; beyond, an `IllegalStateException`: it would take thousands of candidates in a
-     * row to fail.
+     * row to fail. Kept for [Padlock.generate] until P7.30; [ofLevel] is the generation of the tiers.
      */
     fun generate(
         pieceCount: Int,
@@ -41,35 +51,80 @@ internal object PadlockGenerator {
         seeds: Int = SEEDS,
         compose: (Random) -> Padlock? = { candidate(pieceCount, it) },
     ): Padlock {
-        require(pieceCount in Padlock.PIECE_COUNTS) { "A padlock holds 3 to 6 pieces, got $pieceCount" }
+        require(pieceCount in Padlock.PIECE_COUNTS) {
+            "A padlock holds ${Padlock.PIECE_COUNTS.first} to ${Padlock.PIECE_COUNTS.last} pieces, got $pieceCount"
+        }
         require(seeds >= 1) { "A generation tries one seed at least, got $seeds" }
         repeat(seeds) { tried ->
             val master = Random(seed + tried)
-            val best = List(CANDIDATES) { compose(Random(master.nextLong())) }
-                .filterNotNull()
-                .mapNotNull { padlock -> rating(padlock)?.let { padlock to it } }
-                .maxByOrNull { it.second }
-            if (best != null) return best.first
+            best(List(CANDIDATES) { compose(Random(master.nextLong())) }, ::rating)?.let { return it }
         }
         error("No padlock of $pieceCount pieces in $seeds seeds from seed $seed")
     }
 
     /**
-     * One candidate padlock of [pieceCount] pieces, composed with [random]: each piece is drawn (type,
-     * orientation, pivot inside the outer ring) until it lies inside the ring, on free cells, and, but
-     * for the first, touches an earlier piece by an edge. `null` when a piece is not placed within
+     * Padlock [level], the same for everyone and for ever (contract of generation, ADR 0014 amended by P7.28): the
+     * best rated, for its [PadlockProfile], of [CANDIDATES] candidates, the first one composed among those of equal
+     * rating. Each candidate is composed by [compose] with its own [StableRandom], seeded by the next number of a
+     * master [StableRandom] seeded by the level. When every candidate is given up or ruled out, the next try draws on a
+     * seed of its own ([seedOf]), [tries] tries at most; beyond, an `IllegalStateException`.
+     */
+    fun ofLevel(
+        level: Int,
+        tries: Int = SEEDS,
+        compose: (PadlockProfile, Random) -> Padlock? = { profile, random ->
+            candidate(profile.pieceCount, random, types = profile.types)
+        },
+    ): Padlock {
+        require(tries >= 1) { "A padlock takes one try at least, got $tries" }
+        val profile = PadlockProfile.of(level)
+        repeat(tries) { tried ->
+            val master = StableRandom(seedOf(level, tried))
+            best(List(CANDIDATES) { compose(profile, StableRandom(master.nextLong())) }) {
+                rating(it, profile.shape, profile.solutions)
+            }?.let { return it }
+        }
+        error("No padlock $level in $tries tries")
+    }
+
+    /**
+     * The seed of try [tried] of padlock [level]: the level itself, then a number of its own for each pair of the
+     * level and the try, the first number of a [StableRandom] seeded by the pair (level in the high 32 bits, try in
+     * the low ones). Never `level + tried`, which is the seed of another padlock.
+     */
+    fun seedOf(
+        level: Int,
+        tried: Int,
+    ): Long = if (tried == 0) level.toLong() else StableRandom((level.toLong() shl 32) or tried.toLong()).nextLong()
+
+    /** The best rated of [candidates] by [rate], the first one among equals; `null` when all are given up or ruled out. */
+    private fun best(
+        candidates: List<Padlock?>,
+        rate: (Padlock) -> Int?,
+    ): Padlock? = candidates
+        .filterNotNull()
+        .mapNotNull { padlock -> rate(padlock)?.let { padlock to it } }
+        .maxByOrNull { it.second }
+        ?.first
+
+    /**
+     * One candidate padlock of [pieceCount] pieces, composed with [random]: each piece is drawn (type among those
+     * [types] leaves to it, orientation, pivot inside the outer ring) until it lies inside the ring, on free cells,
+     * and, but for the first, touches an earlier piece by an edge. `null` when a piece is not placed within
      * [attempts] draws of its own.
      */
     fun candidate(
         pieceCount: Int,
         random: Random,
         attempts: Int = ATTEMPTS_PER_PIECE,
+        types: PieceSet = PieceSet.ALL,
     ): Padlock? {
         val solution = mutableListOf<Piece>()
         repeat(pieceCount) {
             val taken = solution.flatMap(Piece::cells).toSet()
+            val drawable = types.drawable(solution.map(Piece::type))
             val piece = (1..attempts).asSequence()
-                .map { draw(random) }
+                .map { draw(random, drawable) }
                 .firstOrNull { fits(it, taken) }
                 ?: return null
             solution += piece
@@ -78,26 +133,41 @@ internal object PadlockGenerator {
     }
 
     /**
-     * How interesting [padlock] is: 10 per edge of the outline of its hole (a side of a hole cell
-     * that gives onto metal), 30 per kind of piece, minus 3 per cell of the box around the hole.
-     * `null` when the padlock is ruled out: a rectangular hole, which fills its box, is no padlock.
+     * How interesting [padlock] is, for a hole of [shape] and a [preference] of solutions: the weight of the shape
+     * per edge of the outline of its hole (a side of a hole cell that gives onto metal), 30 per kind of piece, minus
+     * 3 per cell of the box around the hole, minus the weight of the preference per solution ([SOLUTIONS_COUNTED] at
+     * most). Before the tiers, every padlock was rated as a sinuous hole whose solutions are free. `null` when the
+     * padlock is ruled out: a rectangular hole, which fills its box, is no padlock.
      */
-    fun rating(padlock: Padlock): Int? {
+    fun rating(
+        padlock: Padlock,
+        shape: HoleShape = HoleShape.SINUOUS,
+        preference: SolutionPreference = SolutionPreference.FREE,
+    ): Int? {
         val hole = padlock.hole
         val box = (hole.maxOf { it.column } - hole.minOf { it.column } + 1) *
             (hole.maxOf { it.row } - hole.minOf { it.row } + 1)
         if (box == hole.size) return null
         val outline = hole.sumOf { cell -> cell.neighbours().count { it !in hole } }
         val kinds = padlock.givenPieces.distinct().size
-        return 10 * outline + 30 * kinds - 3 * box
+        val weightPerSolution = preference.weightPerSolution
+        val solutions = if (weightPerSolution == 0) 0 else solutions(padlock)
+        return shape.outlineWeight * outline + 30 * kinds - 3 * box - weightPerSolution * solutions
     }
 
+    /** How many solutions [padlock] has, [SOLUTIONS_COUNTED] at most. */
+    private fun solutions(padlock: Padlock): Int =
+        PadlockSolver.count(padlock.hole, padlock.givenPieces, SOLUTIONS_COUNTED)
+
     /**
-     * A piece of any type, in any of its Classic orientations, its pivot inside the outer ring. The
+     * A piece of one of [types], in any of its Classic orientations, its pivot inside the outer ring. The
      * pivot being one of the cells of the piece, no placement inside the ring is left out.
      */
-    private fun draw(random: Random): Piece {
-        val type = PieceType.entries.random(random)
+    private fun draw(
+        random: Random,
+        types: List<PieceType>,
+    ): Piece {
+        val type = types.random(random)
         val orientation = ClassicRotationSystem.orientations(type).random(random)
         return Piece(type, orientation, Position(Padlock.INSIDE.random(random), Padlock.INSIDE.random(random)))
     }

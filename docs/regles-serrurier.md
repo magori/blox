@@ -39,8 +39,8 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
   donc au moins une solution ; elle n'est pas forcément unique.
   **Tests :** `PadlockTest › the hole is the union of the cells of the solution`,
   `PadlockTest › two pieces of a solution cannot overlap`,
-  `PadlockTest › a padlock holds 3 to 6 pieces`,
-  `PadlockTest › a padlock of 3 or 6 pieces is accepted`,
+  `PadlockTest › a padlock holds 3 to 8 pieces`,
+  `PadlockTest › a padlock of 3 or 8 pieces is accepted`,
   `PadlockTest › every piece but the first touches an earlier one edge to edge`,
   `PadlockTest › a piece may touch any earlier piece, not only the one before it`.
 - Chaque pièce de la solution prend une orientation du Classique pour son type.
@@ -118,7 +118,7 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
    **Tests :** `PadlockGenerationTest › when every candidate is given up the next seed is tried`,
    `PadlockGenerationTest › when every candidate is ruled out the next seed is tried`,
    `PadlockGenerationTest › negative seeds give padlocks and the seed after the largest one is the smallest one`,
-   `PadlockGenerationTest › a padlock of fewer than 3 or more than 6 pieces is refused before any candidate is composed`,
+   `PadlockGenerationTest › a padlock of fewer than 3 or more than 8 pieces is refused before any candidate is composed`,
    `PadlockGenerationTest › a generation tries one seed at least`,
    `PadlockGenerationTest › when no seed gives a padlock within the bound the generator fails, 20 candidates per seed`,
    `PadlockGenerationTest › every padlock of 500 seeds has the pieces asked and a hole that is no rectangle`.
@@ -130,8 +130,10 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
 
 - Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
   serrure 4.
-  La serrure *n* d'une graine est `Padlock.generate(level, seed)`, seule entrée publique du
-  générateur.
+  La serrure *n* d'une graine est `Padlock.generate(level, seed)`, que l'écran utilise encore jusqu'à P7.30 (tous
+  les types, sans forme ni préférence, tirée sur `kotlin.random`). La serrure *n* stable de la progression,
+  `Padlock.ofLevel(level)`, suit les paliers jusqu'à 8 pièces (section [Progression](#progression), P7.29) ; elle
+  remplacera `generate` en P7.30.
   **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
   `PadlockGenerationTest › there is no padlock before padlock 1`,
   `PadlockGenerationTest › padlock n of a seed holds min of 6 and 2 plus n pieces`,
@@ -194,6 +196,37 @@ sont pas faites, le jeu suit les sections précédentes ; chaque règle ci-desso
 - **Ordre de travail** (P7.29) : un script mesure d'abord les serrures 1 à 100 (forme du trou, nombre de
   solutions plafonné à 5, effort du solveur) ; les poids de la note sont calés pour que la médiane monte de palier
   en palier ; alors seulement le contrat est figé.
+- **Fait** (P7.29) : `Padlock.ofLevel(level)` tire ses candidats sur `StableRandom` semé par *n* ; le repli de
+  l'essai *k* ≥ 1 part du premier nombre de `StableRandom((n shl 32) or k)`. Mesure des serrures 1 à 100
+  (`PadlockMeasure`, désactivé par défaut : `BLOX_PADLOCK_MEASURE=true`) : la médiane de l'effort du solveur (nœuds
+  visités) monte de palier en palier, 7 (Apprenti), 10 (Compagnon sinueux), 14 (Compagnon mixte), 30,5 (Artisan),
+  85 (Maître) ; toutes les serrures mesurées ont une solution unique. Génération des 100 serrures : 140 à 340 ms.
+  Poids retenus : contour par arête 10 (sinueuse), 5 (mixte), 2 (compacte) ; retrait par solution (compte plafonné à
+  5) 0 (libre), 15 (peu), 45 (unique) ; inchangés : +30 par type, −3 par case de la boîte. Le contrat fige l'ASCII
+  des serrures 1, 2, 3, 4, 7, 13, 21 et 31 à 35, et une empreinte SHA-256 des serrures 1 à 100.
+  **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
+  `PadlockProfileTest › beyond padlock 30 the padlocks turn on a cycle of 5`,
+  `PieceSetTest › a set draws its types in the order of the piece types, whatever was placed`,
+  `PieceSetTest › one of each draws the types not placed yet`,
+  `PadlockGeneratorTest › a candidate draws its pieces from its set`,
+  `PadlockGeneratorTest › a candidate of one of each holds the seven types once`,
+  `PadlockSolverTest › a hole that only its solution fills has one solution`,
+  `PadlockSolverTest › every cover is counted once, pieces of a type being alike`,
+  `PadlockSolverTest › the count stops at the cap`,
+  `PadlockRatingTest › each edge of the outline weighs as its shape asks, each solution takes off the weight of its preference`,
+  `PadlockRatingTest › the weights are those calibrated by the measure of padlocks 1 to 100`,
+  `PadlockLevelTest › the candidates of padlock n draw on StableRandom, seeded by the numbers of StableRandom of n`,
+  `PadlockLevelTest › when every candidate is given up, try k draws on the pair n, k mixed by SplitMix, not on n + k`,
+  `PadlockLevelTest › when no try gives a padlock within the bound the generator fails, 20 candidates per try`,
+  `PadlockLevelTest › padlock n holds the pieces of its profile`,
+  `PadlockContractTest › the first padlock of each tier and of each family of the cycle never changes`,
+  `PadlockContractTest › the padlocks 1 to 100 never change`,
+  `PadlockContractTest › no two of the first 200 padlocks have the same hole, translation aside`,
+  `PadlockContractTest › the draws per piece, the candidates and the solutions counted never change`,
+  `PadlockLevelTest › the seeds of the tries of neighbouring padlocks never meet`,
+  `PadlockLevelTest › a padlock takes one try at least`,
+  `PadlockProfileTest › a profile of one of each holds 7 pieces at most`,
+  `PadlockProfileTest › there is no padlock before padlock 1`.
 
 ### Paliers de difficulté
 
@@ -211,8 +244,9 @@ La difficulté monte par paliers aux noms de compagnonnage, puis tourne sur un c
 | 21 à 30 | Maître | 8 | tous | compacte | peu de solutions préférées |
 | 31 et plus | Maître | 7 ou 8 | cycle de 5, selon *n* modulo 5 | voir le cycle | voir le cycle |
 
-Cycle au-delà de 30 : 0 « un de chaque » (7 pièces, les 7 types une fois, forme mixte) ; 1 compacte de 8, solution
-unique préférée ; 2 « respiration » (8 pièces, forme sinueuse) ; 3 famille S, Z et T seulement (8 pièces, mixte) ;
+Cycle au-delà de 30 : 0 « un de chaque » (7 pièces, les 7 types une fois, forme mixte, peu de solutions) ; 1 compacte de 8, solution
+unique préférée ; 2 « respiration » (8 pièces, forme sinueuse) ; 3 famille S, Z et T seulement (8 pièces, mixte, peu de
+solutions) ;
 4 compacte de 8, peu de solutions préférées.
 
 - Un trou **sinueux** est facile (ses couloirs imposent les coups) ; un trou **compact** laisse plus de poses
@@ -221,7 +255,8 @@ unique préférée ; 2 « respiration » (8 pièces, forme sinueuse) ; 3 famille
 - « Peu de solutions » est un **terme de la note** (compte plafonné à 5), jamais un filtre : une serrure se trouve
   toujours. Toute serrure garde au moins une solution (le trou est construit à partir d'elle) ; l'indice reste
   suffisant.
-- Les suites d'accords s'étendent à 7 et 8 pièces (inspirées du canon de Pachelbel, domaine public, finissant sur
+- Les suites d'accords s'étendent à 7 et 8 pièces : I–V–vi–iii–IV–V–I et I–V–vi–iii–IV–ii–V–I (les cinq premiers
+  accords du canon de Pachelbel, domaine public, puis la cadence ; P7.29). Elles finissent sur
   V–I), à confirmer dans `docs/musique.md`.
 - Paliers lisibles sans bruit : une ligne sur la carte de la dernière serrure d'un palier (« Palier suivant :
   Artisan · 7 pièces ») et un en-tête par palier dans l'écran « Serrures » ; pas de fenêtre ni de bannière.
@@ -350,7 +385,7 @@ Tous les accords de la serrure, entendus ou non, sont `PadlockGame.progressionCh
 Ce sont des `Progression` de `core:music` (`PadlockChords.progression(pieceCount)`), sans type à part.
 **Tests :** `PadlockChordsTest › a padlock plays one chord per piece and ends on the perfect cadence V then I`,
 `PadlockChordsTest › the chords of a padlock follow the table of the rules`,
-`PadlockChordsTest › there are no chords for a padlock of fewer than 3 or more than 6 pieces`.
+`PadlockChordsTest › there are no chords for a padlock of fewer than 3 or more than 8 pieces`.
 
 **Son** : arpège de l'accord et basse deux octaves plus bas, joués ensemble ; fanfare de
 serrure ouverte ; son de refus (`LocksmithSounds`, valeurs dans [musique.md](musique.md#effets-sonores)). Ce
