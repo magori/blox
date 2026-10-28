@@ -74,6 +74,7 @@ internal class GameScreenKeysTest {
             newBest = false,
             resultsKept = true,
             previousBest = 0,
+            practice = false,
         ),
     )
 
