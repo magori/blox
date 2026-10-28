@@ -202,19 +202,19 @@ private fun roundedBorder(
     return { drawPath(path, color, style = stroke) }
 }
 
-/** The [dot] on the [centre] of the fill of a cell of [side] pixels, cut or not, on its halo, half as wide again. */
+/** The [dot] on the [centre] of the fill of a cell of [side] pixels, cut or not, on its halo. */
 private fun centreDot(
     dot: CellDot,
     side: Float,
     centre: Offset,
 ): DrawScope.() -> Unit {
     val radius = pixelsOf(dot.size, side) / 2
-    val haloRadius = radius * DOT_HALO
+    val haloRadius = dot.haloSize?.let { pixelsOf(it, side) / 2 } ?: (radius * DOT_HALO)
     return {
         drawCircle(dot.halo, radius = haloRadius, center = centre)
         drawCircle(dot.color, radius = radius, center = centre)
     }
 }
 
-/** How much wider than a dot its halo is. */
+/** How much wider than a dot its halo is, when its size is not given. */
 private const val DOT_HALO = 1.5f

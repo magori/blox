@@ -289,9 +289,48 @@ De haut en bas :
 - **Rangée d'information** : « Do pentatonique · 84 bpm » et un bouton « Tout effacer ».
 - **Bande des accords** : 4 pilules (noms de `RomanNumeral.name`), alignées sur les groupes de
   4 croches.
-- **Grille** de 16 × 14 cases de 22 dp, dans un cadre `board` ; un groupe de 4 croches sur deux
-  en `panel-inset` ; les notes en bulles de pièces (celles du plateau) ; un point `ink` sur halo
-  `page` pour les notes de l'accord. Cases sur le modèle de `LockCellCanvas` et `LockCellStyles`.
+- **Grille** de 16 × 14 cases de 22 dp (`garden-cell`), dans un cadre `board` ; un groupe de 4
+  croches sur deux sur une bande `garden-band` (`gardenBand`), ses cases libres en
+  `garden-band-cell` : de jour, `empty-cell` a la valeur de la bande et ne s'y verrait pas.
+  Cases dessinées par `GardenCellCanvas` (`core:board`, Couleurs seulement, P10.8), sur le modèle
+  de `LockCellCanvas` ; l'écran passe l'état de chaque case : `GardenCell` (libre, note, aperçu),
+  sa bande, sa place sous la tête de lecture (`GardenPlayHead`).
+  - case libre : la case vide du plateau, ou `garden-band-cell` dans une bande ;
+  - note : la bulle de sa pièce, celle du plateau ;
+  - note de l'accord de son groupe (notes posées seulement) : point `garden-chord-dot` de 6 dp sur
+    un halo `garden-chord-halo` de 2 dp ;
+  - aperçu (style partagé avec le Serrurier, `previewStyle`) : bulle estompée sur la case libre où
+    il se trouve, plate, cernée d'`ink` de 2 dp ; refusé, barré d'une croix `ink` de 2 dp sur un
+    halo `page`, case par case ;
+  - tête de lecture : colonne teintée `garden-play-head`, cernée de 2 dp en `ink` (2/22 de la
+    case) ; les cases libres sous la teinte, les notes et les aperçus par-dessus, le point et la
+    croix au-dessus du cadre.
+
+  Les repères ne reposent pas sur la couleur : le point, le contour, la croix et le cadre se lisent
+  à 3:1 au moins par leur encre ou leur halo (WCAG 1.4.11) ; le cadre de la tête de lecture se lit
+  contre les cases voisines non teintées et les cases libres teintées, pas contre les notes claires
+  de nuit qu'il recouvre. Jetons : `docs/design-system/tokens.json` (`garden-*`), codés dans
+  `core:board` ou listés non codés jusqu'à l'écran (P10.10) et aux retours (P10.15).
+  **Tests :** `GardenCellStylesTest › a free cell is the empty cell of the board`,
+  `GardenCellStylesTest › a free cell of a band has its own colour, apart from the band as the empty cell from the board`,
+  `GardenCellStylesTest › a note is a bubble of its piece, as on the board, in a band or not`,
+  `GardenCellStylesTest › a note of the chord bears a dot of 6 dp in a cell of 22 dp, on a halo of 2 dp more`,
+  `GardenCellStylesTest › the dot of the chord reads on every piece, by its ink or by its halo, and on no free cell`,
+  `GardenCellStylesTest › a preview that fits is flat and outlined in ink of 2 dp in a cell of 22 dp`,
+  `GardenCellStylesTest › a preview in a band fades over the free cell of the band`,
+  `GardenCellStylesTest › a refused preview is crossed out in ink of 2 dp in a cell of 22 dp, on a halo of the page`,
+  `GardenCellStylesTest › the cross of a refused preview reads on every piece, by its ink or by its halo`,
+  `GardenCellStylesTest › the play head is framed in ink of 2 dp, the frame standing out from the tinted cells by 3 to 1`,
+  `GardenCellStylesTest › the frame of the play head stands out from the untinted cells beside the column by 3 to 1`,
+  `GardenCellStylesTest › the garden has no style in the Original theme, it is drawn in the Colorful theme only`,
+  `GardenCellStylesTest › the band the screen draws behind a group is garden band`,
+  `PlayHeadFrameTest › the frame of the play head closes the column at its top cell and runs on below it`,
+  `PlayHeadFrameTest › the frame of the play head runs on above and below a cell in the middle of the column`,
+  `PlayHeadFrameTest › the frame of the play head closes the column at its bottom cell and runs on above it`,
+  `GardenTokensTest › each colour token of the garden is its colour in the code, day and night`,
+  `GardenTokensTest › each size token of the garden is its size in the code`,
+  `GardenTokensTest › every garden token of tokens json is coded in core board or listed as not coded, with its reason` ;
+  captures `GardenCells`, `GardenCellsNight`. Vues : V40.
 - **Message** sur 2 lignes, en `ink` : ce qu'on peut faire, ou la raison d'un refus.
 - **Bac** de 2 rangées de 4 tuiles de 84 × 52 dp : les 7 pièces (`PieceTile`, partagée avec le
   Serrurier dans `core:board`) et « Retirer ».

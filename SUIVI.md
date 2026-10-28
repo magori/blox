@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 254 / 322 | `████████████████░░░░` **79 %** |
+| **Général** | 255 / 322 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1510,8 +1510,8 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   20 candidats (décision du développeur, 2026-10-27), note de départ à régler à l'oreille (P10.17). Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
   composed garden holds 6 pieces placed without overlap` (devenu `every seed composes a garden of 6 pieces`), `the best candidate is kept, the first one among equals`,
   `a candidate does not depend on the draws of the previous ones`.
-- [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
-  case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
+- [x] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
+  case libre, groupe en bande (`garden-band`), note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
   colorés ; jetons gardés par un test ; captures jour et nuit. Reporter dans `docs/design-system/tokens.json` les jetons
   `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
   pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
