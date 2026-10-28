@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 260 / 349 | `███████████████░░░░░` **74 %** |
+| **Général** | 261 / 349 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -952,7 +952,7 @@ composants.
   Cas : `the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
   `the gauge chooses the start level and saves it`, `every target of the home is 48 dp at least on 360 dp`,
   `TalkBack reads the parts in the order of the screen` ; `HomeScreenTest` revu ; captures, police ×2.
-- [ ] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
+- [x] **P5.76** Feuille Musique (`feature:home`) : (à trancher ici : le rappel sous Jouer dit « Mon fichier » même si le fichier manque, P5.75) feuille qui monte (`motion-card`), une rangée de 56 dp par
   musique (Korobeïniki, Menuet, Mon fichier, musique en jeu, Aucune), coche et Écouter ; choisir enregistre sans
   fermer ; un seul aperçu à la fois ; feuille en `BloxSheet` et rangées en `SheetChoiceRow` (P5.96), Écouter en
   `ListenButton` (P5.94). Après P5.75, P5.94, P5.96.

@@ -27,8 +27,15 @@
     <string name="feature_home_music_my_file">Mon fichier</string>
     <string name="feature_home_music_live">Vivante</string>
     <string name="feature_home_music_none">Aucune</string>
-    <!-- La musique personnelle choisie pour les parties, lue par TalkBack : son nom, puis « en jeu ». -->
-    <string name="feature_home_music_game_description">%1$s, en jeu</string>
+    <!-- Rangée Musique de la carte, qui ouvre la feuille Musique : lue par TalkBack avec la musique qu'elle montre. -->
+    <string name="feature_home_music_open">Musique : %1$s. Choisir une autre musique</string>
+    <!-- Sous-lignes des rangées de la feuille Musique. -->
+    <string name="feature_home_music_public_domain">Mélodie du domaine public, arrangée pour BloX</string>
+    <string name="feature_home_music_my_file_kept">Un fichier audio de l\'appareil</string>
+    <string name="feature_home_music_my_file_pick">Choisir un fichier audio</string>
+    <string name="feature_home_music_live_sub_line">Calme, puis tendue quand la pile monte</string>
+    <string name="feature_home_music_game_sub_line">Ma musique · en jeu</string>
+    <string name="feature_home_music_none_sub_line">Pas de musique pendant les parties</string>
     <string name="feature_home_change_file">Changer</string>
     <string name="feature_home_change_file_description">Changer de fichier</string>
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->

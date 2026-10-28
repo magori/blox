@@ -10,10 +10,11 @@ import ch.magori.blox.feature.game.music.GameMusic
 import kotlinx.coroutines.flow.first
 
 /**
- * What plays in place of « Mon fichier » when it has no file to play: no file chosen (as on another device, the
- * settings restored without the file, which never leaves this one), or a file that can no longer be read.
+ * The score of [MusicChoice.MY_FILE_FALLBACK], which plays in place of « Mon fichier » when it has no file to play: no
+ * file chosen (as on another device, the settings restored without the file, which never leaves this one), or a file
+ * that can no longer be read. The home screen names it then in its reminder.
  */
-internal val FALLBACK_SCORE: Score = Scores.korobeiniki
+internal val FALLBACK_SCORE: Score = checkNotNull(scoreOf(MusicChoice.MY_FILE_FALLBACK))
 
 /**
  * The BloX score a music [choice] plays the same from one game to the next; null when the choice has none: no music,

@@ -34,6 +34,13 @@ internal data class HomeUiState(
      * music selected.
      */
     val selectedMusic: MusicChoice? get() = music.takeIf { gameMusic == null }
+
+    /**
+     * The music choice the reminder under Jouer names, the one the game will play: [music], unless « Mon fichier » has
+     * no file, when the game plays [MusicChoice.MY_FILE_FALLBACK] in its place.
+     */
+    val remindedMusic: MusicChoice
+        get() = if (music == MusicChoice.MY_FILE && !hasMusicFile) MusicChoice.MY_FILE_FALLBACK else music
 }
 
 /**

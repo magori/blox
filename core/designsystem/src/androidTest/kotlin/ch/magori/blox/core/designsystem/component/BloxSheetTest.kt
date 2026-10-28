@@ -96,7 +96,7 @@ internal class BloxSheetTest {
 
         // When it opens again, and the scrim is touched, above the sheet
         runOnIdle { open = true }
-        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
+        onNode(isDialog()).tapScrim()
 
         // Then
         runOnIdle { assertThat(closings).isEqualTo(2) }
@@ -112,7 +112,7 @@ internal class BloxSheetTest {
 
         // When the system goes back, then the scrim is touched twice
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        repeat(2) { onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) } }
+        repeat(2) { onNode(isDialog()).tapScrim() }
 
         // Then
         runOnIdle { assertThat(closings).isEqualTo(1) }
@@ -261,9 +261,6 @@ internal class BloxSheetTest {
     private companion object {
         const val TITLE = "Au hasard"
         const val FIRST_CHOICE = "Surprise"
-
-        /** How far from the top of the screen the scrim is touched: far above the sheet. */
-        val SCRIM_TAP = 120.dp
 
         /** A keyboard, high enough to leave little room to the sheet. */
         val KEYBOARD = 320.dp
