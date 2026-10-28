@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,8 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
@@ -38,6 +35,7 @@ import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
+import ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -63,8 +61,8 @@ import kotlinx.coroutines.delay
 /**
  * The music editor (V8, V11) of [viewModel]; [onBack] leaves it, and [onDeleted] once its music is deleted, with what
  * was deleted. While the music is listened to, the screen hands each frame to the view model, which moves the play head
- * on (ADR 0012), and its lifecycle events, which stop the music once the editor is no longer visible. Retour, the
- * button or the gesture of the system, asks the view model, which leaves at once or asks first.
+ * on (ADR 0012); the music stops once the editor is no longer visible. Retour, the button or the gesture of the system,
+ * asks the view model, which leaves at once or asks first.
  */
 @Composable
 internal fun ComposerScreen(
@@ -82,14 +80,7 @@ internal fun ComposerScreen(
             }
         }
     }
-    // The view model decides what each event of the screen means for the music listened to (tested there); this
-    // observer, without a JVM test, only hands the events over.
-    val lifecycle = LocalLifecycleOwner.current.lifecycle
-    DisposableEffect(lifecycle, viewModel) {
-        val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
-        lifecycle.addObserver(observer)
-        onDispose { lifecycle.removeObserver(observer) }
-    }
+    ScreenHiddenEffect(onHidden = viewModel::onHidden)
     NavigationBackHandler(
         state = rememberNavigationEventState(NavigationEventInfo.None),
         // Until the music is read, Retour goes to the navigation: there is nothing to lose yet.

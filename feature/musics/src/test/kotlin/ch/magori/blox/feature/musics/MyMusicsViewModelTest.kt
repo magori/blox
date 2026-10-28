@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.musics
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
@@ -277,25 +276,10 @@ internal class MyMusicsViewModelTest {
         }
     }
 
-    @Test
-    fun `a pause of the list alone, behind a dialog or in a split screen, lets the music listened to play on`() =
-        runMyMusicsTest {
-            // Given
-            val evening = aSavedMusic("Thème du soir")
-            val viewModel = myMusics()
-            viewModel.onListen(evening.id)
-
-            // When
-            viewModel.onLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-
-            // Then
-            assertThat(music.playing).isEqualTo(evening.id)
-        }
-
     /** The ways the list is no longer seen, the entry still on the stack. */
     enum class Hiding(val hide: (MyMusicsViewModel) -> Unit) {
         /** The application in the background, or the screen off. */
-        STOPPED({ it.onLifecycleEvent(Lifecycle.Event.ON_STOP) }),
+        STOPPED({ it.onHidden() }),
 
         /** *Nouvelle* or *Au hasard*: the editor opens over the list, and plays its own music. */
         EDITOR_OPENED({ it.onEditorOpened() }),

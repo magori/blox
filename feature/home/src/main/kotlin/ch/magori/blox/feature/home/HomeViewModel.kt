@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.home
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -203,13 +202,10 @@ class HomeViewModel(
     internal fun onChangeGame() = stopPreview()
 
     /**
-     * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
-     * the background, or a game in front), the music being listened to stops. A pause alone, behind a
-     * dialog or in a split screen, lets it play on.
+     * The home screen is no longer visible (the application in the background, or a game in front): the music being
+     * listened to stops ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_STOP) stopPreview()
-    }
+    internal fun onHidden() = stopPreview()
 
     /** The home screen leaves the stack: the music being listened to stops with it. */
     override fun onCleared() = stopPreview()

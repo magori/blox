@@ -288,7 +288,7 @@ des candidats, évaluer, garder le meilleur.
   **Tests :** `GardenListeningTest › Écouter plays the score of the garden in a loop, from its first column`,
   `GardenListeningTest › Arrêter stops the score of the garden, and no column is played`,
   `GardenListeningTest › nothing is listened to while the garden kept is being read`,
-  `GardenListeningTest › the score stops once the garden is no longer visible, not on a pause`,
+  `GardenListeningTest › the score stops once the garden is no longer visible`, `ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`, `ScreenHiddenEffectTest › a screen left says nothing more when its lifecycle stops afterwards`,
   `GardenListeningTest › the score stops when the garden is left`,
   `GardenListeningTest › a score that stops by itself shows Écouter again`,
   `GardenListeningTest › a score refused at once shows Écouter again`,

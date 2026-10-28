@@ -39,7 +39,7 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `HomeViewModelTest › choosing the music being previewed lets it play on`,
 `HomeViewModelTest › playing stops the preview`,
 `HomeViewModelTest › the preview stops when the screen goes to the background, never the music of a game started since`,
-`HomeViewModelTest › the preview plays on while the screen is still visible`,
+`ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`,
 `HomeViewModelTest › leaving the home screen stops the preview`,
 `HomeViewModelTest › leaving the home screen with no music listened to lets the music of the game play, without any stop`,
 `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,

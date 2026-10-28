@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.garden
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import ch.magori.blox.core.audio.FakeMusicPlayer
@@ -120,17 +119,14 @@ class GardenListeningTest {
     }
 
     @Test
-    fun `the score stops once the garden is no longer visible, not on a pause`() {
+    fun `the score stops once the garden is no longer visible`() {
         // Given
         viewModel.listen()
 
-        // When the garden is paused (a dialog over it), then goes to the background
-        viewModel.onLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        val paused = music.calls.toList()
-        viewModel.onLifecycleEvent(Lifecycle.Event.ON_STOP)
+        // When the garden goes to the background
+        viewModel.onHidden()
 
         // Then
-        assertThat(paused).containsExactly(PLAY)
         assertThat(music.calls).containsExactly(PLAY, "stop")
         assertThat(viewModel.uiState.value?.playedColumn).isNull()
     }
