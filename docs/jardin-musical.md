@@ -310,6 +310,22 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   gardé. » puis « Garde celui-ci pour le retrouver plus tard. »), échec (« L'opération a échoué. »), fichier
   d'une version plus récente (liste vide, écriture bloquée, message écrit). Un jardin vide ne se garde pas
   (« Pose au moins une pièce pour garder ce jardin. »).
+- **Miniature** (`GardenThumbnail`, `core:board`, P10.31) : la grille du jardin en 16 × 14 cases plates de 3 dp
+  (`garden-thumb-cell`, 48 × 42 dp), bords sur des pixels entiers, cases libres comme sur la grille (`empty-cell`,
+  `garden-band-cell` dans un groupe de 4 croches sur deux), cases des notes à la couleur de leur pièce ; décorative
+  (la rangée dit ce qu'elle montre). Dessinée en 4 rectangles de fond puis une case par note, la liste en montrant
+  jusqu'à 30. Son contour sur `panel` reste à décider (P10.29).
+  **Tests :** `GardenThumbnailTest › an empty garden is drawn in 4 rectangles, one per group of 4 eighths, out of a band then in one`,
+  `GardenThumbnailTest › each note is drawn after the free groups, as one cell in the colour of its piece`,
+  `GardenThumbnailTest › a free cell out of a band shows the colour of a free cell of the garden, the empty cell`,
+  `GardenThumbnailTest › a free cell of a group of 4 eighths out of two shows the colour of a free cell of a band, as on the grid`,
+  `GardenThumbnailTest › a cell of a piece shows the colour of its piece, as on the board, in a band or not`,
+  `GardenThumbnailTest › a thumbnail is drawn in the Colorful theme only, as the garden`,
+  `GardenThumbnailTest › the edges of the cells lie on whole pixels from one end to the other, the cells within a pixel in size`,
+  `GardenCellStylesTest › a group of 4 eighths out of two lies in a band, the second first`,
+  `GardenThumbnailDrawingTest › a thumbnail is decorative, 48 by 42 dp: TalkBack does not read it, its row says what it shows`,
+  `GardenThumbnailDrawingTest › at a density that cuts a cell in a fraction of a pixel, the cells meet without a seam` ;
+  captures `GardenThumbnails`, `GardenThumbnailsNight`.
 - **Garder** : sans fenêtre de confirmation ; message « « X » gardé. » ; le point du disque s'éteint. Échec :
   la fenêtre reste ouverte, « L'opération a échoué. ».
 - **Rouvrir** : toucher une rangée ferme la feuille et remplace le jardin en cours (`adopt`, à la mesure
