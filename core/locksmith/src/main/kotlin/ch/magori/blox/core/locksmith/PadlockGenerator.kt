@@ -87,7 +87,7 @@ internal object PadlockGenerator {
         val box = (hole.maxOf { it.column } - hole.minOf { it.column } + 1) *
             (hole.maxOf { it.row } - hole.minOf { it.row } + 1)
         if (box == hole.size) return null
-        val outline = hole.sumOf { cell -> Padlock.NEIGHBOURS.count { cell + it !in hole } }
+        val outline = hole.sumOf { cell -> cell.neighbours().count { it !in hole } }
         val kinds = padlock.givenPieces.distinct().size
         return 10 * outline + 30 * kinds - 3 * box
     }
