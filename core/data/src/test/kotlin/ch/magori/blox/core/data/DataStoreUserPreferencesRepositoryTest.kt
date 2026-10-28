@@ -8,12 +8,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.job
-import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
@@ -262,13 +258,6 @@ class DataStoreUserPreferencesRepositoryTest :
     /** Writes the settings file with a DataStore of its own, closed before the test goes on. */
     private suspend fun TestScope.writeSettingsFile(write: (MutablePreferences) -> Unit) = inScopeClosedAfter { scope ->
         preferencesDataStore(scope) { file.absolutePath.toPath() }.edit(write)
-    }
-
-    /** Runs [block] in a scope of its own, then closes it: the DataStores living in it release the file. */
-    private suspend fun TestScope.inScopeClosedAfter(block: suspend (CoroutineScope) -> Unit) {
-        val scope = CoroutineScope(StandardTestDispatcher(testScheduler) + Job())
-        block(scope)
-        scope.coroutineContext.job.cancelAndJoin()
     }
 
     /** The settings file of the test, in [directory]. */

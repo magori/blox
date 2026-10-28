@@ -4,13 +4,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import ch.magori.blox.core.music.MusicFile
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.job
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.assertj.core.api.Assertions.assertThat
@@ -65,13 +60,6 @@ class DataStoreMusicFileRepositoryTest :
     }
 
     override fun emptyRepository(scope: CoroutineScope): MusicFileRepository = repositoryIn(scope)
-
-    /** Runs [block] in a scope of its own, then closes it: the DataStores living in it release the file. */
-    private suspend fun TestScope.inScopeClosedAfter(block: suspend (CoroutineScope) -> Unit) {
-        val scope = CoroutineScope(StandardTestDispatcher(testScheduler) + Job())
-        block(scope)
-        scope.coroutineContext.job.cancelAndJoin()
-    }
 
     /** The file of the music file, in [directory]. */
     override val file: File get() = File(directory, MY_MUSIC_FILE)

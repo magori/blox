@@ -209,13 +209,42 @@ des candidats, évaluer, garder le meilleur.
 ## Jardin gardé
 
 - Le dernier jardin (pièces et ambiance) est **gardé automatiquement** (DataStore, fichier à lui,
-  décision du développeur) à chaque pose, reprise, effacement ou changement d'ambiance, et
-  retrouvé à l'ouverture. Pas de bouton Enregistrer.
+  `garden.bin`, décision du développeur) à chaque pose, reprise, effacement ou changement
+  d'ambiance, et retrouvé à l'ouverture. Pas de bouton Enregistrer. Dépôt `GardenRepository`
+  (`core:data`, P10.11) : le jardin en `Flow`, vide et calme (`Garden.EMPTY`) tant que rien n'est
+  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran devra la rattraper, P10.18).
 - **Pas d'export** vers « Mes musiques » en v1 (décision du développeur).
-- Un jardin illisible (format inconnu) est remplacé par un jardin vide, sans erreur à l'écran ;
-  le format porte une version.
-- Inclus dans la sauvegarde du téléphone **[à vérifier]**.
+- **Format versionné** (version 1, amendement de l'ADR 0027) : « BLXG », la version, le nom de
+  l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
+  ligne), ses 4 cases en décalages depuis le pivot, ligne par ligne (le fichier ne dépend pas de
+  l'ordre des orientations). Les noms d'ambiance et de type ne changent plus. À la lecture, chaque
+  pièce est reposée dans le jardin comme par le joueur.
+- Un jardin illisible (pas un jardin, tronqué, octets après la dernière pièce, ambiance ou type
+  inconnus, pièce hors grille, superposée ou de forme étrangère à son type) est d'abord copié dans
+  `garden.bin.corrupt`, puis remplacé par un jardin vide et calme, sans erreur à l'écran. Un
+  fichier d'une version plus récente (restauré depuis un BloX plus récent) donne un jardin vide mais
+  est gardé tel quel : aucune écriture tant que cette version n'est pas là, comme les musiques.
+- Inclus dans la sauvegarde du téléphone (décision du développeur, 2026-10-28 : une création du
+  joueur, comme « Mes musiques »).
 - Pas de records ni de compteurs : rien n'est noté.
+
+  **Tests :** `GardenRepositoryContract › without a garden kept the garden is empty and calm`,
+  `GardenRepositoryContract › the last garden kept is the one read, in place of the one before`,
+  `GardenRepositoryContract › a garden that cannot be kept fails with an IOException, and the garden kept before is read`,
+  `GardenRepositoryContract › the garden read follows each garden kept`,
+  `DataStoreGardenRepositoryTest › the garden kept is read back, its mood too`,
+  `DataStoreGardenRepositoryTest › an unreadable garden gives an empty one`,
+  `DataStoreGardenRepositoryTest › a corrupted garden file is copied aside before it is replaced`,
+  `DataStoreGardenRepositoryTest › a garden file of version 1 is read as it was written, a format that must not change`,
+  `DataStoreGardenRepositoryTest › a garden is written in version 1, its mood then each piece by its type, its pivot and its cells`,
+  `DataStoreGardenRepositoryTest › the cells of a piece are written row by row from the top, whatever the order of its orientation`,
+  `DataStoreGardenRepositoryTest › a garden file of a later version gives an empty garden, and is kept for that version`,
+  `DataStoreGardenRepositoryTest › a garden file of a version below 1 is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file holding two pieces on the same cells is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file holding what no garden can be is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file that counts billions of pieces gives an empty garden, without allocating them`,
+  `DataStoreGardenRepositoryTest › the names of the enums written in the garden file do not change`,
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`.
 
 ## Son
 

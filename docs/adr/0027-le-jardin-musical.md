@@ -57,3 +57,18 @@ l'écran).
 - La cartouche attend le choix du jeu à cinq cartouches (ADR 0026).
 - L'export d'un jardin vers « Mes musiques » demandera de le traduire au format des musiques
   enregistrées (ADR 0017) : hors v1.
+
+## Amendement (P10.11, 2026-10-28) : le format du jardin gardé
+
+Le jardin gardé est un fichier binaire à lui, `garden.bin`, dans un format de BloX versionné
+(version 1), écrit sur Okio comme les musiques (ADR 0017) : « BLXG », la version, le nom de
+l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce par le nom de son type, son pivot
+et ses 4 cases en décalages depuis le pivot, triées ligne par ligne. Les cases plutôt qu'un numéro
+d'orientation : le fichier ne dépend pas de l'ordre des orientations de `ClassicRotationSystem`, et
+une forme étrangère à son type se détecte au lieu de donner une autre forme en silence ; un test
+d'octets fige le format. À la lecture, chaque pièce est reposée par `Garden.place` ; tout ce
+qu'aucun jardin ne peut contenir rend le fichier corrompu, copié dans `garden.bin.corrupt` puis
+remplacé par un jardin vide et calme. Une version plus récente est gardée telle quelle, sans
+écriture, comme les musiques. `core:data` dépend de `core:garden` en `api` (le `Garden` est dans
+son API publique, sans type parallèle) ; le fichier entre dans la sauvegarde Android (décision du
+développeur).
