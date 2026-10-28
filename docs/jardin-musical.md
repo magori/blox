@@ -33,10 +33,13 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 - **16 colonnes × 14 lignes.** 16 croches font **2 mesures de 4/4** ; elles se rangent en
   **4 groupes de 4 croches** (une demi-mesure chacun), un accord par groupe.
 - Les 14 lignes sont **14 degrés consécutifs** de la gamme de l'ambiance, du plus grave (ligne 13)
-  au plus aigu (ligne 0). La ligne 13 est la **tonique Do 4** (C4) dans toutes les ambiances
-  **[à vérifier]** à l'oreille : une gamme de 7 notes couvre alors deux octaves exactes (Do 4 à
-  Si 5), la pentatonique près de trois (Do 4 à Sol 6), ce qui peut être trop aigu ; on pourrait
-  partir de Do 3 pour la pentatonique.
+  au plus aigu (ligne 0). La ligne 13 est la **tonique** : **Do 4** (C4) dans toutes les ambiances,
+  si bien qu'une gamme de 7 notes couvre deux octaves exactes (Do 4 à Si 5) ; **Do 3** pour Calme,
+  dont la pentatonique couvre alors Do 3 à Sol 5 au lieu de monter jusqu'à Sol 6 (décision du
+  développeur, 2026-10-27 : valeurs de départ en constantes nommées, réglage à l'oreille plus tard).
+  **Tests :** `GardenMoodTest › the bottom row is the tonic, C4 for every mood but the calm one, on C3`,
+  `GardenMoodTest › each mood has 14 rows of its scale, the tonic on the bottom row`,
+  `GardenMoodTest › a cell off the grid has neither note nor chord`.
 - Une pièce posée a toutes ses cases dans la grille et ne chevauche aucune autre pièce ; sinon la
   pose est **refusée**, avec sa raison : `OUT_OF_GRID` (l'équivalent du `OUT_OF_HOLE` du
   Serrurier), puis `OVERLAP`, la première l'emportant, comme au Serrurier. Une pièce peut toucher
@@ -80,24 +83,38 @@ Une ambiance fixe la **gamme**, la **suite des 4 accords** (un par groupe de 4 c
 
 | Ambiance | `GardenMood` | Catégorie | Gamme | Accords | Tempo |
 |---|---|---|---|---|---|
-| Joyeux | `JOYFUL` | `JOYFUL` | Do majeur | I – V – vi – IV | 132 temps/min **[à vérifier]** |
+| Joyeux | `JOYFUL` | `JOYFUL` | Do majeur | I – V – vi – IV | 132 temps/min |
 | Calme | `CALM` | `CALM` | Do pentatonique majeure | I – vi – IV – V | 84 temps/min |
-| Mystère | `MYSTERIOUS` | `MYSTERIOUS` | Do mineur harmonique | i – ♭VII – VI – V | 100 temps/min **[à vérifier]** |
-| Épique | `EPIC` | `EPIC` | Do mineur naturel | i – VI – III – VII | 120 temps/min **[à vérifier]** |
+| Mystère | `MYSTERIOUS` | `MYSTERIOUS` | Do mineur harmonique | i – ♭VII – VI – V | 100 temps/min |
+| Épique | `EPIC` | `EPIC` | Do mineur naturel | i – VI – III – VII | 120 temps/min |
 
-- Les accords sont des `Progression` de `core:music` ; leurs noms (pilules) viennent de
-  `RomanNumeral.name` (P7.17).
+- Les tempos sont les valeurs de départ décidées par le développeur (2026-10-27), en constantes
+  nommées, à régler à l'oreille sur un téléphone.
+- Les accords sont des `Progression` de `core:music`, déclarées par chaque ambiance (`GardenMood`)
+  comme dans le tableau, un accord par groupe de 4 croches (colonnes 0–3, 4–7, 8–11, 12–15) ; un
+  test garde le lien avec la catégorie : la suite fait partie des progressions de son harmonie sur
+  la gamme de l'ambiance. Leurs noms (pilules) viennent de `RomanNumeral.name` (P7.17).
+  **Tests :** `GardenMoodTest › each mood plays 4 chords, one per group of 4 eighths`,
+  `GardenMoodTest › each mood plays a progression of its category`.
 - Le tempo de chaque ambiance est pris dans l'intervalle de sa catégorie ; Calme vaut 84 (la
-  conception l'affiche ainsi : « Do pentatonique · 84 bpm »), les autres sont à régler à
-  l'oreille.
+  conception l'affiche ainsi : « Do pentatonique · 84 bpm »).
+  **Tests :** `GardenMoodTest › each mood plays at its tempo, within the range of its category`.
 - Une **note de l'accord** est une case dont la note appartient (à l'octave près) à l'accord de
-  son groupe : l'écran la marque d'un point.
-- Changer d'ambiance garde les pièces à leur place : les mêmes cases sonnent dans l'autre gamme.
-  L'ambiance par défaut est Calme.
+  son groupe, même quand la fondamentale de l'accord est hors de la gamme (le ♭VII de Mystère) :
+  l'écran la marque d'un point.
+  **Tests :** `GardenMoodTest › a cell is a note of the chord when its note belongs to the chord of its group`.
+- L'ambiance fait partie du jardin (`Garden.mood`, décision P10.5) : changer d'ambiance
+  (`withMood`) garde les pièces à leur place, et les mêmes cases sonnent dans l'autre gamme ;
+  poser, reprendre et tout effacer gardent l'ambiance. L'ambiance par défaut est Calme
+  (`Garden.EMPTY`, `Garden.parse`).
+  **Tests :** `GardenTest › changing the mood keeps the pieces where they are`,
+  `GardenTest › placing or taking back a piece keeps the mood`,
+  `GardenTest › clearing the garden keeps its mood`,
+  `GardenTest › an empty garden is calm`.
 
 ## Partition : `Garden.toScore`
 
-`Garden.toScore(mood)` rend la partition du jardin, une `Score` de 2 mesures de 4 temps au tempo
+`Garden.toScore()` rend la partition du jardin dans son ambiance (`Garden.mood`), une `Score` de 2 mesures de 4 temps au tempo
 de l'ambiance, jouée **en boucle**. C'est une fonction pure.
 
 - **Une case = une croche** : la note de sa ligne, jouée pendant la croche de sa colonne.
@@ -116,7 +133,7 @@ de l'ambiance, jouée **en boucle**. C'est une fonction pure.
   précédentes), si bien que la somme vaut exactement la croche. Un test le vérifie
   (`a column of three cells keeps the length of the bar exact`).
 - **Deux pièces dans la même colonne** sonnent ensemble, chacune selon sa propre règle.
-- **Basse** : la fondamentale de l'accord de chaque groupe, deux octaves sous la tonique, une
+- **Basse** : la fondamentale de l'accord de chaque groupe, deux octaves sous la tonique (pour Calme, dont la tonique est Do 3, cela donnerait Do 1, sans doute trop grave : à trancher en P10.6), une
   noire par temps, à faible volume **[à vérifier]** : elle fait entendre la suite d'accords même
   sur un jardin vide. La retirer est une option.
 - **Sans saturation** : jusqu'à 14 notes peuvent sonner ensemble. Une `Voice` de `core:music` est
@@ -133,7 +150,7 @@ de l'ambiance, jouée **en boucle**. C'est une fonction pure.
 Le dé « Au hasard » compose un jardin, sur le principe du générateur et du Serrurier : composer
 des candidats, évaluer, garder le meilleur.
 
-- `GardenComposer.compose(mood, seed)` est une **fonction pure de la graine**, sur le générateur
+- `GardenComposer.compose(mood, seed)` rend un jardin dans cette ambiance ; c'est une **fonction pure de la graine**, sur le générateur
   stable `StableRandom` (P1.20) : la même graine et la même ambiance rendent le même jardin.
 - Un candidat pose **6 pièces** **[à vérifier]** : pour chacune, des essais d'un type, d'une
   orientation et d'un pivot, gardés si la pose est acceptée ; un candidat qui ne pose pas toutes
@@ -225,7 +242,7 @@ cadencés en ticks :
 
 ## Points ouverts
 
-- Hauteur de la grille (Do 3 ou Do 4), tempos, basse, volume des voix, note du composeur : à
+- Tempos, basse, volume des voix, note du composeur : valeurs de départ, à
   régler à l'oreille (ci-dessus, **[à vérifier]**).
 - Export vers « Mes musiques », plusieurs jardins, partage : hors v1.
 - Téléphone couché et tablette : la grille de 16 colonnes s'y prête mieux ; à dessiner plus tard.

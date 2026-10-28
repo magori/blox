@@ -23,7 +23,7 @@ l'écran).
 - **`core:garden`**, Kotlin pur (`blox.jvm.library`, `explicitApi`), avec `api(core:game)` et
   `api(core:music)` : son API expose `Piece`, `PieceType`, `Position`, `Orientation`, `Score`,
   `Scale` et `Progression`. Les pièces posées sont des `Piece` de `core:game`, sans type parallèle.
-  Il porte le jardin immuable (`Garden` : poser, refuser, reprendre, effacer), les ambiances
+  Il porte le jardin immuable (`Garden` : poser, refuser, reprendre, effacer, changer d'ambiance — le jardin porte son ambiance, amendement P10.5), les ambiances
   (`GardenMood` : gamme, accords, tempo), la partition (`Garden.toScore`) et le dé
   (`GardenComposer`). Ni son joué, ni couleur, ni temps réel.
 - **Le dé est une fonction pure de la graine**, sur le générateur stable `StableRandom` (P1.20,
