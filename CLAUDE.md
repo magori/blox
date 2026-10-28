@@ -297,4 +297,4 @@ La commande `/fin-de-tache` les déroule.
      (`Tâche : P1.3`). Le skill `/commit` porte la table des gitmoji et rédige le message.
    - Push, attendre que la CI soit verte, puis fusionner dans `main`.
    - Sur `main` fusionné : `scripts/avancement.sh`, puis un commit `📊 docs(suivi): avancement` s’il a changé
-     quelque chose (après plusieurs fusions d’ffilée, une seule fois à la fin).
+     quelque chose (après plusieurs fusions d’affilée, une seule fois à la fin).
