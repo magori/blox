@@ -260,6 +260,31 @@ internal fun LocksmithHintSwellDayPreview() {
     LocksmithPreview(hintState(), feedbackTick = 15)
 }
 
+/** A padlock of 6 pieces, the first one chosen, its tiles shrunk to 48 dp to hold on one row of a phone of 360 dp. */
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+internal fun LocksmithSixTilesDayPreview() {
+    LocksmithPreview(sixTilesState())
+}
+
+/** The same on a phone of 320 dp: under 48 dp on one row, the tiles go on two rows of 3, at 52 dp. */
+@Preview(widthDp = 320, heightDp = 800)
+@Composable
+internal fun LocksmithSixTilesNarrowDayPreview() {
+    LocksmithPreview(sixTilesState())
+}
+
+/** Padlock 3, of 5 pieces, on 300 dp: under 48 dp on one row, its tiles go on two rows, the last one centred. */
+@Preview(widthDp = 300, heightDp = 800)
+@Composable
+internal fun LocksmithFiveTilesNarrowDayPreview() {
+    LocksmithPreview(LocksmithUiState(level = 3, game = start.select(0)))
+}
+
+/** Padlock 4 of seed 7, of 6 pieces, the most a padlock holds, the first one chosen. */
+private fun sixTilesState(): LocksmithUiState =
+    LocksmithUiState(level = 4, game = PadlockGame.start(Padlock.generate(level = 4, seed = 7)).select(0))
+
 /** Reduced effects, as the player chooses them. */
 private val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
 

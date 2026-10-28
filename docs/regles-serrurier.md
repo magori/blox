@@ -438,8 +438,26 @@ droite.
   **Tests :** `PieceCellsTest › a piece in any orientation, as a tile shows it, is its cells brought to the origin, with its size`,
   `PieceTileTest › a tile is a button read by the name and the state it is given, chosen, its piece without a node of its own`,
   `PieceTileTest › without a piece, a tile is an empty slot, not chosen, which a touch still reaches`,
-  `PieceTileTest › the size the screen gives a tile wins over that of a touch target, as the wide tiles of the garden` ;
-  captures `PieceTiles`, `PieceTilesNight`. Vues : V35.
+  `PieceTileTest › the size the screen gives a tile wins over that of a touch target, as the wide tiles of the garden`,
+  `PieceTileTest › a tile of 48 dp, the least a screen gives it, draws its piece in its colour, never in black`,
+  `PieceTileTest › in a tile of 48 dp, the piece stays centred as in a tile of 52 dp, to a pixel` ;
+  captures `PieceTiles`, `PieceTilesNight`, `PieceTilesShrunk`. Vues : V35.
+- **Bac à la largeur** (P7.41) : sur une rangée, les tuiles font 52 dp au plus et rétrécissent jusqu'à 48 dp pour
+  tenir entre les marges (6 tuiles de 48 dp à 360 dp) ; en dessous de 48 dp, elles passent sur deux rangées, de
+  4 au plus, la première prenant la tuile en trop, la seconde centrée sous elle (`trayLayout`). Le calcul se fait
+  en pixels entiers, comme Compose pose les tuiles et leurs écarts : une rangée ne dépasse jamais la largeur.
+  Une tuile plus petite que 52 dp garde le canevas de sa pièce à 52 dp, centré : la pièce garde sa taille.
+  **Tests :** `TrayLayoutTest › 6 tiles of 52 dp hold on one row of a phone of 390 dp`,
+  `TrayLayoutTest › on a phone of 360 dp, 6 tiles shrink to 48 dp to hold on one row`,
+  `TrayLayoutTest › rather than shrink under 48 dp, 7 tiles go on two rows, of 4 then 3, at 52 dp`,
+  `TrayLayoutTest › the tiles of a row, laid out in whole pixels, never pass its width`,
+  `TrayLayoutTest › where they hold at 52 dp, the tiles are as large as a tile lays itself out, 52 dp rounded to whole pixels`,
+  `TrayLayoutTest › from 1 to 8 tiles, on a phone of 320 dp to 412 dp, each is 48 to 52 dp, on two rows of 4 at most`,
+  `LocksmithScreenTest › on a phone of 360 dp, each of 6 tiles is a whole touch target, within the width`,
+  `LocksmithScreenTest › on a phone of 360 dp, the 6 tiles stand on one row, none over the next`,
+  `LocksmithScreenTest › on a phone of 320 dp, the 6 tiles go on two rows of 3, the second under the first`,
+  `LocksmithScreenTest › on 300 dp, a padlock of 5 pieces centres its last 2 tiles under the first 3` ;
+  captures `LocksmithSixTilesDay`, `LocksmithSixTilesNarrowDay`, `LocksmithFiveTilesNarrowDay`. Vues : V35.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un

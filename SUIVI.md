@@ -1391,6 +1391,13 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
   pose au relâcher, décalage sous le doigt…) avant de coder.
+- [x] **P7.41** Bac du Serrurier à la largeur (demande du développeur, 2026-10-28, trouvé par `designer-jeu`) : à 360 dp,
+  la 6e tuile n'avait que 27 dp ; les tuiles rétrécissent jusqu'à 48 dp, puis passent sur deux rangées de 4 au plus
+  (`trayLayout`, en pixels entiers). Une tuile de 48 dp dessinait sa pièce en noir (canevas sans largeur dans
+  `PieceTile`) : corrigé. Prêt pour les serrures de 7 et 8 pièces (P7.29).
+- [ ] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
+  `LocksmithFiveTilesNarrowDay`, défaut antérieur à P7.41) : garder le mot entier (réduire, ou passer sous Indice).
+  Juger aussi avec P7.39 la pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (`PieceTilesShrunk`).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
