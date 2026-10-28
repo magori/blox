@@ -82,6 +82,7 @@ class GardenTokensTest {
         fun sizeTokens(): List<CodedSize> = listOf(
             CodedSize("garden-cell", "GardenSizes.cell", GardenSizes.cell),
             CodedSize("garden-chord-dot-size", "GardenSizes.chordDot", GardenSizes.chordDot),
+            CodedSize("garden-thumb-cell", "GardenSizes.thumbnailCell", GardenSizes.thumbnailCell),
         )
     }
 }

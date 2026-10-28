@@ -1586,10 +1586,11 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   lit sans lien). Après P10.27.
 - [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
-  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Après P10.27, P10.28.
+  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Contour de la miniature à décider : ses cases libres hors bandes
+  se confondent avec `panel` (cadre `board`, fond `panel-inset` de la rangée, ou rien ; P10.31). Après P10.27, P10.28.
 - [ ] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
-- [ ] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
+- [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
   P10.29.
 - [ ] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
