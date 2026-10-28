@@ -236,16 +236,16 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Commandes (P5.79, touches v2) : ◀ ▼ ▶ d'un côté, rotation **B** (anti-horaire) et **A** (horaire) de
   l'autre, décalés comme sur une console portable ; Gaucher (Paramètres, Affichage) les échange, lu au début de
   chaque partie, et aucune touche n'est montrée avant la lecture des réglages. Tailles par la largeur : flèches de
-  60 dp et B et A de 68 dp dès 398 dp de large, 56 et 62 dès 374 dp, 52 et 56 en dessous (la plus grande taille
+  64 dp et B et A de 68 dp dès 410 dp de large, 58 et 62 dès 380 dp, 52 et 56 en dessous (la plus grande taille
   dont les deux groupes tiennent côte à côte, à 18 dp l'un de l'autre au moins ; sinon ils s'empilent ; des
   touches plus petites seulement si la case y gagne 1 dp) ; tablette avec P5.84. Demandes du développeur
-  (2026-10-26) : ◀ et ▶ un tiers de touche plus hautes que ▼, 16 dp entre B et A ; 8 dp entre deux flèches ; B
+  (2026-10-26, 2026-10-28) : ▼ une demi-touche plus bas que ◀ et ▶, 16 dp entre B et A ; 8 dp entre deux flèches ; B
   plus bas que A de 24 dp. Flèches dessinées (triangles de 24 dp) ; B et A au pictogramme de rotation seul
   (28 dp), lus « B, rotation anti-horaire » et « A, rotation horaire » (les lettres sont retirées, Original
   compris). A en `accent` cadré `accentPressed`, les autres en `button` cadrées `buttonOutline` ; une touche
   tenue prend sa teinte pressée, garde son cadre et descend de 2 dp (P5.57). Marge du jeu de 16 dp
   (P5.79, auparavant 24), sans cible sous 48 dp ; TalkBack lit les flèches puis B puis A, dans les deux mains.
-  **Tests :** `KeySizesTest › the left and right arrows stand a third of a key above the down arrow`,
+  **Tests :** `KeySizesTest › the down arrow stands half a key below the left and right arrows`,
   `KeySizesTest › B and A stand 16 dp apart`, `KeySizesTest › the keys fit a 360 dp phone with 16 dp margins`,
   `GameLayoutTest › left handed puts B and A on the left and the arrows on the right`,
   `GameLayoutTest › side by side, the two groups stand 18 dp apart at least, else stacked`,
@@ -253,7 +253,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameScreenTest › the reading order stays arrows then B and A, left handed or not`,
   `GameViewModelTest › until the settings answer the game shows no keys, does not run and takes no key`.
 - Pas de bouton de chute instantanée (absent du mode Classique).
-- Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (64 dp) et B A (80 dp), sont
+- Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (96 dp de haut au plus) et B A (92 dp), sont
   exclus des gestes système à partir d'Android 10. En navigation par gestes, un glissement qui
   part du bord sur une commande ne déclenche donc plus Retour, qui annulait les doigts et mettait
   la partie en pause, même quand la zone du geste dépasse les marges de 24 dp. Chaque groupe
@@ -287,12 +287,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   annoncé par TalkBack (région vive polie) ; les commandes sont ignorées. Quand la fenêtre redevient
   assez grande, l'écran de pause revient et seul Reprendre relance la partie. Le retour système
   quitte alors la partie, comme Menu (sinon Reprendre remettrait aussitôt en pause). Bascules :
-  220 × 591 dp trop petite, 220 × 593 jouable (dès 592 à 1,5 et 3,5 px par dp) ; sous environ 204 dp de large, toujours trop petite ;
+  220 × 599 dp trop petite, 220 × 601 jouable (dès 600 à 1,5 et 3,5 px par dp) ; sous environ 204 dp de large, toujours trop petite ;
   téléphones, tablettes et la fenêtre de 220 × 640 jamais touchés. Le seuil ignore la police : en
   police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
   sous 8 dp près du seuil.
 
-  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 581 dp high, its cells under 8 dp, and playable 583 dp high`,
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 589 dp high, its cells under 8 dp, and playable 591 dp high`,
   `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
   `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
   `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,

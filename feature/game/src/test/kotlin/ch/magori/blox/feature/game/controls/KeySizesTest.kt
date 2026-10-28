@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test
 
 internal class KeySizesTest {
     @Test
-    fun `a phone wide enough has arrows of 60 dp and B and A of 68 dp`() {
+    fun `a phone wide enough has arrows of 64 dp and B and A of 68 dp`() {
         // Given a phone of 412 dp: 380 dp between its margins of 16 dp
         val width = 380.dp
 
@@ -14,21 +14,21 @@ internal class KeySizesTest {
         val keys = keySizes(width)
 
         // Then (key-arrow, key-rotate)
-        assertThat(keys.arrow).isEqualTo(60.dp)
+        assertThat(keys.arrow).isEqualTo(64.dp)
         assertThat(keys.rotation).isEqualTo(68.dp)
     }
 
     @Test
     fun `a phone of 390 dp, too narrow for them, has keys halfway to the compact ones`() {
-        // Given a phone of 390 dp: 358 dp between its margins, where the keys of a phone take 3 × 60 + 2 × 8, 18,
-        // 2 × 68 + 16, 366 dp
+        // Given a phone of 390 dp: 358 dp between its margins, where the keys of a phone take 3 × 64 + 2 × 8, 18,
+        // 2 × 68 + 16, 378 dp
         val width = 358.dp
 
         // When
         val keys = keySizes(width)
 
-        // Then arrows of 56 dp and B and A of 62 dp, halfway between 60 and 52, 68 and 56: 342 dp
-        assertThat(keys).isEqualTo(KeySizes(arrow = 56.dp, rotation = 62.dp))
+        // Then arrows of 58 dp and B and A of 62 dp, halfway between 64 and 52, 68 and 56: 348 dp
+        assertThat(keys).isEqualTo(KeySizes(arrow = 58.dp, rotation = 62.dp))
         assertThat(keys.width).isLessThanOrEqualTo(width)
     }
 
@@ -47,17 +47,17 @@ internal class KeySizesTest {
     }
 
     @Test
-    fun `the left and right arrows stand a third of a key above the down arrow`() {
+    fun `the down arrow stands half a key below the left and right arrows`() {
         // When
         val phone = KeySizes.Phone
         val compact = KeySizes.Compact
 
-        // Then (asked by the developer, 2026-10-26): 20 dp for arrows of 60 dp, as much in proportion when smaller; the
-        // group as high as an arrow and that third
-        assertThat(phone.arrowRaise).isEqualTo(20.dp)
-        assertThat(phone.directionsHeight).isEqualTo(80.dp)
-        assertThat(compact.arrowRaise).isEqualTo(52.dp / 3)
-        assertThat(compact.directionsHeight).isEqualTo(52.dp + 52.dp / 3)
+        // Then (asked by the developer, 2026-10-28): 32 dp for arrows of 64 dp, as much in proportion when smaller; the
+        // group as high as an arrow and that half
+        assertThat(phone.arrowRaise).isEqualTo(32.dp)
+        assertThat(phone.directionsHeight).isEqualTo(96.dp)
+        assertThat(compact.arrowRaise).isEqualTo(26.dp)
+        assertThat(compact.directionsHeight).isEqualTo(78.dp)
     }
 
     @Test
@@ -77,6 +77,6 @@ internal class KeySizesTest {
         // Then (asked by the developer, 2026-10-26), the arrows 8 dp apart
         assertThat(ControlSizes.rotationSpacing).isEqualTo(16.dp)
         assertThat(keys.rotationsWidth).isEqualTo(68.dp + 16.dp + 68.dp)
-        assertThat(keys.directionsWidth).isEqualTo(60.dp + 8.dp + 60.dp + 8.dp + 60.dp)
+        assertThat(keys.directionsWidth).isEqualTo(64.dp + 8.dp + 64.dp + 8.dp + 64.dp)
     }
 }
