@@ -17,12 +17,14 @@ import kotlin.time.TimeSource
  * Les parcours mesurés. Classique : choix du jeu, cartouche Classique, accueil, Jouer, quelques
  * secondes de partie, pause. Serrurier : choix du jeu, cartouche Serrurier, puis quelques poses
  * (choisir une pièce, toucher le trou, Poser). Graine du jour : choix du jeu, cartouche Graine du jour, son entrée,
- * Jouer, quelques secondes de partie, pause. Les éléments se trouvent par leur tag de test, exposé
+ * Jouer, quelques secondes de partie, pause. Jardin musical : choix du jeu, cartouche Jardin musical, son écran. Les
+ * éléments se trouvent par leur tag de test, exposé
  * comme identifiant de ressource (`testTagsAsResourceId`, posé par `MainActivity`) : le parcours ne
  * dépend pas de la langue de l'appareil. Les tags sont ceux de `Cartridge` (`cartridge_classic`,
- * `cartridge_locksmith`, `cartridge_daily`), `HomeScreen` (`home_play`), `DailyScreen` (`daily_play`), `GameTopBar`
- * (`game_pause`), `GameControls` (`controlTestTag`), `PauseScreen` (`pause_resume`) et `LocksmithTestTags`
- * (`cellTestTag`, `tileTestTag`, `locksmith_place`), recopiés ici : ce module ne voit pas les features.
+ * `cartridge_locksmith`, `cartridge_garden`, `cartridge_daily`), `HomeScreen` (`home_play`), `DailyScreen`
+ * (`daily_play`), `GardenScreen` (`garden_change_game`), `GameTopBar` (`game_pause`), `GameControls`
+ * (`controlTestTag`), `PauseScreen` (`pause_resume`) et `LocksmithTestTags` (`cellTestTag`, `tileTestTag`,
+ * `locksmith_place`), recopiés ici : ce module ne voit pas les features.
  */
 
 /**
@@ -116,7 +118,7 @@ private fun UiDevice.scrollTo(selector: BySelector) {
 
 /**
  * Depuis le choix du jeu, ouvre la cartouche Graine du jour, puis lance la partie du jour de son entrée et attend l'écran
- * de jeu. La cartouche est la troisième du choix, et « Jouer » est au milieu de l'entrée : sur un petit écran, chacun
+ * de jeu. La cartouche est la quatrième du choix, et « Jouer » est au milieu de l'entrée : sur un petit écran, chacun
  * peut être sous le bord, et l'écran défile d'abord jusqu'à lui.
  */
 internal fun MacrobenchmarkScope.startDailyGame() {
@@ -126,6 +128,17 @@ internal fun MacrobenchmarkScope.startDailyGame() {
     device.scrollTo(By.res(DAILY_PLAY))
     device.clickWhenReady(By.res(DAILY_PLAY))
     device.awaitObject(By.res(PAUSE))
+}
+
+/**
+ * Depuis le choix du jeu, ouvre la cartouche Jardin musical et attend l'écran du jardin, qui lit lui-même le jardin
+ * gardé. La cartouche est la troisième du choix, qui défile : sur un petit écran, elle est sous le bord, et le choix
+ * défile d'abord jusqu'à elle.
+ */
+internal fun MacrobenchmarkScope.openGarden() {
+    device.scrollTo(By.res(GARDEN_CARTRIDGE))
+    device.clickWhenReady(By.res(GARDEN_CARTRIDGE))
+    device.awaitObject(By.res(GARDEN_CHANGE_GAME))
 }
 
 /**
@@ -192,6 +205,9 @@ private const val FIRST_TILE = "locksmith_tile_0"
 
 private const val DAILY_CARTRIDGE = "cartridge_daily"
 private const val DAILY_PLAY = "daily_play"
+
+private const val GARDEN_CARTRIDGE = "cartridge_garden"
+private const val GARDEN_CHANGE_GAME = "garden_change_game"
 
 private val COMMANDS = listOf(
     "control_left",

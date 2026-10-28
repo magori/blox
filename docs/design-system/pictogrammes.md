@@ -150,3 +150,9 @@ console du choix du jeu (18 dp) et dans la pause (16 dp sur téléphone, 22 sur 
   `MascotLookTest › an asleep mascot is in cell-dead, flat, its face in ink, without accessory nor shadow`,
   `GameScreenPauseTest › the card shows the Classic mascot asleep above Pause, a decoration TalkBack does not read` ;
   captures `Mascots*`, `Pause*`.
+- **Jardin musical** (P10.13) : un L debout sur son pied, pied à droite (l'apparition tournée d'un quart de tour
+  anti-horaire : cases (0,0) (0,1) (0,2) (1,2)), visage en (1 ; 2,5), sur le pied ; feuille
+  `M4 20 C4 10 10 4 20 4 C20 14 14 20 4 20 Z` remplie de `piece-s`, nervure `M4 20 L13 11`, posée comme les autres
+  accessoires (dans le coin libre au-dessus de la case (1,0)) ; corps en `piece-l`. **Tests :**
+  `MascotLookTest › the Jardin musical mascot is an L standing on its foot, the foot to the right`,
+  `MascotLookTest › the Jardin musical mascot is a bubble of the L, its leaf in the mint of the S`.

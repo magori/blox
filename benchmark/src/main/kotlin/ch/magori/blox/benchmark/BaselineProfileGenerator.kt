@@ -9,8 +9,8 @@ import kotlin.time.Duration.Companion.seconds
 /**
  * Génère le profil de référence de l'application (P5.17) : le code du démarrage, du choix du jeu, de l'accueil et
  * des premières secondes de partie (`GameScreen`, `BoardCanvas`, séquenceur, moteur), puis celui du Serrurier
- * (`LocksmithScreen`, `PadlockGame`, sons de la serrure, P7.21) et celui de la Graine du jour (`DailyScreen`, sa
- * partie, P9.7) est compilé à l'installation plutôt qu'interprété.
+ * (`LocksmithScreen`, `PadlockGame`, sons de la serrure, P7.21), celui de la Graine du jour (`DailyScreen`, sa
+ * partie, P9.7) et celui du Jardin musical (`GardenScreen`, P10.13) est compilé à l'installation plutôt qu'interprété.
  * Le plugin `androidx.baselineprofile` fusionne les profils des parcours.
  *
  * `./gradlew :app:generateBaselineProfile`, avec un appareil branché (Android 13 ou plus, ou rooté).
@@ -53,6 +53,15 @@ class BaselineProfileGenerator {
             launchFromHomeScreen()
             openLocksmith()
             placePieces(count = 6)
+        }
+    }
+
+    @Test
+    @DisplayName("startup and the musical garden")
+    fun startupAndTheMusicalGarden() {
+        baselineProfile.collect(packageName = targetPackageName, includeInStartupProfile = false) {
+            launchFromHomeScreen()
+            openGarden()
         }
     }
 }
