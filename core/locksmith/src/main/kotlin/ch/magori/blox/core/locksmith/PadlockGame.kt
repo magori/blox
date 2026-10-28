@@ -50,6 +50,9 @@ public data class PadlockGame private constructor(
     /** Whether every given piece is placed: the padlock is open. */
     public val isOpen: Boolean get() = placements.size == given.size
 
+    /** The result of the opening once the padlock [isOpen], `null` before. */
+    public val result: PadlockResult? get() = if (isOpen) PadlockResult(given.size, moves, refusals, hints) else null
+
     /** The orientation the given piece of [rank] is in. */
     public fun orientationOf(rank: Int): Orientation = orientations[requireGiven(rank)]
 

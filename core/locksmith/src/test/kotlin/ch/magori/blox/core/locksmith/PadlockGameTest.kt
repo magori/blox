@@ -339,6 +339,30 @@ class PadlockGameTest {
         assertThat(open.selectedAt(Position(4, 4))).isNull()
     }
 
+    @Test
+    fun `an open padlock gives the result of its opening, a padlock not open none`() {
+        // Given: the I placed, taken back and placed again, the O refused once, a hint
+        val playing = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.takeBack(0).game
+            .place(Position(5, 1)).game.place(Position(1, 1)).game.hint().game
+
+        // When
+        val open = playing.place(Position(2, 1)).game.place(Position(4, 2)).game
+
+        // Then
+        assertThat(playing.result).isNull()
+        assertThat(open.result).isEqualTo(PadlockResult(pieces = 3, moves = 4, refusals = 1, hints = 1))
+    }
+
+    @Test
+    fun `a padlock opened without taking back, refusal or hint is perfect`() {
+        // When
+        val open = PadlockGame.start(PADLOCK).place(Position(5, 1)).game.place(Position(2, 1)).game
+            .place(Position(4, 2)).game
+
+        // Then
+        assertThat(open.result?.isPerfect).isTrue
+    }
+
     private companion object {
         /** Two I on the left, two O on the right; given as I, I, O, O. */
         val STRIP = Padlock.parse(
