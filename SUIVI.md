@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 247 / 320 | `███████████████░░░░░` **77 %** |
+| **Général** | 248 / 320 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1487,11 +1487,11 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
   lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
   publique de `core:game` (`explicitApi`).
-- [ ] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo **[à vérifier]**, 14
+- [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
-  of its group`, `changing the mood keeps the pieces where they are`.
-- [ ] **P10.6** `Garden.toScore(mood)` : une case = une croche ; colonne par colonne, les cases d'une même pièce se
+  of its group`, `changing the mood keeps the pieces where they are`. L'ambiance devient une propriété du jardin (`Garden.mood`, calme par défaut).
+- [ ] **P10.6** `Garden.toScore()` (l'ambiance est celle du jardin, P10.5) : une case = une croche ; colonne par colonne, les cases d'une même pièce se
   partagent la croche en arpège montant ; une voix par ligne à volume fixe et la basse **[à vérifier]**, sans
   changer `core:music` ; durées exactes (la dernière part d'une croche partagée en prend le reste). Cas : `a cell
   plays its note for its eighth`, `a piece with one cell per column plays its notes column after column`, `a
