@@ -1,6 +1,7 @@
 package ch.magori.blox.core.board.garden
 
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import ch.magori.blox.core.game.model.PieceType
 
 /**
@@ -31,3 +32,23 @@ sealed interface GardenCell {
  * at the [BOTTOM] of the column, and runs along both sides of the cells in the [MIDDLE].
  */
 enum class GardenPlayHead { TOP, MIDDLE, BOTTOM }
+
+/**
+ * How a note of the garden is drawn on one frame, besides its look (ADR 0024): [GardenCellCanvas] reads it only while
+ * drawing, so that an effect that plays draws the cell again without recomposing it. Its answers may change from one
+ * frame to the next, read from states. At rest, as by default, the note is drawn as without effects.
+ */
+@Stable
+interface GardenCellEffects {
+    /** How much of the note is shown, over the free cell under it: 0 not at all, 1 wholly. */
+    fun shown(): Float = 1f
+
+    /** How far above its place the note is drawn, in cells: it falls there. */
+    fun lift(): Float = 0f
+
+    /** How large the note is drawn, around its centre: 1 as it is. */
+    fun scale(): Float = 1f
+
+    /** How much the note is lit, from 0 (not at all) to 1, its fill covered by the colour of the glow. */
+    fun light(): Float = 0f
+}

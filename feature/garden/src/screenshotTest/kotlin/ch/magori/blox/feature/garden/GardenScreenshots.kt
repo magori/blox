@@ -9,7 +9,9 @@ import com.android.tools.screenshot.PreviewTest
  * Screenshot tests of the musical garden (view V40), by day and by night, under the Original theme of the application:
  * the screen draws itself in the Colorful theme. The empty garden as it opens; four pieces and a preview refused over
  * one of them, a cell crossed out; the same in a font twice as large on a narrow phone; « Jardin effacé · Annuler »;
- * the garden listened to, its column played framed and the pill of its chord filled, by day and by night.
+ * the garden listened to, its column played framed and the pill of its chord filled, by day and by night. The
+ * feedbacks frozen on one frame: a piece placed lit while the notes of the column played bounce, by day and by night;
+ * the pieces of Au hasard falling one by one, or fading in together in reduced effects.
  * From the previews of the production code, with the same `@Preview` configuration. Renaming a test breaks its link to
  * its reference image: regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
@@ -53,3 +55,23 @@ private fun GardenListeningDay() = GardenListeningPreview()
 @Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GardenListeningNight() = GardenListeningNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenPlacedDay() = GardenPlacedPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GardenPlacedNight() = GardenPlacedNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenRolledDay() = GardenRolledPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenRolledReduced() = GardenRolledReducedPreview()

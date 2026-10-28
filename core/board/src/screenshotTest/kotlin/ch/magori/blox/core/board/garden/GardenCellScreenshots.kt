@@ -20,3 +20,14 @@ private fun GardenCells() = GardenCellsPreview()
 @Preview(uiMode = UI_MODE_NIGHT)
 @Composable
 private fun GardenCellsNight() = GardenCellsPreview()
+
+/** The effects of a note, frozen on one frame: lit, bouncing, falling, half shown, in a band or not. */
+@PreviewTest
+@Preview
+@Composable
+private fun GardenCellEffects() = GardenCellEffectsPreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GardenCellEffectsNight() = GardenCellEffectsPreview()
