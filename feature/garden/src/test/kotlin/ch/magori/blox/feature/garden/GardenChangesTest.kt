@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.garden
 
+import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
@@ -40,6 +41,31 @@ class GardenChangesTest {
         val expected = A_GARDEN.withMood(GardenMood.EPIC)
         assertThat(viewModel.uiState.value?.garden).isEqualTo(expected)
         assertThat(kept.state.value).isEqualTo(expected)
+    }
+
+    @Test
+    fun `choosing the mood already chosen changes nothing, neither shown, nor kept, nor heard`() {
+        // Given a garden in the joyful mood, listened to, whose writes are counted
+        val written = mutableListOf<Garden>()
+        val counted = object : GardenRepository {
+            override val garden: Flow<Garden> = kept.garden
+
+            override suspend fun keep(garden: Garden) {
+                written += garden
+            }
+        }
+        val music = FakeMusicPlayer()
+        val viewModel = gardenViewModel(counted, music = music)
+        viewModel.listen()
+        val before = viewModel.uiState.value
+
+        // When
+        viewModel.chooseMood(GardenMood.JOYFUL)
+
+        // Then
+        assertThat(viewModel.uiState.value).isEqualTo(before)
+        assertThat(written).isEmpty()
+        assertThat(music.switchedScores).isEmpty()
     }
 
     @Test
@@ -101,6 +127,35 @@ class GardenChangesTest {
         assertThat(state?.garden).isEqualTo(composed)
         assertThat(kept.state.value).isEqualTo(composed)
         assertThat(state?.undo).isEqualTo(A_GARDEN)
+    }
+
+    @Test
+    fun `Au hasard and the choice of a mood are shown as such, for their feedback, each a move of its own`() {
+        // When
+        viewModel.roll()
+        val rolled = viewModel.uiState.value!!
+        viewModel.chooseMood(GardenMood.EPIC)
+        val moodChosen = viewModel.uiState.value!!
+
+        // Then
+        assertThat(rolled.change).isEqualTo(GardenChange.Rolled)
+        assertThat(moodChosen.change).isEqualTo(GardenChange.MoodChosen)
+        assertThat(moodChosen.move).isGreaterThan(rolled.move)
+    }
+
+    @Test
+    fun `taking a piece back, Tout effacer and Annuler are changes the screen does not animate`() {
+        // When a piece is taken back; then the garden cleared; then given back
+        viewModel.tap(Position(5, 6))
+        val takenBack = viewModel.uiState.value!!
+        viewModel.clearAll()
+        val cleared = viewModel.uiState.value!!
+        viewModel.undo()
+        val givenBack = viewModel.uiState.value!!
+
+        // Then
+        assertThat(listOf(takenBack, cleared, givenBack)).allSatisfy { assertThat(it.change).isNull() }
+        assertThat(listOf(takenBack.move, cleared.move, givenBack.move)).doesNotHaveDuplicates()
     }
 
     @Test

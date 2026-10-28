@@ -23,4 +23,16 @@ object BloxMotion {
 
     /** The fade that takes the place of a move in reduced effects (`motion-reduced-fade`, 133 ms). */
     val reducedFade: Int = 8
+
+    /** The notes of the column played bounce, in the musical garden, at each eighth (`motion-garden-bounce`, 100 ms). */
+    val gardenBounce: Int = 6
+
+    /**
+     * The bubbles of a piece placed in the musical garden light up, a change of mood fades, the same in reduced effects
+     * (`motion-garden-glow`, 133 ms).
+     */
+    val gardenGlow: Int = 8
+
+    /** Au hasard, in the musical garden: the pieces fall one by one, this far apart (`motion-garden-fall-step`, 33 ms). */
+    val gardenFallStep: Int = 2
 }

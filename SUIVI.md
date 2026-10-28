@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 263 / 350 | `███████████████░░░░░` **75 %** |
+| **Général** | 264 / 350 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1592,7 +1592,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   le premier). Ordre de V36 à quatre cartouches (P10.14) : Classique, Serrurier, Jardin musical, Graine du jour.
 - [x] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons
   du jardin dans le design system publié (ADR 0019).
-- [ ] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
+- [x] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
   8 ticks). Après P10.10, P10.12.
 
