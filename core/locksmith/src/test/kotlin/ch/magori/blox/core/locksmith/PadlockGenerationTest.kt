@@ -120,7 +120,7 @@ class PadlockGenerationTest {
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [3, 4, 5, 6])
+    @ValueSource(ints = [3, 4, 5, 6, 7, 8])
     fun `every padlock of 500 seeds has the pieces asked and a hole that is no rectangle`(count: Int) {
         // When
         val padlocks = (1..500L).map { seed -> PadlockGenerator.generate(count, seed) }
@@ -134,8 +134,8 @@ class PadlockGenerationTest {
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [2, 7])
-    fun `a padlock of fewer than 3 or more than 6 pieces is refused before any candidate is composed`(count: Int) {
+    @ValueSource(ints = [2, 9])
+    fun `a padlock of fewer than 3 or more than 8 pieces is refused before any candidate is composed`(count: Int) {
         // Given
         var calls = 0
         val compose = { _: Random -> null.also { calls++ } }
@@ -151,7 +151,7 @@ class PadlockGenerationTest {
     }
 
     @ParameterizedTest(name = "padlock {0}: {1} pieces")
-    @CsvSource("1, 3", "2, 4", "3, 5", "4, 6", "5, 6")
+    @CsvSource("1, 3", "2, 4", "3, 5", "4, 6", "5, 6", "13, 6", "21, 6")
     fun `padlock n of a seed holds min of 6 and 2 plus n pieces`(
         level: Int,
         pieces: Int,

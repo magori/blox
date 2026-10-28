@@ -49,18 +49,18 @@ class PadlockTest {
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [2, 7])
-    fun `a padlock holds 3 to 6 pieces`(count: Int) {
+    @ValueSource(ints = [2, 9])
+    fun `a padlock holds 3 to 8 pieces`(count: Int) {
         // Given: flat I pieces stacked from row 1, each one on the one above
         val solution = stackedIs(count)
 
         // Then
-        assertThatIllegalArgumentException().isThrownBy { Padlock(solution) }.withMessageContaining("3 to 6")
+        assertThatIllegalArgumentException().isThrownBy { Padlock(solution) }.withMessageContaining("3 to 8")
     }
 
     @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [3, 6])
-    fun `a padlock of 3 or 6 pieces is accepted`(count: Int) {
+    @ValueSource(ints = [3, 8])
+    fun `a padlock of 3 or 8 pieces is accepted`(count: Int) {
         // Given
         val solution = stackedIs(count)
 
@@ -174,6 +174,18 @@ class PadlockTest {
         assertThat(padlock.hole).hasSize(12).contains(Position(4, 3)).doesNotContain(Position(5, 3))
     }
 
+    @Test
+    fun `parse reads the ranks of a padlock of 8 pieces`() {
+        // Given: eight flat I written 1 to 8
+        val solution = stackedIs(8)
+
+        // When
+        val padlock = Padlock.parse(asciiOf(solution))
+
+        // Then
+        assertThat(padlock.solution).isEqualTo(solution)
+    }
+
     @ParameterizedTest
     @MethodSource("everyClassicPiece")
     fun `parse finds the orientation and the pivot of every Classic piece`(piece: Piece) {
@@ -183,7 +195,7 @@ class PadlockTest {
         val solution = listOf(piece, flatI(column, bottom + 1), flatI(column, bottom + 2))
 
         // When
-        val padlock = Padlock.parse(ascii(solution))
+        val padlock = Padlock.parse(asciiOf(solution))
 
         // Then
         assertThat(padlock.solution.first()).isEqualTo(piece)
@@ -250,7 +262,7 @@ class PadlockTest {
             argumentSet("a row of 11 cells", PADLOCK.replaceFirst("##########", "###########")),
             argumentSet("an unknown character", PADLOCK.replaceFirst("##########", "#########.")),
             argumentSet("rank 0", PADLOCK.replace('3', '0')),
-            argumentSet("rank 7", PADLOCK.replace('3', '7')),
+            argumentSet("rank 9", PADLOCK.replace('3', '9')),
             argumentSet("rank 3 missing", PADLOCK.replace('3', '4')),
             argumentSet("a rank of two cells", PADLOCK.replace("2222", "22##")),
         )
@@ -263,14 +275,6 @@ class PadlockTest {
             column: Int,
             row: Int,
         ): Piece = piece(PieceType.I, column = column + 2, row = row)
-
-        /** [solution] written as [Padlock.parse] reads it. */
-        fun ascii(solution: List<Piece>): String = (0 until Padlock.SIZE).joinToString("\n") { row ->
-            (0 until Padlock.SIZE).joinToString("") { column ->
-                val rank = solution.indexOfFirst { Position(column, row) in it.cells }
-                if (rank == -1) "#" else "${rank + 1}"
-            }
-        }
     }
 }
 

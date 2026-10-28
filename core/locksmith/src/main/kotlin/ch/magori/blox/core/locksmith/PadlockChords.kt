@@ -18,6 +18,8 @@ public object PadlockChords {
         4 to "I-IV-V-I",
         5 to "I-vi-IV-V-I",
         6 to "I-vi-ii-IV-V-I",
+        7 to "I-V-vi-iii-IV-V-I",
+        8 to "I-V-vi-iii-IV-ii-V-I",
     ).mapValues { (_, chords) -> Progression.parse(chords) }
 
     init {
