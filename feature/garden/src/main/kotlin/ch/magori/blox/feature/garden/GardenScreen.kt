@@ -42,8 +42,8 @@ internal class GardenActions(val onChangeGame: () -> Unit) {
  */
 @Composable
 internal fun GardenScreen(
-    // Read by the grid, P10.10.
-    uiState: GardenUiState,
+    // Read by the grid, P10.10; null while the garden kept is not read yet: the bar alone.
+    uiState: GardenUiState?,
     actions: GardenActions,
     modifier: Modifier = Modifier,
 ) {

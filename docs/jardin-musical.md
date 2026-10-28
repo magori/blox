@@ -212,7 +212,26 @@ des candidats, évaluer, garder le meilleur.
   `garden.bin`, décision du développeur) à chaque pose, reprise, effacement ou changement
   d'ambiance, et retrouvé à l'ouverture. Pas de bouton Enregistrer. Dépôt `GardenRepository`
   (`core:data`, P10.11) : le jardin en `Flow`, vide et calme (`Garden.EMPTY`) tant que rien n'est
-  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran devra la rattraper, P10.18).
+  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran la rattrape, P10.18).
+- **Écran et jardin gardé** (P10.18) : `GardenViewModel` lit le jardin gardé une fois, à
+  l'ouverture (seul cet écran l'écrit), et l'écran s'ouvre sur ce jardin ; tant qu'il n'est pas lu,
+  l'écran n'a pas de jardin et montre la barre seule. La lecture attend la fin de l'écriture en cours
+  (une visite s'ouvre sur le jardin de la précédente), et un jardin adopté pendant la lecture n'est
+  pas remplacé par elle. Tout nouveau jardin passe par un point unique, `adopt` : affiché aussitôt,
+  puis gardé dans la portée de l'application (`mainScope` d'`AppContainer`), si bien qu'un
+  changement fait juste avant de quitter l'écran est gardé ; les écritures passent une à une, dans
+  l'ordre des changements et d'une visite à l'autre (un verrou partagé par la fabrique) : le dernier
+  jardin adopté est celui qui reste gardé. Une écriture ratée (`IOException` : disque plein, fichier
+  d'une version plus récente) laisse le jardin à l'écran, sans planter, et le dernier jardin gardé
+  sur l'appareil ; toute autre erreur est un bogue et n'est pas avalée.
+  **Tests :** `GardenViewModelTest › the garden opens on the garden kept`,
+  `GardenViewModelTest › a garden adopted is shown and kept`,
+  `GardenViewModelTest › a garden that cannot be kept leaves the garden on screen`,
+  `GardenViewModelTest › a failure other than an unwritable garden is not swallowed`,
+  `GardenViewModelTest › the gardens adopted are kept in the order they were adopted`,
+  `GardenViewModelTest › a garden adopted while the garden kept is read stays on screen`,
+  `GardenViewModelTest › a garden opens once the garden of the previous visit is kept`,
+  `GardenViewModelTest › the gardens adopted in two visits are kept in their order`.
 - **Pas d'export** vers « Mes musiques » en v1 (décision du développeur).
 - **Format versionné** (version 1, amendement de l'ADR 0027) : « BLXG », la version, le nom de
   l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
@@ -278,13 +297,13 @@ De haut en bas :
 
 - **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter. Codé (squelette,
   P10.9) : Changer de jeu, qui revient au choix du jeu et ne compte qu'écran actif (`dropUnlessResumed`),
-  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur un jardin vide
-  et calme.
+  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur le jardin
+  gardé (voir Jardin gardé).
   **Tests :** `GardenScreenTest › the title of the bar shows JARDIN MUSICAL and is read as a heading`,
   `GardenScreenTest › Changer de jeu is handed to app`,
   `GardenScreenTest › Changer de jeu counts only while the garden is resumed`,
   `BloxNavDisplayTest › changing the game from the musical garden goes back to the cartridges`,
-  `GardenViewModelTest › the garden opens empty and calm`.
+  `GardenViewModelTest › the garden opens on the garden kept`.
 - **Ambiance** : groupe de choix de 4 segments de 48 dp (Joyeux, Calme, Mystère, Épique).
 - **Rangée d'information** : « Do pentatonique · 84 bpm » et un bouton « Tout effacer ».
 - **Bande des accords** : 4 pilules (noms de `RomanNumeral.name`), alignées sur les groupes de

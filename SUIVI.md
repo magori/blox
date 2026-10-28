@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 255 / 322 | `████████████████░░░░` **79 %** |
+| **Général** | 256 / 322 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1490,7 +1490,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.17** Régler à l'oreille, sur un téléphone, les valeurs de départ du Jardin (décisions du développeur
   des 2026-10-27 et 28, en constantes nommées) : tempos des ambiances, tonique de Calme, octave de la basse, volumes
   (0,06 et 0,16) et poids de la note du dé (`GardenRating`). Après P10.12.
-- [ ] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
+- [x] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
   d'`AppContainer`), l'écran s'ouvre sur le jardin gardé et chaque changement est gardé ; une écriture ratée
   (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
   autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après

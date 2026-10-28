@@ -90,8 +90,8 @@ class AppContainer(context: Context) {
 
     /**
      * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them; and the
-     * writes of the daily games, asked for there at once, in the order of the games. For the whole life of the process,
-     * as [dataScope] and the players: it is never cancelled.
+     * writes of the daily games and of the garden, asked for there at once, in their order. For the whole life of the
+     * process, as [dataScope] and the players: it is never cancelled.
      */
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
@@ -134,7 +134,7 @@ class AppContainer(context: Context) {
     /**
      * The last garden of the Jardin musical, its pieces and its mood, in `files/datastore/garden.bin`: a creation of the
      * player, which the backup rules keep, as the musics. Built here, once for the process; the screen of the garden
-     * (`feature:garden`) will read it when it opens and write it at each change.
+     * (`feature:garden`) reads it when it opens and writes it at each change.
      */
     internal val keptGarden: GardenRepository =
         DataStoreGardenRepository(dataScope) { dataStoreFile(filesDir, GARDEN_FILE) }
@@ -269,8 +269,12 @@ class AppContainer(context: Context) {
     val dailyViewModelFactory: DailyViewModel.Factory =
         DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
 
-    /** Builds the view model of the musical garden (ADR 0027); the garden kept will come to it (P10.11). */
-    val gardenViewModelFactory: GardenViewModel.Factory = GardenViewModel.Factory()
+    /**
+     * Builds the view model of the musical garden (ADR 0027), on the garden kept: written in [mainScope], at once and in
+     * the order of the changes, even when the garden is left just after one.
+     */
+    val gardenViewModelFactory: GardenViewModel.Factory =
+        GardenViewModel.Factory(keptGarden, mainScope)
 
     /**
      * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
