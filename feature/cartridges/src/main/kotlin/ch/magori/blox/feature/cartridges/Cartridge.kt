@@ -16,6 +16,9 @@ enum class Cartridge(@param:StringRes internal val label: Int, internal val masc
     /** The Locksmith, a puzzle of pieces and chords (ADR 0025). */
     LOCKSMITH(R.string.feature_cartridges_locksmith, MascotCharacter.LOCKSMITH),
 
+    /** The Jardin musical, a garden of pieces that plays its music (ADR 0027): it opens the garden kept. */
+    GARDEN(R.string.feature_cartridges_garden, MascotCharacter.GARDEN),
+
     /** The Graine du jour, the same pieces for everyone each day (ADR 0026): it opens its entry. */
     DAILY(R.string.feature_cartridges_daily, MascotCharacter.DAILY),
     ;

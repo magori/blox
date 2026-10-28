@@ -13,6 +13,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
@@ -24,6 +25,12 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
+
+/**
+ * The tag of Changer de jeu, the same in every language, read by the journey of `:benchmark`, which copies it as it is:
+ * it does not see this module.
+ */
+internal const val GARDEN_CHANGE_GAME_TAG = "garden_change_game"
 
 /** What the player does on the musical garden, handed to `app` by the entry. */
 @Immutable
@@ -74,6 +81,7 @@ private fun GardenBar(onChangeGame: () -> Unit) {
             icon = BloxIcon.CARTRIDGE,
             description = stringResource(R.string.feature_garden_change_game),
             onClick = onChangeGame,
+            modifier = Modifier.testTag(GARDEN_CHANGE_GAME_TAG),
         )
         val title = stringResource(R.string.feature_garden_title)
         Text(

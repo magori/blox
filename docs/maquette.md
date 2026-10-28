@@ -49,7 +49,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
-| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7) ; variante à quatre cartouches avec le Jardin musical dessinée en P10.14 (composant `V2Choix4`, ordre Classique, Serrurier, Jardin musical, Graine du jour), complétée en P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
+| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7) puis à quatre (P10.13) ; variante à quatre cartouches avec le Jardin musical dessinée en P10.14 (composant `V2Choix4`, ordre Classique, Serrurier, Jardin musical, Graine du jour), complétée en P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
 | V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8) ; [musique-vivante.md](musique-vivante.md) |
 | V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | dessinée (P9.8), codée (P9.5) ; [graine-du-jour.md](graine-du-jour.md) |
 | V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
@@ -85,12 +85,13 @@ prenant les jetons des pièces.
 **Tests :** `CartridgesScreenTest › TalkBack reads « Choix du jeu » as the heading of the screen`,
 `CartridgesScreenTest › a cartridge held down goes 2 dp down, as a bubble button`,
 `CartridgesScreenTest › each cartridge bears the mascot of its game, whatever the theme: the choice of the game is drawn in Colorful`,
-`CartridgesScreenTest › in Colorful, on 360 dp, the cartridges stand on two columns, the last one alone centred below`,
+`CartridgesScreenTest › in Colorful, on 360 dp, the four cartridges stand on two full rows of two, as wide as each other`,
+`CartridgesScreenTest › on 360 dp, of an odd number of cartridges, the last one stands alone below, centred`,
 `CartridgesScreenTest › in a font twice as large, on 240 dp, the cartridges stand in one column: two names do not hold side by side`,
 `CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on two lines at most, unclipped`,
 `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`,
-`CartridgeTest › each cartridge bears the mascot of its game, the T, the O or the Z`,
-`CartridgeTest › the cartridges are the Classic, the Locksmith and the Graine du jour, in this order`,
+`CartridgeTest › each cartridge bears the mascot of its game, the T, the O, the L or the Z`,
+`CartridgeTest › the cartridges are the Classic, the Locksmith, the Jardin musical, the Graine du jour, in this order`,
 `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
 `StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,

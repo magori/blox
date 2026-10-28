@@ -333,10 +333,30 @@ internal class BloxNavDisplayTest {
     }
 
     @Test
+    @DisplayName(
+        "the Jardin musical cartridge opens the musical garden, and the system back goes back to the cartridges",
+    )
+    fun theJardinMusicalCartridgeOpensTheMusicalGarden() {
+        runJourney {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When: the third cartridge, below the edge on a small screen
+            onNode(hasTestTag(GARDEN_CARTRIDGE_TAG)).performScrollTo().performClick()
+            advanceUntilShown(gardenTitle())
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+            pressSystemBack()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+        }
+    }
+
+    @Test
     @DisplayName("changing the game from the musical garden goes back to the cartridges")
     fun changingTheGameFromTheMusicalGardenGoesBackToTheCartridges() {
         runJourney {
-            // Given the garden on top of the cartridges (no cartridge opens it yet, P10.13)
+            // Given the garden on top of the cartridges, as the system restores the stack after the death of the process
             showApp(restoredStack = listOf(CartridgesRoute, GardenRoute), restoredShows = gardenTitle())
 
             // When
@@ -899,6 +919,7 @@ internal class BloxNavDisplayTest {
         /** The tag of the Classic cartridge (`Cartridge.tag` of feature:cartridges, internal to it). */
         const val CLASSIC_CARTRIDGE_TAG = "cartridge_classic"
         const val LOCKSMITH_CARTRIDGE_TAG = "cartridge_locksmith"
+        const val GARDEN_CARTRIDGE_TAG = "cartridge_garden"
         const val DAILY_CARTRIDGE_TAG = "cartridge_daily"
 
         /** The most frames a screen brought back by the system back takes to show its first frame. */

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasStateDescription
@@ -161,13 +162,33 @@ internal class CartridgesScreenTest {
     }
 
     @Test
-    @DisplayName("in Colorful, on 360 dp, the cartridges stand on two columns, the last one alone centred below")
-    fun inColorfulTheCartridgesStandOnTwoColumns() = extension.use {
+    @DisplayName("in Colorful, on 360 dp, the four cartridges stand on two full rows of two, as wide as each other")
+    fun inColorfulTheFourCartridgesStandOnTwoFullRows() = extension.use {
         // Given
         showCartridges(width = NARROW_PHONE)
 
+        // Then: the Classic and the Locksmith side by side, the Jardin musical and the Graine du jour under them
+        val (first, second, third, fourth) = Cartridge.entries.map { onNodeWithTag(it.tag).getUnclippedBoundsInRoot() }
+        assertThat(second.top).isEqualTo(first.top)
+        assertThat(second.left).isGreaterThanOrEqualTo(first.right)
+        assertThat(third.top).isGreaterThanOrEqualTo(first.bottom)
+        assertThat(fourth.top).isEqualTo(third.top)
+        assertThat(third.left).isEqualTo(first.left)
+        assertThat(fourth.left).isEqualTo(second.left)
+        listOf(second, third, fourth).forEach {
+            assertThat((it.right - it.left).value).isCloseTo((first.right - first.left).value, within(HALF_DP))
+        }
+    }
+
+    @Test
+    @DisplayName("on 360 dp, of an odd number of cartridges, the last one stands alone below, centred")
+    fun ofAnOddNumberOfCartridgesTheLastOneStandsAloneCentred() = extension.use {
+        // Given three cartridges, as before the Jardin musical
+        val three = listOf(Cartridge.CLASSIC, Cartridge.LOCKSMITH, Cartridge.DAILY)
+        showCartridges(width = NARROW_PHONE, cartridges = three)
+
         // Then: the Classic and the Locksmith side by side, their tops level, the Graine du jour under them, centred
-        val (first, second, third) = Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }
+        val (first, second, third) = three.map { onNodeWithTag(it.tag).getBoundsInRoot() }
         assertThat(second.top).isEqualTo(first.top)
         assertThat(second.left).isGreaterThanOrEqualTo(first.right)
         assertThat(third.top).isGreaterThanOrEqualTo(first.bottom)
@@ -184,8 +205,8 @@ internal class CartridgesScreenTest {
         // Given
         showCartridges(width = TOO_NARROW, fontScale = 2f)
 
-        // Then
-        Cartridge.entries.map { onNodeWithTag(it.tag).getBoundsInRoot() }.zipWithNext { above, below ->
+        // Then, the last ones below the edge of the screen, which scrolls
+        Cartridge.entries.map { onNodeWithTag(it.tag).getUnclippedBoundsInRoot() }.zipWithNext { above, below ->
             assertThat(below.top).isGreaterThanOrEqualTo(above.bottom)
         }
     }
@@ -232,13 +253,14 @@ internal class CartridgesScreenTest {
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
         newCartridges: Set<Cartridge> = emptySet(),
+        cartridges: List<Cartridge> = Cartridge.entries,
     ) {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
                 BloxTheme(kind = kind) {
                     CartridgesScreen(
-                        cartridges = Cartridge.entries,
+                        cartridges = cartridges,
                         newCartridges = newCartridges,
                         onOpen = onOpen,
                         modifier = Modifier.width(width),
