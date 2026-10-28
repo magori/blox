@@ -3,6 +3,7 @@ package ch.magori.blox.core.locksmith
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.firstInReadingOrder
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 
 /**

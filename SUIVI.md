@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 251 / 321 | `████████████████░░░░` **78 %** |
+| **Général** | 252 / 321 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1483,7 +1483,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   piece inside the grid on free cells is placed`, `a piece off the grid is refused`, `a piece over a placed one is
   refused as an overlap`, `a piece both off the grid and over a placed one is refused as off the grid`, `a placed
   piece is taken back`, `clearing the garden leaves it empty`, `parse reads the pieces of a garden`.
-- [ ] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
+- [x] **P10.16** Mettre en commun ce que `core:garden` a repris de `core:locksmith` (revue de P10.4, règle de 2) : voisins
   par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
   lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
   publique de `core:game` (`explicitApi`).
