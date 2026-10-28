@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 265 / 350 | `███████████████░░░░░` **76 %** |
+| **Général** | 267 / 364 | `███████████████░░░░░` **73 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | En cours : domaine fait (`core:locksmith`), interface à faire |
+| P7 | Le Serrurier, second jeu | Jouable ; progression des serrures à faire (P7.27 à P7.39) |
 | P8 | Musique vivante, la musique du Classique qui suit la partie | Spécification faite ; à faire |
 | P9 | Graine du jour, les mêmes pièces pour tous chaque jour | Spécification faite ; à faire après P1.20 et P8 |
 | P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
@@ -1348,6 +1348,50 @@ Couleurs v2 seulement, jour et nuit (décision du développeur, 2026-10-26) : pa
   pièce ; régénérer le profil (`:app:generateBaselineProfile`), le code du Serrurier n'y figure pas (revue de
   P7.15).
 
+Progression du Serrurier (demande du développeur, 2026-10-28 : garder l'avancement, poursuivre sur de nouvelles
+serrures, rouvrir les anciennes). Proposition de `designer-jeu` retenue : **la serrure n est la même pour tous et pour
+toujours** (graine = n, générateur sur `StableRandom` figé par un test de contrat) ; on ne garde que la meilleure
+ouverture de chaque serrure (indices, puis coups, puis refus ; « parfaite » en déduite) ; la cartouche ouvre la
+première serrure non ouverte ; un écran « Serrures » (grille) depuis la barre de V35 ; « Recommencer depuis le
+début » avec confirmation ; progression dans la sauvegarde Android. Décision du développeur : concevoir d'abord une
+difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
+
+- [ ] **P7.27** Courbe de difficulté du Serrurier au-delà de la serrure 4 (nombre de pièces, trou, paliers), avec
+  `designer-jeu`, décidée par le développeur avant P7.29 : ce qui sera figé par le contrat de génération.
+- [ ] **P7.28** Spécification et décision : section « Progression » de `regles-serrurier.md` (le point ouvert
+  « Reprendre à la dernière serrure » est fermé), amendements des ADR 0025 et 0014 (la génération d'une serrure
+  devient un contrat). Après P7.27.
+- [ ] **P7.29** Génération stable (`core:locksmith`) : `StableRandom`, graine = niveau, courbe de P7.27,
+  `Padlock.ofLevel(level)`, test de contrat (serrures 1 à 5 en ASCII, empreinte des serrures 1 à 200). Après P7.28.
+- [ ] **P7.30** `LocksmithRoute(level)` sans graine, `next()`, route restaurée ; `app` (`nextPadlock`,
+  `OpenCartridgeTest`, `NextPadlockTest`). Après P7.29.
+- [ ] **P7.31** `PadlockResult` (pur, `core:locksmith`) : coups, refus, indices ; ordre du meilleur (indices, coups,
+  refus) et parfaite (un coup par pièce, sans refus ni indice). Après P7.28.
+- [ ] **P7.32** `PadlockProgressRepository` (`core:data`) : meilleures ouvertures des serrures 1 à N, fichier binaire
+  versionné avec numéro de génération, contrat, faux, `DataStoreFileContract`, fichier mis de côté, sauvegarde
+  incluse (`BackupRulesTest`). Après P7.31.
+- [ ] **P7.33** Écriture à l'ouverture (ViewModel, portée d'application, `IOException` qui laisse jouer) ; carte de
+  V35 : meilleure ouverture, NOUVEAU MEILLEUR ou PARFAITE, « Reprendre à la serrure N » après un rejeu ; Effets
+  réduits ; captures. Après P7.30, P7.32.
+- [ ] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
+  `app`), parcours Macrobenchmark vérifié. Après P7.32.
+- [ ] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
+  ouvrir, en cours, verrouillées de sa rangée), état vide, TalkBack, police ×2, captures jour, nuit, grande police.
+  Après P7.32.
+- [ ] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
+  (choisir remplace la serrure sous la liste, le retour garde la serrure en cours). Après P7.35.
+- [ ] **P7.37** Recommencer depuis le début : confirmation dans la page, résultats effacés, pile remise à la
+  serrure 1. Après P7.35.
+- [ ] **P7.38** Mettre à jour la maquette (depuis claude.ai) : V35 (disque Serrures, carte), V36 (sous-ligne de la
+  cartouche), nouvelle vue « Serrures » (jour, nuit, vide, grande police, confirmation), pictogrammes. Numéro de vue
+  à attribuer avec ceux de P10.33 et P12.10.
+- [ ] **P7.39** Juger avec `designer-jeu` les captures de P7.33 à P7.37 (contraste de la case verrouillée, carte à
+  trois boutons).
+- [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
+  2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
+  toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
+  pose au relâcher, décalage sous le doigt…) avant de coder.
+
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
 Règles : [docs/musique-vivante.md](docs/musique-vivante.md). Architecture : ADR 0026. Un choix de musique du
@@ -1519,7 +1563,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   libérer à la sortie du jardin. Après P10.12.
 - [ ] **P10.22** Recaler la tête de lecture (Jardin, éditeur de musique) sur le son réellement entendu : elle suit
   le temps des images, pas la position du lecteur, d'où un décalage de la latence audio (revue de P10.12). Après P10.12.
-- [ ] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
+- [x] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
   les 4 écrans qui écoutent (accueil, Mes musiques, éditeur, Jardin), par un `LifecycleEventEffect` partagé (revue de
   P10.12, règle de 2). Après P10.12.
 
@@ -1528,7 +1572,7 @@ Mes jardins (demande du développeur, 2026-10-28 : « enregistrer les musiques �
 remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musiques, que l'éditeur ne saurait ouvrir
 (2 mesures, jusqu'à 15 voix, triolets, tempos hors pas de 10).
 
-- [ ] **P10.24** Spécification « Mes jardins » dans `jardin-musical.md` et amendement de l'ADR 0027 (plusieurs
+- [x] **P10.24** Spécification « Mes jardins » dans `jardin-musical.md` et amendement de l'ADR 0027 (plusieurs
   jardins, lien du jardin en cours, limite de 30, rôle de `garden.bin` et `gardens.bin`) ; trancher la place du disque
   dans la barre V40 à 360 dp (4ᵉ disque, ou le dé dans la rangée d'information) et les noms proposés.
 - [x] **P10.25** Règles de nom communes (`MusicNames` rendu générique dans `core:data` : `nameProblem`, `freeName` sur
@@ -1542,7 +1586,8 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   lit sans lien). Après P10.27.
 - [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
-  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Contour de la miniature à décider : ses cases libres hors bandes se confondent avec `panel` (cadre `board`, fond `panel-inset` de la rangée, ou rien ; P10.31). Après P10.27, P10.28.
+  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Contour de la miniature à décider : ses cases libres hors bandes
+  se confondent avec `panel` (cadre `board`, fond `panel-inset` de la rangée, ou rien ; P10.31). Après P10.27, P10.28.
 - [ ] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
 - [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
