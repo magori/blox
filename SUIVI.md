@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 261 / 349 | `███████████████░░░░░` **75 %** |
+| **Général** | 262 / 349 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1515,7 +1515,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   libérer à la sortie du jardin. Après P10.12.
 - [ ] **P10.22** Recaler la tête de lecture (Jardin, éditeur de musique) sur le son réellement entendu : elle suit
   le temps des images, pas la position du lecteur, d'où un décalage de la latence audio (revue de P10.12). Après P10.12.
-- [ ] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
+- [x] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
   les 4 écrans qui écoutent (accueil, Mes musiques, éditeur, Jardin), par un `LifecycleEventEffect` partagé (revue de
   P10.12, règle de 2). Après P10.12.
 

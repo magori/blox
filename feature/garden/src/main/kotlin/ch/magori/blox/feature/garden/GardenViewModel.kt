@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.garden
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -270,12 +269,10 @@ class GardenViewModel internal constructor(
     }
 
     /**
-     * The garden went through [event]: once it is no longer visible (`ON_STOP`: the application in the background), the
-     * score stops. A pause alone, behind a dialog or in a split screen, lets it play on.
+     * The garden is no longer visible (the application in the background): its score stops
+     * ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_STOP) stopListening()
-    }
+    internal fun onHidden() = stopListening()
 
     /** The garden leaves the stack: its score stops with it. */
     override fun onCleared() = stopListening()

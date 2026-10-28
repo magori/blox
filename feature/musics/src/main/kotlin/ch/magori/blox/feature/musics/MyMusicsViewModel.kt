@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.musics
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -187,12 +186,10 @@ class MyMusicsViewModel(
     }
 
     /**
-     * The list went through [event]: once it is no longer visible (`ON_STOP`: the application in the background), the
-     * music being listened to stops. A pause alone, behind a dialog or in a split screen, lets it play on.
+     * The list is no longer visible (the application in the background): the music being listened to stops
+     * ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_STOP) stopListening()
-    }
+    internal fun onHidden() = stopListening()
 
     /** The screen leaves the stack: the music being listened to stops with it. */
     override fun onCleared() = stopListening()

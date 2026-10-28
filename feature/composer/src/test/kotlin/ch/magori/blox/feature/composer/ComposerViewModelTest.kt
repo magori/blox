@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.composer
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
@@ -508,18 +507,15 @@ class ComposerViewModelTest {
     }
 
     @Test
-    fun `the music stops when the editor goes to the background, and plays on behind a dialog`() {
+    fun `the music stops when the editor goes to the background`() {
         // Given
         viewModel.onCellTouched(pitch("E4"), eighth = 0)
         viewModel.onListen()
 
-        // When a dialog shows, then the application goes to the background
-        viewModel.onLifecycleEvent(Lifecycle.Event.ON_PAUSE)
-        val paused = music.playing
-        viewModel.onLifecycleEvent(Lifecycle.Event.ON_STOP)
+        // When the application goes to the background
+        viewModel.onHidden()
 
         // Then
-        assertThat(paused).isEqualTo(NEW_ID)
         assertThat(music.calls).containsExactly(PLAY, "stop")
         assertThat(viewModel.shown.played).isNull()
     }
