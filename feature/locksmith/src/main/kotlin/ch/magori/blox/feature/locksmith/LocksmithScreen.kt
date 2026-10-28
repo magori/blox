@@ -76,6 +76,7 @@ import ch.magori.blox.core.board.lock.LockCellCut
 import ch.magori.blox.core.board.lock.LockCellLight
 import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
+import ch.magori.blox.core.board.music.chordTellingOf
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
 import ch.magori.blox.core.designsystem.component.ChordPill
@@ -86,6 +87,7 @@ import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.component.WindowPanel
 import ch.magori.blox.core.designsystem.frame.FrameTicks
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.text.chordsText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -376,13 +378,10 @@ private fun chordBandReading(chords: ChordsRead): String {
     }
 }
 
-/** How TalkBack reads [numerals], one after the other: « 5 majeur, 1 majeur ». */
+/** How TalkBack reads [numerals], one after the other, as every screen reads chords: « 5 majeur, 1 majeur ». */
 @Composable
 @ReadOnlyComposable
-private fun chordNames(numerals: List<RomanNumeral>): String {
-    val separator = stringResource(R.string.feature_locksmith_chords_separator)
-    return numerals.map { stringResource(chordNameOf(it), it.degree.toString()) }.joinToString(separator)
-}
+private fun chordNames(numerals: List<RomanNumeral>): String = chordsText(numerals.map(::chordTellingOf))
 
 /** A bracket opening upwards, as wide as the pills above it, in [color]. */
 @Composable

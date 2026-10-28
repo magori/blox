@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer.grid
 
+import ch.magori.blox.core.designsystem.text.NoteStep
 import ch.magori.blox.core.music.MELODY_RANGE
 import ch.magori.blox.feature.composer.model.pitch
 import org.assertj.core.api.Assertions.assertThat

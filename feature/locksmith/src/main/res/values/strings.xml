@@ -43,10 +43,6 @@
     <string name="feature_locksmith_chords">Accords entendus : %1$s. À venir : %2$s.</string>
     <string name="feature_locksmith_chords_none_heard">Aucun accord entendu. À venir : %1$s.</string>
     <string name="feature_locksmith_chords_all_heard">Accords entendus : %1$s.</string>
-    <string name="feature_locksmith_chords_separator">", "</string>
-    <string name="feature_locksmith_chord_major">%1$s majeur</string>
-    <string name="feature_locksmith_chord_minor">%1$s mineur</string>
-    <string name="feature_locksmith_chord_diminished">%1$s diminué</string>
     <string name="feature_locksmith_open_title">Serrure ouverte !</string>
     <string name="feature_locksmith_open_moves">Coups</string>
     <string name="feature_locksmith_open_refusals">Refus</string>

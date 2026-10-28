@@ -385,7 +385,7 @@ private fun ChordBand(
     playedChord: Int?,
     cell: Dp,
 ) {
-    val reading = chordsText(mood)
+    val reading = moodChordsText(mood)
     val group = cell * GardenMood.EIGHTHS_PER_CHORD
     Row(
         modifier = Modifier
