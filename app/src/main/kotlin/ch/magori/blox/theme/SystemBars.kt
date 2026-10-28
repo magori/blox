@@ -14,12 +14,13 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 
 /**
  * Gives the system bars the style of the variant drawn under them ([systemBarVariant]): that of the theme drawn, or the
- * Colorful one of [darkSystem] under the Locksmith or a daily game, the screen on [top] of the stack. Again whenever it
- * changes: the player picks another theme, opens the Locksmith or a daily game, or the mode of the system changes. [top]
+ * Colorful one of [darkSystem] under a screen drawn in that theme only, the screen on [top] of the stack. Again whenever
+ * it changes: the player picks another theme, opens such a screen, or the mode of the system changes. [top]
  * is read here alone, so that a change of screen recomposes these bars, not the navigation. Left to itself,
  * `enableEdgeToEdge` follows the mode of the system, and Original, light day and night, would get light icons on its
  * light page at night.
@@ -36,8 +37,8 @@ internal fun BloxSystemBars(
 
 /**
  * The variant whose page the system bars lie on, with [top] on top of the stack: the Colorful variant of the mode of the
- * system, [darkSystem], under the choice of the game, the Locksmith, the entry of the daily seed and a daily game, which
- * are drawn in the Colorful theme only (ADR 0026); else the [chosen] variant.
+ * system, [darkSystem], under the choice of the game, the Locksmith, the entry of the daily seed, a daily game and the
+ * musical garden, which are drawn in the Colorful theme only (ADR 0026, ADR 0027); else the [chosen] variant.
  */
 internal fun systemBarVariant(
     top: NavKey?,
@@ -49,6 +50,7 @@ internal fun systemBarVariant(
 private fun isColorfulOnly(top: NavKey?): Boolean = top is CartridgesRoute ||
     top is LocksmithRoute ||
     top is DailyRoute ||
+    top is GardenRoute ||
     (top is GameRoute && top.variant.colorfulOnly)
 
 /** Whether the icons of the system bars are dark, to be read on the page of [variant]: dark on a light page. */

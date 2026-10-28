@@ -23,10 +23,13 @@ import ch.magori.blox.core.audio.effectSampleRate
 import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
 import ch.magori.blox.core.data.DailyChallengeRepository
 import ch.magori.blox.core.data.DataStoreDailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreGardenRepository
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
+import ch.magori.blox.core.data.GARDEN_FILE
+import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
@@ -49,6 +52,7 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -126,6 +130,14 @@ class AppContainer(context: Context) {
      */
     val musicLibrary: MusicLibrary =
         DataStoreMusicLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, MUSICS_FILE) }
+
+    /**
+     * The last garden of the Jardin musical, its pieces and its mood, in `files/datastore/garden.bin`: a creation of the
+     * player, which the backup rules keep, as the musics. Built here, once for the process; the screen of the garden
+     * (`feature:garden`) will read it when it opens and write it at each change.
+     */
+    internal val keptGarden: GardenRepository =
+        DataStoreGardenRepository(dataScope) { dataStoreFile(filesDir, GARDEN_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
@@ -256,6 +268,9 @@ class AppContainer(context: Context) {
      */
     val dailyViewModelFactory: DailyViewModel.Factory =
         DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /** Builds the view model of the musical garden (ADR 0027); the garden kept will come to it (P10.11). */
+    val gardenViewModelFactory: GardenViewModel.Factory = GardenViewModel.Factory()
 
     /**
      * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results

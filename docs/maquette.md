@@ -91,7 +91,7 @@ prenant les jetons des pièces.
 `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`,
 `CartridgeTest › each cartridge bears the mascot of its game, the T, the O or the Z`,
 `CartridgeTest › the cartridges are the Classic, the Locksmith and the Graine du jour, in this order`,
-`SystemBarsTest › the bars of the cartridges follow their colorful variant`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
 `StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,
 `StrokeIconTest › the eject of the console of the choice of the game is filled, without strokes, as its drawing says` ;

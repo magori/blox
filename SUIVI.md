@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 253 / 321 | `████████████████░░░░` **79 %** |
+| **Général** | 255 / 322 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1490,6 +1490,11 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.17** Régler à l'oreille, sur un téléphone, les valeurs de départ du Jardin (décisions du développeur
   des 2026-10-27 et 28, en constantes nommées) : tempos des ambiances, tonique de Calme, octave de la basse, volumes
   (0,06 et 0,16) et poids de la note du dé (`GardenRating`). Après P10.12.
+- [ ] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
+  d'`AppContainer`), l'écran s'ouvre sur le jardin gardé et chaque changement est gardé ; une écriture ratée
+  (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
+  autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après
+  P10.9, P10.11.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1511,7 +1516,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
   pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
   seulement ; contour d'aperçu et croix d'au moins 2 dp à 22 dp (designer-jeu, P10.14).
-- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+- [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
 - [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
@@ -1520,7 +1525,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9. Maquette V40 (P10.14) : bac de 4 × 84 dp à 6 dp d'écart, « Retirer »
   hors du groupe de choix pour TalkBack, rangée d'information sur 2 lignes (« Do mineur harmonique · 100 bpm » ne
   tient pas à côté de « Tout effacer »).
-- [ ] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
+- [x] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
   lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
   read back, its mood too`, `an unreadable garden gives an empty one`.
 - [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de

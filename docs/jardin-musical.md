@@ -10,7 +10,7 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 (2026-10-26), décisions du développeur le 2026-10-26. Architecture :
 [ADR 0027](adr/0027-le-jardin-musical.md), calqué sur l'[ADR 0025](adr/0025-le-serrurier.md).
 
-> Traçabilité : le domaine est implémenté au fil de la phase P10 de [SUIVI.md](../SUIVI.md) (`core:garden` : jardin P10.4, ambiances P10.5, partition P10.6, dé P10.7) ; l'écran viendra avec `feature:garden`.
+> Traçabilité : le domaine est implémenté au fil de la phase P10 de [SUIVI.md](../SUIVI.md) (`core:garden` : jardin P10.4, ambiances P10.5, partition P10.6, dé P10.7) ; l'écran est dans `feature:garden` (squelette P10.9, écran jouable P10.10).
 > Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à
 > l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
 
@@ -209,13 +209,42 @@ des candidats, évaluer, garder le meilleur.
 ## Jardin gardé
 
 - Le dernier jardin (pièces et ambiance) est **gardé automatiquement** (DataStore, fichier à lui,
-  décision du développeur) à chaque pose, reprise, effacement ou changement d'ambiance, et
-  retrouvé à l'ouverture. Pas de bouton Enregistrer.
+  `garden.bin`, décision du développeur) à chaque pose, reprise, effacement ou changement
+  d'ambiance, et retrouvé à l'ouverture. Pas de bouton Enregistrer. Dépôt `GardenRepository`
+  (`core:data`, P10.11) : le jardin en `Flow`, vide et calme (`Garden.EMPTY`) tant que rien n'est
+  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran devra la rattraper, P10.18).
 - **Pas d'export** vers « Mes musiques » en v1 (décision du développeur).
-- Un jardin illisible (format inconnu) est remplacé par un jardin vide, sans erreur à l'écran ;
-  le format porte une version.
-- Inclus dans la sauvegarde du téléphone **[à vérifier]**.
+- **Format versionné** (version 1, amendement de l'ADR 0027) : « BLXG », la version, le nom de
+  l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
+  ligne), ses 4 cases en décalages depuis le pivot, ligne par ligne (le fichier ne dépend pas de
+  l'ordre des orientations). Les noms d'ambiance et de type ne changent plus. À la lecture, chaque
+  pièce est reposée dans le jardin comme par le joueur.
+- Un jardin illisible (pas un jardin, tronqué, octets après la dernière pièce, ambiance ou type
+  inconnus, pièce hors grille, superposée ou de forme étrangère à son type) est d'abord copié dans
+  `garden.bin.corrupt`, puis remplacé par un jardin vide et calme, sans erreur à l'écran. Un
+  fichier d'une version plus récente (restauré depuis un BloX plus récent) donne un jardin vide mais
+  est gardé tel quel : aucune écriture tant que cette version n'est pas là, comme les musiques.
+- Inclus dans la sauvegarde du téléphone (décision du développeur, 2026-10-28 : une création du
+  joueur, comme « Mes musiques »).
 - Pas de records ni de compteurs : rien n'est noté.
+
+  **Tests :** `GardenRepositoryContract › without a garden kept the garden is empty and calm`,
+  `GardenRepositoryContract › the last garden kept is the one read, in place of the one before`,
+  `GardenRepositoryContract › a garden that cannot be kept fails with an IOException, and the garden kept before is read`,
+  `GardenRepositoryContract › the garden read follows each garden kept`,
+  `DataStoreGardenRepositoryTest › the garden kept is read back, its mood too`,
+  `DataStoreGardenRepositoryTest › an unreadable garden gives an empty one`,
+  `DataStoreGardenRepositoryTest › a corrupted garden file is copied aside before it is replaced`,
+  `DataStoreGardenRepositoryTest › a garden file of version 1 is read as it was written, a format that must not change`,
+  `DataStoreGardenRepositoryTest › a garden is written in version 1, its mood then each piece by its type, its pivot and its cells`,
+  `DataStoreGardenRepositoryTest › the cells of a piece are written row by row from the top, whatever the order of its orientation`,
+  `DataStoreGardenRepositoryTest › a garden file of a later version gives an empty garden, and is kept for that version`,
+  `DataStoreGardenRepositoryTest › a garden file of a version below 1 is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file holding two pieces on the same cells is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file holding what no garden can be is corrupted, and gives an empty garden`,
+  `DataStoreGardenRepositoryTest › a garden file that counts billions of pieces gives an empty garden, without allocating them`,
+  `DataStoreGardenRepositoryTest › the names of the enums written in the garden file do not change`,
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`.
 
 ## Son
 
@@ -239,13 +268,23 @@ des candidats, évaluer, garder le meilleur.
 **Thème : Couleurs v2 seulement** (jour et nuit selon le téléphone), comme le Serrurier
 (décision du développeur, 2026-10-26) ; barres système selon cette variante. Conception de
 `designer-jeu` (2026-10-26), téléphone debout (390 × 844) ; vue **V40** de la
-[maquette](maquette.md) (à dessiner).
+[maquette](maquette.md). L'écran est dans `feature:garden` (clé `GardenRoute`, entrée `gardenEntry`,
+`GardenViewModel` et sa fabrique construite par `app`), sous `ColorfulTheme`.
+**Tests :** `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 
 **Intention** : un bac à sable où chaque pose sonne juste, sans échec ni chronomètre.
 
 De haut en bas :
 
-- **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter.
+- **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter. Codé (squelette,
+  P10.9) : Changer de jeu, qui revient au choix du jeu et ne compte qu'écran actif (`dropUnlessResumed`),
+  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur un jardin vide
+  et calme.
+  **Tests :** `GardenScreenTest › the title of the bar shows JARDIN MUSICAL and is read as a heading`,
+  `GardenScreenTest › Changer de jeu is handed to app`,
+  `GardenScreenTest › Changer de jeu counts only while the garden is resumed`,
+  `BloxNavDisplayTest › changing the game from the musical garden goes back to the cartridges`,
+  `GardenViewModelTest › the garden opens empty and calm`.
 - **Ambiance** : groupe de choix de 4 segments de 48 dp (Joyeux, Calme, Mystère, Épique).
 - **Rangée d'information** : « Do pentatonique · 84 bpm » et un bouton « Tout effacer ».
 - **Bande des accords** : 4 pilules (noms de `RomanNumeral.name`), alignées sur les groupes de
