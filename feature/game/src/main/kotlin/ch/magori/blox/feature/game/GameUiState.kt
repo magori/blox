@@ -100,6 +100,7 @@ internal fun GameState.toGameOverUiState(
     newBest: Boolean,
     resultsKept: Boolean,
     previousBest: Int,
+    practice: Boolean,
 ): GameOverUiState = GameOverUiState(
     score = progress.score,
     lines = progress.lines,
@@ -109,4 +110,5 @@ internal fun GameState.toGameOverUiState(
     newBest = newBest,
     resultsKept = resultsKept,
     previousBest = previousBest,
+    practice = practice,
 )

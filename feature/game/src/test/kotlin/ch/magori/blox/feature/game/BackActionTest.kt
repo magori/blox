@@ -52,6 +52,7 @@ class BackActionTest {
             newBest = false,
             resultsKept = true,
             previousBest = 0,
+            practice = false,
         )
 
         // When / Then

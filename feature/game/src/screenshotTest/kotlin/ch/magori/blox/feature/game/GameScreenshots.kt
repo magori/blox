@@ -8,6 +8,7 @@ import ch.magori.blox.feature.game.controls.GameControlsLeftHandedPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
 import ch.magori.blox.feature.game.gameover.GameOverDailyNewBestPreview
+import ch.magori.blox.feature.game.gameover.GameOverDailyPracticePreview
 import ch.magori.blox.feature.game.gameover.GameOverLargeFontPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalPreview
@@ -353,3 +354,20 @@ private fun GameOverDailyNewBestNight() = GameOverDailyNewBestPreview()
 @Preview(fontScale = 2f)
 @Composable
 private fun GameOverDailyLargeFont() = GameOverDailyNewBestPreview()
+
+/** The game over of a daily game not counted (P9.9): « Partie d’entraînement », without Copier. */
+@PreviewTest
+@Preview
+@Composable
+private fun GameOverDailyPractice() = GameOverDailyPracticePreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameOverDailyPracticeNight() = GameOverDailyPracticePreview()
+
+/** The game over of a daily game not counted, font enlarged: « Partie d’entraînement » still fits. */
+@PreviewTest
+@Preview(fontScale = 2f)
+@Composable
+private fun GameOverDailyPracticeLargeFont() = GameOverDailyPracticePreview()

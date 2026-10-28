@@ -395,6 +395,25 @@ internal class GameScreenTest {
         onNodeWithContentDescription("Copier mon score").assertDoesNotExist()
     }
 
+    @Test
+    @DisplayName("the game over of a daily game not counted tells a practice game, and a counted one does not")
+    fun theGameOverOfADailyGameNotCountedTellsAPracticeGame() = extension.use {
+        // Given a daily game over whose try was ignored, its date already passed
+        uiState = ShownScreen.GAME_OVER.change(uiState)
+            .let { it.copy(gameOver = it.gameOver?.copy(resultsKept = false, practice = true)) }
+
+        // When its game over shows
+        showGameScreen(labels = GameLabels.Daily)
+
+        // Then it tells the player the game was only practice
+        onNodeWithText("Partie d’entraînement").assertIsDisplayed()
+
+        // And a counted daily game over says nothing of it
+        uiState = uiState.copy(gameOver = uiState.gameOver?.copy(resultsKept = true, practice = false))
+        waitForIdle()
+        onNodeWithText("Partie d’entraînement").assertDoesNotExist()
+    }
+
     /**
      * A game over of 12 340 points, of a variant ([labels]), and the best before it, beaten or not: the line [shown]
      * under the score, and what TalkBack reads of it after the score ([spoken]); none without a best before.
@@ -557,6 +576,7 @@ internal class GameScreenTest {
                     newBest = false,
                     resultsKept = true,
                     previousBest = 0,
+                    practice = false,
                 ),
             )
         }),
