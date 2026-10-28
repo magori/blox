@@ -48,6 +48,24 @@ class GardenTapTest {
     }
 
     @Test
+    fun `a piece placed is shown placed, for its feedback, each placement a move of its own`() {
+        // Given a T placed, then taken back
+        viewModel.tap(Position(5, 6))
+        viewModel.place()
+        val first = viewModel.uiState.value!!
+        viewModel.tap(Position(5, 6))
+
+        // When placed again
+        viewModel.place()
+
+        // Then
+        val second = viewModel.uiState.value!!
+        assertThat(first.change).isEqualTo(GardenChange.Placed(T_AT_5_6))
+        assertThat(second.change).isEqualTo(GardenChange.Placed(T_AT_5_6))
+        assertThat(second.move).isGreaterThan(first.move)
+    }
+
+    @Test
     fun `touching a placed piece takes it back as the preview, where it lay, in its type and orientation`() {
         // Given an L placed on its side
         val lying = ClassicRotationSystem.orientations(PieceType.L).first()

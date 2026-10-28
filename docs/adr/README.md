@@ -28,7 +28,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0020](0020-un-theme-deux-variantes.md) | Un thème, des variantes ; Couleurs v2 remplace Couleurs ; une mise en page pour tous les thèmes | Acceptée |
 | [0021](0021-polices-couleurs-v2.md) | Polices de Couleurs v2 | Acceptée ; amende 0016 |
 | [0022](0022-choix-du-jeu-a-la-racine.md) | Choix du jeu : une feature à la racine de la pile | Acceptée ; amende 0011 ; amendée par 0025, 0026 et 0027 |
-| [0023](0023-rendu-du-plateau-dans-core-board.md) | Le rendu du plateau dans `core:board` | Acceptée ; amende 0005 |
+| [0023](0023-rendu-du-plateau-dans-core-board.md) | Le rendu du plateau dans `core:board` | Acceptée ; amende 0005 ; amendée le 2026-10-28 (noms de notes et d’accords, P10.19) |
 | [0024](0024-retours-de-jeu-et-effets-reduits.md) | Retours de jeu cadencés par les ticks, dessinés sans recomposition ; Effets réduits portés par le thème | Acceptée ; complète 0012 |
 | [0025](0025-le-serrurier.md) | Le Serrurier : un second jeu, `core:locksmith` et `feature:locksmith` | Acceptée ; amende 0002 et 0022 |
 | [0026](0026-jeux-musicaux-variantes-du-classique.md) | Jeux musicaux : variantes du Classique et records (Musique vivante, Graine du jour, Au tempo) | Acceptée ; amende 0014 et 0022 |

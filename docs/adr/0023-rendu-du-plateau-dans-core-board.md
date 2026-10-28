@@ -22,3 +22,14 @@ jamais d'une autre. `core:designsystem` ne connaît pas le domaine, donc pas `Pi
 - La règle de l'ADR 0005 « les styles de pièces vivent dans `feature:game` » devient « dans
   `core:board` » ; le domaine ne connaît toujours aucune couleur.
 - `core:board` applique `blox.design.tokens` pour les jetons `piece-*` (ADR 0019).
+
+## Amendement (2026-10-28, P10.19)
+
+Les noms de notes et d'accords lus par TalkBack, définis à part dans l'éditeur de musique, le Serrurier et le
+Jardin (et déjà divergents : le ♭VII lu « 7 majeur » au Serrurier, « 7 bémol majeur » au Jardin), sont mis en commun
+sur le même principe que le plateau :
+
+- `core:designsystem` porte les mots et leur ordre, sans type du domaine : `NoteStep`, `SpokenAccidental`,
+  `SpokenChordQuality`, `ChordTelling`, `noteText`, `chordText`, `chordsText` et leurs chaînes ;
+- `core:board` fait le pont avec le domaine : `chordTellingOf(RomanNumeral)`, `Accidental.spoken`. Il dépend donc
+  aussi de `core:music`, en `api` puisque ces fonctions en exposent les types.

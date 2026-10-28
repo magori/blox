@@ -99,13 +99,19 @@ class GardenViewModel internal constructor(
 
     /**
      * Adopts [garden] in place of the one under way: shown at once, and kept. The single way in of every change of the
-     * garden (poser, reprendre, Tout effacer, Au hasard, Annuler, the mood: P10.10). While the garden is listened to,
+     * garden (poser, reprendre, Tout effacer, Au hasard, Annuler, the mood: P10.10), shown as the [change] the screen
+     * animates, if any, a move of its own (P10.15). While the garden is listened to,
      * the music goes on with its score at the next bar line, at the same rank, without a cut. A garden that cannot be
      * written (an [IOException], a full disk or a file of a later version) stays on screen, the last one kept stays on
      * the device; any other failure is a bug, and goes through to [appScope].
      */
-    internal fun adopt(garden: Garden) {
-        state.update { it?.copy(garden = garden, undo = null) ?: GardenUiState(garden) }
+    internal fun adopt(
+        garden: Garden,
+        change: GardenChange? = null,
+    ) {
+        state.update {
+            it?.copy(garden = garden, undo = null, change = change, move = it.move + 1) ?: GardenUiState(garden)
+        }
         undoTime?.cancel()
         listening?.let { playing ->
             music.switchTo(garden.toScore())
@@ -157,10 +163,11 @@ class GardenViewModel internal constructor(
         state.update { it?.copy(orientation = ClassicRotationSystem.rotate(it.chosen, it.orientation, rotation)) }
     }
 
-    /** Chooses [mood]: the pieces stay where they are, heard in that mood. */
+    /** Chooses [mood]: the pieces stay where they are, heard in that mood; the mood already chosen changes nothing. */
     internal fun chooseMood(mood: GardenMood) {
         val current = state.value ?: return
-        adopt(current.garden.withMood(mood))
+        if (current.garden.mood == mood) return
+        adopt(current.garden.withMood(mood), GardenChange.MoodChosen)
     }
 
     /** Tout effacer: nothing placed, in the same mood; « Annuler » gives the garden from before back. */
@@ -176,7 +183,7 @@ class GardenViewModel internal constructor(
      */
     internal fun roll(undoMillis: Long = UNDO_MILLIS) {
         val current = state.value ?: return
-        adopt(GardenComposer.compose(current.garden.mood, random.nextLong()))
+        adopt(GardenComposer.compose(current.garden.mood, random.nextLong()), GardenChange.Rolled)
         if (current.garden.pieces.isNotEmpty()) offerUndo(current.garden, undoMillis)
     }
 
@@ -210,7 +217,7 @@ class GardenViewModel internal constructor(
         val placement = current.garden.place(preview)
         if (placement is GardenPlacement.Placed) {
             state.value = current.copy(aim = null)
-            adopt(placement.garden)
+            adopt(placement.garden, GardenChange.Placed(preview))
         }
     }
 

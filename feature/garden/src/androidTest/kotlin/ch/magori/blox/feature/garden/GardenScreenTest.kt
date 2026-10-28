@@ -4,6 +4,10 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.platform.AccessibilityManager
 import androidx.compose.ui.platform.LocalAccessibilityManager
 import androidx.compose.ui.platform.LocalDensity
@@ -13,6 +17,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasContentDescription
@@ -213,6 +218,32 @@ internal class GardenScreenTest {
         val remove = onNodeWithText(string(R.string.feature_garden_remove)).getUnclippedBoundsInRoot()
         val bar = onNodeWithText(string(R.string.feature_garden_cleared)).onParent().getUnclippedBoundsInRoot()
         assertThat(remove.bottom.value).isLessThanOrEqualTo(bar.top.value)
+    }
+
+    @Test
+    @DisplayName("shown again on a garden rolled before, as on coming back to it, the screen does not replay the fall")
+    fun aGardenRolledBeforeDoesNotFallAgain() = extension.use {
+        // Given the garden at rest; then shown again, a new screen, on the same garden just rolled, move 3
+        mainClock.autoAdvance = false
+        val atRest = GardenUiState(I_AT_THE_BOTTOM)
+        val rolled = atRest.copy(change = GardenChange.Rolled, move = 3)
+        var state by mutableStateOf(atRest)
+        setContent {
+            BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+                // A new screen for each state shown, as on coming back to the garden.
+                key(state) { GardenScreen(uiState = state, actions = GardenActions.None) }
+            }
+        }
+        mainClock.advanceTimeByFrame()
+        val still = onNode(cellAt(0, 13)).captureToImage().asAndroidBitmap()
+
+        // When
+        runOnIdle { state = rolled }
+        mainClock.advanceTimeByFrame()
+
+        // Then its I lies where it lies from the first frame, as at rest, without falling
+        val first = onNode(cellAt(0, 13)).captureToImage().asAndroidBitmap()
+        assertThat(first.sameAs(still)).isTrue()
     }
 
     @Test

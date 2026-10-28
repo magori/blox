@@ -67,17 +67,8 @@
     <!-- Grille -->
     <string name="feature_composer_beats">Temps</string>
     <string name="feature_composer_empty_grid">Touche une case pour poser une note</string>
-    <string name="feature_composer_note_do">Do</string>
-    <string name="feature_composer_note_re">Ré</string>
-    <string name="feature_composer_note_mi">Mi</string>
-    <string name="feature_composer_note_fa">Fa</string>
-    <string name="feature_composer_note_sol">Sol</string>
-    <string name="feature_composer_note_la">La</string>
-    <string name="feature_composer_note_si">Si</string>
     <!-- Affiché : une note diésée, « Fa# ». -->
     <string name="feature_composer_note_sharp">%1$s#</string>
-    <!-- Lu par TalkBack : « Fa dièse ». -->
-    <string name="feature_composer_note_sharp_spoken">%1$s dièse</string>
     <string name="feature_composer_register_very_low">très bas</string>
     <string name="feature_composer_register_low">bas</string>
     <string name="feature_composer_register_high">haut</string>

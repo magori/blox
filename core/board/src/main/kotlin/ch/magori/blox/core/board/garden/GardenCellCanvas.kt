@@ -10,11 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.addOutline
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.drawscope.scale
+import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
@@ -37,6 +42,8 @@ import ch.magori.blox.core.game.model.PieceType
  * No logic here: the look comes from [gardenCellStyle], the drawing from [CellPainter], as the cells of the board and of
  * the Locksmith. The grid, its frame, the bands behind the groups ([gardenBand]) and what TalkBack reads of a cell
  * belong to the screen, which passes the state of each cell.
+ * A note plays its [effects], read in the drawing alone (ADR 0024): shown in part or out of its place over the free
+ * cell it leaves, larger, lit in the glow of the theme (`clear-glow`), its dot with it.
  */
 @Composable
 fun GardenCellCanvas(
@@ -45,11 +52,13 @@ fun GardenCellCanvas(
     modifier: Modifier = Modifier,
     inBand: Boolean = false,
     playHead: GardenPlayHead? = null,
+    effects: GardenCellEffects? = null,
     variant: BloxThemeVariant = BloxTheme.variant,
 ) {
     require(variant.kind == BloxThemeKind.COLORFUL) {
         "The musical garden is drawn in the Colorful theme only, not in $variant: the screen must impose it."
     }
+    val glow = BloxTheme.palette.clearGlow
     Spacer(
         modifier = modifier
             .size(size)
@@ -81,21 +90,65 @@ fun GardenCellCanvas(
                     }
                     PlayHeadPaths(look, tint, edge, Stroke(stroke))
                 }
+                // The free cell a note leaves while it is out of its place, or not wholly shown; built once.
+                val free = effects?.let {
+                    CellPainter(
+                        style = gardenCellStyle(variant, GardenCell.Free, inBand),
+                        side = side,
+                        background = background,
+                        density = Density(density, fontScale),
+                    )
+                }
+                val centre = Offset(side / 2, side / 2)
+                val bounds = Rect(Offset.Zero, cellSize)
+                // The layer of a note not wholly shown, only for a note that plays effects.
+                val layer = effects?.let { Paint() }
+
+                // Local functions: compiled to methods, they allocate nothing while drawing.
+                fun DrawScope.asTheNote(draw: DrawScope.() -> Unit) {
+                    if (effects == null || layer == null) return draw()
+                    val shown = effects.shown()
+                    if (shown <= 0f) return
+                    translate(top = -effects.lift() * side) {
+                        scale(effects.scale(), pivot = centre) {
+                            if (shown >= 1f) {
+                                draw()
+                            } else {
+                                layer.alpha = shown
+                                drawContext.canvas.saveLayer(bounds, layer)
+                                draw()
+                                drawContext.canvas.restore()
+                            }
+                        }
+                    }
+                }
+
+                fun DrawScope.drawFreeUnder() {
+                    if (effects == null || free == null) return
+                    if (effects.shown() < 1f || effects.lift() != 0f) free.drawBody(this, withJoint = false)
+                }
+
+                fun DrawScope.drawBody() = asTheNote {
+                    painter.drawBody(this, withJoint = false)
+                    val light = effects?.light() ?: 0f
+                    if (light > 0f) painter.drawLight(this, glow, light * LIGHT_ALPHA)
+                }
                 onDrawBehind {
                     drawRect(background, size = cellSize)
                     if (head == null) {
-                        painter.drawBody(this, withJoint = false)
+                        drawFreeUnder()
+                        drawBody()
                     } else {
                         val (look, tint, edge, stroke) = head
                         clipRect(right = side, bottom = side) {
                             // A free cell lies under the tint; a note or a preview shows over it, as bright as ever.
-                            if (cell == GardenCell.Free) painter.drawBody(this, withJoint = false)
+                            if (cell == GardenCell.Free) painter.drawBody(this, withJoint = false) else drawFreeUnder()
                             drawPath(tint, look.tint)
-                            if (cell != GardenCell.Free) painter.drawBody(this, withJoint = false)
+                            if (cell != GardenCell.Free) drawBody()
                             drawPath(edge, look.frame, style = stroke)
                         }
                     }
-                    painter.drawMarks(this)
+                    asTheNote { painter.drawMarks(this) }
                 }
             },
     )
@@ -177,3 +230,61 @@ private fun previewPlayHead(row: Int): GardenPlayHead = when (row) {
 }
 
 private val PREVIEW_RIM = 8.dp
+
+/** How bright a note lit is at most: its body shows through, as a cell of the Locksmith lit. */
+private const val LIGHT_ALPHA = 0.7f
+
+/** A note under [effects] that never change, as frozen on one frame. */
+private class FrozenEffects(
+    private val shown: Float = 1f,
+    private val lift: Float = 0f,
+    private val scale: Float = 1f,
+    private val light: Float = 0f,
+) : GardenCellEffects {
+    override fun shown(): Float = shown
+
+    override fun lift(): Float = lift
+
+    override fun scale(): Float = scale
+
+    override fun light(): Float = light
+}
+
+/** The effects of the preview, a column each: at rest, lit, bouncing, falling, half shown. */
+private val previewEffects: List<GardenCellEffects> = listOf(
+    FrozenEffects(),
+    FrozenEffects(light = 1f),
+    FrozenEffects(scale = 1.1f),
+    FrozenEffects(lift = 0.5f),
+    FrozenEffects(shown = 0.5f),
+)
+
+/**
+ * The effects of a note frozen on one frame, in cells of 22 dp on the board, a column each: at rest, lit, bouncing to
+ * 1.1 times its size, half a cell above its place, half shown; a free cell above each; a T of the chord, its dot with
+ * it; out of a band, then in a band, then under the play head.
+ */
+@Preview
+@Composable
+internal fun GardenCellEffectsPreview() {
+    BloxTheme(kind = BloxThemeKind.COLORFUL) {
+        val variant = BloxTheme.variant
+        Column(Modifier.background(gardenColors(variant).board).padding(PREVIEW_RIM)) {
+            for (place in 0..2) {
+                for (row in 0..1) {
+                    Row {
+                        for (effects in previewEffects) {
+                            GardenCellCanvas(
+                                cell = if (row == 0) GardenCell.Free else GardenCell.Note(PieceType.T, inChord = true),
+                                size = GardenSizes.cell,
+                                inBand = place == 1,
+                                playHead = if (place == 2) previewPlayHead(row) else null,
+                                effects = effects.takeIf { row == 1 },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

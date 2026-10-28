@@ -44,14 +44,13 @@ class MotionTokensTest {
             CodedToken("motion-sticker", "sticker", BloxMotion.sticker),
             CodedToken("motion-pop", "pop", BloxMotion.pop),
             CodedToken("motion-reduced-fade", "reducedFade", BloxMotion.reducedFade),
+            CodedToken("motion-garden-bounce", "gardenBounce", BloxMotion.gardenBounce),
+            CodedToken("motion-garden-glow", "gardenGlow", BloxMotion.gardenGlow),
+            CodedToken("motion-garden-fall-step", "gardenFallStep", BloxMotion.gardenFallStep),
         )
 
         /** The duration tokens left out of the code, with the reason why. */
-        private val NOT_CODED: Map<String, String> = mapOf(
-            "motion-garden-bounce" to "Le rebond des notes sous la tête de lecture du Jardin musical : codé en P10.15.",
-            "motion-garden-glow" to "L'éclat d'une pièce posée au Jardin, le fondu d'ambiance : codé en P10.15.",
-            "motion-garden-fall-step" to "L'écart entre deux pièces qui tombent, Au hasard : codé en P10.15.",
-        )
+        private val NOT_CODED: Map<String, String> = emptyMap()
 
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED

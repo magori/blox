@@ -30,12 +30,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -76,6 +74,7 @@ import ch.magori.blox.core.board.lock.LockCellCut
 import ch.magori.blox.core.board.lock.LockCellLight
 import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
+import ch.magori.blox.core.board.music.chordTellingOf
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
 import ch.magori.blox.core.designsystem.component.ChordPill
@@ -84,8 +83,9 @@ import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.component.WindowPanel
-import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.designsystem.frame.rememberEffectTick
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.text.chordsText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -150,7 +150,13 @@ internal fun LocksmithScreen(
         val messageFocus = remember { FocusRequester() }
         OpeningFocus(state.game.isOpen, titleFocus, messageFocus)
         val feedback = remember(state) { feedbackOf(state) }
-        val tick = rememberFeedbackTick(feedback, state.move, feedbackTick)
+        // The feedback of the action shown first, as on coming back to the screen, is over already.
+        val tick = rememberEffectTick(
+            key = feedback,
+            move = feedback?.move,
+            frozen = feedbackTick,
+            length = feedback?.ticks(BloxTheme.effects) ?: 0,
+        )
         BoxWithConstraints(
             modifier = modifier
                 .fillMaxSize()
@@ -212,39 +218,6 @@ private fun OpeningFocus(
         }
         wasOpen = isOpen
     }
-}
-
-/**
- * The tick of [feedback] the padlock shows: counted on the frames of the screen from its start, until it is over in
- * the effects of the theme; [frozen] at a tick for the previews. The feedback of the action [move] shown first, as on
- * coming back to the screen, is over already.
- */
-@Composable
-private fun rememberFeedbackTick(
-    feedback: Feedback?,
-    move: Int,
-    frozen: Int?,
-): () -> Int {
-    val first = remember { move }
-    // Set as soon as the feedback changes, so that its first frame never shows the tick of the one before.
-    val ticks = remember(feedback, frozen) {
-        val start = when {
-            frozen != null -> frozen
-            feedback == null || feedback.move == first -> Int.MAX_VALUE
-            else -> 0
-        }
-        mutableIntStateOf(start)
-    }
-    val effects = BloxTheme.effects
-    LaunchedEffect(ticks, effects) {
-        if (frozen != null) return@LaunchedEffect
-        val length = feedback?.ticks(effects) ?: return@LaunchedEffect
-        val frames = FrameTicks()
-        while (ticks.intValue < length) {
-            withFrameNanos { ticks.intValue += frames.advance(it) }
-        }
-    }
-    return remember(ticks) { { ticks.intValue } }
 }
 
 /** Back, the title and the moves, then the padlock of the state of the game, closed, then open. */
@@ -376,13 +349,10 @@ private fun chordBandReading(chords: ChordsRead): String {
     }
 }
 
-/** How TalkBack reads [numerals], one after the other: « 5 majeur, 1 majeur ». */
+/** How TalkBack reads [numerals], one after the other, as every screen reads chords: « 5 majeur, 1 majeur ». */
 @Composable
 @ReadOnlyComposable
-private fun chordNames(numerals: List<RomanNumeral>): String {
-    val separator = stringResource(R.string.feature_locksmith_chords_separator)
-    return numerals.map { stringResource(chordNameOf(it), it.degree.toString()) }.joinToString(separator)
-}
+private fun chordNames(numerals: List<RomanNumeral>): String = chordsText(numerals.map(::chordTellingOf))
 
 /** A bracket opening upwards, as wide as the pills above it, in [color]. */
 @Composable
