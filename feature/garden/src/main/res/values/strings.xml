@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titre de la barre, affiché en capitales ; TalkBack le lit en mots. -->
+    <string name="feature_garden_title">Jardin musical</string>
+    <string name="feature_garden_change_game">Changer de jeu</string>
+</resources>

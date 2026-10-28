@@ -49,11 +49,11 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
-| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7), complétée en P10.14 et P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
+| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7) ; variante à quatre cartouches avec le Jardin musical dessinée en P10.14 (composant `V2Choix4`, ordre Classique, Serrurier, Jardin musical, Graine du jour), complétée en P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
 | V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8) ; [musique-vivante.md](musique-vivante.md) |
 | V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | dessinée (P9.8), codée (P9.5) ; [graine-du-jour.md](graine-du-jour.md) |
 | V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
-| V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | à dessiner (P10.14) ; [jardin-musical.md](jardin-musical.md) |
+| V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | dessinée (P10.14, rangée « Couleurs v2 — V40 Jardin musical », composant `V2Jardin`, ses jetons `garden-*` publiés dans le design system et reportés dans `tokens.json` avec leur code, P10.8) ; [jardin-musical.md](jardin-musical.md) |
 | V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
@@ -91,7 +91,7 @@ prenant les jetons des pièces.
 `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`,
 `CartridgeTest › each cartridge bears the mascot of its game, the T, the O or the Z`,
 `CartridgeTest › the cartridges are the Classic, the Locksmith and the Graine du jour, in this order`,
-`SystemBarsTest › the bars of the cartridges follow their colorful variant`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
 `StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,
 `StrokeIconTest › the eject of the console of the choice of the game is filled, without strokes, as its drawing says` ;

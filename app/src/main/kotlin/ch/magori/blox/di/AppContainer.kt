@@ -52,6 +52,7 @@ import ch.magori.blox.feature.composer.ComposerViewModel
 import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -267,6 +268,9 @@ class AppContainer(context: Context) {
      */
     val dailyViewModelFactory: DailyViewModel.Factory =
         DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /** Builds the view model of the musical garden (ADR 0027); the garden kept will come to it (P10.11). */
+    val gardenViewModelFactory: GardenViewModel.Factory = GardenViewModel.Factory()
 
     /**
      * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
