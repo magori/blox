@@ -47,7 +47,7 @@ public enum class GardenMood(
      */
     public fun chordAt(column: Int): Chord {
         require(column in 0 until Garden.COLUMNS) { "A garden has columns 0 to ${Garden.COLUMNS - 1}, was $column" }
-        return progression.chordAt(column / EIGHTHS_PER_CHORD, scale)
+        return progression.chordAt(groupOf(column), scale)
     }
 
     /** Whether the note of [cell] belongs, in any octave, to the chord of its group. */
@@ -59,6 +59,9 @@ public enum class GardenMood(
 
         /** The eighths of a group, under one chord: half a bar. */
         public const val EIGHTHS_PER_CHORD: Int = Garden.COLUMNS / CHORDS
+
+        /** The group of [column], from 0: the half bar, and the chord, it is heard in. */
+        internal fun groupOf(column: Int): Int = column / EIGHTHS_PER_CHORD
     }
 }
 

@@ -120,6 +120,15 @@ class GardenMoodTest {
         assertThat(isChordNote).isEqualTo(chordNote)
     }
 
+    @ParameterizedTest(name = "column {0} in group {1}")
+    @CsvSource("0, 0", "3, 0", "4, 1", "7, 1", "8, 2", "12, 3", "15, 3")
+    fun `a column belongs to the group of its 4 eighths`(
+        column: Int,
+        group: Int,
+    ) {
+        assertThat(GardenMood.groupOf(column)).isEqualTo(group)
+    }
+
     @ParameterizedTest(name = "column {0}, row {1}")
     @CsvSource("-1, 5", "16, 5", "5, -1", "5, 14")
     fun `a cell off the grid has neither note nor chord`(

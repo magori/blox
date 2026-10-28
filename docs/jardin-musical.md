@@ -150,16 +150,44 @@ de l'ambiance, jouée **en boucle**. C'est une fonction pure.
 Le dé « Au hasard » compose un jardin, sur le principe du générateur et du Serrurier : composer
 des candidats, évaluer, garder le meilleur.
 
-- `GardenComposer.compose(mood, seed)` rend un jardin dans cette ambiance ; c'est une **fonction pure de la graine**, sur le générateur
-  stable `StableRandom` (P1.20) : la même graine et la même ambiance rendent le même jardin.
-- Un candidat pose **6 pièces** **[à vérifier]** : pour chacune, des essais d'un type, d'une
-  orientation et d'un pivot, gardés si la pose est acceptée ; un candidat qui ne pose pas toutes
-  ses pièces est abandonné.
-- Note d'un candidat **[à vérifier]**, entière : la part des notes de l'accord (au moins une note
-  de l'accord par groupe), la variété des types, l'étalement sur les 4 groupes ; à égalité, le
-  premier composé l'emporte. Les poids se règlent en P10.7, à l'oreille.
-- 20 candidats par graine **[à vérifier]** ; chaque candidat a son propre `Random`, tiré d'un
-  maître.
+- `GardenComposer.compose(mood, seed)` rend un jardin **dans cette ambiance** (`Garden.mood`) ;
+  c'est une **fonction pure de la graine**, sur le générateur stable `StableRandom` (P1.20) : la même
+  graine et la même ambiance rendent le même jardin. Les tirages restent dans le contrat de
+  `StableRandom` (`List.random`, `nextInt(until)`) ; le jardin d'une graine n'est pas figé entre
+  versions, puisque les poids de la note se régleront à l'oreille.
+  **Tests :** `GardenComposerTest › the same mood and seed give the same garden`,
+  `GardenComposerTest › the composed garden is in the mood asked`,
+  `GardenComposerTest › different seeds give different gardens`.
+- Un candidat pose **6 pièces** (décision du développeur, 2026-10-27, constante `PIECES`) : pour
+  chacune, on tire un type, une orientation Classique et un pivot sur une case de la grille, et on
+  garde le tirage si la pose est acceptée ; **200 tirages** au plus par pièce
+  (`ATTEMPTS_PER_PIECE`, comme au Serrurier). Un candidat qui ne pose pas toutes ses pièces est
+  **abandonné**, même après en avoir posé.
+  **Tests :** `GardenComposerTest › every seed composes a garden of 6 pieces`,
+  `GardenComposerTest › a candidate that does not place all its pieces is given up`,
+  `GardenComposerTest › a candidate that places some pieces then misses one is given up`.
+- **20 candidats** par graine (décision du développeur, 2026-10-27, constante `CANDIDATES`),
+  abandonnés compris ; chaque candidat a son propre `StableRandom`, tiré d'un maître construit sur la
+  graine, et ne dépend pas des tirages des précédents. Le jardin rendu est le candidat de meilleure
+  note ; à égalité, le premier composé l'emporte. Si les 20 sont abandonnés, c'est une erreur
+  (`IllegalStateException`) : 6 pièces ne couvrent que 24 des 224 cases, la pose réussit plus d'une
+  fois sur deux, et cet échec relèverait d'un invariant brisé, pas du hasard.
+  **Tests :** `GardenComposerTest › the best candidate is kept, the first one among equals`,
+  `GardenComposerTest › the composed garden is the best rated of its candidates`,
+  `GardenComposerTest › a candidate does not depend on the draws of the previous ones`,
+  `GardenComposerTest › when the 20 candidates of a seed are given up the composer fails`.
+- La note d'un candidat (`GardenRating`) est **entière**, premier réglage en constantes nommées, à
+  affiner à l'oreille : **+10 par case sur une note de l'accord de son groupe** (les 24 cases étant
+  fixes, ce compte est leur part), **+30 par groupe contenant au moins une note de son accord**
+  (chaque accord doit s'entendre), **+10 par type de pièce distinct** (variété), **−5 par case
+  d'écart entre le groupe le plus rempli et le moins rempli** (étalement sur les 4 groupes). Le
+  groupe d'une colonne est celui de ses 4 croches (`GardenMood.groupOf`).
+  **Tests :** `GardenRatingTest › the notes of the chord of their group are counted cell by cell`,
+  `GardenRatingTest › the groups holding a note of their chord are counted`,
+  `GardenRatingTest › each type of piece is counted once`,
+  `GardenRatingTest › the gap between the fullest and the emptiest group is counted in cells`,
+  `GardenRatingTest › the points add 10 per note of the chord, 30 per group holding one, 10 per type, minus 5 per cell of gap`,
+  `GardenMoodTest › a column belongs to the group of its 4 eighths`.
 - Au hasard remplace le jardin en cours, ambiance gardée.
 
 ## Jardin gardé
