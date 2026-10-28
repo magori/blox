@@ -68,6 +68,8 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.haptics))
     androidTestImplementation(testFixtures(projects.core.game))
+    // Le jardin du faux dépôt (FakeGardenRepository), que reçoit la fabrique du Jardin.
+    androidTestImplementation(projects.core.garden)
     // `@StringRes` sur les textes lus dans les ressources des features.
     androidTestImplementation(libs.androidx.annotation)
     // `WindowInsetsControllerCompat` : l'apparence réelle des barres système (SystemBarsAppearanceTest).

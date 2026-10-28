@@ -15,11 +15,14 @@ dependencies {
     api(libs.kotlinx.coroutines.core)
     // `api` : la fabrique reçoit de app le lecteur de musique et le lecteur d’effets sonores (P10.12).
     api(projects.core.audio)
+    // `api` : l’état de l’écran porte le jardin et son ambiance, dont les hauteurs (Pitch) ; l’aperçu sonore joue
+    // ses notes (GardenSounds).
+    api(projects.core.music)
 
     // Le jardin et son ambiance (ADR 0027).
     implementation(projects.core.garden)
-    // La note de chaque case de l’aperçu, en effet sonore (GardenSounds).
-    implementation(projects.core.music)
+    // Les pièces et leurs cases (Piece, Position, ClassicRotationSystem).
+    implementation(projects.core.game)
     // Les cases du jardin (GardenCellCanvas), les tuiles du bac (PieceTile), Couleurs seulement (ADR 0023).
     implementation(projects.core.board)
     implementation(libs.androidx.lifecycle.common)
