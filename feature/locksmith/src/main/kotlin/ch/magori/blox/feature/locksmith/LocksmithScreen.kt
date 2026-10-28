@@ -664,31 +664,54 @@ private fun HintAndRestart(
 
 /**
  * The given pieces, one tile each, in their orientation, read with it; a placed one is an empty slot, touched to take it
- * back. The chosen one bears a ring, which goes down with it when pressed.
+ * back. The chosen one bears a ring, which goes down with it when pressed. The tiles shrink to the width, never under a
+ * touch target, then go on two rows ([trayLayout]), the last one centred.
  */
 @Composable
 private fun Tray(
     state: LocksmithUiState,
     actions: LocksmithActions,
 ) {
-    val game = state.game
-    Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
-        game.given.forEachIndexed { rank, type ->
-            val placed = rank in game.placed
-            PieceTile(
-                piece = if (placed) null else pieceCells(type, game.orientationOf(rank)),
-                description = stringResource(
-                    if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
-                    type.name,
-                ),
-                onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
-                modifier = Modifier.testTag(tileTestTag(rank)),
-                chosen = rank == game.selected,
-                // Read on exploring it; a turn is told by the message, the one region announced.
-                stateDescription = if (placed) null else stringResource(orientationOf(game, rank)),
-            )
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        val layout = trayLayout(width = maxWidth, count = state.game.given.size, density = LocalDensity.current)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            state.game.given.indices.chunked(layout.perRow).forEach { ranks ->
+                Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
+                    ranks.forEach { rank -> Tile(state, rank, layout.tile, actions) }
+                }
+            }
         }
     }
+}
+
+/** The tile of the given piece of [rank], [side] wide and high. */
+@Composable
+private fun Tile(
+    state: LocksmithUiState,
+    rank: Int,
+    side: Dp,
+    actions: LocksmithActions,
+) {
+    val game = state.game
+    val type = game.given[rank]
+    val placed = rank in game.placed
+    PieceTile(
+        piece = if (placed) null else pieceCells(type, game.orientationOf(rank)),
+        description = stringResource(
+            if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
+            type.name,
+        ),
+        onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
+        modifier = Modifier
+            .size(side)
+            .testTag(tileTestTag(rank)),
+        chosen = rank == game.selected,
+        // Read on exploring it; a turn is told by the message, the one region announced.
+        stateDescription = if (placed) null else stringResource(orientationOf(game, rank)),
+    )
 }
 
 /** Turn left, Place, turn right: anchored at the bottom of the screen, within reach of the thumb. */
