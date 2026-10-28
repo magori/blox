@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.garden
 
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.data.CurrentGarden
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
@@ -49,6 +50,12 @@ class GardenChangesTest {
         val written = mutableListOf<Garden>()
         val counted = object : GardenRepository {
             override val garden: Flow<Garden> = kept.garden
+
+            override val current: Flow<CurrentGarden> = kept.current
+
+            override suspend fun keep(current: CurrentGarden) {
+                written += current.garden
+            }
 
             override suspend fun keep(garden: Garden) {
                 written += garden
@@ -222,6 +229,12 @@ class GardenChangesTest {
         val written = mutableListOf<Garden>()
         val unread = object : GardenRepository {
             override val garden: Flow<Garden> = flow { awaitCancellation() }
+
+            override val current: Flow<CurrentGarden> = flow { awaitCancellation() }
+
+            override suspend fun keep(current: CurrentGarden) {
+                written += current.garden
+            }
 
             override suspend fun keep(garden: Garden) {
                 written += garden

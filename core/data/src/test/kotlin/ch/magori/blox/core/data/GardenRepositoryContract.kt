@@ -40,6 +40,73 @@ abstract class GardenRepositoryContract {
     }
 
     @Test
+    fun `without a garden kept the garden under way comes from no kept garden`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When
+        val current = repository.current.first()
+
+        // Then
+        assertThat(current).isEqualTo(CurrentGarden(Garden.EMPTY, keptFrom = null))
+    }
+
+    @Test
+    fun `a garden kept with the kept garden it comes from is read with it`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When
+        repository.keep(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+
+        // Then
+        assertThat(repository.current.first()).isEqualTo(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+        assertThat(repository.garden.first()).isEqualTo(A_GARDEN)
+    }
+
+    @Test
+    fun `a change of the garden kept leaves it coming from the same kept garden`() = runTest {
+        // Given a garden that comes from a kept garden
+        val repository = emptyRepository(backgroundScope)
+        repository.keep(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+
+        // When a change of it is kept, as at each gesture
+        repository.keep(ANOTHER_GARDEN)
+
+        // Then
+        assertThat(repository.current.first()).isEqualTo(CurrentGarden(ANOTHER_GARDEN, keptFrom = A_KEPT_GARDEN))
+    }
+
+    @Test
+    fun `a garden kept as coming from no kept garden is no longer linked`() = runTest {
+        // Given a garden that comes from a kept garden
+        val repository = emptyRepository(backgroundScope)
+        repository.keep(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+
+        // When it is kept as coming from none, as when its kept garden is deleted
+        repository.keep(CurrentGarden(A_GARDEN, keptFrom = null))
+
+        // Then
+        assertThat(repository.current.first()).isEqualTo(CurrentGarden(A_GARDEN, keptFrom = null))
+    }
+
+    @Test
+    fun `the garden under way read follows each garden kept with its link, in a single step`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        repository.current.test {
+            assertThat(awaitItem()).isEqualTo(CurrentGarden.EMPTY)
+
+            // When / Then neither the garden without its link, nor the link without its garden
+            repository.keep(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+            assertThat(awaitItem()).isEqualTo(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
+            repository.keep(CurrentGarden(ANOTHER_GARDEN, keptFrom = null))
+            assertThat(awaitItem()).isEqualTo(CurrentGarden(ANOTHER_GARDEN, keptFrom = null))
+        }
+    }
+
+    @Test
     fun `the last garden kept is the one read, in place of the one before`() = runTest {
         // Given a garden kept, then another one in another mood
         val repository = emptyRepository(backgroundScope)
@@ -122,3 +189,6 @@ internal val ANOTHER_GARDEN: Garden = Garden.parse(
     ................
     """,
 ).withMood(GardenMood.EPIC)
+
+/** The identity of a garden kept in « Mes jardins », the one the garden under way comes from. */
+internal val A_KEPT_GARDEN: GardenId = GardenId("8c1f5a3e-2b7d-4e90-a6c4-1d2e3f405162")

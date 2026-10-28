@@ -46,7 +46,19 @@ class DataStoreGardenRepositoryTest :
     }
 
     @Test
-    fun `a garden is written in version 1, its mood then each piece by its type, its pivot and its cells`() = runTest {
+    fun `a garden is written in version 2, the kept garden it comes from, then its mood and each piece`() = runTest {
+        // Given
+        inScopeClosedAfter { scope ->
+            // When a single O in the middle, in the epic mood, that comes from a kept garden, is kept
+            repositoryIn(scope).keep(CurrentGarden(ANOTHER_GARDEN, keptFrom = A_KEPT_GARDEN))
+        }
+
+        // Then
+        assertThat(file.readBytes()).isEqualTo(O_IN_THE_MIDDLE_EPIC_FROM_A_KEPT_GARDEN_FILE)
+    }
+
+    @Test
+    fun `a garden that comes from no kept garden is written with an empty key`() = runTest {
         // Given
         inScopeClosedAfter { scope ->
             // When a single O in the middle, in the epic mood, is kept
@@ -54,8 +66,23 @@ class DataStoreGardenRepositoryTest :
         }
 
         // Then
-        assertThat(file.readBytes()).isEqualTo(O_IN_THE_MIDDLE_EPIC_FILE)
+        assertThat(file.readBytes()).isEqualTo(
+            Buffer().writeUtf8("BLXG").writeInt(2).text("").write(O_IN_THE_MIDDLE_EPIC).readByteArray(),
+        )
     }
+
+    @Test
+    fun `a garden file of version 2 is read with the kept garden it comes from, a format that must not change`() =
+        runTest {
+            // Given
+            file.writeBytes(O_IN_THE_MIDDLE_EPIC_FROM_A_KEPT_GARDEN_FILE)
+
+            // When
+            val current = repositoryIn(backgroundScope).current.first()
+
+            // Then
+            assertThat(current).isEqualTo(CurrentGarden(ANOTHER_GARDEN, keptFrom = A_KEPT_GARDEN))
+        }
 
     @Test
     fun `the cells of a piece are written row by row from the top, whatever the order of its orientation`() = runTest {
@@ -70,7 +97,8 @@ class DataStoreGardenRepositoryTest :
         assertThat(file.readBytes()).isEqualTo(
             Buffer()
                 .writeUtf8("BLXG")
-                .writeInt(1)
+                .writeInt(2)
+                .text("")
                 .text("CALM")
                 .writeInt(1)
                 .text("T").writeInt(1).writeInt(1)
@@ -83,17 +111,63 @@ class DataStoreGardenRepositoryTest :
     }
 
     @Test
-    fun `a garden file of version 1 is read as it was written, a format that must not change`() = runTest {
+    fun `a garden file of version 1 is read as it was written, from no kept garden, a format that must not change`() =
+        runTest {
+            // Given a file written before the kept gardens
+            file.writeBytes(O_IN_THE_MIDDLE_EPIC_FILE)
+
+            // When
+            val current = repositoryIn(backgroundScope).current.first()
+
+            // Then
+            val o = Orientation(setOf(Position(-1, 0), Position(0, 0), Position(-1, 1), Position(0, 1)))
+            assertThat(current.garden.mood).isEqualTo(GardenMood.EPIC)
+            assertThat(current.garden.pieces).containsExactly(Piece(PieceType.O, o, Position(8, 6)))
+            assertThat(current.keptFrom).isNull()
+        }
+
+    @Test
+    fun `a garden file of version 1 is written again in version 2 at the first change`() = runTest {
+        // Given a file of version 1, an empty garden in the calm mood
+        file.writeBytes(Buffer().writeUtf8("BLXG").writeInt(1).text("CALM").writeInt(0).readByteArray())
+
+        // When a change is kept, as at the first gesture
+        inScopeClosedAfter { scope -> repositoryIn(scope).keep(ANOTHER_GARDEN) }
+
+        // Then the file is of version 2, from no kept garden, with the new garden
+        assertThat(file.readBytes()).isEqualTo(
+            Buffer().writeUtf8("BLXG").writeInt(2).text("").write(O_IN_THE_MIDDLE_EPIC).readByteArray(),
+        )
+    }
+
+    @Test
+    fun `a key of a kept garden of 64 bytes, the most, is written and read back`() = runTest {
         // Given
-        file.writeBytes(O_IN_THE_MIDDLE_EPIC_FILE)
+        val longest = CurrentGarden(ANOTHER_GARDEN, keptFrom = GardenId("k".repeat(64)))
 
         // When
-        val garden = repositoryIn(backgroundScope).garden.first()
+        inScopeClosedAfter { scope -> repositoryIn(scope).keep(longest) }
 
         // Then
-        val o = Orientation(setOf(Position(-1, 0), Position(0, 0), Position(-1, 1), Position(0, 1)))
-        assertThat(garden.mood).isEqualTo(GardenMood.EPIC)
-        assertThat(garden.pieces).containsExactly(Piece(PieceType.O, o, Position(8, 6)))
+        assertThat(repositoryIn(backgroundScope).current.first()).isEqualTo(longest)
+    }
+
+    @Test
+    fun `a garden from a key the file could not read back is refused, and the garden kept before stays`() = runTest {
+        // Given a garden kept
+        val repository = repositoryIn(backgroundScope)
+        repository.keep(A_GARDEN)
+        val before = file.readBytes()
+
+        // When a garden from a key of 65 bytes is kept, which the file would take for a corrupted one
+        val failure = runCatching {
+            repository.keep(CurrentGarden(ANOTHER_GARDEN, keptFrom = GardenId("k".repeat(65))))
+        }.exceptionOrNull()
+
+        // Then
+        assertThat(failure).isInstanceOf(IllegalArgumentException::class.java)
+        assertThat(file.readBytes()).isEqualTo(before)
+        assertThat(repository.current.first()).isEqualTo(CurrentGarden(A_GARDEN, keptFrom = null))
     }
 
     @Test
@@ -110,8 +184,8 @@ class DataStoreGardenRepositoryTest :
 
     @Test
     fun `a garden file of a later version gives an empty garden, and is kept for that version`() = runTest {
-        // Given a file of version 2, as a backup of a later BloX would bring back
-        val later = Buffer().writeUtf8("BLXG").writeInt(2).text("EPIC").writeInt(0).readByteArray()
+        // Given a file of version 3, as a backup of a later BloX would bring back
+        val later = Buffer().writeUtf8("BLXG").writeInt(3).text("").text("EPIC").writeInt(0).readByteArray()
         file.writeBytes(later)
         val repository = repositoryIn(backgroundScope)
 
@@ -187,8 +261,8 @@ class DataStoreGardenRepositoryTest :
 
     @Test
     fun `the names of the enums written in the garden file do not change`() {
-        // The format of version 1 writes a mood and a type of piece by its name: renaming a constant would lose the
-        // garden of every player, or change the format (a version 2, GardenSerializer).
+        // The format of versions 1 and 2 writes a mood and a type of piece by its name: renaming a constant would
+        // lose the garden of every player, or change the format (a version 3, GardenSerializer).
         assertThat(GardenMood.entries.map { it.name }).containsExactly("JOYFUL", "CALM", "MYSTERIOUS", "EPIC")
         assertThat(PieceType.entries.map { it.name }).containsExactly("I", "O", "T", "S", "Z", "J", "L")
     }
@@ -207,16 +281,17 @@ class DataStoreGardenRepositoryTest :
     override fun repositoryFailingWith(failure: Exception): GardenRepository =
         DataStoreGardenRepository(FailingDataStore(failure))
 
-    /** The garden kept. */
-    override fun readsOf(repository: GardenRepository): List<Flow<Any?>> = listOf(repository.garden)
+    /** The garden kept, alone then with the kept garden it comes from. */
+    override fun readsOf(repository: GardenRepository): List<Flow<Any?>> = listOf(repository.garden, repository.current)
 
-    /** The empty garden, calm. */
-    override val emptyReads: List<Any?> = listOf(Garden.EMPTY)
+    /** The empty garden, calm, from no kept garden. */
+    override val emptyReads: List<Any?> = listOf(Garden.EMPTY, CurrentGarden.EMPTY)
 
-    /** A garden of two pieces, in the joyful mood, kept. */
-    override suspend fun write(repository: GardenRepository) = repository.keep(A_GARDEN)
+    /** A garden of two pieces, in the joyful mood, from a kept garden, kept. */
+    override suspend fun write(repository: GardenRepository) =
+        repository.keep(CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
 
-    override val readsAfterWrite: List<Any?> = listOf(A_GARDEN)
+    override val readsAfterWrite: List<Any?> = listOf(A_GARDEN, CurrentGarden(A_GARDEN, keptFrom = A_KEPT_GARDEN))
 
     /** A repository on the garden file of [directory], its DataStore in [scope], as in production. */
     override fun repositoryIn(scope: CoroutineScope): GardenRepository =
@@ -226,6 +301,18 @@ class DataStoreGardenRepositoryTest :
         /** [ANOTHER_GARDEN] as the file of version 1 holds it: « BLXG », the version, then [O_IN_THE_MIDDLE_EPIC]. */
         val O_IN_THE_MIDDLE_EPIC_FILE: ByteArray =
             Buffer().writeUtf8("BLXG").writeInt(1).write(O_IN_THE_MIDDLE_EPIC).readByteArray()
+
+        /**
+         * [ANOTHER_GARDEN], from [A_KEPT_GARDEN], as the file of version 2 holds it: « BLXG », the version, the key of
+         * the kept garden it comes from as a text, then [O_IN_THE_MIDDLE_EPIC].
+         */
+        val O_IN_THE_MIDDLE_EPIC_FROM_A_KEPT_GARDEN_FILE: ByteArray =
+            Buffer()
+                .writeUtf8("BLXG")
+                .writeInt(2)
+                .text("8c1f5a3e-2b7d-4e90-a6c4-1d2e3f405162")
+                .write(O_IN_THE_MIDDLE_EPIC)
+                .readByteArray()
 
         /** Files of version 1 that no garden can be, each named by what is wrong with it. */
         @JvmStatic
@@ -252,6 +339,13 @@ class DataStoreGardenRepositoryTest :
                     Buffer().header(pieces = 1).o(column = 8, row = 6).writeInt(0).readByteArray(),
                 "a name longer than 64 bytes" to
                     Buffer().writeUtf8("BLXG").writeInt(1).writeInt(Int.MAX_VALUE).writeUtf8("EPIC").readByteArray(),
+                "in version 2, a blank key of a kept garden" to
+                    Buffer().writeUtf8("BLXG").writeInt(2).text(" ").write(O_IN_THE_MIDDLE_EPIC).readByteArray(),
+                "in version 2, a key of a kept garden longer than 64 bytes" to
+                    Buffer().writeUtf8("BLXG").writeInt(2).text("k".repeat(65)).write(O_IN_THE_MIDDLE_EPIC)
+                        .readByteArray(),
+                "in version 2, cut short in the key of a kept garden" to
+                    Buffer().writeUtf8("BLXG").writeInt(2).writeInt(36).writeUtf8("8c1f").readByteArray(),
             ).map { (case, bytes) -> Arguments.of(case, bytes) }
         }
 

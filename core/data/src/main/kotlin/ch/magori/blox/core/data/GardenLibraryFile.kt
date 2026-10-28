@@ -40,9 +40,6 @@ internal object GardenLibrarySerializer : OkioSerializer<GardenLibraryContent> {
     /** The version of the format, written after [MAGIC]: a change of the format gets a number of its own. */
     private const val VERSION = 1
 
-    /** The most bytes of an identity, far beyond the 36 of the identities the library gives. */
-    private const val MOST_ID_BYTES = 64
-
     /** The most bytes of a name: [KeptGarden.MAX_NAME_LENGTH] characters of 4 bytes each in UTF-8. */
     private const val MOST_NAME_BYTES = KeptGarden.MAX_NAME_LENGTH * 4
 
@@ -103,8 +100,8 @@ internal object GardenLibrarySerializer : OkioSerializer<GardenLibraryContent> {
             "A gardens file holds ${GardenLibrary.MAX_GARDENS} gardens at the most, was ${content.gardens.size}"
         }
         content.gardens.forEach { kept ->
-            require(kept.id.key.utf8Size() <= MOST_ID_BYTES) {
-                "An identity of the file holds $MOST_ID_BYTES bytes at the most"
+            require(kept.id.key.utf8Size() <= GardenId.MOST_KEY_BYTES) {
+                "An identity of the file holds ${GardenId.MOST_KEY_BYTES} bytes at the most"
             }
             require(kept.name.utf8Size() <= MOST_NAME_BYTES) {
                 "A name of the file holds $MOST_NAME_BYTES bytes at the most"
@@ -113,7 +110,7 @@ internal object GardenLibrarySerializer : OkioSerializer<GardenLibraryContent> {
     }
 
     private fun BufferedSource.readKeptGarden(): KeptGarden {
-        val id = GardenId(readText(MOST_ID_BYTES))
+        val id = GardenId(readText(GardenId.MOST_KEY_BYTES))
         val name = readText(MOST_NAME_BYTES)
         val modifiedAt = Instant.ofEpochMilli(readLong())
         return KeptGarden(id, name, readGarden(), modifiedAt)
