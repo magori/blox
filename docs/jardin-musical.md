@@ -10,7 +10,7 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 (2026-10-26), décisions du développeur le 2026-10-26. Architecture :
 [ADR 0027](adr/0027-le-jardin-musical.md), calqué sur l'[ADR 0025](adr/0025-le-serrurier.md).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P10 de [SUIVI.md](../SUIVI.md)).
+> Traçabilité : le domaine est implémenté au fil de la phase P10 de [SUIVI.md](../SUIVI.md) (`core:garden` : jardin P10.4, ambiances P10.5, partition P10.6, dé P10.7) ; l'écran viendra avec `feature:garden`.
 > Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à
 > l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
 
@@ -126,24 +126,40 @@ de l'ambiance, jouée **en boucle**. C'est une fonction pure.
   entière dans l'autre. Presque toutes les pièces mêlent les deux cas (O, S, Z, L, J, T ont au
   moins une colonne de 2 cases).
 - Deux cases voisines de la même pièce sur la même ligne font deux croches répétées, sans liaison
-  **[à vérifier]** à l'oreille (une liaison donnerait une noire).
+  (décision du développeur, 2026-10-27 ; une liaison donnerait une noire).
 - **Durées exactes** : `Score` vérifie que chaque voix dure exactement un nombre entier de mesures
-  (longueur `% beatsPerBar == 0.0`, en `Double`). Une croche partagée en 3 (triolet) ne tombe pas
-  juste en `Double` : la dernière part prend le **reste** de la croche (croche moins les parts
-  précédentes), si bien que la somme vaut exactement la croche. Un test le vérifie
-  (`a column of three cells keeps the length of the bar exact`).
-- **Deux pièces dans la même colonne** sonnent ensemble, chacune selon sa propre règle.
-- **Basse** : la fondamentale de l'accord de chaque groupe, deux octaves sous la tonique (pour Calme, dont la tonique est Do 3, cela donnerait Do 1, sans doute trop grave : à trancher en P10.6), une
-  noire par temps, à faible volume **[à vérifier]** : elle fait entendre la suite d'accords même
-  sur un jardin vide. La retirer est une option.
-- **Sans saturation** : jusqu'à 14 notes peuvent sonner ensemble. Une `Voice` de `core:music` est
-  monophonique, à volume constant (`Voice(waveform, volume, notes)`) : la partition a donc **une
-  voix par ligne** (14 voix de mélodie) et la basse, chacune à un **volume fixe**, choisi pour que
-  14 voix ensemble ne dépassent pas la crête d'une musique générée (point de départ :
-  `MELODY_VOLUME` 0,07 et `BASS_VOLUME` 0,16) **[à vérifier]** à l'oreille, avec un test sur
-  l'amplitude crête (P10.6). `core:music` ne change pas.
-- Un jardin vide rend la partition de la seule basse.
-- Les voix et leurs formes d'onde reprennent celles des musiques générées (mélodie et basse).
+  (longueur `% beatsPerBar == 0.0`, en `Double`). La part k sur n de la colonne c commence au temps
+  c × 0,5 + 0,5 × k / n ; chaque note ou silence dure de là où en est sa voix jusqu'à sa fin, et non
+  sa propre longueur, si bien que les arrondis ne s'additionnent pas : la dernière part d'une croche
+  partagée prend le **reste**, et chaque voix dure exactement 8 temps.
+- **Deux pièces dans la même colonne** sonnent ensemble, chacune selon sa propre règle ; deux pièces
+  sur la même ligne jouent dans la même voix, avec un silence entre elles.
+- **Basse** : la fondamentale de l'accord de chaque groupe, une noire par temps, dans l'octave de Do 2
+  à Si 2 (deux octaves sous Do 4) pour toutes les ambiances : Do 2 est le bas de la tessiture des
+  basses générées (`BASS_RANGE`), et « deux octaves sous la tonique » aurait mis Calme (tonique Do 3)
+  en Do 1 (décision P10.6). Elle fait entendre la suite d'accords même sur un jardin vide.
+- **Une voix par ligne qui sonne** (14 au plus), de la ligne du haut à celle du bas, puis la basse :
+  une `Voice` de `core:music` est monophonique, à volume constant, et la partition ne dépend pas de
+  l'ordre de pose. Un jardin vide rend la partition de la seule basse.
+- **Sans saturation** : `MELODY_VOLUME` 0,06 par ligne et `BASS_VOLUME` 0,16 : 14 notes et la basse
+  ensemble font exactement la pleine échelle, 1,0, que `mix` n'écrête pas, même jardin plein
+  (décision du développeur, 2026-10-28, réglage à l'oreille plus tard ; les 0,07 de départ
+  donnaient 1,14, au-delà de l'écrêtage). `core:music` ne change pas.
+- Les voix et leurs formes d'onde reprennent celles des musiques générées (carrée pour la mélodie,
+  triangle pour la basse) ; identité `GARDEN_SCORE_ID`, qui ne désigne aucune musique de la
+  bibliothèque.
+
+**Tests :** `GardenScoreTest › a cell plays its note for its eighth`,
+`GardenScoreTest › a piece with one cell per column plays its notes column after column`,
+`GardenScoreTest › a standing piece plays its notes as a rising arpeggio within the eighth`,
+`GardenScoreTest › a column of three cells keeps the length of the bar exact`,
+`GardenScoreTest › two pieces in the same column sound together`,
+`GardenScoreTest › two pieces on the same row play in one voice, with a rest between them`,
+`GardenScoreTest › an empty garden plays the bass alone`,
+`GardenScoreTest › the bass plays the root of each chord in the octave from C2, whatever the tonic of the mood`,
+`GardenScoreTest › the score lasts two bars of four beats at the tempo of the mood`,
+`GardenScoreTest › the score does not depend on the order in which the pieces were placed`,
+`GardenScoreTest › fourteen notes at once and the bass reach full scale without going above it`.
 
 ## Composer un jardin : `GardenComposer`
 

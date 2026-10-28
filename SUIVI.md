@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 249 / 321 | `████████████████░░░░` **78 %** |
+| **Général** | 251 / 322 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1494,12 +1494,16 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
   of its group`, `changing the mood keeps the pieces where they are`. L'ambiance devient une propriété du jardin (`Garden.mood`, calme par défaut).
-- [ ] **P10.6** `Garden.toScore()` (l'ambiance est celle du jardin, P10.5) : une case = une croche ; colonne par colonne, les cases d'une même pièce se
-  partagent la croche en arpège montant ; une voix par ligne à volume fixe et la basse **[à vérifier]**, sans
+- [x] **P10.6** `Garden.toScore()` (l'ambiance est celle du jardin, P10.5) : une case = une croche ; colonne par colonne, les cases d'une même pièce se
+  partagent la croche en arpège montant ; une voix par ligne à volume fixe (0,06) et la basse (0,16, octave Do 2), pleine échelle jamais dépassée (décision du développeur, 2026-10-28), sans
   changer `core:music` ; durées exactes (la dernière part d'une croche partagée en prend le reste). Cas : `a cell
   plays its note for its eighth`, `a piece with one cell per column plays its notes column after column`, `a
   standing piece plays its notes as a rising arpeggio within the eighth`, `a column of three cells keeps the length
   of the bar exact`, `two pieces in the same column sound together`, `an empty garden plays the bass alone`,
+  `fourteen notes at once and the bass reach full scale without going above it`.
+- [ ] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
+  20 candidats, note **[à vérifier]**. Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
+  composed garden holds 6 pieces placed without overlap`, `the best candidate is kept, the first one among equals`,
   `fourteen notes at once never go above the peak of a generated music`.
 - [x] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
   20 candidats (décision du développeur, 2026-10-27), note de départ à régler à l'oreille (P10.17). Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
