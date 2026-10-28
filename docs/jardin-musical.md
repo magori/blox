@@ -474,7 +474,7 @@ De haut en bas :
   pièce, tourner et Retirer la gardent ; tant qu'elle est là, la page laisse de la place sous le bac
   pour que la barre ne couvre aucune tuile ;
 - tout changement du jardin passe par `adopt` ; rien n'est fait tant que le jardin gardé n'est pas
-  lu ; pas encore d'animation (P10.15) ;
+  lu ; les retours animés sont décrits plus bas (P10.15) ;
 - cases de 22 dp : écart admis aux cibles de 48 dp, comme au Serrurier (la pose se fait par
   l'aperçu, qu'on ajuste) ;
 - TalkBack lit chaque case « Croche 5, mi : libre » (ou « pièce T », « pièce T, note de
@@ -510,16 +510,46 @@ De haut en bas :
 captures `GardenEmptyDay`, `GardenEmptyNight`, `GardenRefusedDay`, `GardenRefusedNight`, `GardenLargeFont`,
 `GardenClearedDay`. Vues : V40.
 
-**Retours**, chacun avec sa version Effets réduits ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)),
-cadencés en ticks :
+**Retours** (P10.15), chacun avec sa version Effets réduits ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)),
+cadencés en ticks (`motion-garden-glow`, `-bounce`, `-fall-step`, codés dans `BloxMotion`) et lus au dessin
+(`GardenCellEffects`, `GardenCellCanvas`), sans recomposition par image. Le retour d'un changement affiché à
+l'arrivée sur l'écran n'est pas rejoué, comme au Serrurier ; les courbes (`fadeOut`, `swell`) et le compteur
+d'images (`rememberEffectTick`) sont partagés avec lui (`core:designsystem`).
 
-- **pose** : les bulles de la pièce s'éclairent pendant 8 ticks ;
-- **refus** : une croix sur chaque case fautive de l'aperçu ;
+- **pose** : les bulles de la pièce s'éclairent (`clearGlow` × 0,7) puis s'éteignent en 8 ticks ; de même en
+  Effets réduits, un fondu sans mouvement ;
+- **refus** : une croix sur chaque case fautive de l'aperçu, fixe (P10.8, P10.10), donc la même en Effets réduits ;
 - **tête de lecture** (`LoopPlayHead`, sortie de l'éditeur de musique vers
   `core:designsystem/frame`) : la colonne jouée en `accent-ring` cerné `ink`, ses notes qui
-  rebondissent à × 1,1 pendant 6 ticks, la pilule de l'accord en cours remplie ;
-- **Au hasard** : les pièces tombent une à une, avec 2 ticks d'écart ;
-- **changement d'ambiance** : fondu de 8 ticks.
+  rebondissent à × 1,1 et reviennent en 6 ticks à chaque croche, la pilule de l'accord en cours remplie ; en
+  Effets réduits, pas de rebond, la tête passe de colonne en colonne ;
+- **Au hasard** : les pièces tombent une à une, de gauche à droite (première colonne de chaque pièce), avec 2 ticks
+  d'écart, chacune d'une case en 8 ticks en accélérant, invisible jusqu'à son tour ; en Effets réduits, toutes
+  apparaissent ensemble à leur place en fondu de 8 ticks. Durée et hauteur de chute choisies à l'implémentation,
+  à juger avec P10.17 ;
+- **changement d'ambiance** : toutes les notes s'éclairent puis s'éteignent en 8 ticks dans la nouvelle ambiance
+  (le « fondu »), de même en Effets réduits.
+
+Reprendre une pièce, Retirer, Tout effacer et Annuler ne sont pas animés ; toucher l'ambiance déjà choisie ne change rien.
+**Tests :** `EffectCurvesTest › a fade goes from 1 at its first tick down to 0 at its length, nothing before nor after it`,
+`EffectCurvesTest › a swell goes from 0 at its first tick up to 1 halfway, back down to 0 at its length, nothing outside it`,
+`GardenTapTest › a piece placed is shown placed, for its feedback, each placement a move of its own`,
+`GardenChangesTest › Au hasard and the choice of a mood are shown as such, for their feedback, each a move of its own`,
+`GardenChangesTest › taking a piece back, Tout effacer and Annuler are changes the screen does not animate`,
+`GardenFeedbackTest › a placement lights the bubbles of its piece for 8 ticks, dimmer at each tick`,
+`GardenFeedbackTest › in reduced effects a placement lights its piece the same, a fade without a move`,
+`GardenFeedbackTest › Au hasard drops its pieces one by one from the first column, each 2 ticks after the one before`,
+`GardenFeedbackTest › a piece of Au hasard falls faster and faster to its place, the last one there once the feedback is over`,
+`GardenFeedbackTest › in reduced effects the pieces of Au hasard appear together where they lie, fading in over 8 ticks`,
+`GardenFeedbackTest › a change of mood fades the whole garden in its new mood over 8 ticks, the same in reduced effects`,
+`GardenFeedbackTest › the notes of the column played bounce to 1,1 times their size and back within motion-garden-bounce`,
+`GardenFeedbackTest › the notes of a column played long ago are at rest, however many ticks went by`,
+`GardenFeedbackTest › a state without a change to animate shows no feedback, and two same changes in a row are two feedbacks`,
+`GardenChangesTest › choosing the mood already chosen changes nothing, neither shown, nor kept, nor heard`,
+`GardenScreenTest › shown again on a garden rolled before, as on coming back to it, the screen does not replay the fall`,
+`GardenFeedbackTest › in reduced effects the notes of the column played do not bounce, the play head going from column to column` ;
+captures `GardenPlacedDay`, `GardenPlacedNight`, `GardenRolledDay`, `GardenRolledReduced`, `GardenCellEffects`,
+`GardenCellEffectsNight`. Vues : V40.
 
 **Cartouche** « Jardin musical » sur le choix du jeu (V36 à quatre cartouches, P10.13), troisième,
 entre le Serrurier et la Graine du jour : elle ouvre le jardin (`GardenRoute`), qui lit lui-même le
