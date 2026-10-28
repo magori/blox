@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 264 / 350 | `███████████████░░░░░` **75 %** |
+| **Général** | 265 / 350 | `███████████████░░░░░` **76 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1533,7 +1533,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   dans la barre V40 à 360 dp (4ᵉ disque, ou le dé dans la rangée d'information) et les noms proposés.
 - [x] **P10.25** Règles de nom communes (`MusicNames` rendu générique dans `core:data` : `nameProblem`, `freeName` sur
   une liste de noms), `MusicNamesTest` vert. Avant P10.27.
-- [ ] **P10.26** Extraire l'encodage d'un jardin de `GardenFile`, sans changer le format v1 de `garden.bin`. Avant
+- [x] **P10.26** Extraire l'encodage d'un jardin de `GardenFile`, sans changer le format v1 de `garden.bin`. Avant
   P10.27.
 - [ ] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
   faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
