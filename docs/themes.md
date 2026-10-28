@@ -60,7 +60,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
-`MotionTokensTest › every duration token of tokens json is in the code`,
+`MotionTokensTest › every duration token of tokens json is in the code or listed as not coded, with its reason`,
 `GlossTokensTest › a shadow blurred or moved sideways is refused, the code could not draw it`,
 `GlossTokensTest › a ring of a negative width is refused`,
 `GlossDrawingTest › two calls with the same gloss, shape and frame give the same modifier, so a recomposition keeps its bands`,

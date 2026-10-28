@@ -212,7 +212,26 @@ des candidats, évaluer, garder le meilleur.
   `garden.bin`, décision du développeur) à chaque pose, reprise, effacement ou changement
   d'ambiance, et retrouvé à l'ouverture. Pas de bouton Enregistrer. Dépôt `GardenRepository`
   (`core:data`, P10.11) : le jardin en `Flow`, vide et calme (`Garden.EMPTY`) tant que rien n'est
-  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran devra la rattraper, P10.18).
+  gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran la rattrape, P10.18).
+- **Écran et jardin gardé** (P10.18) : `GardenViewModel` lit le jardin gardé une fois, à
+  l'ouverture (seul cet écran l'écrit), et l'écran s'ouvre sur ce jardin ; tant qu'il n'est pas lu,
+  l'écran n'a pas de jardin et montre la barre seule. La lecture attend la fin de l'écriture en cours
+  (une visite s'ouvre sur le jardin de la précédente), et un jardin adopté pendant la lecture n'est
+  pas remplacé par elle. Tout nouveau jardin passe par un point unique, `adopt` : affiché aussitôt,
+  puis gardé dans la portée de l'application (`mainScope` d'`AppContainer`), si bien qu'un
+  changement fait juste avant de quitter l'écran est gardé ; les écritures passent une à une, dans
+  l'ordre des changements et d'une visite à l'autre (un verrou partagé par la fabrique) : le dernier
+  jardin adopté est celui qui reste gardé. Une écriture ratée (`IOException` : disque plein, fichier
+  d'une version plus récente) laisse le jardin à l'écran, sans planter, et le dernier jardin gardé
+  sur l'appareil ; toute autre erreur est un bogue et n'est pas avalée.
+  **Tests :** `GardenViewModelTest › the garden opens on the garden kept`,
+  `GardenViewModelTest › a garden adopted is shown and kept`,
+  `GardenViewModelTest › a garden that cannot be kept leaves the garden on screen`,
+  `GardenViewModelTest › a failure other than an unwritable garden is not swallowed`,
+  `GardenViewModelTest › the gardens adopted are kept in the order they were adopted`,
+  `GardenViewModelTest › a garden adopted while the garden kept is read stays on screen`,
+  `GardenViewModelTest › a garden opens once the garden of the previous visit is kept`,
+  `GardenViewModelTest › the gardens adopted in two visits are kept in their order`.
 - **Pas d'export** vers « Mes musiques » en v1 (décision du développeur).
 - **Format versionné** (version 1, amendement de l'ADR 0027) : « BLXG », la version, le nom de
   l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
@@ -278,37 +297,150 @@ De haut en bas :
 
 - **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter. Codé (squelette,
   P10.9) : Changer de jeu, qui revient au choix du jeu et ne compte qu'écran actif (`dropUnlessResumed`),
-  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur un jardin vide
-  et calme.
+  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur le jardin
+  gardé (voir Jardin gardé).
   **Tests :** `GardenScreenTest › the title of the bar shows JARDIN MUSICAL and is read as a heading`,
   `GardenScreenTest › Changer de jeu is handed to app`,
   `GardenScreenTest › Changer de jeu counts only while the garden is resumed`,
   `BloxNavDisplayTest › changing the game from the musical garden goes back to the cartridges`,
-  `GardenViewModelTest › the garden opens empty and calm`.
-- **Ambiance** : groupe de choix de 4 segments de 48 dp (Joyeux, Calme, Mystère, Épique).
-- **Rangée d'information** : « Do pentatonique · 84 bpm » et un bouton « Tout effacer ».
-- **Bande des accords** : 4 pilules (noms de `RomanNumeral.name`), alignées sur les groupes de
-  4 croches.
-- **Grille** de 16 × 14 cases de 22 dp, dans un cadre `board` ; un groupe de 4 croches sur deux
-  en `panel-inset` ; les notes en bulles de pièces (celles du plateau) ; un point `ink` sur halo
-  `page` pour les notes de l'accord. Cases sur le modèle de `LockCellCanvas` et `LockCellStyles`.
-- **Message** sur 2 lignes, en `ink` : ce qu'on peut faire, ou la raison d'un refus.
-- **Bac** de 2 rangées de 4 tuiles de 84 × 52 dp : les 7 pièces (`PieceTile`, partagée avec le
-  Serrurier dans `core:board`) et « Retirer ».
-- **Commandes** : tourner à gauche, **Poser**, tourner à droite.
+  `GardenViewModelTest › the garden opens on the garden kept`.
+  Le dé « Au hasard » (P10.10) est grisé tant que le jardin gardé n'est pas lu ; Écouter / Arrêter
+  viendra avec le son (P10.12).
+- **Ambiance** : groupe de choix « Ambiance » de 4 segments de 48 dp (`ChoiceSegments`) : Joyeux,
+  Calme, Mystère, Épique ; choisir une ambiance garde les pièces à leur place (`withMood`, par
+  `adopt`). Sur 360 dp, les 4 segments passent sur 2 lignes.
+  **Tests :** `GardenChangesTest › choosing a mood keeps the pieces where they are, heard in that mood, and is kept`.
+- **Rangée d'information** : « Do pentatonique · 84 bpm » (nom de la gamme et tempo ; TalkBack dit
+  « 84 battements par minute ») et « Tout effacer », grisé sur un jardin vide. Le texte reste à côté
+  du bouton tant qu'il tient en 2 lignes de mots entiers, sinon le bouton passe dessous.
+  **Tests :** `GardenReadingTest › each mood is told by the name of its scale`,
+  `GardenLayoutTest › the information stands beside Tout effacer while it holds on 2 lines, whole words, under it otherwise`.
+- **Bande des accords** : 4 pilules (`ChordPill`, partagée avec le Serrurier dans
+  `core:designsystem`), chacune centrée sur son groupe de 4 croches, lues d'un trait : « Accords :
+  1 majeur, 6 mineur, 4 majeur, 5 majeur. », « 7 bémol majeur » pour le ♭VII de Mystère.
+  **Tests :** `GardenReadingTest › a chord is told by its degree, then its accidental, then its quality`.
+- **Grille** de 16 × 14 cases de 22 dp (`garden-cell`), dans un cadre `board` ; un groupe de 4
+  croches sur deux sur une bande `garden-band` (`gardenBand`), ses cases libres en
+  `garden-band-cell` : de jour, `empty-cell` a la valeur de la bande et ne s'y verrait pas.
+  Cases dessinées par `GardenCellCanvas` (`core:board`, Couleurs seulement, P10.8), sur le modèle
+  de `LockCellCanvas` ; l'écran passe l'état de chaque case : `GardenCell` (libre, note, aperçu),
+  sa bande, sa place sous la tête de lecture (`GardenPlayHead`).
+  - case libre : la case vide du plateau, ou `garden-band-cell` dans une bande ;
+  - note : la bulle de sa pièce, celle du plateau ;
+  - note de l'accord de son groupe (notes posées seulement) : point `garden-chord-dot` de 6 dp sur
+    un halo `garden-chord-halo` de 2 dp ;
+  - aperçu (style partagé avec le Serrurier, `previewStyle`) : bulle estompée sur la case libre où
+    il se trouve, plate, cernée d'`ink` de 2 dp ; refusé, barré d'une croix `ink` de 2 dp sur un
+    halo `page`, case par case ;
+  - tête de lecture : colonne teintée `garden-play-head`, cernée de 2 dp en `ink` (2/22 de la
+    case) ; les cases libres sous la teinte, les notes et les aperçus par-dessus, le point et la
+    croix au-dessus du cadre.
 
-**Interactions** (celles du Serrurier, aperçu pivot sous le doigt) :
+  Les repères ne reposent pas sur la couleur : le point, le contour, la croix et le cadre se lisent
+  à 3:1 au moins par leur encre ou leur halo (WCAG 1.4.11) ; le cadre de la tête de lecture se lit
+  contre les cases voisines non teintées et les cases libres teintées, pas contre les notes claires
+  de nuit qu'il recouvre. Jetons : `docs/design-system/tokens.json` (`garden-*`), codés dans
+  `core:board` ou listés non codés jusqu'à l'écran (P10.10) et aux retours (P10.15).
+  **Tests :** `GardenCellStylesTest › a free cell is the empty cell of the board`,
+  `GardenCellStylesTest › a free cell of a band has its own colour, apart from the band as the empty cell from the board`,
+  `GardenCellStylesTest › a note is a bubble of its piece, as on the board, in a band or not`,
+  `GardenCellStylesTest › a note of the chord bears a dot of 6 dp in a cell of 22 dp, on a halo of 2 dp more`,
+  `GardenCellStylesTest › the dot of the chord reads on every piece, by its ink or by its halo, and on no free cell`,
+  `GardenCellStylesTest › a preview that fits is flat and outlined in ink of 2 dp in a cell of 22 dp`,
+  `GardenCellStylesTest › a preview in a band fades over the free cell of the band`,
+  `GardenCellStylesTest › a refused preview is crossed out in ink of 2 dp in a cell of 22 dp, on a halo of the page`,
+  `GardenCellStylesTest › the cross of a refused preview reads on every piece, by its ink or by its halo`,
+  `GardenCellStylesTest › the play head is framed in ink of 2 dp, the frame standing out from the tinted cells by 3 to 1`,
+  `GardenCellStylesTest › the frame of the play head stands out from the untinted cells beside the column by 3 to 1`,
+  `GardenCellStylesTest › the garden has no style in the Original theme, it is drawn in the Colorful theme only`,
+  `GardenCellStylesTest › the band the screen draws behind a group is garden band`,
+  `PlayHeadFrameTest › the frame of the play head closes the column at its top cell and runs on below it`,
+  `PlayHeadFrameTest › the frame of the play head runs on above and below a cell in the middle of the column`,
+  `PlayHeadFrameTest › the frame of the play head closes the column at its bottom cell and runs on above it`,
+  `GardenTokensTest › each colour token of the garden is its colour in the code, day and night`,
+  `GardenTokensTest › each size token of the garden is its size in the code`,
+  `GardenTokensTest › every garden token of tokens json is coded in core board or listed as not coded, with its reason` ;
+  captures `GardenCells`, `GardenCellsNight`. Vues : V40.
+
+  À l'écran (P10.10) : cases de 22 dp, plus étroites sur un écran plus étroit pour que les 16
+  colonnes tiennent (`gridCellFor`) ; une note posée porte le point de l'accord quand sa note est de
+  l'accord de son groupe ; l'aperçu couvre ses cases, chacune barrée quand elle tombe sur une note,
+  ses cases hors de la grille n'étant pas dessinées (le message le dit). La grille est une
+  collection de 14 rangées et 16 colonnes.
+  **Tests :** `GardenLayoutTest › the grid keeps cells of 22 dp where it fits, and narrows them to fit a narrower screen`,
+  `GardenCellsTest › every cell of the 16 by 14 grid is shown, a free one free, one of a placed piece a note of its type`,
+  `GardenCellsTest › a note is marked of the chord when its note belongs to the chord of its group`,
+  `GardenCellsTest › the preview covers its cells, each crossed out over a note, those off the grid left out`,
+  `GardenScreenTest › the grid is a collection of 14 rows and 16 columns`.
+- **Message** sur 2 lignes, en `ink`, lu par TalkBack quand il change : la raison du refus de
+  l'aperçu, hors de la grille avant case prise (« L'aperçu sort de la grille : déplace-le ou tourne
+  la pièce. », « Une case est déjà prise : déplace l'aperçu ou tourne la pièce. ») ; sinon, avec un
+  aperçu, « Touche l'aperçu ou Poser pour la poser ; tourne-la si tu veux. » ; sinon « Choisis une
+  pièce, puis touche la grille pour la poser : chaque pose sonne juste. » sur un jardin vide,
+  « Touche la grille pour poser la pièce choisie, ou touche une note pour la reprendre. » sinon.
+  **Tests :** `GardenMessageTest › without a preview, an empty garden says to choose a piece and touch the grid`,
+  `GardenMessageTest › without a preview, a garden with pieces says a note can be taken back`,
+  `GardenMessageTest › a preview that fits says how to place it`,
+  `GardenMessageTest › a preview over a note says a cell is taken`,
+  `GardenMessageTest › a preview off the grid says so`.
+- **Bac** de 2 rangées de 4 tuiles de 84 × 52 dp au plus, à 6 dp d'écart : I, O, T, S, Z, J, L
+  (`PieceTile`, partagée avec le Serrurier dans `core:board`), groupe de choix « Pièces », la
+  choisie (T à l'ouverture) dessinée dans son orientation ; « Retirer » hors du groupe, grisé sans
+  aperçu.
+  **Tests :** `GardenScreenTest › the tray offers the 7 pieces as one group of choice, the chosen one selected, Retirer apart`.
+- **Commandes** : tourner à gauche, **Poser** (grisé sans aperçu), tourner à droite, ancrées en bas.
+
+**Interactions** (P10.10, celles du Serrurier, aperçu pivot sous le doigt) :
 
 - toucher une case présente la pièce choisie en aperçu, pivot sous le doigt ; un autre toucher la
-  déplace ; Poser (ou un second toucher sur l'aperçu) la pose ; on entend l'aperçu ;
-- toucher une pièce posée la **reprend** en aperçu, là où elle était ;
-- « Retirer » supprime l'aperçu (la pièce reprise disparaît) ;
-- **Tout effacer** et **Au hasard** affichent une barre « Jardin effacé · Annuler » pendant
-  **4 s** ; Annuler rend le jardin d'avant ;
+  déplace ; Poser ou un second toucher sur l'aperçu la pose ; un aperçu refusé n'est pas posé et
+  reste où il est, et toucher une de ses cases le déplace là (action TalkBack « Déplacer l'aperçu
+  ici ») sans jamais reprendre la note qu'il couvre ; choisir une tuile remet la pièce dans son
+  orientation d'apparition ; tourner tourne la pièce choisie autour du pivot de l'aperçu ;
+- toucher une pièce posée la **reprend** en aperçu, là où elle était, dans son type et son
+  orientation ; « Retirer » supprime l'aperçu (la pièce reprise disparaît) ;
+- **Tout effacer** et **Au hasard** (`GardenComposer.compose`, ambiance gardée, graine tirée d'un
+  `Random` injecté) affichent « Jardin effacé · Annuler » pendant **4 s**, ou plus longtemps si le
+  joueur l'a demandé à Android (WCAG 2.2.1) ; Annuler rend le jardin d'avant ; Au hasard sur un
+  jardin vide ne propose pas Annuler ; tout changement du jardin retire l'offre, mais choisir une
+  pièce, tourner et Retirer la gardent ; tant qu'elle est là, la page laisse de la place sous le bac
+  pour que la barre ne couvre aucune tuile ;
+- tout changement du jardin passe par `adopt` ; rien n'est fait tant que le jardin gardé n'est pas
+  lu ; pas encore de son ni d'aperçu sonore (P10.12), ni d'animation (P10.15) ;
 - cases de 22 dp : écart admis aux cibles de 48 dp, comme au Serrurier (la pose se fait par
   l'aperçu, qu'on ajuste) ;
-- TalkBack lit chaque case « Croche 5, mi : libre » (ou le type de la pièce, et « note de
-  l'accord ») ; la grille est une collection.
+- TalkBack lit chaque case « Croche 5, mi : libre » (ou « pièce T », « pièce T, note de
+  l'accord », « aperçu de la pièce Z, case prise »), la note sans son octave, écrite comme la gamme
+  (« mi bémol » en mineur), avec l'action d'un toucher (Poser, Reprendre, Déplacer l'aperçu ici,
+  Montrer la pièce ici) ; la grille est une collection.
+
+**Tests :** `GardenTapTest › touching a free cell shows the chosen piece as a preview, its pivot on that cell, nothing placed`,
+`GardenTapTest › a second touch on the preview places it, kept, and the preview is gone`,
+`GardenTapTest › touching a placed piece takes it back as the preview, where it lay, in its type and orientation`,
+`GardenTapTest › Retirer takes the preview away, a piece taken back with it`,
+`GardenTapTest › Poser on a refused preview places nothing, and the preview stays where it is`,
+`GardenTapTest › touching a refused preview over a note moves it there, placing nothing, taking nothing back`,
+`GardenTapTest › turning turns the chosen piece a quarter turn round the pivot of the preview`,
+`GardenTapTest › turning a piece taken back keeps its pivot where it lay`,
+`GardenCellActionTest › a touch places a preview that fits, moves a refused one, takes a note back, shows the piece on a free cell`,
+`GardenChangesTest › Tout effacer empties the garden in its mood, kept, and offers Annuler`,
+`GardenChangesTest › Annuler gives the garden from before back, kept, and is no longer offered`,
+`GardenChangesTest › Annuler is offered for 4 seconds`,
+`GardenChangesTest › Au hasard composes a garden in the mood from a seed drawn for this roll, kept, and offers Annuler`,
+`GardenChangesTest › Au hasard on an empty garden does not offer Annuler, nothing was cleared`,
+`GardenChangesTest › another change of the garden ends Annuler, so that it never undoes more than the garden cleared`,
+`GardenChangesTest › choosing a mood or taking a piece back ends Annuler, as any change of the garden`,
+`GardenChangesTest › choosing a piece, turning it or Retirer keep Annuler offered, the garden unchanged`,
+`GardenChangesTest › nothing is changed nor kept while the garden kept is being read`,
+`GardenReadingTest › each row is named by its note in the scale of the mood, from the bottom, flats in the minor moods`,
+`GardenReadingTest › the rows of the calm mood are named by the natural notes of its pentatonic scale`,
+`GardenScreenTest › each cell is read with its eighth, from 1, its note in the mood, and what it holds`,
+`GardenScreenTest › touching a cell shows the chosen piece there, and a second touch on it places it`,
+`GardenScreenTest › Tout effacer shows Jardin effacé with Annuler, which gives the garden back`,
+`GardenScreenTest › Tout effacer offers Annuler as long as the accessibility of the phone asks`,
+`GardenScreenTest › while Annuler is offered, the page scrolls far enough that it covers no tile of the tray` ;
+captures `GardenEmptyDay`, `GardenEmptyNight`, `GardenRefusedDay`, `GardenRefusedNight`, `GardenLargeFont`,
+`GardenClearedDay`. Vues : V40.
 
 **Retours**, chacun avec sa version Effets réduits ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)),
 cadencés en ticks :

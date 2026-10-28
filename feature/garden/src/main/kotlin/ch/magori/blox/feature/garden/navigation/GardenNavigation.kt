@@ -26,7 +26,24 @@ fun EntryProviderScope<NavKey>.gardenEntry(
     entry<GardenRoute> {
         val viewModel: GardenViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-        val actions = remember(onChangeGame) { GardenActions(onChangeGame = onChangeGame) }
+        val actions = remember(onChangeGame, viewModel) { gardenActions(viewModel, onChangeGame) }
         GardenScreen(uiState = uiState, actions = actions)
     }
 }
+
+/** The actions of the screen, handed to [viewModel], Changer de jeu to `app` by [onChangeGame]. */
+internal fun gardenActions(
+    viewModel: GardenViewModel,
+    onChangeGame: () -> Unit,
+): GardenActions = GardenActions(
+    onChangeGame = onChangeGame,
+    onRoll = viewModel::roll,
+    onMood = viewModel::chooseMood,
+    onClearAll = viewModel::clearAll,
+    onTap = viewModel::tap,
+    onChoose = viewModel::choose,
+    onRemove = viewModel::remove,
+    onTurn = viewModel::turn,
+    onPlace = viewModel::place,
+    onUndo = viewModel::undo,
+)

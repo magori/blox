@@ -23,12 +23,12 @@ class MotionTokensTest {
     }
 
     @Test
-    fun `every duration token of tokens json is in the code`() {
+    fun `every duration token of tokens json is in the code or listed as not coded, with its reason`() {
         // Given the duration tokens of tokens json
         val tokens = DesignTokens.values("duration").keys
 
-        // Then
-        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name })
+        // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
+        assertCodedOrListed(tokens, CODED.map { it.name }, NOT_CODED)
     }
 
     /** A duration token of tokens json, and the property of [BloxMotion] that holds it, in [ticks]. */
@@ -44,6 +44,13 @@ class MotionTokensTest {
             CodedToken("motion-sticker", "sticker", BloxMotion.sticker),
             CodedToken("motion-pop", "pop", BloxMotion.pop),
             CodedToken("motion-reduced-fade", "reducedFade", BloxMotion.reducedFade),
+        )
+
+        /** The duration tokens left out of the code, with the reason why. */
+        private val NOT_CODED: Map<String, String> = mapOf(
+            "motion-garden-bounce" to "Le rebond des notes sous la tête de lecture du Jardin musical : codé en P10.15.",
+            "motion-garden-glow" to "L'éclat d'une pièce posée au Jardin, le fondu d'ambiance : codé en P10.15.",
+            "motion-garden-fall-step" to "L'écart entre deux pièces qui tombent, Au hasard : codé en P10.15.",
         )
 
         @JvmStatic

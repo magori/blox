@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 255 / 322 | `████████████████░░░░` **79 %** |
+| **Général** | 258 / 324 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1490,11 +1490,18 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.17** Régler à l'oreille, sur un téléphone, les valeurs de départ du Jardin (décisions du développeur
   des 2026-10-27 et 28, en constantes nommées) : tempos des ambiances, tonique de Calme, octave de la basse, volumes
   (0,06 et 0,16) et poids de la note du dé (`GardenRating`). Après P10.12.
-- [ ] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
+- [x] **P10.18** Brancher le jardin gardé dans `feature:garden` : la fabrique reçoit `GardenRepository` (`keptGarden`
   d'`AppContainer`), l'écran s'ouvre sur le jardin gardé et chaque changement est gardé ; une écriture ratée
   (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
   autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après
   P10.9, P10.11.
+- [ ] **P10.19** Mettre en commun les noms de notes et d'accords lus par TalkBack (éditeur de musique, Serrurier,
+  Jardin ; revue de P10.10, règle de 2) : `chordTellingOf` et ses chaînes vers `core:designsystem`, comme `ChordPill`.
+  Les lectures divergent déjà : le Serrurier lit un ♭VII « 7 majeur », le Jardin « 7 bémol majeur ». Cas : `a flat
+  seventh is told 7 flat major on the Locksmith too`.
+- [ ] **P10.20** Juger avec `designer-jeu` la lecture des cases du Jardin sans octave (« mi » revient 2 ou 3 fois dans
+  une colonne : « mi grave / aigu » ?), les 4 ambiances sur 2 lignes à 360 dp, et Poser sur un aperçu refusé qui
+  n'annonce rien de nouveau (revue de P10.10).
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1510,8 +1517,8 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   20 candidats (décision du développeur, 2026-10-27), note de départ à régler à l'oreille (P10.17). Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
   composed garden holds 6 pieces placed without overlap` (devenu `every seed composes a garden of 6 pieces`), `the best candidate is kept, the first one among equals`,
   `a candidate does not depend on the draws of the previous ones`.
-- [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
-  case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
+- [x] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
+  case libre, groupe en bande (`garden-band`), note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
   colorés ; jetons gardés par un test ; captures jour et nuit. Reporter dans `docs/design-system/tokens.json` les jetons
   `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
   pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
@@ -1519,7 +1526,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
-- [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
+- [x] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
   22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
   effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
   nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9. Maquette V40 (P10.14) : bac de 4 × 84 dp à 6 dp d'écart, « Retirer »

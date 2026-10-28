@@ -25,13 +25,14 @@ class ShapeTokensTest {
 
     @Test
     fun `every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`() {
-        // Given the radius, size and space tokens of tokens json
-        val tokens = GROUPS.flatMap { group -> DesignTokens.values(group).keys }
+        // Given the radius, size and space tokens of tokens json, but those of the musical garden, `garden-*`: coded
+        // with its cells in core:board, and compared to tokens json there (GardenTokensTest)
+        val tokens = GROUPS
+            .flatMap { group -> DesignTokens.values(group).keys }
+            .filterNot { it.startsWith(GARDEN_TOKEN) }
 
         // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
-        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name }.toSet() + NOT_CODED.keys)
-        assertThat(NOT_CODED.keys).doesNotContainAnyElementsOf(CODED.map { it.name })
-        assertThat(NOT_CODED.values).allSatisfy { reason -> assertThat(reason).isNotBlank() }
+        assertCodedOrListed(tokens, CODED.map { it.name }, NOT_CODED)
     }
 
     /** A token of tokens json, in its [group], and what holds it in the code. */
@@ -45,6 +46,9 @@ class ShapeTokensTest {
     companion object {
         private const val RADIUS = "radius"
         private val GROUPS = listOf(RADIUS, "size", "spacing")
+
+        /** The prefix of the sizes of the musical garden in tokens json. */
+        private const val GARDEN_TOKEN = "garden-"
 
         private fun radius(
             name: String,
@@ -92,7 +96,9 @@ class ShapeTokensTest {
         )
 
         /** The radius, size and space tokens left out of the code, with the reason why. */
-        private val NOT_CODED: Map<String, String> = emptyMap()
+        private val NOT_CODED: Map<String, String> = mapOf(
+            "radius-garden" to "Le cadre de la grille du Jardin musical, dessiné par son écran : codé en P10.10.",
+        )
 
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED

@@ -23,10 +23,10 @@ internal data class CellStyle(
 )
 
 /**
- * A disc of [color] in the centre of the cell, [size] across, a fraction of the cell size, on a disc of [halo] half as
- * wide again: the dot reads on any colour under it.
+ * A disc of [color] in the centre of the cell, [size] across, a fraction of the cell size, on a disc of [halo],
+ * [haloSize] across, or half as wide again as the dot when null: the dot reads on any colour under it.
  */
-internal data class CellDot(val color: Color, val halo: Color, val size: Float)
+internal data class CellDot(val color: Color, val halo: Color, val size: Float, val haloSize: Float? = null)
 
 /**
  * Two diagonals of [color] across the fill, [width] a fraction of the cell size, each over a stroke of [halo] twice as
