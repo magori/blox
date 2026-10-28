@@ -2,7 +2,6 @@ package ch.magori.blox.core.data
 
 import ch.magori.blox.core.music.ScoreId
 import java.time.Instant
-import java.time.temporal.ChronoUnit
 
 /**
  * What a [MusicLibrary] holds: the saved [musics], in the order they were first saved, and the identity of the one
@@ -92,6 +91,3 @@ internal data class MusicLibraryContent(
         music: SavedMusic,
     ): List<SavedMusic> = toMutableList().apply { set(place, music) }
 }
-
-/** This time to the millisecond, as the musics file keeps it. */
-private fun Instant.toFileTime(): Instant = truncatedTo(ChronoUnit.MILLIS)

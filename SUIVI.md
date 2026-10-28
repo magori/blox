@@ -1586,7 +1586,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   une liste de noms), `MusicNamesTest` vert. Avant P10.27.
 - [x] **P10.26** Extraire l'encodage d'un jardin de `GardenFile`, sans changer le format v1 de `garden.bin`. Avant
   P10.27.
-- [ ] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
+- [x] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
   faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
   et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
 - [ ] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se

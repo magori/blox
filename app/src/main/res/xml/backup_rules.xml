@@ -19,4 +19,6 @@
     <include domain="file" path="datastore/musics.bin" />
     <!-- The garden of the Jardin musical (GARDEN_FILE): a creation of the player, as the musics. -->
     <include domain="file" path="datastore/garden.bin" />
+    <!-- The kept gardens of Mes jardins (GARDENS_FILE): creations of the player, as the garden. -->
+    <include domain="file" path="datastore/gardens.bin" />
 </full-backup-content>

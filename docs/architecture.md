@@ -204,8 +204,8 @@ graph LR
   `SETTINGS_FILE` (`core:data`).
 
   **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
-  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`,
-  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics, the garden`.
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the gardens`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics, the gardens`.
 
   Le jardin gardé (`GardenRepository`, `GARDEN_FILE`, P10.11) est le `Garden` de `core:garden`
   (dépendance `api`, sans type parallèle, ADR 0027), dans un format binaire versionné de BloX sur
