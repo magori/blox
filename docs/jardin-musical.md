@@ -10,7 +10,7 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 (2026-10-26), décisions du développeur le 2026-10-26. Architecture :
 [ADR 0027](adr/0027-le-jardin-musical.md), calqué sur l'[ADR 0025](adr/0025-le-serrurier.md).
 
-> Traçabilité : le domaine est implémenté au fil de la phase P10 de [SUIVI.md](../SUIVI.md) (`core:garden` : jardin P10.4, ambiances P10.5, partition P10.6, dé P10.7) ; l'écran viendra avec `feature:garden`.
+> Traçabilité : le domaine est implémenté au fil de la phase P10 de [SUIVI.md](../SUIVI.md) (`core:garden` : jardin P10.4, ambiances P10.5, partition P10.6, dé P10.7) ; l'écran est dans `feature:garden` (squelette P10.9, écran jouable P10.10).
 > Chaque règle recevra sa ligne **Tests :** `ClasseDeTest › nom du test` et, si elle se voit à
 > l'écran, **Vues :** `V…`, à mesure qu'elle sera codée.
 
@@ -239,13 +239,23 @@ des candidats, évaluer, garder le meilleur.
 **Thème : Couleurs v2 seulement** (jour et nuit selon le téléphone), comme le Serrurier
 (décision du développeur, 2026-10-26) ; barres système selon cette variante. Conception de
 `designer-jeu` (2026-10-26), téléphone debout (390 × 844) ; vue **V40** de la
-[maquette](maquette.md) (à dessiner).
+[maquette](maquette.md). L'écran est dans `feature:garden` (clé `GardenRoute`, entrée `gardenEntry`,
+`GardenViewModel` et sa fabrique construite par `app`), sous `ColorfulTheme`.
+**Tests :** `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 
 **Intention** : un bac à sable où chaque pose sonne juste, sans échec ni chronomètre.
 
 De haut en bas :
 
-- **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter.
+- **Barre** : Changer de jeu, « JARDIN MUSICAL », dé (Au hasard), Écouter / Arrêter. Codé (squelette,
+  P10.9) : Changer de jeu, qui revient au choix du jeu et ne compte qu'écran actif (`dropUnlessResumed`),
+  et le titre « JARDIN MUSICAL », en capitales, lu comme un en-tête ; l'écran s'ouvre sur un jardin vide
+  et calme.
+  **Tests :** `GardenScreenTest › the title of the bar shows JARDIN MUSICAL and is read as a heading`,
+  `GardenScreenTest › Changer de jeu is handed to app`,
+  `GardenScreenTest › Changer de jeu counts only while the garden is resumed`,
+  `BloxNavDisplayTest › changing the game from the musical garden goes back to the cartridges`,
+  `GardenViewModelTest › the garden opens empty and calm`.
 - **Ambiance** : groupe de choix de 4 segments de 48 dp (Joyeux, Calme, Mystère, Épique).
 - **Rangée d'information** : « Do pentatonique · 84 bpm » et un bouton « Tout effacer ».
 - **Bande des accords** : 4 pilules (noms de `RomanNumeral.name`), alignées sur les groupes de

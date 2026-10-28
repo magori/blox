@@ -21,6 +21,8 @@ import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.daily.navigation.dailyEntry
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.gameEntry
+import ch.magori.blox.feature.garden.GardenViewModel
+import ch.magori.blox.feature.garden.navigation.gardenEntry
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.SettingsRoute
@@ -57,6 +59,7 @@ fun BloxNavDisplay(
     dailyViewModelFactory: DailyViewModel.Factory,
     onCopyDailyScore: (date: LocalDate) -> Unit,
     newCartridges: NewCartridges,
+    gardenViewModelFactory: GardenViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -122,6 +125,8 @@ fun BloxNavDisplay(
                 onCopyScore = onCopyDailyScore,
                 viewModelFactory = dailyViewModelFactory,
             )
+            // No cartridge opens the garden yet (P10.13).
+            gardenEntry(onChangeGame = { changeGame(backStack) }, viewModelFactory = gardenViewModelFactory)
         },
     )
 }

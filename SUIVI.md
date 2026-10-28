@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 252 / 321 | `████████████████░░░░` **79 %** |
+| **Général** | 253 / 321 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1511,7 +1511,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   `garden-*` publiés en P10.14 (design system, version 24), que les tests de jetons exigent codés ; `garden-band-cell`
   pour une case libre d'un groupe en bande (sinon invisible de jour) ; point de note de l'accord sur les notes posées
   seulement ; contour d'aperçu et croix d'au moins 2 dp à 22 dp (designer-jeu, P10.14).
-- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+- [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
 - [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de

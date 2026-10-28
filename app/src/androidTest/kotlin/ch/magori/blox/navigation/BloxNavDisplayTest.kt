@@ -53,6 +53,8 @@ import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.GardenViewModel
+import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
@@ -71,6 +73,7 @@ import ch.magori.blox.core.designsystem.R as DesignR
 import ch.magori.blox.feature.cartridges.R as CartridgesR
 import ch.magori.blox.feature.daily.R as DailyR
 import ch.magori.blox.feature.game.R as GameR
+import ch.magori.blox.feature.garden.R as GardenR
 import ch.magori.blox.feature.home.R as HomeR
 import ch.magori.blox.feature.locksmith.R as LocksmithR
 
@@ -326,6 +329,23 @@ internal class BloxNavDisplayTest {
 
             // Then the copy of the score of the date of the game is asked for
             assertThat(copiedDailyScores).containsExactly(DAILY_DATE)
+        }
+    }
+
+    @Test
+    @DisplayName("changing the game from the musical garden goes back to the cartridges")
+    fun changingTheGameFromTheMusicalGardenGoesBackToTheCartridges() {
+        runJourney {
+            // Given the garden on top of the cartridges (no cartridge opens it yet, P10.13)
+            showApp(restoredStack = listOf(CartridgesRoute, GardenRoute), restoredShows = gardenTitle())
+
+            // When
+            onNodeWithContentDescription(string(GardenR.string.feature_garden_change_game)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(gardenTitle()).assertDoesNotExist()
         }
     }
 
@@ -738,6 +758,7 @@ internal class BloxNavDisplayTest {
                         dailyFactory,
                         { date -> copiedDailyScores += date },
                         newCartridges,
+                        GardenViewModel.Factory(),
                     )
                 } else {
                     BloxNavDisplay(
@@ -751,6 +772,7 @@ internal class BloxNavDisplayTest {
                         dailyFactory,
                         { date -> copiedDailyScores += date },
                         newCartridges,
+                        GardenViewModel.Factory(),
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }
@@ -854,6 +876,10 @@ internal class BloxNavDisplayTest {
     /** The title of the entry of the daily seed on [DAILY_DATE]. */
     private fun AndroidComposeUiTest<ComponentActivity>.dailyTitle(): String =
         string(DailyR.string.feature_daily_title, "26 octobre")
+
+    /** The title of the bar of the musical garden, as the screen shows it: in capitals. */
+    private fun AndroidComposeUiTest<ComponentActivity>.gardenTitle(): String =
+        string(GardenR.string.feature_garden_title).uppercase()
 
     private fun AndroidComposeUiTest<ComponentActivity>.string(
         @StringRes id: Int,

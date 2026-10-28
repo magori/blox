@@ -291,7 +291,7 @@ barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulThem
 `GameThemeTest › a daily game is drawn in the colorful variant whatever the theme chosen, with the effects of the player`,
 `GameThemeTest › a classic game is drawn in the theme chosen`,
 `ColorfulThemeTest › the colorful theme draws in the colorful variant of the system mode, keeping the effects around it`,
-`SystemBarsTest › the bars of a daily game follow its colorful variant`.
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 
 **Écran d'entrée** (vue **V38**, à dessiner ; `feature:daily`, clé `DailyRoute`, amendement de
 l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres système comprises :
@@ -332,7 +332,7 @@ l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres
 `DayInLettersTest › the day is written in letters, the day of the month then the month`,
 `DayInLettersTest › the first of the month is written 1er, as in French`,
 `DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
-`SystemBarsTest › the bars of the entry of the daily seed follow its colorful variant`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `DailyScreenTest › the title gives the day in letters`,
 `DailyScreenTest › TalkBack reads each of the seven first pieces with its rank, and none can be touched`,
 `DailyScreenTest › before the first try, the tiles and the best of the day show a dash, and copying is disabled`,
