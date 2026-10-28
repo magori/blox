@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 249 / 320 | `████████████████░░░░` **78 %** |
+| **Général** | 250 / 321 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1487,6 +1487,9 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   par les côtés, ordre de lecture, `Position.minus`, la pièce Classique qui couvre des cases (`pieceCovering`) et la
   lecture d'une grille ASCII, dans `core:game` sous ses tests, puis réutilisés par `Padlock` et `Garden`. Change l'API
   publique de `core:game` (`explicitApi`).
+- [ ] **P10.17** Régler à l'oreille, sur un téléphone, les valeurs de départ du Jardin (décisions du développeur
+  des 2026-10-27 et 28, en constantes nommées) : tempos des ambiances, tonique de Calme, octave de la basse, volumes
+  (0,06 et 0,16) et poids de la note du dé (`GardenRating`). Après P10.12.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1498,9 +1501,9 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   standing piece plays its notes as a rising arpeggio within the eighth`, `a column of three cells keeps the length
   of the bar exact`, `two pieces in the same column sound together`, `an empty garden plays the bass alone`,
   `fourteen notes at once and the bass reach full scale without going above it`.
-- [ ] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
-  20 candidats, note **[à vérifier]**. Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
-  composed garden holds 6 pieces placed without overlap`, `the best candidate is kept, the first one among equals`,
+- [x] **P10.7** `GardenComposer.compose(mood, seed)`, le dé : composer, puis évaluer, sur `StableRandom` ; 6 pièces,
+  20 candidats (décision du développeur, 2026-10-27), note de départ à régler à l'oreille (P10.17). Après P1.20, P10.5. Cas : `the same mood and seed give the same garden`, `a
+  composed garden holds 6 pieces placed without overlap` (devenu `every seed composes a garden of 6 pieces`), `the best candidate is kept, the first one among equals`,
   `a candidate does not depend on the draws of the previous ones`.
 - [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
   case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
