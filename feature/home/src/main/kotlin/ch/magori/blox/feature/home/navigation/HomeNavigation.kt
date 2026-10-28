@@ -1,16 +1,14 @@
 package ch.magori.blox.feature.home.navigation
 
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect
 import ch.magori.blox.feature.home.HomeScreen
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.MusicActions
@@ -42,14 +40,7 @@ fun EntryProviderScope<NavKey>.homeEntry(
     entry<HomeRoute> {
         val viewModel: HomeViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-        // The view model decides what each event of the screen means for the music listened to (tested
-        // there); this observer, without a JVM test, only hands the events over.
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
-        DisposableEffect(lifecycle, viewModel) {
-            val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
-            lifecycle.addObserver(observer)
-            onDispose { lifecycle.removeObserver(observer) }
-        }
+        ScreenHiddenEffect(onHidden = viewModel::onHidden)
         // The view model decides when the picker of the system opens (tested there); the screen opens it, and hands
         // the file picked, if any, over.
         val pickMusicFile = rememberMusicFilePicker(onPicked = viewModel::onMusicFileChosen)
