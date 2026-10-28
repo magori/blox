@@ -5,8 +5,17 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.data.GardenRepository
+import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
+import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.garden.Garden
+import ch.magori.blox.core.garden.GardenComposer
+import ch.magori.blox.core.garden.GardenMood
+import ch.magori.blox.core.garden.GardenPlacement
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -16,6 +25,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.io.IOException
+import kotlin.random.Random
 import kotlin.reflect.KClass
 
 /**
@@ -33,11 +43,15 @@ class GardenViewModel internal constructor(
     private val kept: GardenRepository,
     private val appScope: CoroutineScope,
     private val writes: Mutex,
+    private val random: Random = Random.Default,
 ) : ViewModel() {
     private val state = MutableStateFlow<GardenUiState?>(null)
 
     /** The screen; null while the garden kept is being read (P10.10 decides what the screen shows meanwhile). */
     internal val uiState: StateFlow<GardenUiState?> = state.asStateFlow()
+
+    /** The time « Annuler » is still offered, counted from the last Tout effacer or Au hasard. */
+    private var undoTime: Job? = null
 
     init {
         // Read once: only this screen writes the garden kept. A garden adopted meanwhile is not replaced by it. Any
@@ -55,7 +69,8 @@ class GardenViewModel internal constructor(
      * any other failure is a bug, and goes through to [appScope].
      */
     internal fun adopt(garden: Garden) {
-        state.value = GardenUiState(garden)
+        state.update { it?.copy(garden = garden, undo = null) ?: GardenUiState(garden) }
+        undoTime?.cancel()
         // Copies: the write, in the scope of the application, does not hold this view model once cleared.
         val kept = kept
         val writes = writes
@@ -67,6 +82,95 @@ class GardenViewModel internal constructor(
                     // Nothing kept: the garden stays on screen, the last one kept stays on the device.
                 }
             }
+        }
+    }
+
+    /**
+     * A touch of the grid on [position]: on a preview that fits, places it; on a placed piece outside the preview, takes
+     * it back as the preview, where it lay, in its type and orientation; elsewhere, a refused preview included, shows
+     * the chosen piece there, its pivot on that cell: a touch never takes back the note a refused preview covers.
+     */
+    internal fun tap(position: Position) {
+        val current = state.value ?: return
+        val onPreview = current.preview?.cells?.contains(position) == true
+        val placed = current.garden.pieceAt(position)
+        when {
+            onPreview && current.refusal == null -> place()
+
+            placed != null && !onPreview -> {
+                state.value =
+                    current.copy(chosen = placed.type, orientation = placed.orientation, aim = placed.pivot)
+                adopt(current.garden.takeBack(placed))
+            }
+
+            else -> state.value = current.copy(aim = position)
+        }
+    }
+
+    /** Chooses the piece of [type] in the tray, in its first orientation: the preview, if any, becomes it. */
+    internal fun choose(type: PieceType) {
+        state.update { it?.copy(chosen = type, orientation = ClassicRotationSystem.spawnOrientation(type)) }
+    }
+
+    /** Turns the chosen piece a quarter turn by [rotation], round the pivot of the preview. */
+    internal fun turn(rotation: Rotation) {
+        state.update { it?.copy(orientation = ClassicRotationSystem.rotate(it.chosen, it.orientation, rotation)) }
+    }
+
+    /** Chooses [mood]: the pieces stay where they are, heard in that mood. */
+    internal fun chooseMood(mood: GardenMood) {
+        val current = state.value ?: return
+        adopt(current.garden.withMood(mood))
+    }
+
+    /** Tout effacer: nothing placed, in the same mood; « Annuler » gives the garden from before back. */
+    internal fun clearAll(undoMillis: Long = UNDO_MILLIS) {
+        val current = state.value ?: return
+        adopt(current.garden.clear())
+        offerUndo(current.garden, undoMillis)
+    }
+
+    /**
+     * Au hasard: the garden the composer gives in the same mood, from a seed drawn for this roll, in place of the one
+     * under way; « Annuler » gives it back, unless nothing was placed: nothing was cleared.
+     */
+    internal fun roll(undoMillis: Long = UNDO_MILLIS) {
+        val current = state.value ?: return
+        adopt(GardenComposer.compose(current.garden.mood, random.nextLong()))
+        if (current.garden.pieces.isNotEmpty()) offerUndo(current.garden, undoMillis)
+    }
+
+    /** Offers « Annuler » for [millis], to give [before] back. */
+    private fun offerUndo(
+        before: Garden,
+        millis: Long,
+    ) {
+        state.update { it?.copy(undo = before) }
+        undoTime?.cancel()
+        undoTime = viewModelScope.launch {
+            delay(millis)
+            state.update { it?.copy(undo = null) }
+        }
+    }
+
+    /** Annuler: the garden from before Tout effacer or Au hasard comes back. */
+    internal fun undo() {
+        adopt(state.value?.undo ?: return)
+    }
+
+    /** Retirer: the preview is gone, a piece taken back with it. */
+    internal fun remove() {
+        state.update { it?.copy(aim = null) }
+    }
+
+    /** Poser: places the preview, if there is one; it is gone once placed. */
+    internal fun place() {
+        val current = state.value ?: return
+        val preview = current.preview ?: return
+        val placement = current.garden.place(preview)
+        if (placement is GardenPlacement.Placed) {
+            state.value = current.copy(aim = null)
+            adopt(placement.garden)
         }
     }
 
@@ -89,3 +193,6 @@ class GardenViewModel internal constructor(
         }
     }
 }
+
+/** How long « Annuler » is offered after Tout effacer or Au hasard (docs/jardin-musical.md, Écran). */
+internal const val UNDO_MILLIS: Long = 4_000L

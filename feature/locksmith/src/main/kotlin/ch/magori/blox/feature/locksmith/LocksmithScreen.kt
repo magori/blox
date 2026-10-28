@@ -2,7 +2,6 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -80,6 +78,7 @@ import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
+import ch.magori.blox.core.designsystem.component.ChordPill
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
@@ -344,14 +343,14 @@ private fun ChordBand(state: LocksmithUiState) {
         modifier = Modifier.clearAndSetSemantics { contentDescription = reading },
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
-        numerals.take(cadence).forEachIndexed { index, numeral -> ChordPill(numeral, played = index < heard) }
+        numerals.take(cadence).forEachIndexed { index, numeral -> ChordPill(numeral.name, played = index < heard) }
         Column(
             modifier = Modifier.width(IntrinsicSize.Max),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
                 numerals.drop(cadence).forEachIndexed { index, numeral ->
-                    ChordPill(numeral, played = cadence + index < heard)
+                    ChordPill(numeral.name, played = cadence + index < heard)
                 }
             }
             CadenceBracket(BloxTheme.palette.label)
@@ -383,29 +382,6 @@ private fun chordBandReading(chords: ChordsRead): String {
 private fun chordNames(numerals: List<RomanNumeral>): String {
     val separator = stringResource(R.string.feature_locksmith_chords_separator)
     return numerals.map { stringResource(chordNameOf(it), it.degree.toString()) }.joinToString(separator)
-}
-
-@Composable
-private fun ChordPill(
-    numeral: RomanNumeral,
-    played: Boolean,
-) {
-    val fill = if (played) BloxTheme.palette.accent else BloxTheme.palette.page
-    val frame = if (played) BloxTheme.palette.accent else BloxTheme.palette.buttonOutline
-    Box(
-        modifier = Modifier
-            .widthIn(min = CHORD_PILL)
-            .background(fill, BloxTheme.shapes.pill)
-            .border(BloxBorders.frame, frame, BloxTheme.shapes.pill)
-            .padding(horizontal = BloxSpaces.space2, vertical = BloxSpaces.space1),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = numeral.name,
-            color = if (played) BloxTheme.palette.accentInk else BloxTheme.palette.ink,
-            style = BloxTheme.typography.buttonLabel,
-        )
-    }
 }
 
 /** A bracket opening upwards, as wide as the pills above it, in [color]. */
@@ -838,9 +814,6 @@ private const val BOTTOM_SHARE = 0.5f
 
 /** The largest cell of the padlock; 8 cells and their rim fit the width of a phone of 390 dp, margins included. */
 internal val MAX_CELL = 42.dp
-
-/** The narrowest pill of a chord. */
-private val CHORD_PILL = 44.dp
 
 /** The height of the bracket under the cadence. */
 private val BRACKET = 6.dp
