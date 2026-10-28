@@ -237,7 +237,18 @@ des candidats, évaluer, garder le meilleur.
   l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
   ligne), ses 4 cases en décalages depuis le pivot, ligne par ligne (le fichier ne dépend pas de
   l'ordre des orientations). Les noms d'ambiance et de type ne changent plus. À la lecture, chaque
-  pièce est reposée dans le jardin comme par le joueur.
+  pièce est reposée dans le jardin comme par le joueur. Le corps d'un jardin (ambiance et pièces, sans « BLXG » ni
+  version) est encodé à part (`GardenEncoding`, P10.26), pour que « Mes jardins » (`gardens.bin`, P10.27) enchaîne
+  plusieurs jardins dans un même fichier : la lecture d'un jardin s'arrête après sa dernière pièce, et chaque refus
+  du fichier vaut pour un jardin seul.
+  **Tests :** `GardenEncodingTest › a garden is written as its mood, the count of its pieces then each piece, without the header of a file`,
+  `GardenEncodingTest › gardens written one after the other are read back in turn, each one stopping after its last piece`,
+  `GardenEncodingTest › a garden cut short is refused as cut short`,
+  `GardenEncodingTest › a garden holding what no garden can be is refused as invalid`,
+  `GardenEncodingTest › a garden whose pieces overlap is refused as invalid`,
+  `GardenEncodingTest › a garden whose piece is off the grid is refused as invalid`,
+  `GardenEncodingTest › a garden counting fewer than none or more than 56 pieces is refused as invalid, before any piece is read`,
+  `GardenEncodingTest › a garden whose name is longer than 64 bytes is refused as invalid, before its bytes are read`.
 - Un jardin illisible (pas un jardin, tronqué, octets après la dernière pièce, ambiance ou type
   inconnus, pièce hors grille, superposée ou de forme étrangère à son type) est d'abord copié dans
   `garden.bin.corrupt`, puis remplacé par un jardin vide et calme, sans erreur à l'écran. Un

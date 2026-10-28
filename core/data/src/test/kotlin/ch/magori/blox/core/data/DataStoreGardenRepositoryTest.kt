@@ -54,7 +54,7 @@ class DataStoreGardenRepositoryTest :
         }
 
         // Then
-        assertThat(file.readBytes()).isEqualTo(O_IN_THE_MIDDLE_EPIC)
+        assertThat(file.readBytes()).isEqualTo(O_IN_THE_MIDDLE_EPIC_FILE)
     }
 
     @Test
@@ -85,7 +85,7 @@ class DataStoreGardenRepositoryTest :
     @Test
     fun `a garden file of version 1 is read as it was written, a format that must not change`() = runTest {
         // Given
-        file.writeBytes(O_IN_THE_MIDDLE_EPIC)
+        file.writeBytes(O_IN_THE_MIDDLE_EPIC_FILE)
 
         // When
         val garden = repositoryIn(backgroundScope).garden.first()
@@ -223,21 +223,9 @@ class DataStoreGardenRepositoryTest :
         DataStoreGardenRepository(scope) { file.absolutePath.toPath() }
 
     private companion object {
-        /**
-         * [ANOTHER_GARDEN] as the file of version 1 holds it, after its four bytes « BLXG »: the epic mood, one piece,
-         * an O whose pivot is on column 8, row 6, then its four cells from its pivot, row by row from the top.
-         */
-        val O_IN_THE_MIDDLE_EPIC: ByteArray = Buffer()
-            .writeUtf8("BLXG")
-            .writeInt(1)
-            .text("EPIC")
-            .writeInt(1)
-            .text("O").writeInt(8).writeInt(6)
-            .writeInt(-1).writeInt(0)
-            .writeInt(0).writeInt(0)
-            .writeInt(-1).writeInt(1)
-            .writeInt(0).writeInt(1)
-            .readByteArray()
+        /** [ANOTHER_GARDEN] as the file of version 1 holds it: « BLXG », the version, then [O_IN_THE_MIDDLE_EPIC]. */
+        val O_IN_THE_MIDDLE_EPIC_FILE: ByteArray =
+            Buffer().writeUtf8("BLXG").writeInt(1).write(O_IN_THE_MIDDLE_EPIC).readByteArray()
 
         /** Files of version 1 that no garden can be, each named by what is wrong with it. */
         @JvmStatic
@@ -273,21 +261,5 @@ class DataStoreGardenRepositoryTest :
             mood: String = "EPIC",
             pieces: Int,
         ): Buffer = writeUtf8("BLXG").writeInt(version).text(mood).writeInt(pieces)
-
-        /**
-         * A piece as the garden file writes it: its [type], its pivot on [column] and [row], then its [cells] from its
-         * pivot; an O by default.
-         */
-        fun Buffer.o(
-            column: Int,
-            row: Int,
-            type: String = "O",
-            cells: List<Pair<Int, Int>> = listOf(-1 to 0, 0 to 0, -1 to 1, 0 to 1),
-        ): Buffer = text(type).writeInt(column).writeInt(row).apply {
-            cells.forEach { (cellColumn, cellRow) -> writeInt(cellColumn).writeInt(cellRow) }
-        }
-
-        /** A text as the garden file writes it: its length in bytes, then its bytes in UTF-8. */
-        fun Buffer.text(text: String): Buffer = writeInt(text.encodeToByteArray().size).writeUtf8(text)
     }
 }
