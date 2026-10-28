@@ -200,8 +200,8 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 
 | Paquet | Contenu |
 |---|---|
-| `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) |
-| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune |
+| `ch.magori.blox.core.game.model` | Value objects : `Position` (`minus`, `neighbours()`, `firstInReadingOrder()`), `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) ; `AsciiGrid.parse(ascii)`, grille texte partagée par `Padlock.parse` et `Garden.parse` (P10.16) |
+| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune ; `RotationSystem.pieceCovering(cells, types)`, la pièce qui couvre exactement des cases (Serrurier, Jardin) |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
 
 Le mode Moderne (P6, règles dans [docs/regles-mode-moderne.md](docs/regles-mode-moderne.md))

@@ -1,9 +1,12 @@
 package ch.magori.blox.core.garden
 
+import ch.magori.blox.core.game.model.AsciiGrid
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.firstInReadingOrder
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.pieceCovering
 
 /**
  * A musical garden: the [pieces] placed on its grid of [COLUMNS] × [ROWS] cells, a column per eighth
@@ -58,13 +61,6 @@ public data class Garden private constructor(public val pieces: Set<Piece>, publ
         /** The digits that mark a piece whose type is read from its shape. */
         private val DIGITS = '1'..'9'
 
-        /** The four cells that share an edge with a cell, as offsets. */
-        private val NEIGHBOURS: List<Position> =
-            listOf(Position(1, 0), Position(-1, 0), Position(0, 1), Position(0, -1))
-
-        /** Row by row from the top, and within a row from the left. */
-        private val READING_ORDER: Comparator<Position> = compareBy(Position::row, Position::column)
-
         /**
          * Reads a garden from [ROWS] lines of [COLUMNS] characters, for tests: `.` is a free cell, the
          * letter of a type (`I`, `O`, `T`, `S`, `Z`, `J`, `L`) a cell of a piece of that type, and a digit
@@ -74,17 +70,16 @@ public data class Garden private constructor(public val pieces: Set<Piece>, publ
          * lines around the grid are ignored. The garden read is calm, like [EMPTY].
          */
         public fun parse(ascii: String): Garden {
-            val lines = ascii.trimIndent().lines().dropWhile(String::isBlank).dropLastWhile(String::isBlank)
-            require(lines.size == ROWS) { "A garden has $ROWS rows, got ${lines.size}" }
-            lines.forEachIndexed { row, line ->
+            val grid = AsciiGrid.parse(ascii)
+            require(grid.lines.size == ROWS) { "A garden has $ROWS rows, got ${grid.lines.size}" }
+            grid.lines.forEachIndexed { row, line ->
                 require(line.length == COLUMNS) { "A garden has $COLUMNS columns, row $row has ${line.length} cells" }
             }
-            return lines
-                .flatMapIndexed { row, line -> line.mapIndexed { column, char -> char to Position(column, row) } }
-                .filter { (char, _) -> char != FREE }
-                .onEach { (mark, cell) ->
+            return grid.cells.entries
+                .filter { (_, char) -> char != FREE }
+                .onEach { (cell, mark) ->
                     require(mark in DIGITS || typeOf(mark) != null) { "Unknown mark '$mark' at ${cell.text()}" }
-                }.groupBy({ it.first }, { it.second })
+                }.groupBy({ it.value }, { it.key })
                 .flatMap { (mark, cells) -> regions(cells.toSet()).map { pieceCovering(mark, it) } }
                 // Built directly, without `place`: what it checks holds by construction. Each piece takes a
                 // Classic orientation (pieceCovering), its cells come from a grid of checked size, and no two
@@ -106,7 +101,7 @@ public data class Garden private constructor(public val pieces: Set<Piece>, publ
                 val frontier = ArrayDeque(region)
                 while (frontier.isNotEmpty()) {
                     val cell = frontier.removeFirst()
-                    NEIGHBOURS.map(cell::plus).filter { it in left && region.add(it) }.forEach(frontier::addLast)
+                    cell.neighbours().filter { it in left && region.add(it) }.forEach(frontier::addLast)
                 }
                 left -= region
                 regions += region
@@ -123,16 +118,10 @@ public data class Garden private constructor(public val pieces: Set<Piece>, publ
             cells: Set<Position>,
         ): Piece {
             val type = typeOf(mark)
-            val first = cells.minWith(READING_ORDER)
-            val piece = (type?.let(::listOf) ?: PieceType.entries)
-                .flatMap { candidate -> ClassicRotationSystem.orientations(candidate).map { candidate to it } }
-                .map { (candidate, orientation) ->
-                    val offset = orientation.cells.minWith(READING_ORDER)
-                    Piece(candidate, orientation, Position(first.column - offset.column, first.row - offset.row))
-                }.firstOrNull { it.cells == cells }
+            val piece = ClassicRotationSystem.pieceCovering(cells, types = type?.let(::listOf) ?: PieceType.entries)
             return requireNotNull(piece) {
                 val expected = type?.let { "$it; two touching pieces of the same type take a digit" } ?: "Classic piece"
-                "The cells marked '$mark' from ${first.text()} make no $expected"
+                "The cells marked '$mark' from ${cells.firstInReadingOrder().text()} make no $expected"
             }
         }
 
