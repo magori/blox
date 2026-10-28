@@ -1,7 +1,10 @@
 package ch.magori.blox.feature.garden.navigation
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
@@ -26,6 +29,14 @@ fun EntryProviderScope<NavKey>.gardenEntry(
     entry<GardenRoute> {
         val viewModel: GardenViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+        // The view model decides what each event of the screen means for the garden listened to (tested there); this
+        // observer, without a JVM test, only hands the events over.
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
+        DisposableEffect(lifecycle, viewModel) {
+            val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
+            lifecycle.addObserver(observer)
+            onDispose { lifecycle.removeObserver(observer) }
+        }
         val actions = remember(onChangeGame, viewModel) { gardenActions(viewModel, onChangeGame) }
         GardenScreen(uiState = uiState, actions = actions)
     }
@@ -37,6 +48,8 @@ internal fun gardenActions(
     onChangeGame: () -> Unit,
 ): GardenActions = GardenActions(
     onChangeGame = onChangeGame,
+    onListen = viewModel::listen,
+    onFrame = viewModel::onFrame,
     onRoll = viewModel::roll,
     onMood = viewModel::chooseMood,
     onClearAll = viewModel::clearAll,

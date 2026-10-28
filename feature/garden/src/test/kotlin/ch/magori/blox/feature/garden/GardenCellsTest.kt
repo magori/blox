@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.garden
 
 import ch.magori.blox.core.board.garden.GardenCell
+import ch.magori.blox.core.board.garden.GardenPlayHead
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.garden.Garden
@@ -51,6 +52,37 @@ class GardenCellsTest {
         assertThat(cells[Position(4, 0)]).isEqualTo(GardenCell.Preview(PieceType.T, fits = true))
         assertThat(cells[Position(4, 1)]).isEqualTo(GardenCell.Preview(PieceType.T, fits = true))
         assertThat(cells).hasSize(Garden.COLUMNS * Garden.ROWS)
+    }
+
+    @Test
+    fun `the column played is framed from its top cell to its bottom one, and no other column`() {
+        // Given the garden listened to, column 5 played
+        val state = GardenUiState(Garden.EMPTY, playedColumn = 5)
+
+        // When / Then
+        assertThat(playHeadAt(Position(5, 0), state)).isEqualTo(GardenPlayHead.TOP)
+        assertThat(playHeadAt(Position(5, 7), state)).isEqualTo(GardenPlayHead.MIDDLE)
+        assertThat(playHeadAt(Position(5, Garden.ROWS - 1), state)).isEqualTo(GardenPlayHead.BOTTOM)
+        assertThat(playHeadAt(Position(4, 7), state)).isNull()
+        assertThat(playHeadAt(Position(6, 0), state)).isNull()
+    }
+
+    @Test
+    fun `without listening no column is framed`() {
+        // Given
+        val state = GardenUiState(Garden.EMPTY)
+
+        // When / Then
+        assertThat(GRID_CELLS.mapNotNull { playHeadAt(it, state) }).isEmpty()
+    }
+
+    @Test
+    fun `the chord played is the one of the group of the column played, none without listening`() {
+        // When / Then: columns 0 to 3 under the first chord, 12 to 15 under the last
+        assertThat(playedChordOf(GardenUiState(Garden.EMPTY, playedColumn = 3))).isEqualTo(0)
+        assertThat(playedChordOf(GardenUiState(Garden.EMPTY, playedColumn = 4))).isEqualTo(1)
+        assertThat(playedChordOf(GardenUiState(Garden.EMPTY, playedColumn = 15))).isEqualTo(3)
+        assertThat(playedChordOf(GardenUiState(Garden.EMPTY))).isNull()
     }
 
     private companion object {

@@ -25,11 +25,14 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -58,6 +61,7 @@ import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.board.garden.GardenCell
 import ch.magori.blox.core.board.garden.GardenCellCanvas
+import ch.magori.blox.core.board.garden.GardenPlayHead
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
 import ch.magori.blox.core.designsystem.component.BubbleButton
@@ -67,6 +71,7 @@ import ch.magori.blox.core.designsystem.component.ChoiceSegments
 import ch.magori.blox.core.designsystem.component.ChordPill
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
@@ -86,11 +91,15 @@ import ch.magori.blox.core.garden.GardenMood
 
 /**
  * What the player does on the musical garden, handed to the view model and to `app` by the entry. Tout effacer and Au
- * hasard hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone.
+ * hasard hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone. While
+ * the garden is listened to, the screen hands each frame it draws over to [onFrame], at its time in nanoseconds (ADR
+ * 0012).
  */
 @Immutable
 internal class GardenActions(
     val onChangeGame: () -> Unit,
+    val onListen: () -> Unit = {},
+    val onFrame: (frameNanos: Long) -> Unit = {},
     val onRoll: (undoMillis: Long) -> Unit = {},
     val onMood: (GardenMood) -> Unit = {},
     val onClearAll: (undoMillis: Long) -> Unit = {},
@@ -110,12 +119,13 @@ internal class GardenActions(
 /**
  * The musical garden (V40), drawn in the Colorful theme only, day or night as the phone, the effects of the application
  * kept (ADR 0026, ADR 0027). From the top, scrolling on a small screen or in a large font: the bar (Changer de jeu, the
- * title, Au hasard), the moods, the information row (the scale and the tempo, Tout effacer), the chords over the grid
- * of 16 × 14, the message, the tray of the 7 pieces and Retirer. Anchored at the bottom, within reach of the thumb:
- * turn left, Poser, turn right. « Jardin effacé · Annuler » shows over the bottom of the page while it is offered.
- * Until the garden kept is read ([uiState] null), the bar alone, Au hasard greyed. No logic: what each action means
- * belongs to the view model and to `app`. Changer de jeu counts only while the garden is resumed. Écouter and the play
- * head come with the sound (P10.12).
+ * title, Au hasard, Écouter), the moods, the information row (the scale and the tempo, Tout effacer), the chords over
+ * the grid of 16 × 14, the message, the tray of the 7 pieces and Retirer. Anchored at the bottom, within reach of the
+ * thumb: turn left, Poser, turn right. « Jardin effacé · Annuler » shows over the bottom of the page while it is
+ * offered. Until the garden kept is read ([uiState] null), the bar alone, Au hasard and Écouter greyed. While the garden
+ * is listened to, the column played is framed on the grid and the pill of its chord filled, and the frames of the
+ * screen are handed over to the view model (ADR 0012). No logic: what each action means belongs to the view model and
+ * to `app`. Changer de jeu counts only while the garden is resumed.
  */
 @Composable
 internal fun GardenScreen(
@@ -125,6 +135,16 @@ internal fun GardenScreen(
 ) {
     val changeGame = dropUnlessResumed { actions.onChangeGame() }
     val undoMillis = undoTimeoutMillis()
+    val listening = uiState?.playedColumn != null
+    // The clock of the play head belongs to the screen (ADR 0012): it hands over the frames only while listening.
+    val onFrame by rememberUpdatedState(actions.onFrame)
+    LaunchedEffect(listening) {
+        if (listening) {
+            while (true) {
+                withFrameNanos { onFrame(it) }
+            }
+        }
+    }
     // The height of « Jardin effacé · Annuler », its margins included, which the page leaves free under the tray.
     var undoBar by remember { mutableIntStateOf(0) }
     ColorfulTheme {
@@ -146,7 +166,9 @@ internal fun GardenScreen(
                     GardenBar(
                         onChangeGame = changeGame,
                         onRoll = { actions.onRoll(undoMillis) },
+                        onListen = actions.onListen,
                         ready = uiState != null,
+                        listening = listening,
                     )
                     if (uiState != null) {
                         Moods(uiState.garden.mood, actions.onMood)
@@ -195,13 +217,17 @@ private fun undoTimeoutMillis(): Long = LocalAccessibilityManager.current?.calcu
 
 /**
  * The bar: the disc « Changer de jeu » at the start, then the title, in capitals, read as a heading in words, then the
- * die « Au hasard », greyed until the garden is [ready].
+ * die « Au hasard » and the disc Écouter, both greyed until the garden is [ready]. Écouter shows a triangle, read
+ * « Écouter le jardin »; while [listening], a square, read « Arrêter le jardin », keeping its pressed fill: the listen
+ * button of the musics (`ListenButton`).
  */
 @Composable
 private fun GardenBar(
     onChangeGame: () -> Unit,
     onRoll: () -> Unit,
+    onListen: () -> Unit,
     ready: Boolean,
+    listening: Boolean,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -232,6 +258,12 @@ private fun GardenBar(
             icon = BloxIcon.DICE,
             description = stringResource(R.string.feature_garden_random),
             onClick = onRoll,
+            enabled = ready,
+        )
+        ListenButton(
+            playing = listening,
+            musicName = stringResource(R.string.feature_garden_music_name),
+            onClick = onListen,
             enabled = ready,
         )
     }
@@ -329,16 +361,20 @@ private fun ChordsAndGrid(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
         ) {
-            ChordBand(state.garden.mood, cell)
+            ChordBand(state.garden.mood, playedChordOf(state), cell)
             Grid(state, cell, onTap)
         }
     }
 }
 
-/** One pill per chord of [mood], each over its group of 4 cells of [cell]. */
+/**
+ * One pill per chord of [mood], each over its group of 4 cells of [cell]; the one [playedChord], if the garden is
+ * listened to, filled.
+ */
 @Composable
 private fun ChordBand(
     mood: GardenMood,
+    playedChord: Int?,
     cell: Dp,
 ) {
     val reading = chordsText(mood)
@@ -348,11 +384,11 @@ private fun ChordBand(
             .padding(horizontal = GRID_FRAME)
             .clearAndSetSemantics { contentDescription = reading },
     ) {
-        mood.progression.numerals.forEach { numeral ->
+        mood.progression.numerals.forEachIndexed { chord, numeral ->
             Box(modifier = Modifier.width(group), contentAlignment = Alignment.Center) {
                 ChordPill(
                     label = numeral.name,
-                    played = false,
+                    played = chord == playedChord,
                     modifier = Modifier.width(min(group - PILL_INSET, CHORD_PILL)),
                 )
             }
@@ -383,20 +419,31 @@ private fun Grid(
             Row {
                 for (column in 0 until Garden.COLUMNS) {
                     val position = Position(column, row)
-                    GridCell(cells[position] ?: GardenCell.Free, position, cell, state.garden.mood, onTap)
+                    GridCell(
+                        cell = cells[position] ?: GardenCell.Free,
+                        position = position,
+                        size = cell,
+                        mood = state.garden.mood,
+                        playHead = playHeadAt(position, state),
+                        onTap = onTap,
+                    )
                 }
             }
         }
     }
 }
 
-/** A cell of the grid, [cell] at [position], touched by [onTap]; in a band one group of 4 eighths out of two. */
+/**
+ * A cell of the grid, [cell] at [position], touched by [onTap]; in a band one group of 4 eighths out of two; framed
+ * as its part of the [playHead], in the column played.
+ */
 @Composable
 private fun GridCell(
     cell: GardenCell,
     position: Position,
     size: Dp,
     mood: GardenMood,
+    playHead: GardenPlayHead?,
     onTap: (Position) -> Unit,
 ) {
     val description = cellText(cell, position, mood)
@@ -405,6 +452,7 @@ private fun GridCell(
         cell = cell,
         size = size,
         inBand = (position.column / GardenMood.EIGHTHS_PER_CHORD) % 2 == 1,
+        playHead = playHead,
         modifier = Modifier
             .clickable(role = Role.Button, onClickLabel = action) { onTap(position) }
             .semantics {

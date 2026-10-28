@@ -8,7 +8,8 @@ import com.android.tools.screenshot.PreviewTest
 /*
  * Screenshot tests of the musical garden (view V40), by day and by night, under the Original theme of the application:
  * the screen draws itself in the Colorful theme. The empty garden as it opens; four pieces and a preview refused over
- * one of them, a cell crossed out; the same in a font twice as large on a narrow phone; « Jardin effacé · Annuler ».
+ * one of them, a cell crossed out; the same in a font twice as large on a narrow phone; « Jardin effacé · Annuler »;
+ * the garden listened to, its column played framed and the pill of its chord filled, by day and by night.
  * From the previews of the production code, with the same `@Preview` configuration. Renaming a test breaks its link to
  * its reference image: regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
@@ -42,3 +43,13 @@ private fun GardenLargeFont() = GardenLargeFontPreview()
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun GardenClearedDay() = GardenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenListeningDay() = GardenListeningPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GardenListeningNight() = GardenListeningNightPreview()

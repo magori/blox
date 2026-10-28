@@ -35,9 +35,13 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.app.InstrumentationRegistry
+import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.FakeGardenRepository
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.garden.GARDEN_SCORE_ID
 import ch.magori.blox.core.garden.Garden
 import ch.magori.blox.feature.garden.navigation.gardenActions
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -234,6 +238,47 @@ internal class GardenScreenTest {
         runOnIdle { assertThat(kept.state.value).isEqualTo(I_AT_THE_BOTTOM) }
     }
 
+    @Test
+    @DisplayName("Écouter is read Écouter le jardin, plays the garden, then is read Arrêter le jardin and stops it")
+    fun ecouterPlaysTheGardenThenArreterStopsIt() = extension.use {
+        // Given
+        val music = FakeMusicPlayer()
+        showViewModel(FakeGardenRepository(I_AT_THE_BOTTOM), music = music)
+        // The play head moves on at every frame while listening: the clock moves on only when told.
+        mainClock.autoAdvance = false
+
+        // When
+        onNodeWithContentDescription("Écouter le jardin").performClick()
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        runOnIdle { assertThat(music.playing).isEqualTo(GARDEN_SCORE_ID) }
+        onNodeWithContentDescription("Écouter le jardin").assertDoesNotExist()
+
+        // When
+        onNodeWithContentDescription("Arrêter le jardin").performClick()
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        runOnIdle { assertThat(music.playing).isNull() }
+        onNodeWithContentDescription("Écouter le jardin").assertExists()
+    }
+
+    @Test
+    @DisplayName("while the garden is listened to, the frames of the screen move the column played on")
+    fun theFramesOfTheScreenMoveTheColumnPlayedOn() = extension.use {
+        // Given the calm garden listened to, at 84 bpm: an eighth lasts about 357 ms
+        val viewModel = showViewModel(FakeGardenRepository(I_AT_THE_BOTTOM))
+        mainClock.autoAdvance = false
+        onNodeWithContentDescription("Écouter le jardin").performClick()
+
+        // When a second goes by
+        mainClock.advanceTimeBy(1_000)
+
+        // Then the third column is played
+        runOnIdle { assertThat(viewModel.uiState.value?.playedColumn).isEqualTo(2) }
+    }
+
     /** A screen started but not resumed: paused, as during the transition to the next one. */
     private class PausedLifecycleOwner : LifecycleOwner {
         override val lifecycle = LifecycleRegistry.createUnsafe(this).apply { currentState = Lifecycle.State.STARTED }
@@ -251,12 +296,20 @@ internal class GardenScreenTest {
         }
     }
 
-    /** The screen on its view model, opened on the garden [kept], as the entry shows it. */
+    /** The screen on its view model, opened on the garden [kept], as the entry shows it, its score played by [music]. */
     private fun ComposeContext.showViewModel(
         kept: FakeGardenRepository,
         fontScale: Float = 1f,
-    ) {
-        val viewModel = GardenViewModel(kept, CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate), Mutex())
+        music: FakeMusicPlayer = FakeMusicPlayer(),
+    ): GardenViewModel {
+        val viewModel = GardenViewModel(
+            kept = kept,
+            appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+            writes = Mutex(),
+            music = music,
+            soundEffects = FakeSoundEffectPlayer(),
+            preferences = FakeUserPreferencesRepository(),
+        )
         setContent {
             val state by viewModel.uiState.collectAsState()
             val density = LocalDensity.current
@@ -266,6 +319,7 @@ internal class GardenScreenTest {
                 }
             }
         }
+        return viewModel
     }
 
     /** The cell of the grid at [column] and [row], found by its place in the collection: a note recurs, octave apart. */

@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 257 / 324 | `████████████████░░░░` **79 %** |
+| **Général** | 258 / 327 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1502,6 +1502,14 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.20** Juger avec `designer-jeu` la lecture des cases du Jardin sans octave (« mi » revient 2 ou 3 fois dans
   une colonne : « mi grave / aigu » ?), les 4 ambiances sur 2 lignes à 360 dp, et Poser sur un aperçu refusé qui
   n'annonce rien de nouveau (revue de P10.10).
+- [ ] **P10.21** Mesurer sur un téléphone le nombre de pistes audio ouvertes avec le Jardin : ses 25 notes
+  d'aperçu s'ajoutent aux effets du jeu, jamais libérés (ADR 0025) ; si la limite approche, réduire l'ensemble ou
+  libérer à la sortie du jardin. Après P10.12.
+- [ ] **P10.22** Recaler la tête de lecture (Jardin, éditeur de musique) sur le son réellement entendu : elle suit
+  le temps des images, pas la position du lecteur, d'où un décalage de la latence audio (revue de P10.12). Après P10.12.
+- [ ] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
+  les 4 écrans qui écoutent (accueil, Mes musiques, éditeur, Jardin), par un `LifecycleEventEffect` partagé (revue de
+  P10.12, règle de 2). Après P10.12.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1535,9 +1543,9 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [x] **P10.11** Jardin gardé (`core:data`, DataStore, fichier à part, format versionné), écrit à chaque changement,
   lu à l'ouverture ; pas d'export. Cas : `without a garden kept the garden is empty and calm`, `the garden kept is
   read back, its mood too`, `an unreadable garden gives an empty one`.
-- [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
+- [x] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
   lecture (`LoopPlayHead`) et pilule d'accord ; aperçu sonore par un ensemble fini d'effets jamais libérés
-  (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
+  (l'union des hauteurs des 4 ambiances, 25), préchauffé à l'ouverture ; mesure des pistes reportée en P10.21 (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
 - [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
   Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
   le premier). Ordre de V36 à quatre cartouches (P10.14) : Classique, Serrurier, Jardin musical, Graine du jour.

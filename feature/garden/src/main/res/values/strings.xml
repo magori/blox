@@ -4,6 +4,8 @@
     <string name="feature_garden_title">Jardin musical</string>
     <string name="feature_garden_change_game">Changer de jeu</string>
     <string name="feature_garden_random">Au hasard</string>
+    <!-- Le nom de la musique du jardin, pour Écouter / Arrêter : « Écouter le jardin », « Arrêter le jardin ». -->
+    <string name="feature_garden_music_name">le jardin</string>
 
     <!-- Les ambiances, groupe de choix « Ambiance ». -->
     <string name="feature_garden_moods">Ambiance</string>

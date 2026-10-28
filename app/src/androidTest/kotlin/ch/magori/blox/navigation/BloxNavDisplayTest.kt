@@ -732,7 +732,8 @@ internal class BloxNavDisplayTest {
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
         val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
-        val gardenFactory = GardenViewModel.Factory(FakeGardenRepository(), MainScope())
+        val gardenFactory =
+            GardenViewModel.Factory(FakeGardenRepository(), MainScope(), music, FakeSoundEffectPlayer(), preferences)
         val dailyFactory = DailyViewModel.Factory(
             dailyChallenge,
             GameRoute.DAILY_START_LEVEL,

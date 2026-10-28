@@ -60,6 +60,14 @@ public enum class GardenMood(
         /** The eighths of a group, under one chord: half a bar. */
         public const val EIGHTHS_PER_CHORD: Int = Garden.COLUMNS / CHORDS
 
+        /**
+         * Every pitch a cell of the garden may play, whatever its mood: the union of the rows of the 4 moods, all on C,
+         * 25 pitches. A finite set, so that the sounds of the preview can be warmed up once and never released.
+         */
+        public val allPitches: Set<Pitch> by lazy {
+            entries.flatMap { mood -> (0 until Garden.ROWS).map(mood::pitchAt) }.toSet()
+        }
+
         /** The group of [column], from 0: the half bar, and the chord, it is heard in. */
         internal fun groupOf(column: Int): Int = column / EIGHTHS_PER_CHORD
     }

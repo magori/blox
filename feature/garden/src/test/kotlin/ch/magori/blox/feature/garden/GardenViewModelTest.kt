@@ -1,7 +1,10 @@
 package ch.magori.blox.feature.garden
 
 import androidx.lifecycle.viewmodel.CreationExtras
+import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.FakeGardenRepository
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.garden.Garden
@@ -122,7 +125,13 @@ internal class GardenViewModelTest {
     fun `a garden opens once the garden of the previous visit is kept`() {
         // Given a first visit whose garden is still being written
         val slow = SlowGardenRepository(slowFirstWrite = true)
-        val factory = GardenViewModel.Factory(slow, appScope)
+        val factory = GardenViewModel.Factory(
+            slow,
+            appScope,
+            FakeMusicPlayer(),
+            FakeSoundEffectPlayer(),
+            FakeUserPreferencesRepository(),
+        )
         visit(factory).adopt(A_GARDEN)
 
         // When the garden is opened again
@@ -138,7 +147,13 @@ internal class GardenViewModelTest {
     fun `the gardens adopted in two visits are kept in their order`() {
         // Given a first visit whose garden is still being written
         val slow = SlowGardenRepository(slowFirstWrite = true)
-        val factory = GardenViewModel.Factory(slow, appScope)
+        val factory = GardenViewModel.Factory(
+            slow,
+            appScope,
+            FakeMusicPlayer(),
+            FakeSoundEffectPlayer(),
+            FakeUserPreferencesRepository(),
+        )
         visit(factory).adopt(A_GARDEN)
 
         // When the next visit adopts another garden
@@ -153,7 +168,14 @@ internal class GardenViewModelTest {
     private fun visit(factory: GardenViewModel.Factory): GardenViewModel =
         factory.create(GardenViewModel::class, CreationExtras.Empty)
 
-    private fun garden(repository: GardenRepository = kept) = GardenViewModel(repository, appScope, Mutex())
+    private fun garden(repository: GardenRepository = kept) = GardenViewModel(
+        kept = repository,
+        appScope = appScope,
+        writes = Mutex(),
+        music = FakeMusicPlayer(),
+        soundEffects = FakeSoundEffectPlayer(),
+        preferences = FakeUserPreferencesRepository(),
+    )
 
     /**
      * The garden kept on a slow disk: when [slowRead], the garden read is the one [read] gives, once let through; when

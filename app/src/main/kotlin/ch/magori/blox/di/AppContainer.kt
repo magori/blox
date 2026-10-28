@@ -271,10 +271,11 @@ class AppContainer(context: Context) {
 
     /**
      * Builds the view model of the musical garden (ADR 0027), on the garden kept: written in [mainScope], at once and in
-     * the order of the changes, even when the garden is left just after one.
+     * the order of the changes, even when the garden is left just after one; its score played by the music player of the
+     * games and of the previews, one music at a time, its preview heard by the sound effects, as the settings want them.
      */
     val gardenViewModelFactory: GardenViewModel.Factory =
-        GardenViewModel.Factory(keptGarden, mainScope)
+        GardenViewModel.Factory(keptGarden, mainScope, music, soundEffects, userPreferences)
 
     /**
      * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
