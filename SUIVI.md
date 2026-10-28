@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 256 / 322 | `████████████████░░░░` **80 %** |
+| **Général** | 257 / 324 | `████████████████░░░░` **79 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1495,6 +1495,13 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
   autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après
   P10.9, P10.11.
+- [ ] **P10.19** Mettre en commun les noms de notes et d'accords lus par TalkBack (éditeur de musique, Serrurier,
+  Jardin ; revue de P10.10, règle de 2) : `chordTellingOf` et ses chaînes vers `core:designsystem`, comme `ChordPill`.
+  Les lectures divergent déjà : le Serrurier lit un ♭VII « 7 majeur », le Jardin « 7 bémol majeur ». Cas : `a flat
+  seventh is told 7 flat major on the Locksmith too`.
+- [ ] **P10.20** Juger avec `designer-jeu` la lecture des cases du Jardin sans octave (« mi » revient 2 ou 3 fois dans
+  une colonne : « mi grave / aigu » ?), les 4 ambiances sur 2 lignes à 360 dp, et Poser sur un aperçu refusé qui
+  n'annonce rien de nouveau (revue de P10.10).
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1519,7 +1526,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
-- [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
+- [x] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de
   22 dp, message, bac (7 pièces et Retirer), tourner, Poser ; aperçu pivot sous le doigt, reprise, Retirer, Tout
   effacer et Au hasard avec « Jardin effacé · Annuler » 4 s ; TalkBack (« Croche 5, mi : libre ») ; captures jour et
   nuit. Après P10.2, P10.5, P10.7, P10.8, P10.9. Maquette V40 (P10.14) : bac de 4 × 84 dp à 6 dp d'écart, « Retirer »

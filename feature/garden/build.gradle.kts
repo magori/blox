@@ -16,6 +16,8 @@ dependencies {
 
     // Le jardin et son ambiance (ADR 0027).
     implementation(projects.core.garden)
+    // Les cases du jardin (GardenCellCanvas), les tuiles du bac (PieceTile), Couleurs seulement (ADR 0023).
+    implementation(projects.core.board)
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
@@ -27,4 +29,6 @@ dependencies {
     androidTestImplementation(libs.androidx.annotation)
     // Une entrée qui n’est plus au premier plan (LifecycleRegistry) : Changer de jeu ne compte plus.
     androidTestImplementation(libs.androidx.lifecycle.runtime)
+    // Le faux jardin gardé : les parcours par touchers passent par le vrai GardenViewModel.
+    androidTestImplementation(testFixtures(projects.core.data))
 }
