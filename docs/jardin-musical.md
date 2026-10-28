@@ -234,7 +234,7 @@ des candidats, évaluer, garder le meilleur.
   `GardenViewModelTest › a garden opens once the garden of the previous visit is kept`,
   `GardenViewModelTest › the gardens adopted in two visits are kept in their order`.
 - **Pas d'export** vers « Mes musiques » en v1 (décision du développeur).
-- **Format versionné** (version 1, amendement de l'ADR 0027) : « BLXG », la version, le nom de
+- **Format versionné** (version 1, puis 2 avec le lien, P10.28 ; amendement de l'ADR 0027) : « BLXG », la version, le nom de
   l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce : nom du type, pivot (colonne,
   ligne), ses 4 cases en décalages depuis le pivot, ligne par ligne (le fichier ne dépend pas de
   l'ordre des orientations). Les noms d'ambiance et de type ne changent plus. À la lecture, chaque
@@ -266,8 +266,8 @@ des candidats, évaluer, garder le meilleur.
   `DataStoreGardenRepositoryTest › the garden kept is read back, its mood too`,
   `DataStoreGardenRepositoryTest › an unreadable garden gives an empty one`,
   `DataStoreGardenRepositoryTest › a corrupted garden file is copied aside before it is replaced`,
-  `DataStoreGardenRepositoryTest › a garden file of version 1 is read as it was written, a format that must not change`,
-  `DataStoreGardenRepositoryTest › a garden is written in version 1, its mood then each piece by its type, its pivot and its cells`,
+  `DataStoreGardenRepositoryTest › a garden file of version 1 is read as it was written, from no kept garden, a format that must not change`,
+  `DataStoreGardenRepositoryTest › a garden is written in version 2, the kept garden it comes from, then its mood and each piece`,
   `DataStoreGardenRepositoryTest › the cells of a piece are written row by row from the top, whatever the order of its orientation`,
   `DataStoreGardenRepositoryTest › a garden file of a later version gives an empty garden, and is kept for that version`,
   `DataStoreGardenRepositoryTest › a garden file of a version below 1 is corrupted, and gives an empty garden`,
@@ -321,7 +321,24 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
 - **Jardin lié.** Le jardin en cours se souvient du jardin gardé d'où il vient (`garden.bin` v2, P10.28 ; un
   fichier v1 se lit sans lien). Le bouton propose « Enregistrer « X » » quand il vient de X et a changé depuis,
   sinon « Garder ce jardin », et toujours « Garder une copie » quand il est lié : comme une musique ouverte dans
-  l'éditeur, qui s'enregistre à sa place.
+  l'éditeur, qui s'enregistre à sa place. Fait côté données (P10.28) : `GardenRepository.current` donne le jardin
+  en cours et son lien (`CurrentGarden(garden, keptFrom: GardenId?)`) ; `keep(garden)`, à chaque geste, garde le
+  lien en place ; `keep(current)` remplace jardin et lien d'une seule écriture (ouvrir un jardin gardé, le garder,
+  délier). `garden.bin` v2 : « BLXG », la version, la clé du jardin gardé (texte vide sans lien, 64 octets au plus,
+  refusée à l'écriture au-delà), puis le corps du jardin ; un fichier v1 se lit sans lien et se réécrit en v2 au
+  premier changement ; une clé vide de sens, trop longue ou coupée rend le fichier corrompu.
+  **Tests :** `GardenRepositoryContract › without a garden kept the garden under way comes from no kept garden`,
+  `GardenRepositoryContract › a garden kept with the kept garden it comes from is read with it`,
+  `GardenRepositoryContract › a change of the garden kept leaves it coming from the same kept garden`,
+  `GardenRepositoryContract › a garden kept as coming from no kept garden is no longer linked`,
+  `GardenRepositoryContract › the garden under way read follows each garden kept with its link, in a single step`,
+  `DataStoreGardenRepositoryTest › a garden is written in version 2, the kept garden it comes from, then its mood and each piece`,
+  `DataStoreGardenRepositoryTest › a garden that comes from no kept garden is written with an empty key`,
+  `DataStoreGardenRepositoryTest › a garden file of version 2 is read with the kept garden it comes from, a format that must not change`,
+  `DataStoreGardenRepositoryTest › a garden file of version 1 is read as it was written, from no kept garden, a format that must not change`,
+  `DataStoreGardenRepositoryTest › a garden file of version 1 is written again in version 2 at the first change`,
+  `DataStoreGardenRepositoryTest › a key of a kept garden of 64 bytes, the most, is written and read back`,
+  `DataStoreGardenRepositoryTest › a garden from a key the file could not read back is refused, and the garden kept before stays`.
 - **Limite : 30 jardins** (constante nommée), pour une liste lisible : un jardin tient en quelques centaines
   d'octets. Limite atteinte : « Garder ce jardin » et « Garder une copie » grisés, raison écrite (« 30 jardins
   gardés : supprimes-en un pour garder celui-ci. ») ; « Enregistrer « X » » reste possible, il remplace X.

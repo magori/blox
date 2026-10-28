@@ -1589,7 +1589,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
   faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
   et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
-- [ ] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
+- [x] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
   lit sans lien). Après P10.27.
 - [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
