@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -63,8 +64,10 @@ fun PieceTile(
             NextPieceCanvas(
                 next = piece,
                 cellSize = with(LocalDensity.current) { TILE_CELL.toPx() },
+                // Its own size whatever the side padding of the button leaves it: none on a tile of 48 dp, where a canvas of
+                // no width would draw its cells in black.
                 modifier = Modifier
-                    .size(TILE)
+                    .requiredSize(TILE)
                     .clearAndSetSemantics {},
                 background = BloxTheme.palette.button,
             )
@@ -101,3 +104,28 @@ internal fun PieceTilesPreview() {
         }
     }
 }
+
+/**
+ * The chosen I, the widest piece, in a tile of 52 dp then shrunk to a touch target, 48 dp, as in the tray of the
+ * Locksmith on a phone of 360 dp: its cells keep their size, and come up to the ring.
+ */
+@Preview
+@Composable
+internal fun PieceTilesShrunkPreview() {
+    BloxTheme(kind = BloxThemeKind.COLORFUL) {
+        Row(
+            modifier = Modifier
+                .background(BloxTheme.palette.page)
+                .padding(BloxSpaces.space2),
+            horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+        ) {
+            val i = pieceCells(PieceType.I, ClassicRotationSystem.spawnOrientation(PieceType.I))
+            PieceTile(i, "Pièce I", onClick = {}, chosen = true)
+            PieceTile(i, "Pièce I", onClick = {}, modifier = Modifier.size(SHRUNK), chosen = true)
+            PieceTile(i, "Pièce I", onClick = {}, modifier = Modifier.size(SHRUNK))
+        }
+    }
+}
+
+/** A tile shrunk to a touch target. */
+private val SHRUNK = 48.dp

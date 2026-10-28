@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 267 / 364 | `███████████████░░░░░` **73 %** |
+| **Général** | 272 / 366 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1391,6 +1391,13 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
   pose au relâcher, décalage sous le doigt…) avant de coder.
+- [x] **P7.41** Bac du Serrurier à la largeur (demande du développeur, 2026-10-28, trouvé par `designer-jeu`) : à 360 dp,
+  la 6e tuile n'avait que 27 dp ; les tuiles rétrécissent jusqu'à 48 dp, puis passent sur deux rangées de 4 au plus
+  (`trayLayout`, en pixels entiers). Une tuile de 48 dp dessinait sa pièce en noir (canevas sans largeur dans
+  `PieceTile`) : corrigé. Prêt pour les serrures de 7 et 8 pièces (P7.29).
+- [ ] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
+  `LocksmithFiveTilesNarrowDay`, défaut antérieur à P7.41) : garder le mot entier (réduire, ou passer sous Indice).
+  Juger aussi avec P7.39 la pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (`PieceTilesShrunk`).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
@@ -1579,7 +1586,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   une liste de noms), `MusicNamesTest` vert. Avant P10.27.
 - [x] **P10.26** Extraire l'encodage d'un jardin de `GardenFile`, sans changer le format v1 de `garden.bin`. Avant
   P10.27.
-- [ ] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
+- [x] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
   faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
   et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
 - [ ] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se

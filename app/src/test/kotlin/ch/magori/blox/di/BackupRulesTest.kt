@@ -1,6 +1,7 @@
 package ch.magori.blox.di
 
 import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
+import ch.magori.blox.core.data.GARDENS_FILE
 import ch.magori.blox.core.data.GARDEN_FILE
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
@@ -30,7 +31,7 @@ class BackupRulesTest {
     }
 
     @Test
-    fun `from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`() {
+    fun `from Android 12, the cloud and device backups keep only the record, the settings, the musics, the gardens`() {
         // Given
         val rules = appResource("xml/data_extraction_rules.xml")
 
@@ -43,7 +44,7 @@ class BackupRulesTest {
     }
 
     @Test
-    fun `before Android 12, the backup keeps only the record, the settings, the musics, the garden`() {
+    fun `before Android 12, the backup keeps only the record, the settings, the musics, the gardens`() {
         // Given
         val rules = appResource("xml/backup_rules.xml")
 
@@ -93,7 +94,13 @@ class BackupRulesTest {
 
     private companion object {
         /** The DataStore files of core:data, where the application creates them, relative to its files directory. */
-        val DATASTORE_FILES = listOf(RECORDS_FILE, SETTINGS_FILE, MUSICS_FILE, GARDEN_FILE).map(::datastorePath)
+        val DATASTORE_FILES = listOf(
+            RECORDS_FILE,
+            SETTINGS_FILE,
+            MUSICS_FILE,
+            GARDEN_FILE,
+            GARDENS_FILE,
+        ).map(::datastorePath)
 
         /** Where the application creates the DataStore file [name], as a rule names it: `file:<path>`. */
         fun datastorePath(name: String): String {

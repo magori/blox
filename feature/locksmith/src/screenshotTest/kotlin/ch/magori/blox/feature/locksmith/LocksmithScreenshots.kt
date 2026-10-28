@@ -12,7 +12,8 @@ import com.android.tools.screenshot.PreviewTest
  * card, and on a small screen in large text, where the card keeps to its share of the height. A preview refused on the
  * ring at the left and at the right, cut at the edge of the screen, and shaken to each side, narrowed rather than out of
  * its margin. The feedback of an action, frozen at one tick: a placement, a refusal, an opening, a hint, and in reduced
- * effects a refusal and an opening. From the previews of the
+ * effects a refusal and an opening. A padlock of 6 pieces on a phone of 360 dp, its tiles shrunk to hold on one row, and
+ * on 320 dp, where they go on two rows; a padlock of 5 pieces on 300 dp, its last row centred. From the previews of the
  * production code, with the same `@Preview` configuration. Renaming a test breaks its link to its reference image:
  * regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
@@ -121,3 +122,18 @@ private fun LocksmithRefusedLeftReducedDay() = LocksmithRefusedLeftReducedDayPre
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun LocksmithRefusedRightShakeDay() = LocksmithRefusedRightShakeDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+private fun LocksmithSixTilesDay() = LocksmithSixTilesDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 320, heightDp = 800)
+@Composable
+private fun LocksmithSixTilesNarrowDay() = LocksmithSixTilesNarrowDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 300, heightDp = 800)
+@Composable
+private fun LocksmithFiveTilesNarrowDay() = LocksmithFiveTilesNarrowDayPreview()

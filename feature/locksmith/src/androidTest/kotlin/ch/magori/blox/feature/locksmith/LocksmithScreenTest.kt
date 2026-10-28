@@ -36,7 +36,10 @@ import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.board.RecompositionRecorder
@@ -64,6 +67,8 @@ import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -596,6 +601,103 @@ internal class LocksmithScreenTest {
             text.substring(layout.getLineStart(line), layout.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
         }.flatten()
         assertThat(words).containsExactly("SERRURE", "03")
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = [1f, 2f])
+    @DisplayName("on a phone of 360 dp, each of 6 tiles is a whole touch target, within the width")
+    fun on360DpEachOfSixTilesIsAWholeTouchTarget(fontScale: Float) = extension.use {
+        // Given a padlock of 6 pieces, on a phone of 360 dp, in a font of that scale
+        val game = PadlockGame.start(Padlock.generate(level = 4, seed = 7))
+        assertThat(game.given).hasSize(6)
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = fontScale)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 4, game = game),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(360.dp),
+                )
+            }
+        }
+
+        // Then each tile is 48 dp wide and high at least, whole between the edges of the screen: measured as laid out,
+        // not as clipped by the scrolling column, below which the tray may lie in a large font
+        game.given.indices.forEach { rank ->
+            val node = onNode(hasTestTag(tileTestTag(rank))).fetchSemanticsNode()
+            with(node.layoutInfo.density) {
+                val left = node.positionInRoot.x.toDp()
+                val width = node.size.width.toDp()
+                assertThat(width).describedAs("width of tile $rank").isGreaterThanOrEqualTo(48.dp)
+                assertThat(node.size.height.toDp()).describedAs("height of tile $rank").isGreaterThanOrEqualTo(48.dp)
+                assertThat(left).describedAs("left of tile $rank").isGreaterThanOrEqualTo(0.dp)
+                assertThat(left + width).describedAs("right of tile $rank").isLessThanOrEqualTo(360.dp)
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("on a phone of 360 dp, the 6 tiles stand on one row, none over the next")
+    fun on360DpTheSixTilesStandOnOneRow() = extension.use {
+        // Given
+        showTray(level = 4, width = 360.dp)
+
+        // Then
+        val tiles = (0 until 6).map { tileBounds(it) }
+        assertThat(tiles.map { it.top }.distinct()).hasSize(1)
+        tiles.zipWithNext().forEach { (tile, next) -> assertThat(tile.right).isLessThanOrEqualTo(next.left) }
+    }
+
+    @Test
+    @DisplayName("on a phone of 320 dp, the 6 tiles go on two rows of 3, the second under the first")
+    fun on320DpTheSixTilesGoOnTwoRows() = extension.use {
+        // Given
+        showTray(level = 4, width = 320.dp)
+
+        // Then
+        val tiles = (0 until 6).map { tileBounds(it) }
+        val (first, second) = tiles.chunked(3)
+        assertThat(first.map { it.top }.distinct()).hasSize(1)
+        assertThat(second.map { it.top }.distinct()).hasSize(1)
+        assertThat(second.first().top).isGreaterThanOrEqualTo(first.first().bottom)
+        listOf(first, second).forEach { row ->
+            row.zipWithNext().forEach { (tile, next) -> assertThat(tile.right).isLessThanOrEqualTo(next.left) }
+        }
+    }
+
+    @Test
+    @DisplayName("on 300 dp, a padlock of 5 pieces centres its last 2 tiles under the first 3")
+    fun theLastRowIsCentred() = extension.use {
+        // Given a padlock of 5 pieces, which 5 tiles of 48 dp on one row, 272 dp, would pass on 300 dp
+        showTray(level = 3, width = 300.dp)
+
+        // Then the second row, of 2, is centred under the first, to a pixel
+        val tiles = (0 until 5).map { tileBounds(it) }
+        val firstCentre = (tiles[0].left + tiles[2].right) / 2
+        val secondCentre = (tiles[3].left + tiles[4].right) / 2
+        assertThat(tiles[3].top).isGreaterThanOrEqualTo(tiles[0].bottom)
+        assertThat(secondCentre).isCloseTo(firstCentre, within(1))
+    }
+
+    /** The screen of padlock [level] of seed 7, its first piece chosen, on a phone [width] wide. */
+    private fun ComposeContext.showTray(
+        level: Int,
+        width: Dp,
+    ) {
+        val game = PadlockGame.start(Padlock.generate(level = level, seed = 7)).select(0)
+        setContent {
+            LocksmithScreen(
+                state = LocksmithUiState(level = level, game = game),
+                actions = LocksmithActions.None,
+                modifier = Modifier.width(width),
+            )
+        }
+    }
+
+    /** Where the tile of [rank] is laid out, in pixels of the root, whether the scrolling column shows it or not. */
+    private fun ComposeContext.tileBounds(rank: Int): IntRect {
+        val node = onNode(hasTestTag(tileTestTag(rank))).fetchSemanticsNode()
+        return IntRect(node.positionInRoot.round(), node.size)
     }
 
     @Test
