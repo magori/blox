@@ -72,3 +72,16 @@ remplacé par un jardin vide et calme. Une version plus récente est gardée tel
 écriture, comme les musiques. `core:data` dépend de `core:garden` en `api` (le `Garden` est dans
 son API publique, sans type parallèle) ; le fichier entre dans la sauvegarde Android (décision du
 développeur).
+
+## Amendement (P10.24, 2026-10-28) : Mes jardins
+
+Le développeur demande de pouvoir garder ses jardins. Plusieurs jardins, d'abord hors v1, entrent donc dans le
+périmètre ; l'export vers « Mes musiques » reste écarté, l'éditeur ne sachant pas ouvrir la partition d'un jardin.
+
+- **Deux fichiers** : `garden.bin` reste le jardin en cours, gardé à chaque geste ; `gardens.bin` (format versionné v1, avec sa propre signature) garde jusqu'à **30** jardins nommés, chacun encodé comme le corps de `garden.bin`
+  (`GardenEncoding`, P10.26). Les deux entrent dans la sauvegarde Android.
+- **Jardin lié** : `garden.bin` passe en v2 pour porter l'identité du jardin gardé d'où vient le jardin en cours
+  (un fichier v1 se lit sans lien) ; « Enregistrer « X » » remplace X, « Garder une copie » en crée un autre.
+- **Noms** : les règles de Mes musiques, rendues communes (`TakenNames`, P10.25), sur une liste à part.
+- **Dépendances** : `feature:garden` lit `GardenLibrary` dans `core:data`, que `app` construit ; aucune feature ne
+  dépend d'une autre. La miniature (`GardenThumbnail`) va dans `core:board`, à côté de `GardenCellCanvas`.
