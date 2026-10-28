@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 259 / 327 | `████████████████░░░░` **79 %** |
+| **Général** | 260 / 349 | `███████████████░░░░░` **74 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -42,6 +42,7 @@ périmètre, modifier la liste ci-dessous.
 | P9 | Graine du jour, les mêmes pièces pour tous chaque jour | Spécification faite ; à faire après P1.20 et P8 |
 | P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
 | P11 | Au tempo, la pièce tombe en rythme | Spécification faite ; à faire en dernier, après une mesure sur téléphone |
+| P12 | Réglages généraux et réglages par jeu | Proposition du designer validée (2026-10-28) ; à faire après P10 |
 
 ---
 
@@ -1173,6 +1174,13 @@ composants.
   console, la mascotte et la cartouche dessinée de la planche remplacent l'écran provisoire (titre, encart,
   étiquette) ; appui de 2 dp des boutons bulles. Cas : captures jour, nuit, Original, police ×2 ; TalkBack
   inchangé (`CartridgesScreenTest`).
+- [x] **P5.108** Touches de direction plus grandes (`core:designsystem`, `feature:game`, demande du développeur,
+  2026-10-28) : flèches de 64 dp sur téléphone (`key-arrow`, auparavant 60), ▼ une demi-touche plus bas que ◀ et ▶
+  (auparavant un tiers) ; pleine taille dès 410 dp de large, mi-chemin (58 et 62) dès 380 dp. Cas :
+  `a phone wide enough has arrows of 64 dp and B and A of 68 dp`,
+  `the down arrow stands half a key below the left and right arrows`.
+- [ ] **P5.109** Mettre à jour la maquette (depuis claude.ai) : touches de direction de 64 dp, ▼ une demi-touche plus
+  bas (V2, V3, planche GameKey du design system). Après P5.108.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1510,6 +1518,35 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.23** Mettre en commun l'arrêt de la musique quand l'écran n'est plus visible (`ON_STOP`), répété dans
   les 4 écrans qui écoutent (accueil, Mes musiques, éditeur, Jardin), par un `LifecycleEventEffect` partagé (revue de
   P10.12, règle de 2). Après P10.12.
+
+Mes jardins (demande du développeur, 2026-10-28 : « enregistrer les musiques » du Jardin). Proposition de
+`designer-jeu` retenue : des jardins nommés, rouverts intacts (pièces et ambiance) ; jardin lié (« Enregistrer « X » »
+remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musiques, que l'éditeur ne saurait ouvrir
+(2 mesures, jusqu'à 15 voix, triolets, tempos hors pas de 10).
+
+- [ ] **P10.24** Spécification « Mes jardins » dans `jardin-musical.md` et amendement de l'ADR 0027 (plusieurs
+  jardins, lien du jardin en cours, limite de 30, rôle de `garden.bin` et `gardens.bin`) ; trancher la place du disque
+  dans la barre V40 à 360 dp (4ᵉ disque, ou le dé dans la rangée d'information) et les noms proposés.
+- [ ] **P10.25** Règles de nom communes (`MusicNames` rendu générique dans `core:data` : `nameProblem`, `freeName` sur
+  une liste de noms), `MusicNamesTest` vert. Avant P10.27.
+- [ ] **P10.26** Extraire l'encodage d'un jardin de `GardenFile`, sans changer le format v1 de `garden.bin`. Avant
+  P10.27.
+- [ ] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
+  faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
+  et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
+- [ ] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
+  lit sans lien). Après P10.27.
+- [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
+  Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
+  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Après P10.27, P10.28.
+- [ ] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
+  avec Annuler ; actions TalkBack de la rangée. Après P10.29.
+- [ ] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
+  P10.29.
+- [ ] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
+- [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
+  feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
+  pictogramme « herbier » et jeton `garden-thumb-cell` dans le design system.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1615,6 +1652,40 @@ seulement, jour et nuit.
 - [ ] **P11.12** Cartouche « Au tempo » (`feature:cartridges`, `app`) : ouvre une partie ; parcours Macrobenchmark.
   Après P11.10 et P9.7.
 - [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36.
+
+## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
+
+Demande du développeur (2026-10-28) : des réglages communs à tous les jeux, ouverts depuis le choix du jeu, et des
+réglages propres à chaque jeu. Proposition de `designer-jeu` retenue : **une seule page Paramètres**, ouverte depuis
+le choix du jeu (réglages généraux seuls) ou depuis un jeu (sa section en tête, puis « Tous les jeux »), toujours en
+Couleurs. Le Serrurier, le Jardin et la Graine n'ont pas de réglage propre ; le Métronome d'Au tempo reste dans sa
+pause (P11.9).
+
+- [ ] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
+  par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0011 et 0022.
+- [ ] **P12.2** Créer `feature:settings` et y déplacer la page Paramètres de `feature:home` (`SettingsScreen`,
+  `SettingsViewModel`, `SettingsUiState`, `SettingsActions`, `KeysSketch`, la clé de route), sans changement de
+  comportement, tests déplacés et verts ; `app` et `buildHealth` à jour. Après P12.1.
+- [ ] **P12.3** Portée de la page, `SettingsRoute(game)` : la section « Classique » (Record, plus tard le Moderne)
+  seulement depuis le Classique, sous un titre lu « Réglages du Classique », puis « Tous les jeux ». Cas : `the page
+  opened from the choice of the game shows no record`, `the section of the Classic is read Réglages du Classique, a
+  heading`. Après P12.2.
+- [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
+  (l'aspect Original de V21 disparaît). Après P12.2.
+- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : disque de 48 dp à droite de la
+  barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les cartouches ; retirer le test
+  `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`. Après P12.3.
+- [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
+  « Record du Classique »). Après P12.3.
+- [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
+  concernés (Classique, Graine du jour, Au tempo) ; note « Volumes : tout de suite. Le reste : dès le prochain jeu
+  ouvert. » (aujourd'hui « Valable dès la partie suivante », faux pour les volumes et les Effets réduits) ; « Le
+  thème du Classique se choisit dans son accueil. ». Après P12.3.
+- [ ] **P12.8** Page Paramètres couchée et sur tablette (deux colonnes), après P5.84 et P12.3.
+- [ ] **P12.9** Réorienter P6.17 et P6.21 vers la section « Classique » de la page. Après P12.3.
+- [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
+  ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
+  sur V38 ; V21 remplacée.
 
 ---
 
