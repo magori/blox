@@ -249,4 +249,15 @@ class GardenCellStylesTest {
     fun `the band the screen draws behind a group is garden band`(variant: BloxThemeVariant) {
         assertThat(gardenBand(variant)).isEqualTo(gardenColors(variant).band)
     }
+
+    @Test
+    fun `a group of 4 eighths out of two lies in a band, the second first`() {
+        // When
+        val inBand = (0..15).map(::isInGardenBand)
+
+        // Then eighths 1 to 4 out of a band, 5 to 8 in one, 9 to 12 out, 13 to 16 in
+        assertThat(inBand).containsExactlyElementsOf(
+            List(4) { false } + List(4) { true } + List(4) { false } + List(4) { true },
+        )
+    }
 }

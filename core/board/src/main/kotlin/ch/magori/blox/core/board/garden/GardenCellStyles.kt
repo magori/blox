@@ -8,6 +8,7 @@ import ch.magori.blox.core.board.cellStyle
 import ch.magori.blox.core.board.previewStyle
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.game.model.Cell
+import ch.magori.blox.core.garden.GardenMood
 
 /**
  * The style of [cell] of the garden in [variant], a Colorful variant, [inBand] when it lies in a group of 4 eighths on
@@ -46,6 +47,9 @@ internal fun gardenCellStyle(
  * the colour under the cells of the group, their joint included.
  */
 fun gardenBand(variant: BloxThemeVariant): Color = gardenColors(variant).band
+
+/** Whether [column] of the garden lies in a band ([gardenBand]): a group of 4 eighths out of two, the second first. */
+fun isInGardenBand(column: Int): Boolean = (column / GardenMood.EIGHTHS_PER_CHORD) % 2 == 1
 
 /**
  * How the play head is drawn over its column: a [tint] over the cells, a [frame] around the column, [frameWidth] a

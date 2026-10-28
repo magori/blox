@@ -22,6 +22,9 @@ dependencies {
     // `api` : la lecture des accords par TalkBack, commune au Serrurier et au Jardin, part de leurs chiffres romains
     // (chordTellingOf) ; core:designsystem, qui en porte les mots, ne connaît pas le domaine (P10.19).
     api(projects.core.music)
+    // `api` : la miniature d'un jardin (GardenThumbnail, P10.31) se dessine à partir du `Garden` de son domaine
+    // (ADR 0027).
+    api(projects.core.garden)
 
     // DesignTokens, le lecteur de tokens.json de core:designsystem.
     testImplementation(testFixtures(projects.core.designsystem))

@@ -40,6 +40,9 @@ object GardenSizes {
 
     /** The dot of a note of the chord in a cell of [cell] (`garden-chord-dot-size`), on a halo of 2 dp more. */
     val chordDot: Dp = 6.dp
+
+    /** A cell of the thumbnail of a garden (`garden-thumb-cell`), flat, without a margin. */
+    val thumbnailCell: Dp = 3.dp
 }
 
 /** The garden by day: a free cell of a band a notch darker than the band, as the empty cell on the board. */

@@ -64,6 +64,7 @@ import ch.magori.blox.core.board.garden.GardenCell
 import ch.magori.blox.core.board.garden.GardenCellCanvas
 import ch.magori.blox.core.board.garden.GardenCellEffects
 import ch.magori.blox.core.board.garden.GardenPlayHead
+import ch.magori.blox.core.board.garden.isInGardenBand
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
 import ch.magori.blox.core.designsystem.component.BubbleButton
@@ -480,7 +481,7 @@ private fun GridCell(
     GardenCellCanvas(
         cell = cell,
         size = size,
-        inBand = (position.column / GardenMood.EIGHTHS_PER_CHORD) % 2 == 1,
+        inBand = isInGardenBand(position.column),
         playHead = playHead,
         effects = effects,
         modifier = Modifier
