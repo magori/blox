@@ -67,6 +67,19 @@ enum class BloxIcon(
         "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
     ),
 
+    /** The music « Aucune »: a note, struck through (pictogrammes.md, P5.87). */
+    NOTE_OFF(
+        listOf("#.######", ".#.#####", "..#....#", "..##...#", "..#.#..#", "###..#..", "###...#.", ".......#"),
+        "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 3l18 18",
+    ),
+
+    /** The row Musique of the home, which opens its sheet: a chevron down (pictogrammes.md, P5.87). */
+    CHEVRON_DOWN(
+        listOf("........", "........", "#......#", ".#....#.", "..#..#..", "...##...", "........", "........"),
+        "M6 9l6 6 6-6",
+        strokeWidth = 2.5f,
+    ),
+
     /** Vibrations, in the settings: a phone that shakes (docs/design-system/pictogrammes.md). */
     VIBRATE(
         listOf("..####..", "..#..#..", "#.#..#.#", "#.#..#.#", "#.#..#.#", "..#..#..", "..####..", "........"),

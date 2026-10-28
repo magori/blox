@@ -24,12 +24,12 @@ class GameLayoutTest {
         val layout = gameLayout(width, height, density = 2f)
 
         // Then cells of 19 dp, the board in its frame and the side column centred above the two groups of controls, of
-        // compact keys: ◀ ▼ ▶ 52 + 17,33 dp high (139 px), B A 56 + 24 dp
+        // compact keys: ◀ ▼ ▶ 52 + 26 dp high (156 px), B A 56 + 24 dp
         assertThat(layout.cellSize).isEqualTo(38f)
         assertThat(layout.board).isEqualTo(Rect(left = 18f, top = 68f, right = 398f, bottom = 828f))
         assertThat(layout.sidePanel).isEqualTo(Rect(left = 430f, top = 68f, right = 654f, bottom = 896f))
         assertThat(layout.nextPiece).isNull()
-        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 928f, right = 344f, bottom = 1067f))
+        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 928f, right = 344f, bottom = 1084f))
         assertThat(layout.rotations).isEqualTo(Rect(left = 400f, top = 928f, right = 656f, bottom = 1088f))
     }
 
@@ -44,7 +44,7 @@ class GameLayoutTest {
         // Then the two groups swap sides, as in a mirror; the board and the side column stay where they are
         val rightHanded = gameLayout(width, height, density = 2f)
         assertThat(layout.rotations).isEqualTo(Rect(left = 0f, top = 928f, right = 256f, bottom = 1088f))
-        assertThat(layout.directions).isEqualTo(Rect(left = 312f, top = 928f, right = 656f, bottom = 1067f))
+        assertThat(layout.directions).isEqualTo(Rect(left = 312f, top = 928f, right = 656f, bottom = 1084f))
         assertThat(layout.board).isEqualTo(rightHanded.board)
         assertThat(layout.sidePanel).isEqualTo(rightHanded.sidePanel)
         assertThat(layout.leftHanded).isTrue()
@@ -64,7 +64,7 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density)
 
-        // Then those of a phone from 398 dp on, halfway from 374 dp on, compact below
+        // Then those of a phone from 410 dp on, halfway from 380 dp on, compact below
         assertThat(layout.keys).isEqualTo(expected.keys)
     }
 
@@ -107,7 +107,7 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density = 2f)
 
-        // Then the compact keys, 12 dp lower, and cells of 22 dp
+        // Then the compact keys, 16 dp lower, and cells of 22 dp
         assertThat(layout.keys).isEqualTo(KeySizes.Compact)
         assertThat(layout.cellSize).isEqualTo(44f)
     }
@@ -134,13 +134,14 @@ class GameLayoutTest {
         // When
         val layout = gameLayout(width, height, density = 2f)
 
-        // Then cells of 13 dp: the board as high as the space, the controls of a phone at the bottom corners
+        // Then cells of 13 dp: the board as high as the space, the keys halfway at the bottom corners (those of a phone,
+        // ▼ half a key lower, would leave cells smaller by 1 dp)
         assertThat(layout.cellSize).isEqualTo(26f)
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 426f, top = 4f, right = 650f, bottom = 528f))
-        assertThat(layout.board).isEqualTo(Rect(left = 682f, top = 4f, right = 942f, bottom = 524f))
-        assertThat(layout.nextPiece).isEqualTo(Rect(left = 974f, top = 4f, right = 1198f, bottom = 528f))
-        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 344f, right = 392f, bottom = 504f))
-        assertThat(layout.rotations).isEqualTo(Rect(left = 1232f, top = 344f, right = 1536f, bottom = 528f))
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 432f, top = 4f, right = 656f, bottom = 528f))
+        assertThat(layout.board).isEqualTo(Rect(left = 688f, top = 4f, right = 948f, bottom = 524f))
+        assertThat(layout.nextPiece).isEqualTo(Rect(left = 980f, top = 4f, right = 1204f, bottom = 528f))
+        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 354f, right = 380f, bottom = 528f))
+        assertThat(layout.rotations).isEqualTo(Rect(left = 1256f, top = 354f, right = 1536f, bottom = 526f))
     }
 
     @Test
@@ -218,12 +219,12 @@ class GameLayoutTest {
 
         // Then the arrows above, B A below on the right, 16 dp apart; above them the score, level, lines and next
         // piece two by two, the board under them: cells of 10 dp
-        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 773f, right = 344f, bottom = 912f))
+        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 756f, right = 344f, bottom = 912f))
         assertThat(layout.rotations).isEqualTo(Rect(left = 120f, top = 928f, right = 376f, bottom = 1088f))
         assertThat(layout.cellSize).isEqualTo(20f)
         assertThat(layout.scoresAbove).isTrue()
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 18f, right = 376f, bottom = 292f))
-        assertThat(layout.board).isEqualTo(Rect(left = 88f, top = 324f, right = 288f, bottom = 724f))
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 9f, right = 376f, bottom = 283f))
+        assertThat(layout.board).isEqualTo(Rect(left = 88f, top = 315f, right = 288f, bottom = 715f))
         assertThat(layout.nextPiece).isNull()
     }
 
@@ -280,11 +281,11 @@ class GameLayoutTest {
         val layout = gameLayout(width, height, density = 2f, fontScale = 2f)
 
         // Then rows for the texts as the system scales them, less for the larger: a label of 11 sp drawn at 22 dp, a
-        // value of 18 sp at 30 dp (not 36). Cells of 7,5 dp under them, 10 dp with the normal font
+        // value of 18 sp at 30 dp (not 36). Cells of 7 dp under them, 10 dp with the normal font
         assertThat(layout.scoresAbove).isTrue()
-        assertThat(layout.cellSize).isEqualTo(15f)
-        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 5f, right = 376f, bottom = 405f))
-        assertThat(layout.board).isEqualTo(Rect(left = 113f, top = 437f, right = 263f, bottom = 737f))
+        assertThat(layout.cellSize).isEqualTo(14f)
+        assertThat(layout.sidePanel).isEqualTo(Rect(left = 0f, top = 6f, right = 376f, bottom = 406f))
+        assertThat(layout.board).isEqualTo(Rect(left = 118f, top = 438f, right = 258f, bottom = 718f))
     }
 
     @Test
@@ -327,7 +328,7 @@ class GameLayoutTest {
         // Then the arrows 15 px apart, as wide as the space, B A still 16 dp apart (42 px), the score above the board
         assertThat(width).isEqualTo(441f)
         assertThat(layout.directionSpacing).isEqualTo(15f)
-        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 1014f, right = 441f, bottom = 1197f))
+        assertThat(layout.directions).isEqualTo(Rect(left = 0f, top = 992f, right = 441f, bottom = 1197f))
         assertThat(layout.rotations).isEqualTo(Rect(left = 105f, top = 1218f, right = 441f, bottom = 1428f))
         assertThat(layout.scoresAbove).isTrue()
         assertThat(layout.cellSize).isEqualTo(27f)
@@ -473,7 +474,7 @@ class GameLayoutTest {
         val layout = gameLayout(width, height, density)
 
         // Then each group has the size of its row, every button and spacing rounded to whole pixels as Compose does;
-        // the arrows 8 dp apart, closer only when they would not fit the width, ▼ a third of a key lower, B A 16 dp apart
+        // the arrows 8 dp apart, closer only when they would not fit the width, ▼ half a key lower, B A 16 dp apart
         with(Density(density)) {
             val direction = layout.keys.arrow.roundToPx()
             val rotation = layout.keys.rotation.roundToPx()
@@ -528,20 +529,20 @@ class GameLayoutTest {
 
     @ParameterizedTest(name = "at {0} px per dp")
     @CsvSource("1.5", "2", "2.625", "3.5")
-    fun `the narrowest multi-window is too small to play 581 dp high, its cells under 8 dp, and playable 583 dp high`(
+    fun `the narrowest multi-window is too small to play 589 dp high, its cells under 8 dp, and playable 591 dp high`(
         density: Float,
     ) {
-        // Given windows of 220 dp wide, 581 and 583 dp high (582 is enough but at 2 px per dp): the score
+        // Given windows of 220 dp wide, 589 and 591 dp high (590 is enough but at 2 and 2.625 px per dp): the score
         // above the board
-        val (width, lower) = available(widthDp = 220, heightDp = 581, density = density)
-        val (_, higher) = available(widthDp = 220, heightDp = 583, density = density)
+        val (width, lower) = available(widthDp = 220, heightDp = 589, density = density)
+        val (_, higher) = available(widthDp = 220, heightDp = 591, density = density)
 
         // When / Then cells under 8 dp in the lower, too small to play; 8 dp at least in the higher. The window is
         // measured whole, its margins and its top bar of one row (48 dp) taken off
         assertThat(gameLayout(width, lower, density).cellSize).isLessThan(8 * density)
-        assertThat(tooSmallToPlay(220 * density, 581 * density, density)).isTrue()
+        assertThat(tooSmallToPlay(220 * density, 589 * density, density)).isTrue()
         assertThat(gameLayout(width, higher, density).cellSize).isGreaterThanOrEqualTo(8 * density)
-        assertThat(tooSmallToPlay(220 * density, 583 * density, density)).isFalse()
+        assertThat(tooSmallToPlay(220 * density, 591 * density, density)).isFalse()
     }
 
     @ParameterizedTest(name = "at {0} px per dp")

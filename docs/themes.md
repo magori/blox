@@ -482,8 +482,8 @@ l'état désactivé). Le libellé du groupe est un titre pour TalkBack, les segm
 Un groupe qui ne tient pas sur la ligne de son libellé passe dessous, sur toute la largeur ; si un libellé
 devait encore rétrécir sous 75 % de sa taille (marges et coche gardées), les segments s'empilent. Segments de
 48 dp de haut, cadre compris ; focus clavier par l'anneau des boutons ; ordre inversé de droite à gauche.
-Provisoirement, jusqu'à la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
-(5 colonnes) et la musique (2 colonnes) sont des groupes sur plusieurs rangées : fond retenu en `md`, coche
+Avant la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
+(5 colonnes) et la musique (2 colonnes) étaient des groupes sur plusieurs rangées : fond retenu en `md`, coche
 dans le coin. Libellés du groupe alignés au début de la ligne. `ChoiceColors.kt`, qui servait encore à `Setting`,
 est retiré avec lui (P5.61) ; le type `ChoiceColors` de P5.95 (couleurs retenues d'un segment) n'a rien à voir avec lui.
 

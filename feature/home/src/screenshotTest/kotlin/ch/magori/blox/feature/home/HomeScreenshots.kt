@@ -50,3 +50,28 @@ private fun HomeGameMusicLongNameLargeFont() = HomeScreenGameMusicLongNameLargeF
 @Preview(widthDp = 360, heightDp = 1700, fontScale = 2f)
 @Composable
 private fun HomeColorfulLargeFont() = HomeScreenColorfulLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun HomeMusicSheetColorful() = HomeMusicSheetColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun HomeMusicSheetColorfulNight() = HomeMusicSheetColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun HomeMusicSheetOriginal() = HomeMusicSheetOriginalPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+private fun HomeMusicSheetColorfulLargeFont() = HomeMusicSheetColorfulLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun HomeMusicSheetGameMusic() = HomeMusicSheetGameMusicPreview()
