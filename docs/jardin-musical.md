@@ -397,7 +397,15 @@ De haut en bas :
 - **Bande des accords** : 4 pilules (`ChordPill`, partagée avec le Serrurier dans
   `core:designsystem`), chacune centrée sur son groupe de 4 croches, lues d'un trait : « Accords :
   1 majeur, 6 mineur, 4 majeur, 5 majeur. », « 7 bémol majeur » pour le ♭VII de Mystère.
-  **Tests :** `GardenReadingTest › a chord is told by its degree, then its accidental, then its quality`.
+  Les noms des accords et des notes sont communs à l’éditeur, au Serrurier et au Jardin (`chordText`, `noteText`,
+  `core:designsystem` ; `chordTellingOf`, `core:board`, P10.19).
+  **Tests :** `ChordTellingsTest › a chord is told by its degree, then its accidental, then its quality`,
+  `MusicTextsTest › a chord is told with the word of its quality after its root`,
+  `MusicTextsTest › a note or the root of a chord is told flat or sharp after its name, and as it is when natural`,
+  `MusicTextsTest › the seven notes are named in French solfège, from C`,
+  `MusicTextsReadingTest › a chord is read by its degree, then its accidental, then its quality, chords apart by a comma`,
+  `MusicTextsReadingTest › a note is read in lower case, flat or sharp after its name`,
+  `ChordTellingsTest › a sharp is told sharp, as a flat flat and a natural not at all`.
 - **Grille** de 16 × 14 cases de 22 dp (`garden-cell`), dans un cadre `board` ; un groupe de 4
   croches sur deux sur une bande `garden-band` (`gardenBand`), ses cases libres en
   `garden-band-cell` : de jour, `empty-cell` a la valeur de la bande et ne s'y verrait pas.

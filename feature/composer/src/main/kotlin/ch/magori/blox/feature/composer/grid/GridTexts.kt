@@ -4,13 +4,15 @@ import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.res.stringResource
+import ch.magori.blox.core.designsystem.text.SpokenAccidental
+import ch.magori.blox.core.designsystem.text.noteText
 import ch.magori.blox.feature.composer.R
 
 /** The name of a line as shown beside it, without its octave: « Sol », « Fa# ». */
 @Composable
 @ReadOnlyComposable
 internal fun shownName(name: RowName): String {
-    val step = stringResource(name.step.label)
+    val step = noteText(name.step).capitalized()
     return if (name.sharp) stringResource(R.string.feature_composer_note_sharp, step) else step
 }
 
@@ -18,11 +20,14 @@ internal fun shownName(name: RowName): String {
 @Composable
 @ReadOnlyComposable
 internal fun spokenName(row: RowView): String {
-    val step = stringResource(row.name.step.label)
-    val note = if (row.name.sharp) stringResource(R.string.feature_composer_note_sharp_spoken, step) else step
+    val accidental = if (row.name.sharp) SpokenAccidental.SHARP else SpokenAccidental.NATURAL
+    val note = noteText(row.name.step, accidental).capitalized()
     val named = stringResource(R.string.feature_composer_row, note, stringResource(row.name.register.label))
     return if (row.inScale) named else stringResource(R.string.feature_composer_row_out_of_scale, named)
 }
+
+/** A name at the head of what is shown or read, with a capital: « sol » becomes « Sol ». */
+private fun String.capitalized(): String = replaceFirstChar(Char::titlecaseChar)
 
 /** A cell as TalkBack names it: its line and its beat, « Sol haut, temps 2 et demi ». */
 @Composable
@@ -71,18 +76,6 @@ internal fun actionLabel(action: CellAction): String = stringResource(
         CellAction.ONE_CELL -> R.string.feature_composer_action_one_cell
     },
 )
-
-@get:StringRes
-private val NoteStep.label: Int
-    get() = when (this) {
-        NoteStep.DO -> R.string.feature_composer_note_do
-        NoteStep.RE -> R.string.feature_composer_note_re
-        NoteStep.MI -> R.string.feature_composer_note_mi
-        NoteStep.FA -> R.string.feature_composer_note_fa
-        NoteStep.SOL -> R.string.feature_composer_note_sol
-        NoteStep.LA -> R.string.feature_composer_note_la
-        NoteStep.SI -> R.string.feature_composer_note_si
-    }
 
 @get:StringRes
 private val Register.label: Int
