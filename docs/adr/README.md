@@ -32,7 +32,7 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0024](0024-retours-de-jeu-et-effets-reduits.md) | Retours de jeu cadencés par les ticks, dessinés sans recomposition ; Effets réduits portés par le thème | Acceptée ; complète 0012 |
 | [0025](0025-le-serrurier.md) | Le Serrurier : un second jeu, `core:locksmith` et `feature:locksmith` | Acceptée ; amende 0002 et 0022 ; amendée (progression, P7.28) |
 | [0026](0026-jeux-musicaux-variantes-du-classique.md) | Jeux musicaux : variantes du Classique et records (Musique vivante, Graine du jour, Au tempo) | Acceptée ; amende 0014 et 0022 |
-| [0027](0027-le-jardin-musical.md) | Le Jardin musical : `core:garden` et `feature:garden` | Acceptée ; amende 0002 et 0022 |
+| [0027](0027-le-jardin-musical.md) | Le Jardin musical : `core:garden` et `feature:garden` | Acceptée ; amende 0002 et 0022 ; amendée (format du jardin gardé, P10.11 ; Mes jardins, P10.24) |
 | [0028](0028-au-tempo-droptiming-et-horloge-audio.md) | Au tempo : politique `DropTiming` et horloge audio comme source des ticks | Acceptée ; amende 0012 et 0015 |
 | [0029](0029-feuilles-du-bas.md) | Feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran | Acceptée ; complète 0012 et 0024 |
 
