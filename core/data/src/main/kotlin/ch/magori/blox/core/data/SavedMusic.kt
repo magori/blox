@@ -32,7 +32,7 @@ data class SavedMusic(
     }
 
     companion object {
-        /** The most characters of a name: a name fits on a card of « Mes musiques », and in the musics file. */
-        const val MAX_NAME_LENGTH: Int = 40
+        /** The most characters of a name, the one of any list ([TakenNames.MAX_LENGTH]). */
+        const val MAX_NAME_LENGTH: Int = TakenNames.MAX_LENGTH
     }
 }
