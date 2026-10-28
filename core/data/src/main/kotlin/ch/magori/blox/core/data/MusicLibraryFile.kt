@@ -188,8 +188,6 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
         }
     }
 
-    private fun String.utf8Size(): Int = encodeToByteArray().size
-
     /** A count of elements of the file, [MOST_ELEMENTS] at the most. */
     private fun BufferedSource.readCount(): Int = readCount(MOST_ELEMENTS)
 

@@ -11,6 +11,8 @@ import okio.BufferedSource
 import okio.FileSystem
 import okio.Path
 import java.io.IOException
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
 /**
  * A DataStore of a binary format of BloX ([serializer]) living in [scope], on the file [produceFile] gives; one instance
@@ -63,3 +65,9 @@ internal fun BufferedSink.writeText(text: String) {
     writeInt(bytes.size)
     write(bytes)
 }
+
+/** This time to the millisecond, as the binary files of BloX keep it (the musics, the kept gardens). */
+internal fun Instant.toFileTime(): Instant = truncatedTo(ChronoUnit.MILLIS)
+
+/** The length of this text in bytes, as [writeText] writes it, in UTF-8. */
+internal fun String.utf8Size(): Int = encodeToByteArray().size

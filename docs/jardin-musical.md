@@ -275,7 +275,7 @@ des candidats, évaluer, garder le meilleur.
   `DataStoreGardenRepositoryTest › a garden file holding what no garden can be is corrupted, and gives an empty garden`,
   `DataStoreGardenRepositoryTest › a garden file that counts billions of pieces gives an empty garden, without allocating them`,
   `DataStoreGardenRepositoryTest › the names of the enums written in the garden file do not change`,
-  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`.
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the gardens`.
 
 ## Mes jardins
 
@@ -287,6 +287,37 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
 - **Deux fichiers, deux rôles.** Le jardin en cours reste gardé automatiquement dans `garden.bin` (ci-dessus),
   sans rien perdre à chaque geste. « Mes jardins » (`gardens.bin`, `GardenLibrary`, P10.27) garde des jardins
   nommés, choisis par le joueur : `KeptGarden` (identité, nom, jardin, date de dernière modification).
+- **Bibliothèque** (`GardenLibrary`, `core:data`, P10.27), sur le modèle de Mes musiques : `gardens` en `Flow`,
+  dans l'ordre où les jardins ont été gardés (l'écran les trie du plus récent au plus ancien), une émission par
+  changement et aucune pour un changement sans effet. `keep(name, garden)` crée l'identité (`GardenId`) et rend le
+  jardin gardé ; `replace(id, garden)` garde identité, nom et place, même bibliothèque pleine ; `rename` ;
+  `delete(id)` rend de quoi le remettre à sa place (`DeletedGarden`) ; `restore` le remet (en fin de liste si les
+  jardins d'avant ont été supprimés), sous un nom libre numéroté ou coupé si le sien a été pris entre-temps, avec
+  sa date d'origine. Refusés : un 31ᵉ jardin, un nom pris (casse ignorée), un jardin inconnu. Dates à la
+  milliseconde. Aides de nom (`GardenNames`) : `nameProblem`, `freeName`, `proposedName(moodName)` (« Jardin
+  calme », « Jardin calme 2 » ; l'écran donne le nom de l'ambiance). Un jardin vide refusé reste une règle de
+  l'écran (P10.29).
+- **Fichier** `gardens.bin` (version 1) : « BLXJ », la version, le nombre de jardins (30 au plus), puis pour
+  chacun son identité (64 octets au plus), son nom (160 octets au plus), sa date en millisecondes et son corps
+  (`GardenEncoding`, P10.26). Corrompu (mauvaise signature, version sous 1, tronqué, compte hors bornes, identité
+  ou nom en double ou invalide, jardin impossible, octets en trop) : copié dans `gardens.bin.corrupt`, liste vide.
+  Version plus récente : liste vide, fichier gardé sans écriture. Inclus dans la sauvegarde Android.
+  **Tests :** `GardenLibraryContract › without a kept garden the list is empty`,
+  `GardenLibraryContract › a kept garden goes after the others, with its name, its pieces, its mood and the time it was kept`,
+  `GardenLibraryContract › a garden whose name another one has, the case ignored, is refused and nothing is kept`,
+  `GardenLibraryContract › a library holds 30 gardens at the most, a 31st is refused and the 30 are kept`,
+  `GardenLibraryContract › a replaced garden takes the new pieces and the time of the change, and keeps its identity, name and place`,
+  `GardenLibraryContract › a garden of a full library may still be replaced`,
+  `GardenLibraryContract › a renamed garden keeps its place and its pieces, and takes the time of its renaming`,
+  `GardenLibraryContract › a deleted garden restored comes back at its place, as it was kept`,
+  `GardenLibraryContract › a garden whose name was taken since its deletion is restored under a free name`,
+  `GardenLibraryContract › a deleted garden cannot be restored once the library is full again`,
+  `GardenLibraryContract › the list emits each change once, and nothing for a change that changes nothing`,
+  `GardenNamesTest › the name proposed is « Jardin » then the name of the mood in lower case, numbered if it is taken`,
+  `DataStoreGardenLibraryTest › a gardens file of version 1 is read as it was written, a format that must not change`,
+  `DataStoreGardenLibraryTest › a gardens file holding what no library can be is corrupted, gives an empty list, and is written again`,
+  `DataStoreGardenLibraryTest › a gardens file of a later version gives an empty list, and is kept for that version`,
+  `DataStoreGardenLibraryTest › a corrupted gardens file is copied aside before the list starts again empty`.
 - **Jardin lié.** Le jardin en cours se souvient du jardin gardé d'où il vient (`garden.bin` v2, P10.28 ; un
   fichier v1 se lit sans lien). Le bouton propose « Enregistrer « X » » quand il vient de X et a changé depuis,
   sinon « Garder ce jardin », et toujours « Garder une copie » quand il est lié : comme une musique ouverte dans
