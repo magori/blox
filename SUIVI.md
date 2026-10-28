@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 250 / 321 | `████████████████░░░░` **78 %** |
+| **Général** | 251 / 321 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1508,7 +1508,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.8** Cases et jetons du jardin (`core:board`, Couleurs seulement), sur le modèle de `LockCellCanvas` :
   case libre, groupe en `panel-inset`, note en bulle, point de note de l'accord, aperçu, refus barré ; repères non
   colorés ; jetons gardés par un test ; captures jour et nuit.
-- [ ] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
+- [x] **P10.9** `feature:garden`, squelette : `GardenRoute`, `gardenEntry`, `GardenViewModel.Factory`,
   `GardenUiState`, écran minimal toujours en Couleurs ; barres système selon la variante (`systemBarVariant`).
   Après P10.4.
 - [ ] **P10.10** Écran jouable (V40) : barre, ambiances, rangée d'information, bande des accords, grille 16 × 14 de

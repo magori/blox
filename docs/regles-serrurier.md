@@ -162,7 +162,7 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
   **Vues :** V26, V35.
 - Les barres système suivent la variante Couleurs du Serrurier (jour ou nuit selon le téléphone),
   quel que soit le thème choisi pour le Classique ; ailleurs, le thème choisi.
-  **Tests :** `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+  **Tests :** `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
   `SystemBarsTest › the bars of every other screen follow the theme chosen`,
   `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
   **Vues :** V26, V35.
