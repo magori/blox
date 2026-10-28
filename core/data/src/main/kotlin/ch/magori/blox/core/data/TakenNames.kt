@@ -73,6 +73,12 @@ class TakenNames<Id : Any>(private val names: Map<Id, String>) {
     }
 
     /**
+     * A free name of [MAX_LENGTH] characters at the most for [wanted], a name that fitted once (a garden put back after
+     * another took its name): [freeName] when it fits, else [wanted] cut so that its number fits.
+     */
+    internal fun fittingFreeName(wanted: String): String = freeName(wanted).takeIf(::fitsInAName) ?: cutFreeName(wanted)
+
+    /**
      * [wanted] cut at [MAX_LENGTH] characters, without the spaces around it, when nothing of the list has it; else cut
      * shorter, so that the first number from 2 that makes it free still fits.
      */
