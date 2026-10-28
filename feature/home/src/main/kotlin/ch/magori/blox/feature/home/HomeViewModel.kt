@@ -193,6 +193,9 @@ class HomeViewModel(
     /** The player opens the settings: the music being listened to stops. */
     internal fun onSettings() = stopPreview()
 
+    /** The player closes the sheet Musique: the music listened to in it stops with it. */
+    internal fun onMusicSheetClosed() = stopPreview()
+
     /**
      * The player goes back to the choice of the game: the music being listened to stops at once, before the transition
      * (leaving the stack would stop it too, but only once the home is gone).

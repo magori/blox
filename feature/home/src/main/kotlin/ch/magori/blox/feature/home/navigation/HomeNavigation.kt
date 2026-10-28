@@ -13,6 +13,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.home.HomeScreen
 import ch.magori.blox.feature.home.HomeViewModel
+import ch.magori.blox.feature.home.MusicActions
 import ch.magori.blox.feature.home.SettingsActions
 import ch.magori.blox.feature.home.SettingsScreen
 import ch.magori.blox.feature.home.SettingsViewModel
@@ -59,15 +60,21 @@ fun EntryProviderScope<NavKey>.homeEntry(
                 pickMusicFile()
             }
         }
+        val music = remember(viewModel) {
+            MusicActions(
+                onMusicChosen = viewModel::onMusicChosen,
+                onListen = viewModel::onListen,
+                onListenGameMusic = viewModel::onListenGameMusic,
+                onChangeMusicFile = viewModel::onChangeMusicFile,
+                onSheetClosed = viewModel::onMusicSheetClosed,
+            )
+        }
         // Nothing is shown, and nothing can be played, until the saved settings are read: no theme flashes.
         uiState?.let { loaded ->
             HomeScreen(
                 uiState = loaded,
                 onThemeChosen = viewModel::onThemeChosen,
-                onMusicChosen = viewModel::onMusicChosen,
-                onListen = viewModel::onListen,
-                onListenGameMusic = viewModel::onListenGameMusic,
-                onChangeMusicFile = viewModel::onChangeMusicFile,
+                music = music,
                 onStartLevelChosen = viewModel::onStartLevelChosen,
                 onPlay = { startLevel ->
                     viewModel.onPlay()

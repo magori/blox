@@ -36,7 +36,7 @@ object BloxSizes {
     val switchThumb = 24.dp
 
     /** The side of the arrow keys of the game on a phone (`key-arrow`). */
-    val keyArrow = 60.dp
+    val keyArrow = 64.dp
 
     /** The side of the arrow keys in a narrow window (`key-arrow-compact`). */
     val keyArrowCompact = 52.dp

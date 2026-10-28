@@ -39,8 +39,8 @@ internal data class KeySizes(val arrow: Dp, val rotation: Dp) {
     /** The group ◀ ▼ ▶. */
     val directionsWidth: Dp get() = arrow * 3 + ControlSizes.spacing * 2
 
-    /** How far ◀ and ▶ stand above ▼: a third of a key (asked by the developer, 2026-10-26). */
-    val arrowRaise: Dp get() = arrow / 3
+    /** How far ▼ stands below ◀ and ▶: half a key (asked by the developer, 2026-10-28). */
+    val arrowRaise: Dp get() = arrow / 2
 
     /** The group ◀ ▼ ▶, ▼ lower by [arrowRaise]. */
     val directionsHeight: Dp get() = arrow + arrowRaise
