@@ -1470,7 +1470,8 @@ Vues : V7 à V18.
   peut garder le sien) ; `cutName` coupe un nom saisi ou collé à 40 caractères, comptés en
   caractères et non en unités (40 emoji tiennent). L'éditeur et la liste s'en servent tous deux :
   un collage trop long est coupé dans les deux. Seule « grille vide » reste propre à l'éditeur
-  (`SaveProblem.EmptyGrid`).
+  (`SaveProblem.EmptyGrid`). Ces règles ne connaissent pas les musiques (`TakenNames`, `core:data`, P10.25) : une
+  liste de noms indexés par l’identité de ce qu’ils nomment, que « Mes jardins » (P10.27) reprendra.
 - **Fenêtres** (`core:designsystem`, `NamingWindow`, `DeleteWindow`, `Window*`) : les fenêtres
   Renommer, Enregistrer et Supprimer des deux écrans sont les mêmes composables, aux textes passés
   en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. Les fenêtres
@@ -1487,6 +1488,12 @@ Vues : V7 à V18.
 `MusicNamesTest › a name of more characters than a saved name may have is refused, the spaces around it apart`,
 `MusicNamesTest › a name typed is cut at the most characters a saved name may have, a shorter one kept as it is`,
 `MusicNamesTest › a name typed is cut after its characters, never between the two units of one`,
+`TakenNamesTest › a name is taken by another of the list, whatever its case and the spaces around it`,
+`TakenNamesTest › a name is refused when blank, too long or taken by another, the one renamed keeping its own`,
+`TakenNamesTest › a free name is the one wanted, else followed by the first number that makes it free, from its own`,
+`TakenNamesTest › a name proposed is one of those no other has, else one numbered, else one cut so that its number fits`,
+`TakenNamesTest › the one renamed does not take its own name, another one does`,
+`TakenNamesTest › a name is weighed by its characters and not its units, two units for each of them`,
 `MyMusicsScreenTest › a name pasted too long is cut at the most characters a name may have, 40 emoji kept whole`,
 `NamingWindowTest › with a problem, the confirmation is disabled and Enter confirms nothing; without, both confirm`.
 Captures : `NamingWindowTakenName`, `NamingWindowTakenNameLargeFont`, `DeleteWindowFailed`,
