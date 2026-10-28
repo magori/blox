@@ -39,4 +39,22 @@
     <string name="core_designsystem_message_close">Fermer le message</string>
     <!-- Le titre du menu « … », annoncé par TalkBack à son ouverture. -->
     <string name="core_designsystem_menu">Menu</string>
+    <!-- Les noms des notes et des accords lus par TalkBack (P10.19), partagés par l’éditeur, le Serrurier et le Jardin. -->
+    <!-- Un accord, par son degré en chiffres puis sa qualité : « 6 mineur » plutôt que « vi », lu comme un mot. -->
+    <string name="core_designsystem_chord_major">%1$s majeur</string>
+    <string name="core_designsystem_chord_minor">%1$s mineur</string>
+    <string name="core_designsystem_chord_diminished">%1$s diminué</string>
+    <!-- Une note ou la racine d’un accord, déplacée d’un demi-ton : « mi bémol », « 7 bémol majeur », « fa dièse ». -->
+    <string name="core_designsystem_flat">%1$s bémol</string>
+    <string name="core_designsystem_sharp">%1$s dièse</string>
+    <!-- Les notes, sans octave, en minuscules : « Croche 5, mi : libre » ; l’éditeur met la majuscule en tête (« Sol haut »). -->
+    <string name="core_designsystem_note_do">do</string>
+    <string name="core_designsystem_note_re">ré</string>
+    <string name="core_designsystem_note_mi">mi</string>
+    <string name="core_designsystem_note_fa">fa</string>
+    <string name="core_designsystem_note_sol">sol</string>
+    <string name="core_designsystem_note_la">la</string>
+    <string name="core_designsystem_note_si">si</string>
+    <!-- Entre les accords d’une bande, lus l’un après l’autre : « 4 majeur, 5 majeur, 1 majeur ». -->
+    <string name="core_designsystem_chords_separator">", "</string>
 </resources>

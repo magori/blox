@@ -3,7 +3,6 @@ package ch.magori.blox.feature.locksmith
 import androidx.annotation.StringRes
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.locksmith.PadlockGame
-import ch.magori.blox.core.music.ChordQuality
 import ch.magori.blox.core.music.RomanNumeral
 
 /**
@@ -45,17 +44,6 @@ internal fun chordsOf(state: LocksmithUiState): ChordsRead {
     val numerals = state.game.progression.numerals
     val heard = state.game.chords.size
     return ChordsRead(heard = numerals.take(heard), coming = numerals.drop(heard))
-}
-
-/**
- * How TalkBack names [numeral], with its degree: by its quality, « 6 mineur », rather than by its numeral, « vi », read
- * as a word. The chords of a padlock bear no accidental.
- */
-@StringRes
-internal fun chordNameOf(numeral: RomanNumeral): Int = when (numeral.quality) {
-    ChordQuality.MAJOR -> R.string.feature_locksmith_chord_major
-    ChordQuality.MINOR -> R.string.feature_locksmith_chord_minor
-    ChordQuality.DIMINISHED -> R.string.feature_locksmith_chord_diminished
 }
 
 /** What the band of [chords] says: the chords heard and those to come; none heard yet; or all of them heard. */

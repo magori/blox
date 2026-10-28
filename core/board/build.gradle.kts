@@ -19,6 +19,9 @@ dependencies {
     // `api` : le plateau et la pièce suivante se dessinent à partir des types du domaine et du thème.
     api(projects.core.game)
     api(projects.core.designsystem)
+    // `api` : la lecture des accords par TalkBack, commune au Serrurier et au Jardin, part de leurs chiffres romains
+    // (chordTellingOf) ; core:designsystem, qui en porte les mots, ne connaît pas le domaine (P10.19).
+    api(projects.core.music)
 
     // DesignTokens, le lecteur de tokens.json de core:designsystem.
     testImplementation(testFixtures(projects.core.designsystem))

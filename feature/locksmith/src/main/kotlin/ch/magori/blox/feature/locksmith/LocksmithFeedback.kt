@@ -3,6 +3,8 @@ package ch.magori.blox.feature.locksmith
 import androidx.compose.runtime.Immutable
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
+import ch.magori.blox.core.designsystem.theme.fadeOut
+import ch.magori.blox.core.designsystem.theme.swell
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.PadlockEvent
@@ -45,10 +47,13 @@ internal data class Feedback(val kind: FeedbackKind, val cells: Set<Position>, v
     ): Float = when {
         cell !in cells -> 0f
         kind == FeedbackKind.REFUSED && !effects.reduced -> 0f
-        kind == FeedbackKind.OPENED && !effects.reduced -> fade(tick - WAVE_STEP * (bottom - cell.row), LIGHT_TICKS)
+        kind == FeedbackKind.OPENED && !effects.reduced -> fadeOut(tick - wave(cell), LIGHT_TICKS)
         kind == FeedbackKind.HINTED && !effects.reduced -> swell(tick, ticks(effects))
-        else -> fade(tick, ticks(effects))
+        else -> fadeOut(tick, ticks(effects))
     }
+
+    /** How many ticks after the bottom row the wave of an open padlock reaches the row of [cell]. */
+    private fun wave(cell: Position): Int = WAVE_STEP * (bottom - cell.row)
 
     /**
      * How far the padlock is shaken aside at [tick] in [effects], in parts of its amplitude, from -1 (to the left) to 1:
@@ -62,7 +67,7 @@ internal data class Feedback(val kind: FeedbackKind, val cells: Set<Position>, v
         val length = ticks(effects)
         if (kind != FeedbackKind.REFUSED || effects.reduced || tick >= length) return 0f
         // A tick ahead, so that the padlock is aside from the first frame of the refusal.
-        return sin(2 * PI * (tick + 1) / SHAKE_PERIOD).toFloat() * fade(tick, length)
+        return sin(2 * PI * (tick + 1) / SHAKE_PERIOD).toFloat() * fadeOut(tick, length)
     }
 }
 
@@ -89,18 +94,6 @@ private fun hintedCellsOf(state: LocksmithUiState): Set<Position> = when (val hi
     is Hint.Blocking -> state.game.placed[hint.rank]?.cells.orEmpty()
     null -> emptySet()
 }
-
-/** From 0 at tick 0 up to 1 halfway through [length], and back down to 0 at its end: one swell, never a flash. */
-private fun swell(
-    tick: Int,
-    length: Int,
-): Float = if (tick < 0 || tick >= length) 0f else sin(PI * tick / length).toFloat()
-
-/** From 1 at tick 0 down to 0 at the [length]th, and nothing before nor after it. */
-private fun fade(
-    tick: Int,
-    length: Int,
-): Float = if (tick < 0 || tick >= length) 0f else 1f - tick.toFloat() / length
 
 /** A cell lit stays as long as a lock of the Classic, `PieceLocked`. */
 private const val LIGHT_TICKS = 8

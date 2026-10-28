@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.min
 import androidx.lifecycle.compose.dropUnlessResumed
 import ch.magori.blox.core.board.garden.GardenCell
 import ch.magori.blox.core.board.garden.GardenCellCanvas
+import ch.magori.blox.core.board.garden.GardenCellEffects
 import ch.magori.blox.core.board.garden.GardenPlayHead
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
@@ -133,12 +134,16 @@ internal class GardenActions(
  * is listened to, the column played is framed on the grid and the pill of its chord filled, and the frames of the
  * screen are handed over to the view model (ADR 0012). No logic: what each action means belongs to the view model and
  * to `app`. Changer de jeu counts only while the garden is resumed.
+ * The last change of the garden plays its feedback on the grid ([GardenFeedback]), and the notes of the column played
+ * bounce ([playHeadBounce]), from their tick 0 on the frames of the screen, or frozen at [effectTick] for the previews;
+ * the feedback of the change shown first, as on coming back to the screen, is not played again.
  */
 @Composable
 internal fun GardenScreen(
     uiState: GardenUiState?,
     actions: GardenActions,
     modifier: Modifier = Modifier,
+    effectTick: Int? = null,
 ) {
     val changeGame = dropUnlessResumed { actions.onChangeGame() }
     val undoMillis = undoTimeoutMillis()
@@ -155,6 +160,7 @@ internal fun GardenScreen(
     // The height of « Jardin effacé · Annuler », its margins included, which the page leaves free under the tray.
     var undoBar by remember { mutableIntStateOf(0) }
     ColorfulTheme {
+        val motion = rememberGardenMotion(uiState, effectTick)
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -184,7 +190,7 @@ internal fun GardenScreen(
                             hasPieces = uiState.garden.pieces.isNotEmpty(),
                             onClearAll = { actions.onClearAll(undoMillis) },
                         )
-                        ChordsAndGrid(uiState, actions.onTap)
+                        ChordsAndGrid(uiState, actions.onTap, motion)
                         Message(uiState)
                         Tray(uiState, actions)
                         // Room for « Jardin effacé · Annuler » while it shows: it never covers Retirer, scrolled to the end.
@@ -362,6 +368,7 @@ private fun InformationRow(
 private fun ChordsAndGrid(
     state: GardenUiState,
     onTap: (Position) -> Unit,
+    motion: GardenMotion,
 ) {
     BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val cell = gridCellFor(maxWidth)
@@ -370,7 +377,7 @@ private fun ChordsAndGrid(
             verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
         ) {
             ChordBand(state.garden.mood, playedChordOf(state), cell)
-            Grid(state, cell, onTap)
+            Grid(state, cell, onTap, motion)
         }
     }
 }
@@ -385,7 +392,7 @@ private fun ChordBand(
     playedChord: Int?,
     cell: Dp,
 ) {
-    val reading = chordsText(mood)
+    val reading = moodChordsText(mood)
     val group = cell * GardenMood.EIGHTHS_PER_CHORD
     Row(
         modifier = Modifier
@@ -407,14 +414,17 @@ private fun ChordBand(
 /**
  * The grid of 16 × 14 cells of [cell] in its frame on the board, a group of 4 eighths out of two on a band; a
  * collection of 14 rows and 16 columns for TalkBack, each cell read « Croche 5, mi : libre » and touched by [onTap].
+ * Its notes play their effects as [motion] says, read in the drawing alone.
  */
 @Composable
 private fun Grid(
     state: GardenUiState,
     cell: Dp,
     onTap: (Position) -> Unit,
+    motion: GardenMotion,
 ) {
     val cells = remember(state) { gardenCells(state) }
+    val effects = BloxTheme.effects
     val shape = RoundedCornerShape(GRID_CORNER)
     Column(
         modifier = Modifier
@@ -427,12 +437,22 @@ private fun Grid(
             Row {
                 for (column in 0 until Garden.COLUMNS) {
                     val position = Position(column, row)
+                    val shown = cells[position] ?: GardenCell.Free
+                    val playHead = playHeadAt(position, state)
+                    val noteEffects = if (shown is GardenCell.Note) {
+                        remember(motion, effects, position, playHead) {
+                            NoteEffects(motion, effects, position, played = playHead != null)
+                        }
+                    } else {
+                        null
+                    }
                     GridCell(
-                        cell = cells[position] ?: GardenCell.Free,
+                        cell = shown,
                         position = position,
                         size = cell,
                         mood = state.garden.mood,
-                        playHead = playHeadAt(position, state),
+                        playHead = playHead,
+                        effects = noteEffects,
                         onTap = onTap,
                     )
                 }
@@ -443,7 +463,7 @@ private fun Grid(
 
 /**
  * A cell of the grid, [cell] at [position], touched by [onTap]; in a band one group of 4 eighths out of two; framed
- * as its part of the [playHead], in the column played.
+ * as its part of the [playHead], in the column played; a note playing its [effects].
  */
 @Composable
 private fun GridCell(
@@ -452,6 +472,7 @@ private fun GridCell(
     size: Dp,
     mood: GardenMood,
     playHead: GardenPlayHead?,
+    effects: GardenCellEffects?,
     onTap: (Position) -> Unit,
 ) {
     val description = cellText(cell, position, mood)
@@ -461,6 +482,7 @@ private fun GridCell(
         size = size,
         inBand = (position.column / GardenMood.EIGHTHS_PER_CHORD) % 2 == 1,
         playHead = playHead,
+        effects = effects,
         modifier = Modifier
             .clickable(role = Role.Button, onClickLabel = action) { onTap(position) }
             .semantics {
