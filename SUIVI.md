@@ -1356,9 +1356,9 @@ première serrure non ouverte ; un écran « Serrures » (grille) depuis la barr
 début » avec confirmation ; progression dans la sauvegarde Android. Décision du développeur : concevoir d'abord une
 difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 
-- [ ] **P7.27** Courbe de difficulté du Serrurier au-delà de la serrure 4 (nombre de pièces, trou, paliers), avec
+- [x] **P7.27** Courbe de difficulté du Serrurier au-delà de la serrure 4 (nombre de pièces, trou, paliers), avec
   `designer-jeu`, décidée par le développeur avant P7.29 : ce qui sera figé par le contrat de génération.
-- [ ] **P7.28** Spécification et décision : section « Progression » de `regles-serrurier.md` (le point ouvert
+- [x] **P7.28** Spécification et décision : section « Progression » de `regles-serrurier.md` (le point ouvert
   « Reprendre à la dernière serrure » est fermé), amendements des ADR 0025 et 0014 (la génération d'une serrure
   devient un contrat). Après P7.27.
 - [ ] **P7.29** Génération stable (`core:locksmith`) : `StableRandom`, graine = niveau, courbe de P7.27,

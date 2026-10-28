@@ -1,6 +1,6 @@
 # 0014 — Le tirage des pièces est le seul état modifiable du domaine
 
-- **Statut** : Acceptée ; amendée par [0026](0026-jeux-musicaux-variantes-du-classique.md) (la suite des pièces d'une graine devient un contrat)
+- **Statut** : Acceptée ; amendée par [0026](0026-jeux-musicaux-variantes-du-classique.md) (la suite des pièces d'une graine devient un contrat) et par P7.28 (la serrure d'un niveau aussi)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -55,3 +55,13 @@ contrat** entre versions. Le tirage du Classique passe sur un générateur maiso
 (le constructeur `ClassicRandomizer(random)` reste `internal`), et un test fige les 20 premières
 pièces de la graine 20261026. La musique composée sur une graine n'est pas un contrat. Le tirage
 reste le seul état modifiable du domaine.
+
+## Amendement (P7.28, 2026-10-28) : la serrure d'un niveau devient un contrat
+
+La serrure *n* du Serrurier devient la même pour tous et pour toujours, pour qu'une ancienne serrure se rouvre à
+l'identique : sa graine est *n*, et `PadlockGenerator` tire sur `StableRandom` au lieu de `kotlin.random.Random`, dont
+la suite n'est pas un contrat. Comme la suite des pièces d'une graine (amendement de l'ADR 0026), la génération d'une
+serrure devient un contrat, figé par un test et changé seulement par un ADR (détail dans
+[regles-serrurier.md](../regles-serrurier.md#progression)). Le fichier
+d'avancement garde un numéro de génération : si la génération change un jour, les résultats anciens restent
+attribués à la leur.
