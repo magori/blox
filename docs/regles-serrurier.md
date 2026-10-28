@@ -267,6 +267,21 @@ solutions) ;
   même partie, comparé d'abord par les indices, puis les coups, puis les refus. Une serrure est **parfaite** quand
   elle est ouverte en autant de coups que de pièces, sans refus ni indice. Les serrures s'ouvrent dans l'ordre :
   les serrures ouvertes sont 1 à *N*, la suivante à ouvrir est *N* + 1 (la « frontière »).
+  Une ouverture est un `PadlockResult` (P7.31) : le nombre de pièces de la serrure, qui permet de dire « parfaite »
+  sans la régénérer, puis les coups, refus et indices ; `PadlockGame.result` le donne une fois la serrure ouverte
+  (aucun avant). Les coups sont les poses acceptées, reprises comprises, donc jamais moins que les pièces ; deux
+  ouvertures ne se comparent que pour un même nombre de pièces.
+  **Tests :** `PadlockResultTest › fewer hints is better, even with more moves and refusals`,
+  `PadlockResultTest › at equal hints, fewer moves is better, even with more refusals`,
+  `PadlockResultTest › at equal hints and moves, fewer refusals is better`,
+  `PadlockResultTest › an equal result is not better`,
+  `PadlockResultTest › a padlock opened in as many moves as pieces, without refusal or hint, is perfect`,
+  `PadlockResultTest › one more move, a refusal or a hint is not perfect`,
+  `PadlockResultTest › a padlock without pieces or a negative counter is a programming error`,
+  `PadlockResultTest › a padlock is not opened in fewer moves than pieces`,
+  `PadlockResultTest › openings of padlocks of different numbers of pieces are not compared`,
+  `PadlockGameTest › an open padlock gives the result of its opening, a padlock not open none`,
+  `PadlockGameTest › a padlock opened without taking back, refusal or hint is perfect`.
 - La **cartouche** ouvre la frontière, et porte la sous-ligne « Serrure *N* + 1 ».
 - Un écran **« Serrures »** (grille, depuis le cadenas de la barre de V35, qui devient un disque de 48 dp) : un
   résumé (« 12 ouvertes · 3 parfaites »), « Reprendre · Serrure 13 », puis la grille, défilée sur la frontière ;
