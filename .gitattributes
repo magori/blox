@@ -8,3 +8,7 @@ app/src/main/generated/** linguist-generated=true -diff
 
 # Captures de référence (P5.8) : binaires, jamais touchées par la conversion des fins de ligne.
 *.png binary
+
+# Journal : chaque tâche ajoute sa ligne à la fin. En fusion « union », deux branches qui ajoutent chacune la leur
+# ne se contredisent plus ; les deux lignes sont gardées, dans l'ordre des fusions.
+JOURNAL.md merge=union

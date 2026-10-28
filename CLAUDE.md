@@ -285,12 +285,16 @@ La commande `/fin-de-tache` les déroule.
    « Mettre à jour la maquette : … » dans SUIVI.md.
 5. **Décision consignée.** Un ADR dans `docs/adr/` si une décision structurante a été prise.
 6. **SUIVI.md et JOURNAL.md à jour** : dans `SUIVI.md`, cocher la tâche, ajouter les tâches
-   découvertes, avec un identifiant, dans la bonne phase, puis recalculer l'avancement avec
-   `scripts/avancement.sh` ; dans `JOURNAL.md`, ajouter une ligne (ce qui a été fait,
-   décisions, remarques de revue écartées, points ouverts).
+   découvertes, avec un identifiant, dans la bonne phase ; dans `JOURNAL.md`, ajouter une ligne (ce qui a été fait,
+   décisions, remarques de revue écartées, points ouverts). **Ne pas lancer `scripts/avancement.sh` dans une
+   branche** : deux branches en parallèle y écriraient deux chiffres en conflit. L’avancement se recalcule sur
+   `main`, dans un commit à lui, après chaque fusion (`📊 docs(suivi): avancement`). `JOURNAL.md` se fusionne en
+   « union » (`.gitattributes`) : les lignes ajoutées par deux branches sont gardées toutes les deux.
 7. **Commit, puis push.**
    - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, `build/…`, créée depuis `main`.
    - Message au format **gitmoji + [Conventional Commits](https://www.conventionalcommits.org/fr/)**
      (`✨ feat(core-game): …`), corps qui **explique pourquoi**, référence de la tâche
      (`Tâche : P1.3`). Le skill `/commit` porte la table des gitmoji et rédige le message.
    - Push, attendre que la CI soit verte, puis fusionner dans `main`.
+   - Sur `main` fusionné : `scripts/avancement.sh`, puis un commit `📊 docs(suivi): avancement` s’il a changé
+     quelque chose (après plusieurs fusions d’ffilée, une seule fois à la fin).
