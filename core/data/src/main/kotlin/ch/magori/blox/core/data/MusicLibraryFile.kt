@@ -2,10 +2,7 @@ package ch.magori.blox.core.data
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
-import androidx.datastore.core.DataStoreFactory
-import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.core.okio.OkioSerializer
-import androidx.datastore.core.okio.OkioStorage
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
@@ -18,7 +15,6 @@ import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CoroutineScope
 import okio.BufferedSink
 import okio.BufferedSource
-import okio.FileSystem
 import okio.Path
 import java.io.EOFException
 import java.io.IOException
@@ -35,30 +31,8 @@ const val MUSICS_FILE: String = "musics.bin"
 internal fun musicLibraryDataStore(
     scope: CoroutineScope,
     produceFile: () -> Path,
-): DataStore<MusicLibraryContent> = DataStoreFactory.create(
-    storage = OkioStorage(FileSystem.SYSTEM, MusicLibrarySerializer, producePath = produceFile),
-    corruptionHandler = ReplaceFileCorruptionHandler {
-        keepAside(produceFile())
-        MusicLibraryContent()
-    },
-    scope = scope,
-)
-
-/**
- * Copies the corrupted file at [path] to `<path>.corrupt`, replacing an older copy, before the DataStore replaces it: the
- * musics of the player may still be found in it. A copy that fails (a full disk) is given up, and the list still starts
- * again empty.
- */
-private fun keepAside(path: Path) {
-    try {
-        FileSystem.SYSTEM.copy(path, checkNotNull(path.parent) / "${path.name}$CORRUPTED_SUFFIX")
-    } catch (_: IOException) {
-        // The copy is a help for later, not a condition of reading the musics again.
-    }
-}
-
-/** What the copy of a corrupted musics file adds to its name. */
-private const val CORRUPTED_SUFFIX = ".corrupt"
+): DataStore<MusicLibraryContent> =
+    binaryDataStore(scope, MusicLibrarySerializer, produceFile) { MusicLibraryContent() }
 
 /**
  * The format of the musics file, a format of BloX on Okio, without a library of its own: [MAGIC], its [VERSION], the
@@ -164,13 +138,8 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
         }
     }
 
-    private fun BufferedSource.readText(): String = readUtf8(readCount().toLong())
-
-    private fun BufferedSink.writeText(text: String) {
-        val bytes = text.encodeToByteArray()
-        writeInt(bytes.size)
-        write(bytes)
-    }
+    /** A text of the file, of [MOST_ELEMENTS] bytes at the most. */
+    private fun BufferedSource.readText(): String = readText(MOST_ELEMENTS)
 
     /**
      * A time, or none: [UNKNOWN_TIME] for a time unknown, or [KNOWN_TIME] then its milliseconds since 1970 in
@@ -221,12 +190,8 @@ internal object MusicLibrarySerializer : OkioSerializer<MusicLibraryContent> {
 
     private fun String.utf8Size(): Int = encodeToByteArray().size
 
-    /**
-     * A count of elements or of bytes, refused if it is negative or beyond [MOST_ELEMENTS]: a corrupted count must not
-     * have a list of billions of elements allocated before the end of the file is found.
-     */
-    private fun BufferedSource.readCount(): Int =
-        readInt().also { require(it in 0..MOST_ELEMENTS) { "A count goes from 0 to $MOST_ELEMENTS, was $it" } }
+    /** A count of elements of the file, [MOST_ELEMENTS] at the most. */
+    private fun BufferedSource.readCount(): Int = readCount(MOST_ELEMENTS)
 
     /** The most elements of a list, or bytes of a text, the file may hold: far beyond what a music has. */
     private const val MOST_ELEMENTS = 1 shl 16

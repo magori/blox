@@ -184,7 +184,9 @@ graph LR
   **Sauvegarde Android** (P5.28) : Auto Backup et le transfert d'appareil ne prennent que
   `files/datastore/records.preferences_pb`, `files/datastore/settings.preferences_pb` et
   `files/datastore/musics.bin` (les musiques créées par le joueur, sans URI de contenu ;
-  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)). Les
+  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)) et `files/datastore/garden.bin`
+  (le jardin du Jardin musical, lui aussi une création du joueur ; P10.11, décision du développeur
+  du 2026-10-28). Les
   règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
   `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
@@ -199,8 +201,14 @@ graph LR
   `SETTINGS_FILE` (`core:data`).
 
   **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
-  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record, the settings, the musics`,
-  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics`.
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics, the garden`.
+
+  Le jardin gardé (`GardenRepository`, `GARDEN_FILE`, P10.11) est le `Garden` de `core:garden`
+  (dépendance `api`, sans type parallèle, ADR 0027), dans un format binaire versionné de BloX sur
+  Okio, comme les musiques ; les deux formats partagent `binaryDataStore` (copie `.corrupt` d'un
+  fichier illisible comprise), `readCount`, `readText` et `writeText` (`BinaryFiles.kt`). Il passe
+  `DataStoreFileContract`.
 
 ## Boucle de jeu
 

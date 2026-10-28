@@ -23,10 +23,13 @@ import ch.magori.blox.core.audio.effectSampleRate
 import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
 import ch.magori.blox.core.data.DailyChallengeRepository
 import ch.magori.blox.core.data.DataStoreDailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreGardenRepository
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
+import ch.magori.blox.core.data.GARDEN_FILE
+import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
@@ -126,6 +129,14 @@ class AppContainer(context: Context) {
      */
     val musicLibrary: MusicLibrary =
         DataStoreMusicLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, MUSICS_FILE) }
+
+    /**
+     * The last garden of the Jardin musical, its pieces and its mood, in `files/datastore/garden.bin`: a creation of the
+     * player, which the backup rules keep, as the musics. Built here, once for the process; the screen of the garden
+     * (`feature:garden`) will read it when it opens and write it at each change.
+     */
+    internal val keptGarden: GardenRepository =
+        DataStoreGardenRepository(dataScope) { dataStoreFile(filesDir, GARDEN_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
