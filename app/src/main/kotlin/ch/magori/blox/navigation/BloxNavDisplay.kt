@@ -125,7 +125,6 @@ fun BloxNavDisplay(
                 onCopyScore = onCopyDailyScore,
                 viewModelFactory = dailyViewModelFactory,
             )
-            // No cartridge opens the garden yet (P10.13).
             gardenEntry(onChangeGame = { changeGame(backStack) }, viewModelFactory = gardenViewModelFactory)
         },
     )

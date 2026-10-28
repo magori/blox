@@ -453,7 +453,20 @@ cadencés en ticks :
 - **Au hasard** : les pièces tombent une à une, avec 2 ticks d'écart ;
 - **changement d'ambiance** : fondu de 8 ticks.
 
-**Cartouche** « Jardin musical » sur le choix du jeu (V36) : elle ouvre le jardin gardé.
+**Cartouche** « Jardin musical » sur le choix du jeu (V36 à quatre cartouches, P10.13), troisième,
+entre le Serrurier et la Graine du jour : elle ouvre le jardin (`GardenRoute`), qui lit lui-même le
+jardin gardé. Mascotte : un L debout sur son pied, une feuille au-dessus (corps `piece-l`, feuille
+`piece-s`, comme la pousse de la Graine). Parcours Macrobenchmark : choix du jeu, cartouche
+(`cartridge_garden`), écran du jardin (`garden_change_game`) ; ajouté au générateur du profil de
+référence, à régénérer sur un téléphone (P9.16).
+**Tests :** `CartridgeTest › the cartridges are the Classic, the Locksmith, the Jardin musical, the Graine du jour, in this order`,
+`CartridgeTest › the tag of the Jardin musical cartridge is cartridge_garden, which benchmark copies as it is`,
+`OpenCartridgeTest › the Jardin musical cartridge opens the musical garden over the cartridges`,
+`GardenTagsTest › the tag of Changer de jeu stays garden_change_game, which the journey of benchmark copies as it is`,
+`MascotLookTest › the Jardin musical mascot is an L standing on its foot, the foot to the right`,
+`MascotLookTest › the Jardin musical mascot is a bubble of the L, its leaf in the mint of the S`,
+`BloxNavDisplayTest › the Jardin musical cartridge opens the musical garden, and the system back goes back to the cartridges` ;
+captures `Cartridges*`, `Mascots*`. Vue V36.
 
 ## Points ouverts
 

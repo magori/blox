@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 257 / 324 | `████████████████░░░░` **79 %** |
+| **Général** | 258 / 324 | `████████████████░░░░` **80 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1457,7 +1457,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [ ] **P9.15** Vérifier sur téléphone « Copier mon score » : presse-papiers et message « Score copié » sur un appareil
   Android 12 ou moins, et annonce de la copie par TalkBack à partir d'Android 13 (surcouche du fabricant) ; sinon
   `announceForAccessibility` ou région vivante (revue de P9.6). Après P9.6.
-- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`)
+- [ ] **P9.16** Régénérer le profil de référence sur un téléphone Android 13+ (`./gradlew :app:generateBaselineProfile`), parcours du Jardin compris (P10.13), de préférence après l'écran jouable (P10.10),
   avec le parcours de la Graine du jour (cartouche, entrée, premières secondes de la partie) ajouté en P9.7.
 - [ ] **P9.17** Juger avec `designer-jeu` les écarts de V36 codée (P9.7) : contraste de la pousse menthe sur le coin
   menthe de la fenêtre `iris` (jour), animation d'entrée de l'autocollant « NOUVELLE » et son appui, engrenage
@@ -1538,7 +1538,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
 - [ ] **P10.12** Son : Écouter / Arrêter en boucle par le lecteur de musique, changements par `switchTo`, tête de
   lecture (`LoopPlayHead`) et pilule d'accord ; aperçu sonore par un ensemble fini d'effets jamais libérés
   (l'union des hauteurs des 4 ambiances, environ 30), préchauffé à l'ouverture ; mesurer le nombre de pistes (ADR 0025, ADR 0027). Après P8.2, P10.3, P10.6, P10.10.
-- [ ] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
+- [x] **P10.13** Cartouche « Jardin musical » (`feature:cartridges`, `app`) : ouvre le jardin gardé ; parcours
   Macrobenchmark. Après P10.9, P10.11 ; la mise en page à cinq cartouches vient de P9.7 (ou est faite ici si P10 passe
   le premier). Ordre de V36 à quatre cartouches (P10.14) : Classique, Serrurier, Jardin musical, Graine du jour.
 - [x] **P10.14** Mettre à jour la maquette (depuis claude.ai) : V40, cartouche Jardin sur V36 ; reporter les jetons

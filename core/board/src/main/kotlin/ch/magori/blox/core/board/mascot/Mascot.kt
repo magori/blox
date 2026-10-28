@@ -3,6 +3,7 @@ package ch.magori.blox.core.board.mascot
 import android.graphics.BlurMaskFilter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -117,10 +118,14 @@ private fun CacheDrawScope.drawMascot(
     }
 }
 
-/** The centre of the face, in cells: on the bar of the T, in the middle of the O, on the top bar of the Z. */
+/**
+ * The centre of the face, in cells: on the bar of the T, in the middle of the O, on the foot of the L, on the top bar of
+ * the Z.
+ */
 private fun faceCentre(character: MascotCharacter): Offset = when (character) {
     MascotCharacter.CLASSIC -> Offset(1.5f, 0.55f)
     MascotCharacter.LOCKSMITH -> Offset(1f, 0.9f)
+    MascotCharacter.GARDEN -> Offset(1f, 2.5f)
     MascotCharacter.DAILY -> Offset(1f, 0.55f)
 }
 
@@ -189,8 +194,8 @@ private fun DrawScope.drawZ(
 }
 
 /**
- * The crown of the T, the key of the O or the sprout of the Z, in a box of 0,95 cell over the top right corner, turned
- * by 14°.
+ * The crown of the T, the key of the O, the leaf of the L or the sprout of the Z, in a box of 0,95 cell over the top
+ * right corner, turned by 14°.
  */
 private fun DrawScope.drawAccessory(
     character: MascotCharacter,
@@ -203,6 +208,7 @@ private fun DrawScope.drawAccessory(
     val (outline, extra) = when (character) {
         MascotCharacter.CLASSIC -> CROWN to null
         MascotCharacter.LOCKSMITH -> KEY_RING to KEY_BIT
+        MascotCharacter.GARDEN -> LEAF to LEAF_VEIN
         MascotCharacter.DAILY -> SPROUT to SPROUT_STEM
     }
     translate(left = width - ACCESSORY_LEFT * box, top = -ACCESSORY_UP * box) {
@@ -224,6 +230,8 @@ private val KEY_RING = pathOf("M3.5 8 a4.5 4.5 0 1 0 9 0 a4.5 4.5 0 1 0 -9 0 Z")
 private val KEY_BIT = pathOf("M11.2 11.2 L20 20 M15.5 15.5 L18 13 M18 18 L20.5 15.5")
 private val SPROUT = pathOf("M12 13 C12 8 8 6 4 6 C4 10 7 13 12 13 Z M12 11 C12 6 16 4 20 4 C20 8 17 11 12 11 Z")
 private val SPROUT_STEM = pathOf("M12 21 V11")
+private val LEAF = pathOf("M4 20 C4 10 10 4 20 4 C20 14 14 20 4 20 Z")
+private val LEAF_VEIN = pathOf("M4 20 L13 11")
 
 /** The grid of the accessories, as of the pictograms. */
 private const val ICON_GRID = 24f
@@ -269,19 +277,26 @@ private const val SMALL_Z = 0.3f
 private val SMALL_Z_AT = Offset(0.72f, -1.25f)
 private const val SMALL_Z_ALPHA = 0.55f
 
-/** The three mascots, awake, then the Classic one asleep, on the page. */
+/**
+ * The four mascots, awake, then the Classic one asleep, on the page: on two rows, that none be squeezed on a narrow
+ * preview.
+ */
 @Composable
 private fun MascotsPreview() {
     BloxTheme(kind = BloxThemeKind.COLORFUL) {
-        Row(
+        Column(
             modifier = Modifier.background(BloxTheme.palette.page).padding(24.dp),
-            horizontalArrangement = Arrangement.spacedBy(32.dp),
-            verticalAlignment = Alignment.Bottom,
+            verticalArrangement = Arrangement.spacedBy(40.dp),
         ) {
-            Mascot(MascotCharacter.CLASSIC, cellSize = 38.dp)
-            Mascot(MascotCharacter.LOCKSMITH, cellSize = 25.dp)
-            Mascot(MascotCharacter.DAILY, cellSize = 25.dp)
-            Mascot(MascotCharacter.CLASSIC, cellSize = 22.dp, asleep = true)
+            Row(horizontalArrangement = Arrangement.spacedBy(32.dp), verticalAlignment = Alignment.Bottom) {
+                Mascot(MascotCharacter.CLASSIC, cellSize = 38.dp)
+                Mascot(MascotCharacter.LOCKSMITH, cellSize = 25.dp)
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(32.dp), verticalAlignment = Alignment.Bottom) {
+                Mascot(MascotCharacter.GARDEN, cellSize = 25.dp)
+                Mascot(MascotCharacter.DAILY, cellSize = 25.dp)
+                Mascot(MascotCharacter.CLASSIC, cellSize = 22.dp, asleep = true)
+            }
         }
     }
 }

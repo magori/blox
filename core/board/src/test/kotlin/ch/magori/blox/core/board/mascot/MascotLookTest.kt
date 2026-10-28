@@ -33,6 +33,16 @@ class MascotLookTest {
     }
 
     @Test
+    fun `the Jardin musical mascot is an L standing on its foot, the foot to the right`() {
+        assertThat(MascotCharacter.GARDEN.cells).containsExactlyInAnyOrder(
+            Position(0, 0),
+            Position(0, 1),
+            Position(0, 2),
+            Position(1, 2),
+        )
+    }
+
+    @Test
     fun `an awake mascot is a bubble of its piece, its face in the ink of the day, its accessory in yellow`() {
         // By day, the pastels of T and O; corners of 0,3 cell; a shadow under it
         assertThat(mascotLook(MascotCharacter.CLASSIC, night = false, asleep = false)).isEqualTo(
@@ -71,6 +81,22 @@ class MascotLookTest {
             ),
         )
         assertThat(mascotLook(MascotCharacter.DAILY, night = true, asleep = false).accessory)
+            .isEqualTo(Color(0xFF3DFF8F))
+    }
+
+    @Test
+    fun `the Jardin musical mascot is a bubble of the L, its leaf in the mint of the S`() {
+        assertThat(mascotLook(MascotCharacter.GARDEN, night = false, asleep = false)).isEqualTo(
+            MascotLook(
+                fill = Color(0xFFFFB896),
+                highlight = Color(0xFFFFE9DE),
+                corner = 0.3f,
+                accessory = Color(0xFF9DEDB9),
+                face = Color(0xFF1C1B2E),
+                shadow = MascotShadow(color = Color(90, 80, 160).copy(alpha = 0.3f), drop = 0.12f, blur = 0.16f),
+            ),
+        )
+        assertThat(mascotLook(MascotCharacter.GARDEN, night = true, asleep = false).accessory)
             .isEqualTo(Color(0xFF3DFF8F))
     }
 
