@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import ch.magori.blox.core.audio.SoundCue
 import ch.magori.blox.core.audio.SoundEffectPlayer
+import ch.magori.blox.core.audio.playCues
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -13,10 +15,8 @@ import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.PadlockUpdate
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
-import ch.magori.blox.feature.locksmith.sound.SoundCue
 import ch.magori.blox.feature.locksmith.sound.soundCuesFor
 import ch.magori.blox.feature.locksmith.sound.warmUpEffectsOf
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -133,23 +133,16 @@ class LocksmithViewModel internal constructor(
         }
         state.value =
             current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim, turned = false)
-        soundCuesFor(update).forEach(::play)
+        play(soundCuesFor(update))
     }
 
     /**
-     * Plays [cue], at once or once its wait is over: an action on the screen meanwhile cuts no sound, but a cue still
+     * Plays [cues], at once or once their wait is over: an action on the screen meanwhile cuts no sound, but a cue still
      * waiting dies with the screen left, so that it is not heard over the next one.
      */
-    private fun play(cue: SoundCue) {
-        if (!soundEffectsOn) return
-        if (cue.afterMillis == 0L) {
-            soundEffects.play(cue.effect)
-        } else {
-            viewModelScope.launch {
-                delay(cue.afterMillis)
-                soundEffects.play(cue.effect)
-            }
-        }
+    private fun play(cues: List<SoundCue>) {
+        if (!soundEffectsOn || cues.isEmpty()) return
+        viewModelScope.launch { soundEffects.playCues(cues) }
     }
 
     /**

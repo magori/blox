@@ -14,7 +14,7 @@ import ch.magori.blox.core.garden.GardenRefusal
  * The screen of the musical garden (V40): the [garden] under way, its mood with it; the piece [chosen] in the tray, in
  * its [orientation]; the cell the player [aim]s it at, its pivot there: the preview, a state of the screen that the
  * garden does not hold; the garden from before Tout effacer or Au hasard, which « Annuler » gives back while it is
- * offered ([undo]).
+ * offered ([undo]); while the garden is listened to, the column played, [playedColumn], from 0, null otherwise.
  */
 @Immutable
 internal data class GardenUiState(
@@ -23,6 +23,7 @@ internal data class GardenUiState(
     val orientation: Orientation = ClassicRotationSystem.spawnOrientation(chosen),
     val aim: Position? = null,
     val undo: Garden? = null,
+    val playedColumn: Int? = null,
 ) {
     /** The chosen piece where the player aims it, its pivot on [aim]; null without an aim. */
     val preview: Piece?

@@ -20,7 +20,8 @@ import kotlinx.coroutines.sync.withLock
  * Plays a score in a loop. Each score is rendered once, away from the audio writing, and kept in a
  * cache ([TempoBuffers]), one mixed buffer per tempo factor, about 2.3 MB for 8 bars at 44 100 Hz. The
  * cache only holds the score played last and the scores it was switched to ([switchTo]), with their
- * renderings under way, which a stop does not cancel: playing another score abandons them. The loop
+ * renderings under way, which a stop does not cancel: playing another score abandons them. Of the scores switched to,
+ * only the last [KEPT_SCORES] stay, with the one playing: the others are let go, and rendered anew if switched back to. The loop
  * replays that buffer, so it never drifts. The samples go to a sink in slices, the sink paces the loop.
  * Playing another score replaces the one playing: there is never more than one loop, nor more than one
  * open sink. A sink that dies ([DeadSinkException]) is released and another one opened ([ReopeningSink]):
@@ -116,7 +117,7 @@ public class ChiptuneSequencer internal constructor(
     override fun switchTo(score: Score) {
         current?.let {
             // Its buffers kept first: a loop starting meanwhile that sees the new score never abandons them.
-            it.scores += score
+            it.scores = (it.scores - score + score).toList().takeLast(KEPT_SCORES).toSet()
             it.score = score
         }
     }
@@ -276,6 +277,8 @@ public class ChiptuneSequencer internal constructor(
                 // on the audio thread.
                 if (target !== switchTarget) {
                     switchTarget = target
+                    // The scores switched to long ago let go: a garden switches at each change (P10.12).
+                    keepOnly(playback.scores + score + target)
                     switchBuffers = if (target != score) buffersFor(target) else null
                 }
                 val targetBuffers = switchBuffers
@@ -390,6 +393,12 @@ public class ChiptuneSequencer internal constructor(
 
     private companion object {
         const val NORMAL_TEMPO = 1.0
+
+        /**
+         * The scores a playback keeps ready, the last ones played or switched to: the calm and tense musics of a live
+         * game, and a few more, so that the scores of a garden, one per change, do not pile up.
+         */
+        const val KEPT_SCORES = 4
     }
 }
 

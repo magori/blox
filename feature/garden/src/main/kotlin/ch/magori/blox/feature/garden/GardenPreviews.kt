@@ -75,3 +75,14 @@ internal fun GardenLargeFontPreview() = GardenPreview(REFUSED)
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 internal fun GardenClearedPreview() = GardenPreview(GardenUiState(Garden.EMPTY, undo = REFUSED.garden))
+
+/** The garden of [REFUSED] listened to, without a preview: column 6 played, the pill of its chord filled (V40). */
+private val LISTENING = GardenUiState(garden = REFUSED.garden, playedColumn = 5)
+
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun GardenListeningPreview() = GardenPreview(LISTENING)
+
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+internal fun GardenListeningNightPreview() = GardenPreview(LISTENING)

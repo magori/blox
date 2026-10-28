@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith.sound
 
+import ch.magori.blox.core.audio.SoundCue
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.locksmith.Padlock

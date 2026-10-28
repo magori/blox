@@ -2,8 +2,10 @@ package ch.magori.blox.feature.garden
 
 import androidx.annotation.StringRes
 import ch.magori.blox.core.board.garden.GardenCell
+import ch.magori.blox.core.board.garden.GardenPlayHead
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.garden.Garden
+import ch.magori.blox.core.garden.GardenMood
 
 /** The [Garden.COLUMNS] × [Garden.ROWS] cells of the grid, in reading order. */
 internal val GRID_CELLS: List<Position> =
@@ -40,3 +42,20 @@ internal fun cellActionOf(cell: GardenCell): Int = when (cell) {
 
     GardenCell.Free -> R.string.feature_garden_action_show
 }
+
+/**
+ * The part of the play head [cell] lies under, while [state] is listened to: the column played is framed from its top
+ * cell to its bottom one; null outside it, or without listening.
+ */
+internal fun playHeadAt(
+    cell: Position,
+    state: GardenUiState,
+): GardenPlayHead? = when {
+    cell.column != state.playedColumn -> null
+    cell.row == 0 -> GardenPlayHead.TOP
+    cell.row == Garden.ROWS - 1 -> GardenPlayHead.BOTTOM
+    else -> GardenPlayHead.MIDDLE
+}
+
+/** The chord of the column played, from 0, whose pill is filled while [state] is listened to; null otherwise. */
+internal fun playedChordOf(state: GardenUiState): Int? = state.playedColumn?.let { it / GardenMood.EIGHTHS_PER_CHORD }

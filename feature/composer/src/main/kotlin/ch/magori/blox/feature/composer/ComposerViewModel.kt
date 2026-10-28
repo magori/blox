@@ -7,8 +7,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
+import ch.magori.blox.core.audio.LoopListening
 import ch.magori.blox.core.audio.MusicPlayer
-import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
@@ -16,7 +16,7 @@ import ch.magori.blox.core.data.cutName
 import ch.magori.blox.core.data.freeName
 import ch.magori.blox.core.data.isNameTaken
 import ch.magori.blox.core.data.proposedName
-import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.designsystem.frame.FramePlayHead
 import ch.magori.blox.core.designsystem.frame.LoopPlayHead
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.CategoryChoice
@@ -36,7 +36,6 @@ import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.cellAt
 import ch.magori.blox.feature.composer.model.renameProblem
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -454,7 +453,7 @@ class ComposerViewModel internal constructor(
     internal fun onFollowPlayback(follow: Boolean) {
         followChosen = follow
         update { it.copy(followPlayback = follow) }
-        listening?.let { show(it.head) }
+        listening?.let { show(it.playHead.head) }
     }
 
     /** A category, or Surprise, chosen for the dice. */
@@ -520,15 +519,13 @@ class ComposerViewModel internal constructor(
         if (listening != null) return stopListening()
         if (!current.canListen) return
         val draft = current.editor.draft
-        val playback = music.play(draft.toScore(id))
-        // The watch starts once the music is shown as listened to: a playback that stopped already (the audio focus
-        // refused) stops the listening at once, rather than before it began.
-        val watch = viewModelScope.launch(start = CoroutineStart.LAZY) { watch(playback) }
-        val started = Listening(playback, draft.tempo, watch)
+        val loop = LoopListening(music.play(draft.toScore(id)), viewModelScope, onStoppedByItself = ::stopListening)
+        val started = Listening(loop, draft.tempo)
         listening = started
         update { it.copy(followPlayback = followChosen) }
-        show(started.head)
-        watch.start()
+        show(started.playHead.head)
+        // Watched once the music is shown as listened to: a music refused at once stops the listening at once.
+        loop.watch()
     }
 
     /**
@@ -537,9 +534,7 @@ class ComposerViewModel internal constructor(
      */
     internal fun onFrame(frameNanos: Long) {
         val playing = listening ?: return
-        val tempo = current.editor.draft.tempo
-        playing.head = playing.head.advance(playing.frames.advance(frameNanos), tempo.bpm)
-        show(playing.head)
+        show(playing.playHead.advance(frameNanos, current.editor.draft.tempo.bpm))
     }
 
     /** Shows the cell of [head] as played, and its bar on the grid while the grid follows the playback. */
@@ -561,20 +556,13 @@ class ComposerViewModel internal constructor(
     override fun onCleared() = stopListening()
 
     /**
-     * Waits for [playback] to stop by itself (the audio output fails, the audio focus is lost for good, the headphones
-     * are unplugged; a score has no natural end, it loops), then offers to listen again: the screen shows « Écouter »
-     * once more.
+     * Stops the music listened to, if any, and only it: a music started since keeps playing. Also called once it stopped
+     * by itself (the audio output fails, the audio focus is lost for good, the headphones are unplugged): the screen
+     * shows « Écouter » once more.
      */
-    private suspend fun watch(playback: Playback) {
-        playback.isPlaying.first { !it }
-        stopListening()
-    }
-
-    /** Stops the music listened to, if any, and only it: a music started since keeps playing. */
     private fun stopListening() {
         val playing = listening ?: return
-        playing.watch.cancel()
-        playing.playback.stop()
+        playing.loop.stop()
         listening = null
         update { it.copy(played = null) }
     }
@@ -649,14 +637,11 @@ class ComposerViewModel internal constructor(
     }
 
     /**
-     * The music listened to: its [playback], which stops it and never a music started since, the tempo it was played
-     * at, [playedTempo], from which the tempo factor of a later change counts, the [watch] that waits for it to stop by
-     * itself, the [frames] of the screen turned into ticks, and the [head] they moved on.
+     * The music listened to: its [loop], which stops it and never a music started since, the tempo it was played at,
+     * [playedTempo], from which the tempo factor of a later change counts, and its [playHead], moved on by the frames of
+     * the screen.
      */
-    private class Listening(val playback: Playback, val playedTempo: Tempo, val watch: Job) {
-        // No cap per frame, unlike a game: the music goes on in real time while frames are skipped, and the play head
-        // catches up every tick to follow it.
-        val frames = FrameTicks()
-        var head = LoopPlayHead.start(eighthsPerLoop = BARS * CELLS_PER_BAR)
+    private class Listening(val loop: LoopListening, val playedTempo: Tempo) {
+        val playHead = FramePlayHead(eighthsPerLoop = BARS * CELLS_PER_BAR)
     }
 }

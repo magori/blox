@@ -8,6 +8,7 @@ import ch.magori.blox.core.music.ChordQuality.MINOR
 import ch.magori.blox.core.music.Pitch
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
@@ -152,6 +153,29 @@ class GardenMoodTest {
 
         // When / Then
         assertThat(progressions).contains(mood.progression)
+    }
+
+    @Test
+    fun `the pitches of the garden are those of the rows of the 4 moods, 25 in all`() {
+        // Given: the calm pentatonic from C3, then the major and both minors from C4, over two octaves
+        val expected = (
+            "C3 D3 E3 G3 A3 " +
+                "C4 D4 D#4 E4 F4 G4 G#4 A4 A#4 B4 " +
+                "C5 D5 D#5 E5 F5 G5 G#5 A5 A#5 B5"
+            ).split(" ").map(Pitch::parse)
+
+        // When / Then
+        assertThat(GardenMood.allPitches).containsExactlyInAnyOrder(*expected.toTypedArray())
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(GardenMood::class)
+    fun `every row of every mood is one of the pitches of the garden`(mood: GardenMood) {
+        // Given
+        val rows = (0 until Garden.ROWS).map(mood::pitchAt)
+
+        // When / Then
+        assertThat(GardenMood.allPitches).containsAll(rows)
     }
 
     private companion object {

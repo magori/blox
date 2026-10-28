@@ -267,19 +267,87 @@ des candidats, évaluer, garder le meilleur.
 
 ## Son
 
-- **Écouter / Arrêter** : la partition du jardin se joue en boucle par le lecteur de musique
-  (`MusicPlayer`), comme un aperçu de « Mes musiques » : un seul aperçu à la fois dans
-  l'application, focus audio demandé, arrêt quand l'écran passe en arrière-plan ou qu'on le
-  quitte.
-- Pendant l'écoute, chaque changement (pose, reprise, ambiance, Au hasard) passe à la nouvelle
-  partition par `Player.switchTo` : à la **mesure suivante, au même rang**, sans couper la boucle
-  ([musique-vivante.md](musique-vivante.md#changer-de-partition-à-la-mesure)).
-- **Aperçu sonore** : présenter, déplacer ou tourner l'aperçu fait entendre ses notes une fois,
-  en arpège montant, par des effets sonores (`SoundEffect`, `SoundEffectPlayer`), soumis au réglage
-  des effets sonores. `SoundEffectPlayer` n'offre que `warmUp` et `play`, et ses pistes ne sont
-  jamais libérées (ADR 0025) : ces effets forment donc un **ensemble fini, sans libération**,
-  l'**union des hauteurs des 4 ambiances** (toutes sur Do, environ 30 hauteurs), préchauffé à
-  l'ouverture du jardin. Le nombre de pistes est **[à vérifier]** sur un téléphone.
+- **Écouter / Arrêter** (disque de la barre, `ListenButton`, P10.12) : la partition du jardin
+  (`Garden.toScore`) se joue en boucle par le lecteur de musique partagé de l'application
+  (`MusicPlayer`), comme un aperçu de « Mes musiques » : un seul aperçu à la fois, focus audio
+  demandé ; arrêt quand l'écran n'est plus visible (`ON_STOP`, pas sur une simple pause) ou qu'on le
+  quitte ; une musique qui s'arrête d'elle-même ou est refusée d'emblée rend « Écouter ». Rien n'est
+  joué tant que le jardin gardé n'est pas lu. L'écoute (partition jouée, surveillance de
+  `isPlaying`) est partagée avec l'éditeur de musique (`LoopListening`, `core:audio`).
+  **Tests :** `GardenListeningTest › Écouter plays the score of the garden in a loop, from its first column`,
+  `GardenListeningTest › Arrêter stops the score of the garden, and no column is played`,
+  `GardenListeningTest › nothing is listened to while the garden kept is being read`,
+  `GardenListeningTest › the score stops once the garden is no longer visible, not on a pause`,
+  `GardenListeningTest › the score stops when the garden is left`,
+  `GardenListeningTest › a score that stops by itself shows Écouter again`,
+  `GardenListeningTest › a score refused at once shows Écouter again`,
+  `LoopListeningTest › a score that stops by itself is told, once watched`,
+  `LoopListeningTest › a score refused at once is told as soon as it is watched, not before`,
+  `LoopListeningTest › stop stops the score, and the score is no longer watched`,
+  `GardenScreenTest › Écouter is read Écouter le jardin, plays the garden, then is read Arrêter le jardin and stops it`.
+- Pendant l'écoute, chaque changement (pose, reprise, ambiance, Au hasard, Tout effacer, Annuler),
+  tous par `adopt`, passe à la nouvelle partition par `Player.switchTo` : à la **mesure suivante, au
+  même rang**, sans couper la boucle
+  ([musique-vivante.md](musique-vivante.md#changer-de-partition-à-la-mesure)) ; sans écoute, ou après
+  un arrêt de la musique, rien n'est joué. Le séquenceur ne garde prêtes que les 4 dernières
+  partitions jouées ou basculées (le Jardin en crée une à chaque changement ; la Vivante n'en a que
+  deux).
+- **Tête de lecture** : pendant l'écoute, la colonne jouée est cernée de haut en bas et la pilule
+  de l'accord de son groupe est enfoncée ; elle avance image après image au tempo de l'ambiance
+  (`FramePlayHead`, `core:designsystem`, partagé avec l'éditeur de musique ; les images sautées
+  sont rattrapées), revient au début après la 16ᵉ colonne, et prend le tempo d'une nouvelle
+  ambiance à la mesure suivante, comme la partition. Sans écoute, aucune colonne ni accord n'est
+  marqué. Limite connue : la tête suit le temps des images, pas le son réellement entendu (latence
+  du lecteur) ; le recalage est la tâche P10.22.
+  **Tests :** `GardenListeningTest › the play head moves on, frame after frame, at the tempo of the mood`,
+  `GardenListeningTest › the play head loops with the score, after its 16th column`,
+  `GardenListeningTest › a new mood moves the play head at its tempo from the next bar, as the score switched to`,
+  `GardenListeningTest › a frame without listening moves nothing`,
+  `GardenCellsTest › the column played is framed from its top cell to its bottom one, and no other column`,
+  `GardenCellsTest › without listening no column is framed`,
+  `GardenCellsTest › the chord played is the one of the group of the column played, none without listening`,
+  `FramePlayHeadTest › the first frame only sets the time, the next ones move the play head on at the tempo`,
+  `FramePlayHeadTest › frames skipped are caught up, every tick of them`.
+  **Tests :** `GardenListeningTest › while listening, each change of the garden goes on with its score at the bar line`,
+  `GardenListeningTest › without listening, a change of the garden plays nothing`,
+  `GardenListeningTest › a change of the garden after the score stopped by itself switches nothing`,
+  `ChiptuneSequencerSwitchTest › only the last scores switched to stay ready, those switched to long ago are let go`.
+- **Aperçu sonore** : présenter, déplacer ou tourner l'aperçu, choisir une autre pièce ou en
+  reprendre une, fait entendre ses notes une fois (une hauteur jouée deux fois ne sonne qu'une
+  fois ; les cases hors de la grille ne sonnent pas ; un toucher qui laisse l'aperçu où il est ne
+  rejoue rien), en arpège montant, une note toutes les 80 ms (`GardenSounds.NOTE_STEP_MILLIS`),
+  chacune un blip carré de 100 ms au volume des lignes effacées (`GardenSounds.note`), valeurs de
+  départ à régler à l'oreille (P10.17). Un nouvel aperçu coupe les notes du précédent pas encore
+  jouées (`playCues`, `SoundCue`, `core:audio`, partagés avec le Serrurier) ; poser, Retirer et les
+  changements du jardin ne jouent pas d'aperçu. Soumis au réglage des effets sonores, lu à
+  l'ouverture. `SoundEffectPlayer` n'offre que `warmUp` et `play`, et ses pistes ne sont jamais
+  libérées (ADR 0025) : ces effets forment un **ensemble fini**, une note par hauteur de l'**union
+  des 4 ambiances** (`GardenMood.allPitches`, toutes sur Do : **25 hauteurs**), préchauffé à
+  l'ouverture du jardin ; une note hors de cet ensemble est un bogue, refusée plutôt que jouée sur
+  une piste nouvelle. Le nombre de pistes (jusqu'à 25 de plus) est **[à vérifier]** sur un
+  téléphone (P10.21).
+  **Tests :** `GardenMoodTest › the pitches of the garden are those of the rows of the 4 moods, 25 in all`,
+  `GardenMoodTest › every row of every mood is one of the pitches of the garden`,
+  `GardenSoundsTest › a note of the preview is a single blip of its pitch on the square, as loud as the lines cleared`,
+  `GardenSoundsTest › the notes of the preview follow each other a little before the end of the one before`,
+  `GardenSoundCuesTest › a preview plays its notes once, in a rising arpeggio, one note every 80 ms`,
+  `GardenSoundCuesTest › a standing piece plays its notes from the lowest, at the bottom of the grid, to the highest`,
+  `GardenSoundCuesTest › a note held by several cells of the preview plays once`,
+  `GardenSoundCuesTest › the cells of a preview off the grid play nothing, the others play`,
+  `GardenSoundCuesTest › the effects warmed up are one note per pitch of the garden, 25 in all`,
+  `GardenSoundCuesTest › every note a preview may play, in any mood, is one of the effects warmed up`,
+  `GardenSoundCuesTest › a note out of the effects warmed up is a bug, refused rather than played on a new track`,
+  `GardenPreviewSoundTest › the notes of the garden are warmed up as it opens, when the settings want the sound effects`,
+  `GardenPreviewSoundTest › presenting the preview plays its notes once, as a rising arpeggio`,
+  `GardenPreviewSoundTest › moving, turning or choosing another piece plays the notes of the new preview`,
+  `GardenPreviewSoundTest › a new preview cuts the notes of the one before not yet heard`,
+  `GardenPreviewSoundTest › placing the preview, Retirer or a change of the garden play no preview`,
+  `GardenPreviewSoundTest › with the sound effects off, nothing is warmed up nor played`,
+  `GardenPreviewSoundTest › taking a piece back plays the notes of the preview it becomes`,
+  `GardenPreviewSoundTest › a touch that leaves the preview where it is plays nothing more`,
+  `SoundCueTest › the cues play at once or once their wait is over, in the order of their waits`,
+  `SoundCueTest › cues cancelled before their wait is over play no more`,
+  `SoundCueTest › a cue cannot wait a negative time`.
 - Pas de vibration.
 
 ## Écran
@@ -304,8 +372,8 @@ De haut en bas :
   `GardenScreenTest › Changer de jeu counts only while the garden is resumed`,
   `BloxNavDisplayTest › changing the game from the musical garden goes back to the cartridges`,
   `GardenViewModelTest › the garden opens on the garden kept`.
-  Le dé « Au hasard » (P10.10) est grisé tant que le jardin gardé n'est pas lu ; Écouter / Arrêter
-  viendra avec le son (P10.12).
+  Le dé « Au hasard » (P10.10) et Écouter / Arrêter (P10.12 ; disque triangle lu « Écouter le jardin », carré lu
+  « Arrêter le jardin », enfoncé pendant l'écoute) sont grisés tant que le jardin gardé n'est pas lu.
 - **Ambiance** : groupe de choix « Ambiance » de 4 segments de 48 dp (`ChoiceSegments`) : Joyeux,
   Calme, Mystère, Épique ; choisir une ambiance garde les pièces à leur place (`withMood`, par
   `adopt`). Sur 360 dp, les 4 segments passent sur 2 lignes.
@@ -406,7 +474,7 @@ De haut en bas :
   pièce, tourner et Retirer la gardent ; tant qu'elle est là, la page laisse de la place sous le bac
   pour que la barre ne couvre aucune tuile ;
 - tout changement du jardin passe par `adopt` ; rien n'est fait tant que le jardin gardé n'est pas
-  lu ; pas encore de son ni d'aperçu sonore (P10.12), ni d'animation (P10.15) ;
+  lu ; pas encore d'animation (P10.15) ;
 - cases de 22 dp : écart admis aux cibles de 48 dp, comme au Serrurier (la pose se fait par
   l'aperçu, qu'on ajuste) ;
 - TalkBack lit chaque case « Croche 5, mi : libre » (ou « pièce T », « pièce T, note de
