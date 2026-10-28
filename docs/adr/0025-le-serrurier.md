@@ -48,3 +48,12 @@ Options écartées pour le domaine : le mettre dans `core:game` (qui ne doit pas
   basse, la fanfare, le refus), jamais libérées par `SoundEffectTracks`. Android limite le nombre
   d'`AudioTrack` par processus : à mesurer avant P7.12, et revoir s'il le faut (un `SoundEffect`
   à plusieurs voix demanderait un nouvel ADR).
+
+## Amendement (P7.28, 2026-10-28) : progression des serrures
+
+Demande du développeur : garder l'avancement, poursuivre, rouvrir les anciennes serrures. La serrure *n* est la même
+pour tous (ADR 0014, amendement P7.28), avec des paliers de difficulté jusqu'à 8 pièces. On garde la meilleure
+ouverture de chaque serrure dans un fichier versionné de `core:data` (entiers seulement : `core:data` ne dépend pas de
+`core:locksmith`), inclus dans la sauvegarde Android. `LocksmithRoute` ne porte plus que le niveau ; l'écran
+« Serrures » (`PadlocksRoute`) vit dans `feature:locksmith`, et `app` assemble la navigation (choisir une serrure
+remplace celle de la pile ; recommencer remet la pile sur la serrure 1).

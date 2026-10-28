@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.composer
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -545,12 +544,10 @@ class ComposerViewModel internal constructor(
     }
 
     /**
-     * The editor went through [event]: once it is no longer visible (`ON_STOP`: the application in the background),
-     * the music listened to stops. A pause alone, behind a dialog or in a split screen, lets it play on.
+     * The editor is no longer visible (the application in the background): the music listened to stops
+     * ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_STOP) stopListening()
-    }
+    internal fun onHidden() = stopListening()
 
     /** The editor leaves the stack: the music listened to stops with it. */
     override fun onCleared() = stopListening()

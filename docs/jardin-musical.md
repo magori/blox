@@ -210,7 +210,8 @@ des candidats, évaluer, garder le meilleur.
 
 - Le dernier jardin (pièces et ambiance) est **gardé automatiquement** (DataStore, fichier à lui,
   `garden.bin`, décision du développeur) à chaque pose, reprise, effacement ou changement
-  d'ambiance, et retrouvé à l'ouverture. Pas de bouton Enregistrer. Dépôt `GardenRepository`
+  d'ambiance, et retrouvé à l'ouverture, sans bouton Enregistrer ; garder des jardins nommés, c'est « Mes jardins »
+  (ci-dessous). Dépôt `GardenRepository`
   (`core:data`, P10.11) : le jardin en `Flow`, vide et calme (`Garden.EMPTY`) tant que rien n'est
   gardé ; `keep` le remplace, ou échoue par une `IOException` (l'écran la rattrape, P10.18).
 - **Écran et jardin gardé** (P10.18) : `GardenViewModel` lit le jardin gardé une fois, à
@@ -276,6 +277,53 @@ des candidats, évaluer, garder le meilleur.
   `DataStoreGardenRepositoryTest › the names of the enums written in the garden file do not change`,
   `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the garden`.
 
+## Mes jardins
+
+Demande du développeur (2026-10-28) : « enregistrer les musiques » du Jardin. Proposition de `designer-jeu`
+retenue : garder des **jardins nommés**, rouverts intacts (pièces et ambiance), plutôt qu'exporter leur partition
+vers « Mes musiques », que l'éditeur ne saurait ouvrir (2 mesures au lieu de 8, jusqu'à 15 voix, triolets et
+triples croches des arpèges, tempos hors pas de 10). Spécification de départ (P10.24) ; tâches P10.25 à P10.33.
+
+- **Deux fichiers, deux rôles.** Le jardin en cours reste gardé automatiquement dans `garden.bin` (ci-dessus),
+  sans rien perdre à chaque geste. « Mes jardins » (`gardens.bin`, `GardenLibrary`, P10.27) garde des jardins
+  nommés, choisis par le joueur : `KeptGarden` (identité, nom, jardin, date de dernière modification).
+- **Jardin lié.** Le jardin en cours se souvient du jardin gardé d'où il vient (`garden.bin` v2, P10.28 ; un
+  fichier v1 se lit sans lien). Le bouton propose « Enregistrer « X » » quand il vient de X et a changé depuis,
+  sinon « Garder ce jardin », et toujours « Garder une copie » quand il est lié : comme une musique ouverte dans
+  l'éditeur, qui s'enregistre à sa place.
+- **Limite : 30 jardins** (constante nommée), pour une liste lisible : un jardin tient en quelques centaines
+  d'octets. Limite atteinte : « Garder ce jardin » et « Garder une copie » grisés, raison écrite (« 30 jardins
+  gardés : supprimes-en un pour garder celui-ci. ») ; « Enregistrer « X » » reste possible, il remplace X.
+- **Noms** : les règles de Mes musiques, communes depuis P10.25 (`TakenNames`) : 40 caractères au plus, unique
+  sans tenir compte de la casse ni des espaces, raison du refus écrite sous le champ. Liste de noms à part de
+  celle des musiques. Nom proposé : « Jardin » suivi de l'ambiance, en minuscule (« Jardin calme »), numéroté
+  s'il est pris (« Jardin calme 2 », `freeName`). Fenêtre `NamingWindow` : « Annuler », puis « Garder ».
+- **Accès** : un disque « Mes jardins » (`GlyphButton`, 48 dp) dans la barre de V40, entre le dé et Écouter,
+  marqué d'un point `ink` de 8 dp quand le jardin en cours a changé depuis qu'il a été gardé (une forme, pas
+  une couleur ; lu « jardin modifié »). À 360 dp, le titre « JARDIN MUSICAL » passe sur 2 lignes dans les 48 dp
+  de la barre (calcul : 104 dp pour le titre) ; si les captures montrent un titre illisible, le dé passe à côté
+  de « Tout effacer » (P10.29 tranche par les captures à 360 dp, police ×1 et ×2).
+- **Feuille « Mes jardins »** (`BloxSheet`) : les boutons en haut, le compteur (« 7 jardins sur 30 »), puis la
+  liste, du plus récent au plus ancien : miniature (`GardenThumbnail`, P10.31), nom, ambiance et nombre de
+  pièces, « ouvert » (pastille et coche) pour le jardin lié, menu « … » (Renommer, Supprimer). La musique en
+  cours joue sous la feuille. États : chargement (boutons grisés, pas de liste), liste vide (« Aucun jardin
+  gardé. » puis « Garde celui-ci pour le retrouver plus tard. »), échec (« L'opération a échoué. »), fichier
+  d'une version plus récente (liste vide, écriture bloquée, message écrit). Un jardin vide ne se garde pas
+  (« Pose au moins une pièce pour garder ce jardin. »).
+- **Garder** : sans fenêtre de confirmation ; message « « X » gardé. » ; le point du disque s'éteint. Échec :
+  la fenêtre reste ouverte, « L'opération a échoué. ».
+- **Rouvrir** : toucher une rangée ferme la feuille et remplace le jardin en cours (`adopt`, à la mesure
+  suivante pendant l'écoute), avec « « X » ouvert » et Annuler, comme Au hasard et Tout effacer ; toucher le
+  jardin déjà ouvert et inchangé ne fait que fermer la feuille.
+- **Supprimer** : par le menu de la rangée, fenêtre « Supprimer « X » ? » (« Garder le jardin », puis
+  « Supprimer »), message avec Annuler qui le remet à sa place (sous un nom libre si le sien a été pris). Le
+  jardin ouvert supprimé reste à l'écran, sans lien.
+- **TalkBack** : une rangée se lit d'un trait (« Pluie douce, Calme, 12 pièces, ouvert »), action « Ouvrir »,
+  Renommer et Supprimer en actions personnalisées ; miniature décorative ; messages annoncés.
+- **Sauvegarde Android** : `gardens.bin` y entre, comme `garden.bin` (P10.27).
+- Couleurs seulement, comme tout le Jardin ; police ×2 : noms sur 2 lignes puis coupés aux mots, la feuille
+  défile ; cibles de 48 dp, rangées de 72 dp au moins.
+
 ## Son
 
 - **Écouter / Arrêter** (disque de la barre, `ListenButton`, P10.12) : la partition du jardin
@@ -288,7 +336,7 @@ des candidats, évaluer, garder le meilleur.
   **Tests :** `GardenListeningTest › Écouter plays the score of the garden in a loop, from its first column`,
   `GardenListeningTest › Arrêter stops the score of the garden, and no column is played`,
   `GardenListeningTest › nothing is listened to while the garden kept is being read`,
-  `GardenListeningTest › the score stops once the garden is no longer visible, not on a pause`,
+  `GardenListeningTest › the score stops once the garden is no longer visible`, `ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`, `ScreenHiddenEffectTest › a screen left says nothing more when its lifecycle stops afterwards`,
   `GardenListeningTest › the score stops when the garden is left`,
   `GardenListeningTest › a score that stops by itself shows Écouter again`,
   `GardenListeningTest › a score refused at once shows Écouter again`,
@@ -589,5 +637,5 @@ captures `Cartridges*`, `Mascots*`. Vue V36.
 
 - Tempos, basse, volume des voix, note du composeur : valeurs de départ, à
   régler à l'oreille (ci-dessus, **[à vérifier]**).
-- Export vers « Mes musiques », plusieurs jardins, partage : hors v1.
+- Export vers « Mes musiques » et partage : hors v1 ; plusieurs jardins : « Mes jardins » (P10.24 à P10.33).
 - Téléphone couché et tablette : la grille de 16 colonnes s'y prête mieux ; à dessiner plus tard.

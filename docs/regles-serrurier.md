@@ -166,8 +166,86 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
   `SystemBarsTest › the bars of every other screen follow the theme chosen`,
   `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
   **Vues :** V26, V35.
-- Le niveau n'est pas enregistré : la cartouche ouvre toujours la serrure 1. Reprendre à la
-  dernière serrure demandera une préférence (point ouvert).
+- Le niveau n'est pas encore enregistré : la cartouche ouvre toujours la serrure 1. La progression
+  ci-dessous le remplace (P7.29 à P7.37).
+
+## Progression
+
+Décidée le 2026-10-28, à implémenter. Demande du développeur : garder l'avancement, poursuivre sur de nouvelles
+serrures, rouvrir les anciennes.
+Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Tant que les tâches P7.29 à P7.37 ne
+sont pas faites, le jeu suit les sections précédentes ; chaque règle ci-dessous recevra ses tests en son temps.
+
+### Une serrure par niveau, la même pour tous
+
+- La serrure *n* est **la même pour tous et pour toujours** : sa graine est *n*, et le générateur tire sur
+  `StableRandom` (`core:game`, dont la suite est un contrat), plus sur `kotlin.random.Random`, dont la suite n'est pas
+  garantie d'une version de Kotlin à l'autre (ADR 0014). Une ancienne serrure se rouvre donc à l'identique, et
+  « serrure 27, parfaite » a le même sens pour deux joueurs.
+- **Repli sans collision** : quand la graine *n* ne donne pas de serrure, le repli tire sur un flux dérivé du
+  couple (*n*, essai *k*) (mélange SplitMix), jamais sur *n* + *k*, qui est la graine d'une autre serrure. Aucune des
+  200 premières serrures n'a le même trou qu'une autre, à translation près.
+- **Contrat de génération** (figé par un test, changé seulement par un ADR) : la suite de `StableRandom`, la graine
+  et son repli, l'ordre des tirages (type, orientation, colonne, ligne), l'ordre de `PieceType.entries` et des
+  orientations, 200 tirages par pièce, 20 candidats, la table des paliers ci-dessous, les poids de la note,
+  l'élimination des trous rectangulaires et le départage au premier candidat. Forme du test : l'ASCII de la
+  première serrure de chaque palier et de chaque famille, et une empreinte des serrures 1 à 100. Ne sont pas
+  figés : l'ordre de recherche de l'indice, les suites d'accords, les noms et l'affichage des paliers.
+- **Ordre de travail** (P7.29) : un script mesure d'abord les serrures 1 à 100 (forme du trou, nombre de
+  solutions plafonné à 5, effort du solveur) ; les poids de la note sont calés pour que la médiane monte de palier
+  en palier ; alors seulement le contrat est figé.
+
+### Paliers de difficulté
+
+La difficulté monte par paliers aux noms de compagnonnage, puis tourne sur un cycle au lieu de durcir sans fin.
+**Plafond : 8 pièces** (32 cases, la moitié du trou de 8 × 8) ; au-delà, le métal se morcelle.
+
+| Serrures | Palier | Pièces | Types | Forme du trou | Solutions |
+|---|---|---|---|---|---|
+| 1 | Apprenti | 3 | sans S ni Z | sinueuse (note actuelle) | libre |
+| 2 | Apprenti | 4 | sans S ni Z | sinueuse | libre |
+| 3 | Apprenti | 5 | tous | sinueuse | libre |
+| 4 à 6 | Compagnon | 6 | tous | sinueuse | libre |
+| 7 à 12 | Compagnon | 6 | tous | mixte | peu de solutions préférées |
+| 13 à 20 | Artisan | 7 | tous | mixte | peu de solutions préférées |
+| 21 à 30 | Maître | 8 | tous | compacte | peu de solutions préférées |
+| 31 et plus | Maître | 7 ou 8 | cycle de 5, selon *n* modulo 5 | voir le cycle | voir le cycle |
+
+Cycle au-delà de 30 : 0 « un de chaque » (7 pièces, les 7 types une fois, forme mixte) ; 1 compacte de 8, solution
+unique préférée ; 2 « respiration » (8 pièces, forme sinueuse) ; 3 famille S, Z et T seulement (8 pièces, mixte) ;
+4 compacte de 8, peu de solutions préférées.
+
+- Un trou **sinueux** est facile (ses couloirs imposent les coups) ; un trou **compact** laisse plus de poses
+  plausibles et de fausses pistes. La forme se règle par le poids du contour dans la note : +10 pour sinueuse (comme
+  aujourd'hui), plus faible pour mixte et compacte (valeurs calées par la mesure).
+- « Peu de solutions » est un **terme de la note** (compte plafonné à 5), jamais un filtre : une serrure se trouve
+  toujours. Toute serrure garde au moins une solution (le trou est construit à partir d'elle) ; l'indice reste
+  suffisant.
+- Les suites d'accords s'étendent à 7 et 8 pièces (inspirées du canon de Pachelbel, domaine public, finissant sur
+  V–I), à confirmer dans `docs/musique.md`.
+- Paliers lisibles sans bruit : une ligne sur la carte de la dernière serrure d'un palier (« Palier suivant :
+  Artisan · 7 pièces ») et un en-tête par palier dans l'écran « Serrures » ; pas de fenêtre ni de bannière.
+
+### Avancement et anciennes serrures
+
+- On retient, pour chaque serrure ouverte, sa **meilleure ouverture** : le triplet (coups, refus, indices) d'une
+  même partie, comparé d'abord par les indices, puis les coups, puis les refus. Une serrure est **parfaite** quand
+  elle est ouverte en autant de coups que de pièces, sans refus ni indice. Les serrures s'ouvrent dans l'ordre :
+  les serrures ouvertes sont 1 à *N*, la suivante à ouvrir est *N* + 1 (la « frontière »).
+- La **cartouche** ouvre la frontière, et porte la sous-ligne « Serrure *N* + 1 ».
+- Un écran **« Serrures »** (grille, depuis le cadenas de la barre de V35, qui devient un disque de 48 dp) : un
+  résumé (« 12 ouvertes · 3 parfaites »), « Reprendre · Serrure 13 », puis la grille, défilée sur la frontière ;
+  chaque case dit son état par le texte, la couleur ne fait que le doubler : ouverte, parfaite (étoile), à ouvrir,
+  en cours (celle d'où l'on vient), verrouillée (seulement pour compléter la rangée de la frontière, non touchable).
+  Toucher une case ouverte la rejoue ; le retour rend la serrure en cours, pièces posées intactes.
+- Après avoir rejoué une ancienne serrure, « Serrure suivante » mène à la serrure d'après ; si elle est déjà
+  ouverte, la carte ajoute « Reprendre à la serrure *N* ». Une nouvelle meilleure ouverture ou une serrure parfaite
+  s'annonce par un autocollant (NOUVEAU MEILLEUR, PARFAITE).
+- **Recommencer depuis le début**, en bas de l'écran « Serrures », avec confirmation dans la page : les résultats
+  sont effacés, les serrures restent les mêmes.
+- L'avancement est un fichier versionné de `core:data` (qui ne stocke que des entiers et un numéro de génération)
+  et **entre dans la sauvegarde Android** : c'est l'acquis du joueur, et les serrures sont les mêmes sur un autre
+  appareil.
 
 ## Partie
 
