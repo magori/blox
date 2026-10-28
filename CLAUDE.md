@@ -173,7 +173,9 @@ lui-même.
   revient depuis l'accueil d'un jeu.
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `core:board` (ADR 0023), qui dépend du
-  domaine et de `core:designsystem`, et que `feature:game` utilise.
+  domaine (`core:game`, `core:music`) et de `core:designsystem`, et que `feature:game` utilise ; de même, les noms de
+  notes et d’accords lus par TalkBack sont dans `core:designsystem` (`noteText`, `chordText`) et leur lien au domaine
+  (`chordTellingOf`) dans `core:board` (P10.19).
 - Toute configuration Gradle partagée va dans `build-logic`, toute version dans
   `gradle/libs.versions.toml`. Deux exceptions : les plugins de `settings.gradle.kts`, résolus
   avant le catalogue (ADR 0010), et le bloc `dependencyAnalysis {}` du `build.gradle.kts` racine, que

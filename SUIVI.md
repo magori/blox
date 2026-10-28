@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 262 / 349 | `███████████████░░░░░` **75 %** |
+| **Général** | 263 / 350 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1181,6 +1181,10 @@ composants.
   `the down arrow stands half a key below the left and right arrows`.
 - [ ] **P5.109** Mettre à jour la maquette (depuis claude.ai) : touches de direction de 64 dp, ▼ une demi-touche plus
   bas (V2, V3, planche GameKey du design system). Après P5.108.
+- [ ] **P5.110** Geste retour de l’éditeur en échec sur emulator-5556 (API 37), aussi sur main au 2026-10-28 :
+  `ComposerScreenTest › before its music is read, the back gesture leaves the editor, as the navigation would` et
+  `ComposerScreenTest › the back gesture on a changed music asks first: Continue stays, Leave without saving leaves`.
+  Trouver si c'est le test (geste retour simulé) ou l'éditeur, et corriger test d'abord.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1503,7 +1507,7 @@ modèle du Serrurier (ADR 0025). Peut avancer en parallèle de P9. Écran en Cou
   (`IOException`, par exemple un fichier d'une version plus récente) laisse le jardin à l'écran sans planter, toute
   autre exception passe (revue de P10.11). Cas : `a garden that cannot be kept leaves the garden on screen`. Après
   P10.9, P10.11.
-- [ ] **P10.19** Mettre en commun les noms de notes et d'accords lus par TalkBack (éditeur de musique, Serrurier,
+- [x] **P10.19** Mettre en commun les noms de notes et d'accords lus par TalkBack (éditeur de musique, Serrurier,
   Jardin ; revue de P10.10, règle de 2) : `chordTellingOf` et ses chaînes vers `core:designsystem`, comme `ChordPill`.
   Les lectures divergent déjà : le Serrurier lit un ♭VII « 7 majeur », le Jardin « 7 bémol majeur ». Cas : `a flat
   seventh is told 7 flat major on the Locksmith too`.

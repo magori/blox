@@ -1,5 +1,9 @@
 package ch.magori.blox.feature.locksmith
 
+import ch.magori.blox.core.board.music.chordTellingOf
+import ch.magori.blox.core.designsystem.text.ChordTelling
+import ch.magori.blox.core.designsystem.text.SpokenAccidental
+import ch.magori.blox.core.designsystem.text.SpokenChordQuality
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.locksmith.Padlock
@@ -72,16 +76,15 @@ class LocksmithReadingTest {
     }
 
     @Test
-    fun `a chord is read by its degree and its quality, not by its numeral, which TalkBack would read as a word`() {
-        // When
-        val names = listOf("I", "vi", "vii°").map { chordNameOf(RomanNumeral.parse(it)) }
+    fun `a flat seventh is told 7 flat major on the Locksmith too`() {
+        // Given the flat seventh, borrowed by the harmonic minor
+        val numeral = RomanNumeral.parse("♭VII")
 
-        // Then each name takes the degree, 1, 6 and 7
-        assertThat(names).containsExactly(
-            R.string.feature_locksmith_chord_major,
-            R.string.feature_locksmith_chord_minor,
-            R.string.feature_locksmith_chord_diminished,
-        )
+        // When the Locksmith tells it, as the garden does
+        val told = chordTellingOf(numeral)
+
+        // Then its accidental is told, between its degree and its quality
+        assertThat(told).isEqualTo(ChordTelling(7, SpokenChordQuality.MAJOR, SpokenAccidental.FLAT))
     }
 
     @Test

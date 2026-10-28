@@ -1,13 +1,13 @@
 package ch.magori.blox.feature.garden
 
+import ch.magori.blox.core.designsystem.text.NoteStep
 import ch.magori.blox.core.garden.Garden
 import ch.magori.blox.core.garden.GardenMood
 import ch.magori.blox.core.music.Accidental
-import ch.magori.blox.core.music.RomanNumeral
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-/** What TalkBack and the information row tell of the garden: the notes of the rows, the scale, the chords. */
+/** What TalkBack and the information row tell of the garden: the notes of the rows, the scale. */
 class GardenReadingTest {
     @Test
     fun `each row is named by its note in the scale of the mood, from the bottom, flats in the minor moods`() {
@@ -43,19 +43,5 @@ class GardenReadingTest {
             R.string.feature_garden_scale_harmonic_minor,
             R.string.feature_garden_scale_natural_minor,
         )
-    }
-
-    @Test
-    fun `a chord is told by its degree, then its accidental, then its quality`() {
-        // Given the flat seventh of the mysterious mood
-        val numeral = RomanNumeral.parse("♭VII")
-
-        // When
-        val told = chordTellingOf(numeral)
-
-        // Then
-        val flatMajor = ChordTelling(7, R.string.feature_garden_chord_flat, R.string.feature_garden_chord_major)
-        assertThat(told).isEqualTo(flatMajor)
-        assertThat(chordTellingOf(RomanNumeral.parse("vi")).accidental).isNull()
     }
 }
