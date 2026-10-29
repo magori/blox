@@ -16,8 +16,10 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -213,6 +215,35 @@ internal class MyGardensScreenTest {
     }
 
     @Test
+    @DisplayName("the Annuler of a deletion, on the sheet going down once a garden is opened, gives nothing back")
+    fun theAnnulerOfTheSheetGoingDownGivesNothingBack() = extension.use {
+        // Given « Pluie douce » and « Orage » kept, the sheet open, « Orage » deleted, its Annuler in the sheet
+        val library = FakeGardenLibrary()
+        val pluie = runBlocking { library.keep(PLUIE.name, PLUIE.garden) }
+        runBlocking { library.keep("Orage", I_GARDEN.withMood(GardenMood.EPIC)) }
+        val kept = FakeGardenRepository(I_GARDEN)
+        showViewModel(kept, library)
+        onNodeWithContentDescription(string(R.string.feature_garden_my_gardens)).performClick()
+        onNodeWithContentDescription("Plus d'actions pour Orage").performClick()
+        onNodeWithText("Supprimer").performClick()
+        onNode(hasText("Supprimer") and hasClickAction()).performClick()
+        onNodeWithText("« Orage » supprimé.").assertExists()
+
+        // When « Pluie douce » is opened, then, as the sheet goes down, its Annuler is touched
+        mainClock.autoAdvance = false
+        onNodeWithContentDescription("Pluie douce, Joyeux, 1 pièce").performClick()
+        mainClock.advanceTimeByFrame()
+        onNode(hasText(string(R.string.feature_garden_undo)) and hasAnyAncestor(isDialog())).performClick()
+        mainClock.advanceTimeBy(SETTLE_MS)
+
+        // Then « Pluie douce » stays opened, and « Orage » deleted
+        runOnIdle {
+            assertThat(kept.currentState.value).isEqualTo(CurrentGarden(pluie.garden, keptFrom = pluie.id))
+            assertThat(runBlocking { library.gardens.first() }.map { it.name }).containsExactly("Pluie douce")
+        }
+    }
+
+    @Test
     @DisplayName("a row is read in one, opened by « Ouvrir », Renommer and Supprimer as its actions")
     fun aRowIsReadInOneWithItsActions() = extension.use {
         // Given / When the sheet open on « Pluie douce »
@@ -383,5 +414,8 @@ internal class MyGardensScreenTest {
 
         /** « Pluie douce », the I of [I_GARDEN] heard in the joyful mood. */
         val PLUIE = KeptGarden(GardenId("pluie"), "Pluie douce", I_GARDEN.withMood(GardenMood.JOYFUL), Instant.EPOCH)
+
+        /** Longer than a sheet going down, 300 ms. */
+        const val SETTLE_MS = 1_000L
     }
 }

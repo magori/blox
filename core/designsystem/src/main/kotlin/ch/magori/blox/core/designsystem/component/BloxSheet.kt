@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -42,8 +43,11 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.semantics.hideFromAccessibility
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -56,6 +60,7 @@ import androidx.savedstate.findViewTreeSavedStateRegistryOwner
 import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -73,7 +78,8 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
  * [content], which scroll together when they are too high, then its [actions], under them, always in sight. It rises
  * in `motion-card` on the frames of the screen, or fades in within `motion-reduced-fade` in reduced effects; once come
  * in, it stays in place when its screen is recreated (a rotation). The system back and a touch on its scrim call
- * [onDismissRequest], once for the sheet; it does not slide away under the finger. It stands above the keyboard and
+ * [onDismissRequest], once for the sheet; it does not slide away under the finger. Closed by its screen through
+ * [ClosingSheet], it goes down as it is [leaving], asking for nothing more. It stands above the keyboard and
  * the bars of the system, which its panel goes behind. [modifier] applies to its panel.
  */
 @Composable
@@ -81,6 +87,7 @@ fun BloxSheet(
     title: String,
     onDismissRequest: () -> Unit,
     modifier: Modifier = Modifier,
+    leaving: SheetLeaving? = null,
     actions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -89,6 +96,7 @@ fun BloxSheet(
         onDismissRequest = onDismissRequest,
         insets = WindowInsets.safeDrawing,
         modifier = modifier,
+        leaving = leaving,
         actions = actions,
         content = content,
     )
@@ -101,15 +109,19 @@ internal fun BloxSheet(
     onDismissRequest: () -> Unit,
     insets: WindowInsets,
     modifier: Modifier = Modifier,
+    leaving: SheetLeaving? = null,
     actions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val dismissOnce = rememberOnce(onDismissRequest)
+    // Opened again as it went down, it may ask once more.
+    val dismissOnce = rememberOnce(onDismissRequest, key = leaving == null)
+    // Going down, it is closed already: it asks for nothing more.
+    val dismiss = if (leaving == null) dismissOnce else NOTHING
     val effects = BloxTheme.effects
     val ticks = rememberEntranceTicks(effects)
     SheetWindowTheme {
         Dialog(
-            onDismissRequest = dismissOnce,
+            onDismissRequest = dismiss,
             properties = DialogProperties(
                 usePlatformDefaultWidth = false,
                 decorFitsSystemWindows = false,
@@ -118,9 +130,10 @@ internal fun BloxSheet(
         ) {
             SheetFrame(
                 title = title,
-                onDismissRequest = dismissOnce,
+                onDismissRequest = dismiss,
                 insets = insets,
-                entrance = { sheetEntrance(ticks(), effects) },
+                entrance = { leaving?.let { sheetExit(it.ticks(), effects) } ?: sheetEntrance(ticks(), effects) },
+                inert = leaving != null,
                 modifier = modifier,
                 actions = actions,
                 content = content,
@@ -152,12 +165,16 @@ private fun sheetWindowAnchor(view: View): View =
 
 /**
  * [action], done the first time it is asked for and never again while the caller stays composed: a sheet asks once to
- * close, its action is done once though touched twice before it goes.
+ * close, its action is done once though touched twice before it goes. A new [key] makes it new: a sheet opened again
+ * may ask once more.
  */
 @Composable
-fun rememberOnce(action: () -> Unit): () -> Unit {
+fun rememberOnce(
+    action: () -> Unit,
+    key: Any? = Unit,
+): () -> Unit {
     val current by rememberUpdatedState(action)
-    return remember {
+    return remember(key) {
         var done = false
         {
             if (!done) {
@@ -209,7 +226,8 @@ fun SettledSheet(
 
 /**
  * What a sheet draws over the screen, without its window: the previews draw it so. Its scrim and its panel take what
- * [entrance] says when they are drawn; [modifier] applies to its panel.
+ * [entrance] says when they are drawn; [modifier] applies to its panel. [inert], as it goes down, it lets no touch
+ * through and TalkBack no longer reads it.
  */
 @Composable
 internal fun SheetFrame(
@@ -218,12 +236,16 @@ internal fun SheetFrame(
     insets: WindowInsets,
     entrance: () -> SheetEntrance,
     modifier: Modifier = Modifier,
+    inert: Boolean = false,
     actions: (@Composable ColumnScope.() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val palette = BloxTheme.palette
     val dismiss by rememberUpdatedState(onDismissRequest)
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+    Box(
+        modifier = Modifier.fillMaxSize().then(if (inert) Modifier.inert() else Modifier),
+        contentAlignment = Alignment.BottomCenter,
+    ) {
         // A touch on the scrim closes the sheet. TalkBack does not read it: it goes back instead.
         Box(
             modifier = Modifier
@@ -313,3 +335,41 @@ private val SHEET_RISE = 40.dp
 private val HANDLE_WIDTH = 32.dp
 private val HANDLE_HEIGHT = 4.dp
 private const val HANDLE_ALPHA = 0.6f
+
+/**
+ * Where a sheet closed by its screen stands on its way down, which [ClosingSheet] hands to [BloxSheet]: the [ticks]
+ * since it started to go, counted on the frames of the screen, read where it is drawn.
+ */
+@Stable
+class SheetLeaving internal constructor(internal val ticks: () -> Int)
+
+/**
+ * The sheet of [open] (ADR 0024, 0029): composed by [sheet] while [open] is not null; once its screen closes it (null),
+ * on the last value open for as long as it goes down, `motion-card`, with where it stands on its way ([SheetLeaving]),
+ * to hand to [BloxSheet]. In reduced effects it is gone at once. Its way down composes nothing again but its end.
+ */
+@Composable
+fun <T : Any> ClosingSheet(
+    open: T?,
+    sheet: @Composable (value: T, leaving: SheetLeaving?) -> Unit,
+) {
+    LeavingContent(open, length = sheetExitTicks(BloxTheme.effects)) { value, ticks ->
+        sheet(value, remember(ticks) { ticks?.let(::SheetLeaving) })
+    }
+}
+
+/** What a sheet going down does when it is asked to close: nothing. */
+private val NOTHING: () -> Unit = {}
+
+/**
+ * A sheet going down, closed already: every touch on it is taken before what it holds sees it, its scrim included,
+ * and TalkBack no longer reads it.
+ */
+private fun Modifier.inert(): Modifier = semantics { hideFromAccessibility() }
+    .pointerInput(Unit) {
+        awaitPointerEventScope {
+            while (true) {
+                awaitPointerEvent(PointerEventPass.Initial).changes.forEach { it.consume() }
+            }
+        }
+    }

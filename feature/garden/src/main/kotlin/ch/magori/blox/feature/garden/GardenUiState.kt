@@ -21,7 +21,8 @@ import ch.magori.blox.core.garden.GardenRefusal
  * last [change] of the garden, which the screen animates (docs/jardin-musical.md, Retours), null when it animates none;
  * [move] counts the changes of the garden, so that two same changes in a row stay two feedbacks. The kept garden the
  * garden under way comes from, [keptFrom], null if none, what the screen knows of « Mes jardins », [myGardens], and its
- * [sheet], while it is open; the name of the garden just kept, [keptName], while the message « « X » gardé. » shows;
+ * [sheet], while it is open; the name of the garden just kept, [keptName], while the message « « X » gardé. » shows, and
+ * [keeps], the count of the gardens kept, so that the same name kept twice is told twice;
  * whether « Annuler » could not be written, [undoFailed]: its message then says so, « Annuler » still offered.
  */
 @Immutable
@@ -38,6 +39,7 @@ internal data class GardenUiState(
     val myGardens: MyGardens = MyGardens.Loading,
     val sheet: GardensSheet? = null,
     val keptName: String? = null,
+    val keeps: Int = 0,
     val undoFailed: Boolean = false,
 ) {
     /**
@@ -63,7 +65,28 @@ internal data class GardenUiState(
      * among those of the same time; none until they are read.
      */
     val keptGardens: List<KeptGarden>
-        get() = (myGardens as? MyGardens.Listed)?.gardens.orEmpty().asReversed().sortedByDescending { it.modifiedAt }
+        get() = listedOrder((myGardens as? MyGardens.Listed)?.gardens.orEmpty())
+
+    /**
+     * The rows of the sheet, in the order of [keptGardens]: the kept gardens listed and, as it leaves the list (not
+     * [SheetRow.listed]), the garden deleted, at its place while its deletion may be undone, or the one being deleted,
+     * by the time it was kept, once the library no longer holds it.
+     */
+    val sheetRows: List<SheetRow>
+        get() {
+            val listed = (myGardens as? MyGardens.Listed)?.gardens ?: return emptyList()
+            val ids = listed.map { it.id }.toSet()
+            val deleted = (undo as? GardenUndo.Deleted)?.deleted
+            // Placed in the order of the library, the one being deleted last: the list orders them by time.
+            val leaving = listOfNotNull(
+                deleted?.let { it.garden to it.place },
+                sheet?.deleting?.garden?.let { it to listed.size },
+            ).filter { (garden, _) -> garden.id !in ids }.distinctBy { (garden, _) -> garden.id }
+            val library = leaving.fold(listed) { gardens, (garden, place) ->
+                gardens.toMutableList().apply { add(place.coerceAtMost(size), garden) }
+            }
+            return listedOrder(library).map { SheetRow(it, listed = it.id in ids) }
+        }
 
     /** The kept garden the garden under way comes from, once the list is read and while it holds it; null otherwise. */
     val linked: KeptGarden?
@@ -104,4 +127,21 @@ internal sealed interface GardenChange {
 
     /** A mood chosen, the pieces where they were. */
     data object MoodChosen : GardenChange
+
+    /** Rouvrir: a kept garden opened from « Mes jardins », its pieces falling as after Au hasard. */
+    data object Opened : GardenChange
 }
+
+/**
+ * A row of the sheet « Mes jardins »: a [garden] [listed] among the kept gardens, or, not listed, one that leaves the
+ * list, deleted.
+ */
+@Immutable
+internal data class SheetRow(val garden: KeptGarden, val listed: Boolean)
+
+/**
+ * The kept [gardens], in the order of the library, as the sheet lists them: from the most recent change to the oldest,
+ * the last one kept first among those of the same time.
+ */
+private fun listedOrder(gardens: List<KeptGarden>): List<KeptGarden> =
+    gardens.asReversed().sortedByDescending { it.modifiedAt }

@@ -268,6 +268,39 @@ internal class GardenReopeningTest {
     }
 
     @Test
+    fun `a kept garden opened falls into place as after Au hasard, a change of its own`() = runTest {
+        // Given « Pluie douce » kept, and the sheet open
+        val pluie = library.keep("Pluie douce", A_GARDEN)
+        viewModel.openMyGardens()
+        val move = viewModel.uiState.value!!.move
+
+        // When
+        viewModel.openKept(pluie.id, undoMillis = 4_000)
+
+        // Then
+        val state = viewModel.uiState.value!!
+        assertThat(state.change).isEqualTo(GardenChange.Opened)
+        assertThat(state.move).isEqualTo(move + 1)
+    }
+
+    @Test
+    fun `Annuler after an opening gives the garden from before back at once, without a fall`() = runTest {
+        // Given « Pluie douce » opened
+        val pluie = library.keep("Pluie douce", A_GARDEN)
+        viewModel.openMyGardens()
+        viewModel.openKept(pluie.id, undoMillis = 4_000)
+        val move = viewModel.uiState.value!!.move
+
+        // When
+        viewModel.undo()
+
+        // Then a change of the garden that the screen does not animate
+        val state = viewModel.uiState.value!!
+        assertThat(state.change).isNull()
+        assertThat(state.move).isEqualTo(move + 1)
+    }
+
+    @Test
     fun `while Annuler is being written a second Annuler gives back nothing more`() = runTest {
         // Given « Pluie douce » opened, on a disk that turns slow
         val pluie = library.keep("Pluie douce", A_GARDEN)

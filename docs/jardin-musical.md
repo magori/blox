@@ -516,6 +516,56 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
 - **TalkBack** (P10.30) : une rangée se lit d'un trait (« Pluie douce, Calme, 12 pièces, ouvert »), avec l'action
   « Ouvrir » et deux actions personnalisées, Renommer et Supprimer ; miniature décorative ; messages annoncés.
   **Test :** `MyGardensScreenTest › a row is read in one, opened by « Ouvrir », Renommer and Supprimer as its actions`.
+- **Retours** (P10.32), chacun avec sa version Effets réduits ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)),
+  cadencés en ticks, durées reprises des jetons de mouvement (`BloxMotion`) :
+  - **feuille qui descend** : la feuille monte comme toute `BloxSheet` (P5.96) ; à sa fermeture, elle descend en
+    18 ticks (`motion-card`) en accélérant, avec un fondu de son voile ; en Effets réduits, elle disparaît d'un coup
+    (`LeavingContent` dans `frame/Leaving.kt`, `ClosingSheet`, `BloxSheet(leaving)`, `core:designsystem`). Pendant sa
+    descente, elle est inerte : aucun toucher ne passe, TalkBack ne la lit plus, et ni le retour ni le voile ne
+    demandent à la fermer. Ainsi l'Annuler d'une suppression, encore visible sur la feuille qui descend après
+    l'ouverture d'un jardin, ne rend rien. Rouverte pendant sa descente, elle reprend sa place et peut de nouveau
+    demander à se fermer. Cela vaut pour toute `BloxSheet` ; seule celle de Mes jardins descend ;
+  - **jardin gardé** (« Garder », « Enregistrer « X » », « Garder une copie ») : un arpège de l'accord de tonique,
+    ses 3 notes les plus basses sur la grille, une toutes les 80 ms, prises parmi les notes préchauffées (une note
+    hors de celles-ci serait un défaut : un `check` la refuse plutôt que de la jouer sur une piste jamais libérée),
+    soumis au réglage des effets sonores. Le point « modifié » du disque attend la fin de la descente de la feuille,
+    puis s'éteint en fondu en 8 ticks ; quand aucune feuille ne descend (Annuler, suppression, réouverture), il
+    commence tout de suite. Le message « « X » gardé. » monte ensuite de 16 dp en apparaissant, en 18 ticks ; en
+    Effets réduits, le point s'éteint aussitôt et le message s'affiche à sa place sans monter. Chaque garde est un
+    retour à part (`keeps`), même sous le même nom ;
+  - **jardin rouvert** : une fois la feuille descendue, il tombe pièce par pièce comme après Au hasard
+    (`GardenChange.Opened`) ; en Effets réduits, il s'affiche d'un coup, sans chute ni fondu. Annuler rend le jardin
+    d'avant d'un coup, sans chute ;
+  - **jardin supprimé** : sa rangée garde sa place, s'estompe puis se replie en 12 ticks (`BloxMotion.curtain`,
+    `motion-curtain`) ; en Effets réduits, elle disparaît d'un coup.
+
+  **Tests :** `SheetEntranceTest › a sheet closed goes down in 18 ticks, fading with its scrim, and in reduced effects it goes at once`,
+  `LeavingContentTest › closed, it leaves on its last value for its length, then is gone`,
+  `LeavingContentTest › closed, then open again as it leaves, it shows the value open, no longer leaving, and stays`,
+  `LeavingContentTest › of a length of 0, closed, it is gone at once`,
+  `LeavingContentTest › never open, it composes nothing`,
+  `BloxSheetTest › a sheet closed by its screen goes down before it is gone, and goes at once in reduced effects`,
+  `BloxSheetTest › a sheet going down lets no touch through to what it holds, and TalkBack no longer reads it`,
+  `BloxSheetTest › a sheet going down does not ask to close, sent back or touched on its scrim`,
+  `BloxSheetTest › a sheet sent back, then opened again as it goes down, asks to close once more`,
+  `MyGardensScreenTest › the Annuler of a deletion, on the sheet going down once a garden is opened, gives nothing back`,
+  `GardenSoundCuesTest › a garden kept is heard as the chord of its tonic, its 3 lowest notes rising, one every 80 ms`,
+  `GardenSoundCuesTest › a note of a garden kept out of the effects warmed up is a bug, refused rather than played on a new track`,
+  `GardenKeptSoundTest › a garden kept plays the chord of its tonic as an arpeggio, when the settings want the sound effects`,
+  `GardenKeptSoundTest › with the sound effects off, a garden kept plays nothing`,
+  `GardenKeptFeedbackTest › once a garden is kept, the dot of Mes jardins stays while the sheet goes down, then fades out in 8 ticks`,
+  `GardenKeptFeedbackTest › the dot going out with no sheet going down, as after Annuler, starts to fade at once, within 8 ticks`,
+  `GardenKeptFeedbackTest › once the dot is out, the message of the garden kept rises into place and shows in 18 ticks`,
+  `GardenKeptFeedbackTest › in reduced effects the dot starts to fade at once, within 8 ticks, then the message shows unmoved`,
+  `GardenKeepingTest › each garden kept is a keeping of its own, told again though its name is the same`,
+  `GardenReopeningTest › a kept garden opened falls into place as after Au hasard, a change of its own`,
+  `GardenReopeningTest › Annuler after an opening gives the garden from before back at once, without a fall`,
+  `GardenFeedbackTest › a kept garden opened falls piece by piece as after Au hasard, once the sheet has gone down in 18 ticks`,
+  `GardenFeedbackTest › in reduced effects a kept garden opened shows at once where it lies, nothing falling nor fading`,
+  `GardenDeletingTest › a garden deleted keeps its row at its place, no longer listed, while its deletion may be undone`,
+  `GardenDeletingTest › a garden being deleted keeps its row, no longer listed, once the library no longer holds it`,
+  `DeletedRowTest › a deleted row fades out, then folds up, in 12 ticks`,
+  `DeletedRowTest › in reduced effects a deleted row is gone at once`.
 - **Sauvegarde Android** : `gardens.bin` y entre, comme `garden.bin` (P10.27).
 - Couleurs seulement, comme tout le Jardin ; police ×2 : noms sur 2 lignes puis coupés aux mots, la feuille
   défile ; cibles de 48 dp, rangées de 72 dp au moins.

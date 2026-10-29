@@ -104,4 +104,38 @@ class GardenSoundCuesTest {
         // When / Then
         assertThatIllegalStateException().isThrownBy { previewCuesOf(i, GardenMood.CALM, warmed) }
     }
+
+    @ParameterizedTest
+    @EnumSource(GardenMood::class)
+    fun `a garden kept is heard as the chord of its tonic, its 3 lowest notes rising, one every 80 ms`(
+        mood: GardenMood,
+    ) {
+        // Given the 3 lowest notes of the grid in the chord of the tonic of each mood, the tonic on the bottom row first:
+        // do mi sol in the major moods, do mi bémol sol in the minor ones, the calm mood an octave lower
+        val expected = mapOf(
+            GardenMood.JOYFUL to listOf("C4", "E4", "G4"),
+            GardenMood.CALM to listOf("C3", "E3", "G3"),
+            GardenMood.MYSTERIOUS to listOf("C4", "D#4", "G4"),
+            GardenMood.EPIC to listOf("C4", "D#4", "G4"),
+        ).getValue(mood)
+
+        // When
+        val cues = keptCuesOf(mood)
+
+        // Then
+        assertThat(cues).containsExactlyElementsOf(
+            expected.mapIndexed { index, name ->
+                SoundCue(GardenSounds.note(Pitch.parse(name)), afterMillis = index * 80L)
+            },
+        )
+    }
+
+    @Test
+    fun `a note of a garden kept out of the effects warmed up is a bug, refused rather than played on a new track`() {
+        // Given: effects warmed up without the do of the bottom row of the calm mood
+        val warmed = GardenMood.allPitches - Pitch.parse("C3")
+
+        // When / Then
+        assertThatIllegalStateException().isThrownBy { keptCuesOf(GardenMood.CALM, warmed) }
+    }
 }

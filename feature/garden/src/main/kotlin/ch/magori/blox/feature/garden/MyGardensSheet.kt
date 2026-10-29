@@ -27,6 +27,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -55,13 +57,16 @@ import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
+import ch.magori.blox.core.designsystem.component.SheetLeaving
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
 import ch.magori.blox.core.designsystem.component.nameTooLongText
+import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
+import kotlin.math.roundToInt
 
 /**
  * The frame a sheet is drawn in, given its title, what stands at its bottom, always in sight, if anything, and its
@@ -76,19 +81,26 @@ internal typealias GardensSheetFrame = @Composable (
 /**
  * The sheet « Mes jardins » over the garden (docs/jardin-musical.md, Mes jardins), while [GardenUiState.sheet] is open,
  * and over it the window of the name while one is typed, or the one of a deletion to confirm; the system back and its
- * scrim close it.
+ * scrim close it. Closed, it goes down as it is [leaving], as it stood, without its windows.
  */
 @Composable
 internal fun MyGardensSheet(
     state: GardenUiState,
     actions: GardenActions,
+    leaving: SheetLeaving? = null,
 ) {
     val messageMillis = messageTimeoutMillis(hasAction = false)
     val undoMillis = undoTimeoutMillis()
     MyGardensSheetContent(state, actions, messageMillis, undoMillis) { title, bottom, content ->
-        BloxSheet(title = title, onDismissRequest = actions.onCloseMyGardens, actions = bottom, content = content)
+        BloxSheet(
+            title = title,
+            onDismissRequest = actions.onCloseMyGardens,
+            leaving = leaving,
+            actions = bottom,
+            content = content,
+        )
     }
-    val sheet = state.sheet ?: return
+    val sheet = state.sheet?.takeIf { leaving == null } ?: return
     sheet.naming?.let { naming ->
         WindowDialog(onDismissRequest = actions.onCancelNaming) {
             GardenNamingWindow(naming, copy = state.linked != null, actions, messageMillis, busy = sheet.writing)
@@ -136,7 +148,7 @@ internal fun MyGardensSheetContent(
             val gardens = state.myGardens
             if (gardens is MyGardens.Listed) {
                 KeptGardens(
-                    gardens = state.keptGardens,
+                    rows = state.sheetRows,
                     open = state.linked,
                     actions = actions,
                     undoMillis = undoMillis,
@@ -219,41 +231,60 @@ private fun SheetText(
 }
 
 /**
- * The count of the kept [gardens] out of 30, then their rows, the [open] one marked; or, without any, « Aucun jardin
+ * The count of the kept gardens out of 30, then their [rows], the [open] one marked; or, without any, « Aucun jardin
  * gardé. » and what to do. A row touched opens its garden, « Annuler » offered for [undoMillis]. Once the window a row
- * opened closes ([windowOpen]), the focus goes back to its menu « … ».
+ * opened closes ([windowOpen]), the focus goes back to its menu « … ». The row of a garden deleted fades out, then
+ * folds up ([deletedRow]), unread by TalkBack; in reduced effects, it is gone at once.
  */
 @Composable
-private fun KeptGardens(
-    gardens: List<KeptGarden>,
+private fun ColumnScope.KeptGardens(
+    rows: List<SheetRow>,
     open: KeptGarden?,
     actions: GardenActions,
     undoMillis: Long,
     windowOpen: Boolean,
 ) {
+    val listed = rows.count { it.listed }
     Text(
         text = pluralStringResource(
             R.plurals.feature_garden_count,
-            gardens.size,
-            gardens.size,
+            listed,
+            listed,
             GardenLibrary.MAX_GARDENS,
         ),
         color = BloxTheme.palette.label,
         style = MaterialTheme.typography.labelMedium.merge(BloxTheme.typography.small),
     )
-    if (gardens.isEmpty()) {
-        Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
-            Text(
-                text = stringResource(R.string.feature_garden_none_kept),
-                color = BloxTheme.palette.ink,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            SheetText(stringResource(R.string.feature_garden_none_kept_hint))
+    // One column, the texts of an empty list then the rows: the last garden deleted leaves where it stood.
+    Column {
+        if (listed == 0) {
+            Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
+                Text(
+                    text = stringResource(R.string.feature_garden_none_kept),
+                    color = BloxTheme.palette.ink,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                SheetText(stringResource(R.string.feature_garden_none_kept_hint))
+            }
         }
-    } else {
-        Column {
-            gardens.forEach { kept ->
-                key(kept.id) {
+        GardenRows(rows, open, actions, undoMillis, windowOpen)
+    }
+}
+
+/** The [rows] of [KeptGardens], each as [KeptGardenRow] draws it, or leaving the list. */
+@Composable
+private fun GardenRows(
+    rows: List<SheetRow>,
+    open: KeptGarden?,
+    actions: GardenActions,
+    undoMillis: Long,
+    windowOpen: Boolean,
+) {
+    val length = deletedRowTicks(BloxTheme.effects)
+    Column {
+        rows.forEach { row ->
+            key(row.garden.id) {
+                LeavingContent(open = row.garden.takeIf { row.listed }, length = length) { kept, leaving ->
                     KeptGardenRow(
                         kept = kept,
                         open = kept.id == open?.id,
@@ -261,6 +292,7 @@ private fun KeptGardens(
                         onRename = { actions.onRename(kept.id) },
                         onDelete = { actions.onDelete(kept.id) },
                         windowOpen = windowOpen,
+                        modifier = if (leaving == null) Modifier else Modifier.leaving(leaving),
                     )
                 }
             }
@@ -269,11 +301,28 @@ private fun KeptGardens(
 }
 
 /**
+ * A row leaving the list, [ticks] after its deletion, as [deletedRow] says, read in its drawing and its layout alone:
+ * unread by TalkBack, as it is no longer listed.
+ */
+private fun Modifier.leaving(ticks: () -> Int): Modifier = this
+    .clearAndSetSemantics {}
+    .graphicsLayer {
+        alpha = deletedRow(ticks()).alpha
+        clip = true
+    }.layout { measurable, constraints ->
+        val placeable = measurable.measure(constraints)
+        layout(placeable.width, (placeable.height * deletedRow(ticks()).height).roundToInt()) {
+            placeable.placeRelative(0, 0)
+        }
+    }
+
+/**
  * The row of a [kept] garden, 72 dp high at least: its thumbnail, framed in `panel-border` as the grid is, its name on
  * 2 lines at most, its mood and its count of pieces, then « ouvert » when it is the garden [open]; touched, it opens
  * the garden ([onOpen]). Then its menu « … »: Renommer ([onRename]), Supprimer ([onDelete]). Read in one by TalkBack,
  * « Pluie douce, Calme, 12 pièces, ouvert », with the action « Ouvrir », Renommer and Supprimer as actions of its own;
- * the thumbnail is decorative. Its menu takes the focus back once the window it opened closes ([windowOpen]).
+ * the thumbnail is decorative. Its menu takes the focus back once the window it opened closes ([windowOpen]). [modifier]
+ * applies to the row.
  */
 @Composable
 private fun KeptGardenRow(
@@ -283,9 +332,10 @@ private fun KeptGardenRow(
     onRename: () -> Unit,
     onDelete: () -> Unit,
     windowOpen: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {

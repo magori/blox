@@ -9,7 +9,9 @@ import ch.magori.blox.core.data.DeletedGarden
 import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.GardenId
 import ch.magori.blox.core.data.GardenLibrary
+import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.garden.Garden
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +24,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.io.IOException
+import java.time.Instant
 
 /** Supprimer a kept garden, from the menu of its row in « Mes jardins », and Annuler (docs/jardin-musical.md). */
 internal class GardenDeletingTest {
@@ -283,7 +286,50 @@ internal class GardenDeletingTest {
         assertThat(state.undo).isNull()
     }
 
+    @Test
+    fun `a garden deleted keeps its row at its place, no longer listed, while its deletion may be undone`() = runTest {
+        // Given three gardens kept at the same time, listed from the last one kept
+        val pluie = library.keep("Pluie douce", A_GARDEN)
+        val orage = library.keep("Orage", A_GARDEN)
+        val neige = library.keep("Neige", A_GARDEN)
+        viewModel.openMyGardens()
+        viewModel.startDeleting(orage.id)
+
+        // When the one in the middle is deleted
+        viewModel.confirmDeleting(undoMillis = 4_000)
+
+        // Then its row stays between the two others, as it leaves
+        assertThat(viewModel.uiState.value?.sheetRows).containsExactly(
+            SheetRow(neige, listed = true),
+            SheetRow(orage, listed = false),
+            SheetRow(pluie, listed = true),
+        )
+    }
+
+    @Test
+    fun `a garden being deleted keeps its row, no longer listed, once the library no longer holds it`() {
+        // Given « Orage » being deleted, kept between the two others, the library holding them alone already
+        val pluie = A_KEPT.copy(id = GardenId("pluie"), name = "Pluie douce")
+        val orage = A_KEPT.copy(id = GardenId("orage"), name = "Orage", modifiedAt = A_KEPT.modifiedAt.plusSeconds(1))
+        val neige = A_KEPT.copy(id = GardenId("neige"), name = "Neige", modifiedAt = A_KEPT.modifiedAt.plusSeconds(2))
+        val state = GardenUiState(
+            garden = A_GARDEN,
+            myGardens = MyGardens.Listed(listOf(pluie, neige)),
+            sheet = GardensSheet(writing = true, deleting = GardenDeleting(orage)),
+        )
+
+        // Then
+        assertThat(state.sheetRows).containsExactly(
+            SheetRow(neige, listed = true),
+            SheetRow(orage, listed = false),
+            SheetRow(pluie, listed = true),
+        )
+    }
+
     private companion object {
+        /** A garden kept, at the time of the library of the tests. */
+        val A_KEPT = KeptGarden(GardenId("a"), "A", Garden.EMPTY, Instant.EPOCH)
+
         /** An I on the top row. */
         val A_GARDEN: Garden = Garden.parse(
             "IIII............\n" + List(Garden.ROWS - 1) { ".".repeat(Garden.COLUMNS) }.joinToString("\n"),

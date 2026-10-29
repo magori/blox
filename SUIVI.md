@@ -1619,7 +1619,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
 - [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
   P10.29.
-- [ ] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
+- [x] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
   feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
   pictogramme « herbier » et jeton `garden-thumb-cell` dans le design system.
@@ -1675,6 +1675,9 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
 - [ ] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
   Mes jardins, deuxième occurrence (règle de 2, revue de P10.30).
+- [ ] **P10.37** Jeton de mouvement pour la montée d'une feuille qui descend (`SHEET_RISE`, 40 dp, sans jeton
+  d'espacement qui lui corresponde) et, si on le veut, `motion-row` pour le repli d'une rangée (aujourd'hui
+  `motion-curtain`) : à publier dans le design system avec P10.33.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 
