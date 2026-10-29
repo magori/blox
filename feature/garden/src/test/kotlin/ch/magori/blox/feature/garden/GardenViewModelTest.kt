@@ -3,6 +3,7 @@ package ch.magori.blox.feature.garden
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.CurrentGarden
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.GardenRepository
@@ -16,6 +17,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import org.assertj.core.api.Assertions.assertThat
@@ -189,6 +191,10 @@ internal class GardenViewModelTest {
         private var writes = 0
 
         override val garden: Flow<Garden> get() = if (slowRead) flow { emit(read.await()) } else state
+
+        override val current: Flow<CurrentGarden> get() = garden.map { CurrentGarden(it, keptFrom = null) }
+
+        override suspend fun keep(current: CurrentGarden) = keep(current.garden)
 
         override suspend fun keep(garden: Garden) {
             if (writes++ == 0) firstWrite.await()

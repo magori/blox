@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 272 / 366 | `███████████████░░░░░` **74 %** |
+| **Général** | 275 / 366 | `███████████████░░░░░` **75 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1365,14 +1365,19 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   `Padlock.ofLevel(level)`, test de contrat (serrures 1 à 5 en ASCII, empreinte des serrures 1 à 200). Après P7.28.
 - [x] **P7.30** `LocksmithRoute(level)` sans graine, `next()`, route restaurée ; `app` (`nextPadlock`,
   `OpenCartridgeTest`, `NextPadlockTest`). Après P7.29.
-- [ ] **P7.31** `PadlockResult` (pur, `core:locksmith`) : coups, refus, indices ; ordre du meilleur (indices, coups,
+- [x] **P7.31** `PadlockResult` (pur, `core:locksmith`) : coups, refus, indices ; ordre du meilleur (indices, coups,
   refus) et parfaite (un coup par pièce, sans refus ni indice). Après P7.28.
-- [ ] **P7.32** `PadlockProgressRepository` (`core:data`) : meilleures ouvertures des serrures 1 à N, fichier binaire
+- [x] **P7.32** `PadlockProgressRepository` (`core:data`) : meilleures ouvertures des serrures 1 à N, fichier binaire
   versionné avec numéro de génération, contrat, faux, `DataStoreFileContract`, fichier mis de côté, sauvegarde
-  incluse (`BackupRulesTest`). Après P7.31.
+  incluse (`BackupRulesTest`). Chaque ouverture : 4 entiers (pièces, coups, refus, indices, `PadlockResult`) ; un
+  résultat impossible lu dans le fichier (`require` de `PadlockResult`) rend le fichier corrompu, pas un plantage
+  (revue de P7.31). Après P7.31.
 - [ ] **P7.33** Écriture à l'ouverture (ViewModel, portée d'application, `IOException` qui laisse jouer) ; carte de
   V35 : meilleure ouverture, NOUVEAU MEILLEUR ou PARFAITE, « Reprendre à la serrure N » après un rejeu ; Effets
-  réduits ; captures. Après P7.30, P7.32.
+  réduits ; captures. L'adaptateur `PadlockResult` → `PadlockOpening` vient avec un test qui garde les deux en accord
+  (rejets et ordre du meilleur), écrit en premier ; un avancement d'une version ou génération plus récente (écriture
+  impossible) laisse jouer avec un état compréhensible, sans relancer la lecture en boucle (revue de P7.32). Après
+  P7.30, P7.32.
 - [ ] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
   `app`), parcours Macrobenchmark vérifié. Après P7.32.
 - [ ] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
@@ -1593,7 +1598,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.27** `GardenLibrary` (`core:data`) : `KeptGarden` (identité, nom, jardin, date), contrat partagé par le
   faux et le vrai dépôt, `gardens.bin` v1 versionné, limite de 30, restauration après suppression, fichier corrompu
   et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
-- [ ] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
+- [x] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
   lit sans lien). Après P10.27.
 - [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et

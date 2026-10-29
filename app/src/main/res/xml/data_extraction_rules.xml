@@ -21,6 +21,8 @@
         <include domain="file" path="datastore/garden.bin" />
         <!-- The kept gardens of Mes jardins (GARDENS_FILE): creations of the player, as the garden. -->
         <include domain="file" path="datastore/gardens.bin" />
+        <!-- The progress of the Serrurier (PADLOCKS_FILE): the best opening of each padlock, the same on any phone. -->
+        <include domain="file" path="datastore/padlocks.bin" />
     </cloud-backup>
     <device-transfer>
         <!-- The record (RECORDS_FILE), apart from the settings. -->
@@ -33,5 +35,7 @@
         <include domain="file" path="datastore/garden.bin" />
         <!-- The kept gardens of Mes jardins (GARDENS_FILE): creations of the player, as the garden. -->
         <include domain="file" path="datastore/gardens.bin" />
+        <!-- The progress of the Serrurier (PADLOCKS_FILE): the best opening of each padlock, the same on any phone. -->
+        <include domain="file" path="datastore/padlocks.bin" />
     </device-transfer>
 </data-extraction-rules>

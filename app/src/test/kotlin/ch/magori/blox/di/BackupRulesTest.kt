@@ -5,6 +5,7 @@ import ch.magori.blox.core.data.GARDENS_FILE
 import ch.magori.blox.core.data.GARDEN_FILE
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
+import ch.magori.blox.core.data.PADLOCKS_FILE
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
 import ch.magori.blox.theme.ANDROID_NAMESPACE
@@ -100,6 +101,7 @@ class BackupRulesTest {
             MUSICS_FILE,
             GARDEN_FILE,
             GARDENS_FILE,
+            PADLOCKS_FILE,
         ).map(::datastorePath)
 
         /** Where the application creates the DataStore file [name], as a rule names it: `file:<path>`. */

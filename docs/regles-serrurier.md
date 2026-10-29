@@ -284,6 +284,21 @@ solutions) ;
   même partie, comparé d'abord par les indices, puis les coups, puis les refus. Une serrure est **parfaite** quand
   elle est ouverte en autant de coups que de pièces, sans refus ni indice. Les serrures s'ouvrent dans l'ordre :
   les serrures ouvertes sont 1 à *N*, la suivante à ouvrir est *N* + 1 (la « frontière »).
+  Une ouverture est un `PadlockResult` (P7.31) : le nombre de pièces de la serrure, qui permet de dire « parfaite »
+  sans la régénérer, puis les coups, refus et indices ; `PadlockGame.result` le donne une fois la serrure ouverte
+  (aucun avant). Les coups sont les poses acceptées, reprises comprises, donc jamais moins que les pièces ; deux
+  ouvertures ne se comparent que pour un même nombre de pièces.
+  **Tests :** `PadlockResultTest › fewer hints is better, even with more moves and refusals`,
+  `PadlockResultTest › at equal hints, fewer moves is better, even with more refusals`,
+  `PadlockResultTest › at equal hints and moves, fewer refusals is better`,
+  `PadlockResultTest › an equal result is not better`,
+  `PadlockResultTest › a padlock opened in as many moves as pieces, without refusal or hint, is perfect`,
+  `PadlockResultTest › one more move, a refusal or a hint is not perfect`,
+  `PadlockResultTest › a padlock without pieces or a negative counter is a programming error`,
+  `PadlockResultTest › a padlock is not opened in fewer moves than pieces`,
+  `PadlockResultTest › openings of padlocks of different numbers of pieces are not compared`,
+  `PadlockGameTest › an open padlock gives the result of its opening, a padlock not open none`,
+  `PadlockGameTest › a padlock opened without taking back, refusal or hint is perfect`.
 - La **cartouche** ouvre la frontière, et porte la sous-ligne « Serrure *N* + 1 ».
 - Un écran **« Serrures »** (grille, depuis le cadenas de la barre de V35, qui devient un disque de 48 dp) : un
   résumé (« 12 ouvertes · 3 parfaites »), « Reprendre · Serrure 13 », puis la grille, défilée sur la frontière ;
@@ -298,6 +313,28 @@ solutions) ;
 - L'avancement est un fichier versionné de `core:data` (qui ne stocke que des entiers et un numéro de génération)
   et **entre dans la sauvegarde Android** : c'est l'acquis du joueur, et les serrures sont les mêmes sur un autre
   appareil.
+  Fait côté données (P7.32) : `PadlockProgressRepository` donne `progress` (les meilleures ouvertures des serrures
+  1 à *N*, `PadlockOpening` de 4 entiers, mêmes règles que `PadlockResult`, et la frontière *N* + 1) ;
+  `record(padlock, opening)` rend une première ouverture, une nouvelle meilleure ou rien de nouveau ; une serrure
+  hors de 1 à la frontière, ou d'un autre nombre de pièces que sa meilleure, est une erreur de programmation ;
+  `clear()` oublie tout. Fichier `padlocks.bin` v1 : « BLXS », la version, la génération (1), *N*, puis *N*
+  ouvertures (pièces, coups, refus, indices). Corrompu (signature, version ou génération sous 1, compte négatif,
+  ouverture impossible, tronqué, octets en trop) : copié à part, avancement vide. Version **ou génération** plus
+  récente : avancement vide, fichier gardé sans écriture (les résultats d'une autre génération de serrures ne se
+  mêlent pas aux siens).
+  **Tests :** `PadlockOpeningTest › fewer hints is better, even with more moves and refusals`,
+  `PadlockOpeningTest › a padlock is not opened in fewer moves than pieces`,
+  `PadlockProgressRepositoryContract › without an opening no padlock is open and the frontier is padlock 1`,
+  `PadlockProgressRepositoryContract › opening the frontier is a first opening, kept after the others, and the frontier moves on`,
+  `PadlockProgressRepositoryContract › a better opening of an open padlock is a new best, and takes its place`,
+  `PadlockProgressRepositoryContract › an opening no better than the best of its padlock is nothing new, and the best is kept`,
+  `PadlockProgressRepositoryContract › a padlock beyond the frontier or before padlock 1 is a programming error, and nothing is kept`,
+  `PadlockProgressRepositoryContract › an opening of another number of pieces than the best of its padlock is a programming error`,
+  `PadlockProgressRepositoryContract › clearing the progress forgets every opening, and the frontier is padlock 1 again`,
+  `DataStorePadlockProgressRepositoryTest › a padlocks file of version 1 is read as it was written, a format that must not change`,
+  `DataStorePadlockProgressRepositoryTest › a padlocks file holding what no progress can be is corrupted, gives an empty progress, and is written again`,
+  `DataStorePadlockProgressRepositoryTest › openings of a later generation of padlocks give an empty progress, and are kept for that generation`,
+  `DataStorePadlockProgressRepositoryTest › a padlocks file that counts billions of padlocks gives an empty progress, the file being found cut short`.
 
 ## Partie
 

@@ -32,4 +32,9 @@ data class GardenId(val key: String) {
     init {
         require(key.isNotBlank()) { "A kept garden is known by a key that is not blank" }
     }
+
+    internal companion object {
+        /** The most bytes of a key in the garden files, far beyond the 36 of the keys the library gives. */
+        const val MOST_KEY_BYTES: Int = 64
+    }
 }
