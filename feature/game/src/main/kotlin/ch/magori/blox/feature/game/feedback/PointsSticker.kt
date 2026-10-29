@@ -13,8 +13,8 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.boardPoint
+import ch.magori.blox.core.designsystem.component.STICKER_TILT
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.feature.game.ui.STICKER_TILT
 
 /** Around the text of the sticker « +points ». */
 private val StickerPaddingX = 8.dp
