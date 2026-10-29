@@ -29,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -52,6 +51,7 @@ import ch.magori.blox.core.board.logo.BloxLogo
 import ch.magori.blox.core.board.mascot.Mascot
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.component.holdSideBySide
 import ch.magori.blox.core.designsystem.component.widestWord
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -290,32 +290,22 @@ private fun CartridgeWindow(
 }
 
 /**
- * The sticker NOUVELLE: [label] in capitals, `accent-ink` on `accent`, in the font of the stickers, in a pill framed in
- * the colour of the page that leans. A decoration: TalkBack reads its word as the state of the
- * cartridge. Shrinks rather than grow past the cartridge in a large font.
+ * The sticker NOUVELLE ([Sticker]), smaller and spaced, leaning more than the others over the corner of the cartridge.
+ * A decoration: TalkBack reads its word as the state of the cartridge. Shrinks rather than grow past the cartridge in
+ * a large font.
  */
 @Composable
 private fun NewSticker(
     label: String,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.pill
-    val style = BloxTheme.typography.pointsPop.copy(fontSize = STICKER_SIZE, letterSpacing = STICKER_SPACING)
-    Text(
-        text = label.uppercase(),
-        color = palette.accentInk,
-        style = style,
-        maxLines = 1,
-        softWrap = false,
-        autoSize = shrinkToFit(style.fontSize),
+    Sticker(
+        text = label,
+        style = BloxTheme.typography.pointsPop.copy(fontSize = STICKER_SIZE, letterSpacing = STICKER_SPACING),
+        tilt = NEW_STICKER_TILT,
         modifier = modifier
             .semantics { hideFromAccessibility() }
-            .widthIn(max = STICKER_MAX_WIDTH)
-            .graphicsLayer { rotationZ = STICKER_TILT }
-            .background(palette.accent, shape)
-            .border(BloxBorders.frame, palette.page, shape)
-            .padding(horizontal = STICKER_PADDING_X, vertical = STICKER_PADDING_Y),
+            .widthIn(max = STICKER_MAX_WIDTH),
     )
 }
 
@@ -441,11 +431,9 @@ private val NAME_LINE_HEIGHT = 1.15.em
 /** The sticker NOUVELLE, as on the mockup: 10 dp out on the right, 12 dp above, turned by -6°. */
 private val STICKER_OUT_X = 10.dp
 private val STICKER_OUT_Y = 12.dp
-private const val STICKER_TILT = -6f
+private const val NEW_STICKER_TILT = -6f
 private val STICKER_SIZE = 11.sp
 private val STICKER_SPACING = 0.04.em
-private val STICKER_PADDING_X = 10.dp
-private val STICKER_PADDING_Y = 5.dp
 private val STICKER_MAX_WIDTH = 140.dp
 
 /**

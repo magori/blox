@@ -1415,8 +1415,9 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   Android 13 ou plus) : il cite encore `Padlock.generate`, supprimé en P7.30.
 - [ ] **P7.44** Mesurer le pire temps de `Padlock.ofLevel` sur les serrures 1 à 200 (`PadlockMeasure`) : il tourne
   sur le fil principal au toucher de « Serrure suivante » (P7.30) ; s'il dépasse une image (16 ms), le sortir de ce fil.
-- [ ] **P7.45** Extraire l'autocollant commun (`Sticker`) dans `core:designsystem` : le jeu (`GameTopBar`), les
-  cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
+- [x] **P7.45** Extraire l'autocollant commun (`Sticker`) dans `core:designsystem` : le jeu (`GameTopBar`), les
+  cartouches et le Serrurier (P7.33) en avaient chacun leur copie ; la règle de 2 était dépassée. Fait : les trois
+  copies passent par `Sticker`, rendu inchangé ; « EN JEU » de Mes musiques, droit et non cadré, est un badge (P7.51).
 - [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
 - [x] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
@@ -1428,6 +1429,9 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
   P7.36). La bande passe à la ligne (`FlowRow`), la cadence entière ; le défaut touchait aussi la police ×2 dès 7 accords et la police ×1 à 8.
 - [x] **P7.49** Barres système sous le Serrurier en Original de nuit : `SystemBarsAppearanceTest` échouait sur main, car il partait du choix du jeu, dessiné en Couleurs nuit depuis la grille de la Graine du jour (icônes claires, voulu, `SystemBarsTest`). Le test part désormais de l'accueil du Classique, dans le thème choisi ; le produit était juste.
+- [ ] **P7.51** Extraire le badge commun dans `core:designsystem` : `InGameBadge` (Mes musiques), `NewBestBadge`
+  (`GameOverScreen`) et « ouvert » de Mes jardins, pilules droites en `accent`, trois copies ; la règle de 2 est
+  dépassée (revue de P7.45).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
