@@ -100,8 +100,6 @@
 
     <!-- La fenêtre du nom. -->
     <string name="feature_garden_keep_confirm">Garder</string>
-    <string name="feature_garden_name_blank">Donne un nom à ce jardin.</string>
-    <string name="feature_garden_name_taken">Un autre jardin porte déjà ce nom.</string>
 
     <!-- Le message après Garder ou Enregistrer. -->
     <string name="feature_garden_kept">« %1$s » gardé.</string>

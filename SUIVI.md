@@ -1675,9 +1675,10 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
   8 ticks). Après P10.10, P10.12.
-- [ ] **P10.34** Mettre en commun les textes des problèmes de nom (`NameProblem` → texte) de Mes musiques, de
+- [x] **P10.34** Mettre en commun les textes des problèmes de nom (`NameProblem` → texte) de Mes musiques, de
   l'éditeur et du Jardin, troisième occurrence (revue de P10.29). `core:designsystem` ne voit pas `core:data`, où vit
-  `NameProblem` : il faut un endroit commun aux trois features.
+  `NameProblem` : il faut un endroit commun aux trois features. Fait : `NameTexts` (`core:designsystem`), « Donne-lui
+  un nom. » partout.
 - [ ] **P10.35** En police ×2, la pastille « ouvert » d'une rangée de Mes jardins pourrait passer sous la ligne
   d'information (à juger, P10.33). De même, à 360 dp, le « … » de 48 dp (P10.30) serre le texte de la rangée
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
