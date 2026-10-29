@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -15,18 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.res.pluralStringResource
@@ -44,17 +36,14 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.garden.GardenThumbnail
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
-import ch.magori.blox.core.designsystem.component.BloxMenu
-import ch.magori.blox.core.designsystem.component.BloxMenuItem
 import ch.magori.blox.core.designsystem.component.BloxSheet
-import ch.magori.blox.core.designsystem.component.ButtonEmphasis
 import ch.magori.blox.core.designsystem.component.CheckMark
 import ch.magori.blox.core.designsystem.component.DeleteWindow
-import ch.magori.blox.core.designsystem.component.GlyphButton
-import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.PrimaryButton
+import ch.magori.blox.core.designsystem.component.RenameWindow
+import ch.magori.blox.core.designsystem.component.RowMenu
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.component.SheetLeaving
 import ch.magori.blox.core.designsystem.component.SnackMessage
@@ -68,6 +57,7 @@ import ch.magori.blox.core.designsystem.text.nameRefusalText
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import kotlin.math.roundToInt
+import ch.magori.blox.core.designsystem.R as DesignSystemR
 
 /**
  * The frame a sheet is drawn in, given its title, what stands at its bottom, always in sight, if anything, and its
@@ -341,7 +331,10 @@ private fun KeptGardenRow(
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
         KeptGardenSummary(kept, open, onOpen, onRename, onDelete, Modifier.weight(1f))
-        RowMenu(kept.name, onRename, onDelete, windowOpen)
+        RowMenu(name = kept.name, windowOpen = windowOpen) {
+            RenameItem(onRename = onRename)
+            DeleteItem(onDelete = onDelete)
+        }
     }
 }
 
@@ -366,8 +359,8 @@ private fun KeptGardenSummary(
     )
     val palette = BloxTheme.palette
     val openLabel = stringResource(R.string.feature_garden_row_open)
-    val renameLabel = stringResource(R.string.feature_garden_rename)
-    val deleteLabel = stringResource(R.string.feature_garden_delete)
+    val renameLabel = stringResource(DesignSystemR.string.core_designsystem_rename)
+    val deleteLabel = stringResource(DesignSystemR.string.core_designsystem_window_delete)
     Row(
         modifier = modifier
             .heightIn(min = ROW_HEIGHT)
@@ -419,66 +412,6 @@ private fun KeptGardenSummary(
     }
 }
 
-/**
- * The menu « … » of the row of the garden called [name], a bare disc of 48 dp read « Plus d'actions pour X »:
- * Renommer ([onRename]), then Supprimer ([onDelete]), in `danger`. Touching an item closes the menu. The focus goes
- * back to « … » as the menu closes without a choice, or once the window its item opened closes ([windowOpen] false
- * again), as [BloxMenu] asks.
- */
-@Composable
-private fun RowMenu(
-    name: String,
-    onRename: () -> Unit,
-    onDelete: () -> Unit,
-    windowOpen: Boolean,
-) {
-    val focus = remember { FocusRequester() }
-    // An item chose a window: the focus waits for it to close.
-    var awaitingWindow by remember { mutableStateOf(false) }
-    LaunchedEffect(windowOpen, awaitingWindow) {
-        if (awaitingWindow && !windowOpen) {
-            awaitingWindow = false
-            focus.requestFocus()
-        }
-    }
-    Box {
-        var expanded by remember { mutableStateOf(false) }
-        GlyphButton(
-            description = stringResource(R.string.feature_garden_row_menu, name),
-            onClick = { expanded = true },
-            modifier = Modifier.focusRequester(focus),
-            emphasis = ButtonEmphasis.BARE,
-        ) { ink -> Glyphs.more(this, ink) }
-        BloxMenu(
-            expanded = expanded,
-            onDismissRequest = {
-                expanded = false
-                focus.requestFocus()
-            },
-        ) {
-            BloxMenuItem(
-                text = stringResource(R.string.feature_garden_rename),
-                icon = BloxIcon.RENAME,
-                onClick = {
-                    expanded = false
-                    awaitingWindow = true
-                    onRename()
-                },
-            )
-            BloxMenuItem(
-                text = stringResource(R.string.feature_garden_delete),
-                icon = BloxIcon.TRASH,
-                onClick = {
-                    expanded = false
-                    awaitingWindow = true
-                    onDelete()
-                },
-                danger = true,
-            )
-        }
-    }
-}
-
 /** « ouvert », a pill in `accent` beside its check: the garden under way comes from this one. */
 @Composable
 private fun OpenBadge() {
@@ -514,27 +447,37 @@ internal fun GardenNamingWindow(
     busy: Boolean = false,
 ) {
     val renaming = naming.renaming
-    NamingWindow(
-        title = when {
-            renaming != null -> stringResource(R.string.feature_garden_rename_title, renaming.name)
-            copy -> stringResource(R.string.feature_garden_keep_copy)
-            else -> stringResource(R.string.feature_garden_keep)
-        },
-        name = naming.name,
-        onNameChanged = actions.onNameChanged,
-        maxLength = KeptGarden.MAX_NAME_LENGTH,
-        problem = naming.problem?.let {
-            nameRefusalText(NameRefusal.valueOf(it.name), NamedThing.GARDEN, KeptGarden.MAX_NAME_LENGTH)
-        },
-        confirm = stringResource(
-            if (renaming != null) R.string.feature_garden_rename else R.string.feature_garden_keep_confirm,
-        ),
-        onConfirm = if (renaming != null) actions.onConfirmRenaming else ({ actions.onConfirmKeeping(messageMillis) }),
-        onDismiss = actions.onCancelNaming,
-        failed = naming.failed,
-        busy = busy,
-        modifier = modifier,
-    )
+    val problem = naming.problem?.let {
+        nameRefusalText(NameRefusal.valueOf(it.name), NamedThing.GARDEN, KeptGarden.MAX_NAME_LENGTH)
+    }
+    if (renaming != null) {
+        RenameWindow(
+            current = renaming.name,
+            name = naming.name,
+            onNameChanged = actions.onNameChanged,
+            maxLength = KeptGarden.MAX_NAME_LENGTH,
+            problem = problem,
+            onConfirm = actions.onConfirmRenaming,
+            onDismiss = actions.onCancelNaming,
+            modifier = modifier,
+            failed = naming.failed,
+            busy = busy,
+        )
+    } else {
+        NamingWindow(
+            title = stringResource(if (copy) R.string.feature_garden_keep_copy else R.string.feature_garden_keep),
+            name = naming.name,
+            onNameChanged = actions.onNameChanged,
+            maxLength = KeptGarden.MAX_NAME_LENGTH,
+            problem = problem,
+            confirm = stringResource(R.string.feature_garden_keep_confirm),
+            onConfirm = { actions.onConfirmKeeping(messageMillis) },
+            onDismiss = actions.onCancelNaming,
+            failed = naming.failed,
+            busy = busy,
+            modifier = modifier,
+        )
+    }
 }
 
 /**
