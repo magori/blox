@@ -36,6 +36,7 @@
     <string name="feature_locksmith_message_refusal">Refus %1$d : %2$s</string>
     <string name="feature_locksmith_message_cadence">La cadence V–I a fermé la phrase.</string>
     <string name="feature_locksmith_message_cadence_spoken">La cadence %1$s a fermé la phrase.</string>
+    <string name="feature_locksmith_message_cleared">Progression effacée.</string>
     <string name="feature_locksmith_back">Retour</string>
     <string name="feature_locksmith_padlocks">Toutes les serrures</string>
     <string name="feature_locksmith_title_closed">Serrure %1$02d, fermée</string>
@@ -96,4 +97,15 @@
     <string name="feature_locksmith_padlocks_open_action">Ouvrir</string>
     <!-- « coups » is always plural, « refus » does not change; the hints have their plural (feature_locksmith_open_best_hints). -->
     <string name="feature_locksmith_padlocks_best" tools:ignore="PluralsCandidate">meilleure : %1$d coups, %2$d refus, %3$s</string>
+
+    <!-- Starting over from the beginning (P7.37). -->
+    <string name="feature_locksmith_padlocks_start_over">Recommencer depuis le début</string>
+    <string name="feature_locksmith_clear_title">Effacer la progression ?</string>
+    <plurals name="feature_locksmith_clear_note">
+        <item quantity="one">%d serrure ouverte sera oubliée.</item>
+        <item quantity="many">%d serrures ouvertes seront oubliées.</item>
+        <item quantity="other">%d serrures ouvertes seront oubliées.</item>
+    </plurals>
+    <string name="feature_locksmith_clear_keep">Garder</string>
+    <string name="feature_locksmith_clear_confirm">Effacer</string>
 </resources>

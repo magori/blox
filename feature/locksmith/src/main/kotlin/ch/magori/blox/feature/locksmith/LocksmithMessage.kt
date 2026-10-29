@@ -7,15 +7,16 @@ import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.Refusal
 
 /**
- * The message under the padlock of [state]: the padlock open, above all; else why the last placement was refused; else
- * the orientation of the piece just turned; else what the hint shown points at; else how to play, with a preview or
- * without.
+ * The message under the padlock of [state]: the padlock open, above all; else the progress just cleared; else why the
+ * last placement was refused; else the orientation of the piece just turned; else what the hint shown points at; else
+ * how to play, with a preview or without.
  */
 @StringRes
 internal fun messageOf(state: LocksmithUiState): Int {
     val refusal = state.events.filterIsInstance<PadlockEvent.PlacementRefused>().firstOrNull()?.reason
     return when {
         state.game.isOpen -> R.string.feature_locksmith_message_cadence
+        state.cleared -> R.string.feature_locksmith_message_cleared
         refusal == Refusal.OUT_OF_HOLE -> R.string.feature_locksmith_message_out_of_hole
         refusal == Refusal.OVERLAP -> R.string.feature_locksmith_message_overlap
         state.turned -> R.string.feature_locksmith_message_turned

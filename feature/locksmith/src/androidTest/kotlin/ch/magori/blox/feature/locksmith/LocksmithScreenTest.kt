@@ -857,6 +857,7 @@ internal class LocksmithScreenTest {
                 FakeUserPreferencesRepository(),
                 FakePadlockProgressRepository(),
                 MainScope(),
+                ClearedProgressRelay(),
             )
         setContent {
             val state by viewModel.uiState.collectAsState()

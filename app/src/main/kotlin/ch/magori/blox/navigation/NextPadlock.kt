@@ -60,6 +60,20 @@ internal fun choosePadlock(
     }
 }
 
+/**
+ * The progress cleared on the screen of the padlocks, [list] (P7.37): the list goes, and padlock 1 takes the place of
+ * the padlock under it, over the cartridges, or the place of the list when no padlock is under it. Once [list] is no
+ * longer on top (the clear told twice), nothing changes.
+ */
+internal fun progressCleared(
+    backStack: MutableList<NavKey>,
+    list: PadlocksRoute,
+) = backStack.whileOnTop(list) {
+    removeAt(lastIndex)
+    if (lastOrNull() is LocksmithRoute) removeAt(lastIndex)
+    add(LocksmithRoute(level = 1))
+}
+
 /** Puts [by] in the place of the [open] padlock, if it is still on top of [backStack]. */
 private fun replacePadlock(
     backStack: MutableList<NavKey>,

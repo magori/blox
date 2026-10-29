@@ -14,7 +14,7 @@ import kotlinx.coroutines.SupervisorJob
 /**
  * The view model of [route], its sound effects played by [soundEffects], its settings read in [preferences], its
  * openings written to [progress] in [appScope], the scope of the application, on the main dispatcher of the test
- * unless told otherwise: a write ends within the action that asked for it.
+ * unless told otherwise: a write ends within the action that asked for it. A progress cleared is taken from [cleared].
  */
 internal fun locksmithViewModel(
     route: LocksmithRoute,
@@ -22,4 +22,5 @@ internal fun locksmithViewModel(
     preferences: UserPreferencesRepository = FakeUserPreferencesRepository(),
     progress: PadlockProgressRepository = FakePadlockProgressRepository(),
     appScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main),
-): LocksmithViewModel = LocksmithViewModel(route, soundEffects, preferences, progress, appScope)
+    cleared: ClearedProgressRelay = ClearedProgressRelay(),
+): LocksmithViewModel = LocksmithViewModel(route, soundEffects, preferences, progress, appScope, cleared)
