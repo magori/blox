@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import ch.magori.blox.core.designsystem.R
 
 /**
@@ -51,6 +52,38 @@ fun NamingWindow(
             confirmEnabled = problem == null && !busy,
         )
     }
+}
+
+/**
+ * « Renommer « [current] » », a [NamingWindow] on the [name] typed, answered « Renommer »: the window of a name to
+ * change, in a list (Mes musiques, Mes jardins). [problem], [failed] and [busy] as [NamingWindow] says.
+ */
+@Composable
+fun RenameWindow(
+    current: String,
+    name: String,
+    onNameChanged: (String) -> Unit,
+    maxLength: Int,
+    problem: String?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+    failed: Boolean = false,
+    busy: Boolean = false,
+) {
+    NamingWindow(
+        title = stringResource(R.string.core_designsystem_rename_title, current),
+        name = name,
+        onNameChanged = onNameChanged,
+        maxLength = maxLength,
+        problem = problem,
+        confirm = stringResource(R.string.core_designsystem_rename),
+        onConfirm = onConfirm,
+        onDismiss = onDismiss,
+        modifier = modifier,
+        failed = failed,
+        busy = busy,
+    )
 }
 
 /** « 40 caractères au plus. »: a name longer than [maxLength] characters, refused. */

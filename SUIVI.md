@@ -1099,7 +1099,8 @@ composants.
   - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
     `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
-    v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99.
+    v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99. Menu en `BloxMenu`, `CardMenu` réduit à un `RowMenu`
+    et `MenuItem` retiré : faits en P10.36.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
@@ -1687,8 +1688,10 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [ ] **P10.35** En police ×2, la pastille « ouvert » d'une rangée de Mes jardins pourrait passer sous la ligne
   d'information (à juger, P10.33). De même, à 360 dp, le « … » de 48 dp (P10.30) serre le texte de la rangée
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
-- [ ] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
-  Mes jardins, deuxième occurrence (règle de 2, revue de P10.30).
+- [x] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
+  Mes jardins, deuxième occurrence (règle de 2, revue de P10.30). Fait : `RowMenu` (« … », `Item`, `RenameItem`,
+  `DeleteItem`, focus rendu après la fenêtre) et `RenameWindow` (`core:designsystem`) ; Mes musiques passe au `BloxMenu`
+  (le menu de P5.100). L'état des fenêtres reste dans chaque feature.
 - [x] **P10.37** Jeton de mouvement pour la montée d'une feuille qui descend (`SHEET_RISE`, 40 dp, sans jeton
   d'espacement qui lui corresponde) et, si on le veut, `motion-row` pour le repli d'une rangée (aujourd'hui
   `motion-curtain`) : à publier dans le design system avec P10.33. Fait le 2026-10-29 : `sheet-rise`
@@ -1698,6 +1701,9 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   (`FALL_TICKS` = 8, `FALL_CELLS`, `GardenFeedback.kt`), la montée du message « Gardé » qui emprunte un espacement
   (`MESSAGE_RISE` = `BloxSpaces.space4`, `GardenKeptFeedback.kt`, à aligner sur `sheet-rise`) et, à juger, la boucle
   de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`).
+- [ ] **P10.39** Après la suppression d'un jardin depuis Mes jardins, le focus revient au « … » d'une rangée qui part
+  (repliée puis retirée) : le rendre à un élément qui reste (la rangée suivante, la liste ou le titre de la feuille).
+  Revue de P10.36, hors périmètre.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 

@@ -476,7 +476,9 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `MyGardensScreenTest › an Annuler that could not be written says the operation failed, Annuler still offered`.
 - **Menu « … » de la rangée** (P10.30) : un disque de 48 dp en bout de rangée propose Renommer et Supprimer. À la
   fermeture de la fenêtre ouverte depuis le menu, le focus revient au « … » de sa rangée.
-  **Test :** `MyGardensScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its row`.
+  Le menu est `RowMenu` (`core:designsystem`, P10.36), commun à Mes musiques.
+  **Tests :** `MyGardensScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its row`,
+  `RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`.
 - **Renommer** (P10.30) : `NamingWindow` sur le nom actuel du jardin, aux règles de nom de « Garder » ; le jardin
   peut garder son propre nom, dans une autre casse ou non, pas celui d'un autre. Un nom accepté renomme le jardin
   (`rename`), la fenêtre se ferme et la feuille reste ouverte ; un nom refusé ne renomme rien ; un échec garde la

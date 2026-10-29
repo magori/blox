@@ -43,6 +43,10 @@
     <string name="core_designsystem_message_close">Fermer le message</string>
     <!-- Le titre du menu « … », annoncé par TalkBack à son ouverture. -->
     <string name="core_designsystem_menu">Menu</string>
+    <!-- Le menu « … » d'une rangée (P10.36), partagé par Mes musiques et Mes jardins, et sa fenêtre Renommer. -->
+    <string name="core_designsystem_row_menu">Plus d\'actions pour %1$s</string>
+    <string name="core_designsystem_rename">Renommer</string>
+    <string name="core_designsystem_rename_title">Renommer « %1$s »</string>
     <!-- Les noms des notes et des accords lus par TalkBack (P10.19), partagés par l’éditeur, le Serrurier et le Jardin. -->
     <!-- Un accord, par son degré en chiffres puis sa qualité : « 6 mineur » plutôt que « vi », lu comme un mot. -->
     <string name="core_designsystem_chord_major">%1$s majeur</string>
