@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.DeleteWindow
 import ch.magori.blox.core.designsystem.component.NamingWindow
@@ -31,7 +30,9 @@ import ch.magori.blox.core.designsystem.component.WindowButtonKind
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.WindowPanel
 import ch.magori.blox.core.designsystem.component.WindowText
-import ch.magori.blox.core.designsystem.component.nameTooLongText
+import ch.magori.blox.core.designsystem.text.NameRefusal
+import ch.magori.blox.core.designsystem.text.NamedThing
+import ch.magori.blox.core.designsystem.text.nameRefusalText
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.music.Category
@@ -246,12 +247,6 @@ private fun ForGamesBox(
 private fun problemText(problem: SaveProblem): String = when (problem) {
     SaveProblem.EmptyGrid -> stringResource(R.string.feature_composer_problem_empty)
 
-    is SaveProblem.Name -> when (problem.reason) {
-        NameProblem.BLANK -> stringResource(R.string.feature_composer_problem_blank)
-
-        NameProblem.TAKEN -> stringResource(R.string.feature_composer_problem_taken)
-
-        // Never shown: the editor cuts the name typed at the longest a saved name may be.
-        NameProblem.TOO_LONG -> nameTooLongText(SavedMusic.MAX_NAME_LENGTH)
-    }
+    is SaveProblem.Name ->
+        nameRefusalText(NameRefusal.valueOf(problem.reason.name), NamedThing.MUSIC, SavedMusic.MAX_NAME_LENGTH)
 }

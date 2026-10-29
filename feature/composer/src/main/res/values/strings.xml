@@ -38,8 +38,6 @@
     <string name="feature_composer_style_free">Libre</string>
     <string name="feature_composer_for_games">Jouer cette musique pendant les parties</string>
     <string name="feature_composer_problem_empty">La grille est vide : pose au moins une note.</string>
-    <string name="feature_composer_problem_blank">Donne un nom à la musique.</string>
-    <string name="feature_composer_problem_taken">Une autre musique porte déjà ce nom.</string>
     <string name="feature_composer_take_free_name">Prendre « %1$s »</string>
     <string name="feature_composer_rename">Renommer</string>
 

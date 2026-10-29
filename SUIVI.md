@@ -1419,7 +1419,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
 - [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
-- [ ] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
+- [x] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 - [x] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
@@ -1676,9 +1676,10 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
   8 ticks). Après P10.10, P10.12.
-- [ ] **P10.34** Mettre en commun les textes des problèmes de nom (`NameProblem` → texte) de Mes musiques, de
+- [x] **P10.34** Mettre en commun les textes des problèmes de nom (`NameProblem` → texte) de Mes musiques, de
   l'éditeur et du Jardin, troisième occurrence (revue de P10.29). `core:designsystem` ne voit pas `core:data`, où vit
-  `NameProblem` : il faut un endroit commun aux trois features.
+  `NameProblem` : il faut un endroit commun aux trois features. Fait : `NameTexts` (`core:designsystem`), « Donne-lui
+  un nom. » partout.
 - [ ] **P10.35** En police ×2, la pastille « ouvert » d'une rangée de Mes jardins pourrait passer sous la ligne
   d'information (à juger, P10.33). De même, à 360 dp, le « … » de 48 dp (P10.30) serre le texte de la rangée
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.

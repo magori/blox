@@ -43,8 +43,6 @@
     <!-- Renommer -->
     <string name="feature_musics_rename_title">Renommer « %1$s »</string>
     <string name="feature_musics_rename_confirm">Renommer</string>
-    <string name="feature_musics_name_blank">Donne-lui un nom.</string>
-    <string name="feature_musics_name_taken">Une autre musique porte déjà ce nom.</string>
 
     <!-- Supprimer -->
     <string name="feature_musics_delete_note">Elle disparaîtra de Mes musiques. Tu pourras annuler juste après.</string>
