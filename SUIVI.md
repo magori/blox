@@ -1626,7 +1626,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
   feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
-  pictogramme « herbier » et jeton `garden-thumb-cell` dans le design system.
+  pictogramme « herbier » et jetons `garden-thumb-cell`, `sheet-rise` et `motion-row` (P10.37) dans le design system.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1679,9 +1679,11 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
 - [ ] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
   Mes jardins, deuxième occurrence (règle de 2, revue de P10.30).
-- [ ] **P10.37** Jeton de mouvement pour la montée d'une feuille qui descend (`SHEET_RISE`, 40 dp, sans jeton
+- [x] **P10.37** Jeton de mouvement pour la montée d'une feuille qui descend (`SHEET_RISE`, 40 dp, sans jeton
   d'espacement qui lui corresponde) et, si on le veut, `motion-row` pour le repli d'une rangée (aujourd'hui
-  `motion-curtain`) : à publier dans le design system avec P10.33.
+  `motion-curtain`) : à publier dans le design system avec P10.33. Fait le 2026-10-29 : `sheet-rise`
+  (`BloxSizes.sheetRise`) et `motion-row` (`BloxMotion.row`) dans `tokens.json` et le code ; la publication dans le
+  design system de claude.ai reste à faire avec P10.33.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 

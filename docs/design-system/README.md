@@ -206,6 +206,12 @@ de l'éditeur utilisent un italique imité.
   Marge des écrans : `space-4` sur téléphone. Seule exception : la case de l'aperçu du Serrurier posée sur
   l'anneau en colonne 0 ou 9 peut déborder jusqu'à `space-1` du bord, rognée là (P7.22), et jusqu'à 3 dp sur les
   écrans les plus étroits, pour que sa croix garde 10 dp (P7.23).
+- Mouvements des listes et des feuilles (P10.37) : une feuille du bas monte de `sheet-rise` (40 px) jusqu'à sa place
+  en `motion-card`, et redescend d'autant quand son écran la ferme (Mes jardins) ; distance de mouvement, elle ne
+  correspond à aucun espacement. Une rangée supprimée (Mes jardins) s'estompe puis se replie en `motion-row`
+  (200 ms) : même durée que `motion-curtain`, mais un jeton à elle, pour que le rideau de la pause et le repli d'une
+  rangée puissent changer l'un sans l'autre. Effets réduits : aucun déplacement (fondu de la feuille à l'entrée,
+  rangée qui disparaît d'un coup).
 
 ## Pictogrammes
 

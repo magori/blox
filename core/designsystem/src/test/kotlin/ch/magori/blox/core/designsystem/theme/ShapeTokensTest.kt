@@ -87,6 +87,7 @@ class ShapeTokensTest {
             size("key-rotate", "BloxSizes.keyRotate") { BloxSizes.keyRotate },
             size("key-rotate-compact", "BloxSizes.keyRotateCompact") { BloxSizes.keyRotateCompact },
             size("key-rotate-tablet", "BloxSizes.keyRotateTablet") { BloxSizes.keyRotateTablet },
+            size("sheet-rise", "BloxSizes.sheetRise") { BloxSizes.sheetRise },
             size("icon", "IconSizes.alone") { IconSizes.alone },
             space("space-1", "BloxSpaces.space1") { BloxSpaces.space1 },
             space("space-2", "BloxSpaces.space2") { BloxSpaces.space2 },
