@@ -86,6 +86,7 @@ import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
@@ -246,7 +247,7 @@ internal fun GardenScreen(
                         modifier = messageModifier.graphicsLayer {
                             val entrance = keptMessageEntrance(keptTick(), effects)
                             alpha = entrance.alpha
-                            translationY = entrance.rise * MESSAGE_RISE.toPx()
+                            translationY = entrance.rise * BloxSizes.messageRise.toPx()
                         },
                     )
                 }

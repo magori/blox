@@ -530,9 +530,10 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
     hors de celles-ci serait un défaut : un `check` la refuse plutôt que de la jouer sur une piste jamais libérée),
     soumis au réglage des effets sonores. Le point « modifié » du disque attend la fin de la descente de la feuille,
     puis s'éteint en fondu en 8 ticks ; quand aucune feuille ne descend (Annuler, suppression, réouverture), il
-    commence tout de suite. Le message « « X » gardé. » monte ensuite de 16 dp en apparaissant, en 18 ticks ; en
-    Effets réduits, le point s'éteint aussitôt et le message s'affiche à sa place sans monter. Chaque garde est un
-    retour à part (`keeps`), même sous le même nom ;
+    commence tout de suite. Le message « « X » gardé. » monte ensuite de 16 dp (`message-rise`,
+    `BloxSizes.messageRise`, P10.38) en apparaissant, en 18 ticks ; en Effets réduits, le point s'éteint aussitôt
+    et le message s'affiche à sa place sans monter. Chaque garde est un retour à part (`keeps`), même sous le même
+    nom ;
   - **jardin rouvert** : une fois la feuille descendue, il tombe pièce par pièce comme après Au hasard
     (`GardenChange.Opened`) ; en Effets réduits, il s'affiche d'un coup, sans chute ni fondu. Annuler rend le jardin
     d'avant d'un coup, sans chute ;
@@ -824,7 +825,7 @@ captures `GardenEmptyDay`, `GardenEmptyNight`, `GardenRefusedDay`, `GardenRefuse
 `GardenClearedDay`. Vues : V40.
 
 **Retours** (P10.15), chacun avec sa version Effets réduits ([ADR 0024](adr/0024-retours-de-jeu-et-effets-reduits.md)),
-cadencés en ticks (`motion-garden-glow`, `-bounce`, `-fall-step`, codés dans `BloxMotion`) et lus au dessin
+cadencés en ticks (`motion-garden-glow`, `-bounce`, `-fall`, `-fall-step`, codés dans `BloxMotion`) et lus au dessin
 (`GardenCellEffects`, `GardenCellCanvas`), sans recomposition par image. Le retour d'un changement affiché à
 l'arrivée sur l'écran n'est pas rejoué, comme au Serrurier ; les courbes (`fadeOut`, `swell`) et le compteur
 d'images (`rememberEffectTick`) sont partagés avec lui (`core:designsystem`).
@@ -837,7 +838,8 @@ d'images (`rememberEffectTick`) sont partagés avec lui (`core:designsystem`).
   rebondissent à × 1,1 et reviennent en 6 ticks à chaque croche, la pilule de l'accord en cours remplie ; en
   Effets réduits, pas de rebond, la tête passe de colonne en colonne ;
 - **Au hasard** : les pièces tombent une à une, de gauche à droite (première colonne de chaque pièce), avec 2 ticks
-  d'écart, chacune d'une case en 8 ticks en accélérant, invisible jusqu'à son tour ; en Effets réduits, toutes
+  d'écart, chacune d'une case en 8 ticks en accélérant (`motion-garden-fall`, `BloxMotion.gardenFall`, P10.38 ;
+  la hauteur, une case, suit `garden-cell`, sans jeton à elle), invisible jusqu'à son tour ; en Effets réduits, toutes
   apparaissent ensemble à leur place en fondu de 8 ticks. Durée et hauteur de chute choisies à l'implémentation,
   à juger avec P10.17 ;
 - **changement d'ambiance** : toutes les notes s'éclairent puis s'éteignent en 8 ticks dans la nouvelle ambiance

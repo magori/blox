@@ -1635,7 +1635,8 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
   feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
-  pictogramme « herbier » et jetons `garden-thumb-cell`, `sheet-rise` et `motion-row` (P10.37) dans le design system.
+  pictogramme « herbier » et jetons `garden-thumb-cell`, `sheet-rise` et `motion-row` (P10.37), `message-rise` et
+  `motion-garden-fall` (P10.38) dans le design system.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1694,10 +1695,12 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   `motion-curtain`) : à publier dans le design system avec P10.33. Fait le 2026-10-29 : `sheet-rise`
   (`BloxSizes.sheetRise`) et `motion-row` (`BloxMotion.row`) dans `tokens.json` et le code ; la publication dans le
   design system de claude.ai reste à faire avec P10.33.
-- [ ] **P10.38** Les autres valeurs de mouvement sans jeton (revue de P10.37) : la chute d'une pièce d'Au hasard
+- [x] **P10.38** Les autres valeurs de mouvement sans jeton (revue de P10.37) : la chute d'une pièce d'Au hasard
   (`FALL_TICKS` = 8, `FALL_CELLS`, `GardenFeedback.kt`), la montée du message « Gardé » qui emprunte un espacement
   (`MESSAGE_RISE` = `BloxSpaces.space4`, `GardenKeptFeedback.kt`, à aligner sur `sheet-rise`) et, à juger, la boucle
-  de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`).
+  de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`). Fait le 2026-10-30 : `motion-garden-fall`
+  (`BloxMotion.gardenFall`) et `message-rise` (`BloxSizes.messageRise`) ; `FALL_CELLS` (une case) et la boucle de
+  l'égaliseur restent sans jeton. Publication dans le design system de claude.ai avec P10.33.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 
