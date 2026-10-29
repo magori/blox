@@ -105,4 +105,17 @@
 
     <!-- Le message après Garder ou Enregistrer. -->
     <string name="feature_garden_kept">« %1$s » gardé.</string>
+
+    <!-- Une rangée de Mes jardins : l'ouvrir, son menu « … ». -->
+    <string name="feature_garden_row_open">Ouvrir</string>
+    <string name="feature_garden_row_menu">Plus d\'actions pour %1$s</string>
+    <string name="feature_garden_rename">Renommer</string>
+    <string name="feature_garden_rename_title">Renommer « %1$s »</string>
+    <string name="feature_garden_delete">Supprimer</string>
+    <string name="feature_garden_delete_note">Il disparaîtra de Mes jardins. Tu pourras annuler juste après.</string>
+    <string name="feature_garden_delete_keep">Garder le jardin</string>
+
+    <!-- Les messages avec Annuler, après Rouvrir et Supprimer. -->
+    <string name="feature_garden_opened">« %1$s » ouvert</string>
+    <string name="feature_garden_deleted">« %1$s » supprimé.</string>
 </resources>

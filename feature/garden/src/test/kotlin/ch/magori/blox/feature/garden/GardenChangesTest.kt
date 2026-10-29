@@ -84,7 +84,7 @@ class GardenChangesTest {
         val state = viewModel.uiState.value
         assertThat(state?.garden).isEqualTo(A_GARDEN.clear())
         assertThat(kept.state.value).isEqualTo(A_GARDEN.clear())
-        assertThat(state?.undo).isEqualTo(A_GARDEN)
+        assertThat(state?.undo).isEqualTo(GardenUndo.Cleared(A_GARDEN))
     }
 
     @Test
@@ -115,7 +115,7 @@ class GardenChangesTest {
         main.scheduler.runCurrent()
 
         // Then
-        assertThat(before).isEqualTo(A_GARDEN)
+        assertThat(before).isEqualTo(GardenUndo.Cleared(A_GARDEN))
         assertThat(viewModel.uiState.value?.undo).isNull()
         assertThat(viewModel.uiState.value?.garden).isEqualTo(A_GARDEN.clear())
     }
@@ -133,7 +133,7 @@ class GardenChangesTest {
         val state = viewModel.uiState.value
         assertThat(state?.garden).isEqualTo(composed)
         assertThat(kept.state.value).isEqualTo(composed)
-        assertThat(state?.undo).isEqualTo(A_GARDEN)
+        assertThat(state?.undo).isEqualTo(GardenUndo.Cleared(A_GARDEN))
     }
 
     @Test
@@ -207,7 +207,7 @@ class GardenChangesTest {
         viewModel.remove()
 
         // Then
-        assertThat(viewModel.uiState.value?.undo).isEqualTo(A_GARDEN)
+        assertThat(viewModel.uiState.value?.undo).isEqualTo(GardenUndo.Cleared(A_GARDEN))
     }
 
     @Test
