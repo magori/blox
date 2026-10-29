@@ -115,6 +115,11 @@ changent beaucoup.
    cartouches (`CartridgesRoute`) ; la cartouche Classique empile l'accueil, et le disque « Changer de jeu » de
    l'accueil revient aux cartouches par `changeGame` (fonction pure de `app` : dépile jusqu'à elles, ou les met à
    la racine d'une pile restaurée qui ne les a pas). Le retour système sur les cartouches quitte l'application.
+   Les touchers des cartouches passent par `CartridgeOpener` (`app`, P7.34) : chaque cartouche empile son écran
+   tout de suite, sauf le Serrurier, qui attend la frontière (première serrure non ouverte) lue par
+   `PadlockFrontier` (`app`, lecture de l'avancement dès le démarrage, `current: StateFlow<Int?>` et `await()`) ;
+   un toucher sur une autre cartouche annule cette attente. `feature:cartridges` ne reçoit que
+   `padlockFrontier: StateFlow<Int?>`, pour la sous-ligne « Serrure N ».
    Le parcours mesuré (`BloxJourney`) passe par `cartridge_classic`.
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.

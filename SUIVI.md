@@ -1378,7 +1378,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   (rejets et ordre du meilleur), écrit en premier ; un avancement d'une version ou génération plus récente (écriture
   impossible) laisse jouer avec un état compréhensible, sans relancer la lecture en boucle (revue de P7.32). Après
   P7.30, P7.32.
-- [ ] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
+- [x] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
   `app`), parcours Macrobenchmark vérifié. Après P7.32.
 - [ ] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
   ouvrir, en cours, verrouillées de sa rangée), état vide, TalkBack, police ×2, captures jour, nuit, grande police.
@@ -1412,6 +1412,8 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
 - [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
+- [ ] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
+  de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
