@@ -54,6 +54,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.time.Instant
+import ch.magori.blox.core.designsystem.R as DesignSystemR
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -326,7 +327,9 @@ internal class MyGardensScreenTest {
 
         // Then
         onNode(hasText(string(R.string.feature_garden_delete_keep)) and hasClickAction()).assertIsNotEnabled()
-        onNode(hasText(string(R.string.feature_garden_delete)) and hasClickAction()).assertIsNotEnabled()
+        onNode(
+            hasText(string(DesignSystemR.string.core_designsystem_window_delete)) and hasClickAction(),
+        ).assertIsNotEnabled()
     }
 
     @Test
@@ -371,6 +374,8 @@ internal class MyGardensScreenTest {
         }
         onNodeWithContentDescription("Plus d'actions pour Pluie douce").performSemanticsAction(SemanticsActions.OnClick)
         onNodeWithText("Renommer").performSemanticsAction(SemanticsActions.OnClick)
+        // The window of the name opens: its state is seen before it closes.
+        waitForIdle()
 
         // When the window of the name closes
         state = listed

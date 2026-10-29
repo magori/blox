@@ -1491,6 +1491,15 @@ Vues : V7 à V18.
   trois features.
   **Tests :** `NameTextsReadingTest › a name taken is told by what is named, a blank name alike for all, a long one by its most characters`,
   `NameRefusalTest › each problem of a name has the refusal of the same name, and each refusal its problem`.
+- **Menu « … » et Renommer communs** (P10.36, `RowMenu` et `RenameWindow`, `core:designsystem`, `docs/themes.md`) :
+  le menu d'une carte de Mes musiques est celui d'une rangée de Mes jardins, un `BloxMenu` (*Modifier*, *Renommer*,
+  *La jouer* ou *Ne plus la jouer pendant les parties*, *Supprimer* en `danger`), à la place du `DropdownMenu` de
+  Material ; le focus revient au « … » une fois fermée la fenêtre qu'il a ouverte. La fenêtre Renommer est
+  `RenameWindow`. Mêmes actions, mêmes textes.
+  **Tests :** `RowMenuTest › « … » is read « Plus d'actions pour X » and offers its items in order, Renommer and Supprimer`,
+  `RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`,
+  `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
+  `MyMusicsScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its card`.
 - En police ×2, les réponses, toujours empilées, gardent leurs mots entiers (P5.48, P5.98, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
 
 **Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,

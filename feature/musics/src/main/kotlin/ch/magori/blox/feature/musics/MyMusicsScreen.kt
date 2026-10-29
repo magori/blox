@@ -1,11 +1,9 @@
 package ch.magori.blox.feature.musics
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,20 +14,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -52,6 +44,7 @@ import ch.magori.blox.core.designsystem.component.Equalizer
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.ListenButton
+import ch.magori.blox.core.designsystem.component.RowMenu
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
@@ -159,7 +152,9 @@ internal fun MyMusicsScreen(
                     contentPadding = PaddingValues(bottom = bottomRoom),
                     verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
                 ) {
-                    items(uiState.musics, key = { it.id.key }) { card -> MusicRow(card = card, actions = actions) }
+                    items(uiState.musics, key = { it.id.key }) { card ->
+                        MusicRow(card = card, actions = actions, windowOpen = uiState.dialog != null)
+                    }
                 }
             }
         }
@@ -287,13 +282,15 @@ private fun EmptyList(modifier: Modifier = Modifier) {
 
 /**
  * The row of a music, in a panel (V32): Écouter; its name and its info line, which open the music in the editor;
- * *Utiliser*, or *En jeu*, the choice made, each saying what a touch does; and its menu « … », a bare disc. While it is
- * listened to, the gauge of its bars stands under its name, as wide as it; the buttons stay level with the name.
+ * *Utiliser*, or *En jeu*, the choice made, each saying what a touch does; and its menu « … », a bare disc, whose focus
+ * comes back once the window it opened closes ([windowOpen]). While it is listened to, the gauge of its bars stands
+ * under its name, as wide as it; the buttons stay level with the name.
  */
 @Composable
 private fun MusicRow(
     card: MusicCard,
     actions: MyMusicsActions,
+    windowOpen: Boolean,
 ) {
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.md
@@ -335,7 +332,7 @@ private fun MusicRow(
                 if (card.inGame) R.string.feature_musics_menu_stop_using else R.string.feature_musics_menu_use,
             ),
         )
-        CardMenu(card = card, actions = actions, modifier = levelWithName)
+        CardMenu(card = card, actions = actions, windowOpen = windowOpen, modifier = levelWithName)
     }
 }
 
@@ -460,65 +457,29 @@ private class LaidOutText {
     var result: TextLayoutResult? = null
 }
 
-/** The menu « … » of a card: *Modifier*, *Renommer*, *La jouer* or *Ne plus la jouer pendant les parties*, *Supprimer*. */
+/**
+ * The menu « … » of a card ([RowMenu]): *Modifier*, *Renommer*, *La jouer* or *Ne plus la jouer pendant les parties*,
+ * *Supprimer*. Its focus comes back once the window it opened closes ([windowOpen]).
+ */
 @Composable
 private fun CardMenu(
     card: MusicCard,
     actions: MyMusicsActions,
+    windowOpen: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
-    Box(modifier) {
-        var expanded by remember { mutableStateOf(false) }
-        GlyphButton(
-            description = stringResource(R.string.feature_musics_menu_description, card.name),
-            onClick = { expanded = true },
-            emphasis = ButtonEmphasis.BARE,
-            glyph = { Glyphs.more(this, it) },
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-            containerColor = palette.panel,
-        ) {
-            MenuItem(R.string.feature_musics_menu_edit, BloxIcon.EDIT, palette.ink) {
-                expanded = false
-                actions.onEdit(card.id)
-            }
-            MenuItem(R.string.feature_musics_menu_rename, BloxIcon.RENAME, palette.ink) {
-                expanded = false
-                actions.onRename(card.id)
-            }
-            MenuItem(
+    RowMenu(name = card.name, modifier = modifier, windowOpen = windowOpen) {
+        Item(stringResource(R.string.feature_musics_menu_edit), BloxIcon.EDIT, onClick = { actions.onEdit(card.id) })
+        RenameItem(onRename = { actions.onRename(card.id) })
+        Item(
+            text = stringResource(
                 if (card.inGame) R.string.feature_musics_menu_stop_using else R.string.feature_musics_menu_use,
-                BloxIcon.NOTE,
-                palette.ink,
-            ) {
-                expanded = false
-                actions.onUse(card.id)
-            }
-            MenuItem(R.string.feature_musics_menu_delete, BloxIcon.TRASH, palette.danger) {
-                expanded = false
-                actions.onDelete(card.id)
-            }
-        }
+            ),
+            icon = BloxIcon.NOTE,
+            onClick = { actions.onUse(card.id) },
+        )
+        DeleteItem(onDelete = { actions.onDelete(card.id) })
     }
-}
-
-/** An item of the menu « … », [text] after its [icon], decorative, both in [color]. */
-@Composable
-private fun MenuItem(
-    @StringRes text: Int,
-    icon: BloxIcon,
-    color: Color,
-    onClick: () -> Unit,
-) {
-    DropdownMenuItem(
-        text = { Text(text = stringResource(text), color = color, style = MaterialTheme.typography.labelLarge) },
-        leadingIcon = { BloxIcon(icon, Modifier.testTag(MUSICS_ICON_TAG), tint = color) },
-        onClick = onClick,
-        modifier = Modifier.heightIn(min = BloxSizes.minTouchTarget),
-    )
 }
 
 @Composable
