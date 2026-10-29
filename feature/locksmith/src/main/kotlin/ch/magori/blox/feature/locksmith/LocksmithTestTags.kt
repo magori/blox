@@ -13,7 +13,7 @@ internal const val PLACE_TAG = "locksmith_place"
 
 /**
  * The tag of a cell of the padlock, by what it shows: the journey of `:benchmark` touches the first hole it finds,
- * without knowing the padlock, drawn from a random seed.
+ * without knowing the padlock.
  */
 internal fun cellTestTag(cell: LockCell): String = when (cell) {
     LockCell.Hole -> "locksmith_cell_hole"

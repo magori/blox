@@ -57,3 +57,7 @@ ouverture de chaque serrure dans un fichier versionné de `core:data` (entiers s
 `core:locksmith`), inclus dans la sauvegarde Android. `LocksmithRoute` ne porte plus que le niveau ; l'écran
 « Serrures » (`PadlocksRoute`) vit dans `feature:locksmith`, et `app` assemble la navigation (choisir une serrure
 remplace celle de la pile ; recommencer remet la pile sur la serrure 1).
+
+Fait en P7.30 (2026-10-29) : `LocksmithRoute(level)` sans graine, serrure `Padlock.ofLevel(level)` ; l'ancien
+`Padlock.generate(level, seed)` sur `kotlin.random.Random` est supprimé, et une clé sauvegardée avec sa graine par une
+version antérieure redonne la serrure de son niveau.

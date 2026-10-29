@@ -8,8 +8,6 @@ import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Timeout
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.ValueSource
 
 class PadlockHintTest {
     @Test
@@ -145,10 +143,10 @@ class PadlockHintTest {
 
     @Test
     @Timeout(5)
-    fun `a hint is quick once a piece is placed anywhere in a padlock of 6 pieces`() {
-        // Given: on 100 padlocks of 6 pieces, the first given piece placed wherever it first fits, turned or not
-        val games = (1..100L).map { seed ->
-            val start = PadlockGame.start(PadlockGenerator.generate(6, seed))
+    fun `a hint is quick once a piece is placed anywhere in padlocks 1 to 100`() {
+        // Given: padlocks 1 to 100 (3 to 8 pieces), the first given piece placed wherever it first fits, turned or not
+        val games = (1..100).map { level ->
+            val start = PadlockGame.start(Padlock.ofLevel(level))
             val turned = generateSequence(start) { it.turn(Rotation.CLOCKWISE) }.take(4)
             turned.flatMap { game -> game.padlock.hole.asSequence().map { game.place(it).game } }
                 .first { it.placed.isNotEmpty() }
@@ -161,11 +159,10 @@ class PadlockHintTest {
         assertThat(hints).hasSize(100)
     }
 
-    @ParameterizedTest(name = "{0} pieces")
-    @ValueSource(ints = [3, 4, 5, 6])
-    fun `following the hints opens every padlock of 200 seeds`(count: Int) {
+    @Test
+    fun `following the hints opens padlocks 1 to 200`() {
         // Given
-        val games = (1..200L).map { seed -> PadlockGame.start(PadlockGenerator.generate(count, seed)) }
+        val games = (1..200).map { level -> PadlockGame.start(Padlock.ofLevel(level)) }
 
         // When: each hint is followed, its piece selected, turned as shown and placed
         val ends = games.map { start ->

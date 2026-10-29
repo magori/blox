@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 
 /** The animated feedback of the last action of the player, in ticks, full or in reduced effects (ADR 0024). */
 class LocksmithFeedbackTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 3, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(3))
 
     @Test
     fun `a placement lights the cells of its piece for 8 ticks, dimmer at each tick`() {
@@ -99,7 +99,7 @@ class LocksmithFeedbackTest {
 
         // When
         val shakes = (0..feedback.ticks(REDUCED)).map { tick -> feedback.shake(tick, REDUCED) }
-        val glows = (0..feedback.ticks(REDUCED)).map { tick -> feedback.glow(state.aim!!, tick, REDUCED) }
+        val glows = (0..feedback.ticks(REDUCED)).map { tick -> feedback.glow(feedback.cells.first(), tick, REDUCED) }
 
         // Then the fade that takes the place of a move (motion-reduced-fade)
         assertThat(feedback.ticks(REDUCED)).isEqualTo(BloxMotion.reducedFade)

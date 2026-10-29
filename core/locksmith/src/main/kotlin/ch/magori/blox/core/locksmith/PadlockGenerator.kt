@@ -15,52 +15,14 @@ internal object PadlockGenerator {
     /** How many draws each piece of a candidate gets before the candidate is given up. */
     const val ATTEMPTS_PER_PIECE: Int = 200
 
-    /** How many candidates a seed composes, those given up included. */
+    /** How many candidates a try composes, those given up included. */
     const val CANDIDATES: Int = 20
 
-    /** How many seeds a generation tries, one after the other, before it gives up. */
-    const val SEEDS: Int = 100
+    /** How many tries a padlock takes, one after the other, before the generation gives up. */
+    const val TRIES: Int = 100
 
     /** How many solutions of a padlock its rating counts, at most. */
     const val SOLUTIONS_COUNTED: Int = 5
-
-    /** The most pieces of a padlock of [Padlock.generate], before the tiers. */
-    private const val LEGACY_MOST_PIECES = 6
-
-    /**
-     * How many pieces padlock [level] of [Padlock.generate] holds, from 1: two more than its level, six at most, as
-     * before the tiers, until P7.30. [ofLevel] takes the pieces of its [PadlockProfile].
-     */
-    fun pieceCount(level: Int): Int {
-        require(level >= 1) { "Padlocks are numbered from 1, got $level" }
-        return minOf(LEGACY_MOST_PIECES, 2 + level)
-    }
-
-    /**
-     * The padlock of [pieceCount] pieces composed from [seed]: the best rated of [CANDIDATES]
-     * candidates, the first one composed among those of equal rating. Each candidate is composed by
-     * [compose] with its own random, drawn from a master random built on the seed, so that it does
-     * not depend on the draws of the previous ones. When every candidate is given up or ruled out,
-     * the next seed (`seed + 1`, the largest seed followed by the smallest one) is tried, [seeds]
-     * seeds at most; beyond, an `IllegalStateException`: it would take thousands of candidates in a
-     * row to fail. Kept for [Padlock.generate] until P7.30; [ofLevel] is the generation of the tiers.
-     */
-    fun generate(
-        pieceCount: Int,
-        seed: Long,
-        seeds: Int = SEEDS,
-        compose: (Random) -> Padlock? = { candidate(pieceCount, it) },
-    ): Padlock {
-        require(pieceCount in Padlock.PIECE_COUNTS) {
-            "A padlock holds ${Padlock.PIECE_COUNTS.first} to ${Padlock.PIECE_COUNTS.last} pieces, got $pieceCount"
-        }
-        require(seeds >= 1) { "A generation tries one seed at least, got $seeds" }
-        repeat(seeds) { tried ->
-            val master = Random(seed + tried)
-            best(List(CANDIDATES) { compose(Random(master.nextLong())) }, ::rating)?.let { return it }
-        }
-        error("No padlock of $pieceCount pieces in $seeds seeds from seed $seed")
-    }
 
     /**
      * Padlock [level], the same for everyone and for ever (contract of generation, ADR 0014 amended by P7.28): the
@@ -71,7 +33,7 @@ internal object PadlockGenerator {
      */
     fun ofLevel(
         level: Int,
-        tries: Int = SEEDS,
+        tries: Int = TRIES,
         compose: (PadlockProfile, Random) -> Padlock? = { profile, random ->
             candidate(profile.pieceCount, random, types = profile.types)
         },
@@ -136,13 +98,12 @@ internal object PadlockGenerator {
      * How interesting [padlock] is, for a hole of [shape] and a [preference] of solutions: the weight of the shape
      * per edge of the outline of its hole (a side of a hole cell that gives onto metal), 30 per kind of piece, minus
      * 3 per cell of the box around the hole, minus the weight of the preference per solution ([SOLUTIONS_COUNTED] at
-     * most). Before the tiers, every padlock was rated as a sinuous hole whose solutions are free. `null` when the
-     * padlock is ruled out: a rectangular hole, which fills its box, is no padlock.
+     * most). `null` when the padlock is ruled out: a rectangular hole, which fills its box, is no padlock.
      */
     fun rating(
         padlock: Padlock,
-        shape: HoleShape = HoleShape.SINUOUS,
-        preference: SolutionPreference = SolutionPreference.FREE,
+        shape: HoleShape,
+        preference: SolutionPreference,
     ): Int? {
         val hole = padlock.hole
         val box = (hole.maxOf { it.column } - hole.minOf { it.column } + 1) *

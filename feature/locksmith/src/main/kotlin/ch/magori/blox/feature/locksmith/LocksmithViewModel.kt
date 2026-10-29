@@ -26,7 +26,7 @@ import kotlinx.coroutines.launch
 import kotlin.reflect.KClass
 
 /**
- * The game of one [LocksmithRoute]: its padlock, generated from the seed of the route (ADR 0014, 0025), played by the
+ * The game of one [LocksmithRoute]: its padlock, that of the level of the route, the same for everyone (ADR 0014, 0025), played by the
  * actions of the player, which the domain judges. The only writer of the state of the screen. It plays the sound
  * effects of the judged actions (the chords, the opening flourish, the refusal), warmed up at the opening, unless the
  * settings turn them off. A rank that is not given is a programming error of the screen, refused by the domain.
@@ -37,7 +37,7 @@ class LocksmithViewModel internal constructor(
     preferences: UserPreferencesRepository,
 ) : ViewModel() {
     private val state = MutableStateFlow(
-        LocksmithUiState(level = route.level, game = PadlockGame.start(Padlock.generate(route.level, route.seed))),
+        LocksmithUiState(level = route.level, game = PadlockGame.start(Padlock.ofLevel(route.level))),
     )
 
     /** What the screen shows. */

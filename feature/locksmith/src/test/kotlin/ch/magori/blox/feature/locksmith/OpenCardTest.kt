@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 
 /** The card « Serrure ouverte », in place of the tiles and the controls once the padlock is open. */
 class OpenCardTest {
-    private val start = LocksmithUiState(level = 1, game = PadlockGame.start(Padlock.generate(level = 1, seed = 7)))
+    private val start = LocksmithUiState(level = 1, game = PadlockGame.start(Padlock.ofLevel(1)))
 
     @Test
     fun `there is no card while the padlock is closed`() {

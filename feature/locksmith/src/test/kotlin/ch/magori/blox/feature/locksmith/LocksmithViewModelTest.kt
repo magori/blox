@@ -22,14 +22,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MainDispatcherExtension::class)
 class LocksmithViewModelTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 2, seed = 7))
-    private val viewModel = locksmithViewModel(LocksmithRoute(level = 2, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(2))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 2))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece = start.padlock.solution.first { it.type == start.given.first() }
 
     @Test
-    fun `the screen opens on padlock n of the seed of its route, nothing placed`() {
+    fun `the screen opens on padlock n of its route, the same for everyone, nothing placed`() {
         // Then
         val state = viewModel.uiState.value
         assertThat(state.level).isEqualTo(2)
@@ -155,7 +155,7 @@ class LocksmithViewModelTest {
     fun `the factory builds the padlock and the level of the route the entry hands it`() {
         // Given
         val extras = MutableCreationExtras().apply {
-            set(LocksmithViewModel.RouteKey, LocksmithRoute(level = 3, seed = 9))
+            set(LocksmithViewModel.RouteKey, LocksmithRoute(level = 3))
         }
 
         // When
@@ -166,7 +166,7 @@ class LocksmithViewModelTest {
 
         // Then
         assertThat(built.uiState.value.level).isEqualTo(3)
-        assertThat(built.uiState.value.game).isEqualTo(PadlockGame.start(Padlock.generate(level = 3, seed = 9)))
+        assertThat(built.uiState.value.game).isEqualTo(PadlockGame.start(Padlock.ofLevel(3)))
     }
 
     @Test

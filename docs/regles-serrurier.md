@@ -34,7 +34,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
   trou tient dans les **8 × 8 cases intérieures**. L'écran peut donc ne montrer que ces 8 × 8
   cases, dans un rebord de métal.
   **Tests :** `PadlockTest › the hole stays inside the outer ring`.
-- Le trou est **l'union des cases d'une solution** : 3 à 6 pièces posées sans chevauchement,
+- Le trou est **l'union des cases d'une solution** : 3 à 8 pièces posées sans chevauchement,
   chacune touchant une pièce précédente par un bord (pas seulement par un coin). Toute serrure a
   donc au moins une solution ; elle n'est pas forcément unique.
   **Tests :** `PadlockTest › the hole is the union of the cells of the solution`,
@@ -46,7 +46,7 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 - Chaque pièce de la solution prend une orientation du Classique pour son type.
   **Tests :** `PadlockTest › a piece of a solution takes a Classic orientation of its type`.
 - Pour les tests, une serrure s'écrit en ASCII : `#` pour le métal, le rang de chaque pièce de la
-  solution (`1` à `6`, sans trou dans la suite) sur ses cases ; chaque pièce prend l'orientation
+  solution (`1` à `8`, sans trou dans la suite) sur ses cases ; chaque pièce prend l'orientation
   du Classique et le pivot qui couvrent ses cases (les 19 formes sont toutes différentes). Tout
   autre caractère, une grille qui n'est pas de 10 × 10 ou un rang qui n'est pas une pièce est
   refusé.
@@ -73,21 +73,22 @@ décisions du développeur le 2026-10-26. Architecture : [ADR 0025](adr/0025-le-
 ## Générer une serrure : composer, puis évaluer
 
 Même principe que la musique : on compose des candidats au hasard, on élimine, on note, on
-garde le meilleur. La génération est une **fonction pure de la graine**
-(`PadlockGenerator.generate(pieceCount, seed)`, qui construit son `Random(seed)` elle-même) :
-aucun état modifiable de plus dans le domaine ([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)),
-et une même graine donne toujours la même serrure. Comme pour la musique, ce `Random(seed)` est un
-maître : chaque candidat est composé avec son propre `Random`, tiré du maître, si bien qu'un
-candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
-**Tests :** `PadlockGenerationTest › the same seed gives the same padlock`,
-`PadlockGenerationTest › different seeds give different padlocks`,
-`PadlockGenerationTest › a candidate does not depend on the draws of the previous ones`.
+garde le meilleur. La serrure *n* (à partir de 1) est `Padlock.ofLevel(n)`, une **fonction pure du
+niveau** : aucun état modifiable de plus dans le domaine
+([ADR 0014](adr/0014-tirage-seul-etat-modifiable.md)), et la serrure *n* est la même pour tous et
+pour toujours. Le hasard vient de `StableRandom` (`core:game`), dont la suite est un contrat, semé
+par *n* ; comme pour la musique, c'est un maître : chaque candidat est composé avec son propre
+`StableRandom`, semé par le nombre suivant du maître, si bien qu'un candidat ne dépend pas du nombre
+de tirages qu'ont consommés les précédents. Le nombre de pièces, leurs types, la forme du trou et
+la préférence de solutions viennent du **profil** de la serrure (`PadlockProfile`, section
+[Paliers de difficulté](#paliers-de-difficulté)).
+**Tests :** `PadlockLevelTest › the candidates of padlock n draw on StableRandom, seeded by the numbers of StableRandom of n`.
 
-1. **Un candidat** : pour chaque pièce, jusqu'à **200 essais** d'un type, d'une orientation (parmi
-   toutes celles du type) et d'un pivot tiré dans les 8 × 8 intérieures. Un essai est retenu si
-   toutes ses cases sont dans les 8 × 8 intérieures, libres, et (sauf pour la première pièce) si
-   l'une touche par un bord une case déjà prise. Si une pièce n'est pas placée en 200 essais, le
-   candidat est abandonné.
+1. **Un candidat** : pour chaque pièce, jusqu'à **200 essais** d'un type (parmi ceux du profil),
+   d'une orientation (parmi toutes celles du type) et d'un pivot tiré dans les 8 × 8 intérieures.
+   Un essai est retenu si toutes ses cases sont dans les 8 × 8 intérieures, libres, et (sauf pour
+   la première pièce) si l'une touche par un bord une case déjà prise. Si une pièce n'est pas
+   placée en 200 essais, le candidat est abandonné.
    **Tests :** `PadlockGeneratorTest › a candidate has the number of pieces asked`,
    `PadlockGeneratorTest › a candidate is a valid padlock whatever the random`,
    `PadlockGeneratorTest › a candidate that cannot place a piece is ruled out`,
@@ -96,67 +97,73 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
    `PadlockGeneratorTest › each piece gets its own attempts`,
    `PadlockGeneratorTest › almost every random gives a candidate of 6 pieces`,
    `PadlockGeneratorTest › the first piece of a candidate takes every placement inside the ring`,
-   `PadlockGeneratorTest › over many randoms the candidates use every orientation of every type and every inner cell`.
-2. **20 candidats** par graine, abandonnés compris ; chacun est noté, le vingtième aussi.
-   **Tests :** `PadlockGenerationTest › when no seed gives a padlock within the bound the generator fails, 20 candidates per seed`,
-   `PadlockGenerationTest › the twentieth candidate is rated too`.
+   `PadlockGeneratorTest › over many randoms the candidates use every orientation of every type and every inner cell`,
+   `PadlockGeneratorTest › a candidate draws its pieces from its set`.
+2. **20 candidats** par essai, abandonnés compris ; chacun est noté, le vingtième aussi.
+   **Tests :** `PadlockLevelTest › when no try gives a padlock within the bound the generator fails, 20 candidates per try`,
+   `PadlockLevelTest › the twentieth candidate is rated too`.
 3. **Élimination** : un trou rectangulaire (il remplit sa boîte englobante) n'est pas une
    serrure.
    **Tests :** `PadlockRatingTest › a rectangular hole is ruled out`.
-4. **Note**, entière : `10 × contour + 30 × variété − 3 × boîte`, où le contour compte les côtés
-   de case du trou qui donnent sur le métal, la variété le nombre de types différents, la boîte
-   l'aire de la boîte englobante du trou (le prototype notait `contour + 3 × variété − 0,3 × boîte`
-   plus un bruit aléatoire : même ordre, sans arrondi ni bruit). À égalité, le premier candidat
-   composé l'emporte, comme dans le générateur de musique.
+4. **Note**, entière : `poids de la forme × contour + 30 × variété − 3 × boîte − poids de la
+   préférence × solutions`, où le contour compte les côtés de case du trou qui donnent sur le
+   métal, la variété le nombre de types différents, la boîte l'aire de la boîte englobante du
+   trou, les solutions leur nombre plafonné à 5 (poids dans la section
+   [Progression](#progression) ; pour un trou sinueux aux solutions libres,
+   `10 × contour + 30 × variété − 3 × boîte`). Le prototype notait
+   `contour + 3 × variété − 0,3 × boîte` plus un bruit aléatoire : même ordre, sans arrondi ni
+   bruit. À égalité, le premier candidat composé l'emporte, comme dans le générateur de musique.
    **Tests :** `PadlockRatingTest › the rating is 10 per edge of the outline, 30 per kind of piece, minus 3 per cell of the box`,
-   `PadlockGenerationTest › the best candidate is kept, the first one among equals`.
-5. Si aucun candidat ne reste, on recommence avec la **graine suivante** (`seed + 1` ;
-   après la plus grande graine vient la plus petite), au plus **100 graines** ; au-delà, c'est une erreur de programmation (`IllegalStateException`), pas un
-   état de l'écran. Le nombre de graines et la composition d'un candidat sont des paramètres du
-   générateur, pour que les tests puissent provoquer cet échec ; les essais sont un paramètre du
-   candidat.
-   **Tests :** `PadlockGenerationTest › when every candidate is given up the next seed is tried`,
-   `PadlockGenerationTest › when every candidate is ruled out the next seed is tried`,
-   `PadlockGenerationTest › negative seeds give padlocks and the seed after the largest one is the smallest one`,
-   `PadlockGenerationTest › a padlock of fewer than 3 or more than 8 pieces is refused before any candidate is composed`,
-   `PadlockGenerationTest › a generation tries one seed at least`,
-   `PadlockGenerationTest › when no seed gives a padlock within the bound the generator fails, 20 candidates per seed`,
-   `PadlockGenerationTest › every padlock of 500 seeds has the pieces asked and a hole that is no rectangle`.
+   `PadlockRatingTest › each edge of the outline weighs as its shape asks, each solution takes off the weight of its preference`,
+   `PadlockLevelTest › a padlock is rated for the shape and the preference of its profile`,
+   `PadlockLevelTest › the best candidate is kept, the first one among equals`.
+5. Si aucun candidat ne reste, on passe à l'**essai suivant** : l'essai *k* ≥ 1 part du premier
+   nombre de `StableRandom((n shl 32) or k)`, jamais de *n* + *k*, qui est la graine d'une autre
+   serrure. Au plus **100 essais** ; au-delà, c'est une erreur de programmation
+   (`IllegalStateException`), pas un état de l'écran. Le nombre d'essais et la composition d'un
+   candidat sont des paramètres du générateur, pour que les tests puissent provoquer cet échec ;
+   les tirages par pièce sont un paramètre du candidat. Les serrures 1 à 200 ont toutes les
+   pièces de leur profil (une de chaque type quand le profil le demande) autour d'un trou qui
+   n'est pas un rectangle.
+   **Tests :** `PadlockLevelTest › when every candidate is given up, try k draws on the pair n, k mixed by SplitMix, not on n + k`,
+   `PadlockLevelTest › when every candidate is ruled out the next try is taken`,
+   `PadlockLevelTest › the seeds of the tries of neighbouring padlocks never meet`,
+   `PadlockLevelTest › a padlock takes one try at least`,
+   `PadlockLevelTest › when no try gives a padlock within the bound the generator fails, 20 candidates per try`,
+   `PadlockLevelTest › padlocks 1 to 200 hold the pieces of their profile, one of each when asked, around a hole no rectangle`.
 6. **Pièces données** au joueur : celles de la solution, rangées dans l'ordre de `PieceType`
    (I O T S Z J L), qui ne trahit pas la solution.
    **Tests :** `PadlockTest › the pieces given to the player follow the order I O T S Z J L, not the solution`.
 
 ## Niveaux
 
-- Serrure *n* (à partir de 1) : **min(6, 2 + n)** pièces, donc 3, 4, puis 5, puis 6 dès la
-  serrure 4.
-  La serrure *n* d'une graine est `Padlock.generate(level, seed)`, que l'écran utilise encore jusqu'à P7.30 (tous
-  les types, sans forme ni préférence, tirée sur `kotlin.random`). La serrure *n* stable de la progression,
-  `Padlock.ofLevel(level)`, suit les paliers jusqu'à 8 pièces (section [Progression](#progression), P7.29) ; elle
-  remplacera `generate` en P7.30.
-  **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
-  `PadlockGenerationTest › there is no padlock before padlock 1`,
-  `PadlockGenerationTest › padlock n of a seed holds min of 6 and 2 plus n pieces`,
-  `PadlockGenerationTest › the same level and seed give the same padlock, another seed another one`,
-  `PadlockGenerationTest › there is no padlock 0`.
-- Chaque serrure a sa graine, tirée par l'application quand elle ouvre la serrure suivante (clé
-  de navigation `LocksmithRoute(level, seed)`). La clé numérote les serrures dès 1, et la suivante
-  est `route.next(seed)`. La graine n'est pas affichée : la suite de `Random` n'est pas un contrat
-  (ADR 0014), une graine partagée demanderait un générateur maison.
+- Serrure *n* (à partir de 1) : `Padlock.ofLevel(n)`, avec les pièces de son palier (table des
+  [paliers](#paliers-de-difficulté)) : 3, 4, puis 5, puis 6 dès la serrure 4, 7 dès la 13, 8 dès
+  la 21, puis le cycle de 5 au-delà de 30.
+  **Tests :** `PadlockProfileTest › the padlocks 1 to 30 follow the table of the tiers`,
+  `PadlockProfileTest › beyond padlock 30 the padlocks turn on a cycle of 5`,
+  `PadlockProfileTest › there is no padlock before padlock 1`,
+  `PadlockLevelTest › padlock n holds the pieces of its profile`,
+  `PadlockLevelTest › padlocks 1 to 200 hold the pieces of their profile, one of each when asked, around a hole no rectangle`.
+- La clé de navigation `LocksmithRoute(level)` ne porte que le niveau : pas de graine, la serrure
+  *n* étant la même pour tous. La clé numérote les serrures dès 1, et la suivante est
+  `route.next()`, d'un niveau de plus.
   **Tests :** `LocksmithRouteTest › padlocks are numbered from 1`,
-  `LocksmithRouteTest › the next padlock is one level up, on the seed it is given`,
-  `LocksmithViewModelTest › the screen opens on padlock n of the seed of its route, nothing placed`,
+  `LocksmithRouteTest › the next padlock is one level up`,
+  `LocksmithViewModelTest › the screen opens on padlock n of its route, the same for everyone, nothing placed`,
   `LocksmithViewModelTest › the factory builds the padlock and the level of the route the entry hands it`,
   `LocksmithViewModelTest › the factory fails clearly without the route of the entry`.
-- Après la mort du processus, la clé restaurée régénère la même serrure depuis sa graine, **sans
-  pièce posée**.
-  **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`.
-- La cartouche « Serrurier » ouvre la serrure 1 sur une graine tirée au hasard ; « Serrure
-  suivante » met à sa place la serrure d'un niveau de plus, sur une nouvelle graine, et un second
-  toucher ne saute pas deux serrures.
-  **Tests :** `OpenCartridgeTest › the Locksmith cartridge opens padlock 1 over the cartridges, on a seed drawn at random`,
+- Après la mort du processus, la clé restaurée redonne la même serrure, **sans pièce posée**. Une
+  clé sauvegardée par une version antérieure à P7.30, qui portait encore une graine, redonne la
+  serrure de son niveau (la graine est ignorée).
+  **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`,
+  `LocksmithRouteSavingTest › a padlock route comes back from the saved state as it was`,
+  `LocksmithRouteSavingTest › a padlock route saved with its seed by an older version comes back as the padlock of its level`.
+- La cartouche « Serrurier » ouvre la serrure 1 ; « Serrure suivante » met à sa place la serrure
+  d'un niveau de plus, et un second toucher ne saute pas deux serrures.
+  **Tests :** `OpenCartridgeTest › the Locksmith cartridge opens padlock 1 over the cartridges`,
   `OpenCartridgeTest › a second tap on the Locksmith cartridge does not stack a second padlock`,
-  `NextPadlockTest › the next padlock takes the place of the open one, one level up, on a new seed`,
+  `NextPadlockTest › the next padlock takes the place of the open one, one level up`,
   `NextPadlockTest › a second tap on next padlock does not move on twice`,
   `BloxNavDisplayTest › the Locksmith cartridge opens padlock 1`,
   `BloxNavDisplayTest › on the Locksmith, the system back goes back to the cartridges, and then leaves`,
@@ -169,14 +176,15 @@ candidat ne dépend pas du nombre de tirages qu'ont consommés les précédents.
   `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
   **Vues :** V26, V35.
 - Le niveau n'est pas encore enregistré : la cartouche ouvre toujours la serrure 1. La progression
-  ci-dessous le remplace (P7.29 à P7.37).
+  ci-dessous le remplace (P7.31 à P7.37 ; la cartouche sur la frontière en P7.34).
 
 ## Progression
 
-Décidée le 2026-10-28, à implémenter. Demande du développeur : garder l'avancement, poursuivre sur de nouvelles
+Décidée le 2026-10-28. Demande du développeur : garder l'avancement, poursuivre sur de nouvelles
 serrures, rouvrir les anciennes.
-Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Tant que les tâches P7.29 à P7.37 ne
-sont pas faites, le jeu suit les sections précédentes ; chaque règle ci-dessous recevra ses tests en son temps.
+Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Une serrure par niveau et ses paliers sont
+faits (P7.29, P7.30) : c'est le jeu décrit plus haut. Tant que les tâches P7.31 à P7.37 ne sont pas faites (avancement
+et anciennes serrures), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
 
 ### Une serrure par niveau, la même pour tous
 
@@ -204,7 +212,7 @@ sont pas faites, le jeu suit les sections précédentes ; chaque règle ci-desso
   Poids retenus : contour par arête 10 (sinueuse), 5 (mixte), 2 (compacte) ; retrait par solution (compte plafonné à
   5) 0 (libre), 15 (peu), 45 (unique) ; inchangés : +30 par type, −3 par case de la boîte. Le contrat fige l'ASCII
   des serrures 1, 2, 3, 4, 7, 13, 21 et 31 à 35, et une empreinte SHA-256 des serrures 1 à 100.
-  **Tests :** `PadlockGenerationTest › padlock n holds min of 6 and 2 plus n pieces`,
+  **Tests :** `PadlockProfileTest › the padlocks 1 to 30 follow the table of the tiers`,
   `PadlockProfileTest › beyond padlock 30 the padlocks turn on a cycle of 5`,
   `PieceSetTest › a set draws its types in the order of the piece types, whatever was placed`,
   `PieceSetTest › one of each draws the types not placed yet`,
@@ -227,6 +235,15 @@ sont pas faites, le jeu suit les sections précédentes ; chaque règle ci-desso
   `PadlockLevelTest › a padlock takes one try at least`,
   `PadlockProfileTest › a profile of one of each holds 7 pieces at most`,
   `PadlockProfileTest › there is no padlock before padlock 1`.
+- **Fait** (P7.30) : l'écran joue `Padlock.ofLevel(n)` ; la clé `LocksmithRoute(level)` n'a plus de graine, la
+  suivante est `route.next()` (section [Niveaux](#niveaux)). L'ancien générateur sur `kotlin.random.Random`
+  (`Padlock.generate`) est supprimé. Une pile sauvegardée par une version antérieure (clé avec graine) redonne la
+  serrure de son niveau. La cartouche ouvre toujours la serrure 1 (la frontière viendra en P7.34).
+  **Tests :** `LocksmithRouteTest › the next padlock is one level up`,
+  `LocksmithViewModelTest › the screen opens on padlock n of its route, the same for everyone, nothing placed`,
+  `LocksmithRouteSavingTest › a padlock route saved with its seed by an older version comes back as the padlock of its level`,
+  `NextPadlockTest › the next padlock takes the place of the open one, one level up`,
+  `PadlockLevelTest › padlocks 1 to 200 hold the pieces of their profile, one of each when asked, around a hole no rectangle`.
 
 ### Paliers de difficulté
 
@@ -369,17 +386,17 @@ Une partie est un `PadlockGame` immuable (`start`, `select`, `turn`, `place`, `t
 ## Indice
 
 - Un solveur de couverture exacte cherche comment remplir le trou restant avec les pièces non
-  posées (au plus 6 pièces et 24 cases : un retour arrière suffit). Ordre de recherche, pour que
+  posées (au plus 8 pièces et 32 cases : un retour arrière suffit). Ordre de recherche, pour que
   l'indice soit toujours le même : la première case libre du trou dans l'ordre de lecture ; les
   pièces non posées par rang (de plusieurs pièces d'un même type, seule la première est essayée,
   les autres donneraient les mêmes couvertures) ; pour chacune, ses orientations dans l'ordre de
   `orientations(type)`, chacune avec le pivot qui fait de cette case la première de la pièce dans
   l'ordre de lecture (aucun autre ne peut convenir : c'est la première case libre).
   **Tests :** `PadlockHintTest › the hint shows where a free piece fits and counts a hint`,
-  `PadlockHintTest › following the hints opens every padlock of 200 seeds`,
+  `PadlockHintTest › following the hints opens padlocks 1 to 200`,
   `PadlockHintTest › the hint tries the orientations of a piece in their order`,
   `PadlockHintTest › the hint covers the first free cell in reading order`,
-  `PadlockHintTest › a hint is quick once a piece is placed anywhere in a padlock of 6 pieces`.
+  `PadlockHintTest › a hint is quick once a piece is placed anywhere in padlocks 1 to 100`.
 - S'il trouve : l'indice désigne la pièce qui couvre la première case libre dans la première
   couverture trouvée : **son rang, son orientation et son pivot**. Il ne propose jamais une pièce
   déjà posée (défaut du prototype), et trouve un chemin même quand le joueur s'est écarté de la

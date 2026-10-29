@@ -19,7 +19,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class PadlockSoundCuesTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 2, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(2))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece = start.padlock.solution.first { it.type == start.given.first() }

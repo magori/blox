@@ -15,19 +15,19 @@ import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import kotlinx.serialization.Serializable
 
 /**
- * Clé de l'écran du Serrurier (vue V35, ADR 0025) : la serrure [level] (dès 1) de la graine [seed]. Une serrure = une
- * clé distincte, donc un ViewModel neuf ; « Serrure suivante » met une nouvelle clé à sa place, que `app` tire (le
- * ViewModel ne tire jamais lui-même la serrure suivante, ADR 0011 et 0025). Après la mort du processus, la clé restaurée
- * régénère la même serrure, sans pièce posée (ADR 0025).
+ * Clé de l'écran du Serrurier (vue V35, ADR 0025) : la serrure [level] (dès 1), la même pour tous (`Padlock.ofLevel`).
+ * Une serrure = une clé distincte, donc un ViewModel neuf ; « Serrure suivante » met la clé suivante à sa place, dans
+ * `app` (le ViewModel ne change jamais lui-même de serrure, ADR 0011 et 0025). Après la mort du processus, la clé
+ * restaurée redonne la même serrure, sans pièce posée (ADR 0025).
  */
 @Serializable
-data class LocksmithRoute(val level: Int, val seed: Long) : NavKey {
+data class LocksmithRoute(val level: Int) : NavKey {
     init {
         require(level >= 1) { "Padlocks are numbered from 1, got $level" }
     }
 
-    /** The next padlock: one level up, on [seed], which `app` draws. */
-    fun next(seed: Long): LocksmithRoute = LocksmithRoute(level + 1, seed)
+    /** The next padlock: one level up. */
+    fun next(): LocksmithRoute = LocksmithRoute(level + 1)
 }
 
 /**
