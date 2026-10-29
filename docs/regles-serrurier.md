@@ -345,6 +345,66 @@ solutions) ;
   chaque case dit son état par le texte, la couleur ne fait que le doubler : ouverte, parfaite (étoile), à ouvrir,
   en cours (celle d'où l'on vient), verrouillée (seulement pour compléter la rangée de la frontière, non touchable).
   Toucher une case ouverte la rejoue ; le retour rend la serrure en cours, pièces posées intactes.
+  **Fait** (P7.35) : l'écran, clé `PadlocksRoute(current)` de `feature:locksmith` (`current`, la serrure d'où l'on
+  vient, numérotée depuis 1, ou aucune ; gardée après la mort du processus), `PadlocksViewModel` et sa fabrique,
+  construite par `app`. Toujours en thème Couleurs, barres système comprises, comme V35. **Navigation encore
+  inactive** : rien n'ouvre l'écran dans l'interface, et toucher une case n'y mène nulle part ; le disque de la barre
+  de V35 et le choix d'une serrure, qui remplace celle de la pile, viennent avec P7.36.
+  - **Barre** : seule la barre (retour, « SERRURES ») est fixe. Le résumé « *n* ouvertes · *m* parfaites », lu
+    comme un en-tête, et « Reprendre · Serrure *N* » (la frontière) défilent avec la grille. Rien ne s'affiche avant
+    la lecture de l'avancement (pas d'écran vide qui clignote) ; l'écran suit l'avancement ensuite.
+  - **Grille** : les serrures ouvertes puis la frontière, chacune sous l'en-tête de son palier (`PadlockTier`,
+    `core:locksmith`, hors du contrat de génération) : « Apprenti · 3 à 5 pièces », « Compagnon · 6 pièces »,
+    « Artisan · 7 pièces », « Maître · 7 ou 8 pièces » (Maître court de la serrure 21 à l'infini, cycle compris),
+    lus comme des en-têtes. La grille s'ouvre défilée sur la frontière, et y revient quand sa hauteur change, tant
+    que le joueur n'a pas défilé.
+  - **Cases** : ouverte, parfaite (étoile ; ouverte en autant de coups que de pièces, sans refus ni indice), à
+    ouvrir (la frontière), en cours (bord d'encre : la serrure d'où l'on vient, ouverte ou frontière). Les cases
+    **verrouillées** ne font que compléter la rangée de la frontière, sans dépasser la fin de son palier (au-delà de
+    30 aussi) ; elles ne sont jamais en cours, ne se touchent pas et se lisent « verrouillée ». TalkBack lit une case
+    d'un trait : « Serrure 5, ouverte, parfaite, en cours, meilleure : 4 coups, 0 refus, 0 indice », et offre
+    l'action « Ouvrir » sur une case touchable.
+  - **État vide** (aucune ouverture) : « Ouvre la serrure 1 pour commencer. », sans Reprendre ; la serrure 1 est la
+    frontière, sa rangée complétée.
+  - **Police ×2** : moins de colonnes (cases de 80 dp au moins, jamais aucune colonne) ; sur un écran bas, résumé,
+    Reprendre et grille défilent ensemble, une rangée de cases visible en entier.
+  Pas encore de numéro de vue : la maquette de l'écran viendra en P7.38. Captures `PadlocksDay`, `PadlocksNight`,
+  `PadlocksEmptyDay`, `PadlocksSmallDay`, `PadlocksLowDay`, `PadlocksLargeFontDay`.
+  **Tests :** `PadlockTierTest › the padlocks follow the tiers of the table, the cycle being of masters`,
+  `PadlockTierTest › the pieces of a tier are those of its padlocks, from the fewest to the most`,
+  `PadlockTierTest › there is no tier before padlock 1`,
+  `PadlocksGridTest › the open padlocks then the frontier, each under the header of its tier`,
+  `PadlocksGridTest › a padlock opened in as many moves as pieces, without refusal or hint, is perfect`,
+  `PadlocksGridTest › locked padlocks complete the row of the frontier, and no more`,
+  `PadlocksGridTest › the locked padlocks stop at the end of the tier of the frontier`,
+  `PadlocksGridTest › the locked padlocks complete the row of the frontier within its tier, also on the cycle beyond 30`,
+  `PadlocksGridTest › the padlock the player comes from is in progress, open or the frontier`,
+  `PadlocksGridTest › a locked padlock is never in progress, even when the player comes from it`,
+  `PadlocksGridTest › without an opening, padlock 1 is the frontier, its row completed`,
+  `PadlockColumnsTest › the larger the font, the fewer the columns, never none`,
+  `TierHeaderTest › the pieces of a tier read as one count, two counts apart by « ou », or a range by « à »`,
+  `PadlockTileTest › the words of a tile tell its state, and whether the player comes from it`,
+  `PadlockTileTest › a tile is read with its state in full, a perfect padlock being open`,
+  `PadlocksUiStateTest › the summary counts the open padlocks and the perfect ones, and Reprendre opens the next`,
+  `PadlocksUiStateTest › without an opening the screen is empty, and padlock 1 is to open`,
+  `PadlocksViewModelTest › the screen shows the best opening of each open padlock, padlock 1 first`,
+  `PadlocksViewModelTest › nothing is shown until the progress is read, so that no empty screen flashes`,
+  `PadlocksViewModelTest › the screen follows the progress, a padlock opened meanwhile shown`,
+  `PadlocksRouteTest › the padlock the screen comes from is numbered from 1`,
+  `PadlocksRouteTest › a route restored after the death of the process comes from the same padlock, or from none`,
+  `PadlocksScreenTest › the summary tells the open padlocks and the perfect ones, read as a heading`,
+  `PadlocksScreenTest › Reprendre opens the frontier`,
+  `PadlocksScreenTest › a padlock is read in one go: its number, its state, whether the player comes from it, its best`,
+  `PadlocksScreenTest › touching an open padlock or the frontier asks to open it, by its number`,
+  `PadlocksScreenTest › a locked padlock, which completes the row of the frontier, is read locked and cannot be touched`,
+  `PadlocksScreenTest › each tier has its header, its name and the pieces of its padlocks, read as a heading`,
+  `PadlocksScreenTest › without an opening, the screen asks to open padlock 1, and offers no Reprendre`,
+  `PadlocksScreenTest › the grid, a collection, opens scrolled on the frontier`,
+  `PadlocksScreenTest › in a font twice as large the grid has fewer columns, its tiles 80 dp at least`,
+  `PadlocksScreenTest › in a large font on a low screen, the summary and Reprendre scroll with the grid, a row of tiles shown whole`,
+  `PadlocksScreenTest › a tile that can be touched offers TalkBack to open it, « Ouvrir »`,
+  `SystemBarsTest › the padlocks of the locksmith`,
+  `BloxNavDisplayTest › the screen of the padlocks over a padlock shows the progress, and back goes back to the padlock`.
 - Après avoir rejoué une ancienne serrure, « Serrure suivante » mène à la serrure d'après ; si elle est déjà
   ouverte, la carte ajoute « Reprendre à la serrure *N* ». Une nouvelle meilleure ouverture ou une serrure parfaite
   s'annonce par un autocollant (NOUVEAU MEILLEUR, PARFAITE).

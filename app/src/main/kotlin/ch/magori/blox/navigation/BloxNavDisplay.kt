@@ -31,7 +31,9 @@ import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
 import ch.magori.blox.feature.home.navigation.settingsEntry
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.locksmith.navigation.locksmithEntry
+import ch.magori.blox.feature.locksmith.navigation.padlocksEntry
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
@@ -65,6 +67,7 @@ fun BloxNavDisplay(
     newCartridges: NewCartridges,
     gardenViewModelFactory: GardenViewModel.Factory,
     padlockFrontier: PadlockFrontier,
+    padlocksViewModelFactory: PadlocksViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
@@ -128,6 +131,9 @@ fun BloxNavDisplay(
                 onResume = { open, frontier -> resumePadlocks(backStack, open, frontier) },
                 viewModelFactory = locksmithViewModelFactory,
             )
+            // The screen « Serrures » (P7.35): the disc of the bar of a padlock opens it, and a padlock touched there
+            // takes the place of the padlock under it, in P7.36; until then, nothing opens from it.
+            padlocksEntry(onBack = goBack, onOpen = {}, viewModelFactory = padlocksViewModelFactory)
             dailyEntry(
                 // The game of the date shown, whose pieces the entry shows, even once the phone passed midnight.
                 onPlay = { date -> backStack.add(newDailyGameRoute(date)) },

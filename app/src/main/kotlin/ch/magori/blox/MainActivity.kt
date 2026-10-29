@@ -60,6 +60,7 @@ class MainActivity : ComponentActivity() {
                         newCartridges = container.newCartridges,
                         gardenViewModelFactory = container.gardenViewModelFactory,
                         padlockFrontier = container.padlockFrontier,
+                        padlocksViewModelFactory = container.padlocksViewModelFactory,
                         backStack = backStack,
                         // Test tags become resource ids for UiAutomator: the measured journey of `:benchmark`
                         // finds the play button, the keys and the pause by them, whatever the language.

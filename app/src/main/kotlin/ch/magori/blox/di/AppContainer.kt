@@ -62,6 +62,7 @@ import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
@@ -286,6 +287,9 @@ class AppContainer(context: Context) {
      */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
         LocksmithViewModel.Factory(soundEffects, userPreferences, padlockProgress, mainScope)
+
+    /** Builds the view model of the screen « Serrures » (P7.35), on the progress of the Serrurier the padlocks write. */
+    val padlocksViewModelFactory: PadlocksViewModel.Factory = PadlocksViewModel.Factory(padlockProgress)
 
     /**
      * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;

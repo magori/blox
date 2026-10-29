@@ -70,7 +70,9 @@ import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
@@ -228,6 +230,25 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 0)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("the screen of the padlocks over a padlock shows the progress, and back goes back to the padlock")
+    fun theScreenOfThePadlocksShowsTheProgressAndBackGoesBack() {
+        runJourney {
+            // Given the screen of the padlocks over padlock 2, nothing open yet
+            showApp(
+                restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2), PadlocksRoute(current = 2)),
+                restoredShows = string(LocksmithR.string.feature_locksmith_padlocks_title).uppercase(),
+            )
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_padlocks_empty)).assertIsDisplayed()
+
+            // When
+            pressSystemBack()
+
+            // Then
+            onNodeWithText(padlockTitle(2)).assertIsDisplayed()
         }
     }
 
@@ -800,6 +821,7 @@ internal class BloxNavDisplayTest {
                 padlockProgress,
                 MainScope(),
             )
+        val padlocksFactory = PadlocksViewModel.Factory(padlockProgress)
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
         val gardenFactory =
             GardenViewModel.Factory(
@@ -839,6 +861,7 @@ internal class BloxNavDisplayTest {
                         newCartridges,
                         gardenFactory,
                         padlockFrontier,
+                        padlocksFactory,
                     )
                 } else {
                     BloxNavDisplay(
@@ -854,6 +877,7 @@ internal class BloxNavDisplayTest {
                         newCartridges,
                         gardenFactory,
                         padlockFrontier,
+                        padlocksFactory,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
                 }

@@ -9,6 +9,7 @@ import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -62,6 +63,7 @@ class SystemBarsTest {
         fun colorfulOnlyScreens(): List<Arguments> = listOf(
             argumentSet("the cartridges", CartridgesRoute),
             argumentSet("the locksmith", LocksmithRoute(level = 1)),
+            argumentSet("the padlocks of the locksmith", PadlocksRoute(current = 3)),
             argumentSet("a daily game", GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)),
             argumentSet("the entry of the daily seed", DailyRoute),
             argumentSet("the musical garden", GardenRoute),
