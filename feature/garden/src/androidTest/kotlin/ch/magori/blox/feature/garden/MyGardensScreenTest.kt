@@ -134,7 +134,7 @@ internal class MyGardensScreenTest {
         onNodeWithText("Jardin calme").performTextReplacement("pluie douce")
 
         // Then
-        onNodeWithText(string(R.string.feature_garden_name_taken)).assertExists()
+        onNodeWithText("Un autre jardin porte déjà ce nom.").assertExists()
         onNode(hasText(string(R.string.feature_garden_keep_confirm))).assertIsNotEnabled()
     }
 

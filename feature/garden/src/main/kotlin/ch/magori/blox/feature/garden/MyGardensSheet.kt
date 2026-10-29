@@ -44,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.garden.GardenThumbnail
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
-import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.component.BloxMenu
 import ch.magori.blox.core.designsystem.component.BloxMenuItem
 import ch.magori.blox.core.designsystem.component.BloxSheet
@@ -61,9 +60,11 @@ import ch.magori.blox.core.designsystem.component.SheetLeaving
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
-import ch.magori.blox.core.designsystem.component.nameTooLongText
 import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.text.NameRefusal
+import ch.magori.blox.core.designsystem.text.NamedThing
+import ch.magori.blox.core.designsystem.text.nameRefusalText
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import kotlin.math.roundToInt
@@ -522,7 +523,9 @@ internal fun GardenNamingWindow(
         name = naming.name,
         onNameChanged = actions.onNameChanged,
         maxLength = KeptGarden.MAX_NAME_LENGTH,
-        problem = naming.problem?.let { problemText(it) },
+        problem = naming.problem?.let {
+            nameRefusalText(NameRefusal.valueOf(it.name), NamedThing.GARDEN, KeptGarden.MAX_NAME_LENGTH)
+        },
         confirm = stringResource(
             if (renaming != null) R.string.feature_garden_rename else R.string.feature_garden_keep_confirm,
         ),
@@ -557,18 +560,6 @@ internal fun GardenDeleteWindow(
         failed = deleting.failed,
         waiting = busy,
     )
-}
-
-/** Why a garden cannot take a name, under the field. */
-@Composable
-@ReadOnlyComposable
-private fun problemText(problem: NameProblem): String = when (problem) {
-    NameProblem.BLANK -> stringResource(R.string.feature_garden_name_blank)
-
-    NameProblem.TAKEN -> stringResource(R.string.feature_garden_name_taken)
-
-    // Never shown: the view model cuts the name typed at the longest a name may be.
-    NameProblem.TOO_LONG -> nameTooLongText(KeptGarden.MAX_NAME_LENGTH)
 }
 
 /** A row of the list, at least (docs/jardin-musical.md, Mes jardins). */

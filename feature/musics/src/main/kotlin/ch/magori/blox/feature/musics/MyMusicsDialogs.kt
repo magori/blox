@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.musics
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -13,7 +12,9 @@ import ch.magori.blox.core.data.cutName
 import ch.magori.blox.core.designsystem.component.DeleteWindow
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.WindowDialog
-import ch.magori.blox.core.designsystem.component.nameTooLongText
+import ch.magori.blox.core.designsystem.text.NameRefusal
+import ch.magori.blox.core.designsystem.text.NamedThing
+import ch.magori.blox.core.designsystem.text.nameRefusalText
 
 /**
  * *Renommer*: a field on the name of the music, cut at [SavedMusic.MAX_NAME_LENGTH] characters (`cutName`); a name
@@ -35,7 +36,9 @@ internal fun RenameDialog(
             name = name,
             onNameChanged = { name = cutName(it) },
             maxLength = SavedMusic.MAX_NAME_LENGTH,
-            problem = problem?.let { nameProblemMessage(it) },
+            problem = problem?.let {
+                nameRefusalText(NameRefusal.valueOf(it.name), NamedThing.MUSIC, SavedMusic.MAX_NAME_LENGTH)
+            },
             confirm = stringResource(R.string.feature_musics_rename_confirm),
             onConfirm = { onRenamed(name) },
             onDismiss = onDismiss,
@@ -67,13 +70,4 @@ internal fun DeleteDialog(
             failed = dialog.failed,
         )
     }
-}
-
-/** What the dialog says of a name refused. */
-@Composable
-@ReadOnlyComposable
-private fun nameProblemMessage(problem: NameProblem): String = when (problem) {
-    NameProblem.BLANK -> stringResource(R.string.feature_musics_name_blank)
-    NameProblem.TAKEN -> stringResource(R.string.feature_musics_name_taken)
-    NameProblem.TOO_LONG -> nameTooLongText(SavedMusic.MAX_NAME_LENGTH)
 }
