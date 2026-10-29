@@ -75,3 +75,64 @@ private fun GardenRolledDay() = GardenRolledPreview()
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun GardenRolledReduced() = GardenRolledReducedPreview()
+
+/*
+ * « Mes jardins » (P10.29): the dot of its disc on a narrow phone, in a font once and twice as large, where the bar
+ * holds 5 parts; « « X » gardé. »; the sheet, its list by day and by night and in a large font, empty, full, of a later
+ * version; the window of the name.
+ */
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+private fun GardenModified() = GardenModifiedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun GardenModifiedLargeFont() = GardenModifiedLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenKept() = GardenKeptPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun MyGardensList() = MyGardensListPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun MyGardensListNight() = MyGardensListNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun MyGardensListLargeFont() = MyGardensListLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun MyGardensEmpty() = MyGardensEmptyPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun MyGardensFull() = MyGardensFullPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun MyGardensUnreadable() = MyGardensUnreadablePreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenNaming() = GardenNamingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun GardenNamingLargeFont() = GardenNamingLargeFontPreview()

@@ -4,6 +4,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.CurrentGarden
+import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.GardenRepository
@@ -129,6 +130,7 @@ internal class GardenViewModelTest {
         val slow = SlowGardenRepository(slowFirstWrite = true)
         val factory = GardenViewModel.Factory(
             slow,
+            FakeGardenLibrary(),
             appScope,
             FakeMusicPlayer(),
             FakeSoundEffectPlayer(),
@@ -151,6 +153,7 @@ internal class GardenViewModelTest {
         val slow = SlowGardenRepository(slowFirstWrite = true)
         val factory = GardenViewModel.Factory(
             slow,
+            FakeGardenLibrary(),
             appScope,
             FakeMusicPlayer(),
             FakeSoundEffectPlayer(),
@@ -172,6 +175,7 @@ internal class GardenViewModelTest {
 
     private fun garden(repository: GardenRepository = kept) = GardenViewModel(
         kept = repository,
+        library = FakeGardenLibrary(),
         appScope = appScope,
         writes = Mutex(),
         music = FakeMusicPlayer(),

@@ -4,8 +4,10 @@ import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.SoundEffectPlayer
+import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.UserPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
@@ -15,8 +17,9 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlin.random.Random
 
 /**
- * The view model of the garden, opened on the garden [kept], its writes made at once, its rolls drawn from [random],
- * its score played by [music], its preview heard by [soundEffects] as the [preferences] want.
+ * The view model of the garden, opened on the garden [kept], its kept gardens in [library], its writes made at once,
+ * its rolls drawn from [random], its score played by [music], its preview heard by [soundEffects] as the [preferences]
+ * want.
  */
 internal fun gardenViewModel(
     kept: GardenRepository = FakeGardenRepository(),
@@ -24,8 +27,10 @@ internal fun gardenViewModel(
     music: MusicPlayer = FakeMusicPlayer(),
     soundEffects: SoundEffectPlayer = FakeSoundEffectPlayer(),
     preferences: UserPreferencesRepository = FakeUserPreferencesRepository(),
+    library: GardenLibrary = FakeGardenLibrary(),
 ): GardenViewModel = GardenViewModel(
     kept = kept,
+    library = library,
     appScope = CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()),
     writes = Mutex(),
     music = music,

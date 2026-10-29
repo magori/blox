@@ -1593,10 +1593,9 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   et fichier plus récent ; règles de sauvegarde Android et `BackupRulesTest`. Après P10.24 à P10.26.
 - [x] **P10.28** `garden.bin` en v2 : le lien du jardin en cours vers le jardin gardé d'où il vient (un fichier v1 se
   lit sans lien). Après P10.27.
-- [ ] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
+- [x] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
-  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Contour de la miniature à décider : ses cases libres hors bandes
-  se confondent avec `panel` (cadre `board`, fond `panel-inset` de la rangée, ou rien ; P10.31). Après P10.27, P10.28.
+  erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Après P10.27, P10.28.
 - [ ] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
 - [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
@@ -1649,6 +1648,11 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.15** Retours animés du jardin, chacun en « Effets réduits » (ADR 0024) : pose (8 ticks), refus, tête de
   lecture (rebond × 1,1 pendant 6 ticks), Au hasard (une pièce toutes les 2 ticks), changement d'ambiance (fondu de
   8 ticks). Après P10.10, P10.12.
+- [ ] **P10.34** Mettre en commun les textes des problèmes de nom (`NameProblem` → texte) de Mes musiques, de
+  l'éditeur et du Jardin, troisième occurrence (revue de P10.29). `core:designsystem` ne voit pas `core:data`, où vit
+  `NameProblem` : il faut un endroit commun aux trois features.
+- [ ] **P10.35** En police ×2, la pastille « ouvert » d'une rangée de Mes jardins pourrait passer sous la ligne
+  d'information (à juger, P10.33).
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 

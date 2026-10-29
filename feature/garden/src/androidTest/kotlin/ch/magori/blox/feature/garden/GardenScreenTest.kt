@@ -42,6 +42,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -335,6 +336,7 @@ internal class GardenScreenTest {
     ): GardenViewModel {
         val viewModel = GardenViewModel(
             kept = kept,
+            library = FakeGardenLibrary(),
             appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
             writes = Mutex(),
             music = music,

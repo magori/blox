@@ -342,27 +342,59 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
 - **Limite : 30 jardins** (constante nommée), pour une liste lisible : un jardin tient en quelques centaines
   d'octets. Limite atteinte : « Garder ce jardin » et « Garder une copie » grisés, raison écrite (« 30 jardins
   gardés : supprimes-en un pour garder celui-ci. ») ; « Enregistrer « X » » reste possible, il remplace X.
-- **Noms** : les règles de Mes musiques, communes depuis P10.25 (`TakenNames`) : 40 caractères au plus, unique
-  sans tenir compte de la casse ni des espaces, raison du refus écrite sous le champ. Liste de noms à part de
-  celle des musiques. Nom proposé : « Jardin » suivi de l'ambiance, en minuscule (« Jardin calme »), numéroté
-  s'il est pris (« Jardin calme 2 », `freeName`). Fenêtre `NamingWindow` : « Annuler », puis « Garder ».
-- **Accès** : un disque « Mes jardins » (`GlyphButton`, 48 dp) dans la barre de V40, entre le dé et Écouter,
-  marqué d'un point `ink` de 8 dp quand le jardin en cours a changé depuis qu'il a été gardé (une forme, pas
-  une couleur ; lu « jardin modifié »). À 360 dp, le titre « JARDIN MUSICAL » passe sur 2 lignes dans les 48 dp
-  de la barre (calcul : 104 dp pour le titre) ; si les captures montrent un titre illisible, le dé passe à côté
-  de « Tout effacer » (P10.29 tranche par les captures à 360 dp, police ×1 et ×2).
+  **Tests :** `GardenKeepingTest › a library of 30 gardens refuses another one, and the sheet says why`,
+  `GardenKeepingTest › a full library still replaces X` ; capture `MyGardensFull`.
+- **Noms** : les règles de Mes musiques, communes depuis P10.25 (`TakenNames`) : 40 caractères au plus (le nom
+  tapé est coupé à 40), unique sans tenir compte de la casse ni des espaces, non vide, raison du refus écrite sous
+  le champ (« Un autre jardin porte déjà ce nom. », « Donne un nom à ce jardin. ») et « Garder » grisé ; un nom
+  refusé ne garde rien. Liste de noms à part de celle des musiques. Nom proposé : « Jardin » suivi de l'ambiance,
+  en minuscule (« Jardin calme »), numéroté s'il est pris (« Jardin calme 2 », `freeName`). Fenêtre `NamingWindow`
+  (`core:designsystem`) : « Annuler » (la fenêtre se ferme, la feuille reste ouverte), puis « Garder ». Une
+  nouvelle saisie après un échec efface le message d'échec.
+  **Tests :** `GardenKeepingTest › Garder ce jardin proposes « Jardin » then the mood in lower case, numbered if it is taken`,
+  `GardenKeepingTest › a name another garden has, the case ignored, or a blank one, is refused`,
+  `GardenKeepingTest › a name typed is cut at 40 characters`,
+  `GardenKeepingTest › Annuler closes the window of the name, the sheet still open`,
+  `GardenKeepingTest › a name refused is not kept`,
+  `GardenKeepingTest › a name typed again after a failure no longer tells the failure`,
+  `MyGardensScreenTest › a name another garden has is refused under the field, and Garder is greyed` ;
+  captures `GardenNaming`, `GardenNamingLargeFont`.
+- **Accès** : un disque « Mes jardins » (`GlyphButton`, 48 dp, pictogramme provisoire `LIST` en attendant
+  l'« herbier » de P10.33) dans la barre de V40, entre le dé et Écouter, marqué d'un point `ink` de 8 dp quand
+  le jardin en cours est « modifié » : lié à un jardin encore listé dans Mes jardins, et différent de lui (une
+  forme, pas une couleur ; lu « jardin modifié »). Un jardin sans lien, ou dont le jardin gardé n'est plus
+  listé, ne porte pas le point. Toucher le disque ouvre la feuille. À 360 dp, le titre « JARDIN MUSICAL » passe
+  sur 2 lignes dans les 48 dp de la barre, en police ×1 comme ×2 : les captures (P10.29) le montrent lisible, le
+  dé reste dans la barre, sans repli à côté de « Tout effacer ».
+  **Tests :** `GardenKeepingTest › a garden that comes from no kept garden is not marked as changed`,
+  `GardenKeepingTest › a garden opened from a kept garden and not changed since is not marked as changed`,
+  `GardenKeepingTest › a garden changed since it was kept is marked as changed`,
+  `GardenKeepingTest › Mes jardins opens its sheet, and closes it`,
+  `MyGardensScreenTest › Mes jardins bears its dot and is read « jardin modifié » while the garden changed since it was kept`,
+  `MyGardensScreenTest › Mes jardins bears no dot, nor its state, while the garden is as it was kept` ;
+  captures `GardenModified`, `GardenModifiedLargeFont`, `GardenLargeFont`.
 - **Feuille « Mes jardins »** (`BloxSheet`) : les boutons en haut, le compteur (« 7 jardins sur 30 »), puis la
-  liste, du plus récent au plus ancien : miniature (`GardenThumbnail`, P10.31), nom, ambiance et nombre de
-  pièces, « ouvert » (pastille et coche) pour le jardin lié, menu « … » (Renommer, Supprimer). La musique en
-  cours joue sous la feuille. États : chargement (boutons grisés, pas de liste), liste vide (« Aucun jardin
-  gardé. » puis « Garde celui-ci pour le retrouver plus tard. »), échec (« L'opération a échoué. »), fichier
-  d'une version plus récente (liste vide, écriture bloquée, message écrit). Un jardin vide ne se garde pas
-  (« Pose au moins une pièce pour garder ce jardin. »).
+  liste, du plus récent au plus ancien (à date égale, le dernier gardé d'abord) : miniature (`GardenThumbnail`,
+  P10.31), nom, ambiance et nombre de pièces (« Calme · 12 pièces »), « ouvert » (pastille et coche) pour le
+  jardin lié ; le menu « … » (Renommer, Supprimer) vient avec P10.30. La musique en cours joue sous la feuille.
+  États : chargement (boutons grisés, pas de liste), liste vide (« Aucun jardin gardé. » puis « Garde celui-ci
+  pour le retrouver plus tard. »), échec (« L'opération a échoué. »), jardins illisibles, dont un fichier d'une
+  version plus récente (liste vide, écriture bloquée, « Ces jardins ne peuvent pas être lus : rien ne peut être
+  gardé pour l'instant. »). Rien ne se garde tant que les jardins ne sont pas lus, ni quand ils ne peuvent pas
+  l'être. Un jardin vide ne se garde pas (« Pose au moins une pièce pour garder ce jardin. »).
+  **Tests :** `GardenKeepingTest › the sheet lists the kept gardens from the most recent to the oldest`,
+  `GardenKeepingTest › gardens kept at the same time are listed from the last one kept`,
+  `GardenKeepingTest › the kept gardens are loading until the library answers`,
+  `GardenKeepingTest › gardens that cannot be read, as those of a later version, are told unreadable`,
+  `GardenKeepingTest › nothing is kept while the gardens are not read, nor when they cannot be`,
+  `GardenKeepingTest › an empty garden cannot be kept, and the sheet says why` ;
+  captures `MyGardensList`, `MyGardensListNight`, `MyGardensListLargeFont`, `MyGardensEmpty`, `MyGardensUnreadable`.
 - **Miniature** (`GardenThumbnail`, `core:board`, P10.31) : la grille du jardin en 16 × 14 cases plates de 3 dp
   (`garden-thumb-cell`, 48 × 42 dp), bords sur des pixels entiers, cases libres comme sur la grille (`empty-cell`,
   `garden-band-cell` dans un groupe de 4 croches sur deux), cases des notes à la couleur de leur pièce ; décorative
   (la rangée dit ce qu'elle montre). Dessinée en 4 rectangles de fond puis une case par note, la liste en montrant
-  jusqu'à 30. Son contour sur `panel` reste à décider (P10.29).
+  jusqu'à 30. Dans la rangée, elle est encadrée d'un trait `panel-border` de 1 dp, comme la grille (P10.29) : sans
+  lui, ses cases libres hors bandes se confondraient avec `panel`.
   **Tests :** `GardenThumbnailTest › an empty garden is drawn in 4 rectangles, one per group of 4 eighths, out of a band then in one`,
   `GardenThumbnailTest › each note is drawn after the free groups, as one cell in the colour of its piece`,
   `GardenThumbnailTest › a free cell out of a band shows the colour of a free cell of the garden, the empty cell`,
@@ -374,8 +406,43 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `GardenThumbnailDrawingTest › a thumbnail is decorative, 48 by 42 dp: TalkBack does not read it, its row says what it shows`,
   `GardenThumbnailDrawingTest › at a density that cuts a cell in a fraction of a pixel, the cells meet without a seam` ;
   captures `GardenThumbnails`, `GardenThumbnailsNight`.
-- **Garder** : sans fenêtre de confirmation ; message « « X » gardé. » ; le point du disque s'éteint. Échec :
-  la fenêtre reste ouverte, « L'opération a échoué. ».
+- **Garder** : « Garder ce jardin » ouvre la fenêtre du nom ; « Garder » y garde le jardin en cours sous ce nom
+  (`keep`), puis le lie au jardin gardé (`keep(current)` du jardin en cours), sans fenêtre de confirmation. Les
+  deux écritures passent ensemble, l'une après l'autre, dans la portée de l'application (`appScope`) sous le verrou
+  des écritures (`writes`) : elles vont au bout même si l'écran est quitté entre-temps. Pendant l'écriture, la
+  feuille est grisée (`NamingWindow(busy)` grise « Garder » et Entrée ne confirme rien) : un second appui ne garde
+  rien de plus. Ensuite la feuille se ferme, le message « « X » gardé. » s'affiche 4 s (à la place de toute offre
+  d'« Annuler ») et le point du disque s'éteint. Échecs : si le jardin ne peut pas être gardé, la fenêtre reste
+  ouverte, « L'opération a échoué. » ; s'il est gardé mais que son lien ne peut pas être écrit, il reste dans la
+  liste, sans lien ni message « gardé », et la feuille, restée ouverte, dit l'échec.
+  « Garder une copie » (jardin lié) suit le même chemin : il garde un autre jardin, auquel le jardin en cours est
+  ensuite lié.
+  **Tests :** `GardenKeepingTest › a garden kept is the one the garden under way comes from, no longer changed, and its name is told`,
+  `GardenKeepingTest › the name of a garden kept is told for a while`,
+  `GardenKeepingTest › a garden that cannot be kept leaves the window open, and it tells it`,
+  `GardenKeepingTest › a garden kept while the screen is left is still kept as the one the garden under way comes from`,
+  `GardenKeepingTest › a garden kept whose link cannot be written leaves the sheet open and tells it, not kept as linked`,
+  `GardenKeepingTest › while a garden is being kept the sheet is busy, and a second Garder keeps nothing more`,
+  `GardenKeepingTest › Garder une copie keeps another garden, which the garden under way then comes from`,
+  `GardenKeepingTest › a garden adopted while the garden kept is read keeps the kept garden it comes from, and the list`,
+  `MyGardensScreenTest › a garden kept from the sheet under the name proposed is told kept, and listed as open` ;
+  capture `GardenKept`.
+- **Enregistrer « X »** : proposé quand le jardin en cours est lié à X, encore listé ; un jardin dont le jardin
+  gardé n'est plus listé se voit proposer « Garder ce jardin ». Grisé tant que le jardin n'a pas changé depuis qu'il
+  est gardé, avec sa raison écrite : « Rien n'a changé depuis qu'il est gardé. ». Il remplace X (`replace`, même
+  bibliothèque pleine) sans réécrire le lien, déjà en place, puis dit « « X » gardé. ». Échec : la feuille reste
+  ouverte et le dit.
+  **Tests :** `GardenKeepingTest › Enregistrer « X » is offered only once the garden under way changed since it was kept`,
+  `GardenKeepingTest › Enregistrer « X » replaces X with the garden under way, and tells it`,
+  `GardenKeepingTest › Enregistrer « X » writes no link, the garden under way comes from X already`,
+  `GardenKeepingTest › a garden as it was kept is told unchanged, Enregistrer « X » greyed`,
+  `GardenKeepingTest › a garden that cannot be saved in place leaves the sheet open, and it tells it`,
+  `GardenKeepingTest › a garden whose kept garden is no longer listed is offered to be kept as a new one`,
+  `MyGardensScreenTest › the garden under way linked to a kept garden offers to save it in its place, or to keep a copy`,
+  `MyGardensScreenTest › a garden whose kept garden is no longer listed offers « Garder ce jardin »`,
+  `MyGardensScreenTest › a garden as it was kept greys « Enregistrer « X » » and says why`.
+- **Branchement** (`app`) : `AppContainer` construit `DataStoreGardenLibrary` et la passe à
+  `GardenViewModel.Factory`, avec le jardin gardé et la portée de l'application.
 - **Rouvrir** : toucher une rangée ferme la feuille et remplace le jardin en cours (`adopt`, à la mesure
   suivante pendant l'écoute), avec « « X » ouvert » et Annuler, comme Au hasard et Tout effacer ; toucher le
   jardin déjà ouvert et inchangé ne fait que fermer la feuille.

@@ -61,4 +61,48 @@
     <!-- La barre après Tout effacer ou Au hasard, 4 s. -->
     <string name="feature_garden_cleared">Jardin effacé</string>
     <string name="feature_garden_undo">Annuler</string>
+
+    <!-- Mes jardins : le disque de la barre, marqué d'un point quand le jardin a changé depuis qu'il a été gardé. -->
+    <string name="feature_garden_my_gardens">Mes jardins</string>
+    <string name="feature_garden_modified">jardin modifié</string>
+
+    <!-- La feuille Mes jardins. -->
+    <string name="feature_garden_keep">Garder ce jardin</string>
+    <string name="feature_garden_save_in_place">Enregistrer « %1$s »</string>
+    <string name="feature_garden_keep_copy">Garder une copie</string>
+    <!-- Le compteur : « 7 jardins sur 30 ». -->
+    <plurals name="feature_garden_count">
+        <item quantity="one">%1$d jardin sur %2$d</item>
+        <item quantity="many">%1$d jardins sur %2$d</item>
+        <item quantity="other">%1$d jardins sur %2$d</item>
+    </plurals>
+    <string name="feature_garden_none_kept">Aucun jardin gardé.</string>
+    <string name="feature_garden_none_kept_hint">Garde celui-ci pour le retrouver plus tard.</string>
+    <string name="feature_garden_failed">L\'opération a échoué.</string>
+    <string name="feature_garden_unreadable">Ces jardins ne peuvent pas être lus : rien ne peut être gardé pour l\'instant.</string>
+    <string name="feature_garden_unchanged">Rien n\'a changé depuis qu\'il est gardé.</string>
+    <plurals name="feature_garden_full">
+        <item quantity="one">%1$d jardin gardé : supprimes-en un pour garder celui-ci.</item>
+        <item quantity="many">%1$d jardins gardés : supprimes-en un pour garder celui-ci.</item>
+        <item quantity="other">%1$d jardins gardés : supprimes-en un pour garder celui-ci.</item>
+    </plurals>
+    <string name="feature_garden_empty_garden">Pose au moins une pièce pour garder ce jardin.</string>
+    <!-- Une rangée : « Calme · 12 pièces », lue d'un trait « Pluie douce, Calme, 12 pièces, ouvert ». -->
+    <string name="feature_garden_row_info">%1$s · %2$s</string>
+    <plurals name="feature_garden_piece_count">
+        <item quantity="one">%1$d pièce</item>
+        <item quantity="many">%1$d pièces</item>
+        <item quantity="other">%1$d pièces</item>
+    </plurals>
+    <string name="feature_garden_row_spoken">%1$s, %2$s, %3$s</string>
+    <string name="feature_garden_row_open_spoken">%1$s, %2$s, %3$s, ouvert</string>
+    <string name="feature_garden_open">ouvert</string>
+
+    <!-- La fenêtre du nom. -->
+    <string name="feature_garden_keep_confirm">Garder</string>
+    <string name="feature_garden_name_blank">Donne un nom à ce jardin.</string>
+    <string name="feature_garden_name_taken">Un autre jardin porte déjà ce nom.</string>
+
+    <!-- Le message après Garder ou Enregistrer. -->
+    <string name="feature_garden_kept">« %1$s » gardé.</string>
 </resources>
