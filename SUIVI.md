@@ -1363,7 +1363,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   devient un contrat). Après P7.27.
 - [x] **P7.29** Génération stable (`core:locksmith`) : `StableRandom`, graine = niveau, courbe de P7.27,
   `Padlock.ofLevel(level)`, test de contrat (serrures 1 à 5 en ASCII, empreinte des serrures 1 à 200). Après P7.28.
-- [ ] **P7.30** `LocksmithRoute(level)` sans graine, `next()`, route restaurée ; `app` (`nextPadlock`,
+- [x] **P7.30** `LocksmithRoute(level)` sans graine, `next()`, route restaurée ; `app` (`nextPadlock`,
   `OpenCartridgeTest`, `NextPadlockTest`). Après P7.29.
 - [ ] **P7.31** `PadlockResult` (pur, `core:locksmith`) : coups, refus, indices ; ordre du meilleur (indices, coups,
   refus) et parfaite (un coup par pièce, sans refus ni indice). Après P7.28.
@@ -1398,6 +1398,10 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [ ] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
   `LocksmithFiveTilesNarrowDay`, défaut antérieur à P7.41) : garder le mot entier (réduire, ou passer sous Indice).
   Juger aussi avec P7.39 la pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (`PieceTilesShrunk`).
+- [ ] **P7.43** Régénérer le profil de référence du Serrurier (`:app:generateBaselineProfile`, sur un appareil
+  Android 13 ou plus) : il cite encore `Padlock.generate`, supprimé en P7.30.
+- [ ] **P7.44** Mesurer le pire temps de `Padlock.ofLevel` sur les serrures 1 à 200 (`PadlockMeasure`) : il tourne
+  sur le fil principal au toucher de « Serrure suivante » (P7.30) ; s'il dépasse une image (16 ms), le sortir de ce fil.
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 

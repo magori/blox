@@ -198,9 +198,9 @@ internal class BloxNavDisplayTest {
     @DisplayName("a restored stack with a padlock on top shows that padlock again, nothing placed")
     fun aRestoredStackWithAPadlockOnTopShowsItAgain() {
         runJourney {
-            // Given padlock 2 of seed 7 on top, as the system restores the stack after the death of the process
+            // Given padlock 2 on top, as the system restores the stack after the death of the process
             showApp(
-                restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2, seed = 7)),
+                restoredStack = listOf(CartridgesRoute, LocksmithRoute(level = 2)),
                 restoredShows = padlockTitle(2),
             )
 

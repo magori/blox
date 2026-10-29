@@ -17,8 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith
 /** The touch of the padlock: aim, place by a second touch, take a placed piece back (rules, Écran). */
 @ExtendWith(MainDispatcherExtension::class)
 class LocksmithTapTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 1, seed = 7))
-    private val viewModel = locksmithViewModel(LocksmithRoute(level = 1, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(1))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 1))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece: Piece = start.padlock.solution.first { it.type == start.given.first() }

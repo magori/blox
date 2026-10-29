@@ -143,7 +143,7 @@ internal fun MacrobenchmarkScope.openGarden() {
 
 /**
  * Pose [count] fois la première pièce donnée : la choisit (ou la reprend, si elle est déjà posée), touche la première
- * case du trou que l'écran montre, puis Poser. La serrure, tirée d'une graine au hasard, est inconnue du parcours : la
+ * case du trou que l'écran montre, puis Poser. Le parcours ne lit pas la serrure (la 1, la même à chaque fois) : la
  * pose est acceptée ou refusée, selon que la pièce tient là ; les deux passent par le domaine, les sons et le dessin.
  * Toujours la même pièce, sur au moins trois (`Padlock`) : la serrure ne s'ouvre pas, et Poser reste à l'écran.
  */

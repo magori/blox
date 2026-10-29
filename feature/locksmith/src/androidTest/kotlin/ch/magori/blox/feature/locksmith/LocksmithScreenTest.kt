@@ -81,7 +81,7 @@ internal class LocksmithScreenTest {
     @RegisterExtension
     val recompositions = RecompositionRecorder()
 
-    private val start = PadlockGame.start(Padlock.generate(level = 1, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(1))
 
     @Test
     @DisplayName("on the card of an open padlock, Serrure suivante goes to the next padlock")
@@ -608,7 +608,7 @@ internal class LocksmithScreenTest {
     @DisplayName("on a phone of 360 dp, each of 6 tiles is a whole touch target, within the width")
     fun on360DpEachOfSixTilesIsAWholeTouchTarget(fontScale: Float) = extension.use {
         // Given a padlock of 6 pieces, on a phone of 360 dp, in a font of that scale
-        val game = PadlockGame.start(Padlock.generate(level = 4, seed = 7))
+        val game = PadlockGame.start(Padlock.ofLevel(4))
         assertThat(game.given).hasSize(6)
         setContent {
             val density = LocalDensity.current
@@ -679,12 +679,12 @@ internal class LocksmithScreenTest {
         assertThat(secondCentre).isCloseTo(firstCentre, within(1))
     }
 
-    /** The screen of padlock [level] of seed 7, its first piece chosen, on a phone [width] wide. */
+    /** The screen of padlock [level], its first piece chosen, on a phone [width] wide. */
     private fun ComposeContext.showTray(
         level: Int,
         width: Dp,
     ) {
-        val game = PadlockGame.start(Padlock.generate(level = level, seed = 7)).select(0)
+        val game = PadlockGame.start(Padlock.ofLevel(level)).select(0)
         setContent {
             LocksmithScreen(
                 state = LocksmithUiState(level = level, game = game),
@@ -720,10 +720,10 @@ internal class LocksmithScreenTest {
     @Test
     @DisplayName("with its view model: a placement refused, then accepted, then taken back")
     fun placeRefuseAndTakeBack() = extension.use {
-        // Given padlock 1 of seed 7, its first piece chosen, and where the solution has it
+        // Given padlock 1, its first piece chosen, and where the solution has it
         val viewModel =
             LocksmithViewModel(
-                LocksmithRoute(level = 1, seed = 7),
+                LocksmithRoute(level = 1),
                 FakeSoundEffectPlayer(),
                 FakeUserPreferencesRepository(),
             )

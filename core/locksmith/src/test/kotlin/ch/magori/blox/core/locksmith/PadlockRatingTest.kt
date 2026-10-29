@@ -11,7 +11,7 @@ class PadlockRatingTest {
         val padlock = Padlock.parse(STAIRCASE)
 
         // When
-        val rating = PadlockGenerator.rating(padlock)
+        val rating = PadlockGenerator.rating(padlock, HoleShape.SINUOUS, SolutionPreference.FREE)
 
         // Then
         assertThat(rating).isEqualTo(10 * 18 + 30 * 2 - 3 * 20)
@@ -36,7 +36,7 @@ class PadlockRatingTest {
         )
 
         // When
-        val rating = PadlockGenerator.rating(padlock)
+        val rating = PadlockGenerator.rating(padlock, HoleShape.SINUOUS, SolutionPreference.FREE)
 
         // Then
         assertThat(rating).isNull()

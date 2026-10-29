@@ -89,6 +89,61 @@ class PadlockLevelTest {
     }
 
     @Test
+    fun `padlocks 1 to 200 hold the pieces of their profile, one of each when asked, around a hole no rectangle`() {
+        // When
+        val padlocks = (1..200).associateWith { level -> Padlock.ofLevel(level) }
+
+        // Then
+        assertThat(padlocks).allSatisfy { level, padlock ->
+            val profile = PadlockProfile.of(level)
+            val hole = padlock.hole
+            val box = (hole.maxOf { it.column } - hole.minOf { it.column } + 1) *
+                (hole.maxOf { it.row } - hole.minOf { it.row } + 1)
+            assertThat(hole.size).describedAs("hole of padlock %d", level).isNotEqualTo(box)
+            assertThat(padlock.solution).describedAs("pieces of padlock %d", level).hasSize(profile.pieceCount)
+            if (profile.types == PieceSet.ONE_OF_EACH) {
+                assertThat(padlock.givenPieces).describedAs("types of padlock %d", level).doesNotHaveDuplicates()
+            }
+        }
+    }
+
+    @Test
+    fun `the best candidate is kept, the first one among equals`() {
+        // Given: a staircase rated 156, then two padlocks rated 216, then candidates given up
+        val script = (listOf(STAIRCASE, PADLOCK, PADLOCK_SHIFTED) + List(17) { null }).iterator()
+
+        // When: padlock 1 is sinuous, its solutions free
+        val padlock = PadlockGenerator.ofLevel(1) { _, _ -> script.next() }
+
+        // Then
+        assertThat(padlock).isEqualTo(PADLOCK)
+    }
+
+    @Test
+    fun `the twentieth candidate is rated too`() {
+        // Given: a staircase rated 156 first, the padlock rated 216 last
+        val script = (listOf(STAIRCASE) + List(18) { null } + listOf(PADLOCK)).iterator()
+
+        // When
+        val padlock = PadlockGenerator.ofLevel(1) { _, _ -> script.next() }
+
+        // Then
+        assertThat(padlock).isEqualTo(PADLOCK)
+    }
+
+    @Test
+    fun `when every candidate is ruled out the next try is taken`() {
+        // Given: the 20 candidates of the first try are rectangles, the first one of the second try a padlock
+        val script = (List(20) { RECTANGLE } + listOf(PADLOCK)).iterator()
+
+        // When
+        val padlock = PadlockGenerator.ofLevel(1, tries = 2) { _, _ -> script.nextOrNull() }
+
+        // Then
+        assertThat(padlock).isEqualTo(PADLOCK)
+    }
+
+    @Test
     fun `a padlock is rated for the shape and the preference of its profile`() {
         // Given: a winding hole of 2 solutions, rated 188 as sinuous, -62 as compact of a unique solution; a compact
         // hole of 1 solution, rated 180 as sinuous, -9 as compact of a unique solution
@@ -105,6 +160,66 @@ class PadlockLevelTest {
     }
 
     private companion object {
+        val STAIRCASE = Padlock.parse(
+            """
+            ##########
+            #1111#####
+            ##2222####
+            ###3333###
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
+        val PADLOCK = Padlock.parse(
+            """
+            ##########
+            #112222###
+            #11333####
+            ####3#####
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
+        val PADLOCK_SHIFTED = Padlock.parse(
+            """
+            ##########
+            ##112222##
+            ##11333###
+            #####3####
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
+        val RECTANGLE = Padlock.parse(
+            """
+            ##########
+            #1111#####
+            #2222#####
+            #3333#####
+            #4444#####
+            ##########
+            ##########
+            ##########
+            ##########
+            ##########
+            """,
+        )
+
         val TWO_SOLUTIONS = Padlock.parse(
             """
             ##########

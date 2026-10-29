@@ -56,17 +56,6 @@ public data class Padlock(public val solution: List<Piece>) {
         private val RANKS = '1'..'8'
 
         /**
-         * Padlock [level] (from 1) of [seed], as the screen draws it until P7.30: the best of the padlocks of
-         * `PadlockGenerator.pieceCount` pieces (6 at most, as before the tiers), composed from that seed on
-         * `kotlin.random.Random`, whose sequence is no contract, without the types, the shapes nor the preference of
-         * solutions of the tiers. [ofLevel] replaces it.
-         */
-        public fun generate(
-            level: Int,
-            seed: Long,
-        ): Padlock = PadlockGenerator.generate(PadlockGenerator.pieceCount(level), seed)
-
-        /**
          * Padlock [level] (from 1), the same for everyone and for ever: its seed is the level, and its generation is a
          * contract, changed only by an ADR (`PadlockGenerator.ofLevel`, ADR 0014 amended by P7.28).
          */

@@ -97,7 +97,7 @@ internal class SystemBarsAppearanceTest {
             assertLightAppearance(true)
 
             // When the Locksmith opens, in its Colorful night variant
-            stack.add(LocksmithRoute(level = 1, seed = 1))
+            stack.add(LocksmithRoute(level = 1))
             waitForIdle()
 
             // Then light icons on its dark page, and dark ones again once back on the cartridges

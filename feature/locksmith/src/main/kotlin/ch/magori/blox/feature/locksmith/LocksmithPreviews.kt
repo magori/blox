@@ -17,8 +17,8 @@ import ch.magori.blox.core.locksmith.Refusal
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
-/** Padlock 3 of seed 7, the padlock of the previews. */
-private val start: PadlockGame = PadlockGame.start(Padlock.generate(level = 3, seed = 7))
+/** Padlock 3, of 5 pieces, the padlock of the previews. */
+private val start: PadlockGame = PadlockGame.start(Padlock.ofLevel(3))
 
 /** This game, its selected piece turned clockwise until it takes the orientation of [piece], put down on its pivot. */
 private fun PadlockGame.placing(piece: Piece): PadlockGame {
@@ -281,9 +281,9 @@ internal fun LocksmithFiveTilesNarrowDayPreview() {
     LocksmithPreview(LocksmithUiState(level = 3, game = start.select(0)))
 }
 
-/** Padlock 4 of seed 7, of 6 pieces, the most a padlock holds, the first one chosen. */
+/** Padlock 4, of 6 pieces, the first one chosen. */
 private fun sixTilesState(): LocksmithUiState =
-    LocksmithUiState(level = 4, game = PadlockGame.start(Padlock.generate(level = 4, seed = 7)).select(0))
+    LocksmithUiState(level = 4, game = PadlockGame.start(Padlock.ofLevel(4)).select(0))
 
 /** Reduced effects, as the player chooses them. */
 private val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
