@@ -1,13 +1,12 @@
 package ch.magori.blox.theme
 
+import ch.magori.blox.WarmValue
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 
 /**
  * How the whole application looks, as saved in the settings: the theme [kind] chosen on the home screen, and whether
@@ -24,9 +23,10 @@ data class AppAppearance(val kind: BloxThemeKind, val reducedEffects: Boolean)
  * another setting does.
  */
 class AppTheme(preferences: UserPreferencesRepository, scope: CoroutineScope) {
-    val appearance: StateFlow<AppAppearance?> = preferences.preferences
-        .map { AppAppearance(themeKindOf(it.theme), it.reducedEffects) }
-        .stateIn(scope, SharingStarted.Eagerly, initialValue = null)
+    val appearance: StateFlow<AppAppearance?> = WarmValue(
+        preferences.preferences.map { AppAppearance(themeKindOf(it.theme), it.reducedEffects) },
+        scope,
+    ).current
 }
 
 /**
