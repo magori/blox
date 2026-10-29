@@ -1,6 +1,8 @@
 package ch.magori.blox.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavBackStack
@@ -36,6 +38,7 @@ import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
 import ch.magori.blox.feature.musics.navigation.myMusicsEntry
+import ch.magori.blox.locksmith.PadlockFrontier
 import java.time.LocalDate
 
 /**
@@ -46,7 +49,8 @@ import java.time.LocalDate
  * à sa clé : une nouvelle partie, une nouvelle clé, un nouveau ViewModel. [deletedMusics] porte une musique supprimée
  * dans l'éditeur jusqu'à « Mes musiques », qui propose de l'annuler ; [newCartridges] les cartouches qui portent
  * l'autocollant « NOUVELLE » (la Graine du jour avant le premier essai du jour) ; [onCopyDailyScore] copie le score de
- * la Graine du jour d'une date, celle de l'écran d'entrée ou de la partie terminée (P9.6). La pile s'ouvre sur le choix
+ * la Graine du jour d'une date, celle de l'écran d'entrée ou de la partie terminée (P9.6) ; [padlockFrontier] la
+ * frontière du Serrurier, que sa cartouche nomme et ouvre, lue au toucher (P7.34). La pile s'ouvre sur le choix
  * du jeu ([CartridgesRoute], ADR 0022) : le retour système, là, quitte l'application.
  */
 @Composable
@@ -62,12 +66,17 @@ fun BloxNavDisplay(
     onCopyDailyScore: (date: LocalDate) -> Unit,
     newCartridges: NewCartridges,
     gardenViewModelFactory: GardenViewModel.Factory,
+    padlockFrontier: PadlockFrontier,
     padlocksViewModelFactory: PadlocksViewModel.Factory,
     modifier: Modifier = Modifier,
     backStack: NavBackStack<NavKey> = rememberNavBackStack(CartridgesRoute),
 ) {
     // Never below the first screen, whatever asks to go back once more.
     val goBack: () -> Unit = { if (backStack.size > 1) backStack.removeLastOrNull() }
+    // Where a tap on the Locksmith cartridge awaits its frontier, for as long as the navigation shows.
+    val scope = rememberCoroutineScope()
+    val cartridges =
+        remember(backStack, scope, padlockFrontier) { CartridgeOpener(backStack, scope, padlockFrontier::await) }
     NavDisplay(
         backStack = backStack,
         modifier = modifier,
@@ -82,7 +91,8 @@ fun BloxNavDisplay(
             cartridgesEntry(
                 newCartridges = newCartridges.updates,
                 currentNewCartridges = newCartridges::current,
-                onOpen = { cartridge -> openCartridge(backStack, cartridge) },
+                padlockFrontier = padlockFrontier.current,
+                onOpen = cartridges::open,
             )
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },

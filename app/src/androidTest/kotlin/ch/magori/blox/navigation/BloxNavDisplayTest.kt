@@ -41,6 +41,7 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.data.PadlockOpening
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.tapScrim
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -74,6 +75,7 @@ import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.locksmith.PadlockFrontier
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -148,17 +150,35 @@ internal class BloxNavDisplayTest {
     }
 
     @Test
-    @DisplayName("the Locksmith cartridge opens padlock 1")
+    @DisplayName("with no padlock open, the Locksmith cartridge names padlock 1 and opens it")
     fun theLocksmithCartridgeOpensPadlock1() {
         runJourney {
-            // Given the choice of the game
+            // Given the choice of the game, on a new device
             showApp(openClassic = false)
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_padlock, 1)).assertIsDisplayed()
 
             // When
             tapLocksmithCartridge()
 
             // Then
             onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the Locksmith cartridge names the frontier and opens it: padlock 3, once padlocks 1 and 2 are open")
+    fun theLocksmithCartridgeOpensTheFrontier() {
+        runJourney {
+            // Given the choice of the game, padlocks 1 and 2 open
+            showApp(openClassic = false, openPadlocks = 2)
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_padlock, 3)).assertIsDisplayed()
+
+            // When
+            tapLocksmithCartridge(frontier = 3)
+
+            // Then
+            onNodeWithText(padlockTitle(3)).assertIsDisplayed()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
         }
     }
@@ -749,6 +769,7 @@ internal class BloxNavDisplayTest {
         restoredStack: List<NavKey>? = null,
         restoredShows: String? = null,
         dailyResults: DailyResults? = null,
+        openPadlocks: Int = 0,
     ): FakeUserPreferencesRepository {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository()
@@ -789,9 +810,18 @@ internal class BloxNavDisplayTest {
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
-        val padlocks = FakePadlockProgressRepository()
-        val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences, padlocks, MainScope())
-        val padlocksFactory = PadlocksViewModel.Factory(padlocks)
+        // Padlocks 1 to [openPadlocks] open, as a player who went that far: the frontier is the one after.
+        val padlockProgress = FakePadlockProgressRepository()
+        runBlocking { (1..openPadlocks).forEach { padlockProgress.record(it, PADLOCK_OPENING) } }
+        val padlockFrontier = PadlockFrontier(padlockProgress.progress, MainScope())
+        val locksmithFactory =
+            LocksmithViewModel.Factory(
+                FakeSoundEffectPlayer(),
+                preferences,
+                padlockProgress,
+                MainScope(),
+            )
+        val padlocksFactory = PadlocksViewModel.Factory(padlockProgress)
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
         val gardenFactory =
             GardenViewModel.Factory(
@@ -830,6 +860,7 @@ internal class BloxNavDisplayTest {
                         { date -> copiedDailyScores += date },
                         newCartridges,
                         gardenFactory,
+                        padlockFrontier,
                         padlocksFactory,
                     )
                 } else {
@@ -845,6 +876,7 @@ internal class BloxNavDisplayTest {
                         { date -> copiedDailyScores += date },
                         newCartridges,
                         gardenFactory,
+                        padlockFrontier,
                         padlocksFactory,
                         backStack = rememberNavBackStack(*restoredStack.toTypedArray()),
                     )
@@ -880,10 +912,10 @@ internal class BloxNavDisplayTest {
         advanceUntilShown(string(HomeR.string.feature_home_play))
     }
 
-    /** Taps the cartridge of the Locksmith on the choice of the game, and waits for its padlock 1. */
-    private fun AndroidComposeUiTest<ComponentActivity>.tapLocksmithCartridge() {
+    /** Taps the cartridge of the Locksmith on the choice of the game, and waits for its [frontier], padlock 1 at first. */
+    private fun AndroidComposeUiTest<ComponentActivity>.tapLocksmithCartridge(frontier: Int = 1) {
         onNode(hasTestTag(LOCKSMITH_CARTRIDGE_TAG)).performClick()
-        advanceUntilShown(padlockTitle(1))
+        advanceUntilShown(padlockTitle(frontier))
     }
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
@@ -986,5 +1018,8 @@ internal class BloxNavDisplayTest {
 
         /** A minute of play: far more than a game whose rows are ticks lasts. */
         const val MAX_PLAY_MILLIS = 60_000L
+
+        /** An opening of a padlock, the same for each one the journeys hold open. */
+        val PADLOCK_OPENING = PadlockOpening(pieces = 3, moves = 3, refusals = 0, hints = 0)
     }
 }

@@ -2,10 +2,14 @@ package ch.magori.blox.feature.cartridges
 
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
@@ -17,6 +21,7 @@ import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasStateDescription
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isFocusable
 import androidx.compose.ui.test.isHeading
@@ -108,6 +113,74 @@ internal class CartridgesScreenTest {
             onNode(hasText(nameOf(cartridge)) and hasClickAction())
                 .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.StateDescription))
         }
+    }
+
+    @Test
+    @DisplayName(
+        "the Locksmith cartridge bears the line « Serrure N », its frontier, which TalkBack reads after its name",
+    )
+    fun theLocksmithCartridgeBearsTheLineOfItsFrontier() = extension.use {
+        // Given padlocks 1 to 12 open
+        showCartridges(padlockFrontier = 13)
+
+        // Then
+        val line = padlockLine(13)
+        onNodeWithText(line, useUnmergedTree = true).assertIsDisplayed()
+        onNode(hasTestTag(Cartridge.LOCKSMITH.tag))
+            .assert(hasTexts(nameOf(Cartridge.LOCKSMITH), line))
+    }
+
+    @Test
+    @DisplayName("before the frontier is read, the Locksmith cartridge bears no line, rather than one that may change")
+    fun beforeTheFrontierIsReadTheLocksmithCartridgeBearsNoLine() = extension.use {
+        // Given the progress of the padlocks not read yet
+        showCartridges(padlockFrontier = null)
+
+        // Then
+        onNode(hasTestTag(Cartridge.LOCKSMITH.tag))
+            .assert(hasTexts(nameOf(Cartridge.LOCKSMITH)))
+    }
+
+    @Test
+    @DisplayName("on 360 dp, the Locksmith with its line stands as high as the Classic beside it, read or not")
+    fun theLocksmithWithItsLineStandsAsHighAsTheClassic() = extension.use {
+        // Given
+        var frontier: Int? by mutableStateOf(null)
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                CartridgesScreen(
+                    cartridges = Cartridge.entries,
+                    newCartridges = emptySet(),
+                    padlockFrontier = frontier,
+                    onOpen = {},
+                    modifier = Modifier.width(NARROW_PHONE),
+                )
+            }
+        }
+        val classic = onNodeWithTag(Cartridge.CLASSIC.tag).getBoundsInRoot()
+        val unread = onNodeWithTag(Cartridge.LOCKSMITH.tag).getBoundsInRoot()
+
+        // When the frontier is read
+        frontier = 1
+        waitForIdle()
+
+        // Then the cartridges did not move
+        val read = onNodeWithTag(Cartridge.LOCKSMITH.tag).getBoundsInRoot()
+        assertThat((unread.bottom - unread.top).value).isCloseTo((classic.bottom - classic.top).value, within(HALF_DP))
+        assertThat(read).isEqualTo(unread)
+        assertThat(onNodeWithTag(Cartridge.CLASSIC.tag).getBoundsInRoot()).isEqualTo(classic)
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 360 dp, the line « Serrure 1000 » holds on one line, unclipped")
+    fun inALargeFontTheLineOfTheLocksmithHolds() = extension.use {
+        // Given
+        showCartridges(width = NARROW_PHONE, fontScale = 2f, padlockFrontier = 1000)
+
+        // Then
+        val layout = textLayout(padlockLine(1000))
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.hasVisualOverflow).isFalse()
     }
 
     @ParameterizedTest(name = "under {0}")
@@ -254,6 +327,7 @@ internal class CartridgesScreenTest {
         fontScale: Float = 1f,
         newCartridges: Set<Cartridge> = emptySet(),
         cartridges: List<Cartridge> = Cartridge.entries,
+        padlockFrontier: Int? = null,
     ) {
         setContent {
             val density = LocalDensity.current
@@ -262,6 +336,7 @@ internal class CartridgesScreenTest {
                     CartridgesScreen(
                         cartridges = cartridges,
                         newCartridges = newCartridges,
+                        padlockFrontier = padlockFrontier,
                         onOpen = onOpen,
                         modifier = Modifier.width(width),
                     )
@@ -272,7 +347,18 @@ internal class CartridgesScreenTest {
 
     private fun nameOf(cartridge: Cartridge): String = string(cartridge.label)
 
-    private fun string(id: Int): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id)
+    /** The line of the Locksmith cartridge, its frontier [padlock]. */
+    private fun padlockLine(padlock: Int): String = string(R.string.feature_cartridges_padlock, padlock)
+
+    private fun string(
+        id: Int,
+        vararg arguments: Any,
+    ): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id, *arguments)
+}
+
+/** A node whose texts, read by TalkBack in their order, are [texts], and no other. */
+private fun hasTexts(vararg texts: String): SemanticsMatcher = SemanticsMatcher("texts ${texts.toList()}") { node ->
+    node.config.getOrNull(SemanticsProperties.Text)?.map { it.text } == texts.toList()
 }
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */

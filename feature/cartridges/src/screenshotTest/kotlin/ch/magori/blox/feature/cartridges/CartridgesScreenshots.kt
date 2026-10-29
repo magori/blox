@@ -8,7 +8,8 @@ import com.android.tools.screenshot.PreviewTest
 /*
  * Screenshot tests of the choice of the game (view V36), by day and by night, and with the font of the system twice as
  * large, under the Original theme of the application: the screen draws itself in the Colorful theme. The Graine du jour
- * bears its sticker NOUVELLE. From the previews of the production code, with the same `@Preview` configuration.
+ * bears its sticker NOUVELLE, the Serrurier its line « Serrure 13 ». From the previews of the production code, with the
+ * same `@Preview` configuration.
  * Renaming a test breaks its link to its reference image: regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
 

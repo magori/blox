@@ -159,13 +159,14 @@ la préférence de solutions viennent du **profil** de la serrure (`PadlockProfi
   **Tests :** `LocksmithRouteTest › a route restored after the death of the process gives the same padlock, nothing placed`,
   `LocksmithRouteSavingTest › a padlock route comes back from the saved state as it was`,
   `LocksmithRouteSavingTest › a padlock route saved with its seed by an older version comes back as the padlock of its level`.
-- La cartouche « Serrurier » ouvre la serrure 1 ; « Serrure suivante » met à sa place la serrure
-  d'un niveau de plus, et un second toucher ne saute pas deux serrures.
-  **Tests :** `OpenCartridgeTest › the Locksmith cartridge opens padlock 1 over the cartridges`,
+- La cartouche « Serrurier » ouvre la frontière, la première serrure non ouverte (la serrure 1 sans avancement ;
+  P7.34, section [Avancement et anciennes serrures](#avancement-et-anciennes-serrures)) ; « Serrure suivante » met
+  à sa place la serrure d'un niveau de plus, et un second toucher ne saute pas deux serrures.
+  **Tests :** `OpenCartridgeTest › the Locksmith cartridge opens the frontier, the first padlock not open, over the cartridges`,
   `OpenCartridgeTest › a second tap on the Locksmith cartridge does not stack a second padlock`,
   `NextPadlockTest › the next padlock takes the place of the open one, one level up`,
   `NextPadlockTest › a second tap on next padlock does not move on twice`,
-  `BloxNavDisplayTest › the Locksmith cartridge opens padlock 1`,
+  `BloxNavDisplayTest › with no padlock open, the Locksmith cartridge names padlock 1 and opens it`,
   `BloxNavDisplayTest › on the Locksmith, the system back goes back to the cartridges, and then leaves`,
   `BloxNavDisplayTest › a restored stack with a padlock on top shows that padlock again, nothing placed`.
   **Vues :** V26, V35.
@@ -175,8 +176,8 @@ la préférence de solutions viennent du **profil** de la serrure (`PadlockProfi
   `SystemBarsTest › the bars of every other screen follow the theme chosen`,
   `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
   **Vues :** V26, V35.
-- Le niveau n'est pas encore enregistré : la cartouche ouvre toujours la serrure 1. La progression
-  ci-dessous le remplace (P7.31 à P7.37 ; la cartouche sur la frontière en P7.34).
+- L'avancement est enregistré (P7.32, P7.33) et la cartouche ouvre la frontière (P7.34) : voir la section
+  [Progression](#progression) ci-dessous.
 
 ## Progression
 
@@ -184,8 +185,9 @@ Décidée le 2026-10-28. Demande du développeur : garder l'avancement, poursuiv
 serrures, rouvrir les anciennes.
 Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Une serrure par niveau et ses paliers sont
 faits (P7.29, P7.30) : c'est le jeu décrit plus haut. L'avancement est gardé et écrit à chaque ouverture, la carte
-le montre (P7.31 à P7.33). Tant que les tâches P7.34 à P7.37 ne sont pas faites (cartouche, écran « Serrures »,
-recommencer depuis le début), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
+le montre (P7.31 à P7.33), la cartouche ouvre la frontière (P7.34). Tant que les tâches P7.35 à P7.37 ne sont pas
+faites (écran « Serrures », recommencer depuis le début), le jeu suit les sections précédentes ; chaque règle recevra
+ses tests en son temps.
 
 ### Une serrure par niveau, la même pour tous
 
@@ -239,7 +241,7 @@ recommencer depuis le début), le jeu suit les sections précédentes ; chaque r
 - **Fait** (P7.30) : l'écran joue `Padlock.ofLevel(n)` ; la clé `LocksmithRoute(level)` n'a plus de graine, la
   suivante est `route.next()` (section [Niveaux](#niveaux)). L'ancien générateur sur `kotlin.random.Random`
   (`Padlock.generate`) est supprimé. Une pile sauvegardée par une version antérieure (clé avec graine) redonne la
-  serrure de son niveau. La cartouche ouvre toujours la serrure 1 (la frontière viendra en P7.34).
+  serrure de son niveau. La cartouche ouvrait alors toujours la serrure 1 ; elle ouvre la frontière depuis P7.34.
   **Tests :** `LocksmithRouteTest › the next padlock is one level up`,
   `LocksmithViewModelTest › the screen opens on padlock n of its route, the same for everyone, nothing placed`,
   `LocksmithRouteSavingTest › a padlock route saved with its seed by an older version comes back as the padlock of its level`,
@@ -301,6 +303,43 @@ solutions) ;
   `PadlockGameTest › an open padlock gives the result of its opening, a padlock not open none`,
   `PadlockGameTest › a padlock opened without taking back, refusal or hint is perfect`.
 - La **cartouche** ouvre la frontière, et porte la sous-ligne « Serrure *N* + 1 ».
+  **Fait** (P7.34, `feature:cartridges`, `app`) :
+  - La cartouche « Serrurier » ouvre la **frontière**, la première serrure non ouverte (la serrure 1 sans
+    avancement), par-dessus les cartouches ; un second toucher n'empile pas une seconde serrure.
+  - Elle porte la **sous-ligne « Serrure *N* »** (*N* la frontière), que TalkBack lit après le nom ; en police ×2 à
+    360 dp, « Serrure 1000 » tient sur une ligne, sans être coupée. La sous-ligne n'apparaît qu'**une fois la
+    frontière lue** : avant, la cartouche n'en porte aucune, plutôt qu'une ligne qui pourrait changer. Sa **place est
+    réservée** sur toutes les cartouches, lue ou non, pour que la grille ne bouge pas : le Serrurier est aussi haut
+    que le Classique à côté de lui.
+  - `PadlockFrontier` (`app`) lit l'avancement dès le démarrage de l'application et le suit : `current`
+    (`StateFlow<Int?>`, `null` tant que l'avancement n'est pas lu) et `await()`. Si la lecture échoue, le dépôt rend
+    un avancement vide, et la frontière vaut 1.
+  - Un **toucher fait avant la lecture l'attend**, au lieu d'ouvrir la serrure 1, qui n'est peut-être pas la
+    frontière ; deux touchers pendant la lecture n'empilent qu'une serrure.
+  - `CartridgeOpener` (`app`, remplace `openCartridge`) : seule la cartouche Serrurier attend, les autres empilent
+    leur écran tout de suite. Un toucher sur une autre cartouche **annule** une attente du Serrurier encore en
+    cours : aucune serrure ne s'empile par surprise sur le jeu ouvert, ni après qu'on l'a quitté.
+  - `feature:cartridges` ne reçoit que la frontière (`padlockFrontier: StateFlow<Int?>`), sans dépendre d'une autre
+    feature. Le parcours Macrobenchmark reste valide : l'application mesurée, sans avancement, ouvre la serrure 1.
+  **Tests :** `PadlockFrontierTest › with no padlock open, the frontier is padlock 1`,
+  `PadlockFrontierTest › once the progress is read, the frontier is known at once, without waiting for a collection`,
+  `PadlockFrontierTest › the frontier moves on as a padlock opens, at each reading of the progress`,
+  `PadlockFrontierTest › before the progress is read, no frontier is known, so that no line shows that may have to change`,
+  `PadlockFrontierTest › a tap before the progress is read waits for it, rather than open padlock 1 when it is not the frontier`,
+  `OpenCartridgeTest › the Locksmith cartridge opens the frontier, the first padlock not open, over the cartridges`,
+  `OpenCartridgeTest › a second tap on the Locksmith cartridge does not stack a second padlock`,
+  `OpenCartridgeTest › two taps on the Locksmith cartridge while the frontier is read stack a single padlock`,
+  `OpenCartridgeTest › the Classic cartridge opens the Classic home over the cartridges, at once`,
+  `OpenCartridgeTest › a game opened while the frontier of the Locksmith is read is not covered by a padlock`,
+  `OpenCartridgeTest › a tap on the Locksmith left waiting while a game was opened and left opens no padlock once read`,
+  `CartridgesScreenTest › the Locksmith cartridge bears the line « Serrure N », its frontier, which TalkBack reads after its name`,
+  `CartridgesScreenTest › before the frontier is read, the Locksmith cartridge bears no line, rather than one that may change`,
+  `CartridgesScreenTest › on 360 dp, the Locksmith with its line stands as high as the Classic beside it, read or not`,
+  `CartridgesScreenTest › in a font twice as large, on 360 dp, the line « Serrure 1000 » holds on one line, unclipped`,
+  `BloxNavDisplayTest › with no padlock open, the Locksmith cartridge names padlock 1 and opens it`,
+  `BloxNavDisplayTest › the Locksmith cartridge names the frontier and opens it: padlock 3, once padlocks 1 and 2 are open` ;
+  captures `CartridgesDay`, `CartridgesNight` et `CartridgesLargeFont`.
+  **Vues :** V36.
 - Un écran **« Serrures »** (grille, depuis le cadenas de la barre de V35, qui devient un disque de 48 dp) : un
   résumé (« 12 ouvertes · 3 parfaites »), « Reprendre · Serrure 13 », puis la grille, défilée sur la frontière ;
   chaque case dit son état par le texte, la couleur ne fait que le doubler : ouverte, parfaite (étoile), à ouvrir,
