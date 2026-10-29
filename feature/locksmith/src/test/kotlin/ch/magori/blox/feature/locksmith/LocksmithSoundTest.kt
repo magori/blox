@@ -102,6 +102,7 @@ class LocksmithSoundTest {
             preferences,
             FakePadlockProgressRepository(),
             MainScope(),
+            ClearedProgressRelay(),
         )
         val viewModel = ViewModelProvider.create(store, factory, extras)[LocksmithViewModel::class]
         start.padlock.solution.forEach { viewModel.placing(it) }

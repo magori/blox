@@ -4,6 +4,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.OnBackPressedCallback
 import androidx.annotation.StringRes
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.AndroidComposeUiTest
@@ -72,6 +73,7 @@ import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
+import ch.magori.blox.feature.locksmith.ClearedProgressRelay
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
@@ -313,6 +315,67 @@ internal class BloxNavDisplayTest {
             onNodeWithText(padlockTitle(1)).assertIsDisplayed()
             onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 1)).assertIsDisplayed()
         }
+    }
+
+    @Test
+    @DisplayName(
+        "starting over on the screen of the padlocks opened over padlock 3 puts padlock 1 in its place, " +
+            "which tells it, over the cartridges, which name padlock 1",
+    )
+    fun startingOverFromPadlock3GoesBackToPadlock1() {
+        runJourney {
+            // Given padlock 3, the frontier, padlocks 1 and 2 open, and the screen of the padlocks over it
+            showApp(openClassic = false, openPadlocks = 2)
+            tapLocksmithCartridge(frontier = 3)
+            tapPadlocksDisc()
+
+            // When the player starts over from the beginning, and confirms
+            startOver()
+
+            // Then padlock 1, whose message tells the progress cleared, to TalkBack as it comes
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_message_cleared))
+                .assertIsDisplayed()
+                .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+            // And back goes to the cartridges, which name padlock 1 again
+            pressSystemBack()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_padlock, 1)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName(
+        "starting over on the screen of the padlocks opened over padlock 1 starts padlock 1 over, nothing placed, " +
+            "and tells it",
+    )
+    fun startingOverFromPadlock1StartsItOver() {
+        runJourney {
+            // Given padlock 1 open, then chosen again on the screen of the padlocks, a piece placed, and the screen of
+            // the padlocks over it
+            showApp(openClassic = false, openPadlocks = 1)
+            tapLocksmithCartridge(frontier = 2)
+            tapPadlocksDisc()
+            onNode(hasTestTag(padlockTileTag(1))).performScrollTo().performClick()
+            settle()
+            placeAPiece(level = 1)
+            tapPadlocksDisc()
+
+            // When the player starts over from the beginning, and confirms
+            startOver()
+
+            // Then padlock 1 again, started over: nothing placed, and its message tells the progress cleared
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 1)).assertDoesNotExist()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_message_cleared)).assertIsDisplayed()
+        }
+    }
+
+    /** On the screen of the padlocks: « Recommencer depuis le début », then « Effacer » in the window. */
+    private fun AndroidComposeUiTest<ComponentActivity>.startOver() {
+        onNodeWithText(string(LocksmithR.string.feature_locksmith_padlocks_start_over)).performScrollTo().performClick()
+        settle()
+        onNodeWithText(string(LocksmithR.string.feature_locksmith_clear_confirm)).performClick()
+        settle()
     }
 
     @Test
@@ -877,14 +940,16 @@ internal class BloxNavDisplayTest {
         val padlockProgress = FakePadlockProgressRepository()
         runBlocking { (1..openPadlocks).forEach { padlockProgress.record(it, PADLOCK_OPENING) } }
         val padlockFrontier = PadlockFrontier(padlockProgress.progress, MainScope())
+        val clearedPadlocks = ClearedProgressRelay()
         val locksmithFactory =
             LocksmithViewModel.Factory(
                 FakeSoundEffectPlayer(),
                 preferences,
                 padlockProgress,
                 MainScope(),
+                clearedPadlocks,
             )
-        val padlocksFactory = PadlocksViewModel.Factory(padlockProgress)
+        val padlocksFactory = PadlocksViewModel.Factory(padlockProgress, clearedPadlocks, MainScope())
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
         val gardenFactory =
             GardenViewModel.Factory(

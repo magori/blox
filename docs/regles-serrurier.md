@@ -186,8 +186,8 @@ serrures, rouvrir les anciennes.
 Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Une serrure par niveau et ses paliers sont
 faits (P7.29, P7.30) : c'est le jeu décrit plus haut. L'avancement est gardé et écrit à chaque ouverture, la carte
 le montre (P7.31 à P7.33), la cartouche ouvre la frontière (P7.34), l'écran « Serrures » liste les serrures et
-s'ouvre depuis le disque de la barre de V35 (P7.35, P7.36). Tant que la tâche P7.37 n'est pas faite (recommencer
-depuis le début), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
+s'ouvre depuis le disque de la barre de V35 (P7.35, P7.36), et l'on peut y recommencer depuis le début (P7.37) :
+toute la progression décrite ici est faite, chaque règle avec ses tests.
 
 ### Une serrure par niveau, la même pour tous
 
@@ -475,8 +475,69 @@ solutions) ;
   `LocksmithProgressTest › the frontier is read when the opening is written, not when the screen opened`,
   `LocksmithProgressTest › a write that ends after the padlock started over tells nothing of the game started over`,
   `LocksmithProgressTest › the frontier is followed after a first opening, until the card offers to resume`.
-- **Recommencer depuis le début**, en bas de l'écran « Serrures », avec confirmation dans la page : les résultats
-  sont effacés, les serrures restent les mêmes.
+- **Recommencer depuis le début**, en bas de l'écran « Serrures », après confirmation : les résultats sont effacés,
+  les serrures restent les mêmes.
+  **Fait** (P7.37, `feature:locksmith`, `app`). La spécification prévoyait une confirmation dans la page ; c'est une
+  fenêtre (`ConfirmWindow` danger), le motif d'« Effacer le record » (P5.66), pour une action qui ne se défait pas.
+  - **Bouton** : « Recommencer depuis le début » (`DangerButton`), en bas de la grille, pleine largeur, présent
+    seulement si au moins une serrure est ouverte (aucun dans l'état vide).
+  - **Confirmation** : « Effacer la progression ? », « *N* serrure ouverte sera oubliée. » (au pluriel, « *N*
+    serrures ouvertes seront oubliées. »), puis « Garder » d'abord, « Effacer » ensuite. « Garder » ferme la
+    fenêtre, toutes les ouvertures gardées.
+    - Pendant l'écriture, tout est grisé, et un second « Effacer » n'efface rien de plus ; une confirmation qui
+      arrive sans question posée n'efface rien.
+    - Un **échec** (`IOException`) garde toutes les ouvertures : la fenêtre dit « L'opération a échoué. » et reste
+      ouverte, pour réessayer.
+    - Une fois l'effacement écrit, la fenêtre reste ouverte, réponses grisées, jusqu'à la navigation ; une réponse
+      tardive ne change rien.
+    - Le nombre et la grille sont **figés** tels qu'au moment de la question, jusqu'à ce qu'on quitte l'écran : la
+      fenêtre ne dit jamais « 0 », et la grille ne se vide pas sous elle.
+  - **Effacement** : `clear()` du dépôt s'exécute dans la portée de l'application (`mainScope` de l'`AppContainer`),
+    comme l'écriture d'une ouverture : il est écrit et transmis même si l'écran est quitté entre-temps.
+  - **Navigation** (`progressCleared`, `app`) : la pile revient à `[Cartouches, Serrurier(1)]`. Ouverte depuis la
+    serrure 3 (ou toute autre), la liste et cette serrure laissent la place à la serrure 1. Ouverte depuis la
+    serrure 1, celle-ci, gardée sous la liste, **repart de zéro** : aucune pièce posée, pas de carte d'ouverture.
+    Sans serrure sous la liste, la serrure 1 prend sa place. Un effacement annoncé deux fois ne bouge rien de plus.
+  - **« Progression effacée. »** : la serrure 1 le dit dans son message, jusqu'à la première action (pose,
+    Recommencer ou toute autre). Le relais `ClearedProgressRelay` (`feature:locksmith`, un par processus, donné par
+    `app` aux deux fabriques) passe l'effacement de l'écran « Serrures » à la serrure 1, qui le prend une seule
+    fois. Il ne vit qu'en mémoire (un processus mort avant perd le message, rien de plus) et il est vidé à chaque
+    ouverture de « Serrures » : un effacement qu'aucune serrure n'a pris ne fait pas repartir une serrure plus tard.
+  - **Frontière** : la cartouche revient à « Serrure 1 ».
+  Captures `PadlocksClearDay`, `PadlocksClearNight`, `PadlocksClearLargeFontDay` (la fenêtre seule, sans l'écran ni le voile dessous) et
+  `PadlocksClearFailedDay` (l'échec) ; `PadlocksDay`, `PadlocksNight`, `PadlocksSmallDay`, `PadlocksLowDay` et
+  `PadlocksLargeFontDay` régénérées (le bouton en bas de la grille).
+  **Tests :** `PadlocksViewModelTest › asking to start over from the beginning opens the confirmation, nothing cleared yet`,
+  `PadlocksViewModelTest › keeping the progress closes the confirmation, every opening kept`,
+  `PadlocksViewModelTest › clearing the progress, as the player confirmed, forgets every opening and hands the clear over`,
+  `PadlocksViewModelTest › once the clear is asked, the screen keeps the padlocks it showed until it is left, so that no 0 is told`,
+  `PadlocksViewModelTest › a progress that cannot be cleared keeps every opening, the confirmation saying it failed`,
+  `PadlocksViewModelTest › after a failure the player may confirm again, and the progress is cleared once it can be written`,
+  `PadlocksViewModelTest › a confirmation that comes when nothing is asked clears nothing`,
+  `PadlocksViewModelTest › while the clear is written the confirmation waits, and a second confirmation clears nothing more`,
+  `PadlocksViewModelTest › once the progress is cleared, a late answer changes nothing until the screen goes`,
+  `PadlocksViewModelTest › opening the screen of the padlocks forgets a clear that no padlock took`,
+  `PadlocksViewModelTest › the clear outlives the screen, written and handed over even once the screen is left`,
+  `LocksmithViewModelTest › the padlock shown after the progress is cleared tells it, once, until the first action`,
+  `LocksmithViewModelTest › a placement or a restart, as any first action, makes the cleared progress give way to the game`,
+  `LocksmithViewModelTest › padlock 1, open under the screen of the padlocks, starts over once the progress is cleared, and tells it`,
+  `LocksmithMessageTest › once the progress is cleared, the message says so until the first action`,
+  `PadlocksScreenTest › Recommencer depuis le début, at the end of the grid, asks whether to start over`,
+  `PadlocksScreenTest › without an opening, there is nothing to start over`,
+  `PadlocksScreenTest › the confirmation tells how many padlocks will be forgotten, Garder first, then Effacer, each answering`,
+  `PadlocksScreenTest › while the clear is written, both answers are disabled`,
+  `PadlocksScreenTest › once the progress is cleared, the confirmation stays open, its answers disabled, until the screen goes`,
+  `PadlocksScreenTest › a clear that could not be written is told, the confirmation still open to try again`,
+  `NextPadlockTest › once the progress is cleared on the screen of the padlocks, padlock 1 comes back over the cartridges`,
+  `NextPadlockTest › once the progress is cleared on the screen of the padlocks opened over padlock 1, padlock 1 stays on top`,
+  `NextPadlockTest › a clear told twice moves nothing more`,
+  `NextPadlockTest › with no padlock under the screen of the padlocks, padlock 1 takes its place once the progress is cleared`,
+  `PadlockFrontierTest › once the progress is cleared on the screen of the padlocks, the frontier is padlock 1 again`,
+  `BloxNavDisplayTest › starting over on the screen of the padlocks opened over padlock 3 puts padlock 1 in its place, …`
+  (nom complet : « …, which tells it, over the cartridges, which name padlock 1 »),
+  `BloxNavDisplayTest › starting over on the screen of the padlocks opened over padlock 1 starts padlock 1 over, nothing placed, …`
+  (nom complet : « …, and tells it »).
+  **Vues :** pas encore de numéro de vue pour l'écran « Serrures » ni sa fenêtre (P7.38).
 - L'avancement est un fichier versionné de `core:data` (qui ne stocke que des entiers et un numéro de génération)
   et **entre dans la sauvegarde Android** : c'est l'acquis du joueur, et les serrures sont les mêmes sur un autre
   appareil.
@@ -757,13 +818,15 @@ droite.
   de la pièce qu'on vient de tourner (« Pièce T, un quart de tour à droite. », comptée en quarts de tour
   depuis sa forme de départ, jusqu'à l'action suivante), ce que marque l'indice en nommant sa pièce
   (« L'indice marque où tient la pièce L. », ou la pièce posée qui bloque), puis comment jouer, avec ou
-  sans aperçu. Le message est la seule zone annoncée (polie) tant que la serrure est fermée, et ne
+  sans aperçu. Juste après l'effacement de la progression (P7.37, voir [Progression](#progression)), la serrure 1
+  dit « Progression effacée. » jusqu'à la première action. Le message est la seule zone annoncée (polie) tant que la serrure est fermée, et ne
   l'est plus une fois ouverte : le titre de la carte prend alors le focus. Chaque case se lit
   « Colonne c, ligne l : trou, métal, pièce… », une case de l'indice « indice : la pièce L tient ici » ;
   la grille se lit comme une collection de 8 rangées et 8 colonnes, l'anneau laissé de côté. Le bandeau
   des accords se lit par degré et qualité (« cinq majeur »), jamais par son chiffre romain, que TalkBack
   lirait comme un mot : « Accords entendus : … À venir : … ».
   **Tests :** `LocksmithMessageTest › without a preview the message says to touch the hole`,
+  `LocksmithMessageTest › once the progress is cleared, the message says so until the first action`,
   `LocksmithMessageTest › with a preview the message says to touch it again or to place it`,
   `LocksmithMessageTest › a refusal tells its reason`,
   `LocksmithMessageTest › a refusal is told with its number, so that TalkBack tells a second refusal in a row again`,

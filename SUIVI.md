@@ -37,7 +37,7 @@ périmètre, modifier la liste ci-dessous.
 | P4 | Musique et sons | En cours : modèle et partitions faits |
 | P5 | Finitions | À faire |
 | P6 | Mode Moderne | Plus tard |
-| P7 | Le Serrurier, second jeu | Jouable ; progression des serrures à faire (P7.27 à P7.39) |
+| P7 | Le Serrurier, second jeu | Jouable, progression des serrures faite ; restent la maquette (P7.38), les jugements (P7.39) et des tâches de nettoyage |
 | P8 | Musique vivante, la musique du Classique qui suit la partie | Spécification faite ; à faire |
 | P9 | Graine du jour, les mêmes pièces pour tous chaque jour | Spécification faite ; à faire après P1.20 et P8 |
 | P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
@@ -1385,17 +1385,21 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   Après P7.32.
 - [x] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
   (choisir remplace la serrure sous la liste, le retour garde la serrure en cours). Après P7.35.
-- [ ] **P7.37** Recommencer depuis le début : confirmation dans la page, résultats effacés, pile remise à la
-  serrure 1. Après P7.35.
+- [x] **P7.37** Recommencer depuis le début : confirmation par une fenêtre (`ConfirmWindow` danger, comme « Effacer
+  le record », plutôt que dans la page), résultats effacés dans la portée de l'application, pile remise à la
+  serrure 1, qui dit « Progression effacée. ». Après P7.35.
 - [ ] **P7.38** Mettre à jour la maquette (depuis claude.ai) : V35 (disque Serrures, carte), V36 (sous-ligne de la
   cartouche), nouvelle vue « Serrures » (jour, nuit, vide, grande police, confirmation), pictogrammes. Numéro de vue
-  à attribuer avec ceux de P10.33 et P12.10.
+  à attribuer avec ceux de P10.33 et P12.10. Pour la confirmation de P7.37, une capture de la fenêtre par-dessus
+  l'écran « Serrures », voile compris (les captures `PadlocksClear*` ne montrent que la fenêtre).
 - [ ] **P7.39** Juger avec `designer-jeu` les captures de P7.33 à P7.37 (contraste de la case verrouillée, carte à
   trois boutons ; à 390 dp, elle pousse le message de la cadence hors de l'écran, capture
   `LocksmithOpenReplaySmallDay`, trouvé en P7.33). Écran « Serrures » (P7.35, captures `Padlocks*`) : l'en-tête
   « Maître · 7 ou 8 pièces » alors que les serrures 21 à 30 en ont toujours 8 ; le contraste de la case verrouillée ;
   les pictogrammes restés à 16 dp en grande police ; l'état vide sans Reprendre ; la serrure en cours au-delà de la
-  frontière, qui ne s'affiche pas.
+  frontière, qui ne s'affiche pas. Recommencer depuis le début (P7.37) : juger les captures `PadlocksClear*` (la
+  fenêtre, jour, nuit, grande police, échec) ; vérifier à la main, avec TalkBack, que « Progression effacée. » est
+  bien annoncé par la serrure 1.
 - [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,

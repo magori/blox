@@ -1,9 +1,17 @@
 package ch.magori.blox.feature.locksmith
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.ColorfulTheme
 import ch.magori.blox.core.designsystem.theme.UI_MODE_NIGHT
 import ch.magori.blox.core.locksmith.PadlockResult
 
@@ -78,4 +86,49 @@ internal fun PadlocksLowDayPreview() {
 internal fun PadlocksLargeFontDayPreview() {
     val perfect = PadlockResult(pieces = 6, moves = 6, refusals = 0, hints = 0)
     PadlocksPreview(PadlocksUiState(twelveOpen.openings.dropLast(1) + perfect), current = 12)
+}
+
+/** The window of [clearing], 12 padlocks open, over the page, as it shows over the screen. */
+@Composable
+private fun ClearWindowPreview(clearing: ProgressClearing) {
+    BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+        ColorfulTheme {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(BloxTheme.palette.page)
+                    .padding(horizontal = BloxSizes.windowMargin),
+            ) {
+                ClearWindow(twelveOpen.copy(clearing = clearing), PadlocksActions.None)
+            }
+        }
+    }
+}
+
+/** « Effacer la progression ? 12 serrures ouvertes seront oubliées. », Garder, then Effacer in `danger`. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun PadlocksClearDayPreview() {
+    ClearWindowPreview(ProgressClearing.ASKED)
+}
+
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+internal fun PadlocksClearNightPreview() {
+    ClearWindowPreview(ProgressClearing.ASKED)
+}
+
+/** In large text: the question and the note go to the line between their words. */
+@Preview(widthDp = 360, heightDp = 640, fontScale = 2f)
+@Composable
+internal fun PadlocksClearLargeFontDayPreview() {
+    ClearWindowPreview(ProgressClearing.ASKED)
+}
+
+/** The clear could not be written: « L'opération a échoué. », the window still open. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun PadlocksClearFailedDayPreview() {
+    ClearWindowPreview(ProgressClearing.FAILED)
 }
