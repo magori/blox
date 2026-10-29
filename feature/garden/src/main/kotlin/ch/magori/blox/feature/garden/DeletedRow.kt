@@ -25,5 +25,5 @@ internal fun deletedRow(tick: Int): RowLeaving {
     return RowLeaving(alpha = 1f - fading, height = 1f - folding)
 }
 
-/** A row deleted fades then folds up in 200 ms (`designer-jeu`): `motion-curtain`, the same duration. */
-private val ROW_LEAVING_TICKS = BloxMotion.curtain
+/** A row deleted fades then folds up in 200 ms (`designer-jeu`): `motion-row`. */
+private val ROW_LEAVING_TICKS = BloxMotion.row

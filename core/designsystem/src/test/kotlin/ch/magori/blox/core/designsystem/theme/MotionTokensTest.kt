@@ -43,6 +43,7 @@ class MotionTokensTest {
             CodedToken("motion-card", "card", BloxMotion.card),
             CodedToken("motion-sticker", "sticker", BloxMotion.sticker),
             CodedToken("motion-pop", "pop", BloxMotion.pop),
+            CodedToken("motion-row", "row", BloxMotion.row),
             CodedToken("motion-reduced-fade", "reducedFade", BloxMotion.reducedFade),
             CodedToken("motion-garden-bounce", "gardenBounce", BloxMotion.gardenBounce),
             CodedToken("motion-garden-glow", "gardenGlow", BloxMotion.gardenGlow),

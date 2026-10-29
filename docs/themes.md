@@ -48,10 +48,11 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 - **Tailles** (`BloxSizes`) : cible de 48 dp, rangée de réglage, interrupteur, touches (`keyArrow`,
   `keyRotate` et leurs variantes compactes et tablette). `ControlSizes` (`feature:game`) y renvoie :
   les touches gardent aujourd'hui la taille compacte (52 et 56 dp), les tailles par largeur
-  arrivent en P5.79.
+  arrivent en P5.79. `sheetRise` (`sheet-rise`, 40 dp, P10.37) : la distance que parcourt une feuille du bas en
+  montant à sa place ou en redescendant, distance de mouvement qu'aucun espacement ne donne.
 - **Espacements** (`BloxSpaces`, `space1` à `space6`) et **durées** (`BloxMotion`) en ticks, au plus
   près des millisecondes du design system (1 tick = 1/60 s, ADR 0006) : `press` 6, `reducedFade`
-  8, `curtain` 12, `card` 18, `sticker` 30, `pop` 45.
+  8, `curtain` 12, `row` 12 (rangée supprimée qui s'estompe puis se replie, P10.37), `card` 18, `sticker` 30, `pop` 45.
 
 **Tests :** `ShapeTokensTest › each radius, size and space of tokens json is the one of the code`,
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
