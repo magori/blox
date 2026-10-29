@@ -50,4 +50,11 @@ internal fun gardenActions(
     onTurn = viewModel::turn,
     onPlace = viewModel::place,
     onUndo = viewModel::undo,
+    onOpenMyGardens = viewModel::openMyGardens,
+    onCloseMyGardens = viewModel::closeMyGardens,
+    onKeep = viewModel::startKeeping,
+    onSaveInPlace = viewModel::saveInPlace,
+    onNameChanged = viewModel::changeName,
+    onCancelNaming = viewModel::cancelNaming,
+    onConfirmKeeping = viewModel::confirmKeeping,
 )

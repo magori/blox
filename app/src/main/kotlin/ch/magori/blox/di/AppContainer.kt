@@ -23,12 +23,15 @@ import ch.magori.blox.core.audio.effectSampleRate
 import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
 import ch.magori.blox.core.data.DailyChallengeRepository
 import ch.magori.blox.core.data.DataStoreDailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreGardenLibrary
 import ch.magori.blox.core.data.DataStoreGardenRepository
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
+import ch.magori.blox.core.data.GARDENS_FILE
 import ch.magori.blox.core.data.GARDEN_FILE
+import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MUSICS_FILE
@@ -138,6 +141,14 @@ class AppContainer(context: Context) {
      */
     internal val keptGarden: GardenRepository =
         DataStoreGardenRepository(dataScope) { dataStoreFile(filesDir, GARDEN_FILE) }
+
+    /**
+     * The gardens the player kept by name, « Mes jardins », in `files/datastore/gardens.bin`, which the backup rules keep
+     * too. Built here, once for the process; the sheet « Mes jardins » of the garden shows and changes them. Its changes
+     * are dated by the clock of the system, as the musics.
+     */
+    internal val gardenLibrary: GardenLibrary =
+        DataStoreGardenLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, GARDENS_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
@@ -272,10 +283,11 @@ class AppContainer(context: Context) {
     /**
      * Builds the view model of the musical garden (ADR 0027), on the garden kept: written in [mainScope], at once and in
      * the order of the changes, even when the garden is left just after one; its score played by the music player of the
-     * games and of the previews, one music at a time, its preview heard by the sound effects, as the settings want them.
+     * games and of the previews, one music at a time, its preview heard by the sound effects, as the settings want them;
+     * the gardens kept by name in [gardenLibrary].
      */
     val gardenViewModelFactory: GardenViewModel.Factory =
-        GardenViewModel.Factory(keptGarden, mainScope, music, soundEffects, userPreferences)
+        GardenViewModel.Factory(keptGarden, gardenLibrary, mainScope, music, soundEffects, userPreferences)
 
     /**
      * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results

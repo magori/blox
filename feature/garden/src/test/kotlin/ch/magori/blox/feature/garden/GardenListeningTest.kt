@@ -7,6 +7,7 @@ import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.data.CurrentGarden
+import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.GardenRepository
@@ -142,6 +143,7 @@ class GardenListeningTest {
         val store = ViewModelStore()
         val factory = GardenViewModel.Factory(
             kept,
+            FakeGardenLibrary(),
             CoroutineScope(SupervisorJob() + UnconfinedTestDispatcher()),
             music,
             FakeSoundEffectPlayer(),

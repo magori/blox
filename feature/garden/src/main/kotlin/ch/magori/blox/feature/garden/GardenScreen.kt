@@ -54,6 +54,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
@@ -98,9 +99,13 @@ import ch.magori.blox.core.garden.GardenMood
  */
 internal const val GARDEN_CHANGE_GAME_TAG = "garden_change_game"
 
+/** The tag of the dot of « Mes jardins », decorative, read by the tests only. */
+internal const val GARDEN_MODIFIED_DOT_TAG = "garden_modified_dot"
+
 /**
  * What the player does on the musical garden, handed to the view model and to `app` by the entry. Tout effacer and Au
- * hasard hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone. While
+ * hasard hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone; keeping a
+ * garden in « Mes jardins », how long « « X » gardé. » shows, and the name of its mood as the screen shows it. While
  * the garden is listened to, the screen hands each frame it draws over to [onFrame], at its time in nanoseconds (ADR
  * 0012).
  */
@@ -118,6 +123,13 @@ internal class GardenActions(
     val onTurn: (Rotation) -> Unit = {},
     val onPlace: () -> Unit = {},
     val onUndo: () -> Unit = {},
+    val onOpenMyGardens: () -> Unit = {},
+    val onCloseMyGardens: () -> Unit = {},
+    val onKeep: (moodName: String) -> Unit = {},
+    val onSaveInPlace: (messageMillis: Long) -> Unit = {},
+    val onNameChanged: (String) -> Unit = {},
+    val onCancelNaming: () -> Unit = {},
+    val onConfirmKeeping: (messageMillis: Long) -> Unit = {},
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -180,9 +192,11 @@ internal fun GardenScreen(
                     GardenBar(
                         onChangeGame = changeGame,
                         onRoll = { actions.onRoll(undoMillis) },
+                        onMyGardens = actions.onOpenMyGardens,
                         onListen = actions.onListen,
                         ready = uiState != null,
                         listening = listening,
+                        modified = uiState?.modified == true,
                     )
                     if (uiState != null) {
                         Moods(uiState.garden.mood, actions.onMood)
@@ -194,23 +208,29 @@ internal fun GardenScreen(
                         ChordsAndGrid(uiState, actions.onTap, motion)
                         Message(uiState)
                         Tray(uiState, actions)
-                        // Room for « Jardin effacé · Annuler » while it shows: it never covers Retirer, scrolled to the end.
-                        if (uiState.undo != null) Spacer(Modifier.height(with(LocalDensity.current) { undoBar.toDp() }))
+                        // Room for the message while it shows: it never covers Retirer, scrolled to the end.
+                        if (uiState.undo != null || uiState.keptName != null) {
+                            Spacer(Modifier.height(with(LocalDensity.current) { undoBar.toDp() }))
+                        }
                     }
                 }
+                val messageModifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .onSizeChanged { undoBar = it.height }
+                    .padding(horizontal = BloxSpaces.space4, vertical = BloxSpaces.space2)
                 if (uiState?.undo != null) {
                     SnackMessage(
                         text = stringResource(R.string.feature_garden_cleared),
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .onSizeChanged { undoBar = it.height }
-                            .padding(horizontal = BloxSpaces.space4, vertical = BloxSpaces.space2),
+                        modifier = messageModifier,
                         action = MessageAction(stringResource(R.string.feature_garden_undo), actions.onUndo),
                     )
+                } else if (uiState?.keptName != null) {
+                    SnackMessage(text = stringResource(R.string.feature_garden_kept, uiState.keptName), messageModifier)
                 }
             }
             if (uiState != null) {
                 Controls(uiState, actions)
+                if (uiState.sheet != null) MyGardensSheet(uiState, actions)
             }
         }
     }
@@ -231,17 +251,20 @@ private fun undoTimeoutMillis(): Long = LocalAccessibilityManager.current?.calcu
 
 /**
  * The bar: the disc « Changer de jeu » at the start, then the title, in capitals, read as a heading in words, then the
- * die « Au hasard » and the disc Écouter, both greyed until the garden is [ready]. Écouter shows a triangle, read
- * « Écouter le jardin »; while [listening], a square, read « Arrêter le jardin », keeping its pressed fill: the listen
- * button of the musics (`ListenButton`).
+ * die « Au hasard », the disc « Mes jardins » and the disc Écouter, greyed until the garden is [ready]. « Mes jardins »
+ * bears a dot in `ink` while the garden [modified] since it was kept, read « jardin modifié ». Écouter shows a triangle,
+ * read « Écouter le jardin »; while [listening], a square, read « Arrêter le jardin », keeping its pressed fill: the
+ * listen button of the musics (`ListenButton`).
  */
 @Composable
 private fun GardenBar(
     onChangeGame: () -> Unit,
     onRoll: () -> Unit,
+    onMyGardens: () -> Unit,
     onListen: () -> Unit,
     ready: Boolean,
     listening: Boolean,
+    modified: Boolean,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -275,12 +298,45 @@ private fun GardenBar(
             onClick = onRoll,
             enabled = ready,
         )
+        MyGardensDisc(onClick = onMyGardens, enabled = ready, modified = modified)
         ListenButton(
             playing = listening,
             musicName = stringResource(R.string.feature_garden_music_name),
             onClick = onListen,
             enabled = ready,
         )
+    }
+}
+
+/**
+ * The disc « Mes jardins », which opens its sheet; while the garden [modified] since it was kept, a dot in `ink` of
+ * 8 dp at its top end, a shape rather than a colour, read as its state, « jardin modifié ».
+ */
+@Composable
+private fun MyGardensDisc(
+    onClick: () -> Unit,
+    enabled: Boolean,
+    modified: Boolean,
+) {
+    val state = stringResource(R.string.feature_garden_modified)
+    Box {
+        GlyphButton(
+            icon = BloxIcon.LIST,
+            description = stringResource(R.string.feature_garden_my_gardens),
+            onClick = onClick,
+            enabled = enabled,
+            modifier = Modifier.semantics { if (modified) stateDescription = state },
+        )
+        if (modified) {
+            val ink = BloxTheme.palette.ink
+            Spacer(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .testTag(GARDEN_MODIFIED_DOT_TAG)
+                    .size(MODIFIED_DOT)
+                    .drawBehind { drawCircle(ink) },
+            )
+        }
     }
 }
 
@@ -643,6 +699,9 @@ private val CROSS = 16.dp
 /** A pill of a chord, at most, and the room left on each side of its group of 4 cells. */
 private val CHORD_PILL = 76.dp
 private val PILL_INSET = 12.dp
+
+/** The dot of « Mes jardins » while the garden changed since it was kept. */
+private val MODIFIED_DOT = 8.dp
 
 /** The corners of the frame of the grid. */
 private val GRID_CORNER = 10.dp
