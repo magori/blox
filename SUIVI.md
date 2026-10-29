@@ -1419,7 +1419,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
 - [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
-- [ ] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
+- [x] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 - [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
