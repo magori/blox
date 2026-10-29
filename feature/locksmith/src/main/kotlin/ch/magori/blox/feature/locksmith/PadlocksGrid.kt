@@ -57,6 +57,30 @@ internal fun padlocksGridOf(
         .forEach { level -> add(PadlocksItem.Cell(level, CellState.LOCKED)) }
 }
 
+/** Where an item lies in a grid: its [row], its first [column], and how many columns it spans, [span]. */
+internal data class GridPlace(val row: Int, val column: Int, val span: Int)
+
+/**
+ * Where items of [spans] lie in a grid of [columns], as the lazy grid lays them out: from the left of a row, an item
+ * that no longer fits beginning the next one. A grid holds one column at least, an item spans 1 to [columns].
+ */
+internal fun gridPlacesOf(
+    spans: List<Int>,
+    columns: Int,
+): List<GridPlace> {
+    require(columns >= 1) { "A grid holds one column at least, not $columns" }
+    var row = 0
+    var column = 0
+    return spans.map { span ->
+        require(span in 1..columns) { "An item spans 1 to $columns columns, not $span" }
+        if (column + span > columns) {
+            row++
+            column = 0
+        }
+        GridPlace(row, column, span).also { column += span }
+    }
+}
+
 /**
  * How many columns of tiles the grid holds in [width]: as many tiles of [TILE] as fit, [GAP] between them, wider in a
  * large font, [TILE_PER_FONT] per unit of [fontScale], for the words of a tile; one at least.
