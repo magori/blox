@@ -1688,6 +1688,10 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   `motion-curtain`) : à publier dans le design system avec P10.33. Fait le 2026-10-29 : `sheet-rise`
   (`BloxSizes.sheetRise`) et `motion-row` (`BloxMotion.row`) dans `tokens.json` et le code ; la publication dans le
   design system de claude.ai reste à faire avec P10.33.
+- [ ] **P10.38** Les autres valeurs de mouvement sans jeton (revue de P10.37) : la chute d'une pièce d'Au hasard
+  (`FALL_TICKS` = 8, `FALL_CELLS`, `GardenFeedback.kt`), la montée du message « Gardé » qui emprunte un espacement
+  (`MESSAGE_RISE` = `BloxSpaces.space4`, `GardenKeptFeedback.kt`, à aligner sur `sheet-rise`) et, à juger, la boucle
+  de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`).
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 
