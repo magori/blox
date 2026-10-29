@@ -364,3 +364,10 @@ private val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
 
 /** The orientations of a piece, at most. */
 private const val ORIENTATIONS = 4
+
+/** Padlock 21, of 8 pieces, in a font twice as large on a phone of 360 dp: the bar holds the title, the moves, the disc. */
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+internal fun LocksmithBarLargeFontDayPreview() {
+    LocksmithPreview(LocksmithUiState(level = 21, game = PadlockGame.start(Padlock.ofLevel(21))))
+}

@@ -1383,7 +1383,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [x] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
   ouvrir, en cours, verrouillées de sa rangée), état vide, TalkBack, police ×2, captures jour, nuit, grande police.
   Après P7.32.
-- [ ] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
+- [x] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
   (choisir remplace la serrure sous la liste, le retour garde la serrure en cours). Après P7.35.
 - [ ] **P7.37** Recommencer depuis le début : confirmation dans la page, résultats effacés, pile remise à la
   serrure 1. Après P7.35.
@@ -1419,6 +1419,9 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 - [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
+- [ ] **P7.50** Bande des accords du Serrurier trop large à 360 dp en police ×2 avec 8 pièces : le dernier accord
+  sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
+  P7.36).
 - [x] **P7.49** Barres système sous le Serrurier en Original de nuit : `SystemBarsAppearanceTest` échouait sur main, car il partait du choix du jeu, dessiné en Couleurs nuit depuis la grille de la Graine du jour (icônes claires, voulu, `SystemBarsTest`). Le test part désormais de l'accueil du Classique, dans le thème choisi ; le produit était juste.
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
@@ -1620,7 +1623,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
 - [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
   P10.29.
-- [ ] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
+- [x] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
   feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
   pictogramme « herbier » et jeton `garden-thumb-cell` dans le design system.
@@ -1676,6 +1679,9 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
 - [ ] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
   Mes jardins, deuxième occurrence (règle de 2, revue de P10.30).
+- [ ] **P10.37** Jeton de mouvement pour la montée d'une feuille qui descend (`SHEET_RISE`, 40 dp, sans jeton
+  d'espacement qui lui corresponde) et, si on le veut, `motion-row` pour le repli d'une rangée (aujourd'hui
+  `motion-curtain`) : à publier dans le design system avec P10.33.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 

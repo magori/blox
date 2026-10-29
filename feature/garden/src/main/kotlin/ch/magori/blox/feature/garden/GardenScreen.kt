@@ -36,6 +36,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalAccessibilityManager
@@ -74,6 +75,7 @@ import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.ChoiceSegments
 import ch.magori.blox.core.designsystem.component.ChordPill
+import ch.magori.blox.core.designsystem.component.ClosingSheet
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.ListenButton
@@ -81,6 +83,7 @@ import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.component.SnackMessage
+import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -181,6 +184,8 @@ internal fun GardenScreen(
     var undoBar by remember { mutableIntStateOf(0) }
     ColorfulTheme {
         val motion = rememberGardenMotion(uiState, effectTick)
+        val keptTick = rememberKeptMessageTick(uiState?.keeps)
+        val effects = BloxTheme.effects
         Column(
             modifier = modifier
                 .fillMaxSize()
@@ -204,6 +209,7 @@ internal fun GardenScreen(
                         ready = uiState != null,
                         listening = listening,
                         modified = uiState?.modified == true,
+                        keeps = uiState?.keeps ?: 0,
                     )
                     if (uiState != null) {
                         Moods(uiState.garden.mood, actions.onMood)
@@ -235,13 +241,21 @@ internal fun GardenScreen(
                         action = MessageAction(stringResource(R.string.feature_garden_undo), actions.onUndo),
                     )
 
-                    uiState.keptName != null ->
-                        SnackMessage(stringResource(R.string.feature_garden_kept, uiState.keptName), messageModifier)
+                    uiState.keptName != null -> SnackMessage(
+                        text = stringResource(R.string.feature_garden_kept, uiState.keptName),
+                        modifier = messageModifier.graphicsLayer {
+                            val entrance = keptMessageEntrance(keptTick(), effects)
+                            alpha = entrance.alpha
+                            translationY = entrance.rise * MESSAGE_RISE.toPx()
+                        },
+                    )
                 }
             }
             if (uiState != null) {
                 Controls(uiState, actions)
-                if (uiState.sheet != null) MyGardensSheet(uiState, actions)
+                ClosingSheet(uiState.takeIf { it.sheet != null }) { open, leaving ->
+                    MyGardensSheet(open, actions, leaving)
+                }
             }
         }
     }
@@ -283,7 +297,8 @@ internal fun undoTimeoutMillis(): Long = LocalAccessibilityManager.current?.calc
 /**
  * The bar: the disc « Changer de jeu » at the start, then the title, in capitals, read as a heading in words, then the
  * die « Au hasard », the disc « Mes jardins » and the disc Écouter, greyed until the garden is [ready]. « Mes jardins »
- * bears a dot in `ink` while the garden [modified] since it was kept, read « jardin modifié ». Écouter shows a triangle,
+ * bears a dot in `ink` while the garden [modified] since it was kept, read « jardin modifié ». Its dot goes out after the
+ * sheet once a garden is kept, the [keeps] counted. Écouter shows a triangle,
  * read « Écouter le jardin »; while [listening], a square, read « Arrêter le jardin », keeping its pressed fill: the
  * listen button of the musics (`ListenButton`).
  */
@@ -296,6 +311,7 @@ private fun GardenBar(
     ready: Boolean,
     listening: Boolean,
     modified: Boolean,
+    keeps: Int,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -329,7 +345,7 @@ private fun GardenBar(
             onClick = onRoll,
             enabled = ready,
         )
-        MyGardensDisc(onClick = onMyGardens, enabled = ready, modified = modified)
+        MyGardensDisc(onClick = onMyGardens, enabled = ready, modified = modified, keeps = keeps)
         ListenButton(
             playing = listening,
             musicName = stringResource(R.string.feature_garden_music_name),
@@ -341,13 +357,15 @@ private fun GardenBar(
 
 /**
  * The disc « Mes jardins », which opens its sheet; while the garden [modified] since it was kept, a dot in `ink` of
- * 8 dp at its top end, a shape rather than a colour, read as its state, « jardin modifié ».
+ * 8 dp at its top end, a shape rather than a colour, read as its state, « jardin modifié ». It fades out as it goes,
+ * after the sheet has gone down when a garden was just kept (one more of the gardens kept, [keeps]), at once otherwise.
  */
 @Composable
 private fun MyGardensDisc(
     onClick: () -> Unit,
     enabled: Boolean,
     modified: Boolean,
+    keeps: Int,
 ) {
     val state = stringResource(R.string.feature_garden_modified)
     Box {
@@ -358,14 +376,19 @@ private fun MyGardensDisc(
             enabled = enabled,
             modifier = Modifier.semantics { if (modified) stateDescription = state },
         )
-        if (modified) {
+        val effects = BloxTheme.effects
+        // Shown with the count of the gardens kept: once a garden is kept, it goes out after the sheet ([keptDotLight]).
+        LeavingContent(open = keeps.takeIf { modified }, length = keptDotTicks(effects)) { keepsShown, leaving ->
+            val afterSheet = keeps != keepsShown
             val ink = BloxTheme.palette.ink
             Spacer(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .testTag(GARDEN_MODIFIED_DOT_TAG)
+                    .then(if (leaving == null) Modifier.testTag(GARDEN_MODIFIED_DOT_TAG) else Modifier)
                     .size(MODIFIED_DOT)
-                    .drawBehind { drawCircle(ink) },
+                    .drawBehind {
+                        drawCircle(ink, alpha = leaving?.let { keptDotLight(it(), effects, afterSheet) } ?: 1f)
+                    },
             )
         }
     }

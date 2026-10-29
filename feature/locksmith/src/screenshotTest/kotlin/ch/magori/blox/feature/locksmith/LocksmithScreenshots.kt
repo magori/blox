@@ -169,3 +169,8 @@ private fun LocksmithOpenReplaySmallDay() = LocksmithOpenReplaySmallDayPreview()
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun LocksmithOpenUnrecordedDay() = LocksmithOpenUnrecordedDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun LocksmithBarLargeFontDay() = LocksmithBarLargeFontDayPreview()

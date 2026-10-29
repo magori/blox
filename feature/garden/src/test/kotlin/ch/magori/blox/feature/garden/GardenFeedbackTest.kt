@@ -105,6 +105,39 @@ class GardenFeedbackTest {
     }
 
     @Test
+    fun `a kept garden opened falls piece by piece as after Au hasard, once the sheet has gone down in 18 ticks`() {
+        // Given the garden of ROLLED opened from « Mes jardins », and the same garden rolled
+        val opened = gardenFeedbackOf(GardenUiState(garden = ROLLED, change = GardenChange.Opened, move = 1))!!
+        val rolled = gardenFeedbackOf(rolled())!!
+        val cells = ROLLED.pieces.flatMap { it.cells }
+
+        // Then out of sight while the sheet goes down, then the fall of Au hasard, tick for tick
+        assertThat(opened.ticks(FULL)).isEqualTo(SHEET_DOWN + rolled.ticks(FULL))
+        assertThat(cells).allSatisfy { cell ->
+            assertThat((0 until SHEET_DOWN).map { opened.shown(cell, it, FULL) }).containsOnly(0f)
+            (0..rolled.ticks(FULL)).forEach { tick ->
+                assertThat(opened.shown(cell, SHEET_DOWN + tick, FULL)).isEqualTo(rolled.shown(cell, tick, FULL))
+                assertThat(opened.lift(cell, SHEET_DOWN + tick, FULL)).isEqualTo(rolled.lift(cell, tick, FULL))
+                assertThat(opened.light(cell, SHEET_DOWN + tick, FULL)).isZero()
+            }
+        }
+    }
+
+    @Test
+    fun `in reduced effects a kept garden opened shows at once where it lies, nothing falling nor fading`() {
+        // Given
+        val opened = gardenFeedbackOf(GardenUiState(garden = ROLLED, change = GardenChange.Opened, move = 1))!!
+
+        // Then
+        assertThat(opened.ticks(REDUCED)).isZero()
+        assertThat(ROLLED.pieces.flatMap { it.cells }).allSatisfy { cell ->
+            assertThat(opened.shown(cell, 0, REDUCED)).isEqualTo(1f)
+            assertThat(opened.lift(cell, 0, REDUCED)).isZero()
+            assertThat(opened.light(cell, 0, REDUCED)).isZero()
+        }
+    }
+
+    @Test
     fun `a change of mood fades the whole garden in its new mood over 8 ticks, the same in reduced effects`() {
         // Given the mood of a garden changed
         val state = GardenUiState(garden = ROLLED, change = GardenChange.MoodChosen, move = 1)
@@ -180,6 +213,9 @@ class GardenFeedbackTest {
     private companion object {
         val FULL = BloxEffects.Full
         val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
+
+        /** The ticks a sheet takes to go down, `motion-card`. */
+        const val SHEET_DOWN = 18
 
         /** A T in its first orientation, its pivot on (5, 6). */
         val T_AT_5_6 = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(5, 6))

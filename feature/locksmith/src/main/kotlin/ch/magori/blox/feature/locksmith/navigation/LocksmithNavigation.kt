@@ -33,14 +33,16 @@ data class LocksmithRoute(val level: Int) : NavKey {
 /**
  * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onBack] est le bouton retour de la barre : `app` dépile.
  * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. [onResume] reçoit la serrure ouverte et la
- * frontière, après le rejeu d’une ancienne serrure : `app` met la frontière à sa place. `app` construit
- * [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). Le décorateur
- * `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
+ * frontière, après le rejeu d’une ancienne serrure : `app` met la frontière à sa place. [onPadlocks] reçoit la serrure
+ * ouverte, dont le disque « Toutes les serrures » a été touché : `app` ouvre l’écran « Serrures » par-dessus, la serrure
+ * restant dessous avec son ViewModel. `app` construit [viewModelFactory] ; la clé lui parvient par les `CreationExtras`
+ * (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.locksmithEntry(
     onBack: () -> Unit,
     onNext: (open: LocksmithRoute) -> Unit,
     onResume: (open: LocksmithRoute, frontier: LocksmithRoute) -> Unit,
+    onPadlocks: (open: LocksmithRoute) -> Unit,
     viewModelFactory: LocksmithViewModel.Factory,
 ) {
     entry<LocksmithRoute> { route ->
@@ -51,7 +53,7 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
         val state by viewModel.uiState.collectAsStateWithLifecycle()
         LocksmithScreen(
             state = state,
-            actions = remember(viewModel, route, onBack, onNext, onResume) {
+            actions = remember(viewModel, route, onBack, onNext, onResume, onPadlocks) {
                 LocksmithActions(
                     onBack = onBack,
                     onTap = viewModel::tap,
@@ -63,6 +65,7 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
                     onRestart = viewModel::restart,
                     onNext = { onNext(route) },
                     onResume = { frontier -> onResume(route, LocksmithRoute(frontier)) },
+                    onPadlocks = { onPadlocks(route) },
                 )
             },
         )

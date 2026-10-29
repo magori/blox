@@ -24,18 +24,20 @@ data class PadlocksRoute(val current: Int? = null) : NavKey {
 
 /**
  * Déclare l'entrée de l'écran « Serrures » (ADR 0011). [onBack] est le bouton retour de la barre : `app` dépile.
- * [onOpen] reçoit la serrure touchée, une serrure ouverte ou la frontière, ou celle de Reprendre : `app` en fait la
- * navigation (P7.36). `app` construit [viewModelFactory] (ADR 0013).
+ * [onOpen] reçoit l'écran ouvert et la serrure choisie, une serrure ouverte, la frontière ou celle de Reprendre :
+ * `app` la met à la place de la serrure d'en dessous (P7.36). `app` construit [viewModelFactory] (ADR 0013).
  */
 fun EntryProviderScope<NavKey>.padlocksEntry(
     onBack: () -> Unit,
-    onOpen: (level: Int) -> Unit,
+    onOpen: (list: PadlocksRoute, chosen: LocksmithRoute) -> Unit,
     viewModelFactory: PadlocksViewModel.Factory,
 ) {
     entry<PadlocksRoute> { route ->
         val viewModel: PadlocksViewModel = viewModel(factory = viewModelFactory)
         val state by viewModel.uiState.collectAsStateWithLifecycle()
-        val actions = remember(onBack, onOpen) { PadlocksActions(onBack = onBack, onOpen = onOpen) }
+        val actions = remember(route, onBack, onOpen) {
+            PadlocksActions(onBack = onBack, onOpen = { level -> onOpen(route, LocksmithRoute(level)) })
+        }
         // Nothing is shown until the progress is read: no empty screen flashes.
         state?.let { loaded -> PadlocksScreen(state = loaded, current = route.current, actions = actions) }
     }

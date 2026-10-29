@@ -37,6 +37,7 @@
     <string name="feature_locksmith_message_cadence">La cadence V–I a fermé la phrase.</string>
     <string name="feature_locksmith_message_cadence_spoken">La cadence %1$s a fermé la phrase.</string>
     <string name="feature_locksmith_back">Retour</string>
+    <string name="feature_locksmith_padlocks">Toutes les serrures</string>
     <string name="feature_locksmith_title_closed">Serrure %1$02d, fermée</string>
     <string name="feature_locksmith_title_open">Serrure %1$02d, ouverte</string>
     <string name="feature_locksmith_cadence">cadence</string>
