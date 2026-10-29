@@ -470,7 +470,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
   `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,
   `MyMusicsScreenTest › the listen button and Utiliser of a card are read once, their icons adding nothing`,
-  `MyMusicsScreenTest › each item of the menu of a card bears an icon that TalkBack does not read`,
+  `BloxMenuTest › a menu item is 48 dp high, read as its label, its icon adding nothing` (rangées du menu « … », P10.36),
   `MyMusicsScreenTest › in a font twice as large, on 360 dp, Au hasard and Nouvelle are shown whole, after their icons`.
 
 ## Pas encore codé

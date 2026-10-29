@@ -4,11 +4,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
@@ -24,6 +27,7 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
@@ -46,6 +50,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
@@ -354,6 +359,28 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
+    @DisplayName("from the keyboard, Renommer closed gives the focus back to the menu « … » of its card")
+    fun renommerClosedGivesTheFocusBackToTheMenu() = extension.use {
+        // Given the keyboard in use, the list shown
+        var state by mutableStateOf(uiState)
+        setContent {
+            val inputMode = LocalInputModeManager.current
+            LaunchedEffect(Unit) { inputMode.requestInputMode(InputMode.Keyboard) }
+            ThemedMyMusics(renameProblem = { null }, kind = BloxThemeKind.COLORFUL) { state }
+        }
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").performSemanticsAction(SemanticsActions.OnClick)
+        onNodeWithText("Renommer").performSemanticsAction(SemanticsActions.OnClick)
+        state = uiState.copy(dialog = MyMusicsDialog.Rename(march, "Ma marche"))
+        onNode(hasSetTextAction()).assertExists()
+
+        // When the window Renommer closes
+        state = uiState
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").assertIsFocused()
+    }
+
+    @Test
     @DisplayName("touching the name of a music, or Modifier in its menu, opens the music in the editor")
     fun theNameOrModifierOpensTheMusicInTheEditor() = extension.use {
         // Given
@@ -599,21 +626,6 @@ internal class MyMusicsScreenTest {
                 hasTestTag(GLYPH_BUTTON_ICON_TAG) and hasAnyAncestor(hasContentDescription(description)),
                 useUnmergedTree = true,
             ).assertIsDecorative()
-        }
-    }
-
-    @Test
-    @DisplayName("each item of the menu of a card bears an icon that TalkBack does not read")
-    fun eachItemOfTheMenuBearsAnIcon() = extension.use {
-        // Given the menu of Ma marche open
-        showMyMusics()
-
-        // When
-        onNodeWithContentDescription("Plus d'actions pour Ma marche").performClick()
-
-        // Then
-        listOf("Modifier", "Renommer", "La jouer pendant les parties", "Supprimer").forEach { item ->
-            iconOf(holding(item)).assertIsDecorative()
         }
     }
 

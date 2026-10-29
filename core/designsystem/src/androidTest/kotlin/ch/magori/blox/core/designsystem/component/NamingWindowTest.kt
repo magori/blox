@@ -113,6 +113,33 @@ internal class NamingWindowTest {
         runOnIdle { assertThat(typed).containsExactly("Ma marche") }
     }
 
+    @Test
+    @DisplayName("Renommer is titled after the name it renames and answered Renommer, which renames")
+    fun theRenameWindowIsTitledAfterTheName() = extension.use {
+        // Given « Ma marche » being renamed « Mon pas »
+        var renamed = 0
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                RenameWindow(
+                    current = "Ma marche",
+                    name = "Mon pas",
+                    onNameChanged = {},
+                    maxLength = 40,
+                    problem = null,
+                    onConfirm = { renamed++ },
+                    onDismiss = {},
+                )
+            }
+        }
+
+        // When
+        onNode(hasClickAction() and hasText("Renommer")).performClick()
+
+        // Then
+        onNodeWithText("Renommer « Ma marche »").assertExists()
+        runOnIdle { assertThat(renamed).isEqualTo(1) }
+    }
+
     private companion object {
         /** A name of 40 characters, the longest a saved name may have. */
         const val LONGEST_NAME = "Marche des géants en fa dièse mixolydien"

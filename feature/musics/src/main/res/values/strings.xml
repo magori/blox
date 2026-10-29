@@ -32,17 +32,10 @@
     <string name="feature_musics_empty_title">Aucune musique pour l\'instant.</string>
     <string name="feature_musics_empty_hint">Compose la tienne, ou laisse le dé t\'en proposer une.</string>
 
-    <!-- Menu « … » d'une carte -->
-    <string name="feature_musics_menu_description">Plus d\'actions pour %1$s</string>
+    <!-- Menu « … » d'une carte : Renommer et Supprimer, et la fenêtre Renommer, sont dans core:designsystem (RowMenu, P10.36). -->
     <string name="feature_musics_menu_edit">Modifier</string>
-    <string name="feature_musics_menu_rename">Renommer</string>
     <string name="feature_musics_menu_use">La jouer pendant les parties</string>
     <string name="feature_musics_menu_stop_using">Ne plus la jouer pendant les parties</string>
-    <string name="feature_musics_menu_delete">Supprimer</string>
-
-    <!-- Renommer -->
-    <string name="feature_musics_rename_title">Renommer « %1$s »</string>
-    <string name="feature_musics_rename_confirm">Renommer</string>
 
     <!-- Supprimer -->
     <string name="feature_musics_delete_note">Elle disparaîtra de Mes musiques. Tu pourras annuler juste après.</string>

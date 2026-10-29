@@ -251,6 +251,18 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 état dérivé (`rememberPart`). Les recompositions se mesurent sur appareil avec un traceur de
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
+**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
+`BoardCanvasTest › nothing recomposes while the piece moves`,
+`BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
+`BoardCanvasTest › the painters are built again when the size changes`,
+`BoardCanvasTest › the painters are built again when the theme changes`,
+`BoardCanvasTest › the painters are built again when the background changes`,
+`GameScreenTest › nothing on the screen recomposes when only the piece moves`,
+`GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
+`GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
+`GameScreenTest › the card of the pause shows over the game while it is paused`,
+`GameScreenTest › the game over screen takes the place of the game once it is over`.
+Vues : V2, V3.
 
 **Menu « … » et message temporaire** (P5.97, `core:designsystem`) : `BloxMenu` et `BloxMenuItem` remplacent le
 `DropdownMenu` de Material : panneau `panel` cadré de `panel-border`, `radius-md`, ombre `menu-shadow` (jeton
@@ -274,18 +286,20 @@ d'affichage vient de `messageTimeoutMillis` : 4 s, 10 s avec une action, ou ce q
 `MessageTimeoutTest › without accessibility settings a message stays 4 seconds, and 10 with an action` ;
 captures `Menu*`, `SnackMessage*`.
 
-**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
-`BoardCanvasTest › nothing recomposes while the piece moves`,
-`BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
-`BoardCanvasTest › the painters are built again when the size changes`,
-`BoardCanvasTest › the painters are built again when the theme changes`,
-`BoardCanvasTest › the painters are built again when the background changes`,
-`GameScreenTest › nothing on the screen recomposes when only the piece moves`,
-`GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
-`GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
-`GameScreenTest › the card of the pause shows over the game while it is paused`,
-`GameScreenTest › the game over screen takes the place of the game once it is over`.
-Vues : V2, V3.
+**Menu « … » de rangée et fenêtre Renommer** (P10.36, `core:designsystem`) : `RowMenu`, commun à Mes musiques et
+à Mes jardins, est le disque nu « … » de 48 dp en bout de rangée, lu « Plus d'actions pour X », qui ouvre un
+`BloxMenu` de ses rangées, dans l'ordre donné : des rangées propres à la liste (`Item` : Modifier, La jouer…) et les
+deux communes, Renommer (`RenameItem`) et Supprimer en `danger` (`DeleteItem`). Toucher une rangée ferme le menu,
+puis fait ce qu'elle dit. Le focus revient au « … » quand le menu se ferme sans choix, ou, après une rangée qui
+ouvre une fenêtre (Renommer, Supprimer), quand cette fenêtre, ouverte même quelques images plus tard, se ferme.
+`RenameWindow` est la fenêtre « Renommer « X » », une `NamingWindow` répondue « Renommer » ; Supprimer reste
+`DeleteWindow`. L'état des fenêtres reste dans chaque feature : il porte ce qu'on renomme ou supprime (une musique,
+un jardin), que `core:designsystem` ne voit pas.
+**Tests :** `RowMenuTest › « … » is read « Plus d'actions pour X » and offers its items in order, Renommer and Supprimer`,
+`RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`,
+`RowMenuTest › a window that opens frames after its item still gives the focus back to « … » as it closes`,
+`RowMenuTest › from the keyboard, the menu closed by Back gives the focus back to « … »`,
+`NamingWindowTest › Renommer is titled after the name it renames and answered Renommer, which renames`.
 
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
 (accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans
