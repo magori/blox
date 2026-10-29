@@ -115,6 +115,7 @@ fun BloxNavDisplay(
             locksmithEntry(
                 onBack = goBack,
                 onNext = { open -> nextPadlock(backStack, open) },
+                onResume = { open, frontier -> resumePadlocks(backStack, open, frontier) },
                 viewModelFactory = locksmithViewModelFactory,
             )
             dailyEntry(

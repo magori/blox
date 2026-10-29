@@ -18,7 +18,9 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MainDispatcherExtension::class)
 class LocksmithTapTest {
     private val start = PadlockGame.start(Padlock.ofLevel(1))
-    private val viewModel = locksmithViewModel(LocksmithRoute(level = 1))
+
+    // Built in the test, once the main dispatcher of the test is set: its writes then end within the action.
+    private val viewModel by lazy { locksmithViewModel(LocksmithRoute(level = 1)) }
 
     /** The first given piece, where the solution has it. */
     private val firstPiece: Piece = start.padlock.solution.first { it.type == start.given.first() }

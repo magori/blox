@@ -34,4 +34,31 @@ class NextPadlockTest {
         // Then
         assertThat(backStack).containsExactly(CartridgesRoute, third)
     }
+
+    @Test
+    fun `resuming puts the frontier in the place of the padlock replayed`() {
+        // Given padlock 2, replayed, while the frontier is padlock 9
+        val open = LocksmithRoute(level = 2)
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, open)
+
+        // When
+        resumePadlocks(backStack, open, frontier = LocksmithRoute(level = 9))
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 9))
+    }
+
+    @Test
+    fun `a second tap on resume does not move on twice`() {
+        // Given padlock 2, already replaced by the frontier by a first tap
+        val open = LocksmithRoute(level = 2)
+        val frontier = LocksmithRoute(level = 9)
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, frontier)
+
+        // When the second tap arrives with the padlock it was on
+        resumePadlocks(backStack, open, frontier)
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, frontier)
+    }
 }

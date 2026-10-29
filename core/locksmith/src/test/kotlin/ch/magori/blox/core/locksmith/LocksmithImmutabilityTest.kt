@@ -14,7 +14,8 @@ class LocksmithImmutabilityTest {
     @Test
     fun `every instance field of the classes the screen receives is final`() {
         // Given the classes declared stable, and the cases of the sealed ones, each one met whatever is added
-        val declared = listOf(Padlock::class.java, PadlockGame::class.java, RomanNumeral::class.java)
+        val declared =
+            listOf(Padlock::class.java, PadlockGame::class.java, PadlockResult::class.java, RomanNumeral::class.java)
         val sealed = listOf(PadlockEvent::class.java, Hint::class.java)
         val classes = declared + sealed + sealed.flatMap { it.permittedSubclasses.orEmpty().asList() }
 

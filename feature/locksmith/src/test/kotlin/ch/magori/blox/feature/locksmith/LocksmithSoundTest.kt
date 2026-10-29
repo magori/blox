@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Position
@@ -18,6 +19,7 @@ import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.sound.warmUpEffectsOf
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -95,7 +97,12 @@ class LocksmithSoundTest {
         // Given: the padlock opened in a view model kept as the navigation entry keeps it
         val store = ViewModelStore()
         val extras = MutableCreationExtras().apply { set(LocksmithViewModel.RouteKey, LocksmithRoute(2)) }
-        val factory = LocksmithViewModel.Factory(soundEffects, preferences)
+        val factory = LocksmithViewModel.Factory(
+            soundEffects,
+            preferences,
+            FakePadlockProgressRepository(),
+            MainScope(),
+        )
         val viewModel = ViewModelProvider.create(store, factory, extras)[LocksmithViewModel::class]
         start.padlock.solution.forEach { viewModel.placing(it) }
 

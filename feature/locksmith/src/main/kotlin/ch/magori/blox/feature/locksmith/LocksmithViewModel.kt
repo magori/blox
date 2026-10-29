@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.SoundCue
 import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.audio.playCues
+import ch.magori.blox.core.data.PadlockProgressRepository
 import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -17,12 +18,14 @@ import ch.magori.blox.core.locksmith.PadlockUpdate
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.sound.soundCuesFor
 import ch.magori.blox.feature.locksmith.sound.warmUpEffectsOf
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
 import kotlin.reflect.KClass
 
 /**
@@ -30,11 +33,16 @@ import kotlin.reflect.KClass
  * actions of the player, which the domain judges. The only writer of the state of the screen. It plays the sound
  * effects of the judged actions (the chords, the opening flourish, the refusal), warmed up at the opening, unless the
  * settings turn them off. A rank that is not given is a programming error of the screen, refused by the domain.
+ *
+ * The opening of the padlock is written to the [progress] of the Serrurier in [appScope], the scope of the application,
+ * which outlives the screen: leaving it at once does not lose the opening.
  */
 class LocksmithViewModel internal constructor(
     route: LocksmithRoute,
     private val soundEffects: SoundEffectPlayer,
     preferences: UserPreferencesRepository,
+    private val progress: PadlockProgressRepository,
+    private val appScope: CoroutineScope,
 ) : ViewModel() {
     private val state = MutableStateFlow(
         LocksmithUiState(level = route.level, game = PadlockGame.start(Padlock.ofLevel(route.level))),
@@ -52,6 +60,16 @@ class LocksmithViewModel internal constructor(
         viewModelScope.launch {
             soundEffectsOn = preferences.preferences.first().soundEffects
             if (soundEffectsOn) soundEffects.warmUp(warmUpEffectsOf(state.value.game))
+        }
+        // Followed while the screen lives: the best opening of the padlock and the frontier, for the card. A progress that
+        // cannot be read gives an empty one, once, and the flow ends (the contract of the repository): the screen does not
+        // read it again, only each opening, once, to write it.
+        viewModelScope.launch {
+            progress.progress.collect { kept ->
+                state.update {
+                    it.copy(best = kept.openings.getOrNull(it.level - 1)?.toResult(), frontier = kept.frontier)
+                }
+            }
         }
     }
 
@@ -94,9 +112,17 @@ class LocksmithViewModel internal constructor(
     /** Asks for a hint, shown until the next placement accepted. */
     internal fun hint(): Unit = judge { it.hint() }
 
-    /** Starts the same padlock over: nothing placed, no hint. */
+    /** Starts the same padlock over: nothing placed, no hint, nothing told of the opening before. */
     internal fun restart(): Unit = state.update {
-        it.copy(game = it.game.restart(), events = emptyList(), hint = null, aim = null, turned = false)
+        it.copy(
+            game = it.game.restart(),
+            events = emptyList(),
+            hint = null,
+            aim = null,
+            turned = false,
+            unrecorded = false,
+            outcome = null,
+        )
     }
 
     /**
@@ -134,6 +160,30 @@ class LocksmithViewModel internal constructor(
         state.value =
             current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim, turned = false)
         play(soundCuesFor(update))
+        if (game.isOpen) record(game)
+    }
+
+    /**
+     * Writes the opening of the [opened] game to the progress, in the scope of the application. The padlocks open in
+     * order: one beyond the frontier, as after an opening that could not be written, is not recorded. The frontier is
+     * read when the opening is written, not the one the screen followed, which may be behind a write still under way or
+     * ahead of a progress cleared since. The opening has as many pieces as the best of its padlock, the precondition of
+     * [PadlockProgressRepository.record]: padlock n is the same for everyone and for ever (ADR 0014). An opening that
+     * cannot be written (an [IOException], a full disk or a progress of a later version) is not recorded either: the game
+     * goes on as it is, the screen telling it, as long as the padlock is not started over. Any other failure is a bug,
+     * and goes through to [appScope].
+     */
+    private fun record(opened: PadlockGame) {
+        val level = state.value.level
+        val opening = checkNotNull(opened.result).toOpening()
+        appScope.launch {
+            val outcome = try {
+                if (level <= progress.progress.first().frontier) progress.record(level, opening) else null
+            } catch (_: IOException) {
+                null
+            }
+            state.update { if (it.game == opened) it.copy(outcome = outcome, unrecorded = outcome == null) else it }
+        }
     }
 
     /**
@@ -148,10 +198,15 @@ class LocksmithViewModel internal constructor(
     /**
      * Builds the view model of an entry of the Locksmith (ADR 0013). The route of the entry comes in the
      * creation extras under `RouteKey`, since only the navigation entry knows it; the player of the sound effects and the
-     * settings come from the application, which owns them (ADR 0007).
+     * settings come from the application, which owns them (ADR 0007), as the [progress] of the Serrurier and [appScope],
+     * where it is written, for the whole life of the process.
      */
-    class Factory(private val soundEffects: SoundEffectPlayer, private val preferences: UserPreferencesRepository) :
-        ViewModelProvider.Factory {
+    class Factory(
+        private val soundEffects: SoundEffectPlayer,
+        private val preferences: UserPreferencesRepository,
+        private val progress: PadlockProgressRepository,
+        private val appScope: CoroutineScope,
+    ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
@@ -159,7 +214,7 @@ class LocksmithViewModel internal constructor(
             val route =
                 requireNotNull(extras[RouteKey]) { "The route of the padlock is missing from the creation extras" }
             @Suppress("UNCHECKED_CAST") // The only view model this factory builds.
-            return LocksmithViewModel(route, soundEffects, preferences) as T
+            return LocksmithViewModel(route, soundEffects, preferences, progress, appScope) as T
         }
     }
 
