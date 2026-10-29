@@ -50,9 +50,12 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.component.ConfirmWindow
+import ch.magori.blox.core.designsystem.component.DangerButton
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
+import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
@@ -64,12 +67,22 @@ import ch.magori.blox.core.locksmith.PadlockTier
 import ch.magori.blox.feature.locksmith.PadlocksItem.Cell
 import ch.magori.blox.feature.locksmith.PadlocksItem.TierHeader
 
-/** What the player does on the screen « Serrures », handed to `app` by the entry. */
+/**
+ * What the player does on the screen « Serrures »: back and opening a padlock, handed to `app` by the entry; starting
+ * over from the beginning, asked, kept or confirmed, handed to the view model.
+ */
 @Immutable
-internal class PadlocksActions(val onBack: () -> Unit, val onOpen: (level: Int) -> Unit) {
+internal class PadlocksActions(
+    val onBack: () -> Unit,
+    val onOpen: (level: Int) -> Unit,
+    val onStartOver: () -> Unit,
+    val onKeepProgress: () -> Unit,
+    val onClearProgress: () -> Unit,
+) {
     companion object {
         /** Actions that do nothing, for the previews. */
-        val None = PadlocksActions(onBack = {}, onOpen = {})
+        val None =
+            PadlocksActions(onBack = {}, onOpen = {}, onStartOver = {}, onKeepProgress = {}, onClearProgress = {})
     }
 }
 
@@ -79,7 +92,8 @@ internal class PadlocksActions(val onBack: () -> Unit, val onOpen: (level: Int) 
  * or, before the first opening, « Ouvre la serrure 1 pour commencer. », then Reprendre, which opens the frontier. Below,
  * the grid of the padlocks, a header per tier, opened scrolled on the frontier: the grid ends on its row. The padlock
  * the player comes from, [current], if known, is told « en cours ». A tile open or the frontier asks to open its
- * padlock, by [PadlocksActions.onOpen].
+ * padlock, by [PadlocksActions.onOpen]. Once a padlock is open, the grid ends on « Recommencer depuis le début », which
+ * asks, in a window, whether to clear the progress (P7.37).
  */
 @Composable
 internal fun PadlocksScreen(
@@ -98,9 +112,49 @@ internal fun PadlocksScreen(
             verticalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
         ) {
             PadlocksBar(actions.onBack)
-            PadlocksGrid(state, current, actions.onOpen, Modifier.weight(1f))
+            PadlocksGrid(state, current, actions, Modifier.weight(1f))
         }
+        ClearDialog(state, actions)
     }
+}
+
+/**
+ * The window that asks whether to clear the progress: while it is asked, after it failed, while the clear is written
+ * and once it is done, until the screen goes, so that the grid emptied never shows; while the clear is written and
+ * once done, its answers disabled and nothing closing it (neither Back nor a touch outside).
+ */
+@Composable
+private fun ClearDialog(
+    state: PadlocksUiState,
+    actions: PadlocksActions,
+) {
+    if (!state.clearing.isOpen) return
+    WindowDialog(onDismissRequest = if (state.clearing.isWaiting) ({}) else actions.onKeepProgress) {
+        ClearWindow(state, actions)
+    }
+}
+
+/**
+ * « Effacer la progression ? », then how many open padlocks will be forgotten; the answers, the safe one first,
+ * « Garder », then « Effacer », in `danger`. A clear that could not be written is told, the window still open; while it
+ * is written, and once done, both answers are disabled.
+ */
+@Composable
+internal fun ClearWindow(
+    state: PadlocksUiState,
+    actions: PadlocksActions,
+) {
+    ConfirmWindow(
+        title = stringResource(R.string.feature_locksmith_clear_title),
+        dismiss = stringResource(R.string.feature_locksmith_clear_keep),
+        confirm = stringResource(R.string.feature_locksmith_clear_confirm),
+        onConfirm = actions.onClearProgress,
+        onDismiss = actions.onKeepProgress,
+        note = pluralStringResource(R.plurals.feature_locksmith_clear_note, state.open, state.open),
+        danger = true,
+        failed = state.clearing == ProgressClearing.FAILED,
+        waiting = state.clearing.isWaiting,
+    )
 }
 
 /** Back, then the title of the screen, in capitals as the titles of the other screens; TalkBack reads it in words. */
@@ -158,18 +212,20 @@ private fun Summary(state: PadlocksUiState) {
 }
 
 /**
- * The summary and Reprendre, then the grid of the padlocks ([padlocksGridOf]), scrolling together, so that a large font
- * on a low screen still leaves room for the tiles; a collection for TalkBack: tiles of about [TILE], fewer columns in a
- * large font ([padlockColumns]), a header across the grid per tier. It opens on the frontier, and keeps where it was
- * scrolled to when the screen comes back.
+ * The summary and Reprendre, then the grid of the padlocks ([padlocksGridOf]), then « Recommencer depuis le début »,
+ * scrolling together, so that a large font on a low screen still leaves room for the tiles; a collection for TalkBack:
+ * tiles of about [TILE], fewer columns in a large font ([padlockColumns]), a header across the grid per tier. It opens
+ * on the frontier, and keeps where it was scrolled to when the screen comes back. Reprendre and Recommencer show once a
+ * padlock is open.
  */
 @Composable
 private fun PadlocksGrid(
     state: PadlocksUiState,
     current: Int?,
-    onOpen: (level: Int) -> Unit,
+    actions: PadlocksActions,
     modifier: Modifier = Modifier,
 ) {
+    val onOpen = actions.onOpen
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val columns = padlockColumns(maxWidth, LocalDensity.current.fontScale)
         val items = remember(state, current, columns) { padlocksGridOf(state.openings, current, columns) }
@@ -220,6 +276,18 @@ private fun PadlocksGrid(
                 when (item) {
                     is TierHeader -> TierHeading(item.tier)
                     is Cell -> PadlockTile(item, onOpen)
+                }
+            }
+            if (!state.isEmpty) {
+                item(key = START_OVER_KEY, span = { GridItemSpan(maxLineSpan) }) {
+                    DangerButton(
+                        text = stringResource(R.string.feature_locksmith_padlocks_start_over),
+                        icon = BloxIcon.REPLAY,
+                        onClick = actions.onStartOver,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = BloxSpaces.space4),
+                    )
                 }
             }
         }
@@ -361,9 +429,13 @@ private val HAIRLINE = 1.dp
 /** The padlock and the star of a tile, beside its number. */
 private val PICTOGRAM = 16.dp
 
-/** The keys of the summary and of Reprendre, above the tiles in the grid, apart from the levels that key the tiles. */
+/**
+ * The keys of the summary and of Reprendre, above the tiles in the grid, and of Recommencer, below them, apart from the
+ * levels that key the tiles.
+ */
 private const val SUMMARY_KEY = "summary"
 private const val RESUME_KEY = "resume"
+private const val START_OVER_KEY = "start_over"
 
 /** The tag of the grid of the padlocks. */
 internal const val PADLOCKS_GRID_TAG = "padlocks_grid"

@@ -20,6 +20,11 @@ class LocksmithMessageTest {
     }
 
     @Test
+    fun `once the progress is cleared, the message says so until the first action`() {
+        assertThat(messageOf(start.copy(cleared = true))).isEqualTo(R.string.feature_locksmith_message_cleared)
+    }
+
+    @Test
     fun `with a preview the message says to touch it again or to place it`() {
         assertThat(messageOf(start.copy(aim = Position(3, 3)))).isEqualTo(R.string.feature_locksmith_message_preview)
     }

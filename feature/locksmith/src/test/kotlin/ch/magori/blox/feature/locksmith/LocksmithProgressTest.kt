@@ -89,6 +89,7 @@ class LocksmithProgressTest {
             FakeUserPreferencesRepository(),
             slow,
             appScope,
+            ClearedProgressRelay(),
         )
         val viewModel = ViewModelProvider.create(store, factory, extras)[LocksmithViewModel::class]
 

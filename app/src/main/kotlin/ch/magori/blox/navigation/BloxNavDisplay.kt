@@ -133,10 +133,12 @@ fun BloxNavDisplay(
                 viewModelFactory = locksmithViewModelFactory,
             )
             // The screen « Serrures », over the padlock whose disc opened it (P7.35, P7.36): back finds that padlock as
-            // it was left; a padlock chosen there takes its place, or only goes back to it when it is the same.
+            // it was left; a padlock chosen there takes its place, or only goes back to it when it is the same. Once the
+            // progress is cleared there (P7.37), padlock 1 comes back over the cartridges.
             padlocksEntry(
                 onBack = goBack,
                 onOpen = { list, chosen -> choosePadlock(backStack, list, chosen) },
+                onCleared = { list -> progressCleared(backStack, list) },
                 viewModelFactory = padlocksViewModelFactory,
             )
             dailyEntry(

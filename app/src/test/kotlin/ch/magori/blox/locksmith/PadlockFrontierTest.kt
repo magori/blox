@@ -1,6 +1,7 @@
 package ch.magori.blox.locksmith
 
 import app.cash.turbine.test
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.PadlockOpening
 import ch.magori.blox.core.data.PadlockProgress
 import kotlinx.coroutines.async
@@ -49,6 +50,26 @@ class PadlockFrontierTest {
 
             // Then
             assertThat(awaitItem()).isEqualTo(3)
+        }
+    }
+
+    @Test
+    fun `once the progress is cleared on the screen of the padlocks, the frontier is padlock 1 again`() = runTest {
+        // Given padlocks 1 and 2 open, the frontier followed
+        val progress = FakePadlockProgressRepository()
+        progress.record(1, OPENING)
+        progress.record(2, OPENING)
+        val frontier = PadlockFrontier(progress.progress, backgroundScope)
+        runCurrent()
+
+        frontier.current.test {
+            assertThat(awaitItem()).isEqualTo(3)
+
+            // When the progress is cleared
+            progress.clear()
+
+            // Then
+            assertThat(awaitItem()).isEqualTo(1)
         }
     }
 

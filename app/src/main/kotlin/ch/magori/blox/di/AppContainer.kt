@@ -61,6 +61,7 @@ import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.locksmith.ClearedProgressRelay
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
@@ -282,14 +283,26 @@ class AppContainer(context: Context) {
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
 
     /**
+     * The progress of the Serrurier cleared on the screen « Serrures », handed over to padlock 1, which tells it: once for
+     * the process, like the screens it links.
+     */
+    private val clearedPadlocks: ClearedProgressRelay = ClearedProgressRelay()
+
+    /**
      * Builds the view model of the Locksmith (ADR 0025): its sound effects, as the settings want them; the progress of
-     * the Serrurier, where each opening is written in [mainScope], so that leaving the padlock at once does not lose it.
+     * the Serrurier, where each opening is written in [mainScope], so that leaving the padlock at once does not lose it;
+     * the progress cleared on the screen « Serrures », that padlock 1 tells.
      */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
-        LocksmithViewModel.Factory(soundEffects, userPreferences, padlockProgress, mainScope)
+        LocksmithViewModel.Factory(soundEffects, userPreferences, padlockProgress, mainScope, clearedPadlocks)
 
-    /** Builds the view model of the screen « Serrures » (P7.35), on the progress of the Serrurier the padlocks write. */
-    val padlocksViewModelFactory: PadlocksViewModel.Factory = PadlocksViewModel.Factory(padlockProgress)
+    /**
+     * Builds the view model of the screen « Serrures » (P7.35), on the progress of the Serrurier the padlocks write; a
+     * progress cleared there (P7.37), in [mainScope] so that leaving the screen at once does not lose it, is handed over
+     * to padlock 1 by [clearedPadlocks].
+     */
+    val padlocksViewModelFactory: PadlocksViewModel.Factory =
+        PadlocksViewModel.Factory(padlockProgress, clearedPadlocks, mainScope)
 
     /**
      * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
