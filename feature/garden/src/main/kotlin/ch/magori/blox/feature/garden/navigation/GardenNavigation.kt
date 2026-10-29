@@ -57,4 +57,10 @@ internal fun gardenActions(
     onNameChanged = viewModel::changeName,
     onCancelNaming = viewModel::cancelNaming,
     onConfirmKeeping = viewModel::confirmKeeping,
+    onOpenKept = viewModel::openKept,
+    onRename = viewModel::startRenaming,
+    onConfirmRenaming = viewModel::confirmRenaming,
+    onDelete = viewModel::startDeleting,
+    onCancelDeleting = viewModel::cancelDeleting,
+    onConfirmDeleting = viewModel::confirmDeleting,
 )

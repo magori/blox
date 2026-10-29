@@ -68,6 +68,7 @@ import ch.magori.blox.core.board.garden.GardenPlayHead
 import ch.magori.blox.core.board.garden.isInGardenBand
 import ch.magori.blox.core.board.piece.pieceCells
 import ch.magori.blox.core.board.tile.PieceTile
+import ch.magori.blox.core.data.GardenId
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.ChoiceItem
@@ -103,8 +104,8 @@ internal const val GARDEN_CHANGE_GAME_TAG = "garden_change_game"
 internal const val GARDEN_MODIFIED_DOT_TAG = "garden_modified_dot"
 
 /**
- * What the player does on the musical garden, handed to the view model and to `app` by the entry. Tout effacer and Au
- * hasard hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone; keeping a
+ * What the player does on the musical garden, handed to the view model and to `app` by the entry. Tout effacer, Au
+ * hasard, and in « Mes jardins » opening or deleting a kept garden, hand over how long « Annuler » is offered, which the screen reads from the accessibility of the phone; keeping a
  * garden in « Mes jardins », how long « « X » gardé. » shows, and the name of its mood as the screen shows it. While
  * the garden is listened to, the screen hands each frame it draws over to [onFrame], at its time in nanoseconds (ADR
  * 0012).
@@ -130,6 +131,12 @@ internal class GardenActions(
     val onNameChanged: (String) -> Unit = {},
     val onCancelNaming: () -> Unit = {},
     val onConfirmKeeping: (messageMillis: Long) -> Unit = {},
+    val onOpenKept: (GardenId, undoMillis: Long) -> Unit = { _, _ -> },
+    val onRename: (GardenId) -> Unit = {},
+    val onConfirmRenaming: () -> Unit = {},
+    val onDelete: (GardenId) -> Unit = {},
+    val onCancelDeleting: () -> Unit = {},
+    val onConfirmDeleting: (undoMillis: Long) -> Unit = {},
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -142,8 +149,8 @@ internal class GardenActions(
  * kept (ADR 0026, ADR 0027). From the top, scrolling on a small screen or in a large font: the bar (Changer de jeu, the
  * title, Au hasard, Écouter), the moods, the information row (the scale and the tempo, Tout effacer), the chords over
  * the grid of 16 × 14, the message, the tray of the 7 pieces and Retirer. Anchored at the bottom, within reach of the
- * thumb: turn left, Poser, turn right. « Jardin effacé · Annuler » shows over the bottom of the page while it is
- * offered. Until the garden kept is read ([uiState] null), the bar alone, Au hasard and Écouter greyed. While the garden
+ * thumb: turn left, Poser, turn right. « Jardin effacé · Annuler » (or « « X » ouvert », « « X » supprimé. ») shows over
+ * the bottom of the page while it is offered, unless the sheet « Mes jardins » is open over it. Until the garden kept is read ([uiState] null), the bar alone, Au hasard and Écouter greyed. While the garden
  * is listened to, the column played is framed on the grid and the pill of its chord filled, and the frames of the
  * screen are handed over to the view model (ADR 0012). No logic: what each action means belongs to the view model and
  * to `app`. Changer de jeu counts only while the garden is resumed.
@@ -218,14 +225,18 @@ internal fun GardenScreen(
                     .align(Alignment.BottomCenter)
                     .onSizeChanged { undoBar = it.height }
                     .padding(horizontal = BloxSpaces.space4, vertical = BloxSpaces.space2)
-                if (uiState?.undo != null) {
-                    SnackMessage(
-                        text = stringResource(R.string.feature_garden_cleared),
+                // Under the sheet « Mes jardins », none: the sheet tells its own (« « X » supprimé. »).
+                when {
+                    uiState == null || uiState.sheet != null -> {}
+
+                    uiState.undo != null -> SnackMessage(
+                        text = undoText(uiState.undo, uiState.undoFailed),
                         modifier = messageModifier,
                         action = MessageAction(stringResource(R.string.feature_garden_undo), actions.onUndo),
                     )
-                } else if (uiState?.keptName != null) {
-                    SnackMessage(text = stringResource(R.string.feature_garden_kept, uiState.keptName), messageModifier)
+
+                    uiState.keptName != null ->
+                        SnackMessage(stringResource(R.string.feature_garden_kept, uiState.keptName), messageModifier)
                 }
             }
             if (uiState != null) {
@@ -236,13 +247,33 @@ internal fun GardenScreen(
     }
 }
 
+/** What the message that offers « Annuler » says of [undo]; that the operation failed, once Annuler [failed]. */
+@Composable
+@ReadOnlyComposable
+internal fun undoText(
+    undo: GardenUndo,
+    failed: Boolean,
+): String = when {
+    failed -> stringResource(R.string.feature_garden_failed)
+    else -> undoText(undo)
+}
+
+/** What the message that offers « Annuler » says of [undo]. */
+@Composable
+@ReadOnlyComposable
+private fun undoText(undo: GardenUndo): String = when (undo) {
+    is GardenUndo.Cleared -> stringResource(R.string.feature_garden_cleared)
+    is GardenUndo.Opened -> stringResource(R.string.feature_garden_opened, undo.name)
+    is GardenUndo.Deleted -> stringResource(R.string.feature_garden_deleted, undo.deleted.garden.name)
+}
+
 /**
  * How long « Annuler » is offered on this phone: [UNDO_MILLIS], or as long as Android recommends when the player asked
  * it for more time to act (WCAG 2.1, 2.2.1).
  */
 @Composable
 @ReadOnlyComposable
-private fun undoTimeoutMillis(): Long = LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
+internal fun undoTimeoutMillis(): Long = LocalAccessibilityManager.current?.calculateRecommendedTimeoutMillis(
     originalTimeoutMillis = UNDO_MILLIS,
     containsIcons = false,
     containsText = true,

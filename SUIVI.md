@@ -1608,7 +1608,7 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.29** Disque « Mes jardins » dans la barre (point « modifié » lu par TalkBack), feuille Mes jardins :
   Garder ce jardin, Enregistrer « X », Garder une copie, nommage (`NamingWindow`), limite, états vide, chargement et
   erreur ; `AppContainer` et fabrique dans `app`. Barre vérifiée à 360 dp, police ×1 et ×2. Après P10.27, P10.28.
-- [ ] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
+- [x] **P10.30** Rouvrir un jardin gardé (`adopt`, Annuler, `switchTo` pendant l'écoute), le renommer, le supprimer
   avec Annuler ; actions TalkBack de la rangée. Après P10.29.
 - [x] **P10.31** Miniature `GardenThumbnail` (`core:board`), jeton `garden-thumb-cell`, captures jour et nuit. Avant
   P10.29.
@@ -1664,7 +1664,10 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   l'éditeur et du Jardin, troisième occurrence (revue de P10.29). `core:designsystem` ne voit pas `core:data`, où vit
   `NameProblem` : il faut un endroit commun aux trois features.
 - [ ] **P10.35** En police ×2, la pastille « ouvert » d'une rangée de Mes jardins pourrait passer sous la ligne
-  d'information (à juger, P10.33).
+  d'information (à juger, P10.33). De même, à 360 dp, le « … » de 48 dp (P10.30) serre le texte de la rangée
+  (« Calme · 6 pièces » sur 3 lignes à côté d'« ouvert ») : à juger ensemble.
+- [ ] **P10.36** Mettre en commun le menu « … » de rangée et les fenêtres Renommer et Supprimer de Mes musiques et de
+  Mes jardins, deuxième occurrence (règle de 2, revue de P10.30).
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 
