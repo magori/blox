@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -326,28 +327,49 @@ internal fun DrawScope.drawPadlock(
     drawPath(body, ink)
 }
 
-/**
- * One pill per chord of the padlock, filled once heard; the last two, V and I, joined under them by a bracket and the
- * word « cadence »: the pair that closes the phrase.
- */
+/** The band of the chords of the padlock of [state], read whole by TalkBack: those heard, then those to come. */
 @Composable
 private fun ChordBand(state: LocksmithUiState) {
-    val heard = state.game.chords.size
-    val numerals = state.game.progression.numerals
-    val cadence = numerals.size - CADENCE
     val reading = chordBandReading(chordsOf(state))
-    Row(
+    ChordPills(
+        numerals = state.game.progression.numerals,
+        heard = state.game.chords.size,
         modifier = Modifier.clearAndSetSemantics { contentDescription = reading },
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
+    )
+}
+
+/**
+ * One pill per chord of [numerals], the first [heard] filled; the last two, V and I, joined under them by a bracket and
+ * the word « cadence »: the pair that closes the phrase. Too wide for the screen (on 360 dp, from 7 chords in a font
+ * twice as large, at 8 in the usual font), the band goes on as many lines as it needs, centred, the cadence kept whole:
+ * no pill shrinks below its label, no word is cut.
+ */
+@Composable
+internal fun ChordPills(
+    numerals: List<RomanNumeral>,
+    heard: Int,
+    modifier: Modifier = Modifier,
+) {
+    val cadence = numerals.size - CADENCE
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
-        numerals.take(cadence).forEachIndexed { index, numeral -> ChordPill(numeral.name, played = index < heard) }
+        numerals.take(cadence).forEachIndexed { index, numeral ->
+            ChordPill(numeral.name, played = index < heard, modifier = Modifier.testTag(chordPillTestTag(index)))
+        }
         Column(
             modifier = Modifier.width(IntrinsicSize.Max),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
                 numerals.drop(cadence).forEachIndexed { index, numeral ->
-                    ChordPill(numeral.name, played = cadence + index < heard)
+                    ChordPill(
+                        numeral.name,
+                        played = cadence + index < heard,
+                        modifier = Modifier.testTag(chordPillTestTag(cadence + index)),
+                    )
                 }
             }
             CadenceBracket(BloxTheme.palette.label)
