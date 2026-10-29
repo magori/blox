@@ -1419,6 +1419,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 - [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
+- [x] **P7.49** Barres système sous le Serrurier en Original de nuit : `SystemBarsAppearanceTest` échouait sur main, car il partait du choix du jeu, dessiné en Couleurs nuit depuis la grille de la Graine du jour (icônes claires, voulu, `SystemBarsTest`). Le test part désormais de l'accueil du Classique, dans le thème choisi ; le produit était juste.
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
