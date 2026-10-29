@@ -371,3 +371,10 @@ private const val ORIENTATIONS = 4
 internal fun LocksmithBarLargeFontDayPreview() {
     LocksmithPreview(LocksmithUiState(level = 21, game = PadlockGame.start(Padlock.ofLevel(21))))
 }
+
+/** Padlock 21, of 8 pieces, on a phone of 360 dp: the band of its 8 chords goes on two lines, the cadence whole. */
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+internal fun LocksmithChordsWrapDayPreview() {
+    LocksmithPreview(LocksmithUiState(level = 21, game = PadlockGame.start(Padlock.ofLevel(21))))
+}
