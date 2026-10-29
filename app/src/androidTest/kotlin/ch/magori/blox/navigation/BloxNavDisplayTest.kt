@@ -50,7 +50,10 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.OneRowPerTickGameEngineFactory
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.haptics.FakeHaptics
+import ch.magori.blox.core.locksmith.Padlock
+import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
@@ -249,6 +252,66 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(padlockTitle(2)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("the disc of a padlock opens the screen of the padlocks over it, and back finds its piece placed")
+    fun theDiscOfAPadlockOpensThePadlocksAndBackKeepsThePadlock() {
+        runJourney {
+            // Given padlock 1, opened from the cartridges, a piece placed
+            showApp(openClassic = false)
+            tapLocksmithCartridge()
+            placeAPiece(level = 1)
+
+            // When the disc of the bar opens the padlocks, then back
+            tapPadlocksDisc()
+            onNodeWithText(padlockTitle(1)).assertDoesNotExist()
+            pressSystemBack()
+
+            // Then the same padlock, its piece placed
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 1)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("a padlock chosen on the screen of the padlocks takes the place of the padlock, back then leaves it")
+    fun aPadlockChosenOnThePadlocksTakesThePlaceOfThePadlock() {
+        runJourney {
+            // Given padlock 3, the frontier, padlocks 1 and 2 open, and the screen of the padlocks over it
+            showApp(openClassic = false, openPadlocks = 2)
+            tapLocksmithCartridge(frontier = 3)
+            tapPadlocksDisc()
+
+            // When padlock 1 is chosen there
+            onNode(hasTestTag(padlockTileTag(1))).performScrollTo().performClick()
+            settle()
+
+            // Then padlock 1, and back goes to the cartridges: padlock 3 is no longer under it
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            pressSystemBack()
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+        }
+    }
+
+    @Test
+    @DisplayName("choosing on the screen of the padlocks the padlock one comes from goes back to it, its piece placed")
+    fun choosingThePadlockOneComesFromGoesBackToIt() {
+        runJourney {
+            // Given padlock 1, a piece placed, and the screen of the padlocks over it
+            showApp(openClassic = false)
+            tapLocksmithCartridge()
+            placeAPiece(level = 1)
+            tapPadlocksDisc()
+
+            // When padlock 1 is chosen there
+            onNode(hasTestTag(padlockTileTag(1))).performScrollTo().performClick()
+            settle()
+
+            // Then the same padlock, its piece placed: the game is not started over
+            onNodeWithText(padlockTitle(1)).assertIsDisplayed()
+            onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 1)).assertIsDisplayed()
         }
     }
 
@@ -917,6 +980,34 @@ internal class BloxNavDisplayTest {
         onNode(hasTestTag(LOCKSMITH_CARTRIDGE_TAG)).performClick()
         advanceUntilShown(padlockTitle(frontier))
     }
+
+    /** Taps the disc « Toutes les serrures » of the bar of a padlock, and waits for the screen of the padlocks. */
+    private fun AndroidComposeUiTest<ComponentActivity>.tapPadlocksDisc() {
+        onNodeWithContentDescription(string(LocksmithR.string.feature_locksmith_padlocks)).performClick()
+        advanceUntilShown(string(LocksmithR.string.feature_locksmith_padlocks_title).uppercase())
+    }
+
+    /**
+     * Places the first piece given by padlock [level] where its solution has it: turned as the solution has it, aimed
+     * by its pivot, and placed. One move counted.
+     */
+    private fun AndroidComposeUiTest<ComponentActivity>.placeAPiece(level: Int) {
+        val start = PadlockGame.start(Padlock.ofLevel(level))
+        val piece = start.padlock.solution.first { it.type == start.given.first() }
+        val turns = generateSequence(start) { it.turn(Rotation.CLOCKWISE) }
+            .indexOfFirst { it.orientationOf(0) == piece.orientation }
+        repeat(turns) {
+            onNodeWithContentDescription(string(LocksmithR.string.feature_locksmith_turn_right)).performClick()
+        }
+        val cell = string(LocksmithR.string.feature_locksmith_cell, piece.pivot.column, piece.pivot.row, "")
+        onNode(hasContentDescription(cell, substring = true)).performScrollTo().performClick()
+        onNodeWithText(string(LocksmithR.string.feature_locksmith_place)).performClick()
+        settle()
+        onNodeWithText(string(LocksmithR.string.feature_locksmith_moves, 1)).assertIsDisplayed()
+    }
+
+    /** The tag of the tile of padlock [level] on the screen of the padlocks (`padlockTileTag`, internal to its feature). */
+    private fun padlockTileTag(level: Int): String = "padlocks_tile_$level"
 
     /** Taps the disc « Changer de jeu » of the home screen, and waits for the choice of the game. */
     private fun AndroidComposeUiTest<ComponentActivity>.tapChangeGame() {

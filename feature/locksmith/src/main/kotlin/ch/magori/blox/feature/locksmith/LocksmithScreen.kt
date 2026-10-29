@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.locksmith
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -42,9 +41,12 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -115,6 +117,7 @@ internal class LocksmithActions(
     val onRestart: () -> Unit,
     val onNext: () -> Unit,
     val onResume: (frontier: Int) -> Unit,
+    val onPadlocks: () -> Unit,
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -129,6 +132,7 @@ internal class LocksmithActions(
             onRestart = {},
             onNext = {},
             onResume = {},
+            onPadlocks = {},
         )
     }
 }
@@ -136,8 +140,8 @@ internal class LocksmithActions(
 /**
  * The screen of the Locksmith (V35), drawn from [state] alone, always in the Colorful theme, day or night as the
  * system says (decision of the developer, 2026-10-26: the Locksmith has no Original look). From the top, scrolling on
- * a small screen: the bar (back, title, moves, the padlock of its state), the chords of the padlock, the padlock, a
- * message, Hint and Restart, the given pieces. Anchored at the bottom, within reach of the thumb: turn left, Place,
+ * a small screen: the bar (back, title, moves, the disc « Toutes les serrures », the padlock of its state), the chords
+ * of the padlock, the padlock, a message, Hint and Restart, the given pieces. Anchored at the bottom, within reach of the thumb: turn left, Place,
  * turn right. Once the padlock is open, the card « Serrure ouverte ! » takes the place of the buttons, the tiles and the
  * controls, and the focus, once; the message stays, and takes the focus back when the padlock starts over from the
  * card. The feedback of the last action plays on the padlock ([Feedback]), from its tick 0 on the frames of the screen,
@@ -188,7 +192,7 @@ internal fun LocksmithScreen(
                     verticalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    TopBar(state, actions.onBack)
+                    TopBar(state, actions.onBack, actions.onPadlocks)
                     ChordBand(state)
                     PadlockGrid(state, actions.onTap, feedback, tick)
                     Message(state, messageFocus)
@@ -238,11 +242,15 @@ private fun OpeningFocus(
     }
 }
 
-/** Back, the title and the moves, then the padlock of the state of the game, closed, then open. */
+/**
+ * Back, the title and the moves, then the disc « Toutes les serrures »: the padlock of the state of the game, closed,
+ * then open, which opens the screen of the padlocks.
+ */
 @Composable
 private fun TopBar(
     state: LocksmithUiState,
     onBack: () -> Unit,
+    onPadlocks: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -275,30 +283,23 @@ private fun TopBar(
             color = BloxTheme.palette.label,
             style = BloxTheme.typography.statLabel,
         )
-        PadlockStatus(open = state.game.isOpen)
+        // The title of the bar tells the state of the padlock, and the card alone says that it is open: the disc is read
+        // for what it opens.
+        val open = state.game.isOpen
+        GlyphButton(
+            description = stringResource(R.string.feature_locksmith_padlocks),
+            onClick = onPadlocks,
+            glyph = { ink -> drawPadlock(ink, open) },
+        )
     }
 }
 
 /**
- * A padlock of [STATUS_ICON], closed or [open], in ink; neither touched nor read: the title of the bar tells its state,
- * and the card alone says that the padlock is open.
- */
-@Composable
-private fun PadlockStatus(open: Boolean) {
-    val ink = BloxTheme.palette.ink
-    val page = BloxTheme.palette.page
-    Canvas(modifier = Modifier.size(STATUS_ICON)) {
-        drawPadlock(ink, page, open)
-    }
-}
-
-/**
- * A padlock in [ink]: its body, with a keyhole of the [page], and its shackle, down in the body, or lifted out of it on
- * the right when [open].
+ * A padlock in [ink]: its body, a keyhole cut through it, and its shackle, down in the body, or lifted out of it on the
+ * right when [open].
  */
 internal fun DrawScope.drawPadlock(
     ink: Color,
-    page: Color,
     open: Boolean,
 ) {
     val w = size.width
@@ -311,13 +312,18 @@ internal fun DrawScope.drawPadlock(
         lineTo(w * 0.7f, if (open) h * 0.3f - lift else h * 0.46f)
     }
     drawPath(shackle, ink, style = Stroke(width = w * 0.12f))
-    drawRoundRect(
-        color = ink,
-        topLeft = Offset(w * 0.14f, h * 0.44f),
-        size = Size(w * 0.72f, h * 0.5f),
-        cornerRadius = CornerRadius(w * 0.08f),
-    )
-    drawCircle(page, radius = w * 0.08f, center = Offset(w * 0.5f, h * 0.66f))
+    // The keyhole is a hole: whatever bears the padlock, a tile or a button pressed, shows through it.
+    val body = Path().apply {
+        fillType = PathFillType.EvenOdd
+        addRoundRect(
+            RoundRect(
+                rect = Rect(offset = Offset(w * 0.14f, h * 0.44f), size = Size(w * 0.72f, h * 0.5f)),
+                cornerRadius = CornerRadius(w * 0.08f),
+            ),
+        )
+        addOval(Rect(center = Offset(w * 0.5f, h * 0.66f), radius = w * 0.08f))
+    }
+    drawPath(body, ink)
 }
 
 /**
@@ -903,9 +909,6 @@ internal val MAX_CELL = 42.dp
 
 /** The height of the bracket under the cadence. */
 private val BRACKET = 6.dp
-
-/** The padlock of the state of the game, in the bar. */
-private val STATUS_ICON = 24.dp
 
 /** How far the shackle of an open padlock rises out of its body, in parts of its height. */
 private const val SHACKLE_LIFT = 0.14f

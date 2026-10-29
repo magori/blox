@@ -303,7 +303,7 @@ private fun PadlockTile(
         ) {
             Text(text = cell.level.toString(), color = look.ink, style = BloxTheme.typography.statValue)
             val open = cell.state == CellState.OPEN || cell.state == CellState.PERFECT
-            Canvas(modifier = Modifier.size(PICTOGRAM)) { drawPadlock(look.ink, look.face, open) }
+            Canvas(modifier = Modifier.size(PICTOGRAM)) { drawPadlock(look.ink, open) }
             if (cell.state == CellState.PERFECT) {
                 BloxIcon(BloxIcon.STAR, size = PICTOGRAM, tint = look.ink)
             }

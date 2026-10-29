@@ -129,11 +129,16 @@ fun BloxNavDisplay(
                 onBack = goBack,
                 onNext = { open -> nextPadlock(backStack, open) },
                 onResume = { open, frontier -> resumePadlocks(backStack, open, frontier) },
+                onPadlocks = { open -> openPadlocks(backStack, open) },
                 viewModelFactory = locksmithViewModelFactory,
             )
-            // The screen « Serrures » (P7.35): the disc of the bar of a padlock opens it, and a padlock touched there
-            // takes the place of the padlock under it, in P7.36; until then, nothing opens from it.
-            padlocksEntry(onBack = goBack, onOpen = {}, viewModelFactory = padlocksViewModelFactory)
+            // The screen « Serrures », over the padlock whose disc opened it (P7.35, P7.36): back finds that padlock as
+            // it was left; a padlock chosen there takes its place, or only goes back to it when it is the same.
+            padlocksEntry(
+                onBack = goBack,
+                onOpen = { list, chosen -> choosePadlock(backStack, list, chosen) },
+                viewModelFactory = padlocksViewModelFactory,
+            )
             dailyEntry(
                 // The game of the date shown, whose pieces the entry shows, even once the phone passed midnight.
                 onPlay = { date -> backStack.add(newDailyGameRoute(date)) },
