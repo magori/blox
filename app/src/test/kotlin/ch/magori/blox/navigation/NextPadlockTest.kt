@@ -144,4 +144,56 @@ class NextPadlockTest {
         // Then
         assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 4))
     }
+
+    @Test
+    fun `once the progress is cleared on the screen of the padlocks, padlock 1 comes back over the cartridges`() {
+        // Given the screen of the padlocks over padlock 9
+        val list = PadlocksRoute(current = 9)
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, LocksmithRoute(level = 9), list)
+
+        // When the progress is cleared there
+        progressCleared(backStack, list)
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 1))
+    }
+
+    @Test
+    fun `once the progress is cleared on the screen of the padlocks opened over padlock 1, padlock 1 stays on top`() {
+        // Given the screen of the padlocks over padlock 1
+        val list = PadlocksRoute(current = 1)
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, LocksmithRoute(level = 1), list)
+
+        // When the progress is cleared there
+        progressCleared(backStack, list)
+
+        // Then padlock 1, an equal key: its view model is kept, and starts over as it shows (LocksmithViewModel)
+        assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 1))
+    }
+
+    @Test
+    fun `a clear told twice moves nothing more`() {
+        // Given padlock 1, put on top by a first clear on the screen of the padlocks opened over padlock 9
+        val list = PadlocksRoute(current = 9)
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, LocksmithRoute(level = 1))
+
+        // When the clear is told again, with the screen it was on
+        progressCleared(backStack, list)
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 1))
+    }
+
+    @Test
+    fun `with no padlock under the screen of the padlocks, padlock 1 takes its place once the progress is cleared`() {
+        // Given the screen of the padlocks right over the cartridges, from no padlock
+        val list = PadlocksRoute()
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, list)
+
+        // When the progress is cleared there
+        progressCleared(backStack, list)
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, LocksmithRoute(level = 1))
+    }
 }

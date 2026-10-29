@@ -14,12 +14,15 @@ import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,8 +34,9 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import ch.magori.blox.core.designsystem.R as DesignSystemR
 
-/** The screen « Serrures » (P7.35): the summary, Reprendre, the grid of the padlocks, read by TalkBack. */
+/** The screen « Serrures » (P7.35): the summary, Reprendre, the grid of the padlocks, read by TalkBack; starting over (P7.37). */
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
 internal class PadlocksScreenTest {
@@ -221,19 +225,113 @@ internal class PadlocksScreenTest {
         tile(2).assert(SemanticsMatcher("its click is « $open »") { it.config[SemanticsActions.OnClick].label == open })
     }
 
+    @Test
+    @DisplayName("Recommencer depuis le début, at the end of the grid, asks whether to start over")
+    fun startingOverIsAskedAtTheEndOfTheGrid() = extension.use {
+        // Given padlocks 1 to 3 open
+        val asked = mutableListOf<String>()
+        showPadlocks(PadlocksUiState(listOf(PERFECT, WITH_A_HINT, PERFECT)), asked = asked)
+
+        // When
+        onNodeWithText(string(R.string.feature_locksmith_padlocks_start_over)).performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(asked).containsExactly(START_OVER) }
+    }
+
+    @Test
+    @DisplayName("without an opening, there is nothing to start over")
+    fun withoutAnOpeningThereIsNothingToStartOver() = extension.use {
+        // Given no padlock open
+        showPadlocks(PadlocksUiState(emptyList()))
+
+        // Then
+        onNodeWithText(string(R.string.feature_locksmith_padlocks_start_over)).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName(
+        "the confirmation tells how many padlocks will be forgotten, Garder first, then Effacer, each answering",
+    )
+    fun theConfirmationTellsWhatWillBeForgotten() = extension.use {
+        // Given padlocks 1 to 3 open, the confirmation asked
+        val asked = mutableListOf<String>()
+        showPadlocks(
+            PadlocksUiState(listOf(PERFECT, WITH_A_HINT, PERFECT), ProgressClearing.ASKED),
+            asked = asked,
+        )
+
+        // Then the question, a heading, and what it forgets
+        onNodeWithText(string(R.string.feature_locksmith_clear_title)).assertIsDisplayed().assert(isHeading())
+        onNodeWithText(plural(R.plurals.feature_locksmith_clear_note, 3)).assertIsDisplayed()
+        val keep = onNodeWithText(string(R.string.feature_locksmith_clear_keep)).assertIsDisplayed()
+        val clear = onNodeWithText(string(R.string.feature_locksmith_clear_confirm)).assertIsDisplayed()
+        assertThat(keep.getBoundsInRoot().top).isLessThan(clear.getBoundsInRoot().top)
+
+        // When
+        keep.performClick()
+        clear.performClick()
+
+        // Then
+        runOnIdle { assertThat(asked).containsExactly(KEEP, CLEAR) }
+    }
+
+    @Test
+    @DisplayName("while the clear is written, both answers are disabled")
+    fun whileTheClearIsWrittenBothAnswersAreDisabled() = extension.use {
+        // Given padlock 1 open, its clear being written
+        showPadlocks(PadlocksUiState(listOf(PERFECT), ProgressClearing.CLEARING))
+
+        // Then
+        onNodeWithText(string(R.string.feature_locksmith_clear_keep)).assertIsNotEnabled()
+        onNodeWithText(string(R.string.feature_locksmith_clear_confirm)).assertIsNotEnabled()
+    }
+
+    @Test
+    @DisplayName(
+        "once the progress is cleared, the confirmation stays open, its answers disabled, until the screen goes",
+    )
+    fun onceClearedTheConfirmationStaysOpenUntilTheScreenGoes() = extension.use {
+        // Given padlock 1 open when the clear was asked, the progress now cleared
+        showPadlocks(PadlocksUiState(listOf(PERFECT), ProgressClearing.CLEARED))
+
+        // Then
+        onNodeWithText(plural(R.plurals.feature_locksmith_clear_note, 1)).assertIsDisplayed()
+        onNodeWithText(string(R.string.feature_locksmith_clear_keep)).assertIsNotEnabled()
+        onNodeWithText(string(R.string.feature_locksmith_clear_confirm)).assertIsNotEnabled()
+    }
+
+    @Test
+    @DisplayName("a clear that could not be written is told, the confirmation still open to try again")
+    fun aClearThatFailedIsTold() = extension.use {
+        // Given padlock 1 open, its clear failed
+        showPadlocks(PadlocksUiState(listOf(PERFECT), ProgressClearing.FAILED))
+
+        // Then
+        onNodeWithText(string(DesignSystemR.string.core_designsystem_window_failed)).assertIsDisplayed()
+        onNodeWithText(string(R.string.feature_locksmith_clear_confirm)).assertIsEnabled()
+    }
+
     /**
      * The screen of [state] on a phone of [width] by [height], in a font of [fontScale], the padlocks asked noted in
-     * [opened].
+     * [opened], the answers about starting over in [asked].
      */
     private fun ComposeContext.showPadlocks(
         state: PadlocksUiState,
         current: Int? = null,
         opened: MutableList<Int> = mutableListOf(),
+        asked: MutableList<String> = mutableListOf(),
         fontScale: Float = 1f,
         height: Dp = 844.dp,
         width: Dp = 390.dp,
     ) {
-        val actions = PadlocksActions(onBack = {}, onOpen = { opened += it })
+        val actions = PadlocksActions(
+            onBack = {},
+            onOpen = { opened += it },
+            onStartOver = { asked += START_OVER },
+            onKeepProgress = { asked += KEEP },
+            onClearProgress = { asked += CLEAR },
+        )
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
@@ -271,5 +369,10 @@ internal class PadlocksScreenTest {
 
         /** A screen as low as a phone in landscape. */
         val LOW_SCREEN = 400.dp
+
+        /** The answers about starting over, as noted. */
+        const val START_OVER = "start over"
+        const val KEEP = "keep"
+        const val CLEAR = "clear"
     }
 }

@@ -43,6 +43,7 @@ class LocksmithViewModel internal constructor(
     preferences: UserPreferencesRepository,
     private val progress: PadlockProgressRepository,
     private val appScope: CoroutineScope,
+    private val cleared: ClearedProgressRelay,
 ) : ViewModel() {
     private val state = MutableStateFlow(
         LocksmithUiState(level = route.level, game = PadlockGame.start(Padlock.ofLevel(route.level))),
@@ -71,6 +72,18 @@ class LocksmithViewModel internal constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Tells that the progress was just cleared on the screen of the padlocks, if it was and no other padlock told it: the
+     * padlock starts over, as one never opened (its view model may be kept, the key of padlock 1 under the screen of the
+     * padlocks being equal to the one put back), and the message says so until the first action. Called once the screen
+     * shows, so that TalkBack hears the message change.
+     */
+    internal fun showClearedProgress() {
+        if (!cleared.take()) return
+        restart()
+        state.update { it.copy(cleared = true) }
     }
 
     /** Selects the free given piece of [rank]. */
@@ -122,6 +135,7 @@ class LocksmithViewModel internal constructor(
             turned = false,
             unrecorded = false,
             outcome = null,
+            cleared = false,
         )
     }
 
@@ -131,7 +145,13 @@ class LocksmithViewModel internal constructor(
      * the padlock is open.
      */
     private fun arrange(action: (LocksmithUiState) -> LocksmithUiState) = state.update { current ->
-        if (current.game.isOpen) current else action(current.copy(turned = false)).copy(events = emptyList())
+        if (current.game.isOpen) {
+            current
+        } else {
+            action(
+                current.copy(turned = false, cleared = false),
+            ).copy(events = emptyList())
+        }
     }
 
     /**
@@ -157,8 +177,15 @@ class LocksmithViewModel internal constructor(
             events.any { it is PadlockEvent.PiecePlaced } -> null
             else -> current.aim
         }
-        state.value =
-            current.copy(game = game, events = events, move = current.move + 1, hint = hint, aim = aim, turned = false)
+        state.value = current.copy(
+            game = game,
+            events = events,
+            move = current.move + 1,
+            hint = hint,
+            aim = aim,
+            turned = false,
+            cleared = false,
+        )
         play(soundCuesFor(update))
         if (game.isOpen) record(game)
     }
@@ -199,13 +226,15 @@ class LocksmithViewModel internal constructor(
      * Builds the view model of an entry of the Locksmith (ADR 0013). The route of the entry comes in the
      * creation extras under `RouteKey`, since only the navigation entry knows it; the player of the sound effects and the
      * settings come from the application, which owns them (ADR 0007), as the [progress] of the Serrurier and [appScope],
-     * where it is written, for the whole life of the process.
+     * where it is written, for the whole life of the process, and the relay of a progress [cleared] on the screen of the
+     * padlocks, one for the process.
      */
     class Factory(
         private val soundEffects: SoundEffectPlayer,
         private val preferences: UserPreferencesRepository,
         private val progress: PadlockProgressRepository,
         private val appScope: CoroutineScope,
+        private val cleared: ClearedProgressRelay,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
@@ -214,7 +243,7 @@ class LocksmithViewModel internal constructor(
             val route =
                 requireNotNull(extras[RouteKey]) { "The route of the padlock is missing from the creation extras" }
             @Suppress("UNCHECKED_CAST") // The only view model this factory builds.
-            return LocksmithViewModel(route, soundEffects, preferences, progress, appScope) as T
+            return LocksmithViewModel(route, soundEffects, preferences, progress, appScope, cleared) as T
         }
     }
 

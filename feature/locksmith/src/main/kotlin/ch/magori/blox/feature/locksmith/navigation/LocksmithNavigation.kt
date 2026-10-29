@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -51,6 +52,8 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
         val extras = CreationExtras(defaults) { set(LocksmithViewModel.RouteKey, route) }
         val viewModel: LocksmithViewModel = viewModel(factory = viewModelFactory, extras = extras)
         val state by viewModel.uiState.collectAsStateWithLifecycle()
+        // Once shown, so that TalkBack hears its message change: a progress just cleared, if this padlock is the first shown.
+        LaunchedEffect(viewModel) { viewModel.showClearedProgress() }
         LocksmithScreen(
             state = state,
             actions = remember(viewModel, route, onBack, onNext, onResume, onPadlocks) {
