@@ -61,4 +61,38 @@
     <string name="feature_locksmith_sticker_new_best">Nouveau meilleur</string>
     <string name="feature_locksmith_sticker_perfect">Parfaite</string>
     <string name="feature_locksmith_unrecorded">Résultat non enregistré</string>
+
+    <!-- The screen « Serrures » (P7.35). -->
+    <string name="feature_locksmith_padlocks_title">Serrures</string>
+    <string name="feature_locksmith_padlocks_summary">%1$s · %2$s</string>
+    <plurals name="feature_locksmith_padlocks_open">
+        <item quantity="one">%d ouverte</item>
+        <item quantity="many">%d ouvertes</item>
+        <item quantity="other">%d ouvertes</item>
+    </plurals>
+    <plurals name="feature_locksmith_padlocks_perfect">
+        <item quantity="one">%d parfaite</item>
+        <item quantity="many">%d parfaites</item>
+        <item quantity="other">%d parfaites</item>
+    </plurals>
+    <string name="feature_locksmith_padlocks_empty">Ouvre la serrure 1 pour commencer.</string>
+    <string name="feature_locksmith_padlocks_resume">Reprendre · Serrure %1$d</string>
+    <string name="feature_locksmith_padlocks_tier">%1$s · %2$s</string>
+    <string name="feature_locksmith_padlocks_tier_apprentice">Apprenti</string>
+    <string name="feature_locksmith_padlocks_tier_journeyman">Compagnon</string>
+    <string name="feature_locksmith_padlocks_tier_craftsman">Artisan</string>
+    <string name="feature_locksmith_padlocks_tier_master">Maître</string>
+    <!-- A padlock holds 3 pieces at least: « pièces » is always plural. -->
+    <string name="feature_locksmith_padlocks_tier_pieces" tools:ignore="PluralsCandidate">%1$d pièces</string>
+    <string name="feature_locksmith_padlocks_tier_pieces_or" tools:ignore="PluralsCandidate">%1$d ou %2$d pièces</string>
+    <string name="feature_locksmith_padlocks_tier_pieces_range" tools:ignore="PluralsCandidate">%1$d à %2$d pièces</string>
+    <string name="feature_locksmith_padlocks_cell">Serrure %1$d</string>
+    <string name="feature_locksmith_padlocks_open">ouverte</string>
+    <string name="feature_locksmith_padlocks_perfect">parfaite</string>
+    <string name="feature_locksmith_padlocks_frontier">à ouvrir</string>
+    <string name="feature_locksmith_padlocks_locked">verrouillée</string>
+    <string name="feature_locksmith_padlocks_current">en cours</string>
+    <string name="feature_locksmith_padlocks_open_action">Ouvrir</string>
+    <!-- « coups » is always plural, « refus » does not change; the hints have their plural (feature_locksmith_open_best_hints). -->
+    <string name="feature_locksmith_padlocks_best" tools:ignore="PluralsCandidate">meilleure : %1$d coups, %2$d refus, %3$s</string>
 </resources>

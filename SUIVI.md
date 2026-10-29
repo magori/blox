@@ -1380,7 +1380,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   P7.30, P7.32.
 - [ ] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
   `app`), parcours Macrobenchmark vérifié. Après P7.32.
-- [ ] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
+- [x] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
   ouvrir, en cours, verrouillées de sa rangée), état vide, TalkBack, police ×2, captures jour, nuit, grande police.
   Après P7.32.
 - [ ] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
@@ -1392,7 +1392,10 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   à attribuer avec ceux de P10.33 et P12.10.
 - [ ] **P7.39** Juger avec `designer-jeu` les captures de P7.33 à P7.37 (contraste de la case verrouillée, carte à
   trois boutons ; à 390 dp, elle pousse le message de la cadence hors de l'écran, capture
-  `LocksmithOpenReplaySmallDay`, trouvé en P7.33).
+  `LocksmithOpenReplaySmallDay`, trouvé en P7.33). Écran « Serrures » (P7.35, captures `Padlocks*`) : l'en-tête
+  « Maître · 7 ou 8 pièces » alors que les serrures 21 à 30 en ont toujours 8 ; le contraste de la case verrouillée ;
+  les pictogrammes restés à 16 dp en grande police ; l'état vide sans Reprendre ; la serrure en cours au-delà de la
+  frontière, qui ne s'affiche pas.
 - [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
@@ -1412,6 +1415,8 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
 - [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
+- [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
+  colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
