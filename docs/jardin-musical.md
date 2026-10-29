@@ -346,9 +346,9 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `GardenKeepingTest › a full library still replaces X` ; capture `MyGardensFull`.
 - **Noms** : les règles de Mes musiques, communes depuis P10.25 (`TakenNames`) : 40 caractères au plus (le nom
   tapé est coupé à 40), unique sans tenir compte de la casse ni des espaces, non vide, raison du refus écrite sous
-  le champ (« Un autre jardin porte déjà ce nom. », « Donne un nom à ce jardin. ») et « Garder » grisé ; un nom
-  refusé ne garde rien. Liste de noms à part de celle des musiques. Nom proposé : « Jardin » suivi de l'ambiance,
-  en minuscule (« Jardin calme »), numéroté s'il est pris (« Jardin calme 2 », `freeName`). Fenêtre `NamingWindow`
+  le champ (« Un autre jardin porte déjà ce nom. », « Donne-lui un nom. », textes communs à Mes musiques et à
+  l'éditeur, P10.34, `generateur-musique.md`) et « Garder » grisé ; un nom refusé ne garde rien. Liste de noms à
+  part de celle des musiques. Nom proposé : « Jardin » suivi de l'ambiance, en minuscule (« Jardin calme »), numéroté s'il est pris (« Jardin calme 2 », `freeName`). Fenêtre `NamingWindow`
   (`core:designsystem`) : « Annuler » (la fenêtre se ferme, la feuille reste ouverte), puis « Garder ». Une
   nouvelle saisie après un échec efface le message d'échec.
   **Tests :** `GardenKeepingTest › Garder ce jardin proposes « Jardin » then the mood in lower case, numbered if it is taken`,

@@ -120,6 +120,12 @@ changent beaucoup.
    `PadlockFrontier` (`app`, lecture de l'avancement dès le démarrage, `current: StateFlow<Int?>` et `await()`) ;
    un toucher sur une autre cartouche annule cette attente. `feature:cartridges` ne reçoit que
    `padlockFrontier: StateFlow<Int?>`, pour la sous-ligne « Serrure N ».
+   `PadlockFrontier`, `NewCartridges` (l'autocollant NOUVELLE de la Graine du jour) et `AppTheme` (l'apparence de
+   l'application) partagent une même brique de `app`, `WarmValue<T>` (P7.47) : une valeur lue une fois et gardée
+   chaude pour la vie de sa portée (`stateIn(Eagerly, null)`), avec `current` (null avant la première lecture),
+   `updates` (la dernière valeur lue, puis chaque nouvelle valeur différente ; rien avant la première lecture) et
+   `await()` (`WarmValueTest › awaiting the value before the source is read waits for it`). Une source dont la valeur
+   peut être nulle l'enveloppe, pour distinguer « lue, aucune » de « pas encore lue ».
    Dans le Serrurier, les fonctions pures de `app` (`NextPadlock.kt`) changent le haut de la pile, et rien si la clé
    attendue n'y est plus (un second toucher) : `nextPadlock` et `resumePadlocks` mettent une serrure à la place de
    la serrure ouverte (P7.30, P7.33) ; `openPadlocks` empile l'écran « Serrures » par-dessus la serrure, qui reste

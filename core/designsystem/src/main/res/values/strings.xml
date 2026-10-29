@@ -16,6 +16,10 @@
         <item quantity="many">%1$d caractères au plus.</item>
         <item quantity="other">%1$d caractères au plus.</item>
     </plurals>
+    <!-- Un nom refusé, sous son champ, dans les fenêtres de Mes musiques, de l’éditeur et du Jardin (P10.34). -->
+    <string name="core_designsystem_name_blank">Donne-lui un nom.</string>
+    <string name="core_designsystem_name_taken_music">Une autre musique porte déjà ce nom.</string>
+    <string name="core_designsystem_name_taken_garden">Un autre jardin porte déjà ce nom.</string>
     <string name="core_designsystem_window_delete_title">Supprimer « %1$s » ?</string>
     <string name="core_designsystem_window_delete">Supprimer</string>
     <!-- L'état d'un interrupteur lu par TalkBack : « activé » et « désactivé » se confondraient avec une rangée indisponible. -->

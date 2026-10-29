@@ -56,5 +56,5 @@ fun NamingWindow(
 /** « 40 caractères au plus. »: a name longer than [maxLength] characters, refused. */
 @Composable
 @ReadOnlyComposable
-fun nameTooLongText(maxLength: Int): String =
+internal fun nameTooLongText(maxLength: Int): String =
     pluralStringResource(R.plurals.core_designsystem_window_name_too_long, maxLength, maxLength)
