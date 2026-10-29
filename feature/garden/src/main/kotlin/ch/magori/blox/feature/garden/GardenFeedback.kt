@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.garden
 
 import androidx.compose.runtime.Immutable
+import ch.magori.blox.core.designsystem.component.sheetExitTicks
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.fadeOut
@@ -15,10 +16,17 @@ import ch.magori.blox.core.game.model.Position
  */
 @Immutable
 internal data class GardenFeedback(val change: GardenChange, val rank: Map<Position, Int>, val move: Int) {
+    /** Whether its pieces fall one by one: after Au hasard, or a kept garden opened once the sheet has gone down. */
+    private val falls: Boolean = change == GardenChange.Rolled || change == GardenChange.Opened
+
+    /** The tick the first piece starts to fall at: a kept garden opened waits for the sheet to go down. */
+    private val fallDelay: Int = if (change == GardenChange.Opened) sheetExitTicks(BloxEffects.Full) else 0
+
     /** How many ticks this feedback lasts in [effects]. */
     fun ticks(effects: BloxEffects): Int = when {
-        change == GardenChange.Rolled && effects.reduced -> BloxMotion.reducedFade
-        change == GardenChange.Rolled -> BloxMotion.gardenFallStep * (rank.values.maxOrNull() ?: 0) + FALL_TICKS
+        change == GardenChange.Opened && effects.reduced -> 0
+        falls && effects.reduced -> BloxMotion.reducedFade
+        falls -> fallDelay + BloxMotion.gardenFallStep * (rank.values.maxOrNull() ?: 0) + FALL_TICKS
         else -> BloxMotion.gardenGlow
     }
 
@@ -27,7 +35,7 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
         cell: Position,
         tick: Int,
         effects: BloxEffects,
-    ): Float = if (change != GardenChange.Rolled && cell in rank) fadeOut(tick, ticks(effects)) else 0f
+    ): Float = if (!falls && cell in rank) fadeOut(tick, ticks(effects)) else 0f
 
     /**
      * How far above its place the note on [cell] is drawn at [tick] in [effects], in cells: a piece of Au hasard falls
@@ -48,7 +56,8 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
 
     /**
      * How much of the note on [cell] is shown at [tick] in [effects], from 0 (the free cell) to 1 (the note): a piece of
-     * Au hasard is out of sight until it falls; in reduced effects, they all fade in together.
+     * Au hasard is out of sight until it falls; in reduced effects, they all fade in together, but those of a kept garden
+     * opened, shown at once.
      */
     fun shown(
         cell: Position,
@@ -57,22 +66,22 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
     ): Float {
         val start = fallStart(cell) ?: return 1f
         return when {
-            effects.reduced -> 1f - fadeOut(tick, BloxMotion.reducedFade)
+            effects.reduced -> 1f - fadeOut(tick, ticks(effects))
             tick < start -> 0f
             else -> 1f
         }
     }
 
-    /** The tick the piece on [cell] starts to fall at, after Au hasard; null when it does not fall. */
+    /** The tick the piece on [cell] starts to fall at; null when it does not fall. */
     private fun fallStart(cell: Position): Int? =
-        rank[cell]?.takeIf { change == GardenChange.Rolled }?.let { it * BloxMotion.gardenFallStep }
+        rank[cell]?.takeIf { falls }?.let { fallDelay + it * BloxMotion.gardenFallStep }
 }
 
 /** The feedback of the last change of [state]; none when the screen animates none. */
 internal fun gardenFeedbackOf(state: GardenUiState): GardenFeedback? = when (val change = state.change) {
     is GardenChange.Placed -> GardenFeedback(change, change.piece.cells.associateWith { 0 }, state.move)
 
-    GardenChange.Rolled -> {
+    GardenChange.Rolled, GardenChange.Opened -> {
         val pieces = state.garden.pieces.sortedBy { piece -> piece.cells.minOf { it.column } }
         val rank = pieces.withIndex().flatMap { (rank, piece) -> piece.cells.map { it to rank } }.toMap()
         GardenFeedback(change, rank, state.move)

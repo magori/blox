@@ -360,6 +360,27 @@ internal class GardenKeepingTest {
     }
 
     @Test
+    fun `each garden kept is a keeping of its own, told again though its name is the same`() = runTest {
+        // Given the garden under way kept as « Pluie douce »
+        val pluie = library.keep("Pluie douce", A_GARDEN)
+        kept.currentState.value = CurrentGarden(A_GARDEN, keptFrom = pluie.id)
+        viewModel.chooseMood(GardenMood.EPIC)
+        viewModel.openMyGardens()
+        viewModel.saveInPlace(messageMillis = 4_000)
+        val first = viewModel.uiState.value!!.keeps
+
+        // When it changes and is saved in its place again, while its name still shows
+        viewModel.chooseMood(GardenMood.CALM)
+        viewModel.openMyGardens()
+        viewModel.saveInPlace(messageMillis = 4_000)
+
+        // Then the same name, told by another keeping
+        val state = viewModel.uiState.value!!
+        assertThat(state.keptName).isEqualTo("Pluie douce")
+        assertThat(state.keeps).isEqualTo(first + 1)
+    }
+
+    @Test
     fun `a full library still replaces X`() = runTest {
         // Given a full library, the garden under way changed since it was kept as the first one
         val gardens = List(GardenLibrary.MAX_GARDENS) { library.keep("Jardin ${it + 1}", A_GARDEN) }

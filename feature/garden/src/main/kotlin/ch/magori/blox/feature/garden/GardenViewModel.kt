@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.LoopListening
 import ch.magori.blox.core.audio.MusicPlayer
+import ch.magori.blox.core.audio.SoundCue
 import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.audio.playCues
 import ch.magori.blox.core.data.CurrentGarden
@@ -29,6 +30,7 @@ import ch.magori.blox.core.garden.GardenMood
 import ch.magori.blox.core.garden.GardenPlacement
 import ch.magori.blox.core.garden.toScore
 import ch.magori.blox.feature.garden.sound.GARDEN_WARM_UP
+import ch.magori.blox.feature.garden.sound.keptCuesOf
 import ch.magori.blox.feature.garden.sound.previewCuesOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -61,8 +63,9 @@ import kotlin.reflect.KClass
  * player of the application, as a preview of « Mes musiques » (one music at a time, the audio focus asked for); each
  * garden adopted meanwhile is switched to at the bar line; the score stops once the screen is no longer visible, or
  * left. The column played moves on with the frames the screen hands over ([onFrame], ADR 0012). The preview is heard by
- * the [soundEffects], its notes once in a rising arpeggio, when the [preferences] want the sound effects: the notes of
- * the garden, a finite set, are warmed up as it opens, never released (ADR 0025, ADR 0027).
+ * the [soundEffects], its notes once in a rising arpeggio, when the [preferences] want the sound effects, and so is a
+ * garden kept in « Mes jardins », the chord of its tonic: the notes of the garden, a finite set, are warmed up as it
+ * opens, never released (ADR 0025, ADR 0027).
  */
 class GardenViewModel internal constructor(
     private val kept: GardenRepository,
@@ -216,7 +219,8 @@ class GardenViewModel internal constructor(
     }
 
     /**
-     * Rouvrir: the kept garden of [id] in place of the garden under way, which then comes from it; « « X » ouvert » and
+     * Rouvrir: the kept garden of [id] in place of the garden under way, which then comes from it, its pieces falling as
+     * after Au hasard once the sheet has gone down ([GardenChange.Opened]); « « X » ouvert » and
      * « Annuler », offered for [undoMillis], give back the garden from before and its link.
      */
     internal fun openKept(
@@ -237,7 +241,7 @@ class GardenViewModel internal constructor(
             GardensWrite.Done done@{
                 // The sheet closed meanwhile: the garden shown stays, and so does its link, on the device too.
                 if (state.value?.sheet == null) return@done keepShown()
-                showWritten(CurrentGarden(opening.garden, keptFrom = opening.id))
+                showWritten(CurrentGarden(opening.garden, keptFrom = opening.id), GardenChange.Opened)
                 state.update { it?.copy(sheet = null, aim = null) }
                 offerUndo(GardenUndo.Opened(opening.name, current.garden, current.keptFrom), undoMillis)
             }
@@ -359,7 +363,16 @@ class GardenViewModel internal constructor(
         messageMillis: Long,
     ) {
         undoTime?.cancel()
-        state.update { it?.copy(keptFrom = keptGarden.id, sheet = null, keptName = keptGarden.name, undo = null) }
+        state.update {
+            it?.copy(
+                keptFrom = keptGarden.id,
+                sheet = null,
+                keptName = keptGarden.name,
+                keeps = it.keeps + 1,
+                undo = null,
+            )
+        }
+        play(keptCuesOf(keptGarden.garden.mood))
         keptMessage?.cancel()
         keptMessage = viewModelScope.launch {
             delay(messageMillis)
@@ -406,13 +419,24 @@ class GardenViewModel internal constructor(
     }
 
     /**
-     * Shows [written], the garden under way and its link just written on the device, in place of the one shown: no
-     * longer offering « Annuler », heard at the bar line while it is listened to.
+     * Shows [written], the garden under way and its link just written on the device, in place of the one shown, as the
+     * [change] the screen animates, if any, a move of its own: no longer offering « Annuler », heard at the bar line
+     * while it is listened to.
      */
-    private fun showWritten(written: CurrentGarden) {
+    private fun showWritten(
+        written: CurrentGarden,
+        change: GardenChange? = null,
+    ) {
         undoTime?.cancel()
         state.update {
-            it?.copy(garden = written.garden, keptFrom = written.keptFrom, undo = null, undoFailed = false)
+            it?.copy(
+                garden = written.garden,
+                keptFrom = written.keptFrom,
+                undo = null,
+                undoFailed = false,
+                change = change,
+                move = it.move + 1,
+            )
         }
         heardAtTheBarLine(written.garden)
     }
@@ -613,10 +637,15 @@ class GardenViewModel internal constructor(
     private fun hear(
         preview: Piece,
         mood: GardenMood,
-    ) {
+    ) = play(previewCuesOf(preview, mood))
+
+    /**
+     * Plays [cues] once, when the settings want the sound effects; the cues before, not yet heard, are cut. A cue still
+     * waiting dies with the screen left.
+     */
+    private fun play(cues: List<SoundCue>) {
         if (!soundEffectsOn) return
         arpeggio?.cancel()
-        val cues = previewCuesOf(preview, mood)
         arpeggio = viewModelScope.launch { soundEffects.playCues(cues) }
     }
 

@@ -133,7 +133,11 @@ assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `pan
 `radius-card` en haut, poignée, titre `screen-title` qui défile avec le contenu ; les actions restent fixes et
 visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
 en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
-étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
+étant transmise ; pas de glissement. Fermée par son écran avec `leaving` (P10.32, `LeavingContent`, `ClosingSheet`),
+elle descend en 18 ticks (`motion-card`) en accélérant, son voile en fondu, et disparaît d'un coup en Effets réduits ;
+pendant sa descente, elle est inerte : aucun toucher ne passe, TalkBack ne la lit plus, et elle ne demande pas à se
+fermer. Rouverte pendant sa descente, elle reprend sa place. Seule la feuille de Mes jardins descend pour l'instant.
+`SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
 sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres. `SettledSheet` dessine une feuille
 posée, sans sa fenêtre, pour les aperçus et les captures (P5.101) ; `rememberOnce`, public, garde une action
 d'un second appel (fermeture, « Tirer une musique »).
@@ -142,6 +146,13 @@ d'un second appel (fermeture, « Tirer une musique »).
 `BloxSheetTest › the system back and a touch on the scrim close the sheet`,
 `BloxSheetTest › the window of a sheet neither dims the screen nor plays an animation of the platform, from its first frame`,
 `BloxSheetTest › a sheet asks once to close, sent back then touched on its scrim twice`,
+`SheetEntranceTest › a sheet closed goes down in 18 ticks, fading with its scrim, and in reduced effects it goes at once`,
+`BloxSheetTest › a sheet closed by its screen goes down before it is gone, and goes at once in reduced effects`,
+`BloxSheetTest › a sheet going down lets no touch through to what it holds, and TalkBack no longer reads it`,
+`BloxSheetTest › a sheet going down does not ask to close, sent back or touched on its scrim`,
+`BloxSheetTest › a sheet sent back, then opened again as it goes down, asks to close once more`,
+`LeavingContentTest › closed, it leaves on its last value for its length, then is gone`,
+`LeavingContentTest › closed, then open again as it leaves, it shows the value open, no longer leaving, and stays`,
 `SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
 `SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
 

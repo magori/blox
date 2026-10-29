@@ -35,6 +35,26 @@ internal fun sheetEntrance(
     )
 }
 
+/**
+ * How many ticks a sheet closed takes to go down, in [effects]: `motion-card`; none in reduced effects, where it is
+ * gone at once.
+ */
+fun sheetExitTicks(effects: BloxEffects): Int = if (effects.reduced) 0 else BloxMotion.card
+
+/**
+ * Where a sheet closed stands [ticks] after it started to go down (full effects): from in place, it goes down and
+ * fades out with its scrim in `motion-card`, slowly at first, faster and faster as it goes.
+ */
+internal fun sheetExit(
+    ticks: Int,
+    effects: BloxEffects,
+): SheetEntrance {
+    val length = sheetExitTicks(effects)
+    val progress = if (length == 0) 1f else (ticks.toFloat() / length).coerceIn(0f, 1f)
+    val gone = progress * progress
+    return SheetEntrance(rise = gone, panelAlpha = 1f - gone, scrimAlpha = 1f - gone)
+}
+
 /** Fast at first, slowing down as it ends: from 0 to 1 in [duration] ticks, at [ticks]. */
 private fun easeOut(
     ticks: Int,

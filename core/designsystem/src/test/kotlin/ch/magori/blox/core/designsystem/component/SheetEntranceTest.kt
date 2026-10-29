@@ -45,6 +45,31 @@ internal class SheetEntranceTest {
         }
     }
 
+    @Test
+    fun `a sheet closed goes down in 18 ticks, fading with its scrim, and in reduced effects it goes at once`() {
+        // Given the full effects, then reduced ones
+        val reduced = BloxEffects(reduced = true, forcedBySystem = false)
+
+        // When the sheet goes, tick by tick
+        val going = (0..RISE_TICKS).map { sheetExit(it, BloxEffects.Full) }
+
+        // Then it starts in place, whole, then goes down faster and faster as it fades, with its scrim, gone at its
+        // 18th tick and not before
+        assertThat(sheetExitTicks(BloxEffects.Full)).isEqualTo(RISE_TICKS)
+        assertThat(going.first()).isEqualTo(SheetEntrance.Settled)
+        assertThat(going.zipWithNext()).allSatisfy { (before, after) ->
+            assertThat(after.rise).isGreaterThanOrEqualTo(before.rise)
+            assertThat(after.panelAlpha).isLessThanOrEqualTo(before.panelAlpha)
+            assertThat(after.scrimAlpha).isLessThanOrEqualTo(before.scrimAlpha)
+        }
+        assertThat(going[1].rise).isLessThan(1f - going[RISE_TICKS - 1].rise)
+        assertThat(going[RISE_TICKS - 1].panelAlpha).isGreaterThan(0f)
+        assertThat(going[RISE_TICKS]).isEqualTo(SheetEntrance(rise = 1f, panelAlpha = 0f, scrimAlpha = 0f))
+
+        // And in reduced effects it does not move: it is gone at once
+        assertThat(sheetExitTicks(reduced)).isZero()
+    }
+
     private companion object {
         /** `motion-card`, then `motion-reduced-fade`, in ticks. */
         const val RISE_TICKS = 18
