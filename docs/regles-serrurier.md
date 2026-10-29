@@ -185,9 +185,9 @@ Décidée le 2026-10-28. Demande du développeur : garder l'avancement, poursuiv
 serrures, rouvrir les anciennes.
 Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Une serrure par niveau et ses paliers sont
 faits (P7.29, P7.30) : c'est le jeu décrit plus haut. L'avancement est gardé et écrit à chaque ouverture, la carte
-le montre (P7.31 à P7.33), la cartouche ouvre la frontière (P7.34). Tant que les tâches P7.35 à P7.37 ne sont pas
-faites (écran « Serrures », recommencer depuis le début), le jeu suit les sections précédentes ; chaque règle recevra
-ses tests en son temps.
+le montre (P7.31 à P7.33), la cartouche ouvre la frontière (P7.34), l'écran « Serrures » liste les serrures et
+s'ouvre depuis le disque de la barre de V35 (P7.35, P7.36). Tant que la tâche P7.37 n'est pas faite (recommencer
+depuis le début), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
 
 ### Une serrure par niveau, la même pour tous
 
@@ -347,9 +347,8 @@ solutions) ;
   Toucher une case ouverte la rejoue ; le retour rend la serrure en cours, pièces posées intactes.
   **Fait** (P7.35) : l'écran, clé `PadlocksRoute(current)` de `feature:locksmith` (`current`, la serrure d'où l'on
   vient, numérotée depuis 1, ou aucune ; gardée après la mort du processus), `PadlocksViewModel` et sa fabrique,
-  construite par `app`. Toujours en thème Couleurs, barres système comprises, comme V35. **Navigation encore
-  inactive** : rien n'ouvre l'écran dans l'interface, et toucher une case n'y mène nulle part ; le disque de la barre
-  de V35 et le choix d'une serrure, qui remplace celle de la pile, viennent avec P7.36.
+  construite par `app`. Toujours en thème Couleurs, barres système comprises, comme V35. La navigation (le disque
+  de la barre de V35, le choix d'une serrure) est venue avec P7.36, décrite plus bas.
   - **Barre** : seule la barre (retour, « SERRURES ») est fixe. Le résumé « *n* ouvertes · *m* parfaites », lu
     comme un en-tête, et « Reprendre · Serrure *N* » (la frontière) défilent avec la grille. Rien ne s'affiche avant
     la lecture de l'avancement (pas d'écran vide qui clignote) ; l'écran suit l'avancement ensuite.
@@ -405,6 +404,34 @@ solutions) ;
   `PadlocksScreenTest › a tile that can be touched offers TalkBack to open it, « Ouvrir »`,
   `SystemBarsTest › the padlocks of the locksmith`,
   `BloxNavDisplayTest › the screen of the padlocks over a padlock shows the progress, and back goes back to the padlock`.
+  **Fait** (P7.36, `feature:locksmith`, `app`) : le disque et la navigation.
+  - **Le disque « Serrures »** : le cadenas de la barre de V35 devient un disque de 48 dp (`GlyphButton`), qui dessine
+    le cadenas, anse levée une fois la serrure ouverte. TalkBack le lit « Toutes les serrures », pour ce qu'il ouvre ;
+    le titre de la barre garde son rôle de titre et dit l'état, « fermée » ou « ouverte ». Le trou de serrure du
+    pictogramme est désormais percé dans le dessin ; les cases de l'écran « Serrures » partagent ce pictogramme.
+  - **Ouvrir « Serrures »** (`openPadlocks`, `app`) : le disque empile l'écran par-dessus la serrure, qui y est « en
+    cours ». La serrure reste dessous avec son ViewModel : le retour la rend, ses pièces posées. Un double toucher
+    n'empile pas un second écran.
+  - **Choisir une serrure** (`choosePadlock`, `app`) : une case ou « Reprendre » retire la liste et met la serrure
+    choisie à la place de celle d'en dessous. Choisir celle d'où l'on vient ne fait que revenir : la même clé est
+    gardée, et avec elle le ViewModel et les pièces posées. Sans serrure en dessous, la serrure choisie prend la place
+    de la liste. Un second toucher ne change plus rien.
+  - **Police ×2 à 360 dp** : la barre tient, titre aux mots entiers, coups sur une ligne, disque de 48 dp entier, sans
+    chevauchement (capture `LocksmithBarLargeFontDay`). Les captures `Locksmith*` et `Padlocks*` ont été régénérées
+    (le disque, le trou percé).
+  **Tests :** `NextPadlockTest › the disc of a padlock opens the screen of the padlocks over it, that padlock current`,
+  `NextPadlockTest › a second tap on the disc does not open the screen of the padlocks twice`,
+  `NextPadlockTest › a padlock chosen on the screen of the padlocks takes the place of the padlock under it, and the list goes`,
+  `NextPadlockTest › choosing the padlock one comes from only goes back to it, the same key kept`,
+  `NextPadlockTest › a second tap on the screen of the padlocks moves nothing more`,
+  `NextPadlockTest › with no padlock under the screen of the padlocks, the padlock chosen takes its place`,
+  `BloxNavDisplayTest › the disc of a padlock opens the screen of the padlocks over it, and back finds its piece placed`,
+  `BloxNavDisplayTest › a padlock chosen on the screen of the padlocks takes the place of the padlock, back then leaves it`,
+  `BloxNavDisplayTest › choosing on the screen of the padlocks the padlock one comes from goes back to it, its piece placed`,
+  `LocksmithScreenTest › the disc of the bar, read « Toutes les serrures », opens the padlocks`,
+  `LocksmithScreenTest › the title of the bar tells the padlock closed, then open, the disc being read for what it opens`,
+  `LocksmithScreenTest › in a font twice as large, on 360 dp, the bar holds its title, its moves and a disc of 48 dp`.
+  **Vues :** V35 (la maquette montre encore le cadenas de 24 dp ; elle sera reprise en P7.38).
 - Après avoir rejoué une ancienne serrure, « Serrure suivante » mène à la serrure d'après ; si elle est déjà
   ouverte, la carte ajoute « Reprendre à la serrure *N* ». Une nouvelle meilleure ouverture ou une serrure parfaite
   s'annonce par un autocollant (NOUVEAU MEILLEUR, PARFAITE).
@@ -625,7 +652,7 @@ pour le Classique ; il n'a pas d'aspect Original.
 
 Conception de `designer-jeu` (2026-10-26), en Couleurs v2, téléphone debout d'abord ; vue V35
 de la [maquette](maquette.md) (à dessiner). De haut en bas : barre (retour, « SERRURE 04 »,
-coups, cadenas d'état), bande des accords (une pilule par chiffre romain de `progression`,
+coups, cadenas d'état, devenu en P7.36 le disque « Serrures »), bande des accords (une pilule par chiffre romain de `progression`,
 remplie pour chaque accord de `chords` ; la cadence V–I est la paire des deux dernières),
 serrure (8 × 8 cases de 42 dp au plus, selon la largeur, dans un rebord de métal), message,
 Indice et Recommencer, tuiles des pièces données, puis tourner à gauche, **Poser**, tourner à
@@ -780,15 +807,20 @@ droite.
   elle les commandes ancrées en bas (tourner, **Poser**, tourner), zone plafonnée à la moitié de la hauteur.
   La barre a un bouton retour, son titre en capitales, « SERRURE 03 » (numéro sur deux chiffres ; en
   grande police sur un écran étroit, il rapetisse en mots entiers plutôt que de couper un mot ; P7.25),
-  et un cadenas d'état (24 dp, anse levée une fois ouverte), décoratif pour TalkBack : c'est le titre
-  de la barre qui dit l'état, lu en casse normale, « Serrure 03, fermée » ou « Serrure 03, ouverte ». Les
+  et le disque « Serrures » (48 dp, P7.36), qui dessine le cadenas, anse levée une fois ouverte, et ouvre
+  l'écran « Serrures ». TalkBack lit le disque « Toutes les serrures », pour ce qu'il ouvre, non pour l'état :
+  c'est le titre de la barre, qui garde son rôle de titre, qui dit l'état, lu en casse normale,
+  « Serrure 03, fermée » ou « Serrure 03, ouverte ». En police ×2, la barre tient à 360 dp (titre aux mots
+  entiers, coups sur une ligne, disque entier, sans chevauchement ; capture `LocksmithBarLargeFontDay`). Les
   deux dernières pilules des accords portent une accolade et le mot « cadence ». La tuile choisie et son anneau
   descendent ensemble quand on appuie (ce qu'un écran dessine autour d'un bouton suit le bouton).
   **Tests :** `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
-  `LocksmithScreenTest › the padlock of the bar has no node, the title of the bar tells the padlock closed, then open`,
+  `LocksmithScreenTest › the title of the bar tells the padlock closed, then open, the disc being read for what it opens`,
+  `LocksmithScreenTest › the disc of the bar, read « Toutes les serrures », opens the padlocks`,
   `LocksmithScreenTest › the back button of the bar goes back`,
   `LocksmithScreenTest › the title of the bar is in capitals, its number on two digits, TalkBack reads it in words`,
   `LocksmithScreenTest › in a font twice as large, on 320 dp, the title of the bar keeps its words whole`,
+  `LocksmithScreenTest › in a font twice as large, on 360 dp, the bar holds its title, its moves and a disc of 48 dp`,
   `BloxNavDisplayTest › on the Locksmith, the back button of the bar goes back to the cartridges`,
   `BubbleButtonTest › what a screen draws around a button, as the ring of a chosen tile, goes down with it`.
 - Aperçu sur l'anneau en colonne 0 ou 9 : quand la place manque au-delà du rebord, la case qui déborde est

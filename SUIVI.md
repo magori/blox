@@ -1383,7 +1383,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [x] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
   ouvrir, en cours, verrouillées de sa rangée), état vide, TalkBack, police ×2, captures jour, nuit, grande police.
   Après P7.32.
-- [ ] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
+- [x] **P7.36** Le cadenas de la barre de V35 devient le disque « Serrures » (48 dp) ; navigation dans `app`
   (choisir remplace la serrure sous la liste, le retour garde la serrure en cours). Après P7.35.
 - [ ] **P7.37** Recommencer depuis le début : confirmation dans la page, résultats effacés, pile remise à la
   serrure 1. Après P7.35.
@@ -1419,6 +1419,9 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
 - [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
+- [ ] **P7.50** Bande des accords du Serrurier trop large à 360 dp en police ×2 avec 8 pièces : le dernier accord
+  sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
+  P7.36).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 

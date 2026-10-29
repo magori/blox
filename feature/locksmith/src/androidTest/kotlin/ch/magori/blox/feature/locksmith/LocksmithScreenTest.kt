@@ -234,6 +234,20 @@ internal class LocksmithScreenTest {
     }
 
     @Test
+    @DisplayName("the disc of the bar, read « Toutes les serrures », opens the padlocks")
+    fun theDiscOfTheBarOpensThePadlocks() = extension.use {
+        // Given
+        val touched = mutableListOf<String>()
+        showLocksmith(start, touched)
+
+        // When
+        onNodeWithContentDescription("Toutes les serrures").performClick()
+
+        // Then
+        runOnIdle { assertThat(touched).containsExactly("padlocks") }
+    }
+
+    @Test
     @DisplayName("the journey of the benchmark finds a hole, Place and the first tile by their tags")
     fun theJourneyFindsAHolePlaceAndTheFirstTileByTheirTags() = extension.use {
         // Given
@@ -629,7 +643,7 @@ internal class LocksmithScreenTest {
     }
 
     @Test
-    @DisplayName("the padlock of the bar has no node, the title of the bar tells the padlock closed, then open")
+    @DisplayName("the title of the bar tells the padlock closed, then open, the disc being read for what it opens")
     fun theTitleOfTheBarTellsThePadlockState() = extension.use {
         // Given
         val state = showHosted(LocksmithUiState(level = 3, game = start))
@@ -643,6 +657,7 @@ internal class LocksmithScreenTest {
 
         // Then
         onNodeWithContentDescription("Serrure 03, ouverte").assertExists()
+        onNodeWithContentDescription(string(R.string.feature_locksmith_padlocks)).assertExists()
         onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Serrure ouverte")))
             .assertCountEquals(0)
     }
@@ -674,15 +689,47 @@ internal class LocksmithScreenTest {
         }
 
         // Then SERRURE and 03 each on a line or together, never a word cut from one line to the next
-        val node = onNode(hasText("SERRURE 03"), useUnmergedTree = true).fetchSemanticsNode()
-        val layouts = mutableListOf<TextLayoutResult>()
-        node.config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
-        val layout = layouts.single()
-        val text = layout.layoutInput.text.text
-        val words = List(layout.lineCount) { line ->
-            text.substring(layout.getLineStart(line), layout.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
-        }.flatten()
-        assertThat(words).containsExactly("SERRURE", "03")
+        assertThat(wordsOnTheLinesOf("SERRURE 03")).containsExactly("SERRURE", "03")
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 360 dp, the bar holds its title, its moves and a disc of 48 dp")
+    fun inALargeFontOn360DpTheBarHoldsTheDisc() = extension.use {
+        // Given padlock 21, of 8 pieces, open, in a font twice as large, on a phone of 360 dp
+        val open = PadlockGame.start(Padlock.ofLevel(21)).solved()
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 21, game = open),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(360.dp),
+                )
+            }
+        }
+
+        // Then the disc is a whole touch target within the margin, right of the moves
+        val disc = onNodeWithContentDescription(string(R.string.feature_locksmith_padlocks)).getBoundsInRoot()
+        assertThat((disc.right - disc.left).value).isCloseTo(48f, within(0.5f))
+        assertThat(disc.right).isLessThanOrEqualTo(360.dp - SIDE_MARGIN)
+        val movesText = string(R.string.feature_locksmith_moves, open.moves)
+        val moves = onNodeWithText(movesText).getBoundsInRoot()
+        assertThat(moves.right).isLessThanOrEqualTo(disc.left)
+        // And the title between back and the moves, overlapping neither, its words whole
+        val back = onNodeWithContentDescription(string(R.string.feature_locksmith_back)).getBoundsInRoot()
+        val title = onNodeWithText("SERRURE 21").getBoundsInRoot()
+        assertThat(back.right).isLessThanOrEqualTo(title.left)
+        assertThat(title.right).isLessThanOrEqualTo(moves.left)
+        assertThat(wordsOnTheLinesOf("SERRURE 21")).containsExactly("SERRURE", "21")
+        // And the moves on one line, each line of the moves and of the title within its width: nothing cut
+        listOf(movesText, "SERRURE 21").forEach { text ->
+            val layout = layoutOf(text)
+            repeat(layout.lineCount) { line ->
+                assertThat(layout.getLineRight(line)).describedAs("$text, line $line")
+                    .isLessThanOrEqualTo(layout.size.width.toFloat())
+            }
+            if (text == movesText) assertThat(layout.lineCount).describedAs(text).isEqualTo(1)
+        }
     }
 
     @ParameterizedTest
@@ -886,8 +933,26 @@ internal class LocksmithScreenTest {
             onRestart = { touched += "restart" },
             onNext = { touched += "next" },
             onResume = { frontier -> touched += "resume $frontier" },
+            onPadlocks = { touched += "padlocks" },
         )
         setContent { LocksmithScreen(state = state, actions = actions) }
+    }
+
+    /** The layout of the text [text], as drawn. */
+    private fun ComposeContext.layoutOf(text: String): TextLayoutResult {
+        val layouts = mutableListOf<TextLayoutResult>()
+        onNode(hasText(text), useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single()
+    }
+
+    /** The words of the text [text], line by line as drawn: a word cut from one line to the next shows as two. */
+    private fun ComposeContext.wordsOnTheLinesOf(text: String): List<String> {
+        val layout = layoutOf(text)
+        val drawn = layout.layoutInput.text.text
+        return List(layout.lineCount) { line ->
+            drawn.substring(layout.getLineStart(line), layout.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
+        }.flatten()
     }
 
     /** The screen of a state the test changes, starting from [initial]. */
@@ -913,6 +978,7 @@ internal class LocksmithScreenTest {
         onRestart = viewModel::restart,
         onNext = {},
         onResume = {},
+        onPadlocks = {},
     )
 
     /** These actions, Restart replaced by [onRestart]. */
@@ -927,6 +993,7 @@ internal class LocksmithScreenTest {
         onRestart = onRestart,
         onNext = onNext,
         onResume = onResume,
+        onPadlocks = onPadlocks,
     )
 
     private companion object {
