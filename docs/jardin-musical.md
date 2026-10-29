@@ -376,7 +376,7 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
 - **Feuille « Mes jardins »** (`BloxSheet`) : les boutons en haut, le compteur (« 7 jardins sur 30 »), puis la
   liste, du plus récent au plus ancien (à date égale, le dernier gardé d'abord) : miniature (`GardenThumbnail`,
   P10.31), nom, ambiance et nombre de pièces (« Calme · 12 pièces »), « ouvert » (pastille et coche) pour le
-  jardin lié ; le menu « … » (Renommer, Supprimer) vient avec P10.30. La musique en cours joue sous la feuille.
+  jardin lié, et le menu « … » (Renommer, Supprimer, P10.30). La musique en cours joue sous la feuille.
   États : chargement (boutons grisés, pas de liste), liste vide (« Aucun jardin gardé. » puis « Garde celui-ci
   pour le retrouver plus tard. »), échec (« L'opération a échoué. »), jardins illisibles, dont un fichier d'une
   version plus récente (liste vide, écriture bloquée, « Ces jardins ne peuvent pas être lus : rien ne peut être
@@ -443,14 +443,79 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `MyGardensScreenTest › a garden as it was kept greys « Enregistrer « X » » and says why`.
 - **Branchement** (`app`) : `AppContainer` construit `DataStoreGardenLibrary` et la passe à
   `GardenViewModel.Factory`, avec le jardin gardé et la portée de l'application.
-- **Rouvrir** : toucher une rangée ferme la feuille et remplace le jardin en cours (`adopt`, à la mesure
-  suivante pendant l'écoute), avec « « X » ouvert » et Annuler, comme Au hasard et Tout effacer ; toucher le
-  jardin déjà ouvert et inchangé ne fait que fermer la feuille.
-- **Supprimer** : par le menu de la rangée, fenêtre « Supprimer « X » ? » (« Garder le jardin », puis
-  « Supprimer »), message avec Annuler qui le remet à sa place (sous un nom libre si le sien a été pris). Le
-  jardin ouvert supprimé reste à l'écran, sans lien.
-- **TalkBack** : une rangée se lit d'un trait (« Pluie douce, Calme, 12 pièces, ouvert »), action « Ouvrir »,
-  Renommer et Supprimer en actions personnalisées ; miniature décorative ; messages annoncés.
+- **Rouvrir** (P10.30) : toucher une rangée ferme la feuille et remplace le jardin en cours par le jardin gardé,
+  lié à lui (`keep(current)`), puis l'affiche (`adopt`) ; pendant l'écoute, le changement s'entend à la mesure
+  suivante (`switchTo`). L'écriture passe d'abord : si elle échoue, la feuille reste ouverte, le jardin en cours ne
+  change pas, et la feuille dit « L'opération a échoué. ». Ensuite « « X » ouvert » s'affiche avec Annuler, comme Au
+  hasard et Tout effacer ; Annuler rend le jardin d'avant avec son lien. Toucher le jardin déjà ouvert et inchangé ne
+  fait que fermer la feuille ; ouvert mais changé depuis, il est rouvert tel qu'il a été gardé, avec Annuler. Le
+  jardin ouvert ne montre pas d'aperçu. Pendant l'écriture, la feuille est grisée : un second toucher n'ouvre rien de
+  plus. Un geste (une pièce posée) pendant l'écriture d'une ouverture ou d'un Annuler laisse à l'écran le jardin
+  affiché, que l'écran réécrit alors avec le lien montré, pour que l'écran et le disque concordent.
+  **Tests :** `GardenReopeningTest › a kept garden opened takes the place of the garden under way, which comes from it, and the sheet closes`,
+  `GardenReopeningTest › a kept garden opened is told, with Annuler`,
+  `GardenReopeningTest › Annuler gives back the garden from before, with the kept garden it came from`,
+  `GardenReopeningTest › touching the garden open, as it was kept, only closes the sheet`,
+  `GardenReopeningTest › the garden open but changed since is opened again as it was kept, with Annuler`,
+  `GardenReopeningTest › while listening, the garden opened, then the one Annuler gives back, are heard at the bar line`,
+  `GardenReopeningTest › a kept garden that cannot be opened leaves the sheet open and the garden under way, and it tells it`,
+  `GardenReopeningTest › while a kept garden is being opened the sheet is busy, and a second touch opens nothing more`,
+  `GardenReopeningTest › a piece placed while Annuler is being written stays on screen, kept with the link shown`,
+  `GardenReopeningTest › a kept garden being opened while the sheet is closed and a piece placed leaves the garden shown`,
+  `GardenReopeningTest › a kept garden opened shows no preview`,
+  `MyGardensScreenTest › a row touched opens its garden, told with Annuler, which gives back the garden from before` ;
+  capture `GardenOpened`.
+- **Annuler** (P10.30), d'une ouverture comme d'une suppression : il restaure, puis relie. Un échec est dit
+  (« L'opération a échoué. ») et Annuler reste offert, pour réessayer ; un `restore` refusé (bibliothèque de nouveau
+  pleine depuis la suppression) est dit comme un échec. Pendant son écriture, un second Annuler ne rend rien de plus.
+  **Tests :** `GardenReopeningTest › Annuler that cannot be written leaves the garden opened, and Annuler offered to try again`,
+  `GardenReopeningTest › while Annuler is being written a second Annuler gives back nothing more`,
+  `GardenReopeningTest › an Annuler that cannot be written is told`,
+  `GardenDeletingTest › Annuler that puts the garden open back but cannot link it again tells it, offered to try again`,
+  `GardenDeletingTest › Annuler refused by a library full again since the deletion is told`,
+  `MyGardensScreenTest › an Annuler that could not be written says the operation failed, Annuler still offered`.
+- **Menu « … » de la rangée** (P10.30) : un disque de 48 dp en bout de rangée propose Renommer et Supprimer. À la
+  fermeture de la fenêtre ouverte depuis le menu, le focus revient au « … » de sa rangée.
+  **Test :** `MyGardensScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its row`.
+- **Renommer** (P10.30) : `NamingWindow` sur le nom actuel du jardin, aux règles de nom de « Garder » ; le jardin
+  peut garder son propre nom, dans une autre casse ou non, pas celui d'un autre. Un nom accepté renomme le jardin
+  (`rename`), la fenêtre se ferme et la feuille reste ouverte ; un nom refusé ne renomme rien ; un échec garde la
+  fenêtre ouverte et le dit. Pendant l'écriture, un second Renommer ne renomme rien de plus.
+  **Tests :** `GardenRenamingTest › Renommer opens the window of the name on the name of the garden`,
+  `GardenRenamingTest › a garden renamed may keep its own name, whatever its case, not the name of another one`,
+  `GardenRenamingTest › a garden renamed takes the name typed, and the window closes, the sheet still open`,
+  `GardenRenamingTest › a name refused renames nothing, the window still open`,
+  `GardenRenamingTest › a garden that cannot be renamed leaves the window open, and it tells it`,
+  `GardenRenamingTest › while a garden is being renamed a second Renommer renames nothing more`,
+  `MyGardensScreenTest › Renommer from the menu of a row renames it under the name typed` ;
+  captures `GardenRenaming`, `GardenRenamingLargeFont`.
+- **Supprimer** (P10.30) : par le menu de la rangée, fenêtre de confirmation `DeleteWindow` « Supprimer « X » ? »
+  (« Garder le jardin », qui la ferme sans rien supprimer, puis « Supprimer »). Pendant l'écriture, la fenêtre est
+  grisée (`DeleteWindow(waiting)`, `core:designsystem`) : un second Supprimer ne supprime rien de plus. Le jardin
+  supprimé quitte la liste ; la feuille reste ouverte et dit en bas « « X » supprimé. » avec Annuler, qui le remet à
+  sa place (sous un nom libre si le sien a été pris) et lui rend son lien s'il était le jardin ouvert. Tant que la
+  feuille est ouverte, l'écran n'affiche pas son propre message. Un échec garde la fenêtre ouverte et le dit. Le
+  jardin ouvert supprimé reste à l'écran, sans lien : le lien est retiré d'abord, puis le jardin est supprimé, même
+  si l'écran est quitté entre-temps. Si le lien ne peut être retiré, rien n'est supprimé ; si la suppression échoue
+  ensuite, le jardin reste gardé et non lié, et la fenêtre le dit.
+  **Tests :** `GardenDeletingTest › Supprimer asks to confirm the deletion of the garden`,
+  `GardenDeletingTest › Garder le jardin closes the window and deletes nothing, the sheet still open`,
+  `GardenDeletingTest › a garden deleted leaves the list, and its deletion is told with Annuler, the sheet still open`,
+  `GardenDeletingTest › Annuler puts the deleted garden back at its place, and is no longer offered`,
+  `GardenDeletingTest › the garden open deleted stays on screen, no longer coming from it`,
+  `GardenDeletingTest › Annuler after the deletion of the garden open makes the garden under way come from it again`,
+  `GardenDeletingTest › a garden that cannot be deleted leaves the window open, and it tells it`,
+  `GardenDeletingTest › the garden open whose link cannot be removed is not deleted, and the window tells it`,
+  `GardenDeletingTest › the garden open deleted while the screen is left no longer comes from it all the same`,
+  `GardenDeletingTest › while a garden is being deleted a second Supprimer deletes nothing more`,
+  `GardenDeletingTest › the garden open that cannot be deleted stays listed, no longer linked, and the window tells it`,
+  `MyGardensScreenTest › Supprimer from the menu asks to confirm, then tells the deletion with Annuler, which puts it back`,
+  `MyGardensScreenTest › while a garden is being deleted, its window is greyed`,
+  `ConfirmWindowTest › a deletion that waits for its answer to be written has both answers disabled` ;
+  captures `MyGardensDeleted`, `GardenDeleting`, `GardenDeletingLargeFont`.
+- **TalkBack** (P10.30) : une rangée se lit d'un trait (« Pluie douce, Calme, 12 pièces, ouvert »), avec l'action
+  « Ouvrir » et deux actions personnalisées, Renommer et Supprimer ; miniature décorative ; messages annoncés.
+  **Test :** `MyGardensScreenTest › a row is read in one, opened by « Ouvrir », Renommer and Supprimer as its actions`.
 - **Sauvegarde Android** : `gardens.bin` y entre, comme `garden.bin` (P10.27).
 - Couleurs seulement, comme tout le Jardin ; police ×2 : noms sur 2 lignes puis coupés aux mots, la feuille
   défile ; cibles de 48 dp, rangées de 72 dp au moins.

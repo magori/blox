@@ -1475,7 +1475,8 @@ Vues : V7 à V18.
 - **Fenêtres** (`core:designsystem`, `NamingWindow`, `DeleteWindow`, `Window*`) : les fenêtres
   Renommer, Enregistrer et Supprimer des deux écrans sont les mêmes composables, aux textes passés
   en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. De même pendant
-  l'écriture du nom, `NamingWindow(busy)` (P10.29 : la fenêtre du nom de Mes jardins, `jardin-musical.md`). Les fenêtres
+  l'écriture du nom, `NamingWindow(busy)` (P10.29 : la fenêtre du nom de Mes jardins, `jardin-musical.md`), et pendant
+  l'écriture d'une suppression, `DeleteWindow(waiting)` grise ses deux réponses (P10.30, Mes jardins). Les fenêtres
   de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses empilées (P5.98), la sûre d'abord
   (TalkBack les lit dans cet ordre), motif de refus du nom annoncé par TalkBack, erreur du champ en
   `ink` (le texte la porte), note de suppression en `ink`. Un seul texte d'échec, « L'opération a

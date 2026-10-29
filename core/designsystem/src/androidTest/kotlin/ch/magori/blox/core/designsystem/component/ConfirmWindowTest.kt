@@ -72,6 +72,27 @@ internal class ConfirmWindowTest {
         onNode(hasText("Effacer le record") and hasClickAction()).assertIsNotEnabled()
     }
 
+    @Test
+    @DisplayName("a deletion that waits for its answer to be written has both answers disabled")
+    fun aDeletionThatWaitsHasItsAnswersDisabled() = extension.use {
+        // Given
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                DeleteWindow(
+                    name = "Pluie douce",
+                    keep = "Garder le jardin",
+                    onConfirm = {},
+                    onDismiss = {},
+                    waiting = true,
+                )
+            }
+        }
+
+        // Then
+        onNode(hasText("Garder le jardin") and hasClickAction()).assertIsNotEnabled()
+        onNode(hasText("Supprimer") and hasClickAction()).assertIsNotEnabled()
+    }
+
     /** The window that asks whether to clear the record, [failed] once or not, [waiting] for its answer or not. */
     private fun ComposeContext.showWindow(
         failed: Boolean = false,

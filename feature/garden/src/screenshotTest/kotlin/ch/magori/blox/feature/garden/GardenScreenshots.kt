@@ -136,3 +136,33 @@ private fun GardenNaming() = GardenNamingPreview()
 @Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
 @Composable
 private fun GardenNamingLargeFont() = GardenNamingLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenOpened() = GardenOpenedPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun MyGardensDeleted() = MyGardensDeletedPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenRenaming() = GardenRenamingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun GardenRenamingLargeFont() = GardenRenamingLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun GardenDeleting() = GardenDeletingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun GardenDeletingLargeFont() = GardenDeletingLargeFontPreview()

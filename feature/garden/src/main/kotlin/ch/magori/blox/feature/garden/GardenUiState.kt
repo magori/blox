@@ -21,7 +21,8 @@ import ch.magori.blox.core.garden.GardenRefusal
  * last [change] of the garden, which the screen animates (docs/jardin-musical.md, Retours), null when it animates none;
  * [move] counts the changes of the garden, so that two same changes in a row stay two feedbacks. The kept garden the
  * garden under way comes from, [keptFrom], null if none, what the screen knows of « Mes jardins », [myGardens], and its
- * [sheet], while it is open; the name of the garden just kept, [keptName], while the message « « X » gardé. » shows.
+ * [sheet], while it is open; the name of the garden just kept, [keptName], while the message « « X » gardé. » shows;
+ * whether « Annuler » could not be written, [undoFailed]: its message then says so, « Annuler » still offered.
  */
 @Immutable
 internal data class GardenUiState(
@@ -29,7 +30,7 @@ internal data class GardenUiState(
     val chosen: PieceType = PieceType.T,
     val orientation: Orientation = ClassicRotationSystem.spawnOrientation(chosen),
     val aim: Position? = null,
-    val undo: Garden? = null,
+    val undo: GardenUndo? = null,
     val playedColumn: Int? = null,
     val change: GardenChange? = null,
     val move: Int = 0,
@@ -37,6 +38,7 @@ internal data class GardenUiState(
     val myGardens: MyGardens = MyGardens.Loading,
     val sheet: GardensSheet? = null,
     val keptName: String? = null,
+    val undoFailed: Boolean = false,
 ) {
     /**
      * Why the garden under way cannot be kept as a new garden: the gardens not read, or unreadable; an empty garden;
