@@ -68,7 +68,9 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 /**
  * The choice of the game (V36), the first screen of the application: the logo, then « Choix du jeu », its heading, then
  * the [cartridges] on two columns, the last one centred below when they are odd in number ([Cartridges]), each read by
- * TalkBack as a button of its name; those of [newCartridges] bear the sticker NOUVELLE, read after their name. Tapping a
+ * TalkBack as a button of its name; those of [newCartridges] bear the sticker NOUVELLE, read after their name. The
+ * Locksmith bears the line « Serrure N », its [padlockFrontier], the first padlock not open, which it opens; none
+ * before the frontier is read (null), rather than a line that may change. Tapping a
  * cartridge hands it to [onOpen], which opens its game. Drawn in the Colorful theme whatever the theme chosen, as the
  * Serrurier and the Graine du jour: the Original theme is frozen (ADR 0026).
  */
@@ -76,10 +78,11 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFit
 internal fun CartridgesScreen(
     cartridges: List<Cartridge>,
     newCartridges: Set<Cartridge>,
+    padlockFrontier: Int?,
     onOpen: (Cartridge) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ColorfulTheme { CartridgesPage(cartridges, newCartridges, onOpen, modifier) }
+    ColorfulTheme { CartridgesPage(cartridges, newCartridges, padlockFrontier, onOpen, modifier) }
 }
 
 /** The page of the choice of the game, in the theme around it. */
@@ -87,6 +90,7 @@ internal fun CartridgesScreen(
 private fun CartridgesPage(
     cartridges: List<Cartridge>,
     newCartridges: Set<Cartridge>,
+    padlockFrontier: Int?,
     onOpen: (Cartridge) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -101,7 +105,7 @@ private fun CartridgesPage(
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Title()
-        Cartridges(cartridges, newCartridges, onOpen)
+        Cartridges(cartridges, newCartridges, padlockFrontier, onOpen)
         Text(
             text = stringResource(R.string.feature_cartridges_hint),
             color = BloxTheme.palette.label,
@@ -147,6 +151,7 @@ private fun Title() {
 private fun Cartridges(
     cartridges: List<Cartridge>,
     newCartridges: Set<Cartridge>,
+    padlockFrontier: Int?,
     onOpen: (Cartridge) -> Unit,
 ) {
     val gap = BloxSpaces.space4
@@ -160,10 +165,15 @@ private fun Cartridges(
         val smallest = style.copy(fontSize = density.shrinkFloor(style.fontSize))
         names.maxOf { measurer.widestWord(it, smallest) }
     }
-    // The name of every cartridge on a place two lines high at full size: the cartridges stand as high as each other.
-    val nameHeight = remember(measurer, style, density) {
-        with(density) { measurer.measure(TWO_LINES, style).size.height.toDp() }
+    // The name of every cartridge on a place two lines high at full size, and one line below it for the line of the
+    // Locksmith: the cartridges stand as high as each other, the frontier read or not.
+    val lineStyle = cartridgeLineStyle()
+    val nameHeight = remember(measurer, style, lineStyle, density) {
+        with(density) {
+            (measurer.measure(TWO_LINES, style).size.height + measurer.measure(ONE_LINE, lineStyle).size.height).toDp()
+        }
     }
+    val padlockLine = padlockFrontier?.let { stringResource(R.string.feature_cartridges_padlock, it) }
     BoxWithConstraints(modifier = Modifier.widthIn(max = CARTRIDGE_WIDTH * COLUMNS + gap)) {
         val twoColumns = with(density) {
             holdSideBySide(
@@ -189,6 +199,7 @@ private fun Cartridges(
                         CartridgeCard(
                             cartridge = cartridge,
                             new = cartridge in newCartridges,
+                            line = padlockLine.takeIf { cartridge == Cartridge.LOCKSMITH },
                             nameHeight = nameHeight,
                             onClick = dropUnlessResumed { onOpen(cartridge) },
                             modifier = Modifier.width(width),
@@ -202,14 +213,15 @@ private fun Cartridges(
 
 /**
  * A cartridge (V36): a bubble button in the corners of a window, its grip at the top, its window in the `iris` gradient
- * where the mascot of its game stands, its name, and its pins at the bottom. It goes down as a
- * bubble button when pressed. One button for TalkBack, read by its name, then « Nouvelle » when it is [new]: it then
- * bears the sticker NOUVELLE over its top right corner.
+ * where the mascot of its game stands, its name and its [line], if it has one, and its pins at the bottom. It goes down
+ * as a bubble button when pressed. One button for TalkBack, read by its name, then its line, then « Nouvelle » when it
+ * is [new]: it then bears the sticker NOUVELLE over its top right corner.
  */
 @Composable
 private fun CartridgeCard(
     cartridge: Cartridge,
     new: Boolean,
+    line: String?,
     nameHeight: Dp,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
@@ -240,7 +252,7 @@ private fun CartridgeCard(
                         .background(palette.panelBorder, shapes.pill),
                 )
                 CartridgeWindow(cartridge, Modifier.padding(top = CARTRIDGE_EDGE, bottom = BloxSpaces.space2))
-                CartridgeName(cartridge, nameHeight)
+                CartridgeName(cartridge, line, nameHeight)
                 Pins(Modifier.padding(top = BloxSpaces.space2))
             }
         }
@@ -309,18 +321,21 @@ private fun NewSticker(
 
 /**
  * The name of [cartridge], centred, on as few lines as it can, two at most, never cut inside a word: in a large font,
- * or on a narrow cartridge, it shrinks rather than being cut. Its place is [height] high at least, two lines at full
- * size, so that every cartridge stands as high as the others.
+ * or on a narrow cartridge, it shrinks rather than being cut. Below it, its [line], if it has one, `small` in `label`,
+ * on one line, which shrinks rather than being cut. Their place is [height] high at least, two lines of the name and one
+ * line at full size, so that every cartridge stands as high as the others, with a line or without.
  */
 @Composable
 private fun CartridgeName(
     cartridge: Cartridge,
+    line: String?,
     height: Dp,
 ) {
     val style = cartridgeNameStyle()
-    Box(
+    Column(
         modifier = Modifier.fillMaxWidth().heightIn(min = height),
-        contentAlignment = Alignment.Center,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text(
             text = stringResource(cartridge.label),
@@ -329,8 +344,25 @@ private fun CartridgeName(
             maxLines = 2,
             autoSize = shrinkToFewestLines(style.fontSize),
         )
+        if (line != null) {
+            val lineStyle = cartridgeLineStyle()
+            Text(
+                text = line,
+                color = BloxTheme.palette.label,
+                style = lineStyle,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                softWrap = false,
+                autoSize = shrinkToFit(lineStyle.fontSize),
+            )
+        }
     }
 }
+
+/** The style of the line of a cartridge, below its name: `small`, as the line of a setting. */
+@Composable
+@ReadOnlyComposable
+private fun cartridgeLineStyle(): TextStyle = MaterialTheme.typography.bodyMedium.merge(BloxTheme.typography.small)
 
 /** The style of the name of a cartridge: that of Jouer, at 15 sp. */
 @Composable
@@ -365,6 +397,9 @@ private const val IRIS_MIDDLE = 0.55f
 
 /** Two lines, to measure the place of a name. */
 private const val TWO_LINES = "A\nA"
+
+/** One line, to measure the place of the line of a cartridge. */
+private const val ONE_LINE = "A"
 
 /** The cartridges go two by row. */
 private const val COLUMNS = 2
@@ -415,12 +450,17 @@ private val STICKER_MAX_WIDTH = 140.dp
 
 /**
  * The choice of the game under the Original theme of the application, as at the first start: it draws itself in the
- * Colorful theme. The Graine du jour new.
+ * Colorful theme. The Graine du jour new, padlocks 1 to 12 open.
  */
 @Composable
 private fun CartridgesPreview() {
     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        CartridgesScreen(cartridges = Cartridge.entries, newCartridges = setOf(Cartridge.DAILY), onOpen = {})
+        CartridgesScreen(
+            cartridges = Cartridge.entries,
+            newCartridges = setOf(Cartridge.DAILY),
+            padlockFrontier = 13,
+            onOpen = {},
+        )
     }
 }
 

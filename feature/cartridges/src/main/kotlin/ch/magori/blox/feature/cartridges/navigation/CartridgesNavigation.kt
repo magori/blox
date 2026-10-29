@@ -8,6 +8,7 @@ import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.cartridges.Cartridge
 import ch.magori.blox.feature.cartridges.CartridgesScreen
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.Serializable
 
 /** Clé du choix du jeu, les cartouches (vue V36), à la racine de la pile (ADR 0022). */
@@ -19,15 +20,25 @@ data object CartridgesRoute : NavKey
  * donne celles qui portent l'autocollant « NOUVELLE », et [currentNewCartridges] celles qui le portent à l'instant,
  * valeur de la première image : l'écran qui revient le montre dès cette image, sans clignoter. `app` les tire des
  * résultats de la Graine du jour et de la date, que cette feature ne connaît pas. [onOpen] reçoit la cartouche touchée,
- * dont `app` ouvre le jeu. Sans ViewModel : la liste est statique, et l'autocollant vient d'un flux.
+ * dont `app` ouvre le jeu. De même, [padlockFrontier] donne la frontière du Serrurier, la première serrure non ouverte,
+ * que sa cartouche nomme (« Serrure N »), nulle tant que l'avancement n'est pas lu : `app` la tire de l'avancement des
+ * serrures, que cette feature ne connaît pas. Sans ViewModel : la liste est statique, l'autocollant et la sous-ligne
+ * viennent de flux.
  */
 fun EntryProviderScope<NavKey>.cartridgesEntry(
     newCartridges: Flow<Set<Cartridge>>,
     currentNewCartridges: () -> Set<Cartridge>,
+    padlockFrontier: StateFlow<Int?>,
     onOpen: (Cartridge) -> Unit,
 ) {
     entry<CartridgesRoute> {
         val new by newCartridges.collectAsStateWithLifecycle(initialValue = remember { currentNewCartridges() })
-        CartridgesScreen(cartridges = Cartridge.entries, newCartridges = new, onOpen = onOpen)
+        val frontier by padlockFrontier.collectAsStateWithLifecycle()
+        CartridgesScreen(
+            cartridges = Cartridge.entries,
+            newCartridges = new,
+            padlockFrontier = frontier,
+            onOpen = onOpen,
+        )
     }
 }
