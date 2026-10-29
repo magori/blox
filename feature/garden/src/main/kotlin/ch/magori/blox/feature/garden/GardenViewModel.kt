@@ -9,6 +9,7 @@ import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.audio.playCues
 import ch.magori.blox.core.data.CurrentGarden
+import ch.magori.blox.core.data.GardenId
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.KeptGarden
@@ -96,6 +97,9 @@ class GardenViewModel internal constructor(
     /** The time « « X » gardé. » still shows, counted from the last garden kept. */
     private var keptMessage: Job? = null
 
+    /** The write of what « Annuler » gives back, while it is under way: a second Annuler gives back nothing more. */
+    private var undoing: Job? = null
+
     init {
         // Read once: only this screen writes the garden kept. A garden adopted meanwhile is not replaced by it. Any
         // failure other than an unreadable garden (which the repository absorbs) is a bug, and is not swallowed here.
@@ -146,23 +150,21 @@ class GardenViewModel internal constructor(
     }
 
     /**
-     * The name [typed] in the window, cut at the longest a name may be, and why it is refused, if it is; a failure told
-     * before is no longer.
+     * The name [typed] in the window, cut at the longest a name may be, and why it is refused, if it is: a garden renamed
+     * may keep its own, whatever its case. A failure told before is no longer.
      */
     internal fun changeName(typed: String) {
         state.update { current ->
             val sheet = current?.sheet ?: return@update current
             val naming = sheet.naming ?: return@update current
             val name = cutName(typed)
-            val problem = current.keptGardens.nameProblem(name)
-            current.copy(sheet = sheet.copy(naming = GardenNaming(name = name, problem = problem)))
+            val problem = current.keptGardens.nameProblem(name, apartFrom = naming.renaming?.id)
+            current.copy(sheet = sheet.copy(naming = GardenNaming(name, problem, renaming = naming.renaming)))
         }
     }
 
     /** Annuler: the window of the name closes, the sheet still open. */
-    internal fun cancelNaming() {
-        state.update { current -> current?.sheet?.let { current.copy(sheet = it.copy(naming = null)) } ?: current }
-    }
+    internal fun cancelNaming() = sheetChanged { it.copy(naming = null) }
 
     /**
      * Garder, in the window of the name: keeps the garden under way under the name typed, then keeps the garden under
@@ -178,7 +180,7 @@ class GardenViewModel internal constructor(
         if (sheet.writing || current.keepRefusal != null || current.keptGardens.nameProblem(naming.name) != null) return
         val library = library
         val kept = kept
-        writeGardens(messageMillis) {
+        writeGardens {
             val keptGarden = try {
                 library.keep(naming.name.trim(), current.garden)
             } catch (_: IOException) {
@@ -189,7 +191,7 @@ class GardenViewModel internal constructor(
             } catch (_: IOException) {
                 return@writeGardens GardensWrite.Failed { GardensSheet(failed = true) }
             }
-            GardensWrite.Kept(keptGarden)
+            GardensWrite.Done { toldKept(keptGarden, messageMillis) }
         }
     }
 
@@ -204,9 +206,9 @@ class GardenViewModel internal constructor(
         val sheet = current.sheet ?: return
         if (sheet.writing || !current.canSaveInPlace) return
         val library = library
-        writeGardens(messageMillis) {
+        writeGardens {
             try {
-                GardensWrite.Kept(library.replace(linked.id, current.garden))
+                library.replace(linked.id, current.garden).let { GardensWrite.Done { toldKept(it, messageMillis) } }
             } catch (_: IOException) {
                 GardensWrite.Failed { it.copy(failed = true) }
             }
@@ -214,28 +216,138 @@ class GardenViewModel internal constructor(
     }
 
     /**
-     * Writes a change of the kept gardens by [write], the sheet greyed meanwhile, in the scope of the application under
-     * [writes], after the changes of the garden before it: it ends even when the screen is left. Then tells what it
-     * gave: a garden kept ([toldKept]), or a sheet left open as it failed. Any failure other than an [IOException] is a
-     * bug, and goes through to [appScope].
+     * Rouvrir: the kept garden of [id] in place of the garden under way, which then comes from it; « « X » ouvert » and
+     * « Annuler », offered for [undoMillis], give back the garden from before and its link.
      */
-    private fun writeGardens(
-        messageMillis: Long,
-        write: suspend () -> GardensWrite,
+    internal fun openKept(
+        id: GardenId,
+        undoMillis: Long,
+    ) {
+        val current = state.value ?: return
+        if (current.sheet?.writing != false) return
+        val opening = current.keptGardens.find { it.id == id } ?: return
+        if (opening == current.linked && !current.modified) return closeMyGardens()
+        val kept = kept
+        writeGardens {
+            try {
+                kept.keep(CurrentGarden(opening.garden, keptFrom = opening.id))
+            } catch (_: IOException) {
+                return@writeGardens GardensWrite.Failed { it.copy(failed = true) }
+            }
+            GardensWrite.Done done@{
+                // The sheet closed meanwhile: the garden shown stays, and so does its link, on the device too.
+                if (state.value?.sheet == null) return@done keepShown()
+                showWritten(CurrentGarden(opening.garden, keptFrom = opening.id))
+                state.update { it?.copy(sheet = null, aim = null) }
+                offerUndo(GardenUndo.Opened(opening.name, current.garden, current.keptFrom), undoMillis)
+            }
+        }
+    }
+
+    /** Renommer, in the menu of the row of the kept garden of [id]: the window of the name opens on its name. */
+    internal fun startRenaming(id: GardenId) = onRow(id) { sheet, renaming ->
+        sheet.copy(naming = GardenNaming(renaming.name, renaming = renaming))
+    }
+
+    /** Renommer, in the window of the name: the garden renamed takes the name typed, and the window closes. */
+    internal fun confirmRenaming() {
+        val current = state.value ?: return
+        if (current.sheet?.writing == true) return
+        val naming = current.sheet?.naming ?: return
+        val renaming = naming.renaming ?: return
+        if (current.keptGardens.nameProblem(naming.name, apartFrom = renaming.id) != null) return
+        val library = library
+        writeGardens {
+            try {
+                library.rename(renaming.id, naming.name.trim())
+            } catch (_: IOException) {
+                return@writeGardens GardensWrite.Failed { it.copy(naming = it.naming?.copy(failed = true)) }
+            }
+            GardensWrite.Done { sheetChanged { it.copy(naming = null) } }
+        }
+    }
+
+    /** Supprimer, in the menu of the row of the kept garden of [id]: « Supprimer « X » ? » opens. */
+    internal fun startDeleting(id: GardenId) = onRow(id) { sheet, deleting ->
+        sheet.copy(deleting = GardenDeleting(deleting))
+    }
+
+    /** Garder le jardin: the window of the deletion closes, the sheet still open. */
+    internal fun cancelDeleting() = sheetChanged { it.copy(deleting = null) }
+
+    /**
+     * Supprimer, in the window of the deletion: the garden leaves the list, the window closes, the sheet still open, and
+     * « Annuler » is offered for [undoMillis] to put it back. The garden open is unlinked first, then deleted: whichever
+     * step fails, the window stays open and tells it, the garden still kept, linked only if nothing was written.
+     */
+    internal fun confirmDeleting(undoMillis: Long) {
+        val current = state.value ?: return
+        if (current.sheet?.writing == true) return
+        val deleting = current.sheet?.deleting ?: return
+        val linked = current.keptFrom == deleting.garden.id
+        val library = library
+        val kept = kept
+        val failed: (GardensSheet) -> GardensSheet = { it.copy(deleting = it.deleting?.copy(failed = true)) }
+        val unlinked = { state.update { it?.copy(keptFrom = null) } }
+        writeGardens {
+            try {
+                if (linked) kept.keep(CurrentGarden(current.garden, keptFrom = null))
+            } catch (_: IOException) {
+                return@writeGardens GardensWrite.Failed(sheet = failed)
+            }
+            val deleted = try {
+                library.delete(deleting.garden.id)
+            } catch (_: IOException) {
+                return@writeGardens GardensWrite.Failed(then = { if (linked) unlinked() }, sheet = failed)
+            }
+            GardensWrite.Done {
+                sheetChanged { it.copy(deleting = null) }
+                if (linked) unlinked()
+                deleted?.let { offerUndo(GardenUndo.Deleted(it, linked), undoMillis) }
+            }
+        }
+    }
+
+    /**
+     * The sheet as [open] opens a window on the row of the kept garden of [id], while the sheet is open and lists it.
+     */
+    private fun onRow(
+        id: GardenId,
+        open: (GardensSheet, KeptGarden) -> GardensSheet,
     ) {
         state.update { current ->
-            current?.sheet?.let { current.copy(sheet = it.copy(writing = true, failed = false)) }
+            val sheet = current?.sheet ?: return@update current
+            val kept = current.keptGardens.find { it.id == id } ?: return@update current
+            current.copy(sheet = open(sheet, kept))
         }
+    }
+
+    /**
+     * Writes a change of the kept gardens by [write], the sheet greyed meanwhile, in the scope of the application under
+     * [writes], after the changes of the garden before it: it ends even when the screen is left. Then, the sheet no
+     * longer greyed, tells what it gave: a change written, as [GardensWrite.Done] tells it, or a sheet left open as it
+     * failed. Any failure other than an [IOException] is a bug, and goes through to [appScope].
+     */
+    private fun writeGardens(write: suspend () -> GardensWrite) {
+        sheetChanged { it.copy(writing = true, failed = false) }
         val writes = writes
         appScope.launch {
-            when (val written = writes.withLock { write() }) {
-                is GardensWrite.Kept -> toldKept(written.garden, messageMillis)
+            val written = writes.withLock { write() }
+            sheetChanged { it.copy(writing = false) }
+            when (written) {
+                is GardensWrite.Done -> written.then()
 
-                is GardensWrite.Failed -> state.update { current ->
-                    current?.sheet?.let { current.copy(sheet = written.sheet(it).copy(writing = false)) } ?: current
+                is GardensWrite.Failed -> {
+                    sheetChanged(written.sheet)
+                    written.then()
                 }
             }
         }
+    }
+
+    /** The sheet changed by [change], while it is open. */
+    private fun sheetChanged(change: (GardensSheet) -> GardensSheet) {
+        state.update { current -> current?.sheet?.let { current.copy(sheet = change(it)) } ?: current }
     }
 
     /**
@@ -278,10 +390,7 @@ class GardenViewModel internal constructor(
                 ?: GardenUiState(garden, myGardens = myGardens)
         }
         undoTime?.cancel()
-        listening?.let { playing ->
-            music.switchTo(garden.toScore())
-            playing.nextTempo = garden.mood.tempo
-        }
+        heardAtTheBarLine(garden)
         // Copies: the write, in the scope of the application, does not hold this view model once cleared.
         val kept = kept
         val writes = writes
@@ -293,6 +402,26 @@ class GardenViewModel internal constructor(
                     // Nothing kept: the garden stays on screen, the last one kept stays on the device.
                 }
             }
+        }
+    }
+
+    /**
+     * Shows [written], the garden under way and its link just written on the device, in place of the one shown: no
+     * longer offering « Annuler », heard at the bar line while it is listened to.
+     */
+    private fun showWritten(written: CurrentGarden) {
+        undoTime?.cancel()
+        state.update {
+            it?.copy(garden = written.garden, keptFrom = written.keptFrom, undo = null, undoFailed = false)
+        }
+        heardAtTheBarLine(written.garden)
+    }
+
+    /** While the garden is listened to, the music goes on with the score of [garden] at the next bar line. */
+    private fun heardAtTheBarLine(garden: Garden) {
+        listening?.let { playing ->
+            music.switchTo(garden.toScore())
+            playing.nextTempo = garden.mood.tempo
         }
     }
 
@@ -339,7 +468,7 @@ class GardenViewModel internal constructor(
     internal fun clearAll(undoMillis: Long = UNDO_MILLIS) {
         val current = state.value ?: return
         adopt(current.garden.clear())
-        offerUndo(current.garden, undoMillis)
+        offerUndo(GardenUndo.Cleared(current.garden), undoMillis)
     }
 
     /**
@@ -349,15 +478,15 @@ class GardenViewModel internal constructor(
     internal fun roll(undoMillis: Long = UNDO_MILLIS) {
         val current = state.value ?: return
         adopt(GardenComposer.compose(current.garden.mood, random.nextLong()), GardenChange.Rolled)
-        if (current.garden.pieces.isNotEmpty()) offerUndo(current.garden, undoMillis)
+        if (current.garden.pieces.isNotEmpty()) offerUndo(GardenUndo.Cleared(current.garden), undoMillis)
     }
 
-    /** Offers « Annuler » for [millis], to give [before] back. */
+    /** Offers « Annuler » for [millis], to give back what [undo] says. */
     private fun offerUndo(
-        before: Garden,
+        undo: GardenUndo,
         millis: Long,
     ) {
-        state.update { it?.copy(undo = before) }
+        state.update { it?.copy(undo = undo, undoFailed = false) }
         undoTime?.cancel()
         undoTime = viewModelScope.launch {
             delay(millis)
@@ -365,9 +494,88 @@ class GardenViewModel internal constructor(
         }
     }
 
-    /** Annuler: the garden from before Tout effacer or Au hasard comes back. */
+    /**
+     * Annuler: the garden from before Tout effacer, Au hasard or Rouvrir comes back, with its link; or the kept garden
+     * deleted comes back at its place.
+     */
     internal fun undo() {
-        adopt(state.value?.undo ?: return)
+        when (val undo = state.value?.undo ?: return) {
+            is GardenUndo.Cleared -> adopt(undo.garden)
+
+            is GardenUndo.Opened -> {
+                val kept = kept
+                val before = CurrentGarden(undo.garden, keptFrom = undo.keptFrom)
+                writeUndo({ kept.keep(before) }) { showWritten(before) }
+            }
+
+            is GardenUndo.Deleted -> {
+                val library = library
+                val kept = kept
+                val current = state.value ?: return
+                val linked = CurrentGarden(current.garden, keptFrom = undo.deleted.garden.id)
+                writeUndo({
+                    try {
+                        library.restore(undo.deleted)
+                    } catch (refused: IllegalArgumentException) {
+                        // A library full again since the deletion: no room to put it back, told as a failure.
+                        throw IOException("No room to put the garden back", refused)
+                    }
+                    if (undo.linked) kept.keep(linked)
+                }) {
+                    undoTime?.cancel()
+                    state.update {
+                        it?.copy(
+                            undo = null,
+                            undoFailed = false,
+                            keptFrom = if (undo.linked) linked.keptFrom else it.keptFrom,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Writes what « Annuler » gives back by [write], in the scope of the application under [writes], then shows it by
+     * [then], unless the garden changed meanwhile: the change stays, and the device takes back the garden shown with
+     * its link ([keepShown]). Nothing written, or not all (an [IOException]), the failure is told, « Annuler » still
+     * offered, to try again. Once at a time: a second Annuler meanwhile gives back nothing more.
+     */
+    private fun writeUndo(
+        write: suspend () -> Unit,
+        then: () -> Unit,
+    ) {
+        if (undoing?.isActive == true) return
+        val move = state.value?.move ?: return
+        val writes = writes
+        undoing = appScope.launch {
+            try {
+                writes.withLock { write() }
+            } catch (_: IOException) {
+                state.update { if (it?.move == move) it.copy(undoFailed = true) else it }
+                return@launch
+            }
+            if (state.value?.move == move) then() else keepShown()
+        }
+    }
+
+    /**
+     * Keeps the garden shown and its link on the device, after a write that the screen no longer shows: in the scope
+     * of the application, under [writes]. A garden that cannot be written stays on screen, as in [adopt].
+     */
+    private fun keepShown() {
+        val shown = state.value?.let { CurrentGarden(it.garden, keptFrom = it.keptFrom) } ?: return
+        val kept = kept
+        val writes = writes
+        appScope.launch {
+            writes.withLock {
+                try {
+                    kept.keep(shown)
+                } catch (_: IOException) {
+                    // Nothing kept: the garden stays on screen.
+                }
+            }
+        }
     }
 
     /** Retirer: the preview is gone, a piece taken back with it. */
@@ -503,11 +711,11 @@ private const val EIGHTHS_PER_BAR = 8
 /** How long « Annuler » is offered after Tout effacer or Au hasard (docs/jardin-musical.md, Écran). */
 internal const val UNDO_MILLIS: Long = 4_000L
 
-/** What a change of the kept gardens gave: a garden [Kept], or a sheet left open as it [Failed]. */
+/** What a change of the kept gardens gave: a change [Done], or a sheet left open as it [Failed]. */
 private sealed interface GardensWrite {
-    /** The [garden] kept, the garden under way coming from it on the device. */
-    class Kept(val garden: KeptGarden) : GardensWrite
+    /** All written: [then] shows it. */
+    class Done(val then: () -> Unit) : GardensWrite
 
-    /** Nothing written, or not all: the sheet as it shows it, from the [sheet] open. */
-    class Failed(val sheet: (GardensSheet) -> GardensSheet) : GardensWrite
+    /** Nothing written, or not all: the sheet as it shows it, from the [sheet] open, then what was written, [then]. */
+    class Failed(val then: () -> Unit = {}, val sheet: (GardensSheet) -> GardensSheet) : GardensWrite
 }

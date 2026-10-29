@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.data.DeletedGarden
 import ch.magori.blox.core.data.GardenId
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
@@ -59,9 +60,13 @@ private fun MyGardensPreview(state: GardenUiState) {
         Box {
             GardenScreen(uiState = state, actions = GardenActions.None)
             ColorfulTheme {
-                MyGardensSheetContent(state, GardenActions.None, messageMillis = 0) { title, content ->
-                    SettledSheet(title = title, content = content)
-                }
+                MyGardensSheetContent(
+                    state = state,
+                    actions = GardenActions.None,
+                    messageMillis = 0,
+                    undoMillis = 0,
+                    frame = { title, bottom, content -> SettledSheet(title, actions = bottom, content = content) },
+                )
             }
         }
     }
@@ -127,25 +132,13 @@ internal fun MyGardensUnreadablePreview() =
 
 /** The window of the name, a name taken typed: why under the field, Garder disabled. */
 @Composable
-private fun NamingPreview() {
-    BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        ColorfulTheme {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BloxTheme.palette.page)
-                    .padding(horizontal = BloxSizes.windowMargin),
-            ) {
-                GardenNamingWindow(
-                    naming = GardenNaming(name = "Pluie douce", problem = NameProblem.TAKEN),
-                    copy = false,
-                    actions = GardenActions.None,
-                    messageMillis = 0,
-                )
-            }
-        }
-    }
+private fun NamingPreview() = WindowPreview {
+    GardenNamingWindow(
+        naming = GardenNaming(name = "Pluie douce", problem = NameProblem.TAKEN),
+        copy = false,
+        actions = GardenActions.None,
+        messageMillis = 0,
+    )
 }
 
 @Preview(widthDp = 390, heightDp = 844)
@@ -155,3 +148,77 @@ internal fun GardenNamingPreview() = NamingPreview()
 @Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
 @Composable
 internal fun GardenNamingLargeFontPreview() = NamingPreview()
+
+/** « « Pluie douce » ouvert », Annuler offered: the garden just opened from « Mes jardins ». */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun GardenOpenedPreview() = BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+    GardenScreen(
+        uiState = MODIFIED.copy(
+            garden = GARDENS.first().garden,
+            undo = GardenUndo.Opened("Pluie douce", MODIFIED.garden, keptFrom = GARDENS.first().id),
+        ),
+        actions = GardenActions.None,
+    )
+}
+
+/** « Fête » just deleted: the list without it, « « Fête » supprimé. » and Annuler at the bottom of the sheet. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun MyGardensDeletedPreview() = MyGardensPreview(
+    MODIFIED.copy(
+        myGardens = MyGardens.Listed(GARDENS.dropLast(1)),
+        undo = GardenUndo.Deleted(DeletedGarden(GARDENS.last(), place = 2), linked = false),
+    ),
+)
+
+/** A window over the page, as it shows over the sheet. */
+@Composable
+private fun WindowPreview(window: @Composable () -> Unit) {
+    BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+        ColorfulTheme {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(BloxTheme.palette.page)
+                    .padding(horizontal = BloxSizes.windowMargin),
+            ) {
+                window()
+            }
+        }
+    }
+}
+
+/** Renommer « Pluie douce », its own name typed in capitals: allowed. */
+@Composable
+private fun RenamingPreview() = WindowPreview {
+    GardenNamingWindow(
+        naming = GardenNaming(name = "PLUIE DOUCE", renaming = GARDENS.first()),
+        copy = false,
+        actions = GardenActions.None,
+        messageMillis = 0,
+    )
+}
+
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun GardenRenamingPreview() = RenamingPreview()
+
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+internal fun GardenRenamingLargeFontPreview() = RenamingPreview()
+
+/** « Supprimer « Marche des géants… » ? », a long name. */
+@Composable
+private fun DeletingPreview() = WindowPreview {
+    GardenDeleteWindow(deleting = GardenDeleting(GARDENS[1]), actions = GardenActions.None, undoMillis = 0)
+}
+
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun GardenDeletingPreview() = DeletingPreview()
+
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+internal fun GardenDeletingLargeFontPreview() = DeletingPreview()

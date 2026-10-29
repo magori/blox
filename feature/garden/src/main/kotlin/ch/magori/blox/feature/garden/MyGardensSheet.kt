@@ -2,7 +2,9 @@ package ch.magori.blox.feature.garden
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -13,15 +15,27 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,11 +43,19 @@ import ch.magori.blox.core.board.garden.GardenThumbnail
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.designsystem.component.BloxMenu
+import ch.magori.blox.core.designsystem.component.BloxMenuItem
 import ch.magori.blox.core.designsystem.component.BloxSheet
+import ch.magori.blox.core.designsystem.component.ButtonEmphasis
 import ch.magori.blox.core.designsystem.component.CheckMark
+import ch.magori.blox.core.designsystem.component.DeleteWindow
+import ch.magori.blox.core.designsystem.component.GlyphButton
+import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
+import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
 import ch.magori.blox.core.designsystem.component.nameTooLongText
@@ -41,12 +63,20 @@ import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 
-/** The frame a sheet is drawn in, given its title and its content: a sheet, or a sheet settled in the previews. */
-internal typealias GardensSheetFrame = @Composable (title: String, content: @Composable ColumnScope.() -> Unit) -> Unit
+/**
+ * The frame a sheet is drawn in, given its title, what stands at its bottom, always in sight, if anything, and its
+ * content: a sheet, or a sheet settled in the previews.
+ */
+internal typealias GardensSheetFrame = @Composable (
+    title: String,
+    bottom: (@Composable ColumnScope.() -> Unit)?,
+    content: @Composable ColumnScope.() -> Unit,
+) -> Unit
 
 /**
  * The sheet « Mes jardins » over the garden (docs/jardin-musical.md, Mes jardins), while [GardenUiState.sheet] is open,
- * and the window of the name over it while one is typed; the system back and its scrim close it.
+ * and over it the window of the name while one is typed, or the one of a deletion to confirm; the system back and its
+ * scrim close it.
  */
 @Composable
 internal fun MyGardensSheet(
@@ -54,44 +84,65 @@ internal fun MyGardensSheet(
     actions: GardenActions,
 ) {
     val messageMillis = messageTimeoutMillis(hasAction = false)
-    MyGardensSheetContent(state, actions, messageMillis) { title, content ->
-        BloxSheet(title = title, onDismissRequest = actions.onCloseMyGardens, content = content)
+    val undoMillis = undoTimeoutMillis()
+    MyGardensSheetContent(state, actions, messageMillis, undoMillis) { title, bottom, content ->
+        BloxSheet(title = title, onDismissRequest = actions.onCloseMyGardens, actions = bottom, content = content)
     }
-    state.sheet?.naming?.let { naming ->
+    val sheet = state.sheet ?: return
+    sheet.naming?.let { naming ->
         WindowDialog(onDismissRequest = actions.onCancelNaming) {
-            GardenNamingWindow(
-                naming,
-                copy = state.linked != null,
-                actions,
-                messageMillis,
-                busy = state.sheet.writing,
-            )
+            GardenNamingWindow(naming, copy = state.linked != null, actions, messageMillis, busy = sheet.writing)
+        }
+    }
+    sheet.deleting?.let { deleting ->
+        WindowDialog(onDismissRequest = actions.onCancelDeleting) {
+            GardenDeleteWindow(deleting, actions, undoMillis, busy = sheet.writing)
         }
     }
 }
 
 /**
  * What the sheet « Mes jardins » holds, drawn in [frame]: at the top, « Garder ce jardin » for a garden that comes from
- * no kept garden, else « Enregistrer « X » » and « Garder une copie », greyed while they cannot be done or while a change is written, with why (« Rien n'a changé… » for a garden as it was kept);
- * « L'opération a échoué. » when a change could not be written; then, once the gardens are read, their count out of
- * 30, and their list from the most recent, or what to do when there is none. While they are read, the buttons alone,
- * greyed. A message of the screen shows for [messageMillis] once a garden is kept.
+ * no kept garden, else « Enregistrer « X » » and « Garder une copie », greyed while they cannot be done or while a
+ * change is written, with why (« Rien n'a changé… » for a garden as it was kept); « L'opération a échoué. » when a
+ * change could not be written; then, once the gardens are read, their count out of 30, and their list from the most
+ * recent, or what to do when there is none. While they are read, the buttons alone, greyed. A message of the screen
+ * shows for [messageMillis] once a garden is kept; « Annuler » is offered for [undoMillis] once one is opened or
+ * deleted. While the deletion of a kept garden may be undone, its message stands at the bottom of the sheet.
  */
 @Composable
 internal fun MyGardensSheetContent(
     state: GardenUiState,
     actions: GardenActions,
     messageMillis: Long,
+    undoMillis: Long,
     frame: GardensSheetFrame,
 ) {
-    frame(stringResource(R.string.feature_garden_my_gardens)) {
+    val deleted = state.undo as? GardenUndo.Deleted
+    val bottom: (@Composable ColumnScope.() -> Unit)? = deleted?.let {
+        {
+            SnackMessage(
+                text = undoText(it, state.undoFailed),
+                action = MessageAction(stringResource(R.string.feature_garden_undo), actions.onUndo),
+            )
+        }
+    }
+    frame(stringResource(R.string.feature_garden_my_gardens), bottom) {
         Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space3)) {
             KeepButtons(state, actions, messageMillis)
             if (state.sheet?.failed == true) SheetText(stringResource(R.string.feature_garden_failed), failure = true)
             state.keepRefusal?.let { refusal -> refusalText(refusal)?.let { SheetText(it) } }
             if (state.unchanged) SheetText(stringResource(R.string.feature_garden_unchanged))
             val gardens = state.myGardens
-            if (gardens is MyGardens.Listed) KeptGardens(state.keptGardens, open = state.linked)
+            if (gardens is MyGardens.Listed) {
+                KeptGardens(
+                    gardens = state.keptGardens,
+                    open = state.linked,
+                    actions = actions,
+                    undoMillis = undoMillis,
+                    windowOpen = state.sheet?.naming != null || state.sheet?.deleting != null,
+                )
+            }
         }
     }
 }
@@ -169,12 +220,16 @@ private fun SheetText(
 
 /**
  * The count of the kept [gardens] out of 30, then their rows, the [open] one marked; or, without any, « Aucun jardin
- * gardé. » and what to do.
+ * gardé. » and what to do. A row touched opens its garden, « Annuler » offered for [undoMillis]. Once the window a row
+ * opened closes ([windowOpen]), the focus goes back to its menu « … ».
  */
 @Composable
 private fun KeptGardens(
     gardens: List<KeptGarden>,
     open: KeptGarden?,
+    actions: GardenActions,
+    undoMillis: Long,
+    windowOpen: Boolean,
 ) {
     Text(
         text = pluralStringResource(
@@ -197,20 +252,57 @@ private fun KeptGardens(
         }
     } else {
         Column {
-            gardens.forEach { KeptGardenRow(it, open = it.id == open?.id) }
+            gardens.forEach { kept ->
+                key(kept.id) {
+                    KeptGardenRow(
+                        kept = kept,
+                        open = kept.id == open?.id,
+                        onOpen = { actions.onOpenKept(kept.id, undoMillis) },
+                        onRename = { actions.onRename(kept.id) },
+                        onDelete = { actions.onDelete(kept.id) },
+                        windowOpen = windowOpen,
+                    )
+                }
+            }
         }
     }
 }
 
 /**
  * The row of a [kept] garden, 72 dp high at least: its thumbnail, framed in `panel-border` as the grid is, its name on
- * 2 lines at most, its mood and its count of pieces, then « ouvert » when it is the garden [open]. Read in one by
- * TalkBack, « Pluie douce, Calme, 12 pièces, ouvert »; the thumbnail is decorative.
+ * 2 lines at most, its mood and its count of pieces, then « ouvert » when it is the garden [open]; touched, it opens
+ * the garden ([onOpen]). Then its menu « … »: Renommer ([onRename]), Supprimer ([onDelete]). Read in one by TalkBack,
+ * « Pluie douce, Calme, 12 pièces, ouvert », with the action « Ouvrir », Renommer and Supprimer as actions of its own;
+ * the thumbnail is decorative. Its menu takes the focus back once the window it opened closes ([windowOpen]).
  */
 @Composable
 private fun KeptGardenRow(
     kept: KeptGarden,
     open: Boolean,
+    onOpen: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
+    windowOpen: Boolean,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
+    ) {
+        KeptGardenSummary(kept, open, onOpen, onRename, onDelete, Modifier.weight(1f))
+        RowMenu(kept.name, onRename, onDelete, windowOpen)
+    }
+}
+
+/** What a row of [KeptGardenRow] shows of its [kept] garden, and what touching it does. */
+@Composable
+private fun KeptGardenSummary(
+    kept: KeptGarden,
+    open: Boolean,
+    onOpen: () -> Unit,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val mood = stringResource(kept.garden.mood.label)
     val count = kept.garden.pieces.size
@@ -222,11 +314,31 @@ private fun KeptGardenRow(
         pieces,
     )
     val palette = BloxTheme.palette
+    val openLabel = stringResource(R.string.feature_garden_row_open)
+    val renameLabel = stringResource(R.string.feature_garden_rename)
+    val deleteLabel = stringResource(R.string.feature_garden_delete)
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier
             .heightIn(min = ROW_HEIGHT)
-            .clearAndSetSemantics { contentDescription = spoken },
+            .clip(BloxTheme.shapes.md)
+            .clickable(onClickLabel = openLabel, onClick = onOpen)
+            .clearAndSetSemantics {
+                contentDescription = spoken
+                onClick(label = openLabel) {
+                    onOpen()
+                    true
+                }
+                customActions = listOf(
+                    CustomAccessibilityAction(renameLabel) {
+                        onRename()
+                        true
+                    },
+                    CustomAccessibilityAction(deleteLabel) {
+                        onDelete()
+                        true
+                    },
+                )
+            },
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
     ) {
@@ -256,6 +368,66 @@ private fun KeptGardenRow(
     }
 }
 
+/**
+ * The menu « … » of the row of the garden called [name], a bare disc of 48 dp read « Plus d'actions pour X »:
+ * Renommer ([onRename]), then Supprimer ([onDelete]), in `danger`. Touching an item closes the menu. The focus goes
+ * back to « … » as the menu closes without a choice, or once the window its item opened closes ([windowOpen] false
+ * again), as [BloxMenu] asks.
+ */
+@Composable
+private fun RowMenu(
+    name: String,
+    onRename: () -> Unit,
+    onDelete: () -> Unit,
+    windowOpen: Boolean,
+) {
+    val focus = remember { FocusRequester() }
+    // An item chose a window: the focus waits for it to close.
+    var awaitingWindow by remember { mutableStateOf(false) }
+    LaunchedEffect(windowOpen, awaitingWindow) {
+        if (awaitingWindow && !windowOpen) {
+            awaitingWindow = false
+            focus.requestFocus()
+        }
+    }
+    Box {
+        var expanded by remember { mutableStateOf(false) }
+        GlyphButton(
+            description = stringResource(R.string.feature_garden_row_menu, name),
+            onClick = { expanded = true },
+            modifier = Modifier.focusRequester(focus),
+            emphasis = ButtonEmphasis.BARE,
+        ) { ink -> Glyphs.more(this, ink) }
+        BloxMenu(
+            expanded = expanded,
+            onDismissRequest = {
+                expanded = false
+                focus.requestFocus()
+            },
+        ) {
+            BloxMenuItem(
+                text = stringResource(R.string.feature_garden_rename),
+                icon = BloxIcon.RENAME,
+                onClick = {
+                    expanded = false
+                    awaitingWindow = true
+                    onRename()
+                },
+            )
+            BloxMenuItem(
+                text = stringResource(R.string.feature_garden_delete),
+                icon = BloxIcon.TRASH,
+                onClick = {
+                    expanded = false
+                    awaitingWindow = true
+                    onDelete()
+                },
+                danger = true,
+            )
+        }
+    }
+}
+
 /** « ouvert », a pill in `accent` beside its check: the garden under way comes from this one. */
 @Composable
 private fun OpenBadge() {
@@ -277,9 +449,9 @@ private fun OpenBadge() {
 }
 
 /**
- * The window of the name of a garden to keep, « Garder ce jardin », or « Garder une copie » for a [copy]: its [naming],
- * why the name is refused under the field, « Annuler » then « Garder », disabled while the garden is being written,
- * [busy].
+ * The window of the name of a garden to keep, « Garder ce jardin », or « Garder une copie » for a [copy], with « Garder »;
+ * or of a kept garden to rename, « Renommer « X » », with « Renommer ». Its [naming], why the name is refused under
+ * the field, « Annuler » then the answer, disabled while the gardens are being written, [busy].
  */
 @Composable
 internal fun GardenNamingWindow(
@@ -290,18 +462,50 @@ internal fun GardenNamingWindow(
     modifier: Modifier = Modifier,
     busy: Boolean = false,
 ) {
+    val renaming = naming.renaming
     NamingWindow(
-        title = stringResource(if (copy) R.string.feature_garden_keep_copy else R.string.feature_garden_keep),
+        title = when {
+            renaming != null -> stringResource(R.string.feature_garden_rename_title, renaming.name)
+            copy -> stringResource(R.string.feature_garden_keep_copy)
+            else -> stringResource(R.string.feature_garden_keep)
+        },
         name = naming.name,
         onNameChanged = actions.onNameChanged,
         maxLength = KeptGarden.MAX_NAME_LENGTH,
         problem = naming.problem?.let { problemText(it) },
-        confirm = stringResource(R.string.feature_garden_keep_confirm),
-        onConfirm = { actions.onConfirmKeeping(messageMillis) },
+        confirm = stringResource(
+            if (renaming != null) R.string.feature_garden_rename else R.string.feature_garden_keep_confirm,
+        ),
+        onConfirm = if (renaming != null) actions.onConfirmRenaming else ({ actions.onConfirmKeeping(messageMillis) }),
         onDismiss = actions.onCancelNaming,
         failed = naming.failed,
         busy = busy,
         modifier = modifier,
+    )
+}
+
+/**
+ * « Supprimer « X » ? », the deletion of the kept garden [deleting] to confirm: it may be undone just after.
+ * « Garder le jardin », then « Supprimer », which offers « Annuler » for [undoMillis]. A deletion that could not be
+ * written is told, the window still open. While it is written, [busy], both answers are greyed.
+ */
+@Composable
+internal fun GardenDeleteWindow(
+    deleting: GardenDeleting,
+    actions: GardenActions,
+    undoMillis: Long,
+    modifier: Modifier = Modifier,
+    busy: Boolean = false,
+) {
+    DeleteWindow(
+        name = deleting.garden.name,
+        keep = stringResource(R.string.feature_garden_delete_keep),
+        onConfirm = { actions.onConfirmDeleting(undoMillis) },
+        onDismiss = actions.onCancelDeleting,
+        modifier = modifier,
+        note = stringResource(R.string.feature_garden_delete_note),
+        failed = deleting.failed,
+        waiting = busy,
     )
 }
 
