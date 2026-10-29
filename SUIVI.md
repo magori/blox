@@ -1367,14 +1367,17 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   `OpenCartridgeTest`, `NextPadlockTest`). Après P7.29.
 - [x] **P7.31** `PadlockResult` (pur, `core:locksmith`) : coups, refus, indices ; ordre du meilleur (indices, coups,
   refus) et parfaite (un coup par pièce, sans refus ni indice). Après P7.28.
-- [ ] **P7.32** `PadlockProgressRepository` (`core:data`) : meilleures ouvertures des serrures 1 à N, fichier binaire
+- [x] **P7.32** `PadlockProgressRepository` (`core:data`) : meilleures ouvertures des serrures 1 à N, fichier binaire
   versionné avec numéro de génération, contrat, faux, `DataStoreFileContract`, fichier mis de côté, sauvegarde
   incluse (`BackupRulesTest`). Chaque ouverture : 4 entiers (pièces, coups, refus, indices, `PadlockResult`) ; un
   résultat impossible lu dans le fichier (`require` de `PadlockResult`) rend le fichier corrompu, pas un plantage
   (revue de P7.31). Après P7.31.
 - [ ] **P7.33** Écriture à l'ouverture (ViewModel, portée d'application, `IOException` qui laisse jouer) ; carte de
   V35 : meilleure ouverture, NOUVEAU MEILLEUR ou PARFAITE, « Reprendre à la serrure N » après un rejeu ; Effets
-  réduits ; captures. Après P7.30, P7.32.
+  réduits ; captures. L'adaptateur `PadlockResult` → `PadlockOpening` vient avec un test qui garde les deux en accord
+  (rejets et ordre du meilleur), écrit en premier ; un avancement d'une version ou génération plus récente (écriture
+  impossible) laisse jouer avec un état compréhensible, sans relancer la lecture en boucle (revue de P7.32). Après
+  P7.30, P7.32.
 - [ ] **P7.34** Cartouche : ouvre la première serrure non ouverte, sous-ligne « Serrure N » (`feature:cartridges`,
   `app`), parcours Macrobenchmark vérifié. Après P7.32.
 - [ ] **P7.35** Écran « Serrures » (`PadlocksRoute`, `feature:locksmith`) : Reprendre, grille (ouverte, parfaite, à
