@@ -296,7 +296,7 @@ private fun PadlockStatus(open: Boolean) {
  * A padlock in [ink]: its body, with a keyhole of the [page], and its shackle, down in the body, or lifted out of it on
  * the right when [open].
  */
-private fun DrawScope.drawPadlock(
+internal fun DrawScope.drawPadlock(
     ink: Color,
     page: Color,
     open: Boolean,

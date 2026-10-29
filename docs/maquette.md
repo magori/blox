@@ -69,7 +69,7 @@ mascotte (`Mascotte`).
 
 **V36 codé** (P9.7, `feature:cartridges` ; remplace la console de V26, codée en P5.72 et dessinée en P5.92, décision du
 développeur du 2026-10-27) : l'application s'ouvre sur le choix du jeu, Classique (accueil Classique), Serrurier
-(serrure 1) et Graine du jour (son écran d'entrée) ; le disque « Changer de jeu » y revient ; le retour système y
+(la frontière, première serrure non ouverte, depuis P7.34) et Graine du jour (son écran d'entrée) ; le disque « Changer de jeu » y revient ; le retour système y
 quitte l'application. Toujours en Couleurs v2, quel que soit le thème choisi (`ColorfulTheme`, barres système
 comprises ; l'Original est figé). En tête, le logo BloX (barre de 56 dp, décoratif), puis « Choix du jeu », lu comme
 titre de l'écran ; une grille de deux colonnes d'au plus 171 dp (16 dp entre elles, 14 dp entre les rangées), la
@@ -78,7 +78,11 @@ un mot d'un nom ne tient plus dans sa colonne à sa plus petite taille. Chaque c
 2 dp) avec sa prise, une fenêtre `iris` qui porte la mascotte du jeu (le T du Classique, le O du Serrurier, le Z à la
 pousse de la Graine), son nom (deux lignes au plus, réduit en mots entiers) et cinq broches. La Graine porte
 l'autocollant « NOUVELLE » (`accent`, −6°, décoratif ; TalkBack lit « Nouvelle » après le nom) jusqu'au premier essai
-du jour. En bas, « Touche une cartouche pour l'ouvrir. ». Écarts retenus : pas d'engrenage Paramètres dans la barre,
+du jour. Sous son nom, le Serrurier porte la sous-ligne « Serrure *N* », sa frontière (P7.34 ; TalkBack la lit après
+le nom ; « Serrure 1000 » tient sur une ligne en police ×2 à 360 dp), affichée seulement une fois l'avancement lu ;
+la place de cette ligne est réservée sur toutes les cartouches, pour que la grille ne bouge pas (détail et tests dans
+[regles-serrurier.md](regles-serrurier.md), « Avancement et anciennes serrures »). En bas, « Touche une cartouche
+pour l'ouvrir. ». Écarts retenus : pas d'engrenage Paramètres dans la barre,
 pas d'animation d'entrée de l'autocollant, qui ne descend pas avec la cartouche pressée ; coins de la cartouche en
 `radius-window` (24 au lieu de 22) ; corps de la mascotte de la Graine en `piece-z` (rose) et non orange, les mascottes
 prenant les jetons des pièces.

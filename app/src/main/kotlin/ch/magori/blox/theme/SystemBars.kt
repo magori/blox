@@ -16,6 +16,7 @@ import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 
 /**
  * Gives the system bars the style of the variant drawn under them ([systemBarVariant]): that of the theme drawn, or the
@@ -37,8 +38,9 @@ internal fun BloxSystemBars(
 
 /**
  * The variant whose page the system bars lie on, with [top] on top of the stack: the Colorful variant of the mode of the
- * system, [darkSystem], under the choice of the game, the Locksmith, the entry of the daily seed, a daily game and the
- * musical garden, which are drawn in the Colorful theme only (ADR 0026, ADR 0027); else the [chosen] variant.
+ * system, [darkSystem], under the choice of the game, the Locksmith and its padlocks, the entry of the daily seed, a
+ * daily game and the musical garden, which are drawn in the Colorful theme only (ADR 0026, ADR 0027); else the
+ * [chosen] variant.
  */
 internal fun systemBarVariant(
     top: NavKey?,
@@ -49,6 +51,7 @@ internal fun systemBarVariant(
 /** Whether the screen [top] is drawn in the Colorful theme whatever the theme chosen. */
 private fun isColorfulOnly(top: NavKey?): Boolean = top is CartridgesRoute ||
     top is LocksmithRoute ||
+    top is PadlocksRoute ||
     top is DailyRoute ||
     top is GardenRoute ||
     (top is GameRoute && top.variant.colorfulOnly)

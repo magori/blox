@@ -1,0 +1,275 @@
+package ch.magori.blox.feature.locksmith
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsActions
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
+import androidx.compose.ui.test.assertHasClickAction
+import androidx.compose.ui.test.assertHasNoClickAction
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.getBoundsInRoot
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.test.platform.app.InstrumentationRegistry
+import ch.magori.blox.core.locksmith.PadlockResult
+import de.mannodermaus.junit5.compose.ComposeContext
+import de.mannodermaus.junit5.compose.createComposeExtension
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.RegisterExtension
+
+/** The screen « Serrures » (P7.35): the summary, Reprendre, the grid of the padlocks, read by TalkBack. */
+@OptIn(ExperimentalTestApi::class)
+// Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
+internal class PadlocksScreenTest {
+    @JvmField
+    @RegisterExtension
+    val extension = createComposeExtension()
+
+    @Test
+    @DisplayName("the summary tells the open padlocks and the perfect ones, read as a heading")
+    fun theSummaryTellsTheOpenAndThePerfectPadlocks() = extension.use {
+        // Given padlocks 1 to 3 open, 1 and 3 perfectly
+        showPadlocks(PadlocksUiState(listOf(PERFECT, WITH_A_HINT, PERFECT)))
+
+        // Then
+        val summary = string(
+            R.string.feature_locksmith_padlocks_summary,
+            plural(R.plurals.feature_locksmith_padlocks_open, 3),
+            plural(R.plurals.feature_locksmith_padlocks_perfect, 2),
+        )
+        onNodeWithText(summary).assertIsDisplayed().assert(isHeading())
+    }
+
+    @Test
+    @DisplayName("Reprendre opens the frontier")
+    fun reprendreOpensTheFrontier() = extension.use {
+        // Given padlocks 1 to 3 open
+        val opened = mutableListOf<Int>()
+        showPadlocks(PadlocksUiState(listOf(PERFECT, WITH_A_HINT, PERFECT)), opened = opened)
+
+        // When
+        onNodeWithText(string(R.string.feature_locksmith_padlocks_resume, 4)).performClick()
+
+        // Then
+        runOnIdle { assertThat(opened).containsExactly(4) }
+    }
+
+    @Test
+    @DisplayName("a padlock is read in one go: its number, its state, whether the player comes from it, its best")
+    fun aPadlockIsReadInOneGo() = extension.use {
+        // Given padlock 1 open perfectly, padlock 2 with a hint, the player coming from padlock 2
+        showPadlocks(PadlocksUiState(listOf(PERFECT, WITH_A_HINT)), current = 2)
+
+        // Then
+        val perfect = listOf(
+            string(R.string.feature_locksmith_padlocks_cell, 1),
+            string(R.string.feature_locksmith_padlocks_open),
+            string(R.string.feature_locksmith_padlocks_perfect),
+            best(PERFECT),
+        )
+        val current = listOf(
+            string(R.string.feature_locksmith_padlocks_cell, 2),
+            string(R.string.feature_locksmith_padlocks_open),
+            string(R.string.feature_locksmith_padlocks_current),
+            best(WITH_A_HINT),
+        )
+        val frontier = listOf(
+            string(R.string.feature_locksmith_padlocks_cell, 3),
+            string(R.string.feature_locksmith_padlocks_frontier),
+        )
+        tile(1).assertContentDescriptionEquals(perfect.joinToString(", "))
+        tile(2).assertContentDescriptionEquals(current.joinToString(", "))
+        tile(3).assertContentDescriptionEquals(frontier.joinToString(", "))
+    }
+
+    @Test
+    @DisplayName("touching an open padlock or the frontier asks to open it, by its number")
+    fun touchingAPadlockAsksToOpenIt() = extension.use {
+        // Given padlocks 1 and 2 open
+        val opened = mutableListOf<Int>()
+        showPadlocks(PadlocksUiState(listOf(PERFECT, WITH_A_HINT)), opened = opened)
+
+        // When
+        tile(2).performClick()
+        tile(3).performClick()
+
+        // Then
+        runOnIdle { assertThat(opened).containsExactly(2, 3) }
+    }
+
+    @Test
+    @DisplayName("a locked padlock, which completes the row of the frontier, is read locked and cannot be touched")
+    fun aLockedPadlockIsReadLockedAndCannotBeTouched() = extension.use {
+        // Given padlock 4 open, on a grid of 4 columns: the journeymen begin with 4, 5 the frontier, 6 and 7 locked
+        showPadlocks(PadlocksUiState(listOf(PERFECT, PERFECT, PERFECT, PERFECT)))
+
+        // Then
+        val locked = listOf(
+            string(R.string.feature_locksmith_padlocks_cell, 6),
+            string(R.string.feature_locksmith_padlocks_locked),
+        )
+        tile(6).assertContentDescriptionEquals(locked.joinToString(", ")).assertHasNoClickAction()
+        tile(7).assertHasNoClickAction()
+        tile(8).assertDoesNotExist()
+        tile(5).assertHasClickAction()
+    }
+
+    @Test
+    @DisplayName("each tier has its header, its name and the pieces of its padlocks, read as a heading")
+    fun eachTierHasItsHeader() = extension.use {
+        // Given padlocks 1 to 4 open: apprentices, then journeymen
+        showPadlocks(PadlocksUiState(listOf(PERFECT, PERFECT, PERFECT, PERFECT)))
+
+        // Then
+        val apprentice = string(
+            R.string.feature_locksmith_padlocks_tier,
+            string(R.string.feature_locksmith_padlocks_tier_apprentice),
+            string(R.string.feature_locksmith_padlocks_tier_pieces_range, 3, 5),
+        )
+        val journeyman = string(
+            R.string.feature_locksmith_padlocks_tier,
+            string(R.string.feature_locksmith_padlocks_tier_journeyman),
+            string(R.string.feature_locksmith_padlocks_tier_pieces, 6),
+        )
+        onNodeWithText(apprentice).assertIsDisplayed().assert(isHeading())
+        onNodeWithText(journeyman).assertIsDisplayed().assert(isHeading())
+    }
+
+    @Test
+    @DisplayName("without an opening, the screen asks to open padlock 1, and offers no Reprendre")
+    fun withoutAnOpeningTheScreenAsksToOpenPadlock1() = extension.use {
+        // Given
+        showPadlocks(PadlocksUiState(emptyList()))
+
+        // Then
+        onNodeWithText(string(R.string.feature_locksmith_padlocks_empty)).assertIsDisplayed()
+        onNodeWithText(string(R.string.feature_locksmith_padlocks_resume, 1)).assertDoesNotExist()
+        tile(1).assertHasClickAction()
+    }
+
+    @Test
+    @DisplayName("the grid, a collection, opens scrolled on the frontier")
+    fun theGridOpensScrolledOnTheFrontier() = extension.use {
+        // Given padlocks 1 to 60 open
+        showPadlocks(PadlocksUiState(List(60) { PERFECT }))
+
+        // Then
+        onNode(hasTestTag(PADLOCKS_GRID_TAG))
+            .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.CollectionInfo))
+        tile(61).assertIsDisplayed()
+        // Off the screen, or not even composed by the lazy grid.
+        if (onAllNodes(hasTestTag(padlockTileTag(1))).fetchSemanticsNodes().isNotEmpty()) tile(1).assertIsNotDisplayed()
+    }
+
+    @Test
+    @DisplayName("in a font twice as large the grid has fewer columns, its tiles 80 dp at least")
+    fun inALargeFontTheGridHasFewerColumns() = extension.use {
+        // Given padlocks 1 and 2 open, on a phone of 390 dp, which holds the 3 apprentices on a row in a normal font
+        val state = PadlocksUiState(listOf(PERFECT, PERFECT))
+
+        // When: in a font twice as large
+        showPadlocks(state, fontScale = 2f)
+
+        // Then: 1 and 2 on a row, 3 under them
+        val one = tile(1).getBoundsInRoot()
+        val two = tile(2).getBoundsInRoot()
+        assertThat(two.top).isEqualTo(one.top)
+        assertThat(tile(3).getBoundsInRoot().top).isGreaterThan(one.bottom)
+        assertThat(one.right - one.left).isGreaterThanOrEqualTo(TILE)
+        assertThat(one.bottom - one.top).isGreaterThanOrEqualTo(TILE)
+    }
+
+    @Test
+    @DisplayName(
+        "in a large font on a low screen, the summary and Reprendre scroll with the grid, a row of tiles shown whole",
+    )
+    fun inALargeFontOnALowScreenARowOfTilesIsShownWhole() = extension.use {
+        // Given padlocks 1 to 12 open, on a screen of 360 by 400 dp, in a font twice as large
+        showPadlocks(PadlocksUiState(List(12) { PERFECT }), fontScale = 2f, height = LOW_SCREEN, width = 360.dp)
+
+        // Then: the frontier, 13, shown whole, as high as a tile, within the screen
+        val frontier = tile(13).assertIsDisplayed().getBoundsInRoot()
+        assertThat(frontier.bottom - frontier.top).isGreaterThanOrEqualTo(TILE)
+        assertThat(frontier.top).isGreaterThanOrEqualTo(0.dp)
+        assertThat(frontier.bottom).isLessThanOrEqualTo(LOW_SCREEN)
+    }
+
+    @Test
+    @DisplayName("a tile that can be touched offers TalkBack to open it, « Ouvrir »")
+    fun aTileOffersToOpenIt() = extension.use {
+        // Given padlock 1 open
+        showPadlocks(PadlocksUiState(listOf(PERFECT)))
+
+        // Then
+        val open = string(R.string.feature_locksmith_padlocks_open_action)
+        tile(1).assert(SemanticsMatcher("its click is « $open »") { it.config[SemanticsActions.OnClick].label == open })
+        tile(2).assert(SemanticsMatcher("its click is « $open »") { it.config[SemanticsActions.OnClick].label == open })
+    }
+
+    /**
+     * The screen of [state] on a phone of [width] by [height], in a font of [fontScale], the padlocks asked noted in
+     * [opened].
+     */
+    private fun ComposeContext.showPadlocks(
+        state: PadlocksUiState,
+        current: Int? = null,
+        opened: MutableList<Int> = mutableListOf(),
+        fontScale: Float = 1f,
+        height: Dp = 844.dp,
+        width: Dp = 390.dp,
+    ) {
+        val actions = PadlocksActions(onBack = {}, onOpen = { opened += it })
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+                Box(Modifier.size(width, height)) {
+                    PadlocksScreen(state = state, current = current, actions = actions)
+                }
+            }
+        }
+    }
+
+    /** The tile of padlock [level], read as one. */
+    private fun ComposeContext.tile(level: Int) = onNode(hasTestTag(padlockTileTag(level)))
+
+    /** What a tile reads of the best opening [result]. */
+    private fun best(result: PadlockResult): String = string(
+        R.string.feature_locksmith_padlocks_best,
+        result.moves,
+        result.refusals,
+        plural(R.plurals.feature_locksmith_open_best_hints, result.hints),
+    )
+
+    private fun string(
+        id: Int,
+        vararg arguments: Any,
+    ): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id, *arguments)
+
+    private fun plural(
+        id: Int,
+        count: Int,
+    ): String = InstrumentationRegistry.getInstrumentation().targetContext.resources.getQuantityString(id, count, count)
+
+    private companion object {
+        val PERFECT = PadlockResult(pieces = 3, moves = 3, refusals = 0, hints = 0)
+        val WITH_A_HINT = PadlockResult(pieces = 4, moves = 5, refusals = 1, hints = 1)
+
+        /** A screen as low as a phone in landscape. */
+        val LOW_SCREEN = 400.dp
+    }
+}

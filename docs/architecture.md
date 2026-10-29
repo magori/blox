@@ -83,7 +83,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
 | `feature:daily` | Feature | Écran d'entrée de la Graine du jour (V38, P9.5, amendement de l'ADR 0002), toujours en thème Couleurs : clé `DailyRoute`, `DailyViewModel` et sa fabrique ; résultats du jour, 7 premières pièces de la graine, Jouer, Copier mon score. La partie elle-même est la variante `Daily` de `feature:game`. |
-| `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level)` (serrure `Padlock.ofLevel(level)`, la même pour tous), `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
+| `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level)` (serrure `Padlock.ofLevel(level)`, la même pour tous), `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). Écran « Serrures » (P7.35) : clé `PadlocksRoute(current)`, `PadlocksViewModel` et sa fabrique ; résumé, Reprendre et grille des serrures par palier (`PadlockTier` de `core:locksmith`), lus sur l'avancement de `core:data`. Rien ne l'ouvre encore dans l'interface (P7.36). |
 | `feature:garden` | Feature | (squelette P10.9, ADR 0027) Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |
 | `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden` (prévu), l'un des deux modules du domaine qui dépendent de ces deux-là. |
@@ -115,6 +115,11 @@ changent beaucoup.
    cartouches (`CartridgesRoute`) ; la cartouche Classique empile l'accueil, et le disque « Changer de jeu » de
    l'accueil revient aux cartouches par `changeGame` (fonction pure de `app` : dépile jusqu'à elles, ou les met à
    la racine d'une pile restaurée qui ne les a pas). Le retour système sur les cartouches quitte l'application.
+   Les touchers des cartouches passent par `CartridgeOpener` (`app`, P7.34) : chaque cartouche empile son écran
+   tout de suite, sauf le Serrurier, qui attend la frontière (première serrure non ouverte) lue par
+   `PadlockFrontier` (`app`, lecture de l'avancement dès le démarrage, `current: StateFlow<Int?>` et `await()`) ;
+   un toucher sur une autre cartouche annule cette attente. `feature:cartridges` ne reçoit que
+   `padlockFrontier: StateFlow<Int?>`, pour la sous-ligne « Serrure N ».
    Le parcours mesuré (`BloxJourney`) passe par `cartridge_classic`.
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.

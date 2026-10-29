@@ -62,8 +62,10 @@ import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
 import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.locksmith.PadlockFrontier
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
@@ -286,6 +288,9 @@ class AppContainer(context: Context) {
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
         LocksmithViewModel.Factory(soundEffects, userPreferences, padlockProgress, mainScope)
 
+    /** Builds the view model of the screen « Serrures » (P7.35), on the progress of the Serrurier the padlocks write. */
+    val padlocksViewModelFactory: PadlocksViewModel.Factory = PadlocksViewModel.Factory(padlockProgress)
+
     /**
      * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
      * the local date of the phone, read anew at each showing ([today], as its game), and the seed of that date, the one
@@ -333,6 +338,13 @@ class AppContainer(context: Context) {
      * kept warm for the whole life of the process, as the DataStore.
      */
     val newCartridges: NewCartridges = NewCartridges(dailyChallenge.results, dataScope) { today() }
+
+    /**
+     * The frontier of the Serrurier, the first padlock not open: the one its cartridge opens and names. From the progress
+     * of the padlocks, read once and kept warm for the whole life of the process, as the DataStore: up to date with
+     * each padlock opened, which the screen of a padlock writes there.
+     */
+    val padlockFrontier: PadlockFrontier = PadlockFrontier(padlockProgress.progress, dataScope)
 }
 
 private const val TAG = "BloX"

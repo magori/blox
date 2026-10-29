@@ -89,7 +89,8 @@ internal fun MacrobenchmarkScope.play(duration: Duration) {
 }
 
 /**
- * Depuis le choix du jeu, ouvre la cartouche Serrurier et attend l'écran de la serrure. La cartouche est la deuxième du
+ * Depuis le choix du jeu, ouvre la cartouche Serrurier et attend l'écran de la serrure : la frontière, la serrure 1 tant
+ * qu'aucune n'est ouverte, ce que garde [placePieces]. La cartouche est la deuxième du
  * choix, qui défile : sur un petit écran, elle est sous le bord, et le choix défile d'abord jusqu'à elle.
  */
 internal fun MacrobenchmarkScope.openLocksmith() {
@@ -145,7 +146,8 @@ internal fun MacrobenchmarkScope.openGarden() {
  * Pose [count] fois la première pièce donnée : la choisit (ou la reprend, si elle est déjà posée), touche la première
  * case du trou que l'écran montre, puis Poser. Le parcours ne lit pas la serrure (la 1, la même à chaque fois) : la
  * pose est acceptée ou refusée, selon que la pièce tient là ; les deux passent par le domaine, les sons et le dessin.
- * Toujours la même pièce, sur au moins trois (`Padlock`) : la serrure ne s'ouvre pas, et Poser reste à l'écran.
+ * Toujours la même pièce, sur au moins trois (`Padlock`) : la serrure ne s'ouvre pas, et Poser reste à l'écran. Aucune
+ * ouverte, la frontière que la cartouche ouvre reste la serrure 1 d'une itération et d'un lancement à l'autre.
  */
 internal fun MacrobenchmarkScope.placePieces(count: Int) {
     repeat(count) {

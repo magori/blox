@@ -7,5 +7,7 @@
     <string name="feature_cartridges_daily">Graine du jour</string>
     <!-- L'autocollant d'une cartouche, écrit en capitales, lu par TalkBack après son nom. -->
     <string name="feature_cartridges_new">Nouvelle</string>
+    <!-- La sous-ligne de la cartouche du Serrurier : la frontière, la première serrure non ouverte, qu’elle ouvre. -->
+    <string name="feature_cartridges_padlock">Serrure %1$d</string>
     <string name="feature_cartridges_hint">Touche une cartouche pour l’ouvrir.</string>
 </resources>
