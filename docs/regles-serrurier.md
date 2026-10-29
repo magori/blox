@@ -888,9 +888,16 @@ droite.
   c'est le titre de la barre, qui garde son rôle de titre, qui dit l'état, lu en casse normale,
   « Serrure 03, fermée » ou « Serrure 03, ouverte ». En police ×2, la barre tient à 360 dp (titre aux mots
   entiers, coups sur une ligne, disque entier, sans chevauchement ; capture `LocksmithBarLargeFontDay`). Les
-  deux dernières pilules des accords portent une accolade et le mot « cadence ». La tuile choisie et son anneau
+  deux dernières pilules des accords portent une accolade et le mot « cadence ». Trop large pour l'écran (à
+  360 dp, dès 7 accords en police ×2, à 8 en police ×1), la bande des accords passe à la ligne, centrée, la
+  cadence V–I gardée entière sous son accolade : aucune pilule ne rapetisse sous son libellé ni ne sort de
+  l'écran, aucun mot n'est coupé, et TalkBack la lit toujours d'un tenant (P7.50 ; captures
+  `LocksmithBarLargeFontDay`, `LocksmithChordsWrapDay`). On ne touche pas les pilules : ce ne sont pas des
+  cibles (pas de taille minimale de 48 dp). La tuile choisie et son anneau
   descendent ensemble quand on appuie (ce qu'un écran dessine autour d'un bouton suit le bouton).
-  **Tests :** `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
+  **Tests :** `ChordPillsTest › on a phone of 360 dp, each pill of 3 to 8 chords is whole within the width, and « cadence » whole`,
+  `LocksmithScreenTest › the band of the chords reads the chords heard and those to come, by their degree`,
+  `LocksmithMessageTest › the title of the bar tells the padlock closed until it opens`,
   `LocksmithScreenTest › the title of the bar tells the padlock closed, then open, the disc being read for what it opens`,
   `LocksmithScreenTest › the disc of the bar, read « Toutes les serrures », opens the padlocks`,
   `LocksmithScreenTest › the back button of the bar goes back`,
