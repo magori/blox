@@ -1422,6 +1422,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [ ] **P7.50** Bande des accords du Serrurier trop large à 360 dp en police ×2 avec 8 pièces : le dernier accord
   sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
   P7.36).
+- [x] **P7.49** Barres système sous le Serrurier en Original de nuit : `SystemBarsAppearanceTest` échouait sur main, car il partait du choix du jeu, dessiné en Couleurs nuit depuis la grille de la Graine du jour (icônes claires, voulu, `SystemBarsTest`). Le test part désormais de l'accueil du Classique, dans le thème choisi ; le produit était juste.
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 

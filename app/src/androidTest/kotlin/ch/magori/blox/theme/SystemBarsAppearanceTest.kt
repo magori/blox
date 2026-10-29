@@ -13,7 +13,7 @@ import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
-import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
+import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
@@ -86,8 +86,9 @@ internal class SystemBarsAppearanceTest {
     )
     fun theSystemBarsFollowTheLocksmith() {
         runAndroidComposeUiTest<ComponentActivity> {
-            // Given the Original theme at night, on the cartridges: dark icons on its light page
-            val stack = mutableStateListOf<NavKey>(CartridgesRoute)
+            // Given the Original theme at night, on the home of the Classic, drawn in the theme chosen (the cartridges
+            // are drawn in Colorful only): dark icons on its light page
+            val stack = mutableStateListOf<NavKey>(HomeRoute)
             setContent {
                 BloxTheme(kind = BloxThemeKind.ORIGINAL, darkSystem = true) {
                     BloxSystemBars(top = { stack.lastOrNull() }, darkSystem = true)
@@ -100,7 +101,7 @@ internal class SystemBarsAppearanceTest {
             stack.add(LocksmithRoute(level = 1))
             waitForIdle()
 
-            // Then light icons on its dark page, and dark ones again once back on the cartridges
+            // Then light icons on its dark page, and dark ones again once back on the home of the Classic
             assertLightAppearance(false)
             stack.removeAt(stack.lastIndex)
             waitForIdle()
