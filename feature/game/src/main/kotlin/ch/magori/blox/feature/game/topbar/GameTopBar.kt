@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.takeOrElse
 import ch.magori.blox.core.designsystem.component.GlyphButton
+import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -46,7 +47,6 @@ import ch.magori.blox.feature.game.GameLabels
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.PanelSizes
-import ch.magori.blox.feature.game.ui.STICKER_TILT
 import ch.magori.blox.feature.game.ui.ValueText
 import ch.magori.blox.feature.game.ui.valueDescription
 
@@ -253,10 +253,9 @@ private fun Record(
 }
 
 /**
- * The sticker of a new best (NOUVEAU RECORD, NOUVEAU MEILLEUR): [text] in capitals, `accent-ink` on `accent`, in the
- * font of the stickers, in a pill that leans; on as few lines as it can, shrinking as the label it replaces, on two
- * lines where one does not fit, as with an enlarged font. With [capToNormalFont], it is never larger than with the
- * normal font.
+ * The sticker of a new best (NOUVEAU RECORD, NOUVEAU MEILLEUR), not framed, close around its text as the label it
+ * replaces: on as few lines as it can, shrinking as that label, on two lines where one does not fit, as with an
+ * enlarged font. With [capToNormalFont], it is never larger than with the normal font.
  */
 @Composable
 private fun NewBestSticker(
@@ -264,20 +263,15 @@ private fun NewBestSticker(
     capToNormalFont: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
     val largest = if (capToNormalFont) LocalDensity.current.notEnlarged(PanelSizes.label) else PanelSizes.label
-    val tilt = if (BloxTheme.kind == BloxThemeKind.ORIGINAL) 0f else STICKER_TILT
-    Text(
-        text = text.uppercase(),
-        color = palette.accentInk,
-        style = BloxTheme.typography.pointsPop,
+    Sticker(
+        text = text,
+        style = BloxTheme.typography.pointsPop.copy(fontSize = largest),
         maxLines = 2,
         textAlign = TextAlign.End,
-        autoSize = shrinkToFewestLines(largest),
-        modifier = modifier
-            .graphicsLayer { rotationZ = tilt }
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = TopBarSizes.stickerPaddingX, vertical = TopBarSizes.stickerPaddingY),
+        framed = false,
+        padding = PaddingValues(horizontal = TopBarSizes.stickerPaddingX, vertical = TopBarSizes.stickerPaddingY),
+        modifier = modifier,
     )
 }
 

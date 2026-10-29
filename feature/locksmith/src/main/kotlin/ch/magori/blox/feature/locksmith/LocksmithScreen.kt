@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.locksmith
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -87,18 +86,17 @@ import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
+import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.component.WindowPanel
 import ch.magori.blox.core.designsystem.component.WindowText
 import ch.magori.blox.core.designsystem.frame.rememberEffectTick
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.text.chordsText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
-import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
-import ch.magori.blox.core.designsystem.theme.shrinkToFit
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
@@ -857,10 +855,10 @@ private fun OpenPadlockCard(
 }
 
 /**
- * The sticker of the card, NOUVEAU MEILLEUR or PARFAITE: its word in capitals, `accent-ink` on `accent`, in the font of
- * the stickers, in a pill that leans, as NOUVEAU RECORD of the game; it bounces in at [tick], fixed in reduced effects
- * ([stickerScale]), drawn without recomposing. TalkBack reads its word in normal case, as a polite live region: the
- * sticker of a new best comes once the opening is written, after the title of the card took the focus.
+ * The sticker of the card, NOUVEAU MEILLEUR or PARFAITE ([Sticker]), as NOUVEAU RECORD of the game; it bounces in at
+ * [tick], fixed in reduced effects ([stickerScale]), drawn without recomposing. TalkBack reads its word in normal case,
+ * as a polite live region: the sticker of a new best comes once the opening is written, after the title of the card
+ * took the focus.
  */
 @Composable
 private fun OpenStickerLabel(
@@ -874,15 +872,9 @@ private fun OpenStickerLabel(
             OpenSticker.PERFECT -> R.string.feature_locksmith_sticker_perfect
         },
     )
-    val palette = BloxTheme.palette
     val effects = BloxTheme.effects
-    Text(
-        text = word.uppercase(),
-        color = palette.accentInk,
-        style = BloxTheme.typography.pointsPop,
-        maxLines = 1,
-        softWrap = false,
-        autoSize = shrinkToFit(BloxTheme.typography.pointsPop.fontSize),
+    Sticker(
+        text = word,
         modifier = modifier
             .clearAndSetSemantics {
                 contentDescription = word
@@ -892,11 +884,7 @@ private fun OpenStickerLabel(
                 val scale = stickerScale(tick(), effects)
                 scaleX = scale
                 scaleY = scale
-                rotationZ = STICKER_TILT
-            }
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .border(BloxBorders.frame, palette.page, BloxTheme.shapes.pill)
-            .padding(horizontal = STICKER_PADDING_X, vertical = STICKER_PADDING_Y),
+            },
     )
 }
 
@@ -915,13 +903,6 @@ private fun Counter(
         Text(text = label, color = BloxTheme.palette.label, style = BloxTheme.typography.statLabel)
     }
 }
-
-/** The sticker of the card leans, as stuck by hand, as NOUVEAU RECORD of the game. */
-private const val STICKER_TILT = -4f
-
-/** The room around the word of the sticker of the card, as around NOUVELLE on the cartridges. */
-private val STICKER_PADDING_X = 10.dp
-private val STICKER_PADDING_Y = 5.dp
 
 /** The share of the height the bottom of the screen, the controls or the card, takes at most. */
 private const val BOTTOM_SHARE = 0.5f

@@ -96,6 +96,31 @@ l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
 `LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level` ;
 captures `Stepper*`. Vues : V27, V31.
 
+**Autocollant** (P7.45, `Sticker` dans `core:designsystem`) : un mot en capitales, `accent-ink` sur `accent`, dans
+une pilule (`radius-pill`), en `points-pop` par défaut, penché de −4° (`STICKER_TILT`) comme collé à la main, cadré
+de `frame` (2 dp) dans la couleur de la page qui le découpe de ce qu'il couvre, 10 × 5 dp autour du texte par
+défaut. Partant de la taille de son style, il rapetisse plutôt que de déborder : sur une ligne (`shrinkToFit`), ou,
+avec `maxLines` au-delà d'une, sur le moins de lignes possible (`shrinkToFewestLines`) ; sans taille dans son style
+(`points-pop` en Original), il part de celle du texte autour, et, sans taille là non plus, garde celle du texte sans
+rapetisser. En Original, il ne penche jamais : ses pixels seraient flous. Ce que lit TalkBack et son mouvement
+appartiennent à l'écran, par le `modifier`, posé avant l'inclinaison. Il remplace trois copies, au rendu inchangé
+(captures identiques) : NOUVEAU RECORD ou NOUVEAU MEILLEUR de la barre du jeu (non cadré, 4 × 2 dp, sur deux lignes
+alignées à droite, à la taille de l'étiquette qu'il remplace), NOUVELLE des cartouches (11 sp espacé de 0,04 em, −6°
+sur le coin de la cartouche, 140 dp au plus) et NOUVEAU MEILLEUR ou PARFAITE de la carte du Serrurier (en rebond, par
+un `graphicsLayer` d'échelle dans le `modifier`). L'autocollant « +points » du plateau, dessiné au canevas, en reprend
+l'inclinaison. Le badge EN JEU de Mes musiques, droit, en `stat-label`, sans cadre, est un badge et non un
+autocollant : il n'est pas repris (badge commun : P7.51).
+**Tests :** `StickerLookTest › a sticker is accent-ink on accent, framed in the colour of the page`,
+`StickerLookTest › a sticker not framed has no frame`,
+`StickerLookTest › in Couleurs a sticker leans by its tilt, 4 degrees anticlockwise unless told otherwise`,
+`StickerLookTest › in Original a sticker never leans, whose pixels would blur`,
+`StickerTest › a sticker shows its text in capitals`,
+`StickerTest › in a font twice as large and a narrow place, a sticker of one line shrinks to fit its width`,
+`StickerTest › a sticker in a style without a size, among texts without one, still shows its text`,
+`StickerTest › in a font twice as large and a narrow place, a sticker of two lines breaks between its words` ;
+captures `TopBarNewRecordLargeFont`, `GameScreenNewRecord*`, `Cartridges*`, `LocksmithOpenPerfectDay`,
+`LocksmithOpenNewBestDay`. Vues : V2, V36, V35.
+
 **Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
