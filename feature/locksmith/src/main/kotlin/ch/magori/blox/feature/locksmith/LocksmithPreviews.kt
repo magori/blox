@@ -2,6 +2,7 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import ch.magori.blox.core.data.OpeningOutcome
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -13,6 +14,7 @@ import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
+import ch.magori.blox.core.locksmith.PadlockResult
 import ch.magori.blox.core.locksmith.Refusal
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
@@ -70,6 +72,37 @@ private fun openState(): LocksmithUiState {
     val open = start.padlock.solution.fold(tried) { game, piece -> game.placing(piece) }
     return LocksmithUiState(level = 3, game = open, events = listOf(PadlockEvent.PadlockOpened), move = 8)
 }
+
+/** Padlock 3 opened without taking back, refusal or hint, its first opening: PARFAITE. */
+private fun perfectState(): LocksmithUiState {
+    val open = start.padlock.solution.fold(start) { game, piece -> game.placing(piece) }
+    return LocksmithUiState(
+        level = 3,
+        game = open,
+        events = listOf(PadlockEvent.PadlockOpened),
+        move = 5,
+        outcome = OpeningOutcome.FIRST_OPENING,
+        best = open.result,
+        frontier = 4,
+    )
+}
+
+/** The padlock open of [openState], better than its best before: NOUVEAU MEILLEUR. */
+private fun newBestState(): LocksmithUiState = openState().let { open ->
+    open.copy(outcome = OpeningOutcome.NEW_BEST, best = open.game.result, frontier = 4)
+}
+
+/**
+ * The padlock open of [openState], replayed while padlocks 1 to 12 are open, no better than its best, opened without a
+ * hint: the best shown, and Reprendre à la serrure 13.
+ */
+private fun replayState(): LocksmithUiState = openState().let { open ->
+    val best = PadlockResult(pieces = open.game.given.size, moves = open.game.given.size + 1, refusals = 2, hints = 0)
+    open.copy(outcome = OpeningOutcome.NOTHING_NEW, best = best, frontier = 13)
+}
+
+/** The padlock open of [openState], its opening not written: « Résultat non enregistré ». */
+private fun unrecordedState(): LocksmithUiState = openState().copy(unrecorded = true, frontier = 3)
 
 /**
  * The first given piece, turned, aimed by its pivot on the first cell inside the ring where it covers the ring at
@@ -178,6 +211,47 @@ internal fun LocksmithOpenSmallDayPreview() {
 @Composable
 internal fun LocksmithOpenSmallNightPreview() {
     LocksmithPreview(openState())
+}
+
+/** A padlock opened perfectly, its sticker PARFAITE at rest. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenPerfectDayPreview() {
+    LocksmithPreview(perfectState())
+}
+
+/** A new best opening, its sticker NOUVEAU MEILLEUR at rest. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenNewBestDayPreview() {
+    LocksmithPreview(newBestState())
+}
+
+/** An old padlock replayed: its best opening, and three buttons, Reprendre à la serrure 13 among them. */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenReplayDayPreview() {
+    LocksmithPreview(replayState())
+}
+
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+internal fun LocksmithOpenReplayNightPreview() {
+    LocksmithPreview(replayState())
+}
+
+/** The same on a small screen, in large text: the card keeps to its share of the height, and scrolls. */
+@Preview(widthDp = 320, heightDp = 480, fontScale = 2f)
+@Composable
+internal fun LocksmithOpenReplaySmallDayPreview() {
+    LocksmithPreview(replayState())
+}
+
+/** An opening that could not be written: « Résultat non enregistré ». */
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+internal fun LocksmithOpenUnrecordedDayPreview() {
+    LocksmithPreview(unrecordedState())
 }
 
 /** A preview refused at the left edge, on the ring in column 0: its cells there cut 4 dp from the edge of the screen. */
