@@ -9,6 +9,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertHasClickAction
@@ -181,6 +182,57 @@ internal class PadlocksScreenTest {
     }
 
     @Test
+    @DisplayName(
+        "TalkBack reads the grid by rows and columns, the summary, Reprendre, the headers and Recommencer across a row",
+    )
+    fun talkBackReadsTheGridByRowsAndColumns() = extension.use {
+        // Given padlocks 1 to 4 open, on a phone of 390 dp, a grid of 4 columns: the summary, Reprendre, the
+        // apprentices under their header, 1 to 3, the journeymen under theirs, 4 to 7, then Recommencer
+        showPadlocks(PadlocksUiState(listOf(PERFECT, PERFECT, PERFECT, PERFECT)))
+
+        // Then: 7 rows of 4 columns
+        val grid = onNode(hasTestTag(PADLOCKS_GRID_TAG)).fetchSemanticsNode().config
+        assertThat(grid[SemanticsProperties.CollectionInfo].let { it.rowCount to it.columnCount }).isEqualTo(7 to 4)
+        // Each tile at its row and its column
+        assertThat(placeOf(tile(1))).isEqualTo(Place(row = 3, column = 0, columns = 1))
+        assertThat(placeOf(tile(3))).isEqualTo(Place(row = 3, column = 2, columns = 1))
+        assertThat(placeOf(tile(4))).isEqualTo(Place(row = 5, column = 0, columns = 1))
+        assertThat(placeOf(tile(7))).isEqualTo(Place(row = 5, column = 3, columns = 1))
+        // The others across their row
+        val summary = string(
+            R.string.feature_locksmith_padlocks_summary,
+            plural(R.plurals.feature_locksmith_padlocks_open, 4),
+            plural(R.plurals.feature_locksmith_padlocks_perfect, 4),
+        )
+        val journeyman = string(
+            R.string.feature_locksmith_padlocks_tier,
+            string(R.string.feature_locksmith_padlocks_tier_journeyman),
+            string(R.string.feature_locksmith_padlocks_tier_pieces, 6),
+        )
+        assertThat(placeOf(onNodeWithText(summary))).isEqualTo(Place(row = 0, column = 0, columns = 4))
+        assertThat(placeOf(onNodeWithText(string(R.string.feature_locksmith_padlocks_resume, 5))))
+            .isEqualTo(Place(row = 1, column = 0, columns = 4))
+        assertThat(placeOf(onNodeWithText(journeyman))).isEqualTo(Place(row = 4, column = 0, columns = 4))
+        assertThat(placeOf(onNodeWithText(string(R.string.feature_locksmith_padlocks_start_over))))
+            .isEqualTo(Place(row = 6, column = 0, columns = 4))
+    }
+
+    @Test
+    @DisplayName("without an opening, TalkBack reads the invitation on the first row, and no Recommencer at the end")
+    fun withoutAnOpeningTalkBackReadsTheInvitationOnTheFirstRow() = extension.use {
+        // Given no padlock open, on a grid of 4 columns: the invitation, the header of the apprentices, 1 to 3
+        showPadlocks(PadlocksUiState(emptyList()))
+
+        // Then: 3 rows of 4 columns
+        val grid = onNode(hasTestTag(PADLOCKS_GRID_TAG)).fetchSemanticsNode().config
+        assertThat(grid[SemanticsProperties.CollectionInfo].let { it.rowCount to it.columnCount }).isEqualTo(3 to 4)
+        assertThat(placeOf(onNodeWithText(string(R.string.feature_locksmith_padlocks_empty))))
+            .isEqualTo(Place(row = 0, column = 0, columns = 4))
+        assertThat(placeOf(tile(1))).isEqualTo(Place(row = 2, column = 0, columns = 1))
+        assertThat(placeOf(tile(3))).isEqualTo(Place(row = 2, column = 2, columns = 1))
+    }
+
+    @Test
     @DisplayName("in a font twice as large the grid has fewer columns, its tiles 80 dp at least")
     fun inALargeFontTheGridHasFewerColumns() = extension.use {
         // Given padlocks 1 and 2 open, on a phone of 390 dp, which holds the 3 apprentices on a row in a normal font
@@ -196,6 +248,9 @@ internal class PadlocksScreenTest {
         assertThat(tile(3).getBoundsInRoot().top).isGreaterThan(one.bottom)
         assertThat(one.right - one.left).isGreaterThanOrEqualTo(TILE)
         assertThat(one.bottom - one.top).isGreaterThanOrEqualTo(TILE)
+        // And TalkBack is told so
+        val grid = onNode(hasTestTag(PADLOCKS_GRID_TAG)).fetchSemanticsNode().config
+        assertThat(grid[SemanticsProperties.CollectionInfo].columnCount).isEqualTo(2)
     }
 
     @Test
@@ -344,6 +399,16 @@ internal class PadlocksScreenTest {
 
     /** The tile of padlock [level], read as one. */
     private fun ComposeContext.tile(level: Int) = onNode(hasTestTag(padlockTileTag(level)))
+
+    /** Where an item of the grid is, for TalkBack: its row, its column, and how many columns it spans. */
+    private data class Place(val row: Int, val column: Int, val columns: Int)
+
+    /** The place of [node] in the collection of the grid, on one row always. */
+    private fun placeOf(node: SemanticsNodeInteraction): Place {
+        val info = node.fetchSemanticsNode().config[SemanticsProperties.CollectionItemInfo]
+        assertThat(info.rowSpan).isEqualTo(1)
+        return Place(row = info.rowIndex, column = info.columnIndex, columns = info.columnSpan)
+    }
 
     /** What a tile reads of the best opening [result]. */
     private fun best(result: PadlockResult): String = string(

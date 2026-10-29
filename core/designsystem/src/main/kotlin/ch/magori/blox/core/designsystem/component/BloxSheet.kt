@@ -261,7 +261,7 @@ internal fun SheetFrame(
                 .fillMaxWidth()
                 .graphicsLayer {
                     val now = entrance()
-                    translationY = now.rise * SHEET_RISE.toPx()
+                    translationY = now.rise * BloxSizes.sheetRise.toPx()
                     alpha = now.panelAlpha
                 }
                 // A touch on the panel stays on it.
@@ -327,9 +327,6 @@ private fun Modifier.frameOpenAtBottom(
         }
     }
 }
-
-/** How far below its place a sheet starts to rise (as the maquette's sheets do). */
-private val SHEET_RISE = 40.dp
 
 /** The handle: 32 by 4 dp, in `label` at 60 %. */
 private val HANDLE_WIDTH = 32.dp

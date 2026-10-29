@@ -6,6 +6,7 @@ import ch.magori.blox.feature.locksmith.PadlocksItem.Cell
 import ch.magori.blox.feature.locksmith.PadlocksItem.TierHeader
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
@@ -148,6 +149,48 @@ class PadlocksGridTest {
         val locked = grid.filterIsInstance<Cell>().filter { it.state == CellState.LOCKED }.map(Cell::level)
         assertThat(locked).isEqualTo((firstLocked..lastLocked).toList())
         assertThat(grid.filterIsInstance<Cell>().last { it.state != CellState.LOCKED }.level).isEqualTo(frontier)
+    }
+
+    @Test
+    fun `items of one column fill a row from the left, then the next`() {
+        // When five items of one column are placed on a grid of 2 columns
+        val places = gridPlacesOf(spans = List(5) { 1 }, columns = 2)
+
+        // Then
+        assertThat(places).containsExactly(
+            GridPlace(row = 0, column = 0, span = 1),
+            GridPlace(row = 0, column = 1, span = 1),
+            GridPlace(row = 1, column = 0, span = 1),
+            GridPlace(row = 1, column = 1, span = 1),
+            GridPlace(row = 2, column = 0, span = 1),
+        )
+    }
+
+    @Test
+    fun `an item across the grid takes a row of its own, the next item beginning a row`() {
+        // When a header, three items of one column, a header, an item, on a grid of 2 columns
+        val places = gridPlacesOf(spans = listOf(2, 1, 1, 1, 2, 1), columns = 2)
+
+        // Then
+        assertThat(places).containsExactly(
+            GridPlace(row = 0, column = 0, span = 2),
+            GridPlace(row = 1, column = 0, span = 1),
+            GridPlace(row = 1, column = 1, span = 1),
+            GridPlace(row = 2, column = 0, span = 1),
+            GridPlace(row = 3, column = 0, span = 2),
+            GridPlace(row = 4, column = 0, span = 1),
+        )
+    }
+
+    @Test
+    fun `a grid holds one column at least`() {
+        assertThrows<IllegalArgumentException> { gridPlacesOf(spans = listOf(1), columns = 0) }
+    }
+
+    @Test
+    fun `an item spans one column at least, and never more than the grid`() {
+        assertThrows<IllegalArgumentException> { gridPlacesOf(spans = listOf(0), columns = 2) }
+        assertThrows<IllegalArgumentException> { gridPlacesOf(spans = listOf(3), columns = 2) }
     }
 
     private companion object {

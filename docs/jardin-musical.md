@@ -536,8 +536,8 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   - **jardin rouvert** : une fois la feuille descendue, il tombe pièce par pièce comme après Au hasard
     (`GardenChange.Opened`) ; en Effets réduits, il s'affiche d'un coup, sans chute ni fondu. Annuler rend le jardin
     d'avant d'un coup, sans chute ;
-  - **jardin supprimé** : sa rangée garde sa place, s'estompe puis se replie en 12 ticks (`BloxMotion.curtain`,
-    `motion-curtain`) ; en Effets réduits, elle disparaît d'un coup.
+  - **jardin supprimé** : sa rangée garde sa place, s'estompe puis se replie en 12 ticks (`BloxMotion.row`,
+    `motion-row`, P10.37) ; en Effets réduits, elle disparaît d'un coup.
 
   **Tests :** `SheetEntranceTest › a sheet closed goes down in 18 ticks, fading with its scrim, and in reduced effects it goes at once`,
   `LeavingContentTest › closed, it leaves on its last value for its length, then is gone`,

@@ -367,6 +367,13 @@ solutions) ;
     frontière, sa rangée complétée.
   - **Police ×2** : moins de colonnes (cases de 80 dp au moins, jamais aucune colonne) ; sur un écran bas, résumé,
     Reprendre et grille défilent ensemble, une rangée de cases visible en entier.
+  - **Lecture en grille** (P7.48) : TalkBack lit la grille comme une collection de lignes et de colonnes, telle
+    qu'elle est dessinée (`gridPlacesOf`) : il annonce son nombre de lignes et de colonnes, et pour chaque case sa
+    ligne et sa colonne. Le résumé, Reprendre, chaque en-tête de palier et « Recommencer depuis le début » occupent
+    chacun une ligne entière, sur toutes les colonnes : les lignes lues sont celles que l'on voit, et un en-tête
+    annonce une ligne nouvelle. Avec 4 serrures ouvertes sur 4 colonnes : 7 lignes, la serrure 1 en ligne 4,
+    colonne 1, la serrure 7 en ligne 6, colonne 4 ; sans ouverture, l'invitation en ligne 1, sans Recommencer. En
+    police ×2, moins de colonnes, annoncées aussi. La lecture d'une case et l'action « Ouvrir » ne changent pas.
   Pas encore de numéro de vue : la maquette de l'écran viendra en P7.38. Captures `PadlocksDay`, `PadlocksNight`,
   `PadlocksEmptyDay`, `PadlocksSmallDay`, `PadlocksLowDay`, `PadlocksLargeFontDay`.
   **Tests :** `PadlockTierTest › the padlocks follow the tiers of the table, the cycle being of masters`,
@@ -402,6 +409,12 @@ solutions) ;
   `PadlocksScreenTest › in a font twice as large the grid has fewer columns, its tiles 80 dp at least`,
   `PadlocksScreenTest › in a large font on a low screen, the summary and Reprendre scroll with the grid, a row of tiles shown whole`,
   `PadlocksScreenTest › a tile that can be touched offers TalkBack to open it, « Ouvrir »`,
+  `PadlocksGridTest › items of one column fill a row from the left, then the next`,
+  `PadlocksGridTest › an item across the grid takes a row of its own, the next item beginning a row`,
+  `PadlocksGridTest › a grid holds one column at least`,
+  `PadlocksGridTest › an item spans one column at least, and never more than the grid`,
+  `PadlocksScreenTest › TalkBack reads the grid by rows and columns, the summary, Reprendre, the headers and Recommencer across a row`,
+  `PadlocksScreenTest › without an opening, TalkBack reads the invitation on the first row, and no Recommencer at the end`,
   `SystemBarsTest › the padlocks of the locksmith`,
   `BloxNavDisplayTest › the screen of the padlocks over a padlock shows the progress, and back goes back to the padlock`.
   **Fait** (P7.36, `feature:locksmith`, `app`) : le disque et la navigation.

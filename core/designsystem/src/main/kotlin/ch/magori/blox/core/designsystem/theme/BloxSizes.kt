@@ -52,6 +52,12 @@ object BloxSizes {
 
     /** The diameter of the keys B and A on a tablet (`key-rotate-tablet`). */
     val keyRotateTablet = 84.dp
+
+    /**
+     * How far below its place a sheet (`BloxSheet`) starts to rise, and goes down again when its screen closes it
+     * (`sheet-rise`): a distance of a move, which no space matches.
+     */
+    val sheetRise = 40.dp
 }
 
 /** The spaces, on a grid of 4: the `spacing` tokens of docs/design-system/tokens.json. There is no `space-5`. */

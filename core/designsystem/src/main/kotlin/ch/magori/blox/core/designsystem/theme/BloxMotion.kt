@@ -21,6 +21,12 @@ object BloxMotion {
     /** The sticker of the points rises and fades (`motion-pop`, 750 ms). */
     val pop: Int = 45
 
+    /**
+     * A row deleted from a list fades out, then folds up (`motion-row`, 200 ms): as long as [curtain], but not the same
+     * move, so that one can change without the other.
+     */
+    val row: Int = 12
+
     /** The fade that takes the place of a move in reduced effects (`motion-reduced-fade`, 133 ms). */
     val reducedFade: Int = 8
 
