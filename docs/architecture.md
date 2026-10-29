@@ -66,6 +66,13 @@ graph TD
     board --> garden
     board --> music
 
+    app --> featureSettings[feature:settings]
+    featureSettings --> designsystem
+    featureSettings --> data
+    featureSettings --> audio
+    featureSettings --> haptics
+    featureSettings --> music
+
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
     class game,music,locksmith,garden pure
 ```
@@ -79,6 +86,7 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
 | `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Ne dépend que de `core:designsystem`. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
+| `feature:settings` | Feature | (à venir, P12.2, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) Page Paramètres unique, toujours en thème Couleurs, déplacée de `feature:home` : clé `SettingsRoute(section)`, `SettingsViewModel` et sa fabrique ; la section du jeu qui l'ouvre (« Réglages du Classique » : Record, plus tard le mode Moderne), puis « Tous les jeux ». Ouverte depuis le choix du jeu, l'accueil du Classique et la Graine du jour ; la navigation est assemblée dans `app`. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. Prévu : variantes Graine du jour et Au tempo de `GameRoute`, direction musicale (`MusicDirection`) de la Musique vivante (P8, P9, P11, ADR 0026). |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |

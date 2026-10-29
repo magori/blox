@@ -1,6 +1,6 @@
 # 0011 — Navigation 3 : la pile de navigation appartient à l'application
 
-- **Statut** : Acceptée ; le point P2.10 (fabriques vers les features) est consigné dans [0013](0013-fabriques-de-viewmodel-par-les-entrees.md)
+- **Statut** : Acceptée ; le point P2.10 (fabriques vers les features) est consigné dans [0013](0013-fabriques-de-viewmodel-par-les-entrees.md) ; amendée par [0022](0022-choix-du-jeu-a-la-racine.md) et [0030](0030-reglages-generaux-et-par-jeu.md)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -77,3 +77,12 @@ Options envisagées :
   (P5.5) ; en attendant, la preuve de cette tâche est le build et le lint verts. Les règles R8
   nécessaires à la restauration de la pile viennent de kotlinx-serialization, pas de
   `navigation3-runtime` : à vérifier en build minifié (P5.6).
+
+## Amendement (ADR 0030, 2026-10-30)
+
+La page Paramètres n'est plus une page de l'accueil : elle vit dans `feature:settings` et s'ouvre depuis plusieurs
+écrans. Sa clé porte un paramètre, `SettingsRoute(section: SettingsSection? = null)`, que `app` choisit selon l'écran qui
+l'ouvre : `SettingsRoute()` depuis le choix du jeu et la Graine du jour, `SettingsRoute(SettingsSection.CLASSIC)` depuis
+l'accueil du Classique. Ouvrir la page empile sa clé ; la flèche Retour et le retour système la dépilent et
+retrouvent l'écran qui l'a ouverte. La clé, sauvegardée avec la pile, rend la même section après la mort du
+processus.
