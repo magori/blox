@@ -38,6 +38,7 @@ import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.FakeMusicLibrary
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.SavedMusic
@@ -767,7 +768,13 @@ internal class BloxNavDisplayTest {
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
         val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
-        val locksmithFactory = LocksmithViewModel.Factory(FakeSoundEffectPlayer(), preferences)
+        val locksmithFactory =
+            LocksmithViewModel.Factory(
+                FakeSoundEffectPlayer(),
+                preferences,
+                FakePadlockProgressRepository(),
+                MainScope(),
+            )
         val newCartridges = NewCartridges(dailyChallenge.results, MainScope()) { DAILY_DATE }
         val gardenFactory =
             GardenViewModel.Factory(

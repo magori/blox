@@ -2,6 +2,7 @@ package ch.magori.blox.feature.locksmith
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +50,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
@@ -83,14 +85,17 @@ import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.component.WindowPanel
+import ch.magori.blox.core.designsystem.component.WindowText
 import ch.magori.blox.core.designsystem.frame.rememberEffectTick
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.text.chordsText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
+import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToFit
 import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
@@ -109,6 +114,7 @@ internal class LocksmithActions(
     val onHint: () -> Unit,
     val onRestart: () -> Unit,
     val onNext: () -> Unit,
+    val onResume: (frontier: Int) -> Unit,
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -122,6 +128,7 @@ internal class LocksmithActions(
             onHint = {},
             onRestart = {},
             onNext = {},
+            onResume = {},
         )
     }
 }
@@ -157,6 +164,13 @@ internal fun LocksmithScreen(
             frozen = feedbackTick,
             length = feedback?.ticks(BloxTheme.effects) ?: 0,
         )
+        // The sticker of the card bounces in once it shows, not on coming back to the screen.
+        val stickerTick = rememberEffectTick(
+            key = card?.sticker,
+            move = card?.sticker?.let { state.move },
+            frozen = null,
+            length = BloxMotion.sticker,
+        )
         BoxWithConstraints(
             modifier = modifier
                 .fillMaxSize()
@@ -191,7 +205,11 @@ internal fun LocksmithScreen(
                         .padding(BloxSpaces.space4),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (card == null) Controls(state, actions) else OpenPadlockCard(card, actions, titleFocus)
+                    if (card == null) {
+                        Controls(state, actions)
+                    } else {
+                        OpenPadlockCard(card, actions, titleFocus, stickerTick)
+                    }
                 }
             }
         }
@@ -749,14 +767,17 @@ private fun Controls(
 
 /**
  * The card « Serrure ouverte ! »: its title, the one text that tells the opening, a heading that takes the focus from
- * [titleFocus]; the counters of [card], then Serrure suivante, the action of the screen, and Rejouer cette serrure. The
- * cadence that closed the phrase is told by the message, above it.
+ * [titleFocus]; the sticker of [card], if any, bouncing in at [stickerTick]; its counters; the best opening kept of the
+ * padlock; whether the opening could not be recorded; then Serrure suivante, the action of the screen, Reprendre à la
+ * serrure N after the replay of an old padlock, and Rejouer cette serrure. The cadence that closed the phrase is told
+ * by the message, above it.
  */
 @Composable
 private fun OpenPadlockCard(
     card: OpenCard,
     actions: LocksmithActions,
     titleFocus: FocusRequester,
+    stickerTick: () -> Int,
 ) {
     WindowPanel(
         title = stringResource(R.string.feature_locksmith_open_title),
@@ -766,10 +787,23 @@ private fun OpenPadlockCard(
             .focusRequester(titleFocus)
             .focusable(),
     ) {
+        card.sticker?.let { sticker ->
+            OpenStickerLabel(sticker, stickerTick, Modifier.align(Alignment.CenterHorizontally))
+        }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Counter(stringResource(R.string.feature_locksmith_open_moves), card.moves)
             Counter(stringResource(R.string.feature_locksmith_open_refusals), card.refusals)
             Counter(stringResource(R.string.feature_locksmith_open_hints), card.hints)
+        }
+        card.best?.let { best ->
+            val hints = pluralStringResource(R.plurals.feature_locksmith_open_best_hints, best.hints, best.hints)
+            WindowText(stringResource(R.string.feature_locksmith_open_best, best.moves, best.refusals, hints))
+        }
+        if (card.unrecorded) {
+            WindowText(
+                text = stringResource(R.string.feature_locksmith_unrecorded),
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
         }
         PrimaryButton(
             text = stringResource(R.string.feature_locksmith_next),
@@ -777,6 +811,14 @@ private fun OpenPadlockCard(
             onClick = actions.onNext,
             modifier = Modifier.fillMaxWidth(),
         )
+        card.resumeAt?.let { frontier ->
+            SecondaryButton(
+                text = stringResource(R.string.feature_locksmith_resume, frontier),
+                icon = BloxIcon.PLAY,
+                onClick = { actions.onResume(frontier) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         SecondaryButton(
             text = stringResource(R.string.feature_locksmith_replay),
             icon = BloxIcon.REPLAY,
@@ -784,6 +826,50 @@ private fun OpenPadlockCard(
             modifier = Modifier.fillMaxWidth(),
         )
     }
+}
+
+/**
+ * The sticker of the card, NOUVEAU MEILLEUR or PARFAITE: its word in capitals, `accent-ink` on `accent`, in the font of
+ * the stickers, in a pill that leans, as NOUVEAU RECORD of the game; it bounces in at [tick], fixed in reduced effects
+ * ([stickerScale]), drawn without recomposing. TalkBack reads its word in normal case, as a polite live region: the
+ * sticker of a new best comes once the opening is written, after the title of the card took the focus.
+ */
+@Composable
+private fun OpenStickerLabel(
+    sticker: OpenSticker,
+    tick: () -> Int,
+    modifier: Modifier = Modifier,
+) {
+    val word = stringResource(
+        when (sticker) {
+            OpenSticker.NEW_BEST -> R.string.feature_locksmith_sticker_new_best
+            OpenSticker.PERFECT -> R.string.feature_locksmith_sticker_perfect
+        },
+    )
+    val palette = BloxTheme.palette
+    val effects = BloxTheme.effects
+    Text(
+        text = word.uppercase(),
+        color = palette.accentInk,
+        style = BloxTheme.typography.pointsPop,
+        maxLines = 1,
+        softWrap = false,
+        autoSize = shrinkToFit(BloxTheme.typography.pointsPop.fontSize),
+        modifier = modifier
+            .clearAndSetSemantics {
+                contentDescription = word
+                liveRegion = LiveRegionMode.Polite
+            }
+            .graphicsLayer {
+                val scale = stickerScale(tick(), effects)
+                scaleX = scale
+                scaleY = scale
+                rotationZ = STICKER_TILT
+            }
+            .background(palette.accent, BloxTheme.shapes.pill)
+            .border(BloxBorders.frame, palette.page, BloxTheme.shapes.pill)
+            .padding(horizontal = STICKER_PADDING_X, vertical = STICKER_PADDING_Y),
+    )
 }
 
 /** A counter of the card: its [value] over its [label], read by TalkBack as one « label : value ». */
@@ -801,6 +887,13 @@ private fun Counter(
         Text(text = label, color = BloxTheme.palette.label, style = BloxTheme.typography.statLabel)
     }
 }
+
+/** The sticker of the card leans, as stuck by hand, as NOUVEAU RECORD of the game. */
+private const val STICKER_TILT = -4f
+
+/** The room around the word of the sticker of the card, as around NOUVELLE on the cartridges. */
+private val STICKER_PADDING_X = 10.dp
+private val STICKER_PADDING_Y = 5.dp
 
 /** The share of the height the bottom of the screen, the controls or the card, takes at most. */
 private const val BOTTOM_SHARE = 0.5f

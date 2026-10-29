@@ -32,13 +32,15 @@ data class LocksmithRoute(val level: Int) : NavKey {
 
 /**
  * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onBack] est le bouton retour de la barre : `app` dépile.
- * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. `app` construit [viewModelFactory] ; la clé
- * lui parvient par les `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de
- * `NavDisplay` lie le ViewModel à la clé.
+ * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. [onResume] reçoit la serrure ouverte et la
+ * frontière, après le rejeu d’une ancienne serrure : `app` met la frontière à sa place. `app` construit
+ * [viewModelFactory] ; la clé lui parvient par les `CreationExtras` (ADR 0013). Le décorateur
+ * `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.locksmithEntry(
     onBack: () -> Unit,
     onNext: (open: LocksmithRoute) -> Unit,
+    onResume: (open: LocksmithRoute, frontier: LocksmithRoute) -> Unit,
     viewModelFactory: LocksmithViewModel.Factory,
 ) {
     entry<LocksmithRoute> { route ->
@@ -49,7 +51,7 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
         val state by viewModel.uiState.collectAsStateWithLifecycle()
         LocksmithScreen(
             state = state,
-            actions = remember(viewModel, route, onBack, onNext) {
+            actions = remember(viewModel, route, onBack, onNext, onResume) {
                 LocksmithActions(
                     onBack = onBack,
                     onTap = viewModel::tap,
@@ -60,6 +62,7 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
                     onHint = viewModel::hint,
                     onRestart = viewModel::restart,
                     onNext = { onNext(route) },
+                    onResume = { frontier -> onResume(route, LocksmithRoute(frontier)) },
                 )
             },
         )

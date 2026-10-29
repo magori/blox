@@ -1,11 +1,13 @@
 package ch.magori.blox.feature.locksmith
 
 import androidx.compose.runtime.Immutable
+import ch.magori.blox.core.data.OpeningOutcome
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
+import ch.magori.blox.core.locksmith.PadlockResult
 
 /**
  * What the screen of the Locksmith shows: padlock [level], from 1, and its [game]; the [events] of the last action of
@@ -26,6 +28,10 @@ internal data class LocksmithUiState(
     val hint: Hint? = null,
     val aim: Position? = null,
     val turned: Boolean = false,
+    val unrecorded: Boolean = false,
+    val outcome: OpeningOutcome? = null,
+    val best: PadlockResult? = null,
+    val frontier: Int? = null,
 ) {
     /** The selected piece where the player aims it, its pivot on [aim]; null without an aim or a selected piece. */
     val preview: Piece?

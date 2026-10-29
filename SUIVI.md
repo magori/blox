@@ -1372,7 +1372,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   incluse (`BackupRulesTest`). Chaque ouverture : 4 entiers (pièces, coups, refus, indices, `PadlockResult`) ; un
   résultat impossible lu dans le fichier (`require` de `PadlockResult`) rend le fichier corrompu, pas un plantage
   (revue de P7.31). Après P7.31.
-- [ ] **P7.33** Écriture à l'ouverture (ViewModel, portée d'application, `IOException` qui laisse jouer) ; carte de
+- [x] **P7.33** Écriture à l'ouverture (ViewModel, portée d'application, `IOException` qui laisse jouer) ; carte de
   V35 : meilleure ouverture, NOUVEAU MEILLEUR ou PARFAITE, « Reprendre à la serrure N » après un rejeu ; Effets
   réduits ; captures. L'adaptateur `PadlockResult` → `PadlockOpening` vient avec un test qui garde les deux en accord
   (rejets et ordre du meilleur), écrit en premier ; un avancement d'une version ou génération plus récente (écriture
@@ -1391,7 +1391,8 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   cartouche), nouvelle vue « Serrures » (jour, nuit, vide, grande police, confirmation), pictogrammes. Numéro de vue
   à attribuer avec ceux de P10.33 et P12.10.
 - [ ] **P7.39** Juger avec `designer-jeu` les captures de P7.33 à P7.37 (contraste de la case verrouillée, carte à
-  trois boutons).
+  trois boutons ; à 390 dp, elle pousse le message de la cadence hors de l'écran, capture
+  `LocksmithOpenReplaySmallDay`, trouvé en P7.33).
 - [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
@@ -1407,6 +1408,10 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   Android 13 ou plus) : il cite encore `Padlock.generate`, supprimé en P7.30.
 - [ ] **P7.44** Mesurer le pire temps de `Padlock.ofLevel` sur les serrures 1 à 200 (`PadlockMeasure`) : il tourne
   sur le fil principal au toucher de « Serrure suivante » (P7.30) ; s'il dépasse une image (16 ms), le sortir de ce fil.
+- [ ] **P7.45** Extraire l'autocollant commun (`Sticker`) dans `core:designsystem` : le jeu (`GameTopBar`), les
+  cartouches, le Serrurier (P7.33) et Mes musiques en ont chacun leur copie ; la règle de 2 est dépassée.
+- [ ] **P7.46** Vérifier sur un téléphone en français que « 0 indice » s'affiche au singulier sur la carte du
+  Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 

@@ -189,7 +189,8 @@ graph LR
   `files/datastore/musics.bin` (les musiques créées par le joueur, sans URI de contenu ;
   P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)) et `files/datastore/garden.bin`
   (le jardin du Jardin musical, lui aussi une création du joueur ; P10.11, décision du développeur
-  du 2026-10-28). Les
+  du 2026-10-28) et `files/datastore/padlocks.bin` (l'avancement du Serrurier, l'acquis du joueur ;
+  P7.32). Les
   règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
   `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
@@ -212,6 +213,12 @@ graph LR
   Okio, comme les musiques ; les deux formats partagent `binaryDataStore` (copie `.corrupt` d'un
   fichier illisible comprise), `readCount`, `readText` et `writeText` (`BinaryFiles.kt`). Il passe
   `DataStoreFileContract`.
+
+  L'avancement du Serrurier (`PadlockProgressRepository`, `PADLOCKS_FILE`, `padlocks.bin`, P7.32) est un
+  format binaire versionné du même genre, avec un numéro de génération des serrures (détail dans
+  [regles-serrurier.md](regles-serrurier.md), section « Progression »). L'`AppContainer` construit
+  `DataStorePadlockProgressRepository` une fois pour le processus (P7.33) et le passe à la fabrique du
+  ViewModel du Serrurier, avec la portée de l'application (`mainScope`), où s'écrit chaque ouverture.
 
 ## Boucle de jeu
 

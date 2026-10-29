@@ -21,6 +21,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
@@ -44,7 +45,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.lock.LockCell
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.OpeningOutcome
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -55,6 +58,7 @@ import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
+import ch.magori.blox.core.locksmith.PadlockResult
 import ch.magori.blox.core.locksmith.PadlockUpdate
 import ch.magori.blox.core.locksmith.placing
 import ch.magori.blox.core.locksmith.solved
@@ -62,6 +66,7 @@ import ch.magori.blox.core.locksmith.turnedTo
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
+import kotlinx.coroutines.MainScope
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
@@ -109,6 +114,83 @@ internal class LocksmithScreenTest {
 
         // Then
         runOnIdle { assertThat(touched).containsExactly("restart") }
+    }
+
+    @Test
+    @DisplayName("on the card, the best opening kept of the padlock is read, when it is not this one")
+    fun onTheCardTheBestOpeningIsRead() = extension.use {
+        // Given padlock 1 opened with a hint, its best opening kept without one
+        val game = start.hint().game.solved()
+        val pieces = game.given.size
+        val best = PadlockResult(pieces = pieces, moves = pieces + 1, refusals = 2, hints = 0)
+
+        // When
+        showLocksmith(LocksmithUiState(level = 1, game = game, best = best, outcome = OpeningOutcome.NOTHING_NEW))
+
+        // Then
+        val hints = plural(R.plurals.feature_locksmith_open_best_hints, 0)
+        onNodeWithText(string(R.string.feature_locksmith_open_best, pieces + 1, 2, hints))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    @DisplayName("on the card, a new best and a perfect opening are told by a sticker that TalkBack reads")
+    fun onTheCardTheStickerIsRead() = extension.use {
+        // Given padlock 1 opened with a hint, a new best
+        val state = showHosted(
+            LocksmithUiState(level = 1, game = start.hint().game.solved(), outcome = OpeningOutcome.NEW_BEST),
+        )
+
+        // Then
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_new_best))
+            .performScrollTo()
+            .assertIsDisplayed()
+
+        // When it is opened again without a hint: perfect, a new best
+        state.value = state.value.copy(game = start.solved())
+
+        // Then PARFAITE wins
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_perfect))
+            .performScrollTo()
+            .assertIsDisplayed()
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_new_best)).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("on the card of an old padlock replayed, Reprendre à la serrure N resumes at the frontier")
+    fun onTheCardResumeGoesToTheFrontier() = extension.use {
+        // Given padlock 1 opened again, while padlocks 1 to 8 are open
+        val touched = mutableListOf<String>()
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), frontier = 9), touched)
+
+        // When
+        onNodeWithText(string(R.string.feature_locksmith_resume, 9)).performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(touched).containsExactly("resume 9") }
+    }
+
+    @Test
+    @DisplayName("the sticker and the line not recorded, which come after the opening, are polite live regions")
+    fun theStickerAndTheLineNotRecordedArePoliteLiveRegions() = extension.use {
+        // Given padlock 1 opened perfectly, its opening not written
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), unrecorded = true))
+
+        // Then
+        val polite = SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_perfect)).assert(polite)
+        onNodeWithText(string(R.string.feature_locksmith_unrecorded)).assert(polite)
+    }
+
+    @Test
+    @DisplayName("on the card, an opening that could not be recorded is told")
+    fun onTheCardAnOpeningNotRecordedIsTold() = extension.use {
+        // Given
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), unrecorded = true))
+
+        // Then
+        onNodeWithText(string(R.string.feature_locksmith_unrecorded)).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -726,6 +808,8 @@ internal class LocksmithScreenTest {
                 LocksmithRoute(level = 1),
                 FakeSoundEffectPlayer(),
                 FakeUserPreferencesRepository(),
+                FakePadlockProgressRepository(),
+                MainScope(),
             )
         setContent {
             val state by viewModel.uiState.collectAsState()
@@ -801,6 +885,7 @@ internal class LocksmithScreenTest {
             onHint = { touched += "hint" },
             onRestart = { touched += "restart" },
             onNext = { touched += "next" },
+            onResume = { frontier -> touched += "resume $frontier" },
         )
         setContent { LocksmithScreen(state = state, actions = actions) }
     }
@@ -827,6 +912,7 @@ internal class LocksmithScreenTest {
         onHint = viewModel::hint,
         onRestart = viewModel::restart,
         onNext = {},
+        onResume = {},
     )
 
     /** These actions, Restart replaced by [onRestart]. */
@@ -840,6 +926,7 @@ internal class LocksmithScreenTest {
         onHint = onHint,
         onRestart = onRestart,
         onNext = onNext,
+        onResume = onResume,
     )
 
     private companion object {
@@ -911,4 +998,9 @@ internal class LocksmithScreenTest {
         id: Int,
         vararg arguments: Any,
     ): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id, *arguments)
+
+    private fun plural(
+        id: Int,
+        count: Int,
+    ): String = InstrumentationRegistry.getInstrumentation().targetContext.resources.getQuantityString(id, count, count)
 }

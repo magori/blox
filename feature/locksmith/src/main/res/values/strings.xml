@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="feature_locksmith_title">Serrure %1$02d</string>
     <string name="feature_locksmith_moves">Coups : %1$d</string>
     <string name="feature_locksmith_hint">Indice</string>
@@ -49,4 +49,16 @@
     <string name="feature_locksmith_open_hints">Indices</string>
     <string name="feature_locksmith_open_counter">%1$s : %2$d</string>
     <string name="feature_locksmith_replay">Rejouer cette serrure</string>
+    <string name="feature_locksmith_resume">Reprendre à la serrure %1$d</string>
+    <!-- « coups » is always plural: a padlock has 3 pieces at least, opened in as many moves at least; « refus » does
+         not change in the plural; the hints have their plural. -->
+    <string name="feature_locksmith_open_best" tools:ignore="PluralsCandidate">Meilleure ouverture : %1$d coups, %2$d refus, %3$s</string>
+    <plurals name="feature_locksmith_open_best_hints">
+        <item quantity="one">%d indice</item>
+        <item quantity="many">%d indices</item>
+        <item quantity="other">%d indices</item>
+    </plurals>
+    <string name="feature_locksmith_sticker_new_best">Nouveau meilleur</string>
+    <string name="feature_locksmith_sticker_perfect">Parfaite</string>
+    <string name="feature_locksmith_unrecorded">Résultat non enregistré</string>
 </resources>

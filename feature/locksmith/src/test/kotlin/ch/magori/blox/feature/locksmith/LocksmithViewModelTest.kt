@@ -3,6 +3,7 @@ package ch.magori.blox.feature.locksmith
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Orientation
@@ -15,6 +16,7 @@ import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.Refusal
 import ch.magori.blox.core.locksmith.turnedTo
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import kotlinx.coroutines.MainScope
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -162,6 +164,8 @@ class LocksmithViewModelTest {
         val built = LocksmithViewModel.Factory(
             FakeSoundEffectPlayer(),
             FakeUserPreferencesRepository(),
+            FakePadlockProgressRepository(),
+            MainScope(),
         ).create(LocksmithViewModel::class, extras)
 
         // Then
@@ -175,6 +179,8 @@ class LocksmithViewModelTest {
             LocksmithViewModel.Factory(
                 FakeSoundEffectPlayer(),
                 FakeUserPreferencesRepository(),
+                FakePadlockProgressRepository(),
+                MainScope(),
             ).create(LocksmithViewModel::class, CreationExtras.Empty)
         }
     }

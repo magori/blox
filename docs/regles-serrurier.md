@@ -183,8 +183,9 @@ la préférence de solutions viennent du **profil** de la serrure (`PadlockProfi
 Décidée le 2026-10-28. Demande du développeur : garder l'avancement, poursuivre sur de nouvelles
 serrures, rouvrir les anciennes.
 Propositions de `designer-jeu` retenues par le développeur (P7.27, P7.28). Une serrure par niveau et ses paliers sont
-faits (P7.29, P7.30) : c'est le jeu décrit plus haut. Tant que les tâches P7.31 à P7.37 ne sont pas faites (avancement
-et anciennes serrures), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
+faits (P7.29, P7.30) : c'est le jeu décrit plus haut. L'avancement est gardé et écrit à chaque ouverture, la carte
+le montre (P7.31 à P7.33). Tant que les tâches P7.34 à P7.37 ne sont pas faites (cartouche, écran « Serrures »,
+recommencer depuis le début), le jeu suit les sections précédentes ; chaque règle recevra ses tests en son temps.
 
 ### Une serrure par niveau, la même pour tous
 
@@ -308,6 +309,46 @@ solutions) ;
 - Après avoir rejoué une ancienne serrure, « Serrure suivante » mène à la serrure d'après ; si elle est déjà
   ouverte, la carte ajoute « Reprendre à la serrure *N* ». Une nouvelle meilleure ouverture ou une serrure parfaite
   s'annonce par un autocollant (NOUVEAU MEILLEUR, PARFAITE).
+  **Fait** (P7.33) : la carte, décrite dans la section [Écran](#écran) (« Serrure ouverte »). « Reprendre à la
+  serrure *N* » met la frontière à la place de la serrure rejouée, en haut de la pile (`resumePadlocks`, `app`),
+  comme « Serrure suivante » y met la suivante ; un second toucher ne fait rien de plus.
+  **Tests :** `NextPadlockTest › resuming puts the frontier in the place of the padlock replayed`,
+  `NextPadlockTest › a second tap on resume does not move on twice`,
+  `LocksmithScreenTest › on the card of an old padlock replayed, Reprendre à la serrure N resumes at the frontier`.
+- **Écriture à l'ouverture** (fait, P7.33) : quand la serrure s'ouvre, le ViewModel écrit son ouverture dans
+  l'avancement, dans la portée de l'application (`mainScope` de l'`AppContainer`), qui survit à l'écran : quitter
+  la serrure aussitôt ne perd pas l'ouverture. L'ouverture passe de `PadlockResult` (`core:locksmith`) à
+  `PadlockOpening` (`core:data`, qui ne voit pas `core:locksmith`) par un adaptateur (`PadlockOpenings.kt`,
+  `feature:locksmith`) ; un test garde les deux types en accord : mêmes compteurs dans les deux sens, mêmes
+  rejets, même ordre du meilleur, même refus de comparer des serrures de nombres de pièces différents.
+  - La **frontière est lue au moment d'écrire**, pas celle que l'écran suivait, qui peut retarder sur une
+    écriture en cours ou devancer un avancement effacé depuis. Une serrure au-delà de la frontière (après une
+    ouverture qui n'a pas pu s'écrire, par exemple) n'est pas enregistrée.
+  - Une écriture impossible (`IOException` : disque plein, avancement d'une version ou d'une génération plus
+    récente) laisse jouer ; la serrure n'est pas enregistrée. Toute autre erreur est un bug et remonte à la portée
+    de l'application. Un avancement plus récent n'est lu qu'une fois par l'écran, puis une fois par ouverture,
+    jamais en boucle.
+  - Dans ces deux cas, la carte dit « Résultat non enregistré », tant que la serrure n'est pas recommencée.
+  - Ce que l'ouverture a été pour l'avancement (première, nouvelle meilleure, rien de nouveau) est gardé pour la
+    carte jusqu'à « Rejouer cette serrure ». Une écriture qui finit après « Rejouer » ne marque pas la partie
+    recommencée.
+  - L'écran suit, tant qu'il vit, la meilleure ouverture gardée de sa serrure (aucune pour une serrure pas encore
+    ouverte) et la frontière, pour la carte.
+  **Tests :** `PadlockOpeningsTest › a result becomes the opening of the same counters, and back, without loss`,
+  `PadlockOpeningsTest › a result and an opening refuse the same counters, with the same failure`,
+  `PadlockOpeningsTest › a result and an opening tell the better of two the same way, each criterion alone and against the others`,
+  `PadlockOpeningsTest › a result and an opening both refuse to compare openings of different numbers of pieces`,
+  `LocksmithProgressTest › opening the padlock records its opening, for its level`,
+  `LocksmithProgressTest › a padlock beyond the frontier is not recorded, and the screen tells it`,
+  `LocksmithProgressTest › the opening is recorded even when the screen is left at once`,
+  `LocksmithProgressTest › an opening that cannot be written leaves the game playable, and the screen tells it`,
+  `LocksmithProgressTest › what the opening was for the progress is kept for the card, until the padlock starts over`,
+  `LocksmithProgressTest › the screen follows the best opening kept of its padlock, and the frontier`,
+  `LocksmithProgressTest › a padlock not open has no best opening`,
+  `LocksmithProgressTest › a progress of a later version is read once by the screen and once per opening, the game going on`,
+  `LocksmithProgressTest › the frontier is read when the opening is written, not when the screen opened`,
+  `LocksmithProgressTest › a write that ends after the padlock started over tells nothing of the game started over`,
+  `LocksmithProgressTest › the frontier is followed after a first opening, until the card offers to resume`.
 - **Recommencer depuis le début**, en bas de l'écran « Serrures », avec confirmation dans la page : les résultats
   sont effacés, les serrures restent les mêmes.
 - L'avancement est un fichier versionné de `core:data` (qui ne stocke que des entiers et un numéro de génération)
@@ -753,6 +794,41 @@ droite.
   `LocksmithScreenTest › on opening, « Serrure ouverte ! » is a heading and takes the focus`,
   `LocksmithScreenTest › once open, a single node says « Serrure ouverte ! »`,
   `LocksmithScreenTest › after Rejouer cette serrure, the message takes the focus`.
+  **Avancement sur la carte** (P7.33, règles d'écriture dans la section [Progression](#progression)) :
+  - **Meilleure ouverture** gardée de la serrure : « Meilleure ouverture : *n* coups, *n* refus, *n* indice(s) »
+    (« indice » a son pluriel ; « coups » est toujours au pluriel, une serrure ayant 3 pièces au moins, et
+    « refus » ne change pas). Elle n'est montrée que si elle diffère de cette ouverture, et seulement une fois
+    l'écriture confirmée ou refusée : sinon elle apparaîtrait, puis disparaîtrait (scintillement).
+  - **Autocollant** : « Parfaite » pour une ouverture parfaite (un fait de la partie, quoi qu'en dise
+    l'avancement), sinon « Nouveau meilleur » quand l'avancement dit une nouvelle meilleure ; Parfaite l'emporte.
+    Une première ouverture, une ouverture qui ne fait pas mieux ou non enregistrée n'en portent pas, sauf parfaite.
+    Il arrive en rebond (un peu au-delà de sa taille, puis à sa taille à la fin de `motion-sticker`) ; en Effets
+    réduits, il est fixe, à sa taille dès la première image.
+  - **« Reprendre à la serrure *N* »**, bouton secondaire, quand la serrure suivante est déjà ouverte (après le
+    rejeu d'une ancienne) : *N* est la frontière. Rien quand la suivante est la frontière (« Serrure suivante » y
+    mène) ou quand la frontière n'est pas connue.
+  - **« Résultat non enregistré »** quand l'ouverture n'a pas pu s'écrire.
+  - Pour TalkBack, l'autocollant et « Résultat non enregistré », qui arrivent après l'ouverture, sont des régions
+    annoncées poliment.
+  **Tests :** `OpenCardTest › the card shows the best opening kept of the padlock, when it is not this one`,
+  `OpenCardTest › the card leaves the best opening out when it is this one`,
+  `OpenCardTest › the best opening waits for the progress to tell what the opening was, so that it does not flicker`,
+  `OpenCardTest › a new best bears the sticker NOUVEAU MEILLEUR`,
+  `OpenCardTest › a perfect opening bears the sticker PARFAITE, over a new best, whatever the progress said`,
+  `OpenCardTest › a first opening, an opening no better or one not recorded bears no sticker, unless it is perfect`,
+  `OpenCardTest › the sticker bounces in, a little past its size, and rests at it once motion-sticker is over`,
+  `OpenCardTest › in reduced effects the sticker is fixed, at its size from its first frame`,
+  `OpenCardTest › after replaying a padlock whose next one is open, the card offers to resume at the frontier`,
+  `OpenCardTest › no resume when the next padlock is the frontier, its own button, or when the frontier is not known`,
+  `OpenCardTest › an opening that could not be recorded is told on the card`,
+  `LocksmithScreenTest › on the card, the best opening kept of the padlock is read, when it is not this one`,
+  `LocksmithScreenTest › on the card, a new best and a perfect opening are told by a sticker that TalkBack reads`,
+  `LocksmithScreenTest › on the card of an old padlock replayed, Reprendre à la serrure N resumes at the frontier`,
+  `LocksmithScreenTest › on the card, an opening that could not be recorded is told`,
+  `LocksmithScreenTest › the sticker and the line not recorded, which come after the opening, are polite live regions`.
+  **Vues :** V35 (captures `LocksmithOpenPerfectDay`, `LocksmithOpenNewBestDay`, `LocksmithOpenReplayDay`,
+  `LocksmithOpenReplayNight`, `LocksmithOpenReplaySmallDay` et `LocksmithOpenUnrecordedDay`, de
+  `LocksmithScreenshots.kt`).
 - Pas de bouton pour passer une serrure : l'indice débloque.
 - L'état de l'écran garde les événements de la dernière action (retours et sons), le numéro de
   l'action (deux refus à la suite restent deux retours) et l'indice affiché, jusqu'à la pose
