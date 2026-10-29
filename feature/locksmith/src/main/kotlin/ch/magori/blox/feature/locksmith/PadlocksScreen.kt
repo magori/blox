@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,8 +39,12 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.CollectionInfo
+import androidx.compose.ui.semantics.CollectionItemInfo
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.collectionInfo
+import androidx.compose.ui.semantics.collectionItemInfo
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.onClick
@@ -190,10 +194,14 @@ private fun PadlocksBar(onBack: () -> Unit) {
 
 /** « n ouvertes · m parfaites », a heading; before the first opening, the invitation to open padlock 1. */
 @Composable
-private fun Summary(state: PadlocksUiState) {
+private fun Summary(
+    state: PadlocksUiState,
+    modifier: Modifier = Modifier,
+) {
     if (state.isEmpty) {
         Text(
             text = stringResource(R.string.feature_locksmith_padlocks_empty),
+            modifier = modifier,
             color = BloxTheme.palette.ink,
             style = BloxTheme.typography.section,
         )
@@ -204,7 +212,7 @@ private fun Summary(state: PadlocksUiState) {
                 pluralStringResource(R.plurals.feature_locksmith_padlocks_open, state.open, state.open),
                 pluralStringResource(R.plurals.feature_locksmith_padlocks_perfect, state.perfect, state.perfect),
             ),
-            modifier = Modifier.semantics { heading() },
+            modifier = modifier.semantics { heading() },
             color = BloxTheme.palette.ink,
             style = BloxTheme.typography.section,
         )
@@ -217,6 +225,9 @@ private fun Summary(state: PadlocksUiState) {
  * tiles of about [TILE], fewer columns in a large font ([padlockColumns]), a header across the grid per tier. It opens
  * on the frontier, and keeps where it was scrolled to when the screen comes back. Reprendre and Recommencer show once a
  * padlock is open.
+ *
+ * TalkBack reads it as a collection of rows and columns, as it is laid out ([gridPlacesOf]): a tile at its row and its
+ * column; the summary, Reprendre, a header and Recommencer each on a row of its own, across all the columns.
  */
 @Composable
 private fun PadlocksGrid(
@@ -228,9 +239,16 @@ private fun PadlocksGrid(
     val onOpen = actions.onOpen
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
         val columns = padlockColumns(maxWidth, LocalDensity.current.fontScale)
-        val items = remember(state, current, columns) { padlocksGridOf(state.openings, current, columns) }
-        // The summary, and Reprendre once a padlock is open, come before the items of the grid.
+        // The summary, and Reprendre once a padlock is open, come before the items of the grid, Recommencer after.
         val above = if (state.isEmpty) 1 else 2
+        val below = if (state.isEmpty) 0 else 1
+        // The items, and where each lies, those above and below included: for TalkBack, and the spans.
+        val (items, places) = remember(state, current, columns) {
+            val items = padlocksGridOf(state.openings, current, columns)
+            val spans = List(above) { columns } + items.map { if (it is TierHeader) columns else 1 } +
+                List(below) { columns }
+            items to gridPlacesOf(spans, columns)
+        }
         val frontier = remember(items) { items.indexOfFirst { it is Cell && it.state == CellState.FRONTIER } }
         val grid = rememberLazyGridState(initialFirstVisibleItemIndex = above + frontier)
         // The height may change after the first frame, as the insets of the system come, and cut the row of the
@@ -243,48 +261,56 @@ private fun PadlocksGrid(
             columns = GridCells.Fixed(columns),
             modifier = Modifier
                 .fillMaxSize()
+                // Set in the outer modifier of the grid, it prevails over the CollectionInfo(-1, -1) the lazy grid
+                // sets inside: do not move it.
+                .semantics { collectionInfo = CollectionInfo(rowCount = places.last().row + 1, columnCount = columns) }
                 .testTag(PADLOCKS_GRID_TAG),
             state = grid,
             contentPadding = PaddingValues(bottom = BloxSpaces.space4),
             verticalArrangement = Arrangement.spacedBy(GAP),
             horizontalArrangement = Arrangement.spacedBy(GAP),
         ) {
-            item(key = SUMMARY_KEY, span = { GridItemSpan(maxLineSpan) }) { Summary(state) }
+            item(key = SUMMARY_KEY, span = { GridItemSpan(places[0].span) }) {
+                Summary(state, Modifier.placedAt(places[0]))
+            }
             if (!state.isEmpty) {
-                item(key = RESUME_KEY, span = { GridItemSpan(maxLineSpan) }) {
+                item(key = RESUME_KEY, span = { GridItemSpan(places[1].span) }) {
                     PrimaryButton(
                         text = stringResource(R.string.feature_locksmith_padlocks_resume, state.frontier),
                         icon = BloxIcon.PLAY,
                         onClick = { onOpen(state.frontier) },
                         modifier = Modifier
+                            .placedAt(places[1])
                             .fillMaxWidth()
                             .padding(top = BloxSpaces.space2),
                     )
                 }
             }
-            items(
+            itemsIndexed(
                 items = items,
-                key = { item ->
+                key = { _, item ->
                     when (item) {
                         is TierHeader -> "tier_${item.tier.name}"
                         is Cell -> item.level
                     }
                 },
-                span = { item -> GridItemSpan(if (item is TierHeader) maxLineSpan else 1) },
-                contentType = { item -> item::class },
-            ) { item ->
+                span = { index, _ -> GridItemSpan(places[above + index].span) },
+                contentType = { _, item -> item::class },
+            ) { index, item ->
+                val placed = Modifier.placedAt(places[above + index])
                 when (item) {
-                    is TierHeader -> TierHeading(item.tier)
-                    is Cell -> PadlockTile(item, onOpen)
+                    is TierHeader -> TierHeading(item.tier, placed)
+                    is Cell -> PadlockTile(item, onOpen, placed)
                 }
             }
             if (!state.isEmpty) {
-                item(key = START_OVER_KEY, span = { GridItemSpan(maxLineSpan) }) {
+                item(key = START_OVER_KEY, span = { GridItemSpan(places.last().span) }) {
                     DangerButton(
                         text = stringResource(R.string.feature_locksmith_padlocks_start_over),
                         icon = BloxIcon.REPLAY,
                         onClick = actions.onStartOver,
                         modifier = Modifier
+                            .placedAt(places.last())
                             .fillMaxWidth()
                             .padding(top = BloxSpaces.space4),
                     )
@@ -296,7 +322,10 @@ private fun PadlocksGrid(
 
 /** The header of [tier]: its name, then the pieces of its padlocks, « Apprenti · 3 à 5 pièces », a heading. */
 @Composable
-private fun TierHeading(tier: PadlockTier) {
+private fun TierHeading(
+    tier: PadlockTier,
+    modifier: Modifier = Modifier,
+) {
     val pieces = tier.pieces
     Text(
         text = stringResource(
@@ -304,7 +333,7 @@ private fun TierHeading(tier: PadlockTier) {
             stringResource(tierNameOf(tier)),
             stringResource(piecesTextOf(pieces), pieces.first, pieces.last),
         ),
-        modifier = Modifier
+        modifier = modifier
             .padding(top = BloxSpaces.space2)
             .semantics { heading() },
         color = BloxTheme.palette.label,
@@ -329,6 +358,7 @@ private fun tierNameOf(tier: PadlockTier): Int = when (tier) {
 private fun PadlockTile(
     cell: Cell,
     onOpen: (level: Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val look = tileLookOf(cell, BloxTheme.palette)
     val shape = BloxTheme.shapes.md
@@ -336,7 +366,7 @@ private fun PadlockTile(
     val touchable = cell.state != CellState.LOCKED
     val openLabel = stringResource(R.string.feature_locksmith_padlocks_open_action)
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .heightIn(min = TILE)
             .clip(shape)
@@ -400,6 +430,16 @@ private fun tileReading(cell: Cell): String {
         }
     }
     return parts.joinToString(", ")
+}
+
+/** Tells TalkBack where an item lies in the grid: its row, its column, and the columns it spans. */
+private fun Modifier.placedAt(place: GridPlace): Modifier = semantics {
+    collectionItemInfo = CollectionItemInfo(
+        rowIndex = place.row,
+        rowSpan = 1,
+        columnIndex = place.column,
+        columnSpan = place.span,
+    )
 }
 
 /** The colours of a tile: its [face], its [ink], its [edge] of [edgeWidth]. */

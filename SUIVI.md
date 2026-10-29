@@ -1421,8 +1421,9 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   Serrurier (« Meilleure ouverture ») : les captures montrent « 0 indices » (P7.33).
 - [x] **P7.47** Mettre en commun le motif de valeur chaude de `app` (`stateIn(Eagerly, null)`, `current`, `await`)
   de `PadlockFrontier` et `NewCartridges` (règle de 2, revue de P7.34).
-- [ ] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
+- [x] **P7.48** Lecture en grille des cases de l'écran Serrures par TalkBack (`CollectionItemInfo` : rang et
   colonne), alors que le résumé, Reprendre et les en-têtes de palier occupent des lignes entières (revue de P7.35).
+  Fait : chaque élément à sa ligne et sa colonne, ceux en pleine largeur sur toutes les colonnes (`gridPlacesOf`).
 - [ ] **P7.50** Bande des accords du Serrurier trop large à 360 dp en police ×2 avec 8 pièces : le dernier accord
   sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
   P7.36).
