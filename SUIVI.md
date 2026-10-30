@@ -1736,10 +1736,11 @@ seulement, jour et nuit.
   `a stopped playback has no heard time`, `the heard time never goes back, even when the music loops`, `the ticks
   follow the heard time without a cap`, `the ticks stay in phase with the accompaniment after a pause`, `when the
   music fails the ticks fall back on the frame clock without a jump`.
-- [ ] **P11.4** Extraire `DropTiming` de `Rules`, pur refactoring : `ClassicDropTiming` délègue à `GravityTable`,
+- [x] **P11.4** Extraire `DropTiming` de `Rules`, pur refactoring : `ClassicDropTiming` délègue à `GravityTable`,
   tests du Classique verts ; parties de référence enregistrées avant l'extraction, pour la propriété de P11.8 ;
   glossaire de `CLAUDE.md` (`DropTiming`). Cas
-  : `the classic drop timing follows the gravity table of the level`.
+  : `the classic drop timing follows the gravity table of the level`. Fait le 2026-10-30 : `Rules.dropTiming`
+  remplace `Rules.gravityTable` ; cinq parties de référence rejouées par `ReferenceGamesTest`.
 - [ ] **P11.5** `Meter` (`core:game`, paquet `tempo`) : croche en ticks entiers, noire, mesure, phrase, temps et
   mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
   beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
@@ -1756,9 +1757,11 @@ seulement, jour et nuit.
   the beat in bar 4 earn their points twice`, `lines cleared off the beat in bar 4 earn no cadence bonus`, `the
   total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
   locked`.
-- [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; propriété de non-régression du
-  Classique : les parties de référence de P11.4 rendent les mêmes états. Après P11.6. Cas : `tempo rules are the
-  classic rules but for the drop timing`, `the classic games recorded before the drop timing are played the same`.
+- [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
+  référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
+  `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
+  are the classic rules but for the drop timing`, `the reference games are played the same by the tempo rules with
+  the classic drop timing`.
 - [ ] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
   temps/min, joués au facteur `18 / ticksPerEighth` ; préférence Métronome **[à vérifier]** (activé par défaut).
   Cas : `the accompaniment clicks on every quarter, louder on beat 1`, `the bass plays I V vi IV, one bar each`, `the

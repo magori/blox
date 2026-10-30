@@ -12,8 +12,8 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0028](adr/0028-au-tempo-droptiming-et-horloge-audio.md) (politique `DropTiming`, horloge
 audio comme source des ticks).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P11 de [SUIVI.md](../SUIVI.md),
-> qui commence par une mesure sur téléphone, P11.2). Chaque règle recevra sa ligne **Tests :**
+> Traçabilité : Seule la non-régression du Classique (P11.4) est codée (phase P11 de
+> [SUIVI.md](../SUIVI.md), qui commence par une mesure sur téléphone, P11.2). Chaque autre règle recevra sa ligne **Tests :**
 > `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`, à mesure qu'elle
 > sera codée.
 
@@ -65,7 +65,18 @@ audio comme source des ticks).
 - `TempoRules = ClassicRules.copy(dropTiming = TempoDropTiming(meter))`.
 - **Non-régression** : `ClassicDropTiming` délègue à `GravityTable` et rend exactement les mêmes
   parties que le moteur d'avant ; il est extrait d'abord, en pur refactoring, sous les tests du
-  Classique (ADR 0015, ADR 0028). Une propriété le vérifie sur des parties tirées au hasard.
+  Classique (ADR 0015, ADR 0028). Cinq parties de référence, à graines fixes, le vérifient
+  (P11.4) : graines par `ClassicRandomizer.stable`, entrées d'un joueur automatique, niveaux 0, 5, 9,
+  19 et 29 ; enregistrées tick par tick avant l'extraction dans
+  `core/game/src/test/resources/reference-games`, elles sont rejouées à l'identique. `ClassicDropTiming`
+  ignore `tickCount`, que le moteur lui passe pour `TempoDropTiming`. P11.8 les rejouera avec
+  `TempoRules.copy(dropTiming = ClassicRules.dropTiming)`, pour montrer que seule la cadence de chute
+  distingue les deux règles.
+
+  **Tests :** `ClassicDropTimingTest › the classic drop timing follows the gravity table of the level`,
+  `ClassicDropTimingTest › the classic drop timing does not depend on the tick count`,
+  `RulesTest › rules built again with the classic drop timing are the classic rules`,
+  `ReferenceGamesTest › a reference game of the classic mode is played tick by tick as it was recorded`.
 
 ## Niveaux et points du moteur
 
