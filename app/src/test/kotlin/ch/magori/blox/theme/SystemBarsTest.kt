@@ -10,6 +10,7 @@ import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 import ch.magori.blox.feature.settings.navigation.SettingsRoute
+import ch.magori.blox.feature.settings.navigation.SettingsSection
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -67,12 +68,13 @@ class SystemBarsTest {
             argumentSet("a daily game", GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)),
             argumentSet("the entry of the daily seed", DailyRoute),
             argumentSet("the musical garden", GardenRoute),
+            argumentSet("the settings", SettingsRoute()),
+            argumentSet("the settings of the Classic", SettingsRoute(SettingsSection.CLASSIC)),
         )
 
         @JvmStatic
         fun otherScreens(): List<Arguments> = listOf(
             argumentSet("the home", HomeRoute),
-            argumentSet("the settings", SettingsRoute()),
             argumentSet("a classic game", GameRoute(startLevel = 0, seed = 1L)),
             argumentSet("an empty stack", null),
         )

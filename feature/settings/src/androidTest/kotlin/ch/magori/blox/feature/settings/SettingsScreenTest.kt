@@ -46,6 +46,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxTypographies
 import ch.magori.blox.feature.settings.navigation.SettingsSection
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -54,8 +55,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.CsvSource
-import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
@@ -110,6 +109,22 @@ internal class SettingsScreenTest {
         val back = onNodeWithContentDescription("Retour").getUnclippedBoundsInRoot()
         assertThat(title.left).isGreaterThanOrEqualTo(back.right)
         assertThat(title.top).isLessThan(back.bottom)
+    }
+
+    @Test
+    @DisplayName("the page is drawn in Colorful whatever the theme chosen, with the effects of the player")
+    fun thePageIsDrawnInColorfulWhateverTheThemeChosen() = extension.use {
+        // Given the Original theme chosen for the Classic, Android imposing the reduced effects
+        setContent {
+            BloxTheme(kind = BloxThemeKind.ORIGINAL, effects = BloxEffects(reduced = true, forcedBySystem = true)) {
+                SettingsScreen(uiState = uiState, section = SettingsSection.CLASSIC, actions = SettingsActions.None)
+            }
+        }
+
+        // Then the title is in the font of the Colorful theme, and the effects are those of the player
+        assertThat(textLayout("Paramètres").layoutInput.style.fontFamily)
+            .isEqualTo(BloxTypographies.Colorful.screenTitle.fontFamily)
+        onNodeWithText("Imposé par les réglages d'Android").assertExists()
     }
 
     @Test
@@ -283,18 +298,16 @@ internal class SettingsScreenTest {
         }
     }
 
-    @ParameterizedTest(name = "in {0}")
-    @EnumSource(BloxThemeKind::class)
+    @Test
     @DisplayName(
         "in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least",
     )
-    fun inALargeFontEachSettingLabelKeepsItsWordsWholeAndMostOfItsSize(kind: BloxThemeKind) = extension.use {
+    fun inALargeFontEachSettingLabelKeepsItsWordsWholeAndMostOfItsSize() = extension.use {
         // Given a font twice as large, on the narrowest phone
-        showSettingsScreen(width = NARROW_PHONE, fontScale = 2f, kind = kind)
+        showSettingsScreen(width = NARROW_PHONE, fontScale = 2f)
 
-        // Then no word is cut from one line to the next (« Vibratio / ns »). Beside its pictogram, « Vibrations » in
-        // the pixel font of Original, 28 dp a letter, has 252 dp for its 280: it shrinks that little, never more;
-        // elsewhere the label is as large as the heading of the section, in the same style, which never shrinks
+        // Then no word is cut from one line to the next (« Vibratio / ns »), and a label shrinks, if ever, only a
+        // little: it is as large as the heading of the section, in the same style, which never shrinks
         val normalSize = textLayout("Sons et vibrations").layoutInput.style.fontSize
         SWITCHES.forEach { setting ->
             val label = textLayout(setting)
@@ -306,22 +319,18 @@ internal class SettingsScreenTest {
         }
     }
 
-    @ParameterizedTest(name = "in {0}, effects forced by Android {1}")
-    @CsvSource("ORIGINAL, false", "ORIGINAL, true", "COLORFUL, false", "COLORFUL, true")
+    @ParameterizedTest(name = "effects forced by Android {0}")
+    @ValueSource(booleans = [false, true])
     @DisplayName("in a font twice as large, on 360 dp, every sub-line shows whole, its words whole")
-    fun inALargeFontEverySubLineShowsWhole(
-        kind: BloxThemeKind,
-        forced: Boolean,
-    ) = extension.use {
+    fun inALargeFontEverySubLineShowsWhole(forced: Boolean) = extension.use {
         // Given a font twice as large, on the narrowest phone, Android imposing the reduced effects or not
         showSettingsScreen(
             width = NARROW_PHONE,
             fontScale = 2f,
-            kind = kind,
             effects = if (forced) BloxEffects(reduced = true, forcedBySystem = true) else BloxEffects.Full,
         )
 
-        // Then nothing is cut, not even « Moins de mouvements et de particules » in the pixel font of Original
+        // Then nothing is cut, not even « Moins de mouvements et de particules »
         val reducedEffects = if (forced) "Imposé par les réglages d'Android" else "Moins de mouvements et de particules"
         (listOf(reducedEffects) + SUB_LINES).forEach { subLine ->
             val layout = textLayout(subLine)
@@ -482,7 +491,7 @@ internal class SettingsScreenTest {
     @DisplayName("in a font twice as large, on 360 dp, Effacer goes under Record du Classique, its words whole")
     fun inALargeFontEffacerGoesUnderItsLabel() = extension.use {
         // Given
-        showSettingsScreen(width = NARROW_PHONE, fontScale = 2f, kind = BloxThemeKind.ORIGINAL)
+        showSettingsScreen(width = NARROW_PHONE, fontScale = 2f)
 
         // Then
         val label = onNode(hasText("Record du Classique"), useUnmergedTree = true).getUnclippedBoundsInRoot()
@@ -577,7 +586,6 @@ internal class SettingsScreenTest {
         section: SettingsSection? = SettingsSection.CLASSIC,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
-        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         effects: BloxEffects = BloxEffects.Full,
     ) {
         val actions = SettingsActions(
@@ -597,7 +605,7 @@ internal class SettingsScreenTest {
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
-                BloxTheme(kind = kind, effects = effects) {
+                BloxTheme(effects = effects) {
                     SettingsScreen(
                         modifier = Modifier.width(width),
                         uiState = shown,

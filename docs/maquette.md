@@ -34,7 +34,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V18 | Enregistrer la musique, thème Brume sombre | « V18 · Enregistrer la musique · thème Brume sombre » |
 | V19 | Pause (thème au choix) | « V19 · Pause » |
 | V20 | Jeu, fenêtre très étroite (220 × 640, thème au choix) | « V20 · Jeu · fenêtre très étroite » |
-| V21 | Paramètres (thème au choix) | « V21 · Paramètres » |
+| V21 | Paramètres (toujours en Couleurs depuis P12.4) | « V21 · Paramètres » |
 | V22 | Jeu, thème Couleurs v2 nuit (V3 est le jour) | « V22 · Jeu · thème Couleurs sombre (piste C) » |
 | V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
 | V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
@@ -391,6 +391,10 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   pour TalkBack) et sa carte Record, puis « Tous les jeux » (titre) au-dessus d'Affichage et de Sons et vibrations.
   Sans section (le choix du jeu, à venir en P12.5), ni « Réglages du Classique » ni Record. Voir V31 dans
   [themes.md](themes.md).
+- Depuis P12.4 (ADR 0030), la page est toujours dessinée en Couleurs, barres système comprises, quel que soit le
+  thème choisi pour le Classique : l'aspect Original de V21 disparaît.
+  **Tests :** `SettingsScreenTest › the page is drawn in Colorful whatever the theme chosen, with the effects of the player`,
+  `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 - Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »
   (titre pour TalkBack), affichés dès l'ouverture, avant même la lecture des réglages. Section
   **Sons et vibrations**, marges de 16 dp : les interrupteurs **Vibrations** et **Effets

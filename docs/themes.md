@@ -451,7 +451,8 @@ soit le mode du téléphone, réappliquées quand le thème ou le mode change ; 
 d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
 `SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
-toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
+toujours dessiné en Couleurs (P7.18), comme le choix du jeu, la Graine du jour, le Jardin et la page Paramètres
+(P12.4), les barres prennent la variante Couleurs du mode du téléphone, quel que soit le
 thème choisi : `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `SystemBarsTest › the bars of every other screen follow the theme chosen`,
 `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
@@ -737,6 +738,17 @@ jusqu'à P12.6 ; le choix du jeu l'ouvrira sans section (P12.5).
 `SettingsScreenTest › opened from the Classic, its section comes first, then Tous les jeux, a heading, above Affichage`,
 `BloxNavDisplayTest › the gear of the home screen opens the settings on the section of the Classic, its record within` ;
 captures `Settings*`, dont `SettingsAllGames` (sans section). Vues : V21, V31.
+
+**Page toujours en Couleurs** (P12.4, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : `SettingsScreen` se
+dessine dans `ColorfulTheme`, la variante Couleurs du mode du téléphone, avec les effets du joueur, quel que soit le
+thème choisi pour le Classique, comme le choix du jeu, la Graine du jour, le Serrurier et le Jardin : l'aspect
+Original de V21 disparaît (l'Original est figé et n'habille que le Classique). Les barres système suivent :
+`SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`, `app`). Les captures Original de la page
+(`SettingsOriginal`, `SettingsOriginalGreyed`, et `SettingsLargeFont`, qui était en Original) sont retirées : elles
+rendraient la même page que leurs jumelles Couleurs.
+**Tests :** `SettingsScreenTest › the page is drawn in Colorful whatever the theme chosen, with the effects of the player`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
+`SystemBarsTest › the bars of every other screen follow the theme chosen` ; captures `Settings*`. Vues : V21, V31.
 
 **Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
 `BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les

@@ -1804,9 +1804,11 @@ pause (P11.9).
   seulement à l’accueil) et ses références dans les docs (`docs/maquette.md`, V21). Après P12.2. Fait : titres
   « Réglages du Classique » et « Tous les jeux », capture `SettingsAllGames` ; la Graine du jour ouvre encore
   `SettingsRoute(SettingsSection.CLASSIC)` (P12.6).
-- [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
+- [x] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
   (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
-  `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
+  `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2. Fait :
+  `SettingsScreen` se dessine dans `ColorfulTheme` (`feature:settings`) ; captures `SettingsOriginal`, `SettingsOriginalGreyed`
+  et `SettingsLargeFont` (en Original) retirées.
 - [x] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
   (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
   fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings` de l’engrenage, restée dans `feature:home` en P12.2 :
@@ -1833,6 +1835,12 @@ pause (P11.9).
 - [x] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
   `feature:locksmith` ;
   vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
+- [ ] **P12.13** Décider du sort des branches Original des rangées de réglage, mortes en production depuis P12.4 (la
+  page Paramètres, seule à les montrer, est toujours en Couleurs) : `SettingSwitchRow.kt:268-275` (le libellé sans
+  gras synthétisé de la police pixel) et `:312` (trois lignes de sous-ligne pour la police pixel en ×2), les aperçus
+  `SwitchesOriginal*` de `SwitchPreviews.kt` et les cas Original de `SettingSwitchRowTest`. Deux options : les retirer,
+  ou les garder pour que le design system reste générique (une rangée de réglage reste dessinable dans les deux
+  thèmes). Découverte à la revue de P12.4.
 
 ---
 
