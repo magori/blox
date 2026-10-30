@@ -317,8 +317,8 @@ solutions) ;
   - Un **toucher fait avant la lecture l'attend**, au lieu d'ouvrir la serrure 1, qui n'est peut-être pas la
     frontière ; deux touchers pendant la lecture n'empilent qu'une serrure.
   - `CartridgeOpener` (`app`, remplace `openCartridge`) : seule la cartouche Serrurier attend, les autres empilent
-    leur écran tout de suite. Un toucher sur une autre cartouche **annule** une attente du Serrurier encore en
-    cours : aucune serrure ne s'empile par surprise sur le jeu ouvert, ni après qu'on l'a quitté.
+    leur écran tout de suite. Un toucher sur une autre cartouche, ou sur la roue dentée (P12.5), **annule** une attente
+    du Serrurier encore en cours : aucune serrure ne s'empile par surprise sur le jeu ouvert, ni après qu'on l'a quitté.
   - `feature:cartridges` ne reçoit que la frontière (`padlockFrontier: StateFlow<Int?>`), sans dépendre d'une autre
     feature. Le parcours Macrobenchmark reste valide : l'application mesurée, sans avancement, ouvre la serrure 1.
   **Tests :** `PadlockFrontierTest › with no padlock open, the frontier is padlock 1`,
@@ -332,6 +332,7 @@ solutions) ;
   `OpenCartridgeTest › the Classic cartridge opens the Classic home over the cartridges, at once`,
   `OpenCartridgeTest › a game opened while the frontier of the Locksmith is read is not covered by a padlock`,
   `OpenCartridgeTest › a tap on the Locksmith left waiting while a game was opened and left opens no padlock once read`,
+  `OpenCartridgeTest › a tap on the gear cancels a tap on the Locksmith still waiting for its frontier`,
   `CartridgesScreenTest › the Locksmith cartridge bears the line « Serrure N », its frontier, which TalkBack reads after its name`,
   `CartridgesScreenTest › before the frontier is read, the Locksmith cartridge bears no line, rather than one that may change`,
   `CartridgesScreenTest › on 360 dp, the Locksmith with its line stands as high as the Classic beside it, read or not`,
