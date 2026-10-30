@@ -40,13 +40,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.assertDrawnAsFresh
 import ch.magori.blox.core.board.drawnContent
 import ch.magori.blox.core.board.movePiece
 import ch.magori.blox.core.board.next.pieceName
 import ch.magori.blox.core.board.piece.PieceCells
 import ch.magori.blox.core.board.piece.nextPieceCells
+import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
