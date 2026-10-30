@@ -1750,19 +1750,25 @@ seulement, jour et nuit.
 - [x] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
   falls one row on every eighth`, `a piece that appears between two eighths falls on the next one`, `the level does
   not change the fall`, `the soft drop stays the one of the Classic`.
-- [ ] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
+- [x] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
   (dans `PieceLocked` ou l'état, à trancher) ; événements `OnBeat` et `CadenceCleared` ; + 80 et × 2 sur le temps
   **[à vérifier]** ; le tick de verrouillage est retenu et la cadence appliquée au `LinesCleared` qui suit, ses
   points lus par l'écart des `Points` ; glossaire de `CLAUDE.md` (`TempoScore`). Après P11.5. Cas : `lines locked
   in bar 4 and cleared in bar 1 still make a cadence`, `a piece locked on the beat by the held soft drop earns 80 points`, `a piece
   locked by gravity alone earns no beat bonus`, `a piece locked out of the window earns nothing`, `lines cleared on
-  the beat in bar 4 earn their points twice`, `lines cleared off the beat in bar 4 earn no cadence bonus`, `the
+  the beat in bar 4 earn their points twice`, `lines of a piece locked off the beat in bar 4 earn no cadence bonus`, `the
   total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
   locked`. Point ouvert (revue de P11.5) : une pose à 475 ticks est sur le temps de la noire 480 (temps 1), mais
   `Meter.barOf(475)` rend 4 ; la mesure d'une pose sur le temps doit-elle être celle de la noire la plus proche ?
   Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`. Depuis P11.6, sous ▼ tenu, seul un pas
   refusé verrouille la pièce : la croche ne la fait plus tomber pendant la descente rapide (`softDropping`), si bien
-  que l'information « verrouillage amené par la descente rapide » est univoque.
+  que l'information « verrouillage amené par la descente rapide » est univoque. Fait le 2026-10-30 :
+  `TempoScore(meter).after(before, update)` → `TempoUpdate` (`TempoEvent.OnBeat`, `TempoEvent.CadenceCleared`),
+  `total(state)`, `piecesOnBeat` / `piecesLocked` ; l'information est portée par `PieceLocked.bySoftDrop` (note
+  datée de l'ADR 0028) ; la mesure d'une pose est celle de la noire la plus proche (`Meter.barOfNearestBeat`,
+  décision du développeur) ; + 80 et × 2 gardés, **[à vérifier]** en jouant. Après revue : `bySoftDrop` sans
+  valeur par défaut, cas `an on-beat lock without lines is forgotten by the next lock` et caractérisation avec le
+  vrai moteur `a soft drop timed on beat 4 of bar 4 earns the beat bonus and a cadence in a real game`.
 - [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
   référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
   `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
@@ -1781,7 +1787,8 @@ seulement, jour et nuit.
   **[à vérifier]**, reportée de P11.9 ; la reprise recule aujourd'hui au dernier temps de `switchBeats` (même
   partition) ou au début de la mesure (autre partition, cas du métronome basculé en pause) ; à rendre exacte
   (`tickCount mod phrase`) avec P11.3), total moteur +
-  bonus, records dans un fichier DataStore à part (inclus dans la sauvegarde **[à vérifier]**, `BackupRulesTest`) ;
+  bonus (`TempoScore.after(before, update)` appelé à **chaque** `engine.tick`, chacun des ticks d'une image compris
+  (`FrameTicks`), `before` étant l'état passé à ce tick : revue de P11.7), records dans un fichier DataStore à part (inclus dans la sauvegarde **[à vérifier]**, `BackupRulesTest`) ;
   `SteadyMusicDirection`, sans accélération (le danger ne change pas le tempo) ; thème Couleurs imposé et barres
   système (`systemBarVariant` connaît la variante, ADR 0026) ; tempo de la v1 120 temps/min et départ au niveau 0
   **[à vérifier]**. Après P11.3, P11.7, P11.8, P11.9. Cas : `a tempo game falls on the eighths of its tempo`, `a tempo

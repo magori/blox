@@ -21,7 +21,8 @@ class GameFeedbackTest {
     @Test
     fun `a lock lights its four cells for 8 ticks`() {
         // Given a T locked on tick 100
-        val locked = GameFeedback().after(tick = 100, events = listOf(GameEvent.PieceLocked(lockedT)))
+        val locked = GameFeedback()
+            .after(tick = 100, events = listOf(GameEvent.PieceLocked(lockedT, bySoftDrop = false)))
 
         // When the ticks go on
         val lit = (100..108).map { tick -> locked.ticked(tick).lockLight(lockedT.cells.first(), reduced = false) }
@@ -92,7 +93,7 @@ class GameFeedbackTest {
         // Given rows 15 and 18 full, cleared on tick 120
         val locked = GameFeedback().after(
             100,
-            listOf(GameEvent.PieceLocked(lockedT)),
+            listOf(GameEvent.PieceLocked(lockedT, bySoftDrop = false)),
             ClearingRows(listOf(15, 18), ticksLeft = 20),
             Points(0),
             Points(0),

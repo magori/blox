@@ -87,3 +87,22 @@ pourrait verrouiller par la gravité une pièce sous ▼ tenu, ce qui brouillera
 neutre, sans condition propre à Au tempo dans le moteur (ADR 0015) ; `ClassicDropTiming` l'ignore, et
 les parties de référence restent identiques. Pour **P6.11** : quand `DropTiming` rendra un nombre de
 lignes, il recevra aussi `softDropping`.
+
+## Note (2026-10-30, P11.7)
+
+Le moteur change une troisième fois, au plus petit : `GameEvent.PieceLocked` porte `bySoftDrop: Boolean`, vrai
+quand un pas refusé de la descente rapide a verrouillé la pièce, faux pour la gravité. Le champ n'a **pas de valeur
+par défaut** (revue de P11.7) : un défaut dirait « par la gravité », ce qui n'est pas neutre, et tout nouveau chemin
+de verrouillage devra dire le sien. `TempoScore` en a besoin pour le bonus « sur le temps », qui
+ne vaut que pour une pose amenée par ▼ tenu. C'est un fait neutre, sans condition propre à Au tempo (ADR 0015) ;
+depuis la note de P11.6, il est univoque (sous ▼ tenu, la gravité d'Au tempo ne verrouille plus). Il est porté par
+l'événement plutôt que lu dans l'état : une fois la pièce verrouillée, la phase `Falling` (et son `softDrop`
+interne) a disparu, et l'état d'avant le tick ne voit pas un appui sur ▼ fait juste avant lui ; `softDropRows > 0`
+ne suffit pas non plus, car un appui sur une pièce déjà posée la verrouille sans ligne descendue. La trace des
+parties de référence n'écrit pas ce champ : elles restent identiques. `Meter` gagne `barOfNearestBeat`, la mesure
+de la noire la plus proche, pour la cadence d'une pose faite juste avant le temps 1.
+
+Pour **P6** : `TempoScore` suppose que `PieceLocked` et `LinesCleared` ne tombent jamais dans le même tick, puisque
+l'effacement dure au moins un tick (`LineClearDelay`). Les chemins de verrouillage du Moderne (chute instantanée,
+`LockDelay`) devront dire `bySoftDrop` ; si l'un d'eux effaçait des lignes dans le tick même du verrouillage,
+`TempoScore.after` serait à relire.

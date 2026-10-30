@@ -84,7 +84,7 @@ class GameEngineGameOverTest {
         // Then
         assertThat(updates.last().state.phase).isInstanceOf(Phase.GameOver::class.java)
         assertThat(updates.flatMap { it.events }).containsExactly(
-            GameEvent.PieceLocked(I_FILLING_ROW_19),
+            GameEvent.PieceLocked(I_FILLING_ROW_19, bySoftDrop = false),
             GameEvent.LinesCleared(LineClear(1)),
             GameEvent.LevelUp(Level(29)),
             GameEvent.GameOver,
@@ -110,9 +110,10 @@ class GameEngineGameOverTest {
 
         // Then
         val turned = ClassicRotationSystem.candidates(T_ON_THE_FLOOR, Rotation.CLOCKWISE).single()
-        assertThat(
-            updates.first().events,
-        ).containsExactly(GameEvent.PieceRotated(turned, Rotation.CLOCKWISE), GameEvent.PieceLocked(turned))
+        assertThat(updates.first().events).containsExactly(
+            GameEvent.PieceRotated(turned, Rotation.CLOCKWISE),
+            GameEvent.PieceLocked(turned, bySoftDrop = false),
+        )
         assertThat(updates.last().events).containsExactly(GameEvent.GameOver)
         assertThat(updates.drop(1).dropLast(1).flatMap { it.events }).isEmpty()
     }
@@ -150,7 +151,7 @@ class GameEngineGameOverTest {
                 TOWER,
                 T_ON_THE_FLOOR,
                 true,
-                listOf(GameEvent.PieceLocked(T_ON_THE_FLOOR), GameEvent.GameOver),
+                listOf(GameEvent.PieceLocked(T_ON_THE_FLOOR, bySoftDrop = false), GameEvent.GameOver),
             ),
             argumentSet(
                 "a lock that raises the stack to the top: the danger starts, then the game ends",
@@ -158,7 +159,7 @@ class GameEngineGameOverTest {
                 I_ON_TOP_OF_THE_TOWER,
                 false,
                 listOf(
-                    GameEvent.PieceLocked(I_ON_TOP_OF_THE_TOWER),
+                    GameEvent.PieceLocked(I_ON_TOP_OF_THE_TOWER, bySoftDrop = false),
                     GameEvent.StackDanger(on = true),
                     GameEvent.GameOver,
                 ),
@@ -169,7 +170,7 @@ class GameEngineGameOverTest {
                 I_FILLING_ROW_19,
                 true,
                 listOf(
-                    GameEvent.PieceLocked(I_FILLING_ROW_19),
+                    GameEvent.PieceLocked(I_FILLING_ROW_19, bySoftDrop = false),
                     GameEvent.LinesCleared(LineClear(1)),
                     GameEvent.GameOver,
                 ),

@@ -55,7 +55,7 @@ class HapticOfEventTest {
         // Given
         val events = listOf(
             GameEvent.LinesCleared(LineClear(0)),
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.StackDanger(on = true),
             GameEvent.StackDanger(on = false),
         )

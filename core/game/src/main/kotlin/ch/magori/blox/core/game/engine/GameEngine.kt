@@ -59,8 +59,8 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      *     left or right, or a release of down, stops it and its points; it then needs a new press of down.
      *     Otherwise the piece drops one row when the drop timing of the rules says so ([Rules.dropTiming]).
      * - A piece that cannot drop locks on the board ([GameEvent.PieceLocked]), whether the soft drop or the
-     *   gravity moved it; the rows it soft dropped in a row score. The stack danger is measured on the
-     *   board once cleared.
+     *   gravity moved it, and says which ([GameEvent.PieceLocked.bySoftDrop]); the rows it soft dropped in a row
+     *   score. The stack danger is measured on the board once cleared.
      * - Without a full row, [GameEvent.StackDanger] follows at once if the danger changed, then the entry
      *   delay computed when the piece locked.
      * - With full rows, they are cleared after an animation, as long as [Rules.lineClearDelay] says,
@@ -169,25 +169,28 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         } else {
             falling.copy(softDrop = softDrop.next)
         }
-        if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
+        if (softDrop?.step == true) {
+            return dropOneRow(state, counted, bySoftDrop = true) { it.copy(softDropRows = it.softDropRows + 1) }
+        }
         val ticks = counted.ticksSinceDrop + 1
         val softDropping = counted.softDrop != null
         if (!rules.dropTiming.dropsAfter(Ticks(ticks), state.tickCount, state.progress.level, softDropping)) {
             return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
         }
-        return dropOneRow(state, counted) { it }
+        return dropOneRow(state, counted, bySoftDrop = false) { it }
     }
 
     /**
      * The piece of [falling] drops one row, which starts the gravity count again, then [afterDrop] counts
-     * the drop; if it cannot drop, it locks.
+     * the drop; if it cannot drop, it locks, by a step of the soft drop if [bySoftDrop], else by the gravity.
      */
     private fun dropOneRow(
         state: GameState,
         falling: Phase.Falling,
+        bySoftDrop: Boolean,
         afterDrop: (Phase.Falling) -> Phase.Falling,
     ): GameUpdate {
-        val dropped = state.board.move(falling.piece, Direction.DOWN) ?: return lock(state, falling)
+        val dropped = state.board.move(falling.piece, Direction.DOWN) ?: return lock(state, falling, bySoftDrop)
         return GameUpdate(
             state.copy(phase = afterDrop(falling.copy(piece = dropped, ticksSinceDrop = 0))),
             events = emptyList(),
@@ -242,13 +245,16 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
 
     /**
      * The piece of [falling] could not drop: it locks on the board, and the rows it soft dropped in a row
-     * score. Then comes the line clear, if it fills rows, or the entry delay.
+     * score. Then comes the line clear, if it fills rows, or the entry delay. [GameEvent.PieceLocked] says whether a
+     * step of the soft drop locked it ([bySoftDrop]).
      */
     private fun lock(
         stateBeforeLock: GameState,
         falling: Phase.Falling,
+        bySoftDrop: Boolean,
     ): GameUpdate {
         val piece = falling.piece
+        val pieceLocked = GameEvent.PieceLocked(piece, bySoftDrop)
         val softDropPoints = rules.scoringRule.pointsForSoftDrop(falling.softDropRows)
         val state = stateBeforeLock.copy(progress = stateBeforeLock.progress.withPoints(softDropPoints))
         val locked = state.board.lock(piece)
@@ -264,11 +270,11 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
             )
             return GameUpdate(
                 state.copy(board = locked, phase = clearing),
-                events = listOf(GameEvent.PieceLocked(piece)),
+                events = listOf(pieceLocked),
             )
         }
         val waiting = state.copy(board = locked, phase = Phase.EntryDelay(entryDelay), stackInDanger = inDanger)
-        return GameUpdate(waiting, events = listOf(GameEvent.PieceLocked(piece)) + dangerChange(state, inDanger))
+        return GameUpdate(waiting, events = listOf(pieceLocked) + dangerChange(state, inDanger))
     }
 
     /** [GameEvent.LevelUp] if the level of [after] is not the one of [before], else nothing. */
