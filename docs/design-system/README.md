@@ -146,7 +146,7 @@ défaut** ; les vibrations restent désactivées par défaut.
 ## Paramètres
 
 Une page courte : chaque réglage dit ce qu'il fait (sous-ligne) et se fait sentir dès qu'on
-l'allume (le son ou la vibration joue une fois). Barre : disque Retour et « Paramètres » en
+l'allume (le son ou la vibration joue une fois). Barre d'écran : disque Retour et « Paramètres » en
 `screen-title`. Cartes par section (`panel`, `radius-window`), rangées de `setting-row`
 (56 px, 64 sur tablette) séparées par 1 px `panel-border`, pictogramme de 24 dans un emplacement
 de 40 à gauche ; toute la rangée est l'interrupteur.
@@ -208,6 +208,10 @@ de l'éditeur utilisent un italique imité.
 - `radius-md` (16 px) : encarts, flèches, tuiles, plateau sur téléphone.
 - `radius-pill` : boutons d'écran, groupes de choix, puce Record, autocollants, badges ; disques pour
   la pause, B, A, Écouter et Paramètres.
+- **Barre d'écran** (`ScreenBar`, `core:designsystem`, P5.107) : disque Retour de 48 px, puis le titre en
+  `screen-title` à `space-3` (12) de lui, sur une ligne, lu comme un titre ; Paramètres (V21) et Mes musiques (V32)
+  la partagent. Détail et test dans [themes.md](../themes.md) :
+  `ScreenBarTest › the bar of a screen reads its title as a heading after its back disc of 48 dp`.
 - **Autocollant** (`Sticker`, `core:designsystem`, P7.45) : capitales `accent-ink` sur `accent`, `points-pop`, pilule
   penchée de −4° (jamais en Original), cadrée de 2 dp dans la couleur de la page ; NOUVEAU RECORD (non cadré),
   NOUVELLE (−6°, 11 sp) et NOUVEAU MEILLEUR / PARFAITE du Serrurier en sont des réglages. Détail et tests dans
