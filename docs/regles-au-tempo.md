@@ -12,8 +12,8 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0028](adr/0028-au-tempo-droptiming-et-horloge-audio.md) (politique `DropTiming`, horloge
 audio comme source des ticks).
 
-> Traçabilité : seuls la non-régression du Classique (P11.4), le découpage des ticks (`Meter`, P11.5) et la
-> partition de l'accompagnement (P11.9, `core:music`) sont codés ; les autres règles (phase P11 de
+> Traçabilité : seuls la non-régression du Classique (P11.4), le découpage des ticks (`Meter`, P11.5), la chute en
+> rythme (`TempoDropTiming`, P11.6) et la partition de l'accompagnement (P11.9, `core:music`) sont codés ; les autres règles (phase P11 de
 > [SUIVI.md](../SUIVI.md)) recevront leur ligne **Tests :** `ClasseDeTest › nom du test` et, si elles se voient
 > à l'écran, **Vues :** `V…`, à mesure qu'elles seront codées.
 
@@ -76,9 +76,31 @@ audio comme source des ticks).
 
 - La gravité ne dépend plus du niveau : la pièce descend d'**une ligne par croche**, aux ticks où
   `tickCount` est un multiple de `ticksPerEighth` (**calée sur la mesure**, pas sur l'apparition
-  de la pièce). Une pièce qui apparaît entre deux croches descend à la croche suivante.
+  de la pièce). Une pièce qui apparaît entre deux croches descend à la croche suivante, si peu de ticks
+  qu'elle ait attendu. `TempoDropTiming(meter)` (`core:game`, paquet `tempo`) rend `Meter.startsAnEighth(tickCount)`
+  et ignore le compte depuis la dernière chute et le niveau. Le `tickCount` que lui passe le moteur est celui du
+  tick en cours, déjà compté : le premier tick joué est le tick 1, la première croche tombe au tick 15 (à
+  120 temps/min).
+  **Tests :** `TempoDropTimingTest › the piece falls one row on every eighth`,
+  `TempoDropTimingTest › a piece that appears between two eighths falls on the next one`,
+  `TempoDropTimingTest › the level does not change the fall`.
+- Une pièce qui apparaît **sur** une croche (le délai d'apparition finit à ce tick) ne descend pas à ce tick :
+  comme au Classique, le tick de l'apparition ne fait pas tomber la pièce ; elle descend à la croche suivante, une
+  croche entière plus tard. C'est le comportement du moteur tel quel ; la spécification ne tranchait pas
+  **[à vérifier]** en jouant (descendre dès l'apparition demanderait de changer le moteur).
+  **Tests :** `TempoDropTimingTest › a piece that appears on an eighth falls on the next one`.
 - La **descente rapide** (▼ tenue) reste celle du Classique (une ligne toutes les 2 ticks) : c'est
-  par elle qu'on amène une pièce sur le temps.
+  par elle qu'on amène une pièce sur le temps. **Pendant la descente rapide, la croche ne fait pas descendre la
+  pièce** ; une ligne tous les 2 ticks, comme au Classique. Le moteur joue les pas avant de consulter `DropTiming`,
+  et lui dit si ▼ est tenu (`softDropping`) : `TempoDropTiming` ne fait pas tomber la pièce tant qu'il l'est.
+  Relâché, la gravité reprend à la croche suivante. Sous ▼ tenu, seul un pas refusé verrouille la pièce, jamais la
+  gravité (pour `TempoScore`, P11.7). `ClassicDropTiming` ignore `softDropping` : chaque pas y remet le compte de
+  la gravité à zéro, comme dans la ROM.
+  **Tests :** `TempoDropTimingTest › the soft drop stays the one of the Classic`,
+  `TempoDropTimingTest › a held soft drop is not hurried by the eighths`,
+  `TempoDropTimingTest › the eighth does not drop the piece during a soft drop`,
+  `TempoDropTimingTest › after a released soft drop the piece falls on the next eighth`,
+  `ClassicDropTimingTest › the classic drop timing does not depend on the soft drop`.
 - Le verrouillage, l'effacement, le délai d'apparition, la rotation, le déplacement et le danger
   sont ceux du Classique.
 - `TempoRules = ClassicRules.copy(dropTiming = TempoDropTiming(meter))`.

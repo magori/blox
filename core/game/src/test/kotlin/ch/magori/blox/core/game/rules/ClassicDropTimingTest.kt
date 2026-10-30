@@ -43,10 +43,24 @@ class ClassicDropTimingTest {
         }
     }
 
-    /** Given a piece that waited [ticks] at [level], on the tick [tickCount] of the game: whether it drops. */
+    @Test
+    fun `the classic drop timing does not depend on the soft drop`() {
+        // Given a piece that waited 2 ticks, then 3, at level 0 (3 ticks per row), the soft drop held or not
+        listOf(false, true).forEach { held ->
+            // When / Then: each soft drop step starts the count again, as in the ROM, so the gravity reads only it
+            assertThat(drops(2, level = 0, softDropping = held)).describedAs("soft drop held: $held").isFalse()
+            assertThat(drops(3, level = 0, softDropping = held)).describedAs("soft drop held: $held").isTrue()
+        }
+    }
+
+    /**
+     * Given a piece that waited [ticks] at [level], on the tick [tickCount] of the game, with the soft drop held or not
+     * ([softDropping]): whether it drops.
+     */
     private fun drops(
         ticks: Int,
         level: Int,
         tickCount: Int = 0,
-    ): Boolean = dropTiming.dropsAfter(Ticks(ticks), tickCount, Level(level))
+        softDropping: Boolean = false,
+    ): Boolean = dropTiming.dropsAfter(Ticks(ticks), tickCount, Level(level), softDropping)
 }

@@ -1747,7 +1747,7 @@ seulement, jour et nuit.
   mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
   beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
   beat`, `the tempo is 1800 over the ticks per eighth`.
-- [ ] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
+- [x] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
   falls one row on every eighth`, `a piece that appears between two eighths falls on the next one`, `the level does
   not change the fall`, `the soft drop stays the one of the Classic`.
 - [ ] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
@@ -1760,7 +1760,9 @@ seulement, jour et nuit.
   total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
   locked`. Point ouvert (revue de P11.5) : une pose à 475 ticks est sur le temps de la noire 480 (temps 1), mais
   `Meter.barOf(475)` rend 4 ; la mesure d'une pose sur le temps doit-elle être celle de la noire la plus proche ?
-  Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`.
+  Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`. Depuis P11.6, sous ▼ tenu, seul un pas
+  refusé verrouille la pièce : la croche ne la fait plus tomber pendant la descente rapide (`softDropping`), si bien
+  que l'information « verrouillage amené par la descente rapide » est univoque.
 - [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
   référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
   `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
