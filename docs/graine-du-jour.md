@@ -298,8 +298,8 @@ l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres
 
 - barre : Changer de jeu (retour au choix du jeu), puce « MEILLEUR DU JOUR » (le meilleur du jour
   sur 6 chiffres, ou « — » ; TalkBack lit la vraie valeur, ou « aucun essai »), Paramètres (la
-  page Paramètres de l'accueil). La puce et le bouton Jouer sont ceux de l'accueil, partagés dans
-  `core:designsystem` (`ScoreChip`, `PlayButton`) ;
+  page Paramètres, ouverte sans section de jeu : ni « Réglages du Classique » ni Record, P12.6). La puce et
+  le bouton Jouer sont ceux de l'accueil, partagés dans `core:designsystem` (`ScoreChip`, `PlayButton`) ;
 - titre « Graine du 26 octobre » : la date locale du téléphone en lettres, « 1er » le premier du
   mois ;
 - encart « LES 7 PREMIÈRES » : les 7 premières pièces de `ClassicRandomizer.stable(DailySeed.of(date))`,
@@ -341,6 +341,7 @@ l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres
 `DailyScreenTest › on 360 dp, in a normal font, the reminder under Jouer holds whole on one line, without an ellipsis`,
 `DailyScreenTest › Jouer, Changer de jeu and Paramètres count only while the entry is resumed`,
 `DailyScreenTest › the bar changes the game and opens the settings through app`,
+`BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`,
 `ScoreChipTest › a score chip is 48 dp high at least, as the discs beside it, even in a font twice as large`,
 `PlayButtonTest › a reminder too long for Jouer is cut by an ellipsis on one line, and TalkBack still reads it whole`,
 `BloxNavDisplayTest › the entry of the daily seed shows the day and its first pieces`,

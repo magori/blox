@@ -791,23 +791,20 @@ internal class BloxNavDisplayTest {
             // Given the choice of the game
             showApp(openClassic = false)
 
-            // When
-            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
-            settle()
+            // When / Then
+            openTheSettingsByTheGearThenGoBackTo(string(CartridgesR.string.feature_cartridges_title))
+        }
+    }
 
-            // Then the settings of all the games, and nothing of the Classic
-            onNodeWithText(string(SettingsR.string.feature_settings_title)).assertExists()
-            onNodeWithText(string(SettingsR.string.feature_settings_classic)).assertDoesNotExist()
-            onNodeWithContentDescription(string(SettingsR.string.feature_settings_clear_record_description))
-                .assertDoesNotExist()
+    @Test
+    @DisplayName("the gear of the Graine du jour opens the settings with no record, and Retour goes back to it")
+    fun theGearOfTheDailySeedOpensTheSettingsWithNoRecord() {
+        runJourney {
+            // Given the entry of the Graine du jour
+            showApp(restoredStack = listOf(CartridgesRoute, DailyRoute), restoredShows = dailyTitle())
 
-            // When
-            onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).performClick()
-            settle()
-
-            // Then
-            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
-            onNodeWithText(string(SettingsR.string.feature_settings_title)).assertDoesNotExist()
+            // When / Then
+            openTheSettingsByTheGearThenGoBackTo(dailyTitle())
         }
     }
 
@@ -1155,6 +1152,30 @@ internal class BloxNavDisplayTest {
         val before = backsToTheSystem
         pressSystemBack()
         assertThat(backsToTheSystem).isEqualTo(before + 1)
+    }
+
+    /**
+     * Opens the settings by the gear of the screen shown: the settings of all the games, and nothing of the Classic, nor
+     * its record (P12.5, P12.6); then Retour goes back to that screen, whose [title] shows again.
+     */
+    private fun AndroidComposeUiTest<ComponentActivity>.openTheSettingsByTheGearThenGoBackTo(title: String) {
+        // When the gear
+        onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
+        settle()
+
+        // Then the settings of all the games, and nothing of the Classic
+        onNodeWithText(string(SettingsR.string.feature_settings_title)).assertExists()
+        onNodeWithText(string(SettingsR.string.feature_settings_classic)).assertDoesNotExist()
+        onNodeWithContentDescription(string(SettingsR.string.feature_settings_clear_record_description))
+            .assertDoesNotExist()
+
+        // When Retour
+        onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).performClick()
+        settle()
+
+        // Then the screen of the gear again
+        onNodeWithText(title).assertIsDisplayed()
+        onNodeWithText(string(SettingsR.string.feature_settings_title)).assertDoesNotExist()
     }
 
     /** Lets the clock run long enough for a change of screen and its transition. */

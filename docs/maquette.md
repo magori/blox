@@ -396,10 +396,13 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   par `app`. On y arrive depuis l'accueil (V1) par le bouton engrenage ; la flèche Retour et le
   retour du système ramènent à l'écran qui l'a ouverte (l'accueil, ou la Graine du jour, V38).
 - Depuis P12.3 (ADR 0030), la clé porte la section du jeu qui ouvre la page,
-  `SettingsRoute(section: SettingsSection? = null)` : depuis l'accueil du Classique (et, jusqu'à P12.6, la Graine
-  du jour), `SettingsRoute(SettingsSection.CLASSIC)` ; la page montre alors en tête « Réglages du Classique » (titre
+  `SettingsRoute(section: SettingsSection? = null)` : depuis l'accueil du Classique,
+  `SettingsRoute(SettingsSection.CLASSIC)` ; la page montre alors en tête « Réglages du Classique » (titre
   pour TalkBack) et sa carte Record, puis « Tous les jeux » (titre) au-dessus d'Affichage et de Sons et vibrations.
-  Sans section (le choix du jeu, à venir en P12.5), ni « Réglages du Classique » ni Record. Voir V31 dans
+  Sans section (le choix du jeu, V36, P12.5 ; la Graine du jour, V38, P12.6), ni « Réglages du Classique » ni
+  Record.
+  **Tests :** `BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
+  `BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`. Voir V31 dans
   [themes.md](themes.md).
 - Depuis P12.4 (ADR 0030), la page est toujours dessinée en Couleurs, barres système comprises, quel que soit le
   thème choisi pour le Classique : l'aspect Original de V21 disparaît.

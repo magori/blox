@@ -146,8 +146,8 @@ fun BloxNavDisplay(
             dailyEntry(
                 // The game of the date shown, whose pieces the entry shows, even once the phone passed midnight.
                 onPlay = { date -> backStack.add(newDailyGameRoute(date)) },
-                // The section of the Classic, its record within, as before P12.3: P12.6 opens the page without it.
-                onSettings = { backStack.add(SettingsRoute(SettingsSection.CLASSIC)) },
+                // The settings of all the games, with no section: the record of the Classic is not the seed's (P12.6).
+                onSettings = { backStack.add(SettingsRoute()) },
                 onChangeGame = { changeGame(backStack) },
                 onCopyScore = onCopyDailyScore,
                 viewModelFactory = dailyViewModelFactory,
