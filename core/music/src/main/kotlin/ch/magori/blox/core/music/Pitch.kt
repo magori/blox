@@ -24,6 +24,12 @@ public value class Pitch(public val midi: Int) {
     /** Semitones from [base] up to this pitch, octaves left out: from 0 to 11, 0 for the same note in any octave. */
     internal fun semitonesAboveInOctave(base: Pitch): Int = (midi - base.midi).mod(SEMITONES_PER_OCTAVE)
 
+    /**
+     * The same note in the octave that starts at [lowest]: from [lowest] up to the semitone under the octave above it.
+     * Refused with an `IllegalArgumentException` if it goes past B8.
+     */
+    public fun inOctaveFrom(lowest: Pitch): Pitch = Pitch(lowest.midi + semitonesAboveInOctave(lowest))
+
     /** The name of the pitch, written with sharps only: `"A4"`, `"F#5"`. */
     override fun toString(): String = NAMES[pitchClass] + (midi.floorDiv(SEMITONES_PER_OCTAVE) - 1)
 

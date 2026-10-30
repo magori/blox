@@ -12,10 +12,10 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0028](adr/0028-au-tempo-droptiming-et-horloge-audio.md) (politique `DropTiming`, horloge
 audio comme source des ticks).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P11 de [SUIVI.md](../SUIVI.md),
-> qui commence par une mesure sur téléphone, P11.2). Chaque règle recevra sa ligne **Tests :**
-> `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`, à mesure qu'elle
-> sera codée.
+> Traçabilité : seule la partition de l'accompagnement est implémentée (P11.9, `core:music`) ; le
+> reste viendra avec la phase P11 de [SUIVI.md](../SUIVI.md), qui commence par une mesure sur
+> téléphone, P11.2. Chaque règle reçoit sa ligne **Tests :** `ClasseDeTest › nom du test` et, si
+> elle se voit à l'écran, **Vues :** `V…`, à mesure qu'elle est codée.
 
 ## Vocabulaire
 
@@ -26,6 +26,7 @@ audio comme source des ticks).
 | Sur le temps | — | Une pose qui tombe à moins de *N* ticks d'une noire. |
 | Cadence | `CadenceCleared` | Des lignes effacées par une pose dans la 4ᵉ mesure de la phrase. |
 | Bonus | `TempoScore` | Les points d'Au tempo, hors du moteur, ajoutés à ceux du moteur. |
+| Accompagnement | `Accompaniment` (`core:music`) | La musique d'Au tempo : une basse I – V – vi – IV et, si on le veut, un métronome, écrits à 100 temps/min. |
 
 ## Tempo et mesure
 
@@ -129,12 +130,39 @@ les points du moteur plus les bonus** ; c'est lui qui entre dans les records d'A
 
 ## Accompagnement
 
-- Un **métronome** (un clic par noire, plus marqué sur le temps 1) et une **basse** sur la suite
-  **I – V – vi – IV** de Do majeur, une mesure par accord, en boucle sur la phrase.
-- La partition est écrite à 100 temps/min (18 ticks par croche) et jouée avec le facteur de tempo
-  `18 / ticksPerEighth` (× 1,2 à 120 temps/min).
+L'accompagnement est une partition de `core:music`, `Accompaniment.score(metronome)` : une phrase
+de 4 mesures à 4 temps, jouée en boucle, avec ou sans le métronome. Arrangement écrit pour BloX
+(aucune musique de 1989), première proposition à régler à l'oreille sur téléphone (P11.10).
+
+- Une **basse** sur la suite **I – V – vi – IV** de Do majeur (Do, Sol, la mineur, Fa), une mesure
+  par accord, en boucle sur la phrase. Elle joue la **fondamentale de l'accord sur chaque croche**
+  (les croches où la pièce descend), en onde triangle au volume de toutes les basses de BloX
+  (`bassVoice`), dans l'octave de Fa2 à Mi3 : Do3, Sol2, La2, Fa2. Rythme, octave et placement
+  **[à vérifier]** à l'oreille (proposition de P11.9).
+  **Tests :** `AccompanimentTest › the bass plays I V vi IV, one bar each`.
+- Un **métronome** : un clic par noire, plus marqué sur le temps 1. Deux voix en onde carrée, le
+  volume étant celui d'une voix entière : sur le temps 1 un Do6 à 0,10, sur les temps 2 à 4 un
+  Sol5 à 0,05 ; chaque clic dure une triple croche (1/8 de temps, 75 ms à 100 temps/min), puis
+  silence. Hauteurs, volumes et durée du clic **[à vérifier]** à l'oreille (proposition de P11.9).
+  **Tests :** `AccompanimentTest › the accompaniment clicks on every quarter, louder on beat 1`.
+- **Chaque voix commence une note ou un silence sur chaque temps** (les silences des clics sont
+  découpés par temps) : le lecteur ne change de tempo ou de partition et ne reprend qu'aux temps
+  où toutes les voix en commencent une (`switchBeats`, `core:audio`), qui sont donc tous les temps.
+  **Tests :** `AccompanimentTest › every voice of the accompaniment starts a note or a rest on every beat`,
+  `SwitchBeatsTest › the accompaniment of Au tempo with its metronome lets the tempo switch on every beat`.
+- La partition est écrite à **100 temps/min** (18 ticks par croche) et jouée avec le facteur de
+  tempo `18 / ticksPerEighth` (× 1,2 à 120 temps/min), `Accompaniment.tempoFactor(ticksPerEighth)` :
+  fonction pure de `core:music`, qui reçoit `ticksPerEighth` en entier, car `core:music` ne voit
+  pas `Meter` (`core:game`, P11.5) ; c'est la variante `TEMPO` (P11.10) qui lit l'un pour nourrir
+  l'autre. Une croche d'un nombre de ticks nul ou négatif est refusée.
+  **Tests :** `AccompanimentTest › the tempo factor is 18 over the ticks per eighth`,
+  `AccompanimentTest › an eighth lasts a positive number of ticks`.
+- **Sans métronome**, la basse continue seule : même partition (même identité, même tempo, même
+  mesure), voix des clics retirées.
+  **Tests :** `AccompanimentTest › without the metronome the bass plays on`.
 - **Interrupteur Métronome** dans la carte Pause : coupe le clic, garde la basse ; activé par
-  défaut **[à vérifier]** ; enregistré dans les préférences.
+  défaut **[à vérifier]** ; enregistré dans les préférences. La préférence (`UserPreferences`,
+  `core:data`) et le choix de la partition à jouer viennent en P11.10, l'interrupteur en P11.11.
 - La musique choisie à l'accueil ne joue pas : l'accompagnement est la musique d'Au tempo. Le
   volume de la musique s'y applique.
 - **Le danger ne change pas le tempo** : le tempo fixe le `Meter` (`ticksPerEighth`, facteur
@@ -152,7 +180,7 @@ les points du moteur plus les bonus** ; c'est lui qui entre dans les records d'A
   sauvegarde Android (vérifiée par `BackupRulesTest`), comme celui du Classique **[à vérifier]**
   ([ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md)).
 - La préférence **Métronome** ajoute un champ à `UserPreferences`, dans `settings.preferences_pb`,
-  déjà sauvegardé (P11.9).
+  déjà sauvegardé (P11.10 ; l'interrupteur en P11.11).
 
 ## Écran
 

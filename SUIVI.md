@@ -1732,7 +1732,8 @@ seulement, jour et nuit.
 - [ ] **P11.3** `Playback.heardNanos()` (`core:audio`) et ticks d'Au tempo nourris par le temps entendu, sans
   plafond, repli sur l'horloge d'images (ADR 0028, amendement de l'ADR 0012) : le ViewModel lit `heardNanos()` à
   chaque image ; temps monotone depuis `play`, tick 0 au premier échantillon entendu, reprise à la position
-  `tickCount mod phrase`. Après P11.2. Cas : `the heard time is the time of the music played, latency included`,
+  `tickCount mod phrase` (aujourd'hui, la séquence recule au dernier temps de `switchBeats` ou, pour une autre
+  partition comme le métronome basculé en pause, au début de la mesure : voir P11.10). Après P11.2. Cas : `the heard time is the time of the music played, latency included`,
   `a stopped playback has no heard time`, `the heard time never goes back, even when the music loops`, `the ticks
   follow the heard time without a cap`, `the ticks stay in phase with the accompaniment after a pause`, `when the
   music fails the ticks fall back on the frame clock without a jump`.
@@ -1759,11 +1760,19 @@ seulement, jour et nuit.
 - [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; propriété de non-régression du
   Classique : les parties de référence de P11.4 rendent les mêmes états. Après P11.6. Cas : `tempo rules are the
   classic rules but for the drop timing`, `the classic games recorded before the drop timing are played the same`.
-- [ ] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
-  temps/min, joués au facteur `18 / ticksPerEighth` ; préférence Métronome **[à vérifier]** (activé par défaut).
-  Cas : `the accompaniment clicks on every quarter, louder on beat 1`, `the bass plays I V vi IV, one bar each`, `the
-  tempo factor is 18 over the ticks per eighth`, `without the metronome the bass plays on`.
-- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `TempoRules`, horloge audio, accompagnement, total moteur +
+- [x] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
+  temps/min, joués au facteur `18 / ticksPerEighth`. Cas : `the accompaniment clicks on every quarter, louder on
+  beat 1`, `the bass plays I V vi IV, one bar each`, `the tempo factor is 18 over the ticks per eighth`, `without the
+  metronome the bass plays on`. Fait le 2026-10-30 : `Accompaniment.score(metronome)` et
+  `Accompaniment.tempoFactor(ticksPerEighth)` (entier, `core:music` ne voyant pas `Meter`) ; basse en croches
+  Do3/Sol2/La2/Fa2, clics C6 à 0,10 et G5 à 0,05 **[à vérifier]** à l'oreille. La préférence Métronome est
+  reportée en P11.10, son interrupteur en P11.11.
+- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `TempoRules`, horloge audio, accompagnement
+  (`Accompaniment.score(metronome)` au facteur `Accompaniment.tempoFactor(meter.ticksPerEighth)`), préférence
+  **Métronome** (champ de `UserPreferences` dans `settings.preferences_pb`, `core:data`, activée par défaut
+  **[à vérifier]**, reportée de P11.9 ; la reprise recule aujourd'hui au dernier temps de `switchBeats` (même
+  partition) ou au début de la mesure (autre partition, cas du métronome basculé en pause) ; à rendre exacte
+  (`tickCount mod phrase`) avec P11.3), total moteur +
   bonus, records dans un fichier DataStore à part (inclus dans la sauvegarde **[à vérifier]**, `BackupRulesTest`) ;
   `SteadyMusicDirection`, sans accélération (le danger ne change pas le tempo) ; thème Couleurs imposé et barres
   système (`systemBarVariant` connaît la variante, ADR 0026) ; tempo de la v1 120 temps/min et départ au niveau 0
@@ -1782,6 +1791,10 @@ seulement, jour et nuit.
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
   360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
   Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
+- [ ] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
+  musiques du joueur, alors que trois musiques de jeu l'utilisent sans être gardées (`LiveMusic.CALM_ID` et
+  `TENSE_ID`, `GARDEN_SCORE_ID`, l'accompagnement d'Au tempo) ; élargir cette KDoc, ou leur donner une identité
+  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9.
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 
@@ -1789,7 +1802,7 @@ Demande du développeur (2026-10-28) : des réglages communs à tous les jeux, o
 réglages propres à chaque jeu. Proposition de `designer-jeu` retenue : **une seule page Paramètres**, ouverte depuis
 le choix du jeu (réglages généraux seuls) ou depuis un jeu (sa section en tête, puis « Tous les jeux »), toujours en
 Couleurs. Le Serrurier, le Jardin et la Graine n'ont pas de réglage propre ; le Métronome d'Au tempo reste dans sa
-pause (P11.9).
+pause (P11.11).
 
 - [x] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
   par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0002, 0011 et 0022. Fait :

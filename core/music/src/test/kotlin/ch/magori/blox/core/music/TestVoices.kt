@@ -18,3 +18,16 @@ private fun barsOf(bars: Array<out String>): List<List<Note>> = bars.map { bar -
         Note(if (pitch == "r") null else Pitch.parse(pitch), beats.toDouble())
     }
 }
+
+/** Cuts [voice] into bars: a new bar starts once the current one holds [beatsPerBar] beats or more. */
+internal fun barsOf(
+    voice: Voice,
+    beatsPerBar: Int,
+): List<List<Note>> {
+    val bars = mutableListOf(mutableListOf<Note>())
+    voice.notes.forEach { note ->
+        if (bars.last().sumOf { it.beats } >= beatsPerBar) bars += mutableListOf<Note>()
+        bars.last() += note
+    }
+    return bars
+}

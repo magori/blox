@@ -78,8 +78,7 @@ private class Voicing(val notes: List<Note> = emptyList(), val beats: Double = 0
  */
 private fun Garden.bass(): Voice = bassVoice(
     List(BEATS) { beat ->
-        val root = mood.chordAt(beat * EIGHTHS_PER_BEAT).root
-        Note(Pitch(BASS_OCTAVE.midi + (root.midi - BASS_OCTAVE.midi).mod(SEMITONES_PER_OCTAVE)), QUARTER)
+        Note(mood.chordAt(beat * EIGHTHS_PER_BEAT).root.inOctaveFrom(BASS_OCTAVE), QUARTER)
     },
 ).copy(volume = BASS_VOLUME)
 
@@ -99,7 +98,6 @@ private const val EIGHTHS_PER_BEAT = 2
 private const val BEATS_PER_BAR = 4
 private const val BEATS = Garden.COLUMNS / EIGHTHS_PER_BEAT
 private const val LENGTH = Garden.COLUMNS * EIGHTH
-private const val SEMITONES_PER_OCTAVE = 12
 
 /** The bottom of the octave of the bass: C2, the lowest note of the generated basses. */
 private val BASS_OCTAVE = BASS_RANGE.lowest

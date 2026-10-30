@@ -226,6 +226,8 @@ du Classique, qui doit rester vert (ADR 0015).
   `StableRandom` (générateur stable, SplitMix64, dont la suite est un contrat entre versions ;
   `ClassicRandomizer.stable(seed)`). Le Jardin musical (`core:garden`) : `Garden` (la grille de
   16 × 14 et les pièces qui y sont posées), `GardenMood` (une ambiance : gamme, accords, tempo).
+  Au tempo : `Accompaniment` (`core:music`, la musique d'Au tempo : basse I–V–vi–IV et métronome,
+  écrits à 100 temps/min, `tempoFactor(ticksPerEighth)`).
   Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
