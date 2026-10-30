@@ -43,6 +43,7 @@ import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.PlayButton
 import ch.magori.blox.core.designsystem.component.ScoreChip
+import ch.magori.blox.core.designsystem.component.SettingsButton
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.text.scoreText
@@ -160,11 +161,7 @@ private fun DailyBar(
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             BestOfTheDayChip(best)
         }
-        GlyphButton(
-            icon = BloxIcon.GEAR,
-            description = stringResource(R.string.feature_daily_settings),
-            onClick = onSettings,
-        )
+        SettingsButton(onClick = onSettings)
     }
 }
 

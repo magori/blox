@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="feature_daily_change_game">Changer de jeu</string>
-    <string name="feature_daily_settings">Paramètres</string>
     <!-- Puce de la barre : l'étiquette, en capitales, au-dessus du meilleur score du jour (ou d'un tiret). -->
     <string name="feature_daily_best_of_the_day">Meilleur du jour</string>
     <!-- Lu par TalkBack sur la puce : la vraie valeur, non plafonnée. -->

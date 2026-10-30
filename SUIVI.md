@@ -1796,7 +1796,7 @@ pause (P11.9).
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
   (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
   `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
-- [ ] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
+- [x] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
   (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
   fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings` de l’engrenage, restée dans `feature:home` en P12.2 :
   le faire lire la chaîne du bouton commun. Après P12.2.

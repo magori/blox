@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.ScoreChip
+import ch.magori.blox.core.designsystem.component.SettingsButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.text.scoreText
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
@@ -39,11 +40,7 @@ internal fun HomeBar(
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
             RecordChip(record)
         }
-        GlyphButton(
-            icon = BloxIcon.GEAR,
-            description = stringResource(R.string.feature_home_settings),
-            onClick = onSettings,
-        )
+        SettingsButton(onClick = onSettings)
     }
 }
 
