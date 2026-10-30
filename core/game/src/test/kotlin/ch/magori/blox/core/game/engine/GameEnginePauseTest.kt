@@ -1,9 +1,6 @@
 package ch.magori.blox.core.game.engine
 
-import ch.magori.blox.core.game.cellsOf
 import ch.magori.blox.core.game.model.Board
-import ch.magori.blox.core.game.model.Orientation
-import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position

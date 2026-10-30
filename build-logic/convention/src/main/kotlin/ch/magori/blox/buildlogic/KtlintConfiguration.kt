@@ -9,6 +9,9 @@ import org.jlleitschuh.gradle.ktlint.tasks.BaseKtLintCheckTask
 /**
  * Analyse statique du style Kotlin avec ktlint, réglée par `.editorconfig` à la racine.
  * `ktlintCheck` échoue en CI ; `ktlintFormat` corrige en local.
+ *
+ * Les imports inutilisés, que le compilateur Kotlin ne signale pas, sont refusés par la règle
+ * `no-unused-imports` : dépréciée, elle ne tourne que si `.editorconfig` l'active (P5.55).
  */
 internal fun Project.configureKtlint() {
     pluginManager.apply("org.jlleitschuh.gradle.ktlint")
