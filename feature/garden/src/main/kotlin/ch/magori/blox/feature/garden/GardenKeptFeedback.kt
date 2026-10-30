@@ -6,7 +6,6 @@ import ch.magori.blox.core.designsystem.component.sheetExitTicks
 import ch.magori.blox.core.designsystem.frame.rememberEffectTick
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxMotion
-import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.fadeOut
 
@@ -86,6 +85,3 @@ internal fun rememberKeptMessageTick(keeps: Int?): () -> Int {
         length = keptDotTicks(effects) + BloxMotion.card,
     )
 }
-
-/** How far below its place the message of a garden kept starts to rise. */
-internal val MESSAGE_RISE = BloxSpaces.space4

@@ -49,10 +49,13 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
   `keyRotate` et leurs variantes compactes et tablette). `ControlSizes` (`feature:game`) y renvoie :
   les touches gardent aujourd'hui la taille compacte (52 et 56 dp), les tailles par largeur
   arrivent en P5.79. `sheetRise` (`sheet-rise`, 40 dp, P10.37) : la distance que parcourt une feuille du bas en
-  montant à sa place ou en redescendant, distance de mouvement qu'aucun espacement ne donne.
+  montant à sa place ou en redescendant, distance de mouvement qu'aucun espacement ne donne. `messageRise`
+  (`message-rise`, 16 dp, P10.38) : la montée du message « Gardé » du Jardin, qui empruntait `space4`.
 - **Espacements** (`BloxSpaces`, `space1` à `space6`) et **durées** (`BloxMotion`) en ticks, au plus
   près des millisecondes du design system (1 tick = 1/60 s, ADR 0006) : `press` 6, `reducedFade`
-  8, `curtain` 12, `row` 12 (rangée supprimée qui s'estompe puis se replie, P10.37), `card` 18, `sticker` 30, `pop` 45.
+  8, `curtain` 12, `row` 12 (rangée supprimée qui s'estompe puis se replie, P10.37), `card` 18, `sticker` 30, `pop` 45 ;
+  pour le Jardin, `gardenBounce` 6, `gardenGlow` 8, `gardenFall` 8 (chute d'une pièce d'Au hasard, P10.38),
+  `gardenFallStep` 2.
 
 **Tests :** `ShapeTokensTest › each radius, size and space of tokens json is the one of the code`,
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
@@ -228,7 +231,9 @@ verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il 
 les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
 redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
 78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
-réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des musiques (P5.99).
+réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des musiques (P5.99). Sa boucle (30 ticks,
+10 d'avance) reste sans jeton (P10.38) : elle appartient au dessin du pictogramme `EQUALIZER`, comme ses barres de
+3 × 14 dp (docs/design-system/pictogrammes.md), et n'est ni une transition ni partagée avec un autre mouvement.
 **Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
 `ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
 `ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,

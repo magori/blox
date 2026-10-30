@@ -47,6 +47,7 @@ class MotionTokensTest {
             CodedToken("motion-reduced-fade", "reducedFade", BloxMotion.reducedFade),
             CodedToken("motion-garden-bounce", "gardenBounce", BloxMotion.gardenBounce),
             CodedToken("motion-garden-glow", "gardenGlow", BloxMotion.gardenGlow),
+            CodedToken("motion-garden-fall", "gardenFall", BloxMotion.gardenFall),
             CodedToken("motion-garden-fall-step", "gardenFallStep", BloxMotion.gardenFallStep),
         )
 
