@@ -12,9 +12,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
+/**
+ * The looks of a switch, in the variants of Colorful alone: a setting row is drawn only on the settings page, which is
+ * in Colorful whatever the theme chosen (P12.4, P12.13).
+ */
 internal class SwitchLookTest {
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `a switch on has its thumb on the right, larger, checked, a switch off on the left`(variant: BloxThemeVariant) {
         // When
         val on = switchLook(variant, SwitchState(checked = true))
@@ -30,7 +34,7 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `a pressed row fills with button pressed and its thumb grows to 28 dp`(variant: BloxThemeVariant) {
         // Given
         val palette = paletteOf(variant)
@@ -48,13 +52,12 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`(
         variant: BloxThemeVariant,
     ) {
-        // Given (P5.57): in Original, whose outline is the face of its buttons, the track is framed in ink
+        // Given
         val palette = paletteOf(variant)
-        val outline = if (variant == BloxThemeVariant.ORIGINAL) palette.ink else palette.buttonOutline
 
         listOf(true, false).forEach { checked ->
             // When
@@ -63,7 +66,7 @@ internal class SwitchLookTest {
 
             // Then (WCAG 2.1, 1.4.11): the frame, not the accent, makes the 3:1 of the track, on the page at rest and
             // on the fill of its row pressed, whatever its state
-            assertThat(atRest.trackFrame).isEqualTo(outline)
+            assertThat(atRest.trackFrame).isEqualTo(palette.buttonOutline)
             assertThat(contrast(atRest.trackFrame, palette.page)).isGreaterThanOrEqualTo(3.0)
             assertThat(pressed.trackFrame).isEqualTo(pressed.label)
             assertThat(contrast(pressed.trackFrame, pressed.rowFill)).isGreaterThanOrEqualTo(3.0)
@@ -71,7 +74,7 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `a focused row bears a 3 dp ring in ink, 3 dp off its edge`(variant: BloxThemeVariant) {
         // When
         val focused = switchLook(variant, SwitchState(checked = false, focused = true))
@@ -83,26 +86,7 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
-    fun `in Original the thumb of a disabled row is hollow, its outline alone drawn`(variant: BloxThemeVariant) {
-        // When
-        val disabled = listOf(true, false).map { checked ->
-            switchLook(variant, SwitchState(checked = checked, enabled = false))
-        }
-        val enabled = listOf(true, false).map { checked -> switchLook(variant, SwitchState(checked = checked)) }
-
-        // Then in Original, whose label, frames and inset are those of an enabled row, the hollow thumb tells it apart
-        // by its shape, not by a colour; elsewhere the thumbs stay full
-        val original = variant == BloxThemeVariant.ORIGINAL
-        assertThat(disabled).allSatisfy { assertThat(it.thumbHollow).isEqualTo(original) }
-        assertThat(enabled).allSatisfy { assertThat(it.thumbHollow).isFalse() }
-        // A hollow thumb on bears its check in the colour of its outline: the track shows through it
-        val disabledOn = disabled.first()
-        if (disabledOn.thumbHollow) assertThat(disabledOn.check).isEqualTo(disabledOn.thumb)
-    }
-
-    @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `the thumb stands out from its track by 3 to 1, on and off, and the check from the thumb`(
         variant: BloxThemeVariant,
     ) {
@@ -117,7 +101,7 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`(
         variant: BloxThemeVariant,
     ) {
@@ -138,7 +122,7 @@ internal class SwitchLookTest {
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `a disabled switch is flat, its track in panel inset framed in panel border, its thumb and label in label`(
         variant: BloxThemeVariant,
     ) {
@@ -162,20 +146,25 @@ internal class SwitchLookTest {
         }
         val (on, off) = looks
         assertThat(on.thumbAtEnd).isTrue()
-        // Full, its check in the colour of the track; hollow (Original), in the colour of its outline
-        assertThat(on.check).isEqualTo(if (on.thumbHollow) palette.label else palette.panelInset)
+        // Its check in the colour of the track
+        assertThat(on.check).isEqualTo(palette.panelInset)
         assertThat(off.thumbAtEnd).isFalse()
     }
 
     @ParameterizedTest
-    @EnumSource(BloxThemeVariant::class)
+    @EnumSource(BloxThemeVariant::class, names = [COLORFUL_LIGHT, COLORFUL_DARK])
     fun `a switch on bears the gloss of a button on its track, a switch off none`(variant: BloxThemeVariant) {
         // When
         val on = switchLook(variant, SwitchState(checked = true))
         val off = switchLook(variant, SwitchState(checked = false))
 
-        // Then (none at all in Original, which is flat)
+        // Then
         assertThat(on.trackGloss).isEqualTo(glossesOf(variant).button)
         assertThat(off.trackGloss).isEqualTo(Gloss.None)
+    }
+
+    private companion object {
+        const val COLORFUL_LIGHT = "COLORFUL_LIGHT"
+        const val COLORFUL_DARK = "COLORFUL_DARK"
     }
 }

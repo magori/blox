@@ -34,10 +34,13 @@ private val SheetRows = listOf(
     SheetRow("Vibration des touches", checked = false, disabledReason = "Cet appareil ne vibre pas"),
 )
 
-/** The settings of the theme [kind], each in a state of [SheetRows], on the page. */
+/**
+ * The settings, each in a state of [SheetRows], on the page: in Colorful alone, as the settings page, the only one to
+ * show them, is drawn whatever the theme chosen.
+ */
 @Composable
-private fun SwitchSheet(kind: BloxThemeKind) {
-    BloxTheme(kind = kind) {
+private fun SwitchSheet() {
+    BloxTheme(kind = BloxThemeKind.COLORFUL) {
         Column(
             modifier = Modifier.fillMaxSize().background(BloxTheme.palette.page).padding(BloxSpaces.space4),
             verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
@@ -69,24 +72,12 @@ private fun SwitchSheet(kind: BloxThemeKind) {
 
 @Preview(widthDp = 360, heightDp = 720)
 @Composable
-internal fun SwitchesOriginalPreview() {
-    SwitchSheet(BloxThemeKind.ORIGINAL)
-}
-
-@Preview(widthDp = 360, heightDp = 720)
-@Composable
 internal fun SwitchesColorfulPreview() {
-    SwitchSheet(BloxThemeKind.COLORFUL)
-}
-
-@Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
-@Composable
-internal fun SwitchesOriginalLargeFontPreview() {
-    SwitchSheet(BloxThemeKind.ORIGINAL)
+    SwitchSheet()
 }
 
 @Preview(widthDp = 360, heightDp = 1600, fontScale = 2f)
 @Composable
 internal fun SwitchesColorfulLargeFontPreview() {
-    SwitchSheet(BloxThemeKind.COLORFUL)
+    SwitchSheet()
 }

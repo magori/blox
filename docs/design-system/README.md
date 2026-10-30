@@ -265,9 +265,9 @@ place du « o ». Dessiné dans la maquette (composant `LogoBloX`), pas encore e
 `panel-border` (1,4:1) reste décoratif : tout ce qui se touche est encadré en `button-outline`,
 et les choix le sont par le cadre de leur groupe. Repères autres que la couleur, là où un aplat ne
 suffit pas (P5.57) : le choix retenu porte une coche (3:1), l'interrupteur se lit à son cadre
-`button-outline` (l'encre en Original), à la position et à la taille de son pouce, la touche tenue à
-son décalage de 2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit aussi à l'épaisseur du
-cadre (4 px), pas à la seule couleur.
+`button-outline`, à la position et à la taille de son pouce, la touche tenue à son décalage de
+2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit
+aussi à l'épaisseur du cadre (4 px), pas à la seule couleur.
 
 ## Correspondance avec le code
 
