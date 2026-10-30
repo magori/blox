@@ -1,6 +1,6 @@
 # 0002 — Modularisation `app` / `core` / `feature` et plugins de convention
 
-- **Statut** : Acceptée ; amendée par [0025](0025-le-serrurier.md) et [0027](0027-le-jardin-musical.md)
+- **Statut** : Acceptée ; amendée par [0025](0025-le-serrurier.md), [0027](0027-le-jardin-musical.md) et [0030](0030-reglages-generaux-et-par-jeu.md)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -62,3 +62,10 @@ Les dépendances entre modules utilisent les accesseurs typés (`projects.core.g
   lui donne la date du jour, la graine (`DailySeed`) et le niveau imposé (ADR 0007, 0013), et
   décide où mènent Jouer (la partie du jour de `feature:game`, à la date affichée), Paramètres,
   Changer de jeu et Copier mon score.
+- **Amendement (ADR 0030, 2026-10-30).** Module `feature:settings` pour la page Paramètres, le
+  besoin prévu plus haut : la page n'est plus celle de l'accueil du Classique, mais une page
+  unique ouverte depuis le choix du jeu, l'accueil du Classique et la Graine du jour, avec une
+  section par jeu puis « Tous les jeux ». Elle quitte `feature:home` (P12.2). Le module ne dépend
+  d'aucune autre feature : `core:data` (réglages et record), `core:audio`, `core:haptics`,
+  `core:music` et `core:designsystem`. Il expose `SettingsRoute(section)` et `settingsEntry` ; `app`
+  l'assemble (ADR 0011, 0013) et choisit la section selon l'écran qui ouvre la page.

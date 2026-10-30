@@ -1,6 +1,6 @@
 # 0022 — Choix du jeu : une feature à la racine de la pile
 
-- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md), [0026](0026-jeux-musicaux-variantes-du-classique.md) et [0027](0027-le-jardin-musical.md)
+- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md), [0026](0026-jeux-musicaux-variantes-du-classique.md), [0027](0027-le-jardin-musical.md) et [0030](0030-reglages-generaux-et-par-jeu.md)
 - **Date** : 2026-10-25
 
 ## Contexte
@@ -46,3 +46,12 @@ système comprises), l'Original étant figé. La feature reste sans ViewModel : 
 résultats de la Graine du jour et de `today(clock)` (`NewCartridges`, résultats gardés chauds pour que l'autocollant ne clignote pas au retour), la date relue à chaque
 retour de l'écran ou de l'application au premier plan (pas de bascule en direct à minuit, comme
 l'écran d'entrée). La feature ne connaît ni les résultats ni la date.
+
+## Amendement (ADR 0030, 2026-10-30)
+
+Le choix du jeu n'est plus fait que de cartouches : une roue dentée de 48 dp, à droite de la barre, lue
+« Paramètres » et placée avant le titre dans l'ordre de TalkBack, ouvre la page Paramètres sur les réglages de tous
+les jeux (`SettingsRoute()`, P12.5) ; le retour revient aux cartouches. `cartridgesEntry` reçoit un rappel
+`onSettings`, que `app` relie à la pile : la feature ne connaît pas `feature:settings`, et reste sans ViewModel.
+La roue passe par `CartridgeOpener`, comme les cartouches : elle annule un toucher sur le Serrurier qui attend encore
+sa frontière, et n'empile la page que si `CartridgesRoute` est en haut de la pile.
