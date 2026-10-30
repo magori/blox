@@ -483,7 +483,8 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   feuille n'est pas focalisable, et les boutons du haut peuvent être grisés. C'est la liste qui donne le focus, une
   fois la fenêtre fermée **et** le jardin retiré de la liste, dans n'importe quel ordre : en Effets réduits, la
   rangée part avec son « … » à la fermeture même ; la liste lue par le ViewModel peut arriver avant ou après la
-  fermeture. Au toucher, le focus ne va nulle part.
+  fermeture. Au toucher, le focus ne va nulle part. Cette logique est commune à Mes musiques (P7.52) :
+  `FocusAfterDeletion` (`core:designsystem`, [themes.md](themes.md), Focus après une suppression).
   Le menu est `RowMenu` (`core:designsystem`, P10.36), commun à Mes musiques.
   **Tests :** `MyGardensScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its row`,
   `MyGardensScreenTest › from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its row`,
@@ -494,6 +495,8 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `MyGardensScreenTest › from the keyboard, in reduced effects, a garden deleted gives the focus to the « … » of the next row`,
   `MyGardensScreenTest › from the keyboard, a garden deleted whose list is read after its window closed still gives the focus on`,
   `MyGardensScreenTest › from the keyboard, a garden out of the list before its window closes gives the focus on as it closes`,
+  `MyGardensScreenTest › from the keyboard, the middle garden out of the list before its window closes gives the focus to the next row`,
+  `MyGardensScreenTest › from the keyboard, the only garden out of the list before its window closes gives the focus to the empty list`,
   `MyGardensScreenTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
   `MyGardensScreenTest › by touch, a garden deleted gives the focus to nothing, not even the empty list`,
   `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`,

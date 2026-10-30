@@ -1433,7 +1433,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [x] **P7.51** Extraire le badge commun dans `core:designsystem` : `InGameBadge` (Mes musiques), `NewBestBadge`
   (`GameOverScreen`) et « ouvert » de Mes jardins, pilules droites en `accent`, trois copies ; la règle de 2 est
   dépassée (revue de P7.45).
-- [ ] **P7.52** Après la suppression d'une musique depuis le menu « … » de sa carte, dans Mes musiques, le focus est
+- [x] **P7.52** Après la suppression d'une musique depuis le menu « … » de sa carte, dans Mes musiques, le focus est
   perdu : la carte quitte la `LazyColumn` aussitôt, avec son « … », qui ne peut plus le reprendre. Le rendre à la
   carte suivante, sinon à la précédente, sinon à la liste vide, sous la même forme que Mes jardins (P10.39) : c'est
   la liste, non le `RowMenu` qui part, qui donne le focus, une fois la fenêtre fermée et la carte retirée, dans
