@@ -148,7 +148,8 @@ captures `MyMusics*`, `GameOverColorfulNewRecord*`, `GameOverOriginalNewRecord`,
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
 retour, réglages, écoute, menu, fermeture). Ils remplacent les boutons de `feature:game`
-(Reprendre, Menu, Rejouer) et `SettingsButton`. Couleurs par variante (`BloxTheme.buttons`) ; en
+(Reprendre, Menu, Rejouer) et l'ancien `SettingsButton` de `feature:home` (le `SettingsButton` d'aujourd'hui,
+partagé, est décrit plus bas : **Paramètres**, P12.11). Couleurs par variante (`BloxTheme.buttons`) ; en
 Original, carrés et sans relief par le thème. Le Principal est en `accent`, le Secondaire et l'Icône
 en `button` cadré de `buttonOutline` ; en Original, Secondaire et Icône sont au repos sur la page,
 encre `ink` et cadre `buttonOutline` (l'encre du bouton sur son fond n'atteint que 4,0:1), et
@@ -263,6 +264,15 @@ réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des mus
 `EqualizerTest › the equalizer is left out by TalkBack`,
 `EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
 
+**Paramètres** (P12.11, `core:designsystem`) : `SettingsButton` est la roue dentée au bout de la barre d’un accueil,
+à l’accueil du Classique (`HomeBar`) et à celui de la Graine du jour (`DailyScreen`), bientôt au choix du jeu (P12.5).
+C’est un `GlyphButton` de la famille Icône, pictogramme `GEAR`, disque de 48 dp, que TalkBack lit « Paramètres » une
+seule fois (chaîne `core_designsystem_settings`, qui remplace `feature_home_settings` et `feature_daily_settings`) ;
+un toucher ouvre la page Paramètres. Il se dessine comme le bouton de la roue qu’il remplace, dans les deux thèmes :
+l’accueil du Classique en Original ne change pas.
+**Tests :** `SettingsButtonTest › the settings button is a button of 48 dp, read Paramètres once, that opens the settings`,
+`SettingsButtonTest › the settings button is drawn as the button of the gear`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
@@ -320,6 +330,15 @@ un jardin), que `core:designsystem` ne voit pas.
 `RowMenuTest › a window that opens frames after its item still gives the focus back to « … » as it closes`,
 `RowMenuTest › from the keyboard, the menu closed by Back gives the focus back to « … »`,
 `NamingWindowTest › Renommer is titled after the name it renames and answered Renommer, which renames`.
+Quand la rangée part après une suppression confirmée, `RowMenu` ne choisit pas où va le focus : son « … » peut déjà
+être retiré (en Effets réduits, la rangée part d'un coup). C'est la liste qui le donne, une fois la fenêtre fermée
+**et** la rangée retirée de la liste, dans n'importe quel ordre (Mes jardins, P10.39 ; Mes musiques, P7.52) ; elle
+pose pour cela un `focusRequester` sur le `modifier` de chaque `RowMenu`.
+
+**Bloc focalisable** (P10.39, `core:designsystem`) : `FocusableBlock` est un bloc de texte qui ne fait rien mais que
+le clavier peut focaliser, où va le focus quand ce qui le tenait part (une liste laissée vide). TalkBack le lit d'un
+trait ; focalisé, il porte l'anneau des boutons (WCAG 2.4.7).
+**Test :** `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`.
 
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
 (accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans

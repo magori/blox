@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 285 / 378 | `███████████████░░░░░` **75 %** |
+| **Général** | 297 / 383 | `████████████████░░░░` **78 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1433,6 +1433,13 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
 - [x] **P7.51** Extraire le badge commun dans `core:designsystem` : `InGameBadge` (Mes musiques), `NewBestBadge`
   (`GameOverScreen`) et « ouvert » de Mes jardins, pilules droites en `accent`, trois copies ; la règle de 2 est
   dépassée (revue de P7.45).
+- [ ] **P7.52** Après la suppression d'une musique depuis le menu « … » de sa carte, dans Mes musiques, le focus est
+  perdu : la carte quitte la `LazyColumn` aussitôt, avec son « … », qui ne peut plus le reprendre. Le rendre à la
+  carte suivante, sinon à la précédente, sinon à la liste vide, sous la même forme que Mes jardins (P10.39) : c'est
+  la liste, non le `RowMenu` qui part, qui donne le focus, une fois la fenêtre fermée et la carte retirée, dans
+  n'importe quel ordre (`FocusAfterDeletion` de `MyGardensSheet.kt`, à mettre en commun à cette deuxième occurrence),
+  la liste vide en `FocusableBlock` ; la carte voisine, dans la liste paresseuse, peut n'être pas composée (revue de
+  P10.39).
 
 ## P8 — Musique vivante (`core:music`, `core:audio`, `feature:game`)
 
@@ -1704,9 +1711,11 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`). Fait le 2026-10-30 : `motion-garden-fall`
   (`BloxMotion.gardenFall`) et `message-rise` (`BloxSizes.messageRise`) ; `FALL_CELLS` (une case) et la boucle de
   l'égaliseur restent sans jeton. Publication dans le design system de claude.ai avec P10.33.
-- [ ] **P10.39** Après la suppression d'un jardin depuis Mes jardins, le focus revient au « … » d'une rangée qui part
+- [x] **P10.39** Après la suppression d'un jardin depuis Mes jardins, le focus revient au « … » d'une rangée qui part
   (repliée puis retirée) : le rendre à un élément qui reste (la rangée suivante, la liste ou le titre de la feuille).
-  Revue de P10.36, hors périmètre.
+  Revue de P10.36, hors périmètre. Fait le 2026-10-30 : le focus va au « … » de la rangée suivante, sinon de la
+  précédente, sinon à la liste vide (`FocusableBlock`, avec son anneau), donné par la liste une fois la fenêtre
+  fermée et la rangée retirée, en Effets réduits aussi ; Mes musiques en P7.52.
 
 ## P11 — Au tempo (`core:game`, `core:audio`, `feature:game`)
 
@@ -1798,7 +1807,7 @@ pause (P11.9).
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
   (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
   `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
-- [ ] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
+- [x] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
   (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
   fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings` de l’engrenage, restée dans `feature:home` en P12.2 :
   le faire lire la chaîne du bouton commun. Après P12.2.
@@ -1821,7 +1830,7 @@ pause (P11.9).
 - [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
   sur V38 ; V21 remplacée.
-- [ ] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
+- [x] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
   `feature:locksmith` ;
   vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
 

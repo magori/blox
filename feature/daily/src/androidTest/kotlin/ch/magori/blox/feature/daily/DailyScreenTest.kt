@@ -32,6 +32,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import java.time.LocalDate
+import ch.magori.blox.core.designsystem.R as DesignR
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -178,7 +179,7 @@ internal class DailyScreenTest {
             .performScrollTo()
             .performClick()
         onNodeWithContentDescription(string(R.string.feature_daily_change_game)).performScrollTo().performClick()
-        onNodeWithContentDescription(string(R.string.feature_daily_settings)).performScrollTo().performClick()
+        onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performScrollTo().performClick()
 
         // Then nothing is handed to app
         runOnIdle { assertThat(touched).isEmpty() }
@@ -206,7 +207,7 @@ internal class DailyScreenTest {
 
         // When
         onNodeWithContentDescription(string(R.string.feature_daily_change_game)).performClick()
-        onNodeWithContentDescription(string(R.string.feature_daily_settings)).performClick()
+        onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
 
         // Then
         runOnIdle { assertThat(touched).containsExactly("change game", "settings") }

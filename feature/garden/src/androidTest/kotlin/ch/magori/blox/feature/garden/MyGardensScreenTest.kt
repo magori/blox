@@ -1,6 +1,7 @@
 package ch.magori.blox.feature.garden
 
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,10 +17,12 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -30,12 +33,15 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.data.CurrentGarden
+import ch.magori.blox.core.data.DeletedGarden
 import ch.magori.blox.core.data.FakeGardenLibrary
 import ch.magori.blox.core.data.FakeGardenRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.GardenId
+import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.designsystem.component.SettledSheet
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.garden.Garden
@@ -46,6 +52,8 @@ import de.mannodermaus.junit5.compose.createComposeExtension
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
@@ -363,15 +371,7 @@ internal class MyGardensScreenTest {
                 state = state.copy(sheet = GardensSheet(naming = GardenNaming(PLUIE.name, renaming = PLUIE)))
             },
         )
-        setContent {
-            val inputMode = LocalInputModeManager.current
-            LaunchedEffect(Unit) { inputMode.requestInputMode(InputMode.Keyboard) }
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                MyGardensSheetContent(state, actions, messageMillis = 0, undoMillis = 0) { title, bottom, content ->
-                    SettledSheet(title, actions = bottom, content = content)
-                }
-            }
-        }
+        showSheet({ state }, actions)
         onNodeWithContentDescription("Plus d'actions pour Pluie douce").performSemanticsAction(SemanticsActions.OnClick)
         onNodeWithText("Renommer").performSemanticsAction(SemanticsActions.OnClick)
         // The window of the name opens: its state is seen before it closes.
@@ -384,6 +384,236 @@ internal class MyGardensScreenTest {
         onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
     }
 
+    @Test
+    @DisplayName("from the keyboard, a garden deleted from its menu gives the focus to the menu « … » of the next row")
+    fun aGardenDeletedGivesTheFocusToTheNextRow() = extension.use {
+        // Given / When, from the keyboard, « Ciel clair » deleted, listed above « Pluie douce »
+        deleteFromKeyboard(library = listOf(PLUIE, CIEL), deleted = CIEL)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, the bottom garden deleted gives the focus to the menu « … » of the row above")
+    fun theLastGardenDeletedGivesTheFocusToTheRowAbove() = extension.use {
+        // Given / When, from the keyboard, « Pluie douce » deleted, listed under « Ciel clair »
+        deleteFromKeyboard(library = listOf(PLUIE, CIEL), deleted = PLUIE)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Ciel clair").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, the only garden deleted gives the focus to the empty list")
+    fun theOnlyGardenDeletedGivesTheFocusToTheEmptyList() = extension.use {
+        // Given / When, from the keyboard, « Pluie douce », the only garden, deleted
+        deleteFromKeyboard(library = listOf(PLUIE), deleted = PLUIE)
+
+        // Then
+        onNode(
+            hasText(string(R.string.feature_garden_none_kept)) and
+                hasText(string(R.string.feature_garden_none_kept_hint)),
+        ).assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its row")
+    fun aDeletionNotConfirmedGivesTheFocusBackToTheMenu() = extension.use {
+        // Given / When, from the keyboard, the deletion of « Ciel clair » not confirmed
+        deleteFromKeyboard(library = listOf(PLUIE, CIEL), deleted = CIEL, confirmed = false)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Ciel clair").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, the garden in the middle deleted gives the focus to the menu « … » of the row under it",
+    )
+    fun theMiddleGardenDeletedGivesTheFocusToTheRowUnderIt() = extension.use {
+        // Given / When, from the keyboard, « Ciel clair » deleted, between « Soleil » above and « Pluie douce » under it
+        deleteFromKeyboard(library = listOf(PLUIE, CIEL, SOLEIL), deleted = CIEL)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, a garden deleted whose list is read after its window closed still gives the focus on",
+    )
+    fun aGardenDeletedListedLateStillGivesTheFocusOn() = extension.use {
+        // Given « Pluie douce » then « Ciel clair » kept, the list read late, and the sheet open, from the keyboard
+        val fake = FakeGardenLibrary()
+        runBlocking {
+            fake.keep(PLUIE.name, PLUIE.garden)
+            fake.keep(CIEL.name, CIEL.garden)
+        }
+        val library = LateGardenLibrary(fake)
+        runBlocking { library.show() }
+        val viewModel = viewModelOf(FakeGardenRepository(I_GARDEN), library)
+        val actions = gardenActions(viewModel, onChangeGame = {})
+        showSheet({ viewModel.uiState.collectAsState().value ?: GardenUiState(I_GARDEN) }, actions)
+        runOnIdle { actions.onOpenMyGardens() }
+        openDeletion(CIEL)
+
+        // When the deletion is confirmed, its window closed before the list without « Ciel clair » is read
+        runOnIdle { actions.onConfirmDeleting(UNDO_MS) }
+        waitUntil { onAllNodesWithText("« Ciel clair » supprimé.").fetchSemanticsNodes().isNotEmpty() }
+        runBlocking { library.show() }
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, a garden out of the list before its window closes gives the focus on as it closes")
+    fun aGardenOutOfTheListBeforeItsWindowClosesGivesTheFocusOn() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Ciel clair » open, above « Pluie douce »
+        val sheet = SheetUnderTest(listOf(PLUIE, CIEL))
+        showSheet({ sheet.state }, sheet.actions)
+        openDeletion(CIEL)
+
+        // When the list is read without it, the window still open, then the window closes
+        sheet.listWithout(CIEL)
+        waitForIdle()
+        sheet.confirm(CIEL)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("by touch, a garden deleted gives the focus to nothing, not even the empty list")
+    fun byTouchAGardenDeletedGivesTheFocusToNothing() = extension.use {
+        // Given, by touch, the window of the deletion of « Pluie douce », the only garden, open
+        // Touch mode is the device's: a test before may have left it for the keyboard.
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        val sheet = SheetUnderTest(listOf(PLUIE))
+        showSheet({ sheet.state }, sheet.actions, keyboard = false)
+        openDeletion(PLUIE, keyboard = false)
+
+        // When the deletion is confirmed
+        sheet.confirm(PLUIE)
+
+        // Then
+        onNode(hasText(string(R.string.feature_garden_none_kept))).assertIsNotFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed")
+    fun afterADeletionNotConfirmedTheFocusFollowsTheNext() = extension.use {
+        // Given, from the keyboard, the deletion of « Ciel clair » not confirmed, above « Pluie douce »
+        val sheet = SheetUnderTest(listOf(PLUIE, CIEL))
+        showSheet({ sheet.state }, sheet.actions)
+        openDeletion(CIEL)
+        sheet.cancel()
+        waitForIdle()
+
+        // When « Pluie douce » is deleted
+        openDeletion(PLUIE)
+        sheet.confirm(PLUIE)
+
+        // Then the focus goes to the row above it
+        onNodeWithContentDescription("Plus d'actions pour Ciel clair").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, in reduced effects, a garden deleted gives the focus to the « … » of the next row")
+    fun inReducedEffectsAGardenDeletedGivesTheFocusToTheNextRow() = extension.use {
+        // Given / When, from the keyboard, in reduced effects, « Ciel clair » deleted, listed above « Pluie douce »
+        deleteFromKeyboard(library = listOf(PLUIE, CIEL), deleted = CIEL, effects = REDUCED)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    /**
+     * The keyboard in use, the sheet listing the gardens of [library], in its order, in [effects]; [deleted] deleted
+     * from its menu « … »: its window opens, then closes as the deletion is [confirmed], and it leaves the list, or as
+     * it is not.
+     */
+    private fun ComposeContext.deleteFromKeyboard(
+        library: List<KeptGarden>,
+        deleted: KeptGarden,
+        confirmed: Boolean = true,
+        effects: BloxEffects = BloxEffects.Full,
+    ) {
+        val sheet = SheetUnderTest(library)
+        showSheet({ sheet.state }, sheet.actions, effects)
+        openDeletion(deleted)
+        if (confirmed) sheet.confirm(deleted) else sheet.cancel()
+    }
+
+    /** The window of the deletion of [garden] opened from its menu « … », from the [keyboard] or by touch. */
+    private fun ComposeContext.openDeletion(
+        garden: KeptGarden,
+        keyboard: Boolean = true,
+    ) {
+        listOf(onNodeWithContentDescription("Plus d'actions pour ${garden.name}"), onNodeWithText("Supprimer"))
+            .forEach { if (keyboard) it.performSemanticsAction(SemanticsActions.OnClick) else it.performClick() }
+        // The window of the deletion opens: its state is seen before it closes.
+        waitForIdle()
+    }
+
+    /**
+     * The sheet « Mes jardins » settled, as [state] says, in [effects], the [keyboard] in use, or touch; the windows
+     * are not drawn.
+     */
+    private fun ComposeContext.showSheet(
+        state: @Composable () -> GardenUiState,
+        actions: GardenActions,
+        effects: BloxEffects = BloxEffects.Full,
+        keyboard: Boolean = true,
+    ) {
+        setContent {
+            val inputMode = LocalInputModeManager.current
+            LaunchedEffect(Unit) { inputMode.requestInputMode(if (keyboard) InputMode.Keyboard else InputMode.Touch) }
+            BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+                MyGardensSheetContent(state(), actions, messageMillis = 0, undoMillis = 0) { title, bottom, content ->
+                    SettledSheet(title, actions = bottom, content = content)
+                }
+            }
+        }
+    }
+
+    /** The state of the sheet listing the gardens of [library], in its order, as a test changes it. */
+    private class SheetUnderTest(private val library: List<KeptGarden>) {
+        private val listed = GardenUiState(I_GARDEN, myGardens = MyGardens.Listed(library), sheet = GardensSheet())
+
+        var state by mutableStateOf(listed)
+            private set
+
+        /** Supprimer chosen in the menu of a row opens the window of its deletion. */
+        val actions = GardenActions(
+            onChangeGame = {},
+            onDelete = { id -> state = state.copy(sheet = GardensSheet(deleting = GardenDeleting(gardenOf(id)))) },
+        )
+
+        /** The deletion not confirmed: the window closes, the gardens as they were. */
+        fun cancel() {
+            state = listed
+        }
+
+        /** The list read without [deleted], its window still open. */
+        fun listWithout(deleted: KeptGarden) {
+            state = state.copy(myGardens = MyGardens.Listed(library - deleted))
+        }
+
+        /** The deletion of [deleted] confirmed: the window closes, the garden out of the list, Annuler offered. */
+        fun confirm(deleted: KeptGarden) {
+            state = GardenUiState(
+                I_GARDEN,
+                myGardens = MyGardens.Listed(library - deleted),
+                sheet = GardensSheet(),
+                undo = GardenUndo.Deleted(DeletedGarden(deleted, place = library.indexOf(deleted)), linked = false),
+            )
+        }
+
+        private fun gardenOf(id: GardenId): KeptGarden = library.first { it.id == id }
+    }
+
     private fun ComposeContext.showState(state: GardenUiState) {
         setContent { GardenScreen(uiState = state, actions = GardenActions.None) }
     }
@@ -393,18 +623,35 @@ internal class MyGardensScreenTest {
         kept: FakeGardenRepository,
         library: FakeGardenLibrary,
     ) {
-        val viewModel = GardenViewModel(
-            kept = kept,
-            library = library,
-            appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
-            writes = Mutex(),
-            music = FakeMusicPlayer(),
-            soundEffects = FakeSoundEffectPlayer(),
-            preferences = FakeUserPreferencesRepository(),
-        )
+        val viewModel = viewModelOf(kept, library)
         setContent {
             val state by viewModel.uiState.collectAsState()
             GardenScreen(uiState = state, actions = gardenActions(viewModel, onChangeGame = {}))
+        }
+    }
+
+    /** The view model of the garden [kept], its kept gardens in [library]. */
+    private fun viewModelOf(
+        kept: FakeGardenRepository,
+        library: GardenLibrary,
+    ): GardenViewModel = GardenViewModel(
+        kept = kept,
+        library = library,
+        appScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate),
+        writes = Mutex(),
+        music = FakeMusicPlayer(),
+        soundEffects = FakeSoundEffectPlayer(),
+        preferences = FakeUserPreferencesRepository(),
+    )
+
+    /** The gardens of [library], seen only once the test shows them ([show]): a list read late. */
+    private class LateGardenLibrary(private val library: FakeGardenLibrary) : GardenLibrary by library {
+        private val shown = MutableStateFlow<List<KeptGarden>>(emptyList())
+
+        override val gardens: Flow<List<KeptGarden>> = shown
+
+        suspend fun show() {
+            shown.value = library.gardens.first()
         }
     }
 
@@ -420,7 +667,19 @@ internal class MyGardensScreenTest {
         /** « Pluie douce », the I of [I_GARDEN] heard in the joyful mood. */
         val PLUIE = KeptGarden(GardenId("pluie"), "Pluie douce", I_GARDEN.withMood(GardenMood.JOYFUL), Instant.EPOCH)
 
+        /** The effects reduced by the player. */
+        val REDUCED = BloxEffects(reduced = true, forcedBySystem = false)
+
+        /** « Ciel clair », kept after [PLUIE]: listed above it. */
+        val CIEL = KeptGarden(GardenId("ciel"), "Ciel clair", I_GARDEN, Instant.EPOCH.plusSeconds(1))
+
+        /** « Soleil », kept after [CIEL]: listed above it. */
+        val SOLEIL = KeptGarden(GardenId("soleil"), "Soleil", I_GARDEN, Instant.EPOCH.plusSeconds(2))
+
         /** Longer than a sheet going down, 300 ms. */
         const val SETTLE_MS = 1_000L
+
+        /** Longer than a test: « Annuler » stays offered. */
+        const val UNDO_MS = 60_000L
     }
 }
