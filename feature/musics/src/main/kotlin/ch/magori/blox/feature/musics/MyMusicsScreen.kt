@@ -49,11 +49,10 @@ import ch.magori.blox.core.designsystem.component.Equalizer
 import ch.magori.blox.core.designsystem.component.FocusAfterDeletion
 import ch.magori.blox.core.designsystem.component.FocusableBlock
 import ch.magori.blox.core.designsystem.component.GlyphButton
-import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.PillBadge
 import ch.magori.blox.core.designsystem.component.RowMenu
-import ch.magori.blox.core.designsystem.component.SingleLineText
+import ch.magori.blox.core.designsystem.component.ScreenBar
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -150,7 +149,11 @@ internal fun MyMusicsScreen(
             .padding(start = BloxSpaces.space4, top = BloxSpaces.space2, end = BloxSpaces.space4),
         verticalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
     ) {
-        Header(onBack = actions::onBack)
+        ScreenBar(
+            title = stringResource(R.string.feature_musics_title),
+            backDescription = stringResource(R.string.feature_musics_back),
+            onBack = actions::onBack,
+        )
         GameMusicCard(gameMusic = uiState.gameMusic)
         AboveBottomActions(
             modifier = Modifier.weight(1f),
@@ -210,28 +213,6 @@ internal fun MyMusicsScreen(
         )
 
         null -> Unit
-    }
-}
-
-/** The bar of the page: the disc Retour, and the title, a heading for TalkBack. */
-@Composable
-private fun Header(onBack: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
-    ) {
-        GlyphButton(
-            description = stringResource(R.string.feature_musics_back),
-            onClick = onBack,
-            glyph = { Glyphs.back(this, it) },
-        )
-        // On one line, shrunk if needed: the pixel font would cut « musiques » otherwise.
-        SingleLineText(
-            text = stringResource(R.string.feature_musics_title),
-            color = BloxTheme.palette.ink,
-            style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle),
-            modifier = Modifier.weight(1f).semantics { heading() },
-        )
     }
 }
 
