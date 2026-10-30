@@ -10,81 +10,100 @@ volontairement modeste : un module n'existe que s'il porte une responsabilité c
 
 ```mermaid
 graph TD
+    app --> featureCartridges[feature:cartridges]
     app --> featureHome[feature:home]
+    app --> featureSettings[feature:settings]
     app --> featureGame[feature:game]
     app --> featureComposer[feature:composer]
     app --> featureMusics[feature:musics]
+    app --> featureLocksmith[feature:locksmith]
     app --> featureDaily[feature:daily]
+    app --> featureGarden[feature:garden]
     app --> designsystem[core:designsystem]
+    app --> game[core:game]
     app --> data[core:data]
     app --> audio[core:audio]
     app --> haptics[core:haptics]
-    app --> music
+    app --> music[core:music]
 
-    featureHome --> designsystem
-    featureHome --> data
-    featureHome --> game
+    featureCartridges --> board[core:board]
+
     featureHome --> audio
+    featureHome --> data
     featureHome --> music
+    featureHome --> game
+    featureHome --> board
 
-    featureGame --> designsystem
-    featureGame --> game[core:game]
-    featureGame --> data
-    featureGame --> audio
-    featureGame --> music
-    featureGame --> haptics
-
-    featureComposer --> designsystem
-    featureComposer --> data
-    featureComposer --> audio
-    featureComposer --> music
-
-    featureMusics --> designsystem
-    featureMusics --> data
-    featureMusics --> audio
-    featureMusics --> music
-
-    featureDaily --> designsystem
-    featureDaily --> data
-    featureDaily --> game
-    featureDaily --> board[core:board]
-
-    audio --> music[core:music]
-
-    locksmith[core:locksmith] --> game
-    locksmith --> music
-
-    garden[core:garden] --> game
-    garden --> music
-
-    app --> featureGarden[feature:garden]
-    featureGarden --> garden
-    featureGarden --> board
-    featureGarden --> designsystem
-    featureGarden --> data
-    featureGarden --> audio
-    board --> garden
-    board --> music
-
-    app --> featureSettings[feature:settings]
-    featureSettings --> designsystem
-    featureSettings --> data
     featureSettings --> audio
+    featureSettings --> data
     featureSettings --> haptics
     featureSettings --> music
+
+    featureGame --> game
+    featureGame --> data
+    featureGame --> music
+    featureGame --> audio
+    featureGame --> haptics
+    featureGame --> board
+
+    featureComposer --> music
+    featureComposer --> data
+    featureComposer --> audio
+
+    featureMusics --> audio
+    featureMusics --> data
+    featureMusics --> music
+
+    featureLocksmith --> audio
+    featureLocksmith --> data
+    featureLocksmith --> locksmith[core:locksmith]
+    featureLocksmith --> game
+    featureLocksmith --> board
+    featureLocksmith --> music
+
+    featureDaily --> data
+    featureDaily --> game
+    featureDaily --> board
+
+    featureGarden --> data
+    featureGarden --> audio
+    featureGarden --> music
+    featureGarden --> garden[core:garden]
+    featureGarden --> game
+    featureGarden --> board
+
+    board --> game
+    board --> designsystem
+    board --> music
+    board --> garden
+
+    data --> music
+    data --> garden
+    data --> game
+
+    audio --> music
+
+    locksmith --> game
+    locksmith --> music
+
+    garden --> game
+    garden --> music
 
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
     class game,music,locksmith,garden pure
 ```
 
-Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Le graphe montre la
-cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, car `buildHealth`
-(plugin d'analyse de dépendances, tâche P0.9) refuse une dépendance sans usage.
+Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Les flèches sont les dépendances
+`implementation` et `api` entre modules déclarées dans les `build.gradle.kts`, sans les `testFixtures` ni les
+dépendances de test. **Convention de lecture :** chaque `feature:*` dépend aussi de `core:designsystem`, ajouté par
+le plugin `blox.android.feature` ; ces neuf flèches ne sont pas dessinées. Une flèche n'est déclarée dans Gradle que
+lorsque du code l'exige, car `buildHealth` (plugin d'analyse de dépendances, tâche P0.9) refuse une dépendance sans
+usage.
 
 | Module | Type | Responsabilité |
 |---|---|---|
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
-| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Ne dépend que de `core:designsystem`. |
+| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Dépend de `core:designsystem` et de `core:board`. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
 | `feature:settings` | Feature | Page Paramètres unique (P12.2, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)), déplacée de `feature:home` : clé `SettingsRoute` et entrée `settingsEntry`, `SettingsViewModel` et sa fabrique, `SettingsScreen` (Affichage, Sons et vibrations, Record du Classique). Ouverte depuis l'accueil du Classique et la Graine du jour ; la navigation est assemblée dans `app`. Dépend de `core:designsystem`, `core:data`, `core:audio`, `core:haptics` et `core:music`, d'aucune feature. À venir : la clé `SettingsRoute(section)`, la section du jeu qui l'ouvre (« Réglages du Classique » : Record, plus tard le mode Moderne) puis « Tous les jeux » (P12.3), toujours en thème Couleurs (P12.4), ouverte aussi depuis le choix du jeu (P12.5). |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. Prévu : variantes Graine du jour et Au tempo de `GameRoute`, direction musicale (`MusicDirection`) de la Musique vivante (P8, P9, P11, ADR 0026). |
@@ -94,15 +113,15 @@ cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, ca
 | `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level)` (serrure `Padlock.ofLevel(level)`, la même pour tous), `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). Écran « Serrures » (P7.35) : clé `PadlocksRoute(current)`, `PadlocksViewModel` et sa fabrique ; résumé, Reprendre et grille des serrures par palier (`PadlockTier` de `core:locksmith`), lus sur l'avancement de `core:data`. Le disque « Serrures » de la barre du Serrurier l'ouvre (P7.36) ; la navigation est assemblée dans `app`. |
 | `feature:garden` | Feature | (squelette P10.9, ADR 0027) Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |
-| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden` (prévu), l'un des deux modules du domaine qui dépendent de ces deux-là. |
-| `core:garden` | Kotlin pur | Domaine du Jardin musical (P10.4, ADR 0027 ; `Garden` fait, le reste à venir) ([règles](jardin-musical.md)) : le jardin immuable (`Garden`), les ambiances (`GardenMood`), la partition (`Garden.toScore`) et le dé (`GardenComposer`). `api(core:game)` et `api(core:music)`, comme `core:locksmith`. |
+| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden`, l'un des deux modules du domaine qui dépendent de ces deux-là. |
+| `core:garden` | Kotlin pur | Domaine du Jardin musical (P10.4, ADR 0027) ([règles](jardin-musical.md)) : le jardin immuable (`Garden`), les ambiances (`GardenMood`), la partition (`Garden.toScore`) et le dé (`GardenComposer`). `api(core:game)` et `api(core:music)`, comme `core:locksmith`. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel, effets sonores (`SoundEffectPlayer`, pistes statiques, P4.8). |
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
 | `core:data` | Bibliothèque Android | Préférences et records (DataStore). `saveSettings`, extension de `UserPreferencesRepository`, enregistre un réglage sans faire tomber l'écran si l'écriture échoue : l'accueil et la page Paramètres la partagent (P12.2). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. Le thème choisi (`BloxThemeKind`) et le mode sombre du système donnent la variante dessinée, `BloxTheme.variant` (Original, Couleurs jour, Couleurs nuit, ADR 0020) ; les palettes Couleurs reprennent `docs/design-system/tokens.json`, comparé au code par un test (plugin `blox.design.tokens`, ADR 0019). |
-| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) ; tuile d'un bac de pièces `tile/PieceTile` et ses cases `piece/PieceCells` (Serrurier, Jardin musical, P10.2) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Lecture TalkBack des accords (`chordTellingOf`, P10.19). Miniature d’N jardin (`garden/GardenThumbnail`, P10.31). Dépend de `core:game`, `core:music`, `core:garden` et `core:designsystem`. |
-| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
+| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) ; tuile d'un bac de pièces `tile/PieceTile` et ses cases `piece/PieceCells` (Serrurier, Jardin musical, P10.2) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Lecture TalkBack des accords (`chordTellingOf`, P10.19). Miniature d’un jardin (`garden/GardenThumbnail`, P10.31). Dépend de `core:game`, `core:music`, `core:garden` et `core:designsystem`. |
+| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` (`targetProjectPath`) sans en dépendre, et `app` ne le cite que dans la configuration `baselineProfile`. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
 
 **Profil de référence.** `app` embarque un profil de référence généré par `:benchmark`
