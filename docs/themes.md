@@ -109,7 +109,7 @@ alignées à droite, à la taille de l'étiquette qu'il remplace), NOUVELLE des 
 sur le coin de la cartouche, 140 dp au plus) et NOUVEAU MEILLEUR ou PARFAITE de la carte du Serrurier (en rebond, par
 un `graphicsLayer` d'échelle dans le `modifier`). L'autocollant « +points » du plateau, dessiné au canevas, en reprend
 l'inclinaison. Le badge EN JEU de Mes musiques, droit, en `stat-label`, sans cadre, est un badge et non un
-autocollant : il n'est pas repris (badge commun : P7.51).
+autocollant : il passe par le badge commun, ci-dessous.
 **Tests :** `StickerLookTest › a sticker is accent-ink on accent, framed in the colour of the page`,
 `StickerLookTest › a sticker not framed has no frame`,
 `StickerLookTest › in Couleurs a sticker leans by its tilt, 4 degrees anticlockwise unless told otherwise`,
@@ -120,6 +120,26 @@ autocollant : il n'est pas repris (badge commun : P7.51).
 `StickerTest › in a font twice as large and a narrow place, a sticker of two lines breaks between its words` ;
 captures `TopBarNewRecordLargeFont`, `GameScreenNewRecord*`, `Cartridges*`, `LocksmithOpenPerfectDay`,
 `LocksmithOpenNewBestDay`. Vues : V2, V36, V35.
+
+**Badge** (P7.51, `PillBadge` dans `core:designsystem`, nommé ainsi pour ne pas se confondre avec le `Badge` de
+Material) : un libellé court, sur une ligne (`maxLines`, 1 par défaut), `accent-ink` sur `accent` dans tous les
+thèmes, Original compris (`badgeLook`, dont l'autocollant reprend les couleurs), dans une pilule droite
+(`radius-pill`), sans inclinaison ni cadre, à la différence de l'autocollant. Son texte est pris tel quel (les
+capitales sont à l'écran), en `small` sur `labelMedium` par défaut, 8 × 4 dp autour (`space2` × `space1`) par défaut ;
+`withCheck` le fait précéder d'une coche de 12 dp, à `space1` du mot. Ce que lit TalkBack appartient à l'écran, par le
+`modifier`, posé à la racine. Il remplace trois copies, au rendu inchangé (captures identiques) : EN JEU de Mes
+musiques (`stat-label` sur `labelSmall`, 8 × 2 dp, effacé pour TalkBack), NOUVEAU RECORD ou NOUVEAU MEILLEUR de la fin
+de partie (`title` à 11 sp, mis en capitales par l'écran, 16 × 8 dp, sur autant de lignes qu'il faut : sur un
+téléphone étroit en police agrandie, RECORD passe à la ligne au lieu de disparaître) et « ouvert » de Mes jardins
+(style et retrait par défaut, avec sa coche).
+**Tests :** `BadgeLookTest › a badge is accent-ink on accent, in every theme`,
+`PillBadgeTest › a badge shows its text as given, not in capitals`,
+`PillBadgeTest › in a font twice as large and a narrow place, a badge stays on one line unless told otherwise`,
+`PillBadgeTest › a badge bears a check before its text only with withCheck`,
+`PillBadgeTest › the modifier of a badge applies to its root, its pill around its text`,
+`GameOverScreenTest › in Original, on a phone of 320 dp in a font twice as large, NOUVEAU RECORD shows whole, RECORD included` ;
+captures `MyMusics*`, `GameOverColorfulNewRecord*`, `GameOverOriginalNewRecord`, `GameOverDailyNewBest*`,
+`MyGardensList*`. Vues : V4, V32, V39.
 
 **Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par

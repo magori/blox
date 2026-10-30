@@ -198,7 +198,7 @@ de l'éditeur utilisent un italique imité.
 ## Formes et espacements
 
 - `radius-md` (16 px) : encarts, flèches, tuiles, plateau sur téléphone.
-- `radius-pill` : boutons d'écran, groupes de choix, puce Record, autocollants ; disques pour
+- `radius-pill` : boutons d'écran, groupes de choix, puce Record, autocollants, badges ; disques pour
   la pause, B, A, Écouter et Paramètres.
 - **Autocollant** (`Sticker`, `core:designsystem`, P7.45) : capitales `accent-ink` sur `accent`, `points-pop`, pilule
   penchée de −4° (jamais en Original), cadrée de 2 dp dans la couleur de la page ; NOUVEAU RECORD (non cadré),
@@ -206,6 +206,10 @@ de l'éditeur utilisent un italique imité.
   [themes.md](../themes.md) : `StickerLookTest › a sticker is accent-ink on accent, framed in the colour of the page`,
   `StickerLookTest › in Original a sticker never leans, whose pixels would blur`,
   `StickerTest › a sticker shows its text in capitals`.
+- **Badge** (`PillBadge`, `core:designsystem`, P7.51) : libellé court sur une ligne, `accent-ink` sur `accent` dans tous
+  les thèmes, pilule droite sans cadre ; EN JEU de Mes musiques, NOUVEAU RECORD de fin de partie (sur plusieurs lignes
+  si la place manque) et « ouvert » de Mes jardins (avec sa coche) en sont des réglages. Détail et tests dans
+  [themes.md](../themes.md) : `BadgeLookTest › a badge is accent-ink on accent, in every theme`.
 - `radius-window` (24 px) : carte des réglages, plateau sur tablette ; `radius-card` (28 px) :
   cartes Pause et Fin, feuille Musique.
 - Espacements sur une grille de 4 : `space-1` (4), `space-2` (8), `space-3` (12), `space-4` (16) et `space-6` (24) ; pas de `space-5`.

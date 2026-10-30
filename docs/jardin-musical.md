@@ -375,8 +375,8 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   captures `GardenModified`, `GardenModifiedLargeFont`, `GardenLargeFont`.
 - **Feuille « Mes jardins »** (`BloxSheet`) : les boutons en haut, le compteur (« 7 jardins sur 30 »), puis la
   liste, du plus récent au plus ancien (à date égale, le dernier gardé d'abord) : miniature (`GardenThumbnail`,
-  P10.31), nom, ambiance et nombre de pièces (« Calme · 12 pièces »), « ouvert » (pastille et coche) pour le
-  jardin lié, et le menu « … » (Renommer, Supprimer, P10.30). La musique en cours joue sous la feuille.
+  P10.31), nom, ambiance et nombre de pièces (« Calme · 12 pièces »), « ouvert » (badge commun
+  `PillBadge` avec sa coche, voir [themes.md](themes.md)) pour le jardin lié, et le menu « … » (Renommer, Supprimer, P10.30). La musique en cours joue sous la feuille.
   États : chargement (boutons grisés, pas de liste), liste vide (« Aucun jardin gardé. » puis « Garde celui-ci
   pour le retrouver plus tard. »), échec (« L'opération a échoué. »), jardins illisibles, dont un fichier d'une
   version plus récente (liste vide, écriture bloquée, « Ces jardins ne peuvent pas être lus : rien ne peut être

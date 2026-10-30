@@ -1,6 +1,6 @@
 package ch.magori.blox.feature.game.gameover
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -16,6 +16,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ch.magori.blox.core.designsystem.component.PillBadge
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
 import ch.magori.blox.core.designsystem.icon.BloxIcon
@@ -170,15 +171,12 @@ private fun PracticeNote() {
 
 @Composable
 private fun NewBestBadge(text: String) {
-    val palette = BloxTheme.palette
-    Text(
+    PillBadge(
         text = text.uppercase(),
-        color = palette.accentInk,
-        fontSize = PanelSizes.label,
-        style = BloxTheme.typography.title,
-        modifier = Modifier
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
+        style = BloxTheme.typography.title.copy(fontSize = PanelSizes.label),
+        // On a narrow phone in a large font, RECORD goes to a line of its own rather than vanish.
+        maxLines = Int.MAX_VALUE,
+        padding = PaddingValues(horizontal = ScreenSizes.gap, vertical = GameOverSizes.smallGap),
     )
 }
 

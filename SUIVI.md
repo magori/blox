@@ -1430,7 +1430,7 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   sort de l'écran et « cadence » se coupe au milieu du mot (capture `LocksmithBarLargeFontDay`, défaut antérieur à
   P7.36). La bande passe à la ligne (`FlowRow`), la cadence entière ; le défaut touchait aussi la police ×2 dès 7 accords et la police ×1 à 8.
 - [x] **P7.49** Barres système sous le Serrurier en Original de nuit : `SystemBarsAppearanceTest` échouait sur main, car il partait du choix du jeu, dessiné en Couleurs nuit depuis la grille de la Graine du jour (icônes claires, voulu, `SystemBarsTest`). Le test part désormais de l'accueil du Classique, dans le thème choisi ; le produit était juste.
-- [ ] **P7.51** Extraire le badge commun dans `core:designsystem` : `InGameBadge` (Mes musiques), `NewBestBadge`
+- [x] **P7.51** Extraire le badge commun dans `core:designsystem` : `InGameBadge` (Mes musiques), `NewBestBadge`
   (`GameOverScreen`) et « ouvert » de Mes jardins, pilules droites en `accent`, trois copies ; la règle de 2 est
   dépassée (revue de P7.45).
 

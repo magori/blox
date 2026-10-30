@@ -662,7 +662,8 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   ouvrent l'éditeur, *Utiliser* / *En jeu* et le menu « … » en disque nu. Pendant l'écoute, l'égaliseur (P5.94)
   précède « Lecture · mesure n sur 8 », et une jauge des huit mesures (jouées en `accent-pressed`, les autres en
   `panel-border` : 2,3:1 de jour seulement, admis car TalkBack l'ignore et le texte dit la mesure) s'aligne sous le
-  nom. La musique des parties porte la pastille « EN JEU » (`accent`), que TalkBack ne lit pas. Sans musique,
+  nom. La musique des parties porte le badge « EN JEU » (`PillBadge`, badge commun, voir [themes.md](themes.md)),
+  que TalkBack ne lit pas. Sans musique,
   « Aucune musique pour l'instant. » (titre) et « Compose la tienne, ou laisse le dé t'en proposer une. ». En bas,
   *Au hasard* (Secondaire) et *Nouvelle* (Principal) collés sur un fondu de 24 dp, côte à côte si chaque libellé tient
   dans sa moitié, sinon l'un sous l'autre (`SideBySideOrStacked`, partagé avec les tuiles de l'accueil) ; la liste
