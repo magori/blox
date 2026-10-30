@@ -40,3 +40,33 @@ private fun MyMusicsColorfulLargeFont() = MyMusicsColorfulLargeFontPreview()
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 private fun MyMusicsEmpty() = MyMusicsEmptyPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun MyMusicsDeleting() = MyMusicsDeletingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun MyMusicsDeletingNight() = MyMusicsDeletingNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun MyMusicsDeletingLargeFont() = MyMusicsDeletingLargeFontPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun MyMusicsRenaming() = MyMusicsRenamingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun MyMusicsRenamingNight() = MyMusicsRenamingNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun MyMusicsRenamingLargeFont() = MyMusicsRenamingLargeFontPreview()

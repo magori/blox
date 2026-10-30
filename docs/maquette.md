@@ -45,7 +45,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
 | V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties et les textes de P12.7 (P12.10) |
-| V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
+| V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » ; codée : liste (P5.99), menu (popup, non capturé), Supprimer, Renommer et message d'annulation (P5.100), jour, nuit et police ×2 |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
@@ -238,9 +238,9 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   **Tests (P5.78) :** `GameViewModelTest › the record is beaten once the score is above a record above 0`,
   `GameViewModelTest › without a record the game shows no new record`,
   `GameViewModelTest › the record stays beaten once the game over saves the score as the record`,
-  `RecordBarTest › the record bar fills with the score up to the record`,
-  `RecordBarTest › the filled part of the record bar stands out from its track by 3 to 1 at least`,
-  `ShownRecordTest › once beaten the record shown follows the score, as the new record`,
+  `BestBarTest › the best bar fills with the score up to the best`,
+  `BestBarTest › the filled part of the best bar stands out from its track by 3 to 1 at least`,
+  `ShownBestTest › once beaten the best shown follows the score, as the new best`,
   `GameLayoutTest › the frame of the board stays within the width of the space, lined up with the top bar and the controls`,
   `ScoreGridTest › the score above the board shows the next piece and the score, then the lines and the level, in order`. Valeurs retenues en P2.4, reportées sur la maquette (P2.13) : encarts
   avec cadre de 2 dp, marges de 8 dp et 4 dp, libellé en 11 sp, valeur en 18 sp (une seule
@@ -338,17 +338,17 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   la vraie valeur. Sur un téléphone de 360 dp, la barre garde sa rangée, même à ×2 ; en Original
   ×2 la marge est d'un demi-pixel (titre de 324 px pour 324,5) : à vérifier sur d'autres densités.
 
-  **Tests :** `TopBarRowsTest › the title and the record stay on one row when each fits whole in half the room beside the pause button`,
-  `TopBarRowsTest › the title goes above the pause button and the record when it does not fit whole in its half`,
-  `TopBarRowsTest › the title goes above the pause button and the record when the record does not fit whole in its half`,
+  **Tests :** `TopBarRowsTest › the title and the best stay on one row when each fits whole in half the room beside the pause button`,
+  `TopBarRowsTest › the title goes above the pause button and the best when it does not fit whole in its half`,
+  `TopBarRowsTest › the title goes above the pause button and the best when the best does not fit whole in its half`,
   `TopBarRowsTest › a title one pixel narrower than its half stays on the row, a margin against the rounding of the row`,
   `TopBarRowsTest › a title within the last pixel of its half goes above, rather than risk being cut`,
-  `TopBarRowsTest › a record within the last pixel of its half sends the title above, rather than risk being cut`,
+  `TopBarRowsTest › a best within the last pixel of its half sends the title above, rather than risk being cut`,
   `GameTopBarTest › in the narrowest window the title is shown whole, no word cut, in both themes, font enlarged`,
-  `GameTopBarTest › in the narrowest window the record is shown whole, in both themes, font enlarged`,
-  `GameTopBarTest › in the narrowest window the record is no taller than the pause button: the board keeps its height`,
+  `GameTopBarTest › in the narrowest window the best is shown whole, in both themes, font enlarged`,
+  `GameTopBarTest › in the narrowest window the best is no taller than the pause button: the board keeps its height`,
   `GameTopBarTest › in the narrowest window the pause button keeps its 48 dp, in both themes, font enlarged`,
-  `GameTopBarTest › in the narrowest window TalkBack reads the real record, beyond the 999 999 shown`,
+  `GameTopBarTest › in the narrowest window TalkBack reads the real best, beyond the 999 999 shown`,
   `GameTopBarTest › on a phone of 360 dp the bar stays on one row, the title right of the pause button, font enlarged`.
   Captures : `GameScreenNarrowOriginal`, `GameScreenNarrowLargeFont`.
 

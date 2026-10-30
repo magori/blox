@@ -5,21 +5,21 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 
 class TopBarTextsTest {
-    @ParameterizedTest(name = "record {0} -> {1}")
+    @ParameterizedTest(name = "best {0} -> {1}")
     @CsvSource("0, 000000", "1200, 001200", "1234567, 999999")
-    fun `the record is shown as the score in the game, capped at 999 999`(
-        record: Int,
+    fun `the best is shown as the score in the game, capped at 999 999`(
+        best: Int,
         expected: String,
     ) {
-        assertThat(topBarTexts(record).record).isEqualTo(expected)
+        assertThat(topBarTexts(best).best).isEqualTo(expected)
     }
 
-    @ParameterizedTest(name = "record {0} -> TalkBack reads {1}")
+    @ParameterizedTest(name = "best {0} -> TalkBack reads {1}")
     @CsvSource("1200, 1200", "1234567, 1234567")
-    fun `TalkBack reads the real record, without padding zeros nor cap`(
-        record: Int,
+    fun `TalkBack reads the real best, without padding zeros nor cap`(
+        best: Int,
         expected: String,
     ) {
-        assertThat(topBarTexts(record).spokenRecord).isEqualTo(expected)
+        assertThat(topBarTexts(best).spokenBest).isEqualTo(expected)
     }
 }

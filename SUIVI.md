@@ -1099,7 +1099,7 @@ composants.
     `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
     « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
     on 360 dp, in a font twice as large` ; captures.
-  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+  - [x] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
     `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
     v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99. Menu en `BloxMenu`, `CardMenu` réduit à un `RowMenu`
@@ -1107,6 +1107,9 @@ composants.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+    Fait le 2026-10-30 : les quatre cas, verts d'emblée (le comportement venait des composants partagés de P5.97,
+    P5.98, P10.36) ; fenêtres Supprimer et Renommer capturées (`MyMusicsDeleting*`, `MyMusicsRenaming*`, jour, nuit,
+    ×2) ; `WindowOverPage` (`core:designsystem`) remplace les quatre copies du fond des aperçus de fenêtre.
   - [x] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
     feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
     cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
@@ -1146,7 +1149,7 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
-- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+- [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
@@ -1563,7 +1566,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
-- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+- [x] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
 - [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
