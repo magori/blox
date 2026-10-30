@@ -44,7 +44,6 @@ import ch.magori.blox.core.game.rules.ScoringRule
 import ch.magori.blox.core.haptics.FakeHaptics
 import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.music.LiveMusic
-import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
@@ -193,7 +192,7 @@ class GameViewModelTest {
                 level = Level(5),
                 lines = Lines(0),
                 score = Points(0),
-                record = 100,
+                best = 100,
             ),
         )
     }
@@ -624,13 +623,13 @@ class GameViewModelTest {
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
 
         viewModel.uiState.test {
-            assertThat(awaitItem().record).isEqualTo(100)
+            assertThat(awaitItem().best).isEqualTo(100)
 
             // When the record changes, beyond what the screen can show
             highScores.record.value = 1_234_567
 
             // Then
-            assertThat(awaitItem().record).isEqualTo(1_234_567)
+            assertThat(awaitItem().best).isEqualTo(1_234_567)
         }
     }
 
@@ -645,7 +644,7 @@ class GameViewModelTest {
         viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
 
         // Then
-        assertThat(viewModel.uiState.value.record).isEqualTo(0)
+        assertThat(viewModel.uiState.value.best).isEqualTo(0)
         assertThat(viewModel.uiState.value.piece).isEqualTo(spawnedT.droppedBy(rows = 1))
     }
 
@@ -684,7 +683,7 @@ class GameViewModelTest {
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
 
         // Then
-        assertThat(viewModel.uiState.value.record).isNull()
+        assertThat(viewModel.uiState.value.best).isNull()
     }
 
     @Test
@@ -697,7 +696,7 @@ class GameViewModelTest {
         viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
 
         // Then
-        assertThat(viewModel.uiState.value.record).isEqualTo(100)
+        assertThat(viewModel.uiState.value.best).isEqualTo(100)
     }
 
     @Test
@@ -743,7 +742,7 @@ class GameViewModelTest {
 
         // Then the record the screen shows is the score, still beaten: the top bar does not go back to « Record »
         val over = viewModel.uiState.value
-        assertThat(over.record).isEqualTo(over.score.value)
+        assertThat(over.best).isEqualTo(over.score.value)
         assertThat(over.bestBeaten).isTrue()
     }
 
@@ -2082,9 +2081,9 @@ class GameViewModelTest {
         val viewModel = createViewModel(dailyRoute)
 
         // Then the best of its date is shown, 0 while it has none, then as it changes, never the record of the Classic
-        assertThat(viewModel.uiState.value.record).isZero()
+        assertThat(viewModel.uiState.value.best).isZero()
         dailyResults.state.value = DailyResults(OCTOBER_26, tries = 2, firstTry = 300, best = 800, firstTryOver = true)
-        assertThat(viewModel.uiState.value.record).isEqualTo(800)
+        assertThat(viewModel.uiState.value.best).isEqualTo(800)
     }
 
     @Test

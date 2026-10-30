@@ -35,7 +35,7 @@ internal data class GameUiState(
     val score: Points,
     val paused: Boolean = false,
     val running: Boolean = !paused,
-    val record: Int? = null,
+    val best: Int? = null,
     val bestBeaten: Boolean = false,
     val gameOver: GameOverUiState? = null,
     val leftHanded: Boolean? = false,
@@ -75,17 +75,17 @@ internal fun GameState.toUiState(nextPiece: (PieceType) -> PieceCells): GameUiSt
  * (P5.56).
  */
 internal fun GameUiState.withBestBeaten(wasBeaten: Boolean): GameUiState {
-    val beaten = wasBeaten || (record.isRecord() && score.value > record)
+    val beaten = wasBeaten || (best.isBest() && score.value > best)
     return if (beaten == bestBeaten) this else copy(bestBeaten = beaten)
 }
 
 /**
- * Whether [this] record, from the records, is one: above 0. A record of 0, or not read yet, is none: the first point
- * would beat it (P5.56).
+ * Whether [this] best, from the results of the game (the record of the Classic, or the best of the day), is one: above
+ * 0. A best of 0, or not read yet, is none: the first point would beat it (P5.56).
  */
 @OptIn(ExperimentalContracts::class)
-internal fun Int?.isRecord(): Boolean {
-    contract { returns(true) implies (this@isRecord != null) }
+internal fun Int?.isBest(): Boolean {
+    contract { returns(true) implies (this@isBest != null) }
     return this != null && this > 0
 }
 

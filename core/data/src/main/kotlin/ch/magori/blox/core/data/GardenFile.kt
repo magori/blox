@@ -3,7 +3,6 @@ package ch.magori.blox.core.data
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
 import androidx.datastore.core.okio.OkioSerializer
-import ch.magori.blox.core.garden.Garden
 import kotlinx.coroutines.CoroutineScope
 import okio.BufferedSink
 import okio.BufferedSource

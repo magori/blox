@@ -52,12 +52,12 @@ import ch.magori.blox.feature.game.ui.valueDescription
 
 /** The sizes of the top bar, in one place; the touch target is [BloxSizes.minTouchTarget]. */
 private object TopBarSizes {
-    /** Between the pause button, the title and the record. */
+    /** Between the pause button, the title and the best. */
     val gap = 8.dp
 
     /**
      * The mode title where the theme gives no size (Original): CLASSIQUE, 9 letters of 1 em in the pixel font, fits
-     * beside a record of 6 digits on 360 dp. Couleurs takes `game-title`.
+     * beside a best of 6 digits on 360 dp. Couleurs takes `game-title`.
      */
     val title = 14.sp
 
@@ -71,22 +71,23 @@ private object TopBarSizes {
 
 /**
  * The top bar of the game screen (views V2, V3, V28): the pause button, a disc of the family Icône, the mode title
- * and the [record]. No logic here: the record texts come from [topBarTexts], the glyph from [pauseBars], the rows from
- * [topBarRows]. A record whose value is unknown is hidden, in a place of the same size, so that nothing moves when it
- * comes; once beaten, the sticker NOUVEAU RECORD takes the place of its label, the score its value, in the same place
- * of the same size. The pause button does nothing unless [pauseEnabled]: under « Agrandissez la fenêtre », the game is
- * already paused. The title, the label of the record and its sticker are those of the variant of the game ([labels]):
- * for a daily game (V39), GRAINE DU JOUR, MEILLEUR, NOUVEAU MEILLEUR.
+ * and the [best] (the record of the Classic, or the best of the day). No logic here: the texts of the best come from
+ * [topBarTexts], the glyph from [pauseBars], the rows from [topBarRows]. A best whose value is unknown is hidden, in a
+ * place of the same size, so that nothing moves when it comes; once beaten, the sticker NOUVEAU RECORD takes the place
+ * of its label, the score its value, in the same place of the same size. The pause button does nothing unless
+ * [pauseEnabled]: under « Agrandissez la fenêtre », the game is already paused. The title, the label of the best and
+ * its sticker are those of the variant of the game ([labels]): for a daily game (V39), GRAINE DU JOUR, MEILLEUR,
+ * NOUVEAU MEILLEUR.
  */
 @Composable
 internal fun GameTopBar(
-    record: ShownRecord,
+    best: ShownBest,
     onPause: () -> Unit,
     labels: GameLabels,
     modifier: Modifier = Modifier,
     pauseEnabled: Boolean = true,
 ) {
-    val texts = topBarTexts(record.value ?: 0)
+    val texts = topBarTexts(best.value ?: 0)
     val title = stringResource(labels.title).uppercase()
     val bestLabels = BestLabels(
         best = stringResource(labels.best),
@@ -94,7 +95,7 @@ internal fun GameTopBar(
     )
     val titleSize = BloxTheme.typography.gameTitle.fontSize.takeOrElse { TopBarSizes.title }
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, bestLabels, texts.record)) {
+        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, bestLabels, texts.best)) {
             TopBarRows.ONE -> Row(
                 horizontalArrangement = Arrangement.spacedBy(TopBarSizes.gap),
                 verticalAlignment = Alignment.CenterVertically,
@@ -104,8 +105,8 @@ internal fun GameTopBar(
                 // On two lines, shrinking if needed: with an enlarged font, back to its size with the normal font,
                 // where CLASSIQUE fits whole, rather than cut.
                 ModeTitle(text = title, autoSize = shrinkToFit(titleSize), modifier = Modifier.weight(1f))
-                // At most as wide as the title: with an enlarged font, the record shrinks rather than the title.
-                Record(record, texts, bestLabels, modifier = Modifier.weight(1f, fill = false))
+                // At most as wide as the title: with an enlarged font, the best shrinks rather than the title.
+                Best(best, texts, bestLabels, modifier = Modifier.weight(1f, fill = false))
             }
 
             // The title on the whole width, on one line if it holds there at its smallest size, on two otherwise:
@@ -126,8 +127,8 @@ internal fun GameTopBar(
                 ) {
                     PauseButton(onPause = onPause, enabled = pauseEnabled)
                     // No larger than with the normal font: the height of the bar is taken from the board.
-                    Record(
-                        record = record,
+                    Best(
+                        best = best,
                         texts = texts,
                         labels = bestLabels,
                         capToNormalFont = true,
@@ -144,10 +145,10 @@ private data class BestLabels(val best: String, val newBest: String)
 
 /**
  * The rows of the top bar [width] pixels wide ([topBarRows]): the room beside the pause button against the widths the
- * title, of [titleSize], and the record need at the smallest size they may shrink to ([shrinkFloor]): the longest word
- * of the title, and the widest of the record label, of the longest word of the sticker that replaces it once the record
- * is beaten (it takes two lines where one does not fit), and of its value. The sticker counts from the start: the bar
- * keeps its rows when the record is beaten.
+ * title, of [titleSize], and the [best] need at the smallest size they may shrink to ([shrinkFloor]): the longest word
+ * of the title, and the widest of the label of the best, of the longest word of the sticker that replaces it once the
+ * best is beaten (it takes two lines where one does not fit), and of its value. The sticker counts from the start: the
+ * bar keeps its rows when the best is beaten.
  */
 @Composable
 private fun rememberTopBarRows(
@@ -155,12 +156,12 @@ private fun rememberTopBarRows(
     title: String,
     titleSize: TextUnit,
     labels: BestLabels,
-    record: String,
+    best: String,
 ): TopBarRows {
     val measurer = rememberTextMeasurer()
     val density = LocalDensity.current
     val typography = BloxTheme.typography
-    return remember(width, title, titleSize, labels, record, density, typography, measurer) {
+    return remember(width, title, titleSize, labels, best, density, typography, measurer) {
         fun widthAtSmallestSize(
             text: String,
             style: TextStyle,
@@ -177,14 +178,14 @@ private fun rememberTopBarRows(
         val stickerStyle = typography.pointsPop.copy(fontSize = PanelSizes.label)
         val valueStyle = typography.value.copy(fontSize = PanelSizes.value)
         val stickerPadding = with(density) { (TopBarSizes.stickerPaddingX * 2).toPx() }
-        val recordWidth = maxOf(
+        val bestWidth = maxOf(
             widthAtSmallestSize(labels.best.uppercase(), labelStyle),
             labels.newBest.uppercase().split(" ").maxOf { widthAtSmallestSize(it, stickerStyle) } + stickerPadding,
-            widthAtSmallestSize(record, valueStyle),
+            widthAtSmallestSize(best, valueStyle),
         )
         // In whole pixels, as the row rounds the button and its gaps.
         val beside = with(density) { BloxSizes.minTouchTarget.roundToPx() + 2 * TopBarSizes.gap.roundToPx() }
-        topBarRows(room = (width - beside).toFloat(), titleWidth = titleWidth, recordWidth = recordWidth)
+        topBarRows(room = (width - beside).toFloat(), titleWidth = titleWidth, bestWidth = bestWidth)
     }
 }
 
@@ -208,25 +209,25 @@ private fun ModeTitle(
 }
 
 /**
- * The [record], its label above its value from [texts], aligned on the right; TalkBack reads it as one, with the real
- * value. Its label is RECORD, or once beaten the sticker NOUVEAU RECORD, both of [labels]: the two are laid out one
- * over the other, the one not shown invisible, so that the record keeps its size when it is beaten. A record whose
- * value is unknown keeps the place of its value, hidden. With [capToNormalFont], it is never larger than with the
- * normal font.
+ * The [best], its label above its value from [texts], aligned on the right; TalkBack reads it as one, with the real
+ * value. Its label is RECORD (MEILLEUR for a daily game), or once beaten the sticker NOUVEAU RECORD (NOUVEAU MEILLEUR),
+ * both of [labels]: the two are laid out one over the other, the one not shown invisible, so that the best keeps its
+ * size when it is beaten. A best whose value is unknown keeps the place of its value, hidden. With [capToNormalFont],
+ * it is never larger than with the normal font.
  */
 @Composable
-private fun Record(
-    record: ShownRecord,
+private fun Best(
+    best: ShownBest,
     texts: TopBarTexts,
     labels: BestLabels,
     modifier: Modifier = Modifier,
     capToNormalFont: Boolean = false,
 ) {
-    val label = if (record.beaten) labels.newBest else labels.best
-    val description = if (record.value == null) {
+    val label = if (best.beaten) labels.newBest else labels.best
+    val description = if (best.value == null) {
         label
     } else {
-        valueDescription(label, texts.spokenRecord)
+        valueDescription(label, texts.spokenBest)
     }
     Column(
         horizontalAlignment = Alignment.End,
@@ -236,17 +237,17 @@ private fun Record(
             PanelLabel(
                 text = labels.best,
                 capToNormalFont = capToNormalFont,
-                modifier = Modifier.alpha(if (record.beaten) 0f else 1f),
+                modifier = Modifier.alpha(if (best.beaten) 0f else 1f),
             )
             NewBestSticker(
                 text = labels.newBest,
                 capToNormalFont = capToNormalFont,
-                modifier = Modifier.alpha(if (record.beaten) 1f else 0f),
+                modifier = Modifier.alpha(if (best.beaten) 1f else 0f),
             )
         }
         ValueText(
-            text = texts.record,
-            modifier = Modifier.alpha(if (record.value == null) 0f else 1f),
+            text = texts.best,
+            modifier = Modifier.alpha(if (best.value == null) 0f else 1f),
             capToNormalFont = capToNormalFont,
         )
     }
@@ -295,11 +296,11 @@ private fun PauseButton(
 @Composable
 private fun TopBarPreview(
     kind: BloxThemeKind,
-    record: ShownRecord = ShownRecord(value = 123_450, beaten = false),
+    best: ShownBest = ShownBest(value = 123_450, beaten = false),
 ) {
     BloxTheme(kind = kind) {
         GameTopBar(
-            record = record,
+            best = best,
             onPause = {},
             labels = GameLabels.Classic,
             modifier = Modifier
@@ -311,7 +312,7 @@ private fun TopBarPreview(
 }
 
 /** A record beaten: the score of 123 460 is the new record. */
-private val newBest = ShownRecord(value = 123_460, beaten = true)
+private val newBest = ShownBest(value = 123_460, beaten = true)
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 

@@ -50,7 +50,6 @@ import androidx.compose.ui.semantics.traversalIndex
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -101,9 +100,9 @@ import ch.magori.blox.feature.game.sidepanel.ScoreGrid
 import ch.magori.blox.feature.game.sidepanel.ScorePanels
 import ch.magori.blox.feature.game.sidepanel.SidePanel
 import ch.magori.blox.feature.game.sidepanel.SidePanelSizes
-import ch.magori.blox.feature.game.sidepanel.recordBarFill
+import ch.magori.blox.feature.game.sidepanel.bestBarFill
 import ch.magori.blox.feature.game.topbar.GameTopBar
-import ch.magori.blox.feature.game.topbar.shownRecord
+import ch.magori.blox.feature.game.topbar.shownBest
 import ch.magori.blox.feature.game.ui.ScreenSizes
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -210,7 +209,7 @@ private fun <T> rememberPart(
 ): State<T> = remember(uiState) { derivedStateOf { part(uiState()) } }
 
 /**
- * The game screen for the state given by [uiState]: the top bar ([onPause], the record), the board, the
+ * The game screen for the state given by [uiState]: the top bar ([onPause], the best), the board, the
  * side column and the controls, whose changes go to [onControl]. Paused, the curtain of [pauseCurtain], of empty
  * cells, comes down over the board and the next piece, then the card of the pause shows over the game: Reprendre
  * opens the curtain, and only once it is open does the game go on, by [onResume]; Menu is [onBack]. The curtain moves
@@ -404,8 +403,8 @@ private fun Game(
     labels: GameLabels,
     modifier: Modifier = Modifier,
 ) {
-    // Before it is beaten, the record changes once, when the records give it; then it follows the score.
-    val record by rememberPart(uiState) { it.shownRecord() }
+    // Before it is beaten, the best changes once, when the results give it; then it follows the score.
+    val best by rememberPart(uiState) { it.shownBest() }
     val leftHanded by rememberPart(uiState) { it.leftHanded }
     val controls = rememberHeldControls(onControl)
     // The buttons still held are let go as the game pauses: it stays on screen, under the curtain.
@@ -425,7 +424,7 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay, labels = labels)
+        GameTopBar(best = best, onPause = onPause, pauseEnabled = !tooSmallToPlay, labels = labels)
         if (tooSmallToPlay) {
             TooSmallMessage(
                 modifier = Modifier
@@ -485,10 +484,10 @@ private data class SideColumn(
     val level: Level,
     val lines: Lines,
     val next: PieceCells,
-    val recordFill: Float?,
+    val bestFill: Float?,
 )
 
-private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, recordBarFill(score, record))
+private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, bestBarFill(score, best))
 
 /**
  * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it.
@@ -538,7 +537,7 @@ private fun Play(
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
-                recordFill = side.recordFill,
+                bestFill = side.bestFill,
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
@@ -550,7 +549,7 @@ private fun Play(
                 level = side.level,
                 lines = side.lines,
                 next = side.next,
-                recordFill = side.recordFill,
+                bestFill = side.bestFill,
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
@@ -562,7 +561,7 @@ private fun Play(
                     score = side.score,
                     level = side.level,
                     lines = side.lines,
-                    recordFill = side.recordFill,
+                    bestFill = side.bestFill,
                     modifier = scores,
                     shownScore = shownScore,
                 )
@@ -647,7 +646,7 @@ private fun Modifier.placedAt(
     traversalIndex = order.index
 }
 
-/** A game under way, for the previews: a stack, a T falling, an I next, a record. */
+/** A game under way, for the previews: a stack, a T falling, an I next, a best to beat. */
 private val previewState = GameUiState(
     board = Board.parse(
         """
@@ -662,7 +661,7 @@ private val previewState = GameUiState(
     level = Level(5),
     lines = Lines(52),
     score = Points(12_340),
-    record = 98_760,
+    best = 98_760,
 )
 
 @Composable
@@ -819,10 +818,10 @@ internal fun GameScreenTooSmallLargeFontPreview() {
     GameScreenPreview(BloxThemeKind.ORIGINAL, previewState.copy(paused = true))
 }
 
-// The record beaten during the game: the sticker NOUVEAU RECORD and the score in the top bar, the record bar full (V28).
+// The record beaten during the game: the sticker NOUVEAU RECORD and the score in the top bar, the best bar full (V28).
 
 /** The game of [previewState], its score of 98 790 above the record of 98 760. */
-private val newBestState = previewState.copy(score = Points(98_790), record = 98_760, bestBeaten = true)
+private val newBestState = previewState.copy(score = Points(98_790), best = 98_760, bestBeaten = true)
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable

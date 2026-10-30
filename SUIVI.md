@@ -772,9 +772,12 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   - [x] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
     « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52. Fait : `GlyphButton(icon)` pour les icônes seules, `IconSizes` complété ;
     tests instrumentés verts (`HomeScreenTest`, `MyMusicsScreenTest`, `GlyphButtonTest`).
-- [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
+- [x] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
   dépréciée et ne se déclenche pas, et Kotlin ne les signale pas (vu à la revue de P5.54a) ;
   ajouter une vérification (detekt `UnusedImports` ou équivalent) à `build-logic` et à la CI.
+  Fait : la règle n'était que désactivée (`Rule.OnlyWhenEnabledInEditorconfig`) ; activée dans
+  `.editorconfig`, elle fait échouer `ktlintCheck` (projet et `build-logic`, déjà en CI) ; 81 imports
+  inutilisés retirés dans 28 fichiers ; pas de detekt.
 
 Lot « Couleurs v2 » (conçu avec les agents `designer-jeu` et `architecte`, validé par le développeur le
 2026-10-25, phase P5 à sa demande) : thème Couleurs refait en piste C « Y2K irisé », jour et nuit selon le
@@ -1549,7 +1552,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
-- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+- [x] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
 - [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
@@ -1810,10 +1813,12 @@ seulement, jour et nuit.
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
   360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
   Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
-- [ ] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
+- [x] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
   musiques du joueur, alors que trois musiques de jeu l'utilisent sans être gardées (`LiveMusic.CALM_ID` et
   `TENSE_ID`, `GARDEN_SCORE_ID`, l'accompagnement d'Au tempo) ; élargir cette KDoc, ou leur donner une identité
-  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9.
+  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9. Fait : KDoc élargie,
+  sans identité dédiée, aucune collision ni confusion n'étant possible avec les musiques du joueur (`docs/musique.md`,
+  Identités).
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 
