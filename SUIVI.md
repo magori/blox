@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 314 / 387 | `████████████████░░░░` **81 %** |
+| **Général** | 320 / 389 | `████████████████░░░░` **82 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1099,7 +1099,7 @@ composants.
     `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
     « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
     on 360 dp, in a font twice as large` ; captures.
-  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+  - [x] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
     `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
     v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99. Menu en `BloxMenu`, `CardMenu` réduit à un `RowMenu`
@@ -1107,6 +1107,9 @@ composants.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+    Fait le 2026-10-30 : les quatre cas, verts d'emblée (le comportement venait des composants partagés de P5.97,
+    P5.98, P10.36) ; fenêtres Supprimer et Renommer capturées (`MyMusicsDeleting*`, `MyMusicsRenaming*`, jour, nuit,
+    ×2) ; `WindowOverPage` (`core:designsystem`) remplace les quatre copies du fond des aperçus de fenêtre.
   - [x] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
     feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
     cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
@@ -1146,7 +1149,7 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
-- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+- [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
@@ -1415,7 +1418,8 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   les pictogrammes restés à 16 dp en grande police ; l'état vide sans Reprendre ; la serrure en cours au-delà de la
   frontière, qui ne s'affiche pas. Recommencer depuis le début (P7.37) : juger les captures `PadlocksClear*` (la
   fenêtre, jour, nuit, grande police, échec) ; vérifier à la main, avec TalkBack, que « Progression effacée. » est
-  bien annoncé par la serrure 1.
+  bien annoncé par la serrure 1. La pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (capture
+  `PieceTilesShrunk`, relevé en P7.42).
 - [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
@@ -1424,9 +1428,10 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   la 6e tuile n'avait que 27 dp ; les tuiles rétrécissent jusqu'à 48 dp, puis passent sur deux rangées de 4 au plus
   (`trayLayout`, en pixels entiers). Une tuile de 48 dp dessinait sa pièce en noir (canevas sans largeur dans
   `PieceTile`) : corrigé. Prêt pour les serrures de 7 et 8 pièces (P7.29).
-- [ ] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
+- [x] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
   `LocksmithFiveTilesNarrowDay`, défaut antérieur à P7.41) : garder le mot entier (réduire, ou passer sous Indice).
-  Juger aussi avec P7.39 la pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (`PieceTilesShrunk`).
+  Recommencer passe sous Indice, centré, quand il ne tient plus à côté (`FlowRow`, comme les pilules des accords),
+  aussi en police doublée. La pièce I dans une tuile de 48 dp (`PieceTilesShrunk`) est à juger en P7.39.
 - [ ] **P7.43** Régénérer le profil de référence du Serrurier (`:app:generateBaselineProfile`, sur un appareil
   Android 13 ou plus) : il cite encore `Padlock.generate`, supprimé en P7.30.
 - [ ] **P7.44** Mesurer le pire temps de `Padlock.ofLevel` sur les serrures 1 à 200 (`PadlockMeasure`) : il tourne

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
@@ -55,6 +57,27 @@ fun WindowDialog(
 ) {
     Dialog(onDismissRequest = onDismissRequest, properties = DialogProperties(usePlatformDefaultWidth = false)) {
         Box(modifier = modifier.padding(horizontal = BloxSizes.windowMargin)) { content() }
+    }
+}
+
+/**
+ * A [window] over the page of the theme in use, as [WindowDialog] shows it over a screen, [BloxSizes.windowMargin] from
+ * its edges, but without the window of the system: what the previews and screenshots of a window render, not for
+ * production screens.
+ */
+@Composable
+fun WindowOverPage(
+    modifier: Modifier = Modifier,
+    window: @Composable () -> Unit,
+) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .fillMaxSize()
+            .background(BloxTheme.palette.page)
+            .padding(horizontal = BloxSizes.windowMargin),
+    ) {
+        window()
     }
 }
 

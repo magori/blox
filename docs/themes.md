@@ -226,7 +226,8 @@ pictogramme `ALERT` (16 dp, même à ×2), annoncé poliment par TalkBack. Renom
 `NameFieldTest › the name field is framed in ink while it has the focus`,
 `NameFieldFrameTest › the name field is framed in button outline at rest, in ink while it has the focus, in danger when refused`,
 `NameFieldFrameTest › the frame of the name field at rest stands out from the panel by 3 to 1 at least` ;
-captures `*Window*` de `core:designsystem` et de `feature:composer`. Vues : V25, V32, V34.
+captures `*Window*` de `core:designsystem` et de `feature:composer`, `MyMusicsDeleting*` et `MyMusicsRenaming*` de
+`feature:musics` (P5.100), rendues sur la page par `WindowOverPage`. Vues : V25, V32, V34.
 
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en

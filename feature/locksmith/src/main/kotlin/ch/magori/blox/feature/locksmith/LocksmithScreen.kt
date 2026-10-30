@@ -685,13 +685,19 @@ private fun messageText(state: LocksmithUiState): String {
     }
 }
 
-/** Hint, greyed while a hint is shown, and Restart. */
+/**
+ * Hint, greyed while a hint is shown, and Restart, side by side; Restart goes under Hint, centred, when beside it its
+ * label would be cut in the middle of its word (on 320 dp and less, or in a large font), as the chords of the band do.
+ */
 @Composable
 private fun HintAndRestart(
     state: LocksmithUiState,
     actions: LocksmithActions,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+    ) {
         SecondaryButton(
             text = stringResource(R.string.feature_locksmith_hint),
             icon = BloxIcon.STAR,
