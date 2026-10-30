@@ -36,4 +36,6 @@ dependencies {
     testImplementation(testFixtures(projects.core.designsystem))
     // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
     androidTestImplementation(testFixtures(projects.core.designsystem))
+    // L'état sauvegardé de la clé (SettingsRouteSavingTest), relu comme après la mort du processus.
+    androidTestImplementation(libs.androidx.savedstate)
 }

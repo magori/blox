@@ -41,7 +41,7 @@ import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.ColorfulTheme
 import ch.magori.blox.feature.settings.navigation.SettingsSection
 
 /**
@@ -55,10 +55,23 @@ import ch.magori.blox.feature.settings.navigation.SettingsSection
  * game reads them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first,
  * in a window whose safe answer comes first, then says « Record effacé ». While the saved settings are not read
  * ([uiState] null), the page and its header show, without the settings: none flashes off, and the way back is there at
- * once. No logic here: each gesture goes to its callback of [actions].
+ * once. No logic here: each gesture goes to its callback of [actions]. Drawn in the Colorful theme whatever the theme
+ * chosen for the Classic, with the effects of the player, as the choice of the game: the Original theme is frozen
+ * (ADR 0030).
  */
 @Composable
 internal fun SettingsScreen(
+    uiState: SettingsUiState?,
+    section: SettingsSection?,
+    actions: SettingsActions,
+    modifier: Modifier = Modifier,
+) {
+    ColorfulTheme { SettingsPage(uiState, section, actions, modifier) }
+}
+
+/** The settings page, in the theme around it. */
+@Composable
+private fun SettingsPage(
     uiState: SettingsUiState?,
     section: SettingsSection?,
     actions: SettingsActions,
@@ -335,17 +348,16 @@ private fun Note(
 }
 
 /**
- * The page in the theme [kind], as by default but for the music, lower, and the vibrations, on: each state seen; in
- * [effects], full unless Android imposes the reduced ones.
+ * The page, as by default but for the music, lower, and the vibrations, on: each state seen; in [effects], full unless
+ * Android imposes the reduced ones. The page draws itself in the Colorful theme, whatever the theme around it.
  */
 @Composable
 private fun SettingsScreenPreview(
-    kind: BloxThemeKind,
     uiState: SettingsUiState = PreviewState,
     effects: BloxEffects = BloxEffects.Full,
     section: SettingsSection? = SettingsSection.CLASSIC,
 ) {
-    BloxTheme(kind = kind, effects = effects) {
+    BloxTheme(effects = effects) {
         SettingsScreen(uiState = uiState, section = section, actions = SettingsActions.None)
     }
 }
@@ -364,40 +376,28 @@ private val PreviewState = SettingsUiState(
 
 @Preview(widthDp = 360, heightDp = 1200)
 @Composable
-internal fun SettingsScreenOriginalPreview() {
-    SettingsScreenPreview(BloxThemeKind.ORIGINAL)
-}
-
-@Preview(widthDp = 360, heightDp = 1200)
-@Composable
 internal fun SettingsScreenColorfulPreview() {
-    SettingsScreenPreview(BloxThemeKind.COLORFUL)
+    SettingsScreenPreview()
 }
 
 /** Opened without the section of a game (the choice of the game, ADR 0030): Tous les jeux alone, no record. */
 @Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenAllGamesPreview() {
-    SettingsScreenPreview(BloxThemeKind.COLORFUL, section = null)
+    SettingsScreenPreview(section = null)
 }
 
 /** For a left handed player: Gaucher on, its sketch turned over. */
 @Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenLeftHandedPreview() {
-    SettingsScreenPreview(BloxThemeKind.COLORFUL, PreviewState.copy(leftHanded = true))
-}
-
-@Preview(widthDp = 360, heightDp = 2400, fontScale = 2f)
-@Composable
-internal fun SettingsScreenLargeFontPreview() {
-    SettingsScreenPreview(BloxThemeKind.ORIGINAL)
+    SettingsScreenPreview(PreviewState.copy(leftHanded = true))
 }
 
 @Preview(widthDp = 360, heightDp = 2400, fontScale = 2f)
 @Composable
 internal fun SettingsScreenColorfulLargeFontPreview() {
-    SettingsScreenPreview(BloxThemeKind.COLORFUL)
+    SettingsScreenPreview()
 }
 
 /**
@@ -407,19 +407,7 @@ internal fun SettingsScreenColorfulLargeFontPreview() {
 @Preview(widthDp = 360, heightDp = 1200)
 @Composable
 internal fun SettingsScreenGreyedPreview() {
-    SettingsScreenGreyed(BloxThemeKind.COLORFUL)
-}
-
-@Preview(widthDp = 360, heightDp = 1200)
-@Composable
-internal fun SettingsScreenOriginalGreyedPreview() {
-    SettingsScreenGreyed(BloxThemeKind.ORIGINAL)
-}
-
-@Composable
-private fun SettingsScreenGreyed(kind: BloxThemeKind) {
     SettingsScreenPreview(
-        kind,
         PreviewState.copy(soundEffects = false, canVibrate = false, recordClearing = RecordClearing.CLEARED),
         effects = BloxEffects(reduced = true, forcedBySystem = true),
     )
