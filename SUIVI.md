@@ -1188,10 +1188,21 @@ composants.
   `the down arrow stands half a key below the left and right arrows`.
 - [ ] **P5.109** Mettre à jour la maquette (depuis claude.ai) : touches de direction de 64 dp, ▼ une demi-touche plus
   bas (V2, V3, planche GameKey du design system). Après P5.108.
-- [ ] **P5.110** Geste retour de l’éditeur en échec sur emulator-5556 (API 37), aussi sur main au 2026-10-28 :
+- [x] **P5.110** Geste retour de l’éditeur en échec sur emulator-5556 (API 37), aussi sur main au 2026-10-28 :
   `ComposerScreenTest › before its music is read, the back gesture leaves the editor, as the navigation would` et
   `ComposerScreenTest › the back gesture on a changed music asks first: Continue stays, Leave without saving leaves`.
   Trouver si c'est le test (geste retour simulé) ou l'éditeur, et corriger test d'abord.
+  Cause : le test. Le retour était injecté comme une touche (`sendKeyDownUpSync(KEYCODE_BACK)`), livrée par
+  `system_server` à la fenêtre qui a le focus : perdue quand une autre fenêtre le prend ou que `system_server`
+  flanche (service UWB de l'émulateur, P5.94). L'éditeur, lui, répond bien. Le retour passe désormais par le
+  `OnBackPressedDispatcher` de l'activité (`pressSystemBack`), comme `BloxNavDisplayTest` et `feature:game`.
+- [ ] **P5.111** Retours système encore injectés par touche (`sendKeyDownUpSync(KEYCODE_BACK)`), fragiles comme
+  ceux de P5.110 : `BloxSheetTest` (l. 92, 115, 335, 363, 367), `RowMenuTest` (l. 145) et `ComposerDiceSheetTest`
+  (l. 112). Ils ferment une feuille ou un menu dans sa propre fenêtre, dont le dispatcher n'est pas celui de
+  l'activité : trouver le dispatcher de la fenêtre du dialogue, ou consigner pourquoi la touche reste.
+- [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
+  `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
+  seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
 
 ## P6 — Mode Moderne (plus tard)
 
