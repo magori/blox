@@ -1152,10 +1152,16 @@ composants.
 - [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
-- [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
+- [x] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
   Retour et titre `screen-title` lu comme un titre), qui remplace les barres de Paramètres, Mes musiques et du choix
   du jeu, déjà divergentes (écart `space3` contre `space2`) ; règle de 2. Découverte à la revue de P5.99. Après
-  P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`.
+  P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`. Fait :
+  Paramètres et Mes musiques, à `space3` (V21, V32) ; le choix du jeu n'a plus de Retour depuis P12.5, il garde sa
+  barre (logo et roue).
+- [ ] **P5.114** Barre de l'éditeur sur `ScreenBar` (`feature:composer`, après P5.102) : si la barre refaite de
+  `ComposerHeader` garde le disque Retour suivi d'un titre en `screen-title`, la faire passer par `ScreenBar` (avec,
+  s'il le faut, un emplacement de fin pour ses disques), sinon consigner pourquoi elle reste à elle. Découverte en
+  P5.107.
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
