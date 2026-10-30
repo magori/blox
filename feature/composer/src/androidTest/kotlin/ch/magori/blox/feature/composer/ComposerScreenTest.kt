@@ -1,6 +1,6 @@
 package ch.magori.blox.feature.composer
 
-import android.view.KeyEvent
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
@@ -46,7 +46,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
-import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MusicLibrary
@@ -66,7 +65,7 @@ import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import de.mannodermaus.junit5.compose.ComposeContext
-import de.mannodermaus.junit5.compose.createComposeExtension
+import de.mannodermaus.junit5.compose.createAndroidComposeExtension
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -83,7 +82,7 @@ import kotlin.math.hypot
 internal class ComposerScreenTest {
     @JvmField
     @RegisterExtension
-    val extension = createComposeExtension()
+    val extension = createAndroidComposeExtension<ComponentActivity>()
 
     @JvmField
     @RegisterExtension
@@ -644,7 +643,7 @@ internal class ComposerScreenTest {
         cell("Mi bas, temps 1").performClick()
 
         // When the system goes back
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        pressSystemBack()
 
         // Then
         onNodeWithText("Quitter sans enregistrer ?").assertExists()
@@ -687,10 +686,19 @@ internal class ComposerScreenTest {
         waitForIdle()
 
         // When
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        pressSystemBack()
 
         // Then
         runOnIdle { assertThat(backs).isEqualTo(1) }
+    }
+
+    /**
+     * The system back, handed to the activity's dispatcher as the platform does, rather than injected as a key: an
+     * injected key goes to whichever window holds the focus, and is lost when the system server stalls.
+     */
+    private fun ComposeContext.pressSystemBack() {
+        runOnUiThread { extension.activity.onBackPressedDispatcher.onBackPressed() }
+        waitForIdle()
     }
 
     /** An editor on the music of [musicKey] in [library], a new music when null ([composerViewModel]). */

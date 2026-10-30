@@ -9,9 +9,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalInputModeManager
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsNode
@@ -60,6 +62,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
+import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -356,6 +359,74 @@ internal class MyMusicsScreenTest {
 
         // Then
         runOnIdle { assertThat(calls).containsExactly("rename march", "use march", "delete evening") }
+    }
+
+    @Test
+    @DisplayName("the menu of a row offers Modifier, Renommer, the games and Supprimer in danger")
+    fun theMenuOfARowOffersItsItemsSupprimerInDanger() = extension.use {
+        // Given
+        showMyMusics()
+
+        // When
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").performClick()
+
+        // Then its items, one under the other, in this order
+        val items = listOf("Modifier", "Renommer", "La jouer pendant les parties", "Supprimer")
+        val tops = items.map { onNode(hasText(it) and hasClickAction()).fetchSemanticsNode().boundsInRoot.top }
+        assertThat(tops).isSorted().doesNotHaveDuplicates()
+        // And Supprimer alone in danger
+        val danger = BloxPalettes.ColorfulLight.danger
+        assertThat(inkOf("Supprimer")).isEqualTo(danger)
+        items.dropLast(1).forEach { assertThat(inkOf(it)).isNotEqualTo(danger) }
+    }
+
+    @Test
+    @DisplayName("deleting asks first, Garder la musique first and Supprimer in danger")
+    fun deletingAsksFirstGarderLaMusiqueFirstAndSupprimerInDanger() = extension.use {
+        // Given Supprimer chosen in the menu of « Ma marche »
+        var state by mutableStateOf(uiState)
+        setMyMusics { state }
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").performClick()
+        onNodeWithText("Supprimer").performClick()
+
+        // Then nothing is deleted yet: the screen asks
+        runOnIdle { assertThat(calls).containsExactly("delete march") }
+
+        // When the window of the deletion opens
+        state = uiState.copy(dialog = MyMusicsDialog.ConfirmDelete(march, "Ma marche", inGame = false))
+
+        // Then Garder la musique above Supprimer, read by TalkBack in this order
+        onNodeWithText("Supprimer « Ma marche » ?").assertIsDisplayed()
+        val answers = onAllNodes(hasClickAction() and (hasText("Garder la musique") or hasText("Supprimer")))
+            .fetchSemanticsNodes()
+        assertThat(answers.map { it.config[SemanticsProperties.Text].joinToString() })
+            .containsExactly("Garder la musique", "Supprimer")
+        assertThat(answers[0].boundsInRoot.bottom).isLessThanOrEqualTo(answers[1].boundsInRoot.top)
+        // And Supprimer filled in danger, its label in danger ink
+        assertThat(inkOf("Supprimer")).isEqualTo(BloxPalettes.ColorfulLight.dangerInk)
+    }
+
+    @Test
+    @DisplayName("a confirmed deletion says « X est supprimée » with Annuler, read by TalkBack")
+    fun aConfirmedDeletionSaysSoWithAnnulerReadByTalkBack() = extension.use {
+        // Given the window of the deletion of « Ma marche »
+        var state by mutableStateOf(
+            uiState.copy(dialog = MyMusicsDialog.ConfirmDelete(march, "Ma marche", inGame = false)),
+        )
+        setMyMusics { state }
+
+        // When the deletion is confirmed
+        state = uiState.copy(musics = uiState.musics.take(1), deleted = "Ma marche")
+
+        // Then the message says so, a polite live region that TalkBack reads as it shows, with Annuler
+        onNode(
+            hasAnyDescendant(hasText("« Ma marche » est supprimée.")) and
+                SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite),
+        ).assertIsDisplayed()
+        onNode(
+            hasText("Annuler") and hasClickAction() and
+                hasAnyAncestor(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)),
+        ).assertIsDisplayed()
     }
 
     @Test
@@ -670,8 +741,8 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
-    @DisplayName("after a deletion, Annuler puts the music back, and the cross closes the message")
-    fun afterADeletionAnnulerPutsTheMusicBack() = extension.use {
+    @DisplayName("Annuler puts the music back and the cross closes the message")
+    fun annulerPutsTheMusicBackAndTheCrossClosesTheMessage() = extension.use {
         // Given
         showMyMusics(uiState.copy(deleted = "Ma marche"))
 
@@ -941,7 +1012,8 @@ internal class MyMusicsScreenTest {
         modifier: Modifier = Modifier,
         state: () -> MyMusicsUiState,
     ) {
-        BloxTheme(kind = kind) {
+        // In day whatever the theme of the device: the colours asserted are those of the day.
+        BloxTheme(kind = kind, darkSystem = false) {
             MyMusicsScreen(
                 modifier = modifier,
                 uiState = state(),
@@ -1026,6 +1098,10 @@ private fun SemanticsNodeInteraction.layout(): TextLayoutResult {
     fetchSemanticsNode().config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
     return layouts.single()
 }
+
+/** The ink of the label [text] of a button, as its text is laid out. */
+private fun ComposeContext.inkOf(text: String): Color =
+    onNode(hasText(text), useUnmergedTree = true).layout().layoutInput.style.color
 
 /** Asserts that TalkBack says what touching this node does: [label]. */
 private fun SemanticsNodeInteraction.assertClickLabel(label: String): SemanticsNodeInteraction {

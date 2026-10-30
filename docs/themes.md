@@ -226,7 +226,8 @@ pictogramme `ALERT` (16 dp, même à ×2), annoncé poliment par TalkBack. Renom
 `NameFieldTest › the name field is framed in ink while it has the focus`,
 `NameFieldFrameTest › the name field is framed in button outline at rest, in ink while it has the focus, in danger when refused`,
 `NameFieldFrameTest › the frame of the name field at rest stands out from the panel by 3 to 1 at least` ;
-captures `*Window*` de `core:designsystem` et de `feature:composer`. Vues : V25, V32, V34.
+captures `*Window*` de `core:designsystem` et de `feature:composer`, `MyMusicsDeleting*` et `MyMusicsRenaming*` de
+`feature:musics` (P5.100), rendues sur la page par `WindowOverPage`. Vues : V25, V32, V34.
 
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
@@ -273,6 +274,21 @@ un toucher ouvre la page Paramètres. Il se dessine comme le bouton de la roue q
 l’accueil du Classique en Original ne change pas.
 **Tests :** `SettingsButtonTest › the settings button is a button of 48 dp, read Paramètres once, that opens the settings`,
 `SettingsButtonTest › the settings button is drawn as the button of the gear`.
+
+**Barre d'écran** (P5.107, `core:designsystem`) : `ScreenBar(title, backDescription, onBack)` est la barre d'un écran
+ouvert depuis un autre, Paramètres (V21) et Mes musiques (V32) : le disque Retour (`GlyphButton`, famille Icône, 48 dp,
+flèche `Glyphs.back`), puis le titre en `screen-title`, sur une ligne, réduit s'il ne tient pas (la police à pixels
+d'Original couperait « musiques »), sans passer sous le disque, que TalkBack lit comme un titre, après le disque. La
+réduction s'arrête au plancher des textes (`shrinkFloor`, 8 sp)  : sur 300 dp en police ×2, « Paramètres des musiques »
+(23 signes) serait coupé ; ceux de la barre sont courts (« Mes musiques », le plus long, tient réduit). L'écart entre les deux est
+`space3` (12 dp), celui que dessinent V21 et V32 (`gap: 12px`) : Mes musiques l'avait déjà, Paramètres avait `space2`
+et prend 4 dp de plus. Elle remplace les deux copies (règle de 2). Le choix du jeu (V36) n'en a pas : sa barre porte
+le logo et la roue, sans Retour, et son titre est centré dessous. Les barres des écrans de jeu (Serrurier, Serrures,
+Jardin) ont un titre de jeu (`game-title`, en capitales) et d'autres disques ; celles des accueils (Classique, Graine
+du jour) une puce au milieu : elles restent à elles. La barre de l'éditeur (`ComposerHeader`) est refaite par P5.102 ;
+son passage à `ScreenBar` est P5.114.
+**Tests :** `ScreenBarTest › the bar of a screen reads its title as a heading after its back disc of 48 dp`,
+`ScreenBarTest › a long title stays on one line, shrunk, beside the back disc`.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
