@@ -2,7 +2,6 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 
 /**
@@ -34,13 +33,7 @@ internal fun segmentLook(
         available -> SegmentLook(fill = null, ink = colors.secondary.ink, check = null)
         else -> SegmentLook(fill = null, ink = colors.disabled.ink, check = null)
     }
-    return if (focused) {
-        look.copy(
-            focusRing = FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap),
-        )
-    } else {
-        look
-    }
+    return look.copy(focusRing = buttonFocusRing(focused, colors))
 }
 
 /** How a group of choices is drawn: its [fill], behind its segments, and its [frame], around them all. */

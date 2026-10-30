@@ -475,9 +475,28 @@ triples croches des arpèges, tempos hors pas de 10). Spécification de départ 
   `GardenDeletingTest › Annuler refused by a library full again since the deletion is told`,
   `MyGardensScreenTest › an Annuler that could not be written says the operation failed, Annuler still offered`.
 - **Menu « … » de la rangée** (P10.30) : un disque de 48 dp en bout de rangée propose Renommer et Supprimer. À la
-  fermeture de la fenêtre ouverte depuis le menu, le focus revient au « … » de sa rangée.
+  fermeture de la fenêtre ouverte depuis le menu, le focus revient au « … » de sa rangée (après Renommer, ou une
+  suppression non confirmée). Après une suppression confirmée, la rangée part : au clavier, le focus va au « … » de
+  la rangée suivante, sinon de la précédente, sinon à la liste vide (« Aucun jardin gardé. » et son conseil, lus d'un
+  trait, `FocusableBlock`, avec l'anneau de focus) (P10.39). Règle retenue, la plus simple qui garde la place : la
+  rangée suivante remonte à celle du jardin supprimé, et le focus reste dans la colonne des « … » ; le titre de la
+  feuille n'est pas focalisable, et les boutons du haut peuvent être grisés. C'est la liste qui donne le focus, une
+  fois la fenêtre fermée **et** le jardin retiré de la liste, dans n'importe quel ordre : en Effets réduits, la
+  rangée part avec son « … » à la fermeture même ; la liste lue par le ViewModel peut arriver avant ou après la
+  fermeture. Au toucher, le focus ne va nulle part.
   Le menu est `RowMenu` (`core:designsystem`, P10.36), commun à Mes musiques.
   **Tests :** `MyGardensScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its row`,
+  `MyGardensScreenTest › from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its row`,
+  `MyGardensScreenTest › from the keyboard, a garden deleted from its menu gives the focus to the menu « … » of the next row`,
+  `MyGardensScreenTest › from the keyboard, the garden in the middle deleted gives the focus to the menu « … » of the row under it`,
+  `MyGardensScreenTest › from the keyboard, the bottom garden deleted gives the focus to the menu « … » of the row above`,
+  `MyGardensScreenTest › from the keyboard, the only garden deleted gives the focus to the empty list`,
+  `MyGardensScreenTest › from the keyboard, in reduced effects, a garden deleted gives the focus to the « … » of the next row`,
+  `MyGardensScreenTest › from the keyboard, a garden deleted whose list is read after its window closed still gives the focus on`,
+  `MyGardensScreenTest › from the keyboard, a garden out of the list before its window closes gives the focus on as it closes`,
+  `MyGardensScreenTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
+  `MyGardensScreenTest › by touch, a garden deleted gives the focus to nothing, not even the empty list`,
+  `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`,
   `RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`.
 - **Renommer** (P10.30) : `NamingWindow` sur le nom actuel du jardin, aux règles de nom de « Garder » ; le jardin
   peut garder son propre nom, dans une autre casse ou non, pas celui d'un autre. Un nom accepté renomme le jardin
