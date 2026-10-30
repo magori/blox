@@ -14,8 +14,13 @@ public sealed interface GameEvent {
      */
     public data class PieceRotated(public val piece: Piece, public val rotation: Rotation) : GameEvent
 
-    /** [piece] could not drop any further and joined the board, where it now lies. */
-    public data class PieceLocked(public val piece: Piece) : GameEvent
+    /**
+     * [piece] could not drop any further and joined the board, where it now lies. [bySoftDrop] tells what locked it: a
+     * refused step of the soft drop (true), whether or not the soft drop had dropped rows before, or the gravity
+     * (false). A neutral fact, which a mode may read (the beat bonus of Au tempo, ADR 0028). It has no default, so that
+     * a new way to lock a piece has to tell which it is.
+     */
+    public data class PieceLocked(public val piece: Piece, public val bySoftDrop: Boolean) : GameEvent
 
     /** The full rows of [lineClear] were cleared, once their animation was over. */
     public data class LinesCleared(public val lineClear: LineClear) : GameEvent

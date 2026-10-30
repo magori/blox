@@ -42,6 +42,13 @@ public data class Meter(
     /** The bar of the phrase at [tickCount], from 1 to 4. */
     public fun barOf(tickCount: Int): Int = checked(tickCount) % ticksPerPhrase.value / ticksPerBar.value + 1
 
+    /**
+     * The bar of the phrase of the quarter note nearest to [tickCount], from 1 to 4: the bar of a tick on the beat
+     * ([isOnBeat]), which may lie just before the quarter note, in the bar before. Halfway between two quarter notes,
+     * on the off-beat, the later one.
+     */
+    public fun barOfNearestBeat(tickCount: Int): Int = barOf(checked(tickCount) + ticksPerEighth.value)
+
     /** Whether [tickCount] lies within [onBeatWindow] ticks of a quarter note, any beat of the bar, edges included. */
     public fun isOnBeat(tickCount: Int): Boolean {
         val sinceQuarter = checked(tickCount) % ticksPerQuarter.value

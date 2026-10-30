@@ -35,7 +35,7 @@ class GameEngineStackDangerTest {
         // Then
         assertThat(update.state.stackInDanger).isEqualTo(expectedInDanger)
         val expectedEvents = buildList {
-            add(GameEvent.PieceLocked(T_ON_TOWER))
+            add(GameEvent.PieceLocked(T_ON_TOWER, bySoftDrop = false))
             if (expectedInDanger != wasInDanger) add(GameEvent.StackDanger(on = expectedInDanger))
         }
         assertThat(update.events).containsExactlyElementsOf(expectedEvents)
@@ -55,7 +55,7 @@ class GameEngineStackDangerTest {
         val clearEnd = engine.tick(engine.ticks(lock.state, CLEAR_TICKS - 1))
 
         // Then
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(I_FOR_FOUR_LINES))
+        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(I_FOR_FOUR_LINES, bySoftDrop = false))
         assertThat(clearEnd.events).containsExactly(GameEvent.LinesCleared(LineClear(4)))
         assertThat(clearEnd.state.stackInDanger).isFalse()
     }
@@ -75,7 +75,7 @@ class GameEngineStackDangerTest {
         val clearEnd = engine.tick(engine.ticks(lock.state, CLEAR_TICKS - 1))
 
         // Then
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(I_FOR_FOUR_LINES))
+        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(I_FOR_FOUR_LINES, bySoftDrop = false))
         assertThat(lock.state.stackInDanger).isTrue()
         assertThat(clearEnd.events).containsExactly(
             GameEvent.LinesCleared(LineClear(4)),
@@ -99,7 +99,7 @@ class GameEngineStackDangerTest {
         val turned = ClassicRotationSystem.candidates(T_ON_TOWER, Rotation.CLOCKWISE).single()
         assertThat(update.events).containsExactly(
             GameEvent.PieceRotated(turned, Rotation.CLOCKWISE),
-            GameEvent.PieceLocked(turned),
+            GameEvent.PieceLocked(turned, bySoftDrop = false),
             GameEvent.StackDanger(on = true),
         )
     }

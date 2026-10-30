@@ -55,7 +55,7 @@ class SoundEffectOfEventTest {
         // Given
         val events = listOf(
             GameEvent.LinesCleared(LineClear(0)),
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.StackDanger(on = true),
             GameEvent.StackDanger(on = false),
         )
@@ -105,7 +105,7 @@ class SoundEffectOfEventTest {
     fun `the other effects of a tick all play, in order, as the game over after a level up`() {
         // Given the last clear of a game that reaches the next level, then the next piece that does not fit
         val events = listOf(
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.LinesCleared(LineClear(1)),
             GameEvent.LevelUp(Level(1)),
             GameEvent.GameOver,

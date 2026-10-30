@@ -49,6 +49,17 @@ class MeterTest {
     }
 
     @Test
+    fun `the bar of the nearest beat is the one of the nearest quarter note`() {
+        // Given a meter of 15 ticks per eighth: the phrase starts again at tick 480
+        val meter = meter(ticksPerEighth = 15, onBeatWindow = 5)
+
+        // When / Then 5 ticks before beat 1 of bar 1 is in bar 1, 5 ticks after the last beat of bar 4 in bar 4, and
+        // the off-beat, halfway between two quarter notes, goes with the later one
+        assertThat(listOf(475, 485, 455, 239, 225, 224).map(meter::barOfNearestBeat))
+            .containsExactly(1, 1, 4, 3, 3, 2)
+    }
+
+    @Test
     fun `a tick within N ticks of a quarter note is on the beat`() {
         // Given a meter of 15 ticks per eighth, with a window of 5 ticks
         val meter = meter(ticksPerEighth = 15, onBeatWindow = 5)

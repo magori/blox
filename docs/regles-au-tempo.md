@@ -13,7 +13,8 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 audio comme source des ticks).
 
 > Traçabilité : seuls la non-régression du Classique (P11.4), le découpage des ticks (`Meter`, P11.5), la chute en
-> rythme (`TempoDropTiming`, P11.6) et la partition de l'accompagnement (P11.9, `core:music`) sont codés ; les autres règles (phase P11 de
+> rythme (`TempoDropTiming`, P11.6), les bonus (`TempoScore`, P11.7) et la partition de l'accompagnement (P11.9,
+> `core:music`) sont codés ; les autres règles (phase P11 de
 > [SUIVI.md](../SUIVI.md)) recevront leur ligne **Tests :** `ClasseDeTest › nom du test` et, si elles se voient
 > à l'écran, **Vues :** `V…`, à mesure qu'elles seront codées.
 
@@ -24,8 +25,9 @@ audio comme source des ticks).
 | Croche, noire, mesure | `Meter` (`core:game`, paquet `…core.game.tempo`, P11.5) | Le découpage des ticks : une croche dure un nombre entier de ticks, une noire deux croches, une mesure 4 noires, une phrase 4 mesures. |
 | Cadence de chute | `DropTiming` (`Rules`) | Quand la pièce descend d'une ligne par la gravité. `ClassicDropTiming` délègue à `GravityTable`, `TempoDropTiming` suit les croches. |
 | Sur le temps | `Meter.isOnBeat` (fenêtre `onBeatWindow`) | Une pose qui tombe à *N* ticks d'une noire au plus. |
-| Cadence | `CadenceCleared` | Des lignes effacées par une pose dans la 4ᵉ mesure de la phrase. |
-| Bonus | `TempoScore` | Les points d'Au tempo, hors du moteur, ajoutés à ceux du moteur. |
+| Pose sur le temps | `TempoEvent.OnBeat` | Une pièce verrouillée sur le temps par la descente rapide tenue (`PieceLocked.bySoftDrop`). |
+| Cadence | `TempoEvent.CadenceCleared` | Des lignes effacées par une pose sur le temps dans la 4ᵉ mesure de la phrase. |
+| Bonus | `TempoScore` (`core:game`, paquet `tempo`, P11.7) | Les points d'Au tempo, hors du moteur, ajoutés à ceux du moteur. |
 | Accompagnement | `Accompaniment` (`core:music`) | La musique d'Au tempo : une basse I – V – vi – IV et, si on le veut, un métronome, écrits à 100 temps/min. |
 
 ## Tempo et mesure
@@ -69,6 +71,12 @@ audio comme source des ticks).
   **Tests :** `MeterTest › a tick within N ticks of a quarter note is on the beat`,
   `MeterTest › a wider window takes in more ticks`, `MeterTest › the window on the beat is 5 ticks until it is
   measured`, `MeterTest › a window reaching the off-beat is refused`.
+- **La mesure d'un tick sur le temps est celle de la noire la plus proche** (décision du développeur, 2026-10-30) :
+  `Meter.barOfNearestBeat(tickCount)`. Un tick juste avant une noire peut être dans la mesure d'avant : à
+  120 temps/min, le tick 475 est dans la mesure 4 (`barOf`), mais sur le temps de la noire 480, temps 1 de la
+  mesure 1, et c'est la mesure 1 qui compte. À mi-chemin de deux noires, sur le contretemps (jamais sur le temps),
+  la noire d'après.
+  **Tests :** `MeterTest › the bar of the nearest beat is the one of the nearest quarter note`.
 - Le repère est `GameState.tickCount`, qui n'avance ni en pause ni après la fin de partie : la
   musique s'arrête et reprend avec lui.
 
@@ -128,38 +136,65 @@ audio comme source des ticks).
 
 ## Bonus : `TempoScore`
 
-Les bonus restent **hors du moteur** : `TempoScore` est une valeur immuable nourrie des
-événements de chaque tick (`PieceLocked`, `LinesCleared`) et de `Meter`. Elle émet ses propres
-événements (`OnBeat`, `CadenceCleared`), que l'écran traduit en retours. **Le total affiché vaut
-les points du moteur plus les bonus** ; c'est lui qui entre dans les records d'Au tempo.
+Les bonus restent **hors du moteur** : `TempoScore` (`core:game`, paquet `tempo`) est une valeur
+immuable nourrie, tick après tick, des événements du moteur (`PieceLocked`, `LinesCleared`) et lue
+contre son `Meter` : `TempoScore(meter)` au début de la partie, puis `after(before, update)` après
+**chaque** `GameEngine.tick`, chacun des ticks d'une image compris (`FrameTicks`) : `before` est exactement
+l'état passé à ce tick, `update` le `GameUpdate` qu'il a rendu. Il rend un `TempoUpdate` : le nouveau score
+et ses propres événements (`TempoEvent.OnBeat`, `TempoEvent.CadenceCleared`), que l'écran traduira en
+retours (P11.11). `TempoScore` suppose que `PieceLocked` et `LinesCleared` ne tombent jamais dans le même
+tick (l'effacement dure au moins un tick, `LineClearDelay`) : un verrouillage sans animation (P6) devra
+être relu.
 
+- **Le total affiché vaut les points du moteur plus les bonus** (`TempoScore.total(state)`) ; c'est lui
+  qui entre dans les records d'Au tempo (P11.10).
+  **Tests :** `TempoScoreTest › the total is the points of the engine plus the bonuses`.
 - **Sur le temps** : une pose dont le tick de verrouillage tombe à **±N ticks d'une noire**
-  (n'importe quel temps de la mesure) et qui a été **amenée par la descente rapide tenue** (▼
-  tenue jusqu'au verrouillage). Une pièce laissée tomber par la seule gravité ne compte pas : elle
-  tomberait toujours sur une croche, sans effort.
+  (n'importe quel temps de la mesure, `Meter.isOnBeat`) et qui a été **amenée par la descente rapide
+  tenue** : un pas de la descente rapide, refusé, a verrouillé la pièce, qu'il ait fait descendre des
+  lignes avant ou non. Une pièce laissée tomber par la seule gravité ne compte pas : elle tomberait
+  toujours sur une croche, sans effort.
   - **N = 5 ticks** **[à vérifier]** (5 ou 6, environ 83 à 100 ms de chaque côté, à mesurer sur
     téléphone en P11.2, latence audio comprise). C'est la fenêtre de `Meter.isOnBeat`, passée en
     paramètre, 5 par défaut en attendant la mesure.
-  - **Bonus : + 80 points** par pose sur le temps **[à vérifier]**, quel que soit le niveau.
-  - Événement `OnBeat(bonus)`. Le moteur doit dire qu'un verrouillage a été amené par la descente
-    rapide : information à ajouter à `PieceLocked`, ou à lire dans l'état, à trancher en P11.7.
-- **Cadence** : des lignes effacées par une pose verrouillée dans la **4ᵉ mesure** de la phrase.
-  `LinesCleared` n'arrive qu'à la fin de l'animation d'effacement (`ClassicLineClearDelay`),
-  souvent dans la mesure suivante, et ne porte pas de points. `TempoScore` **retient donc le tick
-  de verrouillage** du `PieceLocked` et applique la cadence au `LinesCleared` qui le suit. Les
-  « points du moteur de cet effacement » se lisent par l'écart des `Points` de l'état avant et
-  après l'effacement.
+  - **Bonus : + 80 points** par pose sur le temps (`TempoScore.BEAT_BONUS`) **[à vérifier]** en
+    jouant (valeur gardée par le développeur le 2026-10-30), quel que soit le niveau.
+  - Événement `TempoEvent.OnBeat(bonus)`.
+  - **Le moteur dit ce qui a verrouillé la pièce** : `PieceLocked.bySoftDrop` (vrai pour un pas
+    refusé de la descente rapide, faux pour la gravité, sans valeur par défaut), fait neutre, sans condition
+    propre à Au tempo
+    (ADR 0015, note du 2026-10-30 dans l'ADR 0028). Depuis P11.6, sous ▼ tenu, la gravité d'Au tempo ne
+    verrouille plus : l'information est univoque. Elle est portée par l'événement plutôt que lue dans
+    l'état : après le verrouillage, la phase `Falling` a disparu, et l'état d'avant le tick ne voit pas
+    un appui sur ▼ fait juste avant lui.
+  **Tests :** `TempoScoreTest › a piece locked on the beat by the held soft drop earns 80 points`,
+  `TempoScoreTest › a piece locked by gravity alone earns no beat bonus`,
+  `TempoScoreTest › a piece locked out of the window earns nothing`,
+  `GameEngineControlsTest › a piece locked by a refused step of the soft drop says so`.
+- **Cadence** : des lignes effacées par une pose **sur le temps** verrouillée dans la **4ᵉ mesure** de
+  la phrase. La mesure d'une pose est celle de la **noire la plus proche** (`Meter.barOfNearestBeat`,
+  décision du développeur, 2026-10-30) : une pose 5 ticks avant le temps 1 compte dans la mesure 1, pas
+  dans la mesure 4. `LinesCleared` n'arrive qu'à la fin de l'animation d'effacement
+  (`ClassicLineClearDelay`), souvent dans la mesure suivante, et ne porte pas de points. `TempoScore`
+  **retient donc le tick de verrouillage** d'une pose sur le temps et applique la cadence au
+  `LinesCleared` qui le suit. Les « points du moteur de cet effacement » se lisent par l'écart des
+  `Points` de l'état avant et après le tick de l'effacement.
   Le prototype doublait sans condition les lignes effacées en mesure 4 ; la conception proposait
   × 1,5 ou une condition. **Tranché** : × 2 (bonus égal aux points du moteur de cet effacement),
   **à condition que la pose soit aussi sur le temps** ; sinon, aucun bonus de cadence
-  **[à vérifier]** en jouant (alternative : × 1,5 sans condition). Événement
-  `CadenceCleared(bonus)`.
-  **Point ouvert (P11.7)** : une pose sur le temps juste avant le temps 1 (à 475 ticks, à 120 temps/min) est
-  sur le temps de la noire 480, premier temps de la mesure 1, alors que `Meter.barOf(475)` rend 4. La mesure
-  d'une pose sur le temps doit-elle être celle de la noire la plus proche ? Cas proposé : `a piece locked 5
-  ticks before bar 1 is not in bar 4`.
-- Compteur **sur le temps / pièces** : le nombre de poses sur le temps et le nombre de pièces
-  verrouillées (« 12 / 40 »), montrés à l'écran et à la fin de partie.
+  **[à vérifier]** en jouant (valeur gardée par le développeur le 2026-10-30 ; alternative : × 1,5 sans
+  condition). Événement `TempoEvent.CadenceCleared(bonus)`.
+  **Tests :** `TempoScoreTest › lines cleared on the beat in bar 4 earn their points twice`,
+  `TempoScoreTest › lines of a piece locked off the beat in bar 4 earn no cadence bonus`,
+  `TempoScoreTest › an on-beat lock without lines is forgotten by the next lock` (seule compte la dernière
+  pose avant l'effacement),
+  `TempoScoreTest › lines locked in bar 4 and cleared in bar 1 still make a cadence`,
+  `TempoScoreTest › a piece locked 5 ticks before bar 1 is not in bar 4`,
+  `TempoScoreTest › a soft drop timed on beat 4 of bar 4 earns the beat bonus and a cadence in a real game`
+  (avec le vrai moteur, la pièce tombant sur les croches : pose sur le temps, cadence et total).
+- Compteur **sur le temps / pièces** : le nombre de poses sur le temps (`piecesOnBeat`) et le nombre de
+  pièces verrouillées (`piecesLocked`) (« 12 / 40 »), à montrer à l'écran et à la fin de partie (P11.11).
+  **Tests :** `TempoScoreTest › the pieces on the beat are counted against every piece locked`.
 
 ## Temps réel : l'horloge audio
 

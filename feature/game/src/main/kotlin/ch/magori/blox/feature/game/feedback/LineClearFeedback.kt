@@ -22,7 +22,7 @@ internal fun lineClearFeedback(
 ): (tick: Int) -> GameFeedback {
     val locked = GameFeedback().after(
         lockTick,
-        listOf(GameEvent.PieceRotated(piece, Rotation.CLOCKWISE), GameEvent.PieceLocked(piece)),
+        listOf(GameEvent.PieceRotated(piece, Rotation.CLOCKWISE), GameEvent.PieceLocked(piece, bySoftDrop = false)),
         ClearingRows(rows, ticksLeft = clearDelay),
         scoreBefore,
         scoreBefore,
