@@ -63,3 +63,10 @@ private fun SettingsLeftHanded() = SettingsScreenLeftHandedPreview()
 @Preview(widthDp = 360, heightDp = 1200, uiMode = UI_MODE_NIGHT)
 @Composable
 private fun SettingsLeftHandedNight() = SettingsScreenLeftHandedPreview()
+
+// Opened without the section of a game (P12.3): Tous les jeux alone, no record.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1200)
+@Composable
+private fun SettingsAllGames() = SettingsScreenAllGamesPreview()

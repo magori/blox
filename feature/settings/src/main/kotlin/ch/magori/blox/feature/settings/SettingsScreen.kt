@@ -42,9 +42,12 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.settings.navigation.SettingsSection
 
 /**
- * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then a card per section.
+ * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then the settings of the game of
+ * [section], if any, under « Réglages du Classique » (ADR 0030), then those of all games, under « Tous les jeux », a
+ * card per section.
  * « Affichage »: Effets réduits, imposed by Android when it removes the animations, Gaucher, and where the theme is
  * chosen.
  * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the
@@ -57,6 +60,7 @@ import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 @Composable
 internal fun SettingsScreen(
     uiState: SettingsUiState?,
+    section: SettingsSection?,
     actions: SettingsActions,
     modifier: Modifier = Modifier,
 ) {
@@ -71,10 +75,17 @@ internal fun SettingsScreen(
     ) {
         Header(onBack = actions.onBack)
         if (uiState != null) {
+            if (section == SettingsSection.CLASSIC) {
+                PartTitle(stringResource(R.string.feature_settings_classic))
+                RecordSection(
+                    cleared = uiState.recordClearing == RecordClearing.CLEARED,
+                    onClear = actions.onClearRecord,
+                )
+                RecordWindow(uiState.recordClearing, actions)
+            }
+            PartTitle(stringResource(R.string.feature_settings_all_games))
             Display(uiState, actions)
             SoundsAndVibrations(uiState, actions)
-            RecordSection(cleared = uiState.recordClearing == RecordClearing.CLEARED, onClear = actions.onClearRecord)
-            RecordWindow(uiState.recordClearing, actions)
         }
     }
 }
@@ -251,6 +262,20 @@ private fun RecordWindow(
     }
 }
 
+/**
+ * The title of a part of the page, the settings of a game or those of all games, above its sections: a heading for
+ * TalkBack, in `ink`, larger than the title of a section.
+ */
+@Composable
+private fun PartTitle(text: String) {
+    Text(
+        text = text,
+        color = BloxTheme.palette.ink,
+        style = MaterialTheme.typography.titleMedium.merge(BloxTheme.typography.title),
+        modifier = Modifier.semantics { heading() },
+    )
+}
+
 /** A section of the page: its [title], a heading for TalkBack, then its [content]. */
 @Composable
 private fun Section(
@@ -318,9 +343,10 @@ private fun SettingsScreenPreview(
     kind: BloxThemeKind,
     uiState: SettingsUiState = PreviewState,
     effects: BloxEffects = BloxEffects.Full,
+    section: SettingsSection? = SettingsSection.CLASSIC,
 ) {
     BloxTheme(kind = kind, effects = effects) {
-        SettingsScreen(uiState = uiState, actions = SettingsActions.None)
+        SettingsScreen(uiState = uiState, section = section, actions = SettingsActions.None)
     }
 }
 
@@ -346,6 +372,13 @@ internal fun SettingsScreenOriginalPreview() {
 @Composable
 internal fun SettingsScreenColorfulPreview() {
     SettingsScreenPreview(BloxThemeKind.COLORFUL)
+}
+
+/** Opened without the section of a game (the choice of the game, ADR 0030): Tous les jeux alone, no record. */
+@Preview(widthDp = 360, heightDp = 1200)
+@Composable
+internal fun SettingsScreenAllGamesPreview() {
+    SettingsScreenPreview(BloxThemeKind.COLORFUL, section = null)
 }
 
 /** For a left handed player: Gaucher on, its sketch turned over. */

@@ -758,6 +758,23 @@ chaque pas qu'une fois.
 `ButtonLookTest › a danger button is framed and labelled in danger at rest, filled in danger pressed` ;
 captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
 
+**Portée de la page** (P12.3, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : la clé
+`SettingsRoute(section: SettingsSection? = null)`, sérialisable, porte la section du jeu qui ouvre la page
+(`SettingsSection.CLASSIC`, seule valeur) et la garde après la mort du processus. Ouverte depuis l'accueil du
+Classique, la page montre sous sa barre le titre « Réglages du Classique » et la carte Record, puis le titre « Tous
+les jeux » au-dessus d'Affichage et de Sons et vibrations ; ces deux titres de partie sont des titres pour TalkBack,
+en `ink` et dans le style `title`, plus grands que les titres de section. Ouverte sans section, elle ne montre que
+« Tous les jeux » : ni « Réglages du Classique », ni Record. La Graine du jour ouvre encore la section du Classique
+jusqu'à P12.6 ; le choix du jeu l'ouvrira sans section (P12.5).
+**Tests :** `SettingsRouteTest › a route restored after the death of the process keeps its section, or none`,
+`SettingsRouteSavingTest › the key of the page opened from the Classic is saved and restored with its section`,
+`SettingsScreenTest › the page opened from the choice of the game shows no record`,
+`SettingsScreenTest › the section of the Classic is read Réglages du Classique, a heading`,
+`SettingsScreenTest › the title of a part, Tous les jeux, is larger than the title of a section, Affichage`,
+`SettingsScreenTest › opened from the Classic, its section comes first, then Tous les jeux, a heading, above Affichage`,
+`BloxNavDisplayTest › the gear of the home screen opens the settings on the section of the Classic, its record within` ;
+captures `Settings*`, dont `SettingsAllGames` (sans section). Vues : V21, V31.
+
 **Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
 `BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les
 animations d'Android, observées en continu (`SystemAnimations`, réglage `ANIMATOR_DURATION_SCALE`, écran partagé

@@ -742,17 +742,19 @@ internal class BloxNavDisplayTest {
     @DisplayName("the gear of the home screen opens the settings, whose switches save, and Retour goes back home")
     fun theGearOpensTheSettingsAndRetourGoesBackHome() {
         runJourney {
-            // Given the home screen, the vibrations off by default
+            // Given the home screen, Gaucher off by default
             val preferences = showApp()
 
-            // When the player opens the settings and turns the vibrations on
+            // When the player opens the settings and turns Gaucher on, by the action TalkBack calls: a touch would miss
+            // a switch pushed under the fold, and a scroll waits for an animation on a clock stopped by hand
             onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
             settle()
-            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).performClick()
+            onNodeWithText(string(SettingsR.string.feature_settings_left_handed))
+                .performSemanticsAction(SemanticsActions.OnClick)
             settle()
 
-            // Then they are saved, for the next game
-            assertThat(preferences.state.value?.vibrations).isTrue()
+            // Then it is saved, for the next game
+            assertThat(preferences.state.value?.leftHanded).isTrue()
 
             // When
             onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).performClick()
@@ -760,7 +762,25 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
-            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).assertDoesNotExist()
+            onNodeWithText(string(SettingsR.string.feature_settings_left_handed)).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    @DisplayName("the gear of the home screen opens the settings on the section of the Classic, its record within")
+    fun theGearOfTheHomeOpensTheSettingsOnTheSectionOfTheClassic() {
+        runJourney {
+            // Given the home screen of the Classic
+            showApp()
+
+            // When
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(SettingsR.string.feature_settings_classic)).assertExists()
+            onNodeWithContentDescription(string(SettingsR.string.feature_settings_clear_record_description))
+                .assertExists()
         }
     }
 
