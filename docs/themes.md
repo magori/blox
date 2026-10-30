@@ -645,7 +645,23 @@ pour TalkBack par la description du groupe (« Piste », « Outil »), pour les 
 retenu ; sa place est réservée, le libellé ne bouge pas. Les couleurs du segment retenu peuvent être données
 (`ChoiceItem.selectedColors`, `ChoiceColors(fill, ink)`, ici les couleurs de la piste) ; l'appelant garantit alors
 4,5:1 entre l'encre et le fond. Les pictogrammes ne vont que dans un groupe d'une rangée. TalkBack lit le nom du
-groupe comme un arrêt à part : à vérifier sur appareil avec P5.102.
+groupe comme un arrêt à part : à vérifier sur appareil avec TalkBack (posés dans l'éditeur en P5.102, le parcours
+TalkBack réel n'y a pas été écouté).
+
+**Éditeur v2** (P5.102, V33, `feature:composer`) : l'éditeur n'a plus de bouton à lui. Pistes (« Piste ») et
+outils (« Outil ») en `ChoiceSegments`, la piste ouverte dans sa couleur ; *Annuler*, *Copier* et *Effacer* en
+tuiles compactes de la famille Secondaire ; les huit mesures en boutons bulles compacts lus comme des boutons radio,
+la retenue en `accent` (`ButtonEmphasis.SELECTED`), la jouée marquée d'un trait dans l'encre du bouton ; « … », − et
++ en disques nus ; *Écouter* de 56 dp ; *Enregistrer* seul bouton Principal, toujours en `accent`. Pour cela,
+`BubbleButton` reçoit deux paramètres, sans rien changer à ses autres usages : `sidePadding` (12 dp au lieu des 24 de
+la famille pour les tuiles étroites des outils, qui tiennent ainsi à droite des mesures sur 360 dp) et `role`
+(`Role.RadioButton` pour les mesures). Le tempo est dans une pilule `button` cadrée de `button-outline`, comme un groupe de
+choix. Original, figé, reste seulement utilisable (captures `ComposerOriginal`, `ComposerOriginalLargeFont`).
+**Tests :** `ComposerControlsTest › the open track is filled in its colour and checked`,
+`ComposerControlsTest › the bars stand on two rows of four, the bar played marked and read en lecture`,
+`ComposerControlsTest › Enregistrer is the only button in accent on the editor, its dot shown while the music has changed`,
+`ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp and the grid keeps rows of 26 dp, scrolling`.
+Vue : V33.
 **Tests :** `ChoiceSegmentsTest › segments without a visible label are one group of radio buttons, read under the name given to TalkBack`,
 `ChoiceSegmentsTest › a segment bears its icon before its label, and the selected one its check in its place`,
 `ChoiceSegmentsTest › a selected segment is filled in the colours given to its choice`,
@@ -1025,8 +1041,8 @@ lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` g
 texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) sont
 toujours empilées depuis P5.98 (section « Fenêtres v2 »), chacune sur toute la largeur, en grande
 police plutôt que réduite ; un mot trop long pour la largeur entière réduit. `ButtonRow.kt` (côte à
-côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour la barre d'outils de l'éditeur
-(P5.49) et les tuiles de l'accueil. Le texte d'une fenêtre (`WindowText`) garde ses mots
+côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour les tuiles de l'accueil, les cartouches et
+`SideBySideOrStacked` (la barre d'outils de l'éditeur, P5.49, l'a quitté en P5.102). Le texte d'une fenêtre (`WindowText`) garde ses mots
 entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
 moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
 pas la césure, désactivée pour le corps du texte). **Tests :**

@@ -54,6 +54,7 @@ import ch.magori.blox.core.designsystem.component.SheetLeaving
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
+import ch.magori.blox.core.designsystem.component.rowMenuDescription
 import ch.magori.blox.core.designsystem.frame.LeavingContent
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.text.NameRefusal
@@ -365,7 +366,7 @@ private fun KeptGardenRow(
     ) {
         KeptGardenSummary(kept, open, onOpen, onRename, onDelete, Modifier.weight(1f))
         RowMenu(
-            name = kept.name,
+            description = rowMenuDescription(kept.name),
             windowOpen = windowOpen,
             modifier = Modifier.focusRequester(menuFocus),
         ) {

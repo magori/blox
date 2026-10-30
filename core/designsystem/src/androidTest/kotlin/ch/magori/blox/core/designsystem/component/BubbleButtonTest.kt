@@ -24,6 +24,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
@@ -257,6 +258,51 @@ internal class BubbleButtonTest {
         // Then
         onNodeWithText("Mesure 1").assertIsSelected()
         onNodeWithText("Mesure 2").assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Selected))
+    }
+
+    @Test
+    @DisplayName("a button read as a radio button is selected in the selected emphasis, and not selected otherwise")
+    fun aRadioButtonIsSelectedOrNot() = extension.use {
+        // Given two bars of the editor, read as radio buttons, the first chosen
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Column {
+                    BubbleButton(
+                        ButtonFamily.SECONDARY,
+                        onClick = {},
+                        emphasis = ButtonEmphasis.SELECTED,
+                        role = Role.RadioButton,
+                    ) { Text("Mesure 1") }
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {}, role = Role.RadioButton) { Text("Mesure 2") }
+                }
+            }
+        }
+
+        // Then
+        onNodeWithText("Mesure 1").assertIsSelected()
+        onNodeWithText("Mesure 2").assertIsNotSelected()
+        onNodeWithText("Mesure 2").assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.RadioButton))
+    }
+
+    @Test
+    @DisplayName("a button keeps the side padding given on each side of its content, rather than its family's")
+    fun aButtonKeepsTheSidePaddingGiven() = extension.use {
+        // Given a narrow tile of the editor, 12 dp on each side of its label
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Box {
+                    BubbleButton(ButtonFamily.SECONDARY, onClick = {}, sidePadding = 12.dp) {
+                        Text("Copier", Modifier.testTag(TAG))
+                    }
+                }
+            }
+        }
+
+        // Then
+        val button = onNode(hasText("Copier")).getBoundsInRoot()
+        val label = onNodeWithTag(TAG, useUnmergedTree = true).getBoundsInRoot()
+        assertThat((label.left - button.left).value).isCloseTo(12f, within(0.5f))
+        assertThat((button.right - label.right).value).isCloseTo(12f, within(0.5f))
     }
 
     @Test
