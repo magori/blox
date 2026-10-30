@@ -242,6 +242,19 @@ l'apparition ; descente quand `fallTimer >= dropSpeed`).
 `GameEngineTickTest › at level 29 the piece drops one row on every tick`,
 `PhaseTest › a falling piece cannot have a negative gravity count`.
 
+Le moteur ne lit pas la table lui-même : il demande à la politique `DropTiming` de `Rules` si la
+pièce descend à ce tick (ADR 0028). Celle du Classique, `ClassicDropTiming`, délègue à
+`GravityTable` : la pièce descend quand le compteur atteint (ou dépasse) les ticks par ligne du
+niveau ; le nombre de ticks de la partie, que le moteur lui passe aussi, n'y joue aucun rôle. Ce
+découpage (P11.4) est un pur refactoring : cinq parties de référence, enregistrées tick par tick
+avant lui (niveaux 0 à 29, montée de niveau, descente rapide, pause, danger, fin de partie), sont
+rejouées à l'identique.
+
+**Tests :** `ClassicDropTimingTest › the classic drop timing follows the gravity table of the level`,
+`ClassicDropTimingTest › the classic drop timing does not depend on the tick count`,
+`RulesTest › rules built again with the classic drop timing are the classic rules`,
+`ReferenceGamesTest › a reference game of the classic mode is played tick by tick as it was recorded`.
+
 ## Verrouillage
 
 Pas de délai de verrouillage : quand la gravité devrait faire descendre la pièce et que la

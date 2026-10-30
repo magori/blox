@@ -1,0 +1,2825 @@
+# Reference game of the Classic mode (P11.4), recorded before the extraction of DropTiming:
+# never record it again. Format: see ReferenceGame (core:game tests) and JOURNAL.md.
+seed 1
+start-level 0
+lines 6
++A +RIGHT > t1 falling I 6,-2 6,-1 6,0 6,1 after 1 next T level 0 lines 6 points 0 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t2 falling I 6,-2 6,-1 6,0 6,1 after 2 next T level 0 lines 6 points 0
++A +RIGHT > t3 falling I 5,0 6,0 7,0 8,0 after 3 next T level 0 lines 6 points 0 | rotated I 5,0 6,0 7,0 8,0 CLOCKWISE
+-A -RIGHT > t4 falling I 5,0 6,0 7,0 8,0 after 4 next T level 0 lines 6 points 0
++RIGHT > t5 falling I 6,0 7,0 8,0 9,0 after 5 next T level 0 lines 6 points 0
+-RIGHT +DOWN > t6 falling I 6,0 7,0 8,0 9,0 after 6 next T level 0 lines 6 points 0
+- > t7 falling I 6,0 7,0 8,0 9,0 after 7 next T level 0 lines 6 points 0
+- > t8 falling I 6,1 7,1 8,1 9,1 after 0 soft 1 next T level 0 lines 6 points 0
+- > t9 falling I 6,1 7,1 8,1 9,1 after 1 soft 1 next T level 0 lines 6 points 0
+- > t10 falling I 6,2 7,2 8,2 9,2 after 0 soft 2 next T level 0 lines 6 points 0
+- > t11 falling I 6,2 7,2 8,2 9,2 after 1 soft 2 next T level 0 lines 6 points 0
+- > t12 falling I 6,3 7,3 8,3 9,3 after 0 soft 3 next T level 0 lines 6 points 0
+- > t13 falling I 6,3 7,3 8,3 9,3 after 1 soft 3 next T level 0 lines 6 points 0
+- > t14 falling I 6,4 7,4 8,4 9,4 after 0 soft 4 next T level 0 lines 6 points 0
+- > t15 falling I 6,4 7,4 8,4 9,4 after 1 soft 4 next T level 0 lines 6 points 0
+- > t16 falling I 6,5 7,5 8,5 9,5 after 0 soft 5 next T level 0 lines 6 points 0
+- > t17 falling I 6,5 7,5 8,5 9,5 after 1 soft 5 next T level 0 lines 6 points 0
+- > t18 falling I 6,6 7,6 8,6 9,6 after 0 soft 6 next T level 0 lines 6 points 0
+- > t19 falling I 6,6 7,6 8,6 9,6 after 1 soft 6 next T level 0 lines 6 points 0
+- > t20 falling I 6,7 7,7 8,7 9,7 after 0 soft 7 next T level 0 lines 6 points 0
+- > t21 falling I 6,7 7,7 8,7 9,7 after 1 soft 7 next T level 0 lines 6 points 0
+- > t22 falling I 6,8 7,8 8,8 9,8 after 0 soft 8 next T level 0 lines 6 points 0
+- > t23 falling I 6,8 7,8 8,8 9,8 after 1 soft 8 next T level 0 lines 6 points 0
+- > t24 falling I 6,9 7,9 8,9 9,9 after 0 soft 9 next T level 0 lines 6 points 0
+- > t25 falling I 6,9 7,9 8,9 9,9 after 1 soft 9 next T level 0 lines 6 points 0
+- > t26 falling I 6,10 7,10 8,10 9,10 after 0 soft 10 next T level 0 lines 6 points 0
+- > t27 falling I 6,10 7,10 8,10 9,10 after 1 soft 10 next T level 0 lines 6 points 0
+- > t28 falling I 6,11 7,11 8,11 9,11 after 0 soft 11 next T level 0 lines 6 points 0
+- > t29 falling I 6,11 7,11 8,11 9,11 after 1 soft 11 next T level 0 lines 6 points 0
+- > t30 falling I 6,12 7,12 8,12 9,12 after 0 soft 12 next T level 0 lines 6 points 0
+- > t31 falling I 6,12 7,12 8,12 9,12 after 1 soft 12 next T level 0 lines 6 points 0
+- > t32 falling I 6,13 7,13 8,13 9,13 after 0 soft 13 next T level 0 lines 6 points 0
+- > t33 falling I 6,13 7,13 8,13 9,13 after 1 soft 13 next T level 0 lines 6 points 0
+- > t34 falling I 6,14 7,14 8,14 9,14 after 0 soft 14 next T level 0 lines 6 points 0
+- > t35 falling I 6,14 7,14 8,14 9,14 after 1 soft 14 next T level 0 lines 6 points 0
+- > t36 falling I 6,15 7,15 8,15 9,15 after 0 soft 15 next T level 0 lines 6 points 0
+- > t37 falling I 6,15 7,15 8,15 9,15 after 1 soft 15 next T level 0 lines 6 points 0
+- > t38 falling I 6,16 7,16 8,16 9,16 after 0 soft 16 next T level 0 lines 6 points 0
+- > t39 falling I 6,16 7,16 8,16 9,16 after 1 soft 16 next T level 0 lines 6 points 0
+- > t40 falling I 6,17 7,17 8,17 9,17 after 0 soft 17 next T level 0 lines 6 points 0
+- > t41 falling I 6,17 7,17 8,17 9,17 after 1 soft 17 next T level 0 lines 6 points 0
+- > t42 falling I 6,18 7,18 8,18 9,18 after 0 soft 18 next T level 0 lines 6 points 0
+- > t43 falling I 6,18 7,18 8,18 9,18 after 1 soft 18 next T level 0 lines 6 points 0
+- > t44 falling I 6,19 7,19 8,19 9,19 after 0 soft 19 next T level 0 lines 6 points 0
+- > t45 falling I 6,19 7,19 8,19 9,19 after 1 soft 19 next T level 0 lines 6 points 0
+- > t46 entry 10 next T level 0 lines 6 points 19 | locked I 6,19 7,19 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ......IIII
+- > t47 entry 9 next T level 0 lines 6 points 19
+- > t48 entry 8 next T level 0 lines 6 points 19
+- > t49 entry 7 next T level 0 lines 6 points 19
+- > t50 entry 6 next T level 0 lines 6 points 19
+- > t51 entry 5 next T level 0 lines 6 points 19
+- > t52 entry 4 next T level 0 lines 6 points 19
+- > t53 entry 3 next T level 0 lines 6 points 19
+- > t54 entry 2 next T level 0 lines 6 points 19
+- > t55 entry 1 next T level 0 lines 6 points 19
+- > t56 falling T 4,0 5,0 6,0 5,1 after 0 next L level 0 lines 6 points 19
+-DOWN +A +LEFT > t57 falling T 4,-1 3,0 4,0 4,1 after 1 next L level 0 lines 6 points 19 | rotated T 4,-1 3,0 4,0 4,1 CLOCKWISE
+-A -LEFT > t58 falling T 4,-1 3,0 4,0 4,1 after 2 next L level 0 lines 6 points 19
++A +DOWN > t59 falling T 4,-1 3,0 4,0 5,0 after 3 next L level 0 lines 6 points 19 | rotated T 4,-1 3,0 4,0 5,0 CLOCKWISE
+-A > t60 falling T 4,-1 3,0 4,0 5,0 after 4 next L level 0 lines 6 points 19
+- > t61 falling T 4,0 3,1 4,1 5,1 after 0 soft 1 next L level 0 lines 6 points 19
+- > t62 falling T 4,0 3,1 4,1 5,1 after 1 soft 1 next L level 0 lines 6 points 19
+- > t63 falling T 4,1 3,2 4,2 5,2 after 0 soft 2 next L level 0 lines 6 points 19
+- > t64 falling T 4,1 3,2 4,2 5,2 after 1 soft 2 next L level 0 lines 6 points 19
+- > t65 falling T 4,2 3,3 4,3 5,3 after 0 soft 3 next L level 0 lines 6 points 19
+- > t66 falling T 4,2 3,3 4,3 5,3 after 1 soft 3 next L level 0 lines 6 points 19
+- > t67 falling T 4,3 3,4 4,4 5,4 after 0 soft 4 next L level 0 lines 6 points 19
+- > t68 falling T 4,3 3,4 4,4 5,4 after 1 soft 4 next L level 0 lines 6 points 19
+- > t69 falling T 4,4 3,5 4,5 5,5 after 0 soft 5 next L level 0 lines 6 points 19
+- > t70 falling T 4,4 3,5 4,5 5,5 after 1 soft 5 next L level 0 lines 6 points 19
+- > t71 falling T 4,5 3,6 4,6 5,6 after 0 soft 6 next L level 0 lines 6 points 19
+- > t72 falling T 4,5 3,6 4,6 5,6 after 1 soft 6 next L level 0 lines 6 points 19
+- > t73 falling T 4,6 3,7 4,7 5,7 after 0 soft 7 next L level 0 lines 6 points 19
+- > t74 falling T 4,6 3,7 4,7 5,7 after 1 soft 7 next L level 0 lines 6 points 19
+- > t75 falling T 4,7 3,8 4,8 5,8 after 0 soft 8 next L level 0 lines 6 points 19
+- > t76 falling T 4,7 3,8 4,8 5,8 after 1 soft 8 next L level 0 lines 6 points 19
+- > t77 falling T 4,8 3,9 4,9 5,9 after 0 soft 9 next L level 0 lines 6 points 19
+- > t78 falling T 4,8 3,9 4,9 5,9 after 1 soft 9 next L level 0 lines 6 points 19
+- > t79 falling T 4,9 3,10 4,10 5,10 after 0 soft 10 next L level 0 lines 6 points 19
+- > t80 falling T 4,9 3,10 4,10 5,10 after 1 soft 10 next L level 0 lines 6 points 19
+- > t81 falling T 4,10 3,11 4,11 5,11 after 0 soft 11 next L level 0 lines 6 points 19
+- > t82 falling T 4,10 3,11 4,11 5,11 after 1 soft 11 next L level 0 lines 6 points 19
+- > t83 falling T 4,11 3,12 4,12 5,12 after 0 soft 12 next L level 0 lines 6 points 19
+- > t84 falling T 4,11 3,12 4,12 5,12 after 1 soft 12 next L level 0 lines 6 points 19
+- > t85 falling T 4,12 3,13 4,13 5,13 after 0 soft 13 next L level 0 lines 6 points 19
+- > t86 falling T 4,12 3,13 4,13 5,13 after 1 soft 13 next L level 0 lines 6 points 19
+- > t87 falling T 4,13 3,14 4,14 5,14 after 0 soft 14 next L level 0 lines 6 points 19
+- > t88 falling T 4,13 3,14 4,14 5,14 after 1 soft 14 next L level 0 lines 6 points 19
+- > t89 falling T 4,14 3,15 4,15 5,15 after 0 soft 15 next L level 0 lines 6 points 19
+- > t90 falling T 4,14 3,15 4,15 5,15 after 1 soft 15 next L level 0 lines 6 points 19
+- > t91 falling T 4,15 3,16 4,16 5,16 after 0 soft 16 next L level 0 lines 6 points 19
+- > t92 falling T 4,15 3,16 4,16 5,16 after 1 soft 16 next L level 0 lines 6 points 19
+- > t93 falling T 4,16 3,17 4,17 5,17 after 0 soft 17 next L level 0 lines 6 points 19
+- > t94 falling T 4,16 3,17 4,17 5,17 after 1 soft 17 next L level 0 lines 6 points 19
+- > t95 falling T 4,17 3,18 4,18 5,18 after 0 soft 18 next L level 0 lines 6 points 19
+- > t96 falling T 4,17 3,18 4,18 5,18 after 1 soft 18 next L level 0 lines 6 points 19
+- > t97 falling T 4,18 3,19 4,19 5,19 after 0 soft 19 next L level 0 lines 6 points 19
+- > t98 falling T 4,18 3,19 4,19 5,19 after 1 soft 19 next L level 0 lines 6 points 19
+- > t99 entry 10 next L level 0 lines 6 points 38 | locked T 4,18 3,19 4,19 5,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....T.....
+  ...TTTIIII
+- > t100 entry 9 next L level 0 lines 6 points 38
+- > t101 entry 8 next L level 0 lines 6 points 38
+- > t102 entry 7 next L level 0 lines 6 points 38
+- > t103 entry 6 next L level 0 lines 6 points 38
+- > t104 entry 5 next L level 0 lines 6 points 38
+- > t105 entry 4 next L level 0 lines 6 points 38
+- > t106 entry 3 next L level 0 lines 6 points 38
+- > t107 entry 2 next L level 0 lines 6 points 38
+- > t108 entry 1 next L level 0 lines 6 points 38
+- > t109 falling L 4,0 5,0 6,0 4,1 after 0 next S level 0 lines 6 points 38
+-DOWN +A +LEFT > t110 falling L 3,-1 4,-1 4,0 4,1 after 1 next S level 0 lines 6 points 38 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t111 falling L 3,-1 4,-1 4,0 4,1 after 2 next S level 0 lines 6 points 38
++A +LEFT > t112 falling L 4,-1 2,0 3,0 4,0 after 3 next S level 0 lines 6 points 38 | rotated L 4,-1 2,0 3,0 4,0 CLOCKWISE
+-A -LEFT > t113 falling L 4,-1 2,0 3,0 4,0 after 4 next S level 0 lines 6 points 38
++LEFT > t114 falling L 3,-1 1,0 2,0 3,0 after 5 next S level 0 lines 6 points 38
+-LEFT > t115 falling L 3,-1 1,0 2,0 3,0 after 6 next S level 0 lines 6 points 38
++LEFT > t116 falling L 2,-1 0,0 1,0 2,0 after 7 next S level 0 lines 6 points 38
+-LEFT +DOWN > t117 falling L 2,-1 0,0 1,0 2,0 after 8 next S level 0 lines 6 points 38
+- > t118 falling L 2,-1 0,0 1,0 2,0 after 9 next S level 0 lines 6 points 38
+- > t119 falling L 2,0 0,1 1,1 2,1 after 0 soft 1 next S level 0 lines 6 points 38
+- > t120 falling L 2,0 0,1 1,1 2,1 after 1 soft 1 next S level 0 lines 6 points 38
+- > t121 falling L 2,1 0,2 1,2 2,2 after 0 soft 2 next S level 0 lines 6 points 38
+- > t122 falling L 2,1 0,2 1,2 2,2 after 1 soft 2 next S level 0 lines 6 points 38
+- > t123 falling L 2,2 0,3 1,3 2,3 after 0 soft 3 next S level 0 lines 6 points 38
+- > t124 falling L 2,2 0,3 1,3 2,3 after 1 soft 3 next S level 0 lines 6 points 38
+- > t125 falling L 2,3 0,4 1,4 2,4 after 0 soft 4 next S level 0 lines 6 points 38
+- > t126 falling L 2,3 0,4 1,4 2,4 after 1 soft 4 next S level 0 lines 6 points 38
+- > t127 falling L 2,4 0,5 1,5 2,5 after 0 soft 5 next S level 0 lines 6 points 38
+- > t128 falling L 2,4 0,5 1,5 2,5 after 1 soft 5 next S level 0 lines 6 points 38
+- > t129 falling L 2,5 0,6 1,6 2,6 after 0 soft 6 next S level 0 lines 6 points 38
+- > t130 falling L 2,5 0,6 1,6 2,6 after 1 soft 6 next S level 0 lines 6 points 38
+- > t131 falling L 2,6 0,7 1,7 2,7 after 0 soft 7 next S level 0 lines 6 points 38
+- > t132 falling L 2,6 0,7 1,7 2,7 after 1 soft 7 next S level 0 lines 6 points 38
+- > t133 falling L 2,7 0,8 1,8 2,8 after 0 soft 8 next S level 0 lines 6 points 38
+- > t134 falling L 2,7 0,8 1,8 2,8 after 1 soft 8 next S level 0 lines 6 points 38
+- > t135 falling L 2,8 0,9 1,9 2,9 after 0 soft 9 next S level 0 lines 6 points 38
+- > t136 falling L 2,8 0,9 1,9 2,9 after 1 soft 9 next S level 0 lines 6 points 38
+- > t137 falling L 2,9 0,10 1,10 2,10 after 0 soft 10 next S level 0 lines 6 points 38
+- > t138 falling L 2,9 0,10 1,10 2,10 after 1 soft 10 next S level 0 lines 6 points 38
+- > t139 falling L 2,10 0,11 1,11 2,11 after 0 soft 11 next S level 0 lines 6 points 38
+- > t140 falling L 2,10 0,11 1,11 2,11 after 1 soft 11 next S level 0 lines 6 points 38
+- > t141 falling L 2,11 0,12 1,12 2,12 after 0 soft 12 next S level 0 lines 6 points 38
+- > t142 falling L 2,11 0,12 1,12 2,12 after 1 soft 12 next S level 0 lines 6 points 38
+- > t143 falling L 2,12 0,13 1,13 2,13 after 0 soft 13 next S level 0 lines 6 points 38
+- > t144 falling L 2,12 0,13 1,13 2,13 after 1 soft 13 next S level 0 lines 6 points 38
+- > t145 falling L 2,13 0,14 1,14 2,14 after 0 soft 14 next S level 0 lines 6 points 38
+- > t146 falling L 2,13 0,14 1,14 2,14 after 1 soft 14 next S level 0 lines 6 points 38
+- > t147 falling L 2,14 0,15 1,15 2,15 after 0 soft 15 next S level 0 lines 6 points 38
+- > t148 falling L 2,14 0,15 1,15 2,15 after 1 soft 15 next S level 0 lines 6 points 38
+- > t149 falling L 2,15 0,16 1,16 2,16 after 0 soft 16 next S level 0 lines 6 points 38
+- > t150 falling L 2,15 0,16 1,16 2,16 after 1 soft 16 next S level 0 lines 6 points 38
+- > t151 falling L 2,16 0,17 1,17 2,17 after 0 soft 17 next S level 0 lines 6 points 38
+- > t152 falling L 2,16 0,17 1,17 2,17 after 1 soft 17 next S level 0 lines 6 points 38
+- > t153 falling L 2,17 0,18 1,18 2,18 after 0 soft 18 next S level 0 lines 6 points 38
+- > t154 falling L 2,17 0,18 1,18 2,18 after 1 soft 18 next S level 0 lines 6 points 38
+- > t155 falling L 2,18 0,19 1,19 2,19 after 0 soft 19 next S level 0 lines 6 points 38
+- > t156 falling L 2,18 0,19 1,19 2,19 after 1 soft 19 next S level 0 lines 6 points 38
+- > t157 clearing rows 19 left 19 then 10 next S level 0 lines 6 points 57 | locked L 2,18 0,19 1,19 2,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..L.T.....
+  LLLTTTIIII
+- > t158 clearing rows 19 left 18 then 10 next S level 0 lines 6 points 57
+- > t159 clearing rows 19 left 17 then 10 next S level 0 lines 6 points 57
+- > t160 clearing rows 19 left 16 then 10 next S level 0 lines 6 points 57
+- > t161 clearing rows 19 left 15 then 10 next S level 0 lines 6 points 57
+- > t162 clearing rows 19 left 14 then 10 next S level 0 lines 6 points 57
+- > t163 clearing rows 19 left 13 then 10 next S level 0 lines 6 points 57
+- > t164 clearing rows 19 left 12 then 10 next S level 0 lines 6 points 57
+- > t165 clearing rows 19 left 11 then 10 next S level 0 lines 6 points 57
+- > t166 clearing rows 19 left 10 then 10 next S level 0 lines 6 points 57
+- > t167 clearing rows 19 left 9 then 10 next S level 0 lines 6 points 57
+- > t168 clearing rows 19 left 8 then 10 next S level 0 lines 6 points 57
+- > t169 clearing rows 19 left 7 then 10 next S level 0 lines 6 points 57
+- > t170 clearing rows 19 left 6 then 10 next S level 0 lines 6 points 57
+- > t171 clearing rows 19 left 5 then 10 next S level 0 lines 6 points 57
+- > t172 clearing rows 19 left 4 then 10 next S level 0 lines 6 points 57
+- > t173 clearing rows 19 left 3 then 10 next S level 0 lines 6 points 57
+- > t174 clearing rows 19 left 2 then 10 next S level 0 lines 6 points 57
+- > t175 clearing rows 19 left 1 then 10 next S level 0 lines 6 points 57
+- > t176 entry 10 next S level 0 lines 7 points 97 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..L.T.....
+- > t177 entry 9 next S level 0 lines 7 points 97
+- > t178 entry 8 next S level 0 lines 7 points 97
+- > t179 entry 7 next S level 0 lines 7 points 97
+- > t180 entry 6 next S level 0 lines 7 points 97
+- > t181 entry 5 next S level 0 lines 7 points 97
+- > t182 entry 4 next S level 0 lines 7 points 97
+- > t183 entry 3 next S level 0 lines 7 points 97
+- > t184 entry 2 next S level 0 lines 7 points 97
+- > t185 entry 1 next S level 0 lines 7 points 97
+- > t186 falling S 5,0 6,0 4,1 5,1 after 0 next T level 0 lines 7 points 97
+-DOWN +LEFT > t187 falling S 4,0 5,0 3,1 4,1 after 1 next T level 0 lines 7 points 97
+-LEFT > t188 falling S 4,0 5,0 3,1 4,1 after 2 next T level 0 lines 7 points 97
++LEFT > t189 falling S 3,0 4,0 2,1 3,1 after 3 next T level 0 lines 7 points 97
+-LEFT > t190 falling S 3,0 4,0 2,1 3,1 after 4 next T level 0 lines 7 points 97
++LEFT > t191 falling S 2,0 3,0 1,1 2,1 after 5 next T level 0 lines 7 points 97
+-LEFT > t192 falling S 2,0 3,0 1,1 2,1 after 6 next T level 0 lines 7 points 97
++LEFT > t193 falling S 1,0 2,0 0,1 1,1 after 7 next T level 0 lines 7 points 97
+-LEFT +DOWN > t194 falling S 1,0 2,0 0,1 1,1 after 8 next T level 0 lines 7 points 97
+- > t195 falling S 1,0 2,0 0,1 1,1 after 9 next T level 0 lines 7 points 97
+- > t196 falling S 1,1 2,1 0,2 1,2 after 0 soft 1 next T level 0 lines 7 points 97
+- > t197 falling S 1,1 2,1 0,2 1,2 after 1 soft 1 next T level 0 lines 7 points 97
+- > t198 falling S 1,2 2,2 0,3 1,3 after 0 soft 2 next T level 0 lines 7 points 97
+- > t199 falling S 1,2 2,2 0,3 1,3 after 1 soft 2 next T level 0 lines 7 points 97
+- > t200 falling S 1,3 2,3 0,4 1,4 after 0 soft 3 next T level 0 lines 7 points 97
+- > t201 falling S 1,3 2,3 0,4 1,4 after 1 soft 3 next T level 0 lines 7 points 97
+- > t202 falling S 1,4 2,4 0,5 1,5 after 0 soft 4 next T level 0 lines 7 points 97
+- > t203 falling S 1,4 2,4 0,5 1,5 after 1 soft 4 next T level 0 lines 7 points 97
+- > t204 falling S 1,5 2,5 0,6 1,6 after 0 soft 5 next T level 0 lines 7 points 97
+- > t205 falling S 1,5 2,5 0,6 1,6 after 1 soft 5 next T level 0 lines 7 points 97
+- > t206 falling S 1,6 2,6 0,7 1,7 after 0 soft 6 next T level 0 lines 7 points 97
+- > t207 falling S 1,6 2,6 0,7 1,7 after 1 soft 6 next T level 0 lines 7 points 97
+- > t208 falling S 1,7 2,7 0,8 1,8 after 0 soft 7 next T level 0 lines 7 points 97
+- > t209 falling S 1,7 2,7 0,8 1,8 after 1 soft 7 next T level 0 lines 7 points 97
+- > t210 falling S 1,8 2,8 0,9 1,9 after 0 soft 8 next T level 0 lines 7 points 97
+- > t211 falling S 1,8 2,8 0,9 1,9 after 1 soft 8 next T level 0 lines 7 points 97
+- > t212 falling S 1,9 2,9 0,10 1,10 after 0 soft 9 next T level 0 lines 7 points 97
+- > t213 falling S 1,9 2,9 0,10 1,10 after 1 soft 9 next T level 0 lines 7 points 97
+- > t214 falling S 1,10 2,10 0,11 1,11 after 0 soft 10 next T level 0 lines 7 points 97
+- > t215 falling S 1,10 2,10 0,11 1,11 after 1 soft 10 next T level 0 lines 7 points 97
+- > t216 falling S 1,11 2,11 0,12 1,12 after 0 soft 11 next T level 0 lines 7 points 97
+- > t217 falling S 1,11 2,11 0,12 1,12 after 1 soft 11 next T level 0 lines 7 points 97
+- > t218 falling S 1,12 2,12 0,13 1,13 after 0 soft 12 next T level 0 lines 7 points 97
+- > t219 falling S 1,12 2,12 0,13 1,13 after 1 soft 12 next T level 0 lines 7 points 97
+- > t220 falling S 1,13 2,13 0,14 1,14 after 0 soft 13 next T level 0 lines 7 points 97
+- > t221 falling S 1,13 2,13 0,14 1,14 after 1 soft 13 next T level 0 lines 7 points 97
+- > t222 falling S 1,14 2,14 0,15 1,15 after 0 soft 14 next T level 0 lines 7 points 97
+- > t223 falling S 1,14 2,14 0,15 1,15 after 1 soft 14 next T level 0 lines 7 points 97
+- > t224 falling S 1,15 2,15 0,16 1,16 after 0 soft 15 next T level 0 lines 7 points 97
+- > t225 falling S 1,15 2,15 0,16 1,16 after 1 soft 15 next T level 0 lines 7 points 97
+- > t226 falling S 1,16 2,16 0,17 1,17 after 0 soft 16 next T level 0 lines 7 points 97
+- > t227 falling S 1,16 2,16 0,17 1,17 after 1 soft 16 next T level 0 lines 7 points 97
+- > t228 falling S 1,17 2,17 0,18 1,18 after 0 soft 17 next T level 0 lines 7 points 97
+- > t229 falling S 1,17 2,17 0,18 1,18 after 1 soft 17 next T level 0 lines 7 points 97
+- > t230 falling S 1,18 2,18 0,19 1,19 after 0 soft 18 next T level 0 lines 7 points 97
+- > t231 falling S 1,18 2,18 0,19 1,19 after 1 soft 18 next T level 0 lines 7 points 97
+- > t232 entry 10 next T level 0 lines 7 points 115 | locked S 1,18 2,18 0,19 1,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .SS.......
+  SSL.T.....
+- > t233 entry 9 next T level 0 lines 7 points 115
+- > t234 entry 8 next T level 0 lines 7 points 115
+- > t235 entry 7 next T level 0 lines 7 points 115
+- > t236 entry 6 next T level 0 lines 7 points 115
+- > t237 entry 5 next T level 0 lines 7 points 115
+- > t238 entry 4 next T level 0 lines 7 points 115
+- > t239 entry 3 next T level 0 lines 7 points 115
+- > t240 entry 2 next T level 0 lines 7 points 115
+- > t241 entry 1 next T level 0 lines 7 points 115
+- > t242 falling T 4,0 5,0 6,0 5,1 after 0 next L level 0 lines 7 points 115
+-DOWN +A +LEFT > t243 falling T 4,-1 3,0 4,0 4,1 after 1 next L level 0 lines 7 points 115 | rotated T 4,-1 3,0 4,0 4,1 CLOCKWISE
+-A > t244 falling T 4,-1 3,0 4,0 4,1 after 2 next L level 0 lines 7 points 115
++A > t245 falling T 4,-1 3,0 4,0 5,0 after 3 next L level 0 lines 7 points 115 | rotated T 4,-1 3,0 4,0 5,0 CLOCKWISE
+-A > t246 falling T 4,-1 3,0 4,0 5,0 after 4 next L level 0 lines 7 points 115
++A > t247 falling T 4,-1 4,0 5,0 4,1 after 5 next L level 0 lines 7 points 115 | rotated T 4,-1 4,0 5,0 4,1 CLOCKWISE
+-A > t248 falling T 4,-1 4,0 5,0 4,1 after 6 next L level 0 lines 7 points 115
+- > t249 falling T 4,-1 4,0 5,0 4,1 after 7 next L level 0 lines 7 points 115
+- > t250 falling T 4,-1 4,0 5,0 4,1 after 8 next L level 0 lines 7 points 115
+- > t251 falling T 4,-1 4,0 5,0 4,1 after 9 next L level 0 lines 7 points 115
+- > t252 falling T 4,-1 4,0 5,0 4,1 after 10 next L level 0 lines 7 points 115
+- > t253 falling T 4,-1 4,0 5,0 4,1 after 11 next L level 0 lines 7 points 115
+- > t254 falling T 4,-1 4,0 5,0 4,1 after 12 next L level 0 lines 7 points 115
+- > t255 falling T 4,-1 4,0 5,0 4,1 after 13 next L level 0 lines 7 points 115
+- > t256 falling T 4,-1 4,0 5,0 4,1 after 14 next L level 0 lines 7 points 115
+- > t257 falling T 4,-1 4,0 5,0 4,1 after 15 next L level 0 lines 7 points 115
+- > t258 falling T 4,-1 4,0 5,0 4,1 after 16 next L level 0 lines 7 points 115
+- > t259 falling T 3,-1 3,0 4,0 3,1 after 17 next L level 0 lines 7 points 115
+-LEFT +DOWN > t260 falling T 3,-1 3,0 4,0 3,1 after 18 next L level 0 lines 7 points 115
+- > t261 falling T 3,-1 3,0 4,0 3,1 after 19 next L level 0 lines 7 points 115
+- > t262 falling T 3,0 3,1 4,1 3,2 after 0 soft 1 next L level 0 lines 7 points 115
+- > t263 falling T 3,0 3,1 4,1 3,2 after 1 soft 1 next L level 0 lines 7 points 115
+- > t264 falling T 3,1 3,2 4,2 3,3 after 0 soft 2 next L level 0 lines 7 points 115
+- > t265 falling T 3,1 3,2 4,2 3,3 after 1 soft 2 next L level 0 lines 7 points 115
+- > t266 falling T 3,2 3,3 4,3 3,4 after 0 soft 3 next L level 0 lines 7 points 115
+- > t267 falling T 3,2 3,3 4,3 3,4 after 1 soft 3 next L level 0 lines 7 points 115
+- > t268 falling T 3,3 3,4 4,4 3,5 after 0 soft 4 next L level 0 lines 7 points 115
+- > t269 falling T 3,3 3,4 4,4 3,5 after 1 soft 4 next L level 0 lines 7 points 115
+- > t270 falling T 3,4 3,5 4,5 3,6 after 0 soft 5 next L level 0 lines 7 points 115
+- > t271 falling T 3,4 3,5 4,5 3,6 after 1 soft 5 next L level 0 lines 7 points 115
+- > t272 falling T 3,5 3,6 4,6 3,7 after 0 soft 6 next L level 0 lines 7 points 115
+- > t273 falling T 3,5 3,6 4,6 3,7 after 1 soft 6 next L level 0 lines 7 points 115
+- > t274 falling T 3,6 3,7 4,7 3,8 after 0 soft 7 next L level 0 lines 7 points 115
+- > t275 falling T 3,6 3,7 4,7 3,8 after 1 soft 7 next L level 0 lines 7 points 115
+- > t276 falling T 3,7 3,8 4,8 3,9 after 0 soft 8 next L level 0 lines 7 points 115
+- > t277 falling T 3,7 3,8 4,8 3,9 after 1 soft 8 next L level 0 lines 7 points 115
+- > t278 falling T 3,8 3,9 4,9 3,10 after 0 soft 9 next L level 0 lines 7 points 115
+- > t279 falling T 3,8 3,9 4,9 3,10 after 1 soft 9 next L level 0 lines 7 points 115
+- > t280 falling T 3,9 3,10 4,10 3,11 after 0 soft 10 next L level 0 lines 7 points 115
+- > t281 falling T 3,9 3,10 4,10 3,11 after 1 soft 10 next L level 0 lines 7 points 115
+- > t282 falling T 3,10 3,11 4,11 3,12 after 0 soft 11 next L level 0 lines 7 points 115
+- > t283 falling T 3,10 3,11 4,11 3,12 after 1 soft 11 next L level 0 lines 7 points 115
+- > t284 falling T 3,11 3,12 4,12 3,13 after 0 soft 12 next L level 0 lines 7 points 115
+- > t285 falling T 3,11 3,12 4,12 3,13 after 1 soft 12 next L level 0 lines 7 points 115
+- > t286 falling T 3,12 3,13 4,13 3,14 after 0 soft 13 next L level 0 lines 7 points 115
+- > t287 falling T 3,12 3,13 4,13 3,14 after 1 soft 13 next L level 0 lines 7 points 115
+- > t288 falling T 3,13 3,14 4,14 3,15 after 0 soft 14 next L level 0 lines 7 points 115
+- > t289 falling T 3,13 3,14 4,14 3,15 after 1 soft 14 next L level 0 lines 7 points 115
+- > t290 falling T 3,14 3,15 4,15 3,16 after 0 soft 15 next L level 0 lines 7 points 115
+- > t291 falling T 3,14 3,15 4,15 3,16 after 1 soft 15 next L level 0 lines 7 points 115
+- > t292 falling T 3,15 3,16 4,16 3,17 after 0 soft 16 next L level 0 lines 7 points 115
+- > t293 falling T 3,15 3,16 4,16 3,17 after 1 soft 16 next L level 0 lines 7 points 115
+- > t294 falling T 3,16 3,17 4,17 3,18 after 0 soft 17 next L level 0 lines 7 points 115
+- > t295 falling T 3,16 3,17 4,17 3,18 after 1 soft 17 next L level 0 lines 7 points 115
+- > t296 falling T 3,17 3,18 4,18 3,19 after 0 soft 18 next L level 0 lines 7 points 115
+- > t297 falling T 3,17 3,18 4,18 3,19 after 1 soft 18 next L level 0 lines 7 points 115
+- > t298 entry 10 next L level 0 lines 7 points 133 | locked T 3,17 3,18 4,18 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ...T......
+  .SSTT.....
+  SSLTT.....
+- > t299 entry 9 next L level 0 lines 7 points 133
+- > t300 entry 8 next L level 0 lines 7 points 133
+- > t301 entry 7 next L level 0 lines 7 points 133
+- > t302 entry 6 next L level 0 lines 7 points 133
+- > t303 entry 5 next L level 0 lines 7 points 133
+- > t304 entry 4 next L level 0 lines 7 points 133
+- > t305 entry 3 next L level 0 lines 7 points 133
+- > t306 entry 2 next L level 0 lines 7 points 133
+- > t307 entry 1 next L level 0 lines 7 points 133
+- > t308 falling L 4,0 5,0 6,0 4,1 after 0 next I level 0 lines 7 points 133
+-DOWN +LEFT > t309 falling L 3,0 4,0 5,0 3,1 after 1 next I level 0 lines 7 points 133
+- > t310 falling L 3,0 4,0 5,0 3,1 after 2 next I level 0 lines 7 points 133
+- > t311 falling L 3,0 4,0 5,0 3,1 after 3 next I level 0 lines 7 points 133
+- > t312 falling L 3,0 4,0 5,0 3,1 after 4 next I level 0 lines 7 points 133
+- > t313 falling L 3,0 4,0 5,0 3,1 after 5 next I level 0 lines 7 points 133
+- > t314 falling L 3,0 4,0 5,0 3,1 after 6 next I level 0 lines 7 points 133
+- > t315 falling L 3,0 4,0 5,0 3,1 after 7 next I level 0 lines 7 points 133
+- > t316 falling L 3,0 4,0 5,0 3,1 after 8 next I level 0 lines 7 points 133
+- > t317 falling L 3,0 4,0 5,0 3,1 after 9 next I level 0 lines 7 points 133
+- > t318 falling L 3,0 4,0 5,0 3,1 after 10 next I level 0 lines 7 points 133
+- > t319 falling L 3,0 4,0 5,0 3,1 after 11 next I level 0 lines 7 points 133
+- > t320 falling L 3,0 4,0 5,0 3,1 after 12 next I level 0 lines 7 points 133
+- > t321 falling L 3,0 4,0 5,0 3,1 after 13 next I level 0 lines 7 points 133
+- > t322 falling L 3,0 4,0 5,0 3,1 after 14 next I level 0 lines 7 points 133
+- > t323 falling L 3,0 4,0 5,0 3,1 after 15 next I level 0 lines 7 points 133
+- > t324 falling L 3,0 4,0 5,0 3,1 after 16 next I level 0 lines 7 points 133
+- > t325 falling L 2,0 3,0 4,0 2,1 after 17 next I level 0 lines 7 points 133
+- > t326 falling L 2,0 3,0 4,0 2,1 after 18 next I level 0 lines 7 points 133
+- > t327 falling L 2,0 3,0 4,0 2,1 after 19 next I level 0 lines 7 points 133
+- > t328 falling L 2,0 3,0 4,0 2,1 after 20 next I level 0 lines 7 points 133
+- > t329 falling L 2,0 3,0 4,0 2,1 after 21 next I level 0 lines 7 points 133
+- > t330 falling L 2,0 3,0 4,0 2,1 after 22 next I level 0 lines 7 points 133
+- > t331 falling L 1,0 2,0 3,0 1,1 after 23 next I level 0 lines 7 points 133
+- > t332 falling L 1,0 2,0 3,0 1,1 after 24 next I level 0 lines 7 points 133
+- > t333 falling L 1,0 2,0 3,0 1,1 after 25 next I level 0 lines 7 points 133
+- > t334 falling L 1,0 2,0 3,0 1,1 after 26 next I level 0 lines 7 points 133
+- > t335 falling L 1,0 2,0 3,0 1,1 after 27 next I level 0 lines 7 points 133
+- > t336 falling L 1,0 2,0 3,0 1,1 after 28 next I level 0 lines 7 points 133
+- > t337 falling L 0,0 1,0 2,0 0,1 after 29 next I level 0 lines 7 points 133
+-LEFT +DOWN > t338 falling L 0,0 1,0 2,0 0,1 after 30 next I level 0 lines 7 points 133
+- > t339 falling L 0,0 1,0 2,0 0,1 after 31 next I level 0 lines 7 points 133
+- > t340 falling L 0,1 1,1 2,1 0,2 after 0 soft 1 next I level 0 lines 7 points 133
+- > t341 falling L 0,1 1,1 2,1 0,2 after 1 soft 1 next I level 0 lines 7 points 133
+- > t342 falling L 0,2 1,2 2,2 0,3 after 0 soft 2 next I level 0 lines 7 points 133
+- > t343 falling L 0,2 1,2 2,2 0,3 after 1 soft 2 next I level 0 lines 7 points 133
+- > t344 falling L 0,3 1,3 2,3 0,4 after 0 soft 3 next I level 0 lines 7 points 133
+- > t345 falling L 0,3 1,3 2,3 0,4 after 1 soft 3 next I level 0 lines 7 points 133
+- > t346 falling L 0,4 1,4 2,4 0,5 after 0 soft 4 next I level 0 lines 7 points 133
+- > t347 falling L 0,4 1,4 2,4 0,5 after 1 soft 4 next I level 0 lines 7 points 133
+- > t348 falling L 0,5 1,5 2,5 0,6 after 0 soft 5 next I level 0 lines 7 points 133
+- > t349 falling L 0,5 1,5 2,5 0,6 after 1 soft 5 next I level 0 lines 7 points 133
+- > t350 falling L 0,6 1,6 2,6 0,7 after 0 soft 6 next I level 0 lines 7 points 133
+- > t351 falling L 0,6 1,6 2,6 0,7 after 1 soft 6 next I level 0 lines 7 points 133
+- > t352 falling L 0,7 1,7 2,7 0,8 after 0 soft 7 next I level 0 lines 7 points 133
+- > t353 falling L 0,7 1,7 2,7 0,8 after 1 soft 7 next I level 0 lines 7 points 133
+- > t354 falling L 0,8 1,8 2,8 0,9 after 0 soft 8 next I level 0 lines 7 points 133
+- > t355 falling L 0,8 1,8 2,8 0,9 after 1 soft 8 next I level 0 lines 7 points 133
+- > t356 falling L 0,9 1,9 2,9 0,10 after 0 soft 9 next I level 0 lines 7 points 133
+- > t357 falling L 0,9 1,9 2,9 0,10 after 1 soft 9 next I level 0 lines 7 points 133
+- > t358 falling L 0,10 1,10 2,10 0,11 after 0 soft 10 next I level 0 lines 7 points 133
+- > t359 falling L 0,10 1,10 2,10 0,11 after 1 soft 10 next I level 0 lines 7 points 133
+- > t360 falling L 0,11 1,11 2,11 0,12 after 0 soft 11 next I level 0 lines 7 points 133
+- > t361 falling L 0,11 1,11 2,11 0,12 after 1 soft 11 next I level 0 lines 7 points 133
+- > t362 falling L 0,12 1,12 2,12 0,13 after 0 soft 12 next I level 0 lines 7 points 133
+- > t363 falling L 0,12 1,12 2,12 0,13 after 1 soft 12 next I level 0 lines 7 points 133
+- > t364 falling L 0,13 1,13 2,13 0,14 after 0 soft 13 next I level 0 lines 7 points 133
+- > t365 falling L 0,13 1,13 2,13 0,14 after 1 soft 13 next I level 0 lines 7 points 133
+- > t366 falling L 0,14 1,14 2,14 0,15 after 0 soft 14 next I level 0 lines 7 points 133
+- > t367 falling L 0,14 1,14 2,14 0,15 after 1 soft 14 next I level 0 lines 7 points 133
+- > t368 falling L 0,15 1,15 2,15 0,16 after 0 soft 15 next I level 0 lines 7 points 133
+- > t369 falling L 0,15 1,15 2,15 0,16 after 1 soft 15 next I level 0 lines 7 points 133
+- > t370 falling L 0,16 1,16 2,16 0,17 after 0 soft 16 next I level 0 lines 7 points 133
+- > t371 falling L 0,16 1,16 2,16 0,17 after 1 soft 16 next I level 0 lines 7 points 133
+- > t372 falling L 0,17 1,17 2,17 0,18 after 0 soft 17 next I level 0 lines 7 points 133
+- > t373 falling L 0,17 1,17 2,17 0,18 after 1 soft 17 next I level 0 lines 7 points 133
+- > t374 entry 12 next I level 0 lines 7 points 150 | locked L 0,17 1,17 2,17 0,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT......
+  LSSTT.....
+  SSLTT.....
+- > t375 entry 11 next I level 0 lines 7 points 150
+- > t376 entry 10 next I level 0 lines 7 points 150
+- > t377 entry 9 next I level 0 lines 7 points 150
+- > t378 entry 8 next I level 0 lines 7 points 150
+- > t379 entry 7 next I level 0 lines 7 points 150
+- > t380 entry 6 next I level 0 lines 7 points 150
+- > t381 entry 5 next I level 0 lines 7 points 150
+- > t382 entry 4 next I level 0 lines 7 points 150
+- > t383 entry 3 next I level 0 lines 7 points 150
+- > t384 entry 2 next I level 0 lines 7 points 150
+- > t385 entry 1 next I level 0 lines 7 points 150
+- > t386 falling I 3,0 4,0 5,0 6,0 after 0 next J level 0 lines 7 points 150
+-DOWN +RIGHT > t387 falling I 4,0 5,0 6,0 7,0 after 1 next J level 0 lines 7 points 150
+-RIGHT > t388 falling I 4,0 5,0 6,0 7,0 after 2 next J level 0 lines 7 points 150
++RIGHT > t389 falling I 5,0 6,0 7,0 8,0 after 3 next J level 0 lines 7 points 150
+-RIGHT +DOWN > t390 falling I 5,0 6,0 7,0 8,0 after 4 next J level 0 lines 7 points 150
+- > t391 falling I 5,0 6,0 7,0 8,0 after 5 next J level 0 lines 7 points 150
+- > t392 falling I 5,1 6,1 7,1 8,1 after 0 soft 1 next J level 0 lines 7 points 150
+- > t393 falling I 5,1 6,1 7,1 8,1 after 1 soft 1 next J level 0 lines 7 points 150
+- > t394 falling I 5,2 6,2 7,2 8,2 after 0 soft 2 next J level 0 lines 7 points 150
+- > t395 falling I 5,2 6,2 7,2 8,2 after 1 soft 2 next J level 0 lines 7 points 150
+- > t396 falling I 5,3 6,3 7,3 8,3 after 0 soft 3 next J level 0 lines 7 points 150
+- > t397 falling I 5,3 6,3 7,3 8,3 after 1 soft 3 next J level 0 lines 7 points 150
+- > t398 falling I 5,4 6,4 7,4 8,4 after 0 soft 4 next J level 0 lines 7 points 150
+- > t399 falling I 5,4 6,4 7,4 8,4 after 1 soft 4 next J level 0 lines 7 points 150
+- > t400 falling I 5,5 6,5 7,5 8,5 after 0 soft 5 next J level 0 lines 7 points 150
+- > t401 falling I 5,5 6,5 7,5 8,5 after 1 soft 5 next J level 0 lines 7 points 150
+- > t402 falling I 5,6 6,6 7,6 8,6 after 0 soft 6 next J level 0 lines 7 points 150
+- > t403 falling I 5,6 6,6 7,6 8,6 after 1 soft 6 next J level 0 lines 7 points 150
+- > t404 falling I 5,7 6,7 7,7 8,7 after 0 soft 7 next J level 0 lines 7 points 150
+- > t405 falling I 5,7 6,7 7,7 8,7 after 1 soft 7 next J level 0 lines 7 points 150
+- > t406 falling I 5,8 6,8 7,8 8,8 after 0 soft 8 next J level 0 lines 7 points 150
+- > t407 falling I 5,8 6,8 7,8 8,8 after 1 soft 8 next J level 0 lines 7 points 150
+- > t408 falling I 5,9 6,9 7,9 8,9 after 0 soft 9 next J level 0 lines 7 points 150
+- > t409 falling I 5,9 6,9 7,9 8,9 after 1 soft 9 next J level 0 lines 7 points 150
+- > t410 falling I 5,10 6,10 7,10 8,10 after 0 soft 10 next J level 0 lines 7 points 150
+- > t411 falling I 5,10 6,10 7,10 8,10 after 1 soft 10 next J level 0 lines 7 points 150
+- > t412 falling I 5,11 6,11 7,11 8,11 after 0 soft 11 next J level 0 lines 7 points 150
+- > t413 falling I 5,11 6,11 7,11 8,11 after 1 soft 11 next J level 0 lines 7 points 150
+- > t414 falling I 5,12 6,12 7,12 8,12 after 0 soft 12 next J level 0 lines 7 points 150
+- > t415 falling I 5,12 6,12 7,12 8,12 after 1 soft 12 next J level 0 lines 7 points 150
+- > t416 falling I 5,13 6,13 7,13 8,13 after 0 soft 13 next J level 0 lines 7 points 150
+- > t417 falling I 5,13 6,13 7,13 8,13 after 1 soft 13 next J level 0 lines 7 points 150
+- > t418 falling I 5,14 6,14 7,14 8,14 after 0 soft 14 next J level 0 lines 7 points 150
+- > t419 falling I 5,14 6,14 7,14 8,14 after 1 soft 14 next J level 0 lines 7 points 150
+- > t420 falling I 5,15 6,15 7,15 8,15 after 0 soft 15 next J level 0 lines 7 points 150
+- > t421 falling I 5,15 6,15 7,15 8,15 after 1 soft 15 next J level 0 lines 7 points 150
+- > t422 falling I 5,16 6,16 7,16 8,16 after 0 soft 16 next J level 0 lines 7 points 150
+- > t423 falling I 5,16 6,16 7,16 8,16 after 1 soft 16 next J level 0 lines 7 points 150
+- > t424 falling I 5,17 6,17 7,17 8,17 after 0 soft 17 next J level 0 lines 7 points 150
+- > t425 falling I 5,17 6,17 7,17 8,17 after 1 soft 17 next J level 0 lines 7 points 150
+- > t426 falling I 5,18 6,18 7,18 8,18 after 0 soft 18 next J level 0 lines 7 points 150
+- > t427 falling I 5,18 6,18 7,18 8,18 after 1 soft 18 next J level 0 lines 7 points 150
+- > t428 falling I 5,19 6,19 7,19 8,19 after 0 soft 19 next J level 0 lines 7 points 150
+- > t429 falling I 5,19 6,19 7,19 8,19 after 1 soft 19 next J level 0 lines 7 points 150
+- > t430 entry 10 next J level 0 lines 7 points 169 | locked I 5,19 6,19 7,19 8,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT......
+  LSSTT.....
+  SSLTTIIII.
+- > t431 entry 9 next J level 0 lines 7 points 169
+- > t432 entry 8 next J level 0 lines 7 points 169
+- > t433 entry 7 next J level 0 lines 7 points 169
+- > t434 entry 6 next J level 0 lines 7 points 169
+- > t435 entry 5 next J level 0 lines 7 points 169
+- > t436 entry 4 next J level 0 lines 7 points 169
+- > t437 entry 3 next J level 0 lines 7 points 169
+- > t438 entry 2 next J level 0 lines 7 points 169
+- > t439 entry 1 next J level 0 lines 7 points 169
+- > t440 falling J 4,0 5,0 6,0 6,1 after 0 next O level 0 lines 7 points 169
+-DOWN +RIGHT > t441 falling J 5,0 6,0 7,0 7,1 after 1 next O level 0 lines 7 points 169
+-RIGHT > t442 falling J 5,0 6,0 7,0 7,1 after 2 next O level 0 lines 7 points 169
++RIGHT > t443 falling J 6,0 7,0 8,0 8,1 after 3 next O level 0 lines 7 points 169
+-RIGHT > t444 falling J 6,0 7,0 8,0 8,1 after 4 next O level 0 lines 7 points 169
++RIGHT > t445 falling J 7,0 8,0 9,0 9,1 after 5 next O level 0 lines 7 points 169
+-RIGHT +DOWN > t446 falling J 7,0 8,0 9,0 9,1 after 6 next O level 0 lines 7 points 169
+- > t447 falling J 7,0 8,0 9,0 9,1 after 7 next O level 0 lines 7 points 169
+- > t448 falling J 7,1 8,1 9,1 9,2 after 0 soft 1 next O level 0 lines 7 points 169
+- > t449 falling J 7,1 8,1 9,1 9,2 after 1 soft 1 next O level 0 lines 7 points 169
+- > t450 falling J 7,2 8,2 9,2 9,3 after 0 soft 2 next O level 0 lines 7 points 169
+- > t451 falling J 7,2 8,2 9,2 9,3 after 1 soft 2 next O level 0 lines 7 points 169
+- > t452 falling J 7,3 8,3 9,3 9,4 after 0 soft 3 next O level 0 lines 7 points 169
+- > t453 falling J 7,3 8,3 9,3 9,4 after 1 soft 3 next O level 0 lines 7 points 169
+- > t454 falling J 7,4 8,4 9,4 9,5 after 0 soft 4 next O level 0 lines 7 points 169
+- > t455 falling J 7,4 8,4 9,4 9,5 after 1 soft 4 next O level 0 lines 7 points 169
+- > t456 falling J 7,5 8,5 9,5 9,6 after 0 soft 5 next O level 0 lines 7 points 169
+- > t457 falling J 7,5 8,5 9,5 9,6 after 1 soft 5 next O level 0 lines 7 points 169
+- > t458 falling J 7,6 8,6 9,6 9,7 after 0 soft 6 next O level 0 lines 7 points 169
+- > t459 falling J 7,6 8,6 9,6 9,7 after 1 soft 6 next O level 0 lines 7 points 169
+- > t460 falling J 7,7 8,7 9,7 9,8 after 0 soft 7 next O level 0 lines 7 points 169
+- > t461 falling J 7,7 8,7 9,7 9,8 after 1 soft 7 next O level 0 lines 7 points 169
+- > t462 falling J 7,8 8,8 9,8 9,9 after 0 soft 8 next O level 0 lines 7 points 169
+- > t463 falling J 7,8 8,8 9,8 9,9 after 1 soft 8 next O level 0 lines 7 points 169
+- > t464 falling J 7,9 8,9 9,9 9,10 after 0 soft 9 next O level 0 lines 7 points 169
+- > t465 falling J 7,9 8,9 9,9 9,10 after 1 soft 9 next O level 0 lines 7 points 169
+- > t466 falling J 7,10 8,10 9,10 9,11 after 0 soft 10 next O level 0 lines 7 points 169
+- > t467 falling J 7,10 8,10 9,10 9,11 after 1 soft 10 next O level 0 lines 7 points 169
+- > t468 falling J 7,11 8,11 9,11 9,12 after 0 soft 11 next O level 0 lines 7 points 169
+- > t469 falling J 7,11 8,11 9,11 9,12 after 1 soft 11 next O level 0 lines 7 points 169
+- > t470 falling J 7,12 8,12 9,12 9,13 after 0 soft 12 next O level 0 lines 7 points 169
+- > t471 falling J 7,12 8,12 9,12 9,13 after 1 soft 12 next O level 0 lines 7 points 169
+- > t472 falling J 7,13 8,13 9,13 9,14 after 0 soft 13 next O level 0 lines 7 points 169
+- > t473 falling J 7,13 8,13 9,13 9,14 after 1 soft 13 next O level 0 lines 7 points 169
+- > t474 falling J 7,14 8,14 9,14 9,15 after 0 soft 14 next O level 0 lines 7 points 169
+- > t475 falling J 7,14 8,14 9,14 9,15 after 1 soft 14 next O level 0 lines 7 points 169
+- > t476 falling J 7,15 8,15 9,15 9,16 after 0 soft 15 next O level 0 lines 7 points 169
+- > t477 falling J 7,15 8,15 9,15 9,16 after 1 soft 15 next O level 0 lines 7 points 169
+- > t478 falling J 7,16 8,16 9,16 9,17 after 0 soft 16 next O level 0 lines 7 points 169
+- > t479 falling J 7,16 8,16 9,16 9,17 after 1 soft 16 next O level 0 lines 7 points 169
+- > t480 falling J 7,17 8,17 9,17 9,18 after 0 soft 17 next O level 0 lines 7 points 169
+- > t481 falling J 7,17 8,17 9,17 9,18 after 1 soft 17 next O level 0 lines 7 points 169
+- > t482 falling J 7,18 8,18 9,18 9,19 after 0 soft 18 next O level 0 lines 7 points 169
+- > t483 falling J 7,18 8,18 9,18 9,19 after 1 soft 18 next O level 0 lines 7 points 169
+- > t484 clearing rows 19 left 20 then 10 next O level 0 lines 7 points 187 | locked J 7,18 8,18 9,18 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT......
+  LSSTT..JJJ
+  SSLTTIIIIJ
+- > t485 clearing rows 19 left 19 then 10 next O level 0 lines 7 points 187
+- > t486 clearing rows 19 left 18 then 10 next O level 0 lines 7 points 187
+- > t487 clearing rows 19 left 17 then 10 next O level 0 lines 7 points 187
+- > t488 clearing rows 19 left 16 then 10 next O level 0 lines 7 points 187
+- > t489 clearing rows 19 left 15 then 10 next O level 0 lines 7 points 187
+- > t490 clearing rows 19 left 14 then 10 next O level 0 lines 7 points 187
+- > t491 clearing rows 19 left 13 then 10 next O level 0 lines 7 points 187
+- > t492 clearing rows 19 left 12 then 10 next O level 0 lines 7 points 187
+- > t493 clearing rows 19 left 11 then 10 next O level 0 lines 7 points 187
+- > t494 clearing rows 19 left 10 then 10 next O level 0 lines 7 points 187
+- > t495 clearing rows 19 left 9 then 10 next O level 0 lines 7 points 187
+- > t496 clearing rows 19 left 8 then 10 next O level 0 lines 7 points 187
+- > t497 clearing rows 19 left 7 then 10 next O level 0 lines 7 points 187
+- > t498 clearing rows 19 left 6 then 10 next O level 0 lines 7 points 187
+- > t499 clearing rows 19 left 5 then 10 next O level 0 lines 7 points 187
+- > t500 clearing rows 19 left 4 then 10 next O level 0 lines 7 points 187
+- > t501 clearing rows 19 left 3 then 10 next O level 0 lines 7 points 187
+- > t502 clearing rows 19 left 2 then 10 next O level 0 lines 7 points 187
+- > t503 clearing rows 19 left 1 then 10 next O level 0 lines 7 points 187
+- > t504 entry 10 next O level 0 lines 8 points 227 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT......
+  LSSTT..JJJ
+- > t505 entry 9 next O level 0 lines 8 points 227
+- > t506 entry 8 next O level 0 lines 8 points 227
+- > t507 entry 7 next O level 0 lines 8 points 227
+- > t508 entry 6 next O level 0 lines 8 points 227
+- > t509 entry 5 next O level 0 lines 8 points 227
+- > t510 entry 4 next O level 0 lines 8 points 227
+- > t511 entry 3 next O level 0 lines 8 points 227
+- > t512 entry 2 next O level 0 lines 8 points 227
+- > t513 entry 1 next O level 0 lines 8 points 227
+- > t514 falling O 4,0 5,0 4,1 5,1 after 0 next J level 0 lines 8 points 227
+-DOWN +A +RIGHT > t515 falling O 5,0 6,0 5,1 6,1 after 1 next J level 0 lines 8 points 227
+-A -RIGHT > t516 falling O 5,0 6,0 5,1 6,1 after 2 next J level 0 lines 8 points 227
++A +DOWN > t517 falling O 5,0 6,0 5,1 6,1 after 3 next J level 0 lines 8 points 227
+-A > t518 falling O 5,0 6,0 5,1 6,1 after 4 next J level 0 lines 8 points 227
+- > t519 falling O 5,1 6,1 5,2 6,2 after 0 soft 1 next J level 0 lines 8 points 227
+- > t520 falling O 5,1 6,1 5,2 6,2 after 1 soft 1 next J level 0 lines 8 points 227
+- > t521 falling O 5,2 6,2 5,3 6,3 after 0 soft 2 next J level 0 lines 8 points 227
+- > t522 falling O 5,2 6,2 5,3 6,3 after 1 soft 2 next J level 0 lines 8 points 227
+- > t523 falling O 5,3 6,3 5,4 6,4 after 0 soft 3 next J level 0 lines 8 points 227
+- > t524 falling O 5,3 6,3 5,4 6,4 after 1 soft 3 next J level 0 lines 8 points 227
+- > t525 falling O 5,4 6,4 5,5 6,5 after 0 soft 4 next J level 0 lines 8 points 227
+- > t526 falling O 5,4 6,4 5,5 6,5 after 1 soft 4 next J level 0 lines 8 points 227
+- > t527 falling O 5,5 6,5 5,6 6,6 after 0 soft 5 next J level 0 lines 8 points 227
+- > t528 falling O 5,5 6,5 5,6 6,6 after 1 soft 5 next J level 0 lines 8 points 227
+- > t529 falling O 5,6 6,6 5,7 6,7 after 0 soft 6 next J level 0 lines 8 points 227
+- > t530 falling O 5,6 6,6 5,7 6,7 after 1 soft 6 next J level 0 lines 8 points 227
+- > t531 falling O 5,7 6,7 5,8 6,8 after 0 soft 7 next J level 0 lines 8 points 227
+- > t532 falling O 5,7 6,7 5,8 6,8 after 1 soft 7 next J level 0 lines 8 points 227
+- > t533 falling O 5,8 6,8 5,9 6,9 after 0 soft 8 next J level 0 lines 8 points 227
+- > t534 falling O 5,8 6,8 5,9 6,9 after 1 soft 8 next J level 0 lines 8 points 227
+- > t535 falling O 5,9 6,9 5,10 6,10 after 0 soft 9 next J level 0 lines 8 points 227
+- > t536 falling O 5,9 6,9 5,10 6,10 after 1 soft 9 next J level 0 lines 8 points 227
+- > t537 falling O 5,10 6,10 5,11 6,11 after 0 soft 10 next J level 0 lines 8 points 227
+- > t538 falling O 5,10 6,10 5,11 6,11 after 1 soft 10 next J level 0 lines 8 points 227
+- > t539 falling O 5,11 6,11 5,12 6,12 after 0 soft 11 next J level 0 lines 8 points 227
+- > t540 falling O 5,11 6,11 5,12 6,12 after 1 soft 11 next J level 0 lines 8 points 227
+- > t541 falling O 5,12 6,12 5,13 6,13 after 0 soft 12 next J level 0 lines 8 points 227
+- > t542 falling O 5,12 6,12 5,13 6,13 after 1 soft 12 next J level 0 lines 8 points 227
+- > t543 falling O 5,13 6,13 5,14 6,14 after 0 soft 13 next J level 0 lines 8 points 227
+- > t544 falling O 5,13 6,13 5,14 6,14 after 1 soft 13 next J level 0 lines 8 points 227
+- > t545 falling O 5,14 6,14 5,15 6,15 after 0 soft 14 next J level 0 lines 8 points 227
+- > t546 falling O 5,14 6,14 5,15 6,15 after 1 soft 14 next J level 0 lines 8 points 227
+- > t547 falling O 5,15 6,15 5,16 6,16 after 0 soft 15 next J level 0 lines 8 points 227
+- > t548 falling O 5,15 6,15 5,16 6,16 after 1 soft 15 next J level 0 lines 8 points 227
+- > t549 falling O 5,16 6,16 5,17 6,17 after 0 soft 16 next J level 0 lines 8 points 227
+- > t550 falling O 5,16 6,16 5,17 6,17 after 1 soft 16 next J level 0 lines 8 points 227
+- > t551 falling O 5,17 6,17 5,18 6,18 after 0 soft 17 next J level 0 lines 8 points 227
+- > t552 falling O 5,17 6,17 5,18 6,18 after 1 soft 17 next J level 0 lines 8 points 227
+- > t553 falling O 5,18 6,18 5,19 6,19 after 0 soft 18 next J level 0 lines 8 points 227
+- > t554 falling O 5,18 6,18 5,19 6,19 after 1 soft 18 next J level 0 lines 8 points 227
+- > t555 clearing rows 19 left 17 then 10 next J level 0 lines 8 points 245 | locked O 5,18 6,18 5,19 6,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT.OO...
+  LSSTTOOJJJ
+- > t556 clearing rows 19 left 16 then 10 next J level 0 lines 8 points 245
+- > t557 clearing rows 19 left 15 then 10 next J level 0 lines 8 points 245
+- > t558 clearing rows 19 left 14 then 10 next J level 0 lines 8 points 245
+- > t559 clearing rows 19 left 13 then 10 next J level 0 lines 8 points 245
+- > t560 clearing rows 19 left 12 then 10 next J level 0 lines 8 points 245
+- > t561 clearing rows 19 left 11 then 10 next J level 0 lines 8 points 245
+- > t562 clearing rows 19 left 10 then 10 next J level 0 lines 8 points 245
+- > t563 clearing rows 19 left 9 then 10 next J level 0 lines 8 points 245
+- > t564 clearing rows 19 left 8 then 10 next J level 0 lines 8 points 245
+- > t565 clearing rows 19 left 7 then 10 next J level 0 lines 8 points 245
+- > t566 clearing rows 19 left 6 then 10 next J level 0 lines 8 points 245
+- > t567 clearing rows 19 left 5 then 10 next J level 0 lines 8 points 245
+- > t568 clearing rows 19 left 4 then 10 next J level 0 lines 8 points 245
+- > t569 clearing rows 19 left 3 then 10 next J level 0 lines 8 points 245
+- > t570 clearing rows 19 left 2 then 10 next J level 0 lines 8 points 245
+- > t571 clearing rows 19 left 1 then 10 next J level 0 lines 8 points 245
+- > t572 entry 10 next J level 0 lines 9 points 285 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLLT.OO...
+- > t573 entry 9 next J level 0 lines 9 points 285
+- > t574 entry 8 next J level 0 lines 9 points 285
+- > t575 entry 7 next J level 0 lines 9 points 285
+- > t576 entry 6 next J level 0 lines 9 points 285
+- > t577 entry 5 next J level 0 lines 9 points 285
+- > t578 entry 4 next J level 0 lines 9 points 285
+- > t579 entry 3 next J level 0 lines 9 points 285
+- > t580 entry 2 next J level 0 lines 9 points 285
+- > t581 entry 1 next J level 0 lines 9 points 285
+- > t582 falling J 4,0 5,0 6,0 6,1 after 0 next O level 0 lines 9 points 285
+-DOWN +LEFT > t583 falling J 3,0 4,0 5,0 5,1 after 1 next O level 0 lines 9 points 285
+- > t584 falling J 3,0 4,0 5,0 5,1 after 2 next O level 0 lines 9 points 285
+- > t585 falling J 3,0 4,0 5,0 5,1 after 3 next O level 0 lines 9 points 285
+- > t586 falling J 3,0 4,0 5,0 5,1 after 4 next O level 0 lines 9 points 285
+- > t587 falling J 3,0 4,0 5,0 5,1 after 5 next O level 0 lines 9 points 285
+- > t588 falling J 3,0 4,0 5,0 5,1 after 6 next O level 0 lines 9 points 285
+- > t589 falling J 3,0 4,0 5,0 5,1 after 7 next O level 0 lines 9 points 285
+- > t590 falling J 3,0 4,0 5,0 5,1 after 8 next O level 0 lines 9 points 285
+- > t591 falling J 3,0 4,0 5,0 5,1 after 9 next O level 0 lines 9 points 285
+- > t592 falling J 3,0 4,0 5,0 5,1 after 10 next O level 0 lines 9 points 285
+- > t593 falling J 3,0 4,0 5,0 5,1 after 11 next O level 0 lines 9 points 285
+- > t594 falling J 3,0 4,0 5,0 5,1 after 12 next O level 0 lines 9 points 285
+- > t595 falling J 3,0 4,0 5,0 5,1 after 13 next O level 0 lines 9 points 285
+- > t596 falling J 3,0 4,0 5,0 5,1 after 14 next O level 0 lines 9 points 285
+- > t597 falling J 3,0 4,0 5,0 5,1 after 15 next O level 0 lines 9 points 285
+- > t598 falling J 3,0 4,0 5,0 5,1 after 16 next O level 0 lines 9 points 285
+- > t599 falling J 2,0 3,0 4,0 4,1 after 17 next O level 0 lines 9 points 285
+-LEFT +DOWN > t600 falling J 2,0 3,0 4,0 4,1 after 18 next O level 0 lines 9 points 285
+- > t601 falling J 2,0 3,0 4,0 4,1 after 19 next O level 0 lines 9 points 285
+- > t602 falling J 2,1 3,1 4,1 4,2 after 0 soft 1 next O level 0 lines 9 points 285
+- > t603 falling J 2,1 3,1 4,1 4,2 after 1 soft 1 next O level 0 lines 9 points 285
+- > t604 falling J 2,2 3,2 4,2 4,3 after 0 soft 2 next O level 0 lines 9 points 285
+- > t605 falling J 2,2 3,2 4,2 4,3 after 1 soft 2 next O level 0 lines 9 points 285
+- > t606 falling J 2,3 3,3 4,3 4,4 after 0 soft 3 next O level 0 lines 9 points 285
+- > t607 falling J 2,3 3,3 4,3 4,4 after 1 soft 3 next O level 0 lines 9 points 285
+- > t608 falling J 2,4 3,4 4,4 4,5 after 0 soft 4 next O level 0 lines 9 points 285
+- > t609 falling J 2,4 3,4 4,4 4,5 after 1 soft 4 next O level 0 lines 9 points 285
+- > t610 falling J 2,5 3,5 4,5 4,6 after 0 soft 5 next O level 0 lines 9 points 285
+- > t611 falling J 2,5 3,5 4,5 4,6 after 1 soft 5 next O level 0 lines 9 points 285
+- > t612 falling J 2,6 3,6 4,6 4,7 after 0 soft 6 next O level 0 lines 9 points 285
+- > t613 falling J 2,6 3,6 4,6 4,7 after 1 soft 6 next O level 0 lines 9 points 285
+- > t614 falling J 2,7 3,7 4,7 4,8 after 0 soft 7 next O level 0 lines 9 points 285
+- > t615 falling J 2,7 3,7 4,7 4,8 after 1 soft 7 next O level 0 lines 9 points 285
+- > t616 falling J 2,8 3,8 4,8 4,9 after 0 soft 8 next O level 0 lines 9 points 285
+- > t617 falling J 2,8 3,8 4,8 4,9 after 1 soft 8 next O level 0 lines 9 points 285
+- > t618 falling J 2,9 3,9 4,9 4,10 after 0 soft 9 next O level 0 lines 9 points 285
+- > t619 falling J 2,9 3,9 4,9 4,10 after 1 soft 9 next O level 0 lines 9 points 285
+- > t620 falling J 2,10 3,10 4,10 4,11 after 0 soft 10 next O level 0 lines 9 points 285
+- > t621 falling J 2,10 3,10 4,10 4,11 after 1 soft 10 next O level 0 lines 9 points 285
+- > t622 falling J 2,11 3,11 4,11 4,12 after 0 soft 11 next O level 0 lines 9 points 285
+- > t623 falling J 2,11 3,11 4,11 4,12 after 1 soft 11 next O level 0 lines 9 points 285
+- > t624 falling J 2,12 3,12 4,12 4,13 after 0 soft 12 next O level 0 lines 9 points 285
+- > t625 falling J 2,12 3,12 4,12 4,13 after 1 soft 12 next O level 0 lines 9 points 285
+- > t626 falling J 2,13 3,13 4,13 4,14 after 0 soft 13 next O level 0 lines 9 points 285
+- > t627 falling J 2,13 3,13 4,13 4,14 after 1 soft 13 next O level 0 lines 9 points 285
+- > t628 falling J 2,14 3,14 4,14 4,15 after 0 soft 14 next O level 0 lines 9 points 285
+- > t629 falling J 2,14 3,14 4,14 4,15 after 1 soft 14 next O level 0 lines 9 points 285
+- > t630 falling J 2,15 3,15 4,15 4,16 after 0 soft 15 next O level 0 lines 9 points 285
+- > t631 falling J 2,15 3,15 4,15 4,16 after 1 soft 15 next O level 0 lines 9 points 285
+- > t632 falling J 2,16 3,16 4,16 4,17 after 0 soft 16 next O level 0 lines 9 points 285
+- > t633 falling J 2,16 3,16 4,16 4,17 after 1 soft 16 next O level 0 lines 9 points 285
+- > t634 falling J 2,17 3,17 4,17 4,18 after 0 soft 17 next O level 0 lines 9 points 285
+- > t635 falling J 2,17 3,17 4,17 4,18 after 1 soft 17 next O level 0 lines 9 points 285
+- > t636 falling J 2,18 3,18 4,18 4,19 after 0 soft 18 next O level 0 lines 9 points 285
+- > t637 falling J 2,18 3,18 4,18 4,19 after 1 soft 18 next O level 0 lines 9 points 285
+- > t638 entry 10 next O level 0 lines 9 points 303 | locked J 2,18 3,18 4,18 4,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..JJJ.....
+  LLLTJOO...
+- > t639 entry 9 next O level 0 lines 9 points 303
+- > t640 entry 8 next O level 0 lines 9 points 303
+- > t641 entry 7 next O level 0 lines 9 points 303
+- > t642 entry 6 next O level 0 lines 9 points 303
+- > t643 entry 5 next O level 0 lines 9 points 303
+- > t644 entry 4 next O level 0 lines 9 points 303
+- > t645 entry 3 next O level 0 lines 9 points 303
+- > t646 entry 2 next O level 0 lines 9 points 303
+- > t647 entry 1 next O level 0 lines 9 points 303
+- > t648 falling O 4,0 5,0 4,1 5,1 after 0 next L level 0 lines 9 points 303
+-DOWN +A +LEFT > t649 falling O 3,0 4,0 3,1 4,1 after 1 next L level 0 lines 9 points 303
+-A -LEFT > t650 falling O 3,0 4,0 3,1 4,1 after 2 next L level 0 lines 9 points 303
++A +LEFT > t651 falling O 2,0 3,0 2,1 3,1 after 3 next L level 0 lines 9 points 303
+-A -LEFT > t652 falling O 2,0 3,0 2,1 3,1 after 4 next L level 0 lines 9 points 303
++A +LEFT > t653 falling O 1,0 2,0 1,1 2,1 after 5 next L level 0 lines 9 points 303
+-A -LEFT > t654 falling O 1,0 2,0 1,1 2,1 after 6 next L level 0 lines 9 points 303
++LEFT > t655 falling O 0,0 1,0 0,1 1,1 after 7 next L level 0 lines 9 points 303
+-LEFT +DOWN > t656 falling O 0,0 1,0 0,1 1,1 after 8 next L level 0 lines 9 points 303
+- > t657 falling O 0,0 1,0 0,1 1,1 after 9 next L level 0 lines 9 points 303
+- > t658 falling O 0,1 1,1 0,2 1,2 after 0 soft 1 next L level 0 lines 9 points 303
+- > t659 falling O 0,1 1,1 0,2 1,2 after 1 soft 1 next L level 0 lines 9 points 303
+- > t660 falling O 0,2 1,2 0,3 1,3 after 0 soft 2 next L level 0 lines 9 points 303
+- > t661 falling O 0,2 1,2 0,3 1,3 after 1 soft 2 next L level 0 lines 9 points 303
+- > t662 falling O 0,3 1,3 0,4 1,4 after 0 soft 3 next L level 0 lines 9 points 303
+- > t663 falling O 0,3 1,3 0,4 1,4 after 1 soft 3 next L level 0 lines 9 points 303
+- > t664 falling O 0,4 1,4 0,5 1,5 after 0 soft 4 next L level 0 lines 9 points 303
+- > t665 falling O 0,4 1,4 0,5 1,5 after 1 soft 4 next L level 0 lines 9 points 303
+- > t666 falling O 0,5 1,5 0,6 1,6 after 0 soft 5 next L level 0 lines 9 points 303
+- > t667 falling O 0,5 1,5 0,6 1,6 after 1 soft 5 next L level 0 lines 9 points 303
+- > t668 falling O 0,6 1,6 0,7 1,7 after 0 soft 6 next L level 0 lines 9 points 303
+- > t669 falling O 0,6 1,6 0,7 1,7 after 1 soft 6 next L level 0 lines 9 points 303
+- > t670 falling O 0,7 1,7 0,8 1,8 after 0 soft 7 next L level 0 lines 9 points 303
+- > t671 falling O 0,7 1,7 0,8 1,8 after 1 soft 7 next L level 0 lines 9 points 303
+- > t672 falling O 0,8 1,8 0,9 1,9 after 0 soft 8 next L level 0 lines 9 points 303
+- > t673 falling O 0,8 1,8 0,9 1,9 after 1 soft 8 next L level 0 lines 9 points 303
+- > t674 falling O 0,9 1,9 0,10 1,10 after 0 soft 9 next L level 0 lines 9 points 303
+- > t675 falling O 0,9 1,9 0,10 1,10 after 1 soft 9 next L level 0 lines 9 points 303
+- > t676 falling O 0,10 1,10 0,11 1,11 after 0 soft 10 next L level 0 lines 9 points 303
+- > t677 falling O 0,10 1,10 0,11 1,11 after 1 soft 10 next L level 0 lines 9 points 303
+- > t678 falling O 0,11 1,11 0,12 1,12 after 0 soft 11 next L level 0 lines 9 points 303
+- > t679 falling O 0,11 1,11 0,12 1,12 after 1 soft 11 next L level 0 lines 9 points 303
+- > t680 falling O 0,12 1,12 0,13 1,13 after 0 soft 12 next L level 0 lines 9 points 303
+- > t681 falling O 0,12 1,12 0,13 1,13 after 1 soft 12 next L level 0 lines 9 points 303
+- > t682 falling O 0,13 1,13 0,14 1,14 after 0 soft 13 next L level 0 lines 9 points 303
+- > t683 falling O 0,13 1,13 0,14 1,14 after 1 soft 13 next L level 0 lines 9 points 303
+- > t684 falling O 0,14 1,14 0,15 1,15 after 0 soft 14 next L level 0 lines 9 points 303
+- > t685 falling O 0,14 1,14 0,15 1,15 after 1 soft 14 next L level 0 lines 9 points 303
+- > t686 falling O 0,15 1,15 0,16 1,16 after 0 soft 15 next L level 0 lines 9 points 303
+- > t687 falling O 0,15 1,15 0,16 1,16 after 1 soft 15 next L level 0 lines 9 points 303
+- > t688 falling O 0,16 1,16 0,17 1,17 after 0 soft 16 next L level 0 lines 9 points 303
+- > t689 falling O 0,16 1,16 0,17 1,17 after 1 soft 16 next L level 0 lines 9 points 303
+- > t690 falling O 0,17 1,17 0,18 1,18 after 0 soft 17 next L level 0 lines 9 points 303
+- > t691 falling O 0,17 1,17 0,18 1,18 after 1 soft 17 next L level 0 lines 9 points 303
+- > t692 entry 12 next L level 0 lines 9 points 320 | locked O 0,17 1,17 0,18 1,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOJJJ.....
+  LLLTJOO...
+- > t693 entry 11 next L level 0 lines 9 points 320
+- > t694 entry 10 next L level 0 lines 9 points 320
+- > t695 entry 9 next L level 0 lines 9 points 320
+- > t696 entry 8 next L level 0 lines 9 points 320
+- > t697 entry 7 next L level 0 lines 9 points 320
+- > t698 entry 6 next L level 0 lines 9 points 320
+- > t699 entry 5 next L level 0 lines 9 points 320
+- > t700 entry 4 next L level 0 lines 9 points 320
+- > t701 entry 3 next L level 0 lines 9 points 320
+- > t702 entry 2 next L level 0 lines 9 points 320
+- > t703 entry 1 next L level 0 lines 9 points 320
+- > t704 falling L 4,0 5,0 6,0 4,1 after 0 next O level 0 lines 9 points 320
+-DOWN +A +RIGHT > t705 falling L 5,-1 6,-1 6,0 6,1 after 1 next O level 0 lines 9 points 320 | rotated L 5,-1 6,-1 6,0 6,1 CLOCKWISE
+-A > t706 falling L 5,-1 6,-1 6,0 6,1 after 2 next O level 0 lines 9 points 320
++A > t707 falling L 7,-1 5,0 6,0 7,0 after 3 next O level 0 lines 9 points 320 | rotated L 7,-1 5,0 6,0 7,0 CLOCKWISE
+-A > t708 falling L 7,-1 5,0 6,0 7,0 after 4 next O level 0 lines 9 points 320
+- > t709 falling L 7,-1 5,0 6,0 7,0 after 5 next O level 0 lines 9 points 320
+- > t710 falling L 7,-1 5,0 6,0 7,0 after 6 next O level 0 lines 9 points 320
+- > t711 falling L 7,-1 5,0 6,0 7,0 after 7 next O level 0 lines 9 points 320
+- > t712 falling L 7,-1 5,0 6,0 7,0 after 8 next O level 0 lines 9 points 320
+- > t713 falling L 7,-1 5,0 6,0 7,0 after 9 next O level 0 lines 9 points 320
+- > t714 falling L 7,-1 5,0 6,0 7,0 after 10 next O level 0 lines 9 points 320
+- > t715 falling L 7,-1 5,0 6,0 7,0 after 11 next O level 0 lines 9 points 320
+- > t716 falling L 7,-1 5,0 6,0 7,0 after 12 next O level 0 lines 9 points 320
+- > t717 falling L 7,-1 5,0 6,0 7,0 after 13 next O level 0 lines 9 points 320
+- > t718 falling L 7,-1 5,0 6,0 7,0 after 14 next O level 0 lines 9 points 320
+- > t719 falling L 7,-1 5,0 6,0 7,0 after 15 next O level 0 lines 9 points 320
+- > t720 falling L 7,-1 5,0 6,0 7,0 after 16 next O level 0 lines 9 points 320
+- > t721 falling L 8,-1 6,0 7,0 8,0 after 17 next O level 0 lines 9 points 320
+- > t722 falling L 8,-1 6,0 7,0 8,0 after 18 next O level 0 lines 9 points 320
+- > t723 falling L 8,-1 6,0 7,0 8,0 after 19 next O level 0 lines 9 points 320
+- > t724 falling L 8,-1 6,0 7,0 8,0 after 20 next O level 0 lines 9 points 320
+- > t725 falling L 8,-1 6,0 7,0 8,0 after 21 next O level 0 lines 9 points 320
+- > t726 falling L 8,-1 6,0 7,0 8,0 after 22 next O level 0 lines 9 points 320
+- > t727 falling L 9,-1 7,0 8,0 9,0 after 23 next O level 0 lines 9 points 320
+-RIGHT +DOWN > t728 falling L 9,-1 7,0 8,0 9,0 after 24 next O level 0 lines 9 points 320
+- > t729 falling L 9,-1 7,0 8,0 9,0 after 25 next O level 0 lines 9 points 320
+- > t730 falling L 9,0 7,1 8,1 9,1 after 0 soft 1 next O level 0 lines 9 points 320
+- > t731 falling L 9,0 7,1 8,1 9,1 after 1 soft 1 next O level 0 lines 9 points 320
+- > t732 falling L 9,1 7,2 8,2 9,2 after 0 soft 2 next O level 0 lines 9 points 320
+- > t733 falling L 9,1 7,2 8,2 9,2 after 1 soft 2 next O level 0 lines 9 points 320
+- > t734 falling L 9,2 7,3 8,3 9,3 after 0 soft 3 next O level 0 lines 9 points 320
+- > t735 falling L 9,2 7,3 8,3 9,3 after 1 soft 3 next O level 0 lines 9 points 320
+- > t736 falling L 9,3 7,4 8,4 9,4 after 0 soft 4 next O level 0 lines 9 points 320
+- > t737 falling L 9,3 7,4 8,4 9,4 after 1 soft 4 next O level 0 lines 9 points 320
+- > t738 falling L 9,4 7,5 8,5 9,5 after 0 soft 5 next O level 0 lines 9 points 320
+- > t739 falling L 9,4 7,5 8,5 9,5 after 1 soft 5 next O level 0 lines 9 points 320
+- > t740 falling L 9,5 7,6 8,6 9,6 after 0 soft 6 next O level 0 lines 9 points 320
+- > t741 falling L 9,5 7,6 8,6 9,6 after 1 soft 6 next O level 0 lines 9 points 320
+- > t742 falling L 9,6 7,7 8,7 9,7 after 0 soft 7 next O level 0 lines 9 points 320
+- > t743 falling L 9,6 7,7 8,7 9,7 after 1 soft 7 next O level 0 lines 9 points 320
+- > t744 falling L 9,7 7,8 8,8 9,8 after 0 soft 8 next O level 0 lines 9 points 320
+- > t745 falling L 9,7 7,8 8,8 9,8 after 1 soft 8 next O level 0 lines 9 points 320
+- > t746 falling L 9,8 7,9 8,9 9,9 after 0 soft 9 next O level 0 lines 9 points 320
+- > t747 falling L 9,8 7,9 8,9 9,9 after 1 soft 9 next O level 0 lines 9 points 320
+- > t748 falling L 9,9 7,10 8,10 9,10 after 0 soft 10 next O level 0 lines 9 points 320
+- > t749 falling L 9,9 7,10 8,10 9,10 after 1 soft 10 next O level 0 lines 9 points 320
+- > t750 falling L 9,10 7,11 8,11 9,11 after 0 soft 11 next O level 0 lines 9 points 320
+- > t751 falling L 9,10 7,11 8,11 9,11 after 1 soft 11 next O level 0 lines 9 points 320
+- > t752 falling L 9,11 7,12 8,12 9,12 after 0 soft 12 next O level 0 lines 9 points 320
+- > t753 falling L 9,11 7,12 8,12 9,12 after 1 soft 12 next O level 0 lines 9 points 320
+- > t754 falling L 9,12 7,13 8,13 9,13 after 0 soft 13 next O level 0 lines 9 points 320
+- > t755 falling L 9,12 7,13 8,13 9,13 after 1 soft 13 next O level 0 lines 9 points 320
+- > t756 falling L 9,13 7,14 8,14 9,14 after 0 soft 14 next O level 0 lines 9 points 320
+- > t757 falling L 9,13 7,14 8,14 9,14 after 1 soft 14 next O level 0 lines 9 points 320
+- > t758 falling L 9,14 7,15 8,15 9,15 after 0 soft 15 next O level 0 lines 9 points 320
+- > t759 falling L 9,14 7,15 8,15 9,15 after 1 soft 15 next O level 0 lines 9 points 320
+- > t760 falling L 9,15 7,16 8,16 9,16 after 0 soft 16 next O level 0 lines 9 points 320
+- > t761 falling L 9,15 7,16 8,16 9,16 after 1 soft 16 next O level 0 lines 9 points 320
+- > t762 falling L 9,16 7,17 8,17 9,17 after 0 soft 17 next O level 0 lines 9 points 320
+- > t763 falling L 9,16 7,17 8,17 9,17 after 1 soft 17 next O level 0 lines 9 points 320
+- > t764 falling L 9,17 7,18 8,18 9,18 after 0 soft 18 next O level 0 lines 9 points 320
+- > t765 falling L 9,17 7,18 8,18 9,18 after 1 soft 18 next O level 0 lines 9 points 320
+- > t766 falling L 9,18 7,19 8,19 9,19 after 0 soft 19 next O level 0 lines 9 points 320
+- > t767 falling L 9,18 7,19 8,19 9,19 after 1 soft 19 next O level 0 lines 9 points 320
+- > t768 clearing rows 19 left 20 then 10 next O level 0 lines 9 points 339 | locked L 9,18 7,19 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOJJJ....L
+  LLLTJOOLLL
+- > t769 clearing rows 19 left 19 then 10 next O level 0 lines 9 points 339
+- > t770 clearing rows 19 left 18 then 10 next O level 0 lines 9 points 339
+- > t771 clearing rows 19 left 17 then 10 next O level 0 lines 9 points 339
+- > t772 clearing rows 19 left 16 then 10 next O level 0 lines 9 points 339
+- > t773 clearing rows 19 left 15 then 10 next O level 0 lines 9 points 339
+- > t774 clearing rows 19 left 14 then 10 next O level 0 lines 9 points 339
+- > t775 clearing rows 19 left 13 then 10 next O level 0 lines 9 points 339
+- > t776 clearing rows 19 left 12 then 10 next O level 0 lines 9 points 339
+- > t777 clearing rows 19 left 11 then 10 next O level 0 lines 9 points 339
+- > t778 clearing rows 19 left 10 then 10 next O level 0 lines 9 points 339
+- > t779 clearing rows 19 left 9 then 10 next O level 0 lines 9 points 339
+- > t780 clearing rows 19 left 8 then 10 next O level 0 lines 9 points 339
+- > t781 clearing rows 19 left 7 then 10 next O level 0 lines 9 points 339
+- > t782 clearing rows 19 left 6 then 10 next O level 0 lines 9 points 339
+- > t783 clearing rows 19 left 5 then 10 next O level 0 lines 9 points 339
+- > t784 clearing rows 19 left 4 then 10 next O level 0 lines 9 points 339
+- > t785 clearing rows 19 left 3 then 10 next O level 0 lines 9 points 339
+- > t786 clearing rows 19 left 2 then 10 next O level 0 lines 9 points 339
+- > t787 clearing rows 19 left 1 then 10 next O level 0 lines 9 points 339
+- > t788 entry 10 next O level 1 lines 10 points 419 | cleared 1; level-up 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOJJJ....L
+- > t789 entry 9 next O level 1 lines 10 points 419
+- > t790 entry 8 next O level 1 lines 10 points 419
+- > t791 entry 7 next O level 1 lines 10 points 419
+- > t792 entry 6 next O level 1 lines 10 points 419
+- > t793 entry 5 next O level 1 lines 10 points 419
+- > t794 entry 4 next O level 1 lines 10 points 419
+- > t795 entry 3 next O level 1 lines 10 points 419
+- > t796 entry 2 next O level 1 lines 10 points 419
+- > t797 entry 1 next O level 1 lines 10 points 419
+- > t798 falling O 4,0 5,0 4,1 5,1 after 0 next I level 1 lines 10 points 419
+-DOWN +LEFT > t799 falling O 3,0 4,0 3,1 4,1 after 1 next I level 1 lines 10 points 419
+-LEFT > t800 falling O 3,0 4,0 3,1 4,1 after 2 next I level 1 lines 10 points 419
++LEFT > t801 falling O 2,0 3,0 2,1 3,1 after 3 next I level 1 lines 10 points 419
+-LEFT +DOWN > t802 falling O 2,0 3,0 2,1 3,1 after 4 next I level 1 lines 10 points 419
+- > t803 falling O 2,0 3,0 2,1 3,1 after 5 next I level 1 lines 10 points 419
+- > t804 falling O 2,1 3,1 2,2 3,2 after 0 soft 1 next I level 1 lines 10 points 419
+- > t805 falling O 2,1 3,1 2,2 3,2 after 1 soft 1 next I level 1 lines 10 points 419
+- > t806 falling O 2,2 3,2 2,3 3,3 after 0 soft 2 next I level 1 lines 10 points 419
+- > t807 falling O 2,2 3,2 2,3 3,3 after 1 soft 2 next I level 1 lines 10 points 419
+- > t808 falling O 2,3 3,3 2,4 3,4 after 0 soft 3 next I level 1 lines 10 points 419
+- > t809 falling O 2,3 3,3 2,4 3,4 after 1 soft 3 next I level 1 lines 10 points 419
+- > t810 falling O 2,4 3,4 2,5 3,5 after 0 soft 4 next I level 1 lines 10 points 419
+- > t811 falling O 2,4 3,4 2,5 3,5 after 1 soft 4 next I level 1 lines 10 points 419
+- > t812 falling O 2,5 3,5 2,6 3,6 after 0 soft 5 next I level 1 lines 10 points 419
+- > t813 falling O 2,5 3,5 2,6 3,6 after 1 soft 5 next I level 1 lines 10 points 419
+- > t814 falling O 2,6 3,6 2,7 3,7 after 0 soft 6 next I level 1 lines 10 points 419
+- > t815 falling O 2,6 3,6 2,7 3,7 after 1 soft 6 next I level 1 lines 10 points 419
+- > t816 falling O 2,7 3,7 2,8 3,8 after 0 soft 7 next I level 1 lines 10 points 419
+- > t817 falling O 2,7 3,7 2,8 3,8 after 1 soft 7 next I level 1 lines 10 points 419
+- > t818 falling O 2,8 3,8 2,9 3,9 after 0 soft 8 next I level 1 lines 10 points 419
+- > t819 falling O 2,8 3,8 2,9 3,9 after 1 soft 8 next I level 1 lines 10 points 419
+- > t820 falling O 2,9 3,9 2,10 3,10 after 0 soft 9 next I level 1 lines 10 points 419
+- > t821 falling O 2,9 3,9 2,10 3,10 after 1 soft 9 next I level 1 lines 10 points 419
+- > t822 falling O 2,10 3,10 2,11 3,11 after 0 soft 10 next I level 1 lines 10 points 419
+- > t823 falling O 2,10 3,10 2,11 3,11 after 1 soft 10 next I level 1 lines 10 points 419
+- > t824 falling O 2,11 3,11 2,12 3,12 after 0 soft 11 next I level 1 lines 10 points 419
+- > t825 falling O 2,11 3,11 2,12 3,12 after 1 soft 11 next I level 1 lines 10 points 419
+- > t826 falling O 2,12 3,12 2,13 3,13 after 0 soft 12 next I level 1 lines 10 points 419
+- > t827 falling O 2,12 3,12 2,13 3,13 after 1 soft 12 next I level 1 lines 10 points 419
+- > t828 falling O 2,13 3,13 2,14 3,14 after 0 soft 13 next I level 1 lines 10 points 419
+- > t829 falling O 2,13 3,13 2,14 3,14 after 1 soft 13 next I level 1 lines 10 points 419
+- > t830 falling O 2,14 3,14 2,15 3,15 after 0 soft 14 next I level 1 lines 10 points 419
+- > t831 falling O 2,14 3,14 2,15 3,15 after 1 soft 14 next I level 1 lines 10 points 419
+- > t832 falling O 2,15 3,15 2,16 3,16 after 0 soft 15 next I level 1 lines 10 points 419
+- > t833 falling O 2,15 3,15 2,16 3,16 after 1 soft 15 next I level 1 lines 10 points 419
+- > t834 falling O 2,16 3,16 2,17 3,17 after 0 soft 16 next I level 1 lines 10 points 419
+- > t835 falling O 2,16 3,16 2,17 3,17 after 1 soft 16 next I level 1 lines 10 points 419
+- > t836 falling O 2,17 3,17 2,18 3,18 after 0 soft 17 next I level 1 lines 10 points 419
+- > t837 falling O 2,17 3,17 2,18 3,18 after 1 soft 17 next I level 1 lines 10 points 419
+- > t838 entry 12 next I level 1 lines 10 points 436 | locked O 2,17 3,17 2,18 3,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..OO......
+  OOOO......
+  OOJJJ....L
+- > t839 entry 11 next I level 1 lines 10 points 436
+- > t840 entry 10 next I level 1 lines 10 points 436
+- > t841 entry 9 next I level 1 lines 10 points 436
+- > t842 entry 8 next I level 1 lines 10 points 436
+- > t843 entry 7 next I level 1 lines 10 points 436
+- > t844 entry 6 next I level 1 lines 10 points 436
+- > t845 entry 5 next I level 1 lines 10 points 436
+- > t846 entry 4 next I level 1 lines 10 points 436
+- > t847 entry 3 next I level 1 lines 10 points 436
+- > t848 entry 2 next I level 1 lines 10 points 436
+- > t849 entry 1 next I level 1 lines 10 points 436
+- > t850 falling I 3,0 4,0 5,0 6,0 after 0 next L level 1 lines 10 points 436
+-DOWN +A +RIGHT > t851 falling I 6,-2 6,-1 6,0 6,1 after 1 next L level 1 lines 10 points 436 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A > t852 falling I 6,-2 6,-1 6,0 6,1 after 2 next L level 1 lines 10 points 436
++A > t853 falling I 4,0 5,0 6,0 7,0 after 3 next L level 1 lines 10 points 436 | rotated I 4,0 5,0 6,0 7,0 CLOCKWISE
+-A > t854 falling I 4,0 5,0 6,0 7,0 after 4 next L level 1 lines 10 points 436
+- > t855 falling I 4,0 5,0 6,0 7,0 after 5 next L level 1 lines 10 points 436
+- > t856 falling I 4,0 5,0 6,0 7,0 after 6 next L level 1 lines 10 points 436
+- > t857 falling I 4,0 5,0 6,0 7,0 after 7 next L level 1 lines 10 points 436
+- > t858 falling I 4,0 5,0 6,0 7,0 after 8 next L level 1 lines 10 points 436
+- > t859 falling I 4,0 5,0 6,0 7,0 after 9 next L level 1 lines 10 points 436
+- > t860 falling I 4,0 5,0 6,0 7,0 after 10 next L level 1 lines 10 points 436
+- > t861 falling I 4,0 5,0 6,0 7,0 after 11 next L level 1 lines 10 points 436
+- > t862 falling I 4,0 5,0 6,0 7,0 after 12 next L level 1 lines 10 points 436
+- > t863 falling I 4,0 5,0 6,0 7,0 after 13 next L level 1 lines 10 points 436
+- > t864 falling I 4,0 5,0 6,0 7,0 after 14 next L level 1 lines 10 points 436
+- > t865 falling I 4,0 5,0 6,0 7,0 after 15 next L level 1 lines 10 points 436
+- > t866 falling I 4,0 5,0 6,0 7,0 after 16 next L level 1 lines 10 points 436
+- > t867 falling I 5,0 6,0 7,0 8,0 after 17 next L level 1 lines 10 points 436
+-RIGHT +DOWN > t868 falling I 5,0 6,0 7,0 8,0 after 18 next L level 1 lines 10 points 436
+- > t869 falling I 5,0 6,0 7,0 8,0 after 19 next L level 1 lines 10 points 436
+- > t870 falling I 5,1 6,1 7,1 8,1 after 0 soft 1 next L level 1 lines 10 points 436
+- > t871 falling I 5,1 6,1 7,1 8,1 after 1 soft 1 next L level 1 lines 10 points 436
+- > t872 falling I 5,2 6,2 7,2 8,2 after 0 soft 2 next L level 1 lines 10 points 436
+- > t873 falling I 5,2 6,2 7,2 8,2 after 1 soft 2 next L level 1 lines 10 points 436
+- > t874 falling I 5,3 6,3 7,3 8,3 after 0 soft 3 next L level 1 lines 10 points 436
+- > t875 falling I 5,3 6,3 7,3 8,3 after 1 soft 3 next L level 1 lines 10 points 436
+- > t876 falling I 5,4 6,4 7,4 8,4 after 0 soft 4 next L level 1 lines 10 points 436
+- > t877 falling I 5,4 6,4 7,4 8,4 after 1 soft 4 next L level 1 lines 10 points 436
+- > t878 falling I 5,5 6,5 7,5 8,5 after 0 soft 5 next L level 1 lines 10 points 436
+- > t879 falling I 5,5 6,5 7,5 8,5 after 1 soft 5 next L level 1 lines 10 points 436
+- > t880 falling I 5,6 6,6 7,6 8,6 after 0 soft 6 next L level 1 lines 10 points 436
+- > t881 falling I 5,6 6,6 7,6 8,6 after 1 soft 6 next L level 1 lines 10 points 436
+- > t882 falling I 5,7 6,7 7,7 8,7 after 0 soft 7 next L level 1 lines 10 points 436
+- > t883 falling I 5,7 6,7 7,7 8,7 after 1 soft 7 next L level 1 lines 10 points 436
+- > t884 falling I 5,8 6,8 7,8 8,8 after 0 soft 8 next L level 1 lines 10 points 436
+- > t885 falling I 5,8 6,8 7,8 8,8 after 1 soft 8 next L level 1 lines 10 points 436
+- > t886 falling I 5,9 6,9 7,9 8,9 after 0 soft 9 next L level 1 lines 10 points 436
+- > t887 falling I 5,9 6,9 7,9 8,9 after 1 soft 9 next L level 1 lines 10 points 436
+- > t888 falling I 5,10 6,10 7,10 8,10 after 0 soft 10 next L level 1 lines 10 points 436
+- > t889 falling I 5,10 6,10 7,10 8,10 after 1 soft 10 next L level 1 lines 10 points 436
+- > t890 falling I 5,11 6,11 7,11 8,11 after 0 soft 11 next L level 1 lines 10 points 436
+- > t891 falling I 5,11 6,11 7,11 8,11 after 1 soft 11 next L level 1 lines 10 points 436
+- > t892 falling I 5,12 6,12 7,12 8,12 after 0 soft 12 next L level 1 lines 10 points 436
+- > t893 falling I 5,12 6,12 7,12 8,12 after 1 soft 12 next L level 1 lines 10 points 436
+- > t894 falling I 5,13 6,13 7,13 8,13 after 0 soft 13 next L level 1 lines 10 points 436
+- > t895 falling I 5,13 6,13 7,13 8,13 after 1 soft 13 next L level 1 lines 10 points 436
+- > t896 falling I 5,14 6,14 7,14 8,14 after 0 soft 14 next L level 1 lines 10 points 436
+- > t897 falling I 5,14 6,14 7,14 8,14 after 1 soft 14 next L level 1 lines 10 points 436
+- > t898 falling I 5,15 6,15 7,15 8,15 after 0 soft 15 next L level 1 lines 10 points 436
+- > t899 falling I 5,15 6,15 7,15 8,15 after 1 soft 15 next L level 1 lines 10 points 436
+- > t900 falling I 5,16 6,16 7,16 8,16 after 0 soft 16 next L level 1 lines 10 points 436
+- > t901 falling I 5,16 6,16 7,16 8,16 after 1 soft 16 next L level 1 lines 10 points 436
+- > t902 falling I 5,17 6,17 7,17 8,17 after 0 soft 17 next L level 1 lines 10 points 436
+- > t903 falling I 5,17 6,17 7,17 8,17 after 1 soft 17 next L level 1 lines 10 points 436
+- > t904 falling I 5,18 6,18 7,18 8,18 after 0 soft 18 next L level 1 lines 10 points 436
+- > t905 falling I 5,18 6,18 7,18 8,18 after 1 soft 18 next L level 1 lines 10 points 436
+- > t906 falling I 5,19 6,19 7,19 8,19 after 0 soft 19 next L level 1 lines 10 points 436
+- > t907 falling I 5,19 6,19 7,19 8,19 after 1 soft 19 next L level 1 lines 10 points 436
+- > t908 clearing rows 19 left 20 then 10 next L level 1 lines 10 points 455 | locked I 5,19 6,19 7,19 8,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..OO......
+  OOOO......
+  OOJJJIIIIL
+- > t909 clearing rows 19 left 19 then 10 next L level 1 lines 10 points 455
+- > t910 clearing rows 19 left 18 then 10 next L level 1 lines 10 points 455
+- > t911 clearing rows 19 left 17 then 10 next L level 1 lines 10 points 455
+- > t912 clearing rows 19 left 16 then 10 next L level 1 lines 10 points 455
+- > t913 clearing rows 19 left 15 then 10 next L level 1 lines 10 points 455
+- > t914 clearing rows 19 left 14 then 10 next L level 1 lines 10 points 455
+- > t915 clearing rows 19 left 13 then 10 next L level 1 lines 10 points 455
+- > t916 clearing rows 19 left 12 then 10 next L level 1 lines 10 points 455
+- > t917 clearing rows 19 left 11 then 10 next L level 1 lines 10 points 455
+- > t918 clearing rows 19 left 10 then 10 next L level 1 lines 10 points 455
+- > t919 clearing rows 19 left 9 then 10 next L level 1 lines 10 points 455
+- > t920 clearing rows 19 left 8 then 10 next L level 1 lines 10 points 455
+- > t921 clearing rows 19 left 7 then 10 next L level 1 lines 10 points 455
+- > t922 clearing rows 19 left 6 then 10 next L level 1 lines 10 points 455
+- > t923 clearing rows 19 left 5 then 10 next L level 1 lines 10 points 455
+- > t924 clearing rows 19 left 4 then 10 next L level 1 lines 10 points 455
+- > t925 clearing rows 19 left 3 then 10 next L level 1 lines 10 points 455
+- > t926 clearing rows 19 left 2 then 10 next L level 1 lines 10 points 455
+- > t927 clearing rows 19 left 1 then 10 next L level 1 lines 10 points 455
+- > t928 entry 10 next L level 1 lines 11 points 535 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..OO......
+  OOOO......
+- > t929 entry 9 next L level 1 lines 11 points 535
+- > t930 entry 8 next L level 1 lines 11 points 535
+- > t931 entry 7 next L level 1 lines 11 points 535
+- > t932 entry 6 next L level 1 lines 11 points 535
+- > t933 entry 5 next L level 1 lines 11 points 535
+- > t934 entry 4 next L level 1 lines 11 points 535
+- > t935 entry 3 next L level 1 lines 11 points 535
+- > t936 entry 2 next L level 1 lines 11 points 535
+- > t937 entry 1 next L level 1 lines 11 points 535
+- > t938 falling L 4,0 5,0 6,0 4,1 after 0 next J level 1 lines 11 points 535
+-DOWN +A +LEFT > t939 falling L 3,-1 4,-1 4,0 4,1 after 1 next J level 1 lines 11 points 535 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t940 falling L 3,-1 4,-1 4,0 4,1 after 2 next J level 1 lines 11 points 535
++A +LEFT > t941 falling L 4,-1 2,0 3,0 4,0 after 3 next J level 1 lines 11 points 535 | rotated L 4,-1 2,0 3,0 4,0 CLOCKWISE
+-A -LEFT > t942 falling L 4,-1 2,0 3,0 4,0 after 4 next J level 1 lines 11 points 535
++A +LEFT > t943 falling L 2,-1 2,0 2,1 3,1 after 5 next J level 1 lines 11 points 535 | rotated L 2,-1 2,0 2,1 3,1 CLOCKWISE
+-A -LEFT > t944 falling L 2,-1 2,0 2,1 3,1 after 6 next J level 1 lines 11 points 535
++LEFT > t945 falling L 1,-1 1,0 1,1 2,1 after 7 next J level 1 lines 11 points 535
+-LEFT > t946 falling L 1,-1 1,0 1,1 2,1 after 8 next J level 1 lines 11 points 535
++LEFT > t947 falling L 0,-1 0,0 0,1 1,1 after 9 next J level 1 lines 11 points 535
+-LEFT +DOWN > t948 falling L 0,-1 0,0 0,1 1,1 after 10 next J level 1 lines 11 points 535
+- > t949 falling L 0,-1 0,0 0,1 1,1 after 11 next J level 1 lines 11 points 535
+- > t950 falling L 0,0 0,1 0,2 1,2 after 0 soft 1 next J level 1 lines 11 points 535
+- > t951 falling L 0,0 0,1 0,2 1,2 after 1 soft 1 next J level 1 lines 11 points 535
+- > t952 falling L 0,1 0,2 0,3 1,3 after 0 soft 2 next J level 1 lines 11 points 535
+- > t953 falling L 0,1 0,2 0,3 1,3 after 1 soft 2 next J level 1 lines 11 points 535
+- > t954 falling L 0,2 0,3 0,4 1,4 after 0 soft 3 next J level 1 lines 11 points 535
+- > t955 falling L 0,2 0,3 0,4 1,4 after 1 soft 3 next J level 1 lines 11 points 535
+- > t956 falling L 0,3 0,4 0,5 1,5 after 0 soft 4 next J level 1 lines 11 points 535
+- > t957 falling L 0,3 0,4 0,5 1,5 after 1 soft 4 next J level 1 lines 11 points 535
+- > t958 falling L 0,4 0,5 0,6 1,6 after 0 soft 5 next J level 1 lines 11 points 535
+- > t959 falling L 0,4 0,5 0,6 1,6 after 1 soft 5 next J level 1 lines 11 points 535
+- > t960 falling L 0,5 0,6 0,7 1,7 after 0 soft 6 next J level 1 lines 11 points 535
+- > t961 falling L 0,5 0,6 0,7 1,7 after 1 soft 6 next J level 1 lines 11 points 535
+- > t962 falling L 0,6 0,7 0,8 1,8 after 0 soft 7 next J level 1 lines 11 points 535
+- > t963 falling L 0,6 0,7 0,8 1,8 after 1 soft 7 next J level 1 lines 11 points 535
+- > t964 falling L 0,7 0,8 0,9 1,9 after 0 soft 8 next J level 1 lines 11 points 535
+- > t965 falling L 0,7 0,8 0,9 1,9 after 1 soft 8 next J level 1 lines 11 points 535
+- > t966 falling L 0,8 0,9 0,10 1,10 after 0 soft 9 next J level 1 lines 11 points 535
+- > t967 falling L 0,8 0,9 0,10 1,10 after 1 soft 9 next J level 1 lines 11 points 535
+- > t968 falling L 0,9 0,10 0,11 1,11 after 0 soft 10 next J level 1 lines 11 points 535
+- > t969 falling L 0,9 0,10 0,11 1,11 after 1 soft 10 next J level 1 lines 11 points 535
+- > t970 falling L 0,10 0,11 0,12 1,12 after 0 soft 11 next J level 1 lines 11 points 535
+- > t971 falling L 0,10 0,11 0,12 1,12 after 1 soft 11 next J level 1 lines 11 points 535
+- > t972 falling L 0,11 0,12 0,13 1,13 after 0 soft 12 next J level 1 lines 11 points 535
+- > t973 falling L 0,11 0,12 0,13 1,13 after 1 soft 12 next J level 1 lines 11 points 535
+- > t974 falling L 0,12 0,13 0,14 1,14 after 0 soft 13 next J level 1 lines 11 points 535
+- > t975 falling L 0,12 0,13 0,14 1,14 after 1 soft 13 next J level 1 lines 11 points 535
+- > t976 falling L 0,13 0,14 0,15 1,15 after 0 soft 14 next J level 1 lines 11 points 535
+- > t977 falling L 0,13 0,14 0,15 1,15 after 1 soft 14 next J level 1 lines 11 points 535
+- > t978 falling L 0,14 0,15 0,16 1,16 after 0 soft 15 next J level 1 lines 11 points 535
+- > t979 falling L 0,14 0,15 0,16 1,16 after 1 soft 15 next J level 1 lines 11 points 535
+- > t980 falling L 0,15 0,16 0,17 1,17 after 0 soft 16 next J level 1 lines 11 points 535
+- > t981 falling L 0,15 0,16 0,17 1,17 after 1 soft 16 next J level 1 lines 11 points 535
+- > t982 falling L 0,16 0,17 0,18 1,18 after 0 soft 17 next J level 1 lines 11 points 535
+- > t983 falling L 0,16 0,17 0,18 1,18 after 1 soft 17 next J level 1 lines 11 points 535
+- > t984 entry 12 next J level 1 lines 11 points 552 | locked L 0,16 0,17 0,18 1,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  L.........
+  L.........
+  LLOO......
+  OOOO......
+- > t985 entry 11 next J level 1 lines 11 points 552
+- > t986 entry 10 next J level 1 lines 11 points 552
+- > t987 entry 9 next J level 1 lines 11 points 552
+- > t988 entry 8 next J level 1 lines 11 points 552
+- > t989 entry 7 next J level 1 lines 11 points 552
+- > t990 entry 6 next J level 1 lines 11 points 552
+- > t991 entry 5 next J level 1 lines 11 points 552
+- > t992 entry 4 next J level 1 lines 11 points 552
+- > t993 entry 3 next J level 1 lines 11 points 552
+- > t994 entry 2 next J level 1 lines 11 points 552
+- > t995 entry 1 next J level 1 lines 11 points 552
+- > t996 falling J 4,0 5,0 6,0 6,1 after 0 next Z level 1 lines 11 points 552
+-DOWN +A +LEFT > t997 falling J 4,-1 4,0 3,1 4,1 after 1 next Z level 1 lines 11 points 552 | rotated J 4,-1 4,0 3,1 4,1 CLOCKWISE
+-A -LEFT > t998 falling J 4,-1 4,0 3,1 4,1 after 2 next Z level 1 lines 11 points 552
++A +LEFT > t999 falling J 2,-1 2,0 3,0 4,0 after 3 next Z level 1 lines 11 points 552 | rotated J 2,-1 2,0 3,0 4,0 CLOCKWISE
+-A -LEFT > t1000 falling J 2,-1 2,0 3,0 4,0 after 4 next Z level 1 lines 11 points 552
++LEFT > t1001 falling J 1,-1 1,0 2,0 3,0 after 5 next Z level 1 lines 11 points 552
+-LEFT +DOWN > t1002 falling J 1,-1 1,0 2,0 3,0 after 6 next Z level 1 lines 11 points 552
+- > t1003 falling J 1,-1 1,0 2,0 3,0 after 7 next Z level 1 lines 11 points 552
+- > t1004 falling J 1,0 1,1 2,1 3,1 after 0 soft 1 next Z level 1 lines 11 points 552
+- > t1005 falling J 1,0 1,1 2,1 3,1 after 1 soft 1 next Z level 1 lines 11 points 552
+- > t1006 falling J 1,1 1,2 2,2 3,2 after 0 soft 2 next Z level 1 lines 11 points 552
+- > t1007 falling J 1,1 1,2 2,2 3,2 after 1 soft 2 next Z level 1 lines 11 points 552
+- > t1008 falling J 1,2 1,3 2,3 3,3 after 0 soft 3 next Z level 1 lines 11 points 552
+- > t1009 falling J 1,2 1,3 2,3 3,3 after 1 soft 3 next Z level 1 lines 11 points 552
+- > t1010 falling J 1,3 1,4 2,4 3,4 after 0 soft 4 next Z level 1 lines 11 points 552
+- > t1011 falling J 1,3 1,4 2,4 3,4 after 1 soft 4 next Z level 1 lines 11 points 552
+- > t1012 falling J 1,4 1,5 2,5 3,5 after 0 soft 5 next Z level 1 lines 11 points 552
+- > t1013 falling J 1,4 1,5 2,5 3,5 after 1 soft 5 next Z level 1 lines 11 points 552
+- > t1014 falling J 1,5 1,6 2,6 3,6 after 0 soft 6 next Z level 1 lines 11 points 552
+- > t1015 falling J 1,5 1,6 2,6 3,6 after 1 soft 6 next Z level 1 lines 11 points 552
+- > t1016 falling J 1,6 1,7 2,7 3,7 after 0 soft 7 next Z level 1 lines 11 points 552
+- > t1017 falling J 1,6 1,7 2,7 3,7 after 1 soft 7 next Z level 1 lines 11 points 552
+- > t1018 falling J 1,7 1,8 2,8 3,8 after 0 soft 8 next Z level 1 lines 11 points 552
+- > t1019 falling J 1,7 1,8 2,8 3,8 after 1 soft 8 next Z level 1 lines 11 points 552
+- > t1020 falling J 1,8 1,9 2,9 3,9 after 0 soft 9 next Z level 1 lines 11 points 552
+- > t1021 falling J 1,8 1,9 2,9 3,9 after 1 soft 9 next Z level 1 lines 11 points 552
+- > t1022 falling J 1,9 1,10 2,10 3,10 after 0 soft 10 next Z level 1 lines 11 points 552
+- > t1023 falling J 1,9 1,10 2,10 3,10 after 1 soft 10 next Z level 1 lines 11 points 552
+- > t1024 falling J 1,10 1,11 2,11 3,11 after 0 soft 11 next Z level 1 lines 11 points 552
+- > t1025 falling J 1,10 1,11 2,11 3,11 after 1 soft 11 next Z level 1 lines 11 points 552
+- > t1026 falling J 1,11 1,12 2,12 3,12 after 0 soft 12 next Z level 1 lines 11 points 552
+- > t1027 falling J 1,11 1,12 2,12 3,12 after 1 soft 12 next Z level 1 lines 11 points 552
+- > t1028 falling J 1,12 1,13 2,13 3,13 after 0 soft 13 next Z level 1 lines 11 points 552
+- > t1029 falling J 1,12 1,13 2,13 3,13 after 1 soft 13 next Z level 1 lines 11 points 552
+- > t1030 falling J 1,13 1,14 2,14 3,14 after 0 soft 14 next Z level 1 lines 11 points 552
+- > t1031 falling J 1,13 1,14 2,14 3,14 after 1 soft 14 next Z level 1 lines 11 points 552
+- > t1032 falling J 1,14 1,15 2,15 3,15 after 0 soft 15 next Z level 1 lines 11 points 552
+- > t1033 falling J 1,14 1,15 2,15 3,15 after 1 soft 15 next Z level 1 lines 11 points 552
+- > t1034 falling J 1,15 1,16 2,16 3,16 after 0 soft 16 next Z level 1 lines 11 points 552
+- > t1035 falling J 1,15 1,16 2,16 3,16 after 1 soft 16 next Z level 1 lines 11 points 552
+- > t1036 falling J 1,16 1,17 2,17 3,17 after 0 soft 17 next Z level 1 lines 11 points 552
+- > t1037 falling J 1,16 1,17 2,17 3,17 after 1 soft 17 next Z level 1 lines 11 points 552
+- > t1038 entry 12 next Z level 1 lines 11 points 569 | locked J 1,16 1,17 2,17 3,17
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LJ........
+  LJJJ......
+  LLOO......
+  OOOO......
+- > t1039 entry 11 next Z level 1 lines 11 points 569
+- > t1040 entry 10 next Z level 1 lines 11 points 569
+- > t1041 entry 9 next Z level 1 lines 11 points 569
+- > t1042 entry 8 next Z level 1 lines 11 points 569
+- > t1043 entry 7 next Z level 1 lines 11 points 569
+- > t1044 entry 6 next Z level 1 lines 11 points 569
+- > t1045 entry 5 next Z level 1 lines 11 points 569
+- > t1046 entry 4 next Z level 1 lines 11 points 569
+- > t1047 entry 3 next Z level 1 lines 11 points 569
+- > t1048 entry 2 next Z level 1 lines 11 points 569
+- > t1049 entry 1 next Z level 1 lines 11 points 569
+- > t1050 falling Z 4,0 5,0 5,1 6,1 after 0 next I level 1 lines 11 points 569
+-DOWN +LEFT > t1051 falling Z 3,0 4,0 4,1 5,1 after 1 next I level 1 lines 11 points 569
+-LEFT > t1052 falling Z 3,0 4,0 4,1 5,1 after 2 next I level 1 lines 11 points 569
++LEFT > t1053 falling Z 2,0 3,0 3,1 4,1 after 3 next I level 1 lines 11 points 569
+-LEFT > t1054 falling Z 2,0 3,0 3,1 4,1 after 4 next I level 1 lines 11 points 569
++LEFT > t1055 falling Z 1,0 2,0 2,1 3,1 after 5 next I level 1 lines 11 points 569
+-LEFT +DOWN > t1056 falling Z 1,0 2,0 2,1 3,1 after 6 next I level 1 lines 11 points 569
+- > t1057 falling Z 1,0 2,0 2,1 3,1 after 7 next I level 1 lines 11 points 569
+- > t1058 falling Z 1,1 2,1 2,2 3,2 after 0 soft 1 next I level 1 lines 11 points 569
+- > t1059 falling Z 1,1 2,1 2,2 3,2 after 1 soft 1 next I level 1 lines 11 points 569
+- > t1060 falling Z 1,2 2,2 2,3 3,3 after 0 soft 2 next I level 1 lines 11 points 569
+- > t1061 falling Z 1,2 2,2 2,3 3,3 after 1 soft 2 next I level 1 lines 11 points 569
+- > t1062 falling Z 1,3 2,3 2,4 3,4 after 0 soft 3 next I level 1 lines 11 points 569
+- > t1063 falling Z 1,3 2,3 2,4 3,4 after 1 soft 3 next I level 1 lines 11 points 569
+- > t1064 falling Z 1,4 2,4 2,5 3,5 after 0 soft 4 next I level 1 lines 11 points 569
+- > t1065 falling Z 1,4 2,4 2,5 3,5 after 1 soft 4 next I level 1 lines 11 points 569
+- > t1066 falling Z 1,5 2,5 2,6 3,6 after 0 soft 5 next I level 1 lines 11 points 569
+- > t1067 falling Z 1,5 2,5 2,6 3,6 after 1 soft 5 next I level 1 lines 11 points 569
+- > t1068 falling Z 1,6 2,6 2,7 3,7 after 0 soft 6 next I level 1 lines 11 points 569
+- > t1069 falling Z 1,6 2,6 2,7 3,7 after 1 soft 6 next I level 1 lines 11 points 569
+- > t1070 falling Z 1,7 2,7 2,8 3,8 after 0 soft 7 next I level 1 lines 11 points 569
+- > t1071 falling Z 1,7 2,7 2,8 3,8 after 1 soft 7 next I level 1 lines 11 points 569
+- > t1072 falling Z 1,8 2,8 2,9 3,9 after 0 soft 8 next I level 1 lines 11 points 569
+- > t1073 falling Z 1,8 2,8 2,9 3,9 after 1 soft 8 next I level 1 lines 11 points 569
+- > t1074 falling Z 1,9 2,9 2,10 3,10 after 0 soft 9 next I level 1 lines 11 points 569
+- > t1075 falling Z 1,9 2,9 2,10 3,10 after 1 soft 9 next I level 1 lines 11 points 569
+- > t1076 falling Z 1,10 2,10 2,11 3,11 after 0 soft 10 next I level 1 lines 11 points 569
+- > t1077 falling Z 1,10 2,10 2,11 3,11 after 1 soft 10 next I level 1 lines 11 points 569
+- > t1078 falling Z 1,11 2,11 2,12 3,12 after 0 soft 11 next I level 1 lines 11 points 569
+- > t1079 falling Z 1,11 2,11 2,12 3,12 after 1 soft 11 next I level 1 lines 11 points 569
+- > t1080 falling Z 1,12 2,12 2,13 3,13 after 0 soft 12 next I level 1 lines 11 points 569
+- > t1081 falling Z 1,12 2,12 2,13 3,13 after 1 soft 12 next I level 1 lines 11 points 569
+- > t1082 falling Z 1,13 2,13 2,14 3,14 after 0 soft 13 next I level 1 lines 11 points 569
+- > t1083 falling Z 1,13 2,13 2,14 3,14 after 1 soft 13 next I level 1 lines 11 points 569
+- > t1084 falling Z 1,14 2,14 2,15 3,15 after 0 soft 14 next I level 1 lines 11 points 569
+- > t1085 falling Z 1,14 2,14 2,15 3,15 after 1 soft 14 next I level 1 lines 11 points 569
+- > t1086 falling Z 1,15 2,15 2,16 3,16 after 0 soft 15 next I level 1 lines 11 points 569
+- > t1087 falling Z 1,15 2,15 2,16 3,16 after 1 soft 15 next I level 1 lines 11 points 569
+- > t1088 entry 12 next I level 1 lines 11 points 584 | locked Z 1,15 2,15 2,16 3,16
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .ZZ.......
+  LJZZ......
+  LJJJ......
+  LLOO......
+  OOOO......
+- > t1089 entry 11 next I level 1 lines 11 points 584
+- > t1090 entry 10 next I level 1 lines 11 points 584
+- > t1091 entry 9 next I level 1 lines 11 points 584
+- > t1092 entry 8 next I level 1 lines 11 points 584
+- > t1093 entry 7 next I level 1 lines 11 points 584
+- > t1094 entry 6 next I level 1 lines 11 points 584
+- > t1095 entry 5 next I level 1 lines 11 points 584
+- > t1096 entry 4 next I level 1 lines 11 points 584
+- > t1097 entry 3 next I level 1 lines 11 points 584
+- > t1098 entry 2 next I level 1 lines 11 points 584
+- > t1099 entry 1 next I level 1 lines 11 points 584
+- > t1100 falling I 3,0 4,0 5,0 6,0 after 0 next O level 1 lines 11 points 584
+-DOWN +A +RIGHT > t1101 falling I 6,-2 6,-1 6,0 6,1 after 1 next O level 1 lines 11 points 584 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t1102 falling I 6,-2 6,-1 6,0 6,1 after 2 next O level 1 lines 11 points 584
++A +DOWN > t1103 falling I 4,0 5,0 6,0 7,0 after 3 next O level 1 lines 11 points 584 | rotated I 4,0 5,0 6,0 7,0 CLOCKWISE
+-A > t1104 falling I 4,0 5,0 6,0 7,0 after 4 next O level 1 lines 11 points 584
+- > t1105 falling I 4,1 5,1 6,1 7,1 after 0 soft 1 next O level 1 lines 11 points 584
+- > t1106 falling I 4,1 5,1 6,1 7,1 after 1 soft 1 next O level 1 lines 11 points 584
+- > t1107 falling I 4,2 5,2 6,2 7,2 after 0 soft 2 next O level 1 lines 11 points 584
+- > t1108 falling I 4,2 5,2 6,2 7,2 after 1 soft 2 next O level 1 lines 11 points 584
+- > t1109 falling I 4,3 5,3 6,3 7,3 after 0 soft 3 next O level 1 lines 11 points 584
+- > t1110 falling I 4,3 5,3 6,3 7,3 after 1 soft 3 next O level 1 lines 11 points 584
+- > t1111 falling I 4,4 5,4 6,4 7,4 after 0 soft 4 next O level 1 lines 11 points 584
+- > t1112 falling I 4,4 5,4 6,4 7,4 after 1 soft 4 next O level 1 lines 11 points 584
+- > t1113 falling I 4,5 5,5 6,5 7,5 after 0 soft 5 next O level 1 lines 11 points 584
+- > t1114 falling I 4,5 5,5 6,5 7,5 after 1 soft 5 next O level 1 lines 11 points 584
+- > t1115 falling I 4,6 5,6 6,6 7,6 after 0 soft 6 next O level 1 lines 11 points 584
+- > t1116 falling I 4,6 5,6 6,6 7,6 after 1 soft 6 next O level 1 lines 11 points 584
+- > t1117 falling I 4,7 5,7 6,7 7,7 after 0 soft 7 next O level 1 lines 11 points 584
+- > t1118 falling I 4,7 5,7 6,7 7,7 after 1 soft 7 next O level 1 lines 11 points 584
+- > t1119 falling I 4,8 5,8 6,8 7,8 after 0 soft 8 next O level 1 lines 11 points 584
+- > t1120 falling I 4,8 5,8 6,8 7,8 after 1 soft 8 next O level 1 lines 11 points 584
+- > t1121 falling I 4,9 5,9 6,9 7,9 after 0 soft 9 next O level 1 lines 11 points 584
+- > t1122 falling I 4,9 5,9 6,9 7,9 after 1 soft 9 next O level 1 lines 11 points 584
+- > t1123 falling I 4,10 5,10 6,10 7,10 after 0 soft 10 next O level 1 lines 11 points 584
+- > t1124 falling I 4,10 5,10 6,10 7,10 after 1 soft 10 next O level 1 lines 11 points 584
+- > t1125 falling I 4,11 5,11 6,11 7,11 after 0 soft 11 next O level 1 lines 11 points 584
+- > t1126 falling I 4,11 5,11 6,11 7,11 after 1 soft 11 next O level 1 lines 11 points 584
+- > t1127 falling I 4,12 5,12 6,12 7,12 after 0 soft 12 next O level 1 lines 11 points 584
+- > t1128 falling I 4,12 5,12 6,12 7,12 after 1 soft 12 next O level 1 lines 11 points 584
+- > t1129 falling I 4,13 5,13 6,13 7,13 after 0 soft 13 next O level 1 lines 11 points 584
+- > t1130 falling I 4,13 5,13 6,13 7,13 after 1 soft 13 next O level 1 lines 11 points 584
+- > t1131 falling I 4,14 5,14 6,14 7,14 after 0 soft 14 next O level 1 lines 11 points 584
+- > t1132 falling I 4,14 5,14 6,14 7,14 after 1 soft 14 next O level 1 lines 11 points 584
+- > t1133 falling I 4,15 5,15 6,15 7,15 after 0 soft 15 next O level 1 lines 11 points 584
+- > t1134 falling I 4,15 5,15 6,15 7,15 after 1 soft 15 next O level 1 lines 11 points 584
+- > t1135 falling I 4,16 5,16 6,16 7,16 after 0 soft 16 next O level 1 lines 11 points 584
+- > t1136 falling I 4,16 5,16 6,16 7,16 after 1 soft 16 next O level 1 lines 11 points 584
+- > t1137 falling I 4,17 5,17 6,17 7,17 after 0 soft 17 next O level 1 lines 11 points 584
+- > t1138 falling I 4,17 5,17 6,17 7,17 after 1 soft 17 next O level 1 lines 11 points 584
+- > t1139 falling I 4,18 5,18 6,18 7,18 after 0 soft 18 next O level 1 lines 11 points 584
+- > t1140 falling I 4,18 5,18 6,18 7,18 after 1 soft 18 next O level 1 lines 11 points 584
+- > t1141 falling I 4,19 5,19 6,19 7,19 after 0 soft 19 next O level 1 lines 11 points 584
+- > t1142 falling I 4,19 5,19 6,19 7,19 after 1 soft 19 next O level 1 lines 11 points 584
+- > t1143 entry 10 next O level 1 lines 11 points 603 | locked I 4,19 5,19 6,19 7,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .ZZ.......
+  LJZZ......
+  LJJJ......
+  LLOO......
+  OOOOIIII..
+- > t1144 entry 9 next O level 1 lines 11 points 603
+- > t1145 entry 8 next O level 1 lines 11 points 603
+- > t1146 entry 7 next O level 1 lines 11 points 603
+- > t1147 entry 6 next O level 1 lines 11 points 603
+- > t1148 entry 5 next O level 1 lines 11 points 603
+- > t1149 entry 4 next O level 1 lines 11 points 603
+- > t1150 entry 3 next O level 1 lines 11 points 603
+- > t1151 entry 2 next O level 1 lines 11 points 603
+- > t1152 entry 1 next O level 1 lines 11 points 603
+- > t1153 falling O 4,0 5,0 4,1 5,1 after 0 next L level 1 lines 11 points 603
+-DOWN +A +RIGHT > t1154 falling O 5,0 6,0 5,1 6,1 after 1 next L level 1 lines 11 points 603
+-A -RIGHT > t1155 falling O 5,0 6,0 5,1 6,1 after 2 next L level 1 lines 11 points 603
++RIGHT > t1156 falling O 6,0 7,0 6,1 7,1 after 3 next L level 1 lines 11 points 603
+-RIGHT > t1157 falling O 6,0 7,0 6,1 7,1 after 4 next L level 1 lines 11 points 603
++RIGHT > t1158 falling O 7,0 8,0 7,1 8,1 after 5 next L level 1 lines 11 points 603
+-RIGHT > t1159 falling O 7,0 8,0 7,1 8,1 after 6 next L level 1 lines 11 points 603
++RIGHT > t1160 falling O 8,0 9,0 8,1 9,1 after 7 next L level 1 lines 11 points 603
+-RIGHT +DOWN > t1161 falling O 8,0 9,0 8,1 9,1 after 8 next L level 1 lines 11 points 603
+- > t1162 falling O 8,0 9,0 8,1 9,1 after 9 next L level 1 lines 11 points 603
+- > t1163 falling O 8,1 9,1 8,2 9,2 after 0 soft 1 next L level 1 lines 11 points 603
+- > t1164 falling O 8,1 9,1 8,2 9,2 after 1 soft 1 next L level 1 lines 11 points 603
+- > t1165 falling O 8,2 9,2 8,3 9,3 after 0 soft 2 next L level 1 lines 11 points 603
+- > t1166 falling O 8,2 9,2 8,3 9,3 after 1 soft 2 next L level 1 lines 11 points 603
+- > t1167 falling O 8,3 9,3 8,4 9,4 after 0 soft 3 next L level 1 lines 11 points 603
+- > t1168 falling O 8,3 9,3 8,4 9,4 after 1 soft 3 next L level 1 lines 11 points 603
+- > t1169 falling O 8,4 9,4 8,5 9,5 after 0 soft 4 next L level 1 lines 11 points 603
+- > t1170 falling O 8,4 9,4 8,5 9,5 after 1 soft 4 next L level 1 lines 11 points 603
+- > t1171 falling O 8,5 9,5 8,6 9,6 after 0 soft 5 next L level 1 lines 11 points 603
+- > t1172 falling O 8,5 9,5 8,6 9,6 after 1 soft 5 next L level 1 lines 11 points 603
+- > t1173 falling O 8,6 9,6 8,7 9,7 after 0 soft 6 next L level 1 lines 11 points 603
+- > t1174 falling O 8,6 9,6 8,7 9,7 after 1 soft 6 next L level 1 lines 11 points 603
+- > t1175 falling O 8,7 9,7 8,8 9,8 after 0 soft 7 next L level 1 lines 11 points 603
+- > t1176 falling O 8,7 9,7 8,8 9,8 after 1 soft 7 next L level 1 lines 11 points 603
+- > t1177 falling O 8,8 9,8 8,9 9,9 after 0 soft 8 next L level 1 lines 11 points 603
+- > t1178 falling O 8,8 9,8 8,9 9,9 after 1 soft 8 next L level 1 lines 11 points 603
+- > t1179 falling O 8,9 9,9 8,10 9,10 after 0 soft 9 next L level 1 lines 11 points 603
+- > t1180 falling O 8,9 9,9 8,10 9,10 after 1 soft 9 next L level 1 lines 11 points 603
+- > t1181 falling O 8,10 9,10 8,11 9,11 after 0 soft 10 next L level 1 lines 11 points 603
+- > t1182 falling O 8,10 9,10 8,11 9,11 after 1 soft 10 next L level 1 lines 11 points 603
+- > t1183 falling O 8,11 9,11 8,12 9,12 after 0 soft 11 next L level 1 lines 11 points 603
+- > t1184 falling O 8,11 9,11 8,12 9,12 after 1 soft 11 next L level 1 lines 11 points 603
+- > t1185 falling O 8,12 9,12 8,13 9,13 after 0 soft 12 next L level 1 lines 11 points 603
+- > t1186 falling O 8,12 9,12 8,13 9,13 after 1 soft 12 next L level 1 lines 11 points 603
+- > t1187 falling O 8,13 9,13 8,14 9,14 after 0 soft 13 next L level 1 lines 11 points 603
+- > t1188 falling O 8,13 9,13 8,14 9,14 after 1 soft 13 next L level 1 lines 11 points 603
+- > t1189 falling O 8,14 9,14 8,15 9,15 after 0 soft 14 next L level 1 lines 11 points 603
+- > t1190 falling O 8,14 9,14 8,15 9,15 after 1 soft 14 next L level 1 lines 11 points 603
+- > t1191 falling O 8,15 9,15 8,16 9,16 after 0 soft 15 next L level 1 lines 11 points 603
+- > t1192 falling O 8,15 9,15 8,16 9,16 after 1 soft 15 next L level 1 lines 11 points 603
+- > t1193 falling O 8,16 9,16 8,17 9,17 after 0 soft 16 next L level 1 lines 11 points 603
+- > t1194 falling O 8,16 9,16 8,17 9,17 after 1 soft 16 next L level 1 lines 11 points 603
+- > t1195 falling O 8,17 9,17 8,18 9,18 after 0 soft 17 next L level 1 lines 11 points 603
+- > t1196 falling O 8,17 9,17 8,18 9,18 after 1 soft 17 next L level 1 lines 11 points 603
+- > t1197 falling O 8,18 9,18 8,19 9,19 after 0 soft 18 next L level 1 lines 11 points 603
+- > t1198 falling O 8,18 9,18 8,19 9,19 after 1 soft 18 next L level 1 lines 11 points 603
+- > t1199 clearing rows 19 left 17 then 10 next L level 1 lines 11 points 621 | locked O 8,18 9,18 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .ZZ.......
+  LJZZ......
+  LJJJ......
+  LLOO....OO
+  OOOOIIIIOO
+- > t1200 clearing rows 19 left 16 then 10 next L level 1 lines 11 points 621
+- > t1201 clearing rows 19 left 15 then 10 next L level 1 lines 11 points 621
+- > t1202 clearing rows 19 left 14 then 10 next L level 1 lines 11 points 621
+- > t1203 clearing rows 19 left 13 then 10 next L level 1 lines 11 points 621
+- > t1204 clearing rows 19 left 12 then 10 next L level 1 lines 11 points 621
+- > t1205 clearing rows 19 left 11 then 10 next L level 1 lines 11 points 621
+- > t1206 clearing rows 19 left 10 then 10 next L level 1 lines 11 points 621
+- > t1207 clearing rows 19 left 9 then 10 next L level 1 lines 11 points 621
+- > t1208 clearing rows 19 left 8 then 10 next L level 1 lines 11 points 621
+- > t1209 clearing rows 19 left 7 then 10 next L level 1 lines 11 points 621
+- > t1210 clearing rows 19 left 6 then 10 next L level 1 lines 11 points 621
+- > t1211 clearing rows 19 left 5 then 10 next L level 1 lines 11 points 621
+- > t1212 clearing rows 19 left 4 then 10 next L level 1 lines 11 points 621
+- > t1213 clearing rows 19 left 3 then 10 next L level 1 lines 11 points 621
+- > t1214 clearing rows 19 left 2 then 10 next L level 1 lines 11 points 621
+- > t1215 clearing rows 19 left 1 then 10 next L level 1 lines 11 points 621
+- > t1216 entry 10 next L level 1 lines 12 points 701 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .ZZ.......
+  LJZZ......
+  LJJJ......
+  LLOO....OO
+- > t1217 entry 9 next L level 1 lines 12 points 701
+- > t1218 entry 8 next L level 1 lines 12 points 701
+- > t1219 entry 7 next L level 1 lines 12 points 701
+- > t1220 entry 6 next L level 1 lines 12 points 701
+- > t1221 entry 5 next L level 1 lines 12 points 701
+- > t1222 entry 4 next L level 1 lines 12 points 701
+- > t1223 entry 3 next L level 1 lines 12 points 701
+- > t1224 entry 2 next L level 1 lines 12 points 701
+- > t1225 entry 1 next L level 1 lines 12 points 701
+- > t1226 falling L 4,0 5,0 6,0 4,1 after 0 next S level 1 lines 12 points 701
+-DOWN +LEFT > t1227 falling L 3,0 4,0 5,0 3,1 after 1 next S level 1 lines 12 points 701
+- > t1228 falling L 3,0 4,0 5,0 3,1 after 2 next S level 1 lines 12 points 701
+- > t1229 falling L 3,0 4,0 5,0 3,1 after 3 next S level 1 lines 12 points 701
+- > t1230 falling L 3,0 4,0 5,0 3,1 after 4 next S level 1 lines 12 points 701
+- > t1231 falling L 3,0 4,0 5,0 3,1 after 5 next S level 1 lines 12 points 701
+- > t1232 falling L 3,0 4,0 5,0 3,1 after 6 next S level 1 lines 12 points 701
+- > t1233 falling L 3,0 4,0 5,0 3,1 after 7 next S level 1 lines 12 points 701
+- > t1234 falling L 3,0 4,0 5,0 3,1 after 8 next S level 1 lines 12 points 701
+- > t1235 falling L 3,0 4,0 5,0 3,1 after 9 next S level 1 lines 12 points 701
+- > t1236 falling L 3,0 4,0 5,0 3,1 after 10 next S level 1 lines 12 points 701
+- > t1237 falling L 3,0 4,0 5,0 3,1 after 11 next S level 1 lines 12 points 701
+- > t1238 falling L 3,0 4,0 5,0 3,1 after 12 next S level 1 lines 12 points 701
+- > t1239 falling L 3,0 4,0 5,0 3,1 after 13 next S level 1 lines 12 points 701
+- > t1240 falling L 3,0 4,0 5,0 3,1 after 14 next S level 1 lines 12 points 701
+- > t1241 falling L 3,0 4,0 5,0 3,1 after 15 next S level 1 lines 12 points 701
+- > t1242 falling L 3,0 4,0 5,0 3,1 after 16 next S level 1 lines 12 points 701
+- > t1243 falling L 2,0 3,0 4,0 2,1 after 17 next S level 1 lines 12 points 701
+- > t1244 falling L 2,0 3,0 4,0 2,1 after 18 next S level 1 lines 12 points 701
+- > t1245 falling L 2,0 3,0 4,0 2,1 after 19 next S level 1 lines 12 points 701
+- > t1246 falling L 2,0 3,0 4,0 2,1 after 20 next S level 1 lines 12 points 701
+- > t1247 falling L 2,0 3,0 4,0 2,1 after 21 next S level 1 lines 12 points 701
+- > t1248 falling L 2,0 3,0 4,0 2,1 after 22 next S level 1 lines 12 points 701
+- > t1249 falling L 1,0 2,0 3,0 1,1 after 23 next S level 1 lines 12 points 701
+- > t1250 falling L 1,0 2,0 3,0 1,1 after 24 next S level 1 lines 12 points 701
+- > t1251 falling L 1,0 2,0 3,0 1,1 after 25 next S level 1 lines 12 points 701
+- > t1252 falling L 1,0 2,0 3,0 1,1 after 26 next S level 1 lines 12 points 701
+- > t1253 falling L 1,0 2,0 3,0 1,1 after 27 next S level 1 lines 12 points 701
+- > t1254 falling L 1,0 2,0 3,0 1,1 after 28 next S level 1 lines 12 points 701
+- > t1255 falling L 0,0 1,0 2,0 0,1 after 29 next S level 1 lines 12 points 701
+-LEFT +DOWN > t1256 falling L 0,0 1,0 2,0 0,1 after 30 next S level 1 lines 12 points 701
+- > t1257 falling L 0,0 1,0 2,0 0,1 after 31 next S level 1 lines 12 points 701
+- > t1258 falling L 0,1 1,1 2,1 0,2 after 0 soft 1 next S level 1 lines 12 points 701
+- > t1259 falling L 0,1 1,1 2,1 0,2 after 1 soft 1 next S level 1 lines 12 points 701
+- > t1260 falling L 0,2 1,2 2,2 0,3 after 0 soft 2 next S level 1 lines 12 points 701
+- > t1261 falling L 0,2 1,2 2,2 0,3 after 1 soft 2 next S level 1 lines 12 points 701
+- > t1262 falling L 0,3 1,3 2,3 0,4 after 0 soft 3 next S level 1 lines 12 points 701
+- > t1263 falling L 0,3 1,3 2,3 0,4 after 1 soft 3 next S level 1 lines 12 points 701
+- > t1264 falling L 0,4 1,4 2,4 0,5 after 0 soft 4 next S level 1 lines 12 points 701
+- > t1265 falling L 0,4 1,4 2,4 0,5 after 1 soft 4 next S level 1 lines 12 points 701
+- > t1266 falling L 0,5 1,5 2,5 0,6 after 0 soft 5 next S level 1 lines 12 points 701
+- > t1267 falling L 0,5 1,5 2,5 0,6 after 1 soft 5 next S level 1 lines 12 points 701
+- > t1268 falling L 0,6 1,6 2,6 0,7 after 0 soft 6 next S level 1 lines 12 points 701
+- > t1269 falling L 0,6 1,6 2,6 0,7 after 1 soft 6 next S level 1 lines 12 points 701
+- > t1270 falling L 0,7 1,7 2,7 0,8 after 0 soft 7 next S level 1 lines 12 points 701
+- > t1271 falling L 0,7 1,7 2,7 0,8 after 1 soft 7 next S level 1 lines 12 points 701
+- > t1272 falling L 0,8 1,8 2,8 0,9 after 0 soft 8 next S level 1 lines 12 points 701
+- > t1273 falling L 0,8 1,8 2,8 0,9 after 1 soft 8 next S level 1 lines 12 points 701
+- > t1274 falling L 0,9 1,9 2,9 0,10 after 0 soft 9 next S level 1 lines 12 points 701
+- > t1275 falling L 0,9 1,9 2,9 0,10 after 1 soft 9 next S level 1 lines 12 points 701
+- > t1276 falling L 0,10 1,10 2,10 0,11 after 0 soft 10 next S level 1 lines 12 points 701
+- > t1277 falling L 0,10 1,10 2,10 0,11 after 1 soft 10 next S level 1 lines 12 points 701
+- > t1278 falling L 0,11 1,11 2,11 0,12 after 0 soft 11 next S level 1 lines 12 points 701
+- > t1279 falling L 0,11 1,11 2,11 0,12 after 1 soft 11 next S level 1 lines 12 points 701
+- > t1280 falling L 0,12 1,12 2,12 0,13 after 0 soft 12 next S level 1 lines 12 points 701
+- > t1281 falling L 0,12 1,12 2,12 0,13 after 1 soft 12 next S level 1 lines 12 points 701
+- > t1282 falling L 0,13 1,13 2,13 0,14 after 0 soft 13 next S level 1 lines 12 points 701
+- > t1283 falling L 0,13 1,13 2,13 0,14 after 1 soft 13 next S level 1 lines 12 points 701
+- > t1284 falling L 0,14 1,14 2,14 0,15 after 0 soft 14 next S level 1 lines 12 points 701
+- > t1285 falling L 0,14 1,14 2,14 0,15 after 1 soft 14 next S level 1 lines 12 points 701
+- > t1286 falling L 0,15 1,15 2,15 0,16 after 0 soft 15 next S level 1 lines 12 points 701
+- > t1287 falling L 0,15 1,15 2,15 0,16 after 1 soft 15 next S level 1 lines 12 points 701
+- > t1288 entry 12 next S level 1 lines 12 points 716 | locked L 0,15 1,15 2,15 0,16
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.......
+  LJZZ......
+  LJJJ......
+  LLOO....OO
+- > t1289 entry 11 next S level 1 lines 12 points 716
+- > t1290 entry 10 next S level 1 lines 12 points 716
+- > t1291 entry 9 next S level 1 lines 12 points 716
+- > t1292 entry 8 next S level 1 lines 12 points 716
+- > t1293 entry 7 next S level 1 lines 12 points 716
+- > t1294 entry 6 next S level 1 lines 12 points 716
+- > t1295 entry 5 next S level 1 lines 12 points 716
+- > t1296 entry 4 next S level 1 lines 12 points 716
+- > t1297 entry 3 next S level 1 lines 12 points 716
+- > t1298 entry 2 next S level 1 lines 12 points 716
+- > t1299 entry 1 next S level 1 lines 12 points 716
+- > t1300 falling S 5,0 6,0 4,1 5,1 after 0 next L level 1 lines 12 points 716
+-DOWN +A +RIGHT > t1301 falling S 6,-1 6,0 7,0 7,1 after 1 next L level 1 lines 12 points 716 | rotated S 6,-1 6,0 7,0 7,1 CLOCKWISE
+-A > t1302 falling S 6,-1 6,0 7,0 7,1 after 2 next L level 1 lines 12 points 716
++A > t1303 falling S 6,0 7,0 5,1 6,1 after 3 next L level 1 lines 12 points 716 | rotated S 6,0 7,0 5,1 6,1 CLOCKWISE
+-A > t1304 falling S 6,0 7,0 5,1 6,1 after 4 next L level 1 lines 12 points 716
+- > t1305 falling S 6,0 7,0 5,1 6,1 after 5 next L level 1 lines 12 points 716
+- > t1306 falling S 6,0 7,0 5,1 6,1 after 6 next L level 1 lines 12 points 716
+- > t1307 falling S 6,0 7,0 5,1 6,1 after 7 next L level 1 lines 12 points 716
+- > t1308 falling S 6,0 7,0 5,1 6,1 after 8 next L level 1 lines 12 points 716
+- > t1309 falling S 6,0 7,0 5,1 6,1 after 9 next L level 1 lines 12 points 716
+- > t1310 falling S 6,0 7,0 5,1 6,1 after 10 next L level 1 lines 12 points 716
+- > t1311 falling S 6,0 7,0 5,1 6,1 after 11 next L level 1 lines 12 points 716
+- > t1312 falling S 6,0 7,0 5,1 6,1 after 12 next L level 1 lines 12 points 716
+- > t1313 falling S 6,0 7,0 5,1 6,1 after 13 next L level 1 lines 12 points 716
+- > t1314 falling S 6,0 7,0 5,1 6,1 after 14 next L level 1 lines 12 points 716
+- > t1315 falling S 6,0 7,0 5,1 6,1 after 15 next L level 1 lines 12 points 716
+- > t1316 falling S 6,0 7,0 5,1 6,1 after 16 next L level 1 lines 12 points 716
+- > t1317 falling S 7,0 8,0 6,1 7,1 after 17 next L level 1 lines 12 points 716
+-RIGHT +DOWN > t1318 falling S 7,0 8,0 6,1 7,1 after 18 next L level 1 lines 12 points 716
+- > t1319 falling S 7,0 8,0 6,1 7,1 after 19 next L level 1 lines 12 points 716
+- > t1320 falling S 7,1 8,1 6,2 7,2 after 0 soft 1 next L level 1 lines 12 points 716
+- > t1321 falling S 7,1 8,1 6,2 7,2 after 1 soft 1 next L level 1 lines 12 points 716
+- > t1322 falling S 7,2 8,2 6,3 7,3 after 0 soft 2 next L level 1 lines 12 points 716
+- > t1323 falling S 7,2 8,2 6,3 7,3 after 1 soft 2 next L level 1 lines 12 points 716
+- > t1324 falling S 7,3 8,3 6,4 7,4 after 0 soft 3 next L level 1 lines 12 points 716
+- > t1325 falling S 7,3 8,3 6,4 7,4 after 1 soft 3 next L level 1 lines 12 points 716
+- > t1326 falling S 7,4 8,4 6,5 7,5 after 0 soft 4 next L level 1 lines 12 points 716
+- > t1327 falling S 7,4 8,4 6,5 7,5 after 1 soft 4 next L level 1 lines 12 points 716
+- > t1328 falling S 7,5 8,5 6,6 7,6 after 0 soft 5 next L level 1 lines 12 points 716
+- > t1329 falling S 7,5 8,5 6,6 7,6 after 1 soft 5 next L level 1 lines 12 points 716
+- > t1330 falling S 7,6 8,6 6,7 7,7 after 0 soft 6 next L level 1 lines 12 points 716
+- > t1331 falling S 7,6 8,6 6,7 7,7 after 1 soft 6 next L level 1 lines 12 points 716
+- > t1332 falling S 7,7 8,7 6,8 7,8 after 0 soft 7 next L level 1 lines 12 points 716
+- > t1333 falling S 7,7 8,7 6,8 7,8 after 1 soft 7 next L level 1 lines 12 points 716
+- > t1334 falling S 7,8 8,8 6,9 7,9 after 0 soft 8 next L level 1 lines 12 points 716
+- > t1335 falling S 7,8 8,8 6,9 7,9 after 1 soft 8 next L level 1 lines 12 points 716
+- > t1336 falling S 7,9 8,9 6,10 7,10 after 0 soft 9 next L level 1 lines 12 points 716
+- > t1337 falling S 7,9 8,9 6,10 7,10 after 1 soft 9 next L level 1 lines 12 points 716
+- > t1338 falling S 7,10 8,10 6,11 7,11 after 0 soft 10 next L level 1 lines 12 points 716
+- > t1339 falling S 7,10 8,10 6,11 7,11 after 1 soft 10 next L level 1 lines 12 points 716
+- > t1340 falling S 7,11 8,11 6,12 7,12 after 0 soft 11 next L level 1 lines 12 points 716
+- > t1341 falling S 7,11 8,11 6,12 7,12 after 1 soft 11 next L level 1 lines 12 points 716
+- > t1342 falling S 7,12 8,12 6,13 7,13 after 0 soft 12 next L level 1 lines 12 points 716
+- > t1343 falling S 7,12 8,12 6,13 7,13 after 1 soft 12 next L level 1 lines 12 points 716
+- > t1344 falling S 7,13 8,13 6,14 7,14 after 0 soft 13 next L level 1 lines 12 points 716
+- > t1345 falling S 7,13 8,13 6,14 7,14 after 1 soft 13 next L level 1 lines 12 points 716
+- > t1346 falling S 7,14 8,14 6,15 7,15 after 0 soft 14 next L level 1 lines 12 points 716
+- > t1347 falling S 7,14 8,14 6,15 7,15 after 1 soft 14 next L level 1 lines 12 points 716
+- > t1348 falling S 7,15 8,15 6,16 7,16 after 0 soft 15 next L level 1 lines 12 points 716
+- > t1349 falling S 7,15 8,15 6,16 7,16 after 1 soft 15 next L level 1 lines 12 points 716
+- > t1350 falling S 7,16 8,16 6,17 7,17 after 0 soft 16 next L level 1 lines 12 points 716
+- > t1351 falling S 7,16 8,16 6,17 7,17 after 1 soft 16 next L level 1 lines 12 points 716
+- > t1352 falling S 7,17 8,17 6,18 7,18 after 0 soft 17 next L level 1 lines 12 points 716
+- > t1353 falling S 7,17 8,17 6,18 7,18 after 1 soft 17 next L level 1 lines 12 points 716
+- > t1354 falling S 7,18 8,18 6,19 7,19 after 0 soft 18 next L level 1 lines 12 points 716
+- > t1355 falling S 7,18 8,18 6,19 7,19 after 1 soft 18 next L level 1 lines 12 points 716
+- > t1356 entry 10 next L level 1 lines 12 points 734 | locked S 7,18 8,18 6,19 7,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.......
+  LJZZ......
+  LJJJ...SS.
+  LLOO..SSOO
+- > t1357 entry 9 next L level 1 lines 12 points 734
+- > t1358 entry 8 next L level 1 lines 12 points 734
+- > t1359 entry 7 next L level 1 lines 12 points 734
+- > t1360 entry 6 next L level 1 lines 12 points 734
+- > t1361 entry 5 next L level 1 lines 12 points 734
+- > t1362 entry 4 next L level 1 lines 12 points 734
+- > t1363 entry 3 next L level 1 lines 12 points 734
+- > t1364 entry 2 next L level 1 lines 12 points 734
+- > t1365 entry 1 next L level 1 lines 12 points 734
+- > t1366 falling L 4,0 5,0 6,0 4,1 after 0 next O level 1 lines 12 points 734
+-DOWN +A +LEFT > t1367 falling L 3,-1 4,-1 4,0 4,1 after 1 next O level 1 lines 12 points 734 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t1368 falling L 3,-1 4,-1 4,0 4,1 after 2 next O level 1 lines 12 points 734
++A > t1369 falling L 5,-1 3,0 4,0 5,0 after 3 next O level 1 lines 12 points 734 | rotated L 5,-1 3,0 4,0 5,0 CLOCKWISE
+-A > t1370 falling L 5,-1 3,0 4,0 5,0 after 4 next O level 1 lines 12 points 734
++A +DOWN > t1371 falling L 4,-1 4,0 4,1 5,1 after 5 next O level 1 lines 12 points 734 | rotated L 4,-1 4,0 4,1 5,1 CLOCKWISE
+-A > t1372 falling L 4,-1 4,0 4,1 5,1 after 6 next O level 1 lines 12 points 734
+- > t1373 falling L 4,0 4,1 4,2 5,2 after 0 soft 1 next O level 1 lines 12 points 734
+- > t1374 falling L 4,0 4,1 4,2 5,2 after 1 soft 1 next O level 1 lines 12 points 734
+- > t1375 falling L 4,1 4,2 4,3 5,3 after 0 soft 2 next O level 1 lines 12 points 734
+- > t1376 falling L 4,1 4,2 4,3 5,3 after 1 soft 2 next O level 1 lines 12 points 734
+- > t1377 falling L 4,2 4,3 4,4 5,4 after 0 soft 3 next O level 1 lines 12 points 734
+- > t1378 falling L 4,2 4,3 4,4 5,4 after 1 soft 3 next O level 1 lines 12 points 734
+- > t1379 falling L 4,3 4,4 4,5 5,5 after 0 soft 4 next O level 1 lines 12 points 734
+- > t1380 falling L 4,3 4,4 4,5 5,5 after 1 soft 4 next O level 1 lines 12 points 734
+- > t1381 falling L 4,4 4,5 4,6 5,6 after 0 soft 5 next O level 1 lines 12 points 734
+- > t1382 falling L 4,4 4,5 4,6 5,6 after 1 soft 5 next O level 1 lines 12 points 734
+- > t1383 falling L 4,5 4,6 4,7 5,7 after 0 soft 6 next O level 1 lines 12 points 734
+- > t1384 falling L 4,5 4,6 4,7 5,7 after 1 soft 6 next O level 1 lines 12 points 734
+- > t1385 falling L 4,6 4,7 4,8 5,8 after 0 soft 7 next O level 1 lines 12 points 734
+- > t1386 falling L 4,6 4,7 4,8 5,8 after 1 soft 7 next O level 1 lines 12 points 734
+- > t1387 falling L 4,7 4,8 4,9 5,9 after 0 soft 8 next O level 1 lines 12 points 734
+- > t1388 falling L 4,7 4,8 4,9 5,9 after 1 soft 8 next O level 1 lines 12 points 734
+- > t1389 falling L 4,8 4,9 4,10 5,10 after 0 soft 9 next O level 1 lines 12 points 734
+- > t1390 falling L 4,8 4,9 4,10 5,10 after 1 soft 9 next O level 1 lines 12 points 734
+- > t1391 falling L 4,9 4,10 4,11 5,11 after 0 soft 10 next O level 1 lines 12 points 734
+- > t1392 falling L 4,9 4,10 4,11 5,11 after 1 soft 10 next O level 1 lines 12 points 734
+- > t1393 falling L 4,10 4,11 4,12 5,12 after 0 soft 11 next O level 1 lines 12 points 734
+- > t1394 falling L 4,10 4,11 4,12 5,12 after 1 soft 11 next O level 1 lines 12 points 734
+- > t1395 falling L 4,11 4,12 4,13 5,13 after 0 soft 12 next O level 1 lines 12 points 734
+- > t1396 falling L 4,11 4,12 4,13 5,13 after 1 soft 12 next O level 1 lines 12 points 734
+- > t1397 falling L 4,12 4,13 4,14 5,14 after 0 soft 13 next O level 1 lines 12 points 734
+- > t1398 falling L 4,12 4,13 4,14 5,14 after 1 soft 13 next O level 1 lines 12 points 734
+- > t1399 falling L 4,13 4,14 4,15 5,15 after 0 soft 14 next O level 1 lines 12 points 734
+- > t1400 falling L 4,13 4,14 4,15 5,15 after 1 soft 14 next O level 1 lines 12 points 734
+- > t1401 falling L 4,14 4,15 4,16 5,16 after 0 soft 15 next O level 1 lines 12 points 734
+- > t1402 falling L 4,14 4,15 4,16 5,16 after 1 soft 15 next O level 1 lines 12 points 734
+- > t1403 falling L 4,15 4,16 4,17 5,17 after 0 soft 16 next O level 1 lines 12 points 734
+- > t1404 falling L 4,15 4,16 4,17 5,17 after 1 soft 16 next O level 1 lines 12 points 734
+- > t1405 falling L 4,16 4,17 4,18 5,18 after 0 soft 17 next O level 1 lines 12 points 734
+- > t1406 falling L 4,16 4,17 4,18 5,18 after 1 soft 17 next O level 1 lines 12 points 734
+- > t1407 falling L 4,17 4,18 4,19 5,19 after 0 soft 18 next O level 1 lines 12 points 734
+- > t1408 falling L 4,17 4,18 4,19 5,19 after 1 soft 18 next O level 1 lines 12 points 734
+- > t1409 clearing rows 19 left 19 then 10 next O level 1 lines 12 points 752 | locked L 4,17 4,18 4,19 5,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.......
+  LJZZL.....
+  LJJJL..SS.
+  LLOOLLSSOO
+- > t1410 clearing rows 19 left 18 then 10 next O level 1 lines 12 points 752
+- > t1411 clearing rows 19 left 17 then 10 next O level 1 lines 12 points 752
+- > t1412 clearing rows 19 left 16 then 10 next O level 1 lines 12 points 752
+- > t1413 clearing rows 19 left 15 then 10 next O level 1 lines 12 points 752
+- > t1414 clearing rows 19 left 14 then 10 next O level 1 lines 12 points 752
+- > t1415 clearing rows 19 left 13 then 10 next O level 1 lines 12 points 752
+- > t1416 clearing rows 19 left 12 then 10 next O level 1 lines 12 points 752
+- > t1417 clearing rows 19 left 11 then 10 next O level 1 lines 12 points 752
+- > t1418 clearing rows 19 left 10 then 10 next O level 1 lines 12 points 752
+- > t1419 clearing rows 19 left 9 then 10 next O level 1 lines 12 points 752
+- > t1420 clearing rows 19 left 8 then 10 next O level 1 lines 12 points 752
+- > t1421 clearing rows 19 left 7 then 10 next O level 1 lines 12 points 752
+- > t1422 clearing rows 19 left 6 then 10 next O level 1 lines 12 points 752
+- > t1423 clearing rows 19 left 5 then 10 next O level 1 lines 12 points 752
+- > t1424 clearing rows 19 left 4 then 10 next O level 1 lines 12 points 752
+- > t1425 clearing rows 19 left 3 then 10 next O level 1 lines 12 points 752
+- > t1426 clearing rows 19 left 2 then 10 next O level 1 lines 12 points 752
+- > t1427 clearing rows 19 left 1 then 10 next O level 1 lines 12 points 752
+- > t1428 entry 10 next O level 1 lines 13 points 832 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.......
+  LJZZL.....
+  LJJJL..SS.
+- > t1429 entry 9 next O level 1 lines 13 points 832
+- > t1430 entry 8 next O level 1 lines 13 points 832
+- > t1431 entry 7 next O level 1 lines 13 points 832
+- > t1432 entry 6 next O level 1 lines 13 points 832
+- > t1433 entry 5 next O level 1 lines 13 points 832
+- > t1434 entry 4 next O level 1 lines 13 points 832
+- > t1435 entry 3 next O level 1 lines 13 points 832
+- > t1436 entry 2 next O level 1 lines 13 points 832
+- > t1437 entry 1 next O level 1 lines 13 points 832
+- > t1438 falling O 4,0 5,0 4,1 5,1 after 0 next S level 1 lines 13 points 832
+-DOWN +RIGHT > t1439 falling O 5,0 6,0 5,1 6,1 after 1 next S level 1 lines 13 points 832
+-RIGHT +DOWN > t1440 falling O 5,0 6,0 5,1 6,1 after 2 next S level 1 lines 13 points 832
+- > t1441 falling O 5,0 6,0 5,1 6,1 after 3 next S level 1 lines 13 points 832
+- > t1442 falling O 5,1 6,1 5,2 6,2 after 0 soft 1 next S level 1 lines 13 points 832
+- > t1443 falling O 5,1 6,1 5,2 6,2 after 1 soft 1 next S level 1 lines 13 points 832
+- > t1444 falling O 5,2 6,2 5,3 6,3 after 0 soft 2 next S level 1 lines 13 points 832
+- > t1445 falling O 5,2 6,2 5,3 6,3 after 1 soft 2 next S level 1 lines 13 points 832
+- > t1446 falling O 5,3 6,3 5,4 6,4 after 0 soft 3 next S level 1 lines 13 points 832
+- > t1447 falling O 5,3 6,3 5,4 6,4 after 1 soft 3 next S level 1 lines 13 points 832
+- > t1448 falling O 5,4 6,4 5,5 6,5 after 0 soft 4 next S level 1 lines 13 points 832
+- > t1449 falling O 5,4 6,4 5,5 6,5 after 1 soft 4 next S level 1 lines 13 points 832
+- > t1450 falling O 5,5 6,5 5,6 6,6 after 0 soft 5 next S level 1 lines 13 points 832
+- > t1451 falling O 5,5 6,5 5,6 6,6 after 1 soft 5 next S level 1 lines 13 points 832
+- > t1452 falling O 5,6 6,6 5,7 6,7 after 0 soft 6 next S level 1 lines 13 points 832
+- > t1453 falling O 5,6 6,6 5,7 6,7 after 1 soft 6 next S level 1 lines 13 points 832
+- > t1454 falling O 5,7 6,7 5,8 6,8 after 0 soft 7 next S level 1 lines 13 points 832
+- > t1455 falling O 5,7 6,7 5,8 6,8 after 1 soft 7 next S level 1 lines 13 points 832
+- > t1456 falling O 5,8 6,8 5,9 6,9 after 0 soft 8 next S level 1 lines 13 points 832
+- > t1457 falling O 5,8 6,8 5,9 6,9 after 1 soft 8 next S level 1 lines 13 points 832
+- > t1458 falling O 5,9 6,9 5,10 6,10 after 0 soft 9 next S level 1 lines 13 points 832
+- > t1459 falling O 5,9 6,9 5,10 6,10 after 1 soft 9 next S level 1 lines 13 points 832
+- > t1460 falling O 5,10 6,10 5,11 6,11 after 0 soft 10 next S level 1 lines 13 points 832
+- > t1461 falling O 5,10 6,10 5,11 6,11 after 1 soft 10 next S level 1 lines 13 points 832
+- > t1462 falling O 5,11 6,11 5,12 6,12 after 0 soft 11 next S level 1 lines 13 points 832
+- > t1463 falling O 5,11 6,11 5,12 6,12 after 1 soft 11 next S level 1 lines 13 points 832
+- > t1464 falling O 5,12 6,12 5,13 6,13 after 0 soft 12 next S level 1 lines 13 points 832
+- > t1465 falling O 5,12 6,12 5,13 6,13 after 1 soft 12 next S level 1 lines 13 points 832
+- > t1466 falling O 5,13 6,13 5,14 6,14 after 0 soft 13 next S level 1 lines 13 points 832
+- > t1467 falling O 5,13 6,13 5,14 6,14 after 1 soft 13 next S level 1 lines 13 points 832
+- > t1468 falling O 5,14 6,14 5,15 6,15 after 0 soft 14 next S level 1 lines 13 points 832
+- > t1469 falling O 5,14 6,14 5,15 6,15 after 1 soft 14 next S level 1 lines 13 points 832
+- > t1470 falling O 5,15 6,15 5,16 6,16 after 0 soft 15 next S level 1 lines 13 points 832
+- > t1471 falling O 5,15 6,15 5,16 6,16 after 1 soft 15 next S level 1 lines 13 points 832
+- > t1472 falling O 5,16 6,16 5,17 6,17 after 0 soft 16 next S level 1 lines 13 points 832
+- > t1473 falling O 5,16 6,16 5,17 6,17 after 1 soft 16 next S level 1 lines 13 points 832
+- > t1474 falling O 5,17 6,17 5,18 6,18 after 0 soft 17 next S level 1 lines 13 points 832
+- > t1475 falling O 5,17 6,17 5,18 6,18 after 1 soft 17 next S level 1 lines 13 points 832
+- > t1476 falling O 5,18 6,18 5,19 6,19 after 0 soft 18 next S level 1 lines 13 points 832
+- > t1477 falling O 5,18 6,18 5,19 6,19 after 1 soft 18 next S level 1 lines 13 points 832
+- > t1478 entry 10 next S level 1 lines 13 points 850 | locked O 5,18 6,18 5,19 6,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.......
+  LJZZLOO...
+  LJJJLOOSS.
+- > t1479 entry 9 next S level 1 lines 13 points 850
+- > t1480 entry 8 next S level 1 lines 13 points 850
+- > t1481 entry 7 next S level 1 lines 13 points 850
+- > t1482 entry 6 next S level 1 lines 13 points 850
+- > t1483 entry 5 next S level 1 lines 13 points 850
+- > t1484 entry 4 next S level 1 lines 13 points 850
+- > t1485 entry 3 next S level 1 lines 13 points 850
+- > t1486 entry 2 next S level 1 lines 13 points 850
+- > t1487 entry 1 next S level 1 lines 13 points 850
+- > t1488 falling S 5,0 6,0 4,1 5,1 after 0 next I level 1 lines 13 points 850
+-DOWN +A +RIGHT > t1489 falling S 6,-1 6,0 7,0 7,1 after 1 next I level 1 lines 13 points 850 | rotated S 6,-1 6,0 7,0 7,1 CLOCKWISE
+-A > t1490 falling S 6,-1 6,0 7,0 7,1 after 2 next I level 1 lines 13 points 850
+- > t1491 falling S 6,-1 6,0 7,0 7,1 after 3 next I level 1 lines 13 points 850
+- > t1492 falling S 6,-1 6,0 7,0 7,1 after 4 next I level 1 lines 13 points 850
+- > t1493 falling S 6,-1 6,0 7,0 7,1 after 5 next I level 1 lines 13 points 850
+- > t1494 falling S 6,-1 6,0 7,0 7,1 after 6 next I level 1 lines 13 points 850
+- > t1495 falling S 6,-1 6,0 7,0 7,1 after 7 next I level 1 lines 13 points 850
+- > t1496 falling S 6,-1 6,0 7,0 7,1 after 8 next I level 1 lines 13 points 850
+- > t1497 falling S 6,-1 6,0 7,0 7,1 after 9 next I level 1 lines 13 points 850
+- > t1498 falling S 6,-1 6,0 7,0 7,1 after 10 next I level 1 lines 13 points 850
+- > t1499 falling S 6,-1 6,0 7,0 7,1 after 11 next I level 1 lines 13 points 850
+- > t1500 falling S 6,-1 6,0 7,0 7,1 after 12 next I level 1 lines 13 points 850
+- > t1501 falling S 6,-1 6,0 7,0 7,1 after 13 next I level 1 lines 13 points 850
+- > t1502 falling S 6,-1 6,0 7,0 7,1 after 14 next I level 1 lines 13 points 850
+- > t1503 falling S 6,-1 6,0 7,0 7,1 after 15 next I level 1 lines 13 points 850
+- > t1504 falling S 6,-1 6,0 7,0 7,1 after 16 next I level 1 lines 13 points 850
+- > t1505 falling S 7,-1 7,0 8,0 8,1 after 17 next I level 1 lines 13 points 850
+- > t1506 falling S 7,-1 7,0 8,0 8,1 after 18 next I level 1 lines 13 points 850
+- > t1507 falling S 7,-1 7,0 8,0 8,1 after 19 next I level 1 lines 13 points 850
+- > t1508 falling S 7,-1 7,0 8,0 8,1 after 20 next I level 1 lines 13 points 850
+- > t1509 falling S 7,-1 7,0 8,0 8,1 after 21 next I level 1 lines 13 points 850
+- > t1510 falling S 7,-1 7,0 8,0 8,1 after 22 next I level 1 lines 13 points 850
+- > t1511 falling S 8,-1 8,0 9,0 9,1 after 23 next I level 1 lines 13 points 850
+-RIGHT +DOWN > t1512 falling S 8,-1 8,0 9,0 9,1 after 24 next I level 1 lines 13 points 850
+- > t1513 falling S 8,-1 8,0 9,0 9,1 after 25 next I level 1 lines 13 points 850
+- > t1514 falling S 8,0 8,1 9,1 9,2 after 0 soft 1 next I level 1 lines 13 points 850
+- > t1515 falling S 8,0 8,1 9,1 9,2 after 1 soft 1 next I level 1 lines 13 points 850
+- > t1516 falling S 8,1 8,2 9,2 9,3 after 0 soft 2 next I level 1 lines 13 points 850
+- > t1517 falling S 8,1 8,2 9,2 9,3 after 1 soft 2 next I level 1 lines 13 points 850
+- > t1518 falling S 8,2 8,3 9,3 9,4 after 0 soft 3 next I level 1 lines 13 points 850
+- > t1519 falling S 8,2 8,3 9,3 9,4 after 1 soft 3 next I level 1 lines 13 points 850
+- > t1520 falling S 8,3 8,4 9,4 9,5 after 0 soft 4 next I level 1 lines 13 points 850
+- > t1521 falling S 8,3 8,4 9,4 9,5 after 1 soft 4 next I level 1 lines 13 points 850
+- > t1522 falling S 8,4 8,5 9,5 9,6 after 0 soft 5 next I level 1 lines 13 points 850
+- > t1523 falling S 8,4 8,5 9,5 9,6 after 1 soft 5 next I level 1 lines 13 points 850
+- > t1524 falling S 8,5 8,6 9,6 9,7 after 0 soft 6 next I level 1 lines 13 points 850
+- > t1525 falling S 8,5 8,6 9,6 9,7 after 1 soft 6 next I level 1 lines 13 points 850
+- > t1526 falling S 8,6 8,7 9,7 9,8 after 0 soft 7 next I level 1 lines 13 points 850
+- > t1527 falling S 8,6 8,7 9,7 9,8 after 1 soft 7 next I level 1 lines 13 points 850
+- > t1528 falling S 8,7 8,8 9,8 9,9 after 0 soft 8 next I level 1 lines 13 points 850
+- > t1529 falling S 8,7 8,8 9,8 9,9 after 1 soft 8 next I level 1 lines 13 points 850
+- > t1530 falling S 8,8 8,9 9,9 9,10 after 0 soft 9 next I level 1 lines 13 points 850
+- > t1531 falling S 8,8 8,9 9,9 9,10 after 1 soft 9 next I level 1 lines 13 points 850
+- > t1532 falling S 8,9 8,10 9,10 9,11 after 0 soft 10 next I level 1 lines 13 points 850
+- > t1533 falling S 8,9 8,10 9,10 9,11 after 1 soft 10 next I level 1 lines 13 points 850
+- > t1534 falling S 8,10 8,11 9,11 9,12 after 0 soft 11 next I level 1 lines 13 points 850
+- > t1535 falling S 8,10 8,11 9,11 9,12 after 1 soft 11 next I level 1 lines 13 points 850
+- > t1536 falling S 8,11 8,12 9,12 9,13 after 0 soft 12 next I level 1 lines 13 points 850
+- > t1537 falling S 8,11 8,12 9,12 9,13 after 1 soft 12 next I level 1 lines 13 points 850
+- > t1538 falling S 8,12 8,13 9,13 9,14 after 0 soft 13 next I level 1 lines 13 points 850
+- > t1539 falling S 8,12 8,13 9,13 9,14 after 1 soft 13 next I level 1 lines 13 points 850
+- > t1540 falling S 8,13 8,14 9,14 9,15 after 0 soft 14 next I level 1 lines 13 points 850
+- > t1541 falling S 8,13 8,14 9,14 9,15 after 1 soft 14 next I level 1 lines 13 points 850
+- > t1542 falling S 8,14 8,15 9,15 9,16 after 0 soft 15 next I level 1 lines 13 points 850
+- > t1543 falling S 8,14 8,15 9,15 9,16 after 1 soft 15 next I level 1 lines 13 points 850
+- > t1544 falling S 8,15 8,16 9,16 9,17 after 0 soft 16 next I level 1 lines 13 points 850
+- > t1545 falling S 8,15 8,16 9,16 9,17 after 1 soft 16 next I level 1 lines 13 points 850
+- > t1546 falling S 8,16 8,17 9,17 9,18 after 0 soft 17 next I level 1 lines 13 points 850
+- > t1547 falling S 8,16 8,17 9,17 9,18 after 1 soft 17 next I level 1 lines 13 points 850
+- > t1548 falling S 8,17 8,18 9,18 9,19 after 0 soft 18 next I level 1 lines 13 points 850
+- > t1549 falling S 8,17 8,18 9,18 9,19 after 1 soft 18 next I level 1 lines 13 points 850
+- > t1550 clearing rows 19 left 18 then 10 next I level 1 lines 13 points 868 | locked S 8,17 8,18 9,18 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.....S.
+  LJZZLOO.SS
+  LJJJLOOSSS
+- > t1551 clearing rows 19 left 17 then 10 next I level 1 lines 13 points 868
+- > t1552 clearing rows 19 left 16 then 10 next I level 1 lines 13 points 868
+- > t1553 clearing rows 19 left 15 then 10 next I level 1 lines 13 points 868
+- > t1554 clearing rows 19 left 14 then 10 next I level 1 lines 13 points 868
+- > t1555 clearing rows 19 left 13 then 10 next I level 1 lines 13 points 868
+- > t1556 clearing rows 19 left 12 then 10 next I level 1 lines 13 points 868
+- > t1557 clearing rows 19 left 11 then 10 next I level 1 lines 13 points 868
+- > t1558 clearing rows 19 left 10 then 10 next I level 1 lines 13 points 868
+- > t1559 clearing rows 19 left 9 then 10 next I level 1 lines 13 points 868
+- > t1560 clearing rows 19 left 8 then 10 next I level 1 lines 13 points 868
+- > t1561 clearing rows 19 left 7 then 10 next I level 1 lines 13 points 868
+- > t1562 clearing rows 19 left 6 then 10 next I level 1 lines 13 points 868
+- > t1563 clearing rows 19 left 5 then 10 next I level 1 lines 13 points 868
+- > t1564 clearing rows 19 left 4 then 10 next I level 1 lines 13 points 868
+- > t1565 clearing rows 19 left 3 then 10 next I level 1 lines 13 points 868
+- > t1566 clearing rows 19 left 2 then 10 next I level 1 lines 13 points 868
+- > t1567 clearing rows 19 left 1 then 10 next I level 1 lines 13 points 868
+- > t1568 entry 10 next I level 1 lines 14 points 948 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  LLL.......
+  LZZ.....S.
+  LJZZLOO.SS
+- > t1569 entry 9 next I level 1 lines 14 points 948
+- > t1570 entry 8 next I level 1 lines 14 points 948
+- > t1571 entry 7 next I level 1 lines 14 points 948
+- > t1572 entry 6 next I level 1 lines 14 points 948
+- > t1573 entry 5 next I level 1 lines 14 points 948
+- > t1574 entry 4 next I level 1 lines 14 points 948
+- > t1575 entry 3 next I level 1 lines 14 points 948
+- > t1576 entry 2 next I level 1 lines 14 points 948
+- > t1577 entry 1 next I level 1 lines 14 points 948
+- > t1578 falling I 3,0 4,0 5,0 6,0 after 0 next J level 1 lines 14 points 948
+-DOWN +A +RIGHT > t1579 falling I 6,-2 6,-1 6,0 6,1 after 1 next J level 1 lines 14 points 948 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t1580 falling I 6,-2 6,-1 6,0 6,1 after 2 next J level 1 lines 14 points 948
++A +RIGHT > t1581 falling I 5,0 6,0 7,0 8,0 after 3 next J level 1 lines 14 points 948 | rotated I 5,0 6,0 7,0 8,0 CLOCKWISE
+-A -RIGHT > t1582 falling I 5,0 6,0 7,0 8,0 after 4 next J level 1 lines 14 points 948
++A +DOWN > t1583 falling I 7,-2 7,-1 7,0 7,1 after 5 next J level 1 lines 14 points 948 | rotated I 7,-2 7,-1 7,0 7,1 CLOCKWISE
+-A > t1584 falling I 7,-2 7,-1 7,0 7,1 after 6 next J level 1 lines 14 points 948
+- > t1585 falling I 7,-1 7,0 7,1 7,2 after 0 soft 1 next J level 1 lines 14 points 948
+- > t1586 falling I 7,-1 7,0 7,1 7,2 after 1 soft 1 next J level 1 lines 14 points 948
+- > t1587 falling I 7,0 7,1 7,2 7,3 after 0 soft 2 next J level 1 lines 14 points 948
+- > t1588 falling I 7,0 7,1 7,2 7,3 after 1 soft 2 next J level 1 lines 14 points 948
+- > t1589 falling I 7,1 7,2 7,3 7,4 after 0 soft 3 next J level 1 lines 14 points 948
+- > t1590 falling I 7,1 7,2 7,3 7,4 after 1 soft 3 next J level 1 lines 14 points 948
+- > t1591 falling I 7,2 7,3 7,4 7,5 after 0 soft 4 next J level 1 lines 14 points 948
+- > t1592 falling I 7,2 7,3 7,4 7,5 after 1 soft 4 next J level 1 lines 14 points 948
+- > t1593 falling I 7,3 7,4 7,5 7,6 after 0 soft 5 next J level 1 lines 14 points 948
+- > t1594 falling I 7,3 7,4 7,5 7,6 after 1 soft 5 next J level 1 lines 14 points 948
+- > t1595 falling I 7,4 7,5 7,6 7,7 after 0 soft 6 next J level 1 lines 14 points 948
+- > t1596 falling I 7,4 7,5 7,6 7,7 after 1 soft 6 next J level 1 lines 14 points 948
+- > t1597 falling I 7,5 7,6 7,7 7,8 after 0 soft 7 next J level 1 lines 14 points 948
+- > t1598 falling I 7,5 7,6 7,7 7,8 after 1 soft 7 next J level 1 lines 14 points 948
+- > t1599 falling I 7,6 7,7 7,8 7,9 after 0 soft 8 next J level 1 lines 14 points 948
+- > t1600 falling I 7,6 7,7 7,8 7,9 after 1 soft 8 next J level 1 lines 14 points 948
+- > t1601 falling I 7,7 7,8 7,9 7,10 after 0 soft 9 next J level 1 lines 14 points 948
+- > t1602 falling I 7,7 7,8 7,9 7,10 after 1 soft 9 next J level 1 lines 14 points 948
+- > t1603 falling I 7,8 7,9 7,10 7,11 after 0 soft 10 next J level 1 lines 14 points 948
+- > t1604 falling I 7,8 7,9 7,10 7,11 after 1 soft 10 next J level 1 lines 14 points 948
+- > t1605 falling I 7,9 7,10 7,11 7,12 after 0 soft 11 next J level 1 lines 14 points 948
+- > t1606 falling I 7,9 7,10 7,11 7,12 after 1 soft 11 next J level 1 lines 14 points 948
+- > t1607 falling I 7,10 7,11 7,12 7,13 after 0 soft 12 next J level 1 lines 14 points 948
+- > t1608 falling I 7,10 7,11 7,12 7,13 after 1 soft 12 next J level 1 lines 14 points 948
+- > t1609 falling I 7,11 7,12 7,13 7,14 after 0 soft 13 next J level 1 lines 14 points 948
+- > t1610 falling I 7,11 7,12 7,13 7,14 after 1 soft 13 next J level 1 lines 14 points 948
+- > t1611 falling I 7,12 7,13 7,14 7,15 after 0 soft 14 next J level 1 lines 14 points 948
+- > t1612 falling I 7,12 7,13 7,14 7,15 after 1 soft 14 next J level 1 lines 14 points 948
+- > t1613 falling I 7,13 7,14 7,15 7,16 after 0 soft 15 next J level 1 lines 14 points 948
+- > t1614 falling I 7,13 7,14 7,15 7,16 after 1 soft 15 next J level 1 lines 14 points 948
+- > t1615 falling I 7,14 7,15 7,16 7,17 after 0 soft 16 next J level 1 lines 14 points 948
+- > t1616 falling I 7,14 7,15 7,16 7,17 after 1 soft 16 next J level 1 lines 14 points 948
+- > t1617 falling I 7,15 7,16 7,17 7,18 after 0 soft 17 next J level 1 lines 14 points 948
+- > t1618 falling I 7,15 7,16 7,17 7,18 after 1 soft 17 next J level 1 lines 14 points 948
+- > t1619 falling I 7,16 7,17 7,18 7,19 after 0 soft 18 next J level 1 lines 14 points 948
+- > t1620 falling I 7,16 7,17 7,18 7,19 after 1 soft 18 next J level 1 lines 14 points 948
+- > t1621 clearing rows 19 left 19 then 10 next J level 1 lines 14 points 966 | locked I 7,16 7,17 7,18 7,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......I..
+  LLL....I..
+  LZZ....IS.
+  LJZZLOOISS
+- > t1622 clearing rows 19 left 18 then 10 next J level 1 lines 14 points 966
+- > t1623 clearing rows 19 left 17 then 10 next J level 1 lines 14 points 966
+- > t1624 clearing rows 19 left 16 then 10 next J level 1 lines 14 points 966
+- > t1625 clearing rows 19 left 15 then 10 next J level 1 lines 14 points 966
+- > t1626 clearing rows 19 left 14 then 10 next J level 1 lines 14 points 966
+- > t1627 clearing rows 19 left 13 then 10 next J level 1 lines 14 points 966
+- > t1628 clearing rows 19 left 12 then 10 next J level 1 lines 14 points 966
+- > t1629 clearing rows 19 left 11 then 10 next J level 1 lines 14 points 966
+- > t1630 clearing rows 19 left 10 then 10 next J level 1 lines 14 points 966
+- > t1631 clearing rows 19 left 9 then 10 next J level 1 lines 14 points 966
+- > t1632 clearing rows 19 left 8 then 10 next J level 1 lines 14 points 966
+- > t1633 clearing rows 19 left 7 then 10 next J level 1 lines 14 points 966
+- > t1634 clearing rows 19 left 6 then 10 next J level 1 lines 14 points 966
+- > t1635 clearing rows 19 left 5 then 10 next J level 1 lines 14 points 966
+- > t1636 clearing rows 19 left 4 then 10 next J level 1 lines 14 points 966
+- > t1637 clearing rows 19 left 3 then 10 next J level 1 lines 14 points 966
+- > t1638 clearing rows 19 left 2 then 10 next J level 1 lines 14 points 966
+- > t1639 clearing rows 19 left 1 then 10 next J level 1 lines 14 points 966
+- > t1640 entry 10 next J level 1 lines 15 points 1046 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......I..
+  LLL....I..
+  LZZ....IS.
+- > t1641 entry 9 next J level 1 lines 15 points 1046
+- > t1642 entry 8 next J level 1 lines 15 points 1046
+- > t1643 entry 7 next J level 1 lines 15 points 1046
+- > t1644 entry 6 next J level 1 lines 15 points 1046
+- > t1645 entry 5 next J level 1 lines 15 points 1046
+- > t1646 entry 4 next J level 1 lines 15 points 1046
+- > t1647 entry 3 next J level 1 lines 15 points 1046
+- > t1648 entry 2 next J level 1 lines 15 points 1046
+- > t1649 entry 1 next J level 1 lines 15 points 1046
+- > t1650 falling J 4,0 5,0 6,0 6,1 after 0 next Z level 1 lines 15 points 1046
+-DOWN +A +RIGHT > t1651 falling J 6,-1 6,0 5,1 6,1 after 1 next Z level 1 lines 15 points 1046 | rotated J 6,-1 6,0 5,1 6,1 CLOCKWISE
+-A -RIGHT +DOWN > t1652 falling J 6,-1 6,0 5,1 6,1 after 2 next Z level 1 lines 15 points 1046
+- > t1653 falling J 6,-1 6,0 5,1 6,1 after 3 next Z level 1 lines 15 points 1046
+- > t1654 falling J 6,0 6,1 5,2 6,2 after 0 soft 1 next Z level 1 lines 15 points 1046
+- > t1655 falling J 6,0 6,1 5,2 6,2 after 1 soft 1 next Z level 1 lines 15 points 1046
+- > t1656 falling J 6,1 6,2 5,3 6,3 after 0 soft 2 next Z level 1 lines 15 points 1046
+- > t1657 falling J 6,1 6,2 5,3 6,3 after 1 soft 2 next Z level 1 lines 15 points 1046
+- > t1658 falling J 6,2 6,3 5,4 6,4 after 0 soft 3 next Z level 1 lines 15 points 1046
+- > t1659 falling J 6,2 6,3 5,4 6,4 after 1 soft 3 next Z level 1 lines 15 points 1046
+- > t1660 falling J 6,3 6,4 5,5 6,5 after 0 soft 4 next Z level 1 lines 15 points 1046
+- > t1661 falling J 6,3 6,4 5,5 6,5 after 1 soft 4 next Z level 1 lines 15 points 1046
+- > t1662 falling J 6,4 6,5 5,6 6,6 after 0 soft 5 next Z level 1 lines 15 points 1046
+- > t1663 falling J 6,4 6,5 5,6 6,6 after 1 soft 5 next Z level 1 lines 15 points 1046
+- > t1664 falling J 6,5 6,6 5,7 6,7 after 0 soft 6 next Z level 1 lines 15 points 1046
+- > t1665 falling J 6,5 6,6 5,7 6,7 after 1 soft 6 next Z level 1 lines 15 points 1046
+- > t1666 falling J 6,6 6,7 5,8 6,8 after 0 soft 7 next Z level 1 lines 15 points 1046
+- > t1667 falling J 6,6 6,7 5,8 6,8 after 1 soft 7 next Z level 1 lines 15 points 1046
+- > t1668 falling J 6,7 6,8 5,9 6,9 after 0 soft 8 next Z level 1 lines 15 points 1046
+- > t1669 falling J 6,7 6,8 5,9 6,9 after 1 soft 8 next Z level 1 lines 15 points 1046
+- > t1670 falling J 6,8 6,9 5,10 6,10 after 0 soft 9 next Z level 1 lines 15 points 1046
+- > t1671 falling J 6,8 6,9 5,10 6,10 after 1 soft 9 next Z level 1 lines 15 points 1046
+- > t1672 falling J 6,9 6,10 5,11 6,11 after 0 soft 10 next Z level 1 lines 15 points 1046
+- > t1673 falling J 6,9 6,10 5,11 6,11 after 1 soft 10 next Z level 1 lines 15 points 1046
+- > t1674 falling J 6,10 6,11 5,12 6,12 after 0 soft 11 next Z level 1 lines 15 points 1046
+- > t1675 falling J 6,10 6,11 5,12 6,12 after 1 soft 11 next Z level 1 lines 15 points 1046
+- > t1676 falling J 6,11 6,12 5,13 6,13 after 0 soft 12 next Z level 1 lines 15 points 1046
+- > t1677 falling J 6,11 6,12 5,13 6,13 after 1 soft 12 next Z level 1 lines 15 points 1046
+- > t1678 falling J 6,12 6,13 5,14 6,14 after 0 soft 13 next Z level 1 lines 15 points 1046
+- > t1679 falling J 6,12 6,13 5,14 6,14 after 1 soft 13 next Z level 1 lines 15 points 1046
+- > t1680 falling J 6,13 6,14 5,15 6,15 after 0 soft 14 next Z level 1 lines 15 points 1046
+- > t1681 falling J 6,13 6,14 5,15 6,15 after 1 soft 14 next Z level 1 lines 15 points 1046
+- > t1682 falling J 6,14 6,15 5,16 6,16 after 0 soft 15 next Z level 1 lines 15 points 1046
+- > t1683 falling J 6,14 6,15 5,16 6,16 after 1 soft 15 next Z level 1 lines 15 points 1046
+- > t1684 falling J 6,15 6,16 5,17 6,17 after 0 soft 16 next Z level 1 lines 15 points 1046
+- > t1685 falling J 6,15 6,16 5,17 6,17 after 1 soft 16 next Z level 1 lines 15 points 1046
+- > t1686 falling J 6,16 6,17 5,18 6,18 after 0 soft 17 next Z level 1 lines 15 points 1046
+- > t1687 falling J 6,16 6,17 5,18 6,18 after 1 soft 17 next Z level 1 lines 15 points 1046
+- > t1688 falling J 6,17 6,18 5,19 6,19 after 0 soft 18 next Z level 1 lines 15 points 1046
+- > t1689 falling J 6,17 6,18 5,19 6,19 after 1 soft 18 next Z level 1 lines 15 points 1046
+- > t1690 entry 10 next Z level 1 lines 15 points 1064 | locked J 6,17 6,18 5,19 6,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ......JI..
+  LLL...JI..
+  LZZ..JJIS.
+- > t1691 entry 9 next Z level 1 lines 15 points 1064
+- > t1692 entry 8 next Z level 1 lines 15 points 1064
+- > t1693 entry 7 next Z level 1 lines 15 points 1064
+- > t1694 entry 6 next Z level 1 lines 15 points 1064
+- > t1695 entry 5 next Z level 1 lines 15 points 1064
+- > t1696 entry 4 next Z level 1 lines 15 points 1064
+- > t1697 entry 3 next Z level 1 lines 15 points 1064
+- > t1698 entry 2 next Z level 1 lines 15 points 1064
+- > t1699 entry 1 next Z level 1 lines 15 points 1064
+- > t1700 falling Z 4,0 5,0 5,1 6,1 after 0 next L level 1 lines 15 points 1064
+-DOWN +A +LEFT > t1701 falling Z 5,-1 4,0 5,0 4,1 after 1 next L level 1 lines 15 points 1064 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A -LEFT > t1702 falling Z 5,-1 4,0 5,0 4,1 after 2 next L level 1 lines 15 points 1064
++A > t1703 falling Z 3,0 4,0 4,1 5,1 after 3 next L level 1 lines 15 points 1064 | rotated Z 3,0 4,0 4,1 5,1 CLOCKWISE
+-A > t1704 falling Z 3,0 4,0 4,1 5,1 after 4 next L level 1 lines 15 points 1064
++A +DOWN > t1705 falling Z 5,-1 4,0 5,0 4,1 after 5 next L level 1 lines 15 points 1064 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A > t1706 falling Z 5,-1 4,0 5,0 4,1 after 6 next L level 1 lines 15 points 1064
+- > t1707 falling Z 5,0 4,1 5,1 4,2 after 0 soft 1 next L level 1 lines 15 points 1064
+- > t1708 falling Z 5,0 4,1 5,1 4,2 after 1 soft 1 next L level 1 lines 15 points 1064
+- > t1709 falling Z 5,1 4,2 5,2 4,3 after 0 soft 2 next L level 1 lines 15 points 1064
+- > t1710 falling Z 5,1 4,2 5,2 4,3 after 1 soft 2 next L level 1 lines 15 points 1064
+- > t1711 falling Z 5,2 4,3 5,3 4,4 after 0 soft 3 next L level 1 lines 15 points 1064
+- > t1712 falling Z 5,2 4,3 5,3 4,4 after 1 soft 3 next L level 1 lines 15 points 1064
+- > t1713 falling Z 5,3 4,4 5,4 4,5 after 0 soft 4 next L level 1 lines 15 points 1064
+- > t1714 falling Z 5,3 4,4 5,4 4,5 after 1 soft 4 next L level 1 lines 15 points 1064
+- > t1715 falling Z 5,4 4,5 5,5 4,6 after 0 soft 5 next L level 1 lines 15 points 1064
+- > t1716 falling Z 5,4 4,5 5,5 4,6 after 1 soft 5 next L level 1 lines 15 points 1064
+- > t1717 falling Z 5,5 4,6 5,6 4,7 after 0 soft 6 next L level 1 lines 15 points 1064
+- > t1718 falling Z 5,5 4,6 5,6 4,7 after 1 soft 6 next L level 1 lines 15 points 1064
+- > t1719 falling Z 5,6 4,7 5,7 4,8 after 0 soft 7 next L level 1 lines 15 points 1064
+- > t1720 falling Z 5,6 4,7 5,7 4,8 after 1 soft 7 next L level 1 lines 15 points 1064
+- > t1721 falling Z 5,7 4,8 5,8 4,9 after 0 soft 8 next L level 1 lines 15 points 1064
+- > t1722 falling Z 5,7 4,8 5,8 4,9 after 1 soft 8 next L level 1 lines 15 points 1064
+- > t1723 falling Z 5,8 4,9 5,9 4,10 after 0 soft 9 next L level 1 lines 15 points 1064
+- > t1724 falling Z 5,8 4,9 5,9 4,10 after 1 soft 9 next L level 1 lines 15 points 1064
+- > t1725 falling Z 5,9 4,10 5,10 4,11 after 0 soft 10 next L level 1 lines 15 points 1064
+- > t1726 falling Z 5,9 4,10 5,10 4,11 after 1 soft 10 next L level 1 lines 15 points 1064
+- > t1727 falling Z 5,10 4,11 5,11 4,12 after 0 soft 11 next L level 1 lines 15 points 1064
+- > t1728 falling Z 5,10 4,11 5,11 4,12 after 1 soft 11 next L level 1 lines 15 points 1064
+- > t1729 falling Z 5,11 4,12 5,12 4,13 after 0 soft 12 next L level 1 lines 15 points 1064
+- > t1730 falling Z 5,11 4,12 5,12 4,13 after 1 soft 12 next L level 1 lines 15 points 1064
+- > t1731 falling Z 5,12 4,13 5,13 4,14 after 0 soft 13 next L level 1 lines 15 points 1064
+- > t1732 falling Z 5,12 4,13 5,13 4,14 after 1 soft 13 next L level 1 lines 15 points 1064
+- > t1733 falling Z 5,13 4,14 5,14 4,15 after 0 soft 14 next L level 1 lines 15 points 1064
+- > t1734 falling Z 5,13 4,14 5,14 4,15 after 1 soft 14 next L level 1 lines 15 points 1064
+- > t1735 falling Z 5,14 4,15 5,15 4,16 after 0 soft 15 next L level 1 lines 15 points 1064
+- > t1736 falling Z 5,14 4,15 5,15 4,16 after 1 soft 15 next L level 1 lines 15 points 1064
+- > t1737 falling Z 5,15 4,16 5,16 4,17 after 0 soft 16 next L level 1 lines 15 points 1064
+- > t1738 falling Z 5,15 4,16 5,16 4,17 after 1 soft 16 next L level 1 lines 15 points 1064
+- > t1739 falling Z 5,16 4,17 5,17 4,18 after 0 soft 17 next L level 1 lines 15 points 1064
+- > t1740 falling Z 5,16 4,17 5,17 4,18 after 1 soft 17 next L level 1 lines 15 points 1064
+- > t1741 falling Z 5,17 4,18 5,18 4,19 after 0 soft 18 next L level 1 lines 15 points 1064
+- > t1742 falling Z 5,17 4,18 5,18 4,19 after 1 soft 18 next L level 1 lines 15 points 1064
+- > t1743 entry 10 next L level 1 lines 15 points 1082 | locked Z 5,17 4,18 5,18 4,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .....ZJI..
+  LLL.ZZJI..
+  LZZ.ZJJIS.
+- > t1744 entry 9 next L level 1 lines 15 points 1082
+- > t1745 entry 8 next L level 1 lines 15 points 1082
+- > t1746 entry 7 next L level 1 lines 15 points 1082
+- > t1747 entry 6 next L level 1 lines 15 points 1082
+- > t1748 entry 5 next L level 1 lines 15 points 1082
+- > t1749 entry 4 next L level 1 lines 15 points 1082
+- > t1750 entry 3 next L level 1 lines 15 points 1082
+- > t1751 entry 2 next L level 1 lines 15 points 1082
+- > t1752 entry 1 next L level 1 lines 15 points 1082
+- > t1753 falling L 4,0 5,0 6,0 4,1 after 0 next J level 1 lines 15 points 1082
+-DOWN +A +LEFT > t1754 falling L 3,-1 4,-1 4,0 4,1 after 1 next J level 1 lines 15 points 1082 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t1755 falling L 3,-1 4,-1 4,0 4,1 after 2 next J level 1 lines 15 points 1082
++LEFT > t1756 falling L 2,-1 3,-1 3,0 3,1 after 3 next J level 1 lines 15 points 1082
+-LEFT +DOWN > t1757 falling L 2,-1 3,-1 3,0 3,1 after 4 next J level 1 lines 15 points 1082
+- > t1758 falling L 2,-1 3,-1 3,0 3,1 after 5 next J level 1 lines 15 points 1082
+- > t1759 falling L 2,0 3,0 3,1 3,2 after 0 soft 1 next J level 1 lines 15 points 1082
+- > t1760 falling L 2,0 3,0 3,1 3,2 after 1 soft 1 next J level 1 lines 15 points 1082
+- > t1761 falling L 2,1 3,1 3,2 3,3 after 0 soft 2 next J level 1 lines 15 points 1082
+- > t1762 falling L 2,1 3,1 3,2 3,3 after 1 soft 2 next J level 1 lines 15 points 1082
+- > t1763 falling L 2,2 3,2 3,3 3,4 after 0 soft 3 next J level 1 lines 15 points 1082
+- > t1764 falling L 2,2 3,2 3,3 3,4 after 1 soft 3 next J level 1 lines 15 points 1082
+- > t1765 falling L 2,3 3,3 3,4 3,5 after 0 soft 4 next J level 1 lines 15 points 1082
+- > t1766 falling L 2,3 3,3 3,4 3,5 after 1 soft 4 next J level 1 lines 15 points 1082
+- > t1767 falling L 2,4 3,4 3,5 3,6 after 0 soft 5 next J level 1 lines 15 points 1082
+- > t1768 falling L 2,4 3,4 3,5 3,6 after 1 soft 5 next J level 1 lines 15 points 1082
+- > t1769 falling L 2,5 3,5 3,6 3,7 after 0 soft 6 next J level 1 lines 15 points 1082
+- > t1770 falling L 2,5 3,5 3,6 3,7 after 1 soft 6 next J level 1 lines 15 points 1082
+- > t1771 falling L 2,6 3,6 3,7 3,8 after 0 soft 7 next J level 1 lines 15 points 1082
+- > t1772 falling L 2,6 3,6 3,7 3,8 after 1 soft 7 next J level 1 lines 15 points 1082
+- > t1773 falling L 2,7 3,7 3,8 3,9 after 0 soft 8 next J level 1 lines 15 points 1082
+- > t1774 falling L 2,7 3,7 3,8 3,9 after 1 soft 8 next J level 1 lines 15 points 1082
+- > t1775 falling L 2,8 3,8 3,9 3,10 after 0 soft 9 next J level 1 lines 15 points 1082
+- > t1776 falling L 2,8 3,8 3,9 3,10 after 1 soft 9 next J level 1 lines 15 points 1082
+- > t1777 falling L 2,9 3,9 3,10 3,11 after 0 soft 10 next J level 1 lines 15 points 1082
+- > t1778 falling L 2,9 3,9 3,10 3,11 after 1 soft 10 next J level 1 lines 15 points 1082
+- > t1779 falling L 2,10 3,10 3,11 3,12 after 0 soft 11 next J level 1 lines 15 points 1082
+- > t1780 falling L 2,10 3,10 3,11 3,12 after 1 soft 11 next J level 1 lines 15 points 1082
+- > t1781 falling L 2,11 3,11 3,12 3,13 after 0 soft 12 next J level 1 lines 15 points 1082
+- > t1782 falling L 2,11 3,11 3,12 3,13 after 1 soft 12 next J level 1 lines 15 points 1082
+- > t1783 falling L 2,12 3,12 3,13 3,14 after 0 soft 13 next J level 1 lines 15 points 1082
+- > t1784 falling L 2,12 3,12 3,13 3,14 after 1 soft 13 next J level 1 lines 15 points 1082
+- > t1785 falling L 2,13 3,13 3,14 3,15 after 0 soft 14 next J level 1 lines 15 points 1082
+- > t1786 falling L 2,13 3,13 3,14 3,15 after 1 soft 14 next J level 1 lines 15 points 1082
+- > t1787 falling L 2,14 3,14 3,15 3,16 after 0 soft 15 next J level 1 lines 15 points 1082
+- > t1788 falling L 2,14 3,14 3,15 3,16 after 1 soft 15 next J level 1 lines 15 points 1082
+- > t1789 falling L 2,15 3,15 3,16 3,17 after 0 soft 16 next J level 1 lines 15 points 1082
+- > t1790 falling L 2,15 3,15 3,16 3,17 after 1 soft 16 next J level 1 lines 15 points 1082
+- > t1791 falling L 2,16 3,16 3,17 3,18 after 0 soft 17 next J level 1 lines 15 points 1082
+- > t1792 falling L 2,16 3,16 3,17 3,18 after 1 soft 17 next J level 1 lines 15 points 1082
+- > t1793 falling L 2,17 3,17 3,18 3,19 after 0 soft 18 next J level 1 lines 15 points 1082
+- > t1794 falling L 2,17 3,17 3,18 3,19 after 1 soft 18 next J level 1 lines 15 points 1082
+- > t1795 entry 10 next J level 1 lines 15 points 1100 | locked L 2,17 3,17 3,18 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..LL.ZJI..
+  LLLLZZJI..
+  LZZLZJJIS.
+- > t1796 entry 9 next J level 1 lines 15 points 1100
+- > t1797 entry 8 next J level 1 lines 15 points 1100
+- > t1798 entry 7 next J level 1 lines 15 points 1100
+- > t1799 entry 6 next J level 1 lines 15 points 1100
+- > t1800 entry 5 next J level 1 lines 15 points 1100
+- > t1801 entry 4 next J level 1 lines 15 points 1100
+- > t1802 entry 3 next J level 1 lines 15 points 1100
+- > t1803 entry 2 next J level 1 lines 15 points 1100
+- > t1804 entry 1 next J level 1 lines 15 points 1100
+- > t1805 falling J 4,0 5,0 6,0 6,1 after 0 next T level 1 lines 15 points 1100
+-DOWN +A +RIGHT > t1806 falling J 6,-1 6,0 5,1 6,1 after 1 next T level 1 lines 15 points 1100 | rotated J 6,-1 6,0 5,1 6,1 CLOCKWISE
+-A -RIGHT > t1807 falling J 6,-1 6,0 5,1 6,1 after 2 next T level 1 lines 15 points 1100
++RIGHT > t1808 falling J 7,-1 7,0 6,1 7,1 after 3 next T level 1 lines 15 points 1100
+-RIGHT > t1809 falling J 7,-1 7,0 6,1 7,1 after 4 next T level 1 lines 15 points 1100
++RIGHT > t1810 falling J 8,-1 8,0 7,1 8,1 after 5 next T level 1 lines 15 points 1100
+-RIGHT > t1811 falling J 8,-1 8,0 7,1 8,1 after 6 next T level 1 lines 15 points 1100
++RIGHT > t1812 falling J 9,-1 9,0 8,1 9,1 after 7 next T level 1 lines 15 points 1100
+-RIGHT +DOWN > t1813 falling J 9,-1 9,0 8,1 9,1 after 8 next T level 1 lines 15 points 1100
+- > t1814 falling J 9,-1 9,0 8,1 9,1 after 9 next T level 1 lines 15 points 1100
+- > t1815 falling J 9,0 9,1 8,2 9,2 after 0 soft 1 next T level 1 lines 15 points 1100
+- > t1816 falling J 9,0 9,1 8,2 9,2 after 1 soft 1 next T level 1 lines 15 points 1100
+- > t1817 falling J 9,1 9,2 8,3 9,3 after 0 soft 2 next T level 1 lines 15 points 1100
+- > t1818 falling J 9,1 9,2 8,3 9,3 after 1 soft 2 next T level 1 lines 15 points 1100
+- > t1819 falling J 9,2 9,3 8,4 9,4 after 0 soft 3 next T level 1 lines 15 points 1100
+- > t1820 falling J 9,2 9,3 8,4 9,4 after 1 soft 3 next T level 1 lines 15 points 1100
+- > t1821 falling J 9,3 9,4 8,5 9,5 after 0 soft 4 next T level 1 lines 15 points 1100
+- > t1822 falling J 9,3 9,4 8,5 9,5 after 1 soft 4 next T level 1 lines 15 points 1100
+- > t1823 falling J 9,4 9,5 8,6 9,6 after 0 soft 5 next T level 1 lines 15 points 1100
+- > t1824 falling J 9,4 9,5 8,6 9,6 after 1 soft 5 next T level 1 lines 15 points 1100
+- > t1825 falling J 9,5 9,6 8,7 9,7 after 0 soft 6 next T level 1 lines 15 points 1100
+- > t1826 falling J 9,5 9,6 8,7 9,7 after 1 soft 6 next T level 1 lines 15 points 1100
+- > t1827 falling J 9,6 9,7 8,8 9,8 after 0 soft 7 next T level 1 lines 15 points 1100
+- > t1828 falling J 9,6 9,7 8,8 9,8 after 1 soft 7 next T level 1 lines 15 points 1100
+- > t1829 falling J 9,7 9,8 8,9 9,9 after 0 soft 8 next T level 1 lines 15 points 1100
+- > t1830 falling J 9,7 9,8 8,9 9,9 after 1 soft 8 next T level 1 lines 15 points 1100
+- > t1831 falling J 9,8 9,9 8,10 9,10 after 0 soft 9 next T level 1 lines 15 points 1100
+- > t1832 falling J 9,8 9,9 8,10 9,10 after 1 soft 9 next T level 1 lines 15 points 1100
+- > t1833 falling J 9,9 9,10 8,11 9,11 after 0 soft 10 next T level 1 lines 15 points 1100
+- > t1834 falling J 9,9 9,10 8,11 9,11 after 1 soft 10 next T level 1 lines 15 points 1100
+- > t1835 falling J 9,10 9,11 8,12 9,12 after 0 soft 11 next T level 1 lines 15 points 1100
+- > t1836 falling J 9,10 9,11 8,12 9,12 after 1 soft 11 next T level 1 lines 15 points 1100
+- > t1837 falling J 9,11 9,12 8,13 9,13 after 0 soft 12 next T level 1 lines 15 points 1100
+- > t1838 falling J 9,11 9,12 8,13 9,13 after 1 soft 12 next T level 1 lines 15 points 1100
+- > t1839 falling J 9,12 9,13 8,14 9,14 after 0 soft 13 next T level 1 lines 15 points 1100
+- > t1840 falling J 9,12 9,13 8,14 9,14 after 1 soft 13 next T level 1 lines 15 points 1100
+- > t1841 falling J 9,13 9,14 8,15 9,15 after 0 soft 14 next T level 1 lines 15 points 1100
+- > t1842 falling J 9,13 9,14 8,15 9,15 after 1 soft 14 next T level 1 lines 15 points 1100
+- > t1843 falling J 9,14 9,15 8,16 9,16 after 0 soft 15 next T level 1 lines 15 points 1100
+- > t1844 falling J 9,14 9,15 8,16 9,16 after 1 soft 15 next T level 1 lines 15 points 1100
+- > t1845 falling J 9,15 9,16 8,17 9,17 after 0 soft 16 next T level 1 lines 15 points 1100
+- > t1846 falling J 9,15 9,16 8,17 9,17 after 1 soft 16 next T level 1 lines 15 points 1100
+- > t1847 falling J 9,16 9,17 8,18 9,18 after 0 soft 17 next T level 1 lines 15 points 1100
+- > t1848 falling J 9,16 9,17 8,18 9,18 after 1 soft 17 next T level 1 lines 15 points 1100
+- > t1849 clearing rows 18 left 19 then 12 next T level 1 lines 15 points 1117 | locked J 9,16 9,17 8,18 9,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........J
+  ..LL.ZJI.J
+  LLLLZZJIJJ
+  LZZLZJJIS.
+- > t1850 clearing rows 18 left 18 then 12 next T level 1 lines 15 points 1117
+- > t1851 clearing rows 18 left 17 then 12 next T level 1 lines 15 points 1117
+- > t1852 clearing rows 18 left 16 then 12 next T level 1 lines 15 points 1117
+- > t1853 clearing rows 18 left 15 then 12 next T level 1 lines 15 points 1117
+- > t1854 clearing rows 18 left 14 then 12 next T level 1 lines 15 points 1117
+- > t1855 clearing rows 18 left 13 then 12 next T level 1 lines 15 points 1117
+- > t1856 clearing rows 18 left 12 then 12 next T level 1 lines 15 points 1117
+- > t1857 clearing rows 18 left 11 then 12 next T level 1 lines 15 points 1117
+- > t1858 clearing rows 18 left 10 then 12 next T level 1 lines 15 points 1117
+- > t1859 clearing rows 18 left 9 then 12 next T level 1 lines 15 points 1117
+- > t1860 clearing rows 18 left 8 then 12 next T level 1 lines 15 points 1117
+- > t1861 clearing rows 18 left 7 then 12 next T level 1 lines 15 points 1117
+- > t1862 clearing rows 18 left 6 then 12 next T level 1 lines 15 points 1117
+- > t1863 clearing rows 18 left 5 then 12 next T level 1 lines 15 points 1117
+- > t1864 clearing rows 18 left 4 then 12 next T level 1 lines 15 points 1117
+- > t1865 clearing rows 18 left 3 then 12 next T level 1 lines 15 points 1117
+- > t1866 clearing rows 18 left 2 then 12 next T level 1 lines 15 points 1117
+- > t1867 clearing rows 18 left 1 then 12 next T level 1 lines 15 points 1117
+- > t1868 entry 12 next T level 1 lines 16 points 1197 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........J
+  ..LL.ZJI.J
+  LZZLZJJIS.
+- > t1869 entry 11 next T level 1 lines 16 points 1197
+- > t1870 entry 10 next T level 1 lines 16 points 1197
+- > t1871 entry 9 next T level 1 lines 16 points 1197
+- > t1872 entry 8 next T level 1 lines 16 points 1197
+- > t1873 entry 7 next T level 1 lines 16 points 1197
+- > t1874 entry 6 next T level 1 lines 16 points 1197
+- > t1875 entry 5 next T level 1 lines 16 points 1197
+- > t1876 entry 4 next T level 1 lines 16 points 1197
+- > t1877 entry 3 next T level 1 lines 16 points 1197
+- > t1878 entry 2 next T level 1 lines 16 points 1197
+- > t1879 entry 1 next T level 1 lines 16 points 1197
+- > t1880 falling T 4,0 5,0 6,0 5,1 after 0 next S level 1 lines 16 points 1197
+-DOWN +A +RIGHT > t1881 falling T 6,-1 5,0 6,0 6,1 after 1 next S level 1 lines 16 points 1197 | rotated T 6,-1 5,0 6,0 6,1 CLOCKWISE
+-A > t1882 falling T 6,-1 5,0 6,0 6,1 after 2 next S level 1 lines 16 points 1197
+- > t1883 falling T 6,-1 5,0 6,0 6,1 after 3 next S level 1 lines 16 points 1197
+- > t1884 falling T 6,-1 5,0 6,0 6,1 after 4 next S level 1 lines 16 points 1197
+- > t1885 falling T 6,-1 5,0 6,0 6,1 after 5 next S level 1 lines 16 points 1197
+- > t1886 falling T 6,-1 5,0 6,0 6,1 after 6 next S level 1 lines 16 points 1197
+- > t1887 falling T 6,-1 5,0 6,0 6,1 after 7 next S level 1 lines 16 points 1197
+- > t1888 falling T 6,-1 5,0 6,0 6,1 after 8 next S level 1 lines 16 points 1197
+- > t1889 falling T 6,-1 5,0 6,0 6,1 after 9 next S level 1 lines 16 points 1197
+- > t1890 falling T 6,-1 5,0 6,0 6,1 after 10 next S level 1 lines 16 points 1197
+- > t1891 falling T 6,-1 5,0 6,0 6,1 after 11 next S level 1 lines 16 points 1197
+- > t1892 falling T 6,-1 5,0 6,0 6,1 after 12 next S level 1 lines 16 points 1197
+- > t1893 falling T 6,-1 5,0 6,0 6,1 after 13 next S level 1 lines 16 points 1197
+- > t1894 falling T 6,-1 5,0 6,0 6,1 after 14 next S level 1 lines 16 points 1197
+- > t1895 falling T 6,-1 5,0 6,0 6,1 after 15 next S level 1 lines 16 points 1197
+- > t1896 falling T 6,-1 5,0 6,0 6,1 after 16 next S level 1 lines 16 points 1197
+- > t1897 falling T 7,-1 6,0 7,0 7,1 after 17 next S level 1 lines 16 points 1197
+- > t1898 falling T 7,-1 6,0 7,0 7,1 after 18 next S level 1 lines 16 points 1197
+- > t1899 falling T 7,-1 6,0 7,0 7,1 after 19 next S level 1 lines 16 points 1197
+- > t1900 falling T 7,-1 6,0 7,0 7,1 after 20 next S level 1 lines 16 points 1197
+- > t1901 falling T 7,-1 6,0 7,0 7,1 after 21 next S level 1 lines 16 points 1197
+- > t1902 falling T 7,-1 6,0 7,0 7,1 after 22 next S level 1 lines 16 points 1197
+- > t1903 falling T 8,-1 7,0 8,0 8,1 after 23 next S level 1 lines 16 points 1197
+-RIGHT +DOWN > t1904 falling T 8,-1 7,0 8,0 8,1 after 24 next S level 1 lines 16 points 1197
+- > t1905 falling T 8,-1 7,0 8,0 8,1 after 25 next S level 1 lines 16 points 1197
+- > t1906 falling T 8,0 7,1 8,1 8,2 after 0 soft 1 next S level 1 lines 16 points 1197
+- > t1907 falling T 8,0 7,1 8,1 8,2 after 1 soft 1 next S level 1 lines 16 points 1197
+- > t1908 falling T 8,1 7,2 8,2 8,3 after 0 soft 2 next S level 1 lines 16 points 1197
+- > t1909 falling T 8,1 7,2 8,2 8,3 after 1 soft 2 next S level 1 lines 16 points 1197
+- > t1910 falling T 8,2 7,3 8,3 8,4 after 0 soft 3 next S level 1 lines 16 points 1197
+- > t1911 falling T 8,2 7,3 8,3 8,4 after 1 soft 3 next S level 1 lines 16 points 1197
+- > t1912 falling T 8,3 7,4 8,4 8,5 after 0 soft 4 next S level 1 lines 16 points 1197
+- > t1913 falling T 8,3 7,4 8,4 8,5 after 1 soft 4 next S level 1 lines 16 points 1197
+- > t1914 falling T 8,4 7,5 8,5 8,6 after 0 soft 5 next S level 1 lines 16 points 1197
+- > t1915 falling T 8,4 7,5 8,5 8,6 after 1 soft 5 next S level 1 lines 16 points 1197
+- > t1916 falling T 8,5 7,6 8,6 8,7 after 0 soft 6 next S level 1 lines 16 points 1197
+- > t1917 falling T 8,5 7,6 8,6 8,7 after 1 soft 6 next S level 1 lines 16 points 1197
+- > t1918 falling T 8,6 7,7 8,7 8,8 after 0 soft 7 next S level 1 lines 16 points 1197
+- > t1919 falling T 8,6 7,7 8,7 8,8 after 1 soft 7 next S level 1 lines 16 points 1197
+- > t1920 falling T 8,7 7,8 8,8 8,9 after 0 soft 8 next S level 1 lines 16 points 1197
+- > t1921 falling T 8,7 7,8 8,8 8,9 after 1 soft 8 next S level 1 lines 16 points 1197
+- > t1922 falling T 8,8 7,9 8,9 8,10 after 0 soft 9 next S level 1 lines 16 points 1197
+- > t1923 falling T 8,8 7,9 8,9 8,10 after 1 soft 9 next S level 1 lines 16 points 1197
+- > t1924 falling T 8,9 7,10 8,10 8,11 after 0 soft 10 next S level 1 lines 16 points 1197
+- > t1925 falling T 8,9 7,10 8,10 8,11 after 1 soft 10 next S level 1 lines 16 points 1197
+- > t1926 falling T 8,10 7,11 8,11 8,12 after 0 soft 11 next S level 1 lines 16 points 1197
+- > t1927 falling T 8,10 7,11 8,11 8,12 after 1 soft 11 next S level 1 lines 16 points 1197
+- > t1928 falling T 8,11 7,12 8,12 8,13 after 0 soft 12 next S level 1 lines 16 points 1197
+- > t1929 falling T 8,11 7,12 8,12 8,13 after 1 soft 12 next S level 1 lines 16 points 1197
+- > t1930 falling T 8,12 7,13 8,13 8,14 after 0 soft 13 next S level 1 lines 16 points 1197
+- > t1931 falling T 8,12 7,13 8,13 8,14 after 1 soft 13 next S level 1 lines 16 points 1197
+- > t1932 falling T 8,13 7,14 8,14 8,15 after 0 soft 14 next S level 1 lines 16 points 1197
+- > t1933 falling T 8,13 7,14 8,14 8,15 after 1 soft 14 next S level 1 lines 16 points 1197
+- > t1934 falling T 8,14 7,15 8,15 8,16 after 0 soft 15 next S level 1 lines 16 points 1197
+- > t1935 falling T 8,14 7,15 8,15 8,16 after 1 soft 15 next S level 1 lines 16 points 1197
+- > t1936 falling T 8,15 7,16 8,16 8,17 after 0 soft 16 next S level 1 lines 16 points 1197
+- > t1937 falling T 8,15 7,16 8,16 8,17 after 1 soft 16 next S level 1 lines 16 points 1197
+- > t1938 falling T 8,16 7,17 8,17 8,18 after 0 soft 17 next S level 1 lines 16 points 1197
+- > t1939 falling T 8,16 7,17 8,17 8,18 after 1 soft 17 next S level 1 lines 16 points 1197
+- > t1940 entry 12 next S level 1 lines 16 points 1214 | locked T 8,16 7,17 8,17 8,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ........T.
+  .......TTJ
+  ..LL.ZJITJ
+  LZZLZJJIS.
+- > t1941 entry 11 next S level 1 lines 16 points 1214
+- > t1942 entry 10 next S level 1 lines 16 points 1214
+- > t1943 entry 9 next S level 1 lines 16 points 1214
+- > t1944 entry 8 next S level 1 lines 16 points 1214
+- > t1945 entry 7 next S level 1 lines 16 points 1214
+- > t1946 entry 6 next S level 1 lines 16 points 1214
+- > t1947 entry 5 next S level 1 lines 16 points 1214
+- > t1948 entry 4 next S level 1 lines 16 points 1214
+- > t1949 entry 3 next S level 1 lines 16 points 1214
+- > t1950 entry 2 next S level 1 lines 16 points 1214
+- > t1951 entry 1 next S level 1 lines 16 points 1214
+- > t1952 falling S 5,0 6,0 4,1 5,1 after 0 next T level 1 lines 16 points 1214
+-DOWN +A +RIGHT > t1953 falling S 6,-1 6,0 7,0 7,1 after 1 next T level 1 lines 16 points 1214 | rotated S 6,-1 6,0 7,0 7,1 CLOCKWISE
+-A -RIGHT > t1954 falling S 6,-1 6,0 7,0 7,1 after 2 next T level 1 lines 16 points 1214
++A +DOWN > t1955 falling S 6,0 7,0 5,1 6,1 after 3 next T level 1 lines 16 points 1214 | rotated S 6,0 7,0 5,1 6,1 CLOCKWISE
+-A > t1956 falling S 6,0 7,0 5,1 6,1 after 4 next T level 1 lines 16 points 1214
+- > t1957 falling S 6,1 7,1 5,2 6,2 after 0 soft 1 next T level 1 lines 16 points 1214
+- > t1958 falling S 6,1 7,1 5,2 6,2 after 1 soft 1 next T level 1 lines 16 points 1214
+- > t1959 falling S 6,2 7,2 5,3 6,3 after 0 soft 2 next T level 1 lines 16 points 1214
+- > t1960 falling S 6,2 7,2 5,3 6,3 after 1 soft 2 next T level 1 lines 16 points 1214
+- > t1961 falling S 6,3 7,3 5,4 6,4 after 0 soft 3 next T level 1 lines 16 points 1214
+- > t1962 falling S 6,3 7,3 5,4 6,4 after 1 soft 3 next T level 1 lines 16 points 1214
+- > t1963 falling S 6,4 7,4 5,5 6,5 after 0 soft 4 next T level 1 lines 16 points 1214
+- > t1964 falling S 6,4 7,4 5,5 6,5 after 1 soft 4 next T level 1 lines 16 points 1214
+- > t1965 falling S 6,5 7,5 5,6 6,6 after 0 soft 5 next T level 1 lines 16 points 1214
+- > t1966 falling S 6,5 7,5 5,6 6,6 after 1 soft 5 next T level 1 lines 16 points 1214
+- > t1967 falling S 6,6 7,6 5,7 6,7 after 0 soft 6 next T level 1 lines 16 points 1214
+- > t1968 falling S 6,6 7,6 5,7 6,7 after 1 soft 6 next T level 1 lines 16 points 1214
+- > t1969 falling S 6,7 7,7 5,8 6,8 after 0 soft 7 next T level 1 lines 16 points 1214
+- > t1970 falling S 6,7 7,7 5,8 6,8 after 1 soft 7 next T level 1 lines 16 points 1214
+- > t1971 falling S 6,8 7,8 5,9 6,9 after 0 soft 8 next T level 1 lines 16 points 1214
+- > t1972 falling S 6,8 7,8 5,9 6,9 after 1 soft 8 next T level 1 lines 16 points 1214
+- > t1973 falling S 6,9 7,9 5,10 6,10 after 0 soft 9 next T level 1 lines 16 points 1214
+- > t1974 falling S 6,9 7,9 5,10 6,10 after 1 soft 9 next T level 1 lines 16 points 1214
+- > t1975 falling S 6,10 7,10 5,11 6,11 after 0 soft 10 next T level 1 lines 16 points 1214
+- > t1976 falling S 6,10 7,10 5,11 6,11 after 1 soft 10 next T level 1 lines 16 points 1214
+- > t1977 falling S 6,11 7,11 5,12 6,12 after 0 soft 11 next T level 1 lines 16 points 1214
+- > t1978 falling S 6,11 7,11 5,12 6,12 after 1 soft 11 next T level 1 lines 16 points 1214
+- > t1979 falling S 6,12 7,12 5,13 6,13 after 0 soft 12 next T level 1 lines 16 points 1214
+- > t1980 falling S 6,12 7,12 5,13 6,13 after 1 soft 12 next T level 1 lines 16 points 1214
+- > t1981 falling S 6,13 7,13 5,14 6,14 after 0 soft 13 next T level 1 lines 16 points 1214
+- > t1982 falling S 6,13 7,13 5,14 6,14 after 1 soft 13 next T level 1 lines 16 points 1214
+- > t1983 falling S 6,14 7,14 5,15 6,15 after 0 soft 14 next T level 1 lines 16 points 1214
+- > t1984 falling S 6,14 7,14 5,15 6,15 after 1 soft 14 next T level 1 lines 16 points 1214
+- > t1985 falling S 6,15 7,15 5,16 6,16 after 0 soft 15 next T level 1 lines 16 points 1214
+- > t1986 falling S 6,15 7,15 5,16 6,16 after 1 soft 15 next T level 1 lines 16 points 1214
+- > t1987 falling S 6,16 7,16 5,17 6,17 after 0 soft 16 next T level 1 lines 16 points 1214
+- > t1988 falling S 6,16 7,16 5,17 6,17 after 1 soft 16 next T level 1 lines 16 points 1214
+- > t1989 entry 12 next T level 1 lines 16 points 1230 | locked S 6,16 7,16 5,17 6,17
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ......SST.
+  .....SSTTJ
+  ..LL.ZJITJ
+  LZZLZJJIS.
+- > t1990 entry 11 next T level 1 lines 16 points 1230
+- > t1991 entry 10 next T level 1 lines 16 points 1230
+- > t1992 entry 9 next T level 1 lines 16 points 1230
+- > t1993 entry 8 next T level 1 lines 16 points 1230
+- > t1994 entry 7 next T level 1 lines 16 points 1230
+- > t1995 entry 6 next T level 1 lines 16 points 1230
+- > t1996 entry 5 next T level 1 lines 16 points 1230
+- > t1997 entry 4 next T level 1 lines 16 points 1230
+- > t1998 entry 3 next T level 1 lines 16 points 1230
+- > t1999 entry 2 next T level 1 lines 16 points 1230
+- > t2000 entry 1 next T level 1 lines 16 points 1230

@@ -1,0 +1,1905 @@
+# Reference game of the Classic mode (P11.4), recorded before the extraction of DropTiming:
+# never record it again. Format: see ReferenceGame (core:game tests) and JOURNAL.md.
+seed 2
+start-level 9
+lines 95
++A +LEFT > t1 falling I 4,-2 4,-1 4,0 4,1 after 1 next I level 9 lines 95 points 0 | rotated I 4,-2 4,-1 4,0 4,1 CLOCKWISE
+-A > t2 falling I 4,-2 4,-1 4,0 4,1 after 2 next I level 9 lines 95 points 0
++A > t3 falling I 2,0 3,0 4,0 5,0 after 3 next I level 9 lines 95 points 0 | rotated I 2,0 3,0 4,0 5,0 CLOCKWISE
+-A > t4 falling I 2,0 3,0 4,0 5,0 after 4 next I level 9 lines 95 points 0
+- > t5 falling I 2,0 3,0 4,0 5,0 after 5 next I level 9 lines 95 points 0
+- > t6 falling I 2,1 3,1 4,1 5,1 after 0 next I level 9 lines 95 points 0
+- > t7 falling I 2,1 3,1 4,1 5,1 after 1 next I level 9 lines 95 points 0
+- > t8 falling I 2,1 3,1 4,1 5,1 after 2 next I level 9 lines 95 points 0
+- > t9 falling I 2,1 3,1 4,1 5,1 after 3 next I level 9 lines 95 points 0
+- > t10 falling I 2,1 3,1 4,1 5,1 after 4 next I level 9 lines 95 points 0
+- > t11 falling I 2,1 3,1 4,1 5,1 after 5 next I level 9 lines 95 points 0
+- > t12 falling I 2,2 3,2 4,2 5,2 after 0 next I level 9 lines 95 points 0
+- > t13 falling I 2,2 3,2 4,2 5,2 after 1 next I level 9 lines 95 points 0
+- > t14 falling I 2,2 3,2 4,2 5,2 after 2 next I level 9 lines 95 points 0
+- > t15 falling I 2,2 3,2 4,2 5,2 after 3 next I level 9 lines 95 points 0
+- > t16 falling I 2,2 3,2 4,2 5,2 after 4 next I level 9 lines 95 points 0
+- > t17 falling I 1,2 2,2 3,2 4,2 after 5 next I level 9 lines 95 points 0
+- > t18 falling I 1,3 2,3 3,3 4,3 after 0 next I level 9 lines 95 points 0
+- > t19 falling I 1,3 2,3 3,3 4,3 after 1 next I level 9 lines 95 points 0
+- > t20 falling I 1,3 2,3 3,3 4,3 after 2 next I level 9 lines 95 points 0
+- > t21 falling I 1,3 2,3 3,3 4,3 after 3 next I level 9 lines 95 points 0
+- > t22 falling I 1,3 2,3 3,3 4,3 after 4 next I level 9 lines 95 points 0
+- > t23 falling I 0,3 1,3 2,3 3,3 after 5 next I level 9 lines 95 points 0
+-LEFT +DOWN > t24 falling I 0,4 1,4 2,4 3,4 after 0 next I level 9 lines 95 points 0
+- > t25 falling I 0,4 1,4 2,4 3,4 after 1 next I level 9 lines 95 points 0
+- > t26 falling I 0,5 1,5 2,5 3,5 after 0 soft 1 next I level 9 lines 95 points 0
+- > t27 falling I 0,5 1,5 2,5 3,5 after 1 soft 1 next I level 9 lines 95 points 0
+- > t28 falling I 0,6 1,6 2,6 3,6 after 0 soft 2 next I level 9 lines 95 points 0
+- > t29 falling I 0,6 1,6 2,6 3,6 after 1 soft 2 next I level 9 lines 95 points 0
+- > t30 falling I 0,7 1,7 2,7 3,7 after 0 soft 3 next I level 9 lines 95 points 0
+- > t31 falling I 0,7 1,7 2,7 3,7 after 1 soft 3 next I level 9 lines 95 points 0
+- > t32 falling I 0,8 1,8 2,8 3,8 after 0 soft 4 next I level 9 lines 95 points 0
+- > t33 falling I 0,8 1,8 2,8 3,8 after 1 soft 4 next I level 9 lines 95 points 0
+- > t34 falling I 0,9 1,9 2,9 3,9 after 0 soft 5 next I level 9 lines 95 points 0
+- > t35 falling I 0,9 1,9 2,9 3,9 after 1 soft 5 next I level 9 lines 95 points 0
+- > t36 falling I 0,10 1,10 2,10 3,10 after 0 soft 6 next I level 9 lines 95 points 0
+- > t37 falling I 0,10 1,10 2,10 3,10 after 1 soft 6 next I level 9 lines 95 points 0
+- > t38 falling I 0,11 1,11 2,11 3,11 after 0 soft 7 next I level 9 lines 95 points 0
+- > t39 falling I 0,11 1,11 2,11 3,11 after 1 soft 7 next I level 9 lines 95 points 0
+- > t40 falling I 0,12 1,12 2,12 3,12 after 0 soft 8 next I level 9 lines 95 points 0
+- > t41 falling I 0,12 1,12 2,12 3,12 after 1 soft 8 next I level 9 lines 95 points 0
+- > t42 falling I 0,13 1,13 2,13 3,13 after 0 soft 9 next I level 9 lines 95 points 0
+- > t43 falling I 0,13 1,13 2,13 3,13 after 1 soft 9 next I level 9 lines 95 points 0
+- > t44 falling I 0,14 1,14 2,14 3,14 after 0 soft 10 next I level 9 lines 95 points 0
+- > t45 falling I 0,14 1,14 2,14 3,14 after 1 soft 10 next I level 9 lines 95 points 0
+- > t46 falling I 0,15 1,15 2,15 3,15 after 0 soft 11 next I level 9 lines 95 points 0
+- > t47 falling I 0,15 1,15 2,15 3,15 after 1 soft 11 next I level 9 lines 95 points 0
+- > t48 falling I 0,16 1,16 2,16 3,16 after 0 soft 12 next I level 9 lines 95 points 0
+- > t49 falling I 0,16 1,16 2,16 3,16 after 1 soft 12 next I level 9 lines 95 points 0
+- > t50 falling I 0,17 1,17 2,17 3,17 after 0 soft 13 next I level 9 lines 95 points 0
+- > t51 falling I 0,17 1,17 2,17 3,17 after 1 soft 13 next I level 9 lines 95 points 0
+- > t52 falling I 0,18 1,18 2,18 3,18 after 0 soft 14 next I level 9 lines 95 points 0
+- > t53 falling I 0,18 1,18 2,18 3,18 after 1 soft 14 next I level 9 lines 95 points 0
+- > t54 falling I 0,19 1,19 2,19 3,19 after 0 soft 15 next I level 9 lines 95 points 0
+- > t55 falling I 0,19 1,19 2,19 3,19 after 1 soft 15 next I level 9 lines 95 points 0
+- > t56 entry 10 next I level 9 lines 95 points 15 | locked I 0,19 1,19 2,19 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  IIII......
+- > t57 entry 9 next I level 9 lines 95 points 15
+- > t58 entry 8 next I level 9 lines 95 points 15
+- > t59 entry 7 next I level 9 lines 95 points 15
+- > t60 entry 6 next I level 9 lines 95 points 15
+- > t61 entry 5 next I level 9 lines 95 points 15
+- > t62 entry 4 next I level 9 lines 95 points 15
+- > t63 entry 3 next I level 9 lines 95 points 15
+- > t64 entry 2 next I level 9 lines 95 points 15
+- > t65 entry 1 next I level 9 lines 95 points 15
+- > t66 falling I 3,0 4,0 5,0 6,0 after 0 next Z level 9 lines 95 points 15
+-DOWN +RIGHT > t67 falling I 4,0 5,0 6,0 7,0 after 1 next Z level 9 lines 95 points 15
+-RIGHT +DOWN > t68 falling I 4,0 5,0 6,0 7,0 after 2 next Z level 9 lines 95 points 15
+- > t69 falling I 4,0 5,0 6,0 7,0 after 3 next Z level 9 lines 95 points 15
+- > t70 falling I 4,1 5,1 6,1 7,1 after 0 soft 1 next Z level 9 lines 95 points 15
+- > t71 falling I 4,1 5,1 6,1 7,1 after 1 soft 1 next Z level 9 lines 95 points 15
+- > t72 falling I 4,2 5,2 6,2 7,2 after 0 soft 2 next Z level 9 lines 95 points 15
+- > t73 falling I 4,2 5,2 6,2 7,2 after 1 soft 2 next Z level 9 lines 95 points 15
+- > t74 falling I 4,3 5,3 6,3 7,3 after 0 soft 3 next Z level 9 lines 95 points 15
+- > t75 falling I 4,3 5,3 6,3 7,3 after 1 soft 3 next Z level 9 lines 95 points 15
+- > t76 falling I 4,4 5,4 6,4 7,4 after 0 soft 4 next Z level 9 lines 95 points 15
+- > t77 falling I 4,4 5,4 6,4 7,4 after 1 soft 4 next Z level 9 lines 95 points 15
+- > t78 falling I 4,5 5,5 6,5 7,5 after 0 soft 5 next Z level 9 lines 95 points 15
+- > t79 falling I 4,5 5,5 6,5 7,5 after 1 soft 5 next Z level 9 lines 95 points 15
+- > t80 falling I 4,6 5,6 6,6 7,6 after 0 soft 6 next Z level 9 lines 95 points 15
+- > t81 falling I 4,6 5,6 6,6 7,6 after 1 soft 6 next Z level 9 lines 95 points 15
+- > t82 falling I 4,7 5,7 6,7 7,7 after 0 soft 7 next Z level 9 lines 95 points 15
+- > t83 falling I 4,7 5,7 6,7 7,7 after 1 soft 7 next Z level 9 lines 95 points 15
+- > t84 falling I 4,8 5,8 6,8 7,8 after 0 soft 8 next Z level 9 lines 95 points 15
+- > t85 falling I 4,8 5,8 6,8 7,8 after 1 soft 8 next Z level 9 lines 95 points 15
+- > t86 falling I 4,9 5,9 6,9 7,9 after 0 soft 9 next Z level 9 lines 95 points 15
+- > t87 falling I 4,9 5,9 6,9 7,9 after 1 soft 9 next Z level 9 lines 95 points 15
+- > t88 falling I 4,10 5,10 6,10 7,10 after 0 soft 10 next Z level 9 lines 95 points 15
+- > t89 falling I 4,10 5,10 6,10 7,10 after 1 soft 10 next Z level 9 lines 95 points 15
+- > t90 falling I 4,11 5,11 6,11 7,11 after 0 soft 11 next Z level 9 lines 95 points 15
+- > t91 falling I 4,11 5,11 6,11 7,11 after 1 soft 11 next Z level 9 lines 95 points 15
+- > t92 falling I 4,12 5,12 6,12 7,12 after 0 soft 12 next Z level 9 lines 95 points 15
+- > t93 falling I 4,12 5,12 6,12 7,12 after 1 soft 12 next Z level 9 lines 95 points 15
+- > t94 falling I 4,13 5,13 6,13 7,13 after 0 soft 13 next Z level 9 lines 95 points 15
+- > t95 falling I 4,13 5,13 6,13 7,13 after 1 soft 13 next Z level 9 lines 95 points 15
+- > t96 falling I 4,14 5,14 6,14 7,14 after 0 soft 14 next Z level 9 lines 95 points 15
+- > t97 falling I 4,14 5,14 6,14 7,14 after 1 soft 14 next Z level 9 lines 95 points 15
+- > t98 falling I 4,15 5,15 6,15 7,15 after 0 soft 15 next Z level 9 lines 95 points 15
+- > t99 falling I 4,15 5,15 6,15 7,15 after 1 soft 15 next Z level 9 lines 95 points 15
+- > t100 falling I 4,16 5,16 6,16 7,16 after 0 soft 16 next Z level 9 lines 95 points 15
+- > t101 falling I 4,16 5,16 6,16 7,16 after 1 soft 16 next Z level 9 lines 95 points 15
+- > t102 falling I 4,17 5,17 6,17 7,17 after 0 soft 17 next Z level 9 lines 95 points 15
+- > t103 falling I 4,17 5,17 6,17 7,17 after 1 soft 17 next Z level 9 lines 95 points 15
+- > t104 falling I 4,18 5,18 6,18 7,18 after 0 soft 18 next Z level 9 lines 95 points 15
+- > t105 falling I 4,18 5,18 6,18 7,18 after 1 soft 18 next Z level 9 lines 95 points 15
+- > t106 falling I 4,19 5,19 6,19 7,19 after 0 soft 19 next Z level 9 lines 95 points 15
+- > t107 falling I 4,19 5,19 6,19 7,19 after 1 soft 19 next Z level 9 lines 95 points 15
+- > t108 entry 10 next Z level 9 lines 95 points 34 | locked I 4,19 5,19 6,19 7,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  IIIIIIII..
+- > t109 entry 9 next Z level 9 lines 95 points 34
+- > t110 entry 8 next Z level 9 lines 95 points 34
+- > t111 entry 7 next Z level 9 lines 95 points 34
+- > t112 entry 6 next Z level 9 lines 95 points 34
+- > t113 entry 5 next Z level 9 lines 95 points 34
+- > t114 entry 4 next Z level 9 lines 95 points 34
+- > t115 entry 3 next Z level 9 lines 95 points 34
+- > t116 entry 2 next Z level 9 lines 95 points 34
+- > t117 entry 1 next Z level 9 lines 95 points 34
+- > t118 falling Z 4,0 5,0 5,1 6,1 after 0 next J level 9 lines 95 points 34
+-DOWN +A +RIGHT > t119 falling Z 7,-1 6,0 7,0 6,1 after 1 next J level 9 lines 95 points 34 | rotated Z 7,-1 6,0 7,0 6,1 CLOCKWISE
+-A > t120 falling Z 7,-1 6,0 7,0 6,1 after 2 next J level 9 lines 95 points 34
++A > t121 falling Z 5,0 6,0 6,1 7,1 after 3 next J level 9 lines 95 points 34 | rotated Z 5,0 6,0 6,1 7,1 CLOCKWISE
+-A > t122 falling Z 5,0 6,0 6,1 7,1 after 4 next J level 9 lines 95 points 34
+- > t123 falling Z 5,0 6,0 6,1 7,1 after 5 next J level 9 lines 95 points 34
+- > t124 falling Z 5,1 6,1 6,2 7,2 after 0 next J level 9 lines 95 points 34
+- > t125 falling Z 5,1 6,1 6,2 7,2 after 1 next J level 9 lines 95 points 34
+- > t126 falling Z 5,1 6,1 6,2 7,2 after 2 next J level 9 lines 95 points 34
+- > t127 falling Z 5,1 6,1 6,2 7,2 after 3 next J level 9 lines 95 points 34
+- > t128 falling Z 5,1 6,1 6,2 7,2 after 4 next J level 9 lines 95 points 34
+- > t129 falling Z 5,1 6,1 6,2 7,2 after 5 next J level 9 lines 95 points 34
+- > t130 falling Z 5,2 6,2 6,3 7,3 after 0 next J level 9 lines 95 points 34
+- > t131 falling Z 5,2 6,2 6,3 7,3 after 1 next J level 9 lines 95 points 34
+- > t132 falling Z 5,2 6,2 6,3 7,3 after 2 next J level 9 lines 95 points 34
+- > t133 falling Z 5,2 6,2 6,3 7,3 after 3 next J level 9 lines 95 points 34
+- > t134 falling Z 5,2 6,2 6,3 7,3 after 4 next J level 9 lines 95 points 34
+- > t135 falling Z 6,2 7,2 7,3 8,3 after 5 next J level 9 lines 95 points 34
+- > t136 falling Z 6,3 7,3 7,4 8,4 after 0 next J level 9 lines 95 points 34
+- > t137 falling Z 6,3 7,3 7,4 8,4 after 1 next J level 9 lines 95 points 34
+- > t138 falling Z 6,3 7,3 7,4 8,4 after 2 next J level 9 lines 95 points 34
+- > t139 falling Z 6,3 7,3 7,4 8,4 after 3 next J level 9 lines 95 points 34
+- > t140 falling Z 6,3 7,3 7,4 8,4 after 4 next J level 9 lines 95 points 34
+- > t141 falling Z 7,3 8,3 8,4 9,4 after 5 next J level 9 lines 95 points 34
+-RIGHT > t142 falling Z 7,4 8,4 8,5 9,5 after 0 next J level 9 lines 95 points 34
+- > t143 falling Z 7,4 8,4 8,5 9,5 after 1 next J level 9 lines 95 points 34
+- > t144 falling Z 7,4 8,4 8,5 9,5 after 2 next J level 9 lines 95 points 34
+- > t145 falling Z 7,4 8,4 8,5 9,5 after 3 next J level 9 lines 95 points 34
+- > t146 falling Z 7,4 8,4 8,5 9,5 after 4 next J level 9 lines 95 points 34
+- > t147 falling Z 7,4 8,4 8,5 9,5 after 5 next J level 9 lines 95 points 34
+- > t148 falling Z 7,5 8,5 8,6 9,6 after 0 next J level 9 lines 95 points 34
+- > t149 falling Z 7,5 8,5 8,6 9,6 after 1 next J level 9 lines 95 points 34
+- > t150 falling Z 7,5 8,5 8,6 9,6 after 2 next J level 9 lines 95 points 34
+- > t151 falling Z 7,5 8,5 8,6 9,6 after 3 next J level 9 lines 95 points 34
+- > t152 falling Z 7,5 8,5 8,6 9,6 after 4 next J level 9 lines 95 points 34
+- > t153 falling Z 7,5 8,5 8,6 9,6 after 5 next J level 9 lines 95 points 34
+- > t154 falling Z 7,6 8,6 8,7 9,7 after 0 next J level 9 lines 95 points 34
+- > t155 falling Z 7,6 8,6 8,7 9,7 after 1 next J level 9 lines 95 points 34
+- > t156 falling Z 7,6 8,6 8,7 9,7 after 2 next J level 9 lines 95 points 34
+- > t157 falling Z 7,6 8,6 8,7 9,7 after 3 next J level 9 lines 95 points 34
+- > t158 falling Z 7,6 8,6 8,7 9,7 after 4 next J level 9 lines 95 points 34
+- > t159 falling Z 7,6 8,6 8,7 9,7 after 5 next J level 9 lines 95 points 34
+- > t160 falling Z 7,7 8,7 8,8 9,8 after 0 next J level 9 lines 95 points 34
+- > t161 falling Z 7,7 8,7 8,8 9,8 after 1 next J level 9 lines 95 points 34
+- > t162 falling Z 7,7 8,7 8,8 9,8 after 2 next J level 9 lines 95 points 34
+- > t163 falling Z 7,7 8,7 8,8 9,8 after 3 next J level 9 lines 95 points 34
+- > t164 falling Z 7,7 8,7 8,8 9,8 after 4 next J level 9 lines 95 points 34
+- > t165 falling Z 7,7 8,7 8,8 9,8 after 5 next J level 9 lines 95 points 34
+- > t166 falling Z 7,8 8,8 8,9 9,9 after 0 next J level 9 lines 95 points 34
+- > t167 falling Z 7,8 8,8 8,9 9,9 after 1 next J level 9 lines 95 points 34
+- > t168 falling Z 7,8 8,8 8,9 9,9 after 2 next J level 9 lines 95 points 34
+- > t169 falling Z 7,8 8,8 8,9 9,9 after 3 next J level 9 lines 95 points 34
+- > t170 falling Z 7,8 8,8 8,9 9,9 after 4 next J level 9 lines 95 points 34
+- > t171 falling Z 7,8 8,8 8,9 9,9 after 5 next J level 9 lines 95 points 34
+- > t172 falling Z 7,9 8,9 8,10 9,10 after 0 next J level 9 lines 95 points 34
+- > t173 falling Z 7,9 8,9 8,10 9,10 after 1 next J level 9 lines 95 points 34
+- > t174 falling Z 7,9 8,9 8,10 9,10 after 2 next J level 9 lines 95 points 34
+- > t175 falling Z 7,9 8,9 8,10 9,10 after 3 next J level 9 lines 95 points 34
+- > t176 falling Z 7,9 8,9 8,10 9,10 after 4 next J level 9 lines 95 points 34
+- > t177 falling Z 7,9 8,9 8,10 9,10 after 5 next J level 9 lines 95 points 34
+- > t178 falling Z 7,10 8,10 8,11 9,11 after 0 next J level 9 lines 95 points 34
+- > t179 falling Z 7,10 8,10 8,11 9,11 after 1 next J level 9 lines 95 points 34
+- > t180 falling Z 7,10 8,10 8,11 9,11 after 2 next J level 9 lines 95 points 34
+- > t181 falling Z 7,10 8,10 8,11 9,11 after 3 next J level 9 lines 95 points 34
+- > t182 falling Z 7,10 8,10 8,11 9,11 after 4 next J level 9 lines 95 points 34
+- > t183 falling Z 7,10 8,10 8,11 9,11 after 5 next J level 9 lines 95 points 34
+- > t184 falling Z 7,11 8,11 8,12 9,12 after 0 next J level 9 lines 95 points 34
+- > t185 falling Z 7,11 8,11 8,12 9,12 after 1 next J level 9 lines 95 points 34
+- > t186 falling Z 7,11 8,11 8,12 9,12 after 2 next J level 9 lines 95 points 34
+- > t187 falling Z 7,11 8,11 8,12 9,12 after 3 next J level 9 lines 95 points 34
+- > t188 falling Z 7,11 8,11 8,12 9,12 after 4 next J level 9 lines 95 points 34
+- > t189 falling Z 7,11 8,11 8,12 9,12 after 5 next J level 9 lines 95 points 34
+- > t190 falling Z 7,12 8,12 8,13 9,13 after 0 next J level 9 lines 95 points 34
+- > t191 falling Z 7,12 8,12 8,13 9,13 after 1 next J level 9 lines 95 points 34
+- > t192 falling Z 7,12 8,12 8,13 9,13 after 2 next J level 9 lines 95 points 34
+- > t193 falling Z 7,12 8,12 8,13 9,13 after 3 next J level 9 lines 95 points 34
+- > t194 falling Z 7,12 8,12 8,13 9,13 after 4 next J level 9 lines 95 points 34
+- > t195 falling Z 7,12 8,12 8,13 9,13 after 5 next J level 9 lines 95 points 34
+- > t196 falling Z 7,13 8,13 8,14 9,14 after 0 next J level 9 lines 95 points 34
+- > t197 falling Z 7,13 8,13 8,14 9,14 after 1 next J level 9 lines 95 points 34
+- > t198 falling Z 7,13 8,13 8,14 9,14 after 2 next J level 9 lines 95 points 34
+- > t199 falling Z 7,13 8,13 8,14 9,14 after 3 next J level 9 lines 95 points 34
+- > t200 falling Z 7,13 8,13 8,14 9,14 after 4 next J level 9 lines 95 points 34
+- > t201 falling Z 7,13 8,13 8,14 9,14 after 5 next J level 9 lines 95 points 34
+- > t202 falling Z 7,14 8,14 8,15 9,15 after 0 next J level 9 lines 95 points 34
+- > t203 falling Z 7,14 8,14 8,15 9,15 after 1 next J level 9 lines 95 points 34
+- > t204 falling Z 7,14 8,14 8,15 9,15 after 2 next J level 9 lines 95 points 34
+- > t205 falling Z 7,14 8,14 8,15 9,15 after 3 next J level 9 lines 95 points 34
+- > t206 falling Z 7,14 8,14 8,15 9,15 after 4 next J level 9 lines 95 points 34
+- > t207 falling Z 7,14 8,14 8,15 9,15 after 5 next J level 9 lines 95 points 34
+- > t208 falling Z 7,15 8,15 8,16 9,16 after 0 next J level 9 lines 95 points 34
+- > t209 falling Z 7,15 8,15 8,16 9,16 after 1 next J level 9 lines 95 points 34
+- > t210 falling Z 7,15 8,15 8,16 9,16 after 2 next J level 9 lines 95 points 34
+- > t211 falling Z 7,15 8,15 8,16 9,16 after 3 next J level 9 lines 95 points 34
+- > t212 falling Z 7,15 8,15 8,16 9,16 after 4 next J level 9 lines 95 points 34
+- > t213 falling Z 7,15 8,15 8,16 9,16 after 5 next J level 9 lines 95 points 34
+- > t214 falling Z 7,16 8,16 8,17 9,17 after 0 next J level 9 lines 95 points 34
+- > t215 falling Z 7,16 8,16 8,17 9,17 after 1 next J level 9 lines 95 points 34
+- > t216 falling Z 7,16 8,16 8,17 9,17 after 2 next J level 9 lines 95 points 34
+- > t217 falling Z 7,16 8,16 8,17 9,17 after 3 next J level 9 lines 95 points 34
+- > t218 falling Z 7,16 8,16 8,17 9,17 after 4 next J level 9 lines 95 points 34
+- > t219 falling Z 7,16 8,16 8,17 9,17 after 5 next J level 9 lines 95 points 34
+- > t220 falling Z 7,17 8,17 8,18 9,18 after 0 next J level 9 lines 95 points 34
+- > t221 falling Z 7,17 8,17 8,18 9,18 after 1 next J level 9 lines 95 points 34
+- > t222 falling Z 7,17 8,17 8,18 9,18 after 2 next J level 9 lines 95 points 34
+- > t223 falling Z 7,17 8,17 8,18 9,18 after 3 next J level 9 lines 95 points 34
+- > t224 falling Z 7,17 8,17 8,18 9,18 after 4 next J level 9 lines 95 points 34
+- > t225 falling Z 7,17 8,17 8,18 9,18 after 5 next J level 9 lines 95 points 34
+- > t226 falling Z 7,18 8,18 8,19 9,19 after 0 next J level 9 lines 95 points 34
+- > t227 falling Z 7,18 8,18 8,19 9,19 after 1 next J level 9 lines 95 points 34
+- > t228 falling Z 7,18 8,18 8,19 9,19 after 2 next J level 9 lines 95 points 34
+- > t229 falling Z 7,18 8,18 8,19 9,19 after 3 next J level 9 lines 95 points 34
+- > t230 falling Z 7,18 8,18 8,19 9,19 after 4 next J level 9 lines 95 points 34
+- > t231 falling Z 7,18 8,18 8,19 9,19 after 5 next J level 9 lines 95 points 34
+- > t232 clearing rows 19 left 20 then 10 next J level 9 lines 95 points 34 | locked Z 7,18 8,18 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......ZZ.
+  IIIIIIIIZZ
+- > t233 clearing rows 19 left 19 then 10 next J level 9 lines 95 points 34
+- > t234 clearing rows 19 left 18 then 10 next J level 9 lines 95 points 34
+- > t235 clearing rows 19 left 17 then 10 next J level 9 lines 95 points 34
+- > t236 clearing rows 19 left 16 then 10 next J level 9 lines 95 points 34
+- > t237 clearing rows 19 left 15 then 10 next J level 9 lines 95 points 34
+- > t238 clearing rows 19 left 14 then 10 next J level 9 lines 95 points 34
+- > t239 clearing rows 19 left 13 then 10 next J level 9 lines 95 points 34
+- > t240 clearing rows 19 left 12 then 10 next J level 9 lines 95 points 34
+- > t241 clearing rows 19 left 11 then 10 next J level 9 lines 95 points 34
+- > t242 clearing rows 19 left 10 then 10 next J level 9 lines 95 points 34
+- > t243 clearing rows 19 left 9 then 10 next J level 9 lines 95 points 34
+- > t244 clearing rows 19 left 8 then 10 next J level 9 lines 95 points 34
+- > t245 clearing rows 19 left 7 then 10 next J level 9 lines 95 points 34
+- > t246 clearing rows 19 left 6 then 10 next J level 9 lines 95 points 34
+- > t247 clearing rows 19 left 5 then 10 next J level 9 lines 95 points 34
+- > t248 clearing rows 19 left 4 then 10 next J level 9 lines 95 points 34
+- > t249 clearing rows 19 left 3 then 10 next J level 9 lines 95 points 34
+- > t250 clearing rows 19 left 2 then 10 next J level 9 lines 95 points 34
+- > t251 clearing rows 19 left 1 then 10 next J level 9 lines 95 points 34
+- > t252 entry 10 next J level 9 lines 96 points 434 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......ZZ.
+- > t253 entry 9 next J level 9 lines 96 points 434
+- > t254 entry 8 next J level 9 lines 96 points 434
+- > t255 entry 7 next J level 9 lines 96 points 434
+- > t256 entry 6 next J level 9 lines 96 points 434
+- > t257 entry 5 next J level 9 lines 96 points 434
+- > t258 entry 4 next J level 9 lines 96 points 434
+- > t259 entry 3 next J level 9 lines 96 points 434
+- > t260 entry 2 next J level 9 lines 96 points 434
+- > t261 entry 1 next J level 9 lines 96 points 434
+- > t262 falling J 4,0 5,0 6,0 6,1 after 0 next L level 9 lines 96 points 434
++RIGHT > t263 falling J 5,0 6,0 7,0 7,1 after 1 next L level 9 lines 96 points 434
+-RIGHT > t264 falling J 5,0 6,0 7,0 7,1 after 2 next L level 9 lines 96 points 434
++RIGHT > t265 falling J 6,0 7,0 8,0 8,1 after 3 next L level 9 lines 96 points 434
+-RIGHT > t266 falling J 6,0 7,0 8,0 8,1 after 4 next L level 9 lines 96 points 434
++RIGHT > t267 falling J 7,0 8,0 9,0 9,1 after 5 next L level 9 lines 96 points 434
+-RIGHT > t268 falling J 7,1 8,1 9,1 9,2 after 0 next L level 9 lines 96 points 434
+- > t269 falling J 7,1 8,1 9,1 9,2 after 1 next L level 9 lines 96 points 434
+- > t270 falling J 7,1 8,1 9,1 9,2 after 2 next L level 9 lines 96 points 434
+- > t271 falling J 7,1 8,1 9,1 9,2 after 3 next L level 9 lines 96 points 434
+- > t272 falling J 7,1 8,1 9,1 9,2 after 4 next L level 9 lines 96 points 434
+- > t273 falling J 7,1 8,1 9,1 9,2 after 5 next L level 9 lines 96 points 434
+- > t274 falling J 7,2 8,2 9,2 9,3 after 0 next L level 9 lines 96 points 434
+- > t275 falling J 7,2 8,2 9,2 9,3 after 1 next L level 9 lines 96 points 434
+- > t276 falling J 7,2 8,2 9,2 9,3 after 2 next L level 9 lines 96 points 434
+- > t277 falling J 7,2 8,2 9,2 9,3 after 3 next L level 9 lines 96 points 434
+- > t278 falling J 7,2 8,2 9,2 9,3 after 4 next L level 9 lines 96 points 434
+- > t279 falling J 7,2 8,2 9,2 9,3 after 5 next L level 9 lines 96 points 434
+- > t280 falling J 7,3 8,3 9,3 9,4 after 0 next L level 9 lines 96 points 434
+- > t281 falling J 7,3 8,3 9,3 9,4 after 1 next L level 9 lines 96 points 434
+- > t282 falling J 7,3 8,3 9,3 9,4 after 2 next L level 9 lines 96 points 434
+- > t283 falling J 7,3 8,3 9,3 9,4 after 3 next L level 9 lines 96 points 434
+- > t284 falling J 7,3 8,3 9,3 9,4 after 4 next L level 9 lines 96 points 434
+- > t285 falling J 7,3 8,3 9,3 9,4 after 5 next L level 9 lines 96 points 434
+- > t286 falling J 7,4 8,4 9,4 9,5 after 0 next L level 9 lines 96 points 434
+- > t287 falling J 7,4 8,4 9,4 9,5 after 1 next L level 9 lines 96 points 434
+- > t288 falling J 7,4 8,4 9,4 9,5 after 2 next L level 9 lines 96 points 434
+- > t289 falling J 7,4 8,4 9,4 9,5 after 3 next L level 9 lines 96 points 434
+- > t290 falling J 7,4 8,4 9,4 9,5 after 4 next L level 9 lines 96 points 434
+- > t291 falling J 7,4 8,4 9,4 9,5 after 5 next L level 9 lines 96 points 434
+- > t292 falling J 7,5 8,5 9,5 9,6 after 0 next L level 9 lines 96 points 434
+- > t293 falling J 7,5 8,5 9,5 9,6 after 1 next L level 9 lines 96 points 434
+- > t294 falling J 7,5 8,5 9,5 9,6 after 2 next L level 9 lines 96 points 434
+- > t295 falling J 7,5 8,5 9,5 9,6 after 3 next L level 9 lines 96 points 434
+- > t296 falling J 7,5 8,5 9,5 9,6 after 4 next L level 9 lines 96 points 434
+- > t297 falling J 7,5 8,5 9,5 9,6 after 5 next L level 9 lines 96 points 434
+- > t298 falling J 7,6 8,6 9,6 9,7 after 0 next L level 9 lines 96 points 434
+- > t299 falling J 7,6 8,6 9,6 9,7 after 1 next L level 9 lines 96 points 434
+- > t300 falling J 7,6 8,6 9,6 9,7 after 2 next L level 9 lines 96 points 434
+- > t301 falling J 7,6 8,6 9,6 9,7 after 3 next L level 9 lines 96 points 434
+- > t302 falling J 7,6 8,6 9,6 9,7 after 4 next L level 9 lines 96 points 434
+- > t303 falling J 7,6 8,6 9,6 9,7 after 5 next L level 9 lines 96 points 434
+- > t304 falling J 7,7 8,7 9,7 9,8 after 0 next L level 9 lines 96 points 434
+- > t305 falling J 7,7 8,7 9,7 9,8 after 1 next L level 9 lines 96 points 434
+- > t306 falling J 7,7 8,7 9,7 9,8 after 2 next L level 9 lines 96 points 434
+- > t307 falling J 7,7 8,7 9,7 9,8 after 3 next L level 9 lines 96 points 434
+- > t308 falling J 7,7 8,7 9,7 9,8 after 4 next L level 9 lines 96 points 434
+- > t309 falling J 7,7 8,7 9,7 9,8 after 5 next L level 9 lines 96 points 434
+- > t310 falling J 7,8 8,8 9,8 9,9 after 0 next L level 9 lines 96 points 434
+- > t311 falling J 7,8 8,8 9,8 9,9 after 1 next L level 9 lines 96 points 434
+- > t312 falling J 7,8 8,8 9,8 9,9 after 2 next L level 9 lines 96 points 434
+- > t313 falling J 7,8 8,8 9,8 9,9 after 3 next L level 9 lines 96 points 434
+- > t314 falling J 7,8 8,8 9,8 9,9 after 4 next L level 9 lines 96 points 434
+- > t315 falling J 7,8 8,8 9,8 9,9 after 5 next L level 9 lines 96 points 434
+- > t316 falling J 7,9 8,9 9,9 9,10 after 0 next L level 9 lines 96 points 434
+- > t317 falling J 7,9 8,9 9,9 9,10 after 1 next L level 9 lines 96 points 434
+- > t318 falling J 7,9 8,9 9,9 9,10 after 2 next L level 9 lines 96 points 434
+- > t319 falling J 7,9 8,9 9,9 9,10 after 3 next L level 9 lines 96 points 434
+- > t320 falling J 7,9 8,9 9,9 9,10 after 4 next L level 9 lines 96 points 434
+- > t321 falling J 7,9 8,9 9,9 9,10 after 5 next L level 9 lines 96 points 434
+- > t322 falling J 7,10 8,10 9,10 9,11 after 0 next L level 9 lines 96 points 434
+- > t323 falling J 7,10 8,10 9,10 9,11 after 1 next L level 9 lines 96 points 434
+- > t324 falling J 7,10 8,10 9,10 9,11 after 2 next L level 9 lines 96 points 434
+- > t325 falling J 7,10 8,10 9,10 9,11 after 3 next L level 9 lines 96 points 434
+- > t326 falling J 7,10 8,10 9,10 9,11 after 4 next L level 9 lines 96 points 434
+- > t327 falling J 7,10 8,10 9,10 9,11 after 5 next L level 9 lines 96 points 434
+- > t328 falling J 7,11 8,11 9,11 9,12 after 0 next L level 9 lines 96 points 434
+- > t329 falling J 7,11 8,11 9,11 9,12 after 1 next L level 9 lines 96 points 434
+- > t330 falling J 7,11 8,11 9,11 9,12 after 2 next L level 9 lines 96 points 434
+- > t331 falling J 7,11 8,11 9,11 9,12 after 3 next L level 9 lines 96 points 434
+- > t332 falling J 7,11 8,11 9,11 9,12 after 4 next L level 9 lines 96 points 434
+- > t333 falling J 7,11 8,11 9,11 9,12 after 5 next L level 9 lines 96 points 434
+- > t334 falling J 7,12 8,12 9,12 9,13 after 0 next L level 9 lines 96 points 434
+- > t335 falling J 7,12 8,12 9,12 9,13 after 1 next L level 9 lines 96 points 434
+- > t336 falling J 7,12 8,12 9,12 9,13 after 2 next L level 9 lines 96 points 434
+- > t337 falling J 7,12 8,12 9,12 9,13 after 3 next L level 9 lines 96 points 434
+- > t338 falling J 7,12 8,12 9,12 9,13 after 4 next L level 9 lines 96 points 434
+- > t339 falling J 7,12 8,12 9,12 9,13 after 5 next L level 9 lines 96 points 434
+- > t340 falling J 7,13 8,13 9,13 9,14 after 0 next L level 9 lines 96 points 434
+- > t341 falling J 7,13 8,13 9,13 9,14 after 1 next L level 9 lines 96 points 434
+- > t342 falling J 7,13 8,13 9,13 9,14 after 2 next L level 9 lines 96 points 434
+- > t343 falling J 7,13 8,13 9,13 9,14 after 3 next L level 9 lines 96 points 434
+- > t344 falling J 7,13 8,13 9,13 9,14 after 4 next L level 9 lines 96 points 434
+- > t345 falling J 7,13 8,13 9,13 9,14 after 5 next L level 9 lines 96 points 434
+- > t346 falling J 7,14 8,14 9,14 9,15 after 0 next L level 9 lines 96 points 434
+- > t347 falling J 7,14 8,14 9,14 9,15 after 1 next L level 9 lines 96 points 434
+- > t348 falling J 7,14 8,14 9,14 9,15 after 2 next L level 9 lines 96 points 434
+- > t349 falling J 7,14 8,14 9,14 9,15 after 3 next L level 9 lines 96 points 434
+- > t350 falling J 7,14 8,14 9,14 9,15 after 4 next L level 9 lines 96 points 434
+- > t351 falling J 7,14 8,14 9,14 9,15 after 5 next L level 9 lines 96 points 434
+- > t352 falling J 7,15 8,15 9,15 9,16 after 0 next L level 9 lines 96 points 434
+- > t353 falling J 7,15 8,15 9,15 9,16 after 1 next L level 9 lines 96 points 434
+- > t354 falling J 7,15 8,15 9,15 9,16 after 2 next L level 9 lines 96 points 434
+- > t355 falling J 7,15 8,15 9,15 9,16 after 3 next L level 9 lines 96 points 434
+- > t356 falling J 7,15 8,15 9,15 9,16 after 4 next L level 9 lines 96 points 434
+- > t357 falling J 7,15 8,15 9,15 9,16 after 5 next L level 9 lines 96 points 434
+- > t358 falling J 7,16 8,16 9,16 9,17 after 0 next L level 9 lines 96 points 434
+- > t359 falling J 7,16 8,16 9,16 9,17 after 1 next L level 9 lines 96 points 434
+- > t360 falling J 7,16 8,16 9,16 9,17 after 2 next L level 9 lines 96 points 434
+- > t361 falling J 7,16 8,16 9,16 9,17 after 3 next L level 9 lines 96 points 434
+- > t362 falling J 7,16 8,16 9,16 9,17 after 4 next L level 9 lines 96 points 434
+- > t363 falling J 7,16 8,16 9,16 9,17 after 5 next L level 9 lines 96 points 434
+- > t364 falling J 7,17 8,17 9,17 9,18 after 0 next L level 9 lines 96 points 434
+- > t365 falling J 7,17 8,17 9,17 9,18 after 1 next L level 9 lines 96 points 434
+- > t366 falling J 7,17 8,17 9,17 9,18 after 2 next L level 9 lines 96 points 434
+- > t367 falling J 7,17 8,17 9,17 9,18 after 3 next L level 9 lines 96 points 434
+- > t368 falling J 7,17 8,17 9,17 9,18 after 4 next L level 9 lines 96 points 434
+- > t369 falling J 7,17 8,17 9,17 9,18 after 5 next L level 9 lines 96 points 434
+- > t370 falling J 7,18 8,18 9,18 9,19 after 0 next L level 9 lines 96 points 434
+- > t371 falling J 7,18 8,18 9,18 9,19 after 1 next L level 9 lines 96 points 434
+- > t372 falling J 7,18 8,18 9,18 9,19 after 2 next L level 9 lines 96 points 434
+- > t373 falling J 7,18 8,18 9,18 9,19 after 3 next L level 9 lines 96 points 434
+- > t374 falling J 7,18 8,18 9,18 9,19 after 4 next L level 9 lines 96 points 434
+- > t375 falling J 7,18 8,18 9,18 9,19 after 5 next L level 9 lines 96 points 434
+- > t376 entry 10 next L level 9 lines 96 points 434 | locked J 7,18 8,18 9,18 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......JJJ
+  .......ZZJ
+- > t377 entry 9 next L level 9 lines 96 points 434
+- > t378 entry 8 next L level 9 lines 96 points 434
+- > t379 entry 7 next L level 9 lines 96 points 434
+- > t380 entry 6 next L level 9 lines 96 points 434
+- > t381 entry 5 next L level 9 lines 96 points 434
+- > t382 entry 4 next L level 9 lines 96 points 434
+- > t383 entry 3 next L level 9 lines 96 points 434
+- > t384 entry 2 next L level 9 lines 96 points 434
+- > t385 entry 1 next L level 9 lines 96 points 434
+- > t386 falling L 4,0 5,0 6,0 4,1 after 0 next J level 9 lines 96 points 434
++A > t387 falling L 4,-1 5,-1 5,0 5,1 after 1 next J level 9 lines 96 points 434 | rotated L 4,-1 5,-1 5,0 5,1 CLOCKWISE
+-A > t388 falling L 4,-1 5,-1 5,0 5,1 after 2 next J level 9 lines 96 points 434
++A > t389 falling L 6,-1 4,0 5,0 6,0 after 3 next J level 9 lines 96 points 434 | rotated L 6,-1 4,0 5,0 6,0 CLOCKWISE
+-A > t390 falling L 6,-1 4,0 5,0 6,0 after 4 next J level 9 lines 96 points 434
+- > t391 falling L 6,-1 4,0 5,0 6,0 after 5 next J level 9 lines 96 points 434
+- > t392 falling L 6,0 4,1 5,1 6,1 after 0 next J level 9 lines 96 points 434
+- > t393 falling L 6,0 4,1 5,1 6,1 after 1 next J level 9 lines 96 points 434
+- > t394 falling L 6,0 4,1 5,1 6,1 after 2 next J level 9 lines 96 points 434
+- > t395 falling L 6,0 4,1 5,1 6,1 after 3 next J level 9 lines 96 points 434
+- > t396 falling L 6,0 4,1 5,1 6,1 after 4 next J level 9 lines 96 points 434
+- > t397 falling L 6,0 4,1 5,1 6,1 after 5 next J level 9 lines 96 points 434
+- > t398 falling L 6,1 4,2 5,2 6,2 after 0 next J level 9 lines 96 points 434
+- > t399 falling L 6,1 4,2 5,2 6,2 after 1 next J level 9 lines 96 points 434
+- > t400 falling L 6,1 4,2 5,2 6,2 after 2 next J level 9 lines 96 points 434
+- > t401 falling L 6,1 4,2 5,2 6,2 after 3 next J level 9 lines 96 points 434
+- > t402 falling L 6,1 4,2 5,2 6,2 after 4 next J level 9 lines 96 points 434
+- > t403 falling L 6,1 4,2 5,2 6,2 after 5 next J level 9 lines 96 points 434
+- > t404 falling L 6,2 4,3 5,3 6,3 after 0 next J level 9 lines 96 points 434
+- > t405 falling L 6,2 4,3 5,3 6,3 after 1 next J level 9 lines 96 points 434
+- > t406 falling L 6,2 4,3 5,3 6,3 after 2 next J level 9 lines 96 points 434
+- > t407 falling L 6,2 4,3 5,3 6,3 after 3 next J level 9 lines 96 points 434
+- > t408 falling L 6,2 4,3 5,3 6,3 after 4 next J level 9 lines 96 points 434
+- > t409 falling L 6,2 4,3 5,3 6,3 after 5 next J level 9 lines 96 points 434
+- > t410 falling L 6,3 4,4 5,4 6,4 after 0 next J level 9 lines 96 points 434
+- > t411 falling L 6,3 4,4 5,4 6,4 after 1 next J level 9 lines 96 points 434
+- > t412 falling L 6,3 4,4 5,4 6,4 after 2 next J level 9 lines 96 points 434
+- > t413 falling L 6,3 4,4 5,4 6,4 after 3 next J level 9 lines 96 points 434
+- > t414 falling L 6,3 4,4 5,4 6,4 after 4 next J level 9 lines 96 points 434
+- > t415 falling L 6,3 4,4 5,4 6,4 after 5 next J level 9 lines 96 points 434
+- > t416 falling L 6,4 4,5 5,5 6,5 after 0 next J level 9 lines 96 points 434
+- > t417 falling L 6,4 4,5 5,5 6,5 after 1 next J level 9 lines 96 points 434
+- > t418 falling L 6,4 4,5 5,5 6,5 after 2 next J level 9 lines 96 points 434
+- > t419 falling L 6,4 4,5 5,5 6,5 after 3 next J level 9 lines 96 points 434
+- > t420 falling L 6,4 4,5 5,5 6,5 after 4 next J level 9 lines 96 points 434
+- > t421 falling L 6,4 4,5 5,5 6,5 after 5 next J level 9 lines 96 points 434
+- > t422 falling L 6,5 4,6 5,6 6,6 after 0 next J level 9 lines 96 points 434
+- > t423 falling L 6,5 4,6 5,6 6,6 after 1 next J level 9 lines 96 points 434
+- > t424 falling L 6,5 4,6 5,6 6,6 after 2 next J level 9 lines 96 points 434
+- > t425 falling L 6,5 4,6 5,6 6,6 after 3 next J level 9 lines 96 points 434
+- > t426 falling L 6,5 4,6 5,6 6,6 after 4 next J level 9 lines 96 points 434
+- > t427 falling L 6,5 4,6 5,6 6,6 after 5 next J level 9 lines 96 points 434
+- > t428 falling L 6,6 4,7 5,7 6,7 after 0 next J level 9 lines 96 points 434
+- > t429 falling L 6,6 4,7 5,7 6,7 after 1 next J level 9 lines 96 points 434
+- > t430 falling L 6,6 4,7 5,7 6,7 after 2 next J level 9 lines 96 points 434
+- > t431 falling L 6,6 4,7 5,7 6,7 after 3 next J level 9 lines 96 points 434
+- > t432 falling L 6,6 4,7 5,7 6,7 after 4 next J level 9 lines 96 points 434
+- > t433 falling L 6,6 4,7 5,7 6,7 after 5 next J level 9 lines 96 points 434
+- > t434 falling L 6,7 4,8 5,8 6,8 after 0 next J level 9 lines 96 points 434
+- > t435 falling L 6,7 4,8 5,8 6,8 after 1 next J level 9 lines 96 points 434
+- > t436 falling L 6,7 4,8 5,8 6,8 after 2 next J level 9 lines 96 points 434
+- > t437 falling L 6,7 4,8 5,8 6,8 after 3 next J level 9 lines 96 points 434
+- > t438 falling L 6,7 4,8 5,8 6,8 after 4 next J level 9 lines 96 points 434
+- > t439 falling L 6,7 4,8 5,8 6,8 after 5 next J level 9 lines 96 points 434
+- > t440 falling L 6,8 4,9 5,9 6,9 after 0 next J level 9 lines 96 points 434
+- > t441 falling L 6,8 4,9 5,9 6,9 after 1 next J level 9 lines 96 points 434
+- > t442 falling L 6,8 4,9 5,9 6,9 after 2 next J level 9 lines 96 points 434
+- > t443 falling L 6,8 4,9 5,9 6,9 after 3 next J level 9 lines 96 points 434
+- > t444 falling L 6,8 4,9 5,9 6,9 after 4 next J level 9 lines 96 points 434
+- > t445 falling L 6,8 4,9 5,9 6,9 after 5 next J level 9 lines 96 points 434
+- > t446 falling L 6,9 4,10 5,10 6,10 after 0 next J level 9 lines 96 points 434
+- > t447 falling L 6,9 4,10 5,10 6,10 after 1 next J level 9 lines 96 points 434
+- > t448 falling L 6,9 4,10 5,10 6,10 after 2 next J level 9 lines 96 points 434
+- > t449 falling L 6,9 4,10 5,10 6,10 after 3 next J level 9 lines 96 points 434
+- > t450 falling L 6,9 4,10 5,10 6,10 after 4 next J level 9 lines 96 points 434
+- > t451 falling L 6,9 4,10 5,10 6,10 after 5 next J level 9 lines 96 points 434
+- > t452 falling L 6,10 4,11 5,11 6,11 after 0 next J level 9 lines 96 points 434
+- > t453 falling L 6,10 4,11 5,11 6,11 after 1 next J level 9 lines 96 points 434
+- > t454 falling L 6,10 4,11 5,11 6,11 after 2 next J level 9 lines 96 points 434
+- > t455 falling L 6,10 4,11 5,11 6,11 after 3 next J level 9 lines 96 points 434
+- > t456 falling L 6,10 4,11 5,11 6,11 after 4 next J level 9 lines 96 points 434
+- > t457 falling L 6,10 4,11 5,11 6,11 after 5 next J level 9 lines 96 points 434
+- > t458 falling L 6,11 4,12 5,12 6,12 after 0 next J level 9 lines 96 points 434
+- > t459 falling L 6,11 4,12 5,12 6,12 after 1 next J level 9 lines 96 points 434
+- > t460 falling L 6,11 4,12 5,12 6,12 after 2 next J level 9 lines 96 points 434
+- > t461 falling L 6,11 4,12 5,12 6,12 after 3 next J level 9 lines 96 points 434
+- > t462 falling L 6,11 4,12 5,12 6,12 after 4 next J level 9 lines 96 points 434
+- > t463 falling L 6,11 4,12 5,12 6,12 after 5 next J level 9 lines 96 points 434
+- > t464 falling L 6,12 4,13 5,13 6,13 after 0 next J level 9 lines 96 points 434
+- > t465 falling L 6,12 4,13 5,13 6,13 after 1 next J level 9 lines 96 points 434
+- > t466 falling L 6,12 4,13 5,13 6,13 after 2 next J level 9 lines 96 points 434
+- > t467 falling L 6,12 4,13 5,13 6,13 after 3 next J level 9 lines 96 points 434
+- > t468 falling L 6,12 4,13 5,13 6,13 after 4 next J level 9 lines 96 points 434
+- > t469 falling L 6,12 4,13 5,13 6,13 after 5 next J level 9 lines 96 points 434
+- > t470 falling L 6,13 4,14 5,14 6,14 after 0 next J level 9 lines 96 points 434
+- > t471 falling L 6,13 4,14 5,14 6,14 after 1 next J level 9 lines 96 points 434
+- > t472 falling L 6,13 4,14 5,14 6,14 after 2 next J level 9 lines 96 points 434
+- > t473 falling L 6,13 4,14 5,14 6,14 after 3 next J level 9 lines 96 points 434
+- > t474 falling L 6,13 4,14 5,14 6,14 after 4 next J level 9 lines 96 points 434
+- > t475 falling L 6,13 4,14 5,14 6,14 after 5 next J level 9 lines 96 points 434
+- > t476 falling L 6,14 4,15 5,15 6,15 after 0 next J level 9 lines 96 points 434
+- > t477 falling L 6,14 4,15 5,15 6,15 after 1 next J level 9 lines 96 points 434
+- > t478 falling L 6,14 4,15 5,15 6,15 after 2 next J level 9 lines 96 points 434
+- > t479 falling L 6,14 4,15 5,15 6,15 after 3 next J level 9 lines 96 points 434
+- > t480 falling L 6,14 4,15 5,15 6,15 after 4 next J level 9 lines 96 points 434
+- > t481 falling L 6,14 4,15 5,15 6,15 after 5 next J level 9 lines 96 points 434
+- > t482 falling L 6,15 4,16 5,16 6,16 after 0 next J level 9 lines 96 points 434
+- > t483 falling L 6,15 4,16 5,16 6,16 after 1 next J level 9 lines 96 points 434
+- > t484 falling L 6,15 4,16 5,16 6,16 after 2 next J level 9 lines 96 points 434
+- > t485 falling L 6,15 4,16 5,16 6,16 after 3 next J level 9 lines 96 points 434
+- > t486 falling L 6,15 4,16 5,16 6,16 after 4 next J level 9 lines 96 points 434
+- > t487 falling L 6,15 4,16 5,16 6,16 after 5 next J level 9 lines 96 points 434
+- > t488 falling L 6,16 4,17 5,17 6,17 after 0 next J level 9 lines 96 points 434
+- > t489 falling L 6,16 4,17 5,17 6,17 after 1 next J level 9 lines 96 points 434
+- > t490 falling L 6,16 4,17 5,17 6,17 after 2 next J level 9 lines 96 points 434
+- > t491 falling L 6,16 4,17 5,17 6,17 after 3 next J level 9 lines 96 points 434
+- > t492 falling L 6,16 4,17 5,17 6,17 after 4 next J level 9 lines 96 points 434
+- > t493 falling L 6,16 4,17 5,17 6,17 after 5 next J level 9 lines 96 points 434
+- > t494 falling L 6,17 4,18 5,18 6,18 after 0 next J level 9 lines 96 points 434
+- > t495 falling L 6,17 4,18 5,18 6,18 after 1 next J level 9 lines 96 points 434
+- > t496 falling L 6,17 4,18 5,18 6,18 after 2 next J level 9 lines 96 points 434
+- > t497 falling L 6,17 4,18 5,18 6,18 after 3 next J level 9 lines 96 points 434
+- > t498 falling L 6,17 4,18 5,18 6,18 after 4 next J level 9 lines 96 points 434
+- > t499 falling L 6,17 4,18 5,18 6,18 after 5 next J level 9 lines 96 points 434
+- > t500 falling L 6,18 4,19 5,19 6,19 after 0 next J level 9 lines 96 points 434
+- > t501 falling L 6,18 4,19 5,19 6,19 after 1 next J level 9 lines 96 points 434
+- > t502 falling L 6,18 4,19 5,19 6,19 after 2 next J level 9 lines 96 points 434
+- > t503 falling L 6,18 4,19 5,19 6,19 after 3 next J level 9 lines 96 points 434
+- > t504 falling L 6,18 4,19 5,19 6,19 after 4 next J level 9 lines 96 points 434
+- > t505 falling L 6,18 4,19 5,19 6,19 after 5 next J level 9 lines 96 points 434
+- > t506 entry 10 next J level 9 lines 96 points 434 | locked L 6,18 4,19 5,19 6,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ......LJJJ
+  ....LLLZZJ
+- > t507 entry 9 next J level 9 lines 96 points 434
+- > t508 entry 8 next J level 9 lines 96 points 434
+- > t509 entry 7 next J level 9 lines 96 points 434
+- > t510 entry 6 next J level 9 lines 96 points 434
+- > t511 entry 5 next J level 9 lines 96 points 434
+- > t512 entry 4 next J level 9 lines 96 points 434
+- > t513 entry 3 next J level 9 lines 96 points 434
+- > t514 entry 2 next J level 9 lines 96 points 434
+- > t515 entry 1 next J level 9 lines 96 points 434
+- > t516 falling J 4,0 5,0 6,0 6,1 after 0 next S level 9 lines 96 points 434
++A +LEFT > t517 falling J 4,-1 4,0 3,1 4,1 after 1 next S level 9 lines 96 points 434 | rotated J 4,-1 4,0 3,1 4,1 CLOCKWISE
+-A > t518 falling J 4,-1 4,0 3,1 4,1 after 2 next S level 9 lines 96 points 434
++A > t519 falling J 3,-1 3,0 4,0 5,0 after 3 next S level 9 lines 96 points 434 | rotated J 3,-1 3,0 4,0 5,0 CLOCKWISE
+-A > t520 falling J 3,-1 3,0 4,0 5,0 after 4 next S level 9 lines 96 points 434
+- > t521 falling J 3,-1 3,0 4,0 5,0 after 5 next S level 9 lines 96 points 434
+- > t522 falling J 3,0 3,1 4,1 5,1 after 0 next S level 9 lines 96 points 434
+- > t523 falling J 3,0 3,1 4,1 5,1 after 1 next S level 9 lines 96 points 434
+- > t524 falling J 3,0 3,1 4,1 5,1 after 2 next S level 9 lines 96 points 434
+- > t525 falling J 3,0 3,1 4,1 5,1 after 3 next S level 9 lines 96 points 434
+- > t526 falling J 3,0 3,1 4,1 5,1 after 4 next S level 9 lines 96 points 434
+- > t527 falling J 3,0 3,1 4,1 5,1 after 5 next S level 9 lines 96 points 434
+- > t528 falling J 3,1 3,2 4,2 5,2 after 0 next S level 9 lines 96 points 434
+- > t529 falling J 3,1 3,2 4,2 5,2 after 1 next S level 9 lines 96 points 434
+- > t530 falling J 3,1 3,2 4,2 5,2 after 2 next S level 9 lines 96 points 434
+- > t531 falling J 3,1 3,2 4,2 5,2 after 3 next S level 9 lines 96 points 434
+- > t532 falling J 3,1 3,2 4,2 5,2 after 4 next S level 9 lines 96 points 434
+- > t533 falling J 2,1 2,2 3,2 4,2 after 5 next S level 9 lines 96 points 434
+- > t534 falling J 2,2 2,3 3,3 4,3 after 0 next S level 9 lines 96 points 434
+- > t535 falling J 2,2 2,3 3,3 4,3 after 1 next S level 9 lines 96 points 434
+- > t536 falling J 2,2 2,3 3,3 4,3 after 2 next S level 9 lines 96 points 434
+- > t537 falling J 2,2 2,3 3,3 4,3 after 3 next S level 9 lines 96 points 434
+- > t538 falling J 2,2 2,3 3,3 4,3 after 4 next S level 9 lines 96 points 434
+- > t539 falling J 1,2 1,3 2,3 3,3 after 5 next S level 9 lines 96 points 434
+-LEFT > t540 falling J 1,3 1,4 2,4 3,4 after 0 next S level 9 lines 96 points 434
+- > t541 falling J 1,3 1,4 2,4 3,4 after 1 next S level 9 lines 96 points 434
+- > t542 falling J 1,3 1,4 2,4 3,4 after 2 next S level 9 lines 96 points 434
+- > t543 falling J 1,3 1,4 2,4 3,4 after 3 next S level 9 lines 96 points 434
+- > t544 falling J 1,3 1,4 2,4 3,4 after 4 next S level 9 lines 96 points 434
+- > t545 falling J 1,3 1,4 2,4 3,4 after 5 next S level 9 lines 96 points 434
+- > t546 falling J 1,4 1,5 2,5 3,5 after 0 next S level 9 lines 96 points 434
+- > t547 falling J 1,4 1,5 2,5 3,5 after 1 next S level 9 lines 96 points 434
+- > t548 falling J 1,4 1,5 2,5 3,5 after 2 next S level 9 lines 96 points 434
+- > t549 falling J 1,4 1,5 2,5 3,5 after 3 next S level 9 lines 96 points 434
+- > t550 falling J 1,4 1,5 2,5 3,5 after 4 next S level 9 lines 96 points 434
+- > t551 falling J 1,4 1,5 2,5 3,5 after 5 next S level 9 lines 96 points 434
+- > t552 falling J 1,5 1,6 2,6 3,6 after 0 next S level 9 lines 96 points 434
+- > t553 falling J 1,5 1,6 2,6 3,6 after 1 next S level 9 lines 96 points 434
+- > t554 falling J 1,5 1,6 2,6 3,6 after 2 next S level 9 lines 96 points 434
+- > t555 falling J 1,5 1,6 2,6 3,6 after 3 next S level 9 lines 96 points 434
+- > t556 falling J 1,5 1,6 2,6 3,6 after 4 next S level 9 lines 96 points 434
+- > t557 falling J 1,5 1,6 2,6 3,6 after 5 next S level 9 lines 96 points 434
+- > t558 falling J 1,6 1,7 2,7 3,7 after 0 next S level 9 lines 96 points 434
+- > t559 falling J 1,6 1,7 2,7 3,7 after 1 next S level 9 lines 96 points 434
+- > t560 falling J 1,6 1,7 2,7 3,7 after 2 next S level 9 lines 96 points 434
+- > t561 falling J 1,6 1,7 2,7 3,7 after 3 next S level 9 lines 96 points 434
+- > t562 falling J 1,6 1,7 2,7 3,7 after 4 next S level 9 lines 96 points 434
+- > t563 falling J 1,6 1,7 2,7 3,7 after 5 next S level 9 lines 96 points 434
+- > t564 falling J 1,7 1,8 2,8 3,8 after 0 next S level 9 lines 96 points 434
+- > t565 falling J 1,7 1,8 2,8 3,8 after 1 next S level 9 lines 96 points 434
+- > t566 falling J 1,7 1,8 2,8 3,8 after 2 next S level 9 lines 96 points 434
+- > t567 falling J 1,7 1,8 2,8 3,8 after 3 next S level 9 lines 96 points 434
+- > t568 falling J 1,7 1,8 2,8 3,8 after 4 next S level 9 lines 96 points 434
+- > t569 falling J 1,7 1,8 2,8 3,8 after 5 next S level 9 lines 96 points 434
+- > t570 falling J 1,8 1,9 2,9 3,9 after 0 next S level 9 lines 96 points 434
+- > t571 falling J 1,8 1,9 2,9 3,9 after 1 next S level 9 lines 96 points 434
+- > t572 falling J 1,8 1,9 2,9 3,9 after 2 next S level 9 lines 96 points 434
+- > t573 falling J 1,8 1,9 2,9 3,9 after 3 next S level 9 lines 96 points 434
+- > t574 falling J 1,8 1,9 2,9 3,9 after 4 next S level 9 lines 96 points 434
+- > t575 falling J 1,8 1,9 2,9 3,9 after 5 next S level 9 lines 96 points 434
+- > t576 falling J 1,9 1,10 2,10 3,10 after 0 next S level 9 lines 96 points 434
+- > t577 falling J 1,9 1,10 2,10 3,10 after 1 next S level 9 lines 96 points 434
+- > t578 falling J 1,9 1,10 2,10 3,10 after 2 next S level 9 lines 96 points 434
+- > t579 falling J 1,9 1,10 2,10 3,10 after 3 next S level 9 lines 96 points 434
+- > t580 falling J 1,9 1,10 2,10 3,10 after 4 next S level 9 lines 96 points 434
+- > t581 falling J 1,9 1,10 2,10 3,10 after 5 next S level 9 lines 96 points 434
+- > t582 falling J 1,10 1,11 2,11 3,11 after 0 next S level 9 lines 96 points 434
+- > t583 falling J 1,10 1,11 2,11 3,11 after 1 next S level 9 lines 96 points 434
+- > t584 falling J 1,10 1,11 2,11 3,11 after 2 next S level 9 lines 96 points 434
+- > t585 falling J 1,10 1,11 2,11 3,11 after 3 next S level 9 lines 96 points 434
+- > t586 falling J 1,10 1,11 2,11 3,11 after 4 next S level 9 lines 96 points 434
+- > t587 falling J 1,10 1,11 2,11 3,11 after 5 next S level 9 lines 96 points 434
+- > t588 falling J 1,11 1,12 2,12 3,12 after 0 next S level 9 lines 96 points 434
+- > t589 falling J 1,11 1,12 2,12 3,12 after 1 next S level 9 lines 96 points 434
+- > t590 falling J 1,11 1,12 2,12 3,12 after 2 next S level 9 lines 96 points 434
+- > t591 falling J 1,11 1,12 2,12 3,12 after 3 next S level 9 lines 96 points 434
+- > t592 falling J 1,11 1,12 2,12 3,12 after 4 next S level 9 lines 96 points 434
+- > t593 falling J 1,11 1,12 2,12 3,12 after 5 next S level 9 lines 96 points 434
+- > t594 falling J 1,12 1,13 2,13 3,13 after 0 next S level 9 lines 96 points 434
+- > t595 falling J 1,12 1,13 2,13 3,13 after 1 next S level 9 lines 96 points 434
+- > t596 falling J 1,12 1,13 2,13 3,13 after 2 next S level 9 lines 96 points 434
+- > t597 falling J 1,12 1,13 2,13 3,13 after 3 next S level 9 lines 96 points 434
+- > t598 falling J 1,12 1,13 2,13 3,13 after 4 next S level 9 lines 96 points 434
+- > t599 falling J 1,12 1,13 2,13 3,13 after 5 next S level 9 lines 96 points 434
+- > t600 falling J 1,13 1,14 2,14 3,14 after 0 next S level 9 lines 96 points 434
+- > t601 falling J 1,13 1,14 2,14 3,14 after 1 next S level 9 lines 96 points 434
+- > t602 falling J 1,13 1,14 2,14 3,14 after 2 next S level 9 lines 96 points 434
+- > t603 falling J 1,13 1,14 2,14 3,14 after 3 next S level 9 lines 96 points 434
+- > t604 falling J 1,13 1,14 2,14 3,14 after 4 next S level 9 lines 96 points 434
+- > t605 falling J 1,13 1,14 2,14 3,14 after 5 next S level 9 lines 96 points 434
+- > t606 falling J 1,14 1,15 2,15 3,15 after 0 next S level 9 lines 96 points 434
+- > t607 falling J 1,14 1,15 2,15 3,15 after 1 next S level 9 lines 96 points 434
+- > t608 falling J 1,14 1,15 2,15 3,15 after 2 next S level 9 lines 96 points 434
+- > t609 falling J 1,14 1,15 2,15 3,15 after 3 next S level 9 lines 96 points 434
+- > t610 falling J 1,14 1,15 2,15 3,15 after 4 next S level 9 lines 96 points 434
+- > t611 falling J 1,14 1,15 2,15 3,15 after 5 next S level 9 lines 96 points 434
+- > t612 falling J 1,15 1,16 2,16 3,16 after 0 next S level 9 lines 96 points 434
+- > t613 falling J 1,15 1,16 2,16 3,16 after 1 next S level 9 lines 96 points 434
+- > t614 falling J 1,15 1,16 2,16 3,16 after 2 next S level 9 lines 96 points 434
+- > t615 falling J 1,15 1,16 2,16 3,16 after 3 next S level 9 lines 96 points 434
+- > t616 falling J 1,15 1,16 2,16 3,16 after 4 next S level 9 lines 96 points 434
+- > t617 falling J 1,15 1,16 2,16 3,16 after 5 next S level 9 lines 96 points 434
+- > t618 falling J 1,16 1,17 2,17 3,17 after 0 next S level 9 lines 96 points 434
+- > t619 falling J 1,16 1,17 2,17 3,17 after 1 next S level 9 lines 96 points 434
+- > t620 falling J 1,16 1,17 2,17 3,17 after 2 next S level 9 lines 96 points 434
+- > t621 falling J 1,16 1,17 2,17 3,17 after 3 next S level 9 lines 96 points 434
+- > t622 falling J 1,16 1,17 2,17 3,17 after 4 next S level 9 lines 96 points 434
+- > t623 falling J 1,16 1,17 2,17 3,17 after 5 next S level 9 lines 96 points 434
+- > t624 falling J 1,17 1,18 2,18 3,18 after 0 next S level 9 lines 96 points 434
+- > t625 falling J 1,17 1,18 2,18 3,18 after 1 next S level 9 lines 96 points 434
+- > t626 falling J 1,17 1,18 2,18 3,18 after 2 next S level 9 lines 96 points 434
+- > t627 falling J 1,17 1,18 2,18 3,18 after 3 next S level 9 lines 96 points 434
+- > t628 falling J 1,17 1,18 2,18 3,18 after 4 next S level 9 lines 96 points 434
+- > t629 falling J 1,17 1,18 2,18 3,18 after 5 next S level 9 lines 96 points 434
+- > t630 falling J 1,18 1,19 2,19 3,19 after 0 next S level 9 lines 96 points 434
+- > t631 falling J 1,18 1,19 2,19 3,19 after 1 next S level 9 lines 96 points 434
+- > t632 falling J 1,18 1,19 2,19 3,19 after 2 next S level 9 lines 96 points 434
+- > t633 falling J 1,18 1,19 2,19 3,19 after 3 next S level 9 lines 96 points 434
+- > t634 falling J 1,18 1,19 2,19 3,19 after 4 next S level 9 lines 96 points 434
+- > t635 falling J 1,18 1,19 2,19 3,19 after 5 next S level 9 lines 96 points 434
+- > t636 entry 10 next S level 9 lines 96 points 434 | locked J 1,18 1,19 2,19 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .J....LJJJ
+  .JJJLLLZZJ
+- > t637 entry 9 next S level 9 lines 96 points 434
+- > t638 entry 8 next S level 9 lines 96 points 434
+- > t639 entry 7 next S level 9 lines 96 points 434
+- > t640 entry 6 next S level 9 lines 96 points 434
+- > t641 entry 5 next S level 9 lines 96 points 434
+- > t642 entry 4 next S level 9 lines 96 points 434
+- > t643 entry 3 next S level 9 lines 96 points 434
+- > t644 entry 2 next S level 9 lines 96 points 434
+- > t645 entry 1 next S level 9 lines 96 points 434
+- > t646 falling S 5,0 6,0 4,1 5,1 after 0 next I level 9 lines 96 points 434
++DOWN > t647 falling S 5,0 6,0 4,1 5,1 after 1 next I level 9 lines 96 points 434
+- > t648 falling S 5,0 6,0 4,1 5,1 after 2 next I level 9 lines 96 points 434
+- > t649 falling S 5,1 6,1 4,2 5,2 after 0 soft 1 next I level 9 lines 96 points 434
+- > t650 falling S 5,1 6,1 4,2 5,2 after 1 soft 1 next I level 9 lines 96 points 434
+- > t651 falling S 5,2 6,2 4,3 5,3 after 0 soft 2 next I level 9 lines 96 points 434
+- > t652 falling S 5,2 6,2 4,3 5,3 after 1 soft 2 next I level 9 lines 96 points 434
+- > t653 falling S 5,3 6,3 4,4 5,4 after 0 soft 3 next I level 9 lines 96 points 434
+- > t654 falling S 5,3 6,3 4,4 5,4 after 1 soft 3 next I level 9 lines 96 points 434
+- > t655 falling S 5,4 6,4 4,5 5,5 after 0 soft 4 next I level 9 lines 96 points 434
+- > t656 falling S 5,4 6,4 4,5 5,5 after 1 soft 4 next I level 9 lines 96 points 434
+- > t657 falling S 5,5 6,5 4,6 5,6 after 0 soft 5 next I level 9 lines 96 points 434
+- > t658 falling S 5,5 6,5 4,6 5,6 after 1 soft 5 next I level 9 lines 96 points 434
+- > t659 falling S 5,6 6,6 4,7 5,7 after 0 soft 6 next I level 9 lines 96 points 434
+- > t660 falling S 5,6 6,6 4,7 5,7 after 1 soft 6 next I level 9 lines 96 points 434
+- > t661 falling S 5,7 6,7 4,8 5,8 after 0 soft 7 next I level 9 lines 96 points 434
+- > t662 falling S 5,7 6,7 4,8 5,8 after 1 soft 7 next I level 9 lines 96 points 434
+- > t663 falling S 5,8 6,8 4,9 5,9 after 0 soft 8 next I level 9 lines 96 points 434
+- > t664 falling S 5,8 6,8 4,9 5,9 after 1 soft 8 next I level 9 lines 96 points 434
+- > t665 falling S 5,9 6,9 4,10 5,10 after 0 soft 9 next I level 9 lines 96 points 434
+- > t666 falling S 5,9 6,9 4,10 5,10 after 1 soft 9 next I level 9 lines 96 points 434
+- > t667 falling S 5,10 6,10 4,11 5,11 after 0 soft 10 next I level 9 lines 96 points 434
+- > t668 falling S 5,10 6,10 4,11 5,11 after 1 soft 10 next I level 9 lines 96 points 434
+- > t669 falling S 5,11 6,11 4,12 5,12 after 0 soft 11 next I level 9 lines 96 points 434
+- > t670 falling S 5,11 6,11 4,12 5,12 after 1 soft 11 next I level 9 lines 96 points 434
+- > t671 falling S 5,12 6,12 4,13 5,13 after 0 soft 12 next I level 9 lines 96 points 434
+- > t672 falling S 5,12 6,12 4,13 5,13 after 1 soft 12 next I level 9 lines 96 points 434
+- > t673 falling S 5,13 6,13 4,14 5,14 after 0 soft 13 next I level 9 lines 96 points 434
+- > t674 falling S 5,13 6,13 4,14 5,14 after 1 soft 13 next I level 9 lines 96 points 434
+- > t675 falling S 5,14 6,14 4,15 5,15 after 0 soft 14 next I level 9 lines 96 points 434
+- > t676 falling S 5,14 6,14 4,15 5,15 after 1 soft 14 next I level 9 lines 96 points 434
+- > t677 falling S 5,15 6,15 4,16 5,16 after 0 soft 15 next I level 9 lines 96 points 434
+- > t678 falling S 5,15 6,15 4,16 5,16 after 1 soft 15 next I level 9 lines 96 points 434
+- > t679 falling S 5,16 6,16 4,17 5,17 after 0 soft 16 next I level 9 lines 96 points 434
+- > t680 falling S 5,16 6,16 4,17 5,17 after 1 soft 16 next I level 9 lines 96 points 434
+- > t681 falling S 5,17 6,17 4,18 5,18 after 0 soft 17 next I level 9 lines 96 points 434
+- > t682 falling S 5,17 6,17 4,18 5,18 after 1 soft 17 next I level 9 lines 96 points 434
+- > t683 entry 12 next I level 9 lines 96 points 451 | locked S 5,17 6,17 4,18 5,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .....SS...
+  .J..SSLJJJ
+  .JJJLLLZZJ
+- > t684 entry 11 next I level 9 lines 96 points 451
+- > t685 entry 10 next I level 9 lines 96 points 451
+- > t686 entry 9 next I level 9 lines 96 points 451
+- > t687 entry 8 next I level 9 lines 96 points 451
+- > t688 entry 7 next I level 9 lines 96 points 451
+- > t689 entry 6 next I level 9 lines 96 points 451
+- > t690 entry 5 next I level 9 lines 96 points 451
+- > t691 entry 4 next I level 9 lines 96 points 451
+- > t692 entry 3 next I level 9 lines 96 points 451
+- > t693 entry 2 next I level 9 lines 96 points 451
+- > t694 entry 1 next I level 9 lines 96 points 451
+- > t695 falling I 3,0 4,0 5,0 6,0 after 0 next Z level 9 lines 96 points 451
+-DOWN +A +LEFT > t696 falling I 4,-2 4,-1 4,0 4,1 after 1 next Z level 9 lines 96 points 451 | rotated I 4,-2 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t697 falling I 4,-2 4,-1 4,0 4,1 after 2 next Z level 9 lines 96 points 451
++A +LEFT > t698 falling I 1,0 2,0 3,0 4,0 after 3 next Z level 9 lines 96 points 451 | rotated I 1,0 2,0 3,0 4,0 CLOCKWISE
+-A -LEFT > t699 falling I 1,0 2,0 3,0 4,0 after 4 next Z level 9 lines 96 points 451
++A +LEFT > t700 falling I 2,-2 2,-1 2,0 2,1 after 5 next Z level 9 lines 96 points 451 | rotated I 2,-2 2,-1 2,0 2,1 CLOCKWISE
+-A -LEFT > t701 falling I 2,-1 2,0 2,1 2,2 after 0 next Z level 9 lines 96 points 451
++LEFT > t702 falling I 1,-1 1,0 1,1 1,2 after 1 next Z level 9 lines 96 points 451
+-LEFT > t703 falling I 1,-1 1,0 1,1 1,2 after 2 next Z level 9 lines 96 points 451
++LEFT > t704 falling I 0,-1 0,0 0,1 0,2 after 3 next Z level 9 lines 96 points 451
+-LEFT +DOWN > t705 falling I 0,-1 0,0 0,1 0,2 after 4 next Z level 9 lines 96 points 451
+- > t706 falling I 0,-1 0,0 0,1 0,2 after 5 next Z level 9 lines 96 points 451
+- > t707 falling I 0,0 0,1 0,2 0,3 after 0 soft 1 next Z level 9 lines 96 points 451
+- > t708 falling I 0,0 0,1 0,2 0,3 after 1 soft 1 next Z level 9 lines 96 points 451
+- > t709 falling I 0,1 0,2 0,3 0,4 after 0 soft 2 next Z level 9 lines 96 points 451
+- > t710 falling I 0,1 0,2 0,3 0,4 after 1 soft 2 next Z level 9 lines 96 points 451
+- > t711 falling I 0,2 0,3 0,4 0,5 after 0 soft 3 next Z level 9 lines 96 points 451
+- > t712 falling I 0,2 0,3 0,4 0,5 after 1 soft 3 next Z level 9 lines 96 points 451
+- > t713 falling I 0,3 0,4 0,5 0,6 after 0 soft 4 next Z level 9 lines 96 points 451
+- > t714 falling I 0,3 0,4 0,5 0,6 after 1 soft 4 next Z level 9 lines 96 points 451
+- > t715 falling I 0,4 0,5 0,6 0,7 after 0 soft 5 next Z level 9 lines 96 points 451
+- > t716 falling I 0,4 0,5 0,6 0,7 after 1 soft 5 next Z level 9 lines 96 points 451
+- > t717 falling I 0,5 0,6 0,7 0,8 after 0 soft 6 next Z level 9 lines 96 points 451
+- > t718 falling I 0,5 0,6 0,7 0,8 after 1 soft 6 next Z level 9 lines 96 points 451
+- > t719 falling I 0,6 0,7 0,8 0,9 after 0 soft 7 next Z level 9 lines 96 points 451
+- > t720 falling I 0,6 0,7 0,8 0,9 after 1 soft 7 next Z level 9 lines 96 points 451
+- > t721 falling I 0,7 0,8 0,9 0,10 after 0 soft 8 next Z level 9 lines 96 points 451
+- > t722 falling I 0,7 0,8 0,9 0,10 after 1 soft 8 next Z level 9 lines 96 points 451
+- > t723 falling I 0,8 0,9 0,10 0,11 after 0 soft 9 next Z level 9 lines 96 points 451
+- > t724 falling I 0,8 0,9 0,10 0,11 after 1 soft 9 next Z level 9 lines 96 points 451
+- > t725 falling I 0,9 0,10 0,11 0,12 after 0 soft 10 next Z level 9 lines 96 points 451
+- > t726 falling I 0,9 0,10 0,11 0,12 after 1 soft 10 next Z level 9 lines 96 points 451
+- > t727 falling I 0,10 0,11 0,12 0,13 after 0 soft 11 next Z level 9 lines 96 points 451
+- > t728 falling I 0,10 0,11 0,12 0,13 after 1 soft 11 next Z level 9 lines 96 points 451
+- > t729 falling I 0,11 0,12 0,13 0,14 after 0 soft 12 next Z level 9 lines 96 points 451
+- > t730 falling I 0,11 0,12 0,13 0,14 after 1 soft 12 next Z level 9 lines 96 points 451
+- > t731 falling I 0,12 0,13 0,14 0,15 after 0 soft 13 next Z level 9 lines 96 points 451
+- > t732 falling I 0,12 0,13 0,14 0,15 after 1 soft 13 next Z level 9 lines 96 points 451
+- > t733 falling I 0,13 0,14 0,15 0,16 after 0 soft 14 next Z level 9 lines 96 points 451
+- > t734 falling I 0,13 0,14 0,15 0,16 after 1 soft 14 next Z level 9 lines 96 points 451
+- > t735 falling I 0,14 0,15 0,16 0,17 after 0 soft 15 next Z level 9 lines 96 points 451
+- > t736 falling I 0,14 0,15 0,16 0,17 after 1 soft 15 next Z level 9 lines 96 points 451
+- > t737 falling I 0,15 0,16 0,17 0,18 after 0 soft 16 next Z level 9 lines 96 points 451
+- > t738 falling I 0,15 0,16 0,17 0,18 after 1 soft 16 next Z level 9 lines 96 points 451
+- > t739 falling I 0,16 0,17 0,18 0,19 after 0 soft 17 next Z level 9 lines 96 points 451
+- > t740 falling I 0,16 0,17 0,18 0,19 after 1 soft 17 next Z level 9 lines 96 points 451
+- > t741 clearing rows 19 left 19 then 10 next Z level 9 lines 96 points 468 | locked I 0,16 0,17 0,18 0,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I.........
+  I....SS...
+  IJ..SSLJJJ
+  IJJJLLLZZJ
+- > t742 clearing rows 19 left 18 then 10 next Z level 9 lines 96 points 468
+- > t743 clearing rows 19 left 17 then 10 next Z level 9 lines 96 points 468
+- > t744 clearing rows 19 left 16 then 10 next Z level 9 lines 96 points 468
+- > t745 clearing rows 19 left 15 then 10 next Z level 9 lines 96 points 468
+- > t746 clearing rows 19 left 14 then 10 next Z level 9 lines 96 points 468
+- > t747 clearing rows 19 left 13 then 10 next Z level 9 lines 96 points 468
+- > t748 clearing rows 19 left 12 then 10 next Z level 9 lines 96 points 468
+- > t749 clearing rows 19 left 11 then 10 next Z level 9 lines 96 points 468
+- > t750 clearing rows 19 left 10 then 10 next Z level 9 lines 96 points 468
+- > t751 clearing rows 19 left 9 then 10 next Z level 9 lines 96 points 468
+- > t752 clearing rows 19 left 8 then 10 next Z level 9 lines 96 points 468
+- > t753 clearing rows 19 left 7 then 10 next Z level 9 lines 96 points 468
+- > t754 clearing rows 19 left 6 then 10 next Z level 9 lines 96 points 468
+- > t755 clearing rows 19 left 5 then 10 next Z level 9 lines 96 points 468
+- > t756 clearing rows 19 left 4 then 10 next Z level 9 lines 96 points 468
+- > t757 clearing rows 19 left 3 then 10 next Z level 9 lines 96 points 468
+- > t758 clearing rows 19 left 2 then 10 next Z level 9 lines 96 points 468
+- > t759 clearing rows 19 left 1 then 10 next Z level 9 lines 96 points 468
+- > t760 entry 10 next Z level 9 lines 97 points 868 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I.........
+  I....SS...
+  IJ..SSLJJJ
+- > t761 entry 9 next Z level 9 lines 97 points 868
+- > t762 entry 8 next Z level 9 lines 97 points 868
+- > t763 entry 7 next Z level 9 lines 97 points 868
+- > t764 entry 6 next Z level 9 lines 97 points 868
+- > t765 entry 5 next Z level 9 lines 97 points 868
+- > t766 entry 4 next Z level 9 lines 97 points 868
+- > t767 entry 3 next Z level 9 lines 97 points 868
+- > t768 entry 2 next Z level 9 lines 97 points 868
+- > t769 entry 1 next Z level 9 lines 97 points 868
+- > t770 falling Z 4,0 5,0 5,1 6,1 after 0 next L level 9 lines 97 points 868
+-DOWN +A +LEFT > t771 falling Z 5,-1 4,0 5,0 4,1 after 1 next L level 9 lines 97 points 868 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A -LEFT > t772 falling Z 5,-1 4,0 5,0 4,1 after 2 next L level 9 lines 97 points 868
++A +LEFT > t773 falling Z 2,0 3,0 3,1 4,1 after 3 next L level 9 lines 97 points 868 | rotated Z 2,0 3,0 3,1 4,1 CLOCKWISE
+-A -LEFT > t774 falling Z 2,0 3,0 3,1 4,1 after 4 next L level 9 lines 97 points 868
++LEFT > t775 falling Z 1,0 2,0 2,1 3,1 after 5 next L level 9 lines 97 points 868
+-LEFT > t776 falling Z 1,1 2,1 2,2 3,2 after 0 next L level 9 lines 97 points 868
+- > t777 falling Z 1,1 2,1 2,2 3,2 after 1 next L level 9 lines 97 points 868
+- > t778 falling Z 1,1 2,1 2,2 3,2 after 2 next L level 9 lines 97 points 868
+- > t779 falling Z 1,1 2,1 2,2 3,2 after 3 next L level 9 lines 97 points 868
+- > t780 falling Z 1,1 2,1 2,2 3,2 after 4 next L level 9 lines 97 points 868
+- > t781 falling Z 1,1 2,1 2,2 3,2 after 5 next L level 9 lines 97 points 868
+- > t782 falling Z 1,2 2,2 2,3 3,3 after 0 next L level 9 lines 97 points 868
+- > t783 falling Z 1,2 2,2 2,3 3,3 after 1 next L level 9 lines 97 points 868
+- > t784 falling Z 1,2 2,2 2,3 3,3 after 2 next L level 9 lines 97 points 868
+- > t785 falling Z 1,2 2,2 2,3 3,3 after 3 next L level 9 lines 97 points 868
+- > t786 falling Z 1,2 2,2 2,3 3,3 after 4 next L level 9 lines 97 points 868
+- > t787 falling Z 1,2 2,2 2,3 3,3 after 5 next L level 9 lines 97 points 868
+- > t788 falling Z 1,3 2,3 2,4 3,4 after 0 next L level 9 lines 97 points 868
+- > t789 falling Z 1,3 2,3 2,4 3,4 after 1 next L level 9 lines 97 points 868
+- > t790 falling Z 1,3 2,3 2,4 3,4 after 2 next L level 9 lines 97 points 868
+- > t791 falling Z 1,3 2,3 2,4 3,4 after 3 next L level 9 lines 97 points 868
+- > t792 falling Z 1,3 2,3 2,4 3,4 after 4 next L level 9 lines 97 points 868
+- > t793 falling Z 1,3 2,3 2,4 3,4 after 5 next L level 9 lines 97 points 868
+- > t794 falling Z 1,4 2,4 2,5 3,5 after 0 next L level 9 lines 97 points 868
+- > t795 falling Z 1,4 2,4 2,5 3,5 after 1 next L level 9 lines 97 points 868
+- > t796 falling Z 1,4 2,4 2,5 3,5 after 2 next L level 9 lines 97 points 868
+- > t797 falling Z 1,4 2,4 2,5 3,5 after 3 next L level 9 lines 97 points 868
+- > t798 falling Z 1,4 2,4 2,5 3,5 after 4 next L level 9 lines 97 points 868
+- > t799 falling Z 1,4 2,4 2,5 3,5 after 5 next L level 9 lines 97 points 868
+- > t800 falling Z 1,5 2,5 2,6 3,6 after 0 next L level 9 lines 97 points 868
+- > t801 falling Z 1,5 2,5 2,6 3,6 after 1 next L level 9 lines 97 points 868
+- > t802 falling Z 1,5 2,5 2,6 3,6 after 2 next L level 9 lines 97 points 868
+- > t803 falling Z 1,5 2,5 2,6 3,6 after 3 next L level 9 lines 97 points 868
+- > t804 falling Z 1,5 2,5 2,6 3,6 after 4 next L level 9 lines 97 points 868
+- > t805 falling Z 1,5 2,5 2,6 3,6 after 5 next L level 9 lines 97 points 868
+- > t806 falling Z 1,6 2,6 2,7 3,7 after 0 next L level 9 lines 97 points 868
+- > t807 falling Z 1,6 2,6 2,7 3,7 after 1 next L level 9 lines 97 points 868
+- > t808 falling Z 1,6 2,6 2,7 3,7 after 2 next L level 9 lines 97 points 868
+- > t809 falling Z 1,6 2,6 2,7 3,7 after 3 next L level 9 lines 97 points 868
+- > t810 falling Z 1,6 2,6 2,7 3,7 after 4 next L level 9 lines 97 points 868
+- > t811 falling Z 1,6 2,6 2,7 3,7 after 5 next L level 9 lines 97 points 868
+- > t812 falling Z 1,7 2,7 2,8 3,8 after 0 next L level 9 lines 97 points 868
+- > t813 falling Z 1,7 2,7 2,8 3,8 after 1 next L level 9 lines 97 points 868
+- > t814 falling Z 1,7 2,7 2,8 3,8 after 2 next L level 9 lines 97 points 868
+- > t815 falling Z 1,7 2,7 2,8 3,8 after 3 next L level 9 lines 97 points 868
+- > t816 falling Z 1,7 2,7 2,8 3,8 after 4 next L level 9 lines 97 points 868
+- > t817 falling Z 1,7 2,7 2,8 3,8 after 5 next L level 9 lines 97 points 868
+- > t818 falling Z 1,8 2,8 2,9 3,9 after 0 next L level 9 lines 97 points 868
+- > t819 falling Z 1,8 2,8 2,9 3,9 after 1 next L level 9 lines 97 points 868
+- > t820 falling Z 1,8 2,8 2,9 3,9 after 2 next L level 9 lines 97 points 868
+- > t821 falling Z 1,8 2,8 2,9 3,9 after 3 next L level 9 lines 97 points 868
+- > t822 falling Z 1,8 2,8 2,9 3,9 after 4 next L level 9 lines 97 points 868
+- > t823 falling Z 1,8 2,8 2,9 3,9 after 5 next L level 9 lines 97 points 868
+- > t824 falling Z 1,9 2,9 2,10 3,10 after 0 next L level 9 lines 97 points 868
+- > t825 falling Z 1,9 2,9 2,10 3,10 after 1 next L level 9 lines 97 points 868
+- > t826 falling Z 1,9 2,9 2,10 3,10 after 2 next L level 9 lines 97 points 868
+- > t827 falling Z 1,9 2,9 2,10 3,10 after 3 next L level 9 lines 97 points 868
+- > t828 falling Z 1,9 2,9 2,10 3,10 after 4 next L level 9 lines 97 points 868
+- > t829 falling Z 1,9 2,9 2,10 3,10 after 5 next L level 9 lines 97 points 868
+- > t830 falling Z 1,10 2,10 2,11 3,11 after 0 next L level 9 lines 97 points 868
+- > t831 falling Z 1,10 2,10 2,11 3,11 after 1 next L level 9 lines 97 points 868
+- > t832 falling Z 1,10 2,10 2,11 3,11 after 2 next L level 9 lines 97 points 868
+- > t833 falling Z 1,10 2,10 2,11 3,11 after 3 next L level 9 lines 97 points 868
+- > t834 falling Z 1,10 2,10 2,11 3,11 after 4 next L level 9 lines 97 points 868
+- > t835 falling Z 1,10 2,10 2,11 3,11 after 5 next L level 9 lines 97 points 868
+- > t836 falling Z 1,11 2,11 2,12 3,12 after 0 next L level 9 lines 97 points 868
+- > t837 falling Z 1,11 2,11 2,12 3,12 after 1 next L level 9 lines 97 points 868
+- > t838 falling Z 1,11 2,11 2,12 3,12 after 2 next L level 9 lines 97 points 868
+- > t839 falling Z 1,11 2,11 2,12 3,12 after 3 next L level 9 lines 97 points 868
+- > t840 falling Z 1,11 2,11 2,12 3,12 after 4 next L level 9 lines 97 points 868
+- > t841 falling Z 1,11 2,11 2,12 3,12 after 5 next L level 9 lines 97 points 868
+- > t842 falling Z 1,12 2,12 2,13 3,13 after 0 next L level 9 lines 97 points 868
+- > t843 falling Z 1,12 2,12 2,13 3,13 after 1 next L level 9 lines 97 points 868
+- > t844 falling Z 1,12 2,12 2,13 3,13 after 2 next L level 9 lines 97 points 868
+- > t845 falling Z 1,12 2,12 2,13 3,13 after 3 next L level 9 lines 97 points 868
+- > t846 falling Z 1,12 2,12 2,13 3,13 after 4 next L level 9 lines 97 points 868
+- > t847 falling Z 1,12 2,12 2,13 3,13 after 5 next L level 9 lines 97 points 868
+- > t848 falling Z 1,13 2,13 2,14 3,14 after 0 next L level 9 lines 97 points 868
+- > t849 falling Z 1,13 2,13 2,14 3,14 after 1 next L level 9 lines 97 points 868
+- > t850 falling Z 1,13 2,13 2,14 3,14 after 2 next L level 9 lines 97 points 868
+- > t851 falling Z 1,13 2,13 2,14 3,14 after 3 next L level 9 lines 97 points 868
+- > t852 falling Z 1,13 2,13 2,14 3,14 after 4 next L level 9 lines 97 points 868
+- > t853 falling Z 1,13 2,13 2,14 3,14 after 5 next L level 9 lines 97 points 868
+- > t854 falling Z 1,14 2,14 2,15 3,15 after 0 next L level 9 lines 97 points 868
+- > t855 falling Z 1,14 2,14 2,15 3,15 after 1 next L level 9 lines 97 points 868
+- > t856 falling Z 1,14 2,14 2,15 3,15 after 2 next L level 9 lines 97 points 868
+- > t857 falling Z 1,14 2,14 2,15 3,15 after 3 next L level 9 lines 97 points 868
+- > t858 falling Z 1,14 2,14 2,15 3,15 after 4 next L level 9 lines 97 points 868
+- > t859 falling Z 1,14 2,14 2,15 3,15 after 5 next L level 9 lines 97 points 868
+- > t860 falling Z 1,15 2,15 2,16 3,16 after 0 next L level 9 lines 97 points 868
+- > t861 falling Z 1,15 2,15 2,16 3,16 after 1 next L level 9 lines 97 points 868
+- > t862 falling Z 1,15 2,15 2,16 3,16 after 2 next L level 9 lines 97 points 868
+- > t863 falling Z 1,15 2,15 2,16 3,16 after 3 next L level 9 lines 97 points 868
+- > t864 falling Z 1,15 2,15 2,16 3,16 after 4 next L level 9 lines 97 points 868
+- > t865 falling Z 1,15 2,15 2,16 3,16 after 5 next L level 9 lines 97 points 868
+- > t866 falling Z 1,16 2,16 2,17 3,17 after 0 next L level 9 lines 97 points 868
+- > t867 falling Z 1,16 2,16 2,17 3,17 after 1 next L level 9 lines 97 points 868
+- > t868 falling Z 1,16 2,16 2,17 3,17 after 2 next L level 9 lines 97 points 868
+- > t869 falling Z 1,16 2,16 2,17 3,17 after 3 next L level 9 lines 97 points 868
+- > t870 falling Z 1,16 2,16 2,17 3,17 after 4 next L level 9 lines 97 points 868
+- > t871 falling Z 1,16 2,16 2,17 3,17 after 5 next L level 9 lines 97 points 868
+- > t872 falling Z 1,17 2,17 2,18 3,18 after 0 next L level 9 lines 97 points 868
+- > t873 falling Z 1,17 2,17 2,18 3,18 after 1 next L level 9 lines 97 points 868
+- > t874 falling Z 1,17 2,17 2,18 3,18 after 2 next L level 9 lines 97 points 868
+- > t875 falling Z 1,17 2,17 2,18 3,18 after 3 next L level 9 lines 97 points 868
+- > t876 falling Z 1,17 2,17 2,18 3,18 after 4 next L level 9 lines 97 points 868
+- > t877 falling Z 1,17 2,17 2,18 3,18 after 5 next L level 9 lines 97 points 868
+- > t878 falling Z 1,18 2,18 2,19 3,19 after 0 next L level 9 lines 97 points 868
+- > t879 falling Z 1,18 2,18 2,19 3,19 after 1 next L level 9 lines 97 points 868
+- > t880 falling Z 1,18 2,18 2,19 3,19 after 2 next L level 9 lines 97 points 868
+- > t881 falling Z 1,18 2,18 2,19 3,19 after 3 next L level 9 lines 97 points 868
+- > t882 falling Z 1,18 2,18 2,19 3,19 after 4 next L level 9 lines 97 points 868
+- > t883 falling Z 1,18 2,18 2,19 3,19 after 5 next L level 9 lines 97 points 868
+- > t884 clearing rows 19 left 20 then 10 next L level 9 lines 97 points 868 | locked Z 1,18 2,18 2,19 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I.........
+  IZZ..SS...
+  IJZZSSLJJJ
+- > t885 clearing rows 19 left 19 then 10 next L level 9 lines 97 points 868
+- > t886 clearing rows 19 left 18 then 10 next L level 9 lines 97 points 868
+- > t887 clearing rows 19 left 17 then 10 next L level 9 lines 97 points 868
+- > t888 clearing rows 19 left 16 then 10 next L level 9 lines 97 points 868
+- > t889 clearing rows 19 left 15 then 10 next L level 9 lines 97 points 868
+- > t890 clearing rows 19 left 14 then 10 next L level 9 lines 97 points 868
+- > t891 clearing rows 19 left 13 then 10 next L level 9 lines 97 points 868
+- > t892 clearing rows 19 left 12 then 10 next L level 9 lines 97 points 868
+- > t893 clearing rows 19 left 11 then 10 next L level 9 lines 97 points 868
+- > t894 clearing rows 19 left 10 then 10 next L level 9 lines 97 points 868
+- > t895 clearing rows 19 left 9 then 10 next L level 9 lines 97 points 868
+- > t896 clearing rows 19 left 8 then 10 next L level 9 lines 97 points 868
+- > t897 clearing rows 19 left 7 then 10 next L level 9 lines 97 points 868
+- > t898 clearing rows 19 left 6 then 10 next L level 9 lines 97 points 868
+- > t899 clearing rows 19 left 5 then 10 next L level 9 lines 97 points 868
+- > t900 clearing rows 19 left 4 then 10 next L level 9 lines 97 points 868
+- > t901 clearing rows 19 left 3 then 10 next L level 9 lines 97 points 868
+- > t902 clearing rows 19 left 2 then 10 next L level 9 lines 97 points 868
+- > t903 clearing rows 19 left 1 then 10 next L level 9 lines 97 points 868
+- > t904 entry 10 next L level 9 lines 98 points 1268 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I.........
+  IZZ..SS...
+- > t905 entry 9 next L level 9 lines 98 points 1268
+- > t906 entry 8 next L level 9 lines 98 points 1268
+- > t907 entry 7 next L level 9 lines 98 points 1268
+- > t908 entry 6 next L level 9 lines 98 points 1268
+- > t909 entry 5 next L level 9 lines 98 points 1268
+- > t910 entry 4 next L level 9 lines 98 points 1268
+- > t911 entry 3 next L level 9 lines 98 points 1268
+- > t912 entry 2 next L level 9 lines 98 points 1268
+- > t913 entry 1 next L level 9 lines 98 points 1268
+- > t914 falling L 4,0 5,0 6,0 4,1 after 0 next S level 9 lines 98 points 1268
++A +RIGHT > t915 falling L 5,-1 6,-1 6,0 6,1 after 1 next S level 9 lines 98 points 1268 | rotated L 5,-1 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t916 falling L 5,-1 6,-1 6,0 6,1 after 2 next S level 9 lines 98 points 1268
++A +RIGHT > t917 falling L 8,-1 6,0 7,0 8,0 after 3 next S level 9 lines 98 points 1268 | rotated L 8,-1 6,0 7,0 8,0 CLOCKWISE
+-A -RIGHT > t918 falling L 8,-1 6,0 7,0 8,0 after 4 next S level 9 lines 98 points 1268
++RIGHT > t919 falling L 9,-1 7,0 8,0 9,0 after 5 next S level 9 lines 98 points 1268
+-RIGHT +DOWN > t920 falling L 9,0 7,1 8,1 9,1 after 0 next S level 9 lines 98 points 1268
+- > t921 falling L 9,0 7,1 8,1 9,1 after 1 next S level 9 lines 98 points 1268
+- > t922 falling L 9,1 7,2 8,2 9,2 after 0 soft 1 next S level 9 lines 98 points 1268
+- > t923 falling L 9,1 7,2 8,2 9,2 after 1 soft 1 next S level 9 lines 98 points 1268
+- > t924 falling L 9,2 7,3 8,3 9,3 after 0 soft 2 next S level 9 lines 98 points 1268
+- > t925 falling L 9,2 7,3 8,3 9,3 after 1 soft 2 next S level 9 lines 98 points 1268
+- > t926 falling L 9,3 7,4 8,4 9,4 after 0 soft 3 next S level 9 lines 98 points 1268
+- > t927 falling L 9,3 7,4 8,4 9,4 after 1 soft 3 next S level 9 lines 98 points 1268
+- > t928 falling L 9,4 7,5 8,5 9,5 after 0 soft 4 next S level 9 lines 98 points 1268
+- > t929 falling L 9,4 7,5 8,5 9,5 after 1 soft 4 next S level 9 lines 98 points 1268
+- > t930 falling L 9,5 7,6 8,6 9,6 after 0 soft 5 next S level 9 lines 98 points 1268
+- > t931 falling L 9,5 7,6 8,6 9,6 after 1 soft 5 next S level 9 lines 98 points 1268
+- > t932 falling L 9,6 7,7 8,7 9,7 after 0 soft 6 next S level 9 lines 98 points 1268
+- > t933 falling L 9,6 7,7 8,7 9,7 after 1 soft 6 next S level 9 lines 98 points 1268
+- > t934 falling L 9,7 7,8 8,8 9,8 after 0 soft 7 next S level 9 lines 98 points 1268
+- > t935 falling L 9,7 7,8 8,8 9,8 after 1 soft 7 next S level 9 lines 98 points 1268
+- > t936 falling L 9,8 7,9 8,9 9,9 after 0 soft 8 next S level 9 lines 98 points 1268
+- > t937 falling L 9,8 7,9 8,9 9,9 after 1 soft 8 next S level 9 lines 98 points 1268
+- > t938 falling L 9,9 7,10 8,10 9,10 after 0 soft 9 next S level 9 lines 98 points 1268
+- > t939 falling L 9,9 7,10 8,10 9,10 after 1 soft 9 next S level 9 lines 98 points 1268
+- > t940 falling L 9,10 7,11 8,11 9,11 after 0 soft 10 next S level 9 lines 98 points 1268
+- > t941 falling L 9,10 7,11 8,11 9,11 after 1 soft 10 next S level 9 lines 98 points 1268
+- > t942 falling L 9,11 7,12 8,12 9,12 after 0 soft 11 next S level 9 lines 98 points 1268
+- > t943 falling L 9,11 7,12 8,12 9,12 after 1 soft 11 next S level 9 lines 98 points 1268
+- > t944 falling L 9,12 7,13 8,13 9,13 after 0 soft 12 next S level 9 lines 98 points 1268
+- > t945 falling L 9,12 7,13 8,13 9,13 after 1 soft 12 next S level 9 lines 98 points 1268
+- > t946 falling L 9,13 7,14 8,14 9,14 after 0 soft 13 next S level 9 lines 98 points 1268
+- > t947 falling L 9,13 7,14 8,14 9,14 after 1 soft 13 next S level 9 lines 98 points 1268
+- > t948 falling L 9,14 7,15 8,15 9,15 after 0 soft 14 next S level 9 lines 98 points 1268
+- > t949 falling L 9,14 7,15 8,15 9,15 after 1 soft 14 next S level 9 lines 98 points 1268
+- > t950 falling L 9,15 7,16 8,16 9,16 after 0 soft 15 next S level 9 lines 98 points 1268
+- > t951 falling L 9,15 7,16 8,16 9,16 after 1 soft 15 next S level 9 lines 98 points 1268
+- > t952 falling L 9,16 7,17 8,17 9,17 after 0 soft 16 next S level 9 lines 98 points 1268
+- > t953 falling L 9,16 7,17 8,17 9,17 after 1 soft 16 next S level 9 lines 98 points 1268
+- > t954 falling L 9,17 7,18 8,18 9,18 after 0 soft 17 next S level 9 lines 98 points 1268
+- > t955 falling L 9,17 7,18 8,18 9,18 after 1 soft 17 next S level 9 lines 98 points 1268
+- > t956 falling L 9,18 7,19 8,19 9,19 after 0 soft 18 next S level 9 lines 98 points 1268
+- > t957 falling L 9,18 7,19 8,19 9,19 after 1 soft 18 next S level 9 lines 98 points 1268
+- > t958 entry 10 next S level 9 lines 98 points 1286 | locked L 9,18 7,19 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I........L
+  IZZ..SSLLL
+- > t959 entry 9 next S level 9 lines 98 points 1286
+- > t960 entry 8 next S level 9 lines 98 points 1286
+- > t961 entry 7 next S level 9 lines 98 points 1286
+- > t962 entry 6 next S level 9 lines 98 points 1286
+- > t963 entry 5 next S level 9 lines 98 points 1286
+- > t964 entry 4 next S level 9 lines 98 points 1286
+- > t965 entry 3 next S level 9 lines 98 points 1286
+- > t966 entry 2 next S level 9 lines 98 points 1286
+- > t967 entry 1 next S level 9 lines 98 points 1286
+- > t968 falling S 5,0 6,0 4,1 5,1 after 0 next T level 9 lines 98 points 1286
+-DOWN +LEFT > t969 falling S 4,0 5,0 3,1 4,1 after 1 next T level 9 lines 98 points 1286
+-LEFT +DOWN > t970 falling S 4,0 5,0 3,1 4,1 after 2 next T level 9 lines 98 points 1286
+- > t971 falling S 4,0 5,0 3,1 4,1 after 3 next T level 9 lines 98 points 1286
+- > t972 falling S 4,1 5,1 3,2 4,2 after 0 soft 1 next T level 9 lines 98 points 1286
+- > t973 falling S 4,1 5,1 3,2 4,2 after 1 soft 1 next T level 9 lines 98 points 1286
+- > t974 falling S 4,2 5,2 3,3 4,3 after 0 soft 2 next T level 9 lines 98 points 1286
+- > t975 falling S 4,2 5,2 3,3 4,3 after 1 soft 2 next T level 9 lines 98 points 1286
+- > t976 falling S 4,3 5,3 3,4 4,4 after 0 soft 3 next T level 9 lines 98 points 1286
+- > t977 falling S 4,3 5,3 3,4 4,4 after 1 soft 3 next T level 9 lines 98 points 1286
+- > t978 falling S 4,4 5,4 3,5 4,5 after 0 soft 4 next T level 9 lines 98 points 1286
+- > t979 falling S 4,4 5,4 3,5 4,5 after 1 soft 4 next T level 9 lines 98 points 1286
+- > t980 falling S 4,5 5,5 3,6 4,6 after 0 soft 5 next T level 9 lines 98 points 1286
+- > t981 falling S 4,5 5,5 3,6 4,6 after 1 soft 5 next T level 9 lines 98 points 1286
+- > t982 falling S 4,6 5,6 3,7 4,7 after 0 soft 6 next T level 9 lines 98 points 1286
+- > t983 falling S 4,6 5,6 3,7 4,7 after 1 soft 6 next T level 9 lines 98 points 1286
+- > t984 falling S 4,7 5,7 3,8 4,8 after 0 soft 7 next T level 9 lines 98 points 1286
+- > t985 falling S 4,7 5,7 3,8 4,8 after 1 soft 7 next T level 9 lines 98 points 1286
+- > t986 falling S 4,8 5,8 3,9 4,9 after 0 soft 8 next T level 9 lines 98 points 1286
+- > t987 falling S 4,8 5,8 3,9 4,9 after 1 soft 8 next T level 9 lines 98 points 1286
+- > t988 falling S 4,9 5,9 3,10 4,10 after 0 soft 9 next T level 9 lines 98 points 1286
+- > t989 falling S 4,9 5,9 3,10 4,10 after 1 soft 9 next T level 9 lines 98 points 1286
+- > t990 falling S 4,10 5,10 3,11 4,11 after 0 soft 10 next T level 9 lines 98 points 1286
+- > t991 falling S 4,10 5,10 3,11 4,11 after 1 soft 10 next T level 9 lines 98 points 1286
+- > t992 falling S 4,11 5,11 3,12 4,12 after 0 soft 11 next T level 9 lines 98 points 1286
+- > t993 falling S 4,11 5,11 3,12 4,12 after 1 soft 11 next T level 9 lines 98 points 1286
+- > t994 falling S 4,12 5,12 3,13 4,13 after 0 soft 12 next T level 9 lines 98 points 1286
+- > t995 falling S 4,12 5,12 3,13 4,13 after 1 soft 12 next T level 9 lines 98 points 1286
+- > t996 falling S 4,13 5,13 3,14 4,14 after 0 soft 13 next T level 9 lines 98 points 1286
+- > t997 falling S 4,13 5,13 3,14 4,14 after 1 soft 13 next T level 9 lines 98 points 1286
+- > t998 falling S 4,14 5,14 3,15 4,15 after 0 soft 14 next T level 9 lines 98 points 1286
+- > t999 falling S 4,14 5,14 3,15 4,15 after 1 soft 14 next T level 9 lines 98 points 1286
+- > t1000 falling S 4,15 5,15 3,16 4,16 after 0 soft 15 next T level 9 lines 98 points 1286
+- > t1001 falling S 4,15 5,15 3,16 4,16 after 1 soft 15 next T level 9 lines 98 points 1286
+- > t1002 falling S 4,16 5,16 3,17 4,17 after 0 soft 16 next T level 9 lines 98 points 1286
+- > t1003 falling S 4,16 5,16 3,17 4,17 after 1 soft 16 next T level 9 lines 98 points 1286
+- > t1004 falling S 4,17 5,17 3,18 4,18 after 0 soft 17 next T level 9 lines 98 points 1286
+- > t1005 falling S 4,17 5,17 3,18 4,18 after 1 soft 17 next T level 9 lines 98 points 1286
+- > t1006 falling S 4,18 5,18 3,19 4,19 after 0 soft 18 next T level 9 lines 98 points 1286
+- > t1007 falling S 4,18 5,18 3,19 4,19 after 1 soft 18 next T level 9 lines 98 points 1286
+- > t1008 clearing rows 19 left 20 then 10 next T level 9 lines 98 points 1304 | locked S 4,18 5,18 3,19 4,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I...SS...L
+  IZZSSSSLLL
+- > t1009 clearing rows 19 left 19 then 10 next T level 9 lines 98 points 1304
+- > t1010 clearing rows 19 left 18 then 10 next T level 9 lines 98 points 1304
+- > t1011 clearing rows 19 left 17 then 10 next T level 9 lines 98 points 1304
+- > t1012 clearing rows 19 left 16 then 10 next T level 9 lines 98 points 1304
+- > t1013 clearing rows 19 left 15 then 10 next T level 9 lines 98 points 1304
+- > t1014 clearing rows 19 left 14 then 10 next T level 9 lines 98 points 1304
+- > t1015 clearing rows 19 left 13 then 10 next T level 9 lines 98 points 1304
+- > t1016 clearing rows 19 left 12 then 10 next T level 9 lines 98 points 1304
+- > t1017 clearing rows 19 left 11 then 10 next T level 9 lines 98 points 1304
+- > t1018 clearing rows 19 left 10 then 10 next T level 9 lines 98 points 1304
+- > t1019 clearing rows 19 left 9 then 10 next T level 9 lines 98 points 1304
+- > t1020 clearing rows 19 left 8 then 10 next T level 9 lines 98 points 1304
+- > t1021 clearing rows 19 left 7 then 10 next T level 9 lines 98 points 1304
+- > t1022 clearing rows 19 left 6 then 10 next T level 9 lines 98 points 1304
+- > t1023 clearing rows 19 left 5 then 10 next T level 9 lines 98 points 1304
+- > t1024 clearing rows 19 left 4 then 10 next T level 9 lines 98 points 1304
+- > t1025 clearing rows 19 left 3 then 10 next T level 9 lines 98 points 1304
+- > t1026 clearing rows 19 left 2 then 10 next T level 9 lines 98 points 1304
+- > t1027 clearing rows 19 left 1 then 10 next T level 9 lines 98 points 1304
+- > t1028 entry 10 next T level 9 lines 99 points 1704 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  I...SS...L
+- > t1029 entry 9 next T level 9 lines 99 points 1704
+- > t1030 entry 8 next T level 9 lines 99 points 1704
+- > t1031 entry 7 next T level 9 lines 99 points 1704
+- > t1032 entry 6 next T level 9 lines 99 points 1704
+- > t1033 entry 5 next T level 9 lines 99 points 1704
+- > t1034 entry 4 next T level 9 lines 99 points 1704
+- > t1035 entry 3 next T level 9 lines 99 points 1704
+- > t1036 entry 2 next T level 9 lines 99 points 1704
+- > t1037 entry 1 next T level 9 lines 99 points 1704
+- > t1038 falling T 4,0 5,0 6,0 5,1 after 0 next I level 9 lines 99 points 1704
+-DOWN +A +RIGHT > t1039 falling T 6,-1 5,0 6,0 6,1 after 1 next I level 9 lines 99 points 1704 | rotated T 6,-1 5,0 6,0 6,1 CLOCKWISE
+-A > t1040 falling T 6,-1 5,0 6,0 6,1 after 2 next I level 9 lines 99 points 1704
++A > t1041 falling T 6,-1 5,0 6,0 7,0 after 3 next I level 9 lines 99 points 1704 | rotated T 6,-1 5,0 6,0 7,0 CLOCKWISE
+-A > t1042 falling T 6,-1 5,0 6,0 7,0 after 4 next I level 9 lines 99 points 1704
+- > t1043 falling T 6,-1 5,0 6,0 7,0 after 5 next I level 9 lines 99 points 1704
+- > t1044 falling T 6,0 5,1 6,1 7,1 after 0 next I level 9 lines 99 points 1704
+- > t1045 falling T 6,0 5,1 6,1 7,1 after 1 next I level 9 lines 99 points 1704
+- > t1046 falling T 6,0 5,1 6,1 7,1 after 2 next I level 9 lines 99 points 1704
+- > t1047 falling T 6,0 5,1 6,1 7,1 after 3 next I level 9 lines 99 points 1704
+- > t1048 falling T 6,0 5,1 6,1 7,1 after 4 next I level 9 lines 99 points 1704
+- > t1049 falling T 6,0 5,1 6,1 7,1 after 5 next I level 9 lines 99 points 1704
+- > t1050 falling T 6,1 5,2 6,2 7,2 after 0 next I level 9 lines 99 points 1704
+- > t1051 falling T 6,1 5,2 6,2 7,2 after 1 next I level 9 lines 99 points 1704
+- > t1052 falling T 6,1 5,2 6,2 7,2 after 2 next I level 9 lines 99 points 1704
+- > t1053 falling T 6,1 5,2 6,2 7,2 after 3 next I level 9 lines 99 points 1704
+- > t1054 falling T 6,1 5,2 6,2 7,2 after 4 next I level 9 lines 99 points 1704
+- > t1055 falling T 7,1 6,2 7,2 8,2 after 5 next I level 9 lines 99 points 1704
+-RIGHT > t1056 falling T 7,2 6,3 7,3 8,3 after 0 next I level 9 lines 99 points 1704
+- > t1057 falling T 7,2 6,3 7,3 8,3 after 1 next I level 9 lines 99 points 1704
+- > t1058 falling T 7,2 6,3 7,3 8,3 after 2 next I level 9 lines 99 points 1704
+- > t1059 falling T 7,2 6,3 7,3 8,3 after 3 next I level 9 lines 99 points 1704
+- > t1060 falling T 7,2 6,3 7,3 8,3 after 4 next I level 9 lines 99 points 1704
+- > t1061 falling T 7,2 6,3 7,3 8,3 after 5 next I level 9 lines 99 points 1704
+- > t1062 falling T 7,3 6,4 7,4 8,4 after 0 next I level 9 lines 99 points 1704
+- > t1063 falling T 7,3 6,4 7,4 8,4 after 1 next I level 9 lines 99 points 1704
+- > t1064 falling T 7,3 6,4 7,4 8,4 after 2 next I level 9 lines 99 points 1704
+- > t1065 falling T 7,3 6,4 7,4 8,4 after 3 next I level 9 lines 99 points 1704
+- > t1066 falling T 7,3 6,4 7,4 8,4 after 4 next I level 9 lines 99 points 1704
+- > t1067 falling T 7,3 6,4 7,4 8,4 after 5 next I level 9 lines 99 points 1704
+- > t1068 falling T 7,4 6,5 7,5 8,5 after 0 next I level 9 lines 99 points 1704
+- > t1069 falling T 7,4 6,5 7,5 8,5 after 1 next I level 9 lines 99 points 1704
+- > t1070 falling T 7,4 6,5 7,5 8,5 after 2 next I level 9 lines 99 points 1704
+- > t1071 falling T 7,4 6,5 7,5 8,5 after 3 next I level 9 lines 99 points 1704
+- > t1072 falling T 7,4 6,5 7,5 8,5 after 4 next I level 9 lines 99 points 1704
+- > t1073 falling T 7,4 6,5 7,5 8,5 after 5 next I level 9 lines 99 points 1704
+- > t1074 falling T 7,5 6,6 7,6 8,6 after 0 next I level 9 lines 99 points 1704
+- > t1075 falling T 7,5 6,6 7,6 8,6 after 1 next I level 9 lines 99 points 1704
+- > t1076 falling T 7,5 6,6 7,6 8,6 after 2 next I level 9 lines 99 points 1704
+- > t1077 falling T 7,5 6,6 7,6 8,6 after 3 next I level 9 lines 99 points 1704
+- > t1078 falling T 7,5 6,6 7,6 8,6 after 4 next I level 9 lines 99 points 1704
+- > t1079 falling T 7,5 6,6 7,6 8,6 after 5 next I level 9 lines 99 points 1704
+- > t1080 falling T 7,6 6,7 7,7 8,7 after 0 next I level 9 lines 99 points 1704
+- > t1081 falling T 7,6 6,7 7,7 8,7 after 1 next I level 9 lines 99 points 1704
+- > t1082 falling T 7,6 6,7 7,7 8,7 after 2 next I level 9 lines 99 points 1704
+- > t1083 falling T 7,6 6,7 7,7 8,7 after 3 next I level 9 lines 99 points 1704
+- > t1084 falling T 7,6 6,7 7,7 8,7 after 4 next I level 9 lines 99 points 1704
+- > t1085 falling T 7,6 6,7 7,7 8,7 after 5 next I level 9 lines 99 points 1704
+- > t1086 falling T 7,7 6,8 7,8 8,8 after 0 next I level 9 lines 99 points 1704
+- > t1087 falling T 7,7 6,8 7,8 8,8 after 1 next I level 9 lines 99 points 1704
+- > t1088 falling T 7,7 6,8 7,8 8,8 after 2 next I level 9 lines 99 points 1704
+- > t1089 falling T 7,7 6,8 7,8 8,8 after 3 next I level 9 lines 99 points 1704
+- > t1090 falling T 7,7 6,8 7,8 8,8 after 4 next I level 9 lines 99 points 1704
+- > t1091 falling T 7,7 6,8 7,8 8,8 after 5 next I level 9 lines 99 points 1704
+- > t1092 falling T 7,8 6,9 7,9 8,9 after 0 next I level 9 lines 99 points 1704
+- > t1093 falling T 7,8 6,9 7,9 8,9 after 1 next I level 9 lines 99 points 1704
+- > t1094 falling T 7,8 6,9 7,9 8,9 after 2 next I level 9 lines 99 points 1704
+- > t1095 falling T 7,8 6,9 7,9 8,9 after 3 next I level 9 lines 99 points 1704
+- > t1096 falling T 7,8 6,9 7,9 8,9 after 4 next I level 9 lines 99 points 1704
+- > t1097 falling T 7,8 6,9 7,9 8,9 after 5 next I level 9 lines 99 points 1704
+- > t1098 falling T 7,9 6,10 7,10 8,10 after 0 next I level 9 lines 99 points 1704
+- > t1099 falling T 7,9 6,10 7,10 8,10 after 1 next I level 9 lines 99 points 1704
+- > t1100 falling T 7,9 6,10 7,10 8,10 after 2 next I level 9 lines 99 points 1704
+- > t1101 falling T 7,9 6,10 7,10 8,10 after 3 next I level 9 lines 99 points 1704
+- > t1102 falling T 7,9 6,10 7,10 8,10 after 4 next I level 9 lines 99 points 1704
+- > t1103 falling T 7,9 6,10 7,10 8,10 after 5 next I level 9 lines 99 points 1704
+- > t1104 falling T 7,10 6,11 7,11 8,11 after 0 next I level 9 lines 99 points 1704
+- > t1105 falling T 7,10 6,11 7,11 8,11 after 1 next I level 9 lines 99 points 1704
+- > t1106 falling T 7,10 6,11 7,11 8,11 after 2 next I level 9 lines 99 points 1704
+- > t1107 falling T 7,10 6,11 7,11 8,11 after 3 next I level 9 lines 99 points 1704
+- > t1108 falling T 7,10 6,11 7,11 8,11 after 4 next I level 9 lines 99 points 1704
+- > t1109 falling T 7,10 6,11 7,11 8,11 after 5 next I level 9 lines 99 points 1704
+- > t1110 falling T 7,11 6,12 7,12 8,12 after 0 next I level 9 lines 99 points 1704
+- > t1111 falling T 7,11 6,12 7,12 8,12 after 1 next I level 9 lines 99 points 1704
+- > t1112 falling T 7,11 6,12 7,12 8,12 after 2 next I level 9 lines 99 points 1704
+- > t1113 falling T 7,11 6,12 7,12 8,12 after 3 next I level 9 lines 99 points 1704
+- > t1114 falling T 7,11 6,12 7,12 8,12 after 4 next I level 9 lines 99 points 1704
+- > t1115 falling T 7,11 6,12 7,12 8,12 after 5 next I level 9 lines 99 points 1704
+- > t1116 falling T 7,12 6,13 7,13 8,13 after 0 next I level 9 lines 99 points 1704
+- > t1117 falling T 7,12 6,13 7,13 8,13 after 1 next I level 9 lines 99 points 1704
+- > t1118 falling T 7,12 6,13 7,13 8,13 after 2 next I level 9 lines 99 points 1704
+- > t1119 falling T 7,12 6,13 7,13 8,13 after 3 next I level 9 lines 99 points 1704
+- > t1120 falling T 7,12 6,13 7,13 8,13 after 4 next I level 9 lines 99 points 1704
+- > t1121 falling T 7,12 6,13 7,13 8,13 after 5 next I level 9 lines 99 points 1704
+- > t1122 falling T 7,13 6,14 7,14 8,14 after 0 next I level 9 lines 99 points 1704
+- > t1123 falling T 7,13 6,14 7,14 8,14 after 1 next I level 9 lines 99 points 1704
+- > t1124 falling T 7,13 6,14 7,14 8,14 after 2 next I level 9 lines 99 points 1704
+- > t1125 falling T 7,13 6,14 7,14 8,14 after 3 next I level 9 lines 99 points 1704
+- > t1126 falling T 7,13 6,14 7,14 8,14 after 4 next I level 9 lines 99 points 1704
+- > t1127 falling T 7,13 6,14 7,14 8,14 after 5 next I level 9 lines 99 points 1704
+- > t1128 falling T 7,14 6,15 7,15 8,15 after 0 next I level 9 lines 99 points 1704
+- > t1129 falling T 7,14 6,15 7,15 8,15 after 1 next I level 9 lines 99 points 1704
+- > t1130 falling T 7,14 6,15 7,15 8,15 after 2 next I level 9 lines 99 points 1704
+- > t1131 falling T 7,14 6,15 7,15 8,15 after 3 next I level 9 lines 99 points 1704
+- > t1132 falling T 7,14 6,15 7,15 8,15 after 4 next I level 9 lines 99 points 1704
+- > t1133 falling T 7,14 6,15 7,15 8,15 after 5 next I level 9 lines 99 points 1704
+- > t1134 falling T 7,15 6,16 7,16 8,16 after 0 next I level 9 lines 99 points 1704
+- > t1135 falling T 7,15 6,16 7,16 8,16 after 1 next I level 9 lines 99 points 1704
+- > t1136 falling T 7,15 6,16 7,16 8,16 after 2 next I level 9 lines 99 points 1704
+- > t1137 falling T 7,15 6,16 7,16 8,16 after 3 next I level 9 lines 99 points 1704
+- > t1138 falling T 7,15 6,16 7,16 8,16 after 4 next I level 9 lines 99 points 1704
+- > t1139 falling T 7,15 6,16 7,16 8,16 after 5 next I level 9 lines 99 points 1704
+- > t1140 falling T 7,16 6,17 7,17 8,17 after 0 next I level 9 lines 99 points 1704
+- > t1141 falling T 7,16 6,17 7,17 8,17 after 1 next I level 9 lines 99 points 1704
+- > t1142 falling T 7,16 6,17 7,17 8,17 after 2 next I level 9 lines 99 points 1704
+- > t1143 falling T 7,16 6,17 7,17 8,17 after 3 next I level 9 lines 99 points 1704
+- > t1144 falling T 7,16 6,17 7,17 8,17 after 4 next I level 9 lines 99 points 1704
+- > t1145 falling T 7,16 6,17 7,17 8,17 after 5 next I level 9 lines 99 points 1704
+- > t1146 falling T 7,17 6,18 7,18 8,18 after 0 next I level 9 lines 99 points 1704
+- > t1147 falling T 7,17 6,18 7,18 8,18 after 1 next I level 9 lines 99 points 1704
+- > t1148 falling T 7,17 6,18 7,18 8,18 after 2 next I level 9 lines 99 points 1704
+- > t1149 falling T 7,17 6,18 7,18 8,18 after 3 next I level 9 lines 99 points 1704
+- > t1150 falling T 7,17 6,18 7,18 8,18 after 4 next I level 9 lines 99 points 1704
+- > t1151 falling T 7,17 6,18 7,18 8,18 after 5 next I level 9 lines 99 points 1704
+- > t1152 falling T 7,18 6,19 7,19 8,19 after 0 next I level 9 lines 99 points 1704
+- > t1153 falling T 7,18 6,19 7,19 8,19 after 1 next I level 9 lines 99 points 1704
+- > t1154 falling T 7,18 6,19 7,19 8,19 after 2 next I level 9 lines 99 points 1704
+- > t1155 falling T 7,18 6,19 7,19 8,19 after 3 next I level 9 lines 99 points 1704
+- > t1156 falling T 7,18 6,19 7,19 8,19 after 4 next I level 9 lines 99 points 1704
+- > t1157 falling T 7,18 6,19 7,19 8,19 after 5 next I level 9 lines 99 points 1704
+- > t1158 entry 10 next I level 9 lines 99 points 1704 | locked T 7,18 6,19 7,19 8,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......T..
+  I...SSTTTL
+- > t1159 entry 9 next I level 9 lines 99 points 1704
+- > t1160 entry 8 next I level 9 lines 99 points 1704
+- > t1161 entry 7 next I level 9 lines 99 points 1704
+- > t1162 entry 6 next I level 9 lines 99 points 1704
+- > t1163 entry 5 next I level 9 lines 99 points 1704
+- > t1164 entry 4 next I level 9 lines 99 points 1704
+- > t1165 entry 3 next I level 9 lines 99 points 1704
+- > t1166 entry 2 next I level 9 lines 99 points 1704
+- > t1167 entry 1 next I level 9 lines 99 points 1704
+- > t1168 falling I 3,0 4,0 5,0 6,0 after 0 next L level 9 lines 99 points 1704
++A +RIGHT > t1169 falling I 6,-2 6,-1 6,0 6,1 after 1 next L level 9 lines 99 points 1704 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t1170 falling I 6,-2 6,-1 6,0 6,1 after 2 next L level 9 lines 99 points 1704
++RIGHT > t1171 falling I 7,-2 7,-1 7,0 7,1 after 3 next L level 9 lines 99 points 1704
+-RIGHT > t1172 falling I 7,-2 7,-1 7,0 7,1 after 4 next L level 9 lines 99 points 1704
++RIGHT > t1173 falling I 8,-2 8,-1 8,0 8,1 after 5 next L level 9 lines 99 points 1704
+-RIGHT > t1174 falling I 8,-1 8,0 8,1 8,2 after 0 next L level 9 lines 99 points 1704
++RIGHT > t1175 falling I 9,-1 9,0 9,1 9,2 after 1 next L level 9 lines 99 points 1704
+-RIGHT > t1176 falling I 9,-1 9,0 9,1 9,2 after 2 next L level 9 lines 99 points 1704
+- > t1177 falling I 9,-1 9,0 9,1 9,2 after 3 next L level 9 lines 99 points 1704
+- > t1178 falling I 9,-1 9,0 9,1 9,2 after 4 next L level 9 lines 99 points 1704
+- > t1179 falling I 9,-1 9,0 9,1 9,2 after 5 next L level 9 lines 99 points 1704
+- > t1180 falling I 9,0 9,1 9,2 9,3 after 0 next L level 9 lines 99 points 1704
+- > t1181 falling I 9,0 9,1 9,2 9,3 after 1 next L level 9 lines 99 points 1704
+- > t1182 falling I 9,0 9,1 9,2 9,3 after 2 next L level 9 lines 99 points 1704
+- > t1183 falling I 9,0 9,1 9,2 9,3 after 3 next L level 9 lines 99 points 1704
+- > t1184 falling I 9,0 9,1 9,2 9,3 after 4 next L level 9 lines 99 points 1704
+- > t1185 falling I 9,0 9,1 9,2 9,3 after 5 next L level 9 lines 99 points 1704
+- > t1186 falling I 9,1 9,2 9,3 9,4 after 0 next L level 9 lines 99 points 1704
+- > t1187 falling I 9,1 9,2 9,3 9,4 after 1 next L level 9 lines 99 points 1704
+- > t1188 falling I 9,1 9,2 9,3 9,4 after 2 next L level 9 lines 99 points 1704
+- > t1189 falling I 9,1 9,2 9,3 9,4 after 3 next L level 9 lines 99 points 1704
+- > t1190 falling I 9,1 9,2 9,3 9,4 after 4 next L level 9 lines 99 points 1704
+- > t1191 falling I 9,1 9,2 9,3 9,4 after 5 next L level 9 lines 99 points 1704
+- > t1192 falling I 9,2 9,3 9,4 9,5 after 0 next L level 9 lines 99 points 1704
+- > t1193 falling I 9,2 9,3 9,4 9,5 after 1 next L level 9 lines 99 points 1704
+- > t1194 falling I 9,2 9,3 9,4 9,5 after 2 next L level 9 lines 99 points 1704
+- > t1195 falling I 9,2 9,3 9,4 9,5 after 3 next L level 9 lines 99 points 1704
+- > t1196 falling I 9,2 9,3 9,4 9,5 after 4 next L level 9 lines 99 points 1704
+- > t1197 falling I 9,2 9,3 9,4 9,5 after 5 next L level 9 lines 99 points 1704
+- > t1198 falling I 9,3 9,4 9,5 9,6 after 0 next L level 9 lines 99 points 1704
+- > t1199 falling I 9,3 9,4 9,5 9,6 after 1 next L level 9 lines 99 points 1704
+- > t1200 falling I 9,3 9,4 9,5 9,6 after 2 next L level 9 lines 99 points 1704
+- > t1201 falling I 9,3 9,4 9,5 9,6 after 3 next L level 9 lines 99 points 1704
+- > t1202 falling I 9,3 9,4 9,5 9,6 after 4 next L level 9 lines 99 points 1704
+- > t1203 falling I 9,3 9,4 9,5 9,6 after 5 next L level 9 lines 99 points 1704
+- > t1204 falling I 9,4 9,5 9,6 9,7 after 0 next L level 9 lines 99 points 1704
+- > t1205 falling I 9,4 9,5 9,6 9,7 after 1 next L level 9 lines 99 points 1704
+- > t1206 falling I 9,4 9,5 9,6 9,7 after 2 next L level 9 lines 99 points 1704
+- > t1207 falling I 9,4 9,5 9,6 9,7 after 3 next L level 9 lines 99 points 1704
+- > t1208 falling I 9,4 9,5 9,6 9,7 after 4 next L level 9 lines 99 points 1704
+- > t1209 falling I 9,4 9,5 9,6 9,7 after 5 next L level 9 lines 99 points 1704
+- > t1210 falling I 9,5 9,6 9,7 9,8 after 0 next L level 9 lines 99 points 1704
+- > t1211 falling I 9,5 9,6 9,7 9,8 after 1 next L level 9 lines 99 points 1704
+- > t1212 falling I 9,5 9,6 9,7 9,8 after 2 next L level 9 lines 99 points 1704
+- > t1213 falling I 9,5 9,6 9,7 9,8 after 3 next L level 9 lines 99 points 1704
+- > t1214 falling I 9,5 9,6 9,7 9,8 after 4 next L level 9 lines 99 points 1704
+- > t1215 falling I 9,5 9,6 9,7 9,8 after 5 next L level 9 lines 99 points 1704
+- > t1216 falling I 9,6 9,7 9,8 9,9 after 0 next L level 9 lines 99 points 1704
+- > t1217 falling I 9,6 9,7 9,8 9,9 after 1 next L level 9 lines 99 points 1704
+- > t1218 falling I 9,6 9,7 9,8 9,9 after 2 next L level 9 lines 99 points 1704
+- > t1219 falling I 9,6 9,7 9,8 9,9 after 3 next L level 9 lines 99 points 1704
+- > t1220 falling I 9,6 9,7 9,8 9,9 after 4 next L level 9 lines 99 points 1704
+- > t1221 falling I 9,6 9,7 9,8 9,9 after 5 next L level 9 lines 99 points 1704
+- > t1222 falling I 9,7 9,8 9,9 9,10 after 0 next L level 9 lines 99 points 1704
+- > t1223 falling I 9,7 9,8 9,9 9,10 after 1 next L level 9 lines 99 points 1704
+- > t1224 falling I 9,7 9,8 9,9 9,10 after 2 next L level 9 lines 99 points 1704
+- > t1225 falling I 9,7 9,8 9,9 9,10 after 3 next L level 9 lines 99 points 1704
+- > t1226 falling I 9,7 9,8 9,9 9,10 after 4 next L level 9 lines 99 points 1704
+- > t1227 falling I 9,7 9,8 9,9 9,10 after 5 next L level 9 lines 99 points 1704
+- > t1228 falling I 9,8 9,9 9,10 9,11 after 0 next L level 9 lines 99 points 1704
+- > t1229 falling I 9,8 9,9 9,10 9,11 after 1 next L level 9 lines 99 points 1704
+- > t1230 falling I 9,8 9,9 9,10 9,11 after 2 next L level 9 lines 99 points 1704
+- > t1231 falling I 9,8 9,9 9,10 9,11 after 3 next L level 9 lines 99 points 1704
+- > t1232 falling I 9,8 9,9 9,10 9,11 after 4 next L level 9 lines 99 points 1704
+- > t1233 falling I 9,8 9,9 9,10 9,11 after 5 next L level 9 lines 99 points 1704
+- > t1234 falling I 9,9 9,10 9,11 9,12 after 0 next L level 9 lines 99 points 1704
+- > t1235 falling I 9,9 9,10 9,11 9,12 after 1 next L level 9 lines 99 points 1704
+- > t1236 falling I 9,9 9,10 9,11 9,12 after 2 next L level 9 lines 99 points 1704
+- > t1237 falling I 9,9 9,10 9,11 9,12 after 3 next L level 9 lines 99 points 1704
+- > t1238 falling I 9,9 9,10 9,11 9,12 after 4 next L level 9 lines 99 points 1704
+- > t1239 falling I 9,9 9,10 9,11 9,12 after 5 next L level 9 lines 99 points 1704
+- > t1240 falling I 9,10 9,11 9,12 9,13 after 0 next L level 9 lines 99 points 1704
+- > t1241 falling I 9,10 9,11 9,12 9,13 after 1 next L level 9 lines 99 points 1704
+- > t1242 falling I 9,10 9,11 9,12 9,13 after 2 next L level 9 lines 99 points 1704
+- > t1243 falling I 9,10 9,11 9,12 9,13 after 3 next L level 9 lines 99 points 1704
+- > t1244 falling I 9,10 9,11 9,12 9,13 after 4 next L level 9 lines 99 points 1704
+- > t1245 falling I 9,10 9,11 9,12 9,13 after 5 next L level 9 lines 99 points 1704
+- > t1246 falling I 9,11 9,12 9,13 9,14 after 0 next L level 9 lines 99 points 1704
+- > t1247 falling I 9,11 9,12 9,13 9,14 after 1 next L level 9 lines 99 points 1704
+- > t1248 falling I 9,11 9,12 9,13 9,14 after 2 next L level 9 lines 99 points 1704
+- > t1249 falling I 9,11 9,12 9,13 9,14 after 3 next L level 9 lines 99 points 1704
+- > t1250 falling I 9,11 9,12 9,13 9,14 after 4 next L level 9 lines 99 points 1704
+- > t1251 falling I 9,11 9,12 9,13 9,14 after 5 next L level 9 lines 99 points 1704
+- > t1252 falling I 9,12 9,13 9,14 9,15 after 0 next L level 9 lines 99 points 1704
+- > t1253 falling I 9,12 9,13 9,14 9,15 after 1 next L level 9 lines 99 points 1704
+- > t1254 falling I 9,12 9,13 9,14 9,15 after 2 next L level 9 lines 99 points 1704
+- > t1255 falling I 9,12 9,13 9,14 9,15 after 3 next L level 9 lines 99 points 1704
+- > t1256 falling I 9,12 9,13 9,14 9,15 after 4 next L level 9 lines 99 points 1704
+- > t1257 falling I 9,12 9,13 9,14 9,15 after 5 next L level 9 lines 99 points 1704
+- > t1258 falling I 9,13 9,14 9,15 9,16 after 0 next L level 9 lines 99 points 1704
+- > t1259 falling I 9,13 9,14 9,15 9,16 after 1 next L level 9 lines 99 points 1704
+- > t1260 falling I 9,13 9,14 9,15 9,16 after 2 next L level 9 lines 99 points 1704
+- > t1261 falling I 9,13 9,14 9,15 9,16 after 3 next L level 9 lines 99 points 1704
+- > t1262 falling I 9,13 9,14 9,15 9,16 after 4 next L level 9 lines 99 points 1704
+- > t1263 falling I 9,13 9,14 9,15 9,16 after 5 next L level 9 lines 99 points 1704
+- > t1264 falling I 9,14 9,15 9,16 9,17 after 0 next L level 9 lines 99 points 1704
+- > t1265 falling I 9,14 9,15 9,16 9,17 after 1 next L level 9 lines 99 points 1704
+- > t1266 falling I 9,14 9,15 9,16 9,17 after 2 next L level 9 lines 99 points 1704
+- > t1267 falling I 9,14 9,15 9,16 9,17 after 3 next L level 9 lines 99 points 1704
+- > t1268 falling I 9,14 9,15 9,16 9,17 after 4 next L level 9 lines 99 points 1704
+- > t1269 falling I 9,14 9,15 9,16 9,17 after 5 next L level 9 lines 99 points 1704
+- > t1270 falling I 9,15 9,16 9,17 9,18 after 0 next L level 9 lines 99 points 1704
+- > t1271 falling I 9,15 9,16 9,17 9,18 after 1 next L level 9 lines 99 points 1704
+- > t1272 falling I 9,15 9,16 9,17 9,18 after 2 next L level 9 lines 99 points 1704
+- > t1273 falling I 9,15 9,16 9,17 9,18 after 3 next L level 9 lines 99 points 1704
+- > t1274 falling I 9,15 9,16 9,17 9,18 after 4 next L level 9 lines 99 points 1704
+- > t1275 falling I 9,15 9,16 9,17 9,18 after 5 next L level 9 lines 99 points 1704
+- > t1276 entry 12 next L level 9 lines 99 points 1704 | locked I 9,15 9,16 9,17 9,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........I
+  .........I
+  .........I
+  .......T.I
+  I...SSTTTL
+- > t1277 entry 11 next L level 9 lines 99 points 1704
+- > t1278 entry 10 next L level 9 lines 99 points 1704
+- > t1279 entry 9 next L level 9 lines 99 points 1704
+- > t1280 entry 8 next L level 9 lines 99 points 1704
+- > t1281 entry 7 next L level 9 lines 99 points 1704
+- > t1282 entry 6 next L level 9 lines 99 points 1704
+- > t1283 entry 5 next L level 9 lines 99 points 1704
+- > t1284 entry 4 next L level 9 lines 99 points 1704
+- > t1285 entry 3 next L level 9 lines 99 points 1704
+- > t1286 entry 2 next L level 9 lines 99 points 1704
+- > t1287 entry 1 next L level 9 lines 99 points 1704
+- > t1288 falling L 4,0 5,0 6,0 4,1 after 0 next S level 9 lines 99 points 1704
++A +LEFT > t1289 falling L 3,-1 4,-1 4,0 4,1 after 1 next S level 9 lines 99 points 1704 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A > t1290 falling L 3,-1 4,-1 4,0 4,1 after 2 next S level 9 lines 99 points 1704
++A > t1291 falling L 5,-1 3,0 4,0 5,0 after 3 next S level 9 lines 99 points 1704 | rotated L 5,-1 3,0 4,0 5,0 CLOCKWISE
+-A > t1292 falling L 5,-1 3,0 4,0 5,0 after 4 next S level 9 lines 99 points 1704
+- > t1293 falling L 5,-1 3,0 4,0 5,0 after 5 next S level 9 lines 99 points 1704
+- > t1294 falling L 5,0 3,1 4,1 5,1 after 0 next S level 9 lines 99 points 1704
+- > t1295 falling L 5,0 3,1 4,1 5,1 after 1 next S level 9 lines 99 points 1704
+- > t1296 falling L 5,0 3,1 4,1 5,1 after 2 next S level 9 lines 99 points 1704
+- > t1297 falling L 5,0 3,1 4,1 5,1 after 3 next S level 9 lines 99 points 1704
+- > t1298 falling L 5,0 3,1 4,1 5,1 after 4 next S level 9 lines 99 points 1704
+- > t1299 falling L 5,0 3,1 4,1 5,1 after 5 next S level 9 lines 99 points 1704
+- > t1300 falling L 5,1 3,2 4,2 5,2 after 0 next S level 9 lines 99 points 1704
+- > t1301 falling L 5,1 3,2 4,2 5,2 after 1 next S level 9 lines 99 points 1704
+- > t1302 falling L 5,1 3,2 4,2 5,2 after 2 next S level 9 lines 99 points 1704
+- > t1303 falling L 5,1 3,2 4,2 5,2 after 3 next S level 9 lines 99 points 1704
+- > t1304 falling L 5,1 3,2 4,2 5,2 after 4 next S level 9 lines 99 points 1704
+- > t1305 falling L 4,1 2,2 3,2 4,2 after 5 next S level 9 lines 99 points 1704
+- > t1306 falling L 4,2 2,3 3,3 4,3 after 0 next S level 9 lines 99 points 1704
+- > t1307 falling L 4,2 2,3 3,3 4,3 after 1 next S level 9 lines 99 points 1704
+- > t1308 falling L 4,2 2,3 3,3 4,3 after 2 next S level 9 lines 99 points 1704
+- > t1309 falling L 4,2 2,3 3,3 4,3 after 3 next S level 9 lines 99 points 1704
+- > t1310 falling L 4,2 2,3 3,3 4,3 after 4 next S level 9 lines 99 points 1704
+- > t1311 falling L 3,2 1,3 2,3 3,3 after 5 next S level 9 lines 99 points 1704
+-LEFT +DOWN > t1312 falling L 3,3 1,4 2,4 3,4 after 0 next S level 9 lines 99 points 1704
+- > t1313 falling L 3,3 1,4 2,4 3,4 after 1 next S level 9 lines 99 points 1704
+- > t1314 falling L 3,4 1,5 2,5 3,5 after 0 soft 1 next S level 9 lines 99 points 1704
+- > t1315 falling L 3,4 1,5 2,5 3,5 after 1 soft 1 next S level 9 lines 99 points 1704
+- > t1316 falling L 3,5 1,6 2,6 3,6 after 0 soft 2 next S level 9 lines 99 points 1704
+- > t1317 falling L 3,5 1,6 2,6 3,6 after 1 soft 2 next S level 9 lines 99 points 1704
+- > t1318 falling L 3,6 1,7 2,7 3,7 after 0 soft 3 next S level 9 lines 99 points 1704
+- > t1319 falling L 3,6 1,7 2,7 3,7 after 1 soft 3 next S level 9 lines 99 points 1704
+- > t1320 falling L 3,7 1,8 2,8 3,8 after 0 soft 4 next S level 9 lines 99 points 1704
+- > t1321 falling L 3,7 1,8 2,8 3,8 after 1 soft 4 next S level 9 lines 99 points 1704
+- > t1322 falling L 3,8 1,9 2,9 3,9 after 0 soft 5 next S level 9 lines 99 points 1704
+- > t1323 falling L 3,8 1,9 2,9 3,9 after 1 soft 5 next S level 9 lines 99 points 1704
+- > t1324 falling L 3,9 1,10 2,10 3,10 after 0 soft 6 next S level 9 lines 99 points 1704
+- > t1325 falling L 3,9 1,10 2,10 3,10 after 1 soft 6 next S level 9 lines 99 points 1704
+- > t1326 falling L 3,10 1,11 2,11 3,11 after 0 soft 7 next S level 9 lines 99 points 1704
+- > t1327 falling L 3,10 1,11 2,11 3,11 after 1 soft 7 next S level 9 lines 99 points 1704
+- > t1328 falling L 3,11 1,12 2,12 3,12 after 0 soft 8 next S level 9 lines 99 points 1704
+- > t1329 falling L 3,11 1,12 2,12 3,12 after 1 soft 8 next S level 9 lines 99 points 1704
+- > t1330 falling L 3,12 1,13 2,13 3,13 after 0 soft 9 next S level 9 lines 99 points 1704
+- > t1331 falling L 3,12 1,13 2,13 3,13 after 1 soft 9 next S level 9 lines 99 points 1704
+- > t1332 falling L 3,13 1,14 2,14 3,14 after 0 soft 10 next S level 9 lines 99 points 1704
+- > t1333 falling L 3,13 1,14 2,14 3,14 after 1 soft 10 next S level 9 lines 99 points 1704
+- > t1334 falling L 3,14 1,15 2,15 3,15 after 0 soft 11 next S level 9 lines 99 points 1704
+- > t1335 falling L 3,14 1,15 2,15 3,15 after 1 soft 11 next S level 9 lines 99 points 1704
+- > t1336 falling L 3,15 1,16 2,16 3,16 after 0 soft 12 next S level 9 lines 99 points 1704
+- > t1337 falling L 3,15 1,16 2,16 3,16 after 1 soft 12 next S level 9 lines 99 points 1704
+- > t1338 falling L 3,16 1,17 2,17 3,17 after 0 soft 13 next S level 9 lines 99 points 1704
+- > t1339 falling L 3,16 1,17 2,17 3,17 after 1 soft 13 next S level 9 lines 99 points 1704
+- > t1340 falling L 3,17 1,18 2,18 3,18 after 0 soft 14 next S level 9 lines 99 points 1704
+- > t1341 falling L 3,17 1,18 2,18 3,18 after 1 soft 14 next S level 9 lines 99 points 1704
+- > t1342 falling L 3,18 1,19 2,19 3,19 after 0 soft 15 next S level 9 lines 99 points 1704
+- > t1343 falling L 3,18 1,19 2,19 3,19 after 1 soft 15 next S level 9 lines 99 points 1704
+- > t1344 clearing rows 19 left 20 then 10 next S level 9 lines 99 points 1719 | locked L 3,18 1,19 2,19 3,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........I
+  .........I
+  .........I
+  ...L...T.I
+  ILLLSSTTTL
+- > t1345 clearing rows 19 left 19 then 10 next S level 9 lines 99 points 1719
+- > t1346 clearing rows 19 left 18 then 10 next S level 9 lines 99 points 1719
+- > t1347 clearing rows 19 left 17 then 10 next S level 9 lines 99 points 1719
+- > t1348 clearing rows 19 left 16 then 10 next S level 9 lines 99 points 1719
+- > t1349 clearing rows 19 left 15 then 10 next S level 9 lines 99 points 1719
+- > t1350 clearing rows 19 left 14 then 10 next S level 9 lines 99 points 1719
+- > t1351 clearing rows 19 left 13 then 10 next S level 9 lines 99 points 1719
+- > t1352 clearing rows 19 left 12 then 10 next S level 9 lines 99 points 1719
+- > t1353 clearing rows 19 left 11 then 10 next S level 9 lines 99 points 1719
+- > t1354 clearing rows 19 left 10 then 10 next S level 9 lines 99 points 1719
+- > t1355 clearing rows 19 left 9 then 10 next S level 9 lines 99 points 1719
+- > t1356 clearing rows 19 left 8 then 10 next S level 9 lines 99 points 1719
+- > t1357 clearing rows 19 left 7 then 10 next S level 9 lines 99 points 1719
+- > t1358 clearing rows 19 left 6 then 10 next S level 9 lines 99 points 1719
+- > t1359 clearing rows 19 left 5 then 10 next S level 9 lines 99 points 1719
+- > t1360 clearing rows 19 left 4 then 10 next S level 9 lines 99 points 1719
+- > t1361 clearing rows 19 left 3 then 10 next S level 9 lines 99 points 1719
+- > t1362 clearing rows 19 left 2 then 10 next S level 9 lines 99 points 1719
+- > t1363 clearing rows 19 left 1 then 10 next S level 9 lines 99 points 1719
+- > t1364 entry 10 next S level 10 lines 100 points 2159 | cleared 1; level-up 10
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........I
+  .........I
+  .........I
+  ...L...T.I
+- > t1365 entry 9 next S level 10 lines 100 points 2159
+- > t1366 entry 8 next S level 10 lines 100 points 2159
+- > t1367 entry 7 next S level 10 lines 100 points 2159
+- > t1368 entry 6 next S level 10 lines 100 points 2159
+- > t1369 entry 5 next S level 10 lines 100 points 2159
+- > t1370 entry 4 next S level 10 lines 100 points 2159
+- > t1371 entry 3 next S level 10 lines 100 points 2159
+- > t1372 entry 2 next S level 10 lines 100 points 2159
+- > t1373 entry 1 next S level 10 lines 100 points 2159
+- > t1374 falling S 5,0 6,0 4,1 5,1 after 0 next L level 10 lines 100 points 2159
+-DOWN +A +RIGHT > t1375 falling S 6,-1 6,0 7,0 7,1 after 1 next L level 10 lines 100 points 2159 | rotated S 6,-1 6,0 7,0 7,1 CLOCKWISE
+-A -RIGHT > t1376 falling S 6,-1 6,0 7,0 7,1 after 2 next L level 10 lines 100 points 2159
++RIGHT > t1377 falling S 7,-1 7,0 8,0 8,1 after 3 next L level 10 lines 100 points 2159
+-RIGHT > t1378 falling S 7,-1 7,0 8,0 8,1 after 4 next L level 10 lines 100 points 2159
+- > t1379 falling S 7,0 7,1 8,1 8,2 after 0 next L level 10 lines 100 points 2159
+- > t1380 falling S 7,0 7,1 8,1 8,2 after 1 next L level 10 lines 100 points 2159
+- > t1381 falling S 7,0 7,1 8,1 8,2 after 2 next L level 10 lines 100 points 2159
+- > t1382 falling S 7,0 7,1 8,1 8,2 after 3 next L level 10 lines 100 points 2159
+- > t1383 falling S 7,0 7,1 8,1 8,2 after 4 next L level 10 lines 100 points 2159
+- > t1384 falling S 7,1 7,2 8,2 8,3 after 0 next L level 10 lines 100 points 2159
+- > t1385 falling S 7,1 7,2 8,2 8,3 after 1 next L level 10 lines 100 points 2159
+- > t1386 falling S 7,1 7,2 8,2 8,3 after 2 next L level 10 lines 100 points 2159
+- > t1387 falling S 7,1 7,2 8,2 8,3 after 3 next L level 10 lines 100 points 2159
+- > t1388 falling S 7,1 7,2 8,2 8,3 after 4 next L level 10 lines 100 points 2159
+- > t1389 falling S 7,2 7,3 8,3 8,4 after 0 next L level 10 lines 100 points 2159
+- > t1390 falling S 7,2 7,3 8,3 8,4 after 1 next L level 10 lines 100 points 2159
+- > t1391 falling S 7,2 7,3 8,3 8,4 after 2 next L level 10 lines 100 points 2159
+- > t1392 falling S 7,2 7,3 8,3 8,4 after 3 next L level 10 lines 100 points 2159
+- > t1393 falling S 7,2 7,3 8,3 8,4 after 4 next L level 10 lines 100 points 2159
+- > t1394 falling S 7,3 7,4 8,4 8,5 after 0 next L level 10 lines 100 points 2159
+- > t1395 falling S 7,3 7,4 8,4 8,5 after 1 next L level 10 lines 100 points 2159
+- > t1396 falling S 7,3 7,4 8,4 8,5 after 2 next L level 10 lines 100 points 2159
+- > t1397 falling S 7,3 7,4 8,4 8,5 after 3 next L level 10 lines 100 points 2159
+- > t1398 falling S 7,3 7,4 8,4 8,5 after 4 next L level 10 lines 100 points 2159
+- > t1399 falling S 7,4 7,5 8,5 8,6 after 0 next L level 10 lines 100 points 2159
+- > t1400 falling S 7,4 7,5 8,5 8,6 after 1 next L level 10 lines 100 points 2159
+- > t1401 falling S 7,4 7,5 8,5 8,6 after 2 next L level 10 lines 100 points 2159
+- > t1402 falling S 7,4 7,5 8,5 8,6 after 3 next L level 10 lines 100 points 2159
+- > t1403 falling S 7,4 7,5 8,5 8,6 after 4 next L level 10 lines 100 points 2159
+- > t1404 falling S 7,5 7,6 8,6 8,7 after 0 next L level 10 lines 100 points 2159
+- > t1405 falling S 7,5 7,6 8,6 8,7 after 1 next L level 10 lines 100 points 2159
+- > t1406 falling S 7,5 7,6 8,6 8,7 after 2 next L level 10 lines 100 points 2159
+- > t1407 falling S 7,5 7,6 8,6 8,7 after 3 next L level 10 lines 100 points 2159
+- > t1408 falling S 7,5 7,6 8,6 8,7 after 4 next L level 10 lines 100 points 2159
+- > t1409 falling S 7,6 7,7 8,7 8,8 after 0 next L level 10 lines 100 points 2159
+- > t1410 falling S 7,6 7,7 8,7 8,8 after 1 next L level 10 lines 100 points 2159
+- > t1411 falling S 7,6 7,7 8,7 8,8 after 2 next L level 10 lines 100 points 2159
+- > t1412 falling S 7,6 7,7 8,7 8,8 after 3 next L level 10 lines 100 points 2159
+- > t1413 falling S 7,6 7,7 8,7 8,8 after 4 next L level 10 lines 100 points 2159
+- > t1414 falling S 7,7 7,8 8,8 8,9 after 0 next L level 10 lines 100 points 2159
+- > t1415 falling S 7,7 7,8 8,8 8,9 after 1 next L level 10 lines 100 points 2159
+- > t1416 falling S 7,7 7,8 8,8 8,9 after 2 next L level 10 lines 100 points 2159
+- > t1417 falling S 7,7 7,8 8,8 8,9 after 3 next L level 10 lines 100 points 2159
+- > t1418 falling S 7,7 7,8 8,8 8,9 after 4 next L level 10 lines 100 points 2159
+- > t1419 falling S 7,8 7,9 8,9 8,10 after 0 next L level 10 lines 100 points 2159
+- > t1420 falling S 7,8 7,9 8,9 8,10 after 1 next L level 10 lines 100 points 2159
+- > t1421 falling S 7,8 7,9 8,9 8,10 after 2 next L level 10 lines 100 points 2159
+- > t1422 falling S 7,8 7,9 8,9 8,10 after 3 next L level 10 lines 100 points 2159
+- > t1423 falling S 7,8 7,9 8,9 8,10 after 4 next L level 10 lines 100 points 2159
+- > t1424 falling S 7,9 7,10 8,10 8,11 after 0 next L level 10 lines 100 points 2159
+- > t1425 falling S 7,9 7,10 8,10 8,11 after 1 next L level 10 lines 100 points 2159
+- > t1426 falling S 7,9 7,10 8,10 8,11 after 2 next L level 10 lines 100 points 2159
+- > t1427 falling S 7,9 7,10 8,10 8,11 after 3 next L level 10 lines 100 points 2159
+- > t1428 falling S 7,9 7,10 8,10 8,11 after 4 next L level 10 lines 100 points 2159
+- > t1429 falling S 7,10 7,11 8,11 8,12 after 0 next L level 10 lines 100 points 2159
+- > t1430 falling S 7,10 7,11 8,11 8,12 after 1 next L level 10 lines 100 points 2159
+- > t1431 falling S 7,10 7,11 8,11 8,12 after 2 next L level 10 lines 100 points 2159
+- > t1432 falling S 7,10 7,11 8,11 8,12 after 3 next L level 10 lines 100 points 2159
+- > t1433 falling S 7,10 7,11 8,11 8,12 after 4 next L level 10 lines 100 points 2159
+- > t1434 falling S 7,11 7,12 8,12 8,13 after 0 next L level 10 lines 100 points 2159
+- > t1435 falling S 7,11 7,12 8,12 8,13 after 1 next L level 10 lines 100 points 2159
+- > t1436 falling S 7,11 7,12 8,12 8,13 after 2 next L level 10 lines 100 points 2159
+- > t1437 falling S 7,11 7,12 8,12 8,13 after 3 next L level 10 lines 100 points 2159
+- > t1438 falling S 7,11 7,12 8,12 8,13 after 4 next L level 10 lines 100 points 2159
+- > t1439 falling S 7,12 7,13 8,13 8,14 after 0 next L level 10 lines 100 points 2159
+- > t1440 falling S 7,12 7,13 8,13 8,14 after 1 next L level 10 lines 100 points 2159
+- > t1441 falling S 7,12 7,13 8,13 8,14 after 2 next L level 10 lines 100 points 2159
+- > t1442 falling S 7,12 7,13 8,13 8,14 after 3 next L level 10 lines 100 points 2159
+- > t1443 falling S 7,12 7,13 8,13 8,14 after 4 next L level 10 lines 100 points 2159
+- > t1444 falling S 7,13 7,14 8,14 8,15 after 0 next L level 10 lines 100 points 2159
+- > t1445 falling S 7,13 7,14 8,14 8,15 after 1 next L level 10 lines 100 points 2159
+- > t1446 falling S 7,13 7,14 8,14 8,15 after 2 next L level 10 lines 100 points 2159
+- > t1447 falling S 7,13 7,14 8,14 8,15 after 3 next L level 10 lines 100 points 2159
+- > t1448 falling S 7,13 7,14 8,14 8,15 after 4 next L level 10 lines 100 points 2159
+- > t1449 falling S 7,14 7,15 8,15 8,16 after 0 next L level 10 lines 100 points 2159
+- > t1450 falling S 7,14 7,15 8,15 8,16 after 1 next L level 10 lines 100 points 2159
+- > t1451 falling S 7,14 7,15 8,15 8,16 after 2 next L level 10 lines 100 points 2159
+- > t1452 falling S 7,14 7,15 8,15 8,16 after 3 next L level 10 lines 100 points 2159
+- > t1453 falling S 7,14 7,15 8,15 8,16 after 4 next L level 10 lines 100 points 2159
+- > t1454 falling S 7,15 7,16 8,16 8,17 after 0 next L level 10 lines 100 points 2159
+- > t1455 falling S 7,15 7,16 8,16 8,17 after 1 next L level 10 lines 100 points 2159
+- > t1456 falling S 7,15 7,16 8,16 8,17 after 2 next L level 10 lines 100 points 2159
+- > t1457 falling S 7,15 7,16 8,16 8,17 after 3 next L level 10 lines 100 points 2159
+- > t1458 falling S 7,15 7,16 8,16 8,17 after 4 next L level 10 lines 100 points 2159
+- > t1459 falling S 7,16 7,17 8,17 8,18 after 0 next L level 10 lines 100 points 2159
+- > t1460 falling S 7,16 7,17 8,17 8,18 after 1 next L level 10 lines 100 points 2159
+- > t1461 falling S 7,16 7,17 8,17 8,18 after 2 next L level 10 lines 100 points 2159
+- > t1462 falling S 7,16 7,17 8,17 8,18 after 3 next L level 10 lines 100 points 2159
+- > t1463 falling S 7,16 7,17 8,17 8,18 after 4 next L level 10 lines 100 points 2159
+- > t1464 falling S 7,17 7,18 8,18 8,19 after 0 next L level 10 lines 100 points 2159
+- > t1465 falling S 7,17 7,18 8,18 8,19 after 1 next L level 10 lines 100 points 2159
+- > t1466 falling S 7,17 7,18 8,18 8,19 after 2 next L level 10 lines 100 points 2159
+- > t1467 falling S 7,17 7,18 8,18 8,19 after 3 next L level 10 lines 100 points 2159
+- > t1468 falling S 7,17 7,18 8,18 8,19 after 4 next L level 10 lines 100 points 2159
+- > t1469 entry 10 next L level 10 lines 100 points 2159 | locked S 7,17 7,18 8,18 8,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .........I
+  .......S.I
+  .......SSI
+  ...L...TSI
+- > t1470 entry 9 next L level 10 lines 100 points 2159
+- > t1471 entry 8 next L level 10 lines 100 points 2159
+- > t1472 entry 7 next L level 10 lines 100 points 2159
+- > t1473 entry 6 next L level 10 lines 100 points 2159
+- > t1474 entry 5 next L level 10 lines 100 points 2159
+- > t1475 entry 4 next L level 10 lines 100 points 2159
+- > t1476 entry 3 next L level 10 lines 100 points 2159
+- > t1477 entry 2 next L level 10 lines 100 points 2159
+- > t1478 entry 1 next L level 10 lines 100 points 2159
+- > t1479 falling L 4,0 5,0 6,0 4,1 after 0 next J level 10 lines 100 points 2159
++A > t1480 falling L 4,-1 5,-1 5,0 5,1 after 1 next J level 10 lines 100 points 2159 | rotated L 4,-1 5,-1 5,0 5,1 CLOCKWISE
+-A > t1481 falling L 4,-1 5,-1 5,0 5,1 after 2 next J level 10 lines 100 points 2159
++A +DOWN > t1482 falling L 6,-1 4,0 5,0 6,0 after 3 next J level 10 lines 100 points 2159 | rotated L 6,-1 4,0 5,0 6,0 CLOCKWISE
+-A > t1483 falling L 6,-1 4,0 5,0 6,0 after 4 next J level 10 lines 100 points 2159
+- > t1484 falling L 6,0 4,1 5,1 6,1 after 0 soft 1 next J level 10 lines 100 points 2159
+- > t1485 falling L 6,0 4,1 5,1 6,1 after 1 soft 1 next J level 10 lines 100 points 2159
+- > t1486 falling L 6,1 4,2 5,2 6,2 after 0 soft 2 next J level 10 lines 100 points 2159
+- > t1487 falling L 6,1 4,2 5,2 6,2 after 1 soft 2 next J level 10 lines 100 points 2159
+- > t1488 falling L 6,2 4,3 5,3 6,3 after 0 soft 3 next J level 10 lines 100 points 2159
+- > t1489 falling L 6,2 4,3 5,3 6,3 after 1 soft 3 next J level 10 lines 100 points 2159
+- > t1490 falling L 6,3 4,4 5,4 6,4 after 0 soft 4 next J level 10 lines 100 points 2159
+- > t1491 falling L 6,3 4,4 5,4 6,4 after 1 soft 4 next J level 10 lines 100 points 2159
+- > t1492 falling L 6,4 4,5 5,5 6,5 after 0 soft 5 next J level 10 lines 100 points 2159
+- > t1493 falling L 6,4 4,5 5,5 6,5 after 1 soft 5 next J level 10 lines 100 points 2159
+- > t1494 falling L 6,5 4,6 5,6 6,6 after 0 soft 6 next J level 10 lines 100 points 2159
+- > t1495 falling L 6,5 4,6 5,6 6,6 after 1 soft 6 next J level 10 lines 100 points 2159
+- > t1496 falling L 6,6 4,7 5,7 6,7 after 0 soft 7 next J level 10 lines 100 points 2159
+- > t1497 falling L 6,6 4,7 5,7 6,7 after 1 soft 7 next J level 10 lines 100 points 2159
+- > t1498 falling L 6,7 4,8 5,8 6,8 after 0 soft 8 next J level 10 lines 100 points 2159
+- > t1499 falling L 6,7 4,8 5,8 6,8 after 1 soft 8 next J level 10 lines 100 points 2159
+- > t1500 falling L 6,8 4,9 5,9 6,9 after 0 soft 9 next J level 10 lines 100 points 2159

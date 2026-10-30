@@ -1,0 +1,1465 @@
+# Reference game of the Classic mode (P11.4), recorded before the extraction of DropTiming:
+# never record it again. Format: see ReferenceGame (core:game tests) and JOURNAL.md.
+seed 3
+start-level 9
+lines 190
++LEFT > t1 falling Z 3,0 4,0 4,1 5,1 after 1 next L level 19 lines 190 points 0
+-LEFT > t2 falling Z 3,1 4,1 4,2 5,2 after 0 next L level 19 lines 190 points 0
++LEFT > t3 falling Z 2,1 3,1 3,2 4,2 after 1 next L level 19 lines 190 points 0
+-LEFT > t4 falling Z 2,2 3,2 3,3 4,3 after 0 next L level 19 lines 190 points 0
++LEFT > t5 falling Z 1,2 2,2 2,3 3,3 after 1 next L level 19 lines 190 points 0
+-LEFT > t6 falling Z 1,3 2,3 2,4 3,4 after 0 next L level 19 lines 190 points 0
++LEFT > t7 falling Z 0,3 1,3 1,4 2,4 after 1 next L level 19 lines 190 points 0
+-LEFT +DOWN > t8 falling Z 0,4 1,4 1,5 2,5 after 0 next L level 19 lines 190 points 0
+- > t9 falling Z 0,4 1,4 1,5 2,5 after 1 next L level 19 lines 190 points 0
+- > t10 falling Z 0,5 1,5 1,6 2,6 after 0 soft 1 next L level 19 lines 190 points 0
+- > t11 falling Z 0,5 1,5 1,6 2,6 after 1 soft 1 next L level 19 lines 190 points 0
+- > t12 falling Z 0,6 1,6 1,7 2,7 after 0 soft 2 next L level 19 lines 190 points 0
+- > t13 falling Z 0,6 1,6 1,7 2,7 after 1 soft 2 next L level 19 lines 190 points 0
+- > t14 falling Z 0,7 1,7 1,8 2,8 after 0 soft 3 next L level 19 lines 190 points 0
+- > t15 falling Z 0,7 1,7 1,8 2,8 after 1 soft 3 next L level 19 lines 190 points 0
+- > t16 falling Z 0,8 1,8 1,9 2,9 after 0 soft 4 next L level 19 lines 190 points 0
+- > t17 falling Z 0,8 1,8 1,9 2,9 after 1 soft 4 next L level 19 lines 190 points 0
+- > t18 falling Z 0,9 1,9 1,10 2,10 after 0 soft 5 next L level 19 lines 190 points 0
+- > t19 falling Z 0,9 1,9 1,10 2,10 after 1 soft 5 next L level 19 lines 190 points 0
+- > t20 falling Z 0,10 1,10 1,11 2,11 after 0 soft 6 next L level 19 lines 190 points 0
+- > t21 falling Z 0,10 1,10 1,11 2,11 after 1 soft 6 next L level 19 lines 190 points 0
+- > t22 falling Z 0,11 1,11 1,12 2,12 after 0 soft 7 next L level 19 lines 190 points 0
+- > t23 falling Z 0,11 1,11 1,12 2,12 after 1 soft 7 next L level 19 lines 190 points 0
+- > t24 falling Z 0,12 1,12 1,13 2,13 after 0 soft 8 next L level 19 lines 190 points 0
+- > t25 falling Z 0,12 1,12 1,13 2,13 after 1 soft 8 next L level 19 lines 190 points 0
+- > t26 falling Z 0,13 1,13 1,14 2,14 after 0 soft 9 next L level 19 lines 190 points 0
+- > t27 falling Z 0,13 1,13 1,14 2,14 after 1 soft 9 next L level 19 lines 190 points 0
+- > t28 falling Z 0,14 1,14 1,15 2,15 after 0 soft 10 next L level 19 lines 190 points 0
+- > t29 falling Z 0,14 1,14 1,15 2,15 after 1 soft 10 next L level 19 lines 190 points 0
+- > t30 falling Z 0,15 1,15 1,16 2,16 after 0 soft 11 next L level 19 lines 190 points 0
+- > t31 falling Z 0,15 1,15 1,16 2,16 after 1 soft 11 next L level 19 lines 190 points 0
+- > t32 falling Z 0,16 1,16 1,17 2,17 after 0 soft 12 next L level 19 lines 190 points 0
+- > t33 falling Z 0,16 1,16 1,17 2,17 after 1 soft 12 next L level 19 lines 190 points 0
+- > t34 falling Z 0,17 1,17 1,18 2,18 after 0 soft 13 next L level 19 lines 190 points 0
+- > t35 falling Z 0,17 1,17 1,18 2,18 after 1 soft 13 next L level 19 lines 190 points 0
+- > t36 falling Z 0,18 1,18 1,19 2,19 after 0 soft 14 next L level 19 lines 190 points 0
+- > t37 falling Z 0,18 1,18 1,19 2,19 after 1 soft 14 next L level 19 lines 190 points 0
+- > t38 entry 10 next L level 19 lines 190 points 14 | locked Z 0,18 1,18 1,19 2,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ZZ........
+  .ZZ.......
+- > t39 entry 9 next L level 19 lines 190 points 14
+- > t40 entry 8 next L level 19 lines 190 points 14
+- > t41 entry 7 next L level 19 lines 190 points 14
+- > t42 entry 6 next L level 19 lines 190 points 14
+- > t43 entry 5 next L level 19 lines 190 points 14
+- > t44 entry 4 next L level 19 lines 190 points 14
+- > t45 entry 3 next L level 19 lines 190 points 14
+- > t46 entry 2 next L level 19 lines 190 points 14
+- > t47 entry 1 next L level 19 lines 190 points 14
+- > t48 falling L 4,0 5,0 6,0 4,1 after 0 next O level 19 lines 190 points 14
+-DOWN +A +RIGHT > t49 falling L 5,-1 6,-1 6,0 6,1 after 1 next O level 19 lines 190 points 14 | rotated L 5,-1 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t50 falling L 5,0 6,0 6,1 6,2 after 0 next O level 19 lines 190 points 14
++A +RIGHT > t51 falling L 8,0 6,1 7,1 8,1 after 1 next O level 19 lines 190 points 14 | rotated L 8,0 6,1 7,1 8,1 CLOCKWISE
+-A -RIGHT > t52 falling L 8,1 6,2 7,2 8,2 after 0 next O level 19 lines 190 points 14
++RIGHT > t53 falling L 9,1 7,2 8,2 9,2 after 1 next O level 19 lines 190 points 14
+-RIGHT > t54 falling L 9,2 7,3 8,3 9,3 after 0 next O level 19 lines 190 points 14
+- > t55 falling L 9,2 7,3 8,3 9,3 after 1 next O level 19 lines 190 points 14
+- > t56 falling L 9,3 7,4 8,4 9,4 after 0 next O level 19 lines 190 points 14
+- > t57 falling L 9,3 7,4 8,4 9,4 after 1 next O level 19 lines 190 points 14
+- > t58 falling L 9,4 7,5 8,5 9,5 after 0 next O level 19 lines 190 points 14
+- > t59 falling L 9,4 7,5 8,5 9,5 after 1 next O level 19 lines 190 points 14
+- > t60 falling L 9,5 7,6 8,6 9,6 after 0 next O level 19 lines 190 points 14
+- > t61 falling L 9,5 7,6 8,6 9,6 after 1 next O level 19 lines 190 points 14
+- > t62 falling L 9,6 7,7 8,7 9,7 after 0 next O level 19 lines 190 points 14
+- > t63 falling L 9,6 7,7 8,7 9,7 after 1 next O level 19 lines 190 points 14
+- > t64 falling L 9,7 7,8 8,8 9,8 after 0 next O level 19 lines 190 points 14
+- > t65 falling L 9,7 7,8 8,8 9,8 after 1 next O level 19 lines 190 points 14
+- > t66 falling L 9,8 7,9 8,9 9,9 after 0 next O level 19 lines 190 points 14
+- > t67 falling L 9,8 7,9 8,9 9,9 after 1 next O level 19 lines 190 points 14
+- > t68 falling L 9,9 7,10 8,10 9,10 after 0 next O level 19 lines 190 points 14
+- > t69 falling L 9,9 7,10 8,10 9,10 after 1 next O level 19 lines 190 points 14
+- > t70 falling L 9,10 7,11 8,11 9,11 after 0 next O level 19 lines 190 points 14
+- > t71 falling L 9,10 7,11 8,11 9,11 after 1 next O level 19 lines 190 points 14
+- > t72 falling L 9,11 7,12 8,12 9,12 after 0 next O level 19 lines 190 points 14
+- > t73 falling L 9,11 7,12 8,12 9,12 after 1 next O level 19 lines 190 points 14
+- > t74 falling L 9,12 7,13 8,13 9,13 after 0 next O level 19 lines 190 points 14
+- > t75 falling L 9,12 7,13 8,13 9,13 after 1 next O level 19 lines 190 points 14
+- > t76 falling L 9,13 7,14 8,14 9,14 after 0 next O level 19 lines 190 points 14
+- > t77 falling L 9,13 7,14 8,14 9,14 after 1 next O level 19 lines 190 points 14
+- > t78 falling L 9,14 7,15 8,15 9,15 after 0 next O level 19 lines 190 points 14
+- > t79 falling L 9,14 7,15 8,15 9,15 after 1 next O level 19 lines 190 points 14
+- > t80 falling L 9,15 7,16 8,16 9,16 after 0 next O level 19 lines 190 points 14
+- > t81 falling L 9,15 7,16 8,16 9,16 after 1 next O level 19 lines 190 points 14
+- > t82 falling L 9,16 7,17 8,17 9,17 after 0 next O level 19 lines 190 points 14
+- > t83 falling L 9,16 7,17 8,17 9,17 after 1 next O level 19 lines 190 points 14
+- > t84 falling L 9,17 7,18 8,18 9,18 after 0 next O level 19 lines 190 points 14
+- > t85 falling L 9,17 7,18 8,18 9,18 after 1 next O level 19 lines 190 points 14
+- > t86 falling L 9,18 7,19 8,19 9,19 after 0 next O level 19 lines 190 points 14
+- > t87 falling L 9,18 7,19 8,19 9,19 after 1 next O level 19 lines 190 points 14
+- > t88 entry 10 next O level 19 lines 190 points 14 | locked L 9,18 7,19 8,19 9,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ZZ.......L
+  .ZZ....LLL
+- > t89 entry 9 next O level 19 lines 190 points 14
+- > t90 entry 8 next O level 19 lines 190 points 14
+- > t91 entry 7 next O level 19 lines 190 points 14
+- > t92 entry 6 next O level 19 lines 190 points 14
+- > t93 entry 5 next O level 19 lines 190 points 14
+- > t94 entry 4 next O level 19 lines 190 points 14
+- > t95 entry 3 next O level 19 lines 190 points 14
+- > t96 entry 2 next O level 19 lines 190 points 14
+- > t97 entry 1 next O level 19 lines 190 points 14
+- > t98 falling O 4,0 5,0 4,1 5,1 after 0 next L level 19 lines 190 points 14
++A +RIGHT > t99 falling O 5,0 6,0 5,1 6,1 after 1 next L level 19 lines 190 points 14
+-A -RIGHT > t100 falling O 5,1 6,1 5,2 6,2 after 0 next L level 19 lines 190 points 14
+- > t101 falling O 5,1 6,1 5,2 6,2 after 1 next L level 19 lines 190 points 14
+- > t102 falling O 5,2 6,2 5,3 6,3 after 0 next L level 19 lines 190 points 14
+- > t103 falling O 5,2 6,2 5,3 6,3 after 1 next L level 19 lines 190 points 14
+- > t104 falling O 5,3 6,3 5,4 6,4 after 0 next L level 19 lines 190 points 14
+- > t105 falling O 5,3 6,3 5,4 6,4 after 1 next L level 19 lines 190 points 14
+- > t106 falling O 5,4 6,4 5,5 6,5 after 0 next L level 19 lines 190 points 14
+- > t107 falling O 5,4 6,4 5,5 6,5 after 1 next L level 19 lines 190 points 14
+- > t108 falling O 5,5 6,5 5,6 6,6 after 0 next L level 19 lines 190 points 14
+- > t109 falling O 5,5 6,5 5,6 6,6 after 1 next L level 19 lines 190 points 14
+- > t110 falling O 5,6 6,6 5,7 6,7 after 0 next L level 19 lines 190 points 14
+- > t111 falling O 5,6 6,6 5,7 6,7 after 1 next L level 19 lines 190 points 14
+- > t112 falling O 5,7 6,7 5,8 6,8 after 0 next L level 19 lines 190 points 14
+- > t113 falling O 5,7 6,7 5,8 6,8 after 1 next L level 19 lines 190 points 14
+- > t114 falling O 5,8 6,8 5,9 6,9 after 0 next L level 19 lines 190 points 14
+- > t115 falling O 5,8 6,8 5,9 6,9 after 1 next L level 19 lines 190 points 14
+- > t116 falling O 5,9 6,9 5,10 6,10 after 0 next L level 19 lines 190 points 14
+- > t117 falling O 5,9 6,9 5,10 6,10 after 1 next L level 19 lines 190 points 14
+- > t118 falling O 5,10 6,10 5,11 6,11 after 0 next L level 19 lines 190 points 14
+- > t119 falling O 5,10 6,10 5,11 6,11 after 1 next L level 19 lines 190 points 14
+- > t120 falling O 5,11 6,11 5,12 6,12 after 0 next L level 19 lines 190 points 14
+- > t121 falling O 5,11 6,11 5,12 6,12 after 1 next L level 19 lines 190 points 14
+- > t122 falling O 5,12 6,12 5,13 6,13 after 0 next L level 19 lines 190 points 14
+- > t123 falling O 5,12 6,12 5,13 6,13 after 1 next L level 19 lines 190 points 14
+- > t124 falling O 5,13 6,13 5,14 6,14 after 0 next L level 19 lines 190 points 14
+- > t125 falling O 5,13 6,13 5,14 6,14 after 1 next L level 19 lines 190 points 14
+- > t126 falling O 5,14 6,14 5,15 6,15 after 0 next L level 19 lines 190 points 14
+- > t127 falling O 5,14 6,14 5,15 6,15 after 1 next L level 19 lines 190 points 14
+- > t128 falling O 5,15 6,15 5,16 6,16 after 0 next L level 19 lines 190 points 14
+- > t129 falling O 5,15 6,15 5,16 6,16 after 1 next L level 19 lines 190 points 14
+- > t130 falling O 5,16 6,16 5,17 6,17 after 0 next L level 19 lines 190 points 14
+- > t131 falling O 5,16 6,16 5,17 6,17 after 1 next L level 19 lines 190 points 14
+- > t132 falling O 5,17 6,17 5,18 6,18 after 0 next L level 19 lines 190 points 14
+- > t133 falling O 5,17 6,17 5,18 6,18 after 1 next L level 19 lines 190 points 14
+- > t134 falling O 5,18 6,18 5,19 6,19 after 0 next L level 19 lines 190 points 14
+- > t135 falling O 5,18 6,18 5,19 6,19 after 1 next L level 19 lines 190 points 14
+- > t136 entry 10 next L level 19 lines 190 points 14 | locked O 5,18 6,18 5,19 6,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ZZ...OO..L
+  .ZZ..OOLLL
+- > t137 entry 9 next L level 19 lines 190 points 14
+- > t138 entry 8 next L level 19 lines 190 points 14
+- > t139 entry 7 next L level 19 lines 190 points 14
+- > t140 entry 6 next L level 19 lines 190 points 14
+- > t141 entry 5 next L level 19 lines 190 points 14
+- > t142 entry 4 next L level 19 lines 190 points 14
+- > t143 entry 3 next L level 19 lines 190 points 14
+- > t144 entry 2 next L level 19 lines 190 points 14
+- > t145 entry 1 next L level 19 lines 190 points 14
+- > t146 falling L 4,0 5,0 6,0 4,1 after 0 next I level 19 lines 190 points 14
++A +LEFT > t147 falling L 3,-1 4,-1 4,0 4,1 after 1 next I level 19 lines 190 points 14 | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t148 falling L 3,0 4,0 4,1 4,2 after 0 next I level 19 lines 190 points 14
++A +LEFT > t149 falling L 4,0 2,1 3,1 4,1 after 1 next I level 19 lines 190 points 14 | rotated L 4,0 2,1 3,1 4,1 CLOCKWISE
+-A -LEFT > t150 falling L 4,1 2,2 3,2 4,2 after 0 next I level 19 lines 190 points 14
++A +DOWN > t151 falling L 3,1 3,2 3,3 4,3 after 1 next I level 19 lines 190 points 14 | rotated L 3,1 3,2 3,3 4,3 CLOCKWISE
+-A > t152 falling L 3,2 3,3 3,4 4,4 after 0 next I level 19 lines 190 points 14
+- > t153 falling L 3,3 3,4 3,5 4,5 after 0 soft 1 next I level 19 lines 190 points 14
+- > t154 falling L 3,3 3,4 3,5 4,5 after 1 soft 1 next I level 19 lines 190 points 14
+- > t155 falling L 3,4 3,5 3,6 4,6 after 0 soft 2 next I level 19 lines 190 points 14
+- > t156 falling L 3,4 3,5 3,6 4,6 after 1 soft 2 next I level 19 lines 190 points 14
+- > t157 falling L 3,5 3,6 3,7 4,7 after 0 soft 3 next I level 19 lines 190 points 14
+- > t158 falling L 3,5 3,6 3,7 4,7 after 1 soft 3 next I level 19 lines 190 points 14
+- > t159 falling L 3,6 3,7 3,8 4,8 after 0 soft 4 next I level 19 lines 190 points 14
+- > t160 falling L 3,6 3,7 3,8 4,8 after 1 soft 4 next I level 19 lines 190 points 14
+- > t161 falling L 3,7 3,8 3,9 4,9 after 0 soft 5 next I level 19 lines 190 points 14
+- > t162 falling L 3,7 3,8 3,9 4,9 after 1 soft 5 next I level 19 lines 190 points 14
+- > t163 falling L 3,8 3,9 3,10 4,10 after 0 soft 6 next I level 19 lines 190 points 14
+- > t164 falling L 3,8 3,9 3,10 4,10 after 1 soft 6 next I level 19 lines 190 points 14
+- > t165 falling L 3,9 3,10 3,11 4,11 after 0 soft 7 next I level 19 lines 190 points 14
+- > t166 falling L 3,9 3,10 3,11 4,11 after 1 soft 7 next I level 19 lines 190 points 14
+- > t167 falling L 3,10 3,11 3,12 4,12 after 0 soft 8 next I level 19 lines 190 points 14
+- > t168 falling L 3,10 3,11 3,12 4,12 after 1 soft 8 next I level 19 lines 190 points 14
+- > t169 falling L 3,11 3,12 3,13 4,13 after 0 soft 9 next I level 19 lines 190 points 14
+- > t170 falling L 3,11 3,12 3,13 4,13 after 1 soft 9 next I level 19 lines 190 points 14
+- > t171 falling L 3,12 3,13 3,14 4,14 after 0 soft 10 next I level 19 lines 190 points 14
+- > t172 falling L 3,12 3,13 3,14 4,14 after 1 soft 10 next I level 19 lines 190 points 14
+- > t173 falling L 3,13 3,14 3,15 4,15 after 0 soft 11 next I level 19 lines 190 points 14
+- > t174 falling L 3,13 3,14 3,15 4,15 after 1 soft 11 next I level 19 lines 190 points 14
+- > t175 falling L 3,14 3,15 3,16 4,16 after 0 soft 12 next I level 19 lines 190 points 14
+- > t176 falling L 3,14 3,15 3,16 4,16 after 1 soft 12 next I level 19 lines 190 points 14
+- > t177 falling L 3,15 3,16 3,17 4,17 after 0 soft 13 next I level 19 lines 190 points 14
+- > t178 falling L 3,15 3,16 3,17 4,17 after 1 soft 13 next I level 19 lines 190 points 14
+- > t179 falling L 3,16 3,17 3,18 4,18 after 0 soft 14 next I level 19 lines 190 points 14
+- > t180 falling L 3,16 3,17 3,18 4,18 after 1 soft 14 next I level 19 lines 190 points 14
+- > t181 falling L 3,17 3,18 3,19 4,19 after 0 soft 15 next I level 19 lines 190 points 14
+- > t182 falling L 3,17 3,18 3,19 4,19 after 1 soft 15 next I level 19 lines 190 points 14
+- > t183 entry 10 next I level 19 lines 190 points 29 | locked L 3,17 3,18 3,19 4,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ...L......
+  ZZ.L.OO..L
+  .ZZLLOOLLL
+- > t184 entry 9 next I level 19 lines 190 points 29
+- > t185 entry 8 next I level 19 lines 190 points 29
+- > t186 entry 7 next I level 19 lines 190 points 29
+- > t187 entry 6 next I level 19 lines 190 points 29
+- > t188 entry 5 next I level 19 lines 190 points 29
+- > t189 entry 4 next I level 19 lines 190 points 29
+- > t190 entry 3 next I level 19 lines 190 points 29
+- > t191 entry 2 next I level 19 lines 190 points 29
+- > t192 entry 1 next I level 19 lines 190 points 29
+- > t193 falling I 3,0 4,0 5,0 6,0 after 0 next O level 19 lines 190 points 29
+-DOWN +A +LEFT > t194 falling I 4,-2 4,-1 4,0 4,1 after 1 next O level 19 lines 190 points 29 | rotated I 4,-2 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t195 falling I 4,-1 4,0 4,1 4,2 after 0 next O level 19 lines 190 points 29
++LEFT > t196 falling I 3,-1 3,0 3,1 3,2 after 1 next O level 19 lines 190 points 29
+-LEFT > t197 falling I 3,0 3,1 3,2 3,3 after 0 next O level 19 lines 190 points 29
++LEFT > t198 falling I 2,0 2,1 2,2 2,3 after 1 next O level 19 lines 190 points 29
+-LEFT +DOWN > t199 falling I 2,1 2,2 2,3 2,4 after 0 next O level 19 lines 190 points 29
+- > t200 falling I 2,1 2,2 2,3 2,4 after 1 next O level 19 lines 190 points 29
+- > t201 falling I 2,2 2,3 2,4 2,5 after 0 soft 1 next O level 19 lines 190 points 29
+- > t202 falling I 2,2 2,3 2,4 2,5 after 1 soft 1 next O level 19 lines 190 points 29
+- > t203 falling I 2,3 2,4 2,5 2,6 after 0 soft 2 next O level 19 lines 190 points 29
+- > t204 falling I 2,3 2,4 2,5 2,6 after 1 soft 2 next O level 19 lines 190 points 29
+- > t205 falling I 2,4 2,5 2,6 2,7 after 0 soft 3 next O level 19 lines 190 points 29
+- > t206 falling I 2,4 2,5 2,6 2,7 after 1 soft 3 next O level 19 lines 190 points 29
+- > t207 falling I 2,5 2,6 2,7 2,8 after 0 soft 4 next O level 19 lines 190 points 29
+- > t208 falling I 2,5 2,6 2,7 2,8 after 1 soft 4 next O level 19 lines 190 points 29
+- > t209 falling I 2,6 2,7 2,8 2,9 after 0 soft 5 next O level 19 lines 190 points 29
+- > t210 falling I 2,6 2,7 2,8 2,9 after 1 soft 5 next O level 19 lines 190 points 29
+- > t211 falling I 2,7 2,8 2,9 2,10 after 0 soft 6 next O level 19 lines 190 points 29
+- > t212 falling I 2,7 2,8 2,9 2,10 after 1 soft 6 next O level 19 lines 190 points 29
+- > t213 falling I 2,8 2,9 2,10 2,11 after 0 soft 7 next O level 19 lines 190 points 29
+- > t214 falling I 2,8 2,9 2,10 2,11 after 1 soft 7 next O level 19 lines 190 points 29
+- > t215 falling I 2,9 2,10 2,11 2,12 after 0 soft 8 next O level 19 lines 190 points 29
+- > t216 falling I 2,9 2,10 2,11 2,12 after 1 soft 8 next O level 19 lines 190 points 29
+- > t217 falling I 2,10 2,11 2,12 2,13 after 0 soft 9 next O level 19 lines 190 points 29
+- > t218 falling I 2,10 2,11 2,12 2,13 after 1 soft 9 next O level 19 lines 190 points 29
+- > t219 falling I 2,11 2,12 2,13 2,14 after 0 soft 10 next O level 19 lines 190 points 29
+- > t220 falling I 2,11 2,12 2,13 2,14 after 1 soft 10 next O level 19 lines 190 points 29
+- > t221 falling I 2,12 2,13 2,14 2,15 after 0 soft 11 next O level 19 lines 190 points 29
+- > t222 falling I 2,12 2,13 2,14 2,15 after 1 soft 11 next O level 19 lines 190 points 29
+- > t223 falling I 2,13 2,14 2,15 2,16 after 0 soft 12 next O level 19 lines 190 points 29
+- > t224 falling I 2,13 2,14 2,15 2,16 after 1 soft 12 next O level 19 lines 190 points 29
+- > t225 falling I 2,14 2,15 2,16 2,17 after 0 soft 13 next O level 19 lines 190 points 29
+- > t226 falling I 2,14 2,15 2,16 2,17 after 1 soft 13 next O level 19 lines 190 points 29
+- > t227 falling I 2,15 2,16 2,17 2,18 after 0 soft 14 next O level 19 lines 190 points 29
+- > t228 falling I 2,15 2,16 2,17 2,18 after 1 soft 14 next O level 19 lines 190 points 29
+- > t229 entry 12 next O level 19 lines 190 points 43 | locked I 2,15 2,16 2,17 2,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..I.......
+  ..I.......
+  ..IL......
+  ZZIL.OO..L
+  .ZZLLOOLLL
+- > t230 entry 11 next O level 19 lines 190 points 43
+- > t231 entry 10 next O level 19 lines 190 points 43
+- > t232 entry 9 next O level 19 lines 190 points 43
+- > t233 entry 8 next O level 19 lines 190 points 43
+- > t234 entry 7 next O level 19 lines 190 points 43
+- > t235 entry 6 next O level 19 lines 190 points 43
+- > t236 entry 5 next O level 19 lines 190 points 43
+- > t237 entry 4 next O level 19 lines 190 points 43
+- > t238 entry 3 next O level 19 lines 190 points 43
+- > t239 entry 2 next O level 19 lines 190 points 43
+- > t240 entry 1 next O level 19 lines 190 points 43
+- > t241 falling O 4,0 5,0 4,1 5,1 after 0 next J level 19 lines 190 points 43
+-DOWN +A +LEFT > t242 falling O 3,0 4,0 3,1 4,1 after 1 next J level 19 lines 190 points 43
+-A -LEFT > t243 falling O 3,1 4,1 3,2 4,2 after 0 next J level 19 lines 190 points 43
++LEFT > t244 falling O 2,1 3,1 2,2 3,2 after 1 next J level 19 lines 190 points 43
+-LEFT > t245 falling O 2,2 3,2 2,3 3,3 after 0 next J level 19 lines 190 points 43
++LEFT > t246 falling O 1,2 2,2 1,3 2,3 after 1 next J level 19 lines 190 points 43
+-LEFT > t247 falling O 1,3 2,3 1,4 2,4 after 0 next J level 19 lines 190 points 43
++LEFT > t248 falling O 0,3 1,3 0,4 1,4 after 1 next J level 19 lines 190 points 43
+-LEFT > t249 falling O 0,4 1,4 0,5 1,5 after 0 next J level 19 lines 190 points 43
+- > t250 falling O 0,4 1,4 0,5 1,5 after 1 next J level 19 lines 190 points 43
+- > t251 falling O 0,5 1,5 0,6 1,6 after 0 next J level 19 lines 190 points 43
+- > t252 falling O 0,5 1,5 0,6 1,6 after 1 next J level 19 lines 190 points 43
+- > t253 falling O 0,6 1,6 0,7 1,7 after 0 next J level 19 lines 190 points 43
+- > t254 falling O 0,6 1,6 0,7 1,7 after 1 next J level 19 lines 190 points 43
+- > t255 falling O 0,7 1,7 0,8 1,8 after 0 next J level 19 lines 190 points 43
+- > t256 falling O 0,7 1,7 0,8 1,8 after 1 next J level 19 lines 190 points 43
+- > t257 falling O 0,8 1,8 0,9 1,9 after 0 next J level 19 lines 190 points 43
+- > t258 falling O 0,8 1,8 0,9 1,9 after 1 next J level 19 lines 190 points 43
+- > t259 falling O 0,9 1,9 0,10 1,10 after 0 next J level 19 lines 190 points 43
+- > t260 falling O 0,9 1,9 0,10 1,10 after 1 next J level 19 lines 190 points 43
+- > t261 falling O 0,10 1,10 0,11 1,11 after 0 next J level 19 lines 190 points 43
+- > t262 falling O 0,10 1,10 0,11 1,11 after 1 next J level 19 lines 190 points 43
+- > t263 falling O 0,11 1,11 0,12 1,12 after 0 next J level 19 lines 190 points 43
+- > t264 falling O 0,11 1,11 0,12 1,12 after 1 next J level 19 lines 190 points 43
+- > t265 falling O 0,12 1,12 0,13 1,13 after 0 next J level 19 lines 190 points 43
+- > t266 falling O 0,12 1,12 0,13 1,13 after 1 next J level 19 lines 190 points 43
+- > t267 falling O 0,13 1,13 0,14 1,14 after 0 next J level 19 lines 190 points 43
+- > t268 falling O 0,13 1,13 0,14 1,14 after 1 next J level 19 lines 190 points 43
+- > t269 falling O 0,14 1,14 0,15 1,15 after 0 next J level 19 lines 190 points 43
+- > t270 falling O 0,14 1,14 0,15 1,15 after 1 next J level 19 lines 190 points 43
+- > t271 falling O 0,15 1,15 0,16 1,16 after 0 next J level 19 lines 190 points 43
+- > t272 falling O 0,15 1,15 0,16 1,16 after 1 next J level 19 lines 190 points 43
+- > t273 falling O 0,16 1,16 0,17 1,17 after 0 next J level 19 lines 190 points 43
+- > t274 falling O 0,16 1,16 0,17 1,17 after 1 next J level 19 lines 190 points 43
+- > t275 entry 12 next J level 19 lines 190 points 43 | locked O 0,16 1,16 0,17 1,17
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..I.......
+  OOI.......
+  OOIL......
+  ZZIL.OO..L
+  .ZZLLOOLLL
+- > t276 entry 11 next J level 19 lines 190 points 43
+- > t277 entry 10 next J level 19 lines 190 points 43
+- > t278 entry 9 next J level 19 lines 190 points 43
+- > t279 entry 8 next J level 19 lines 190 points 43
+- > t280 entry 7 next J level 19 lines 190 points 43
+- > t281 entry 6 next J level 19 lines 190 points 43
+- > t282 entry 5 next J level 19 lines 190 points 43
+- > t283 entry 4 next J level 19 lines 190 points 43
+- > t284 entry 3 next J level 19 lines 190 points 43
+- > t285 entry 2 next J level 19 lines 190 points 43
+- > t286 entry 1 next J level 19 lines 190 points 43
+- > t287 falling J 4,0 5,0 6,0 6,1 after 0 next T level 19 lines 190 points 43
++RIGHT > t288 falling J 5,0 6,0 7,0 7,1 after 1 next T level 19 lines 190 points 43
+-RIGHT > t289 falling J 5,1 6,1 7,1 7,2 after 0 next T level 19 lines 190 points 43
+- > t290 falling J 5,1 6,1 7,1 7,2 after 1 next T level 19 lines 190 points 43
+- > t291 falling J 5,2 6,2 7,2 7,3 after 0 next T level 19 lines 190 points 43
+- > t292 falling J 5,2 6,2 7,2 7,3 after 1 next T level 19 lines 190 points 43
+- > t293 falling J 5,3 6,3 7,3 7,4 after 0 next T level 19 lines 190 points 43
+- > t294 falling J 5,3 6,3 7,3 7,4 after 1 next T level 19 lines 190 points 43
+- > t295 falling J 5,4 6,4 7,4 7,5 after 0 next T level 19 lines 190 points 43
+- > t296 falling J 5,4 6,4 7,4 7,5 after 1 next T level 19 lines 190 points 43
+- > t297 falling J 5,5 6,5 7,5 7,6 after 0 next T level 19 lines 190 points 43
+- > t298 falling J 5,5 6,5 7,5 7,6 after 1 next T level 19 lines 190 points 43
+- > t299 falling J 5,6 6,6 7,6 7,7 after 0 next T level 19 lines 190 points 43
+- > t300 falling J 5,6 6,6 7,6 7,7 after 1 next T level 19 lines 190 points 43
+- > t301 falling J 5,7 6,7 7,7 7,8 after 0 next T level 19 lines 190 points 43
+- > t302 falling J 5,7 6,7 7,7 7,8 after 1 next T level 19 lines 190 points 43
+- > t303 falling J 5,8 6,8 7,8 7,9 after 0 next T level 19 lines 190 points 43
+- > t304 falling J 5,8 6,8 7,8 7,9 after 1 next T level 19 lines 190 points 43
+- > t305 falling J 5,9 6,9 7,9 7,10 after 0 next T level 19 lines 190 points 43
+- > t306 falling J 5,9 6,9 7,9 7,10 after 1 next T level 19 lines 190 points 43
+- > t307 falling J 5,10 6,10 7,10 7,11 after 0 next T level 19 lines 190 points 43
+- > t308 falling J 5,10 6,10 7,10 7,11 after 1 next T level 19 lines 190 points 43
+- > t309 falling J 5,11 6,11 7,11 7,12 after 0 next T level 19 lines 190 points 43
+- > t310 falling J 5,11 6,11 7,11 7,12 after 1 next T level 19 lines 190 points 43
+- > t311 falling J 5,12 6,12 7,12 7,13 after 0 next T level 19 lines 190 points 43
+- > t312 falling J 5,12 6,12 7,12 7,13 after 1 next T level 19 lines 190 points 43
+- > t313 falling J 5,13 6,13 7,13 7,14 after 0 next T level 19 lines 190 points 43
+- > t314 falling J 5,13 6,13 7,13 7,14 after 1 next T level 19 lines 190 points 43
+- > t315 falling J 5,14 6,14 7,14 7,15 after 0 next T level 19 lines 190 points 43
+- > t316 falling J 5,14 6,14 7,14 7,15 after 1 next T level 19 lines 190 points 43
+- > t317 falling J 5,15 6,15 7,15 7,16 after 0 next T level 19 lines 190 points 43
+- > t318 falling J 5,15 6,15 7,15 7,16 after 1 next T level 19 lines 190 points 43
+- > t319 falling J 5,16 6,16 7,16 7,17 after 0 next T level 19 lines 190 points 43
+- > t320 falling J 5,16 6,16 7,16 7,17 after 1 next T level 19 lines 190 points 43
+- > t321 falling J 5,17 6,17 7,17 7,18 after 0 next T level 19 lines 190 points 43
+- > t322 falling J 5,17 6,17 7,17 7,18 after 1 next T level 19 lines 190 points 43
+- > t323 entry 12 next T level 19 lines 190 points 43 | locked J 5,17 6,17 7,17 7,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..I.......
+  OOI.......
+  OOIL.JJJ..
+  ZZIL.OOJ.L
+  .ZZLLOOLLL
+- > t324 entry 11 next T level 19 lines 190 points 43
+- > t325 entry 10 next T level 19 lines 190 points 43
+- > t326 entry 9 next T level 19 lines 190 points 43
+- > t327 entry 8 next T level 19 lines 190 points 43
+- > t328 entry 7 next T level 19 lines 190 points 43
+- > t329 entry 6 next T level 19 lines 190 points 43
+- > t330 entry 5 next T level 19 lines 190 points 43
+- > t331 entry 4 next T level 19 lines 190 points 43
+- > t332 entry 3 next T level 19 lines 190 points 43
+- > t333 entry 2 next T level 19 lines 190 points 43
+- > t334 entry 1 next T level 19 lines 190 points 43
+- > t335 falling T 4,0 5,0 6,0 5,1 after 0 next O level 19 lines 190 points 43
++A +RIGHT > t336 falling T 6,-1 5,0 6,0 6,1 after 1 next O level 19 lines 190 points 43 | rotated T 6,-1 5,0 6,0 6,1 CLOCKWISE
+-A > t337 falling T 6,0 5,1 6,1 6,2 after 0 next O level 19 lines 190 points 43
++A > t338 falling T 6,0 5,1 6,1 7,1 after 1 next O level 19 lines 190 points 43 | rotated T 6,0 5,1 6,1 7,1 CLOCKWISE
+-A > t339 falling T 6,1 5,2 6,2 7,2 after 0 next O level 19 lines 190 points 43
++A > t340 falling T 6,1 6,2 7,2 6,3 after 1 next O level 19 lines 190 points 43 | rotated T 6,1 6,2 7,2 6,3 CLOCKWISE
+-A > t341 falling T 6,2 6,3 7,3 6,4 after 0 next O level 19 lines 190 points 43
+- > t342 falling T 6,2 6,3 7,3 6,4 after 1 next O level 19 lines 190 points 43
+- > t343 falling T 6,3 6,4 7,4 6,5 after 0 next O level 19 lines 190 points 43
+- > t344 falling T 6,3 6,4 7,4 6,5 after 1 next O level 19 lines 190 points 43
+- > t345 falling T 6,4 6,5 7,5 6,6 after 0 next O level 19 lines 190 points 43
+- > t346 falling T 6,4 6,5 7,5 6,6 after 1 next O level 19 lines 190 points 43
+- > t347 falling T 6,5 6,6 7,6 6,7 after 0 next O level 19 lines 190 points 43
+- > t348 falling T 6,5 6,6 7,6 6,7 after 1 next O level 19 lines 190 points 43
+- > t349 falling T 6,6 6,7 7,7 6,8 after 0 next O level 19 lines 190 points 43
+- > t350 falling T 6,6 6,7 7,7 6,8 after 1 next O level 19 lines 190 points 43
+- > t351 falling T 6,7 6,8 7,8 6,9 after 0 next O level 19 lines 190 points 43
+- > t352 falling T 7,7 7,8 8,8 7,9 after 1 next O level 19 lines 190 points 43
+- > t353 falling T 7,8 7,9 8,9 7,10 after 0 next O level 19 lines 190 points 43
+- > t354 falling T 7,8 7,9 8,9 7,10 after 1 next O level 19 lines 190 points 43
+- > t355 falling T 7,9 7,10 8,10 7,11 after 0 next O level 19 lines 190 points 43
+- > t356 falling T 7,9 7,10 8,10 7,11 after 1 next O level 19 lines 190 points 43
+- > t357 falling T 7,10 7,11 8,11 7,12 after 0 next O level 19 lines 190 points 43
+- > t358 falling T 8,10 8,11 9,11 8,12 after 1 next O level 19 lines 190 points 43
+-RIGHT > t359 falling T 8,11 8,12 9,12 8,13 after 0 next O level 19 lines 190 points 43
+- > t360 falling T 8,11 8,12 9,12 8,13 after 1 next O level 19 lines 190 points 43
+- > t361 falling T 8,12 8,13 9,13 8,14 after 0 next O level 19 lines 190 points 43
+- > t362 falling T 8,12 8,13 9,13 8,14 after 1 next O level 19 lines 190 points 43
+- > t363 falling T 8,13 8,14 9,14 8,15 after 0 next O level 19 lines 190 points 43
+- > t364 falling T 8,13 8,14 9,14 8,15 after 1 next O level 19 lines 190 points 43
+- > t365 falling T 8,14 8,15 9,15 8,16 after 0 next O level 19 lines 190 points 43
+- > t366 falling T 8,14 8,15 9,15 8,16 after 1 next O level 19 lines 190 points 43
+- > t367 falling T 8,15 8,16 9,16 8,17 after 0 next O level 19 lines 190 points 43
+- > t368 falling T 8,15 8,16 9,16 8,17 after 1 next O level 19 lines 190 points 43
+- > t369 falling T 8,16 8,17 9,17 8,18 after 0 next O level 19 lines 190 points 43
+- > t370 falling T 8,16 8,17 9,17 8,18 after 1 next O level 19 lines 190 points 43
+- > t371 entry 12 next O level 19 lines 190 points 43 | locked T 8,16 8,17 9,17 8,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..I.......
+  OOI.....T.
+  OOIL.JJJTT
+  ZZIL.OOJTL
+  .ZZLLOOLLL
+- > t372 entry 11 next O level 19 lines 190 points 43
+- > t373 entry 10 next O level 19 lines 190 points 43
+- > t374 entry 9 next O level 19 lines 190 points 43
+- > t375 entry 8 next O level 19 lines 190 points 43
+- > t376 entry 7 next O level 19 lines 190 points 43
+- > t377 entry 6 next O level 19 lines 190 points 43
+- > t378 entry 5 next O level 19 lines 190 points 43
+- > t379 entry 4 next O level 19 lines 190 points 43
+- > t380 entry 3 next O level 19 lines 190 points 43
+- > t381 entry 2 next O level 19 lines 190 points 43
+- > t382 entry 1 next O level 19 lines 190 points 43
+- > t383 falling O 4,0 5,0 4,1 5,1 after 0 next J level 19 lines 190 points 43
++LEFT > t384 falling O 3,0 4,0 3,1 4,1 after 1 next J level 19 lines 190 points 43
+-LEFT > t385 falling O 3,1 4,1 3,2 4,2 after 0 next J level 19 lines 190 points 43
++LEFT > t386 falling O 2,1 3,1 2,2 3,2 after 1 next J level 19 lines 190 points 43
+-LEFT > t387 falling O 2,2 3,2 2,3 3,3 after 0 next J level 19 lines 190 points 43
++LEFT > t388 falling O 1,2 2,2 1,3 2,3 after 1 next J level 19 lines 190 points 43
+-LEFT > t389 falling O 1,3 2,3 1,4 2,4 after 0 next J level 19 lines 190 points 43
++LEFT > t390 falling O 0,3 1,3 0,4 1,4 after 1 next J level 19 lines 190 points 43
+-LEFT +DOWN > t391 falling O 0,4 1,4 0,5 1,5 after 0 next J level 19 lines 190 points 43
+- > t392 falling O 0,4 1,4 0,5 1,5 after 1 next J level 19 lines 190 points 43
+- > t393 falling O 0,5 1,5 0,6 1,6 after 0 soft 1 next J level 19 lines 190 points 43
+- > t394 falling O 0,5 1,5 0,6 1,6 after 1 soft 1 next J level 19 lines 190 points 43
+- > t395 falling O 0,6 1,6 0,7 1,7 after 0 soft 2 next J level 19 lines 190 points 43
+- > t396 falling O 0,6 1,6 0,7 1,7 after 1 soft 2 next J level 19 lines 190 points 43
+- > t397 falling O 0,7 1,7 0,8 1,8 after 0 soft 3 next J level 19 lines 190 points 43
+- > t398 falling O 0,7 1,7 0,8 1,8 after 1 soft 3 next J level 19 lines 190 points 43
+- > t399 falling O 0,8 1,8 0,9 1,9 after 0 soft 4 next J level 19 lines 190 points 43
+- > t400 falling O 0,8 1,8 0,9 1,9 after 1 soft 4 next J level 19 lines 190 points 43
+- > t401 falling O 0,9 1,9 0,10 1,10 after 0 soft 5 next J level 19 lines 190 points 43
+- > t402 falling O 0,9 1,9 0,10 1,10 after 1 soft 5 next J level 19 lines 190 points 43
+- > t403 falling O 0,10 1,10 0,11 1,11 after 0 soft 6 next J level 19 lines 190 points 43
+- > t404 falling O 0,10 1,10 0,11 1,11 after 1 soft 6 next J level 19 lines 190 points 43
+- > t405 falling O 0,11 1,11 0,12 1,12 after 0 soft 7 next J level 19 lines 190 points 43
+- > t406 falling O 0,11 1,11 0,12 1,12 after 1 soft 7 next J level 19 lines 190 points 43
+- > t407 falling O 0,12 1,12 0,13 1,13 after 0 soft 8 next J level 19 lines 190 points 43
+- > t408 falling O 0,12 1,12 0,13 1,13 after 1 soft 8 next J level 19 lines 190 points 43
+- > t409 falling O 0,13 1,13 0,14 1,14 after 0 soft 9 next J level 19 lines 190 points 43
+- > t410 falling O 0,13 1,13 0,14 1,14 after 1 soft 9 next J level 19 lines 190 points 43
+- > t411 falling O 0,14 1,14 0,15 1,15 after 0 soft 10 next J level 19 lines 190 points 43
+- > t412 falling O 0,14 1,14 0,15 1,15 after 1 soft 10 next J level 19 lines 190 points 43
+- > t413 entry 12 next J level 19 lines 190 points 53 | locked O 0,14 1,14 0,15 1,15
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOI.......
+  OOI.....T.
+  OOIL.JJJTT
+  ZZIL.OOJTL
+  .ZZLLOOLLL
+- > t414 entry 11 next J level 19 lines 190 points 53
+- > t415 entry 10 next J level 19 lines 190 points 53
+- > t416 entry 9 next J level 19 lines 190 points 53
+- > t417 entry 8 next J level 19 lines 190 points 53
+- > t418 entry 7 next J level 19 lines 190 points 53
+- > t419 entry 6 next J level 19 lines 190 points 53
+- > t420 entry 5 next J level 19 lines 190 points 53
+- > t421 entry 4 next J level 19 lines 190 points 53
+- > t422 entry 3 next J level 19 lines 190 points 53
+- > t423 entry 2 next J level 19 lines 190 points 53
+- > t424 entry 1 next J level 19 lines 190 points 53
+- > t425 falling J 4,0 5,0 6,0 6,1 after 0 next S level 19 lines 190 points 53
+-DOWN +A +LEFT > t426 falling J 4,-1 4,0 3,1 4,1 after 1 next S level 19 lines 190 points 53 | rotated J 4,-1 4,0 3,1 4,1 CLOCKWISE
+-A -LEFT > t427 falling J 4,0 4,1 3,2 4,2 after 0 next S level 19 lines 190 points 53
++A > t428 falling J 3,0 3,1 4,1 5,1 after 1 next S level 19 lines 190 points 53 | rotated J 3,0 3,1 4,1 5,1 CLOCKWISE
+-A > t429 falling J 3,1 3,2 4,2 5,2 after 0 next S level 19 lines 190 points 53
++A +DOWN > t430 falling J 4,1 5,1 4,2 4,3 after 1 next S level 19 lines 190 points 53 | rotated J 4,1 5,1 4,2 4,3 CLOCKWISE
+-A > t431 falling J 4,2 5,2 4,3 4,4 after 0 next S level 19 lines 190 points 53
+- > t432 falling J 4,3 5,3 4,4 4,5 after 0 soft 1 next S level 19 lines 190 points 53
+- > t433 falling J 4,3 5,3 4,4 4,5 after 1 soft 1 next S level 19 lines 190 points 53
+- > t434 falling J 4,4 5,4 4,5 4,6 after 0 soft 2 next S level 19 lines 190 points 53
+- > t435 falling J 4,4 5,4 4,5 4,6 after 1 soft 2 next S level 19 lines 190 points 53
+- > t436 falling J 4,5 5,5 4,6 4,7 after 0 soft 3 next S level 19 lines 190 points 53
+- > t437 falling J 4,5 5,5 4,6 4,7 after 1 soft 3 next S level 19 lines 190 points 53
+- > t438 falling J 4,6 5,6 4,7 4,8 after 0 soft 4 next S level 19 lines 190 points 53
+- > t439 falling J 4,6 5,6 4,7 4,8 after 1 soft 4 next S level 19 lines 190 points 53
+- > t440 falling J 4,7 5,7 4,8 4,9 after 0 soft 5 next S level 19 lines 190 points 53
+- > t441 falling J 4,7 5,7 4,8 4,9 after 1 soft 5 next S level 19 lines 190 points 53
+- > t442 falling J 4,8 5,8 4,9 4,10 after 0 soft 6 next S level 19 lines 190 points 53
+- > t443 falling J 4,8 5,8 4,9 4,10 after 1 soft 6 next S level 19 lines 190 points 53
+- > t444 falling J 4,9 5,9 4,10 4,11 after 0 soft 7 next S level 19 lines 190 points 53
+- > t445 falling J 4,9 5,9 4,10 4,11 after 1 soft 7 next S level 19 lines 190 points 53
+- > t446 falling J 4,10 5,10 4,11 4,12 after 0 soft 8 next S level 19 lines 190 points 53
+- > t447 falling J 4,10 5,10 4,11 4,12 after 1 soft 8 next S level 19 lines 190 points 53
+- > t448 falling J 4,11 5,11 4,12 4,13 after 0 soft 9 next S level 19 lines 190 points 53
+- > t449 falling J 4,11 5,11 4,12 4,13 after 1 soft 9 next S level 19 lines 190 points 53
+- > t450 falling J 4,12 5,12 4,13 4,14 after 0 soft 10 next S level 19 lines 190 points 53
+- > t451 falling J 4,12 5,12 4,13 4,14 after 1 soft 10 next S level 19 lines 190 points 53
+- > t452 falling J 4,13 5,13 4,14 4,15 after 0 soft 11 next S level 19 lines 190 points 53
+- > t453 falling J 4,13 5,13 4,14 4,15 after 1 soft 11 next S level 19 lines 190 points 53
+- > t454 falling J 4,14 5,14 4,15 4,16 after 0 soft 12 next S level 19 lines 190 points 53
+- > t455 falling J 4,14 5,14 4,15 4,16 after 1 soft 12 next S level 19 lines 190 points 53
+- > t456 falling J 4,15 5,15 4,16 4,17 after 0 soft 13 next S level 19 lines 190 points 53
+- > t457 falling J 4,15 5,15 4,16 4,17 after 1 soft 13 next S level 19 lines 190 points 53
+- > t458 falling J 4,16 5,16 4,17 4,18 after 0 soft 14 next S level 19 lines 190 points 53
+- > t459 falling J 4,16 5,16 4,17 4,18 after 1 soft 14 next S level 19 lines 190 points 53
+- > t460 clearing rows 17,18 left 20 then 12 next S level 19 lines 190 points 67 | locked J 4,16 5,16 4,17 4,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOI.......
+  OOI.JJ..T.
+  OOILJJJJTT
+  ZZILJOOJTL
+  .ZZLLOOLLL
+- > t461 clearing rows 17,18 left 19 then 12 next S level 19 lines 190 points 67
+- > t462 clearing rows 17,18 left 18 then 12 next S level 19 lines 190 points 67
+- > t463 clearing rows 17,18 left 17 then 12 next S level 19 lines 190 points 67
+- > t464 clearing rows 17,18 left 16 then 12 next S level 19 lines 190 points 67
+- > t465 clearing rows 17,18 left 15 then 12 next S level 19 lines 190 points 67
+- > t466 clearing rows 17,18 left 14 then 12 next S level 19 lines 190 points 67
+- > t467 clearing rows 17,18 left 13 then 12 next S level 19 lines 190 points 67
+- > t468 clearing rows 17,18 left 12 then 12 next S level 19 lines 190 points 67
+- > t469 clearing rows 17,18 left 11 then 12 next S level 19 lines 190 points 67
+- > t470 clearing rows 17,18 left 10 then 12 next S level 19 lines 190 points 67
+- > t471 clearing rows 17,18 left 9 then 12 next S level 19 lines 190 points 67
+- > t472 clearing rows 17,18 left 8 then 12 next S level 19 lines 190 points 67
+- > t473 clearing rows 17,18 left 7 then 12 next S level 19 lines 190 points 67
+- > t474 clearing rows 17,18 left 6 then 12 next S level 19 lines 190 points 67
+- > t475 clearing rows 17,18 left 5 then 12 next S level 19 lines 190 points 67
+- > t476 clearing rows 17,18 left 4 then 12 next S level 19 lines 190 points 67
+- > t477 clearing rows 17,18 left 3 then 12 next S level 19 lines 190 points 67
+- > t478 clearing rows 17,18 left 2 then 12 next S level 19 lines 190 points 67
+- > t479 clearing rows 17,18 left 1 then 12 next S level 19 lines 190 points 67
+- > t480 entry 12 next S level 19 lines 192 points 2067 | cleared 2
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOI.......
+  OOI.JJ..T.
+  .ZZLLOOLLL
+- > t481 entry 11 next S level 19 lines 192 points 2067
+- > t482 entry 10 next S level 19 lines 192 points 2067
+- > t483 entry 9 next S level 19 lines 192 points 2067
+- > t484 entry 8 next S level 19 lines 192 points 2067
+- > t485 entry 7 next S level 19 lines 192 points 2067
+- > t486 entry 6 next S level 19 lines 192 points 2067
+- > t487 entry 5 next S level 19 lines 192 points 2067
+- > t488 entry 4 next S level 19 lines 192 points 2067
+- > t489 entry 3 next S level 19 lines 192 points 2067
+- > t490 entry 2 next S level 19 lines 192 points 2067
+- > t491 entry 1 next S level 19 lines 192 points 2067
+- > t492 falling S 5,0 6,0 4,1 5,1 after 0 next Z level 19 lines 192 points 2067
+-DOWN +A +RIGHT > t493 falling S 6,-1 6,0 7,0 7,1 after 1 next Z level 19 lines 192 points 2067 | rotated S 6,-1 6,0 7,0 7,1 CLOCKWISE
+-A -RIGHT > t494 falling S 6,0 6,1 7,1 7,2 after 0 next Z level 19 lines 192 points 2067
++A +RIGHT > t495 falling S 7,1 8,1 6,2 7,2 after 1 next Z level 19 lines 192 points 2067 | rotated S 7,1 8,1 6,2 7,2 CLOCKWISE
+-A -RIGHT > t496 falling S 7,2 8,2 6,3 7,3 after 0 next Z level 19 lines 192 points 2067
+- > t497 falling S 7,2 8,2 6,3 7,3 after 1 next Z level 19 lines 192 points 2067
+- > t498 falling S 7,3 8,3 6,4 7,4 after 0 next Z level 19 lines 192 points 2067
+- > t499 falling S 7,3 8,3 6,4 7,4 after 1 next Z level 19 lines 192 points 2067
+- > t500 falling S 7,4 8,4 6,5 7,5 after 0 next Z level 19 lines 192 points 2067
+- > t501 falling S 7,4 8,4 6,5 7,5 after 1 next Z level 19 lines 192 points 2067
+- > t502 falling S 7,5 8,5 6,6 7,6 after 0 next Z level 19 lines 192 points 2067
+- > t503 falling S 7,5 8,5 6,6 7,6 after 1 next Z level 19 lines 192 points 2067
+- > t504 falling S 7,6 8,6 6,7 7,7 after 0 next Z level 19 lines 192 points 2067
+- > t505 falling S 7,6 8,6 6,7 7,7 after 1 next Z level 19 lines 192 points 2067
+- > t506 falling S 7,7 8,7 6,8 7,8 after 0 next Z level 19 lines 192 points 2067
+- > t507 falling S 7,7 8,7 6,8 7,8 after 1 next Z level 19 lines 192 points 2067
+- > t508 falling S 7,8 8,8 6,9 7,9 after 0 next Z level 19 lines 192 points 2067
+- > t509 falling S 7,8 8,8 6,9 7,9 after 1 next Z level 19 lines 192 points 2067
+- > t510 falling S 7,9 8,9 6,10 7,10 after 0 next Z level 19 lines 192 points 2067
+- > t511 falling S 7,9 8,9 6,10 7,10 after 1 next Z level 19 lines 192 points 2067
+- > t512 falling S 7,10 8,10 6,11 7,11 after 0 next Z level 19 lines 192 points 2067
+- > t513 falling S 7,10 8,10 6,11 7,11 after 1 next Z level 19 lines 192 points 2067
+- > t514 falling S 7,11 8,11 6,12 7,12 after 0 next Z level 19 lines 192 points 2067
+- > t515 falling S 7,11 8,11 6,12 7,12 after 1 next Z level 19 lines 192 points 2067
+- > t516 falling S 7,12 8,12 6,13 7,13 after 0 next Z level 19 lines 192 points 2067
+- > t517 falling S 7,12 8,12 6,13 7,13 after 1 next Z level 19 lines 192 points 2067
+- > t518 falling S 7,13 8,13 6,14 7,14 after 0 next Z level 19 lines 192 points 2067
+- > t519 falling S 7,13 8,13 6,14 7,14 after 1 next Z level 19 lines 192 points 2067
+- > t520 falling S 7,14 8,14 6,15 7,15 after 0 next Z level 19 lines 192 points 2067
+- > t521 falling S 7,14 8,14 6,15 7,15 after 1 next Z level 19 lines 192 points 2067
+- > t522 falling S 7,15 8,15 6,16 7,16 after 0 next Z level 19 lines 192 points 2067
+- > t523 falling S 7,15 8,15 6,16 7,16 after 1 next Z level 19 lines 192 points 2067
+- > t524 falling S 7,16 8,16 6,17 7,17 after 0 next Z level 19 lines 192 points 2067
+- > t525 falling S 7,16 8,16 6,17 7,17 after 1 next Z level 19 lines 192 points 2067
+- > t526 falling S 7,17 8,17 6,18 7,18 after 0 next Z level 19 lines 192 points 2067
+- > t527 falling S 7,17 8,17 6,18 7,18 after 1 next Z level 19 lines 192 points 2067
+- > t528 entry 12 next Z level 19 lines 192 points 2067 | locked S 7,17 8,17 6,18 7,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO........
+  OOI....SS.
+  OOI.JJSST.
+  .ZZLLOOLLL
+- > t529 entry 11 next Z level 19 lines 192 points 2067
+- > t530 entry 10 next Z level 19 lines 192 points 2067
+- > t531 entry 9 next Z level 19 lines 192 points 2067
+- > t532 entry 8 next Z level 19 lines 192 points 2067
+- > t533 entry 7 next Z level 19 lines 192 points 2067
+- > t534 entry 6 next Z level 19 lines 192 points 2067
+- > t535 entry 5 next Z level 19 lines 192 points 2067
+- > t536 entry 4 next Z level 19 lines 192 points 2067
+- > t537 entry 3 next Z level 19 lines 192 points 2067
+- > t538 entry 2 next Z level 19 lines 192 points 2067
+- > t539 entry 1 next Z level 19 lines 192 points 2067
+- > t540 falling Z 4,0 5,0 5,1 6,1 after 0 next J level 19 lines 192 points 2067
++A +LEFT > t541 falling Z 5,-1 4,0 5,0 4,1 after 1 next J level 19 lines 192 points 2067 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A > t542 falling Z 5,0 4,1 5,1 4,2 after 0 next J level 19 lines 192 points 2067
+- > t543 falling Z 5,0 4,1 5,1 4,2 after 1 next J level 19 lines 192 points 2067
+- > t544 falling Z 5,1 4,2 5,2 4,3 after 0 next J level 19 lines 192 points 2067
+- > t545 falling Z 5,1 4,2 5,2 4,3 after 1 next J level 19 lines 192 points 2067
+- > t546 falling Z 5,2 4,3 5,3 4,4 after 0 next J level 19 lines 192 points 2067
+- > t547 falling Z 5,2 4,3 5,3 4,4 after 1 next J level 19 lines 192 points 2067
+- > t548 falling Z 5,3 4,4 5,4 4,5 after 0 next J level 19 lines 192 points 2067
+- > t549 falling Z 5,3 4,4 5,4 4,5 after 1 next J level 19 lines 192 points 2067
+- > t550 falling Z 5,4 4,5 5,5 4,6 after 0 next J level 19 lines 192 points 2067
+- > t551 falling Z 5,4 4,5 5,5 4,6 after 1 next J level 19 lines 192 points 2067
+- > t552 falling Z 5,5 4,6 5,6 4,7 after 0 next J level 19 lines 192 points 2067
+- > t553 falling Z 5,5 4,6 5,6 4,7 after 1 next J level 19 lines 192 points 2067
+- > t554 falling Z 5,6 4,7 5,7 4,8 after 0 next J level 19 lines 192 points 2067
+- > t555 falling Z 5,6 4,7 5,7 4,8 after 1 next J level 19 lines 192 points 2067
+- > t556 falling Z 5,7 4,8 5,8 4,9 after 0 next J level 19 lines 192 points 2067
+- > t557 falling Z 4,7 3,8 4,8 3,9 after 1 next J level 19 lines 192 points 2067
+-LEFT > t558 falling Z 4,8 3,9 4,9 3,10 after 0 next J level 19 lines 192 points 2067
+- > t559 falling Z 4,8 3,9 4,9 3,10 after 1 next J level 19 lines 192 points 2067
+- > t560 falling Z 4,9 3,10 4,10 3,11 after 0 next J level 19 lines 192 points 2067
+- > t561 falling Z 4,9 3,10 4,10 3,11 after 1 next J level 19 lines 192 points 2067
+- > t562 falling Z 4,10 3,11 4,11 3,12 after 0 next J level 19 lines 192 points 2067
+- > t563 falling Z 4,10 3,11 4,11 3,12 after 1 next J level 19 lines 192 points 2067
+- > t564 falling Z 4,11 3,12 4,12 3,13 after 0 next J level 19 lines 192 points 2067
+- > t565 falling Z 4,11 3,12 4,12 3,13 after 1 next J level 19 lines 192 points 2067
+- > t566 falling Z 4,12 3,13 4,13 3,14 after 0 next J level 19 lines 192 points 2067
+- > t567 falling Z 4,12 3,13 4,13 3,14 after 1 next J level 19 lines 192 points 2067
+- > t568 falling Z 4,13 3,14 4,14 3,15 after 0 next J level 19 lines 192 points 2067
+- > t569 falling Z 4,13 3,14 4,14 3,15 after 1 next J level 19 lines 192 points 2067
+- > t570 falling Z 4,14 3,15 4,15 3,16 after 0 next J level 19 lines 192 points 2067
+- > t571 falling Z 4,14 3,15 4,15 3,16 after 1 next J level 19 lines 192 points 2067
+- > t572 falling Z 4,15 3,16 4,16 3,17 after 0 next J level 19 lines 192 points 2067
+- > t573 falling Z 4,15 3,16 4,16 3,17 after 1 next J level 19 lines 192 points 2067
+- > t574 falling Z 4,16 3,17 4,17 3,18 after 0 next J level 19 lines 192 points 2067
+- > t575 falling Z 4,16 3,17 4,17 3,18 after 1 next J level 19 lines 192 points 2067
+- > t576 entry 12 next J level 19 lines 192 points 2067 | locked Z 4,16 3,17 4,17 3,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  OO..Z.....
+  OOIZZ..SS.
+  OOIZJJSST.
+  .ZZLLOOLLL
+- > t577 entry 11 next J level 19 lines 192 points 2067
+- > t578 entry 10 next J level 19 lines 192 points 2067
+- > t579 entry 9 next J level 19 lines 192 points 2067
+- > t580 entry 8 next J level 19 lines 192 points 2067
+- > t581 entry 7 next J level 19 lines 192 points 2067
+- > t582 entry 6 next J level 19 lines 192 points 2067
+- > t583 entry 5 next J level 19 lines 192 points 2067
+- > t584 entry 4 next J level 19 lines 192 points 2067
+- > t585 entry 3 next J level 19 lines 192 points 2067
+- > t586 entry 2 next J level 19 lines 192 points 2067
+- > t587 entry 1 next J level 19 lines 192 points 2067
+- > t588 falling J 4,0 5,0 6,0 6,1 after 0 next L level 19 lines 192 points 2067
++LEFT > t589 falling J 3,0 4,0 5,0 5,1 after 1 next L level 19 lines 192 points 2067
+-LEFT > t590 falling J 3,1 4,1 5,1 5,2 after 0 next L level 19 lines 192 points 2067
++LEFT > t591 falling J 2,1 3,1 4,1 4,2 after 1 next L level 19 lines 192 points 2067
+-LEFT > t592 falling J 2,2 3,2 4,2 4,3 after 0 next L level 19 lines 192 points 2067
++LEFT > t593 falling J 1,2 2,2 3,2 3,3 after 1 next L level 19 lines 192 points 2067
+-LEFT > t594 falling J 1,3 2,3 3,3 3,4 after 0 next L level 19 lines 192 points 2067
++LEFT > t595 falling J 0,3 1,3 2,3 2,4 after 1 next L level 19 lines 192 points 2067
+-LEFT +DOWN > t596 falling J 0,4 1,4 2,4 2,5 after 0 next L level 19 lines 192 points 2067
+- > t597 falling J 0,4 1,4 2,4 2,5 after 1 next L level 19 lines 192 points 2067
+- > t598 falling J 0,5 1,5 2,5 2,6 after 0 soft 1 next L level 19 lines 192 points 2067
+- > t599 falling J 0,5 1,5 2,5 2,6 after 1 soft 1 next L level 19 lines 192 points 2067
+- > t600 falling J 0,6 1,6 2,6 2,7 after 0 soft 2 next L level 19 lines 192 points 2067
+- > t601 falling J 0,6 1,6 2,6 2,7 after 1 soft 2 next L level 19 lines 192 points 2067
+- > t602 falling J 0,7 1,7 2,7 2,8 after 0 soft 3 next L level 19 lines 192 points 2067
+- > t603 falling J 0,7 1,7 2,7 2,8 after 1 soft 3 next L level 19 lines 192 points 2067
+- > t604 falling J 0,8 1,8 2,8 2,9 after 0 soft 4 next L level 19 lines 192 points 2067
+- > t605 falling J 0,8 1,8 2,8 2,9 after 1 soft 4 next L level 19 lines 192 points 2067
+- > t606 falling J 0,9 1,9 2,9 2,10 after 0 soft 5 next L level 19 lines 192 points 2067
+- > t607 falling J 0,9 1,9 2,9 2,10 after 1 soft 5 next L level 19 lines 192 points 2067
+- > t608 falling J 0,10 1,10 2,10 2,11 after 0 soft 6 next L level 19 lines 192 points 2067
+- > t609 falling J 0,10 1,10 2,10 2,11 after 1 soft 6 next L level 19 lines 192 points 2067
+- > t610 falling J 0,11 1,11 2,11 2,12 after 0 soft 7 next L level 19 lines 192 points 2067
+- > t611 falling J 0,11 1,11 2,11 2,12 after 1 soft 7 next L level 19 lines 192 points 2067
+- > t612 falling J 0,12 1,12 2,12 2,13 after 0 soft 8 next L level 19 lines 192 points 2067
+- > t613 falling J 0,12 1,12 2,12 2,13 after 1 soft 8 next L level 19 lines 192 points 2067
+- > t614 falling J 0,13 1,13 2,13 2,14 after 0 soft 9 next L level 19 lines 192 points 2067
+- > t615 falling J 0,13 1,13 2,13 2,14 after 1 soft 9 next L level 19 lines 192 points 2067
+- > t616 falling J 0,14 1,14 2,14 2,15 after 0 soft 10 next L level 19 lines 192 points 2067
+- > t617 falling J 0,14 1,14 2,14 2,15 after 1 soft 10 next L level 19 lines 192 points 2067
+- > t618 falling J 0,15 1,15 2,15 2,16 after 0 soft 11 next L level 19 lines 192 points 2067
+- > t619 falling J 0,15 1,15 2,15 2,16 after 1 soft 11 next L level 19 lines 192 points 2067
+- > t620 entry 12 next L level 19 lines 192 points 2078 | locked J 0,15 1,15 2,15 2,16
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  JJJ.......
+  OOJ.Z.....
+  OOIZZ..SS.
+  OOIZJJSST.
+  .ZZLLOOLLL
+- > t621 entry 11 next L level 19 lines 192 points 2078
+- > t622 entry 10 next L level 19 lines 192 points 2078
+- > t623 entry 9 next L level 19 lines 192 points 2078
+- > t624 entry 8 next L level 19 lines 192 points 2078
+- > t625 entry 7 next L level 19 lines 192 points 2078
+- > t626 entry 6 next L level 19 lines 192 points 2078
+- > t627 entry 5 next L level 19 lines 192 points 2078
+- > t628 entry 4 next L level 19 lines 192 points 2078
+- > t629 entry 3 next L level 19 lines 192 points 2078
+- > t630 entry 2 next L level 19 lines 192 points 2078
+- > t631 entry 1 next L level 19 lines 192 points 2078
+- > t632 falling L 4,0 5,0 6,0 4,1 after 0 next Z level 19 lines 192 points 2078
+-DOWN +A +RIGHT > t633 falling L 5,-1 6,-1 6,0 6,1 after 1 next Z level 19 lines 192 points 2078 | rotated L 5,-1 6,-1 6,0 6,1 CLOCKWISE
+-A -RIGHT > t634 falling L 5,0 6,0 6,1 6,2 after 0 next Z level 19 lines 192 points 2078
++RIGHT > t635 falling L 6,0 7,0 7,1 7,2 after 1 next Z level 19 lines 192 points 2078
+-RIGHT > t636 falling L 6,1 7,1 7,2 7,3 after 0 next Z level 19 lines 192 points 2078
++RIGHT > t637 falling L 7,1 8,1 8,2 8,3 after 1 next Z level 19 lines 192 points 2078
+-RIGHT > t638 falling L 7,2 8,2 8,3 8,4 after 0 next Z level 19 lines 192 points 2078
++RIGHT > t639 falling L 8,2 9,2 9,3 9,4 after 1 next Z level 19 lines 192 points 2078
+-RIGHT > t640 falling L 8,3 9,3 9,4 9,5 after 0 next Z level 19 lines 192 points 2078
+- > t641 falling L 8,3 9,3 9,4 9,5 after 1 next Z level 19 lines 192 points 2078
+- > t642 falling L 8,4 9,4 9,5 9,6 after 0 next Z level 19 lines 192 points 2078
+- > t643 falling L 8,4 9,4 9,5 9,6 after 1 next Z level 19 lines 192 points 2078
+- > t644 falling L 8,5 9,5 9,6 9,7 after 0 next Z level 19 lines 192 points 2078
+- > t645 falling L 8,5 9,5 9,6 9,7 after 1 next Z level 19 lines 192 points 2078
+- > t646 falling L 8,6 9,6 9,7 9,8 after 0 next Z level 19 lines 192 points 2078
+- > t647 falling L 8,6 9,6 9,7 9,8 after 1 next Z level 19 lines 192 points 2078
+- > t648 falling L 8,7 9,7 9,8 9,9 after 0 next Z level 19 lines 192 points 2078
+- > t649 falling L 8,7 9,7 9,8 9,9 after 1 next Z level 19 lines 192 points 2078
+- > t650 falling L 8,8 9,8 9,9 9,10 after 0 next Z level 19 lines 192 points 2078
+- > t651 falling L 8,8 9,8 9,9 9,10 after 1 next Z level 19 lines 192 points 2078
+- > t652 falling L 8,9 9,9 9,10 9,11 after 0 next Z level 19 lines 192 points 2078
+- > t653 falling L 8,9 9,9 9,10 9,11 after 1 next Z level 19 lines 192 points 2078
+- > t654 falling L 8,10 9,10 9,11 9,12 after 0 next Z level 19 lines 192 points 2078
+- > t655 falling L 8,10 9,10 9,11 9,12 after 1 next Z level 19 lines 192 points 2078
+- > t656 falling L 8,11 9,11 9,12 9,13 after 0 next Z level 19 lines 192 points 2078
+- > t657 falling L 8,11 9,11 9,12 9,13 after 1 next Z level 19 lines 192 points 2078
+- > t658 falling L 8,12 9,12 9,13 9,14 after 0 next Z level 19 lines 192 points 2078
+- > t659 falling L 8,12 9,12 9,13 9,14 after 1 next Z level 19 lines 192 points 2078
+- > t660 falling L 8,13 9,13 9,14 9,15 after 0 next Z level 19 lines 192 points 2078
+- > t661 falling L 8,13 9,13 9,14 9,15 after 1 next Z level 19 lines 192 points 2078
+- > t662 falling L 8,14 9,14 9,15 9,16 after 0 next Z level 19 lines 192 points 2078
+- > t663 falling L 8,14 9,14 9,15 9,16 after 1 next Z level 19 lines 192 points 2078
+- > t664 falling L 8,15 9,15 9,16 9,17 after 0 next Z level 19 lines 192 points 2078
+- > t665 falling L 8,15 9,15 9,16 9,17 after 1 next Z level 19 lines 192 points 2078
+- > t666 falling L 8,16 9,16 9,17 9,18 after 0 next Z level 19 lines 192 points 2078
+- > t667 falling L 8,16 9,16 9,17 9,18 after 1 next Z level 19 lines 192 points 2078
+- > t668 clearing rows 18 left 20 then 12 next Z level 19 lines 192 points 2078 | locked L 8,16 9,16 9,17 9,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  JJJ.......
+  OOJ.Z...LL
+  OOIZZ..SSL
+  OOIZJJSSTL
+  .ZZLLOOLLL
+- > t669 clearing rows 18 left 19 then 12 next Z level 19 lines 192 points 2078
+- > t670 clearing rows 18 left 18 then 12 next Z level 19 lines 192 points 2078
+- > t671 clearing rows 18 left 17 then 12 next Z level 19 lines 192 points 2078
+- > t672 clearing rows 18 left 16 then 12 next Z level 19 lines 192 points 2078
+- > t673 clearing rows 18 left 15 then 12 next Z level 19 lines 192 points 2078
+- > t674 clearing rows 18 left 14 then 12 next Z level 19 lines 192 points 2078
+- > t675 clearing rows 18 left 13 then 12 next Z level 19 lines 192 points 2078
+- > t676 clearing rows 18 left 12 then 12 next Z level 19 lines 192 points 2078
+- > t677 clearing rows 18 left 11 then 12 next Z level 19 lines 192 points 2078
+- > t678 clearing rows 18 left 10 then 12 next Z level 19 lines 192 points 2078
+- > t679 clearing rows 18 left 9 then 12 next Z level 19 lines 192 points 2078
+- > t680 clearing rows 18 left 8 then 12 next Z level 19 lines 192 points 2078
+- > t681 clearing rows 18 left 7 then 12 next Z level 19 lines 192 points 2078
+- > t682 clearing rows 18 left 6 then 12 next Z level 19 lines 192 points 2078
+- > t683 clearing rows 18 left 5 then 12 next Z level 19 lines 192 points 2078
+- > t684 clearing rows 18 left 4 then 12 next Z level 19 lines 192 points 2078
+- > t685 clearing rows 18 left 3 then 12 next Z level 19 lines 192 points 2078
+- > t686 clearing rows 18 left 2 then 12 next Z level 19 lines 192 points 2078
+- > t687 clearing rows 18 left 1 then 12 next Z level 19 lines 192 points 2078
+- > t688 entry 12 next Z level 19 lines 193 points 2878 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  JJJ.......
+  OOJ.Z...LL
+  OOIZZ..SSL
+  .ZZLLOOLLL
+- > t689 entry 11 next Z level 19 lines 193 points 2878
+- > t690 entry 10 next Z level 19 lines 193 points 2878
+- > t691 entry 9 next Z level 19 lines 193 points 2878
+- > t692 entry 8 next Z level 19 lines 193 points 2878
+- > t693 entry 7 next Z level 19 lines 193 points 2878
+- > t694 entry 6 next Z level 19 lines 193 points 2878
+- > t695 entry 5 next Z level 19 lines 193 points 2878
+- > t696 entry 4 next Z level 19 lines 193 points 2878
+- > t697 entry 3 next Z level 19 lines 193 points 2878
+- > t698 entry 2 next Z level 19 lines 193 points 2878
+- > t699 entry 1 next Z level 19 lines 193 points 2878
+- > t700 falling Z 4,0 5,0 5,1 6,1 after 0 next O level 19 lines 193 points 2878
++A +LEFT > t701 falling Z 5,-1 4,0 5,0 4,1 after 1 next O level 19 lines 193 points 2878 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A -LEFT > t702 falling Z 5,0 4,1 5,1 4,2 after 0 next O level 19 lines 193 points 2878
++LEFT > t703 falling Z 4,0 3,1 4,1 3,2 after 1 next O level 19 lines 193 points 2878
+-LEFT > t704 falling Z 4,1 3,2 4,2 3,3 after 0 next O level 19 lines 193 points 2878
+- > t705 falling Z 4,1 3,2 4,2 3,3 after 1 next O level 19 lines 193 points 2878
+- > t706 falling Z 4,2 3,3 4,3 3,4 after 0 next O level 19 lines 193 points 2878
+- > t707 falling Z 4,2 3,3 4,3 3,4 after 1 next O level 19 lines 193 points 2878
+- > t708 falling Z 4,3 3,4 4,4 3,5 after 0 next O level 19 lines 193 points 2878
+- > t709 falling Z 4,3 3,4 4,4 3,5 after 1 next O level 19 lines 193 points 2878
+- > t710 falling Z 4,4 3,5 4,5 3,6 after 0 next O level 19 lines 193 points 2878
+- > t711 falling Z 4,4 3,5 4,5 3,6 after 1 next O level 19 lines 193 points 2878
+- > t712 falling Z 4,5 3,6 4,6 3,7 after 0 next O level 19 lines 193 points 2878
+- > t713 falling Z 4,5 3,6 4,6 3,7 after 1 next O level 19 lines 193 points 2878
+- > t714 falling Z 4,6 3,7 4,7 3,8 after 0 next O level 19 lines 193 points 2878
+- > t715 falling Z 4,6 3,7 4,7 3,8 after 1 next O level 19 lines 193 points 2878
+- > t716 falling Z 4,7 3,8 4,8 3,9 after 0 next O level 19 lines 193 points 2878
+- > t717 falling Z 4,7 3,8 4,8 3,9 after 1 next O level 19 lines 193 points 2878
+- > t718 falling Z 4,8 3,9 4,9 3,10 after 0 next O level 19 lines 193 points 2878
+- > t719 falling Z 4,8 3,9 4,9 3,10 after 1 next O level 19 lines 193 points 2878
+- > t720 falling Z 4,9 3,10 4,10 3,11 after 0 next O level 19 lines 193 points 2878
+- > t721 falling Z 4,9 3,10 4,10 3,11 after 1 next O level 19 lines 193 points 2878
+- > t722 falling Z 4,10 3,11 4,11 3,12 after 0 next O level 19 lines 193 points 2878
+- > t723 falling Z 4,10 3,11 4,11 3,12 after 1 next O level 19 lines 193 points 2878
+- > t724 falling Z 4,11 3,12 4,12 3,13 after 0 next O level 19 lines 193 points 2878
+- > t725 falling Z 4,11 3,12 4,12 3,13 after 1 next O level 19 lines 193 points 2878
+- > t726 falling Z 4,12 3,13 4,13 3,14 after 0 next O level 19 lines 193 points 2878
+- > t727 falling Z 4,12 3,13 4,13 3,14 after 1 next O level 19 lines 193 points 2878
+- > t728 falling Z 4,13 3,14 4,14 3,15 after 0 next O level 19 lines 193 points 2878
+- > t729 falling Z 4,13 3,14 4,14 3,15 after 1 next O level 19 lines 193 points 2878
+- > t730 falling Z 4,14 3,15 4,15 3,16 after 0 next O level 19 lines 193 points 2878
+- > t731 falling Z 4,14 3,15 4,15 3,16 after 1 next O level 19 lines 193 points 2878
+- > t732 falling Z 4,15 3,16 4,16 3,17 after 0 next O level 19 lines 193 points 2878
+- > t733 falling Z 4,15 3,16 4,16 3,17 after 1 next O level 19 lines 193 points 2878
+- > t734 entry 12 next O level 19 lines 193 points 2878 | locked Z 4,15 3,16 4,16 3,17
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....Z.....
+  JJJZZ.....
+  OOJZZ...LL
+  OOIZZ..SSL
+  .ZZLLOOLLL
+- > t735 entry 11 next O level 19 lines 193 points 2878
+- > t736 entry 10 next O level 19 lines 193 points 2878
+- > t737 entry 9 next O level 19 lines 193 points 2878
+- > t738 entry 8 next O level 19 lines 193 points 2878
+- > t739 entry 7 next O level 19 lines 193 points 2878
+- > t740 entry 6 next O level 19 lines 193 points 2878
+- > t741 entry 5 next O level 19 lines 193 points 2878
+- > t742 entry 4 next O level 19 lines 193 points 2878
+- > t743 entry 3 next O level 19 lines 193 points 2878
+- > t744 entry 2 next O level 19 lines 193 points 2878
+- > t745 entry 1 next O level 19 lines 193 points 2878
+- > t746 falling O 4,0 5,0 4,1 5,1 after 0 next I level 19 lines 193 points 2878
++A +RIGHT > t747 falling O 5,0 6,0 5,1 6,1 after 1 next I level 19 lines 193 points 2878
+-A -RIGHT > t748 falling O 5,1 6,1 5,2 6,2 after 0 next I level 19 lines 193 points 2878
++A +DOWN > t749 falling O 5,1 6,1 5,2 6,2 after 1 next I level 19 lines 193 points 2878
+-A > t750 falling O 5,2 6,2 5,3 6,3 after 0 next I level 19 lines 193 points 2878
+- > t751 falling O 5,3 6,3 5,4 6,4 after 0 soft 1 next I level 19 lines 193 points 2878
+- > t752 falling O 5,3 6,3 5,4 6,4 after 1 soft 1 next I level 19 lines 193 points 2878
+- > t753 falling O 5,4 6,4 5,5 6,5 after 0 soft 2 next I level 19 lines 193 points 2878
+- > t754 falling O 5,4 6,4 5,5 6,5 after 1 soft 2 next I level 19 lines 193 points 2878
+- > t755 falling O 5,5 6,5 5,6 6,6 after 0 soft 3 next I level 19 lines 193 points 2878
+- > t756 falling O 5,5 6,5 5,6 6,6 after 1 soft 3 next I level 19 lines 193 points 2878
+- > t757 falling O 5,6 6,6 5,7 6,7 after 0 soft 4 next I level 19 lines 193 points 2878
+- > t758 falling O 5,6 6,6 5,7 6,7 after 1 soft 4 next I level 19 lines 193 points 2878
+- > t759 falling O 5,7 6,7 5,8 6,8 after 0 soft 5 next I level 19 lines 193 points 2878
+- > t760 falling O 5,7 6,7 5,8 6,8 after 1 soft 5 next I level 19 lines 193 points 2878
+- > t761 falling O 5,8 6,8 5,9 6,9 after 0 soft 6 next I level 19 lines 193 points 2878
+- > t762 falling O 5,8 6,8 5,9 6,9 after 1 soft 6 next I level 19 lines 193 points 2878
+- > t763 falling O 5,9 6,9 5,10 6,10 after 0 soft 7 next I level 19 lines 193 points 2878
+- > t764 falling O 5,9 6,9 5,10 6,10 after 1 soft 7 next I level 19 lines 193 points 2878
+- > t765 falling O 5,10 6,10 5,11 6,11 after 0 soft 8 next I level 19 lines 193 points 2878
+- > t766 falling O 5,10 6,10 5,11 6,11 after 1 soft 8 next I level 19 lines 193 points 2878
+- > t767 falling O 5,11 6,11 5,12 6,12 after 0 soft 9 next I level 19 lines 193 points 2878
+- > t768 falling O 5,11 6,11 5,12 6,12 after 1 soft 9 next I level 19 lines 193 points 2878
+- > t769 falling O 5,12 6,12 5,13 6,13 after 0 soft 10 next I level 19 lines 193 points 2878
+- > t770 falling O 5,12 6,12 5,13 6,13 after 1 soft 10 next I level 19 lines 193 points 2878
+- > t771 falling O 5,13 6,13 5,14 6,14 after 0 soft 11 next I level 19 lines 193 points 2878
+- > t772 falling O 5,13 6,13 5,14 6,14 after 1 soft 11 next I level 19 lines 193 points 2878
+- > t773 falling O 5,14 6,14 5,15 6,15 after 0 soft 12 next I level 19 lines 193 points 2878
+- > t774 falling O 5,14 6,14 5,15 6,15 after 1 soft 12 next I level 19 lines 193 points 2878
+- > t775 falling O 5,15 6,15 5,16 6,16 after 0 soft 13 next I level 19 lines 193 points 2878
+- > t776 falling O 5,15 6,15 5,16 6,16 after 1 soft 13 next I level 19 lines 193 points 2878
+- > t777 falling O 5,16 6,16 5,17 6,17 after 0 soft 14 next I level 19 lines 193 points 2878
+- > t778 falling O 5,16 6,16 5,17 6,17 after 1 soft 14 next I level 19 lines 193 points 2878
+- > t779 falling O 5,17 6,17 5,18 6,18 after 0 soft 15 next I level 19 lines 193 points 2878
+- > t780 falling O 5,17 6,17 5,18 6,18 after 1 soft 15 next I level 19 lines 193 points 2878
+- > t781 clearing rows 18 left 19 then 12 next I level 19 lines 193 points 2893 | locked O 5,17 6,17 5,18 6,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....Z.....
+  JJJZZ.....
+  OOJZZOO.LL
+  OOIZZOOSSL
+  .ZZLLOOLLL
+- > t782 clearing rows 18 left 18 then 12 next I level 19 lines 193 points 2893
+- > t783 clearing rows 18 left 17 then 12 next I level 19 lines 193 points 2893
+- > t784 clearing rows 18 left 16 then 12 next I level 19 lines 193 points 2893
+- > t785 clearing rows 18 left 15 then 12 next I level 19 lines 193 points 2893
+- > t786 clearing rows 18 left 14 then 12 next I level 19 lines 193 points 2893
+- > t787 clearing rows 18 left 13 then 12 next I level 19 lines 193 points 2893
+- > t788 clearing rows 18 left 12 then 12 next I level 19 lines 193 points 2893
+- > t789 clearing rows 18 left 11 then 12 next I level 19 lines 193 points 2893
+- > t790 clearing rows 18 left 10 then 12 next I level 19 lines 193 points 2893
+- > t791 clearing rows 18 left 9 then 12 next I level 19 lines 193 points 2893
+- > t792 clearing rows 18 left 8 then 12 next I level 19 lines 193 points 2893
+- > t793 clearing rows 18 left 7 then 12 next I level 19 lines 193 points 2893
+- > t794 clearing rows 18 left 6 then 12 next I level 19 lines 193 points 2893
+- > t795 clearing rows 18 left 5 then 12 next I level 19 lines 193 points 2893
+- > t796 clearing rows 18 left 4 then 12 next I level 19 lines 193 points 2893
+- > t797 clearing rows 18 left 3 then 12 next I level 19 lines 193 points 2893
+- > t798 clearing rows 18 left 2 then 12 next I level 19 lines 193 points 2893
+- > t799 clearing rows 18 left 1 then 12 next I level 19 lines 193 points 2893
+- > t800 entry 12 next I level 19 lines 194 points 3693 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....Z.....
+  JJJZZ.....
+  OOJZZOO.LL
+  .ZZLLOOLLL
+- > t801 entry 11 next I level 19 lines 194 points 3693
+- > t802 entry 10 next I level 19 lines 194 points 3693
+- > t803 entry 9 next I level 19 lines 194 points 3693
+- > t804 entry 8 next I level 19 lines 194 points 3693
+- > t805 entry 7 next I level 19 lines 194 points 3693
+- > t806 entry 6 next I level 19 lines 194 points 3693
+- > t807 entry 5 next I level 19 lines 194 points 3693
+- > t808 entry 4 next I level 19 lines 194 points 3693
+- > t809 entry 3 next I level 19 lines 194 points 3693
+- > t810 entry 2 next I level 19 lines 194 points 3693
+- > t811 entry 1 next I level 19 lines 194 points 3693
+- > t812 falling I 3,0 4,0 5,0 6,0 after 0 next Z level 19 lines 194 points 3693
+-DOWN +A +RIGHT > t813 falling I 6,-2 6,-1 6,0 6,1 after 1 next Z level 19 lines 194 points 3693 | rotated I 6,-2 6,-1 6,0 6,1 CLOCKWISE
+-A > t814 falling I 6,-1 6,0 6,1 6,2 after 0 next Z level 19 lines 194 points 3693
+- > t815 falling I 6,-1 6,0 6,1 6,2 after 1 next Z level 19 lines 194 points 3693
+- > t816 falling I 6,0 6,1 6,2 6,3 after 0 next Z level 19 lines 194 points 3693
+- > t817 falling I 6,0 6,1 6,2 6,3 after 1 next Z level 19 lines 194 points 3693
+- > t818 falling I 6,1 6,2 6,3 6,4 after 0 next Z level 19 lines 194 points 3693
+- > t819 falling I 6,1 6,2 6,3 6,4 after 1 next Z level 19 lines 194 points 3693
+- > t820 falling I 6,2 6,3 6,4 6,5 after 0 next Z level 19 lines 194 points 3693
+- > t821 falling I 6,2 6,3 6,4 6,5 after 1 next Z level 19 lines 194 points 3693
+- > t822 falling I 6,3 6,4 6,5 6,6 after 0 next Z level 19 lines 194 points 3693
+- > t823 falling I 6,3 6,4 6,5 6,6 after 1 next Z level 19 lines 194 points 3693
+- > t824 falling I 6,4 6,5 6,6 6,7 after 0 next Z level 19 lines 194 points 3693
+- > t825 falling I 6,4 6,5 6,6 6,7 after 1 next Z level 19 lines 194 points 3693
+- > t826 falling I 6,5 6,6 6,7 6,8 after 0 next Z level 19 lines 194 points 3693
+- > t827 falling I 6,5 6,6 6,7 6,8 after 1 next Z level 19 lines 194 points 3693
+- > t828 falling I 6,6 6,7 6,8 6,9 after 0 next Z level 19 lines 194 points 3693
+- > t829 falling I 7,6 7,7 7,8 7,9 after 1 next Z level 19 lines 194 points 3693
+-RIGHT > t830 falling I 7,7 7,8 7,9 7,10 after 0 next Z level 19 lines 194 points 3693
+- > t831 falling I 7,7 7,8 7,9 7,10 after 1 next Z level 19 lines 194 points 3693
+- > t832 falling I 7,8 7,9 7,10 7,11 after 0 next Z level 19 lines 194 points 3693
+- > t833 falling I 7,8 7,9 7,10 7,11 after 1 next Z level 19 lines 194 points 3693
+- > t834 falling I 7,9 7,10 7,11 7,12 after 0 next Z level 19 lines 194 points 3693
+- > t835 falling I 7,9 7,10 7,11 7,12 after 1 next Z level 19 lines 194 points 3693
+- > t836 falling I 7,10 7,11 7,12 7,13 after 0 next Z level 19 lines 194 points 3693
+- > t837 falling I 7,10 7,11 7,12 7,13 after 1 next Z level 19 lines 194 points 3693
+- > t838 falling I 7,11 7,12 7,13 7,14 after 0 next Z level 19 lines 194 points 3693
+- > t839 falling I 7,11 7,12 7,13 7,14 after 1 next Z level 19 lines 194 points 3693
+- > t840 falling I 7,12 7,13 7,14 7,15 after 0 next Z level 19 lines 194 points 3693
+- > t841 falling I 7,12 7,13 7,14 7,15 after 1 next Z level 19 lines 194 points 3693
+- > t842 falling I 7,13 7,14 7,15 7,16 after 0 next Z level 19 lines 194 points 3693
+- > t843 falling I 7,13 7,14 7,15 7,16 after 1 next Z level 19 lines 194 points 3693
+- > t844 falling I 7,14 7,15 7,16 7,17 after 0 next Z level 19 lines 194 points 3693
+- > t845 falling I 7,14 7,15 7,16 7,17 after 1 next Z level 19 lines 194 points 3693
+- > t846 falling I 7,15 7,16 7,17 7,18 after 0 next Z level 19 lines 194 points 3693
+- > t847 falling I 7,15 7,16 7,17 7,18 after 1 next Z level 19 lines 194 points 3693
+- > t848 clearing rows 18 left 20 then 12 next Z level 19 lines 194 points 3693 | locked I 7,15 7,16 7,17 7,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......I..
+  ....Z..I..
+  JJJZZ..I..
+  OOJZZOOILL
+  .ZZLLOOLLL
+- > t849 clearing rows 18 left 19 then 12 next Z level 19 lines 194 points 3693
+- > t850 clearing rows 18 left 18 then 12 next Z level 19 lines 194 points 3693
+- > t851 clearing rows 18 left 17 then 12 next Z level 19 lines 194 points 3693
+- > t852 clearing rows 18 left 16 then 12 next Z level 19 lines 194 points 3693
+- > t853 clearing rows 18 left 15 then 12 next Z level 19 lines 194 points 3693
+- > t854 clearing rows 18 left 14 then 12 next Z level 19 lines 194 points 3693
+- > t855 clearing rows 18 left 13 then 12 next Z level 19 lines 194 points 3693
+- > t856 clearing rows 18 left 12 then 12 next Z level 19 lines 194 points 3693
+- > t857 clearing rows 18 left 11 then 12 next Z level 19 lines 194 points 3693
+- > t858 clearing rows 18 left 10 then 12 next Z level 19 lines 194 points 3693
+- > t859 clearing rows 18 left 9 then 12 next Z level 19 lines 194 points 3693
+- > t860 clearing rows 18 left 8 then 12 next Z level 19 lines 194 points 3693
+- > t861 clearing rows 18 left 7 then 12 next Z level 19 lines 194 points 3693
+- > t862 clearing rows 18 left 6 then 12 next Z level 19 lines 194 points 3693
+- > t863 clearing rows 18 left 5 then 12 next Z level 19 lines 194 points 3693
+- > t864 clearing rows 18 left 4 then 12 next Z level 19 lines 194 points 3693
+- > t865 clearing rows 18 left 3 then 12 next Z level 19 lines 194 points 3693
+- > t866 clearing rows 18 left 2 then 12 next Z level 19 lines 194 points 3693
+- > t867 clearing rows 18 left 1 then 12 next Z level 19 lines 194 points 3693
+- > t868 entry 12 next Z level 19 lines 195 points 4493 | cleared 1
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......I..
+  ....Z..I..
+  JJJZZ..I..
+  .ZZLLOOLLL
+- > t869 entry 11 next Z level 19 lines 195 points 4493
+- > t870 entry 10 next Z level 19 lines 195 points 4493
+- > t871 entry 9 next Z level 19 lines 195 points 4493
+- > t872 entry 8 next Z level 19 lines 195 points 4493
+- > t873 entry 7 next Z level 19 lines 195 points 4493
+- > t874 entry 6 next Z level 19 lines 195 points 4493
+- > t875 entry 5 next Z level 19 lines 195 points 4493
+- > t876 entry 4 next Z level 19 lines 195 points 4493
+- > t877 entry 3 next Z level 19 lines 195 points 4493
+- > t878 entry 2 next Z level 19 lines 195 points 4493
+- > t879 entry 1 next Z level 19 lines 195 points 4493
+- > t880 falling Z 4,0 5,0 5,1 6,1 after 0 next J level 19 lines 195 points 4493
++A +LEFT > t881 falling Z 5,-1 4,0 5,0 4,1 after 1 next J level 19 lines 195 points 4493 | rotated Z 5,-1 4,0 5,0 4,1 CLOCKWISE
+-A -LEFT > t882 falling Z 5,0 4,1 5,1 4,2 after 0 next J level 19 lines 195 points 4493
++LEFT > t883 falling Z 4,0 3,1 4,1 3,2 after 1 next J level 19 lines 195 points 4493
+-LEFT +DOWN > t884 falling Z 4,1 3,2 4,2 3,3 after 0 next J level 19 lines 195 points 4493
+- > t885 falling Z 4,1 3,2 4,2 3,3 after 1 next J level 19 lines 195 points 4493
+- > t886 falling Z 4,2 3,3 4,3 3,4 after 0 soft 1 next J level 19 lines 195 points 4493
+- > t887 falling Z 4,2 3,3 4,3 3,4 after 1 soft 1 next J level 19 lines 195 points 4493
+- > t888 falling Z 4,3 3,4 4,4 3,5 after 0 soft 2 next J level 19 lines 195 points 4493
+- > t889 falling Z 4,3 3,4 4,4 3,5 after 1 soft 2 next J level 19 lines 195 points 4493
+- > t890 falling Z 4,4 3,5 4,5 3,6 after 0 soft 3 next J level 19 lines 195 points 4493
+- > t891 falling Z 4,4 3,5 4,5 3,6 after 1 soft 3 next J level 19 lines 195 points 4493
+- > t892 falling Z 4,5 3,6 4,6 3,7 after 0 soft 4 next J level 19 lines 195 points 4493
+- > t893 falling Z 4,5 3,6 4,6 3,7 after 1 soft 4 next J level 19 lines 195 points 4493
+- > t894 falling Z 4,6 3,7 4,7 3,8 after 0 soft 5 next J level 19 lines 195 points 4493
+- > t895 falling Z 4,6 3,7 4,7 3,8 after 1 soft 5 next J level 19 lines 195 points 4493
+- > t896 falling Z 4,7 3,8 4,8 3,9 after 0 soft 6 next J level 19 lines 195 points 4493
+- > t897 falling Z 4,7 3,8 4,8 3,9 after 1 soft 6 next J level 19 lines 195 points 4493
+- > t898 falling Z 4,8 3,9 4,9 3,10 after 0 soft 7 next J level 19 lines 195 points 4493
+- > t899 falling Z 4,8 3,9 4,9 3,10 after 1 soft 7 next J level 19 lines 195 points 4493
+- > t900 falling Z 4,9 3,10 4,10 3,11 after 0 soft 8 next J level 19 lines 195 points 4493
+- > t901 falling Z 4,9 3,10 4,10 3,11 after 1 soft 8 next J level 19 lines 195 points 4493
+- > t902 falling Z 4,10 3,11 4,11 3,12 after 0 soft 9 next J level 19 lines 195 points 4493
+- > t903 falling Z 4,10 3,11 4,11 3,12 after 1 soft 9 next J level 19 lines 195 points 4493
+- > t904 falling Z 4,11 3,12 4,12 3,13 after 0 soft 10 next J level 19 lines 195 points 4493
+- > t905 falling Z 4,11 3,12 4,12 3,13 after 1 soft 10 next J level 19 lines 195 points 4493
+- > t906 falling Z 4,12 3,13 4,13 3,14 after 0 soft 11 next J level 19 lines 195 points 4493
+- > t907 falling Z 4,12 3,13 4,13 3,14 after 1 soft 11 next J level 19 lines 195 points 4493
+- > t908 falling Z 4,13 3,14 4,14 3,15 after 0 soft 12 next J level 19 lines 195 points 4493
+- > t909 falling Z 4,13 3,14 4,14 3,15 after 1 soft 12 next J level 19 lines 195 points 4493
+- > t910 falling Z 4,14 3,15 4,15 3,16 after 0 soft 13 next J level 19 lines 195 points 4493
+- > t911 falling Z 4,14 3,15 4,15 3,16 after 1 soft 13 next J level 19 lines 195 points 4493
+- > t912 falling Z 4,15 3,16 4,16 3,17 after 0 soft 14 next J level 19 lines 195 points 4493
+- > t913 falling Z 4,15 3,16 4,16 3,17 after 1 soft 14 next J level 19 lines 195 points 4493
+- > t914 entry 12 next J level 19 lines 195 points 4507 | locked Z 4,15 3,16 4,16 3,17
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....Z.....
+  ...ZZ..I..
+  ...ZZ..I..
+  JJJZZ..I..
+  .ZZLLOOLLL
+- > t915 entry 11 next J level 19 lines 195 points 4507
+- > t916 entry 10 next J level 19 lines 195 points 4507
+- > t917 entry 9 next J level 19 lines 195 points 4507
+- > t918 entry 8 next J level 19 lines 195 points 4507
+- > t919 entry 7 next J level 19 lines 195 points 4507
+- > t920 entry 6 next J level 19 lines 195 points 4507
+- > t921 entry 5 next J level 19 lines 195 points 4507
+- > t922 entry 4 next J level 19 lines 195 points 4507
+- > t923 entry 3 next J level 19 lines 195 points 4507
+- > t924 entry 2 next J level 19 lines 195 points 4507
+- > t925 entry 1 next J level 19 lines 195 points 4507
+- > t926 falling J 4,0 5,0 6,0 6,1 after 0 next T level 19 lines 195 points 4507
+-DOWN +A +RIGHT > t927 falling J 6,-1 6,0 5,1 6,1 after 1 next T level 19 lines 195 points 4507 | rotated J 6,-1 6,0 5,1 6,1 CLOCKWISE
+-A -RIGHT > t928 falling J 6,0 6,1 5,2 6,2 after 0 next T level 19 lines 195 points 4507
+- > t929 falling J 6,0 6,1 5,2 6,2 after 1 next T level 19 lines 195 points 4507
+- > t930 falling J 6,1 6,2 5,3 6,3 after 0 next T level 19 lines 195 points 4507
+- > t931 falling J 6,1 6,2 5,3 6,3 after 1 next T level 19 lines 195 points 4507
+- > t932 falling J 6,2 6,3 5,4 6,4 after 0 next T level 19 lines 195 points 4507
+- > t933 falling J 6,2 6,3 5,4 6,4 after 1 next T level 19 lines 195 points 4507
+- > t934 falling J 6,3 6,4 5,5 6,5 after 0 next T level 19 lines 195 points 4507
+- > t935 falling J 6,3 6,4 5,5 6,5 after 1 next T level 19 lines 195 points 4507
+- > t936 falling J 6,4 6,5 5,6 6,6 after 0 next T level 19 lines 195 points 4507
+- > t937 falling J 6,4 6,5 5,6 6,6 after 1 next T level 19 lines 195 points 4507
+- > t938 falling J 6,5 6,6 5,7 6,7 after 0 next T level 19 lines 195 points 4507
+- > t939 falling J 6,5 6,6 5,7 6,7 after 1 next T level 19 lines 195 points 4507
+- > t940 falling J 6,6 6,7 5,8 6,8 after 0 next T level 19 lines 195 points 4507
+- > t941 falling J 6,6 6,7 5,8 6,8 after 1 next T level 19 lines 195 points 4507
+- > t942 falling J 6,7 6,8 5,9 6,9 after 0 next T level 19 lines 195 points 4507
+- > t943 falling J 6,7 6,8 5,9 6,9 after 1 next T level 19 lines 195 points 4507
+- > t944 falling J 6,8 6,9 5,10 6,10 after 0 next T level 19 lines 195 points 4507
+- > t945 falling J 6,8 6,9 5,10 6,10 after 1 next T level 19 lines 195 points 4507
+- > t946 falling J 6,9 6,10 5,11 6,11 after 0 next T level 19 lines 195 points 4507
+- > t947 falling J 6,9 6,10 5,11 6,11 after 1 next T level 19 lines 195 points 4507
+- > t948 falling J 6,10 6,11 5,12 6,12 after 0 next T level 19 lines 195 points 4507
+- > t949 falling J 6,10 6,11 5,12 6,12 after 1 next T level 19 lines 195 points 4507
+- > t950 falling J 6,11 6,12 5,13 6,13 after 0 next T level 19 lines 195 points 4507
+- > t951 falling J 6,11 6,12 5,13 6,13 after 1 next T level 19 lines 195 points 4507
+- > t952 falling J 6,12 6,13 5,14 6,14 after 0 next T level 19 lines 195 points 4507
+- > t953 falling J 6,12 6,13 5,14 6,14 after 1 next T level 19 lines 195 points 4507
+- > t954 falling J 6,13 6,14 5,15 6,15 after 0 next T level 19 lines 195 points 4507
+- > t955 falling J 6,13 6,14 5,15 6,15 after 1 next T level 19 lines 195 points 4507
+- > t956 falling J 6,14 6,15 5,16 6,16 after 0 next T level 19 lines 195 points 4507
+- > t957 falling J 6,14 6,15 5,16 6,16 after 1 next T level 19 lines 195 points 4507
+- > t958 falling J 6,15 6,16 5,17 6,17 after 0 next T level 19 lines 195 points 4507
+- > t959 falling J 6,15 6,16 5,17 6,17 after 1 next T level 19 lines 195 points 4507
+- > t960 falling J 6,16 6,17 5,18 6,18 after 0 next T level 19 lines 195 points 4507
+- > t961 falling J 6,16 6,17 5,18 6,18 after 1 next T level 19 lines 195 points 4507
+- > t962 entry 12 next T level 19 lines 195 points 4507 | locked J 6,16 6,17 5,18 6,18
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....Z.....
+  ...ZZ.JI..
+  ...ZZ.JI..
+  JJJZZJJI..
+  .ZZLLOOLLL
+- > t963 entry 11 next T level 19 lines 195 points 4507
+- > t964 entry 10 next T level 19 lines 195 points 4507
+- > t965 entry 9 next T level 19 lines 195 points 4507
+- > t966 entry 8 next T level 19 lines 195 points 4507
+- > t967 entry 7 next T level 19 lines 195 points 4507
+- > t968 entry 6 next T level 19 lines 195 points 4507
+- > t969 entry 5 next T level 19 lines 195 points 4507
+- > t970 entry 4 next T level 19 lines 195 points 4507
+- > t971 entry 3 next T level 19 lines 195 points 4507
+- > t972 entry 2 next T level 19 lines 195 points 4507
+- > t973 entry 1 next T level 19 lines 195 points 4507
+- > t974 falling T 4,0 5,0 6,0 5,1 after 0 next L level 19 lines 195 points 4507
++A +LEFT > t975 falling T 4,-1 3,0 4,0 4,1 after 1 next L level 19 lines 195 points 4507 | rotated T 4,-1 3,0 4,0 4,1 CLOCKWISE
+-A -LEFT > t976 falling T 4,0 3,1 4,1 4,2 after 0 next L level 19 lines 195 points 4507
++A +LEFT > t977 falling T 3,0 2,1 3,1 4,1 after 1 next L level 19 lines 195 points 4507 | rotated T 3,0 2,1 3,1 4,1 CLOCKWISE
+-A -LEFT > t978 falling T 3,1 2,2 3,2 4,2 after 0 next L level 19 lines 195 points 4507
++LEFT > t979 falling T 2,1 1,2 2,2 3,2 after 1 next L level 19 lines 195 points 4507
+-LEFT > t980 falling T 2,2 1,3 2,3 3,3 after 0 next L level 19 lines 195 points 4507
++LEFT > t981 falling T 1,2 0,3 1,3 2,3 after 1 next L level 19 lines 195 points 4507
+-LEFT +DOWN > t982 falling T 1,3 0,4 1,4 2,4 after 0 next L level 19 lines 195 points 4507
+- > t983 falling T 1,3 0,4 1,4 2,4 after 1 next L level 19 lines 195 points 4507
+- > t984 falling T 1,4 0,5 1,5 2,5 after 0 soft 1 next L level 19 lines 195 points 4507
+- > t985 falling T 1,4 0,5 1,5 2,5 after 1 soft 1 next L level 19 lines 195 points 4507
+- > t986 falling T 1,5 0,6 1,6 2,6 after 0 soft 2 next L level 19 lines 195 points 4507
+- > t987 falling T 1,5 0,6 1,6 2,6 after 1 soft 2 next L level 19 lines 195 points 4507
+- > t988 falling T 1,6 0,7 1,7 2,7 after 0 soft 3 next L level 19 lines 195 points 4507
+- > t989 falling T 1,6 0,7 1,7 2,7 after 1 soft 3 next L level 19 lines 195 points 4507
+- > t990 falling T 1,7 0,8 1,8 2,8 after 0 soft 4 next L level 19 lines 195 points 4507
+- > t991 falling T 1,7 0,8 1,8 2,8 after 1 soft 4 next L level 19 lines 195 points 4507
+- > t992 falling T 1,8 0,9 1,9 2,9 after 0 soft 5 next L level 19 lines 195 points 4507
+- > t993 falling T 1,8 0,9 1,9 2,9 after 1 soft 5 next L level 19 lines 195 points 4507
+- > t994 falling T 1,9 0,10 1,10 2,10 after 0 soft 6 next L level 19 lines 195 points 4507
+- > t995 falling T 1,9 0,10 1,10 2,10 after 1 soft 6 next L level 19 lines 195 points 4507
+- > t996 falling T 1,10 0,11 1,11 2,11 after 0 soft 7 next L level 19 lines 195 points 4507
+- > t997 falling T 1,10 0,11 1,11 2,11 after 1 soft 7 next L level 19 lines 195 points 4507
+- > t998 falling T 1,11 0,12 1,12 2,12 after 0 soft 8 next L level 19 lines 195 points 4507
+- > t999 falling T 1,11 0,12 1,12 2,12 after 1 soft 8 next L level 19 lines 195 points 4507
+- > t1000 falling T 1,12 0,13 1,13 2,13 after 0 soft 9 next L level 19 lines 195 points 4507

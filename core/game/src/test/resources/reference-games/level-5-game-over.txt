@@ -1,0 +1,2242 @@
+# Reference game of the Classic mode (P11.4), recorded before the extraction of DropTiming:
+# never record it again. Format: see ReferenceGame (core:game tests) and JOURNAL.md.
+seed 5
+start-level 5
+lines 0
++A +LEFT > t1 falling I 4,-2 4,-1 4,0 4,1 after 1 next T level 5 lines 0 points 0 | rotated I 4,-2 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT > t2 falling I 4,-2 4,-1 4,0 4,1 after 2 next T level 5 lines 0 points 0
+- > t3 falling I 4,-2 4,-1 4,0 4,1 after 3 next T level 5 lines 0 points 0
+- > t4 falling I 4,-2 4,-1 4,0 4,1 after 4 next T level 5 lines 0 points 0
+- > t5 falling I 4,-2 4,-1 4,0 4,1 after 5 next T level 5 lines 0 points 0
+- > t6 falling I 4,-2 4,-1 4,0 4,1 after 6 next T level 5 lines 0 points 0
+- > t7 falling I 4,-2 4,-1 4,0 4,1 after 7 next T level 5 lines 0 points 0
+- > t8 falling I 4,-2 4,-1 4,0 4,1 after 8 next T level 5 lines 0 points 0
+- > t9 falling I 4,-2 4,-1 4,0 4,1 after 9 next T level 5 lines 0 points 0
+- > t10 falling I 4,-2 4,-1 4,0 4,1 after 10 next T level 5 lines 0 points 0
+- > t11 falling I 4,-2 4,-1 4,0 4,1 after 11 next T level 5 lines 0 points 0
+- > t12 falling I 4,-2 4,-1 4,0 4,1 after 12 next T level 5 lines 0 points 0
+- > t13 falling I 4,-2 4,-1 4,0 4,1 after 13 next T level 5 lines 0 points 0
+- > t14 falling I 4,-2 4,-1 4,0 4,1 after 14 next T level 5 lines 0 points 0
+- > t15 falling I 4,-2 4,-1 4,0 4,1 after 15 next T level 5 lines 0 points 0
+- > t16 falling I 4,-2 4,-1 4,0 4,1 after 16 next T level 5 lines 0 points 0
+- > t17 falling I 4,-2 4,-1 4,0 4,1 after 17 next T level 5 lines 0 points 0
+- > t18 falling I 4,-2 4,-1 4,0 4,1 after 18 next T level 5 lines 0 points 0
+- > t19 falling I 4,-2 4,-1 4,0 4,1 after 19 next T level 5 lines 0 points 0
+- > t20 falling I 4,-2 4,-1 4,0 4,1 after 20 next T level 5 lines 0 points 0
+- > t21 falling I 4,-2 4,-1 4,0 4,1 after 21 next T level 5 lines 0 points 0
+- > t22 falling I 4,-2 4,-1 4,0 4,1 after 22 next T level 5 lines 0 points 0
+- > t23 falling I 4,-1 4,0 4,1 4,2 after 0 next T level 5 lines 0 points 0
+- > t24 falling I 4,-1 4,0 4,1 4,2 after 1 next T level 5 lines 0 points 0
+- > t25 falling I 4,-1 4,0 4,1 4,2 after 2 next T level 5 lines 0 points 0
+- > t26 falling I 4,-1 4,0 4,1 4,2 after 3 next T level 5 lines 0 points 0
+- > t27 falling I 4,-1 4,0 4,1 4,2 after 4 next T level 5 lines 0 points 0
+- > t28 falling I 4,-1 4,0 4,1 4,2 after 5 next T level 5 lines 0 points 0
+- > t29 falling I 4,-1 4,0 4,1 4,2 after 6 next T level 5 lines 0 points 0
+- > t30 falling I 4,-1 4,0 4,1 4,2 after 7 next T level 5 lines 0 points 0
+- > t31 falling I 4,-1 4,0 4,1 4,2 after 8 next T level 5 lines 0 points 0
+- > t32 falling I 4,-1 4,0 4,1 4,2 after 9 next T level 5 lines 0 points 0
+- > t33 falling I 4,-1 4,0 4,1 4,2 after 10 next T level 5 lines 0 points 0
+- > t34 falling I 4,-1 4,0 4,1 4,2 after 11 next T level 5 lines 0 points 0
+- > t35 falling I 4,-1 4,0 4,1 4,2 after 12 next T level 5 lines 0 points 0
+- > t36 falling I 4,-1 4,0 4,1 4,2 after 13 next T level 5 lines 0 points 0
+- > t37 falling I 4,-1 4,0 4,1 4,2 after 14 next T level 5 lines 0 points 0
+- > t38 falling I 4,-1 4,0 4,1 4,2 after 15 next T level 5 lines 0 points 0
+- > t39 falling I 4,-1 4,0 4,1 4,2 after 16 next T level 5 lines 0 points 0
+- > t40 falling I 4,-1 4,0 4,1 4,2 after 17 next T level 5 lines 0 points 0
+- > t41 falling I 4,-1 4,0 4,1 4,2 after 18 next T level 5 lines 0 points 0
+- > t42 falling I 4,-1 4,0 4,1 4,2 after 19 next T level 5 lines 0 points 0
+- > t43 falling I 4,-1 4,0 4,1 4,2 after 20 next T level 5 lines 0 points 0
+- > t44 falling I 4,-1 4,0 4,1 4,2 after 21 next T level 5 lines 0 points 0
+- > t45 falling I 4,-1 4,0 4,1 4,2 after 22 next T level 5 lines 0 points 0
+- > t46 falling I 4,0 4,1 4,2 4,3 after 0 next T level 5 lines 0 points 0
+- > t47 falling I 4,0 4,1 4,2 4,3 after 1 next T level 5 lines 0 points 0
+- > t48 falling I 4,0 4,1 4,2 4,3 after 2 next T level 5 lines 0 points 0
+- > t49 falling I 4,0 4,1 4,2 4,3 after 3 next T level 5 lines 0 points 0
+- > t50 falling I 4,0 4,1 4,2 4,3 after 4 next T level 5 lines 0 points 0
+- > t51 falling I 4,0 4,1 4,2 4,3 after 5 next T level 5 lines 0 points 0
+- > t52 falling I 4,0 4,1 4,2 4,3 after 6 next T level 5 lines 0 points 0
+- > t53 falling I 4,0 4,1 4,2 4,3 after 7 next T level 5 lines 0 points 0
+- > t54 falling I 4,0 4,1 4,2 4,3 after 8 next T level 5 lines 0 points 0
+- > t55 falling I 4,0 4,1 4,2 4,3 after 9 next T level 5 lines 0 points 0
+- > t56 falling I 4,0 4,1 4,2 4,3 after 10 next T level 5 lines 0 points 0
+- > t57 falling I 4,0 4,1 4,2 4,3 after 11 next T level 5 lines 0 points 0
+- > t58 falling I 4,0 4,1 4,2 4,3 after 12 next T level 5 lines 0 points 0
+- > t59 falling I 4,0 4,1 4,2 4,3 after 13 next T level 5 lines 0 points 0
+- > t60 falling I 4,0 4,1 4,2 4,3 after 14 next T level 5 lines 0 points 0
+- > t61 falling I 4,0 4,1 4,2 4,3 after 15 next T level 5 lines 0 points 0
+- > t62 falling I 4,0 4,1 4,2 4,3 after 16 next T level 5 lines 0 points 0
+- > t63 falling I 4,0 4,1 4,2 4,3 after 17 next T level 5 lines 0 points 0
+- > t64 falling I 4,0 4,1 4,2 4,3 after 18 next T level 5 lines 0 points 0
+- > t65 falling I 4,0 4,1 4,2 4,3 after 19 next T level 5 lines 0 points 0
+- > t66 falling I 4,0 4,1 4,2 4,3 after 20 next T level 5 lines 0 points 0
+- > t67 falling I 4,0 4,1 4,2 4,3 after 21 next T level 5 lines 0 points 0
+- > t68 falling I 4,0 4,1 4,2 4,3 after 22 next T level 5 lines 0 points 0
+- > t69 falling I 4,1 4,2 4,3 4,4 after 0 next T level 5 lines 0 points 0
+- > t70 falling I 4,1 4,2 4,3 4,4 after 1 next T level 5 lines 0 points 0
+- > t71 falling I 4,1 4,2 4,3 4,4 after 2 next T level 5 lines 0 points 0
+- > t72 falling I 4,1 4,2 4,3 4,4 after 3 next T level 5 lines 0 points 0
+- > t73 falling I 4,1 4,2 4,3 4,4 after 4 next T level 5 lines 0 points 0
+- > t74 falling I 4,1 4,2 4,3 4,4 after 5 next T level 5 lines 0 points 0
+- > t75 falling I 4,1 4,2 4,3 4,4 after 6 next T level 5 lines 0 points 0
+- > t76 falling I 4,1 4,2 4,3 4,4 after 7 next T level 5 lines 0 points 0
+- > t77 falling I 4,1 4,2 4,3 4,4 after 8 next T level 5 lines 0 points 0
+- > t78 falling I 4,1 4,2 4,3 4,4 after 9 next T level 5 lines 0 points 0
+- > t79 falling I 4,1 4,2 4,3 4,4 after 10 next T level 5 lines 0 points 0
+- > t80 falling I 4,1 4,2 4,3 4,4 after 11 next T level 5 lines 0 points 0
+- > t81 falling I 4,1 4,2 4,3 4,4 after 12 next T level 5 lines 0 points 0
+- > t82 falling I 4,1 4,2 4,3 4,4 after 13 next T level 5 lines 0 points 0
+- > t83 falling I 4,1 4,2 4,3 4,4 after 14 next T level 5 lines 0 points 0
+- > t84 falling I 4,1 4,2 4,3 4,4 after 15 next T level 5 lines 0 points 0
+- > t85 falling I 4,1 4,2 4,3 4,4 after 16 next T level 5 lines 0 points 0
+- > t86 falling I 4,1 4,2 4,3 4,4 after 17 next T level 5 lines 0 points 0
+- > t87 falling I 4,1 4,2 4,3 4,4 after 18 next T level 5 lines 0 points 0
+- > t88 falling I 4,1 4,2 4,3 4,4 after 19 next T level 5 lines 0 points 0
+- > t89 falling I 4,1 4,2 4,3 4,4 after 20 next T level 5 lines 0 points 0
+- > t90 falling I 4,1 4,2 4,3 4,4 after 21 next T level 5 lines 0 points 0
+- > t91 falling I 4,1 4,2 4,3 4,4 after 22 next T level 5 lines 0 points 0
+- > t92 falling I 4,2 4,3 4,4 4,5 after 0 next T level 5 lines 0 points 0
+- > t93 falling I 4,2 4,3 4,4 4,5 after 1 next T level 5 lines 0 points 0
+- > t94 falling I 4,2 4,3 4,4 4,5 after 2 next T level 5 lines 0 points 0
+- > t95 falling I 4,2 4,3 4,4 4,5 after 3 next T level 5 lines 0 points 0
+- > t96 falling I 4,2 4,3 4,4 4,5 after 4 next T level 5 lines 0 points 0
+- > t97 falling I 4,2 4,3 4,4 4,5 after 5 next T level 5 lines 0 points 0
+- > t98 falling I 4,2 4,3 4,4 4,5 after 6 next T level 5 lines 0 points 0
+- > t99 falling I 4,2 4,3 4,4 4,5 after 7 next T level 5 lines 0 points 0
+- > t100 falling I 4,2 4,3 4,4 4,5 after 8 next T level 5 lines 0 points 0
+- > t101 falling I 4,2 4,3 4,4 4,5 after 9 next T level 5 lines 0 points 0
+- > t102 falling I 4,2 4,3 4,4 4,5 after 10 next T level 5 lines 0 points 0
+- > t103 falling I 4,2 4,3 4,4 4,5 after 11 next T level 5 lines 0 points 0
+- > t104 falling I 4,2 4,3 4,4 4,5 after 12 next T level 5 lines 0 points 0
+- > t105 falling I 4,2 4,3 4,4 4,5 after 13 next T level 5 lines 0 points 0
+- > t106 falling I 4,2 4,3 4,4 4,5 after 14 next T level 5 lines 0 points 0
+- > t107 falling I 4,2 4,3 4,4 4,5 after 15 next T level 5 lines 0 points 0
+- > t108 falling I 4,2 4,3 4,4 4,5 after 16 next T level 5 lines 0 points 0
+- > t109 falling I 4,2 4,3 4,4 4,5 after 17 next T level 5 lines 0 points 0
+- > t110 falling I 4,2 4,3 4,4 4,5 after 18 next T level 5 lines 0 points 0
+- > t111 falling I 4,2 4,3 4,4 4,5 after 19 next T level 5 lines 0 points 0
+- > t112 falling I 4,2 4,3 4,4 4,5 after 20 next T level 5 lines 0 points 0
+- > t113 falling I 4,2 4,3 4,4 4,5 after 21 next T level 5 lines 0 points 0
+- > t114 falling I 4,2 4,3 4,4 4,5 after 22 next T level 5 lines 0 points 0
+- > t115 falling I 4,3 4,4 4,5 4,6 after 0 next T level 5 lines 0 points 0
+- > t116 falling I 4,3 4,4 4,5 4,6 after 1 next T level 5 lines 0 points 0
+- > t117 falling I 4,3 4,4 4,5 4,6 after 2 next T level 5 lines 0 points 0
+- > t118 falling I 4,3 4,4 4,5 4,6 after 3 next T level 5 lines 0 points 0
+- > t119 falling I 4,3 4,4 4,5 4,6 after 4 next T level 5 lines 0 points 0
+- > t120 falling I 4,3 4,4 4,5 4,6 after 5 next T level 5 lines 0 points 0
+- > t121 falling I 4,3 4,4 4,5 4,6 after 6 next T level 5 lines 0 points 0
+- > t122 falling I 4,3 4,4 4,5 4,6 after 7 next T level 5 lines 0 points 0
+- > t123 falling I 4,3 4,4 4,5 4,6 after 8 next T level 5 lines 0 points 0
+- > t124 falling I 4,3 4,4 4,5 4,6 after 9 next T level 5 lines 0 points 0
+- > t125 falling I 4,3 4,4 4,5 4,6 after 10 next T level 5 lines 0 points 0
+- > t126 falling I 4,3 4,4 4,5 4,6 after 11 next T level 5 lines 0 points 0
+- > t127 falling I 4,3 4,4 4,5 4,6 after 12 next T level 5 lines 0 points 0
+- > t128 falling I 4,3 4,4 4,5 4,6 after 13 next T level 5 lines 0 points 0
+- > t129 falling I 4,3 4,4 4,5 4,6 after 14 next T level 5 lines 0 points 0
+- > t130 falling I 4,3 4,4 4,5 4,6 after 15 next T level 5 lines 0 points 0
+- > t131 falling I 4,3 4,4 4,5 4,6 after 16 next T level 5 lines 0 points 0
+- > t132 falling I 4,3 4,4 4,5 4,6 after 17 next T level 5 lines 0 points 0
+- > t133 falling I 4,3 4,4 4,5 4,6 after 18 next T level 5 lines 0 points 0
+- > t134 falling I 4,3 4,4 4,5 4,6 after 19 next T level 5 lines 0 points 0
+- > t135 falling I 4,3 4,4 4,5 4,6 after 20 next T level 5 lines 0 points 0
+- > t136 falling I 4,3 4,4 4,5 4,6 after 21 next T level 5 lines 0 points 0
+- > t137 falling I 4,3 4,4 4,5 4,6 after 22 next T level 5 lines 0 points 0
+- > t138 falling I 4,4 4,5 4,6 4,7 after 0 next T level 5 lines 0 points 0
+- > t139 falling I 4,4 4,5 4,6 4,7 after 1 next T level 5 lines 0 points 0
+- > t140 falling I 4,4 4,5 4,6 4,7 after 2 next T level 5 lines 0 points 0
+- > t141 falling I 4,4 4,5 4,6 4,7 after 3 next T level 5 lines 0 points 0
+- > t142 falling I 4,4 4,5 4,6 4,7 after 4 next T level 5 lines 0 points 0
+- > t143 falling I 4,4 4,5 4,6 4,7 after 5 next T level 5 lines 0 points 0
+- > t144 falling I 4,4 4,5 4,6 4,7 after 6 next T level 5 lines 0 points 0
+- > t145 falling I 4,4 4,5 4,6 4,7 after 7 next T level 5 lines 0 points 0
+- > t146 falling I 4,4 4,5 4,6 4,7 after 8 next T level 5 lines 0 points 0
+- > t147 falling I 4,4 4,5 4,6 4,7 after 9 next T level 5 lines 0 points 0
+- > t148 falling I 4,4 4,5 4,6 4,7 after 10 next T level 5 lines 0 points 0
+- > t149 falling I 4,4 4,5 4,6 4,7 after 11 next T level 5 lines 0 points 0
+- > t150 falling I 4,4 4,5 4,6 4,7 after 12 next T level 5 lines 0 points 0
+- > t151 falling I 4,4 4,5 4,6 4,7 after 13 next T level 5 lines 0 points 0
+- > t152 falling I 4,4 4,5 4,6 4,7 after 14 next T level 5 lines 0 points 0
+- > t153 falling I 4,4 4,5 4,6 4,7 after 15 next T level 5 lines 0 points 0
+- > t154 falling I 4,4 4,5 4,6 4,7 after 16 next T level 5 lines 0 points 0
+- > t155 falling I 4,4 4,5 4,6 4,7 after 17 next T level 5 lines 0 points 0
+- > t156 falling I 4,4 4,5 4,6 4,7 after 18 next T level 5 lines 0 points 0
+- > t157 falling I 4,4 4,5 4,6 4,7 after 19 next T level 5 lines 0 points 0
+- > t158 falling I 4,4 4,5 4,6 4,7 after 20 next T level 5 lines 0 points 0
+- > t159 falling I 4,4 4,5 4,6 4,7 after 21 next T level 5 lines 0 points 0
+- > t160 falling I 4,4 4,5 4,6 4,7 after 22 next T level 5 lines 0 points 0
+- > t161 falling I 4,5 4,6 4,7 4,8 after 0 next T level 5 lines 0 points 0
+- > t162 falling I 4,5 4,6 4,7 4,8 after 1 next T level 5 lines 0 points 0
+- > t163 falling I 4,5 4,6 4,7 4,8 after 2 next T level 5 lines 0 points 0
+- > t164 falling I 4,5 4,6 4,7 4,8 after 3 next T level 5 lines 0 points 0
+- > t165 falling I 4,5 4,6 4,7 4,8 after 4 next T level 5 lines 0 points 0
+- > t166 falling I 4,5 4,6 4,7 4,8 after 5 next T level 5 lines 0 points 0
+- > t167 falling I 4,5 4,6 4,7 4,8 after 6 next T level 5 lines 0 points 0
+- > t168 falling I 4,5 4,6 4,7 4,8 after 7 next T level 5 lines 0 points 0
+- > t169 falling I 4,5 4,6 4,7 4,8 after 8 next T level 5 lines 0 points 0
+- > t170 falling I 4,5 4,6 4,7 4,8 after 9 next T level 5 lines 0 points 0
+- > t171 falling I 4,5 4,6 4,7 4,8 after 10 next T level 5 lines 0 points 0
+- > t172 falling I 4,5 4,6 4,7 4,8 after 11 next T level 5 lines 0 points 0
+- > t173 falling I 4,5 4,6 4,7 4,8 after 12 next T level 5 lines 0 points 0
+- > t174 falling I 4,5 4,6 4,7 4,8 after 13 next T level 5 lines 0 points 0
+- > t175 falling I 4,5 4,6 4,7 4,8 after 14 next T level 5 lines 0 points 0
+- > t176 falling I 4,5 4,6 4,7 4,8 after 15 next T level 5 lines 0 points 0
+- > t177 falling I 4,5 4,6 4,7 4,8 after 16 next T level 5 lines 0 points 0
+- > t178 falling I 4,5 4,6 4,7 4,8 after 17 next T level 5 lines 0 points 0
+- > t179 falling I 4,5 4,6 4,7 4,8 after 18 next T level 5 lines 0 points 0
+- > t180 falling I 4,5 4,6 4,7 4,8 after 19 next T level 5 lines 0 points 0
+- > t181 falling I 4,5 4,6 4,7 4,8 after 20 next T level 5 lines 0 points 0
+- > t182 falling I 4,5 4,6 4,7 4,8 after 21 next T level 5 lines 0 points 0
+- > t183 falling I 4,5 4,6 4,7 4,8 after 22 next T level 5 lines 0 points 0
+- > t184 falling I 4,6 4,7 4,8 4,9 after 0 next T level 5 lines 0 points 0
+- > t185 falling I 4,6 4,7 4,8 4,9 after 1 next T level 5 lines 0 points 0
+- > t186 falling I 4,6 4,7 4,8 4,9 after 2 next T level 5 lines 0 points 0
+- > t187 falling I 4,6 4,7 4,8 4,9 after 3 next T level 5 lines 0 points 0
+- > t188 falling I 4,6 4,7 4,8 4,9 after 4 next T level 5 lines 0 points 0
+- > t189 falling I 4,6 4,7 4,8 4,9 after 5 next T level 5 lines 0 points 0
+- > t190 falling I 4,6 4,7 4,8 4,9 after 6 next T level 5 lines 0 points 0
+- > t191 falling I 4,6 4,7 4,8 4,9 after 7 next T level 5 lines 0 points 0
+- > t192 falling I 4,6 4,7 4,8 4,9 after 8 next T level 5 lines 0 points 0
+- > t193 falling I 4,6 4,7 4,8 4,9 after 9 next T level 5 lines 0 points 0
+- > t194 falling I 4,6 4,7 4,8 4,9 after 10 next T level 5 lines 0 points 0
+- > t195 falling I 4,6 4,7 4,8 4,9 after 11 next T level 5 lines 0 points 0
+- > t196 falling I 4,6 4,7 4,8 4,9 after 12 next T level 5 lines 0 points 0
+- > t197 falling I 4,6 4,7 4,8 4,9 after 13 next T level 5 lines 0 points 0
+- > t198 falling I 4,6 4,7 4,8 4,9 after 14 next T level 5 lines 0 points 0
+- > t199 falling I 4,6 4,7 4,8 4,9 after 15 next T level 5 lines 0 points 0
+- > t200 falling I 4,6 4,7 4,8 4,9 after 16 next T level 5 lines 0 points 0
+- > t201 falling I 4,6 4,7 4,8 4,9 after 17 next T level 5 lines 0 points 0
+- > t202 falling I 4,6 4,7 4,8 4,9 after 18 next T level 5 lines 0 points 0
+- > t203 falling I 4,6 4,7 4,8 4,9 after 19 next T level 5 lines 0 points 0
+- > t204 falling I 4,6 4,7 4,8 4,9 after 20 next T level 5 lines 0 points 0
+- > t205 falling I 4,6 4,7 4,8 4,9 after 21 next T level 5 lines 0 points 0
+- > t206 falling I 4,6 4,7 4,8 4,9 after 22 next T level 5 lines 0 points 0
+- > t207 falling I 4,7 4,8 4,9 4,10 after 0 next T level 5 lines 0 points 0
+- > t208 falling I 4,7 4,8 4,9 4,10 after 1 next T level 5 lines 0 points 0
+- > t209 falling I 4,7 4,8 4,9 4,10 after 2 next T level 5 lines 0 points 0
+- > t210 falling I 4,7 4,8 4,9 4,10 after 3 next T level 5 lines 0 points 0
+- > t211 falling I 4,7 4,8 4,9 4,10 after 4 next T level 5 lines 0 points 0
+- > t212 falling I 4,7 4,8 4,9 4,10 after 5 next T level 5 lines 0 points 0
+- > t213 falling I 4,7 4,8 4,9 4,10 after 6 next T level 5 lines 0 points 0
+- > t214 falling I 4,7 4,8 4,9 4,10 after 7 next T level 5 lines 0 points 0
+- > t215 falling I 4,7 4,8 4,9 4,10 after 8 next T level 5 lines 0 points 0
+- > t216 falling I 4,7 4,8 4,9 4,10 after 9 next T level 5 lines 0 points 0
+- > t217 falling I 4,7 4,8 4,9 4,10 after 10 next T level 5 lines 0 points 0
+- > t218 falling I 4,7 4,8 4,9 4,10 after 11 next T level 5 lines 0 points 0
+- > t219 falling I 4,7 4,8 4,9 4,10 after 12 next T level 5 lines 0 points 0
+- > t220 falling I 4,7 4,8 4,9 4,10 after 13 next T level 5 lines 0 points 0
+- > t221 falling I 4,7 4,8 4,9 4,10 after 14 next T level 5 lines 0 points 0
+- > t222 falling I 4,7 4,8 4,9 4,10 after 15 next T level 5 lines 0 points 0
+- > t223 falling I 4,7 4,8 4,9 4,10 after 16 next T level 5 lines 0 points 0
+- > t224 falling I 4,7 4,8 4,9 4,10 after 17 next T level 5 lines 0 points 0
+- > t225 falling I 4,7 4,8 4,9 4,10 after 18 next T level 5 lines 0 points 0
+- > t226 falling I 4,7 4,8 4,9 4,10 after 19 next T level 5 lines 0 points 0
+- > t227 falling I 4,7 4,8 4,9 4,10 after 20 next T level 5 lines 0 points 0
+- > t228 falling I 4,7 4,8 4,9 4,10 after 21 next T level 5 lines 0 points 0
+- > t229 falling I 4,7 4,8 4,9 4,10 after 22 next T level 5 lines 0 points 0
+- > t230 falling I 4,8 4,9 4,10 4,11 after 0 next T level 5 lines 0 points 0
+- > t231 falling I 4,8 4,9 4,10 4,11 after 1 next T level 5 lines 0 points 0
+- > t232 falling I 4,8 4,9 4,10 4,11 after 2 next T level 5 lines 0 points 0
+- > t233 falling I 4,8 4,9 4,10 4,11 after 3 next T level 5 lines 0 points 0
+- > t234 falling I 4,8 4,9 4,10 4,11 after 4 next T level 5 lines 0 points 0
+- > t235 falling I 4,8 4,9 4,10 4,11 after 5 next T level 5 lines 0 points 0
+- > t236 falling I 4,8 4,9 4,10 4,11 after 6 next T level 5 lines 0 points 0
+- > t237 falling I 4,8 4,9 4,10 4,11 after 7 next T level 5 lines 0 points 0
+- > t238 falling I 4,8 4,9 4,10 4,11 after 8 next T level 5 lines 0 points 0
+- > t239 falling I 4,8 4,9 4,10 4,11 after 9 next T level 5 lines 0 points 0
+- > t240 falling I 4,8 4,9 4,10 4,11 after 10 next T level 5 lines 0 points 0
+- > t241 falling I 4,8 4,9 4,10 4,11 after 11 next T level 5 lines 0 points 0
+- > t242 falling I 4,8 4,9 4,10 4,11 after 12 next T level 5 lines 0 points 0
+- > t243 falling I 4,8 4,9 4,10 4,11 after 13 next T level 5 lines 0 points 0
+- > t244 falling I 4,8 4,9 4,10 4,11 after 14 next T level 5 lines 0 points 0
+- > t245 falling I 4,8 4,9 4,10 4,11 after 15 next T level 5 lines 0 points 0
+- > t246 falling I 4,8 4,9 4,10 4,11 after 16 next T level 5 lines 0 points 0
+- > t247 falling I 4,8 4,9 4,10 4,11 after 17 next T level 5 lines 0 points 0
+- > t248 falling I 4,8 4,9 4,10 4,11 after 18 next T level 5 lines 0 points 0
+- > t249 falling I 4,8 4,9 4,10 4,11 after 19 next T level 5 lines 0 points 0
+- > t250 falling I 4,8 4,9 4,10 4,11 after 20 next T level 5 lines 0 points 0
+- > t251 falling I 4,8 4,9 4,10 4,11 after 21 next T level 5 lines 0 points 0
+- > t252 falling I 4,8 4,9 4,10 4,11 after 22 next T level 5 lines 0 points 0
+- > t253 falling I 4,9 4,10 4,11 4,12 after 0 next T level 5 lines 0 points 0
+- > t254 falling I 4,9 4,10 4,11 4,12 after 1 next T level 5 lines 0 points 0
+- > t255 falling I 4,9 4,10 4,11 4,12 after 2 next T level 5 lines 0 points 0
+- > t256 falling I 4,9 4,10 4,11 4,12 after 3 next T level 5 lines 0 points 0
+- > t257 falling I 4,9 4,10 4,11 4,12 after 4 next T level 5 lines 0 points 0
+- > t258 falling I 4,9 4,10 4,11 4,12 after 5 next T level 5 lines 0 points 0
+- > t259 falling I 4,9 4,10 4,11 4,12 after 6 next T level 5 lines 0 points 0
+- > t260 falling I 4,9 4,10 4,11 4,12 after 7 next T level 5 lines 0 points 0
+- > t261 falling I 4,9 4,10 4,11 4,12 after 8 next T level 5 lines 0 points 0
+- > t262 falling I 4,9 4,10 4,11 4,12 after 9 next T level 5 lines 0 points 0
+- > t263 falling I 4,9 4,10 4,11 4,12 after 10 next T level 5 lines 0 points 0
+- > t264 falling I 4,9 4,10 4,11 4,12 after 11 next T level 5 lines 0 points 0
+- > t265 falling I 4,9 4,10 4,11 4,12 after 12 next T level 5 lines 0 points 0
+- > t266 falling I 4,9 4,10 4,11 4,12 after 13 next T level 5 lines 0 points 0
+- > t267 falling I 4,9 4,10 4,11 4,12 after 14 next T level 5 lines 0 points 0
+- > t268 falling I 4,9 4,10 4,11 4,12 after 15 next T level 5 lines 0 points 0
+- > t269 falling I 4,9 4,10 4,11 4,12 after 16 next T level 5 lines 0 points 0
+- > t270 falling I 4,9 4,10 4,11 4,12 after 17 next T level 5 lines 0 points 0
+- > t271 falling I 4,9 4,10 4,11 4,12 after 18 next T level 5 lines 0 points 0
+- > t272 falling I 4,9 4,10 4,11 4,12 after 19 next T level 5 lines 0 points 0
+- > t273 falling I 4,9 4,10 4,11 4,12 after 20 next T level 5 lines 0 points 0
+- > t274 falling I 4,9 4,10 4,11 4,12 after 21 next T level 5 lines 0 points 0
+- > t275 falling I 4,9 4,10 4,11 4,12 after 22 next T level 5 lines 0 points 0
+- > t276 falling I 4,10 4,11 4,12 4,13 after 0 next T level 5 lines 0 points 0
+- > t277 falling I 4,10 4,11 4,12 4,13 after 1 next T level 5 lines 0 points 0
+- > t278 falling I 4,10 4,11 4,12 4,13 after 2 next T level 5 lines 0 points 0
+- > t279 falling I 4,10 4,11 4,12 4,13 after 3 next T level 5 lines 0 points 0
+- > t280 falling I 4,10 4,11 4,12 4,13 after 4 next T level 5 lines 0 points 0
+- > t281 falling I 4,10 4,11 4,12 4,13 after 5 next T level 5 lines 0 points 0
+- > t282 falling I 4,10 4,11 4,12 4,13 after 6 next T level 5 lines 0 points 0
+- > t283 falling I 4,10 4,11 4,12 4,13 after 7 next T level 5 lines 0 points 0
+- > t284 falling I 4,10 4,11 4,12 4,13 after 8 next T level 5 lines 0 points 0
+- > t285 falling I 4,10 4,11 4,12 4,13 after 9 next T level 5 lines 0 points 0
+- > t286 falling I 4,10 4,11 4,12 4,13 after 10 next T level 5 lines 0 points 0
+- > t287 falling I 4,10 4,11 4,12 4,13 after 11 next T level 5 lines 0 points 0
+- > t288 falling I 4,10 4,11 4,12 4,13 after 12 next T level 5 lines 0 points 0
+- > t289 falling I 4,10 4,11 4,12 4,13 after 13 next T level 5 lines 0 points 0
+- > t290 falling I 4,10 4,11 4,12 4,13 after 14 next T level 5 lines 0 points 0
+- > t291 falling I 4,10 4,11 4,12 4,13 after 15 next T level 5 lines 0 points 0
+- > t292 falling I 4,10 4,11 4,12 4,13 after 16 next T level 5 lines 0 points 0
+- > t293 falling I 4,10 4,11 4,12 4,13 after 17 next T level 5 lines 0 points 0
+- > t294 falling I 4,10 4,11 4,12 4,13 after 18 next T level 5 lines 0 points 0
+- > t295 falling I 4,10 4,11 4,12 4,13 after 19 next T level 5 lines 0 points 0
+- > t296 falling I 4,10 4,11 4,12 4,13 after 20 next T level 5 lines 0 points 0
+- > t297 falling I 4,10 4,11 4,12 4,13 after 21 next T level 5 lines 0 points 0
+- > t298 falling I 4,10 4,11 4,12 4,13 after 22 next T level 5 lines 0 points 0
+- > t299 falling I 4,11 4,12 4,13 4,14 after 0 next T level 5 lines 0 points 0
+- > t300 falling I 4,11 4,12 4,13 4,14 after 1 next T level 5 lines 0 points 0
+- > t301 falling I 4,11 4,12 4,13 4,14 after 2 next T level 5 lines 0 points 0
+- > t302 falling I 4,11 4,12 4,13 4,14 after 3 next T level 5 lines 0 points 0
+- > t303 falling I 4,11 4,12 4,13 4,14 after 4 next T level 5 lines 0 points 0
+- > t304 falling I 4,11 4,12 4,13 4,14 after 5 next T level 5 lines 0 points 0
+- > t305 falling I 4,11 4,12 4,13 4,14 after 6 next T level 5 lines 0 points 0
+- > t306 falling I 4,11 4,12 4,13 4,14 after 7 next T level 5 lines 0 points 0
+- > t307 falling I 4,11 4,12 4,13 4,14 after 8 next T level 5 lines 0 points 0
+- > t308 falling I 4,11 4,12 4,13 4,14 after 9 next T level 5 lines 0 points 0
+- > t309 falling I 4,11 4,12 4,13 4,14 after 10 next T level 5 lines 0 points 0
+- > t310 falling I 4,11 4,12 4,13 4,14 after 11 next T level 5 lines 0 points 0
+- > t311 falling I 4,11 4,12 4,13 4,14 after 12 next T level 5 lines 0 points 0
+- > t312 falling I 4,11 4,12 4,13 4,14 after 13 next T level 5 lines 0 points 0
+- > t313 falling I 4,11 4,12 4,13 4,14 after 14 next T level 5 lines 0 points 0
+- > t314 falling I 4,11 4,12 4,13 4,14 after 15 next T level 5 lines 0 points 0
+- > t315 falling I 4,11 4,12 4,13 4,14 after 16 next T level 5 lines 0 points 0
+- > t316 falling I 4,11 4,12 4,13 4,14 after 17 next T level 5 lines 0 points 0
+- > t317 falling I 4,11 4,12 4,13 4,14 after 18 next T level 5 lines 0 points 0
+- > t318 falling I 4,11 4,12 4,13 4,14 after 19 next T level 5 lines 0 points 0
+- > t319 falling I 4,11 4,12 4,13 4,14 after 20 next T level 5 lines 0 points 0
+- > t320 falling I 4,11 4,12 4,13 4,14 after 21 next T level 5 lines 0 points 0
+- > t321 falling I 4,11 4,12 4,13 4,14 after 22 next T level 5 lines 0 points 0
+- > t322 falling I 4,12 4,13 4,14 4,15 after 0 next T level 5 lines 0 points 0
+- > t323 falling I 4,12 4,13 4,14 4,15 after 1 next T level 5 lines 0 points 0
+- > t324 falling I 4,12 4,13 4,14 4,15 after 2 next T level 5 lines 0 points 0
+- > t325 falling I 4,12 4,13 4,14 4,15 after 3 next T level 5 lines 0 points 0
+- > t326 falling I 4,12 4,13 4,14 4,15 after 4 next T level 5 lines 0 points 0
+- > t327 falling I 4,12 4,13 4,14 4,15 after 5 next T level 5 lines 0 points 0
+- > t328 falling I 4,12 4,13 4,14 4,15 after 6 next T level 5 lines 0 points 0
+- > t329 falling I 4,12 4,13 4,14 4,15 after 7 next T level 5 lines 0 points 0
+- > t330 falling I 4,12 4,13 4,14 4,15 after 8 next T level 5 lines 0 points 0
+- > t331 falling I 4,12 4,13 4,14 4,15 after 9 next T level 5 lines 0 points 0
+- > t332 falling I 4,12 4,13 4,14 4,15 after 10 next T level 5 lines 0 points 0
+- > t333 falling I 4,12 4,13 4,14 4,15 after 11 next T level 5 lines 0 points 0
+- > t334 falling I 4,12 4,13 4,14 4,15 after 12 next T level 5 lines 0 points 0
+- > t335 falling I 4,12 4,13 4,14 4,15 after 13 next T level 5 lines 0 points 0
+- > t336 falling I 4,12 4,13 4,14 4,15 after 14 next T level 5 lines 0 points 0
+- > t337 falling I 4,12 4,13 4,14 4,15 after 15 next T level 5 lines 0 points 0
+- > t338 falling I 4,12 4,13 4,14 4,15 after 16 next T level 5 lines 0 points 0
+- > t339 falling I 4,12 4,13 4,14 4,15 after 17 next T level 5 lines 0 points 0
+- > t340 falling I 4,12 4,13 4,14 4,15 after 18 next T level 5 lines 0 points 0
+- > t341 falling I 4,12 4,13 4,14 4,15 after 19 next T level 5 lines 0 points 0
+- > t342 falling I 4,12 4,13 4,14 4,15 after 20 next T level 5 lines 0 points 0
+- > t343 falling I 4,12 4,13 4,14 4,15 after 21 next T level 5 lines 0 points 0
+- > t344 falling I 4,12 4,13 4,14 4,15 after 22 next T level 5 lines 0 points 0
+- > t345 falling I 4,13 4,14 4,15 4,16 after 0 next T level 5 lines 0 points 0
+- > t346 falling I 4,13 4,14 4,15 4,16 after 1 next T level 5 lines 0 points 0
+- > t347 falling I 4,13 4,14 4,15 4,16 after 2 next T level 5 lines 0 points 0
+- > t348 falling I 4,13 4,14 4,15 4,16 after 3 next T level 5 lines 0 points 0
+- > t349 falling I 4,13 4,14 4,15 4,16 after 4 next T level 5 lines 0 points 0
+- > t350 falling I 4,13 4,14 4,15 4,16 after 5 next T level 5 lines 0 points 0
+- > t351 falling I 4,13 4,14 4,15 4,16 after 6 next T level 5 lines 0 points 0
+- > t352 falling I 4,13 4,14 4,15 4,16 after 7 next T level 5 lines 0 points 0
+- > t353 falling I 4,13 4,14 4,15 4,16 after 8 next T level 5 lines 0 points 0
+- > t354 falling I 4,13 4,14 4,15 4,16 after 9 next T level 5 lines 0 points 0
+- > t355 falling I 4,13 4,14 4,15 4,16 after 10 next T level 5 lines 0 points 0
+- > t356 falling I 4,13 4,14 4,15 4,16 after 11 next T level 5 lines 0 points 0
+- > t357 falling I 4,13 4,14 4,15 4,16 after 12 next T level 5 lines 0 points 0
+- > t358 falling I 4,13 4,14 4,15 4,16 after 13 next T level 5 lines 0 points 0
+- > t359 falling I 4,13 4,14 4,15 4,16 after 14 next T level 5 lines 0 points 0
+- > t360 falling I 4,13 4,14 4,15 4,16 after 15 next T level 5 lines 0 points 0
+- > t361 falling I 4,13 4,14 4,15 4,16 after 16 next T level 5 lines 0 points 0
+- > t362 falling I 4,13 4,14 4,15 4,16 after 17 next T level 5 lines 0 points 0
+- > t363 falling I 4,13 4,14 4,15 4,16 after 18 next T level 5 lines 0 points 0
+- > t364 falling I 4,13 4,14 4,15 4,16 after 19 next T level 5 lines 0 points 0
+- > t365 falling I 4,13 4,14 4,15 4,16 after 20 next T level 5 lines 0 points 0
+- > t366 falling I 4,13 4,14 4,15 4,16 after 21 next T level 5 lines 0 points 0
+- > t367 falling I 4,13 4,14 4,15 4,16 after 22 next T level 5 lines 0 points 0
+- > t368 falling I 4,14 4,15 4,16 4,17 after 0 next T level 5 lines 0 points 0
+- > t369 falling I 4,14 4,15 4,16 4,17 after 1 next T level 5 lines 0 points 0
+- > t370 falling I 4,14 4,15 4,16 4,17 after 2 next T level 5 lines 0 points 0
+- > t371 falling I 4,14 4,15 4,16 4,17 after 3 next T level 5 lines 0 points 0
+- > t372 falling I 4,14 4,15 4,16 4,17 after 4 next T level 5 lines 0 points 0
+- > t373 falling I 4,14 4,15 4,16 4,17 after 5 next T level 5 lines 0 points 0
+- > t374 falling I 4,14 4,15 4,16 4,17 after 6 next T level 5 lines 0 points 0
+- > t375 falling I 4,14 4,15 4,16 4,17 after 7 next T level 5 lines 0 points 0
+- > t376 falling I 4,14 4,15 4,16 4,17 after 8 next T level 5 lines 0 points 0
+- > t377 falling I 4,14 4,15 4,16 4,17 after 9 next T level 5 lines 0 points 0
+- > t378 falling I 4,14 4,15 4,16 4,17 after 10 next T level 5 lines 0 points 0
+- > t379 falling I 4,14 4,15 4,16 4,17 after 11 next T level 5 lines 0 points 0
+- > t380 falling I 4,14 4,15 4,16 4,17 after 12 next T level 5 lines 0 points 0
+- > t381 falling I 4,14 4,15 4,16 4,17 after 13 next T level 5 lines 0 points 0
+- > t382 falling I 4,14 4,15 4,16 4,17 after 14 next T level 5 lines 0 points 0
+- > t383 falling I 4,14 4,15 4,16 4,17 after 15 next T level 5 lines 0 points 0
+- > t384 falling I 4,14 4,15 4,16 4,17 after 16 next T level 5 lines 0 points 0
+- > t385 falling I 4,14 4,15 4,16 4,17 after 17 next T level 5 lines 0 points 0
+- > t386 falling I 4,14 4,15 4,16 4,17 after 18 next T level 5 lines 0 points 0
+- > t387 falling I 4,14 4,15 4,16 4,17 after 19 next T level 5 lines 0 points 0
+- > t388 falling I 4,14 4,15 4,16 4,17 after 20 next T level 5 lines 0 points 0
+- > t389 falling I 4,14 4,15 4,16 4,17 after 21 next T level 5 lines 0 points 0
+- > t390 falling I 4,14 4,15 4,16 4,17 after 22 next T level 5 lines 0 points 0
+- > t391 falling I 4,15 4,16 4,17 4,18 after 0 next T level 5 lines 0 points 0
+- > t392 falling I 4,15 4,16 4,17 4,18 after 1 next T level 5 lines 0 points 0
+- > t393 falling I 4,15 4,16 4,17 4,18 after 2 next T level 5 lines 0 points 0
+- > t394 falling I 4,15 4,16 4,17 4,18 after 3 next T level 5 lines 0 points 0
+- > t395 falling I 4,15 4,16 4,17 4,18 after 4 next T level 5 lines 0 points 0
+- > t396 falling I 4,15 4,16 4,17 4,18 after 5 next T level 5 lines 0 points 0
+- > t397 falling I 4,15 4,16 4,17 4,18 after 6 next T level 5 lines 0 points 0
+- > t398 falling I 4,15 4,16 4,17 4,18 after 7 next T level 5 lines 0 points 0
+- > t399 falling I 4,15 4,16 4,17 4,18 after 8 next T level 5 lines 0 points 0
+- > t400 falling I 4,15 4,16 4,17 4,18 after 9 next T level 5 lines 0 points 0
+- > t401 falling I 4,15 4,16 4,17 4,18 after 10 next T level 5 lines 0 points 0
+- > t402 falling I 4,15 4,16 4,17 4,18 after 11 next T level 5 lines 0 points 0
+- > t403 falling I 4,15 4,16 4,17 4,18 after 12 next T level 5 lines 0 points 0
+- > t404 falling I 4,15 4,16 4,17 4,18 after 13 next T level 5 lines 0 points 0
+- > t405 falling I 4,15 4,16 4,17 4,18 after 14 next T level 5 lines 0 points 0
+- > t406 falling I 4,15 4,16 4,17 4,18 after 15 next T level 5 lines 0 points 0
+- > t407 falling I 4,15 4,16 4,17 4,18 after 16 next T level 5 lines 0 points 0
+- > t408 falling I 4,15 4,16 4,17 4,18 after 17 next T level 5 lines 0 points 0
+- > t409 falling I 4,15 4,16 4,17 4,18 after 18 next T level 5 lines 0 points 0
+- > t410 falling I 4,15 4,16 4,17 4,18 after 19 next T level 5 lines 0 points 0
+- > t411 falling I 4,15 4,16 4,17 4,18 after 20 next T level 5 lines 0 points 0
+- > t412 falling I 4,15 4,16 4,17 4,18 after 21 next T level 5 lines 0 points 0
+- > t413 falling I 4,15 4,16 4,17 4,18 after 22 next T level 5 lines 0 points 0
+- > t414 falling I 4,16 4,17 4,18 4,19 after 0 next T level 5 lines 0 points 0
+- > t415 falling I 4,16 4,17 4,18 4,19 after 1 next T level 5 lines 0 points 0
+- > t416 falling I 4,16 4,17 4,18 4,19 after 2 next T level 5 lines 0 points 0
+- > t417 falling I 4,16 4,17 4,18 4,19 after 3 next T level 5 lines 0 points 0
+- > t418 falling I 4,16 4,17 4,18 4,19 after 4 next T level 5 lines 0 points 0
+- > t419 falling I 4,16 4,17 4,18 4,19 after 5 next T level 5 lines 0 points 0
+- > t420 falling I 4,16 4,17 4,18 4,19 after 6 next T level 5 lines 0 points 0
+- > t421 falling I 4,16 4,17 4,18 4,19 after 7 next T level 5 lines 0 points 0
+- > t422 falling I 4,16 4,17 4,18 4,19 after 8 next T level 5 lines 0 points 0
+- > t423 falling I 4,16 4,17 4,18 4,19 after 9 next T level 5 lines 0 points 0
+- > t424 falling I 4,16 4,17 4,18 4,19 after 10 next T level 5 lines 0 points 0
+- > t425 falling I 4,16 4,17 4,18 4,19 after 11 next T level 5 lines 0 points 0
+- > t426 falling I 4,16 4,17 4,18 4,19 after 12 next T level 5 lines 0 points 0
+- > t427 falling I 4,16 4,17 4,18 4,19 after 13 next T level 5 lines 0 points 0
+- > t428 falling I 4,16 4,17 4,18 4,19 after 14 next T level 5 lines 0 points 0
+- > t429 falling I 4,16 4,17 4,18 4,19 after 15 next T level 5 lines 0 points 0
+- > t430 falling I 4,16 4,17 4,18 4,19 after 16 next T level 5 lines 0 points 0
+- > t431 falling I 4,16 4,17 4,18 4,19 after 17 next T level 5 lines 0 points 0
+- > t432 falling I 4,16 4,17 4,18 4,19 after 18 next T level 5 lines 0 points 0
+- > t433 falling I 4,16 4,17 4,18 4,19 after 19 next T level 5 lines 0 points 0
+- > t434 falling I 4,16 4,17 4,18 4,19 after 20 next T level 5 lines 0 points 0
+- > t435 falling I 4,16 4,17 4,18 4,19 after 21 next T level 5 lines 0 points 0
+- > t436 falling I 4,16 4,17 4,18 4,19 after 22 next T level 5 lines 0 points 0
+- > t437 entry 10 next T level 5 lines 0 points 0 | locked I 4,16 4,17 4,18 4,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....I.....
+  ....I.....
+  ....I.....
+  ....I.....
+- > t438 entry 9 next T level 5 lines 0 points 0
+- > t439 entry 8 next T level 5 lines 0 points 0
+- > t440 entry 7 next T level 5 lines 0 points 0
+- > t441 entry 6 next T level 5 lines 0 points 0
+- > t442 entry 5 next T level 5 lines 0 points 0
+- > t443 entry 4 next T level 5 lines 0 points 0
+- > t444 entry 3 next T level 5 lines 0 points 0
+- > t445 entry 2 next T level 5 lines 0 points 0
+- > t446 entry 1 next T level 5 lines 0 points 0
+- > t447 falling T 4,0 5,0 6,0 5,1 after 0 next J level 5 lines 0 points 0
++A +RIGHT > t448 falling T 6,-1 5,0 6,0 6,1 after 1 next J level 5 lines 0 points 0 | rotated T 6,-1 5,0 6,0 6,1 CLOCKWISE
+-A -RIGHT > t449 falling T 6,-1 5,0 6,0 6,1 after 2 next J level 5 lines 0 points 0
++RIGHT > t450 falling T 7,-1 6,0 7,0 7,1 after 3 next J level 5 lines 0 points 0
+-RIGHT > t451 falling T 7,-1 6,0 7,0 7,1 after 4 next J level 5 lines 0 points 0
+- > t452 falling T 7,-1 6,0 7,0 7,1 after 5 next J level 5 lines 0 points 0
+- > t453 falling T 7,-1 6,0 7,0 7,1 after 6 next J level 5 lines 0 points 0
+- > t454 falling T 7,-1 6,0 7,0 7,1 after 7 next J level 5 lines 0 points 0
+- > t455 falling T 7,-1 6,0 7,0 7,1 after 8 next J level 5 lines 0 points 0
+- > t456 falling T 7,-1 6,0 7,0 7,1 after 9 next J level 5 lines 0 points 0
+- > t457 falling T 7,-1 6,0 7,0 7,1 after 10 next J level 5 lines 0 points 0
+- > t458 falling T 7,-1 6,0 7,0 7,1 after 11 next J level 5 lines 0 points 0
+- > t459 falling T 7,-1 6,0 7,0 7,1 after 12 next J level 5 lines 0 points 0
+- > t460 falling T 7,-1 6,0 7,0 7,1 after 13 next J level 5 lines 0 points 0
+- > t461 falling T 7,-1 6,0 7,0 7,1 after 14 next J level 5 lines 0 points 0
+- > t462 falling T 7,-1 6,0 7,0 7,1 after 15 next J level 5 lines 0 points 0
+- > t463 falling T 7,-1 6,0 7,0 7,1 after 16 next J level 5 lines 0 points 0
+- > t464 falling T 7,-1 6,0 7,0 7,1 after 17 next J level 5 lines 0 points 0
+- > t465 falling T 7,-1 6,0 7,0 7,1 after 18 next J level 5 lines 0 points 0
+- > t466 falling T 7,-1 6,0 7,0 7,1 after 19 next J level 5 lines 0 points 0
+- > t467 falling T 7,-1 6,0 7,0 7,1 after 20 next J level 5 lines 0 points 0
+- > t468 falling T 7,-1 6,0 7,0 7,1 after 21 next J level 5 lines 0 points 0
+- > t469 falling T 7,-1 6,0 7,0 7,1 after 22 next J level 5 lines 0 points 0
+- > t470 falling T 7,0 6,1 7,1 7,2 after 0 next J level 5 lines 0 points 0
+- > t471 falling T 7,0 6,1 7,1 7,2 after 1 next J level 5 lines 0 points 0
+- > t472 falling T 7,0 6,1 7,1 7,2 after 2 next J level 5 lines 0 points 0
+- > t473 falling T 7,0 6,1 7,1 7,2 after 3 next J level 5 lines 0 points 0
+- > t474 falling T 7,0 6,1 7,1 7,2 after 4 next J level 5 lines 0 points 0
+- > t475 falling T 7,0 6,1 7,1 7,2 after 5 next J level 5 lines 0 points 0
+- > t476 falling T 7,0 6,1 7,1 7,2 after 6 next J level 5 lines 0 points 0
+- > t477 falling T 7,0 6,1 7,1 7,2 after 7 next J level 5 lines 0 points 0
+- > t478 falling T 7,0 6,1 7,1 7,2 after 8 next J level 5 lines 0 points 0
+- > t479 falling T 7,0 6,1 7,1 7,2 after 9 next J level 5 lines 0 points 0
+- > t480 falling T 7,0 6,1 7,1 7,2 after 10 next J level 5 lines 0 points 0
+- > t481 falling T 7,0 6,1 7,1 7,2 after 11 next J level 5 lines 0 points 0
+- > t482 falling T 7,0 6,1 7,1 7,2 after 12 next J level 5 lines 0 points 0
+- > t483 falling T 7,0 6,1 7,1 7,2 after 13 next J level 5 lines 0 points 0
+- > t484 falling T 7,0 6,1 7,1 7,2 after 14 next J level 5 lines 0 points 0
+- > t485 falling T 7,0 6,1 7,1 7,2 after 15 next J level 5 lines 0 points 0
+- > t486 falling T 7,0 6,1 7,1 7,2 after 16 next J level 5 lines 0 points 0
+- > t487 falling T 7,0 6,1 7,1 7,2 after 17 next J level 5 lines 0 points 0
+- > t488 falling T 7,0 6,1 7,1 7,2 after 18 next J level 5 lines 0 points 0
+- > t489 falling T 7,0 6,1 7,1 7,2 after 19 next J level 5 lines 0 points 0
+- > t490 falling T 7,0 6,1 7,1 7,2 after 20 next J level 5 lines 0 points 0
+- > t491 falling T 7,0 6,1 7,1 7,2 after 21 next J level 5 lines 0 points 0
+- > t492 falling T 7,0 6,1 7,1 7,2 after 22 next J level 5 lines 0 points 0
+- > t493 falling T 7,1 6,2 7,2 7,3 after 0 next J level 5 lines 0 points 0
+- > t494 falling T 7,1 6,2 7,2 7,3 after 1 next J level 5 lines 0 points 0
+- > t495 falling T 7,1 6,2 7,2 7,3 after 2 next J level 5 lines 0 points 0
+- > t496 falling T 7,1 6,2 7,2 7,3 after 3 next J level 5 lines 0 points 0
+- > t497 falling T 7,1 6,2 7,2 7,3 after 4 next J level 5 lines 0 points 0
+- > t498 falling T 7,1 6,2 7,2 7,3 after 5 next J level 5 lines 0 points 0
+- > t499 falling T 7,1 6,2 7,2 7,3 after 6 next J level 5 lines 0 points 0
+- > t500 falling T 7,1 6,2 7,2 7,3 after 7 next J level 5 lines 0 points 0
+- > t501 falling T 7,1 6,2 7,2 7,3 after 8 next J level 5 lines 0 points 0
+- > t502 falling T 7,1 6,2 7,2 7,3 after 9 next J level 5 lines 0 points 0
+- > t503 falling T 7,1 6,2 7,2 7,3 after 10 next J level 5 lines 0 points 0
+- > t504 falling T 7,1 6,2 7,2 7,3 after 11 next J level 5 lines 0 points 0
+- > t505 falling T 7,1 6,2 7,2 7,3 after 12 next J level 5 lines 0 points 0
+- > t506 falling T 7,1 6,2 7,2 7,3 after 13 next J level 5 lines 0 points 0
+- > t507 falling T 7,1 6,2 7,2 7,3 after 14 next J level 5 lines 0 points 0
+- > t508 falling T 7,1 6,2 7,2 7,3 after 15 next J level 5 lines 0 points 0
+- > t509 falling T 7,1 6,2 7,2 7,3 after 16 next J level 5 lines 0 points 0
+- > t510 falling T 7,1 6,2 7,2 7,3 after 17 next J level 5 lines 0 points 0
+- > t511 falling T 7,1 6,2 7,2 7,3 after 18 next J level 5 lines 0 points 0
+- > t512 falling T 7,1 6,2 7,2 7,3 after 19 next J level 5 lines 0 points 0
+- > t513 falling T 7,1 6,2 7,2 7,3 after 20 next J level 5 lines 0 points 0
+- > t514 falling T 7,1 6,2 7,2 7,3 after 21 next J level 5 lines 0 points 0
+- > t515 falling T 7,1 6,2 7,2 7,3 after 22 next J level 5 lines 0 points 0
+- > t516 falling T 7,2 6,3 7,3 7,4 after 0 next J level 5 lines 0 points 0
+- > t517 falling T 7,2 6,3 7,3 7,4 after 1 next J level 5 lines 0 points 0
+- > t518 falling T 7,2 6,3 7,3 7,4 after 2 next J level 5 lines 0 points 0
+- > t519 falling T 7,2 6,3 7,3 7,4 after 3 next J level 5 lines 0 points 0
+- > t520 falling T 7,2 6,3 7,3 7,4 after 4 next J level 5 lines 0 points 0
+- > t521 falling T 7,2 6,3 7,3 7,4 after 5 next J level 5 lines 0 points 0
+- > t522 falling T 7,2 6,3 7,3 7,4 after 6 next J level 5 lines 0 points 0
+- > t523 falling T 7,2 6,3 7,3 7,4 after 7 next J level 5 lines 0 points 0
+- > t524 falling T 7,2 6,3 7,3 7,4 after 8 next J level 5 lines 0 points 0
+- > t525 falling T 7,2 6,3 7,3 7,4 after 9 next J level 5 lines 0 points 0
+- > t526 falling T 7,2 6,3 7,3 7,4 after 10 next J level 5 lines 0 points 0
+- > t527 falling T 7,2 6,3 7,3 7,4 after 11 next J level 5 lines 0 points 0
+- > t528 falling T 7,2 6,3 7,3 7,4 after 12 next J level 5 lines 0 points 0
+- > t529 falling T 7,2 6,3 7,3 7,4 after 13 next J level 5 lines 0 points 0
+- > t530 falling T 7,2 6,3 7,3 7,4 after 14 next J level 5 lines 0 points 0
+- > t531 falling T 7,2 6,3 7,3 7,4 after 15 next J level 5 lines 0 points 0
+- > t532 falling T 7,2 6,3 7,3 7,4 after 16 next J level 5 lines 0 points 0
+- > t533 falling T 7,2 6,3 7,3 7,4 after 17 next J level 5 lines 0 points 0
+- > t534 falling T 7,2 6,3 7,3 7,4 after 18 next J level 5 lines 0 points 0
+- > t535 falling T 7,2 6,3 7,3 7,4 after 19 next J level 5 lines 0 points 0
+- > t536 falling T 7,2 6,3 7,3 7,4 after 20 next J level 5 lines 0 points 0
+- > t537 falling T 7,2 6,3 7,3 7,4 after 21 next J level 5 lines 0 points 0
+- > t538 falling T 7,2 6,3 7,3 7,4 after 22 next J level 5 lines 0 points 0
+- > t539 falling T 7,3 6,4 7,4 7,5 after 0 next J level 5 lines 0 points 0
+- > t540 falling T 7,3 6,4 7,4 7,5 after 1 next J level 5 lines 0 points 0
+- > t541 falling T 7,3 6,4 7,4 7,5 after 2 next J level 5 lines 0 points 0
+- > t542 falling T 7,3 6,4 7,4 7,5 after 3 next J level 5 lines 0 points 0
+- > t543 falling T 7,3 6,4 7,4 7,5 after 4 next J level 5 lines 0 points 0
+- > t544 falling T 7,3 6,4 7,4 7,5 after 5 next J level 5 lines 0 points 0
+- > t545 falling T 7,3 6,4 7,4 7,5 after 6 next J level 5 lines 0 points 0
+- > t546 falling T 7,3 6,4 7,4 7,5 after 7 next J level 5 lines 0 points 0
+- > t547 falling T 7,3 6,4 7,4 7,5 after 8 next J level 5 lines 0 points 0
+- > t548 falling T 7,3 6,4 7,4 7,5 after 9 next J level 5 lines 0 points 0
+- > t549 falling T 7,3 6,4 7,4 7,5 after 10 next J level 5 lines 0 points 0
+- > t550 falling T 7,3 6,4 7,4 7,5 after 11 next J level 5 lines 0 points 0
+- > t551 falling T 7,3 6,4 7,4 7,5 after 12 next J level 5 lines 0 points 0
+- > t552 falling T 7,3 6,4 7,4 7,5 after 13 next J level 5 lines 0 points 0
+- > t553 falling T 7,3 6,4 7,4 7,5 after 14 next J level 5 lines 0 points 0
+- > t554 falling T 7,3 6,4 7,4 7,5 after 15 next J level 5 lines 0 points 0
+- > t555 falling T 7,3 6,4 7,4 7,5 after 16 next J level 5 lines 0 points 0
+- > t556 falling T 7,3 6,4 7,4 7,5 after 17 next J level 5 lines 0 points 0
+- > t557 falling T 7,3 6,4 7,4 7,5 after 18 next J level 5 lines 0 points 0
+- > t558 falling T 7,3 6,4 7,4 7,5 after 19 next J level 5 lines 0 points 0
+- > t559 falling T 7,3 6,4 7,4 7,5 after 20 next J level 5 lines 0 points 0
+- > t560 falling T 7,3 6,4 7,4 7,5 after 21 next J level 5 lines 0 points 0
+- > t561 falling T 7,3 6,4 7,4 7,5 after 22 next J level 5 lines 0 points 0
+- > t562 falling T 7,4 6,5 7,5 7,6 after 0 next J level 5 lines 0 points 0
+- > t563 falling T 7,4 6,5 7,5 7,6 after 1 next J level 5 lines 0 points 0
+- > t564 falling T 7,4 6,5 7,5 7,6 after 2 next J level 5 lines 0 points 0
+- > t565 falling T 7,4 6,5 7,5 7,6 after 3 next J level 5 lines 0 points 0
+- > t566 falling T 7,4 6,5 7,5 7,6 after 4 next J level 5 lines 0 points 0
+- > t567 falling T 7,4 6,5 7,5 7,6 after 5 next J level 5 lines 0 points 0
+- > t568 falling T 7,4 6,5 7,5 7,6 after 6 next J level 5 lines 0 points 0
+- > t569 falling T 7,4 6,5 7,5 7,6 after 7 next J level 5 lines 0 points 0
+- > t570 falling T 7,4 6,5 7,5 7,6 after 8 next J level 5 lines 0 points 0
+- > t571 falling T 7,4 6,5 7,5 7,6 after 9 next J level 5 lines 0 points 0
+- > t572 falling T 7,4 6,5 7,5 7,6 after 10 next J level 5 lines 0 points 0
+- > t573 falling T 7,4 6,5 7,5 7,6 after 11 next J level 5 lines 0 points 0
+- > t574 falling T 7,4 6,5 7,5 7,6 after 12 next J level 5 lines 0 points 0
+- > t575 falling T 7,4 6,5 7,5 7,6 after 13 next J level 5 lines 0 points 0
+- > t576 falling T 7,4 6,5 7,5 7,6 after 14 next J level 5 lines 0 points 0
+- > t577 falling T 7,4 6,5 7,5 7,6 after 15 next J level 5 lines 0 points 0
+- > t578 falling T 7,4 6,5 7,5 7,6 after 16 next J level 5 lines 0 points 0
+- > t579 falling T 7,4 6,5 7,5 7,6 after 17 next J level 5 lines 0 points 0
+- > t580 falling T 7,4 6,5 7,5 7,6 after 18 next J level 5 lines 0 points 0
+- > t581 falling T 7,4 6,5 7,5 7,6 after 19 next J level 5 lines 0 points 0
+- > t582 falling T 7,4 6,5 7,5 7,6 after 20 next J level 5 lines 0 points 0
+- > t583 falling T 7,4 6,5 7,5 7,6 after 21 next J level 5 lines 0 points 0
+- > t584 falling T 7,4 6,5 7,5 7,6 after 22 next J level 5 lines 0 points 0
+- > t585 falling T 7,5 6,6 7,6 7,7 after 0 next J level 5 lines 0 points 0
+- > t586 falling T 7,5 6,6 7,6 7,7 after 1 next J level 5 lines 0 points 0
+- > t587 falling T 7,5 6,6 7,6 7,7 after 2 next J level 5 lines 0 points 0
+- > t588 falling T 7,5 6,6 7,6 7,7 after 3 next J level 5 lines 0 points 0
+- > t589 falling T 7,5 6,6 7,6 7,7 after 4 next J level 5 lines 0 points 0
+- > t590 falling T 7,5 6,6 7,6 7,7 after 5 next J level 5 lines 0 points 0
+- > t591 falling T 7,5 6,6 7,6 7,7 after 6 next J level 5 lines 0 points 0
+- > t592 falling T 7,5 6,6 7,6 7,7 after 7 next J level 5 lines 0 points 0
+- > t593 falling T 7,5 6,6 7,6 7,7 after 8 next J level 5 lines 0 points 0
+- > t594 falling T 7,5 6,6 7,6 7,7 after 9 next J level 5 lines 0 points 0
+- > t595 falling T 7,5 6,6 7,6 7,7 after 10 next J level 5 lines 0 points 0
+- > t596 falling T 7,5 6,6 7,6 7,7 after 11 next J level 5 lines 0 points 0
+- > t597 falling T 7,5 6,6 7,6 7,7 after 12 next J level 5 lines 0 points 0
+- > t598 falling T 7,5 6,6 7,6 7,7 after 13 next J level 5 lines 0 points 0
+- > t599 falling T 7,5 6,6 7,6 7,7 after 14 next J level 5 lines 0 points 0
+- > t600 falling T 7,5 6,6 7,6 7,7 after 15 next J level 5 lines 0 points 0
+- > t601 falling T 7,5 6,6 7,6 7,7 after 16 next J level 5 lines 0 points 0
+- > t602 falling T 7,5 6,6 7,6 7,7 after 17 next J level 5 lines 0 points 0
+- > t603 falling T 7,5 6,6 7,6 7,7 after 18 next J level 5 lines 0 points 0
+- > t604 falling T 7,5 6,6 7,6 7,7 after 19 next J level 5 lines 0 points 0
+- > t605 falling T 7,5 6,6 7,6 7,7 after 20 next J level 5 lines 0 points 0
+- > t606 falling T 7,5 6,6 7,6 7,7 after 21 next J level 5 lines 0 points 0
+- > t607 falling T 7,5 6,6 7,6 7,7 after 22 next J level 5 lines 0 points 0
+- > t608 falling T 7,6 6,7 7,7 7,8 after 0 next J level 5 lines 0 points 0
+- > t609 falling T 7,6 6,7 7,7 7,8 after 1 next J level 5 lines 0 points 0
+- > t610 falling T 7,6 6,7 7,7 7,8 after 2 next J level 5 lines 0 points 0
+- > t611 falling T 7,6 6,7 7,7 7,8 after 3 next J level 5 lines 0 points 0
+- > t612 falling T 7,6 6,7 7,7 7,8 after 4 next J level 5 lines 0 points 0
+- > t613 falling T 7,6 6,7 7,7 7,8 after 5 next J level 5 lines 0 points 0
+- > t614 falling T 7,6 6,7 7,7 7,8 after 6 next J level 5 lines 0 points 0
+- > t615 falling T 7,6 6,7 7,7 7,8 after 7 next J level 5 lines 0 points 0
+- > t616 falling T 7,6 6,7 7,7 7,8 after 8 next J level 5 lines 0 points 0
+- > t617 falling T 7,6 6,7 7,7 7,8 after 9 next J level 5 lines 0 points 0
+- > t618 falling T 7,6 6,7 7,7 7,8 after 10 next J level 5 lines 0 points 0
+- > t619 falling T 7,6 6,7 7,7 7,8 after 11 next J level 5 lines 0 points 0
+- > t620 falling T 7,6 6,7 7,7 7,8 after 12 next J level 5 lines 0 points 0
+- > t621 falling T 7,6 6,7 7,7 7,8 after 13 next J level 5 lines 0 points 0
+- > t622 falling T 7,6 6,7 7,7 7,8 after 14 next J level 5 lines 0 points 0
+- > t623 falling T 7,6 6,7 7,7 7,8 after 15 next J level 5 lines 0 points 0
+- > t624 falling T 7,6 6,7 7,7 7,8 after 16 next J level 5 lines 0 points 0
+- > t625 falling T 7,6 6,7 7,7 7,8 after 17 next J level 5 lines 0 points 0
+- > t626 falling T 7,6 6,7 7,7 7,8 after 18 next J level 5 lines 0 points 0
+- > t627 falling T 7,6 6,7 7,7 7,8 after 19 next J level 5 lines 0 points 0
+- > t628 falling T 7,6 6,7 7,7 7,8 after 20 next J level 5 lines 0 points 0
+- > t629 falling T 7,6 6,7 7,7 7,8 after 21 next J level 5 lines 0 points 0
+- > t630 falling T 7,6 6,7 7,7 7,8 after 22 next J level 5 lines 0 points 0
+- > t631 falling T 7,7 6,8 7,8 7,9 after 0 next J level 5 lines 0 points 0
+- > t632 falling T 7,7 6,8 7,8 7,9 after 1 next J level 5 lines 0 points 0
+- > t633 falling T 7,7 6,8 7,8 7,9 after 2 next J level 5 lines 0 points 0
+- > t634 falling T 7,7 6,8 7,8 7,9 after 3 next J level 5 lines 0 points 0
+- > t635 falling T 7,7 6,8 7,8 7,9 after 4 next J level 5 lines 0 points 0
+- > t636 falling T 7,7 6,8 7,8 7,9 after 5 next J level 5 lines 0 points 0
+- > t637 falling T 7,7 6,8 7,8 7,9 after 6 next J level 5 lines 0 points 0
+- > t638 falling T 7,7 6,8 7,8 7,9 after 7 next J level 5 lines 0 points 0
+- > t639 falling T 7,7 6,8 7,8 7,9 after 8 next J level 5 lines 0 points 0
+- > t640 falling T 7,7 6,8 7,8 7,9 after 9 next J level 5 lines 0 points 0
+- > t641 falling T 7,7 6,8 7,8 7,9 after 10 next J level 5 lines 0 points 0
+- > t642 falling T 7,7 6,8 7,8 7,9 after 11 next J level 5 lines 0 points 0
+- > t643 falling T 7,7 6,8 7,8 7,9 after 12 next J level 5 lines 0 points 0
+- > t644 falling T 7,7 6,8 7,8 7,9 after 13 next J level 5 lines 0 points 0
+- > t645 falling T 7,7 6,8 7,8 7,9 after 14 next J level 5 lines 0 points 0
+- > t646 falling T 7,7 6,8 7,8 7,9 after 15 next J level 5 lines 0 points 0
+- > t647 falling T 7,7 6,8 7,8 7,9 after 16 next J level 5 lines 0 points 0
+- > t648 falling T 7,7 6,8 7,8 7,9 after 17 next J level 5 lines 0 points 0
+- > t649 falling T 7,7 6,8 7,8 7,9 after 18 next J level 5 lines 0 points 0
+- > t650 falling T 7,7 6,8 7,8 7,9 after 19 next J level 5 lines 0 points 0
+- > t651 falling T 7,7 6,8 7,8 7,9 after 20 next J level 5 lines 0 points 0
+- > t652 falling T 7,7 6,8 7,8 7,9 after 21 next J level 5 lines 0 points 0
+- > t653 falling T 7,7 6,8 7,8 7,9 after 22 next J level 5 lines 0 points 0
+- > t654 falling T 7,8 6,9 7,9 7,10 after 0 next J level 5 lines 0 points 0
+- > t655 falling T 7,8 6,9 7,9 7,10 after 1 next J level 5 lines 0 points 0
+- > t656 falling T 7,8 6,9 7,9 7,10 after 2 next J level 5 lines 0 points 0
+- > t657 falling T 7,8 6,9 7,9 7,10 after 3 next J level 5 lines 0 points 0
+- > t658 falling T 7,8 6,9 7,9 7,10 after 4 next J level 5 lines 0 points 0
+- > t659 falling T 7,8 6,9 7,9 7,10 after 5 next J level 5 lines 0 points 0
+- > t660 falling T 7,8 6,9 7,9 7,10 after 6 next J level 5 lines 0 points 0
+- > t661 falling T 7,8 6,9 7,9 7,10 after 7 next J level 5 lines 0 points 0
+- > t662 falling T 7,8 6,9 7,9 7,10 after 8 next J level 5 lines 0 points 0
+- > t663 falling T 7,8 6,9 7,9 7,10 after 9 next J level 5 lines 0 points 0
+- > t664 falling T 7,8 6,9 7,9 7,10 after 10 next J level 5 lines 0 points 0
+- > t665 falling T 7,8 6,9 7,9 7,10 after 11 next J level 5 lines 0 points 0
+- > t666 falling T 7,8 6,9 7,9 7,10 after 12 next J level 5 lines 0 points 0
+- > t667 falling T 7,8 6,9 7,9 7,10 after 13 next J level 5 lines 0 points 0
+- > t668 falling T 7,8 6,9 7,9 7,10 after 14 next J level 5 lines 0 points 0
+- > t669 falling T 7,8 6,9 7,9 7,10 after 15 next J level 5 lines 0 points 0
+- > t670 falling T 7,8 6,9 7,9 7,10 after 16 next J level 5 lines 0 points 0
+- > t671 falling T 7,8 6,9 7,9 7,10 after 17 next J level 5 lines 0 points 0
+- > t672 falling T 7,8 6,9 7,9 7,10 after 18 next J level 5 lines 0 points 0
+- > t673 falling T 7,8 6,9 7,9 7,10 after 19 next J level 5 lines 0 points 0
+- > t674 falling T 7,8 6,9 7,9 7,10 after 20 next J level 5 lines 0 points 0
+- > t675 falling T 7,8 6,9 7,9 7,10 after 21 next J level 5 lines 0 points 0
+- > t676 falling T 7,8 6,9 7,9 7,10 after 22 next J level 5 lines 0 points 0
+- > t677 falling T 7,9 6,10 7,10 7,11 after 0 next J level 5 lines 0 points 0
+- > t678 falling T 7,9 6,10 7,10 7,11 after 1 next J level 5 lines 0 points 0
+- > t679 falling T 7,9 6,10 7,10 7,11 after 2 next J level 5 lines 0 points 0
+- > t680 falling T 7,9 6,10 7,10 7,11 after 3 next J level 5 lines 0 points 0
+- > t681 falling T 7,9 6,10 7,10 7,11 after 4 next J level 5 lines 0 points 0
+- > t682 falling T 7,9 6,10 7,10 7,11 after 5 next J level 5 lines 0 points 0
+- > t683 falling T 7,9 6,10 7,10 7,11 after 6 next J level 5 lines 0 points 0
+- > t684 falling T 7,9 6,10 7,10 7,11 after 7 next J level 5 lines 0 points 0
+- > t685 falling T 7,9 6,10 7,10 7,11 after 8 next J level 5 lines 0 points 0
+- > t686 falling T 7,9 6,10 7,10 7,11 after 9 next J level 5 lines 0 points 0
+- > t687 falling T 7,9 6,10 7,10 7,11 after 10 next J level 5 lines 0 points 0
+- > t688 falling T 7,9 6,10 7,10 7,11 after 11 next J level 5 lines 0 points 0
+- > t689 falling T 7,9 6,10 7,10 7,11 after 12 next J level 5 lines 0 points 0
+- > t690 falling T 7,9 6,10 7,10 7,11 after 13 next J level 5 lines 0 points 0
+- > t691 falling T 7,9 6,10 7,10 7,11 after 14 next J level 5 lines 0 points 0
+- > t692 falling T 7,9 6,10 7,10 7,11 after 15 next J level 5 lines 0 points 0
+- > t693 falling T 7,9 6,10 7,10 7,11 after 16 next J level 5 lines 0 points 0
+- > t694 falling T 7,9 6,10 7,10 7,11 after 17 next J level 5 lines 0 points 0
+- > t695 falling T 7,9 6,10 7,10 7,11 after 18 next J level 5 lines 0 points 0
+- > t696 falling T 7,9 6,10 7,10 7,11 after 19 next J level 5 lines 0 points 0
+- > t697 falling T 7,9 6,10 7,10 7,11 after 20 next J level 5 lines 0 points 0
+- > t698 falling T 7,9 6,10 7,10 7,11 after 21 next J level 5 lines 0 points 0
+- > t699 falling T 7,9 6,10 7,10 7,11 after 22 next J level 5 lines 0 points 0
+- > t700 falling T 7,10 6,11 7,11 7,12 after 0 next J level 5 lines 0 points 0
+- > t701 falling T 7,10 6,11 7,11 7,12 after 1 next J level 5 lines 0 points 0
+- > t702 falling T 7,10 6,11 7,11 7,12 after 2 next J level 5 lines 0 points 0
+- > t703 falling T 7,10 6,11 7,11 7,12 after 3 next J level 5 lines 0 points 0
+- > t704 falling T 7,10 6,11 7,11 7,12 after 4 next J level 5 lines 0 points 0
+- > t705 falling T 7,10 6,11 7,11 7,12 after 5 next J level 5 lines 0 points 0
+- > t706 falling T 7,10 6,11 7,11 7,12 after 6 next J level 5 lines 0 points 0
+- > t707 falling T 7,10 6,11 7,11 7,12 after 7 next J level 5 lines 0 points 0
+- > t708 falling T 7,10 6,11 7,11 7,12 after 8 next J level 5 lines 0 points 0
+- > t709 falling T 7,10 6,11 7,11 7,12 after 9 next J level 5 lines 0 points 0
+- > t710 falling T 7,10 6,11 7,11 7,12 after 10 next J level 5 lines 0 points 0
+- > t711 falling T 7,10 6,11 7,11 7,12 after 11 next J level 5 lines 0 points 0
+- > t712 falling T 7,10 6,11 7,11 7,12 after 12 next J level 5 lines 0 points 0
+- > t713 falling T 7,10 6,11 7,11 7,12 after 13 next J level 5 lines 0 points 0
+- > t714 falling T 7,10 6,11 7,11 7,12 after 14 next J level 5 lines 0 points 0
+- > t715 falling T 7,10 6,11 7,11 7,12 after 15 next J level 5 lines 0 points 0
+- > t716 falling T 7,10 6,11 7,11 7,12 after 16 next J level 5 lines 0 points 0
+- > t717 falling T 7,10 6,11 7,11 7,12 after 17 next J level 5 lines 0 points 0
+- > t718 falling T 7,10 6,11 7,11 7,12 after 18 next J level 5 lines 0 points 0
+- > t719 falling T 7,10 6,11 7,11 7,12 after 19 next J level 5 lines 0 points 0
+- > t720 falling T 7,10 6,11 7,11 7,12 after 20 next J level 5 lines 0 points 0
+- > t721 falling T 7,10 6,11 7,11 7,12 after 21 next J level 5 lines 0 points 0
+- > t722 falling T 7,10 6,11 7,11 7,12 after 22 next J level 5 lines 0 points 0
+- > t723 falling T 7,11 6,12 7,12 7,13 after 0 next J level 5 lines 0 points 0
+- > t724 falling T 7,11 6,12 7,12 7,13 after 1 next J level 5 lines 0 points 0
+- > t725 falling T 7,11 6,12 7,12 7,13 after 2 next J level 5 lines 0 points 0
+- > t726 falling T 7,11 6,12 7,12 7,13 after 3 next J level 5 lines 0 points 0
+- > t727 falling T 7,11 6,12 7,12 7,13 after 4 next J level 5 lines 0 points 0
+- > t728 falling T 7,11 6,12 7,12 7,13 after 5 next J level 5 lines 0 points 0
+- > t729 falling T 7,11 6,12 7,12 7,13 after 6 next J level 5 lines 0 points 0
+- > t730 falling T 7,11 6,12 7,12 7,13 after 7 next J level 5 lines 0 points 0
+- > t731 falling T 7,11 6,12 7,12 7,13 after 8 next J level 5 lines 0 points 0
+- > t732 falling T 7,11 6,12 7,12 7,13 after 9 next J level 5 lines 0 points 0
+- > t733 falling T 7,11 6,12 7,12 7,13 after 10 next J level 5 lines 0 points 0
+- > t734 falling T 7,11 6,12 7,12 7,13 after 11 next J level 5 lines 0 points 0
+- > t735 falling T 7,11 6,12 7,12 7,13 after 12 next J level 5 lines 0 points 0
+- > t736 falling T 7,11 6,12 7,12 7,13 after 13 next J level 5 lines 0 points 0
+- > t737 falling T 7,11 6,12 7,12 7,13 after 14 next J level 5 lines 0 points 0
+- > t738 falling T 7,11 6,12 7,12 7,13 after 15 next J level 5 lines 0 points 0
+- > t739 falling T 7,11 6,12 7,12 7,13 after 16 next J level 5 lines 0 points 0
+- > t740 falling T 7,11 6,12 7,12 7,13 after 17 next J level 5 lines 0 points 0
+- > t741 falling T 7,11 6,12 7,12 7,13 after 18 next J level 5 lines 0 points 0
+- > t742 falling T 7,11 6,12 7,12 7,13 after 19 next J level 5 lines 0 points 0
+- > t743 falling T 7,11 6,12 7,12 7,13 after 20 next J level 5 lines 0 points 0
+- > t744 falling T 7,11 6,12 7,12 7,13 after 21 next J level 5 lines 0 points 0
+- > t745 falling T 7,11 6,12 7,12 7,13 after 22 next J level 5 lines 0 points 0
+- > t746 falling T 7,12 6,13 7,13 7,14 after 0 next J level 5 lines 0 points 0
+- > t747 falling T 7,12 6,13 7,13 7,14 after 1 next J level 5 lines 0 points 0
+- > t748 falling T 7,12 6,13 7,13 7,14 after 2 next J level 5 lines 0 points 0
+- > t749 falling T 7,12 6,13 7,13 7,14 after 3 next J level 5 lines 0 points 0
+- > t750 falling T 7,12 6,13 7,13 7,14 after 4 next J level 5 lines 0 points 0
+- > t751 falling T 7,12 6,13 7,13 7,14 after 5 next J level 5 lines 0 points 0
+- > t752 falling T 7,12 6,13 7,13 7,14 after 6 next J level 5 lines 0 points 0
+- > t753 falling T 7,12 6,13 7,13 7,14 after 7 next J level 5 lines 0 points 0
+- > t754 falling T 7,12 6,13 7,13 7,14 after 8 next J level 5 lines 0 points 0
+- > t755 falling T 7,12 6,13 7,13 7,14 after 9 next J level 5 lines 0 points 0
+- > t756 falling T 7,12 6,13 7,13 7,14 after 10 next J level 5 lines 0 points 0
+- > t757 falling T 7,12 6,13 7,13 7,14 after 11 next J level 5 lines 0 points 0
+- > t758 falling T 7,12 6,13 7,13 7,14 after 12 next J level 5 lines 0 points 0
+- > t759 falling T 7,12 6,13 7,13 7,14 after 13 next J level 5 lines 0 points 0
+- > t760 falling T 7,12 6,13 7,13 7,14 after 14 next J level 5 lines 0 points 0
+- > t761 falling T 7,12 6,13 7,13 7,14 after 15 next J level 5 lines 0 points 0
+- > t762 falling T 7,12 6,13 7,13 7,14 after 16 next J level 5 lines 0 points 0
+- > t763 falling T 7,12 6,13 7,13 7,14 after 17 next J level 5 lines 0 points 0
+- > t764 falling T 7,12 6,13 7,13 7,14 after 18 next J level 5 lines 0 points 0
+- > t765 falling T 7,12 6,13 7,13 7,14 after 19 next J level 5 lines 0 points 0
+- > t766 falling T 7,12 6,13 7,13 7,14 after 20 next J level 5 lines 0 points 0
+- > t767 falling T 7,12 6,13 7,13 7,14 after 21 next J level 5 lines 0 points 0
+- > t768 falling T 7,12 6,13 7,13 7,14 after 22 next J level 5 lines 0 points 0
+- > t769 falling T 7,13 6,14 7,14 7,15 after 0 next J level 5 lines 0 points 0
+- > t770 falling T 7,13 6,14 7,14 7,15 after 1 next J level 5 lines 0 points 0
+- > t771 falling T 7,13 6,14 7,14 7,15 after 2 next J level 5 lines 0 points 0
+- > t772 falling T 7,13 6,14 7,14 7,15 after 3 next J level 5 lines 0 points 0
+- > t773 falling T 7,13 6,14 7,14 7,15 after 4 next J level 5 lines 0 points 0
+- > t774 falling T 7,13 6,14 7,14 7,15 after 5 next J level 5 lines 0 points 0
+- > t775 falling T 7,13 6,14 7,14 7,15 after 6 next J level 5 lines 0 points 0
+- > t776 falling T 7,13 6,14 7,14 7,15 after 7 next J level 5 lines 0 points 0
+- > t777 falling T 7,13 6,14 7,14 7,15 after 8 next J level 5 lines 0 points 0
+- > t778 falling T 7,13 6,14 7,14 7,15 after 9 next J level 5 lines 0 points 0
+- > t779 falling T 7,13 6,14 7,14 7,15 after 10 next J level 5 lines 0 points 0
+- > t780 falling T 7,13 6,14 7,14 7,15 after 11 next J level 5 lines 0 points 0
+- > t781 falling T 7,13 6,14 7,14 7,15 after 12 next J level 5 lines 0 points 0
+- > t782 falling T 7,13 6,14 7,14 7,15 after 13 next J level 5 lines 0 points 0
+- > t783 falling T 7,13 6,14 7,14 7,15 after 14 next J level 5 lines 0 points 0
+- > t784 falling T 7,13 6,14 7,14 7,15 after 15 next J level 5 lines 0 points 0
+- > t785 falling T 7,13 6,14 7,14 7,15 after 16 next J level 5 lines 0 points 0
+- > t786 falling T 7,13 6,14 7,14 7,15 after 17 next J level 5 lines 0 points 0
+- > t787 falling T 7,13 6,14 7,14 7,15 after 18 next J level 5 lines 0 points 0
+- > t788 falling T 7,13 6,14 7,14 7,15 after 19 next J level 5 lines 0 points 0
+- > t789 falling T 7,13 6,14 7,14 7,15 after 20 next J level 5 lines 0 points 0
+- > t790 falling T 7,13 6,14 7,14 7,15 after 21 next J level 5 lines 0 points 0
+- > t791 falling T 7,13 6,14 7,14 7,15 after 22 next J level 5 lines 0 points 0
+- > t792 falling T 7,14 6,15 7,15 7,16 after 0 next J level 5 lines 0 points 0
+- > t793 falling T 7,14 6,15 7,15 7,16 after 1 next J level 5 lines 0 points 0
+- > t794 falling T 7,14 6,15 7,15 7,16 after 2 next J level 5 lines 0 points 0
+- > t795 falling T 7,14 6,15 7,15 7,16 after 3 next J level 5 lines 0 points 0
+- > t796 falling T 7,14 6,15 7,15 7,16 after 4 next J level 5 lines 0 points 0
+- > t797 falling T 7,14 6,15 7,15 7,16 after 5 next J level 5 lines 0 points 0
+- > t798 falling T 7,14 6,15 7,15 7,16 after 6 next J level 5 lines 0 points 0
+- > t799 falling T 7,14 6,15 7,15 7,16 after 7 next J level 5 lines 0 points 0
+- > t800 falling T 7,14 6,15 7,15 7,16 after 8 next J level 5 lines 0 points 0
+- > t801 falling T 7,14 6,15 7,15 7,16 after 9 next J level 5 lines 0 points 0
+- > t802 falling T 7,14 6,15 7,15 7,16 after 10 next J level 5 lines 0 points 0
+- > t803 falling T 7,14 6,15 7,15 7,16 after 11 next J level 5 lines 0 points 0
+- > t804 falling T 7,14 6,15 7,15 7,16 after 12 next J level 5 lines 0 points 0
+- > t805 falling T 7,14 6,15 7,15 7,16 after 13 next J level 5 lines 0 points 0
+- > t806 falling T 7,14 6,15 7,15 7,16 after 14 next J level 5 lines 0 points 0
+- > t807 falling T 7,14 6,15 7,15 7,16 after 15 next J level 5 lines 0 points 0
+- > t808 falling T 7,14 6,15 7,15 7,16 after 16 next J level 5 lines 0 points 0
+- > t809 falling T 7,14 6,15 7,15 7,16 after 17 next J level 5 lines 0 points 0
+- > t810 falling T 7,14 6,15 7,15 7,16 after 18 next J level 5 lines 0 points 0
+- > t811 falling T 7,14 6,15 7,15 7,16 after 19 next J level 5 lines 0 points 0
+- > t812 falling T 7,14 6,15 7,15 7,16 after 20 next J level 5 lines 0 points 0
+- > t813 falling T 7,14 6,15 7,15 7,16 after 21 next J level 5 lines 0 points 0
+- > t814 falling T 7,14 6,15 7,15 7,16 after 22 next J level 5 lines 0 points 0
+- > t815 falling T 7,15 6,16 7,16 7,17 after 0 next J level 5 lines 0 points 0
+- > t816 falling T 7,15 6,16 7,16 7,17 after 1 next J level 5 lines 0 points 0
+- > t817 falling T 7,15 6,16 7,16 7,17 after 2 next J level 5 lines 0 points 0
+- > t818 falling T 7,15 6,16 7,16 7,17 after 3 next J level 5 lines 0 points 0
+- > t819 falling T 7,15 6,16 7,16 7,17 after 4 next J level 5 lines 0 points 0
+- > t820 falling T 7,15 6,16 7,16 7,17 after 5 next J level 5 lines 0 points 0
+- > t821 falling T 7,15 6,16 7,16 7,17 after 6 next J level 5 lines 0 points 0
+- > t822 falling T 7,15 6,16 7,16 7,17 after 7 next J level 5 lines 0 points 0
+- > t823 falling T 7,15 6,16 7,16 7,17 after 8 next J level 5 lines 0 points 0
+- > t824 falling T 7,15 6,16 7,16 7,17 after 9 next J level 5 lines 0 points 0
+- > t825 falling T 7,15 6,16 7,16 7,17 after 10 next J level 5 lines 0 points 0
+- > t826 falling T 7,15 6,16 7,16 7,17 after 11 next J level 5 lines 0 points 0
+- > t827 falling T 7,15 6,16 7,16 7,17 after 12 next J level 5 lines 0 points 0
+- > t828 falling T 7,15 6,16 7,16 7,17 after 13 next J level 5 lines 0 points 0
+- > t829 falling T 7,15 6,16 7,16 7,17 after 14 next J level 5 lines 0 points 0
+- > t830 falling T 7,15 6,16 7,16 7,17 after 15 next J level 5 lines 0 points 0
+- > t831 falling T 7,15 6,16 7,16 7,17 after 16 next J level 5 lines 0 points 0
+- > t832 falling T 7,15 6,16 7,16 7,17 after 17 next J level 5 lines 0 points 0
+- > t833 falling T 7,15 6,16 7,16 7,17 after 18 next J level 5 lines 0 points 0
+- > t834 falling T 7,15 6,16 7,16 7,17 after 19 next J level 5 lines 0 points 0
+- > t835 falling T 7,15 6,16 7,16 7,17 after 20 next J level 5 lines 0 points 0
+- > t836 falling T 7,15 6,16 7,16 7,17 after 21 next J level 5 lines 0 points 0
+- > t837 falling T 7,15 6,16 7,16 7,17 after 22 next J level 5 lines 0 points 0
+- > t838 falling T 7,16 6,17 7,17 7,18 after 0 next J level 5 lines 0 points 0
+- > t839 falling T 7,16 6,17 7,17 7,18 after 1 next J level 5 lines 0 points 0
+- > t840 falling T 7,16 6,17 7,17 7,18 after 2 next J level 5 lines 0 points 0
+- > t841 falling T 7,16 6,17 7,17 7,18 after 3 next J level 5 lines 0 points 0
+- > t842 falling T 7,16 6,17 7,17 7,18 after 4 next J level 5 lines 0 points 0
+- > t843 falling T 7,16 6,17 7,17 7,18 after 5 next J level 5 lines 0 points 0
+- > t844 falling T 7,16 6,17 7,17 7,18 after 6 next J level 5 lines 0 points 0
+- > t845 falling T 7,16 6,17 7,17 7,18 after 7 next J level 5 lines 0 points 0
+- > t846 falling T 7,16 6,17 7,17 7,18 after 8 next J level 5 lines 0 points 0
+- > t847 falling T 7,16 6,17 7,17 7,18 after 9 next J level 5 lines 0 points 0
+- > t848 falling T 7,16 6,17 7,17 7,18 after 10 next J level 5 lines 0 points 0
+- > t849 falling T 7,16 6,17 7,17 7,18 after 11 next J level 5 lines 0 points 0
+- > t850 falling T 7,16 6,17 7,17 7,18 after 12 next J level 5 lines 0 points 0
+- > t851 falling T 7,16 6,17 7,17 7,18 after 13 next J level 5 lines 0 points 0
+- > t852 falling T 7,16 6,17 7,17 7,18 after 14 next J level 5 lines 0 points 0
+- > t853 falling T 7,16 6,17 7,17 7,18 after 15 next J level 5 lines 0 points 0
+- > t854 falling T 7,16 6,17 7,17 7,18 after 16 next J level 5 lines 0 points 0
+- > t855 falling T 7,16 6,17 7,17 7,18 after 17 next J level 5 lines 0 points 0
+- > t856 falling T 7,16 6,17 7,17 7,18 after 18 next J level 5 lines 0 points 0
+- > t857 falling T 7,16 6,17 7,17 7,18 after 19 next J level 5 lines 0 points 0
+- > t858 falling T 7,16 6,17 7,17 7,18 after 20 next J level 5 lines 0 points 0
+- > t859 falling T 7,16 6,17 7,17 7,18 after 21 next J level 5 lines 0 points 0
+- > t860 falling T 7,16 6,17 7,17 7,18 after 22 next J level 5 lines 0 points 0
+- > t861 falling T 7,17 6,18 7,18 7,19 after 0 next J level 5 lines 0 points 0
+- > t862 falling T 7,17 6,18 7,18 7,19 after 1 next J level 5 lines 0 points 0
+- > t863 falling T 7,17 6,18 7,18 7,19 after 2 next J level 5 lines 0 points 0
+- > t864 falling T 7,17 6,18 7,18 7,19 after 3 next J level 5 lines 0 points 0
+- > t865 falling T 7,17 6,18 7,18 7,19 after 4 next J level 5 lines 0 points 0
+- > t866 falling T 7,17 6,18 7,18 7,19 after 5 next J level 5 lines 0 points 0
+- > t867 falling T 7,17 6,18 7,18 7,19 after 6 next J level 5 lines 0 points 0
+- > t868 falling T 7,17 6,18 7,18 7,19 after 7 next J level 5 lines 0 points 0
+- > t869 falling T 7,17 6,18 7,18 7,19 after 8 next J level 5 lines 0 points 0
+- > t870 falling T 7,17 6,18 7,18 7,19 after 9 next J level 5 lines 0 points 0
+- > t871 falling T 7,17 6,18 7,18 7,19 after 10 next J level 5 lines 0 points 0
+- > t872 falling T 7,17 6,18 7,18 7,19 after 11 next J level 5 lines 0 points 0
+- > t873 falling T 7,17 6,18 7,18 7,19 after 12 next J level 5 lines 0 points 0
+- > t874 falling T 7,17 6,18 7,18 7,19 after 13 next J level 5 lines 0 points 0
+- > t875 falling T 7,17 6,18 7,18 7,19 after 14 next J level 5 lines 0 points 0
+- > t876 falling T 7,17 6,18 7,18 7,19 after 15 next J level 5 lines 0 points 0
+- > t877 falling T 7,17 6,18 7,18 7,19 after 16 next J level 5 lines 0 points 0
+- > t878 falling T 7,17 6,18 7,18 7,19 after 17 next J level 5 lines 0 points 0
+- > t879 falling T 7,17 6,18 7,18 7,19 after 18 next J level 5 lines 0 points 0
+- > t880 falling T 7,17 6,18 7,18 7,19 after 19 next J level 5 lines 0 points 0
+- > t881 falling T 7,17 6,18 7,18 7,19 after 20 next J level 5 lines 0 points 0
+- > t882 falling T 7,17 6,18 7,18 7,19 after 21 next J level 5 lines 0 points 0
+- > t883 falling T 7,17 6,18 7,18 7,19 after 22 next J level 5 lines 0 points 0
+- > t884 entry 10 next J level 5 lines 0 points 0 | locked T 7,17 6,18 7,18 7,19
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....I.....
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t885 entry 9 next J level 5 lines 0 points 0
+- > t886 entry 8 next J level 5 lines 0 points 0
+- > t887 entry 7 next J level 5 lines 0 points 0
+- > t888 entry 6 next J level 5 lines 0 points 0
+- > t889 entry 5 next J level 5 lines 0 points 0
+- > t890 entry 4 next J level 5 lines 0 points 0
+- > t891 entry 3 next J level 5 lines 0 points 0
+- > t892 entry 2 next J level 5 lines 0 points 0
+- > t893 entry 1 next J level 5 lines 0 points 0
+- > t894 falling J 4,0 5,0 6,0 6,1 after 0 next S level 5 lines 0 points 0
++A +LEFT > t895 falling J 4,-1 4,0 3,1 4,1 after 1 next S level 5 lines 0 points 0 | rotated J 4,-1 4,0 3,1 4,1 CLOCKWISE
+-A -LEFT +DOWN > t896 falling J 4,-1 4,0 3,1 4,1 after 2 next S level 5 lines 0 points 0
+- > t897 falling J 4,-1 4,0 3,1 4,1 after 3 next S level 5 lines 0 points 0
+- > t898 falling J 4,0 4,1 3,2 4,2 after 0 soft 1 next S level 5 lines 0 points 0
+- > t899 falling J 4,0 4,1 3,2 4,2 after 1 soft 1 next S level 5 lines 0 points 0
+- > t900 falling J 4,1 4,2 3,3 4,3 after 0 soft 2 next S level 5 lines 0 points 0
+- > t901 falling J 4,1 4,2 3,3 4,3 after 1 soft 2 next S level 5 lines 0 points 0
+- > t902 falling J 4,2 4,3 3,4 4,4 after 0 soft 3 next S level 5 lines 0 points 0
+- > t903 falling J 4,2 4,3 3,4 4,4 after 1 soft 3 next S level 5 lines 0 points 0
+- > t904 falling J 4,3 4,4 3,5 4,5 after 0 soft 4 next S level 5 lines 0 points 0
+- > t905 falling J 4,3 4,4 3,5 4,5 after 1 soft 4 next S level 5 lines 0 points 0
+- > t906 falling J 4,4 4,5 3,6 4,6 after 0 soft 5 next S level 5 lines 0 points 0
+- > t907 falling J 4,4 4,5 3,6 4,6 after 1 soft 5 next S level 5 lines 0 points 0
+- > t908 falling J 4,5 4,6 3,7 4,7 after 0 soft 6 next S level 5 lines 0 points 0
+- > t909 falling J 4,5 4,6 3,7 4,7 after 1 soft 6 next S level 5 lines 0 points 0
+- > t910 falling J 4,6 4,7 3,8 4,8 after 0 soft 7 next S level 5 lines 0 points 0
+- > t911 falling J 4,6 4,7 3,8 4,8 after 1 soft 7 next S level 5 lines 0 points 0
+- > t912 falling J 4,7 4,8 3,9 4,9 after 0 soft 8 next S level 5 lines 0 points 0
+- > t913 falling J 4,7 4,8 3,9 4,9 after 1 soft 8 next S level 5 lines 0 points 0
+- > t914 falling J 4,8 4,9 3,10 4,10 after 0 soft 9 next S level 5 lines 0 points 0
+- > t915 falling J 4,8 4,9 3,10 4,10 after 1 soft 9 next S level 5 lines 0 points 0
+- > t916 falling J 4,9 4,10 3,11 4,11 after 0 soft 10 next S level 5 lines 0 points 0
+- > t917 falling J 4,9 4,10 3,11 4,11 after 1 soft 10 next S level 5 lines 0 points 0
+- > t918 falling J 4,10 4,11 3,12 4,12 after 0 soft 11 next S level 5 lines 0 points 0
+- > t919 falling J 4,10 4,11 3,12 4,12 after 1 soft 11 next S level 5 lines 0 points 0
+- > t920 falling J 4,11 4,12 3,13 4,13 after 0 soft 12 next S level 5 lines 0 points 0
+- > t921 falling J 4,11 4,12 3,13 4,13 after 1 soft 12 next S level 5 lines 0 points 0
+- > t922 falling J 4,12 4,13 3,14 4,14 after 0 soft 13 next S level 5 lines 0 points 0
+- > t923 falling J 4,12 4,13 3,14 4,14 after 1 soft 13 next S level 5 lines 0 points 0
+- > t924 falling J 4,13 4,14 3,15 4,15 after 0 soft 14 next S level 5 lines 0 points 0
+- > t925 falling J 4,13 4,14 3,15 4,15 after 1 soft 14 next S level 5 lines 0 points 0
+- > t926 entry 12 next S level 5 lines 0 points 14 | locked J 4,13 4,14 3,15 4,15
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ....J.....
+  ....J.....
+  ...JJ.....
+  ....I.....
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t927 entry 11 next S level 5 lines 0 points 14
+- > t928 entry 10 next S level 5 lines 0 points 14
+- > t929 entry 9 next S level 5 lines 0 points 14
+- > t930 entry 8 next S level 5 lines 0 points 14
+- > t931 entry 7 next S level 5 lines 0 points 14
+- > t932 entry 6 next S level 5 lines 0 points 14
+- > t933 entry 5 next S level 5 lines 0 points 14
+- > t934 entry 4 next S level 5 lines 0 points 14
+- > t935 entry 3 next S level 5 lines 0 points 14
+- > t936 entry 2 next S level 5 lines 0 points 14
+- > t937 entry 1 next S level 5 lines 0 points 14
+- > t938 falling S 5,0 6,0 4,1 5,1 after 0 next Z level 5 lines 0 points 14
+-DOWN +LEFT > t939 falling S 4,0 5,0 3,1 4,1 after 1 next Z level 5 lines 0 points 14
+-LEFT > t940 falling S 4,0 5,0 3,1 4,1 after 2 next Z level 5 lines 0 points 14
++LEFT > t941 falling S 3,0 4,0 2,1 3,1 after 3 next Z level 5 lines 0 points 14
+-LEFT > t942 falling S 3,0 4,0 2,1 3,1 after 4 next Z level 5 lines 0 points 14
+- > t943 falling S 3,0 4,0 2,1 3,1 after 5 next Z level 5 lines 0 points 14
+- > t944 falling S 3,0 4,0 2,1 3,1 after 6 next Z level 5 lines 0 points 14
+- > t945 falling S 3,0 4,0 2,1 3,1 after 7 next Z level 5 lines 0 points 14
+- > t946 falling S 3,0 4,0 2,1 3,1 after 8 next Z level 5 lines 0 points 14
+- > t947 falling S 3,0 4,0 2,1 3,1 after 9 next Z level 5 lines 0 points 14
+- > t948 falling S 3,0 4,0 2,1 3,1 after 10 next Z level 5 lines 0 points 14
+- > t949 falling S 3,0 4,0 2,1 3,1 after 11 next Z level 5 lines 0 points 14
+- > t950 falling S 3,0 4,0 2,1 3,1 after 12 next Z level 5 lines 0 points 14
+- > t951 falling S 3,0 4,0 2,1 3,1 after 13 next Z level 5 lines 0 points 14
+- > t952 falling S 3,0 4,0 2,1 3,1 after 14 next Z level 5 lines 0 points 14
+- > t953 falling S 3,0 4,0 2,1 3,1 after 15 next Z level 5 lines 0 points 14
+- > t954 falling S 3,0 4,0 2,1 3,1 after 16 next Z level 5 lines 0 points 14
+- > t955 falling S 3,0 4,0 2,1 3,1 after 17 next Z level 5 lines 0 points 14
+- > t956 falling S 3,0 4,0 2,1 3,1 after 18 next Z level 5 lines 0 points 14
+- > t957 falling S 3,0 4,0 2,1 3,1 after 19 next Z level 5 lines 0 points 14
+- > t958 falling S 3,0 4,0 2,1 3,1 after 20 next Z level 5 lines 0 points 14
+- > t959 falling S 3,0 4,0 2,1 3,1 after 21 next Z level 5 lines 0 points 14
+- > t960 falling S 3,0 4,0 2,1 3,1 after 22 next Z level 5 lines 0 points 14
+- > t961 falling S 3,1 4,1 2,2 3,2 after 0 next Z level 5 lines 0 points 14
+- > t962 falling S 3,1 4,1 2,2 3,2 after 1 next Z level 5 lines 0 points 14
+- > t963 falling S 3,1 4,1 2,2 3,2 after 2 next Z level 5 lines 0 points 14
+- > t964 falling S 3,1 4,1 2,2 3,2 after 3 next Z level 5 lines 0 points 14
+- > t965 falling S 3,1 4,1 2,2 3,2 after 4 next Z level 5 lines 0 points 14
+- > t966 falling S 3,1 4,1 2,2 3,2 after 5 next Z level 5 lines 0 points 14
+- > t967 falling S 3,1 4,1 2,2 3,2 after 6 next Z level 5 lines 0 points 14
+- > t968 falling S 3,1 4,1 2,2 3,2 after 7 next Z level 5 lines 0 points 14
+- > t969 falling S 3,1 4,1 2,2 3,2 after 8 next Z level 5 lines 0 points 14
+- > t970 falling S 3,1 4,1 2,2 3,2 after 9 next Z level 5 lines 0 points 14
+- > t971 falling S 3,1 4,1 2,2 3,2 after 10 next Z level 5 lines 0 points 14
+- > t972 falling S 3,1 4,1 2,2 3,2 after 11 next Z level 5 lines 0 points 14
+- > t973 falling S 3,1 4,1 2,2 3,2 after 12 next Z level 5 lines 0 points 14
+- > t974 falling S 3,1 4,1 2,2 3,2 after 13 next Z level 5 lines 0 points 14
+- > t975 falling S 3,1 4,1 2,2 3,2 after 14 next Z level 5 lines 0 points 14
+- > t976 falling S 3,1 4,1 2,2 3,2 after 15 next Z level 5 lines 0 points 14
+- > t977 falling S 3,1 4,1 2,2 3,2 after 16 next Z level 5 lines 0 points 14
+- > t978 falling S 3,1 4,1 2,2 3,2 after 17 next Z level 5 lines 0 points 14
+- > t979 falling S 3,1 4,1 2,2 3,2 after 18 next Z level 5 lines 0 points 14
+- > t980 falling S 3,1 4,1 2,2 3,2 after 19 next Z level 5 lines 0 points 14
+- > t981 falling S 3,1 4,1 2,2 3,2 after 20 next Z level 5 lines 0 points 14
+- > t982 falling S 3,1 4,1 2,2 3,2 after 21 next Z level 5 lines 0 points 14
+- > t983 falling S 3,1 4,1 2,2 3,2 after 22 next Z level 5 lines 0 points 14
+- > t984 falling S 3,2 4,2 2,3 3,3 after 0 next Z level 5 lines 0 points 14
+- > t985 falling S 3,2 4,2 2,3 3,3 after 1 next Z level 5 lines 0 points 14
+- > t986 falling S 3,2 4,2 2,3 3,3 after 2 next Z level 5 lines 0 points 14
+- > t987 falling S 3,2 4,2 2,3 3,3 after 3 next Z level 5 lines 0 points 14
+- > t988 falling S 3,2 4,2 2,3 3,3 after 4 next Z level 5 lines 0 points 14
+- > t989 falling S 3,2 4,2 2,3 3,3 after 5 next Z level 5 lines 0 points 14
+- > t990 falling S 3,2 4,2 2,3 3,3 after 6 next Z level 5 lines 0 points 14
+- > t991 falling S 3,2 4,2 2,3 3,3 after 7 next Z level 5 lines 0 points 14
+- > t992 falling S 3,2 4,2 2,3 3,3 after 8 next Z level 5 lines 0 points 14
+- > t993 falling S 3,2 4,2 2,3 3,3 after 9 next Z level 5 lines 0 points 14
+- > t994 falling S 3,2 4,2 2,3 3,3 after 10 next Z level 5 lines 0 points 14
+- > t995 falling S 3,2 4,2 2,3 3,3 after 11 next Z level 5 lines 0 points 14
+- > t996 falling S 3,2 4,2 2,3 3,3 after 12 next Z level 5 lines 0 points 14
+- > t997 falling S 3,2 4,2 2,3 3,3 after 13 next Z level 5 lines 0 points 14
+- > t998 falling S 3,2 4,2 2,3 3,3 after 14 next Z level 5 lines 0 points 14
+- > t999 falling S 3,2 4,2 2,3 3,3 after 15 next Z level 5 lines 0 points 14
+- > t1000 falling S 3,2 4,2 2,3 3,3 after 16 next Z level 5 lines 0 points 14
+- > t1001 falling S 3,2 4,2 2,3 3,3 after 17 next Z level 5 lines 0 points 14
+- > t1002 falling S 3,2 4,2 2,3 3,3 after 18 next Z level 5 lines 0 points 14
+- > t1003 falling S 3,2 4,2 2,3 3,3 after 19 next Z level 5 lines 0 points 14
+- > t1004 falling S 3,2 4,2 2,3 3,3 after 20 next Z level 5 lines 0 points 14
+- > t1005 falling S 3,2 4,2 2,3 3,3 after 21 next Z level 5 lines 0 points 14
+- > t1006 falling S 3,2 4,2 2,3 3,3 after 22 next Z level 5 lines 0 points 14
+- > t1007 falling S 3,3 4,3 2,4 3,4 after 0 next Z level 5 lines 0 points 14
+- > t1008 falling S 3,3 4,3 2,4 3,4 after 1 next Z level 5 lines 0 points 14
+- > t1009 falling S 3,3 4,3 2,4 3,4 after 2 next Z level 5 lines 0 points 14
+- > t1010 falling S 3,3 4,3 2,4 3,4 after 3 next Z level 5 lines 0 points 14
+- > t1011 falling S 3,3 4,3 2,4 3,4 after 4 next Z level 5 lines 0 points 14
+- > t1012 falling S 3,3 4,3 2,4 3,4 after 5 next Z level 5 lines 0 points 14
+- > t1013 falling S 3,3 4,3 2,4 3,4 after 6 next Z level 5 lines 0 points 14
+- > t1014 falling S 3,3 4,3 2,4 3,4 after 7 next Z level 5 lines 0 points 14
+- > t1015 falling S 3,3 4,3 2,4 3,4 after 8 next Z level 5 lines 0 points 14
+- > t1016 falling S 3,3 4,3 2,4 3,4 after 9 next Z level 5 lines 0 points 14
+- > t1017 falling S 3,3 4,3 2,4 3,4 after 10 next Z level 5 lines 0 points 14
+- > t1018 falling S 3,3 4,3 2,4 3,4 after 11 next Z level 5 lines 0 points 14
+- > t1019 falling S 3,3 4,3 2,4 3,4 after 12 next Z level 5 lines 0 points 14
+- > t1020 falling S 3,3 4,3 2,4 3,4 after 13 next Z level 5 lines 0 points 14
+- > t1021 falling S 3,3 4,3 2,4 3,4 after 14 next Z level 5 lines 0 points 14
+- > t1022 falling S 3,3 4,3 2,4 3,4 after 15 next Z level 5 lines 0 points 14
+- > t1023 falling S 3,3 4,3 2,4 3,4 after 16 next Z level 5 lines 0 points 14
+- > t1024 falling S 3,3 4,3 2,4 3,4 after 17 next Z level 5 lines 0 points 14
+- > t1025 falling S 3,3 4,3 2,4 3,4 after 18 next Z level 5 lines 0 points 14
+- > t1026 falling S 3,3 4,3 2,4 3,4 after 19 next Z level 5 lines 0 points 14
+- > t1027 falling S 3,3 4,3 2,4 3,4 after 20 next Z level 5 lines 0 points 14
+- > t1028 falling S 3,3 4,3 2,4 3,4 after 21 next Z level 5 lines 0 points 14
+- > t1029 falling S 3,3 4,3 2,4 3,4 after 22 next Z level 5 lines 0 points 14
+- > t1030 falling S 3,4 4,4 2,5 3,5 after 0 next Z level 5 lines 0 points 14
+- > t1031 falling S 3,4 4,4 2,5 3,5 after 1 next Z level 5 lines 0 points 14
+- > t1032 falling S 3,4 4,4 2,5 3,5 after 2 next Z level 5 lines 0 points 14
+- > t1033 falling S 3,4 4,4 2,5 3,5 after 3 next Z level 5 lines 0 points 14
+- > t1034 falling S 3,4 4,4 2,5 3,5 after 4 next Z level 5 lines 0 points 14
+- > t1035 falling S 3,4 4,4 2,5 3,5 after 5 next Z level 5 lines 0 points 14
+- > t1036 falling S 3,4 4,4 2,5 3,5 after 6 next Z level 5 lines 0 points 14
+- > t1037 falling S 3,4 4,4 2,5 3,5 after 7 next Z level 5 lines 0 points 14
+- > t1038 falling S 3,4 4,4 2,5 3,5 after 8 next Z level 5 lines 0 points 14
+- > t1039 falling S 3,4 4,4 2,5 3,5 after 9 next Z level 5 lines 0 points 14
+- > t1040 falling S 3,4 4,4 2,5 3,5 after 10 next Z level 5 lines 0 points 14
+- > t1041 falling S 3,4 4,4 2,5 3,5 after 11 next Z level 5 lines 0 points 14
+- > t1042 falling S 3,4 4,4 2,5 3,5 after 12 next Z level 5 lines 0 points 14
+- > t1043 falling S 3,4 4,4 2,5 3,5 after 13 next Z level 5 lines 0 points 14
+- > t1044 falling S 3,4 4,4 2,5 3,5 after 14 next Z level 5 lines 0 points 14
+- > t1045 falling S 3,4 4,4 2,5 3,5 after 15 next Z level 5 lines 0 points 14
+- > t1046 falling S 3,4 4,4 2,5 3,5 after 16 next Z level 5 lines 0 points 14
+- > t1047 falling S 3,4 4,4 2,5 3,5 after 17 next Z level 5 lines 0 points 14
+- > t1048 falling S 3,4 4,4 2,5 3,5 after 18 next Z level 5 lines 0 points 14
+- > t1049 falling S 3,4 4,4 2,5 3,5 after 19 next Z level 5 lines 0 points 14
+- > t1050 falling S 3,4 4,4 2,5 3,5 after 20 next Z level 5 lines 0 points 14
+- > t1051 falling S 3,4 4,4 2,5 3,5 after 21 next Z level 5 lines 0 points 14
+- > t1052 falling S 3,4 4,4 2,5 3,5 after 22 next Z level 5 lines 0 points 14
+- > t1053 falling S 3,5 4,5 2,6 3,6 after 0 next Z level 5 lines 0 points 14
+- > t1054 falling S 3,5 4,5 2,6 3,6 after 1 next Z level 5 lines 0 points 14
+- > t1055 falling S 3,5 4,5 2,6 3,6 after 2 next Z level 5 lines 0 points 14
+- > t1056 falling S 3,5 4,5 2,6 3,6 after 3 next Z level 5 lines 0 points 14
+- > t1057 falling S 3,5 4,5 2,6 3,6 after 4 next Z level 5 lines 0 points 14
+- > t1058 falling S 3,5 4,5 2,6 3,6 after 5 next Z level 5 lines 0 points 14
+- > t1059 falling S 3,5 4,5 2,6 3,6 after 6 next Z level 5 lines 0 points 14
+- > t1060 falling S 3,5 4,5 2,6 3,6 after 7 next Z level 5 lines 0 points 14
+- > t1061 falling S 3,5 4,5 2,6 3,6 after 8 next Z level 5 lines 0 points 14
+- > t1062 falling S 3,5 4,5 2,6 3,6 after 9 next Z level 5 lines 0 points 14
+- > t1063 falling S 3,5 4,5 2,6 3,6 after 10 next Z level 5 lines 0 points 14
+- > t1064 falling S 3,5 4,5 2,6 3,6 after 11 next Z level 5 lines 0 points 14
+- > t1065 falling S 3,5 4,5 2,6 3,6 after 12 next Z level 5 lines 0 points 14
+- > t1066 falling S 3,5 4,5 2,6 3,6 after 13 next Z level 5 lines 0 points 14
+- > t1067 falling S 3,5 4,5 2,6 3,6 after 14 next Z level 5 lines 0 points 14
+- > t1068 falling S 3,5 4,5 2,6 3,6 after 15 next Z level 5 lines 0 points 14
+- > t1069 falling S 3,5 4,5 2,6 3,6 after 16 next Z level 5 lines 0 points 14
+- > t1070 falling S 3,5 4,5 2,6 3,6 after 17 next Z level 5 lines 0 points 14
+- > t1071 falling S 3,5 4,5 2,6 3,6 after 18 next Z level 5 lines 0 points 14
+- > t1072 falling S 3,5 4,5 2,6 3,6 after 19 next Z level 5 lines 0 points 14
+- > t1073 falling S 3,5 4,5 2,6 3,6 after 20 next Z level 5 lines 0 points 14
+- > t1074 falling S 3,5 4,5 2,6 3,6 after 21 next Z level 5 lines 0 points 14
+- > t1075 falling S 3,5 4,5 2,6 3,6 after 22 next Z level 5 lines 0 points 14
+- > t1076 falling S 3,6 4,6 2,7 3,7 after 0 next Z level 5 lines 0 points 14
+- > t1077 falling S 3,6 4,6 2,7 3,7 after 1 next Z level 5 lines 0 points 14
+- > t1078 falling S 3,6 4,6 2,7 3,7 after 2 next Z level 5 lines 0 points 14
+- > t1079 falling S 3,6 4,6 2,7 3,7 after 3 next Z level 5 lines 0 points 14
+- > t1080 falling S 3,6 4,6 2,7 3,7 after 4 next Z level 5 lines 0 points 14
+- > t1081 falling S 3,6 4,6 2,7 3,7 after 5 next Z level 5 lines 0 points 14
+- > t1082 falling S 3,6 4,6 2,7 3,7 after 6 next Z level 5 lines 0 points 14
+- > t1083 falling S 3,6 4,6 2,7 3,7 after 7 next Z level 5 lines 0 points 14
+- > t1084 falling S 3,6 4,6 2,7 3,7 after 8 next Z level 5 lines 0 points 14
+- > t1085 falling S 3,6 4,6 2,7 3,7 after 9 next Z level 5 lines 0 points 14
+- > t1086 falling S 3,6 4,6 2,7 3,7 after 10 next Z level 5 lines 0 points 14
+- > t1087 falling S 3,6 4,6 2,7 3,7 after 11 next Z level 5 lines 0 points 14
+- > t1088 falling S 3,6 4,6 2,7 3,7 after 12 next Z level 5 lines 0 points 14
+- > t1089 falling S 3,6 4,6 2,7 3,7 after 13 next Z level 5 lines 0 points 14
+- > t1090 falling S 3,6 4,6 2,7 3,7 after 14 next Z level 5 lines 0 points 14
+- > t1091 falling S 3,6 4,6 2,7 3,7 after 15 next Z level 5 lines 0 points 14
+- > t1092 falling S 3,6 4,6 2,7 3,7 after 16 next Z level 5 lines 0 points 14
+- > t1093 falling S 3,6 4,6 2,7 3,7 after 17 next Z level 5 lines 0 points 14
+- > t1094 falling S 3,6 4,6 2,7 3,7 after 18 next Z level 5 lines 0 points 14
+- > t1095 falling S 3,6 4,6 2,7 3,7 after 19 next Z level 5 lines 0 points 14
+- > t1096 falling S 3,6 4,6 2,7 3,7 after 20 next Z level 5 lines 0 points 14
+- > t1097 falling S 3,6 4,6 2,7 3,7 after 21 next Z level 5 lines 0 points 14
+- > t1098 falling S 3,6 4,6 2,7 3,7 after 22 next Z level 5 lines 0 points 14
+- > t1099 falling S 3,7 4,7 2,8 3,8 after 0 next Z level 5 lines 0 points 14
+- > t1100 falling S 3,7 4,7 2,8 3,8 after 1 next Z level 5 lines 0 points 14
+- > t1101 falling S 3,7 4,7 2,8 3,8 after 2 next Z level 5 lines 0 points 14
+- > t1102 falling S 3,7 4,7 2,8 3,8 after 3 next Z level 5 lines 0 points 14
+- > t1103 falling S 3,7 4,7 2,8 3,8 after 4 next Z level 5 lines 0 points 14
+- > t1104 falling S 3,7 4,7 2,8 3,8 after 5 next Z level 5 lines 0 points 14
+- > t1105 falling S 3,7 4,7 2,8 3,8 after 6 next Z level 5 lines 0 points 14
+- > t1106 falling S 3,7 4,7 2,8 3,8 after 7 next Z level 5 lines 0 points 14
+- > t1107 falling S 3,7 4,7 2,8 3,8 after 8 next Z level 5 lines 0 points 14
+- > t1108 falling S 3,7 4,7 2,8 3,8 after 9 next Z level 5 lines 0 points 14
+- > t1109 falling S 3,7 4,7 2,8 3,8 after 10 next Z level 5 lines 0 points 14
+- > t1110 falling S 3,7 4,7 2,8 3,8 after 11 next Z level 5 lines 0 points 14
+- > t1111 falling S 3,7 4,7 2,8 3,8 after 12 next Z level 5 lines 0 points 14
+- > t1112 falling S 3,7 4,7 2,8 3,8 after 13 next Z level 5 lines 0 points 14
+- > t1113 falling S 3,7 4,7 2,8 3,8 after 14 next Z level 5 lines 0 points 14
+- > t1114 falling S 3,7 4,7 2,8 3,8 after 15 next Z level 5 lines 0 points 14
+- > t1115 falling S 3,7 4,7 2,8 3,8 after 16 next Z level 5 lines 0 points 14
+- > t1116 falling S 3,7 4,7 2,8 3,8 after 17 next Z level 5 lines 0 points 14
+- > t1117 falling S 3,7 4,7 2,8 3,8 after 18 next Z level 5 lines 0 points 14
+- > t1118 falling S 3,7 4,7 2,8 3,8 after 19 next Z level 5 lines 0 points 14
+- > t1119 falling S 3,7 4,7 2,8 3,8 after 20 next Z level 5 lines 0 points 14
+- > t1120 falling S 3,7 4,7 2,8 3,8 after 21 next Z level 5 lines 0 points 14
+- > t1121 falling S 3,7 4,7 2,8 3,8 after 22 next Z level 5 lines 0 points 14
+- > t1122 falling S 3,8 4,8 2,9 3,9 after 0 next Z level 5 lines 0 points 14
+- > t1123 falling S 3,8 4,8 2,9 3,9 after 1 next Z level 5 lines 0 points 14
+- > t1124 falling S 3,8 4,8 2,9 3,9 after 2 next Z level 5 lines 0 points 14
+- > t1125 falling S 3,8 4,8 2,9 3,9 after 3 next Z level 5 lines 0 points 14
+- > t1126 falling S 3,8 4,8 2,9 3,9 after 4 next Z level 5 lines 0 points 14
+- > t1127 falling S 3,8 4,8 2,9 3,9 after 5 next Z level 5 lines 0 points 14
+- > t1128 falling S 3,8 4,8 2,9 3,9 after 6 next Z level 5 lines 0 points 14
+- > t1129 falling S 3,8 4,8 2,9 3,9 after 7 next Z level 5 lines 0 points 14
+- > t1130 falling S 3,8 4,8 2,9 3,9 after 8 next Z level 5 lines 0 points 14
+- > t1131 falling S 3,8 4,8 2,9 3,9 after 9 next Z level 5 lines 0 points 14
+- > t1132 falling S 3,8 4,8 2,9 3,9 after 10 next Z level 5 lines 0 points 14
+- > t1133 falling S 3,8 4,8 2,9 3,9 after 11 next Z level 5 lines 0 points 14
+- > t1134 falling S 3,8 4,8 2,9 3,9 after 12 next Z level 5 lines 0 points 14
+- > t1135 falling S 3,8 4,8 2,9 3,9 after 13 next Z level 5 lines 0 points 14
+- > t1136 falling S 3,8 4,8 2,9 3,9 after 14 next Z level 5 lines 0 points 14
+- > t1137 falling S 3,8 4,8 2,9 3,9 after 15 next Z level 5 lines 0 points 14
+- > t1138 falling S 3,8 4,8 2,9 3,9 after 16 next Z level 5 lines 0 points 14
+- > t1139 falling S 3,8 4,8 2,9 3,9 after 17 next Z level 5 lines 0 points 14
+- > t1140 falling S 3,8 4,8 2,9 3,9 after 18 next Z level 5 lines 0 points 14
+- > t1141 falling S 3,8 4,8 2,9 3,9 after 19 next Z level 5 lines 0 points 14
+- > t1142 falling S 3,8 4,8 2,9 3,9 after 20 next Z level 5 lines 0 points 14
+- > t1143 falling S 3,8 4,8 2,9 3,9 after 21 next Z level 5 lines 0 points 14
+- > t1144 falling S 3,8 4,8 2,9 3,9 after 22 next Z level 5 lines 0 points 14
+- > t1145 falling S 3,9 4,9 2,10 3,10 after 0 next Z level 5 lines 0 points 14
+- > t1146 falling S 3,9 4,9 2,10 3,10 after 1 next Z level 5 lines 0 points 14
+- > t1147 falling S 3,9 4,9 2,10 3,10 after 2 next Z level 5 lines 0 points 14
+- > t1148 falling S 3,9 4,9 2,10 3,10 after 3 next Z level 5 lines 0 points 14
+- > t1149 falling S 3,9 4,9 2,10 3,10 after 4 next Z level 5 lines 0 points 14
+- > t1150 falling S 3,9 4,9 2,10 3,10 after 5 next Z level 5 lines 0 points 14
+- > t1151 falling S 3,9 4,9 2,10 3,10 after 6 next Z level 5 lines 0 points 14
+- > t1152 falling S 3,9 4,9 2,10 3,10 after 7 next Z level 5 lines 0 points 14
+- > t1153 falling S 3,9 4,9 2,10 3,10 after 8 next Z level 5 lines 0 points 14
+- > t1154 falling S 3,9 4,9 2,10 3,10 after 9 next Z level 5 lines 0 points 14
+- > t1155 falling S 3,9 4,9 2,10 3,10 after 10 next Z level 5 lines 0 points 14
+- > t1156 falling S 3,9 4,9 2,10 3,10 after 11 next Z level 5 lines 0 points 14
+- > t1157 falling S 3,9 4,9 2,10 3,10 after 12 next Z level 5 lines 0 points 14
+- > t1158 falling S 3,9 4,9 2,10 3,10 after 13 next Z level 5 lines 0 points 14
+- > t1159 falling S 3,9 4,9 2,10 3,10 after 14 next Z level 5 lines 0 points 14
+- > t1160 falling S 3,9 4,9 2,10 3,10 after 15 next Z level 5 lines 0 points 14
+- > t1161 falling S 3,9 4,9 2,10 3,10 after 16 next Z level 5 lines 0 points 14
+- > t1162 falling S 3,9 4,9 2,10 3,10 after 17 next Z level 5 lines 0 points 14
+- > t1163 falling S 3,9 4,9 2,10 3,10 after 18 next Z level 5 lines 0 points 14
+- > t1164 falling S 3,9 4,9 2,10 3,10 after 19 next Z level 5 lines 0 points 14
+- > t1165 falling S 3,9 4,9 2,10 3,10 after 20 next Z level 5 lines 0 points 14
+- > t1166 falling S 3,9 4,9 2,10 3,10 after 21 next Z level 5 lines 0 points 14
+- > t1167 falling S 3,9 4,9 2,10 3,10 after 22 next Z level 5 lines 0 points 14
+- > t1168 falling S 3,10 4,10 2,11 3,11 after 0 next Z level 5 lines 0 points 14
+- > t1169 falling S 3,10 4,10 2,11 3,11 after 1 next Z level 5 lines 0 points 14
+- > t1170 falling S 3,10 4,10 2,11 3,11 after 2 next Z level 5 lines 0 points 14
+- > t1171 falling S 3,10 4,10 2,11 3,11 after 3 next Z level 5 lines 0 points 14
+- > t1172 falling S 3,10 4,10 2,11 3,11 after 4 next Z level 5 lines 0 points 14
+- > t1173 falling S 3,10 4,10 2,11 3,11 after 5 next Z level 5 lines 0 points 14
+- > t1174 falling S 3,10 4,10 2,11 3,11 after 6 next Z level 5 lines 0 points 14
+- > t1175 falling S 3,10 4,10 2,11 3,11 after 7 next Z level 5 lines 0 points 14
+- > t1176 falling S 3,10 4,10 2,11 3,11 after 8 next Z level 5 lines 0 points 14
+- > t1177 falling S 3,10 4,10 2,11 3,11 after 9 next Z level 5 lines 0 points 14
+- > t1178 falling S 3,10 4,10 2,11 3,11 after 10 next Z level 5 lines 0 points 14
+- > t1179 falling S 3,10 4,10 2,11 3,11 after 11 next Z level 5 lines 0 points 14
+- > t1180 falling S 3,10 4,10 2,11 3,11 after 12 next Z level 5 lines 0 points 14
+- > t1181 falling S 3,10 4,10 2,11 3,11 after 13 next Z level 5 lines 0 points 14
+- > t1182 falling S 3,10 4,10 2,11 3,11 after 14 next Z level 5 lines 0 points 14
+- > t1183 falling S 3,10 4,10 2,11 3,11 after 15 next Z level 5 lines 0 points 14
+- > t1184 falling S 3,10 4,10 2,11 3,11 after 16 next Z level 5 lines 0 points 14
+- > t1185 falling S 3,10 4,10 2,11 3,11 after 17 next Z level 5 lines 0 points 14
+- > t1186 falling S 3,10 4,10 2,11 3,11 after 18 next Z level 5 lines 0 points 14
+- > t1187 falling S 3,10 4,10 2,11 3,11 after 19 next Z level 5 lines 0 points 14
+- > t1188 falling S 3,10 4,10 2,11 3,11 after 20 next Z level 5 lines 0 points 14
+- > t1189 falling S 3,10 4,10 2,11 3,11 after 21 next Z level 5 lines 0 points 14
+- > t1190 falling S 3,10 4,10 2,11 3,11 after 22 next Z level 5 lines 0 points 14
+- > t1191 falling S 3,11 4,11 2,12 3,12 after 0 next Z level 5 lines 0 points 14
+- > t1192 falling S 3,11 4,11 2,12 3,12 after 1 next Z level 5 lines 0 points 14
+- > t1193 falling S 3,11 4,11 2,12 3,12 after 2 next Z level 5 lines 0 points 14
+- > t1194 falling S 3,11 4,11 2,12 3,12 after 3 next Z level 5 lines 0 points 14
+- > t1195 falling S 3,11 4,11 2,12 3,12 after 4 next Z level 5 lines 0 points 14
+- > t1196 falling S 3,11 4,11 2,12 3,12 after 5 next Z level 5 lines 0 points 14
+- > t1197 falling S 3,11 4,11 2,12 3,12 after 6 next Z level 5 lines 0 points 14
+- > t1198 falling S 3,11 4,11 2,12 3,12 after 7 next Z level 5 lines 0 points 14
+- > t1199 falling S 3,11 4,11 2,12 3,12 after 8 next Z level 5 lines 0 points 14
+- > t1200 falling S 3,11 4,11 2,12 3,12 after 9 next Z level 5 lines 0 points 14
+- > t1201 falling S 3,11 4,11 2,12 3,12 after 10 next Z level 5 lines 0 points 14
+- > t1202 falling S 3,11 4,11 2,12 3,12 after 11 next Z level 5 lines 0 points 14
+- > t1203 falling S 3,11 4,11 2,12 3,12 after 12 next Z level 5 lines 0 points 14
+- > t1204 falling S 3,11 4,11 2,12 3,12 after 13 next Z level 5 lines 0 points 14
+- > t1205 falling S 3,11 4,11 2,12 3,12 after 14 next Z level 5 lines 0 points 14
+- > t1206 falling S 3,11 4,11 2,12 3,12 after 15 next Z level 5 lines 0 points 14
+- > t1207 falling S 3,11 4,11 2,12 3,12 after 16 next Z level 5 lines 0 points 14
+- > t1208 falling S 3,11 4,11 2,12 3,12 after 17 next Z level 5 lines 0 points 14
+- > t1209 falling S 3,11 4,11 2,12 3,12 after 18 next Z level 5 lines 0 points 14
+- > t1210 falling S 3,11 4,11 2,12 3,12 after 19 next Z level 5 lines 0 points 14
+- > t1211 falling S 3,11 4,11 2,12 3,12 after 20 next Z level 5 lines 0 points 14
+- > t1212 falling S 3,11 4,11 2,12 3,12 after 21 next Z level 5 lines 0 points 14
+- > t1213 falling S 3,11 4,11 2,12 3,12 after 22 next Z level 5 lines 0 points 14
+- > t1214 falling S 3,12 4,12 2,13 3,13 after 0 next Z level 5 lines 0 points 14
+- > t1215 falling S 3,12 4,12 2,13 3,13 after 1 next Z level 5 lines 0 points 14
+- > t1216 falling S 3,12 4,12 2,13 3,13 after 2 next Z level 5 lines 0 points 14
+- > t1217 falling S 3,12 4,12 2,13 3,13 after 3 next Z level 5 lines 0 points 14
+- > t1218 falling S 3,12 4,12 2,13 3,13 after 4 next Z level 5 lines 0 points 14
+- > t1219 falling S 3,12 4,12 2,13 3,13 after 5 next Z level 5 lines 0 points 14
+- > t1220 falling S 3,12 4,12 2,13 3,13 after 6 next Z level 5 lines 0 points 14
+- > t1221 falling S 3,12 4,12 2,13 3,13 after 7 next Z level 5 lines 0 points 14
+- > t1222 falling S 3,12 4,12 2,13 3,13 after 8 next Z level 5 lines 0 points 14
+- > t1223 falling S 3,12 4,12 2,13 3,13 after 9 next Z level 5 lines 0 points 14
+- > t1224 falling S 3,12 4,12 2,13 3,13 after 10 next Z level 5 lines 0 points 14
+- > t1225 falling S 3,12 4,12 2,13 3,13 after 11 next Z level 5 lines 0 points 14
+- > t1226 falling S 3,12 4,12 2,13 3,13 after 12 next Z level 5 lines 0 points 14
+- > t1227 falling S 3,12 4,12 2,13 3,13 after 13 next Z level 5 lines 0 points 14
+- > t1228 falling S 3,12 4,12 2,13 3,13 after 14 next Z level 5 lines 0 points 14
+- > t1229 falling S 3,12 4,12 2,13 3,13 after 15 next Z level 5 lines 0 points 14
+- > t1230 falling S 3,12 4,12 2,13 3,13 after 16 next Z level 5 lines 0 points 14
+- > t1231 falling S 3,12 4,12 2,13 3,13 after 17 next Z level 5 lines 0 points 14
+- > t1232 falling S 3,12 4,12 2,13 3,13 after 18 next Z level 5 lines 0 points 14
+- > t1233 falling S 3,12 4,12 2,13 3,13 after 19 next Z level 5 lines 0 points 14
+- > t1234 falling S 3,12 4,12 2,13 3,13 after 20 next Z level 5 lines 0 points 14
+- > t1235 falling S 3,12 4,12 2,13 3,13 after 21 next Z level 5 lines 0 points 14
+- > t1236 falling S 3,12 4,12 2,13 3,13 after 22 next Z level 5 lines 0 points 14
+- > t1237 entry 14 next Z level 5 lines 0 points 14 | locked S 3,12 4,12 2,13 3,13
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJ.....
+  ....I.....
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1238 entry 13 next Z level 5 lines 0 points 14
+- > t1239 entry 12 next Z level 5 lines 0 points 14
+- > t1240 entry 11 next Z level 5 lines 0 points 14
+- > t1241 entry 10 next Z level 5 lines 0 points 14
+- > t1242 entry 9 next Z level 5 lines 0 points 14
+- > t1243 entry 8 next Z level 5 lines 0 points 14
+- > t1244 entry 7 next Z level 5 lines 0 points 14
+- > t1245 entry 6 next Z level 5 lines 0 points 14
+- > t1246 entry 5 next Z level 5 lines 0 points 14
+- > t1247 entry 4 next Z level 5 lines 0 points 14
+- > t1248 entry 3 next Z level 5 lines 0 points 14
+- > t1249 entry 2 next Z level 5 lines 0 points 14
+- > t1250 entry 1 next Z level 5 lines 0 points 14
+- > t1251 falling Z 4,0 5,0 5,1 6,1 after 0 next L level 5 lines 0 points 14
++RIGHT > t1252 falling Z 5,0 6,0 6,1 7,1 after 1 next L level 5 lines 0 points 14
+-RIGHT +DOWN > t1253 falling Z 5,0 6,0 6,1 7,1 after 2 next L level 5 lines 0 points 14
+- > t1254 falling Z 5,0 6,0 6,1 7,1 after 3 next L level 5 lines 0 points 14
+- > t1255 falling Z 5,1 6,1 6,2 7,2 after 0 soft 1 next L level 5 lines 0 points 14
+- > t1256 falling Z 5,1 6,1 6,2 7,2 after 1 soft 1 next L level 5 lines 0 points 14
+- > t1257 falling Z 5,2 6,2 6,3 7,3 after 0 soft 2 next L level 5 lines 0 points 14
+- > t1258 falling Z 5,2 6,2 6,3 7,3 after 1 soft 2 next L level 5 lines 0 points 14
+- > t1259 falling Z 5,3 6,3 6,4 7,4 after 0 soft 3 next L level 5 lines 0 points 14
+- > t1260 falling Z 5,3 6,3 6,4 7,4 after 1 soft 3 next L level 5 lines 0 points 14
+- > t1261 falling Z 5,4 6,4 6,5 7,5 after 0 soft 4 next L level 5 lines 0 points 14
+- > t1262 falling Z 5,4 6,4 6,5 7,5 after 1 soft 4 next L level 5 lines 0 points 14
+- > t1263 falling Z 5,5 6,5 6,6 7,6 after 0 soft 5 next L level 5 lines 0 points 14
+- > t1264 falling Z 5,5 6,5 6,6 7,6 after 1 soft 5 next L level 5 lines 0 points 14
+- > t1265 falling Z 5,6 6,6 6,7 7,7 after 0 soft 6 next L level 5 lines 0 points 14
+- > t1266 falling Z 5,6 6,6 6,7 7,7 after 1 soft 6 next L level 5 lines 0 points 14
+- > t1267 falling Z 5,7 6,7 6,8 7,8 after 0 soft 7 next L level 5 lines 0 points 14
+- > t1268 falling Z 5,7 6,7 6,8 7,8 after 1 soft 7 next L level 5 lines 0 points 14
+- > t1269 falling Z 5,8 6,8 6,9 7,9 after 0 soft 8 next L level 5 lines 0 points 14
+- > t1270 falling Z 5,8 6,8 6,9 7,9 after 1 soft 8 next L level 5 lines 0 points 14
+- > t1271 falling Z 5,9 6,9 6,10 7,10 after 0 soft 9 next L level 5 lines 0 points 14
+- > t1272 falling Z 5,9 6,9 6,10 7,10 after 1 soft 9 next L level 5 lines 0 points 14
+- > t1273 falling Z 5,10 6,10 6,11 7,11 after 0 soft 10 next L level 5 lines 0 points 14
+- > t1274 falling Z 5,10 6,10 6,11 7,11 after 1 soft 10 next L level 5 lines 0 points 14
+- > t1275 falling Z 5,11 6,11 6,12 7,12 after 0 soft 11 next L level 5 lines 0 points 14
+- > t1276 falling Z 5,11 6,11 6,12 7,12 after 1 soft 11 next L level 5 lines 0 points 14
+- > t1277 falling Z 5,12 6,12 6,13 7,13 after 0 soft 12 next L level 5 lines 0 points 14
+- > t1278 falling Z 5,12 6,12 6,13 7,13 after 1 soft 12 next L level 5 lines 0 points 14
+- > t1279 falling Z 5,13 6,13 6,14 7,14 after 0 soft 13 next L level 5 lines 0 points 14
+- > t1280 falling Z 5,13 6,13 6,14 7,14 after 1 soft 13 next L level 5 lines 0 points 14
+- > t1281 falling Z 5,14 6,14 6,15 7,15 after 0 soft 14 next L level 5 lines 0 points 14
+- > t1282 falling Z 5,14 6,14 6,15 7,15 after 1 soft 14 next L level 5 lines 0 points 14
+- > t1283 falling Z 5,15 6,15 6,16 7,16 after 0 soft 15 next L level 5 lines 0 points 14
+- > t1284 falling Z 5,15 6,15 6,16 7,16 after 1 soft 15 next L level 5 lines 0 points 14
+- > t1285 entry 12 next L level 5 lines 0 points 29 | locked Z 5,15 6,15 6,16 7,16
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1286 entry 11 next L level 5 lines 0 points 29
+- > t1287 entry 10 next L level 5 lines 0 points 29
+- > t1288 entry 9 next L level 5 lines 0 points 29
+- > t1289 entry 8 next L level 5 lines 0 points 29
+- > t1290 entry 7 next L level 5 lines 0 points 29
+- > t1291 entry 6 next L level 5 lines 0 points 29
+- > t1292 entry 5 next L level 5 lines 0 points 29
+- > t1293 entry 4 next L level 5 lines 0 points 29
+- > t1294 entry 3 next L level 5 lines 0 points 29
+- > t1295 entry 2 next L level 5 lines 0 points 29
+- > t1296 entry 1 next L level 5 lines 0 points 29
+- > t1297 falling L 4,0 5,0 6,0 4,1 after 0 next O level 5 lines 0 points 29
+-DOWN +LEFT > t1298 falling L 3,0 4,0 5,0 3,1 after 1 next O level 5 lines 0 points 29
+-LEFT +DOWN > t1299 falling L 3,0 4,0 5,0 3,1 after 2 next O level 5 lines 0 points 29
+- > t1300 falling L 3,0 4,0 5,0 3,1 after 3 next O level 5 lines 0 points 29
+- > t1301 falling L 3,1 4,1 5,1 3,2 after 0 soft 1 next O level 5 lines 0 points 29
+- > t1302 falling L 3,1 4,1 5,1 3,2 after 1 soft 1 next O level 5 lines 0 points 29
+- > t1303 falling L 3,2 4,2 5,2 3,3 after 0 soft 2 next O level 5 lines 0 points 29
+- > t1304 falling L 3,2 4,2 5,2 3,3 after 1 soft 2 next O level 5 lines 0 points 29
+- > t1305 falling L 3,3 4,3 5,3 3,4 after 0 soft 3 next O level 5 lines 0 points 29
+- > t1306 falling L 3,3 4,3 5,3 3,4 after 1 soft 3 next O level 5 lines 0 points 29
+- > t1307 falling L 3,4 4,4 5,4 3,5 after 0 soft 4 next O level 5 lines 0 points 29
+- > t1308 falling L 3,4 4,4 5,4 3,5 after 1 soft 4 next O level 5 lines 0 points 29
+- > t1309 falling L 3,5 4,5 5,5 3,6 after 0 soft 5 next O level 5 lines 0 points 29
+- > t1310 falling L 3,5 4,5 5,5 3,6 after 1 soft 5 next O level 5 lines 0 points 29
+- > t1311 falling L 3,6 4,6 5,6 3,7 after 0 soft 6 next O level 5 lines 0 points 29
+- > t1312 falling L 3,6 4,6 5,6 3,7 after 1 soft 6 next O level 5 lines 0 points 29
+- > t1313 falling L 3,7 4,7 5,7 3,8 after 0 soft 7 next O level 5 lines 0 points 29
+- > t1314 falling L 3,7 4,7 5,7 3,8 after 1 soft 7 next O level 5 lines 0 points 29
+- > t1315 falling L 3,8 4,8 5,8 3,9 after 0 soft 8 next O level 5 lines 0 points 29
+- > t1316 falling L 3,8 4,8 5,8 3,9 after 1 soft 8 next O level 5 lines 0 points 29
+- > t1317 falling L 3,9 4,9 5,9 3,10 after 0 soft 9 next O level 5 lines 0 points 29
+- > t1318 falling L 3,9 4,9 5,9 3,10 after 1 soft 9 next O level 5 lines 0 points 29
+- > t1319 falling L 3,10 4,10 5,10 3,11 after 0 soft 10 next O level 5 lines 0 points 29
+- > t1320 falling L 3,10 4,10 5,10 3,11 after 1 soft 10 next O level 5 lines 0 points 29
+- > t1321 entry 14 next O level 5 lines 0 points 39 | locked L 3,10 4,10 5,10 3,11
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1322 entry 13 next O level 5 lines 0 points 39
+- > t1323 entry 12 next O level 5 lines 0 points 39
+- > t1324 entry 11 next O level 5 lines 0 points 39
+- > t1325 entry 10 next O level 5 lines 0 points 39
+- > t1326 entry 9 next O level 5 lines 0 points 39
+- > t1327 entry 8 next O level 5 lines 0 points 39
+- > t1328 entry 7 next O level 5 lines 0 points 39
+- > t1329 entry 6 next O level 5 lines 0 points 39
+- > t1330 entry 5 next O level 5 lines 0 points 39
+- > t1331 entry 4 next O level 5 lines 0 points 39
+- > t1332 entry 3 next O level 5 lines 0 points 39
+- > t1333 entry 2 next O level 5 lines 0 points 39
+- > t1334 entry 1 next O level 5 lines 0 points 39
+- > t1335 falling O 4,0 5,0 4,1 5,1 after 0 next S level 5 lines 0 points 39
+-DOWN +RIGHT > t1336 falling O 5,0 6,0 5,1 6,1 after 1 next S level 5 lines 0 points 39
+-RIGHT > t1337 falling O 5,0 6,0 5,1 6,1 after 2 next S level 5 lines 0 points 39
+- > t1338 falling O 5,0 6,0 5,1 6,1 after 3 next S level 5 lines 0 points 39
+- > t1339 falling O 5,0 6,0 5,1 6,1 after 4 next S level 5 lines 0 points 39
+- > t1340 falling O 5,0 6,0 5,1 6,1 after 5 next S level 5 lines 0 points 39
+- > t1341 falling O 5,0 6,0 5,1 6,1 after 6 next S level 5 lines 0 points 39
+- > t1342 falling O 5,0 6,0 5,1 6,1 after 7 next S level 5 lines 0 points 39
+- > t1343 falling O 5,0 6,0 5,1 6,1 after 8 next S level 5 lines 0 points 39
+- > t1344 falling O 5,0 6,0 5,1 6,1 after 9 next S level 5 lines 0 points 39
+- > t1345 falling O 5,0 6,0 5,1 6,1 after 10 next S level 5 lines 0 points 39
+- > t1346 falling O 5,0 6,0 5,1 6,1 after 11 next S level 5 lines 0 points 39
+- > t1347 falling O 5,0 6,0 5,1 6,1 after 12 next S level 5 lines 0 points 39
+- > t1348 falling O 5,0 6,0 5,1 6,1 after 13 next S level 5 lines 0 points 39
+- > t1349 falling O 5,0 6,0 5,1 6,1 after 14 next S level 5 lines 0 points 39
+- > t1350 falling O 5,0 6,0 5,1 6,1 after 15 next S level 5 lines 0 points 39
+- > t1351 falling O 5,0 6,0 5,1 6,1 after 16 next S level 5 lines 0 points 39
+- > t1352 falling O 5,0 6,0 5,1 6,1 after 17 next S level 5 lines 0 points 39
+- > t1353 falling O 5,0 6,0 5,1 6,1 after 18 next S level 5 lines 0 points 39
+- > t1354 falling O 5,0 6,0 5,1 6,1 after 19 next S level 5 lines 0 points 39
+- > t1355 falling O 5,0 6,0 5,1 6,1 after 20 next S level 5 lines 0 points 39
+- > t1356 falling O 5,0 6,0 5,1 6,1 after 21 next S level 5 lines 0 points 39
+- > t1357 falling O 5,0 6,0 5,1 6,1 after 22 next S level 5 lines 0 points 39
+- > t1358 falling O 5,1 6,1 5,2 6,2 after 0 next S level 5 lines 0 points 39
+- > t1359 falling O 5,1 6,1 5,2 6,2 after 1 next S level 5 lines 0 points 39
+- > t1360 falling O 5,1 6,1 5,2 6,2 after 2 next S level 5 lines 0 points 39
+- > t1361 falling O 5,1 6,1 5,2 6,2 after 3 next S level 5 lines 0 points 39
+- > t1362 falling O 5,1 6,1 5,2 6,2 after 4 next S level 5 lines 0 points 39
+- > t1363 falling O 5,1 6,1 5,2 6,2 after 5 next S level 5 lines 0 points 39
+- > t1364 falling O 5,1 6,1 5,2 6,2 after 6 next S level 5 lines 0 points 39
+- > t1365 falling O 5,1 6,1 5,2 6,2 after 7 next S level 5 lines 0 points 39
+- > t1366 falling O 5,1 6,1 5,2 6,2 after 8 next S level 5 lines 0 points 39
+- > t1367 falling O 5,1 6,1 5,2 6,2 after 9 next S level 5 lines 0 points 39
+- > t1368 falling O 5,1 6,1 5,2 6,2 after 10 next S level 5 lines 0 points 39
+- > t1369 falling O 5,1 6,1 5,2 6,2 after 11 next S level 5 lines 0 points 39
+- > t1370 falling O 5,1 6,1 5,2 6,2 after 12 next S level 5 lines 0 points 39
+- > t1371 falling O 5,1 6,1 5,2 6,2 after 13 next S level 5 lines 0 points 39
+- > t1372 falling O 5,1 6,1 5,2 6,2 after 14 next S level 5 lines 0 points 39
+- > t1373 falling O 5,1 6,1 5,2 6,2 after 15 next S level 5 lines 0 points 39
+- > t1374 falling O 5,1 6,1 5,2 6,2 after 16 next S level 5 lines 0 points 39
+- > t1375 falling O 5,1 6,1 5,2 6,2 after 17 next S level 5 lines 0 points 39
+- > t1376 falling O 5,1 6,1 5,2 6,2 after 18 next S level 5 lines 0 points 39
+- > t1377 falling O 5,1 6,1 5,2 6,2 after 19 next S level 5 lines 0 points 39
+- > t1378 falling O 5,1 6,1 5,2 6,2 after 20 next S level 5 lines 0 points 39
+- > t1379 falling O 5,1 6,1 5,2 6,2 after 21 next S level 5 lines 0 points 39
+- > t1380 falling O 5,1 6,1 5,2 6,2 after 22 next S level 5 lines 0 points 39
+- > t1381 falling O 5,2 6,2 5,3 6,3 after 0 next S level 5 lines 0 points 39
+- > t1382 falling O 5,2 6,2 5,3 6,3 after 1 next S level 5 lines 0 points 39
+- > t1383 falling O 5,2 6,2 5,3 6,3 after 2 next S level 5 lines 0 points 39
+- > t1384 falling O 5,2 6,2 5,3 6,3 after 3 next S level 5 lines 0 points 39
+- > t1385 falling O 5,2 6,2 5,3 6,3 after 4 next S level 5 lines 0 points 39
+- > t1386 falling O 5,2 6,2 5,3 6,3 after 5 next S level 5 lines 0 points 39
+- > t1387 falling O 5,2 6,2 5,3 6,3 after 6 next S level 5 lines 0 points 39
+- > t1388 falling O 5,2 6,2 5,3 6,3 after 7 next S level 5 lines 0 points 39
+- > t1389 falling O 5,2 6,2 5,3 6,3 after 8 next S level 5 lines 0 points 39
+- > t1390 falling O 5,2 6,2 5,3 6,3 after 9 next S level 5 lines 0 points 39
+- > t1391 falling O 5,2 6,2 5,3 6,3 after 10 next S level 5 lines 0 points 39
+- > t1392 falling O 5,2 6,2 5,3 6,3 after 11 next S level 5 lines 0 points 39
+- > t1393 falling O 5,2 6,2 5,3 6,3 after 12 next S level 5 lines 0 points 39
+- > t1394 falling O 5,2 6,2 5,3 6,3 after 13 next S level 5 lines 0 points 39
+- > t1395 falling O 5,2 6,2 5,3 6,3 after 14 next S level 5 lines 0 points 39
+- > t1396 falling O 5,2 6,2 5,3 6,3 after 15 next S level 5 lines 0 points 39
+- > t1397 falling O 5,2 6,2 5,3 6,3 after 16 next S level 5 lines 0 points 39
+- > t1398 falling O 5,2 6,2 5,3 6,3 after 17 next S level 5 lines 0 points 39
+- > t1399 falling O 5,2 6,2 5,3 6,3 after 18 next S level 5 lines 0 points 39
+- > t1400 falling O 5,2 6,2 5,3 6,3 after 19 next S level 5 lines 0 points 39
+- > t1401 falling O 5,2 6,2 5,3 6,3 after 20 next S level 5 lines 0 points 39
+- > t1402 falling O 5,2 6,2 5,3 6,3 after 21 next S level 5 lines 0 points 39
+- > t1403 falling O 5,2 6,2 5,3 6,3 after 22 next S level 5 lines 0 points 39
+- > t1404 falling O 5,3 6,3 5,4 6,4 after 0 next S level 5 lines 0 points 39
+- > t1405 falling O 5,3 6,3 5,4 6,4 after 1 next S level 5 lines 0 points 39
+- > t1406 falling O 5,3 6,3 5,4 6,4 after 2 next S level 5 lines 0 points 39
+- > t1407 falling O 5,3 6,3 5,4 6,4 after 3 next S level 5 lines 0 points 39
+- > t1408 falling O 5,3 6,3 5,4 6,4 after 4 next S level 5 lines 0 points 39
+- > t1409 falling O 5,3 6,3 5,4 6,4 after 5 next S level 5 lines 0 points 39
+- > t1410 falling O 5,3 6,3 5,4 6,4 after 6 next S level 5 lines 0 points 39
+- > t1411 falling O 5,3 6,3 5,4 6,4 after 7 next S level 5 lines 0 points 39
+- > t1412 falling O 5,3 6,3 5,4 6,4 after 8 next S level 5 lines 0 points 39
+- > t1413 falling O 5,3 6,3 5,4 6,4 after 9 next S level 5 lines 0 points 39
+- > t1414 falling O 5,3 6,3 5,4 6,4 after 10 next S level 5 lines 0 points 39
+- > t1415 falling O 5,3 6,3 5,4 6,4 after 11 next S level 5 lines 0 points 39
+- > t1416 falling O 5,3 6,3 5,4 6,4 after 12 next S level 5 lines 0 points 39
+- > t1417 falling O 5,3 6,3 5,4 6,4 after 13 next S level 5 lines 0 points 39
+- > t1418 falling O 5,3 6,3 5,4 6,4 after 14 next S level 5 lines 0 points 39
+- > t1419 falling O 5,3 6,3 5,4 6,4 after 15 next S level 5 lines 0 points 39
+- > t1420 falling O 5,3 6,3 5,4 6,4 after 16 next S level 5 lines 0 points 39
+- > t1421 falling O 5,3 6,3 5,4 6,4 after 17 next S level 5 lines 0 points 39
+- > t1422 falling O 5,3 6,3 5,4 6,4 after 18 next S level 5 lines 0 points 39
+- > t1423 falling O 5,3 6,3 5,4 6,4 after 19 next S level 5 lines 0 points 39
+- > t1424 falling O 5,3 6,3 5,4 6,4 after 20 next S level 5 lines 0 points 39
+- > t1425 falling O 5,3 6,3 5,4 6,4 after 21 next S level 5 lines 0 points 39
+- > t1426 falling O 5,3 6,3 5,4 6,4 after 22 next S level 5 lines 0 points 39
+- > t1427 falling O 5,4 6,4 5,5 6,5 after 0 next S level 5 lines 0 points 39
+- > t1428 falling O 5,4 6,4 5,5 6,5 after 1 next S level 5 lines 0 points 39
+- > t1429 falling O 5,4 6,4 5,5 6,5 after 2 next S level 5 lines 0 points 39
+- > t1430 falling O 5,4 6,4 5,5 6,5 after 3 next S level 5 lines 0 points 39
+- > t1431 falling O 5,4 6,4 5,5 6,5 after 4 next S level 5 lines 0 points 39
+- > t1432 falling O 5,4 6,4 5,5 6,5 after 5 next S level 5 lines 0 points 39
+- > t1433 falling O 5,4 6,4 5,5 6,5 after 6 next S level 5 lines 0 points 39
+- > t1434 falling O 5,4 6,4 5,5 6,5 after 7 next S level 5 lines 0 points 39
+- > t1435 falling O 5,4 6,4 5,5 6,5 after 8 next S level 5 lines 0 points 39
+- > t1436 falling O 5,4 6,4 5,5 6,5 after 9 next S level 5 lines 0 points 39
+- > t1437 falling O 5,4 6,4 5,5 6,5 after 10 next S level 5 lines 0 points 39
+- > t1438 falling O 5,4 6,4 5,5 6,5 after 11 next S level 5 lines 0 points 39
+- > t1439 falling O 5,4 6,4 5,5 6,5 after 12 next S level 5 lines 0 points 39
+- > t1440 falling O 5,4 6,4 5,5 6,5 after 13 next S level 5 lines 0 points 39
+- > t1441 falling O 5,4 6,4 5,5 6,5 after 14 next S level 5 lines 0 points 39
+- > t1442 falling O 5,4 6,4 5,5 6,5 after 15 next S level 5 lines 0 points 39
+- > t1443 falling O 5,4 6,4 5,5 6,5 after 16 next S level 5 lines 0 points 39
+- > t1444 falling O 5,4 6,4 5,5 6,5 after 17 next S level 5 lines 0 points 39
+- > t1445 falling O 5,4 6,4 5,5 6,5 after 18 next S level 5 lines 0 points 39
+- > t1446 falling O 5,4 6,4 5,5 6,5 after 19 next S level 5 lines 0 points 39
+- > t1447 falling O 5,4 6,4 5,5 6,5 after 20 next S level 5 lines 0 points 39
+- > t1448 falling O 5,4 6,4 5,5 6,5 after 21 next S level 5 lines 0 points 39
+- > t1449 falling O 5,4 6,4 5,5 6,5 after 22 next S level 5 lines 0 points 39
+- > t1450 falling O 5,5 6,5 5,6 6,6 after 0 next S level 5 lines 0 points 39
+- > t1451 falling O 5,5 6,5 5,6 6,6 after 1 next S level 5 lines 0 points 39
+- > t1452 falling O 5,5 6,5 5,6 6,6 after 2 next S level 5 lines 0 points 39
+- > t1453 falling O 5,5 6,5 5,6 6,6 after 3 next S level 5 lines 0 points 39
+- > t1454 falling O 5,5 6,5 5,6 6,6 after 4 next S level 5 lines 0 points 39
+- > t1455 falling O 5,5 6,5 5,6 6,6 after 5 next S level 5 lines 0 points 39
+- > t1456 falling O 5,5 6,5 5,6 6,6 after 6 next S level 5 lines 0 points 39
+- > t1457 falling O 5,5 6,5 5,6 6,6 after 7 next S level 5 lines 0 points 39
+- > t1458 falling O 5,5 6,5 5,6 6,6 after 8 next S level 5 lines 0 points 39
+- > t1459 falling O 5,5 6,5 5,6 6,6 after 9 next S level 5 lines 0 points 39
+- > t1460 falling O 5,5 6,5 5,6 6,6 after 10 next S level 5 lines 0 points 39
+- > t1461 falling O 5,5 6,5 5,6 6,6 after 11 next S level 5 lines 0 points 39
+- > t1462 falling O 5,5 6,5 5,6 6,6 after 12 next S level 5 lines 0 points 39
+- > t1463 falling O 5,5 6,5 5,6 6,6 after 13 next S level 5 lines 0 points 39
+- > t1464 falling O 5,5 6,5 5,6 6,6 after 14 next S level 5 lines 0 points 39
+- > t1465 falling O 5,5 6,5 5,6 6,6 after 15 next S level 5 lines 0 points 39
+- > t1466 falling O 5,5 6,5 5,6 6,6 after 16 next S level 5 lines 0 points 39
+- > t1467 falling O 5,5 6,5 5,6 6,6 after 17 next S level 5 lines 0 points 39
+- > t1468 falling O 5,5 6,5 5,6 6,6 after 18 next S level 5 lines 0 points 39
+- > t1469 falling O 5,5 6,5 5,6 6,6 after 19 next S level 5 lines 0 points 39
+- > t1470 falling O 5,5 6,5 5,6 6,6 after 20 next S level 5 lines 0 points 39
+- > t1471 falling O 5,5 6,5 5,6 6,6 after 21 next S level 5 lines 0 points 39
+- > t1472 falling O 5,5 6,5 5,6 6,6 after 22 next S level 5 lines 0 points 39
+- > t1473 falling O 5,6 6,6 5,7 6,7 after 0 next S level 5 lines 0 points 39
+- > t1474 falling O 5,6 6,6 5,7 6,7 after 1 next S level 5 lines 0 points 39
+- > t1475 falling O 5,6 6,6 5,7 6,7 after 2 next S level 5 lines 0 points 39
+- > t1476 falling O 5,6 6,6 5,7 6,7 after 3 next S level 5 lines 0 points 39
+- > t1477 falling O 5,6 6,6 5,7 6,7 after 4 next S level 5 lines 0 points 39
+- > t1478 falling O 5,6 6,6 5,7 6,7 after 5 next S level 5 lines 0 points 39
+- > t1479 falling O 5,6 6,6 5,7 6,7 after 6 next S level 5 lines 0 points 39
+- > t1480 falling O 5,6 6,6 5,7 6,7 after 7 next S level 5 lines 0 points 39
+- > t1481 falling O 5,6 6,6 5,7 6,7 after 8 next S level 5 lines 0 points 39
+- > t1482 falling O 5,6 6,6 5,7 6,7 after 9 next S level 5 lines 0 points 39
+- > t1483 falling O 5,6 6,6 5,7 6,7 after 10 next S level 5 lines 0 points 39
+- > t1484 falling O 5,6 6,6 5,7 6,7 after 11 next S level 5 lines 0 points 39
+- > t1485 falling O 5,6 6,6 5,7 6,7 after 12 next S level 5 lines 0 points 39
+- > t1486 falling O 5,6 6,6 5,7 6,7 after 13 next S level 5 lines 0 points 39
+- > t1487 falling O 5,6 6,6 5,7 6,7 after 14 next S level 5 lines 0 points 39
+- > t1488 falling O 5,6 6,6 5,7 6,7 after 15 next S level 5 lines 0 points 39
+- > t1489 falling O 5,6 6,6 5,7 6,7 after 16 next S level 5 lines 0 points 39
+- > t1490 falling O 5,6 6,6 5,7 6,7 after 17 next S level 5 lines 0 points 39
+- > t1491 falling O 5,6 6,6 5,7 6,7 after 18 next S level 5 lines 0 points 39
+- > t1492 falling O 5,6 6,6 5,7 6,7 after 19 next S level 5 lines 0 points 39
+- > t1493 falling O 5,6 6,6 5,7 6,7 after 20 next S level 5 lines 0 points 39
+- > t1494 falling O 5,6 6,6 5,7 6,7 after 21 next S level 5 lines 0 points 39
+- > t1495 falling O 5,6 6,6 5,7 6,7 after 22 next S level 5 lines 0 points 39
+- > t1496 falling O 5,7 6,7 5,8 6,8 after 0 next S level 5 lines 0 points 39
+- > t1497 falling O 5,7 6,7 5,8 6,8 after 1 next S level 5 lines 0 points 39
+- > t1498 falling O 5,7 6,7 5,8 6,8 after 2 next S level 5 lines 0 points 39
+- > t1499 falling O 5,7 6,7 5,8 6,8 after 3 next S level 5 lines 0 points 39
+- > t1500 falling O 5,7 6,7 5,8 6,8 after 4 next S level 5 lines 0 points 39
+- > t1501 falling O 5,7 6,7 5,8 6,8 after 5 next S level 5 lines 0 points 39
+- > t1502 falling O 5,7 6,7 5,8 6,8 after 6 next S level 5 lines 0 points 39
+- > t1503 falling O 5,7 6,7 5,8 6,8 after 7 next S level 5 lines 0 points 39
+- > t1504 falling O 5,7 6,7 5,8 6,8 after 8 next S level 5 lines 0 points 39
+- > t1505 falling O 5,7 6,7 5,8 6,8 after 9 next S level 5 lines 0 points 39
+- > t1506 falling O 5,7 6,7 5,8 6,8 after 10 next S level 5 lines 0 points 39
+- > t1507 falling O 5,7 6,7 5,8 6,8 after 11 next S level 5 lines 0 points 39
+- > t1508 falling O 5,7 6,7 5,8 6,8 after 12 next S level 5 lines 0 points 39
+- > t1509 falling O 5,7 6,7 5,8 6,8 after 13 next S level 5 lines 0 points 39
+- > t1510 falling O 5,7 6,7 5,8 6,8 after 14 next S level 5 lines 0 points 39
+- > t1511 falling O 5,7 6,7 5,8 6,8 after 15 next S level 5 lines 0 points 39
+- > t1512 falling O 5,7 6,7 5,8 6,8 after 16 next S level 5 lines 0 points 39
+- > t1513 falling O 5,7 6,7 5,8 6,8 after 17 next S level 5 lines 0 points 39
+- > t1514 falling O 5,7 6,7 5,8 6,8 after 18 next S level 5 lines 0 points 39
+- > t1515 falling O 5,7 6,7 5,8 6,8 after 19 next S level 5 lines 0 points 39
+- > t1516 falling O 5,7 6,7 5,8 6,8 after 20 next S level 5 lines 0 points 39
+- > t1517 falling O 5,7 6,7 5,8 6,8 after 21 next S level 5 lines 0 points 39
+- > t1518 falling O 5,7 6,7 5,8 6,8 after 22 next S level 5 lines 0 points 39
+- > t1519 falling O 5,8 6,8 5,9 6,9 after 0 next S level 5 lines 0 points 39
+- > t1520 falling O 5,8 6,8 5,9 6,9 after 1 next S level 5 lines 0 points 39
+- > t1521 falling O 5,8 6,8 5,9 6,9 after 2 next S level 5 lines 0 points 39
+- > t1522 falling O 5,8 6,8 5,9 6,9 after 3 next S level 5 lines 0 points 39
+- > t1523 falling O 5,8 6,8 5,9 6,9 after 4 next S level 5 lines 0 points 39
+- > t1524 falling O 5,8 6,8 5,9 6,9 after 5 next S level 5 lines 0 points 39
+- > t1525 falling O 5,8 6,8 5,9 6,9 after 6 next S level 5 lines 0 points 39
+- > t1526 falling O 5,8 6,8 5,9 6,9 after 7 next S level 5 lines 0 points 39
+- > t1527 falling O 5,8 6,8 5,9 6,9 after 8 next S level 5 lines 0 points 39
+- > t1528 falling O 5,8 6,8 5,9 6,9 after 9 next S level 5 lines 0 points 39
+- > t1529 falling O 5,8 6,8 5,9 6,9 after 10 next S level 5 lines 0 points 39
+- > t1530 falling O 5,8 6,8 5,9 6,9 after 11 next S level 5 lines 0 points 39
+- > t1531 falling O 5,8 6,8 5,9 6,9 after 12 next S level 5 lines 0 points 39
+- > t1532 falling O 5,8 6,8 5,9 6,9 after 13 next S level 5 lines 0 points 39
+- > t1533 falling O 5,8 6,8 5,9 6,9 after 14 next S level 5 lines 0 points 39
+- > t1534 falling O 5,8 6,8 5,9 6,9 after 15 next S level 5 lines 0 points 39
+- > t1535 falling O 5,8 6,8 5,9 6,9 after 16 next S level 5 lines 0 points 39
+- > t1536 falling O 5,8 6,8 5,9 6,9 after 17 next S level 5 lines 0 points 39
+- > t1537 falling O 5,8 6,8 5,9 6,9 after 18 next S level 5 lines 0 points 39
+- > t1538 falling O 5,8 6,8 5,9 6,9 after 19 next S level 5 lines 0 points 39
+- > t1539 falling O 5,8 6,8 5,9 6,9 after 20 next S level 5 lines 0 points 39
+- > t1540 falling O 5,8 6,8 5,9 6,9 after 21 next S level 5 lines 0 points 39
+- > t1541 falling O 5,8 6,8 5,9 6,9 after 22 next S level 5 lines 0 points 39
+- > t1542 entry 16 next S level 5 lines 0 points 39 | locked O 5,8 6,8 5,9 6,9
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .....OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1543 entry 15 next S level 5 lines 0 points 39
+- > t1544 entry 14 next S level 5 lines 0 points 39
+- > t1545 entry 13 next S level 5 lines 0 points 39
+- > t1546 entry 12 next S level 5 lines 0 points 39
+- > t1547 entry 11 next S level 5 lines 0 points 39
+- > t1548 entry 10 next S level 5 lines 0 points 39
+- > t1549 entry 9 next S level 5 lines 0 points 39
+- > t1550 entry 8 next S level 5 lines 0 points 39
+- > t1551 entry 7 next S level 5 lines 0 points 39
+- > t1552 entry 6 next S level 5 lines 0 points 39
+- > t1553 entry 5 next S level 5 lines 0 points 39
+- > t1554 entry 4 next S level 5 lines 0 points 39
+- > t1555 entry 3 next S level 5 lines 0 points 39
+- > t1556 entry 2 next S level 5 lines 0 points 39
+- > t1557 entry 1 next S level 5 lines 0 points 39
+- > t1558 falling S 5,0 6,0 4,1 5,1 after 0 next L level 5 lines 0 points 39
++RIGHT > t1559 falling S 6,0 7,0 5,1 6,1 after 1 next L level 5 lines 0 points 39
+-RIGHT > t1560 falling S 6,0 7,0 5,1 6,1 after 2 next L level 5 lines 0 points 39
++RIGHT > t1561 falling S 7,0 8,0 6,1 7,1 after 3 next L level 5 lines 0 points 39
+-RIGHT > t1562 falling S 7,0 8,0 6,1 7,1 after 4 next L level 5 lines 0 points 39
+- > t1563 falling S 7,0 8,0 6,1 7,1 after 5 next L level 5 lines 0 points 39
+- > t1564 falling S 7,0 8,0 6,1 7,1 after 6 next L level 5 lines 0 points 39
+- > t1565 falling S 7,0 8,0 6,1 7,1 after 7 next L level 5 lines 0 points 39
+- > t1566 falling S 7,0 8,0 6,1 7,1 after 8 next L level 5 lines 0 points 39
+- > t1567 falling S 7,0 8,0 6,1 7,1 after 9 next L level 5 lines 0 points 39
+- > t1568 falling S 7,0 8,0 6,1 7,1 after 10 next L level 5 lines 0 points 39
+- > t1569 falling S 7,0 8,0 6,1 7,1 after 11 next L level 5 lines 0 points 39
+- > t1570 falling S 7,0 8,0 6,1 7,1 after 12 next L level 5 lines 0 points 39
+- > t1571 falling S 7,0 8,0 6,1 7,1 after 13 next L level 5 lines 0 points 39
+- > t1572 falling S 7,0 8,0 6,1 7,1 after 14 next L level 5 lines 0 points 39
+- > t1573 falling S 7,0 8,0 6,1 7,1 after 15 next L level 5 lines 0 points 39
+- > t1574 falling S 7,0 8,0 6,1 7,1 after 16 next L level 5 lines 0 points 39
+- > t1575 falling S 7,0 8,0 6,1 7,1 after 17 next L level 5 lines 0 points 39
+- > t1576 falling S 7,0 8,0 6,1 7,1 after 18 next L level 5 lines 0 points 39
+- > t1577 falling S 7,0 8,0 6,1 7,1 after 19 next L level 5 lines 0 points 39
+- > t1578 falling S 7,0 8,0 6,1 7,1 after 20 next L level 5 lines 0 points 39
+- > t1579 falling S 7,0 8,0 6,1 7,1 after 21 next L level 5 lines 0 points 39
+- > t1580 falling S 7,0 8,0 6,1 7,1 after 22 next L level 5 lines 0 points 39
+- > t1581 falling S 7,1 8,1 6,2 7,2 after 0 next L level 5 lines 0 points 39
+- > t1582 falling S 7,1 8,1 6,2 7,2 after 1 next L level 5 lines 0 points 39
+- > t1583 falling S 7,1 8,1 6,2 7,2 after 2 next L level 5 lines 0 points 39
+- > t1584 falling S 7,1 8,1 6,2 7,2 after 3 next L level 5 lines 0 points 39
+- > t1585 falling S 7,1 8,1 6,2 7,2 after 4 next L level 5 lines 0 points 39
+- > t1586 falling S 7,1 8,1 6,2 7,2 after 5 next L level 5 lines 0 points 39
+- > t1587 falling S 7,1 8,1 6,2 7,2 after 6 next L level 5 lines 0 points 39
+- > t1588 falling S 7,1 8,1 6,2 7,2 after 7 next L level 5 lines 0 points 39
+- > t1589 falling S 7,1 8,1 6,2 7,2 after 8 next L level 5 lines 0 points 39
+- > t1590 falling S 7,1 8,1 6,2 7,2 after 9 next L level 5 lines 0 points 39
+- > t1591 falling S 7,1 8,1 6,2 7,2 after 10 next L level 5 lines 0 points 39
+- > t1592 falling S 7,1 8,1 6,2 7,2 after 11 next L level 5 lines 0 points 39
+- > t1593 falling S 7,1 8,1 6,2 7,2 after 12 next L level 5 lines 0 points 39
+- > t1594 falling S 7,1 8,1 6,2 7,2 after 13 next L level 5 lines 0 points 39
+- > t1595 falling S 7,1 8,1 6,2 7,2 after 14 next L level 5 lines 0 points 39
+- > t1596 falling S 7,1 8,1 6,2 7,2 after 15 next L level 5 lines 0 points 39
+- > t1597 falling S 7,1 8,1 6,2 7,2 after 16 next L level 5 lines 0 points 39
+- > t1598 falling S 7,1 8,1 6,2 7,2 after 17 next L level 5 lines 0 points 39
+- > t1599 falling S 7,1 8,1 6,2 7,2 after 18 next L level 5 lines 0 points 39
+- > t1600 falling S 7,1 8,1 6,2 7,2 after 19 next L level 5 lines 0 points 39
+- > t1601 falling S 7,1 8,1 6,2 7,2 after 20 next L level 5 lines 0 points 39
+- > t1602 falling S 7,1 8,1 6,2 7,2 after 21 next L level 5 lines 0 points 39
+- > t1603 falling S 7,1 8,1 6,2 7,2 after 22 next L level 5 lines 0 points 39
+- > t1604 falling S 7,2 8,2 6,3 7,3 after 0 next L level 5 lines 0 points 39
+- > t1605 falling S 7,2 8,2 6,3 7,3 after 1 next L level 5 lines 0 points 39
+- > t1606 falling S 7,2 8,2 6,3 7,3 after 2 next L level 5 lines 0 points 39
+- > t1607 falling S 7,2 8,2 6,3 7,3 after 3 next L level 5 lines 0 points 39
+- > t1608 falling S 7,2 8,2 6,3 7,3 after 4 next L level 5 lines 0 points 39
+- > t1609 falling S 7,2 8,2 6,3 7,3 after 5 next L level 5 lines 0 points 39
+- > t1610 falling S 7,2 8,2 6,3 7,3 after 6 next L level 5 lines 0 points 39
+- > t1611 falling S 7,2 8,2 6,3 7,3 after 7 next L level 5 lines 0 points 39
+- > t1612 falling S 7,2 8,2 6,3 7,3 after 8 next L level 5 lines 0 points 39
+- > t1613 falling S 7,2 8,2 6,3 7,3 after 9 next L level 5 lines 0 points 39
+- > t1614 falling S 7,2 8,2 6,3 7,3 after 10 next L level 5 lines 0 points 39
+- > t1615 falling S 7,2 8,2 6,3 7,3 after 11 next L level 5 lines 0 points 39
+- > t1616 falling S 7,2 8,2 6,3 7,3 after 12 next L level 5 lines 0 points 39
+- > t1617 falling S 7,2 8,2 6,3 7,3 after 13 next L level 5 lines 0 points 39
+- > t1618 falling S 7,2 8,2 6,3 7,3 after 14 next L level 5 lines 0 points 39
+- > t1619 falling S 7,2 8,2 6,3 7,3 after 15 next L level 5 lines 0 points 39
+- > t1620 falling S 7,2 8,2 6,3 7,3 after 16 next L level 5 lines 0 points 39
+- > t1621 falling S 7,2 8,2 6,3 7,3 after 17 next L level 5 lines 0 points 39
+- > t1622 falling S 7,2 8,2 6,3 7,3 after 18 next L level 5 lines 0 points 39
+- > t1623 falling S 7,2 8,2 6,3 7,3 after 19 next L level 5 lines 0 points 39
+- > t1624 falling S 7,2 8,2 6,3 7,3 after 20 next L level 5 lines 0 points 39
+- > t1625 falling S 7,2 8,2 6,3 7,3 after 21 next L level 5 lines 0 points 39
+- > t1626 falling S 7,2 8,2 6,3 7,3 after 22 next L level 5 lines 0 points 39
+- > t1627 falling S 7,3 8,3 6,4 7,4 after 0 next L level 5 lines 0 points 39
+- > t1628 falling S 7,3 8,3 6,4 7,4 after 1 next L level 5 lines 0 points 39
+- > t1629 falling S 7,3 8,3 6,4 7,4 after 2 next L level 5 lines 0 points 39
+- > t1630 falling S 7,3 8,3 6,4 7,4 after 3 next L level 5 lines 0 points 39
+- > t1631 falling S 7,3 8,3 6,4 7,4 after 4 next L level 5 lines 0 points 39
+- > t1632 falling S 7,3 8,3 6,4 7,4 after 5 next L level 5 lines 0 points 39
+- > t1633 falling S 7,3 8,3 6,4 7,4 after 6 next L level 5 lines 0 points 39
+- > t1634 falling S 7,3 8,3 6,4 7,4 after 7 next L level 5 lines 0 points 39
+- > t1635 falling S 7,3 8,3 6,4 7,4 after 8 next L level 5 lines 0 points 39
+- > t1636 falling S 7,3 8,3 6,4 7,4 after 9 next L level 5 lines 0 points 39
+- > t1637 falling S 7,3 8,3 6,4 7,4 after 10 next L level 5 lines 0 points 39
+- > t1638 falling S 7,3 8,3 6,4 7,4 after 11 next L level 5 lines 0 points 39
+- > t1639 falling S 7,3 8,3 6,4 7,4 after 12 next L level 5 lines 0 points 39
+- > t1640 falling S 7,3 8,3 6,4 7,4 after 13 next L level 5 lines 0 points 39
+- > t1641 falling S 7,3 8,3 6,4 7,4 after 14 next L level 5 lines 0 points 39
+- > t1642 falling S 7,3 8,3 6,4 7,4 after 15 next L level 5 lines 0 points 39
+- > t1643 falling S 7,3 8,3 6,4 7,4 after 16 next L level 5 lines 0 points 39
+- > t1644 falling S 7,3 8,3 6,4 7,4 after 17 next L level 5 lines 0 points 39
+- > t1645 falling S 7,3 8,3 6,4 7,4 after 18 next L level 5 lines 0 points 39
+- > t1646 falling S 7,3 8,3 6,4 7,4 after 19 next L level 5 lines 0 points 39
+- > t1647 falling S 7,3 8,3 6,4 7,4 after 20 next L level 5 lines 0 points 39
+- > t1648 falling S 7,3 8,3 6,4 7,4 after 21 next L level 5 lines 0 points 39
+- > t1649 falling S 7,3 8,3 6,4 7,4 after 22 next L level 5 lines 0 points 39
+- > t1650 falling S 7,4 8,4 6,5 7,5 after 0 next L level 5 lines 0 points 39
+- > t1651 falling S 7,4 8,4 6,5 7,5 after 1 next L level 5 lines 0 points 39
+- > t1652 falling S 7,4 8,4 6,5 7,5 after 2 next L level 5 lines 0 points 39
+- > t1653 falling S 7,4 8,4 6,5 7,5 after 3 next L level 5 lines 0 points 39
+- > t1654 falling S 7,4 8,4 6,5 7,5 after 4 next L level 5 lines 0 points 39
+- > t1655 falling S 7,4 8,4 6,5 7,5 after 5 next L level 5 lines 0 points 39
+- > t1656 falling S 7,4 8,4 6,5 7,5 after 6 next L level 5 lines 0 points 39
+- > t1657 falling S 7,4 8,4 6,5 7,5 after 7 next L level 5 lines 0 points 39
+- > t1658 falling S 7,4 8,4 6,5 7,5 after 8 next L level 5 lines 0 points 39
+- > t1659 falling S 7,4 8,4 6,5 7,5 after 9 next L level 5 lines 0 points 39
+- > t1660 falling S 7,4 8,4 6,5 7,5 after 10 next L level 5 lines 0 points 39
+- > t1661 falling S 7,4 8,4 6,5 7,5 after 11 next L level 5 lines 0 points 39
+- > t1662 falling S 7,4 8,4 6,5 7,5 after 12 next L level 5 lines 0 points 39
+- > t1663 falling S 7,4 8,4 6,5 7,5 after 13 next L level 5 lines 0 points 39
+- > t1664 falling S 7,4 8,4 6,5 7,5 after 14 next L level 5 lines 0 points 39
+- > t1665 falling S 7,4 8,4 6,5 7,5 after 15 next L level 5 lines 0 points 39
+- > t1666 falling S 7,4 8,4 6,5 7,5 after 16 next L level 5 lines 0 points 39
+- > t1667 falling S 7,4 8,4 6,5 7,5 after 17 next L level 5 lines 0 points 39
+- > t1668 falling S 7,4 8,4 6,5 7,5 after 18 next L level 5 lines 0 points 39
+- > t1669 falling S 7,4 8,4 6,5 7,5 after 19 next L level 5 lines 0 points 39
+- > t1670 falling S 7,4 8,4 6,5 7,5 after 20 next L level 5 lines 0 points 39
+- > t1671 falling S 7,4 8,4 6,5 7,5 after 21 next L level 5 lines 0 points 39
+- > t1672 falling S 7,4 8,4 6,5 7,5 after 22 next L level 5 lines 0 points 39
+- > t1673 falling S 7,5 8,5 6,6 7,6 after 0 next L level 5 lines 0 points 39
+- > t1674 falling S 7,5 8,5 6,6 7,6 after 1 next L level 5 lines 0 points 39
+- > t1675 falling S 7,5 8,5 6,6 7,6 after 2 next L level 5 lines 0 points 39
+- > t1676 falling S 7,5 8,5 6,6 7,6 after 3 next L level 5 lines 0 points 39
+- > t1677 falling S 7,5 8,5 6,6 7,6 after 4 next L level 5 lines 0 points 39
+- > t1678 falling S 7,5 8,5 6,6 7,6 after 5 next L level 5 lines 0 points 39
+- > t1679 falling S 7,5 8,5 6,6 7,6 after 6 next L level 5 lines 0 points 39
+- > t1680 falling S 7,5 8,5 6,6 7,6 after 7 next L level 5 lines 0 points 39
+- > t1681 falling S 7,5 8,5 6,6 7,6 after 8 next L level 5 lines 0 points 39
+- > t1682 falling S 7,5 8,5 6,6 7,6 after 9 next L level 5 lines 0 points 39
+- > t1683 falling S 7,5 8,5 6,6 7,6 after 10 next L level 5 lines 0 points 39
+- > t1684 falling S 7,5 8,5 6,6 7,6 after 11 next L level 5 lines 0 points 39
+- > t1685 falling S 7,5 8,5 6,6 7,6 after 12 next L level 5 lines 0 points 39
+- > t1686 falling S 7,5 8,5 6,6 7,6 after 13 next L level 5 lines 0 points 39
+- > t1687 falling S 7,5 8,5 6,6 7,6 after 14 next L level 5 lines 0 points 39
+- > t1688 falling S 7,5 8,5 6,6 7,6 after 15 next L level 5 lines 0 points 39
+- > t1689 falling S 7,5 8,5 6,6 7,6 after 16 next L level 5 lines 0 points 39
+- > t1690 falling S 7,5 8,5 6,6 7,6 after 17 next L level 5 lines 0 points 39
+- > t1691 falling S 7,5 8,5 6,6 7,6 after 18 next L level 5 lines 0 points 39
+- > t1692 falling S 7,5 8,5 6,6 7,6 after 19 next L level 5 lines 0 points 39
+- > t1693 falling S 7,5 8,5 6,6 7,6 after 20 next L level 5 lines 0 points 39
+- > t1694 falling S 7,5 8,5 6,6 7,6 after 21 next L level 5 lines 0 points 39
+- > t1695 falling S 7,5 8,5 6,6 7,6 after 22 next L level 5 lines 0 points 39
+- > t1696 falling S 7,6 8,6 6,7 7,7 after 0 next L level 5 lines 0 points 39
+- > t1697 falling S 7,6 8,6 6,7 7,7 after 1 next L level 5 lines 0 points 39
+- > t1698 falling S 7,6 8,6 6,7 7,7 after 2 next L level 5 lines 0 points 39
+- > t1699 falling S 7,6 8,6 6,7 7,7 after 3 next L level 5 lines 0 points 39
+- > t1700 falling S 7,6 8,6 6,7 7,7 after 4 next L level 5 lines 0 points 39
+- > t1701 falling S 7,6 8,6 6,7 7,7 after 5 next L level 5 lines 0 points 39
+- > t1702 falling S 7,6 8,6 6,7 7,7 after 6 next L level 5 lines 0 points 39
+- > t1703 falling S 7,6 8,6 6,7 7,7 after 7 next L level 5 lines 0 points 39
+- > t1704 falling S 7,6 8,6 6,7 7,7 after 8 next L level 5 lines 0 points 39
+- > t1705 falling S 7,6 8,6 6,7 7,7 after 9 next L level 5 lines 0 points 39
+- > t1706 falling S 7,6 8,6 6,7 7,7 after 10 next L level 5 lines 0 points 39
+- > t1707 falling S 7,6 8,6 6,7 7,7 after 11 next L level 5 lines 0 points 39
+- > t1708 falling S 7,6 8,6 6,7 7,7 after 12 next L level 5 lines 0 points 39
+- > t1709 falling S 7,6 8,6 6,7 7,7 after 13 next L level 5 lines 0 points 39
+- > t1710 falling S 7,6 8,6 6,7 7,7 after 14 next L level 5 lines 0 points 39
+- > t1711 falling S 7,6 8,6 6,7 7,7 after 15 next L level 5 lines 0 points 39
+- > t1712 falling S 7,6 8,6 6,7 7,7 after 16 next L level 5 lines 0 points 39
+- > t1713 falling S 7,6 8,6 6,7 7,7 after 17 next L level 5 lines 0 points 39
+- > t1714 falling S 7,6 8,6 6,7 7,7 after 18 next L level 5 lines 0 points 39
+- > t1715 falling S 7,6 8,6 6,7 7,7 after 19 next L level 5 lines 0 points 39
+- > t1716 falling S 7,6 8,6 6,7 7,7 after 20 next L level 5 lines 0 points 39
+- > t1717 falling S 7,6 8,6 6,7 7,7 after 21 next L level 5 lines 0 points 39
+- > t1718 falling S 7,6 8,6 6,7 7,7 after 22 next L level 5 lines 0 points 39
+- > t1719 entry 16 next L level 5 lines 0 points 39 | locked S 7,6 8,6 6,7 7,7
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......SS.
+  ......SS..
+  .....OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1720 entry 15 next L level 5 lines 0 points 39
+- > t1721 entry 14 next L level 5 lines 0 points 39
+- > t1722 entry 13 next L level 5 lines 0 points 39
+- > t1723 entry 12 next L level 5 lines 0 points 39
+- > t1724 entry 11 next L level 5 lines 0 points 39
+- > t1725 entry 10 next L level 5 lines 0 points 39
+- > t1726 entry 9 next L level 5 lines 0 points 39
+- > t1727 entry 8 next L level 5 lines 0 points 39
+- > t1728 entry 7 next L level 5 lines 0 points 39
+- > t1729 entry 6 next L level 5 lines 0 points 39
+- > t1730 entry 5 next L level 5 lines 0 points 39
+- > t1731 entry 4 next L level 5 lines 0 points 39
+- > t1732 entry 3 next L level 5 lines 0 points 39
+- > t1733 entry 2 next L level 5 lines 0 points 39
+- > t1734 entry 1 next L level 5 lines 0 points 39
+- > t1735 falling L 4,0 5,0 6,0 4,1 after 0 next I level 5 lines 0 points 39
++LEFT > t1736 falling L 3,0 4,0 5,0 3,1 after 1 next I level 5 lines 0 points 39
+-LEFT +DOWN > t1737 falling L 3,0 4,0 5,0 3,1 after 2 next I level 5 lines 0 points 39
+- > t1738 falling L 3,0 4,0 5,0 3,1 after 3 next I level 5 lines 0 points 39
+- > t1739 falling L 3,1 4,1 5,1 3,2 after 0 soft 1 next I level 5 lines 0 points 39
+- > t1740 falling L 3,1 4,1 5,1 3,2 after 1 soft 1 next I level 5 lines 0 points 39
+- > t1741 falling L 3,2 4,2 5,2 3,3 after 0 soft 2 next I level 5 lines 0 points 39
+- > t1742 falling L 3,2 4,2 5,2 3,3 after 1 soft 2 next I level 5 lines 0 points 39
+- > t1743 falling L 3,3 4,3 5,3 3,4 after 0 soft 3 next I level 5 lines 0 points 39
+- > t1744 falling L 3,3 4,3 5,3 3,4 after 1 soft 3 next I level 5 lines 0 points 39
+- > t1745 falling L 3,4 4,4 5,4 3,5 after 0 soft 4 next I level 5 lines 0 points 39
+- > t1746 falling L 3,4 4,4 5,4 3,5 after 1 soft 4 next I level 5 lines 0 points 39
+- > t1747 falling L 3,5 4,5 5,5 3,6 after 0 soft 5 next I level 5 lines 0 points 39
+- > t1748 falling L 3,5 4,5 5,5 3,6 after 1 soft 5 next I level 5 lines 0 points 39
+- > t1749 falling L 3,6 4,6 5,6 3,7 after 0 soft 6 next I level 5 lines 0 points 39
+- > t1750 falling L 3,6 4,6 5,6 3,7 after 1 soft 6 next I level 5 lines 0 points 39
+- > t1751 falling L 3,7 4,7 5,7 3,8 after 0 soft 7 next I level 5 lines 0 points 39
+- > t1752 falling L 3,7 4,7 5,7 3,8 after 1 soft 7 next I level 5 lines 0 points 39
+- > t1753 entry 16 next I level 5 lines 0 points 46 | locked L 3,7 4,7 5,7 3,8
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .......SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1754 entry 15 next I level 5 lines 0 points 46
+- > t1755 entry 14 next I level 5 lines 0 points 46
+- > t1756 entry 13 next I level 5 lines 0 points 46
+- > t1757 entry 12 next I level 5 lines 0 points 46
+- > t1758 entry 11 next I level 5 lines 0 points 46
+- > t1759 entry 10 next I level 5 lines 0 points 46
+- > t1760 entry 9 next I level 5 lines 0 points 46
+- > t1761 entry 8 next I level 5 lines 0 points 46
+- > t1762 entry 7 next I level 5 lines 0 points 46
+- > t1763 entry 6 next I level 5 lines 0 points 46
+- > t1764 entry 5 next I level 5 lines 0 points 46
+- > t1765 entry 4 next I level 5 lines 0 points 46
+- > t1766 entry 3 next I level 5 lines 0 points 46
+- > t1767 entry 2 next I level 5 lines 0 points 46
+- > t1768 entry 1 next I level 5 lines 0 points 46
+- > t1769 falling I 3,0 4,0 5,0 6,0 after 0 next Z level 5 lines 0 points 46
+-DOWN +RIGHT > t1770 falling I 4,0 5,0 6,0 7,0 after 1 next Z level 5 lines 0 points 46
+-RIGHT > t1771 falling I 4,0 5,0 6,0 7,0 after 2 next Z level 5 lines 0 points 46
++RIGHT > t1772 falling I 5,0 6,0 7,0 8,0 after 3 next Z level 5 lines 0 points 46
+-RIGHT +DOWN > t1773 falling I 5,0 6,0 7,0 8,0 after 4 next Z level 5 lines 0 points 46
+- > t1774 falling I 5,0 6,0 7,0 8,0 after 5 next Z level 5 lines 0 points 46
+- > t1775 falling I 5,1 6,1 7,1 8,1 after 0 soft 1 next Z level 5 lines 0 points 46
+- > t1776 falling I 5,1 6,1 7,1 8,1 after 1 soft 1 next Z level 5 lines 0 points 46
+- > t1777 falling I 5,2 6,2 7,2 8,2 after 0 soft 2 next Z level 5 lines 0 points 46
+- > t1778 falling I 5,2 6,2 7,2 8,2 after 1 soft 2 next Z level 5 lines 0 points 46
+- > t1779 falling I 5,3 6,3 7,3 8,3 after 0 soft 3 next Z level 5 lines 0 points 46
+- > t1780 falling I 5,3 6,3 7,3 8,3 after 1 soft 3 next Z level 5 lines 0 points 46
+- > t1781 falling I 5,4 6,4 7,4 8,4 after 0 soft 4 next Z level 5 lines 0 points 46
+- > t1782 falling I 5,4 6,4 7,4 8,4 after 1 soft 4 next Z level 5 lines 0 points 46
+- > t1783 falling I 5,5 6,5 7,5 8,5 after 0 soft 5 next Z level 5 lines 0 points 46
+- > t1784 falling I 5,5 6,5 7,5 8,5 after 1 soft 5 next Z level 5 lines 0 points 46
+- > t1785 entry 18 next Z level 5 lines 0 points 51 danger | locked I 5,5 6,5 7,5 8,5; danger on
+  ..........
+  ..........
+  ..........
+  ..........
+  ..........
+  .....IIII.
+  .......SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1786 entry 17 next Z level 5 lines 0 points 51 danger
+- > t1787 entry 16 next Z level 5 lines 0 points 51 danger
+- > t1788 entry 15 next Z level 5 lines 0 points 51 danger
+- > t1789 entry 14 next Z level 5 lines 0 points 51 danger
+- > t1790 entry 13 next Z level 5 lines 0 points 51 danger
+- > t1791 entry 12 next Z level 5 lines 0 points 51 danger
+- > t1792 entry 11 next Z level 5 lines 0 points 51 danger
+- > t1793 entry 10 next Z level 5 lines 0 points 51 danger
+- > t1794 entry 9 next Z level 5 lines 0 points 51 danger
+- > t1795 entry 8 next Z level 5 lines 0 points 51 danger
+- > t1796 entry 7 next Z level 5 lines 0 points 51 danger
+- > t1797 entry 6 next Z level 5 lines 0 points 51 danger
+- > t1798 entry 5 next Z level 5 lines 0 points 51 danger
+- > t1799 entry 4 next Z level 5 lines 0 points 51 danger
+- > t1800 entry 3 next Z level 5 lines 0 points 51 danger
+- > t1801 entry 2 next Z level 5 lines 0 points 51 danger
+- > t1802 entry 1 next Z level 5 lines 0 points 51 danger
+- > t1803 falling Z 4,0 5,0 5,1 6,1 after 0 next L level 5 lines 0 points 51 danger
+-DOWN +A +RIGHT > t1804 falling Z 7,-1 6,0 7,0 6,1 after 1 next L level 5 lines 0 points 51 danger | rotated Z 7,-1 6,0 7,0 6,1 CLOCKWISE
+-A -RIGHT > t1805 falling Z 7,-1 6,0 7,0 6,1 after 2 next L level 5 lines 0 points 51 danger
++RIGHT > t1806 falling Z 8,-1 7,0 8,0 7,1 after 3 next L level 5 lines 0 points 51 danger
+-RIGHT +DOWN > t1807 falling Z 8,-1 7,0 8,0 7,1 after 4 next L level 5 lines 0 points 51 danger
+- > t1808 falling Z 8,-1 7,0 8,0 7,1 after 5 next L level 5 lines 0 points 51 danger
+- > t1809 falling Z 8,0 7,1 8,1 7,2 after 0 soft 1 next L level 5 lines 0 points 51 danger
+- > t1810 falling Z 8,0 7,1 8,1 7,2 after 1 soft 1 next L level 5 lines 0 points 51 danger
+- > t1811 falling Z 8,1 7,2 8,2 7,3 after 0 soft 2 next L level 5 lines 0 points 51 danger
+- > t1812 falling Z 8,1 7,2 8,2 7,3 after 1 soft 2 next L level 5 lines 0 points 51 danger
+- > t1813 falling Z 8,2 7,3 8,3 7,4 after 0 soft 3 next L level 5 lines 0 points 51 danger
+- > t1814 falling Z 8,2 7,3 8,3 7,4 after 1 soft 3 next L level 5 lines 0 points 51 danger
+- > t1815 entry 18 next L level 5 lines 0 points 54 danger | locked Z 8,2 7,3 8,3 7,4
+  ..........
+  ..........
+  ........Z.
+  .......ZZ.
+  .......Z..
+  .....IIII.
+  .......SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1816 entry 17 next L level 5 lines 0 points 54 danger
+- > t1817 entry 16 next L level 5 lines 0 points 54 danger
+- > t1818 entry 15 next L level 5 lines 0 points 54 danger
+- > t1819 entry 14 next L level 5 lines 0 points 54 danger
+- > t1820 entry 13 next L level 5 lines 0 points 54 danger
+- > t1821 entry 12 next L level 5 lines 0 points 54 danger
+- > t1822 entry 11 next L level 5 lines 0 points 54 danger
+- > t1823 entry 10 next L level 5 lines 0 points 54 danger
+- > t1824 entry 9 next L level 5 lines 0 points 54 danger
+- > t1825 entry 8 next L level 5 lines 0 points 54 danger
+- > t1826 entry 7 next L level 5 lines 0 points 54 danger
+- > t1827 entry 6 next L level 5 lines 0 points 54 danger
+- > t1828 entry 5 next L level 5 lines 0 points 54 danger
+- > t1829 entry 4 next L level 5 lines 0 points 54 danger
+- > t1830 entry 3 next L level 5 lines 0 points 54 danger
+- > t1831 entry 2 next L level 5 lines 0 points 54 danger
+- > t1832 entry 1 next L level 5 lines 0 points 54 danger
+- > t1833 falling L 4,0 5,0 6,0 4,1 after 0 next I level 5 lines 0 points 54 danger
+-DOWN +A +LEFT > t1834 falling L 3,-1 4,-1 4,0 4,1 after 1 next I level 5 lines 0 points 54 danger | rotated L 3,-1 4,-1 4,0 4,1 CLOCKWISE
+-A -LEFT +DOWN > t1835 falling L 3,-1 4,-1 4,0 4,1 after 2 next I level 5 lines 0 points 54 danger
+- > t1836 falling L 3,-1 4,-1 4,0 4,1 after 3 next I level 5 lines 0 points 54 danger
+- > t1837 falling L 3,0 4,0 4,1 4,2 after 0 soft 1 next I level 5 lines 0 points 54 danger
+- > t1838 falling L 3,0 4,0 4,1 4,2 after 1 soft 1 next I level 5 lines 0 points 54 danger
+- > t1839 falling L 3,1 4,1 4,2 4,3 after 0 soft 2 next I level 5 lines 0 points 54 danger
+- > t1840 falling L 3,1 4,1 4,2 4,3 after 1 soft 2 next I level 5 lines 0 points 54 danger
+- > t1841 falling L 3,2 4,2 4,3 4,4 after 0 soft 3 next I level 5 lines 0 points 54 danger
+- > t1842 falling L 3,2 4,2 4,3 4,4 after 1 soft 3 next I level 5 lines 0 points 54 danger
+- > t1843 falling L 3,3 4,3 4,4 4,5 after 0 soft 4 next I level 5 lines 0 points 54 danger
+- > t1844 falling L 3,3 4,3 4,4 4,5 after 1 soft 4 next I level 5 lines 0 points 54 danger
+- > t1845 falling L 3,4 4,4 4,5 4,6 after 0 soft 5 next I level 5 lines 0 points 54 danger
+- > t1846 falling L 3,4 4,4 4,5 4,6 after 1 soft 5 next I level 5 lines 0 points 54 danger
+- > t1847 entry 18 next I level 5 lines 0 points 59 danger | locked L 3,4 4,4 4,5 4,6
+  ..........
+  ..........
+  ........Z.
+  .......ZZ.
+  ...LL..Z..
+  ....LIIII.
+  ....L..SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1848 entry 17 next I level 5 lines 0 points 59 danger
+- > t1849 entry 16 next I level 5 lines 0 points 59 danger
+- > t1850 entry 15 next I level 5 lines 0 points 59 danger
+- > t1851 entry 14 next I level 5 lines 0 points 59 danger
+- > t1852 entry 13 next I level 5 lines 0 points 59 danger
+- > t1853 entry 12 next I level 5 lines 0 points 59 danger
+- > t1854 entry 11 next I level 5 lines 0 points 59 danger
+- > t1855 entry 10 next I level 5 lines 0 points 59 danger
+- > t1856 entry 9 next I level 5 lines 0 points 59 danger
+- > t1857 entry 8 next I level 5 lines 0 points 59 danger
+- > t1858 entry 7 next I level 5 lines 0 points 59 danger
+- > t1859 entry 6 next I level 5 lines 0 points 59 danger
+- > t1860 entry 5 next I level 5 lines 0 points 59 danger
+- > t1861 entry 4 next I level 5 lines 0 points 59 danger
+- > t1862 entry 3 next I level 5 lines 0 points 59 danger
+- > t1863 entry 2 next I level 5 lines 0 points 59 danger
+- > t1864 entry 1 next I level 5 lines 0 points 59 danger
+- > t1865 falling I 3,0 4,0 5,0 6,0 after 0 next O level 5 lines 0 points 59 danger
+-DOWN +LEFT > t1866 falling I 2,0 3,0 4,0 5,0 after 1 next O level 5 lines 0 points 59 danger
+-LEFT +DOWN > t1867 falling I 2,0 3,0 4,0 5,0 after 2 next O level 5 lines 0 points 59 danger
+- > t1868 falling I 2,0 3,0 4,0 5,0 after 3 next O level 5 lines 0 points 59 danger
+- > t1869 falling I 2,1 3,1 4,1 5,1 after 0 soft 1 next O level 5 lines 0 points 59 danger
+- > t1870 falling I 2,1 3,1 4,1 5,1 after 1 soft 1 next O level 5 lines 0 points 59 danger
+- > t1871 falling I 2,2 3,2 4,2 5,2 after 0 soft 2 next O level 5 lines 0 points 59 danger
+- > t1872 falling I 2,2 3,2 4,2 5,2 after 1 soft 2 next O level 5 lines 0 points 59 danger
+- > t1873 falling I 2,3 3,3 4,3 5,3 after 0 soft 3 next O level 5 lines 0 points 59 danger
+- > t1874 falling I 2,3 3,3 4,3 5,3 after 1 soft 3 next O level 5 lines 0 points 59 danger
+- > t1875 entry 18 next O level 5 lines 0 points 62 danger | locked I 2,3 3,3 4,3 5,3
+  ..........
+  ..........
+  ........Z.
+  ..IIII.ZZ.
+  ...LL..Z..
+  ....LIIII.
+  ....L..SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1876 entry 17 next O level 5 lines 0 points 62 danger
+- > t1877 entry 16 next O level 5 lines 0 points 62 danger
+- > t1878 entry 15 next O level 5 lines 0 points 62 danger
+- > t1879 entry 14 next O level 5 lines 0 points 62 danger
+- > t1880 entry 13 next O level 5 lines 0 points 62 danger
+- > t1881 entry 12 next O level 5 lines 0 points 62 danger
+- > t1882 entry 11 next O level 5 lines 0 points 62 danger
+- > t1883 entry 10 next O level 5 lines 0 points 62 danger
+- > t1884 entry 9 next O level 5 lines 0 points 62 danger
+- > t1885 entry 8 next O level 5 lines 0 points 62 danger
+- > t1886 entry 7 next O level 5 lines 0 points 62 danger
+- > t1887 entry 6 next O level 5 lines 0 points 62 danger
+- > t1888 entry 5 next O level 5 lines 0 points 62 danger
+- > t1889 entry 4 next O level 5 lines 0 points 62 danger
+- > t1890 entry 3 next O level 5 lines 0 points 62 danger
+- > t1891 entry 2 next O level 5 lines 0 points 62 danger
+- > t1892 entry 1 next O level 5 lines 0 points 62 danger
+- > t1893 falling O 4,0 5,0 4,1 5,1 after 0 next Z level 5 lines 0 points 62 danger
+-DOWN +A +RIGHT > t1894 falling O 5,0 6,0 5,1 6,1 after 1 next Z level 5 lines 0 points 62 danger
+-A -RIGHT > t1895 falling O 5,0 6,0 5,1 6,1 after 2 next Z level 5 lines 0 points 62 danger
+- > t1896 falling O 5,0 6,0 5,1 6,1 after 3 next Z level 5 lines 0 points 62 danger
+- > t1897 falling O 5,0 6,0 5,1 6,1 after 4 next Z level 5 lines 0 points 62 danger
+- > t1898 falling O 5,0 6,0 5,1 6,1 after 5 next Z level 5 lines 0 points 62 danger
+- > t1899 falling O 5,0 6,0 5,1 6,1 after 6 next Z level 5 lines 0 points 62 danger
+- > t1900 falling O 5,0 6,0 5,1 6,1 after 7 next Z level 5 lines 0 points 62 danger
+- > t1901 falling O 5,0 6,0 5,1 6,1 after 8 next Z level 5 lines 0 points 62 danger
+- > t1902 falling O 5,0 6,0 5,1 6,1 after 9 next Z level 5 lines 0 points 62 danger
+- > t1903 falling O 5,0 6,0 5,1 6,1 after 10 next Z level 5 lines 0 points 62 danger
+- > t1904 falling O 5,0 6,0 5,1 6,1 after 11 next Z level 5 lines 0 points 62 danger
+- > t1905 falling O 5,0 6,0 5,1 6,1 after 12 next Z level 5 lines 0 points 62 danger
+- > t1906 falling O 5,0 6,0 5,1 6,1 after 13 next Z level 5 lines 0 points 62 danger
+- > t1907 falling O 5,0 6,0 5,1 6,1 after 14 next Z level 5 lines 0 points 62 danger
+- > t1908 falling O 5,0 6,0 5,1 6,1 after 15 next Z level 5 lines 0 points 62 danger
+- > t1909 falling O 5,0 6,0 5,1 6,1 after 16 next Z level 5 lines 0 points 62 danger
+- > t1910 falling O 5,0 6,0 5,1 6,1 after 17 next Z level 5 lines 0 points 62 danger
+- > t1911 falling O 5,0 6,0 5,1 6,1 after 18 next Z level 5 lines 0 points 62 danger
+- > t1912 falling O 5,0 6,0 5,1 6,1 after 19 next Z level 5 lines 0 points 62 danger
+- > t1913 falling O 5,0 6,0 5,1 6,1 after 20 next Z level 5 lines 0 points 62 danger
+- > t1914 falling O 5,0 6,0 5,1 6,1 after 21 next Z level 5 lines 0 points 62 danger
+- > t1915 falling O 5,0 6,0 5,1 6,1 after 22 next Z level 5 lines 0 points 62 danger
+- > t1916 falling O 5,1 6,1 5,2 6,2 after 0 next Z level 5 lines 0 points 62 danger
+- > t1917 falling O 5,1 6,1 5,2 6,2 after 1 next Z level 5 lines 0 points 62 danger
+- > t1918 falling O 5,1 6,1 5,2 6,2 after 2 next Z level 5 lines 0 points 62 danger
+- > t1919 falling O 5,1 6,1 5,2 6,2 after 3 next Z level 5 lines 0 points 62 danger
+- > t1920 falling O 5,1 6,1 5,2 6,2 after 4 next Z level 5 lines 0 points 62 danger
+- > t1921 falling O 5,1 6,1 5,2 6,2 after 5 next Z level 5 lines 0 points 62 danger
+- > t1922 falling O 5,1 6,1 5,2 6,2 after 6 next Z level 5 lines 0 points 62 danger
+- > t1923 falling O 5,1 6,1 5,2 6,2 after 7 next Z level 5 lines 0 points 62 danger
+- > t1924 falling O 5,1 6,1 5,2 6,2 after 8 next Z level 5 lines 0 points 62 danger
+- > t1925 falling O 5,1 6,1 5,2 6,2 after 9 next Z level 5 lines 0 points 62 danger
+- > t1926 falling O 5,1 6,1 5,2 6,2 after 10 next Z level 5 lines 0 points 62 danger
+- > t1927 falling O 5,1 6,1 5,2 6,2 after 11 next Z level 5 lines 0 points 62 danger
+- > t1928 falling O 5,1 6,1 5,2 6,2 after 12 next Z level 5 lines 0 points 62 danger
+- > t1929 falling O 5,1 6,1 5,2 6,2 after 13 next Z level 5 lines 0 points 62 danger
+- > t1930 falling O 5,1 6,1 5,2 6,2 after 14 next Z level 5 lines 0 points 62 danger
+- > t1931 falling O 5,1 6,1 5,2 6,2 after 15 next Z level 5 lines 0 points 62 danger
+- > t1932 falling O 5,1 6,1 5,2 6,2 after 16 next Z level 5 lines 0 points 62 danger
+- > t1933 falling O 5,1 6,1 5,2 6,2 after 17 next Z level 5 lines 0 points 62 danger
+- > t1934 falling O 5,1 6,1 5,2 6,2 after 18 next Z level 5 lines 0 points 62 danger
+- > t1935 falling O 5,1 6,1 5,2 6,2 after 19 next Z level 5 lines 0 points 62 danger
+- > t1936 falling O 5,1 6,1 5,2 6,2 after 20 next Z level 5 lines 0 points 62 danger
+- > t1937 falling O 5,1 6,1 5,2 6,2 after 21 next Z level 5 lines 0 points 62 danger
+- > t1938 falling O 5,1 6,1 5,2 6,2 after 22 next Z level 5 lines 0 points 62 danger
+- > t1939 entry 18 next Z level 5 lines 0 points 62 danger | locked O 5,1 6,1 5,2 6,2
+  ..........
+  .....OO...
+  .....OO.Z.
+  ..IIII.ZZ.
+  ...LL..Z..
+  ....LIIII.
+  ....L..SS.
+  ...LLLSS..
+  ...L.OO...
+  .....OO...
+  ...LLL....
+  ...L......
+  ...SS.....
+  ..SSJ.....
+  ....J.....
+  ...JJZZ...
+  ....I.ZZ..
+  ....I..T..
+  ....I.TT..
+  ....I..T..
+- > t1940 entry 17 next Z level 5 lines 0 points 62 danger
+- > t1941 entry 16 next Z level 5 lines 0 points 62 danger
+- > t1942 entry 15 next Z level 5 lines 0 points 62 danger
+- > t1943 entry 14 next Z level 5 lines 0 points 62 danger
+- > t1944 entry 13 next Z level 5 lines 0 points 62 danger
+- > t1945 entry 12 next Z level 5 lines 0 points 62 danger
+- > t1946 entry 11 next Z level 5 lines 0 points 62 danger
+- > t1947 entry 10 next Z level 5 lines 0 points 62 danger
+- > t1948 entry 9 next Z level 5 lines 0 points 62 danger
+- > t1949 entry 8 next Z level 5 lines 0 points 62 danger
+- > t1950 entry 7 next Z level 5 lines 0 points 62 danger
+- > t1951 entry 6 next Z level 5 lines 0 points 62 danger
+- > t1952 entry 5 next Z level 5 lines 0 points 62 danger
+- > t1953 entry 4 next Z level 5 lines 0 points 62 danger
+- > t1954 entry 3 next Z level 5 lines 0 points 62 danger
+- > t1955 entry 2 next Z level 5 lines 0 points 62 danger
+- > t1956 entry 1 next Z level 5 lines 0 points 62 danger
+- > t1957 over Z 4,0 5,0 5,1 6,1 next S level 5 lines 0 points 62 danger | game-over

@@ -8,7 +8,7 @@ import ch.magori.blox.core.game.model.Ticks
 public sealed interface Phase {
     /**
      * [piece] is in play and falls. [ticksSinceDrop] counts the ticks since it appeared or last
-     * dropped: it drops when that count reaches the ticks per row of the level. [softDrop] is the repeat
+     * dropped: it drops when the drop timing of the rules says so (`Rules.dropTiming`). [softDrop] is the repeat
      * of the soft drop, null when none is going on: only a new press of down starts it. [softDropRows] is
      * the rows it dropped the piece in a row, which score when the piece locks. A piece appears with
      * neither.
