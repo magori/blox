@@ -1232,8 +1232,9 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
   niveau 1, un niveau toutes les 10 lignes).
 - [ ] **P6.16** Choix du mode : mode enregistré dans les préférences, *Moderne* activé dans V1,
   fabrique du moteur choisie par `app` ; records par mode.
-- [ ] **P6.17** Page Paramètres (V21, P5.50) : nombre de pièces suivantes (3 par défaut), commandes par
-  boutons ou par gestes ; enregistrés dans `core:data`.
+- [ ] **P6.17** Page Paramètres, section « Réglages du Classique » (ADR 0030, P12.9 ; montrée seulement quand la
+  page est ouverte depuis l'accueil du Classique, pas dans « Tous les jeux ») : nombre de pièces suivantes (3 par
+  défaut), commandes par boutons ou par gestes ; enregistrés dans `core:data`.
 - [ ] **P6.18** Écran de jeu Moderne : réserve, file de pièces suivantes, pièce fantôme
   (style par thème), boutons de chute instantanée et de réserve.
 - [ ] **P6.19** Commandes par gestes : glisser pour déplacer, taper pour tourner, glisser vers
@@ -1241,7 +1242,7 @@ niveau 1, gravité de plus d'une ligne par tick jusqu'à la chute immédiate au 
 - [ ] **P6.20** Fin de partie Moderne : statistiques (T-spins, plus long combo) dans V4 ; sons
   des nouveaux événements.
 - [ ] **P6.21** Option « garder les cellules au-dessus du plateau » : zone cachée stockée dans
-  `Board`, réglable dans l'écran Réglages.
+  `Board`, réglable dans la section « Réglages du Classique » de la page Paramètres (ADR 0030, P12.9).
 - [ ] **P6.22** Mettre à jour la maquette : écran de jeu et fin de partie du mode Moderne,
   écran Réglages.
 
@@ -1746,7 +1747,7 @@ seulement, jour et nuit.
   mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
   beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
   beat`, `the tempo is 1800 over the ticks per eighth`.
-- [ ] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
+- [x] **P11.6** `TempoDropTiming` : une ligne par croche, calée sur `tickCount`. Après P11.4, P11.5. Cas : `the piece
   falls one row on every eighth`, `a piece that appears between two eighths falls on the next one`, `the level does
   not change the fall`, `the soft drop stays the one of the Classic`.
 - [ ] **P11.7** `TempoScore`, bonus hors du moteur, et l'information « verrouillage amené par la descente rapide »
@@ -1759,7 +1760,9 @@ seulement, jour et nuit.
   total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
   locked`. Point ouvert (revue de P11.5) : une pose à 475 ticks est sur le temps de la noire 480 (temps 1), mais
   `Meter.barOf(475)` rend 4 ; la mesure d'une pose sur le temps doit-elle être celle de la noire la plus proche ?
-  Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`.
+  Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`. Depuis P11.6, sous ▼ tenu, seul un pas
+  refusé verrouille la pièce : la croche ne la fait plus tomber pendant la descente rapide (`softDropping`), si bien
+  que l'information « verrouillage amené par la descente rapide » est univoque.
 - [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
   référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
   `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
@@ -1854,7 +1857,8 @@ pause (P11.11).
   ouvert. » (aujourd'hui « Valable dès la partie suivante », faux pour les volumes et les Effets réduits) ; « Le
   thème du Classique se choisit dans son accueil. ». Après P12.3.
 - [ ] **P12.8** Page Paramètres couchée et sur tablette (deux colonnes), après P5.84 et P12.3.
-- [ ] **P12.9** Réorienter P6.17 et P6.21 vers la section « Classique » de la page. Après P12.3.
+- [x] **P12.9** Réorienter P6.17 et P6.21 vers la section « Classique » de la page. Après P12.3. Fait le
+  2026-10-30 : texte de SUIVI seulement, aucun code de P6 (accord du développeur, P6 restant gelée).
 - [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
   sur V38 ; V21 remplacée ; textes de P12.7 (sous-lignes qui nomment les jeux, notes sur les volumes et le thème).

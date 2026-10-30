@@ -73,3 +73,17 @@ maintenant, pour que `TempoDropTiming` (P11.6) ne modifie pas le moteur une seco
 `ClassicDropTiming` l'ignore. La non-régression ne repose pas sur des parties tirées au hasard à
 chaque exécution, mais sur cinq parties de référence, à graines fixes, enregistrées tick par tick
 avant l'extraction (`ReferenceGamesTest`, `core/game/src/test/resources/reference-games`).
+
+## Note (2026-10-30, P11.6)
+
+Le but d'une seule modification du moteur n'est pas tenu : `TempoDropTiming` en demande une seconde.
+`dropsAfter` reçoit en plus `softDropping: Boolean`, que le moteur tire de la phase `Falling`
+(`softDrop != null`) : ▼ tenu, entre deux pas. La raison : au Classique, chaque pas de la descente
+rapide remet le compte de la gravité à zéro, si bien que la gravité ne s'en mêle qu'aux niveaux 19 et
+plus ; une croche, calée sur `tickCount`, ignore ce compte et ferait descendre la pièce d'une ligne de
+plus entre deux pas. La descente rapide d'Au tempo ne serait plus celle du Classique, et une croche
+pourrait verrouiller par la gravité une pièce sous ▼ tenu, ce qui brouillerait l'information
+« verrouillage amené par la descente rapide » de `TempoScore` (P11.7). Le paramètre est un fait
+neutre, sans condition propre à Au tempo dans le moteur (ADR 0015) ; `ClassicDropTiming` l'ignore, et
+les parties de référence restent identiques. Pour **P6.11** : quand `DropTiming` rendra un nombre de
+lignes, il recevra aussi `softDropping`.
