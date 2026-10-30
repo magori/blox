@@ -23,13 +23,14 @@ data object CartridgesRoute : NavKey
  * dont `app` ouvre le jeu. De même, [padlockFrontier] donne la frontière du Serrurier, la première serrure non ouverte,
  * que sa cartouche nomme (« Serrure N »), nulle tant que l'avancement n'est pas lu : `app` la tire de l'avancement des
  * serrures, que cette feature ne connaît pas. Sans ViewModel : la liste est statique, l'autocollant et la sous-ligne
- * viennent de flux.
+ * viennent de flux. [onSettings] reçoit le toucher sur la roue dentée, dont `app` ouvre les Paramètres (ADR 0030).
  */
 fun EntryProviderScope<NavKey>.cartridgesEntry(
     newCartridges: Flow<Set<Cartridge>>,
     currentNewCartridges: () -> Set<Cartridge>,
     padlockFrontier: StateFlow<Int?>,
     onOpen: (Cartridge) -> Unit,
+    onSettings: () -> Unit,
 ) {
     entry<CartridgesRoute> {
         val new by newCartridges.collectAsStateWithLifecycle(initialValue = remember { currentNewCartridges() })
@@ -39,6 +40,7 @@ fun EntryProviderScope<NavKey>.cartridgesEntry(
             newCartridges = new,
             padlockFrontier = frontier,
             onOpen = onOpen,
+            onSettings = onSettings,
         )
     }
 }

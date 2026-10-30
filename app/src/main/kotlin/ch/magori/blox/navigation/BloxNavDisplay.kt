@@ -94,6 +94,7 @@ fun BloxNavDisplay(
                 currentNewCartridges = newCartridges::current,
                 padlockFrontier = padlockFrontier.current,
                 onOpen = cartridges::open,
+                onSettings = cartridges::openSettings,
             )
             homeEntry(
                 onPlay = { startLevel -> backStack.add(newGameRoute(startLevel)) },

@@ -82,7 +82,9 @@ du jour. Sous son nom, le Serrurier porte la sous-ligne « Serrure *N* », sa fr
 le nom ; « Serrure 1000 » tient sur une ligne en police ×2 à 360 dp), affichée seulement une fois l'avancement lu ;
 la place de cette ligne est réservée sur toutes les cartouches, pour que la grille ne bouge pas (détail et tests dans
 [regles-serrurier.md](regles-serrurier.md), « Avancement et anciennes serrures »). En bas, « Touche une cartouche
-pour l'ouvrir. ». Écarts retenus : pas d'engrenage Paramètres dans la barre,
+pour l'ouvrir. ». Au bout de la barre, la roue dentée (P12.5, `SettingsButton` de 48 dp, lue « Paramètres », avant le titre
+dans l'ordre de TalkBack) ouvre les Paramètres sans section de jeu, `SettingsRoute()` (ADR 0030) ; le retour revient au
+choix du jeu. Elle passe par `CartridgeOpener`, comme les cartouches. Écarts retenus :
 pas d'animation d'entrée de l'autocollant, qui ne descend pas avec la cartouche pressée ; coins de la cartouche en
 `radius-window` (24 au lieu de 22) ; corps de la mascotte de la Graine en `piece-z` (rose) et non orange, les mascottes
 prenant les jetons des pièces.
@@ -93,7 +95,15 @@ prenant les jetons des pièces.
 `CartridgesScreenTest › on 360 dp, of an odd number of cartridges, the last one stands alone below, centred`,
 `CartridgesScreenTest › in a font twice as large, on 240 dp, the cartridges stand in one column: two names do not hold side by side`,
 `CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on two lines at most, unclipped`,
-`CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`,
+`CartridgesScreenTest › the gear at the end of the bar, above the title, is a button of 48 dp read « Paramètres »`,
+`CartridgesScreenTest › TalkBack reads the gear before the heading « Choix du jeu »`,
+`CartridgesScreenTest › the gear tapped calls for the settings`,
+`CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges and the gear`,
+`OpenCartridgeTest › the gear opens the settings over the cartridges, with no section of a game`,
+`OpenCartridgeTest › a tap on the gear cancels a tap on the Locksmith still waiting for its frontier`,
+`OpenCartridgeTest › the gear stacks nothing once a game is on its way`,
+`OpenCartridgeTest › two taps on the gear stack one settings page`,
+`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
 `CartridgeTest › each cartridge bears the mascot of its game, the T, the O, the L or the Z`,
 `CartridgeTest › the cartridges are the Classic, the Locksmith, the Jardin musical, the Graine du jour, in this order`,
 `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,

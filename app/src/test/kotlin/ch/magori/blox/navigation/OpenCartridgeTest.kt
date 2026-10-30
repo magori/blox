@@ -8,6 +8,7 @@ import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import ch.magori.blox.feature.settings.navigation.SettingsRoute
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
@@ -145,6 +146,61 @@ class OpenCartridgeTest {
 
         // Then: the screen of the garden reads the garden kept itself
         assertThat(backStack).containsExactly(CartridgesRoute, GardenRoute)
+    }
+
+    @Test
+    fun `the gear opens the settings over the cartridges, with no section of a game`() = runTest {
+        // Given the choice of the game
+        val backStack = NavBackStack<NavKey>(CartridgesRoute)
+
+        // When, nothing else run
+        opener(backStack).openSettings()
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, SettingsRoute())
+    }
+
+    @Test
+    fun `a tap on the gear cancels a tap on the Locksmith still waiting for its frontier`() = runTest {
+        // Given a tap on the Locksmith cartridge, the progress still being read
+        val backStack = NavBackStack<NavKey>(CartridgesRoute)
+        val progressRead = CompletableDeferred<Int>()
+        val opener = opener(backStack) { progressRead.await() }
+        opener.open(Cartridge.LOCKSMITH)
+        runCurrent()
+
+        // When the gear is tapped before the reading, which then gives the frontier
+        opener.openSettings()
+        progressRead.complete(FRONTIER)
+        runCurrent()
+
+        // Then no padlock comes over the settings
+        assertThat(backStack).containsExactly(CartridgesRoute, SettingsRoute())
+    }
+
+    @Test
+    fun `the gear stacks nothing once a game is on its way`() = runTest {
+        // Given the Classic home, opened by a tap on its cartridge
+        val backStack = NavBackStack<NavKey>(CartridgesRoute, HomeRoute)
+
+        // When a tap on the gear of the cartridges arrives after it
+        opener(backStack).openSettings()
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, HomeRoute)
+    }
+
+    @Test
+    fun `two taps on the gear stack one settings page`() = runTest {
+        // Given the choice of the game
+        val backStack = NavBackStack<NavKey>(CartridgesRoute)
+        val opener = opener(backStack)
+
+        // When both taps of a double tap arrive
+        repeat(2) { opener.openSettings() }
+
+        // Then
+        assertThat(backStack).containsExactly(CartridgesRoute, SettingsRoute())
     }
 
     /** The cartridges over [backStack], the tap on the Locksmith waiting in this test for [frontier]. */
