@@ -1404,7 +1404,8 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   les pictogrammes restés à 16 dp en grande police ; l'état vide sans Reprendre ; la serrure en cours au-delà de la
   frontière, qui ne s'affiche pas. Recommencer depuis le début (P7.37) : juger les captures `PadlocksClear*` (la
   fenêtre, jour, nuit, grande police, échec) ; vérifier à la main, avec TalkBack, que « Progression effacée. » est
-  bien annoncé par la serrure 1.
+  bien annoncé par la serrure 1. La pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (capture
+  `PieceTilesShrunk`, relevé en P7.42).
 - [ ] **P7.40** Revoir le placement des pièces au toucher, « pas très fluide ni pratique » (retour du développeur,
   2026-10-28, à reprendre plus tard) : Serrurier et Jardin musical, qui le partagent (aperçu, visée, pose au second
   toucher). Observer d'abord sur téléphone ce qui gêne, puis faire proposer par `designer-jeu` (glisser la pièce,
@@ -1413,9 +1414,10 @@ difficulté croissante au-delà de la serrure 4, avant de figer le générateur.
   la 6e tuile n'avait que 27 dp ; les tuiles rétrécissent jusqu'à 48 dp, puis passent sur deux rangées de 4 au plus
   (`trayLayout`, en pixels entiers). Une tuile de 48 dp dessinait sa pièce en noir (canevas sans largeur dans
   `PieceTile`) : corrigé. Prêt pour les serrures de 7 et 8 pièces (P7.29).
-- [ ] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
+- [x] **P7.42** « Recommencer » coupé au milieu du mot à 300 et 320 dp (captures `LocksmithSixTilesNarrowDay`,
   `LocksmithFiveTilesNarrowDay`, défaut antérieur à P7.41) : garder le mot entier (réduire, ou passer sous Indice).
-  Juger aussi avec P7.39 la pièce I choisie dans une tuile de 48 dp, à 1 dp de l'anneau (`PieceTilesShrunk`).
+  Recommencer passe sous Indice, centré, quand il ne tient plus à côté (`FlowRow`, comme les pilules des accords),
+  aussi en police doublée. La pièce I dans une tuile de 48 dp (`PieceTilesShrunk`) est à juger en P7.39.
 - [ ] **P7.43** Régénérer le profil de référence du Serrurier (`:app:generateBaselineProfile`, sur un appareil
   Android 13 ou plus) : il cite encore `Padlock.generate`, supprimé en P7.30.
 - [ ] **P7.44** Mesurer le pire temps de `Padlock.ofLevel` sur les serrures 1 à 200 (`PadlockMeasure`) : il tourne

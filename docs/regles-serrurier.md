@@ -789,6 +789,14 @@ droite.
   `LocksmithScreenTest › on a phone of 320 dp, the 6 tiles go on two rows of 3, the second under the first`,
   `LocksmithScreenTest › on 300 dp, a padlock of 5 pieces centres its last 2 tiles under the first 3` ;
   captures `LocksmithSixTilesDay`, `LocksmithSixTilesNarrowDay`, `LocksmithFiveTilesNarrowDay`. Vues : V35.
+- **Indice et Recommencer** (P7.42) : côte à côte, centrés, chacun à sa largeur ; quand Recommencer n'a plus la
+  place de son mot à côté d'Indice (à 320 dp et moins, ou en police agrandie), il passe sous Indice, centré, comme
+  les pilules des accords passent à la ligne : aucun libellé n'est coupé au milieu de son mot, et aucun ne rétrécit
+  (en police doublée, à côté d'Indice, même réduit au plancher de `shrinkFloor`, le mot ne tiendrait pas). Aux
+  largeurs des captures (360 et 390 dp), rien ne change.
+  **Tests :**
+  `LocksmithScreenTest › on narrow phones, font normal or doubled, Indice and Recommencer keep whole words in width` ;
+  captures `LocksmithSixTilesNarrowDay`, `LocksmithFiveTilesNarrowDay`, `LocksmithBarLargeFontDay`. Vues : V35.
 - **Pose en deux temps** : toucher une case présente la pièce choisie en **aperçu**, pivot sous
   le doigt ; on la tourne, on la déplace d'un autre toucher, puis **Poser** (ou un second
   toucher sur l'aperçu) la pose. Les cases fautives de l'aperçu sont barrées : l'aperçu est un
