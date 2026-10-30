@@ -46,6 +46,21 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
 `ScoresTest › each arrangement is known by its own identifier`. Vue : V1.
 
+**Identités** (P11.15) : `ScoreId` est scellée. `KOROBEINIKI` et `MINUET` désignent les arrangements ;
+`ScoreId.Personal(key)` désigne tout le reste, soit une musique du joueur (clé UUID donnée à
+l'enregistrement par `DataStoreMusicLibrary`), soit une musique composée par un jeu et jamais gardée,
+sous une clé fixe qui lui est propre : `live-calm` et `live-tense` (`LiveMusic.CALM_ID`, `TENSE_ID`),
+`garden` (`GARDEN_SCORE_ID`), `tempo-accompaniment` (`Accompaniment`). Pas d'identité dédiée aux
+musiques de jeu : elles ne croisent jamais celles du joueur. Une clé de jeu n'est pas un UUID ; la
+bibliothèque ne connaît que les musiques qu'elle a enregistrées (choisir pour les parties une musique
+absente est refusé), si bien qu'aucune musique de jeu n'est listée dans Mes musiques, renommée,
+enregistrée ni choisie pour les parties ; le séquenceur reconnaît une partition à toute la `Score`
+(notes comprises), pas à son seul identifiant. Chaque musique de jeu a sa propre clé fixe, distincte
+de celle des autres.
+
+**Tests :** `MusicLibraryContract › a music that is not saved cannot be chosen for the games`,
+`GameMusicKeysTest › the musics composed by the games each have their own key`.
+
 **Aperçu qui s'arrête de lui-même** (P4.23) : chaque lecture expose son état
 (`Playback.isPlaying`), vrai dès qu'elle joue ou attend le focus, faux pour de bon quand elle
 est arrêtée, remplacée, refusée par le focus, quand le séquenceur échoue, que le focus est perdu

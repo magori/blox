@@ -12,27 +12,27 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.NullSource
 import org.junit.jupiter.params.provider.ValueSource
 
-class RecordBarTest {
-    @ParameterizedTest(name = "{0} points of a record of {1}: {2}")
+class BestBarTest {
+    @ParameterizedTest(name = "{0} points of a best of {1}: {2}")
     @CsvSource("0, 1000, 0", "250, 1000, 0.25", "999, 1000, 0.999", "1000, 1000, 1", "1001, 1000, 1", "5000000, 1, 1")
-    fun `the record bar fills with the score up to the record`(
+    fun `the best bar fills with the score up to the best`(
         score: Int,
-        record: Int,
+        best: Int,
         fill: Float,
     ) {
         // When
-        val bar = recordBarFill(Points(score), record)
+        val bar = bestBarFill(Points(score), best)
 
-        // Then full once the score reaches the record, never beyond
+        // Then full once the score reaches the best, never beyond
         assertThat(bar).isEqualTo(fill)
     }
 
-    @ParameterizedTest(name = "a record of {0}")
+    @ParameterizedTest(name = "a best of {0}")
     @NullSource
     @ValueSource(ints = [0])
-    fun `without a record the record bar is hidden`(record: Int?) {
+    fun `without a best the best bar is hidden`(best: Int?) {
         // When
-        val bar = recordBarFill(Points(1200), record)
+        val bar = bestBarFill(Points(1200), best)
 
         // Then
         assertThat(bar).isNull()
@@ -40,14 +40,14 @@ class RecordBarTest {
 
     @ParameterizedTest(name = "{0}")
     @MethodSource("palettes")
-    fun `the filled part of the record bar stands out from its track by 3 to 1 at least`(
+    fun `the filled part of the best bar stands out from its track by 3 to 1 at least`(
         theme: String,
         palette: BloxPalette,
     ) {
         // When
-        val colors = recordBarColors(palette)
+        val colors = bestBarColors(palette)
 
-        // Then (WCAG 2.1, 1.4.11: the fill tells how near the record is)
+        // Then (WCAG 2.1, 1.4.11: the fill tells how near the best is)
         assertThat(contrast(colors.fill, colors.track)).isGreaterThanOrEqualTo(3.0)
     }
 

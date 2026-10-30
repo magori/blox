@@ -14,11 +14,11 @@ import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.game.model.Points
-import ch.magori.blox.feature.game.isRecord
+import ch.magori.blox.feature.game.isBest
 import ch.magori.blox.feature.game.ui.PanelSizes
 
-/** The sizes of the record bar, in one place. */
-private object RecordBarSizes {
+/** The sizes of the best bar, in one place. */
+private object BestBarSizes {
     /** Its height, as `docs/design-system/components/StatPanel` says. */
     val height = 4.dp
 
@@ -27,27 +27,28 @@ private object RecordBarSizes {
 }
 
 /**
- * How much of the record bar under the score is filled, from 0 to 1: [score] against [record], full once the score
- * reaches it. Null without a record above 0 (0, or not read yet): the bar is then hidden.
+ * How much of the best bar under the score is filled, from 0 to 1: [score] against [best] (the record of the Classic,
+ * or the best of the day), full once the score reaches it. Null without a best above 0 (0, or not read yet): the bar
+ * is then hidden.
  */
-internal fun recordBarFill(
+internal fun bestBarFill(
     score: Points,
-    record: Int?,
-): Float? = if (record.isRecord()) minOf(score.value.toFloat() / record, 1f) else null
+    best: Int?,
+): Float? = if (best.isBest()) minOf(score.value.toFloat() / best, 1f) else null
 
 /**
- * The record bar drawn at the bottom of a panel, in its padding, as wide as its content: a track, filled from the start
- * of the line up to [fill], of 0 to 1, in the colours of [recordBarColors], in pills (square in Original). Drawn over
+ * The best bar drawn at the bottom of a panel, in its padding, as wide as its content: a track, filled from the start
+ * of the line up to [fill], of 0 to 1, in the colours of [bestBarColors], in pills (square in Original). Drawn over
  * the panel, it changes neither its size nor the place of its value.
  */
 @Composable
-internal fun Modifier.recordBar(fill: Float): Modifier {
-    val colors = recordBarColors(BloxTheme.palette)
+internal fun Modifier.bestBar(fill: Float): Modifier {
+    val colors = bestBarColors(BloxTheme.palette)
     val shape = BloxTheme.shapes.pill
     return drawWithCache {
         val inset = (BloxBorders.frame + PanelSizes.padding).toPx()
-        val height = RecordBarSizes.height.toPx()
-        val top = size.height - (BloxBorders.frame + RecordBarSizes.bottom).toPx() - height
+        val height = BestBarSizes.height.toPx()
+        val top = size.height - (BloxBorders.frame + BestBarSizes.bottom).toPx() - height
         val track = Size((size.width - 2 * inset).coerceAtLeast(0f), height)
         val filled = Size(track.width * fill, height)
         val trackOutline = shape.createOutline(track, layoutDirection, this)
@@ -61,14 +62,14 @@ internal fun Modifier.recordBar(fill: Float): Modifier {
     }
 }
 
-/** The colours of the record bar: its [track], and its [fill] up to the score. */
+/** The colours of the best bar: its [track], and its [fill] up to the score. */
 @Immutable
-internal data class RecordBarColors(val track: Color, val fill: Color)
+internal data class BestBarColors(val track: Color, val fill: Color)
 
 /**
- * The colours of the record bar in [palette]: a track of `panel-inset`, filled in `accent-pressed`, which stands out
+ * The colours of the best bar in [palette]: a track of `panel-inset`, filled in `accent-pressed`, which stands out
  * from it by 3:1 at least in every theme (WCAG 2.1, 1.4.11). The design system gives `panel-border` and `accent`: the
  * same green in Original, 1.6:1 in Couleurs by day, the progress would not show.
  */
-internal fun recordBarColors(palette: BloxPalette): RecordBarColors =
-    RecordBarColors(track = palette.panelInset, fill = palette.accentPressed)
+internal fun bestBarColors(palette: BloxPalette): BestBarColors =
+    BestBarColors(track = palette.panelInset, fill = palette.accentPressed)

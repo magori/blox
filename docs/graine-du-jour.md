@@ -364,7 +364,7 @@ par `GameVariants.setupOf` (ADR 0026) : l'écran ne connaît pas la variante.
 `GameViewModelTest › the screen gets the labels of the variant of its game`,
 `GameScreenTest › a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record`,
 `GameScreenTest › once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such`,
-`GameTopBarTest › on a phone of 360 dp the bar stays on one row once the record is beaten, font enlarged`
+`GameTopBarTest › on a phone of 360 dp the bar stays on one row once the best is beaten, font enlarged`
 et les autres cas de largeur de `GameTopBarTest`, joués aussi avec les libellés du jour ;
 captures `GameScreenDaily`, `GameScreenDailyNight`.
 

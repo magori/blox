@@ -1,7 +1,5 @@
 package ch.magori.blox.feature.composer.grid
 
-import ch.magori.blox.core.designsystem.theme.BloxGlossSets
-import ch.magori.blox.core.designsystem.theme.BloxGlosses
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant

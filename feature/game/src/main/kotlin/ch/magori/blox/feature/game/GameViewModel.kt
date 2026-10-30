@@ -183,11 +183,12 @@ class GameViewModel internal constructor(
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
         // process dies, unlike this view model. A configuration change keeps the view model, and so the game.
         savedState[STARTED_KEY] = true
-        // The record shown in the top bar: its real value, followed as it changes. Unreadable records are
-        // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
+        // The best shown in the top bar (the record, or the best of the day): its real value, followed as it changes.
+        // Unreadable results are absorbed by the repository (its contract); any other failure is a bug, and is not
+        // swallowed here.
         viewModelScope.launch {
-            results.best.collect { record ->
-                state.update { it.copy(record = record).withBestBeaten(it.bestBeaten) }
+            results.best.collect { best ->
+                state.update { it.copy(best = best).withBestBeaten(it.bestBeaten) }
             }
         }
         // The music of the variant of the game ([GameVariants]), at the normal tempo, as every new play of the player.
@@ -345,13 +346,13 @@ class GameViewModel internal constructor(
     }
 
     /**
-     * The screen state of the game state, with what the engine does not know kept: the record, whether it is beaten,
+     * The screen state of the game state, with what the engine does not know kept: the best, whether it is beaten,
      * the game over.
      */
     private fun publish() {
         state.update {
             gameState.toUiState(nextPieces::getValue)
-                .copy(record = it.record, gameOver = it.gameOver, feedback = feedback)
+                .copy(best = it.best, gameOver = it.gameOver, feedback = feedback)
                 .withLeftHanded(it.leftHanded, gameState.isUnderWay)
                 .withBestBeaten(it.bestBeaten)
         }

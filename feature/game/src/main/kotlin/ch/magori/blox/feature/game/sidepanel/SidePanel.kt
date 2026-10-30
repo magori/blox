@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.game.sidepanel
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -12,8 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -21,11 +18,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.board.next.NextPieceCanvas
 import ch.magori.blox.core.board.next.nextPieceName
 import ch.magori.blox.core.board.piece.PieceCells
@@ -55,7 +49,7 @@ internal object SidePanelSizes {
 /**
  * The side column of the game screen (views V3, V28): the next piece at the top, near where it appears, then score,
  * lines and level, each in a panel. No logic here: the texts come from [scoreText], [levelText] and [linesText], the
- * fill of the record bar under the score, [recordFill], from [recordBarFill], the preview from [NextPieceCanvas], with
+ * fill of the best bar under the score, [bestFill], from [bestBarFill], the preview from [NextPieceCanvas], with
  * cells of [cellSize] pixels, those of the board, and [previewModifier] (the curtain of the pause). [next] is null
  * when the next piece is hidden (pause, option).
  */
@@ -65,7 +59,7 @@ internal fun SidePanel(
     level: Level,
     lines: Lines,
     next: PieceCells?,
-    recordFill: Float?,
+    bestFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
@@ -73,22 +67,22 @@ internal fun SidePanel(
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         NextPiecePanel(next = next, cellSize = cellSize, previewModifier = previewModifier)
-        ScorePanels(score = score, level = level, lines = lines, recordFill = recordFill, shownScore = shownScore)
+        ScorePanels(score = score, level = level, lines = lines, bestFill = bestFill, shownScore = shownScore)
     }
 }
 
-/** Score, its record bar filled by [recordFill], then lines and level, each in a panel, one under the other. */
+/** Score, its best bar filled by [bestFill], then lines and level, each in a panel, one under the other. */
 @Composable
 internal fun ScorePanels(
     score: Points,
     level: Level,
     lines: Lines,
-    recordFill: Float?,
+    bestFill: Float?,
     modifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ScorePanel(score, recordFill, shownScore = shownScore)
+        ScorePanel(score, bestFill, shownScore = shownScore)
         LinesPanel(lines)
         LevelPanel(level)
     }
@@ -97,7 +91,7 @@ internal fun ScorePanels(
 /**
  * The side column laid across, above the board of a very narrow window: next piece and score, then lines and level,
  * in the order of the side column; the next piece with cells of [cellSize] pixels, those of the board, its preview
- * with [previewModifier], the score with its record bar filled by [recordFill]. The two panels of a row are as wide
+ * with [previewModifier], the score with its best bar filled by [bestFill]. The two panels of a row are as wide
  * and as high as each other. [next] is null when the next piece is hidden.
  */
 @Composable
@@ -106,7 +100,7 @@ internal fun ScoreGrid(
     level: Level,
     lines: Lines,
     next: PieceCells?,
-    recordFill: Float?,
+    bestFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
@@ -120,7 +114,7 @@ internal fun ScoreGrid(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 previewModifier = previewModifier,
             )
-            ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight(), shownScore)
+            ScorePanel(score, bestFill, Modifier.weight(1f).fillMaxHeight(), shownScore)
         }
         PanelRow {
             LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
@@ -140,18 +134,18 @@ private fun PanelRow(content: @Composable RowScope.() -> Unit) {
 }
 
 /**
- * The score in its panel, the record bar under it filled by [recordFill] ([recordBar]); without a record, none. The
+ * The score in its panel, the best bar under it filled by [bestFill] ([bestBar]); without a best, none. The
  * value shown is the one [shownScore] gives, the score itself without it: a score that counts up recomposes only its
  * text ([ScoreValue], ADR 0024). TalkBack reads the score itself.
  */
 @Composable
 private fun ScorePanel(
     score: Points,
-    recordFill: Float?,
+    bestFill: Float?,
     modifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
 ) {
-    val bar = if (recordFill == null) Modifier else Modifier.recordBar(recordFill)
+    val bar = if (bestFill == null) Modifier else Modifier.bestBar(bestFill)
     ValuePanel(stringResource(R.string.feature_game_score), score.value, modifier.then(bar)) {
         if (shownScore == null) ValueText(text = scoreText(score)) else ScoreValue(shownScore)
     }
@@ -243,7 +237,7 @@ private fun SidePanelPreview(
     level: Int,
     lines: Int,
     next: PieceType?,
-    record: Int? = 98_760,
+    best: Int? = 98_760,
 ) {
     BloxTheme(kind = kind) {
         SidePanel(
@@ -251,7 +245,7 @@ private fun SidePanelPreview(
             level = Level(level),
             lines = Lines(lines),
             next = next?.let { nextPieceCells(it, ClassicRotationSystem) },
-            recordFill = recordBarFill(Points(score), record),
+            bestFill = bestBarFill(Points(score), best),
             cellSize = with(LocalDensity.current) { 18.dp.roundToPx().toFloat() },
             modifier = Modifier
                 .background(BloxTheme.palette.page)
@@ -284,5 +278,5 @@ internal fun SidePanelLargeFontPreview() {
 @Preview
 @Composable
 internal fun SidePanelNoNextPiecePreview() {
-    SidePanelPreview(BloxThemeKind.COLORFUL, score = 0, level = 0, lines = 0, next = null, record = null)
+    SidePanelPreview(BloxThemeKind.COLORFUL, score = 0, level = 0, lines = 0, next = null, best = null)
 }
