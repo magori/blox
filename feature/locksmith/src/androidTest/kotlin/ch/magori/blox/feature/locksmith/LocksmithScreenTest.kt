@@ -48,6 +48,8 @@ import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.OpeningOutcome
 import ch.magori.blox.core.designsystem.test.RecompositionRecorder
+import ch.magori.blox.core.designsystem.text.assertWordsWhole
+import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -73,6 +75,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
@@ -806,6 +809,38 @@ internal class LocksmithScreenTest {
         val secondCentre = (tiles[3].left + tiles[4].right) / 2
         assertThat(tiles[3].top).isGreaterThanOrEqualTo(tiles[0].bottom)
         assertThat(secondCentre).isCloseTo(firstCentre, within(1))
+    }
+
+    @ParameterizedTest
+    @CsvSource("300, 1", "320, 1", "300, 2", "320, 2")
+    @DisplayName("on narrow phones, font normal or doubled, Indice and Recommencer keep whole words in width")
+    fun onANarrowPhoneHintAndRestartKeepTheirWordsWhole(
+        width: Int,
+        fontScale: Float,
+    ) = extension.use {
+        // Given a phone of that width, in a font of that scale
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = fontScale)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 1, game = start),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(width.dp),
+                )
+            }
+        }
+
+        // Then neither label is cut in the middle of its word
+        assertWordsWhole(textLayout(string(R.string.feature_locksmith_hint)))
+        assertWordsWhole(textLayout(string(R.string.feature_locksmith_restart)))
+        // And Recommencer within the width, as laid out, not as clipped by the scrolling column
+        val restart = onNodeWithText(string(R.string.feature_locksmith_restart)).fetchSemanticsNode()
+        with(restart.layoutInfo.density) {
+            val left = restart.positionInRoot.x.toDp()
+            assertThat(left).describedAs("left of Recommencer").isGreaterThanOrEqualTo(0.dp)
+            assertThat(left + restart.size.width.toDp()).describedAs("right of Recommencer")
+                .isLessThanOrEqualTo(width.dp)
+        }
     }
 
     /** The screen of padlock [level], its first piece chosen, on a phone [width] wide. */
