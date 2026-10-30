@@ -14,8 +14,10 @@ import org.junit.jupiter.api.extension.RegisterExtension
  * (première composition de l'écran de la serrure comprise), sans profil puis avec le profil de référence seul
  * (compilation partielle).
  *
- * Chaque itération mesure une serrure différente : `OpenCartridge` (`app`) tire sa graine au hasard. Les pièces, le
- * trou et donc les poses acceptées ou refusées changent d'une itération à l'autre, d'où un écart entre elles.
+ * Chaque itération mesure la même serrure : `CartridgeOpener` (`app`) ouvre la frontière, la première serrure non ouverte.
+ * Sur l'application mesurée (`ch.magori.blox.perf`, installée à part), aucune serrure n'est jamais ouverte : le parcours
+ * pose toujours la même pièce, et la serrure ne s'ouvre pas (`placePieces`). La frontière reste donc la serrure 1, fixe
+ * (`Padlock.ofLevel`) : les pièces, le trou et les poses acceptées ou refusées sont les mêmes d'une itération à l'autre.
  *
  * `./gradlew :benchmark:connectedBenchmarkReleaseAndroidTest`, sur un téléphone de préférence.
  */

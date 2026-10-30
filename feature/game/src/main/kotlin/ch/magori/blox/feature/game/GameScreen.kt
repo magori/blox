@@ -61,8 +61,8 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.board.BoardCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -78,10 +78,15 @@ import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.controls.DirectionPad
 import ch.magori.blox.feature.game.controls.HeldControls
 import ch.magori.blox.feature.game.controls.Menu
+import ch.magori.blox.feature.game.controls.NoKeyAngle
 import ch.magori.blox.feature.game.controls.RotationPad
 import ch.magori.blox.feature.game.controls.keySourceOf
 import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
+import ch.magori.blox.feature.game.feedback.FeedbackEffects
+import ch.magori.blox.feature.game.feedback.PointsSticker
+import ch.magori.blox.feature.game.feedback.lineClearFeedback
+import ch.magori.blox.feature.game.feedback.rememberFeedbackEffects
 import ch.magori.blox.feature.game.gameover.GameOverScreen
 import ch.magori.blox.feature.game.pause.CurtainPhase
 import ch.magori.blox.feature.game.pause.PauseCard
@@ -119,12 +124,16 @@ import kotlin.math.roundToInt
  * The system back follows [backAction]: it pauses the game, resumes it as Reprendre does (the curtain of the pause
  * opens, then the game goes on), or, once the game is over or while the window is too small to play, leaves it as the
  * navigation does.
+ *
+ * The screen says what the variant of the game says ([GameViewModel.labels]): its title, its best to beat, and, for a
+ * daily game, Copier at the game over, given to [onCopy].
  */
 @Composable
 internal fun GameScreen(
     viewModel: GameViewModel,
     onBack: () -> Unit,
     onReplay: () -> Unit,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // The state itself, never its value: this root reads only what the system back needs, and so does
@@ -183,6 +192,8 @@ internal fun GameScreen(
         modifier = modifier,
         onTooSmallToPlayChange = { tooSmallToPlay = it },
         pauseCurtain = pauseCurtain,
+        labels = viewModel.labels,
+        onCopy = dropUnlessResumed(block = onCopy),
     )
 }
 
@@ -214,6 +225,9 @@ private fun <T> rememberPart(
  *
  * Each part of the screen reads only the part of the state it shows: a move of the piece draws the
  * board again, and recomposes nothing.
+ *
+ * The title, the label of the best to beat and its sticker, the badge of the game over and whether it offers Copier
+ * ([onCopy]) are those of the variant of the game, its [labels] (ADR 0026).
  */
 @Composable
 internal fun GameScreen(
@@ -223,6 +237,8 @@ internal fun GameScreen(
     onControl: (ControlChange) -> Unit,
     onPause: () -> Unit,
     onResume: () -> Unit,
+    labels: GameLabels,
+    onCopy: () -> Unit,
     modifier: Modifier = Modifier,
     onTooSmallToPlayChange: (Boolean) -> Unit = {},
     pauseCurtain: PauseCurtainState = rememberPauseCurtainState { uiState().paused },
@@ -256,6 +272,8 @@ internal fun GameScreen(
             onPause = pause,
             onResume = onResume,
             pauseCurtain = pauseCurtain,
+            labels = labels,
+            onCopy = onCopy,
         )
     }
 }
@@ -271,6 +289,8 @@ private fun Screens(
     onPause: () -> Unit,
     onResume: () -> Unit,
     pauseCurtain: PauseCurtainState,
+    labels: GameLabels,
+    onCopy: () -> Unit,
 ) {
     val gameOver = rememberPart(uiState) { it.gameOver }.value
     val paused by rememberPart(uiState) { it.paused }
@@ -306,6 +326,8 @@ private fun Screens(
             onReplay = onReplay,
             onMenu = onBack,
             modifier = menuModifier(Menu.GAME_OVER),
+            labels = labels,
+            onCopy = onCopy,
         )
     } else {
         Game(
@@ -316,6 +338,7 @@ private fun Screens(
             focus = gameFocus,
             curtain = { pauseCurtain.curtain },
             underCard = menu == Menu.PAUSE,
+            labels = labels,
         )
         // Over the game, once the curtain hides the board.
         if (menu == Menu.PAUSE) {
@@ -378,6 +401,7 @@ private fun Game(
     focus: FocusRequester,
     curtain: () -> PauseCurtain?,
     underCard: Boolean,
+    labels: GameLabels,
     modifier: Modifier = Modifier,
 ) {
     // Before it is beaten, the record changes once, when the records give it; then it follows the score.
@@ -401,7 +425,7 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay)
+        GameTopBar(record = record, onPause = onPause, pauseEnabled = !tooSmallToPlay, labels = labels)
         if (tooSmallToPlay) {
             TooSmallMessage(
                 modifier = Modifier
@@ -460,7 +484,7 @@ private data class SideColumn(
     val score: Points,
     val level: Level,
     val lines: Lines,
-    val next: NextPieceCells,
+    val next: PieceCells,
     val recordFill: Float?,
 )
 
@@ -470,7 +494,9 @@ private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, line
  * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it.
  * The score column scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or
  * over the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
- * cells, that covers the board and the next piece.
+ * cells, that covers the board and the next piece. In Couleurs, the effects of the game ([FeedbackEffects], ADR 0024)
+ * are read while drawing too: on the board, its sticker « +points » and the icons of B and A; only the score that counts
+ * up recomposes, its text alone.
  */
 @Composable
 private fun Play(
@@ -483,6 +509,8 @@ private fun Play(
 ) {
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
+    val effects = rememberFeedbackEffects(remember(uiState) { { uiState().feedback } })
+    val shownScore = remember(effects, uiState) { effects?.let { shown -> { shown.shownScore(uiState().score) } } }
     PlacedParts(modifier = modifier) {
         // First, under the board: its background and frame, around its cells.
         BoardFrame(modifier = Modifier.layoutId(layout.boardFrame))
@@ -490,7 +518,10 @@ private fun Play(
             board = { uiState().board },
             piece = { uiState().piece },
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
+            effects = effects?.board,
         )
+        // Over the board, its sticker « +points », under the curtain of the pause, which hides it with the board.
+        if (effects != null) PointsSticker(sticker = effects::sticker, modifier = Modifier.layoutId(layout.board))
         // Over the board, the curtain: a board of empty cells, of which only the rows it covers are drawn.
         BoardCanvas(
             board = EmptyBoard,
@@ -511,6 +542,7 @@ private fun Play(
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
+                shownScore = shownScore,
             )
 
             nextPiece == null -> SidePanel(
@@ -522,6 +554,7 @@ private fun Play(
                 cellSize = layout.cellSize,
                 modifier = scores,
                 previewModifier = nextCurtain,
+                shownScore = shownScore,
             )
 
             else -> {
@@ -531,6 +564,7 @@ private fun Play(
                     lines = side.lines,
                     recordFill = side.recordFill,
                     modifier = scores,
+                    shownScore = shownScore,
                 )
                 NextPiecePanel(
                     next = side.next,
@@ -553,6 +587,7 @@ private fun Play(
                 modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
                 keys = layout.keys,
                 leftHanded = layout.leftHanded,
+                keyAngle = effects?.let { it::keyAngle } ?: NoKeyAngle,
             )
         }
     }
@@ -634,9 +669,19 @@ private val previewState = GameUiState(
 private fun GameScreenPreview(
     kind: BloxThemeKind,
     uiState: GameUiState,
+    labels: GameLabels = GameLabels.Classic,
 ) {
     BloxTheme(kind = kind) {
-        GameScreen(uiState = { uiState }, onBack = {}, onReplay = {}, onControl = {}, onPause = {}, onResume = {})
+        GameScreen(
+            uiState = { uiState },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            labels = labels,
+            onCopy = {},
+        )
     }
 }
 
@@ -687,6 +732,8 @@ private fun CurtainPreview(effects: BloxEffects) {
             onControl = {},
             onPause = {},
             onResume = {},
+            labels = GameLabels.Classic,
+            onCopy = {},
             pauseCurtain = curtain,
         )
     }
@@ -775,16 +822,113 @@ internal fun GameScreenTooSmallLargeFontPreview() {
 // The record beaten during the game: the sticker NOUVEAU RECORD and the score in the top bar, the record bar full (V28).
 
 /** The game of [previewState], its score of 98 790 above the record of 98 760. */
-private val newRecordState = previewState.copy(score = Points(98_790), record = 98_760, recordBeaten = true)
+private val newBestState = previewState.copy(score = Points(98_790), record = 98_760, bestBeaten = true)
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 internal fun GameScreenNewRecordPreview() {
-    GameScreenPreview(BloxThemeKind.COLORFUL, newRecordState)
+    GameScreenPreview(BloxThemeKind.COLORFUL, newBestState)
 }
 
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 internal fun GameScreenNewRecordOriginalPreview() {
-    GameScreenPreview(BloxThemeKind.ORIGINAL, newRecordState)
+    GameScreenPreview(BloxThemeKind.ORIGINAL, newBestState)
+}
+
+// The feedback of the game (V28): a T turned by A and locked, filling rows 18 and 19, 4 ticks later: its cells lit, A
+// turning, the middle cells gone, the next ones swelling; then the same rows cleared 4 ticks before: the rows above
+// coming down, the sticker « +600 » rising, the score counting.
+
+/** The T that fills rows 18 and 19, locked on tick 100. */
+private val previewLocked = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(6, 18))
+
+/** The rows 18 and 19 full, under the stack of [previewState], once the T locked. */
+private val previewFullRows = previewState.copy(
+    board = Board.parse(
+        """
+        J.........
+        JJJ..OO..L
+        SSTTTTTTLL
+        IIIIJZTSSL
+        """,
+    ),
+    piece = null,
+)
+
+/** The feedback of the game of [previewFullRows] on each tick: the rows cleared on tick 118, for 600 points. */
+private val previewFeedback =
+    lineClearFeedback(
+        previewLocked,
+        listOf(18, 19),
+        lockTick = 100,
+        clearDelay = 18,
+        Points(11_740),
+        previewState.score,
+    )
+
+/** The game of [previewFullRows] 4 ticks after the lock that filled its rows. */
+private val clearingState = previewFullRows.copy(score = Points(11_740), feedback = previewFeedback(104))
+
+/** The game once the rows of [previewFullRows] were cleared, 4 ticks before. */
+private val clearedState = previewState.copy(
+    board = Board.parse(
+        """
+        J.........
+        JJJ..OO..L
+        """,
+    ),
+    piece = null,
+    feedback = previewFeedback(122),
+)
+
+@Composable
+private fun FeedbackPreview(
+    uiState: GameUiState,
+    effects: BloxEffects = BloxEffects.Full,
+) {
+    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+        GameScreen(
+            uiState = { uiState },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            labels = GameLabels.Classic,
+            onCopy = {},
+        )
+    }
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearingPreview() {
+    FeedbackPreview(clearingState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearingReducedPreview() {
+    FeedbackPreview(clearingState, BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearedPreview() {
+    FeedbackPreview(clearedState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenClearedReducedPreview() {
+    FeedbackPreview(clearedState, BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+// A daily game (V39): GRAINE DU JOUR and the best of the day in the top bar, in the Colorful theme only (ADR 0026).
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenDailyPreview() {
+    GameScreenPreview(BloxThemeKind.COLORFUL, previewState, GameLabels.Daily)
 }

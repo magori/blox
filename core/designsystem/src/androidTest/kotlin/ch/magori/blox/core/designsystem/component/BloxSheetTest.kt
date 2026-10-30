@@ -2,6 +2,7 @@ package ch.magori.blox.core.designsystem.component
 
 import android.view.KeyEvent
 import android.view.WindowManager
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.WindowInsets
@@ -28,6 +29,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsNotDisplayed
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasAnyDescendant
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasScrollAction
@@ -35,11 +37,14 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import ch.magori.blox.core.designsystem.state.SwappableRegistry
+import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -95,7 +100,7 @@ internal class BloxSheetTest {
 
         // When it opens again, and the scrim is touched, above the sheet
         runOnIdle { open = true }
-        onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) }
+        onNode(isDialog()).tapScrim()
 
         // Then
         runOnIdle { assertThat(closings).isEqualTo(2) }
@@ -111,7 +116,7 @@ internal class BloxSheetTest {
 
         // When the system goes back, then the scrim is touched twice
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
-        repeat(2) { onNode(isDialog()).performTouchInput { click(Offset(centerX, SCRIM_TAP.toPx())) } }
+        repeat(2) { onNode(isDialog()).tapScrim() }
 
         // Then
         runOnIdle { assertThat(closings).isEqualTo(1) }
@@ -165,7 +170,7 @@ internal class BloxSheetTest {
                                 WindowButton(
                                     text = SAVE,
                                     onClick = {},
-                                    primary = true,
+                                    kind = WindowButtonKind.PRIMARY,
                                     modifier = Modifier.fillMaxWidth(),
                                 )
                             },
@@ -238,6 +243,137 @@ internal class BloxSheetTest {
         assertThat(restored.value).isCloseTo(settled.value, within(0.5f))
     }
 
+    @Test
+    @DisplayName("a sheet closed by its screen goes down before it is gone, and goes at once in reduced effects")
+    fun aSheetClosedGoesDownBeforeItIsGone() = extension.use {
+        // Given a sheet come in, on a clock that only moves when told, in the full effects then in reduced ones
+        var open by mutableStateOf<String?>(TITLE)
+        var effects by mutableStateOf(BloxEffects.Full)
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+                ClosingSheet(open) { title, leaving ->
+                    BloxSheet(title = title, onDismissRequest = {}, leaving = leaving) { WindowText(FIRST_CHOICE) }
+                }
+            }
+        }
+        mainClock.advanceTimeBy(SETTLE_MS)
+        val settled = onNodeWithText(TITLE).getUnclippedBoundsInRoot().top
+
+        // When its screen closes it
+        runOnIdle { open = null }
+        mainClock.advanceTimeBy(HALF_WAY_MS)
+
+        // Then halfway, it is still there, lower than it stood; then it is gone
+        assertThat(onNodeWithText(TITLE).getUnclippedBoundsInRoot().top).isGreaterThan(settled)
+        mainClock.advanceTimeBy(SETTLE_MS)
+        onNode(isDialog()).assertDoesNotExist()
+
+        // When, in reduced effects, it opens again, then its screen closes it
+        runOnIdle {
+            effects = BloxEffects(reduced = true, forcedBySystem = false)
+            open = TITLE
+        }
+        mainClock.advanceTimeBy(SETTLE_MS)
+        runOnIdle { open = null }
+        mainClock.advanceTimeByFrame()
+
+        // Then it is gone at once
+        onNode(isDialog()).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("a sheet going down lets no touch through to what it holds, and TalkBack no longer reads it")
+    fun aSheetGoingDownIsInert() = extension.use {
+        // Given a sheet come in, holding a choice that counts its touches
+        var touches = 0
+        var open by mutableStateOf<String?>(TITLE)
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                ClosingSheet(open) { title, leaving ->
+                    BloxSheet(title = title, onDismissRequest = {}, leaving = leaving) {
+                        WindowText(FIRST_CHOICE, Modifier.clickable { touches++ })
+                    }
+                }
+            }
+        }
+        mainClock.advanceTimeBy(SETTLE_MS)
+        onNodeWithText(FIRST_CHOICE).performClick()
+        runOnIdle { assertThat(touches).isEqualTo(1) }
+
+        // When its screen closes it, and the choice is touched as it goes down
+        runOnIdle { open = null }
+        mainClock.advanceTimeByFrame()
+        onNodeWithText(FIRST_CHOICE).performClick()
+        mainClock.advanceTimeByFrame()
+
+        // Then the touch did not reach it, and TalkBack reads nothing of it
+        runOnIdle { assertThat(touches).isEqualTo(1) }
+        onNodeWithText(FIRST_CHOICE).assert(hasAnyAncestor(SemanticsMatcher.keyIsDefined(HIDDEN)))
+        onNodeWithText(TITLE).assert(hasAnyAncestor(SemanticsMatcher.keyIsDefined(HIDDEN)))
+    }
+
+    @Test
+    @DisplayName("a sheet going down does not ask to close, sent back or touched on its scrim")
+    fun aSheetGoingDownDoesNotAskToClose() = extension.use {
+        // Given a sheet come in, which its screen then closes
+        var closings = 0
+        var open by mutableStateOf<String?>(TITLE)
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                ClosingSheet(open) { title, leaving ->
+                    BloxSheet(title = title, onDismissRequest = { closings++ }, leaving = leaving) {
+                        WindowText(FIRST_CHOICE)
+                    }
+                }
+            }
+        }
+        mainClock.advanceTimeBy(SETTLE_MS)
+        runOnIdle { open = null }
+        mainClock.advanceTimeByFrame()
+
+        // When, as it goes down, the system goes back and its scrim is touched
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).tapScrim()
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        runOnIdle { assertThat(closings).isZero() }
+    }
+
+    @Test
+    @DisplayName("a sheet sent back, then opened again as it goes down, asks to close once more")
+    fun aSheetOpenedAgainAsItGoesDownAsksToCloseOnceMore() = extension.use {
+        // Given a sheet that its screen closes when asked
+        var closings = 0
+        var open by mutableStateOf<String?>(TITLE)
+        mainClock.autoAdvance = false
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                ClosingSheet(open) { title, leaving ->
+                    BloxSheet(title = title, onDismissRequest = {
+                        closings++
+                        open = null
+                    }, leaving = leaving) { WindowText(FIRST_CHOICE) }
+                }
+            }
+        }
+        mainClock.advanceTimeBy(SETTLE_MS)
+
+        // When it is sent back, then opened again before it has gone down, then sent back again
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        mainClock.advanceTimeByFrame()
+        runOnIdle { open = TITLE }
+        mainClock.advanceTimeBy(SETTLE_MS)
+        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        mainClock.advanceTimeByFrame()
+
+        // Then
+        runOnIdle { assertThat(closings).isEqualTo(2) }
+    }
+
     /** The texts and descriptions under [node], in the order of its tree, the one TalkBack reads them in. */
     private fun readOrder(node: SemanticsNode): List<String> {
         val own = node.config.getOrNull(SemanticsProperties.Text).orEmpty().map { it.text } +
@@ -257,27 +393,9 @@ internal class BloxSheetTest {
     }
 
     /** The saved state of a screen, which a recreation swaps for one given back from what was saved. */
-    private class SwappableRegistry : SaveableStateRegistry {
-        var delegate: SaveableStateRegistry = SaveableStateRegistry(null) { true }
-
-        override fun canBeSaved(value: Any): Boolean = delegate.canBeSaved(value)
-
-        override fun consumeRestored(key: String): Any? = delegate.consumeRestored(key)
-
-        override fun registerProvider(
-            key: String,
-            valueProvider: () -> Any?,
-        ): SaveableStateRegistry.Entry = delegate.registerProvider(key, valueProvider)
-
-        override fun performSave(): Map<String, List<Any?>> = delegate.performSave()
-    }
-
     private companion object {
         const val TITLE = "Au hasard"
         const val FIRST_CHOICE = "Surprise"
-
-        /** How far from the top of the screen the scrim is touched: far above the sheet. */
-        val SCRIM_TAP = 120.dp
 
         /** A keyboard, high enough to leave little room to the sheet. */
         val KEYBOARD = 320.dp
@@ -295,5 +413,11 @@ internal class BloxSheetTest {
 
         /** Longer than motion card, 300 ms. */
         const val SETTLE_MS = 1_000L
+
+        /** Halfway through motion card. */
+        const val HALF_WAY_MS = 150L
+
+        /** What TalkBack does not read. */
+        val HIDDEN = SemanticsProperties.HideFromAccessibility
     }
 }

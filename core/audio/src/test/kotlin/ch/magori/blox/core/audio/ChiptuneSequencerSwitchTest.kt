@@ -202,6 +202,36 @@ class ChiptuneSequencerSwitchTest {
             assertThat(rendered).containsExactly(ScoreId.MINUET to 1.0)
         }
 
+    @Test
+    fun `only the last scores switched to stay ready, those switched to long ago are let go`() = runTest {
+        // Given the calm score playing, then 4 other scores switched to, one after the other, each playing in turn
+        val sequencer = playing(calm)
+        val others = List(4) { scoreOf(ScoreId.Personal("other $it"), Pitch.parse("C4")) }
+        others.forEach { switchedTo(sequencer, it) }
+        rendered.clear()
+
+        // When a recent one is switched back to, then the calm one
+        switchedTo(sequencer, others[2])
+        val recent = rendered.toList()
+        switchedTo(sequencer, calm)
+
+        // Then the recent one was still ready, the calm one was let go and is rendered anew
+        assertThat(recent).isEmpty()
+        assertThat(rendered).containsExactly(ScoreId.KOROBEINIKI to 1.0)
+    }
+
+    /** [score] switched to by [sequencer], rendered, and played from the next bar line. */
+    private suspend fun TestScope.switchedTo(
+        sequencer: ChiptuneSequencer,
+        score: Score,
+    ) {
+        sequencer.switchTo(score)
+        repeat(SLICES_TO_A_SWITCH) {
+            renderNow()
+            nextSlice()
+        }
+    }
+
     /**
      * The tense score switched to by [sequencer], playing the calm one, its first slice not received yet: it plays
      * from bar 2 of the tense score, its next slice from sample 13.
@@ -247,7 +277,7 @@ class ChiptuneSequencerSwitchTest {
     private fun TestScope.sequencer(): ChiptuneSequencer = ChiptuneSequencer(
         render = { score, tempoFactor ->
             rendered += score.id to tempoFactor
-            buffers.getValue(score.id to tempoFactor)
+            buffers[score.id to tempoFactor] ?: FloatArray(OTHER_LENGTH) { 900f + it }
         },
         sampleRate = 22_050,
         openSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
@@ -260,5 +290,11 @@ class ChiptuneSequencerSwitchTest {
     private companion object {
         val LONG_CALM: ScoreId = ScoreId.Personal("long calm")
         val SHORT_TENSE: ScoreId = ScoreId.Personal("short tense")
+
+        /** The length of a score that [buffers] does not name, at any tempo: 3 bars of 4 samples. */
+        const val OTHER_LENGTH = 12
+
+        /** Slices of 3 samples enough for a score switched to to be rendered and reach the next bar line. */
+        const val SLICES_TO_A_SWITCH = 4
     }
 }

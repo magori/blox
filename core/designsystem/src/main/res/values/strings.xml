@@ -5,11 +5,21 @@
     <string name="core_designsystem_window_failed">L\'opération a échoué.</string>
     <string name="core_designsystem_window_cancel">Annuler</string>
     <string name="core_designsystem_window_name">Nom</string>
+    <!-- Le compte des caractères d’un nom, sous son champ, lu par TalkBack à la place de « 9/40 » (P5.98). -->
+    <plurals name="core_designsystem_name_count">
+        <item quantity="one">%1$d caractère sur %2$d</item>
+        <item quantity="many">%1$d caractères sur %2$d</item>
+        <item quantity="other">%1$d caractères sur %2$d</item>
+    </plurals>
     <plurals name="core_designsystem_window_name_too_long">
         <item quantity="one">%1$d caractère au plus.</item>
         <item quantity="many">%1$d caractères au plus.</item>
         <item quantity="other">%1$d caractères au plus.</item>
     </plurals>
+    <!-- Un nom refusé, sous son champ, dans les fenêtres de Mes musiques, de l’éditeur et du Jardin (P10.34). -->
+    <string name="core_designsystem_name_blank">Donne-lui un nom.</string>
+    <string name="core_designsystem_name_taken_music">Une autre musique porte déjà ce nom.</string>
+    <string name="core_designsystem_name_taken_garden">Un autre jardin porte déjà ce nom.</string>
     <string name="core_designsystem_window_delete_title">Supprimer « %1$s » ?</string>
     <string name="core_designsystem_window_delete">Supprimer</string>
     <!-- L'état d'un interrupteur lu par TalkBack : « activé » et « désactivé » se confondraient avec une rangée indisponible. -->
@@ -24,6 +34,8 @@
     <string name="core_designsystem_stepper_increase">Plus</string>
     <!-- La valeur d’un curseur de volume, à droite de sa piste et lue par TalkBack : « 50 % », espace fine insécable. -->
     <string name="core_designsystem_volume_percent">%1$d %%</string>
+    <!-- La roue dentée qui ouvre les Paramètres (P12.11), lue « Paramètres » par TalkBack. -->
+    <string name="core_designsystem_settings">Paramètres</string>
     <!-- Écouter (P5.94), partagé par l’accueil et l’éditeur : lu avec le nom de la musique, le verbe seul pour une musique sans nom. -->
     <string name="core_designsystem_listen">Écouter</string>
     <string name="core_designsystem_listen_named">Écouter %1$s</string>
@@ -33,4 +45,26 @@
     <string name="core_designsystem_message_close">Fermer le message</string>
     <!-- Le titre du menu « … », annoncé par TalkBack à son ouverture. -->
     <string name="core_designsystem_menu">Menu</string>
+    <!-- Le menu « … » d'une rangée (P10.36), partagé par Mes musiques et Mes jardins, et sa fenêtre Renommer. -->
+    <string name="core_designsystem_row_menu">Plus d\'actions pour %1$s</string>
+    <string name="core_designsystem_rename">Renommer</string>
+    <string name="core_designsystem_rename_title">Renommer « %1$s »</string>
+    <!-- Les noms des notes et des accords lus par TalkBack (P10.19), partagés par l’éditeur, le Serrurier et le Jardin. -->
+    <!-- Un accord, par son degré en chiffres puis sa qualité : « 6 mineur » plutôt que « vi », lu comme un mot. -->
+    <string name="core_designsystem_chord_major">%1$s majeur</string>
+    <string name="core_designsystem_chord_minor">%1$s mineur</string>
+    <string name="core_designsystem_chord_diminished">%1$s diminué</string>
+    <!-- Une note ou la racine d’un accord, déplacée d’un demi-ton : « mi bémol », « 7 bémol majeur », « fa dièse ». -->
+    <string name="core_designsystem_flat">%1$s bémol</string>
+    <string name="core_designsystem_sharp">%1$s dièse</string>
+    <!-- Les notes, sans octave, en minuscules : « Croche 5, mi : libre » ; l’éditeur met la majuscule en tête (« Sol haut »). -->
+    <string name="core_designsystem_note_do">do</string>
+    <string name="core_designsystem_note_re">ré</string>
+    <string name="core_designsystem_note_mi">mi</string>
+    <string name="core_designsystem_note_fa">fa</string>
+    <string name="core_designsystem_note_sol">sol</string>
+    <string name="core_designsystem_note_la">la</string>
+    <string name="core_designsystem_note_si">si</string>
+    <!-- Entre les accords d’une bande, lus l’un après l’autre : « 4 majeur, 5 majeur, 1 majeur ». -->
+    <string name="core_designsystem_chords_separator">", "</string>
 </resources>

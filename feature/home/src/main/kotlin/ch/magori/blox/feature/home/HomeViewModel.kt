@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.home
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -15,6 +14,7 @@ import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
+import ch.magori.blox.core.data.saveSettings
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
@@ -193,6 +193,9 @@ class HomeViewModel(
     /** The player opens the settings: the music being listened to stops. */
     internal fun onSettings() = stopPreview()
 
+    /** The player closes the sheet Musique: the music listened to in it stops with it. */
+    internal fun onMusicSheetClosed() = stopPreview()
+
     /**
      * The player goes back to the choice of the game: the music being listened to stops at once, before the transition
      * (leaving the stack would stop it too, but only once the home is gone).
@@ -200,13 +203,10 @@ class HomeViewModel(
     internal fun onChangeGame() = stopPreview()
 
     /**
-     * The home screen went through [event]: once it is no longer visible (`ON_STOP`: the application in
-     * the background, or a game in front), the music being listened to stops. A pause alone, behind a
-     * dialog or in a split screen, lets it play on.
+     * The home screen is no longer visible (the application in the background, or a game in front): the music being
+     * listened to stops ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_STOP) stopPreview()
-    }
+    internal fun onHidden() = stopPreview()
 
     /** The home screen leaves the stack: the music being listened to stops with it. */
     override fun onCleared() = stopPreview()
@@ -235,7 +235,7 @@ class HomeViewModel(
      * settings, and the player may choose again.
      */
     private fun save(write: suspend UserPreferencesRepository.() -> Unit) =
-        viewModelScope.saveSettings(preferences, write)
+        preferences.saveSettings(viewModelScope, write)
 
     /**
      * Chooses [music] on the home screen, and leaves the music of the player chosen for the games: in the mockup (V1), it

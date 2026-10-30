@@ -252,7 +252,7 @@ private class BassComposer(
     /** The pitches of the range with the note of [pitch], in any octave, from low to high. */
     private fun inRange(pitch: Pitch): List<Pitch> {
         val range = Bass.RANGE
-        val lowest = range.lowest.midi + pitch.semitonesAboveInOctave(range.lowest)
+        val lowest = pitch.inOctaveFrom(range.lowest).midi
         return (lowest..range.highest.midi step SEMITONES_PER_OCTAVE).map(::Pitch)
     }
 

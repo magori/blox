@@ -48,10 +48,14 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 - **Tailles** (`BloxSizes`) : cible de 48 dp, rangée de réglage, interrupteur, touches (`keyArrow`,
   `keyRotate` et leurs variantes compactes et tablette). `ControlSizes` (`feature:game`) y renvoie :
   les touches gardent aujourd'hui la taille compacte (52 et 56 dp), les tailles par largeur
-  arrivent en P5.79.
+  arrivent en P5.79. `sheetRise` (`sheet-rise`, 40 dp, P10.37) : la distance que parcourt une feuille du bas en
+  montant à sa place ou en redescendant, distance de mouvement qu'aucun espacement ne donne. `messageRise`
+  (`message-rise`, 16 dp, P10.38) : la montée du message « Gardé » du Jardin, qui empruntait `space4`.
 - **Espacements** (`BloxSpaces`, `space1` à `space6`) et **durées** (`BloxMotion`) en ticks, au plus
   près des millisecondes du design system (1 tick = 1/60 s, ADR 0006) : `press` 6, `reducedFade`
-  8, `curtain` 12, `card` 18, `sticker` 30, `pop` 45.
+  8, `curtain` 12, `row` 12 (rangée supprimée qui s'estompe puis se replie, P10.37), `card` 18, `sticker` 30, `pop` 45 ;
+  pour le Jardin, `gardenBounce` 6, `gardenGlow` 8, `gardenFall` 8 (chute d'une pièce d'Au hasard, P10.38),
+  `gardenFallStep` 2.
 
 **Tests :** `ShapeTokensTest › each radius, size and space of tokens json is the one of the code`,
 `ShapeTokensTest › every radius, size and space token of tokens json is in the code or listed as not coded, with its reason`,
@@ -60,7 +64,7 @@ pièce suivante dessiné avec le même `CellPainter` ; la colonne latérale rest
 `GlossTokensTest › every shadow token of tokens json is a gloss or a drop shadow of the code`,
 `GlossTokensTest › a shadow written in tokens json is read as its inner shadows and its ring`,
 `MotionTokensTest › each duration of tokens json is a whole number of ticks, the nearest to its milliseconds`,
-`MotionTokensTest › every duration token of tokens json is in the code`,
+`MotionTokensTest › every duration token of tokens json is in the code or listed as not coded, with its reason`,
 `GlossTokensTest › a shadow blurred or moved sideways is refused, the code could not draw it`,
 `GlossTokensTest › a ring of a negative width is refused`,
 `GlossDrawingTest › two calls with the same gloss, shape and frame give the same modifier, so a recomposition keeps its bands`,
@@ -95,11 +99,57 @@ l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
 `LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level` ;
 captures `Stepper*`. Vues : V27, V31.
 
+**Autocollant** (P7.45, `Sticker` dans `core:designsystem`) : un mot en capitales, `accent-ink` sur `accent`, dans
+une pilule (`radius-pill`), en `points-pop` par défaut, penché de −4° (`STICKER_TILT`) comme collé à la main, cadré
+de `frame` (2 dp) dans la couleur de la page qui le découpe de ce qu'il couvre, 10 × 5 dp autour du texte par
+défaut. Partant de la taille de son style, il rapetisse plutôt que de déborder : sur une ligne (`shrinkToFit`), ou,
+avec `maxLines` au-delà d'une, sur le moins de lignes possible (`shrinkToFewestLines`) ; sans taille dans son style
+(`points-pop` en Original), il part de celle du texte autour, et, sans taille là non plus, garde celle du texte sans
+rapetisser. En Original, il ne penche jamais : ses pixels seraient flous. Ce que lit TalkBack et son mouvement
+appartiennent à l'écran, par le `modifier`, posé avant l'inclinaison. Il remplace trois copies, au rendu inchangé
+(captures identiques) : NOUVEAU RECORD ou NOUVEAU MEILLEUR de la barre du jeu (non cadré, 4 × 2 dp, sur deux lignes
+alignées à droite, à la taille de l'étiquette qu'il remplace), NOUVELLE des cartouches (11 sp espacé de 0,04 em, −6°
+sur le coin de la cartouche, 140 dp au plus) et NOUVEAU MEILLEUR ou PARFAITE de la carte du Serrurier (en rebond, par
+un `graphicsLayer` d'échelle dans le `modifier`). L'autocollant « +points » du plateau, dessiné au canevas, en reprend
+l'inclinaison. Le badge EN JEU de Mes musiques, droit, en `stat-label`, sans cadre, est un badge et non un
+autocollant : il passe par le badge commun, ci-dessous.
+**Tests :** `StickerLookTest › a sticker is accent-ink on accent, framed in the colour of the page`,
+`StickerLookTest › a sticker not framed has no frame`,
+`StickerLookTest › in Couleurs a sticker leans by its tilt, 4 degrees anticlockwise unless told otherwise`,
+`StickerLookTest › in Original a sticker never leans, whose pixels would blur`,
+`StickerTest › a sticker shows its text in capitals`,
+`StickerTest › in a font twice as large and a narrow place, a sticker of one line shrinks to fit its width`,
+`StickerTest › a sticker in a style without a size, among texts without one, still shows its text`,
+`StickerTest › in a font twice as large and a narrow place, a sticker of two lines breaks between its words` ;
+captures `TopBarNewRecordLargeFont`, `GameScreenNewRecord*`, `Cartridges*`, `LocksmithOpenPerfectDay`,
+`LocksmithOpenNewBestDay`. Vues : V2, V36, V35.
+
+**Badge** (P7.51, `PillBadge` dans `core:designsystem`, nommé ainsi pour ne pas se confondre avec le `Badge` de
+Material) : un libellé court, sur une ligne (`maxLines`, 1 par défaut), `accent-ink` sur `accent` dans tous les
+thèmes, Original compris (`badgeLook`, dont l'autocollant reprend les couleurs), dans une pilule droite
+(`radius-pill`), sans inclinaison ni cadre, à la différence de l'autocollant. Son texte est pris tel quel (les
+capitales sont à l'écran), en `small` sur `labelMedium` par défaut, 8 × 4 dp autour (`space2` × `space1`) par défaut ;
+`withCheck` le fait précéder d'une coche de 12 dp, à `space1` du mot. Ce que lit TalkBack appartient à l'écran, par le
+`modifier`, posé à la racine. Il remplace trois copies, au rendu inchangé (captures identiques) : EN JEU de Mes
+musiques (`stat-label` sur `labelSmall`, 8 × 2 dp, effacé pour TalkBack), NOUVEAU RECORD ou NOUVEAU MEILLEUR de la fin
+de partie (`title` à 11 sp, mis en capitales par l'écran, 16 × 8 dp, sur autant de lignes qu'il faut : sur un
+téléphone étroit en police agrandie, RECORD passe à la ligne au lieu de disparaître) et « ouvert » de Mes jardins
+(style et retrait par défaut, avec sa coche).
+**Tests :** `BadgeLookTest › a badge is accent-ink on accent, in every theme`,
+`PillBadgeTest › a badge shows its text as given, not in capitals`,
+`PillBadgeTest › in a font twice as large and a narrow place, a badge stays on one line unless told otherwise`,
+`PillBadgeTest › a badge bears a check before its text only with withCheck`,
+`PillBadgeTest › the modifier of a badge applies to its root, its pill around its text`,
+`GameOverScreenTest › in Original, on a phone of 320 dp in a font twice as large, NOUVEAU RECORD shows whole, RECORD included` ;
+captures `MyMusics*`, `GameOverColorfulNewRecord*`, `GameOverOriginalNewRecord`, `GameOverDailyNewBest*`,
+`MyGardensList*`. Vues : V4, V32, V39.
+
 **Boutons bulles** (P5.60, `core:designsystem`, composant Button) : quatre familles, `ButtonFamily` —
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
 retour, réglages, écoute, menu, fermeture). Ils remplacent les boutons de `feature:game`
-(Reprendre, Menu, Rejouer) et `SettingsButton`. Couleurs par variante (`BloxTheme.buttons`) ; en
+(Reprendre, Menu, Rejouer) et l'ancien `SettingsButton` de `feature:home` (le `SettingsButton` d'aujourd'hui,
+partagé, est décrit plus bas : **Paramètres**, P12.11). Couleurs par variante (`BloxTheme.buttons`) ; en
 Original, carrés et sans relief par le thème. Le Principal est en `accent`, le Secondaire et l'Icône
 en `button` cadré de `buttonOutline` ; en Original, Secondaire et Icône sont au repos sur la page,
 encre `ink` et cadre `buttonOutline` (l'encre du bouton sur son fond n'atteint que 4,0:1), et
@@ -133,15 +183,50 @@ assombrissement de la plateforme : voile `scrim`, panneau `panel` cadré de `pan
 `radius-card` en haut, poignée, titre `screen-title` qui défile avec le contenu ; les actions restent fixes et
 visibles au-dessus du clavier et des barres système. Elle monte en 18 ticks (`motion-card`), en fondu de 8 ticks
 en Effets réduits, et réapparaît en place après une rotation. Le retour ou le voile la ferment, une seule demande
-étant transmise ; pas de glissement. `SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
-sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres.
+étant transmise ; pas de glissement. Fermée par son écran avec `leaving` (P10.32, `LeavingContent`, `ClosingSheet`),
+elle descend en 18 ticks (`motion-card`) en accélérant, son voile en fondu, et disparaît d'un coup en Effets réduits ;
+pendant sa descente, elle est inerte : aucun toucher ne passe, TalkBack ne la lit plus, et elle ne demande pas à se
+fermer. Rouverte pendant sa descente, elle reprend sa place. Seule la feuille de Mes jardins descend pour l'instant.
+`SheetChoices` groupe des `SheetChoiceRow` (56 dp, rond puis coche, libellé et
+sous-ligne) lues comme des boutons radio. `PanelTitle` est partagé avec les fenêtres. `SettledSheet` dessine une feuille
+posée, sans sa fenêtre, pour les aperçus et les captures (P5.101) ; `rememberOnce`, public, garde une action
+d'un second appel (fermeture, « Tirer une musique »).
 **Tests :** `SheetEntranceTest › a sheet rises in 18 ticks, and in reduced effects fades in within 8 ticks`,
 `BloxSheetTest › a sheet is read as a dialog by TalkBack, its title first`,
 `BloxSheetTest › the system back and a touch on the scrim close the sheet`,
 `BloxSheetTest › the window of a sheet neither dims the screen nor plays an animation of the platform, from its first frame`,
 `BloxSheetTest › a sheet asks once to close, sent back then touched on its scrim twice`,
+`SheetEntranceTest › a sheet closed goes down in 18 ticks, fading with its scrim, and in reduced effects it goes at once`,
+`BloxSheetTest › a sheet closed by its screen goes down before it is gone, and goes at once in reduced effects`,
+`BloxSheetTest › a sheet going down lets no touch through to what it holds, and TalkBack no longer reads it`,
+`BloxSheetTest › a sheet going down does not ask to close, sent back or touched on its scrim`,
+`BloxSheetTest › a sheet sent back, then opened again as it goes down, asks to close once more`,
+`LeavingContentTest › closed, it leaves on its last value for its length, then is gone`,
+`LeavingContentTest › closed, then open again as it leaves, it shows the value open, no longer leaving, and stays`,
 `SheetChoiceRowTest › a choice row is 56 dp high, read as a radio button with its label and its sub-line, the chosen one checked`,
 `SheetChoiceRowTest › the choices of a sheet are one group for TalkBack, each read as one of them` ; captures `Sheet*`.
+
+**Fenêtres v2 et champ du nom** (P5.98, `core:designsystem`) : le titre de `WindowPanel` est en `screen-title`
+(fondu dans `titleSmall`), lu comme un titre par TalkBack ; un panneau qui n'est pas une fenêtre (carte « Serrure
+ouverte » du Serrurier) passe son propre style de titre. Les réponses (`WindowButton`, genre `WindowButtonKind` :
+Secondaire, Principal, Danger) sont des boutons bulles, toujours empilées sur toute la largeur, à 8 dp l'une de
+l'autre, la sûre d'abord, dans l'ordre où TalkBack les lit (décision du développeur, P5.86). Supprimer est rempli en
+`danger` avec la corbeille (`ButtonFamily.DANGER_FILLED`), libellé en `danger-ink` à 4,5:1 au moins ; pressé, il
+garde son remplissage. Le champ du nom (`NameField`, extrait de `NamingWindow`, longueur maximale en paramètre) :
+fond `panel-inset`, 56 dp de haut au moins, coins `radius-md`, le nom sur autant de lignes qu'il faut ; cadre de
+2 dp en `button-outline` au repos (3:1 au moins sur le panneau, WCAG 1.4.11), en `ink` au focus, en `danger` quand
+le nom est refusé ; compteur « n/40 » compté en caractères, lu « n caractères sur 40 » ; motif du refus précédé du
+pictogramme `ALERT` (16 dp, même à ×2), annoncé poliment par TalkBack. Renommer reste une fenêtre.
+**Tests :** `WindowPanelTest › the title of a window is in screen title, read as a heading`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
+`WindowButtonLookTest › a deleting answer is filled in danger with its trash icon, its label standing out by 4,5 to 1`,
+`NameFieldTest › the name field counts its characters out of 40, as TalkBack reads it`,
+`NameFieldTest › a refused name frames the field in danger and says why, read by TalkBack as it shows`,
+`NameFieldTest › the name field is framed in ink while it has the focus`,
+`NameFieldFrameTest › the name field is framed in button outline at rest, in ink while it has the focus, in danger when refused`,
+`NameFieldFrameTest › the frame of the name field at rest stands out from the panel by 3 to 1 at least` ;
+captures `*Window*` de `core:designsystem` et de `feature:composer`. Vues : V25, V32, V34.
 
 **États des boutons pour la musique** (P5.93) : `ButtonEmphasis` (`PLAIN`, `SELECTED`, `BARE`), `ButtonSize`
 (`REGULAR`, `COMPACT`) et l'état `active`. Un bouton **retenu** (mesures, Utiliser / En jeu) est rempli en
@@ -167,7 +252,9 @@ verbe seul sans nom de musique, le pictogramme ne disant rien. À l'accueil, il 
 les 2 dp de la maquette ne se dessinent pas sur 3 dp). Chaque barre monte de 35 % à 100 % de sa hauteur en 30 ticks et
 redescend en 30, 10 ticks d'avance sur la précédente (choix du développeur) ; au repos, un escalier montant (35, 57,
 78 %). Le tick n'est lu qu'au dessin, sur l'horloge de Compose (`FrameTicks`) : rien ne recompose. Immobile en Effets
-réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des musiques (P5.99).
+réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des musiques (P5.99). Sa boucle (30 ticks,
+10 d'avance) reste sans jeton (P10.38) : elle appartient au dessin du pictogramme `EQUALIZER`, comme ses barres de
+3 × 14 dp (docs/design-system/pictogrammes.md), et n'est ni une transition ni partagée avec un autre mouvement.
 **Tests :** `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
 `ListenFaceTest › a music playing keeps its listen button in the pressed fill`,
 `ListenButtonTest › a listen button is a button of 48 dp or the size given, read with the name of its music, or its verb alone`,
@@ -177,6 +264,16 @@ réduits et en Original, ignoré par TalkBack. Il sera posé sur la liste des mu
 `EqualizerTest › the equalizer is left out by TalkBack`,
 `EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
 
+**Paramètres** (P12.11, `core:designsystem`) : `SettingsButton` est la roue dentée au bout de la barre d’un accueil,
+à l’accueil du Classique (`HomeBar`), à celui de la Graine du jour (`DailyScreen`) et au choix du jeu (`CartridgesScreen`,
+P12.5, V36).
+C’est un `GlyphButton` de la famille Icône, pictogramme `GEAR`, disque de 48 dp, que TalkBack lit « Paramètres » une
+seule fois (chaîne `core_designsystem_settings`, qui remplace `feature_home_settings` et `feature_daily_settings`) ;
+un toucher ouvre la page Paramètres. Il se dessine comme le bouton de la roue qu’il remplace, dans les deux thèmes :
+l’accueil du Classique en Original ne change pas.
+**Tests :** `SettingsButtonTest › the settings button is a button of 48 dp, read Paramètres once, that opens the settings`,
+`SettingsButtonTest › the settings button is drawn as the button of the gear`.
+
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
 la pièce sont lus dans la phase de dessin, si bien qu'un mouvement de la pièce ne fait que
@@ -185,6 +282,18 @@ fournisseur (`() -> GameUiState`) et chaque partie lit seulement ce qu'elle affi
 état dérivé (`rememberPart`). Les recompositions se mesurent sur appareil avec un traceur de
 composition (`RecompositionRecorder`, API interne de Compose, à surveiller aux montées de
 version).
+**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
+`BoardCanvasTest › nothing recomposes while the piece moves`,
+`BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
+`BoardCanvasTest › the painters are built again when the size changes`,
+`BoardCanvasTest › the painters are built again when the theme changes`,
+`BoardCanvasTest › the painters are built again when the background changes`,
+`GameScreenTest › nothing on the screen recomposes when only the piece moves`,
+`GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
+`GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
+`GameScreenTest › the card of the pause shows over the game while it is paused`,
+`GameScreenTest › the game over screen takes the place of the game once it is over`.
+Vues : V2, V3.
 
 **Menu « … » et message temporaire** (P5.97, `core:designsystem`) : `BloxMenu` et `BloxMenuItem` remplacent le
 `DropdownMenu` de Material : panneau `panel` cadré de `panel-border`, `radius-md`, ombre `menu-shadow` (jeton
@@ -208,18 +317,66 @@ d'affichage vient de `messageTimeoutMillis` : 4 s, 10 s avec une action, ou ce q
 `MessageTimeoutTest › without accessibility settings a message stays 4 seconds, and 10 with an action` ;
 captures `Menu*`, `SnackMessage*`.
 
-**Tests :** `BoardCanvasTest › the painters are built once while the piece moves`,
-`BoardCanvasTest › nothing recomposes while the piece moves`,
-`BoardCanvasTest › a moved piece is drawn as on a board drawn with it from the start`,
-`BoardCanvasTest › the painters are built again when the size changes`,
-`BoardCanvasTest › the painters are built again when the theme changes`,
-`BoardCanvasTest › the painters are built again when the background changes`,
-`GameScreenTest › nothing on the screen recomposes when only the piece moves`,
-`GameScreenTest › a moved piece is drawn on the screen as on a screen drawn with it from the start`,
-`GameScreenTest › the screen shows the new value of each field beside the board once it changes`,
-`GameScreenTest › the card of the pause shows over the game while it is paused`,
-`GameScreenTest › the game over screen takes the place of the game once it is over`.
-Vues : V2, V3.
+**Menu « … » de rangée et fenêtre Renommer** (P10.36, `core:designsystem`) : `RowMenu`, commun à Mes musiques et
+à Mes jardins, est le disque nu « … » de 48 dp en bout de rangée, lu « Plus d'actions pour X », qui ouvre un
+`BloxMenu` de ses rangées, dans l'ordre donné : des rangées propres à la liste (`Item` : Modifier, La jouer…) et les
+deux communes, Renommer (`RenameItem`) et Supprimer en `danger` (`DeleteItem`). Toucher une rangée ferme le menu,
+puis fait ce qu'elle dit. Le focus revient au « … » quand le menu se ferme sans choix, ou, après une rangée qui
+ouvre une fenêtre (Renommer, Supprimer), quand cette fenêtre, ouverte même quelques images plus tard, se ferme.
+`RenameWindow` est la fenêtre « Renommer « X » », une `NamingWindow` répondue « Renommer » ; Supprimer reste
+`DeleteWindow`. L'état des fenêtres reste dans chaque feature : il porte ce qu'on renomme ou supprime (une musique,
+un jardin), que `core:designsystem` ne voit pas.
+**Tests :** `RowMenuTest › « … » is read « Plus d'actions pour X » and offers its items in order, Renommer and Supprimer`,
+`RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`,
+`RowMenuTest › a window that opens frames after its item still gives the focus back to « … » as it closes`,
+`RowMenuTest › from the keyboard, the menu closed by Back gives the focus back to « … »`,
+`NamingWindowTest › Renommer is titled after the name it renames and answered Renommer, which renames`.
+Quand la rangée part après une suppression confirmée, `RowMenu` ne choisit pas où va le focus : son « … » peut déjà
+être retiré (en Effets réduits, la rangée part d'un coup). C'est la liste qui le donne, une fois la fenêtre fermée
+**et** la rangée retirée de la liste, dans n'importe quel ordre (Mes jardins, P10.39 ; Mes musiques, P7.52) ; elle
+pose pour cela un `focusRequester` sur le `modifier` de chaque `RowMenu`.
+
+**Focus après une suppression** (P7.52, `core:designsystem`) : `FocusAfterDeletion`, commun à Mes jardins et à Mes
+musiques (règle de 2), donne ce focus. Il ne connaît que des clés : les clés listées, dans leur ordre (`listed`),
+celle dont la fenêtre de suppression est ouverte (`deleting`), si une fenêtre est ouverte (`windowOpen`), le
+`FocusRequester` de chaque clé (`focusOf`) et celui de la liste vide (`empty`). Il retient l'ordre de la liste à
+l'ouverture de la fenêtre, ou à sa réouverture après une suppression non confirmée ; une liste relue sans l'élément,
+la fenêtre encore ouverte, ne le remplace pas (sans quoi l'élément du milieu enverrait le focus au précédent, et
+l'élément seul ferait planter l'application) ; une clé absente de cet ordre, par défense, envoie le focus au premier
+élément listé. Une fois la fenêtre fermée **et** la clé absente de la liste, dans n'importe quel ordre, il donne le
+focus à l'élément suivant, sinon au précédent, sinon à la liste vide ; au clavier seulement (`LocalInputModeManager`),
+une image plus tard (`withFrameNanos`), après les effets de l'élément qui part. La suppression reste attendue jusqu'à
+ce que le focus soit demandé : un effet annulé pendant cette image (la liste ou la fenêtre change) le redemande en
+reprenant. Une suppression non confirmée attend que l'élément parte jusqu'à l'ouverture d'une autre fenêtre.
+`reveal` reçoit d'abord l'indice, dans la liste, de l'élément qui prend le focus, même s'il est déjà en vue : à la
+liste de décider s'il faut l'y amener. Une liste paresseuse, dont l'élément voisin peut n'être pas composé, s'en sert
+(Mes musiques : `LazyListState.scrollToItem` s'il n'est pas visible) ; Mes jardins, en `Column`, n'en a pas besoin.
+**Tests :** `PendingDeletionTest › the element after the one deleted takes the focus`,
+`PendingDeletionTest › the last element deleted gives the focus to the one before it`,
+`PendingDeletionTest › the only element deleted gives the focus to the empty list`,
+`PendingDeletionTest › while the element awaited is still listed, nothing takes the focus, and it is still awaited`,
+`PendingDeletionTest › an element gone gives the focus once only, once it is given`,
+`PendingDeletionTest › an element gone still gives the focus while it has not been given`,
+`PendingDeletionTest › the window of the same element opened again after a deletion not confirmed takes the order anew`,
+`PendingDeletionTest › the element after the one deleted is the next one still listed, in the order as the window was open`,
+`PendingDeletionTest › a list read without the element while its window is open keeps the order as the window opened`,
+`PendingDeletionTest › the only element read out of the list while its window is open gives the focus to the empty list`,
+`PendingDeletionTest › an element awaited that was never in the order gives the focus to the first element listed`,
+`PendingDeletionTest › nothing awaited gives the focus to nothing`,
+`FocusAfterDeletionTest › from the keyboard, the element after the one deleted takes the focus, else before it, else the list`,
+`FocusAfterDeletionTest › from the keyboard, the element in the middle out of the list, then its window closed, gives the focus on`,
+`FocusAfterDeletionTest › from the keyboard, the window of the element in the middle closed, then it out of the list, gives the focus on`,
+`FocusAfterDeletionTest › from the keyboard, a deletion not confirmed moves the focus nowhere, until the element leaves after all`,
+`FocusAfterDeletionTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
+`FocusAfterDeletionTest › by touch, an element deleted gives the focus to nothing`,
+`FocusAfterDeletionTest › in a lazy list, the element that takes the focus is revealed first, at its index in the list`.
+
+**Bloc focalisable** (P10.39, `core:designsystem`) : `FocusableBlock` est un bloc de texte qui ne fait rien mais que
+le clavier peut focaliser, où va le focus quand ce qui le tenait part (une liste laissée vide : « Aucun jardin
+gardé. », « Aucune musique pour l'instant. »). TalkBack le lit d'un trait ; focalisé, il porte l'anneau des boutons
+(WCAG 2.4.7). Son contenu s'aligne comme celui d'une `Column` (`verticalArrangement`, `horizontalAlignment`, P7.52 :
+la page sans musique est centrée).
+**Test :** `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`.
 
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
 (accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans
@@ -234,7 +391,7 @@ le fond de fenêtre ne s'affiche pas dans le mauvais thème. Le fond de fenêtre
 `logoColors(variant)` (`LogoColors`, exactement quatre couleurs, `core:board` depuis P5.74) : en
 Original, les remplissages de I, O, J et T ; en Couleurs, ceux de I, O, Z et S, jour et nuit. Elles
 sont lues dans les styles des pièces, sans être recopiées ; `feature:home` dépend de `core:board`
-pour cela (ADR 0023). Le logo v2 arrive en P5.77.
+pour cela (ADR 0023). En Couleurs, le logo v2 le remplace depuis P5.77 (« Héros de l'accueil »).
 
 **Tests :** `AppThemeTest › each theme chosen on the home screen has its theme in the design system`,
 `AppThemeTest › the theme of the application follows the saved theme, and shows none before it is read`,
@@ -332,8 +489,9 @@ soit le mode du téléphone, réappliquées quand le thème ou le mode change ; 
 d'Original. Tests : `SystemBarsTest › the icons of the system bars are dark on a light variant and light on a dark one`,
 `SystemBarsAppearanceTest › the system bars take the appearance of the variant drawn, not that of the mode of the system`,
 `SystemBarsAppearanceTest › the system bars change their appearance as soon as the variant drawn changes`. Sous le Serrurier,
-toujours dessiné en Couleurs (P7.18), les barres prennent sa variante Couleurs du mode du téléphone, quel que soit le
-thème choisi : `SystemBarsTest › the bars of the locksmith follow its colorful variant, whatever the theme chosen`,
+toujours dessiné en Couleurs (P7.18), comme le choix du jeu, la Graine du jour, le Jardin et la page Paramètres
+(P12.4), les barres prennent la variante Couleurs du mode du téléphone, quel que soit le
+thème choisi : `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `SystemBarsTest › the bars of every other screen follow the theme chosen`,
 `SystemBarsAppearanceTest › at night in the Original theme, the bars turn light under the Locksmith, and dark again once it is left`.
 Les formes, polices et
@@ -348,7 +506,7 @@ v1 sont retirés ; leurs valeurs restent dans l'historique de ce fichier.
 **Repères autres que la couleur** (P5.57, décision « Mixte » du développeur) : là où un aplat
 n'atteint pas le contraste voulu, surtout dans les pastels du jour, l'état se lit autrement. La
 touche tenue garde son cadre et descend de 2 dp, le choix retenu se lit à sa coche,
-l'interrupteur à son cadre `buttonOutline` (l'encre en Original), la partie tenue d'une note à
+l'interrupteur à son cadre `buttonOutline`, la partie tenue d'une note à
 ses bords de 2 dp dans la couleur de sa piste.
 
 **Tests :** `BloxThemeVariantTest › the Colorful theme is the day variant in light mode and the night variant in dark mode`,
@@ -411,6 +569,41 @@ disque de la famille Icône des boutons bulles (P5.78 ; avant, les couleurs d'un
 `CellLayoutTest › two flat cells side by side in the Original theme are apart by their two joints, of 1 px each at least`.
 Vues : V2, V3.
 
+**Retours de jeu, première tranche** (P5.80, `feature:game`, ADR 0024) : `GameFeedback`, pur et compté en ticks, vit
+dans `GameUiState` ; l'écran ne lit ses valeurs qu'au dessin, par un calque posé sur le plateau (`BoardEffects`,
+`core:board`). La pause fige les effets. Une pièce posée éclaire ses quatre cases de `clear-glow` à 0,6, qui s'éteint
+en 8 ticks. Une rotation fait tourner de ±90° le pictogramme de **sa** touche, qui revient à 0 en 6 ticks ; chaque
+touche tourne pour elle-même (`PieceRotated` porte le sens : A horaire, B anti-horaire). L'effacement est calé sur
+`Phase.Clearing`, donc sur le délai NES : les rangées s'éclairent de `clear-glow`, leurs cases éclatent par paires
+depuis le centre (5 paires en durée − 1 ticks ; la case gonfle à 1,2 puis s'efface, dessinée en dernier dans sa
+rangée), puis les rangées du dessus glissent à leur place en 8 ticks (sortie douce). L'autocollant « +points »
+monte d'une case et demie en 45 ticks, penché de −4°, placé par la géométrie du plateau (`boardPoint`) ; TalkBack
+ne le lit pas. Le score compte jusqu'à sa nouvelle valeur en 30 ticks, seul son texte recompose. **Effets réduits** :
+rien ne bouge, les rangées effacées s'affichent en `clear-glow` sans leurs cases, le score s'affiche d'un coup et
+l'autocollant s'efface en 8 ticks au plus.
+
+**Tests :** `GameFeedbackTest › a lock lights its four cells for 8 ticks`,
+`GameFeedbackTest › a rotation turns the icon of its key by 90 degrees in 6 ticks`,
+`GameFeedbackTest › a turn of B leaves the turn of A going on`,
+`GameFeedbackTest › the clear pops the cells by pairs from the centre within the clear delay`,
+`GameFeedbackTest › once the rows are cleared the rows above them slide down to their place`,
+`GameFeedbackTest › the points sticker rises and fades in 45 ticks`,
+`GameFeedbackTest › the score counts up to its new value once the rows are cleared`,
+`GameFeedbackTest › in reduced effects nothing moves and the score shows at once`,
+`GameFeedbackTest › in reduced effects the sticker fades out in 8 ticks at most`,
+`GameViewModelTest › the clear the screen shows starts with the lock and lasts as long as the clear of the engine`,
+`GameViewModelTest › a rotation reaches the screen as the turn of its key, and a lock as its cells`,
+`GameViewModelTest › a paused game freezes its effects`,
+`BoardPointTest › a point of the board is where the canvas draws it, in a height that is no multiple of 20`,
+`BoardCanvasTest › the painters are built once while effects play`,
+`BoardCanvasTest › a board whose effects are at rest is drawn as a board without effects`,
+`GameScreenTest › nothing recomposes while an effect plays`,
+`GameScreenTest › while the score counts, only its text recomposes`,
+`GameScreenTest › the icon that turns is the one of A, the key that turned the piece, and B stays still`,
+`GameScreenTest › the points sticker is not read by TalkBack`,
+`GameScreenTest › the effects are drawn over the game, and gone once over` ;
+captures `GameScreenClearing*` et `GameScreenCleared*` (jour, nuit, grande police, Effets réduits). Vue : V28.
+
 ## Choix de l'accueil
 
 **Groupe de choix v2** (P5.63, `ChoiceGroup` dans `core:designsystem`, composant Choice) : il remplace les
@@ -423,8 +616,8 @@ l'état désactivé). Le libellé du groupe est un titre pour TalkBack, les segm
 Un groupe qui ne tient pas sur la ligne de son libellé passe dessous, sur toute la largeur ; si un libellé
 devait encore rétrécir sous 75 % de sa taille (marges et coche gardées), les segments s'empilent. Segments de
 48 dp de haut, cadre compris ; focus clavier par l'anneau des boutons ; ordre inversé de droite à gauche.
-Provisoirement, jusqu'à la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
-(5 colonnes) et la musique (2 colonnes) sont des groupes sur plusieurs rangées : fond retenu en `md`, coche
+Avant la jauge de l'accueil (P5.75) et la feuille Musique (P5.76), le niveau de départ
+(5 colonnes) et la musique (2 colonnes) étaient des groupes sur plusieurs rangées : fond retenu en `md`, coche
 dans le coin. Libellés du groupe alignés au début de la ligne. `ChoiceColors.kt`, qui servait encore à `Setting`,
 est retiré avec lui (P5.61) ; le type `ChoiceColors` de P5.95 (couleurs retenues d'un segment) n'a rien à voir avec lui.
 
@@ -477,20 +670,24 @@ libellé de son fond d'au moins 4,5:1 (P5.26, constat C3 de la revue qualité). 
 **Réglages** (P5.37, P5.61) : depuis P5.61, une rangée de réglage est `SettingSwitchRow` (`core:designsystem`,
 composant Switch) : pictogramme, libellé, sous-ligne et piste, toute la rangée étant l'interrupteur ; une
 rangée ne se désactive qu'avec sa raison, montrée à la place de la sous-ligne. Allumé, le pouce est à droite,
-plus grand et coché, la piste en `accent` avec le relief d'un bouton ; éteint, à gauche, sur une piste `button`
-(la page en Original). Pressée, la rangée se remplit en `buttonPressed`, le pouce grandit à 28 dp et revient en
+plus grand et coché, la piste en `accent` avec le relief d'un bouton ; éteint, à gauche, sur une piste `button`.
+Pressée, la rangée se remplit en `buttonPressed`, le pouce grandit à 28 dp et revient en
 `motion-press` comme un bouton ; la piste est alors cadrée dans l'encre de la rangée pressée, à 3:1 au moins.
-Au repos, elle est cadrée en `buttonOutline` (l'encre en Original), à 3:1 sur la page. Désactivée : plate, piste
-`panelInset` cadrée de `panelBorder`, pouce et libellé en `label` ; en Original, où ces couleurs valent l'encre,
-le pouce est creux. Focus clavier : l'anneau des boutons (`FocusRing`). TalkBack lit une rangée comme un
+Au repos, elle est cadrée en `buttonOutline`, à 3:1 sur la page. Désactivée : plate, piste
+`panelInset` cadrée de `panelBorder`, pouce et libellé en `label`. Focus clavier : l'anneau des boutons
+(`FocusRing`). TalkBack lit une rangée comme un
 interrupteur, son libellé, sa sous-ligne et son état « Allumé » ou « Éteint ». En police agrandie, seule la piste
-passe à la ligne, à droite ; le libellé rétrécit au plus de 10 % pour garder ses mots entiers (Original ×2).
-Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
+passe à la ligne, à droite ; le libellé rétrécit au plus de 10 % pour garder ses mots entiers ; la sous-ligne tient
+sur trois lignes au plus (×2, 360 dp).
+Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté. Depuis P12.13, la rangée n'est dessinée
+qu'en Couleurs : la page Paramètres, seule à la montrer, l'est quel que soit le thème choisi (P12.4) ; ses branches
+Original (cadre de piste à l'encre, pouce creux désactivé), mortes en production, sont retirées, avec leurs captures
+`SwitchesOriginal*`. Le style du libellé (`settingLabelStyle`, sans gras synthétisé de la police pixel en Original)
+garde sa branche : il sert aussi aux choix de la feuille Musique de l'accueil, qui peut être en Original.
 **Tests :** `SwitchLookTest › a switch on has its thumb on the right, larger, checked, a switch off on the left`,
 `SwitchLookTest › a pressed row fills with button pressed and its thumb grows to 28 dp`,
 `SwitchLookTest › the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`,
 `SwitchLookTest › a focused row bears a 3 dp ring in ink, 3 dp off its edge`,
-`SwitchLookTest › in Original the thumb of a disabled row is hollow, its outline alone drawn`,
 `SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
 `SettingSwitchRowTest › TalkBack reads one switch per row, its label, its sub-line and its state`,
 `SettingSwitchRowTest › a disabled row reads as unavailable and its sub-line says why`,
@@ -498,11 +695,53 @@ Remplace `Setting` et `settingColors` ; le pictogramme `VIBRATE` est ajouté.
 `SettingSwitchRowTest › the whole row is the switch: a tap on its pictogram, its label or its track turns it over` ;
 captures `Switches*`. Vues : V21, V31.
 
-**Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
+**Héros de l'accueil** (P5.77, `feature:home`, `core:board`, V27) : en Couleurs, le logo BloX v2 (`BloxLogo`, Bagel
+Fat One en dégradé `iris`, la mascotte Serrurier à la place du « o », `docs/design-system/pictogrammes.md`), lu
+comme le titre de l'écran, centré sous la barre ; une ombre floue ne dessine que son flou, les lettres restant
+transparentes (`SOFT_SHADOW`, partagée dans `core:board`). Original garde son logo de quatre cases. Dessous, un
+aperçu du plateau (`BoardRowsCanvas`, les 6 rangées du bas en cases de 14 dp, `boardRowsSize`) rejoue un T qui
+tombe à la gravité du niveau choisi et efface deux lignes, montrées effacées 2 s ; son score est réel (100 × (niveau
++ 1) par ligne, `000600` au niveau 5) ; un nouveau niveau relance l'aperçu. Halo de Jouer (`PlayHalo`) : rien
+pendant 3 s, puis trois impulsions (à 3, 4 et 5 s, d'1 s chacune, pilule qui s'élargit de 12 dp en s'effaçant, en
+`accent-ring`), puis une toutes les 10 s après la troisième ; un toucher sur l'accueil le remet à 3 s. L'aperçu, le
+score et le halo ont chacun leur calque, invalidé seulement quand leur valeur change : rien ne recompose.
+**Effets réduits** : l'aperçu montre son état final (lignes effacées et points), aucun halo. Bagel Fat One reste
+embarquée. Point ouvert : le flou de l'ombre (`BlurMaskFilter`) est net sous l'API 28, à juger sur un appareil.
+**Tests :** `PreviewReplayTest › the preview drops a row every ticks per row of the chosen level`,
+`PreviewReplayTest › the preview scores 100 times the level plus one for its two lines`,
+`PreviewReplayTest › a preview given a new level starts again with a new T, at the gravity of that level`,
+`PreviewReplayTest › the preview goes on where it is when the level stays the same`,
+`PreviewReplayTest › the preview plays again once its two lines have shown cleared for 2 seconds`,
+`PreviewReplayTest › the still preview, for reduced effects, shows its two lines cleared and their points`,
+`PreviewReplayTest › the preview scores 000000, then 000600 once its lines clear at level 5, and 000600 at once still`,
+`HomeMotionTest › the ticks of the screen play the preview at the level chosen and bring the halo of Jouer`,
+`HomeMotionTest › the preview starts again with the new level when the level changes`,
+`HomeMotionTest › a touch on the home puts the halo off for 3 seconds again`,
+`HomeMotionTest › the preview notifies a change only when the T drops a row or locks`,
+`HomeMotionTest › the halo notifies no change while it is off`,
+`PlayHaloTest › the halo of Jouer stays off for 3 seconds`,
+`PlayHaloTest › the halo of Jouer pulses 3 times after 3 seconds, then once every 10 seconds after the third`,
+`PlayHaloTest › the halo is a pill around Jouer, which grows to its full spread as it fades`,
+`PlayHaloTest › without a pulse, there is no halo to draw`,
+`LogoLookTest › by day, Bl goes from iris-1 through iris-2 to iris-3 and X back, over a rim, a lilac and a shadow`,
+`LogoLookTest › by night, Bl goes from iris-1 to iris-3 and X to the pink of the night, in a halo over a dark shadow`,
+`LogoLookTest › a blurred shadow is drawn as its blur alone, the letters it is cast by left transparent`,
+`LogoLookTest › a shadow without blur is drawn as the letters in its colour, lower`,
+`DisplayedCellsTest › the cells of the bottom rows are the last rows of the board, the piece drawn over them`,
+`DisplayedCellsTest › asking more rows than the board has, or none, is refused`,
+`BoardRowsSizeTest › the bottom rows of the board take ten cells across and one cell per row`,
+`BoardCanvasTest › the bottom rows of a board are drawn again as it changes, without recomposing, TalkBack reading nothing`,
+`HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
+`HomeScreenTest › nothing on the home recomposes while the preview plays`,
+`HomeScreenTest › a touch on the home puts the halo of Jouer off for 3 seconds again`,
+`HomeScreenTest › in reduced effects the preview and the halo stand still` ;
+captures `Logo*`, `HomeColorful*`. Vue : V27.
+
+**Paramètres v2** (P5.70, `feature:home`, déplacée dans `feature:settings` en P12.2, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
 et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
 effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
-converti en `Volume`), Vibrations, Vibration des touches (« Un léger toucher à chaque touche ») ; sans vibreur, les
-deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Valable dès la partie suivante. ». Un
+converti en `Volume`), Vibrations, Vibration des touches (« Classique, Graine du jour : un léger toucher à chaque touche », P12.7) ; sans vibreur, les
+deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. » (P12.7). Un
 réglage allumé se fait sentir une fois, après un enregistrement réussi : la rotation pour les effets, la
 vibration des lignes ou d'une touche pour les vibrations. Record : `SettingActionRow`, Effacer en bout de ligne
 (dessous en grande police), lu « Effacer le record du Classique » ; il ouvre une `ConfirmWindow` (générique,
@@ -525,13 +764,66 @@ chaque pas qu'une fois.
 `ButtonLookTest › a danger button is framed and labelled in danger at rest, filled in danger pressed` ;
 captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
 
+**Portée de la page** (P12.3, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : la clé
+`SettingsRoute(section: SettingsSection? = null)`, sérialisable, porte la section du jeu qui ouvre la page
+(`SettingsSection.CLASSIC`, seule valeur) et la garde après la mort du processus. Ouverte depuis l'accueil du
+Classique, la page montre sous sa barre le titre « Réglages du Classique » et la carte Record, puis le titre « Tous
+les jeux » au-dessus d'Affichage et de Sons et vibrations ; ces deux titres de partie sont des titres pour TalkBack,
+en `ink` et dans le style `title`, plus grands que les titres de section. Ouverte sans section, elle ne montre que
+« Tous les jeux » : ni « Réglages du Classique », ni Record. Le choix du jeu (P12.5) et la Graine du jour (P12.6)
+l'ouvrent sans section : le Record du Classique n'est pas le leur. Parcours
+`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
+`BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`.
+**Tests :** `SettingsRouteTest › a route restored after the death of the process keeps its section, or none`,
+`SettingsRouteSavingTest › the key of the page opened from the Classic is saved and restored with its section`,
+`SettingsScreenTest › the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen`,
+`SettingsScreenTest › the section of the Classic is read Réglages du Classique, a heading`,
+`SettingsScreenTest › the title of a part, Tous les jeux, is larger than the title of a section, Affichage`,
+`SettingsScreenTest › opened from the Classic, its section comes first, then Tous les jeux, a heading, above Affichage`,
+`BloxNavDisplayTest › the gear of the home screen opens the settings on the section of the Classic, its record within` ;
+captures `Settings*`, dont `SettingsAllGames` (sans section). Vues : V21, V31.
+
+**Page toujours en Couleurs** (P12.4, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : `SettingsScreen` se
+dessine dans `ColorfulTheme`, la variante Couleurs du mode du téléphone, avec les effets du joueur, quel que soit le
+thème choisi pour le Classique, comme le choix du jeu, la Graine du jour, le Serrurier et le Jardin : l'aspect
+Original de V21 disparaît (l'Original est figé et n'habille que le Classique). Les barres système suivent :
+`SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`, `app`). Les captures Original de la page
+(`SettingsOriginal`, `SettingsOriginalGreyed`, et `SettingsLargeFont`, qui était en Original) sont retirées : elles
+rendraient la même page que leurs jumelles Couleurs.
+**Tests :** `SettingsScreenTest › the page is drawn in Colorful whatever the theme chosen, with the effects of the player`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
+`SystemBarsTest › the bars of every other screen follow the theme chosen` ; captures `Settings*`. Vues : V21, V31.
+
+**Textes de la page** (P12.7, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : un réglage « Tous les jeux » qui
+ne vaut pas pour tous nomme les jeux concernés en tête de sa sous-ligne, suivis de « : ». Gaucher, Vibrations et
+Vibration des touches ne valent que pour les jeux à touches : « Classique, Graine du jour : flèches à gauche, B et A à
+droite » (ou « B et A à gauche, flèches à droite »), « Classique, Graine du jour : lignes effacées, fin de partie »,
+« Classique, Graine du jour : un léger toucher à chaque touche ». La liste des jeux est une seule chaîne
+(`feature_settings_games_with_keys`) ; Au tempo, qui n'existe pas encore, s'y ajoutera avec P11 (P11.14). TalkBack lit
+la sous-ligne avec son interrupteur ; sans vibreur, « Cet appareil ne vibre pas » la remplace toujours. Sous Sons et
+vibrations, la note dit quand les réglages valent : « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. »
+(les volumes sont lus aussitôt par les lecteurs de l'application, les effets sonores et les vibrations à la création de
+l'écran d'un jeu ; Effets réduits, lu aussitôt, est dans Affichage, sans note). La section du Classique finit par
+« Le thème du Classique se choisit dans son accueil. », à `space2` sous la carte Record comme toute note sous sa carte
+(« Record effacé », région vive vide jusque-là, s'intercale à `space2` sans place réservée) ; ouverte sans section, la page ne le dit
+pas. En police ×2 sur 360 dp, les sous-lignes restent entières (elles rétrécissent, mot entier, sur trois lignes au
+plus).
+**Tests :** `SettingsScreenTest › each setting says under its label what it does, and for which games when not all, read with it`,
+`SettingsScreenTest › Gaucher stands under Effets réduits, and says for which games and where the keys stand, for either hand`,
+`SettingsScreenTest › Sons et vibrations holds its settings, then says the volumes hold at once, the rest from the next game`,
+`SettingsScreenTest › opened from the Classic, its section says under the record where its theme is chosen, above Tous les jeux`,
+`SettingsScreenTest › the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen`,
+`SettingsScreenTest › Affichage holds Effets réduits, which says what it does, then Gaucher, and no note, above Sons et vibrations`,
+`SettingsScreenTest › in a font twice as large, on 360 dp, every sub-line shows whole, its words whole` ;
+captures `Settings*`. Vues : V21, V31.
+
 **Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
 `BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les
 animations d'Android, observées en continu (`SystemAnimations`, réglage `ANIMATOR_DURATION_SCALE`, écran partagé
 compris) ; le thème et le choix d'effets sont lus ensemble avant la première image (`AppTheme.appearance`). Carte
 Affichage en tête des Paramètres : Effets réduits (« Moins de mouvements et de particules ») ; quand Android
 retire les animations, l'interrupteur est allumé, bloqué et dit « Imposé par les réglages d'Android », sans
-écrire le choix enregistré ; sous la carte, « Le thème se choisit à l'accueil. ». En Effets réduits, un bouton
+écrire le choix enregistré (la note sur le thème, d'abord sous cette carte, est passée dans la section du Classique en P12.7). En Effets réduits, un bouton
 pressé ne change que de couleur et revient aussitôt ; une touche de jeu tenue garde sa descente de 2 dp (seul
 repère de A tenue de jour). Un sous-titre de rangée de réglage peut prendre trois lignes.
 **Tests :** `BloxEffectsTest › effects are reduced when the player asks for it`,
@@ -729,12 +1021,11 @@ réduirait toujours au plancher. `shrinkToFewestLines` vérifie désormais aussi
 quand il passe sur plusieurs lignes. `shrinkToWholeWords` permet plusieurs lignes et ne réduit que
 si le texte déborde ou coupe un mot ; il ne cherche pas le moins de lignes (message du dé, trois
 lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` garde l'interligne d'un
-texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) restent
-côte à côte si le mot le plus large de chacune tient dans sa moitié ; sinon elles s'empilent, la
-réponse sûre d'abord (ordre de lecture inchangé), chacune sur toute la largeur et en grande police
-plutôt que réduite. En Original, elles s'empilent déjà en police normale à 320 dp. La décision
-compte en pixels entiers, comme la rangée, sur la largeur de ligne mesurée (`ButtonRow.kt`, partagé
-avec la barre d'outils de l'éditeur, P5.49). Le texte d'une fenêtre (`WindowText`) garde ses mots
+texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) sont
+toujours empilées depuis P5.98 (section « Fenêtres v2 »), chacune sur toute la largeur, en grande
+police plutôt que réduite ; un mot trop long pour la largeur entière réduit. `ButtonRow.kt` (côte à
+côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour la barre d'outils de l'éditeur
+(P5.49) et les tuiles de l'accueil. Le texte d'une fenêtre (`WindowText`) garde ses mots
 entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
 moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
 pas la césure, désactivée pour le corps du texte). **Tests :**
@@ -778,11 +1069,9 @@ Capture : `LeaveWindowOriginalLargeFont`.
 `WordCutTest › a number cut between two digits is cut`,
 `ShrinkingLineHeightTest › a text that shrinks keeps the line height of its style in proportion to its size`,
 `ShrinkingLineHeightTest › a style without a line height in sp keeps its own`,
-`WindowAnswersTest › in a normal font, on 360 dp, the answers of a window stand side by side, the safe one first`,
-`WindowAnswersTest › in a font twice as large, in Original, on 360 dp, answers too wide side by side stand one above the other`,
-`WindowAnswersTest › in a font twice as large, in Colorful, on 360 dp, answers whose words hold whole stay side by side`,
+`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowAnswersTest › in a font twice as large, on 360 dp, the answers stand one above the other, each word whole`,
 `WindowAnswersTest › in a font twice as large, a word too long for the whole width of an answer shrinks rather than be cut`,
-`WindowAnswersTest › in a normal font, in Original, on 320 dp, the answers of a window stand one above the other`,
 `EmbeddedFontsTest › each embedded font has its OFL licence in the assets of the module, which go into the APK`,
 `EmbeddedFontsTest › the embedded families are Press Start 2P, Manrope, Unbounded and Bagel Fat One, without Chakra Petch`,
 `ValueDigitsTest › in each theme the ten digits of a value take the same width, so that a value does not move`,

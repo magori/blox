@@ -23,12 +23,12 @@ class MotionTokensTest {
     }
 
     @Test
-    fun `every duration token of tokens json is in the code`() {
+    fun `every duration token of tokens json is in the code or listed as not coded, with its reason`() {
         // Given the duration tokens of tokens json
         val tokens = DesignTokens.values("duration").keys
 
-        // Then
-        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name })
+        // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
+        assertCodedOrListed(tokens, CODED.map { it.name }, NOT_CODED)
     }
 
     /** A duration token of tokens json, and the property of [BloxMotion] that holds it, in [ticks]. */
@@ -43,8 +43,16 @@ class MotionTokensTest {
             CodedToken("motion-card", "card", BloxMotion.card),
             CodedToken("motion-sticker", "sticker", BloxMotion.sticker),
             CodedToken("motion-pop", "pop", BloxMotion.pop),
+            CodedToken("motion-row", "row", BloxMotion.row),
             CodedToken("motion-reduced-fade", "reducedFade", BloxMotion.reducedFade),
+            CodedToken("motion-garden-bounce", "gardenBounce", BloxMotion.gardenBounce),
+            CodedToken("motion-garden-glow", "gardenGlow", BloxMotion.gardenGlow),
+            CodedToken("motion-garden-fall", "gardenFall", BloxMotion.gardenFall),
+            CodedToken("motion-garden-fall-step", "gardenFallStep", BloxMotion.gardenFallStep),
         )
+
+        /** The duration tokens left out of the code, with the reason why. */
+        private val NOT_CODED: Map<String, String> = emptyMap()
 
         @JvmStatic
         fun codedTokens(): List<CodedToken> = CODED

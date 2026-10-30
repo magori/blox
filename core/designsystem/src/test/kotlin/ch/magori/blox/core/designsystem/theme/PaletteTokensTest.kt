@@ -26,13 +26,12 @@ class PaletteTokensTest {
         // Given the colour tokens of tokens json, but the colours of the pieces, `piece-*`: coded with the styles of the
         // cells in core:board, which knows the pieces (ADR 0023), and compared to tokens json there (PieceTokensTest);
         // and the colours of the padlock of the Locksmith, `lock-*`, in the Colorful theme only: coded with its cells in
-        // core:board too, and compared there (LockTokensTest)
-        val tokens = DesignTokens.colours.keys.filterNot { it.startsWith(PIECE_TOKEN) || it.startsWith(LOCK_TOKEN) }
+        // core:board too, and compared there (LockTokensTest); and the colours of the cells of the musical garden,
+        // `garden-*`, in the Colorful theme only as well: coded with its cells in core:board (GardenTokensTest)
+        val tokens = DesignTokens.colours.keys.filterNot { name -> BOARD_TOKENS.any { name.startsWith(it) } }
 
         // Then each is coded or left out on purpose, and nothing is listed that tokens json does not have
-        assertThat(tokens).containsExactlyInAnyOrderElementsOf(CODED.map { it.name }.toSet() + NOT_CODED.keys)
-        assertThat(NOT_CODED.keys).doesNotContainAnyElementsOf(CODED.map { it.name })
-        assertThat(NOT_CODED.values).allSatisfy { reason -> assertThat(reason).isNotBlank() }
+        assertCodedOrListed(tokens, CODED.map { it.name }, NOT_CODED)
     }
 
     @Test
@@ -98,11 +97,11 @@ class PaletteTokensTest {
             CodedToken("iris-3", "iris.end") { it.iris.end },
         )
 
-        /** The prefix of the colours of the pieces in tokens json. */
-        private const val PIECE_TOKEN = "piece-"
-
-        /** The prefix of the colours and shadows of the padlock of the Locksmith in tokens json. */
-        private const val LOCK_TOKEN = "lock-"
+        /**
+         * The prefixes of the colours coded in core:board rather than in the palette: those of the pieces, of the
+         * padlock of the Locksmith and of the cells of the musical garden.
+         */
+        private val BOARD_TOKENS = listOf("piece-", "lock-", "garden-")
 
         /** The colour tokens left out of [BloxPalette], with the reason why. */
         private val NOT_CODED: Map<String, String> = emptyMap()

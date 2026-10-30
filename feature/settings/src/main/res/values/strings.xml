@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Page Paramètres (V21, V31) : son titre, à côté de la flèche Retour. -->
+    <string name="feature_settings_title">Paramètres</string>
+    <string name="feature_settings_back">Retour</string>
+    <!-- Carte Affichage (P5.71) : Effets réduits, imposé quand Android supprime les animations, sans écraser le choix. -->
+    <string name="feature_settings_display">Affichage</string>
+    <string name="feature_settings_reduced_effects">Effets réduits</string>
+    <string name="feature_settings_reduced_effects_sub_line">Moins de mouvements et de particules</string>
+    <string name="feature_settings_reduced_effects_forced">Imposé par les réglages d\'Android</string>
+    <string name="feature_settings_left_handed">Gaucher</string>
+    <!-- Les jeux qui ont des touches (ADR 0030), en tête des sous-lignes de Gaucher et des deux vibrations, suivis de « : » ; Au tempo s'y ajoutera (P11.14). -->
+    <string name="feature_settings_games_with_keys">Classique, Graine du jour</string>
+    <!-- %1$s : les jeux qui ont des touches. -->
+    <string name="feature_settings_left_handed_off">%1$s : flèches à gauche, B et A à droite</string>
+    <string name="feature_settings_left_handed_on">%1$s : B et A à gauche, flèches à droite</string>
+    <!-- Sons et vibrations (ADR 0030). La note sous la carte : les volumes sont lus tout de suite par les lecteurs de l'application ; les effets sonores et les vibrations, à la création de l'écran d'un jeu. -->
+    <string name="feature_settings_sounds">Sons et vibrations</string>
+    <string name="feature_settings_vibrations">Vibrations</string>
+    <string name="feature_settings_sound_effects">Effets sonores</string>
+    <!-- %1$s : les jeux qui ont des touches, pour les deux vibrations. -->
+    <string name="feature_settings_vibrations_sub_line">%1$s : lignes effacées, fin de partie</string>
+    <string name="feature_settings_sound_effects_sub_line">Rotation, lignes, fin de partie</string>
+    <string name="feature_settings_taking_effect">Volumes : tout de suite. Le reste : dès le prochain jeu ouvert.</string>
+    <!-- Paramètres v2 (V31) : la vibration de chaque touche du jeu, les volumes (curseurs de 0 à 100 % par pas de 10). -->
+    <string name="feature_settings_key_vibration">Vibration des touches</string>
+    <!-- %1$s : les jeux qui ont des touches. -->
+    <string name="feature_settings_key_vibration_sub_line">%1$s : un léger toucher à chaque touche</string>
+    <string name="feature_settings_effects_volume">Volume des effets</string>
+    <string name="feature_settings_music_volume">Volume de la musique</string>
+    <!-- À la place de la sous-ligne des deux vibrations, grisées, quand l'appareil n'a pas de vibreur. -->
+    <string name="feature_settings_no_vibrator">Cet appareil ne vibre pas</string>
+    <!-- Titre de la section du Classique (ADR 0030), ouverte depuis son accueil, en tête de la page ; lu comme titre. -->
+    <string name="feature_settings_classic">Réglages du Classique</string>
+    <!-- Dernière note de la section du Classique (ADR 0030) : son thème ne se règle pas ici. -->
+    <string name="feature_settings_classic_theme_note">Le thème du Classique se choisit dans son accueil.</string>
+    <!-- Titre des réglages communs à tous les jeux, sous la section du jeu qui a ouvert la page, s'il en a une. -->
+    <string name="feature_settings_all_games">Tous les jeux</string>
+    <!-- Carte Record : effacer le record, après confirmation (réponse sûre d'abord), puis le dire (lu par TalkBack). -->
+    <string name="feature_settings_record">Record</string>
+    <string name="feature_settings_classic_record">Record du Classique</string>
+    <string name="feature_settings_clear_record">Effacer</string>
+    <!-- Lu par TalkBack sur le bouton Effacer, seul : le libellé de la rangée est laissé de côté. -->
+    <string name="feature_settings_clear_record_description">Effacer le record du Classique</string>
+    <string name="feature_settings_clear_record_title">Effacer le record ?</string>
+    <string name="feature_settings_clear_record_confirm">Effacer le record</string>
+    <string name="feature_settings_keep_record">Garder le record</string>
+    <string name="feature_settings_record_cleared">Record effacé</string>
+</resources>

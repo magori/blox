@@ -17,4 +17,10 @@
     <include domain="file" path="datastore/settings.preferences_pb" />
     <!-- The saved musics (MUSICS_FILE): scores the player wrote, without a content URI. -->
     <include domain="file" path="datastore/musics.bin" />
+    <!-- The garden of the Jardin musical (GARDEN_FILE): a creation of the player, as the musics. -->
+    <include domain="file" path="datastore/garden.bin" />
+    <!-- The kept gardens of Mes jardins (GARDENS_FILE): creations of the player, as the garden. -->
+    <include domain="file" path="datastore/gardens.bin" />
+    <!-- The progress of the Serrurier (PADLOCKS_FILE): the best opening of each padlock, the same on any phone. -->
+    <include domain="file" path="datastore/padlocks.bin" />
 </full-backup-content>

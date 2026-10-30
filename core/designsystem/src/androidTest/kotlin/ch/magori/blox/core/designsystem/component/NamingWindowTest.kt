@@ -49,6 +49,7 @@ internal class NamingWindowTest {
                     title = "Renommer « Thème du soir »",
                     name = "Ma marche",
                     onNameChanged = {},
+                    maxLength = 40,
                     problem = problem,
                     confirm = "Renommer",
                     onConfirm = { confirmed++ },
@@ -87,6 +88,7 @@ internal class NamingWindowTest {
                         title = "Enregistrer la musique",
                         name = LONGEST_NAME,
                         onNameChanged = { typed += it },
+                        maxLength = 40,
                         problem = null,
                         confirm = "Enregistrer",
                         onConfirm = {},
@@ -109,6 +111,33 @@ internal class NamingWindowTest {
 
         // Then
         runOnIdle { assertThat(typed).containsExactly("Ma marche") }
+    }
+
+    @Test
+    @DisplayName("Renommer is titled after the name it renames and answered Renommer, which renames")
+    fun theRenameWindowIsTitledAfterTheName() = extension.use {
+        // Given « Ma marche » being renamed « Mon pas »
+        var renamed = 0
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                RenameWindow(
+                    current = "Ma marche",
+                    name = "Mon pas",
+                    onNameChanged = {},
+                    maxLength = 40,
+                    problem = null,
+                    onConfirm = { renamed++ },
+                    onDismiss = {},
+                )
+            }
+        }
+
+        // When
+        onNode(hasClickAction() and hasText("Renommer")).performClick()
+
+        // Then
+        onNodeWithText("Renommer « Ma marche »").assertExists()
+        runOnIdle { assertThat(renamed).isEqualTo(1) }
     }
 
     private companion object {

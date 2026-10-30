@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -50,14 +49,17 @@ import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 /**
  * A setting of the settings page (docs/design-system/components/Switch), on or off as [checked]: its [icon] in a slot
  * of 40 dp, its [label] and, under it, its [subLine], which says what it does, then its track, on the right. The whole
- * row is the switch, for the finger and for TalkBack, which reads it once: « Vibrations, Lignes effacées, fin de
- * partie, interrupteur, éteint ». Its state is read « allumé » or « éteint », not « activé » or « désactivé », which
- * TalkBack also says of what cannot be touched. Pressed, the row fills with `buttonPressed` and the thumb grows to
- * 28 dp, at once, and both come back in `motion-press`; focused by the keyboard, the row bears a ring of 3 dp in `ink`.
+ * row is the switch, for the finger and for TalkBack, which reads it once: « Vibrations, Classique, Graine du jour :
+ * lignes effacées, fin de partie, interrupteur, éteint ». Its state is read « allumé » or « éteint », not « activé »
+ * or « désactivé », which TalkBack also says of what cannot be touched. Pressed, the row fills with `buttonPressed`
+ * and the thumb grows to 28 dp, at once, and both come back in `motion-press`; focused by the keyboard, the row bears
+ * a ring of 3 dp in `ink`.
  * With a [disabledReason], the row is disabled, flat and greyed, and its sub-line says that reason instead: TalkBack
  * reads it as unavailable, and why. In a large font, no word is cut, and the label shrinks only for that: when its
  * longest word no longer fits beside the track, the track goes under the label and the sub-line, on the right, the
  * pictogram staying beside them.
+ * Drawn in Colorful only (P12.13): to be placed under `ColorfulTheme`. In Original, a disabled row could not be told
+ * from an enabled one.
  */
 @Composable
 fun SettingSwitchRow(
@@ -250,7 +252,7 @@ private fun SwitchTrack(
                     val placeable = measurable.measure(Constraints.fixed(width, height))
                     layout(width, height) { placeable.place(0, 0) }
                 }
-                .thumbFill(look, shape),
+                .background(look.thumb, shape),
             contentAlignment = Alignment.Center,
         ) {
             look.check?.let { CheckMark(it, Modifier.size(CHECK_SIDE)) }
@@ -258,15 +260,10 @@ private fun SwitchTrack(
     }
 }
 
-/** The thumb of [look] in [shape]: full, or its outline alone when it is hollow. */
-private fun Modifier.thumbFill(
-    look: SwitchLook,
-    shape: Shape,
-): Modifier = if (look.thumbHollow) border(HOLLOW_THUMB_OUTLINE, look.thumb, shape) else background(look.thumb, shape)
-
 /**
- * The style of the label of a setting: `choice` in bold (Manrope 15/700), over the Material label, whose size Original
- * keeps; in Original, its pixel font has a single weight, which a synthesised bold would blur.
+ * The style of the label of a setting, and of a choice of a sheet ([SheetChoiceRow]): `choice` in bold (Manrope
+ * 15/700), over the Material label, whose size Original keeps; in Original, where the sheet Musique of the home is
+ * drawn, its pixel font has a single weight, which a synthesised bold would blur.
  */
 @Composable
 @ReadOnlyComposable
@@ -309,6 +306,6 @@ private val CHECK_SIDE = 14.dp
 
 /**
  * The lines a sub-line may take: three, so that the longest (« Moins de mouvements et de particules », « Imposé par les
- * réglages d'Android ») stays whole in the pixel font of Original, twice as large, on 360 dp.
+ * réglages d'Android ») stays whole in a font twice as large, on 360 dp.
  */
 private const val SUB_LINE_MAX_LINES = 3

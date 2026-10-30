@@ -1,6 +1,6 @@
 # 0022 — Choix du jeu : une feature à la racine de la pile
 
-- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md), [0026](0026-jeux-musicaux-variantes-du-classique.md) et [0027](0027-le-jardin-musical.md)
+- **Statut** : Acceptée ; amende [0011](0011-navigation-3.md) ; amendée par [0025](0025-le-serrurier.md), [0026](0026-jeux-musicaux-variantes-du-classique.md), [0027](0027-le-jardin-musical.md) et [0030](0030-reglages-generaux-et-par-jeu.md)
 - **Date** : 2026-10-25
 
 ## Contexte
@@ -32,3 +32,26 @@ Cinq cartouches, sur deux colonnes : Classique, Serrurier, Jardin musical, Au te
 jour. La cartouche Graine du jour porte l'autocollant « NOUVELLE » jusqu'au premier essai du jour,
 d'après un état que `app` lui passe. La Musique vivante n'a pas de cartouche : c'est un choix de
 musique de l'accueil Classique, comme le mode Moderne en est un réglage.
+
+## Amendement (P9.7, 2026-10-27)
+
+La grille de V36 remplace la console de V26 (décision du développeur). Deux colonnes d'au plus
+171 dp ; une dernière cartouche seule est centrée dessous, si bien que trois puis cinq cartouches
+tiennent dans la même grille ; une seule colonne quand un mot d'un nom ne tient plus dans sa
+colonne à la plus petite taille. Trois cartouches pour l'instant (Classique, Serrurier, Graine du
+jour) : le Jardin et Au tempo s'ajouteront avec P10.13 et P11.12, sans cartouche endormie. Le
+choix du jeu est dessiné en Couleurs v2 quel que soit le thème choisi (`ColorfulTheme`, barres
+système comprises), l'Original étant figé. La feature reste sans ViewModel : l'autocollant
+« NOUVELLE » vient d'un flux `Flow<Set<Cartridge>>` passé à `cartridgesEntry`, que `app` tire des
+résultats de la Graine du jour et de `today(clock)` (`NewCartridges`, résultats gardés chauds pour que l'autocollant ne clignote pas au retour), la date relue à chaque
+retour de l'écran ou de l'application au premier plan (pas de bascule en direct à minuit, comme
+l'écran d'entrée). La feature ne connaît ni les résultats ni la date.
+
+## Amendement (ADR 0030, 2026-10-30)
+
+Le choix du jeu n'est plus fait que de cartouches : une roue dentée de 48 dp, à droite de la barre, lue
+« Paramètres » et placée avant le titre dans l'ordre de TalkBack, ouvre la page Paramètres sur les réglages de tous
+les jeux (`SettingsRoute()`, P12.5) ; le retour revient aux cartouches. `cartridgesEntry` reçoit un rappel
+`onSettings`, que `app` relie à la pile : la feature ne connaît pas `feature:settings`, et reste sans ViewModel.
+La roue passe par `CartridgeOpener`, comme les cartouches : elle annule un toucher sur le Serrurier qui attend encore
+sa frontière, et n'empile la page que si `CartridgesRoute` est en haut de la pile.

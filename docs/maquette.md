@@ -34,7 +34,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V18 | Enregistrer la musique, thème Brume sombre | « V18 · Enregistrer la musique · thème Brume sombre » |
 | V19 | Pause (thème au choix) | « V19 · Pause » |
 | V20 | Jeu, fenêtre très étroite (220 × 640, thème au choix) | « V20 · Jeu · fenêtre très étroite » |
-| V21 | Paramètres (thème au choix) | « V21 · Paramètres » |
+| V21 | Paramètres (toujours en Couleurs depuis P12.4) | « V21 · Paramètres » |
 | V22 | Jeu, thème Couleurs v2 nuit (V3 est le jour) | « V22 · Jeu · thème Couleurs sombre (piste C) » |
 | V23 | Mes musiques, thème Couleurs v2 nuit | « V23 · Mes musiques · thème Couleurs sombre » |
 | V24 | Éditeur de musique, thème Couleurs v2 nuit | « V24 · Éditeur de musique · thème Couleurs sombre » |
@@ -44,16 +44,16 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
-| V31 | Paramètres v2 (Affichage, Sons et vibrations, Record) | rangée « Ouverture… puis Paramètres » |
+| V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties et les textes de P12.7 (P12.10) |
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
-| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | à dessiner (P7.16) ; prototype d'origine « Idée · Le Serrurier » |
-| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | à dessiner (P9.8, complétée en P10.14 et P11.13) ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
-| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | à dessiner (P8.8) ; [musique-vivante.md](musique-vivante.md) |
-| V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | à dessiner (P9.8) ; [graine-du-jour.md](graine-du-jour.md) |
-| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | à dessiner (P9.8) |
-| V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | à dessiner (P10.14) ; [jardin-musical.md](jardin-musical.md) |
+| V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
+| V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7) puis à quatre (P10.13) ; variante à quatre cartouches avec le Jardin musical dessinée en P10.14 (composant `V2Choix4`, ordre Classique, Serrurier, Jardin musical, Graine du jour), complétée en P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
+| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8) ; [musique-vivante.md](musique-vivante.md) |
+| V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | dessinée (P9.8), codée (P9.5) ; [graine-du-jour.md](graine-du-jour.md) |
+| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
+| V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | dessinée (P10.14), codée (P10.10, sans le son ni les retours animés : P10.12, P10.15 ; rangée « Couleurs v2 — V40 Jardin musical », composant `V2Jardin`, ses jetons `garden-*` publiés dans le design system et reportés dans `tokens.json` avec leur code, P10.8) ; [jardin-musical.md](jardin-musical.md) |
 | V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
@@ -67,14 +67,54 @@ maquette pour le code dans [design-system/pictogrammes.md](design-system/pictogr
 pixels 8 × 8 (Original) et en traits (Couleurs, Brume), le logo BloX v2 (`LogoBloX`) et la
 mascotte (`Mascotte`).
 
-**V26 codé** (P5.72, `feature:cartridges` ; seconde cartouche « Serrurier », P7.15) : l'application s'ouvre sur le choix du jeu,
-Classique, qui ouvre l'accueil Classique, et Serrurier, qui ouvre la serrure 1 ; le disque « Changer de jeu » de l'accueil y revient ; le
-retour système y quitte l'application. Le dessin est provisoire (titre, encart cadré, étiquette `accent` au
-nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche viennent avec P5.92.
+**V36 codé** (P9.7, `feature:cartridges` ; remplace la console de V26, codée en P5.72 et dessinée en P5.92, décision du
+développeur du 2026-10-27) : l'application s'ouvre sur le choix du jeu, Classique (accueil Classique), Serrurier
+(la frontière, première serrure non ouverte, depuis P7.34) et Graine du jour (son écran d'entrée) ; le disque « Changer de jeu » y revient ; le retour système y
+quitte l'application. Toujours en Couleurs v2, quel que soit le thème choisi (`ColorfulTheme`, barres système
+comprises ; l'Original est figé). En tête, le logo BloX (barre de 56 dp, décoratif), puis « Choix du jeu », lu comme
+titre de l'écran ; une grille de deux colonnes d'au plus 171 dp (16 dp entre elles, 14 dp entre les rangées), la
+dernière cartouche seule centrée dessous, si bien que trois puis cinq cartouches y tiennent ; une seule colonne quand
+un mot d'un nom ne tient plus dans sa colonne à sa plus petite taille. Chaque cartouche est un bouton bulle (appui de
+2 dp) avec sa prise, une fenêtre `iris` qui porte la mascotte du jeu (le T du Classique, le O du Serrurier, le Z à la
+pousse de la Graine), son nom (deux lignes au plus, réduit en mots entiers) et cinq broches. La Graine porte
+l'autocollant « NOUVELLE » (`accent`, −6°, décoratif ; TalkBack lit « Nouvelle » après le nom) jusqu'au premier essai
+du jour. Sous son nom, le Serrurier porte la sous-ligne « Serrure *N* », sa frontière (P7.34 ; TalkBack la lit après
+le nom ; « Serrure 1000 » tient sur une ligne en police ×2 à 360 dp), affichée seulement une fois l'avancement lu ;
+la place de cette ligne est réservée sur toutes les cartouches, pour que la grille ne bouge pas (détail et tests dans
+[regles-serrurier.md](regles-serrurier.md), « Avancement et anciennes serrures »). En bas, « Touche une cartouche
+pour l'ouvrir. ». Au bout de la barre, la roue dentée (P12.5, `SettingsButton` de 48 dp, lue « Paramètres », avant le titre
+dans l'ordre de TalkBack) ouvre les Paramètres sans section de jeu, `SettingsRoute()` (ADR 0030) ; le retour revient au
+choix du jeu. Elle passe par `CartridgeOpener`, comme les cartouches. Écarts retenus :
+pas d'animation d'entrée de l'autocollant, qui ne descend pas avec la cartouche pressée ; coins de la cartouche en
+`radius-window` (24 au lieu de 22) ; corps de la mascotte de la Graine en `piece-z` (rose) et non orange, les mascottes
+prenant les jetons des pièces.
+**Tests :** `CartridgesScreenTest › TalkBack reads « Choix du jeu » as the heading of the screen`,
+`CartridgesScreenTest › a cartridge held down goes 2 dp down, as a bubble button`,
+`CartridgesScreenTest › each cartridge bears the mascot of its game, whatever the theme: the choice of the game is drawn in Colorful`,
+`CartridgesScreenTest › in Colorful, on 360 dp, the four cartridges stand on two full rows of two, as wide as each other`,
+`CartridgesScreenTest › on 360 dp, of an odd number of cartridges, the last one stands alone below, centred`,
+`CartridgesScreenTest › in a font twice as large, on 240 dp, the cartridges stand in one column: two names do not hold side by side`,
+`CartridgesScreenTest › in a font twice as large, on 360 dp, the name of each cartridge stays whole, on two lines at most, unclipped`,
+`CartridgesScreenTest › the gear at the end of the bar, above the title, is a button of 48 dp read « Paramètres »`,
+`CartridgesScreenTest › TalkBack reads the gear before the heading « Choix du jeu »`,
+`CartridgesScreenTest › the gear tapped calls for the settings`,
+`CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges and the gear`,
+`OpenCartridgeTest › the gear opens the settings over the cartridges, with no section of a game`,
+`OpenCartridgeTest › a tap on the gear cancels a tap on the Locksmith still waiting for its frontier`,
+`OpenCartridgeTest › the gear stacks nothing once a game is on its way`,
+`OpenCartridgeTest › two taps on the gear stack one settings page`,
+`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
+`CartridgeTest › each cartridge bears the mascot of its game, the T, the O, the L or the Z`,
+`CartridgeTest › the cartridges are the Classic, the Locksmith, the Jardin musical, the Graine du jour, in this order`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
+`CellStylesTest › the colour of a piece is the fill of its cells in the variant`,
+`StrokeIconTest › the arrow into the console of the choice of the game is drawn 2,5 thick, as its drawing says`,
+`StrokeIconTest › the eject of the console of the choice of the game is filled, without strokes, as its drawing says` ;
+captures `Cartridges*`.
 **Tests :** `ChangeGameTest › changing the game from the home goes back to the cartridges`,
 `ChangeGameTest › changing the game from a restored stack without cartridges puts them at its root`,
 `CartridgesScreenTest › TalkBack reads the name of each cartridge, as a button of 48 dp at least`,
-`CartridgesScreenTest › the Classic cartridge opens the Classic`,
+`CartridgesScreenTest › a cartridge tapped is handed over, to open its game`,
 `BloxNavDisplayTest › the application opens on the choice of the game`,
 `BloxNavDisplayTest › the system back on the cartridges leaves the application`,
 `HomeViewModelTest › changing the game stops the preview`.
@@ -83,9 +123,9 @@ nom du jeu) : la console, la mascotte et la cartouche dessinée de la planche vi
 6 chiffres, lue « Record N », Paramètres) ; Jouer XL avec le rappel « Classique · Niveau 05 · Korobeïniki » (coupé
 par une ellipse s'il est trop long, lu en mots : « Jouer, Classique, niveau 5, Korobeïniki ») ; carte des
 réglages : Mode (Moderne « BIENTÔT »), Thème, Niveau en jauge (`LevelGauge`, les niveaux du mode en intervalle),
-Musique (choix en deux colonnes, Écouter et Changer, jusqu'à la feuille Musique de P5.76) ; tuiles Mes musiques
+Musique (une rangée qui ouvre la feuille Musique, P5.76, voir ci-dessous) ; tuiles Mes musiques
 et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas. Mise en page isolée (`HomeParts`,
-`HomeColumn`) pour les formats de P5.84 ; logo et titre provisoires jusqu'au héros de P5.77.
+`HomeColumn`) pour les formats de P5.84 ; logo BloX v2, aperçu du plateau et halo de Jouer depuis P5.77.
 **Tests :** `HomeScreenTest › the reminder under Play says the mode, the level on two digits and the music, read whole by TalkBack`,
 `HomeScreenTest › the gauge chooses the start level and saves it`,
 `HomeScreenTest › every target of the home is 48 dp at least on 360 dp`,
@@ -144,15 +184,15 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
     cadre à l'encre) ouvre l'éditeur sur une musique vierge (V8, V11, V14 ou V17).
 - L'accueil défile sur un petit téléphone ; la planche V1 fait 861 px de haut.
   **Tests :** `HomeScreenTest › the gear button, 48 dp, read Paramètres, opens the settings`,
-  `HomeScreenTest › the logo and the title BloX stand on one line, under the bar`,
+  `HomeScreenTest › the logo BloX, read as the heading of the screen, stands centred under the bar, the preview under it`,
   `HomeScreenTest › the home screen no longer shows the settings, gone to their own page`,
   `HomeScreenTest › on 360 dp, the two modes stand on one line`,
   `HomeScreenTest › the home leaves 16 dp above its bar and on its sides, and 16 dp between two rows of its settings`,
-  `HomeScreenTest › the music choices bear nothing under them: one line of actions, under them all, is for the music selected`,
-  `HomeScreenTest › with Mon fichier selected, the line of actions offers to listen to the file and to change it, side by side`,
-  `HomeScreenTest › with Aucune selected, there is nothing to listen to nor to change`,
+  `HomeScreenTest › choosing a music saves it and keeps the sheet open`,
+  `HomeScreenTest › in the sheet, Mon fichier with a file offers Changer, which opens the picker, before its listen button`,
+  `HomeScreenTest › Aucune shows the note barred`,
   `HomeScreenTest › the music selected being listened to offers to stop it, under a glyph that TalkBack does not read`,
-  `HomeScreenTest › in a font twice as large, in a narrow window, Écouter and Changer stand apart within it, Changer on one line`,
+  `HomeScreenTest › in a font twice as large, the row Mon fichier keeps its words whole, Changer beside or under Écouter`,
   `HomeViewModelTest › opening the settings stops the preview`,
   `HomeViewModelTest › opening the settings stops the music of the player listened to`,
   `BloxNavDisplayTest › opening the settings stops the music listened to on the home screen`,
@@ -177,7 +217,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   (P3.7) : 2 × 2 cellules de 20 dp, joint fin, couleurs des pièces du thème
   (`docs/themes.md`), décoratif pour TalkBack. Les niveaux proposés sont ceux du mode
   (`LevelProgression`) ; un niveau enregistré hors de la liste s'affiche comme le plus proche.
-  Parcours (P5.5) : `HomeScreenTest › TalkBack reads the record as it is, neither capped nor padded with zeros as it is shown`,
+  Parcours (P5.5) : `ScoreChipTest › TalkBack reads a score chip by its description alone, not the capped value shown`,
   `HomeScreenTest › the Modern mode is disabled, as TalkBack reads it, beside the Classic mode, selected`,
   `BloxNavDisplayTest › Jouer starts a game at the start level chosen on the home screen`.
 
@@ -210,16 +250,16 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Commandes (P5.79, touches v2) : ◀ ▼ ▶ d'un côté, rotation **B** (anti-horaire) et **A** (horaire) de
   l'autre, décalés comme sur une console portable ; Gaucher (Paramètres, Affichage) les échange, lu au début de
   chaque partie, et aucune touche n'est montrée avant la lecture des réglages. Tailles par la largeur : flèches de
-  60 dp et B et A de 68 dp dès 398 dp de large, 56 et 62 dès 374 dp, 52 et 56 en dessous (la plus grande taille
+  64 dp et B et A de 68 dp dès 410 dp de large, 58 et 62 dès 380 dp, 52 et 56 en dessous (la plus grande taille
   dont les deux groupes tiennent côte à côte, à 18 dp l'un de l'autre au moins ; sinon ils s'empilent ; des
   touches plus petites seulement si la case y gagne 1 dp) ; tablette avec P5.84. Demandes du développeur
-  (2026-10-26) : ◀ et ▶ un tiers de touche plus hautes que ▼, 16 dp entre B et A ; 8 dp entre deux flèches ; B
+  (2026-10-26, 2026-10-28) : ▼ une demi-touche plus bas que ◀ et ▶, 16 dp entre B et A ; 8 dp entre deux flèches ; B
   plus bas que A de 24 dp. Flèches dessinées (triangles de 24 dp) ; B et A au pictogramme de rotation seul
   (28 dp), lus « B, rotation anti-horaire » et « A, rotation horaire » (les lettres sont retirées, Original
   compris). A en `accent` cadré `accentPressed`, les autres en `button` cadrées `buttonOutline` ; une touche
   tenue prend sa teinte pressée, garde son cadre et descend de 2 dp (P5.57). Marge du jeu de 16 dp
   (P5.79, auparavant 24), sans cible sous 48 dp ; TalkBack lit les flèches puis B puis A, dans les deux mains.
-  **Tests :** `KeySizesTest › the left and right arrows stand a third of a key above the down arrow`,
+  **Tests :** `KeySizesTest › the down arrow stands half a key below the left and right arrows`,
   `KeySizesTest › B and A stand 16 dp apart`, `KeySizesTest › the keys fit a 360 dp phone with 16 dp margins`,
   `GameLayoutTest › left handed puts B and A on the left and the arrows on the right`,
   `GameLayoutTest › side by side, the two groups stand 18 dp apart at least, else stacked`,
@@ -227,7 +267,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `GameScreenTest › the reading order stays arrows then B and A, left handed or not`,
   `GameViewModelTest › until the settings answer the game shows no keys, does not run and takes no key`.
 - Pas de bouton de chute instantanée (absent du mode Classique).
-- Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (64 dp) et B A (80 dp), sont
+- Gestes système (P5.16) : les deux groupes de commandes, ◀ ▼ ▶ (96 dp de haut au plus) et B A (92 dp), sont
   exclus des gestes système à partir d'Android 10. En navigation par gestes, un glissement qui
   part du bord sur une commande ne déclenche donc plus Retour, qui annulait les doigts et mettait
   la partie en pause, même quand la zone du geste dépasse les marges de 24 dp. Chaque groupe
@@ -261,12 +301,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   annoncé par TalkBack (région vive polie) ; les commandes sont ignorées. Quand la fenêtre redevient
   assez grande, l'écran de pause revient et seul Reprendre relance la partie. Le retour système
   quitte alors la partie, comme Menu (sinon Reprendre remettrait aussitôt en pause). Bascules :
-  220 × 591 dp trop petite, 220 × 593 jouable (dès 592 à 1,5 et 3,5 px par dp) ; sous environ 204 dp de large, toujours trop petite ;
+  220 × 599 dp trop petite, 220 × 601 jouable (dès 600 à 1,5 et 3,5 px par dp) ; sous environ 204 dp de large, toujours trop petite ;
   téléphones, tablettes et la fenêtre de 220 × 640 jamais touchés. Le seuil ignore la police : en
   police agrandie ou avec la barre sur deux rangées (P2.26), la cellule réelle peut descendre un peu
   sous 8 dp près du seuil.
 
-  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 581 dp high, its cells under 8 dp, and playable 583 dp high`,
+  **Tests :** `GameLayoutTest › the narrowest multi-window is too small to play 589 dp high, its cells under 8 dp, and playable 591 dp high`,
   `GameLayoutTest › a window too narrow for the arrows is too small to play, however high`,
   `GameLayoutTest › phones and tablets, in portrait and in landscape, and the narrowest multi-window are never too small to play`,
   `BackActionTest › while the window is too small to play, the system back leaves the paused game, as Menu does`,
@@ -334,8 +374,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   score, niveau, lignes, Reprendre, Menu) monte sur un voile ; le jeu reste affiché dessous, inerte pour TalkBack,
   le focus et les touches. Reprendre, le retour du système, Start, Échap ou P rouvrent le rideau, et la partie ne
   repart qu'une fois le rideau ouvert ; une pause demandée pendant l'ouverture le referme depuis l'endroit atteint.
-  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte de la
-  carte avec P5.77.
+  La boucle de jeu reste arrêtée ; le rideau vit sur l'horloge de Compose et ne recompose rien. Mascotte
+  Classique endormie au-dessus de « Pause » (P5.77), que TalkBack ne lit pas.
   **Tests :** `PauseCurtainTest › the curtain shuts in 12 ticks, the duration of motion-curtain, before the card shows`,
   `PauseCurtainTest › in reduced effects the curtain fades over every row, shut in 8 ticks, the duration of motion-reduced-fade`,
   `PauseCurtainStateTest › a pause while the curtain opens brings it back down from where it stood, the game never let go on`,
@@ -352,9 +392,22 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ### V21 — Paramètres
 - Demandée par le développeur (2026-10-20), codée en P5.50 : `SettingsScreen` et
-  `SettingsViewModel` dans `feature:home`, clé `SettingsRoute`, entrée `settingsEntry` assemblée
+  `SettingsViewModel` dans `feature:settings` (déplacés de `feature:home` en P12.2), clé `SettingsRoute`, entrée `settingsEntry` assemblée
   par `app`. On y arrive depuis l'accueil (V1) par le bouton engrenage ; la flèche Retour et le
-  retour du système ramènent à l'accueil.
+  retour du système ramènent à l'écran qui l'a ouverte (l'accueil, ou la Graine du jour, V38).
+- Depuis P12.3 (ADR 0030), la clé porte la section du jeu qui ouvre la page,
+  `SettingsRoute(section: SettingsSection? = null)` : depuis l'accueil du Classique,
+  `SettingsRoute(SettingsSection.CLASSIC)` ; la page montre alors en tête « Réglages du Classique » (titre
+  pour TalkBack) et sa carte Record, puis « Tous les jeux » (titre) au-dessus d'Affichage et de Sons et vibrations.
+  Sans section (le choix du jeu, V36, P12.5 ; la Graine du jour, V38, P12.6), ni « Réglages du Classique » ni
+  Record.
+  **Tests :** `BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
+  `BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`. Voir V31 dans
+  [themes.md](themes.md).
+- Depuis P12.4 (ADR 0030), la page est toujours dessinée en Couleurs, barres système comprises, quel que soit le
+  thème choisi pour le Classique : l'aspect Original de V21 disparaît.
+  **Tests :** `SettingsScreenTest › the page is drawn in Colorful whatever the theme chosen, with the effects of the player`,
+  `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 - Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »
   (titre pour TalkBack), affichés dès l'ouverture, avant même la lecture des réglages. Section
   **Sons et vibrations**, marges de 16 dp : les interrupteurs **Vibrations** et **Effets
@@ -364,16 +417,23 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
   (« Vibrations, interrupteur, désactivé »). En police agrandie, le libellé garde sa taille et
   passe à la ligne aux espaces ; s'il ne tient pas à côté de l'interrupteur, celui-ci passe
-  dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
-  à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
+  dessous, à droite. Puis la mention « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. » (P12.7,
+  d'abord « Valable dès la partie suivante. ») : les volumes sont lus tout de suite, le reste à la création
+  de l'écran d'un jeu. Une écriture qui échoue laisse les réglages enregistrés affichés.
+- Depuis P12.7 (ADR 0030), les sous-lignes de Gaucher, Vibrations et Vibration des touches nomment les jeux
+  concernés (« Classique, Graine du jour : … ») ; la section du Classique finit par « Le thème du Classique se
+  choisit dans son accueil. », sous la carte Record (d'abord « Le thème se choisit à l'accueil. » sous Affichage).
+  Détail et tests : « Textes de la page » dans [themes.md](themes.md).
+  **Tests :** `SettingsScreenTest › opened from the Classic, its section says under the record where its theme is chosen, above Tous les jeux`,
+  `SettingsScreenTest › each setting says under its label what it does, and for which games when not all, read with it`.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
   **Tests :** `SettingsScreenTest › TalkBack reads each setting as a switch, read off when off`,
   `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
-  `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
+  `SettingsScreenTest › Sons et vibrations holds its settings, then says the volumes hold at once, the rest from the next game`,
   `SettingsScreenTest › in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least`,
-  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen`,
+  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back`,
   `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,
   `SettingsScreenTest › while the saved settings are not read, the page shows its back arrow and its title, and no switch`,
   `BloxNavDisplayTest › while the saved settings are not read, the settings show their back arrow and title, and no switch`,
@@ -440,7 +500,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
   `PlayTagTest › the tag of the play button stays home_play, which the journey of benchmark copies as it is`,
   `MyMusicsScreenTest › Au hasard and Nouvelle bear an icon that TalkBack does not read, their label read alone`,
   `MyMusicsScreenTest › the listen button and Utiliser of a card are read once, their icons adding nothing`,
-  `MyMusicsScreenTest › each item of the menu of a card bears an icon that TalkBack does not read`,
+  `BloxMenuTest › a menu item is 48 dp high, read as its label, its icon adding nothing` (rangées du menu « … », P10.36),
   `MyMusicsScreenTest › in a font twice as large, on 360 dp, Au hasard and Nouvelle are shown whole, after their icons`.
 
 ## Pas encore codé

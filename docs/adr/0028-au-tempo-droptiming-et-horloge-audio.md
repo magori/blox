@@ -53,7 +53,7 @@ par l'audio à côté de la boucle d'images (deux écrivains) ; le temps entendu
 ## Conséquences
 
 - Le moteur est modifié une fois de plus (lecture de la gravité par `DropTiming`) ; le Classique
-  doit rester identique, ce qu'une propriété vérifie sur des parties tirées au hasard.
+  doit rester identique, ce que vérifient cinq parties de référence, à graines fixes.
 - **Chevauchement avec P6.11** (gravité de plus d'une ligne par tick, gelée avec P6) : `DropTiming`
   ne rend pour l'instant qu'« une ligne ou rien ». Quand P6.11 reprendra, c'est `DropTiming` qui
   devra rendre un nombre de lignes, et non plus `GravityTable` seule.
@@ -64,3 +64,55 @@ par l'audio à côté de la boucle d'images (deux écrivains) ; le temps entendu
   mesure sur téléphone (P11.2) précède tout le reste, et fixe la fenêtre « sur le temps ».
 - Le domaine reste sans temps réel : `Meter`, `TempoDropTiming` et `TempoScore` se testent tick
   par tick, sur la JVM.
+
+## Note (2026-10-30, P11.4)
+
+`DropTiming` est extrait : `Rules.dropTiming` remplace `Rules.gravityTable`, et le moteur demande
+`dropsAfter(ticksSinceDrop: Ticks, tickCount: Int, level: Level)`. `tickCount` est passé dès
+maintenant, pour que `TempoDropTiming` (P11.6) ne modifie pas le moteur une seconde fois ;
+`ClassicDropTiming` l'ignore. La non-régression ne repose pas sur des parties tirées au hasard à
+chaque exécution, mais sur cinq parties de référence, à graines fixes, enregistrées tick par tick
+avant l'extraction (`ReferenceGamesTest`, `core/game/src/test/resources/reference-games`).
+
+## Note (2026-10-30, P11.6)
+
+Le but d'une seule modification du moteur n'est pas tenu : `TempoDropTiming` en demande une seconde.
+`dropsAfter` reçoit en plus `softDropping: Boolean`, que le moteur tire de la phase `Falling`
+(`softDrop != null`) : ▼ tenu, entre deux pas. La raison : au Classique, chaque pas de la descente
+rapide remet le compte de la gravité à zéro, si bien que la gravité ne s'en mêle qu'aux niveaux 19 et
+plus ; une croche, calée sur `tickCount`, ignore ce compte et ferait descendre la pièce d'une ligne de
+plus entre deux pas. La descente rapide d'Au tempo ne serait plus celle du Classique, et une croche
+pourrait verrouiller par la gravité une pièce sous ▼ tenu, ce qui brouillerait l'information
+« verrouillage amené par la descente rapide » de `TempoScore` (P11.7). Le paramètre est un fait
+neutre, sans condition propre à Au tempo dans le moteur (ADR 0015) ; `ClassicDropTiming` l'ignore, et
+les parties de référence restent identiques. Pour **P6.11** : quand `DropTiming` rendra un nombre de
+lignes, il recevra aussi `softDropping`.
+
+## Note (2026-10-30, P11.7)
+
+Le moteur change une troisième fois, au plus petit : `GameEvent.PieceLocked` porte `bySoftDrop: Boolean`, vrai
+quand un pas refusé de la descente rapide a verrouillé la pièce, faux pour la gravité. Le champ n'a **pas de valeur
+par défaut** (revue de P11.7) : un défaut dirait « par la gravité », ce qui n'est pas neutre, et tout nouveau chemin
+de verrouillage devra dire le sien. `TempoScore` en a besoin pour le bonus « sur le temps », qui
+ne vaut que pour une pose amenée par ▼ tenu. C'est un fait neutre, sans condition propre à Au tempo (ADR 0015) ;
+depuis la note de P11.6, il est univoque (sous ▼ tenu, la gravité d'Au tempo ne verrouille plus). Il est porté par
+l'événement plutôt que lu dans l'état : une fois la pièce verrouillée, la phase `Falling` (et son `softDrop`
+interne) a disparu, et l'état d'avant le tick ne voit pas un appui sur ▼ fait juste avant lui ; `softDropRows > 0`
+ne suffit pas non plus, car un appui sur une pièce déjà posée la verrouille sans ligne descendue. La trace des
+parties de référence n'écrit pas ce champ : elles restent identiques. `Meter` gagne `barOfNearestBeat`, la mesure
+de la noire la plus proche, pour la cadence d'une pose faite juste avant le temps 1.
+
+Pour **P6** : `TempoScore` suppose que `PieceLocked` et `LinesCleared` ne tombent jamais dans le même tick, puisque
+l'effacement dure au moins un tick (`LineClearDelay`). Les chemins de verrouillage du Moderne (chute instantanée,
+`LockDelay`) devront dire `bySoftDrop` ; si l'un d'eux effaçait des lignes dans le tick même du verrouillage,
+`TempoScore.after` serait à relire.
+
+## Note (2026-10-30, P11.8)
+
+`TempoRules` prend la forme d'une fabrique, `tempoRules(meter: Meter): Rules`
+(`ClassicRules.copy(dropTiming = TempoDropTiming(meter))`, paquet `tempo`), et non d'une valeur : le `Meter` est un
+paramètre de la partie (le tempo de la v1, 15 ticks par croche, reste **[à vérifier]** et sera choisi par la variante
+en P11.10), et ktlint refuse `TempoRules` comme nom d'une fonction qui rend `Rules`. La fenêtre « sur le temps » du
+`Meter` ne sert pas au moteur mais à `TempoScore` : une partie passe **le même `meter`** à `tempoRules` et à
+`TempoScore`. Les parties de référence, rejouées avec `tempoRules(meter).copy(dropTiming = ClassicRules.dropTiming)`,
+rendent les mêmes états (`ReferenceGamesTest`).

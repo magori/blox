@@ -142,3 +142,17 @@ console du choix du jeu (18 dp) et dans la pause (16 dp sur téléphone, 22 sur 
 - **Ombre** : le jour `rgba(90,80,160,0.3)` décalée de `0,12 × c` vers le bas et floutée de
   `0,16 × c` ; la nuit, un halo de la couleur du corps à 60 % flouté de `0,25 × c` (aucun endormie).
 - TalkBack lit le nom du jeu, « endormi » en plus quand elle dort ; décorative à côté d'un libellé.
+- **Codée** (P5.77, `core:board`, `Mascot`, `MascotLook`) : le visage garde l'encre du jour, même la nuit, sur
+  le corps clair de la pièce ; endormie, elle est pâle la nuit (`cell-dead`). Dans la carte de la pause, elle est
+  décorative (TalkBack ne la lit pas, « Pause » suit). **Tests :**
+  `MascotLookTest › the Classic mascot is a T pointing down and the Locksmith mascot an O`,
+  `MascotLookTest › an awake mascot is a bubble of its piece, its face in the ink of the day, its accessory in yellow`,
+  `MascotLookTest › an asleep mascot is in cell-dead, flat, its face in ink, without accessory nor shadow`,
+  `GameScreenPauseTest › the card shows the Classic mascot asleep above Pause, a decoration TalkBack does not read` ;
+  captures `Mascots*`, `Pause*`.
+- **Jardin musical** (P10.13) : un L debout sur son pied, pied à droite (l'apparition tournée d'un quart de tour
+  anti-horaire : cases (0,0) (0,1) (0,2) (1,2)), visage en (1 ; 2,5), sur le pied ; feuille
+  `M4 20 C4 10 10 4 20 4 C20 14 14 20 4 20 Z` remplie de `piece-s`, nervure `M4 20 L13 11`, posée comme les autres
+  accessoires (dans le coin libre au-dessus de la case (1,0)) ; corps en `piece-l`. **Tests :**
+  `MascotLookTest › the Jardin musical mascot is an L standing on its foot, the foot to the right`,
+  `MascotLookTest › the Jardin musical mascot is a bubble of the L, its leaf in the mint of the S`.

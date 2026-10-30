@@ -9,7 +9,8 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
 import ch.magori.blox.core.audio.SoundEffectPlayer
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
+import ch.magori.blox.core.data.DailyChallengeRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -30,13 +31,17 @@ import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.feedback.ClearingRows
+import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.ClassicMusicDirection
 import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.music.LiveMusicDirection
 import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.game.results.GameEnd
 import ch.magori.blox.feature.game.sound.soundEffectsFor
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.NonCancellable
@@ -46,6 +51,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.reflect.KClass
@@ -60,19 +66,26 @@ import kotlin.reflect.KClass
  * plays before the player chooses to resume it.
  */
 class GameViewModel internal constructor(
-    engineFactory: GameEngineFactory,
+    setup: GameSetup,
     route: GameRoute,
-    private val highScores: HighScoreRepository,
     private val preferences: UserPreferencesRepository,
     private val music: MusicPlayer,
     private val haptics: Haptics,
     private val soundEffects: SoundEffectPlayer,
-    private val musicOf: suspend (MusicChoice) -> GameMusic?,
-    private val gameMusic: suspend () -> Score?,
     private val composeLive: suspend (seed: Long) -> LiveMusic,
     savedState: SavedStateHandle,
+    private val appScope: CoroutineScope,
 ) : ViewModel() {
-    private val engine = engineFactory.create(route.seed)
+    private val engine = setup.engines.create(route.seed)
+
+    /** Where the results of this game go, as its variant says (ADR 0026). */
+    private val results = setup.results
+
+    /** Reads the music of this game, as its variant says (ADR 0026): null for none. */
+    private val gameMusic = setup.music
+
+    /** What the screen says of the variant of this game (ADR 0026): its title, its best to beat, Copier or not. */
+    internal val labels: GameLabels = setup.labels
 
     /**
      * The cells of the next piece shown, for each type, in the spawn orientation of the rules of the engine:
@@ -90,13 +103,25 @@ class GameViewModel internal constructor(
     private val frames = FrameTicks(maxTicksPerFrame = MAX_TICKS_PER_FRAME)
 
     /**
+     * What happened in the game and on which tick, for the effects the screen draws (ADR 0024): followed tick by tick,
+     * from the events and the phase of the engine.
+     */
+    private var feedback = GameFeedback()
+
+    /**
+     * Whether this game was restored after its process died: its [savedState] says it had started. It is then the same
+     * game, whose start was already told to its results.
+     */
+    private val restored = savedState.contains(STARTED_KEY)
+
+    /**
      * The last state the engine returned: the only one it is given back (ADR 0014). A game whose process
      * died while it was under way (its [savedState] says it had started) is not taken up where it stood,
      * which the engine cannot do: it starts again from its route, paused, until the player resumes it or
      * leaves it.
      */
     private var gameState: GameState = engine.start(Level(route.startLevel)).state.let { started ->
-        if (savedState.contains(STARTED_KEY)) engine.apply(started, Input.Pause).state else started
+        if (restored) engine.apply(started, Input.Pause).state else started
     }
 
     // Until the settings answer, where the keys stand is not known: none is shown, and the game does not run.
@@ -146,6 +171,14 @@ class GameViewModel internal constructor(
     /** Whether a key pressed vibrates, from the settings; false until they answer, as the vibrations. */
     private var keyVibration = false
 
+    /**
+     * The start of the game, told to its [results] once: a daily try is counted as soon as it starts, and a game
+     * [restored] after the process died is the same try (null). In the [appScope]: a game left at once is still
+     * counted. Its end waits for it: an end told before its start would count a second try, or none. Results that
+     * cannot be written do not stop the game ([unlessUnwritable]).
+     */
+    private val started: Job? = if (restored) null else appScope.launch { unlessUnwritable { results.start() } }
+
     init {
         // Marks the game as started, in the saved state of its navigation entry: what the system gives back if the
         // process dies, unlike this view model. A configuration change keeps the view model, and so the game.
@@ -153,19 +186,14 @@ class GameViewModel internal constructor(
         // The record shown in the top bar: its real value, followed as it changes. Unreadable records are
         // absorbed by the repository (its contract); any other failure is a bug, and is not swallowed here.
         viewModelScope.launch {
-            highScores.highScore.collect { record ->
-                state.update { it.copy(record = record).withRecordBeaten(it.recordBeaten) }
+            results.best.collect { record ->
+                state.update { it.copy(record = record).withBestBeaten(it.bestBeaten) }
             }
         }
-        // The music of the player chosen for the games (« Mes musiques »), which plays instead of the one chosen on the
-        // home screen, even when that one is none; the settings are read only without it. At the normal tempo, as every
-        // new play of the player. Unreadable musics give none, unreadable settings the defaults (the contracts of the
-        // repositories).
+        // The music of the variant of the game ([GameVariants]), at the normal tempo, as every new play of the player.
+        // Unreadable musics give none, unreadable settings the defaults (the contracts of the repositories).
         viewModelScope.launch {
-            directMusic(
-                gameMusic()?.let(GameMusic::Fixed) ?: musicOf(preferences.preferences.first().music),
-                route.seed,
-            )
+            directMusic(gameMusic(), route.seed)
             // The musics or the settings may answer once the game is paused or over: the music then waits, or never
             // comes.
             if (gameState.isUnderWay) play(playMusic())
@@ -280,8 +308,16 @@ class GameViewModel internal constructor(
         if (ticks == 0) return
         var over = false
         repeat(ticks) {
-            val update = engine.tick(gameState)
+            val before = gameState
+            val update = engine.tick(before)
             gameState = update.state
+            feedback = feedback.after(
+                tick = gameState.tickCount,
+                events = update.events,
+                clearing = gameState.phase.clearingRows(),
+                scoreBefore = before.progress.score,
+                score = gameState.progress.score,
+            )
             if (GameEvent.GameOver in update.events) over = true
             musicDirection?.onEvents(update.events, music)
             if (vibrations) update.events.mapNotNull(::hapticFor).forEach(haptics::play)
@@ -315,40 +351,70 @@ class GameViewModel internal constructor(
     private fun publish() {
         state.update {
             gameState.toUiState(nextPieces::getValue)
-                .copy(record = it.record, gameOver = it.gameOver)
+                .copy(record = it.record, gameOver = it.gameOver, feedback = feedback)
                 .withLeftHanded(it.leftHanded, gameState.isUnderWay)
-                .withRecordBeaten(it.recordBeaten)
+                .withBestBeaten(it.bestBeaten)
         }
     }
 
     /**
-     * The game is over in [finalState]: its score is submitted to the records at once, so that a record is
-     * not lost if the process dies; the game over screen shows once the records answered whether it is a
-     * new one.
+     * The game is over in [finalState]: its score is given to its [results] at once (the records, or the results of
+     * the day), so that a record is not lost if the process dies; the game over screen shows once they answered
+     * whether it is a new one, so that what it offers to copy (a daily game) holds this game.
      */
     private fun onGameOver(finalState: GameState) {
         stopMusic()
         viewModelScope.launch {
-            val gameOver = finalState.toGameOverUiState(isNewRecord(finalState.progress.score.value))
+            val result = endResults(finalState.progress.score.value)
+            val gameOver = finalState.toGameOverUiState(
+                newBest = result?.newBest == true,
+                resultsKept = result?.kept == true,
+                previousBest = result?.previousBest ?: 0,
+                practice = result?.kept == false,
+            )
             state.update { it.copy(gameOver = gameOver) }
         }
     }
 
     /**
-     * Submits [score] to the records: whether it is a new record. Records that cannot be written (an
-     * [IOException], the contract of the repository) do not stop the game over from showing, without a new
-     * record; any other failure is a bug, and is not swallowed here.
+     * Gives [score] to the [results], once its start is written: whether it is a new record, and whether they keep it.
+     * Results that cannot be written (an [IOException], the contract of the repositories) give null, and do not stop
+     * the game over from showing, without a new record; any other failure is a bug, and is not swallowed here.
      */
-    private suspend fun isNewRecord(score: Int): Boolean = try {
+    private suspend fun endResults(score: Int): GameEnd? = try {
         // Not cancellable: the score is saved even if the view model is cleared while it is being written.
-        withContext(NonCancellable) { highScores.submit(score) }.isNewRecord
+        withContext(NonCancellable) {
+            started?.join()
+            results.end(score)
+        }
     } catch (_: IOException) {
-        false
+        null
     }
 
-    /** The game screen is left (Menu, Rejouer, system back): its music stops with it. */
+    /**
+     * The game screen is left (Menu, Rejouer, system back): its music stops with it. A game left before its end gives
+     * its [results] the points of the moment, in the [appScope]: the scope of this view model is cancelled by now.
+     */
     override fun onCleared() {
         stopMusic()
+        if (gameState.phase is Phase.GameOver) return
+        val points = gameState.progress.score.value
+        appScope.launch {
+            started?.join()
+            unlessUnwritable { results.leave(points) }
+        }
+    }
+
+    /**
+     * Writes to the [results] with [write]: results that cannot be written (an [IOException], the contract of the
+     * repositories) are given up, the game goes on; any other failure is a bug, and is not swallowed here.
+     */
+    private suspend fun unlessUnwritable(write: suspend () -> Unit) {
+        try {
+            write()
+        } catch (_: IOException) {
+            // Nothing to do: the results stay as they were, as the contract of the repositories says.
+        }
     }
 
     /**
@@ -373,17 +439,36 @@ class GameViewModel internal constructor(
      * the games, null for none; `app` reads it from its musics, under the contract of `MusicLibrary.gameMusic`: never an
      * [IOException], unreadable musics give none. The live music of a game is composed from its seed off the main
      * thread.
+     *
+     * [engineFactory] deals the pieces of the Classic, whose score goes to the [highScores]; the daily game deals those
+     * of its seed and goes to [dailyChallenge] (ADR 0026), one write at a time, in the order they are asked for.
+     * [appScope] lives as long as the application, on `Dispatchers.Main.immediate`: a game tells its results its start
+     * there, and the points of a game left before its end once its own scope is cancelled, at once, in the order of the
+     * games.
      */
     class Factory(
-        private val engineFactory: GameEngineFactory,
-        private val highScores: HighScoreRepository,
+        engineFactory: GameEngineFactory,
+        highScores: HighScoreRepository,
         private val preferences: UserPreferencesRepository,
         private val music: MusicPlayer,
         private val haptics: Haptics,
         private val soundEffects: SoundEffectPlayer,
-        private val musicOf: suspend (MusicChoice) -> GameMusic?,
-        private val gameMusic: suspend () -> Score?,
+        musicOf: suspend (MusicChoice) -> GameMusic?,
+        gameMusic: suspend () -> Score?,
+        dailyChallenge: DailyChallengeRepository,
+        private val appScope: CoroutineScope,
     ) : ViewModelProvider.Factory {
+        private val variants = GameVariants(
+            engineFactory,
+            highScores,
+            preferences,
+            musicOf,
+            gameMusic,
+            dailyChallenge,
+            dailyWrites = Mutex(),
+            dailyEngines = StableClassicEngines,
+        )
+
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
@@ -394,17 +479,15 @@ class GameViewModel internal constructor(
             val savedState = extras.createSavedStateHandle()
             @Suppress("UNCHECKED_CAST")
             return GameViewModel(
-                engineFactory,
+                variants.setupOf(route.variant),
                 route,
-                highScores,
                 preferences,
                 music,
                 haptics,
                 soundEffects,
-                musicOf,
-                gameMusic,
                 ::composeLiveMusic,
                 savedState,
+                appScope,
             ) as T
         }
     }
@@ -442,3 +525,7 @@ private fun ControlChange.toInput(): Input {
         is ControlChange.Released -> Input.Release(engineButton)
     }
 }
+
+/** The full rows of [this] phase and the ticks left before they are cleared, while it clears them; null otherwise. */
+private fun Phase.clearingRows(): ClearingRows? =
+    (this as? Phase.Clearing)?.let { ClearingRows(it.rowsCleared.clearedRows, it.ticksLeft.value) }

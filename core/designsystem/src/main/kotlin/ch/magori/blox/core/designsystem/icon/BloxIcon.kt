@@ -3,12 +3,14 @@ package ch.magori.blox.core.designsystem.icon
 /**
  * The icons of BloX (maquette, section Icônes), each drawn twice: [pixels], 8 lines of 8 pixels, full (`#`) or empty
  * (`.`), for the Original theme; [strokes], the path data of its strokes on a grid of 24 (as an SVG `d`), [strokeWidth]
- * thick, for the others. [BloxIcon] (the composable) draws the one of the theme.
+ * thick, for the others, or the shapes it fills when it is [filled]. [BloxIcon] (the composable) draws the one of the
+ * theme.
  */
 enum class BloxIcon(
     internal val pixels: List<String>,
     internal val strokes: String,
     internal val strokeWidth: Float = STROKE_WIDTH,
+    internal val filled: Boolean = false,
 ) {
     /** Jouer, Écouter, Reprendre. */
     PLAY(
@@ -63,6 +65,19 @@ enum class BloxIcon(
     NOTE(
         listOf("..######", "..######", "..#....#", "..#....#", "..#....#", "###..###", "###..###", "........"),
         "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0z",
+    ),
+
+    /** The music « Aucune »: a note, struck through (pictogrammes.md, P5.87). */
+    NOTE_OFF(
+        listOf("#.######", ".#.#####", "..#....#", "..##...#", "..#.#..#", "###..#..", "###...#.", ".......#"),
+        "M9 18V5l11-2v13M9 18a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM20 16a3 3 0 1 1-6 0 3 3 0 0 1 6 0zM3 3l18 18",
+    ),
+
+    /** The row Musique of the home, which opens its sheet: a chevron down (pictogrammes.md, P5.87). */
+    CHEVRON_DOWN(
+        listOf("........", "........", "#......#", ".#....#.", "..#..#..", "...##...", "........", "........"),
+        "M6 9l6 6 6-6",
+        strokeWidth = 2.5f,
     ),
 
     /** Vibrations, in the settings: a phone that shakes (docs/design-system/pictogrammes.md). */
@@ -187,6 +202,21 @@ enum class BloxIcon(
         listOf("..####..", ".#....#.", "#..##..#", "#..##..#", "#......#", "#..##..#", ".#....#.", "..####.."),
         "M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0zM12 7v6M12 16.5v.5",
         strokeWidth = 2.5f,
+    ),
+
+    /** The console of the choice of the game, waiting: an arrow down, into it (pictogrammes.md, P5.87). */
+    INSERT(
+        listOf("...##...", "...##...", "...##...", "...##...", "#..##..#", ".######.", "..####..", "...##..."),
+        "M12 3v16M5 13l7 7 7-7",
+        strokeWidth = 2.5f,
+    ),
+
+    /** The eject of the console of the choice of the game: a triangle over a bar, filled (pictogrammes.md, P5.87). */
+    EJECT(
+        listOf("...##...", "..####..", ".######.", "########", "........", "########", "########", "........"),
+        "M12 4L20 13H4z" + "M5.5 16h13a1.5 1.5 0 0 1 1.5 1.5v.5a1.5 1.5 0 0 1-1.5 1.5h-13a1.5 1.5 0 0 1-1.5-1.5v-.5" +
+            "a1.5 1.5 0 0 1 1.5-1.5z",
+        filled = true,
     ),
 }
 

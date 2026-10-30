@@ -21,7 +21,8 @@ dependencies {
     implementation(projects.core.board)
     // Les chiffres romains des accords, sur les pilules de l'écran, et les effets sonores du Serrurier (LocksmithSounds).
     implementation(projects.core.music)
-    implementation(libs.kotlinx.coroutines.core)
+    // `api` : la fabrique reçoit de app la portée de l’application, où s’écrit l’ouverture d’une serrure (P7.33).
+    api(libs.kotlinx.coroutines.core)
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     // `@StringRes` sur le message de l'écran.
@@ -35,6 +36,10 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.locksmith))
     // L'instrumentation, qui donne les chaînes de l'écran aux tests.
     androidTestImplementation(libs.androidx.test.monitor)
+    // Un état sauvegardé fait à la main (`savedState { }`, LocksmithRouteSavingTest), dont les fonctions en ligne
+    // passent par core-ktx.
+    androidTestImplementation(libs.androidx.savedstate)
+    androidTestImplementation(libs.androidx.core.ktx)
     // Le faux lecteur d'effets sonores, le faux dépôt des réglages et MainDispatcherExtension, partagés avec les autres
     // features.
     testImplementation(testFixtures(projects.core.audio))

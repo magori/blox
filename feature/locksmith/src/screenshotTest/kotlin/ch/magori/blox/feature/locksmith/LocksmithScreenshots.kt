@@ -12,9 +12,12 @@ import com.android.tools.screenshot.PreviewTest
  * card, and on a small screen in large text, where the card keeps to its share of the height. A preview refused on the
  * ring at the left and at the right, cut at the edge of the screen, and shaken to each side, narrowed rather than out of
  * its margin. The feedback of an action, frozen at one tick: a placement, a refusal, an opening, a hint, and in reduced
- * effects a refusal and an opening. From the previews of the
- * production code, with the same `@Preview` configuration. Renaming a test breaks its link to its reference image:
- * regenerate them with `./gradlew updateDebugScreenshotTest`.
+ * effects a refusal and an opening. A padlock of 6 pieces on a phone of 360 dp, its tiles shrunk to hold on one row, and
+ * on 320 dp, where they go on two rows; a padlock of 5 pieces on 300 dp, its last row centred. The card of an open
+ * padlock with what the progress tells (P7.33): PARFAITE, NOUVEAU MEILLEUR, an old padlock replayed (its best, Reprendre
+ * à la serrure N), by day, by night and on a small screen in large text, and an opening not recorded. From the previews
+ * of the production code, with the same `@Preview` configuration. Renaming a test breaks its link to its reference
+ * image: regenerate them with `./gradlew updateDebugScreenshotTest`.
  */
 
 @PreviewTest
@@ -121,3 +124,58 @@ private fun LocksmithRefusedLeftReducedDay() = LocksmithRefusedLeftReducedDayPre
 @Preview(widthDp = 390, heightDp = 844)
 @Composable
 private fun LocksmithRefusedRightShakeDay() = LocksmithRefusedRightShakeDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+private fun LocksmithSixTilesDay() = LocksmithSixTilesDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 320, heightDp = 800)
+@Composable
+private fun LocksmithSixTilesNarrowDay() = LocksmithSixTilesNarrowDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 300, heightDp = 800)
+@Composable
+private fun LocksmithFiveTilesNarrowDay() = LocksmithFiveTilesNarrowDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun LocksmithOpenPerfectDay() = LocksmithOpenPerfectDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun LocksmithOpenNewBestDay() = LocksmithOpenNewBestDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun LocksmithOpenReplayDay() = LocksmithOpenReplayDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun LocksmithOpenReplayNight() = LocksmithOpenReplayNightPreview()
+
+@PreviewTest
+@Preview(widthDp = 320, heightDp = 480, fontScale = 2f)
+@Composable
+private fun LocksmithOpenReplaySmallDay() = LocksmithOpenReplaySmallDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 390, heightDp = 844)
+@Composable
+private fun LocksmithOpenUnrecordedDay() = LocksmithOpenUnrecordedDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800, fontScale = 2f)
+@Composable
+private fun LocksmithBarLargeFontDay() = LocksmithBarLargeFontDayPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 800)
+@Composable
+private fun LocksmithChordsWrapDay() = LocksmithChordsWrapDayPreview()

@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.home
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
@@ -551,6 +550,23 @@ class HomeViewModelTest {
     }
 
     @Test
+    fun `closing the sheet stops the preview`() = runTest {
+        // Given a music listened to in the sheet Musique
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.MINUET)
+
+            // When
+            viewModel.onMusicSheetClosed()
+
+            // Then
+            assertThat(music.calls).containsExactly("play MINUET", "stop")
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
     fun `the preview stops when the screen goes to the background, never the music of a game started since`() =
         runTest {
             // Given the minuet listened to, then a game that starts with Korobeiniki
@@ -560,7 +576,7 @@ class HomeViewModelTest {
                 music.play(Scores.korobeiniki)
 
                 // When the home screen stops, behind the game screen
-                viewModel.onLifecycleEvent(Lifecycle.Event.ON_STOP)
+                viewModel.onHidden()
 
                 // Then
                 assertThat(music.calls).containsExactly("play MINUET", "play KOROBEINIKI", "stop")
@@ -568,23 +584,6 @@ class HomeViewModelTest {
                 assertThat(expectMostRecentItem()?.previewing).isNull()
             }
         }
-
-    @ParameterizedTest(name = "{0}")
-    @EnumSource(names = ["ON_STOP", "ON_DESTROY"], mode = EnumSource.Mode.EXCLUDE)
-    fun `the preview plays on while the screen is still visible`(event: Lifecycle.Event) = runTest {
-        // Given
-        val viewModel = homeViewModel()
-        viewModel.uiState.test {
-            viewModel.onListen(MusicChoice.MINUET)
-
-            // When
-            viewModel.onLifecycleEvent(event)
-
-            // Then
-            assertThat(music.calls).containsExactly("play MINUET")
-            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.MINUET)
-        }
-    }
 
     @Test
     fun `leaving the home screen stops the preview`() {

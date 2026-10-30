@@ -3,13 +3,12 @@ package ch.magori.blox.core.board.lock
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.board.CellBorder
 import ch.magori.blox.core.board.CellBubble
 import ch.magori.blox.core.board.CellCentre
-import ch.magori.blox.core.board.CellCross
 import ch.magori.blox.core.board.CellDot
 import ch.magori.blox.core.board.CellStyle
 import ch.magori.blox.core.board.cellStyle
+import ch.magori.blox.core.board.previewStyle
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
@@ -62,38 +61,27 @@ internal fun lockCellStyle(
     val mark = CellDot(color = colors.ink, halo = colors.page, size = MARK_SIZE)
     return when (cell) {
         LockCell.Metal -> CellStyle(colors.metal, border = null, centre = CellCentre(colors.rivet, RIVET_SIZE))
-        LockCell.Hole -> hole
-        LockCell.Hint -> hole.copy(fill = colors.hintFill.compositeOver(hole.fill), dot = mark)
-        is LockCell.Placed -> cellStyle(variant, Cell.Filled(cell.type)).copy(dot = mark.takeIf { cell.hinted })
-        is LockCell.Preview -> preview(cellStyle(variant, Cell.Filled(cell.type)), empty.fill, colors, cell.fits)
-    }
-}
 
-/**
- * The preview of a piece [placed] in this style: the same bubble, faded over [hole], the empty cell, flat and outlined
- * in ink, so that it differs from a placed piece by more than its colour; when it does not [fits], a cross in ink on a
- * halo of the page, so that the refusal does not rest on colour.
- */
-private fun preview(
-    placed: CellStyle,
-    hole: Color,
-    colors: LockColors,
-    fits: Boolean,
-): CellStyle {
-    val faded = { color: Color -> color.copy(alpha = PREVIEW_ALPHA).compositeOver(hole) }
-    return placed.copy(
-        fill = faded(placed.fill),
-        bubble = placed.bubble?.let { CellBubble(highlight = it.highlight?.let(faded), gloss = Gloss.None) },
-        border = CellBorder(colors.ink, OUTLINE_WIDTH),
-        cross = if (fits) null else CellCross(color = colors.ink, halo = colors.page, width = CROSS_WIDTH),
-    )
+        LockCell.Hole -> hole
+
+        LockCell.Hint -> hole.copy(fill = colors.hintFill.compositeOver(hole.fill), dot = mark)
+
+        is LockCell.Placed -> cellStyle(variant, Cell.Filled(cell.type)).copy(dot = mark.takeIf { cell.hinted })
+
+        is LockCell.Preview -> previewStyle(
+            placed = cellStyle(variant, Cell.Filled(cell.type)),
+            under = empty.fill,
+            ink = colors.ink,
+            page = colors.page,
+            outlineWidth = OUTLINE_WIDTH,
+            crossWidth = CROSS_WIDTH,
+            fits = cell.fits,
+        )
+    }
 }
 
 /** The rivet, a square in the centre of a metal cell: 6 dp of a cell of 42 dp, the largest of the padlock. */
 private const val RIVET_SIZE = 1f / 7
-
-/** The colours of a preview over the hole: the piece shows through, apart from the pieces placed. */
-private const val PREVIEW_ALPHA = 0.6f
 
 /** The cross of a refused preview: 3 dp of a cell of 42 dp, on a halo twice as wide. */
 private const val CROSS_WIDTH = 1f / 14

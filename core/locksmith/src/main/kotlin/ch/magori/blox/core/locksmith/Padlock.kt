@@ -1,9 +1,11 @@
 package ch.magori.blox.core.locksmith
 
+import ch.magori.blox.core.game.model.AsciiGrid
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
+import ch.magori.blox.core.game.rules.pieceCovering
 
 /**
  * A padlock: the pieces of its [solution] and the [hole] they fill, on a grid of [SIZE] × [SIZE]
@@ -43,29 +45,21 @@ public data class Padlock(public val solution: List<Piece>) {
         public const val SIZE: Int = 10
 
         /** How many pieces a padlock holds. */
-        internal val PIECE_COUNTS: IntRange = 3..6
+        internal val PIECE_COUNTS: IntRange = 3..8
 
         /** The rows and columns inside the outer ring of metal. */
         internal val INSIDE: IntRange = 1..SIZE - 2
 
-        /** The four cells that share an edge with a cell, as offsets. */
-        internal val NEIGHBOURS: List<Position> =
-            listOf(Position(1, 0), Position(-1, 0), Position(0, 1), Position(0, -1))
-
         private const val METAL = '#'
 
         /** The characters that mark the pieces of a solution, by rank. */
-        private val RANKS = '1'..'6'
+        private val RANKS = '1'..'8'
 
         /**
-         * Padlock [level] (from 1) of [seed]: the best of the padlocks of its number of pieces composed from
-         * that seed, always the same for the same level and seed (`PadlockGenerator`, a pure function of the
-         * seed, ADR 0014).
+         * Padlock [level] (from 1), the same for everyone and for ever: its seed is the level, and its generation is a
+         * contract, changed only by an ADR (`PadlockGenerator.ofLevel`, ADR 0014 amended by P7.28).
          */
-        public fun generate(
-            level: Int,
-            seed: Long,
-        ): Padlock = PadlockGenerator.generate(PadlockGenerator.pieceCount(level), seed)
+        public fun ofLevel(level: Int): Padlock = PadlockGenerator.ofLevel(level)
 
         /** Whether [position] is inside the outer ring of metal, where the hole may lie. */
         internal fun isInside(position: Position): Boolean = position.column in INSIDE && position.row in INSIDE
@@ -74,39 +68,34 @@ public data class Padlock(public val solution: List<Piece>) {
         internal fun touchesByAnEdge(
             cells: Set<Position>,
             others: Set<Position>,
-        ): Boolean = cells.any { cell -> NEIGHBOURS.any { cell + it in others } }
+        ): Boolean = cells.any { cell -> cell.neighbours().any { it in others } }
 
         /**
          * Reads a padlock from [SIZE] lines of [SIZE] characters, for tests: `#` is metal, a digit from
-         * `1` to `6` is a cell of the piece of that rank in the solution, ranks following each other from
+         * `1` to `8` is a cell of the piece of that rank in the solution, ranks following each other from
          * `1`. Each piece takes the Classic orientation and the pivot that cover its cells. Blank lines
          * around the grid are ignored.
          */
         public fun parse(ascii: String): Padlock {
-            val lines = ascii.trimIndent().lines().dropWhile(String::isBlank).dropLastWhile(String::isBlank)
-            require(lines.size == SIZE && lines.all { it.length == SIZE }) { "A padlock is $SIZE × $SIZE cells" }
-            val cellsByRank = lines
-                .flatMapIndexed { row, line -> line.mapIndexed { column, char -> char to Position(column, row) } }
-                .onEach { (char, _) -> require(char == METAL || char in RANKS) { "Unknown cell '$char'" } }
-                .filter { (char, _) -> char != METAL }
-                .groupBy({ it.first }, { it.second })
+            val grid = AsciiGrid.parse(ascii)
+            require(grid.lines.size == SIZE && grid.lines.all { it.length == SIZE }) {
+                "A padlock is $SIZE × $SIZE cells"
+            }
+            val cellsByRank = grid.cells.entries
+                .onEach { (_, char) -> require(char == METAL || char in RANKS) { "Unknown cell '$char'" } }
+                .filter { (_, char) -> char != METAL }
+                .groupBy({ it.value }, { it.key })
                 .toSortedMap()
             require(cellsByRank.keys.toList() == RANKS.take(cellsByRank.size)) {
                 "Ranks follow each other from 1, got ${cellsByRank.keys}"
             }
-            return Padlock(cellsByRank.map { (rank, cells) -> pieceCovering(rank, cells.toSet()) })
-        }
-
-        /** The Classic piece, in one of its orientations, whose cells are exactly [cells]. */
-        private fun pieceCovering(
-            rank: Char,
-            cells: Set<Position>,
-        ): Piece {
-            val piece = PieceType.entries
-                .flatMap { type -> ClassicRotationSystem.orientations(type).map { Piece(type, it, Position(0, 0)) } }
-                .map { piece -> piece.copy(pivot = cells.firstInReadingOrder() - piece.cells.firstInReadingOrder()) }
-                .firstOrNull { it.cells == cells }
-            return requireNotNull(piece) { "Rank $rank is not a Classic piece" }
+            return Padlock(
+                cellsByRank.map { (rank, cells) ->
+                    requireNotNull(ClassicRotationSystem.pieceCovering(cells.toSet())) {
+                        "Rank $rank is not a Classic piece"
+                    }
+                },
+            )
         }
     }
 }

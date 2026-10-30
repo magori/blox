@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Position
@@ -18,6 +19,7 @@ import ch.magori.blox.core.music.Scale
 import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.sound.warmUpEffectsOf
+import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
@@ -28,14 +30,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MainDispatcherExtension::class)
 class LocksmithSoundTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 2, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(2))
     private val soundEffects = FakeSoundEffectPlayer()
     private val preferences = FakeUserPreferencesRepository()
 
     /** The first given piece, where the solution has it. */
     private val firstPiece = start.padlock.solution.first { it.type == start.given.first() }
 
-    private fun viewModel() = locksmithViewModel(LocksmithRoute(level = 2, seed = 7), soundEffects, preferences)
+    private fun viewModel() = locksmithViewModel(LocksmithRoute(level = 2), soundEffects, preferences)
 
     @Test
     fun `a placement plays the arpeggio and the bass of its chord`() {
@@ -94,8 +96,14 @@ class LocksmithSoundTest {
     fun `the opening flourish still waiting dies with the screen left`() = runTest {
         // Given: the padlock opened in a view model kept as the navigation entry keeps it
         val store = ViewModelStore()
-        val extras = MutableCreationExtras().apply { set(LocksmithViewModel.RouteKey, LocksmithRoute(2, 7)) }
-        val factory = LocksmithViewModel.Factory(soundEffects, preferences)
+        val extras = MutableCreationExtras().apply { set(LocksmithViewModel.RouteKey, LocksmithRoute(2)) }
+        val factory = LocksmithViewModel.Factory(
+            soundEffects,
+            preferences,
+            FakePadlockProgressRepository(),
+            MainScope(),
+            ClearedProgressRelay(),
+        )
         val viewModel = ViewModelProvider.create(store, factory, extras)[LocksmithViewModel::class]
         start.padlock.solution.forEach { viewModel.placing(it) }
 

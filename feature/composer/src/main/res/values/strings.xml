@@ -38,8 +38,6 @@
     <string name="feature_composer_style_free">Libre</string>
     <string name="feature_composer_for_games">Jouer cette musique pendant les parties</string>
     <string name="feature_composer_problem_empty">La grille est vide : pose au moins une note.</string>
-    <string name="feature_composer_problem_blank">Donne un nom à la musique.</string>
-    <string name="feature_composer_problem_taken">Une autre musique porte déjà ce nom.</string>
     <string name="feature_composer_take_free_name">Prendre « %1$s »</string>
     <string name="feature_composer_rename">Renommer</string>
 
@@ -67,17 +65,8 @@
     <!-- Grille -->
     <string name="feature_composer_beats">Temps</string>
     <string name="feature_composer_empty_grid">Touche une case pour poser une note</string>
-    <string name="feature_composer_note_do">Do</string>
-    <string name="feature_composer_note_re">Ré</string>
-    <string name="feature_composer_note_mi">Mi</string>
-    <string name="feature_composer_note_fa">Fa</string>
-    <string name="feature_composer_note_sol">Sol</string>
-    <string name="feature_composer_note_la">La</string>
-    <string name="feature_composer_note_si">Si</string>
     <!-- Affiché : une note diésée, « Fa# ». -->
     <string name="feature_composer_note_sharp">%1$s#</string>
-    <!-- Lu par TalkBack : « Fa dièse ». -->
-    <string name="feature_composer_note_sharp_spoken">%1$s dièse</string>
     <string name="feature_composer_register_very_low">très bas</string>
     <string name="feature_composer_register_low">bas</string>
     <string name="feature_composer_register_high">haut</string>
@@ -117,8 +106,19 @@
     <string name="feature_composer_bar_copied">Mesure copiée sur la suivante. « Annuler » remet la suivante comme avant.</string>
     <string name="feature_composer_bar_cleared">Mesure effacée. « Annuler » la ramène.</string>
 
-    <!-- Panneau du bas -->
+    <!-- Le dé de la barre et sa feuille « Au hasard » : chaque choix dit à quoi il ressemble. -->
     <string name="feature_composer_dice">Au hasard</string>
+    <string name="feature_composer_dice_roll">Tirer une musique</string>
+    <string name="feature_composer_dice_surprise_line">L\'une des sept, au hasard</string>
+    <string name="feature_composer_dice_joyful_line">Vive et sautillante, en majeur</string>
+    <string name="feature_composer_dice_calm_line">Lente, avec beaucoup d\'air</string>
+    <string name="feature_composer_dice_epic_line">Des notes fortes, au galop</string>
+    <string name="feature_composer_dice_melancholic_line">De longues notes qui descendent</string>
+    <string name="feature_composer_dice_mysterious_line">Des notes tenues, un peu étranges</string>
+    <string name="feature_composer_dice_retro_line">Rapide, tout en arpèges</string>
+    <string name="feature_composer_dice_dance_line">Deux temps bien marqués</string>
+
+    <!-- Panneau du bas -->
     <plurals name="feature_composer_tempo">
         <item quantity="one">%1$d temps/min</item>
         <item quantity="many">%1$d temps/min</item>

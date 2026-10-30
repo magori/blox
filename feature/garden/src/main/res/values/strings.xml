@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Titre de la barre, affiché en capitales ; TalkBack le lit en mots. -->
+    <string name="feature_garden_title">Jardin musical</string>
+    <string name="feature_garden_change_game">Changer de jeu</string>
+    <string name="feature_garden_random">Au hasard</string>
+    <!-- Le nom de la musique du jardin, pour Écouter / Arrêter : « Écouter le jardin », « Arrêter le jardin ». -->
+    <string name="feature_garden_music_name">le jardin</string>
+
+    <!-- Les ambiances, groupe de choix « Ambiance ». -->
+    <string name="feature_garden_moods">Ambiance</string>
+    <string name="feature_garden_mood_joyful">Joyeux</string>
+    <string name="feature_garden_mood_calm">Calme</string>
+    <string name="feature_garden_mood_mysterious">Mystère</string>
+    <string name="feature_garden_mood_epic">Épique</string>
+
+    <!-- La rangée d'information : la gamme de l'ambiance et son tempo. -->
+    <string name="feature_garden_mood_info">%1$s · %2$d bpm</string>
+    <string name="feature_garden_mood_info_spoken">%1$s, %2$s</string>
+    <plurals name="feature_garden_tempo_spoken">
+        <item quantity="one">%1$d battement par minute</item>
+        <item quantity="many">%1$d battements par minute</item>
+        <item quantity="other">%1$d battements par minute</item>
+    </plurals>
+    <string name="feature_garden_scale_major">Do majeur</string>
+    <string name="feature_garden_scale_pentatonic">Do pentatonique</string>
+    <string name="feature_garden_scale_harmonic_minor">Do mineur harmonique</string>
+    <string name="feature_garden_scale_natural_minor">Do mineur naturel</string>
+    <string name="feature_garden_clear_all">Tout effacer</string>
+
+    <!-- La bande des accords, lue d'un trait : « Accords : 1 majeur, 6 mineur, 4 majeur, 5 majeur. » -->
+    <string name="feature_garden_chords">Accords : %1$s.</string>
+
+    <!-- Une case de la grille : « Croche 5, mi : libre ». -->
+    <string name="feature_garden_cell">Croche %1$d, %2$s : %3$s</string>
+    <string name="feature_garden_cell_free">libre</string>
+    <string name="feature_garden_cell_note">pièce %1$s</string>
+    <string name="feature_garden_cell_note_chord">pièce %1$s, note de l\'accord</string>
+    <string name="feature_garden_cell_preview">aperçu de la pièce %1$s</string>
+    <string name="feature_garden_cell_preview_refused">aperçu de la pièce %1$s, case prise</string>
+    <string name="feature_garden_action_show">Montrer la pièce ici</string>
+    <string name="feature_garden_action_place">Poser</string>
+    <string name="feature_garden_action_move">Déplacer l\'aperçu ici</string>
+    <string name="feature_garden_action_take_back">Reprendre</string>
+
+    <!-- Le message sous la grille, sur 2 lignes. -->
+    <string name="feature_garden_message_start">Choisis une pièce, puis touche la grille pour la poser : chaque pose sonne juste.</string>
+    <string name="feature_garden_message_garden">Touche la grille pour poser la pièce choisie, ou touche une note pour la reprendre.</string>
+    <string name="feature_garden_message_preview">Touche l\'aperçu ou Poser pour la poser ; tourne-la si tu veux.</string>
+    <string name="feature_garden_message_overlap">Une case est déjà prise : déplace l\'aperçu ou tourne la pièce.</string>
+    <string name="feature_garden_message_out_of_grid">L\'aperçu sort de la grille : déplace-le ou tourne la pièce.</string>
+
+    <!-- Le bac. -->
+    <string name="feature_garden_pieces">Pièces</string>
+    <string name="feature_garden_tile">Pièce %1$s</string>
+    <string name="feature_garden_remove">Retirer</string>
+    <string name="feature_garden_turn_left">Tourner à gauche</string>
+    <string name="feature_garden_turn_right">Tourner à droite</string>
+    <string name="feature_garden_place">Poser</string>
+
+    <!-- La barre après Tout effacer ou Au hasard, 4 s. -->
+    <string name="feature_garden_cleared">Jardin effacé</string>
+    <string name="feature_garden_undo">Annuler</string>
+
+    <!-- Mes jardins : le disque de la barre, marqué d'un point quand le jardin a changé depuis qu'il a été gardé. -->
+    <string name="feature_garden_my_gardens">Mes jardins</string>
+    <string name="feature_garden_modified">jardin modifié</string>
+
+    <!-- La feuille Mes jardins. -->
+    <string name="feature_garden_keep">Garder ce jardin</string>
+    <string name="feature_garden_save_in_place">Enregistrer « %1$s »</string>
+    <string name="feature_garden_keep_copy">Garder une copie</string>
+    <!-- Le compteur : « 7 jardins sur 30 ». -->
+    <plurals name="feature_garden_count">
+        <item quantity="one">%1$d jardin sur %2$d</item>
+        <item quantity="many">%1$d jardins sur %2$d</item>
+        <item quantity="other">%1$d jardins sur %2$d</item>
+    </plurals>
+    <string name="feature_garden_none_kept">Aucun jardin gardé.</string>
+    <string name="feature_garden_none_kept_hint">Garde celui-ci pour le retrouver plus tard.</string>
+    <string name="feature_garden_failed">L\'opération a échoué.</string>
+    <string name="feature_garden_unreadable">Ces jardins ne peuvent pas être lus : rien ne peut être gardé pour l\'instant.</string>
+    <string name="feature_garden_unchanged">Rien n\'a changé depuis qu\'il est gardé.</string>
+    <plurals name="feature_garden_full">
+        <item quantity="one">%1$d jardin gardé : supprimes-en un pour garder celui-ci.</item>
+        <item quantity="many">%1$d jardins gardés : supprimes-en un pour garder celui-ci.</item>
+        <item quantity="other">%1$d jardins gardés : supprimes-en un pour garder celui-ci.</item>
+    </plurals>
+    <string name="feature_garden_empty_garden">Pose au moins une pièce pour garder ce jardin.</string>
+    <!-- Une rangée : « Calme · 12 pièces », lue d'un trait « Pluie douce, Calme, 12 pièces, ouvert ». -->
+    <string name="feature_garden_row_info">%1$s · %2$s</string>
+    <plurals name="feature_garden_piece_count">
+        <item quantity="one">%1$d pièce</item>
+        <item quantity="many">%1$d pièces</item>
+        <item quantity="other">%1$d pièces</item>
+    </plurals>
+    <string name="feature_garden_row_spoken">%1$s, %2$s, %3$s</string>
+    <string name="feature_garden_row_open_spoken">%1$s, %2$s, %3$s, ouvert</string>
+    <string name="feature_garden_open">ouvert</string>
+
+    <!-- La fenêtre du nom. -->
+    <string name="feature_garden_keep_confirm">Garder</string>
+
+    <!-- Le message après Garder ou Enregistrer. -->
+    <string name="feature_garden_kept">« %1$s » gardé.</string>
+
+    <!-- Une rangée de Mes jardins : l'ouvrir ; son menu « … » et Renommer sont dans core:designsystem (RowMenu, P10.36). -->
+    <string name="feature_garden_row_open">Ouvrir</string>
+    <string name="feature_garden_delete_note">Il disparaîtra de Mes jardins. Tu pourras annuler juste après.</string>
+    <string name="feature_garden_delete_keep">Garder le jardin</string>
+
+    <!-- Les messages avec Annuler, après Rouvrir et Supprimer. -->
+    <string name="feature_garden_opened">« %1$s » ouvert</string>
+    <string name="feature_garden_deleted">« %1$s » supprimé.</string>
+</resources>

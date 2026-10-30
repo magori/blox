@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.game.GameLabels
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -53,62 +54,104 @@ internal class GameTopBarTest {
     /** Whether the record shown is beaten, a new record: not unless a test says so. */
     private var beaten by mutableStateOf(false)
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
-    @DisplayName("in the narrowest window the title is shown whole, no word cut, in both themes, font enlarged")
-    fun inTheNarrowestWindowTheTitleIsShownWhole(
-        kind: BloxThemeKind,
-        fontScale: Float,
-    ) = extension.use {
-        // Given
-        showTopBar(kind, fontScale, record = 98_760)
-
-        // Then
-        val title = textLayout(hasText("MODE CLASSIQUE"))
-        assertThat(title.hasVisualOverflow).isFalse()
-        assertThat(wordsOnLines(title)).containsExactly("MODE", "CLASSIQUE")
+    /**
+     * The game whose labels the bar shows: the Classic, in both themes, or the daily game (V39), its longer title of three
+     * words and its sticker NOUVEAU MEILLEUR, in the Colorful theme only (ADR 0026). [title] is shown in capitals, [label]
+     * and [sticker] as written, read by TalkBack before the value.
+     */
+    internal enum class Variant(val labels: GameLabels, val title: String, val label: String, val sticker: String) {
+        CLASSIC(GameLabels.Classic, "MODE CLASSIQUE", "Record", "Nouveau record"),
+        DAILY(GameLabels.Daily, "GRAINE DU JOUR", "Meilleur", "Nouveau meilleur"),
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
-    @DisplayName("in the narrowest window the record is shown whole, in both themes, font enlarged")
-    fun inTheNarrowestWindowTheRecordIsShownWhole(
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
+    @DisplayName("in the narrowest window the title is shown whole, no word cut, in both themes, font enlarged")
+    fun inTheNarrowestWindowTheTitleIsShownWhole(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
-        showTopBar(kind, fontScale, record = 98_760)
+        showTopBar(variant, kind, fontScale, record = 98_760)
+
+        // Then
+        val title = textLayout(hasText(variant.title))
+        assertThat(title.hasVisualOverflow).isFalse()
+        assertThat(wordsOnLines(title)).containsExactlyElementsOf(variant.title.split(' '))
+    }
+
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
+    @DisplayName("in the narrowest window the record is shown whole, in both themes, font enlarged")
+    fun inTheNarrowestWindowTheRecordIsShownWhole(
+        variant: Variant,
+        kind: BloxThemeKind,
+        fontScale: Float,
+    ) = extension.use {
+        // Given
+        showTopBar(variant, kind, fontScale, record = 98_760)
 
         // Then its label and its value, as laid out, are not cut
-        assertThat(textLayout(hasText("RECORD")).hasVisualOverflow).isFalse()
+        assertThat(textLayout(hasText(variant.label.uppercase())).hasVisualOverflow).isFalse()
         assertThat(textLayout(hasText("098760")).hasVisualOverflow).isFalse()
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("in the narrowest window the record is no taller than the pause button: the board keeps its height")
     fun inTheNarrowestWindowTheRecordIsNoTallerThanThePauseButton(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
-        showTopBar(kind, fontScale, record = 98_760)
+        showTopBar(variant, kind, fontScale, record = 98_760)
 
         // Then
         val pause = onNodeWithContentDescription("Mettre en pause").fetchSemanticsNode()
-        val record = onNodeWithContentDescription("Record : 98760").fetchSemanticsNode()
+        val record = onNodeWithContentDescription("${variant.label} : 98760").fetchSemanticsNode()
         assertThat(record.size.height).isLessThanOrEqualTo(pause.size.height)
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("in the narrowest window the pause button keeps its 48 dp, in both themes, font enlarged")
     fun inTheNarrowestWindowThePauseButtonKeepsItsSize(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
-        showTopBar(kind, fontScale, record = 98_760)
+        showTopBar(variant, kind, fontScale, record = 98_760)
 
         // Then
         onNodeWithContentDescription("Mettre en pause")
@@ -116,110 +159,151 @@ internal class GameTopBarTest {
             .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("in the narrowest window TalkBack reads the real record, beyond the 999 999 shown")
     fun inTheNarrowestWindowTalkBackReadsTheRealRecord(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
-        showTopBar(kind, fontScale, record = 1_234_567)
+        showTopBar(variant, kind, fontScale, record = 1_234_567)
 
         // Then TalkBack reads the real value, and not the texts shown, capped: they are not in the tree it reads
-        onNodeWithContentDescription("Record : 1234567").assertExists()
-        listOf("RECORD", "999999").forEach { shown ->
+        onNodeWithContentDescription("${variant.label} : 1234567").assertExists()
+        listOf(variant.label.uppercase(), "999999").forEach { shown ->
             onNode(hasText(shown)).assertDoesNotExist()
         }
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("on a phone of 360 dp the bar stays on one row, the title right of the pause button, font enlarged")
     fun onAPhoneTheBarStaysOnOneRow(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
-        showTopBar(kind, fontScale, record = 98_760, width = PHONE)
+        showTopBar(variant, kind, fontScale, record = 98_760, width = PHONE)
 
         // Then the title is right of the pause button, beside it, not above
-        val pause = onNodeWithContentDescription("Mettre en pause").fetchSemanticsNode().boundsInRoot
-        val title = onNode(hasText("MODE CLASSIQUE"), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        assertThat(title.left).isGreaterThanOrEqualTo(pause.right)
-        assertThat(title.center.y).isBetween(pause.top, pause.bottom)
+        assertTitleBesidePauseButton(variant)
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("in the narrowest window the new record is shown whole, in both themes, font enlarged")
     fun inTheNarrowestWindowTheNewRecordIsShownWhole(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given a record beaten, the score of 98 790 the new record
         beaten = true
-        showTopBar(kind, fontScale, record = 98_790)
+        showTopBar(variant, kind, fontScale, record = 98_790)
 
         // Then the sticker and the score, as laid out, are not cut
-        assertThat(textLayout(hasText("NOUVEAU RECORD")).hasVisualOverflow).isFalse()
+        assertThat(textLayout(hasText(variant.sticker.uppercase())).hasVisualOverflow).isFalse()
         assertThat(textLayout(hasText("098790")).hasVisualOverflow).isFalse()
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}, {2} dp")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}, {3} dp")
     @CsvSource(
-        "ORIGINAL, 1, 172",
-        "ORIGINAL, 2, 172",
-        "COLORFUL, 1, 172",
-        "COLORFUL, 2, 172",
-        "ORIGINAL, 1, 312",
-        "ORIGINAL, 2, 312",
-        "COLORFUL, 1, 312",
-        "COLORFUL, 2, 312",
+        "CLASSIC, ORIGINAL, 1, 172",
+        "CLASSIC, ORIGINAL, 2, 172",
+        "CLASSIC, COLORFUL, 1, 172",
+        "CLASSIC, COLORFUL, 2, 172",
+        "DAILY, COLORFUL, 1, 172",
+        "DAILY, COLORFUL, 2, 172",
+        "CLASSIC, ORIGINAL, 1, 312",
+        "CLASSIC, ORIGINAL, 2, 312",
+        "CLASSIC, COLORFUL, 1, 312",
+        "CLASSIC, COLORFUL, 2, 312",
+        "DAILY, COLORFUL, 1, 312",
+        "DAILY, COLORFUL, 2, 312",
     )
     @DisplayName("once the record is beaten, the bar keeps its height and the record its place: nothing moves")
     fun onceTheRecordIsBeatenNothingMoves(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
         widthDp: Int,
     ) = extension.use {
         // Given the record of 98 760 shown
-        showTopBar(kind, fontScale, record = 98_760, width = widthDp.dp)
+        showTopBar(variant, kind, fontScale, record = 98_760, width = widthDp.dp)
         val bar = onNodeWithTag(BAR).fetchSemanticsNode().size
-        val record = onNodeWithContentDescription("Record : 98760").fetchSemanticsNode().boundsInRoot
+        val record = onNodeWithContentDescription("${variant.label} : 98760").fetchSemanticsNode().boundsInRoot
 
         // When the score beats it
         runOnIdle { beaten = true }
 
         // Then the new record takes the place of the record, the bar as high as before
-        val newRecord = onNodeWithContentDescription("Nouveau record : 98760").fetchSemanticsNode().boundsInRoot
+        val newBest =
+            onNodeWithContentDescription("${variant.sticker} : 98760").fetchSemanticsNode().boundsInRoot
         assertThat(onNodeWithTag(BAR).fetchSemanticsNode().size).isEqualTo(bar)
-        assertThat(newRecord).isEqualTo(record)
+        assertThat(newBest).isEqualTo(record)
     }
 
-    @ParameterizedTest(name = "{0}, font × {1}")
-    @CsvSource("ORIGINAL, 1", "ORIGINAL, 2", "COLORFUL, 1", "COLORFUL, 2")
+    @ParameterizedTest(name = "{0}, {1}, font × {2}")
+    @CsvSource(
+        "CLASSIC, ORIGINAL, 1",
+        "CLASSIC, ORIGINAL, 2",
+        "CLASSIC, COLORFUL, 1",
+        "CLASSIC, COLORFUL, 2",
+        "DAILY, COLORFUL, 1",
+        "DAILY, COLORFUL, 2",
+    )
     @DisplayName("on a phone of 360 dp the bar stays on one row once the record is beaten, font enlarged")
     fun onAPhoneTheBarStaysOnOneRowOnceTheRecordIsBeaten(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
     ) = extension.use {
         // Given
         beaten = true
-        showTopBar(kind, fontScale, record = 98_790, width = PHONE)
+        showTopBar(variant, kind, fontScale, record = 98_790, width = PHONE)
 
         // Then the title is right of the pause button, beside it, not above
+        assertTitleBesidePauseButton(variant)
+    }
+
+    /** The title of [variant] is right of the pause button, beside it, not above: the bar is on one row. */
+    private fun ComposeContext.assertTitleBesidePauseButton(variant: Variant) {
         val pause = onNodeWithContentDescription("Mettre en pause").fetchSemanticsNode().boundsInRoot
-        val title = onNode(hasText("MODE CLASSIQUE"), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val title = onNode(hasText(variant.title), useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         assertThat(title.left).isGreaterThanOrEqualTo(pause.right)
         assertThat(title.center.y).isBetween(pause.top, pause.bottom)
     }
 
     /**
-     * The top bar for [record], a new record if [beaten], [width] wide, in [kind], with the system font scaled by
-     * [fontScale].
+     * The top bar of [variant] for [record], a new record if [beaten], [width] wide, in [kind], with the system font
+     * scaled by [fontScale].
      */
     private fun ComposeContext.showTopBar(
+        variant: Variant,
         kind: BloxThemeKind,
         fontScale: Float,
         record: Int,
@@ -233,6 +317,7 @@ internal class GameTopBarTest {
                         GameTopBar(
                             record = ShownRecord(record, beaten),
                             onPause = {},
+                            labels = variant.labels,
                             modifier = Modifier.requiredWidth(width).testTag(BAR),
                         )
                     }

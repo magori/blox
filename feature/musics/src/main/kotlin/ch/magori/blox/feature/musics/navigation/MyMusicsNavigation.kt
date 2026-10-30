@@ -1,11 +1,9 @@
 package ch.magori.blox.feature.musics.navigation
 
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
@@ -13,6 +11,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.core.data.NameProblem
+import ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.feature.musics.MyMusicsActions
 import ch.magori.blox.feature.musics.MyMusicsScreen
@@ -39,20 +38,14 @@ fun EntryProviderScope<NavKey>.myMusicsEntry(
     entry<MyMusicsRoute> {
         val viewModel: MyMusicsViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-        // The view model decides what each event of the screen means for the music listened to (tested there); this
-        // observer, without a JVM test, only hands the events over.
-        val lifecycle = LocalLifecycleOwner.current.lifecycle
-        DisposableEffect(lifecycle, viewModel) {
-            val observer = LifecycleEventObserver { _, event -> viewModel.onLifecycleEvent(event) }
-            lifecycle.addObserver(observer)
-            onDispose { lifecycle.removeObserver(observer) }
-        }
+        ScreenHiddenEffect(onHidden = viewModel::onHidden)
         // Taps that leave count only while this screen is resumed: once the editor is on its way, a second does nothing.
         val goBack = dropUnlessResumed { onBack() }
         val openRandom = dropUnlessResumed { onRandom() }
         val openNew = dropUnlessResumed { onNew() }
         // The same for a tap that opens a music, which dropUnlessResumed cannot carry: it takes no identity.
         val currentEdit by rememberUpdatedState(onEdit)
+        val lifecycle = LocalLifecycleOwner.current.lifecycle
         val openEdit: (ScoreId.Personal) -> Unit = remember(lifecycle) {
             { id -> if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) currentEdit(id) }
         }

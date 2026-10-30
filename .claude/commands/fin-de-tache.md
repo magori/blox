@@ -6,7 +6,7 @@ Clôture la tâche en cours ($ARGUMENTS si un identifiant est donné) en suivant
 « Définition de terminé » de `CLAUDE.md`, étape par étape, sans en sauter aucune.
 Arrête-toi et signale-le si une étape échoue.
 
-1. **Tests verts** : lance `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test testDebugUnitTest`,
+1. **Tests verts** : lance `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test :core:garden:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, et
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
    ou une dépendance a changé ; si une interface a changé, `./gradlew validateDebugScreenshotTest`
@@ -32,8 +32,8 @@ Arrête-toi et signale-le si une étape échoue.
 5. **ADR** si une décision structurante a été prise.
 
 6. **SUIVI.md et JOURNAL.md** : dans `SUIVI.md`, coche la tâche et ajoute les tâches
-   découvertes, puis lance `scripts/avancement.sh` (Git Bash) pour recalculer les pourcentages
-   général et MVP audio ; si une tâche découverte est nécessaire au MVP audio, propose de l'ajouter à
+   découvertes, **sans** lancer `scripts/avancement.sh` : l’avancement se recalcule sur `main` après la fusion
+   (étape 8) ; si une tâche découverte est nécessaire au MVP audio, propose de l'ajouter à
    la liste `<!-- mvp-audio: … -->`. Dans `JOURNAL.md`, ajoute la ligne de la tâche (y compris les
    remarques de revue écartées).
 
@@ -41,3 +41,7 @@ Arrête-toi et signale-le si une étape échoue.
    Conventional Commits, corps qui explique le pourquoi, `Tâche : P…`) sur la branche de la
    tâche, pousse, et donne-moi le lien pour suivre la CI. Ne fusionne pas dans `main` sans
    mon accord.
+
+8. **Après la fusion** dans `main` : sur `main` à jour, lance `scripts/avancement.sh` et, s’il a changé
+   quelque chose, crée le commit `📊 docs(suivi): avancement` (pas dans la branche de la tâche : deux branches
+   écriraient deux chiffres en conflit).

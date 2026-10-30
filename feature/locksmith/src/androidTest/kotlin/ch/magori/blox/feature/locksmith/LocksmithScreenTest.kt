@@ -1,20 +1,27 @@
 package ch.magori.blox.feature.locksmith
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.getBoundsInRoot
@@ -28,11 +35,19 @@ import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntRect
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.round
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
 import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.lock.LockCell
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
+import ch.magori.blox.core.data.OpeningOutcome
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -43,6 +58,7 @@ import ch.magori.blox.core.locksmith.Hint
 import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
+import ch.magori.blox.core.locksmith.PadlockResult
 import ch.magori.blox.core.locksmith.PadlockUpdate
 import ch.magori.blox.core.locksmith.placing
 import ch.magori.blox.core.locksmith.solved
@@ -50,11 +66,14 @@ import ch.magori.blox.core.locksmith.turnedTo
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
+import kotlinx.coroutines.MainScope
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -67,7 +86,7 @@ internal class LocksmithScreenTest {
     @RegisterExtension
     val recompositions = RecompositionRecorder()
 
-    private val start = PadlockGame.start(Padlock.generate(level = 1, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(1))
 
     @Test
     @DisplayName("on the card of an open padlock, Serrure suivante goes to the next padlock")
@@ -95,6 +114,83 @@ internal class LocksmithScreenTest {
 
         // Then
         runOnIdle { assertThat(touched).containsExactly("restart") }
+    }
+
+    @Test
+    @DisplayName("on the card, the best opening kept of the padlock is read, when it is not this one")
+    fun onTheCardTheBestOpeningIsRead() = extension.use {
+        // Given padlock 1 opened with a hint, its best opening kept without one
+        val game = start.hint().game.solved()
+        val pieces = game.given.size
+        val best = PadlockResult(pieces = pieces, moves = pieces + 1, refusals = 2, hints = 0)
+
+        // When
+        showLocksmith(LocksmithUiState(level = 1, game = game, best = best, outcome = OpeningOutcome.NOTHING_NEW))
+
+        // Then
+        val hints = plural(R.plurals.feature_locksmith_open_best_hints, 0)
+        onNodeWithText(string(R.string.feature_locksmith_open_best, pieces + 1, 2, hints))
+            .performScrollTo()
+            .assertIsDisplayed()
+    }
+
+    @Test
+    @DisplayName("on the card, a new best and a perfect opening are told by a sticker that TalkBack reads")
+    fun onTheCardTheStickerIsRead() = extension.use {
+        // Given padlock 1 opened with a hint, a new best
+        val state = showHosted(
+            LocksmithUiState(level = 1, game = start.hint().game.solved(), outcome = OpeningOutcome.NEW_BEST),
+        )
+
+        // Then
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_new_best))
+            .performScrollTo()
+            .assertIsDisplayed()
+
+        // When it is opened again without a hint: perfect, a new best
+        state.value = state.value.copy(game = start.solved())
+
+        // Then PARFAITE wins
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_perfect))
+            .performScrollTo()
+            .assertIsDisplayed()
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_new_best)).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("on the card of an old padlock replayed, Reprendre à la serrure N resumes at the frontier")
+    fun onTheCardResumeGoesToTheFrontier() = extension.use {
+        // Given padlock 1 opened again, while padlocks 1 to 8 are open
+        val touched = mutableListOf<String>()
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), frontier = 9), touched)
+
+        // When
+        onNodeWithText(string(R.string.feature_locksmith_resume, 9)).performScrollTo().performClick()
+
+        // Then
+        runOnIdle { assertThat(touched).containsExactly("resume 9") }
+    }
+
+    @Test
+    @DisplayName("the sticker and the line not recorded, which come after the opening, are polite live regions")
+    fun theStickerAndTheLineNotRecordedArePoliteLiveRegions() = extension.use {
+        // Given padlock 1 opened perfectly, its opening not written
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), unrecorded = true))
+
+        // Then
+        val polite = SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
+        onNodeWithContentDescription(string(R.string.feature_locksmith_sticker_perfect)).assert(polite)
+        onNodeWithText(string(R.string.feature_locksmith_unrecorded)).assert(polite)
+    }
+
+    @Test
+    @DisplayName("on the card, an opening that could not be recorded is told")
+    fun onTheCardAnOpeningNotRecordedIsTold() = extension.use {
+        // Given
+        showLocksmith(LocksmithUiState(level = 1, game = start.solved(), unrecorded = true))
+
+        // Then
+        onNodeWithText(string(R.string.feature_locksmith_unrecorded)).performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -135,6 +231,20 @@ internal class LocksmithScreenTest {
 
         // Then
         runOnIdle { assertThat(touched).containsExactly("back") }
+    }
+
+    @Test
+    @DisplayName("the disc of the bar, read « Toutes les serrures », opens the padlocks")
+    fun theDiscOfTheBarOpensThePadlocks() = extension.use {
+        // Given
+        val touched = mutableListOf<String>()
+        showLocksmith(start, touched)
+
+        // When
+        onNodeWithContentDescription("Toutes les serrures").performClick()
+
+        // Then
+        runOnIdle { assertThat(touched).containsExactly("padlocks") }
     }
 
     @Test
@@ -533,7 +643,7 @@ internal class LocksmithScreenTest {
     }
 
     @Test
-    @DisplayName("the padlock of the bar has no node, the title of the bar tells the padlock closed, then open")
+    @DisplayName("the title of the bar tells the padlock closed, then open, the disc being read for what it opens")
     fun theTitleOfTheBarTellsThePadlockState() = extension.use {
         // Given
         val state = showHosted(LocksmithUiState(level = 3, game = start))
@@ -547,8 +657,176 @@ internal class LocksmithScreenTest {
 
         // Then
         onNodeWithContentDescription("Serrure 03, ouverte").assertExists()
+        onNodeWithContentDescription(string(R.string.feature_locksmith_padlocks)).assertExists()
         onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription, listOf("Serrure ouverte")))
             .assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("the title of the bar is in capitals, its number on two digits, TalkBack reads it in words")
+    fun theTitleOfTheBarIsInCapitals() = extension.use {
+        // Given
+        showHosted(LocksmithUiState(level = 4, game = start))
+
+        // Then shown as SERRURE 04, read « Serrure 04, fermée » rather than spelt out letter by letter
+        onNodeWithText("SERRURE 04").assertContentDescriptionEquals("Serrure 04, fermée")
+        onAllNodes(hasText("Serrure 04")).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 320 dp, the title of the bar keeps its words whole")
+    fun inALargeFontTheTitleOfTheBarKeepsItsWordsWhole() = extension.use {
+        // Given a font twice as large, on the narrowest phone
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 3, game = start),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(320.dp),
+                )
+            }
+        }
+
+        // Then SERRURE and 03 each on a line or together, never a word cut from one line to the next
+        assertThat(wordsOnTheLinesOf("SERRURE 03")).containsExactly("SERRURE", "03")
+    }
+
+    @Test
+    @DisplayName("in a font twice as large, on 360 dp, the bar holds its title, its moves and a disc of 48 dp")
+    fun inALargeFontOn360DpTheBarHoldsTheDisc() = extension.use {
+        // Given padlock 21, of 8 pieces, open, in a font twice as large, on a phone of 360 dp
+        val open = PadlockGame.start(Padlock.ofLevel(21)).solved()
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 21, game = open),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(360.dp),
+                )
+            }
+        }
+
+        // Then the disc is a whole touch target within the margin, right of the moves
+        val disc = onNodeWithContentDescription(string(R.string.feature_locksmith_padlocks)).getBoundsInRoot()
+        assertThat((disc.right - disc.left).value).isCloseTo(48f, within(0.5f))
+        assertThat(disc.right).isLessThanOrEqualTo(360.dp - SIDE_MARGIN)
+        val movesText = string(R.string.feature_locksmith_moves, open.moves)
+        val moves = onNodeWithText(movesText).getBoundsInRoot()
+        assertThat(moves.right).isLessThanOrEqualTo(disc.left)
+        // And the title between back and the moves, overlapping neither, its words whole
+        val back = onNodeWithContentDescription(string(R.string.feature_locksmith_back)).getBoundsInRoot()
+        val title = onNodeWithText("SERRURE 21").getBoundsInRoot()
+        assertThat(back.right).isLessThanOrEqualTo(title.left)
+        assertThat(title.right).isLessThanOrEqualTo(moves.left)
+        assertThat(wordsOnTheLinesOf("SERRURE 21")).containsExactly("SERRURE", "21")
+        // And the moves on one line, each line of the moves and of the title within its width: nothing cut
+        listOf(movesText, "SERRURE 21").forEach { text ->
+            val layout = layoutOf(text)
+            repeat(layout.lineCount) { line ->
+                assertThat(layout.getLineRight(line)).describedAs("$text, line $line")
+                    .isLessThanOrEqualTo(layout.size.width.toFloat())
+            }
+            if (text == movesText) assertThat(layout.lineCount).describedAs(text).isEqualTo(1)
+        }
+    }
+
+    @ParameterizedTest
+    @ValueSource(floats = [1f, 2f])
+    @DisplayName("on a phone of 360 dp, each of 6 tiles is a whole touch target, within the width")
+    fun on360DpEachOfSixTilesIsAWholeTouchTarget(fontScale: Float) = extension.use {
+        // Given a padlock of 6 pieces, on a phone of 360 dp, in a font of that scale
+        val game = PadlockGame.start(Padlock.ofLevel(4))
+        assertThat(game.given).hasSize(6)
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = fontScale)) {
+                LocksmithScreen(
+                    state = LocksmithUiState(level = 4, game = game),
+                    actions = LocksmithActions.None,
+                    modifier = Modifier.width(360.dp),
+                )
+            }
+        }
+
+        // Then each tile is 48 dp wide and high at least, whole between the edges of the screen: measured as laid out,
+        // not as clipped by the scrolling column, below which the tray may lie in a large font
+        game.given.indices.forEach { rank ->
+            val node = onNode(hasTestTag(tileTestTag(rank))).fetchSemanticsNode()
+            with(node.layoutInfo.density) {
+                val left = node.positionInRoot.x.toDp()
+                val width = node.size.width.toDp()
+                assertThat(width).describedAs("width of tile $rank").isGreaterThanOrEqualTo(48.dp)
+                assertThat(node.size.height.toDp()).describedAs("height of tile $rank").isGreaterThanOrEqualTo(48.dp)
+                assertThat(left).describedAs("left of tile $rank").isGreaterThanOrEqualTo(0.dp)
+                assertThat(left + width).describedAs("right of tile $rank").isLessThanOrEqualTo(360.dp)
+            }
+        }
+    }
+
+    @Test
+    @DisplayName("on a phone of 360 dp, the 6 tiles stand on one row, none over the next")
+    fun on360DpTheSixTilesStandOnOneRow() = extension.use {
+        // Given
+        showTray(level = 4, width = 360.dp)
+
+        // Then
+        val tiles = (0 until 6).map { tileBounds(it) }
+        assertThat(tiles.map { it.top }.distinct()).hasSize(1)
+        tiles.zipWithNext().forEach { (tile, next) -> assertThat(tile.right).isLessThanOrEqualTo(next.left) }
+    }
+
+    @Test
+    @DisplayName("on a phone of 320 dp, the 6 tiles go on two rows of 3, the second under the first")
+    fun on320DpTheSixTilesGoOnTwoRows() = extension.use {
+        // Given
+        showTray(level = 4, width = 320.dp)
+
+        // Then
+        val tiles = (0 until 6).map { tileBounds(it) }
+        val (first, second) = tiles.chunked(3)
+        assertThat(first.map { it.top }.distinct()).hasSize(1)
+        assertThat(second.map { it.top }.distinct()).hasSize(1)
+        assertThat(second.first().top).isGreaterThanOrEqualTo(first.first().bottom)
+        listOf(first, second).forEach { row ->
+            row.zipWithNext().forEach { (tile, next) -> assertThat(tile.right).isLessThanOrEqualTo(next.left) }
+        }
+    }
+
+    @Test
+    @DisplayName("on 300 dp, a padlock of 5 pieces centres its last 2 tiles under the first 3")
+    fun theLastRowIsCentred() = extension.use {
+        // Given a padlock of 5 pieces, which 5 tiles of 48 dp on one row, 272 dp, would pass on 300 dp
+        showTray(level = 3, width = 300.dp)
+
+        // Then the second row, of 2, is centred under the first, to a pixel
+        val tiles = (0 until 5).map { tileBounds(it) }
+        val firstCentre = (tiles[0].left + tiles[2].right) / 2
+        val secondCentre = (tiles[3].left + tiles[4].right) / 2
+        assertThat(tiles[3].top).isGreaterThanOrEqualTo(tiles[0].bottom)
+        assertThat(secondCentre).isCloseTo(firstCentre, within(1))
+    }
+
+    /** The screen of padlock [level], its first piece chosen, on a phone [width] wide. */
+    private fun ComposeContext.showTray(
+        level: Int,
+        width: Dp,
+    ) {
+        val game = PadlockGame.start(Padlock.ofLevel(level)).select(0)
+        setContent {
+            LocksmithScreen(
+                state = LocksmithUiState(level = level, game = game),
+                actions = LocksmithActions.None,
+                modifier = Modifier.width(width),
+            )
+        }
+    }
+
+    /** Where the tile of [rank] is laid out, in pixels of the root, whether the scrolling column shows it or not. */
+    private fun ComposeContext.tileBounds(rank: Int): IntRect {
+        val node = onNode(hasTestTag(tileTestTag(rank))).fetchSemanticsNode()
+        return IntRect(node.positionInRoot.round(), node.size)
     }
 
     @Test
@@ -571,12 +849,15 @@ internal class LocksmithScreenTest {
     @Test
     @DisplayName("with its view model: a placement refused, then accepted, then taken back")
     fun placeRefuseAndTakeBack() = extension.use {
-        // Given padlock 1 of seed 7, its first piece chosen, and where the solution has it
+        // Given padlock 1, its first piece chosen, and where the solution has it
         val viewModel =
             LocksmithViewModel(
-                LocksmithRoute(level = 1, seed = 7),
+                LocksmithRoute(level = 1),
                 FakeSoundEffectPlayer(),
                 FakeUserPreferencesRepository(),
+                FakePadlockProgressRepository(),
+                MainScope(),
+                ClearedProgressRelay(),
             )
         setContent {
             val state by viewModel.uiState.collectAsState()
@@ -652,8 +933,27 @@ internal class LocksmithScreenTest {
             onHint = { touched += "hint" },
             onRestart = { touched += "restart" },
             onNext = { touched += "next" },
+            onResume = { frontier -> touched += "resume $frontier" },
+            onPadlocks = { touched += "padlocks" },
         )
         setContent { LocksmithScreen(state = state, actions = actions) }
+    }
+
+    /** The layout of the text [text], as drawn. */
+    private fun ComposeContext.layoutOf(text: String): TextLayoutResult {
+        val layouts = mutableListOf<TextLayoutResult>()
+        onNode(hasText(text), useUnmergedTree = true).fetchSemanticsNode()
+            .config[SemanticsActions.GetTextLayoutResult].action?.invoke(layouts)
+        return layouts.single()
+    }
+
+    /** The words of the text [text], line by line as drawn: a word cut from one line to the next shows as two. */
+    private fun ComposeContext.wordsOnTheLinesOf(text: String): List<String> {
+        val layout = layoutOf(text)
+        val drawn = layout.layoutInput.text.text
+        return List(layout.lineCount) { line ->
+            drawn.substring(layout.getLineStart(line), layout.getLineEnd(line)).split(' ').filter { it.isNotEmpty() }
+        }.flatten()
     }
 
     /** The screen of a state the test changes, starting from [initial]. */
@@ -678,6 +978,8 @@ internal class LocksmithScreenTest {
         onHint = viewModel::hint,
         onRestart = viewModel::restart,
         onNext = {},
+        onResume = {},
+        onPadlocks = {},
     )
 
     /** These actions, Restart replaced by [onRestart]. */
@@ -691,6 +993,8 @@ internal class LocksmithScreenTest {
         onHint = onHint,
         onRestart = onRestart,
         onNext = onNext,
+        onResume = onResume,
+        onPadlocks = onPadlocks,
     )
 
     private companion object {
@@ -762,4 +1066,9 @@ internal class LocksmithScreenTest {
         id: Int,
         vararg arguments: Any,
     ): String = InstrumentationRegistry.getInstrumentation().targetContext.getString(id, *arguments)
+
+    private fun plural(
+        id: Int,
+        count: Int,
+    ): String = InstrumentationRegistry.getInstrumentation().targetContext.resources.getQuantityString(id, count, count)
 }

@@ -1,0 +1,24 @@
+package ch.magori.blox.feature.settings
+
+import androidx.compose.runtime.Immutable
+
+/** What the settings page asks for, each to its callback; no logic here (the view model decides). */
+@Immutable
+internal class SettingsActions(
+    val onBack: () -> Unit,
+    val onReducedEffectsChanged: (Boolean) -> Unit,
+    val onLeftHandedChanged: (Boolean) -> Unit,
+    val onSoundEffectsChanged: (Boolean) -> Unit,
+    val onEffectsVolumeChanged: (Int) -> Unit,
+    val onMusicVolumeChanged: (Int) -> Unit,
+    val onVibrationsChanged: (Boolean) -> Unit,
+    val onKeyVibrationChanged: (Boolean) -> Unit,
+    val onClearRecord: () -> Unit,
+    val onKeepRecord: () -> Unit,
+    val onClearRecordConfirmed: () -> Unit,
+) {
+    companion object {
+        /** A page that does nothing: previews and screenshots. */
+        val None = SettingsActions({}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {})
+    }
+}

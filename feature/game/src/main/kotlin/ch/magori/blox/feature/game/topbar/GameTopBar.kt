@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -16,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.takeOrElse
 import ch.magori.blox.core.designsystem.component.GlyphButton
+import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -42,6 +43,7 @@ import ch.magori.blox.core.designsystem.theme.notEnlarged
 import ch.magori.blox.core.designsystem.theme.shrinkFloor
 import ch.magori.blox.core.designsystem.theme.shrinkToFewestLines
 import ch.magori.blox.core.designsystem.theme.shrinkToFit
+import ch.magori.blox.feature.game.GameLabels
 import ch.magori.blox.feature.game.R
 import ch.magori.blox.feature.game.ui.PanelLabel
 import ch.magori.blox.feature.game.ui.PanelSizes
@@ -59,12 +61,12 @@ private object TopBarSizes {
      */
     val title = 14.sp
 
-    /** Around the text of the sticker NOUVEAU RECORD: as high as the label RECORD it replaces, give or take. */
+    /**
+     * Around the text of the sticker of a new best (NOUVEAU RECORD, NOUVEAU MEILLEUR): as high as the label it
+     * replaces, give or take.
+     */
     val stickerPaddingX = 4.dp
     val stickerPaddingY = 2.dp
-
-    /** The sticker leans, as stuck by hand; not in Original, whose pixels would blur. */
-    const val STICKER_TILT = -4f
 }
 
 /**
@@ -73,24 +75,26 @@ private object TopBarSizes {
  * [topBarRows]. A record whose value is unknown is hidden, in a place of the same size, so that nothing moves when it
  * comes; once beaten, the sticker NOUVEAU RECORD takes the place of its label, the score its value, in the same place
  * of the same size. The pause button does nothing unless [pauseEnabled]: under « Agrandissez la fenêtre », the game is
- * already paused.
+ * already paused. The title, the label of the record and its sticker are those of the variant of the game ([labels]):
+ * for a daily game (V39), GRAINE DU JOUR, MEILLEUR, NOUVEAU MEILLEUR.
  */
 @Composable
 internal fun GameTopBar(
     record: ShownRecord,
     onPause: () -> Unit,
+    labels: GameLabels,
     modifier: Modifier = Modifier,
     pauseEnabled: Boolean = true,
 ) {
     val texts = topBarTexts(record.value ?: 0)
-    val title = stringResource(R.string.feature_game_top_title).uppercase()
-    val labels = RecordLabels(
-        record = stringResource(R.string.feature_game_top_record),
-        newRecord = stringResource(R.string.feature_game_top_new_record),
+    val title = stringResource(labels.title).uppercase()
+    val bestLabels = BestLabels(
+        best = stringResource(labels.best),
+        newBest = stringResource(labels.newBest),
     )
     val titleSize = BloxTheme.typography.gameTitle.fontSize.takeOrElse { TopBarSizes.title }
     BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, labels, texts.record)) {
+        when (rememberTopBarRows(constraints.maxWidth, title, titleSize, bestLabels, texts.record)) {
             TopBarRows.ONE -> Row(
                 horizontalArrangement = Arrangement.spacedBy(TopBarSizes.gap),
                 verticalAlignment = Alignment.CenterVertically,
@@ -101,7 +105,7 @@ internal fun GameTopBar(
                 // where CLASSIQUE fits whole, rather than cut.
                 ModeTitle(text = title, autoSize = shrinkToFit(titleSize), modifier = Modifier.weight(1f))
                 // At most as wide as the title: with an enlarged font, the record shrinks rather than the title.
-                Record(record, texts, labels, modifier = Modifier.weight(1f, fill = false))
+                Record(record, texts, bestLabels, modifier = Modifier.weight(1f, fill = false))
             }
 
             // The title on the whole width, on one line if it holds there at its smallest size, on two otherwise:
@@ -125,7 +129,7 @@ internal fun GameTopBar(
                     Record(
                         record = record,
                         texts = texts,
-                        labels = labels,
+                        labels = bestLabels,
                         capToNormalFont = true,
                         modifier = Modifier.padding(start = TopBarSizes.gap),
                     )
@@ -135,8 +139,8 @@ internal fun GameTopBar(
     }
 }
 
-/** The labels of the record: [record] until it is beaten, then the sticker [newRecord]. */
-private data class RecordLabels(val record: String, val newRecord: String)
+/** The labels of the best: [best] until it is beaten, then the sticker [newBest]. */
+private data class BestLabels(val best: String, val newBest: String)
 
 /**
  * The rows of the top bar [width] pixels wide ([topBarRows]): the room beside the pause button against the widths the
@@ -150,7 +154,7 @@ private fun rememberTopBarRows(
     width: Int,
     title: String,
     titleSize: TextUnit,
-    labels: RecordLabels,
+    labels: BestLabels,
     record: String,
 ): TopBarRows {
     val measurer = rememberTextMeasurer()
@@ -174,8 +178,8 @@ private fun rememberTopBarRows(
         val valueStyle = typography.value.copy(fontSize = PanelSizes.value)
         val stickerPadding = with(density) { (TopBarSizes.stickerPaddingX * 2).toPx() }
         val recordWidth = maxOf(
-            widthAtSmallestSize(labels.record.uppercase(), labelStyle),
-            labels.newRecord.uppercase().split(" ").maxOf { widthAtSmallestSize(it, stickerStyle) } + stickerPadding,
+            widthAtSmallestSize(labels.best.uppercase(), labelStyle),
+            labels.newBest.uppercase().split(" ").maxOf { widthAtSmallestSize(it, stickerStyle) } + stickerPadding,
             widthAtSmallestSize(record, valueStyle),
         )
         // In whole pixels, as the row rounds the button and its gaps.
@@ -214,11 +218,11 @@ private fun ModeTitle(
 private fun Record(
     record: ShownRecord,
     texts: TopBarTexts,
-    labels: RecordLabels,
+    labels: BestLabels,
     modifier: Modifier = Modifier,
     capToNormalFont: Boolean = false,
 ) {
-    val label = if (record.beaten) labels.newRecord else labels.record
+    val label = if (record.beaten) labels.newBest else labels.best
     val description = if (record.value == null) {
         label
     } else {
@@ -230,12 +234,12 @@ private fun Record(
     ) {
         Box(contentAlignment = Alignment.CenterEnd) {
             PanelLabel(
-                text = labels.record,
+                text = labels.best,
                 capToNormalFont = capToNormalFont,
                 modifier = Modifier.alpha(if (record.beaten) 0f else 1f),
             )
-            NewRecordSticker(
-                text = labels.newRecord,
+            NewBestSticker(
+                text = labels.newBest,
                 capToNormalFont = capToNormalFont,
                 modifier = Modifier.alpha(if (record.beaten) 1f else 0f),
             )
@@ -249,30 +253,25 @@ private fun Record(
 }
 
 /**
- * The sticker NOUVEAU RECORD: [text] in capitals, `accent-ink` on `accent`, in the font of the stickers, in a pill
- * that leans; on as few lines as it can, shrinking as the label it replaces, on two lines where one does not fit,
- * as with an enlarged font. With [capToNormalFont], it is never larger than with the normal font.
+ * The sticker of a new best (NOUVEAU RECORD, NOUVEAU MEILLEUR), not framed, close around its text as the label it
+ * replaces: on as few lines as it can, shrinking as that label, on two lines where one does not fit, as with an
+ * enlarged font. With [capToNormalFont], it is never larger than with the normal font.
  */
 @Composable
-private fun NewRecordSticker(
+private fun NewBestSticker(
     text: String,
     capToNormalFont: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
     val largest = if (capToNormalFont) LocalDensity.current.notEnlarged(PanelSizes.label) else PanelSizes.label
-    val tilt = if (BloxTheme.kind == BloxThemeKind.ORIGINAL) 0f else TopBarSizes.STICKER_TILT
-    Text(
-        text = text.uppercase(),
-        color = palette.accentInk,
-        style = BloxTheme.typography.pointsPop,
+    Sticker(
+        text = text,
+        style = BloxTheme.typography.pointsPop.copy(fontSize = largest),
         maxLines = 2,
         textAlign = TextAlign.End,
-        autoSize = shrinkToFewestLines(largest),
-        modifier = modifier
-            .graphicsLayer { rotationZ = tilt }
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = TopBarSizes.stickerPaddingX, vertical = TopBarSizes.stickerPaddingY),
+        framed = false,
+        padding = PaddingValues(horizontal = TopBarSizes.stickerPaddingX, vertical = TopBarSizes.stickerPaddingY),
+        modifier = modifier,
     )
 }
 
@@ -302,6 +301,7 @@ private fun TopBarPreview(
         GameTopBar(
             record = record,
             onPause = {},
+            labels = GameLabels.Classic,
             modifier = Modifier
                 .width(360.dp)
                 .background(BloxTheme.palette.page)
@@ -311,7 +311,7 @@ private fun TopBarPreview(
 }
 
 /** A record beaten: the score of 123 460 is the new record. */
-private val newRecord = ShownRecord(value = 123_460, beaten = true)
+private val newBest = ShownRecord(value = 123_460, beaten = true)
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
@@ -336,17 +336,17 @@ internal fun GameTopBarLargeFontPreview() {
 @Preview(widthDp = 360)
 @Composable
 private fun GameTopBarNewRecordOriginalPreview() {
-    TopBarPreview(BloxThemeKind.ORIGINAL, newRecord)
+    TopBarPreview(BloxThemeKind.ORIGINAL, newBest)
 }
 
 @Preview(widthDp = 360)
 @Composable
 private fun GameTopBarNewRecordColorfulPreview() {
-    TopBarPreview(BloxThemeKind.COLORFUL, newRecord)
+    TopBarPreview(BloxThemeKind.COLORFUL, newBest)
 }
 
 @Preview(widthDp = 360, fontScale = 2f)
 @Composable
 internal fun GameTopBarNewRecordLargeFontPreview() {
-    TopBarPreview(BloxThemeKind.COLORFUL, newRecord)
+    TopBarPreview(BloxThemeKind.COLORFUL, newBest)
 }

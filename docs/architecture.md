@@ -10,81 +10,118 @@ volontairement modeste : un module n'existe que s'il porte une responsabilité c
 
 ```mermaid
 graph TD
+    app --> featureCartridges[feature:cartridges]
     app --> featureHome[feature:home]
+    app --> featureSettings[feature:settings]
     app --> featureGame[feature:game]
     app --> featureComposer[feature:composer]
     app --> featureMusics[feature:musics]
+    app --> featureLocksmith[feature:locksmith]
+    app --> featureDaily[feature:daily]
+    app --> featureGarden[feature:garden]
     app --> designsystem[core:designsystem]
+    app --> game[core:game]
     app --> data[core:data]
     app --> audio[core:audio]
     app --> haptics[core:haptics]
-    app --> music
+    app --> music[core:music]
 
-    featureHome --> designsystem
-    featureHome --> data
-    featureHome --> game
+    featureCartridges --> board[core:board]
+
     featureHome --> audio
+    featureHome --> data
     featureHome --> music
+    featureHome --> game
+    featureHome --> board
 
-    featureGame --> designsystem
-    featureGame --> game[core:game]
+    featureSettings --> audio
+    featureSettings --> data
+    featureSettings --> haptics
+    featureSettings --> music
+
+    featureGame --> game
     featureGame --> data
-    featureGame --> audio
     featureGame --> music
+    featureGame --> audio
     featureGame --> haptics
+    featureGame --> board
 
-    featureComposer --> designsystem
+    featureComposer --> music
     featureComposer --> data
     featureComposer --> audio
-    featureComposer --> music
 
-    featureMusics --> designsystem
-    featureMusics --> data
     featureMusics --> audio
+    featureMusics --> data
     featureMusics --> music
 
-    audio --> music[core:music]
+    featureLocksmith --> audio
+    featureLocksmith --> data
+    featureLocksmith --> locksmith[core:locksmith]
+    featureLocksmith --> game
+    featureLocksmith --> board
+    featureLocksmith --> music
 
-    locksmith[core:locksmith] --> game
+    featureDaily --> data
+    featureDaily --> game
+    featureDaily --> board
+
+    featureGarden --> data
+    featureGarden --> audio
+    featureGarden --> music
+    featureGarden --> garden[core:garden]
+    featureGarden --> game
+    featureGarden --> board
+
+    board --> game
+    board --> designsystem
+    board --> music
+    board --> garden
+
+    data --> music
+    data --> garden
+    data --> game
+
+    audio --> music
+
+    locksmith --> game
     locksmith --> music
 
-    garden[core:garden] -.->|prévu P10| game
-    garden -.-> music
-
-    app -.->|prévu P10| featureGarden[feature:garden]
-    featureGarden -.-> garden
-    featureGarden -.-> designsystem
-    featureGarden -.-> data
-    featureGarden -.-> audio
+    garden --> game
+    garden --> music
 
     classDef pure fill:#dcebd5,stroke:#34503a,color:#34503a
     class game,music,locksmith,garden pure
 ```
 
-Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Le graphe montre la
-cible : une flèche n'est déclarée dans Gradle que lorsque du code l'exige, car `buildHealth`
-(plugin d'analyse de dépendances, tâche P0.9) refuse une dépendance sans usage.
+Les modules en vert sont en **Kotlin pur** (aucune dépendance Android). Les flèches sont les dépendances
+`implementation` et `api` entre modules déclarées dans les `build.gradle.kts`, sans les `testFixtures` ni les
+dépendances de test. **Convention de lecture :** chaque `feature:*` dépend aussi de `core:designsystem`, ajouté par
+le plugin `blox.android.feature` ; ces neuf flèches ne sont pas dessinées. Une flèche n'est déclarée dans Gradle que
+lorsque du code l'exige, car `buildHealth` (plugin d'analyse de dépendances, tâche P0.9) refuse une dépendance sans
+usage.
 
 | Module | Type | Responsabilité |
 |---|---|---|
 | `app` | Application Android | Point d'entrée : `MainActivity`, pile de navigation (`BloxNavDisplay`), assemblage des dépendances. |
-| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Ne dépend que de `core:designsystem`. |
+| `feature:cartridges` | Feature | Choix du jeu (P5.72, ADR 0022) : `CartridgesRoute`, racine de la pile ; une cartouche par jeu (`Cartridge`, Classique seule aujourd'hui). Dépend de `core:designsystem` et de `core:board`. |
 | `feature:home` | Feature | Écran d'accueil : mode, thème, niveau de départ, musique. |
+| `feature:settings` | Feature | Page Paramètres unique (P12.2, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)), déplacée de `feature:home` : clé `SettingsRoute` et entrée `settingsEntry`, `SettingsViewModel` et sa fabrique, `SettingsScreen`. La clé `SettingsRoute(section: SettingsSection? = null)` porte la section du jeu qui ouvre la page (P12.3) : depuis l'accueil du Classique, `SettingsRoute(SettingsSection.CLASSIC)` montre « Réglages du Classique » et le Record, puis « Tous les jeux » (Affichage, Sons et vibrations) ; depuis le choix du jeu (P12.5) et la Graine du jour (P12.6), `SettingsRoute()` ne montre que « Tous les jeux ». Toujours en thème Couleurs (P12.4). La navigation est assemblée dans `app`. Dépend de `core:designsystem`, `core:data`, `core:audio`, `core:haptics` et `core:music`, d'aucune feature. |
 | `feature:game` | Feature | Écran de jeu, pause et fin de partie. Boucle de jeu, commandes ; le rendu du plateau vient de `core:board`. Prévu : variantes Graine du jour et Au tempo de `GameRoute`, direction musicale (`MusicDirection`) de la Musique vivante (P8, P9, P11, ADR 0026). |
 | `feature:composer` | Feature | Éditeur de musique : grille d'une mesure, gestes, écoute, enregistrement (P4.19). |
 | `feature:musics` | Feature | Liste « Mes musiques » : écoute, musique des parties, renommer, supprimer avec annulation (P4.22c). |
-| `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level, seed)`, `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). |
-| `feature:garden` | Feature | **Prévu (P10, ADR 0027).** Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
+| `feature:daily` | Feature | Écran d'entrée de la Graine du jour (V38, P9.5, amendement de l'ADR 0002), toujours en thème Couleurs : clé `DailyRoute`, `DailyViewModel` et sa fabrique ; résultats du jour, 7 premières pièces de la graine, Jouer, Copier mon score. La partie elle-même est la variante `Daily` de `feature:game`. |
+| `feature:locksmith` | Feature | Écran du Serrurier, second jeu (ADR 0025), toujours en thème Couleurs : clé `LocksmithRoute(level)` (serrure `Padlock.ofLevel(level)`, la même pour tous), `LocksmithViewModel` qui joue la partie de `core:locksmith` ; serrure, pièces, accords et indice à l'écran à venir (P7.12 à P7.14). Écran « Serrures » (P7.35) : clé `PadlocksRoute(current)`, `PadlocksViewModel` et sa fabrique ; résumé, Reprendre et grille des serrures par palier (`PadlockTier` de `core:locksmith`), lus sur l'avancement de `core:data`. Le disque « Serrures » de la barre du Serrurier l'ouvre (P7.36) ; la navigation est assemblée dans `app`. |
+| `feature:garden` | Feature | (squelette P10.9, ADR 0027) Écran du Jardin musical ([règles](jardin-musical.md)), toujours en thème Couleurs : clé `GardenRoute`, `GardenViewModel` et sa fabrique ; grille, bac, ambiances, écoute en boucle, jardin gardé. |
 | `core:game` | Kotlin pur | **Domaine** : règles et moteur du jeu. Le cœur du projet, développé en TDD. Prévus : le générateur stable `StableRandom` (P1.20, ADR 0026) et le paquet `tempo` d'Au tempo (P11, ADR 0028). |
-| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden` (prévu), l'un des deux modules du domaine qui dépendent de ces deux-là. |
-| `core:garden` | Kotlin pur | **Prévu (P10, ADR 0027).** Domaine du Jardin musical ([règles](jardin-musical.md)) : le jardin immuable (`Garden`), les ambiances (`GardenMood`), la partition (`Garden.toScore`) et le dé (`GardenComposer`). `api(core:game)` et `api(core:music)`, comme `core:locksmith`. |
+| `core:locksmith` | Kotlin pur | Domaine du Serrurier ([règles](regles-serrurier.md), ADR 0025) : la serrure (`Padlock`), sa génération (`PadlockGenerator`), la partie (`PadlockGame`), l'indice (`PadlockSolver`) et les accords (`PadlockChords`). Les pièces sont des `Piece` de `core:game`, les accords des `Progression` de `core:music` : avec `core:garden`, l'un des deux modules du domaine qui dépendent de ces deux-là. |
+| `core:garden` | Kotlin pur | Domaine du Jardin musical (P10.4, ADR 0027) ([règles](jardin-musical.md)) : le jardin immuable (`Garden`), les ambiances (`GardenMood`), la partition (`Garden.toScore`) et le dé (`GardenComposer`). `api(core:game)` et `api(core:music)`, comme `core:locksmith`. |
 | `core:music` | Kotlin pur | Modèle musical : partitions, notes, tempo, effets sonores (`SoundEffect`, P4.8). Pure donnée. |
 | `core:audio` | Bibliothèque Android | Séquenceur chiptune (`AudioTrack`), lecture d'un fichier personnel, effets sonores (`SoundEffectPlayer`, pistes statiques, P4.8). |
 | `core:haptics` | Bibliothèque Android | Vibrations (`Haptics`, `SystemHaptics` sur `Vibrator`) : un autre service et une autre permission que la musique, un réglage à part (P5.2). |
-| `core:data` | Bibliothèque Android | Préférences et records (DataStore). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
+| `core:data` | Bibliothèque Android | Préférences et records (DataStore). `saveSettings`, extension de `UserPreferencesRepository`, enregistre un réglage sans faire tomber l'écran si l'écriture échoue : l'accueil et la page Paramètres la partagent (P12.2). Les noms proposés aux musiques (P4.27) y sont des constantes en français, données du jeu : l'application n'est qu'en français. |
 | `core:designsystem` | Bibliothèque Compose | Thèmes BloX (jetons de couleur, typographie), composants partagés. Le thème choisi (`BloxThemeKind`) et le mode sombre du système donnent la variante dessinée, `BloxTheme.variant` (Original, Couleurs jour, Couleurs nuit, ADR 0020) ; les palettes Couleurs reprennent `docs/design-system/tokens.json`, comparé au code par un test (plugin `blox.design.tokens`, ADR 0019). |
-| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Dépend de `core:game` et `core:designsystem`. |
-| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` sans en dépendre au sens de Gradle. |
+| `core:board` | Bibliothèque Compose | Rendu du plateau partagé (ADR 0023) ; tuile d'un bac de pièces `tile/PieceTile` et ses cases `piece/PieceCells` (Serrurier, Jardin musical, P10.2) : styles de case par `PieceType`, géométrie, peintres, pièce suivante, description TalkBack. Lecture TalkBack des accords (`chordTellingOf`, P10.19). Miniature d’un jardin (`garden/GardenThumbnail`, P10.31). Dépend de `core:game`, `core:music`, `core:garden` et `core:designsystem`. |
+| `benchmark` | Test Android (`com.android.test`) | Mesures Macrobenchmark (démarrage à froid, images d'une partie et d'une serrure) et génération du profil de référence de `app` (P5.17, P7.21). Hors du graphe : il cible `app` (`targetProjectPath`) sans en dépendre, et `app` ne le cite que dans la configuration `baselineProfile`. |
 | `build-logic` | Build inclus | Plugins de convention Gradle : la configuration n'est écrite qu'une fois. |
 
 **Profil de référence.** `app` embarque un profil de référence généré par `:benchmark`
@@ -105,6 +142,23 @@ changent beaucoup.
    cartouches (`CartridgesRoute`) ; la cartouche Classique empile l'accueil, et le disque « Changer de jeu » de
    l'accueil revient aux cartouches par `changeGame` (fonction pure de `app` : dépile jusqu'à elles, ou les met à
    la racine d'une pile restaurée qui ne les a pas). Le retour système sur les cartouches quitte l'application.
+   Les touchers des cartouches passent par `CartridgeOpener` (`app`, P7.34) : chaque cartouche empile son écran
+   tout de suite, sauf le Serrurier, qui attend la frontière (première serrure non ouverte) lue par
+   `PadlockFrontier` (`app`, lecture de l'avancement dès le démarrage, `current: StateFlow<Int?>` et `await()`) ;
+   un toucher sur une autre cartouche, ou sur la roue dentée (P12.5, qui empile `SettingsRoute()`, ADR 0030), annule
+   cette attente ; rien n'est empilé si les cartouches ne sont plus en haut de la pile. `feature:cartridges` ne reçoit que
+   `padlockFrontier: StateFlow<Int?>`, pour la sous-ligne « Serrure N ».
+   `PadlockFrontier`, `NewCartridges` (l'autocollant NOUVELLE de la Graine du jour) et `AppTheme` (l'apparence de
+   l'application) partagent une même brique de `app`, `WarmValue<T>` (P7.47) : une valeur lue une fois et gardée
+   chaude pour la vie de sa portée (`stateIn(Eagerly, null)`), avec `current` (null avant la première lecture),
+   `updates` (la dernière valeur lue, puis chaque nouvelle valeur différente ; rien avant la première lecture) et
+   `await()` (`WarmValueTest › awaiting the value before the source is read waits for it`). Une source dont la valeur
+   peut être nulle l'enveloppe, pour distinguer « lue, aucune » de « pas encore lue ».
+   Dans le Serrurier, les fonctions pures de `app` (`NextPadlock.kt`) changent le haut de la pile, et rien si la clé
+   attendue n'y est plus (un second toucher) : `nextPadlock` et `resumePadlocks` mettent une serrure à la place de
+   la serrure ouverte (P7.30, P7.33) ; `openPadlocks` empile l'écran « Serrures » par-dessus la serrure, qui reste
+   dessous avec son ViewModel (P7.36) ; `choosePadlock` retire la liste et met la serrure choisie à la place de celle
+   d'en dessous, garde la même clé si c'est celle d'où l'on vient, ou la met à la place de la liste s'il n'y a pas de serrure dessous (P7.36).
    Le parcours mesuré (`BloxJourney`) passe par `cartridge_classic`.
 2. **`core:game` et `core:music` ne dépendent de rien.** Ajouter une dépendance à ces modules
    demande un ADR.
@@ -165,10 +219,8 @@ graph LR
   comportement commun à un dépôt et à son faux est un contrat, une classe de tests abstraite
   que les deux exécutent (`HighScoreRepositoryContract`, `UserPreferencesRepositoryContract`) :
   les faux partagés des `testFixtures` de `core:data` ne peuvent plus s'écarter du vrai dépôt ;
-  erreurs de lecture : `DataStoreHighScoreRepositoryTest › a records file that cannot be read gives a record of 0`,
-  `DataStoreHighScoreRepositoryTest › a failure other than an IOException while the records are read is not absorbed`,
-  `DataStoreUserPreferencesRepositoryTest › a settings file that cannot be read gives the defaults`,
-  `DataStoreUserPreferencesRepositoryTest › a failure other than an IOException while the settings are read is not absorbed`,
+  erreurs de lecture, communes à chaque dépôt sur fichier, qui passe le contrat `DataStoreFileContract` (P9.10) : `DataStoreFileContract › a file that cannot be read reads as an empty one`,
+  `DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`,
   `HomeViewModelTest › unreadable records show 0 and the home screen goes on`,
   `HomeViewModelTest › a programming error while the records are read is not swallowed`,
   `GameViewModelTest › unreadable records show 0 and the game goes on`,
@@ -179,7 +231,10 @@ graph LR
   **Sauvegarde Android** (P5.28) : Auto Backup et le transfert d'appareil ne prennent que
   `files/datastore/records.preferences_pb`, `files/datastore/settings.preferences_pb` et
   `files/datastore/musics.bin` (les musiques créées par le joueur, sans URI de contenu ;
-  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)). Les
+  P4.22, [ADR 0017](adr/0017-format-des-musiques-enregistrees.md)) et `files/datastore/garden.bin`
+  (le jardin du Jardin musical, lui aussi une création du joueur ; P10.11, décision du développeur
+  du 2026-10-28) et `files/datastore/padlocks.bin` (l'avancement du Serrurier, l'acquis du joueur ;
+  P7.32). Les
   règles sont `res/xml/data_extraction_rules.xml` (Android 12 et plus, `cloud-backup` et
   `device-transfer`) et `res/xml/backup_rules.xml` (API 26 à 30, `fullBackupContent`) : des
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
@@ -194,8 +249,20 @@ graph LR
   `SETTINGS_FILE` (`core:data`).
 
   **Tests :** `BackupRulesTest › the manifest gives the backup rules of Android 12 and those of the older versions`,
-  `BackupRulesTest › from Android 12, the cloud backup and the device transfer keep only the record, the settings, the musics`,
-  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics`.
+  `BackupRulesTest › from Android 12, the cloud and device backups keep only the record, the settings, the musics, the gardens`,
+  `BackupRulesTest › before Android 12, the backup keeps only the record, the settings, the musics, the gardens`.
+
+  Le jardin gardé (`GardenRepository`, `GARDEN_FILE`, P10.11) est le `Garden` de `core:garden`
+  (dépendance `api`, sans type parallèle, ADR 0027), dans un format binaire versionné de BloX sur
+  Okio, comme les musiques ; les deux formats partagent `binaryDataStore` (copie `.corrupt` d'un
+  fichier illisible comprise), `readCount`, `readText` et `writeText` (`BinaryFiles.kt`). Il passe
+  `DataStoreFileContract`.
+
+  L'avancement du Serrurier (`PadlockProgressRepository`, `PADLOCKS_FILE`, `padlocks.bin`, P7.32) est un
+  format binaire versionné du même genre, avec un numéro de génération des serrures (détail dans
+  [regles-serrurier.md](regles-serrurier.md), section « Progression »). L'`AppContainer` construit
+  `DataStorePadlockProgressRepository` une fois pour le processus (P7.33) et le passe à la fabrique du
+  ViewModel du Serrurier, avec la portée de l'application (`mainScope`), où s'écrit chaque ouverture.
 
 ## Boucle de jeu
 
@@ -235,7 +302,7 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 
 | Où | Outils | Ce qu'on teste |
 |---|---|---|
-| `core:game`, `core:music`, `core:locksmith` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
+| `core:game`, `core:music`, `core:locksmith`, `core:garden` | JUnit 5, AssertJ | Toutes les règles, en TDD. Le gros de la valeur est ici. |
 | Modules Android (`src/test`) | JUnit 5, AssertJ, coroutines-test, Turbine | ViewModels, repositories, rendu des échantillons audio. |
 | `src/androidTest` (`feature:*`, `core:designsystem`, `core:board`, `app`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension` ou `runAndroidComposeUiTest`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, état des choix de l'accueil lu par TalkBack (`HomeScreenTest`), cycle de vie de l'écran de jeu (`GameScreenLifecycleTest`). Dans `app`, les parcours entre features sur le vrai `BloxNavDisplay` avec les faux partagés (`BloxNavDisplayTest` : Jouer, retour système, Rejouer, Menu), horloge pilotée à la main (une partie en cours demande une image à chaque image) et fins de partie rapides par la doublure `OneRowPerTickGameEngineFactory` (testFixtures de `core:game`) ; `ui-test-manifest` n'entre que dans l'APK debug de `app`, ni en release ni en `benchmarkRelease` (P5.5). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; compilés en CI (`assembleDebugAndroidTest`), pas exécutés. |
 | `src/screenshotTest` (`feature:*`, `core:designsystem`, `core:board`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Validé en CI (P5.8) : le rendu est identique au pixel près sous Windows, où les références sont générées, et sous Linux (42 captures à 0 % d'écart) ; la tolérance de 0,05 % est une marge, pas une nécessité observée. |

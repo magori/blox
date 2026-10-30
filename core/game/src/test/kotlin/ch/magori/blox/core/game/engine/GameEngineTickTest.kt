@@ -63,7 +63,7 @@ class GameEngineTickTest {
 
         // Then
         assertThat(update.state.board).isEqualTo(expectedBoard)
-        assertThat(update.events).containsExactly(GameEvent.PieceLocked(piece))
+        assertThat(update.events).containsExactly(GameEvent.PieceLocked(piece, bySoftDrop = false))
         assertThat(update.state.phase).isEqualTo(expectedPhase)
     }
 
@@ -80,7 +80,7 @@ class GameEngineTickTest {
         // Then
         assertThat(after47.phase).isEqualTo(Phase.Falling(piece, ticksSinceDrop = 47))
         assertThat(after47.board).isEqualTo(Board.empty())
-        assertThat(tick48.events).containsExactly(GameEvent.PieceLocked(piece))
+        assertThat(tick48.events).containsExactly(GameEvent.PieceLocked(piece, bySoftDrop = false))
         assertThat(tick48.state.board).isEqualTo(Board.empty().lock(piece))
     }
 

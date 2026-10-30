@@ -36,7 +36,7 @@ object BloxSizes {
     val switchThumb = 24.dp
 
     /** The side of the arrow keys of the game on a phone (`key-arrow`). */
-    val keyArrow = 60.dp
+    val keyArrow = 64.dp
 
     /** The side of the arrow keys in a narrow window (`key-arrow-compact`). */
     val keyArrowCompact = 52.dp
@@ -52,6 +52,18 @@ object BloxSizes {
 
     /** The diameter of the keys B and A on a tablet (`key-rotate-tablet`). */
     val keyRotateTablet = 84.dp
+
+    /**
+     * How far below its place a sheet (`BloxSheet`) starts to rise, and goes down again when its screen closes it
+     * (`sheet-rise`): a distance of a move, which no space matches.
+     */
+    val sheetRise = 40.dp
+
+    /**
+     * How far below its place the message « Gardé » of the musical garden starts to rise (`message-rise`): a distance
+     * of a move, as [sheetRise], no longer [BloxSpaces.space4], so that one can change without the other.
+     */
+    val messageRise = 16.dp
 }
 
 /** The spaces, on a grid of 4: the `spacing` tokens of docs/design-system/tokens.json. There is no `space-5`. */

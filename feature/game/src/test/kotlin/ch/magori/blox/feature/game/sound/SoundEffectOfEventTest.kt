@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.music.SoundEffects
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,7 +16,7 @@ class SoundEffectOfEventTest {
     @Test
     fun `a rotation gives the rotation effect`() {
         // When
-        val effect = soundEffectFor(GameEvent.PieceRotated(spawned(PieceType.T)))
+        val effect = soundEffectFor(GameEvent.PieceRotated(spawned(PieceType.T), Rotation.CLOCKWISE))
 
         // Then
         assertThat(effect).isEqualTo(SoundEffects.rotation)
@@ -54,7 +55,7 @@ class SoundEffectOfEventTest {
         // Given
         val events = listOf(
             GameEvent.LinesCleared(LineClear(0)),
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.StackDanger(on = true),
             GameEvent.StackDanger(on = false),
         )
@@ -104,7 +105,7 @@ class SoundEffectOfEventTest {
     fun `the other effects of a tick all play, in order, as the game over after a level up`() {
         // Given the last clear of a game that reaches the next level, then the next piece that does not fit
         val events = listOf(
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.LinesCleared(LineClear(1)),
             GameEvent.LevelUp(Level(1)),
             GameEvent.GameOver,
@@ -121,7 +122,7 @@ class SoundEffectOfEventTest {
     fun `a rotation on the tick of a level up still plays, before the level up sound`() {
         // Given
         val events = listOf(
-            GameEvent.PieceRotated(spawned(PieceType.T)),
+            GameEvent.PieceRotated(spawned(PieceType.T), Rotation.CLOCKWISE),
             GameEvent.LinesCleared(LineClear(1)),
             GameEvent.LevelUp(Level(1)),
         )

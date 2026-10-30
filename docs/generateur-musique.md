@@ -652,14 +652,23 @@ voir [maquette.md](maquette.md)), et dans le prototype à part, banc d'essai des
 Module `feature:musics` (amendement de l'ADR 0002) ; on y arrive par le lien **MES MUSIQUES** de
 l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 
-- **Liste** : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché avant la lecture.
-  En-tête fixe (Retour, titre, « Pendant les parties : X » ou « la musique choisie à l'accueil »,
-  deux lignes au plus). Chaque carte tient sur une rangée (P5.52, demande du développeur) : 48 dp
-  de contenu, 56 dp avec la marge de 4 dp et le cadre ; de gauche à droite, écouter (48 dp), le
-  nom sur une ligne puis une ligne « style · tonalité · durée » (« Joyeux · sol majeur · 0:16 »,
-  durée des 8 mesures arrondie à la seconde), chacune coupée par une ellipse si elle ne tient pas,
-  l'interrupteur *Utiliser* / *En jeu* et le menu « … ». Pendant l'écoute, « Lecture · mesure n
-  sur 8 » remplace la ligne d'info, en couleur d'encre. En police agrandie, la rangée grandit au
+- **Liste** (Couleurs v2 depuis P5.99, V32) : lue dans `MusicLibrary` (`musics`, `gameMusic`), rien d'affiché
+  avant la lecture. Barre fixe : disque Retour et « Mes musiques » en `screen-title`, lu comme un titre. Dessous, la
+  carte « PENDANT LES PARTIES » (`panel-inset`, sans cadre, comme V32 la dessine : elle se distingue à peine de la
+  page, 1,02:1 de jour) : une note décorative, l'étiquette en `stat-label` et le nom de la musique des parties, ou
+  « La musique choisie à l'accueil » ; TalkBack la lit d'une phrase, « Pendant les parties : X ». Une rangée par
+  musique : de gauche à droite, Écouter (`ListenButton`, P5.94), le nom sur une ligne puis une ligne « style ·
+  tonalité · durée » (« Joyeux · sol majeur · 0:16 », durée des 8 mesures arrondie à la seconde) en `small`, qui
+  ouvrent l'éditeur, *Utiliser* / *En jeu* et le menu « … » en disque nu. Pendant l'écoute, l'égaliseur (P5.94)
+  précède « Lecture · mesure n sur 8 », et une jauge des huit mesures (jouées en `accent-pressed`, les autres en
+  `panel-border` : 2,3:1 de jour seulement, admis car TalkBack l'ignore et le texte dit la mesure) s'aligne sous le
+  nom. La musique des parties porte le badge « EN JEU » (`PillBadge`, badge commun, voir [themes.md](themes.md)),
+  que TalkBack ne lit pas. Sans musique,
+  « Aucune musique pour l'instant. » (titre) et « Compose la tienne, ou laisse le dé t'en proposer une. », lus
+  d'un trait et focalisables au clavier (`FocusableBlock`, P7.52). En bas,
+  *Au hasard* (Secondaire) et *Nouvelle* (Principal) collés sur un fondu de 24 dp, côte à côte si chaque libellé tient
+  dans sa moitié, sinon l'un sous l'autre (`SideBySideOrStacked`, partagé avec les tuiles de l'accueil) ; la liste
+  défile sous eux, et le pied défile à son tour s'il dépasse sa place. En police agrandie, la rangée grandit au
   lieu de rogner. Le tempo et la date de modification ne sont plus sur la carte (la date reste
   dans le fichier des musiques). TalkBack lit « Calme, fa majeur, 24 secondes », ou « Lecture,
   mesure 3 sur 8 » pendant l'écoute, sans les « · ».
@@ -669,11 +678,12 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   quittant la liste, en ouvrant l'éditeur et quand on supprime la musique écoutée ; elle continue
   derrière un dialogue. Comme dans l'éditeur, l'indication peut devancer le son (tampon audio,
   perte passagère du focus : P4.25).
-- ***Utiliser* / *En jeu*** : un bouton carré de 48 dp à droite du nom (P5.52), interrupteur pour
-  TalkBack (« X pendant les parties »), activé pour la musique jouée pendant les parties : note
-  de musique encadrée sur `panel` quand elle n'est pas en jeu, coche `accentInk` sur `accent`
-  quand elle l'est. Le toucher choisit la musique, ou rend celle de l'accueil si elle était en
-  jeu. La note est l'icône `NOTE` de 24 dp (P5.54b) ; la coche reste dessinée sur place.
+- ***Utiliser* / *En jeu*** : un disque de 48 dp à droite du nom (`GlyphButton`, P5.99) : note `NOTE` au repos,
+  coche `CHECK` retenue (`ButtonEmphasis.SELECTED`, en `accent`) pour la musique jouée pendant les parties. Ce n'est
+  plus un interrupteur pour TalkBack mais un bouton, annoncé « sélectionné » quand la musique est en jeu (règle des
+  boutons de la musique, P5.93), qui dit ce que fait un appui : « La jouer pendant les parties » ou « Ne plus la
+  jouer pendant les parties » (`onClickLabel`). Le toucher choisit la musique, ou rend celle de l'accueil si elle
+  était en jeu.
 - **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
   - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
     `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.
@@ -703,7 +713,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsViewModelTest › a music that stops by itself offers to listen to it again`,
 `MyMusicsViewModelTest › leaving the list stops the music listened to`,
 `MyMusicsViewModelTest › the music listened to stops once the list is no longer seen`,
-`MyMusicsViewModelTest › a pause of the list alone, behind a dialog or in a split screen, lets the music listened to play on`,
+`ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`, `ScreenHiddenEffectTest › a screen no longer visible says so once each time it is hidden`,
 `MyMusicsViewModelTest › Renommer opens the dialog on the name of the music`,
 `MyMusicsViewModelTest › a name is refused when blank, taken by another music, the case and the spaces ignored, or too long`,
 `MyMusicsViewModelTest › a free name renames the music, without the spaces around it, and closes the dialog`,
@@ -724,9 +734,9 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsViewModelTest › a choice for the games that cannot be written changes nothing`,
 `CategoryLabelTest › each category has a label of its own, and a music written by hand another one`,
 `MyMusicsScreenTest › each card tells the name, style, key and length of its music, or the bar played while listened`,
-`MyMusicsScreenTest › a card is a single row as high as its buttons, a long name on one line, Utiliser a square of 48 dp`,
+`MyMusicsScreenTest › a row is as high as its buttons, a long name on one line, Utiliser a disc of 48 dp`,
 `MyMusicsScreenTest › with a font twice as large, the name and the info of a card stay on one line each, cut short`,
-`MyMusicsScreenTest › Utiliser and En jeu are read as a switch, on for the music played during the games, and choose it`,
+`MyMusicsScreenTest › the music played during the games bears EN JEU and its button is selected, each button saying what it does`,
 `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
 `MyMusicsScreenTest › the dialog Renommer refuses a name taken, saying why, and renames with a free one`,
 `MyMusicsScreenTest › a name too long is refused with the most characters a name may have`,
@@ -738,11 +748,19 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › Au hasard and Nouvelle open the editor, and the back button goes back home`,
 `MyMusicsScreenTest › the back button and the title stay in place when the list scrolls`,
 `MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Libre`,
-`MyMusicsScreenTest › without a music, the list invites to compose one, and the games play the music of the home screen`,
-`MyMusicsScreenTest › every button is 48 dp wide and high at least`,
+`MyMusicsScreenTest › without music the page says « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`,
+`MyMusicsScreenTest › every target of the page is 48 dp at least on 360 dp, in a font twice as large`,
 `HomeViewModelTest › opening my musics stops the preview`,
-`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`.
-Vues : V1, V7, V10.
+`HomeScreenTest › the tile Mes musiques, read as written, opens my musics`,
+`MyMusicsScreenTest › the card Pendant les parties names the music played during the games, or the music chosen on the home screen`,
+`MyMusicsScreenTest › a row is read as listen, the name that opens the editor, the switch and the menu, in this order`,
+`MyMusicsScreenTest › listening to a music shows the equalizer and the bar played, and a gauge of eight bars that TalkBack leaves out`,
+`MyMusicsScreenTest › a foot higher than its room stays under the card of the games, and scrolls to Nouvelle`,
+`GaugeFillsTest › the gauge fills the bars played, the one playing included, and leaves the others empty`,
+`GlyphButtonTest › a button of an icon alone given what a touch does tells it to TalkBack, without one says nothing more`,
+`SideBySideOrStackedTest › items whose labels hold in their half stand side by side, as wide and as high as each other`,
+`SideBySideOrStackedTest › items whose labels do not hold in their half stand one above the other, each as wide as the line`.
+Le message de suppression passe par `SnackMessage` (P5.97) depuis P5.99. Vues : V1, V7, V10, V32.
 
 
 ### Mes musiques : stockage (implémenté, P4.22 tranche 1)
@@ -788,12 +806,12 @@ pris (précondition vérifiée par l'appelant). La musique choisie pour les part
 `MusicLibraryContract › restoring a music that was not played during the games leaves the one that is`,
 `MusicLibraryContract › a new identity is none of the saved musics`,
 `DataStoreMusicLibraryTest › the musics and the one played during the games survive a new library on the same file`,
-`DataStoreMusicLibraryTest › a corrupted musics file gives an empty list, and a new music is saved`,
+`DataStoreFileContract › an unreadable file reads as an empty one, and what is written next is kept`,
 `DataStoreMusicLibraryTest › a musics file of version 1 is read as it was written, a format that must not change`,
 `DataStoreMusicLibraryTest › a musics file of a later version gives an empty list, and is kept for that version`,
 `DataStoreMusicLibraryTest › a musics file that counts billions of musics gives an empty list, without allocating them`,
-`DataStoreMusicLibraryTest › a musics file that cannot be read gives an empty list and no music for the games`,
-`DataStoreMusicLibraryTest › a failure other than an IOException while the musics are read is not absorbed`,
+`DataStoreFileContract › a file that cannot be read reads as an empty one`,
+`DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`,
 `DataStoreMusicLibraryTest › a music whose name is too long is refused and the saved musics are kept`,
 `DataStoreMusicLibraryTest › a music the file cannot hold is refused before a byte is written, and the saved musics are kept`,
 `DataStoreMusicLibraryTest › the names of the enums written in the musics file do not change`,
@@ -1056,11 +1074,18 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 
 ### Éditeur : dé (implémenté, P4.20)
 
-- **Panneau** : une ligne sous les boutons de mesure, *Au hasard* (la moitié de la ligne au plus, sur
-  deux lignes en police agrandie) puis les choix *Surprise* et les sept catégories, boutons radio dans
-  une rangée qui défile ; le choix retenu est rempli de l'accent et amené à l'écran. *Surprise* est
-  choisi d'abord ; le choix n'est pas gardé après la mort du processus. **Écarts** avec V8 et V11 :
-  pas de coche, rangée défilante, cibles de 48 dp.
+- **Feuille** (P5.101, ADR 0029) : un disque « Au hasard » (pictogramme du dé, famille Icône, au repos)
+  dans la barre, entre le nom et « … », ouvre une feuille du bas (`BloxSheet`) titrée « Au hasard », lue
+  comme une fenêtre : *Surprise* et les sept catégories, en `SheetChoiceRow` lues comme des boutons radio,
+  le choix retenu coché, chacune avec une ligne qui dit ce qu'elle sonne (« L'une des sept, au hasard »,
+  « Vive et sautillante, en majeur », « Lente, avec beaucoup d'air », « Des notes fortes, au galop »,
+  « De longues notes qui descendent », « Des notes tenues, un peu étranges », « Rapide, tout en
+  arpèges », « Deux temps bien marqués » : textes du développeur) ; dessous, « Tirer une musique »
+  (Principal, toute la largeur). Choisir une catégorie garde la feuille ouverte ; Tirer la ferme, puis
+  lance le dé, une seule fois même touché deux fois dans la même image (`rememberOnce`). Le retour ou le
+  voile la ferment. L'ouverture est gardée par l'écran (`rememberSaveable`) : la feuille revient ouverte,
+  avec son choix, quand l'écran est recréé. *Surprise* est choisi d'abord ; le choix n'est pas gardé
+  après la mort du processus.
 - **Tirage** : `MusicGenerator.generate(choice, seed, id)` avec une graine tirée à chaque lancer d'un
   `Random` injecté (la fabrique donne `Random.Default`), hors du thread principal ; l'identité de la
   musique est gardée. Un second appui pendant le calcul ne fait rien ; le dé ne se lance pas derrière
@@ -1070,20 +1095,21 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 - **Annuler** : un seul niveau ; le dé sur une grille vide (même vidée par *Effacer*) ne garde pas
   d'annulation. Le dé, *Copier* et *Effacer* affichent un message qui rappelle qu'on peut annuler
   (« Musique tirée au hasard. « Annuler » ramène l'ancienne. »), et ce message disparaît dès que
-  l'annulation n'existe plus.
+  l'annulation n'existe plus. Tous les messages de l'éditeur passent par `SnackMessage` (P5.97) depuis
+  P5.101, sans bouton d'action : *Annuler* reste dans la barre d'outils.
 - **Depuis « Mes musiques »** : `ComposerRoute(rollDice = true)` ouvre une musique neuve tirée sur
   *Surprise*, sans annulation ; une entrée restaurée après la mort du processus garde sa musique et ne
   relance pas. `rollDice` avec une musique enregistrée est refusé.
-- Police ×2 (P5.47) : un choix n'est jamais plus large que la rangée visible et son libellé réduit
-  pour tenir ; *Au hasard* prend au plus 45 % de la rangée, pour que « Mélancolique » tienne en
-  entier sur 360 dp. Le tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur
-  deux lignes au plus, sans couper « temps/min » ; le message d'annulation tient sur trois lignes
-  au plus (`shrinkToWholeWords`). **Tests :**
+- Police ×2 (P5.47) : chaque choix de la feuille montre son libellé et sa ligne en mots entiers. Le
+  tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur deux lignes au plus, sans
+  couper « temps/min » ; en Couleurs, le message d'annulation tient sur trois lignes au plus (en
+  Original, figé, il peut en prendre davantage, `SnackMessage` n'ayant pas de plafond). **Tests :**
   `ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
   `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
-  `ComposerScreenTest › on a small phone with the largest font, the longest category chosen for the dice shows whole`.
-  Captures : `ComposerDiceOriginalLargeFont`, `MessageOriginalLargeFont`.
+  `ComposerDiceSheetTest › on a small phone with the largest font, each choice of the sheet shows its words whole`.
+  Captures : `DiceSheetColorful`, `DiceSheetColorfulNight`, `DiceSheetColorfulLargeFont`,
+  `MessageOriginalLargeFont`.
 - **Barre d'outils** (P5.49) : une rangée si chaque libellé tient entier au plancher dans sa part ;
   sinon les modes (Poser, Allonger) au-dessus des outils (Annuler, Copier, Effacer), et, si les
   outils ne tiennent pas côte à côte non plus, chaque outil sur toute la largeur (Original ×2 à
@@ -1122,10 +1148,14 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerViewModelTest › copying or clearing the bar shows a message that says it can be undone`,
 `ComposerViewModelTest › the message that an action can be undone goes away once it is undone, or once the undo is taken away`,
 `ComposerViewModelTest › the message that the playback is no longer followed stays when the undo is taken away`,
-`ComposerScreenTest › Au hasard composes in the category chosen, read as a radio button, and a message tells Annuler`,
-`ComposerScreenTest › on a small phone with the largest font, the category chosen for the dice comes in sight, whole`,
+`ComposerDiceSheetTest › Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler`,
+`ComposerDiceSheetTest › choosing a category keeps the sheet open and the choice`,
+`ComposerDiceSheetTest › the dice of the bar opens the sheet Au hasard, read as a dialog`,
+`ComposerDiceSheetTest › the sheet offers Surprise and the seven categories, each with what it sounds like, the chosen one checked`,
+`ComposerDiceSheetTest › the sheet open, a category chosen, comes back open with its choice when the screen is recreated`,
+`ComposerDiceSheetTest › two touches on Tirer une musique in one frame roll once, and Annuler brings back the music`,
 `ComposerViewModelFactoryTest › an entry of Au hasard gives an editor on a new music, rolled from a seed the factory draws`.
-Vues : V8, V11, V7, V10.
+Vues : V8, V11, V7, V10, V33.
 
 ### Éditeur : écoute (implémentée, P4.19c)
 
@@ -1138,7 +1168,7 @@ Vues : V8, V11, V7, V10.
   lancée, ramène le bouton à « Écouter ».
 - **Colonne jouée** : `Playback` ne dit pas sa position ; l'écran envoie ses images
   (`withFrameNanos`, ADR 0012), `FrameTicks` (`core:designsystem`, partagée avec le jeu, sans plafond ici) les convertit en ticks entiers (sans dérive, tous les
-  ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `PlayHead` avance de
+  ticks rattrapés après un saut d'images, aucun retiré si le temps recule) et `LoopPlayHead` (`core:designsystem/frame`, partagée avec le Jardin musical, P10.3 ; boucle de 64 croches, 8 mesures) avance de
   ticks × bpm (une case par croche, 15 ticks à 120 temps par minute), boucle après la mesure 8 et
   suit un changement de tempo depuis l'endroit où elle se trouve. La colonne porte un contour en
   deux traits, une ligne `ink` de 2 dp et un halo intérieur `boardBackground` de 1 dp : aucune
@@ -1164,10 +1194,14 @@ Vues : V8, V11, V7, V10.
 - La partition jouée a l'identité de la musique, neuve ou enregistrée (P4.19d) ; avant, elle
   avait l'identité provisoire `Personal("editor")`.
 
-**Tests :** `PlayHeadTest › the play head starts on the first cell of the first bar`,
-`PlayHeadTest › the play head moves on a cell each eighth note, 15 ticks at 120 beats per minute`,
-`PlayHeadTest › the play head comes back to the first cell after the eighth bar, as the music loops`,
-`PlayHeadTest › after a change of tempo, the play head moves on at the new tempo from where it stood`,
+**Tests :** `LoopPlayHeadTest › the play head starts on the first eighth of the loop`,
+`LoopPlayHeadTest › the play head moves on an eighth each eighth note, 15 ticks at 120 beats per minute`,
+`LoopPlayHeadTest › the play head comes back to the first eighth after the last one, as the music loops`,
+`LoopPlayHeadTest › after a change of tempo, the play head moves on at the new tempo from where it stood`,
+`LoopPlayHeadTest › a loop of zero eighths or less is refused`,
+`LoopPlayHeadTest › a tempo of zero beats per minute or less is refused`,
+`LoopPlayHeadTest › a negative number of ticks is refused`,
+`CellTest › the eighth note of the music lies on a cell, the ninth on the first cell of the second bar`,
 `FrameTicksTest › the first frame only sets the time reference`,
 `FrameTicksTest › each frame gives the whole ticks of 1 60th of a second since the frame before, the rest carried over`,
 `FrameTicksTest › a frame time going back takes no tick away, and the ticks go on from it`,
@@ -1185,7 +1219,7 @@ Vues : V8, V11, V7, V10.
 `ComposerViewModelTest › changing the tempo while listening plays the music on, at the new tempo`,
 `ComposerViewModelTest › after a change of tempo while listening, the played cell moves on at the new tempo`,
 `ComposerViewModelTest › Listen, disabled on an empty music, plays nothing when it comes all the same`,
-`ComposerViewModelTest › the music stops when the editor goes to the background, and plays on behind a dialog`,
+`ComposerViewModelTest › the music stops when the editor goes to the background`, `ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`,
 `ComposerViewModelTest › leaving the editor stops the music`,
 `ComposerViewModelTest › a music that stops by itself, as the audio output fails, offers to listen again`,
 `ComposerViewModelTest › a music that stops as soon as it is played, as when the audio focus is refused, offers to listen again`,
@@ -1425,7 +1459,10 @@ modifiée » ou « non enregistrée », sur deux lignes au plus.
 `ComposerSavingTest › saving, then renaming, in the editor dates the music by the clock of the library each time`,
 `MyMusicsScreenTest › each card shows its style, its key and its length on one line, without its tempo nor its last change`,
 `ComposerScreenTest › the line under the title tells the style, the key, and whether the music is new, changed or saved`,
-`ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`.
+`ComposerScreenTest › on a small phone with the largest font, the line under the title holds on two lines at most, whole`,
+`ComposerScreenTest › in Couleurs on 360 dp, at either font size, the line under the name stays whole, clear of its button corners`.
+Depuis le disque du dé (P5.101), la ligne sous le nom garde 6 dp de marge dans le bouton du nom ; ces deux tests
+de police agrandie valent pour Couleurs : en Original ×2, figé, elle peut déborder. Capture : `ComposerColorfulLargeFont`.
 Vues : V7 à V18.
 
 ### Noms et fenêtres communs à l'éditeur et à la liste (P5.45)
@@ -1435,16 +1472,57 @@ Vues : V7 à V18.
   peut garder le sien) ; `cutName` coupe un nom saisi ou collé à 40 caractères, comptés en
   caractères et non en unités (40 emoji tiennent). L'éditeur et la liste s'en servent tous deux :
   un collage trop long est coupé dans les deux. Seule « grille vide » reste propre à l'éditeur
-  (`SaveProblem.EmptyGrid`).
+  (`SaveProblem.EmptyGrid`). Ces règles ne connaissent pas les musiques (`TakenNames`, `core:data`, P10.25) : une
+  liste de noms indexés par l’identité de ce qu’ils nomment, que « Mes jardins » (P10.27) reprendra.
 - **Fenêtres** (`core:designsystem`, `NamingWindow`, `DeleteWindow`, `Window*`) : les fenêtres
   Renommer, Enregistrer et Supprimer des deux écrans sont les mêmes composables, aux textes passés
-  en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. Les fenêtres
-  de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses côte à côte, la sûre d'abord
+  en paramètres ; avec un problème, la confirmation est grisée et Entrée ne fait rien. De même pendant
+  l'écriture du nom, `NamingWindow(busy)` (P10.29 : la fenêtre du nom de Mes jardins, `jardin-musical.md`), et pendant
+  l'écriture d'une suppression, `DeleteWindow(waiting)` grise ses deux réponses (P10.30, Mes jardins). Les fenêtres
+  de la liste prennent ainsi l'aspect de celles de l'éditeur : réponses empilées (P5.98), la sûre d'abord
   (TalkBack les lit dans cet ordre), motif de refus du nom annoncé par TalkBack, erreur du champ en
   `ink` (le texte la porte), note de suppression en `ink`. Un seul texte d'échec, « L'opération a
-  échoué. ». « Une autre musique porte déjà ce nom. » et « Garder la musique » restent dans chaque
-  feature : `core:designsystem` ne parle pas de musique et `core:data` n'a pas de ressources.
-- En police ×2, les réponses qui ne tiennent pas côte à côte s'empilent, sans couper de mot (P5.48, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
+  échoué. ». « Garder la musique » reste dans chaque feature.
+- **Textes d'un nom refusé** (P10.34, `NameTexts`, `core:designsystem`) : Mes musiques, l'éditeur et Mes jardins
+  disent le refus d'un nom par la même fonction, `nameRefusalText(NameRefusal, NamedThing, maxLength)`. Le nom vide
+  se dit « Donne-lui un nom. » partout, musique comme jardin ; le nom pris dépend de ce qu'on nomme (`NamedThing`) :
+  « Une autre musique porte déjà ce nom. », « Un autre jardin porte déjà ce nom. » ; le nom trop long, « 40
+  caractères au plus. », n'est jamais montré, le nom tapé étant coupé (`cutName`). `core:designsystem` ne voit pas
+  `core:data` : `NameRefusal` reprend les entrées de `NameProblem` sous les mêmes noms, et chaque feature passe de
+  l'un à l'autre par `NameRefusal.valueOf(problem.name)`, ce que garde un test de `app`, seul module qui connaît les
+  trois features.
+  **Tests :** `NameTextsReadingTest › a name taken is told by what is named, a blank name alike for all, a long one by its most characters`,
+  `NameRefusalTest › each problem of a name has the refusal of the same name, and each refusal its problem`.
+- **Menu « … » et Renommer communs** (P10.36, `RowMenu` et `RenameWindow`, `core:designsystem`, `docs/themes.md`) :
+  le menu d'une carte de Mes musiques est celui d'une rangée de Mes jardins, un `BloxMenu` (*Modifier*, *Renommer*,
+  *La jouer* ou *Ne plus la jouer pendant les parties*, *Supprimer* en `danger`), à la place du `DropdownMenu` de
+  Material ; le focus revient au « … » une fois fermée la fenêtre qu'il a ouverte. La fenêtre Renommer est
+  `RenameWindow`. Mêmes actions, mêmes textes.
+  **Tests :** `RowMenuTest › « … » is read « Plus d'actions pour X » and offers its items in order, Renommer and Supprimer`,
+  `RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`,
+  `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
+  `MyMusicsScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its card`.
+- **Focus après une suppression** (P7.52, `FocusAfterDeletion`, `core:designsystem`, `docs/themes.md`) : la carte
+  d'une musique supprimée quitte la liste aussitôt, avec son « … ». Au clavier, le focus va au « … » de la carte
+  suivante, sinon de la précédente, sinon à la page sans musique (« Aucune musique pour l'instant. » et son
+  invitation, `FocusableBlock`, avec l'anneau de focus) ; une suppression non confirmée le rend au « … » de sa carte.
+  C'est la liste qui donne le focus, une fois la fenêtre fermée **et** la musique retirée, dans n'importe quel ordre,
+  même forme que Mes jardins ([jardin-musical.md](jardin-musical.md), P10.39). La liste est paresseuse : une carte
+  hors de l'écran n'est pas composée, son « … » hors d'atteinte ; la liste saute d'abord jusqu'à elle
+  (`scrollToItem`, sans animation : le cas est rare, et le saut vaut pour les Effets réduits comme pour les autres),
+  puis lui donne le focus. Une carte en vue n'est pas déplacée. Au toucher, le focus ne va nulle part. Les Effets
+  réduits ne changent rien ici : la carte part sans animation dans tous les cas.
+  **Tests :** `MyMusicsScreenTest › from the keyboard, a music deleted from its menu gives the focus to the menu « … » of the next card`,
+  `MyMusicsScreenTest › from the keyboard, the last music deleted gives the focus to the menu « … » of the card above`,
+  `MyMusicsScreenTest › from the keyboard, the only music deleted gives the focus to the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its card`,
+  `MyMusicsScreenTest › from the keyboard, the middle music out of the list before its window closes gives the focus to the next card`,
+  `MyMusicsScreenTest › from the keyboard, the only music out of the list before its window closes gives the focus to the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a music deleted whose list is read after its window closed still gives the focus on`,
+  `MyMusicsScreenTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
+  `MyMusicsScreenTest › by touch, a music deleted gives the focus to nothing, not even the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a music deleted whose next card is out of sight gives it the focus, brought in sight`.
+- En police ×2, les réponses, toujours empilées, gardent leurs mots entiers (P5.48, P5.98, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
 
 **Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,
 `MusicNamesTest › the music being renamed may keep its own name, in another case or not`,
@@ -1452,6 +1530,12 @@ Vues : V7 à V18.
 `MusicNamesTest › a name of more characters than a saved name may have is refused, the spaces around it apart`,
 `MusicNamesTest › a name typed is cut at the most characters a saved name may have, a shorter one kept as it is`,
 `MusicNamesTest › a name typed is cut after its characters, never between the two units of one`,
+`TakenNamesTest › a name is taken by another of the list, whatever its case and the spaces around it`,
+`TakenNamesTest › a name is refused when blank, too long or taken by another, the one renamed keeping its own`,
+`TakenNamesTest › a free name is the one wanted, else followed by the first number that makes it free, from its own`,
+`TakenNamesTest › a name proposed is one of those no other has, else one numbered, else one cut so that its number fits`,
+`TakenNamesTest › the one renamed does not take its own name, another one does`,
+`TakenNamesTest › a name is weighed by its characters and not its units, two units for each of them`,
 `MyMusicsScreenTest › a name pasted too long is cut at the most characters a name may have, 40 emoji kept whole`,
 `NamingWindowTest › with a problem, the confirmation is disabled and Enter confirms nothing; without, both confirm`.
 Captures : `NamingWindowTakenName`, `NamingWindowTakenNameLargeFont`, `DeleteWindowFailed`,

@@ -5,6 +5,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.lerp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxGlosses
@@ -30,6 +31,9 @@ enum class ButtonFamily(val minHeight: Dp, internal val isPrimary: Boolean) {
 
     /** Danger: Effacer (the record), a secondary pill framed and labelled in `danger`, for what cannot be undone. */
     DANGER(minHeight = 56.dp, isPrimary = false),
+
+    /** Danger plein: Supprimer, the answer of a window that deletes, a pill of 56 dp filled in `danger`. */
+    DANGER_FILLED(minHeight = 56.dp, isPrimary = false),
 
     /** Icône: a disc of 48 dp, of a pictogram alone (Paramètres, Écouter, Pause). */
     ICON(minHeight = BloxSizes.minTouchTarget, isPrimary = false),
@@ -111,7 +115,11 @@ internal fun buttonLook(
             !state.enabled || state.emphasis == ButtonEmphasis.BARE -> Gloss.None
             else -> glosses.button
         },
-        focusRing = if (state.focused) buttonFocusRing(if (state.onInk) colors.focusOnInk else colors.focus) else null,
+        focusRing = if (state.focused) {
+            FocusRing(if (state.onInk) colors.focusOnInk else colors.focus, BloxBorders.focus, BloxBorders.focusGap)
+        } else {
+            null
+        },
     )
 }
 
@@ -136,6 +144,7 @@ private fun bubbleColors(
         !state.enabled -> colors.disabled
         family.isPrimary -> colors.primary
         family == ButtonFamily.DANGER -> colors.danger
+        family == ButtonFamily.DANGER_FILLED -> colors.dangerFilled
         else -> colors.secondary
     }
 }

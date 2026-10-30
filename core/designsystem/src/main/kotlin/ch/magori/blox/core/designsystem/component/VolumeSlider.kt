@@ -79,7 +79,7 @@ fun VolumeSlider(
     Row(
         modifier = modifier
             .stepSemantics(value, description, state = text, enabled = enabled, onValueChange = change)
-            .stepKeys(direction, BloxTheme.buttons.focus, BloxTheme.shapes.md, gesture, change, enabled) {
+            .stepKeys(direction, BloxTheme.buttons, BloxTheme.shapes.md, gesture, change, enabled) {
                 latestValue
             },
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),

@@ -115,7 +115,8 @@ class GameEnginePauseTest {
         assertThat(dropping.current?.pivot).isEqualTo(Position(5, 11))
         assertThat(afterResume.current?.pivot).isEqualTo(Position(5, 11))
         assertThat(afterNewPress.current?.pivot).isEqualTo(Position(5, 12))
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18))))
+        assertThat(lock.events)
+            .containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18)), bySoftDrop = true))
         assertThat(lock.state.progress.score).isEqualTo(Points(7))
     }
 

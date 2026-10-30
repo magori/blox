@@ -8,8 +8,10 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
+import ch.magori.blox.core.data.DailyResults
+import ch.magori.blox.core.data.FakeDailyChallengeRepository
 import ch.magori.blox.core.data.FakeHighScoreRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
@@ -20,6 +22,7 @@ import ch.magori.blox.core.game.engine.GameEngine
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.engine.GameState
+import ch.magori.blox.core.game.engine.OneRowPerTickDropTiming
 import ch.magori.blox.core.game.engine.ScriptedRandomizer
 import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Board
@@ -32,11 +35,9 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
-import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.ClassicLevelProgression
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.ClassicScoringRule
-import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
@@ -51,15 +52,22 @@ import ch.magori.blox.core.music.Scores
 import ch.magori.blox.core.music.SoundEffects
 import ch.magori.blox.feature.game.controls.ControlButton
 import ch.magori.blox.feature.game.controls.ControlChange
+import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.entry
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -68,6 +76,8 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.MethodSource
 import java.io.IOException
+import java.time.LocalDate
+import kotlin.random.Random
 
 class GameViewModelTest {
     @RegisterExtension
@@ -77,6 +87,24 @@ class GameViewModelTest {
 
     /** The record before the game: 100, which the test game beats (see [hundredPointsPerLock]). */
     private val highScores = FakeHighScoreRepository(initial = 100)
+
+    /** The failures left uncaught in the [appScope], in order: those that would crash the application. */
+    private val appFailures = mutableListOf<Throwable>()
+
+    /**
+     * The scope of the application, where a game tells its results its start, and its points when it is left before its
+     * end: it runs its coroutines at once, as the view models of these tests, and keeps its uncaught failures.
+     */
+    private val appScope = CoroutineScope(
+        SupervisorJob() + UnconfinedTestDispatcher() +
+            CoroutineExceptionHandler { _, failure -> appFailures += failure },
+    )
+
+    /** The writes of the daily games of a test, one at a time, as the factory of the application shares them. */
+    private val dailyWrites = Mutex()
+
+    /** The results of the daily game: none before a test plays one. */
+    private val dailyResults = FakeDailyChallengeRepository()
 
     /**
      * The settings of the player: Korobeiniki, unless a test chooses another music, and the vibrations and the sound
@@ -119,7 +147,7 @@ class GameViewModelTest {
     private val engineFactory = GameEngineFactory { seed ->
         seeds += seed
         GameEngine(
-            ClassicRules.copy(gravityTable = oneTickPerRow, scoringRule = hundredPointsPerLock),
+            ClassicRules.copy(dropTiming = oneRowPerTickDropTiming, scoringRule = hundredPointsPerLock),
             ScriptedRandomizer.cycling(PieceType.T, PieceType.I, PieceType.O),
         )
     }
@@ -269,7 +297,10 @@ class GameViewModelTest {
                 level = final.progress.level,
                 fourLineClears = final.progress.statistics.fourLineClears,
                 ticksPlayed = final.tickCount,
-                newRecord = true,
+                newBest = true,
+                resultsKept = true,
+                previousBest = 100,
+                practice = false,
             ),
         )
     }
@@ -301,7 +332,28 @@ class GameViewModelTest {
 
         // Then the score was submitted, and the screen shows no new record
         assertThat(unbeatable.submitted).containsExactly(final.progress.score.value)
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver)
+            .isEqualTo(
+                final.toGameOverUiState(
+                    newBest = false,
+                    resultsKept = true,
+                    previousBest = Int.MAX_VALUE,
+                    practice = false,
+                ),
+            )
+    }
+
+    @Test
+    fun `a classic game over gets the record it had to beat`() {
+        // Given a record of 100 points, that the game beats
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the record before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(100)
     }
 
     @Test
@@ -315,7 +367,10 @@ class GameViewModelTest {
         playUntilGameOver(viewModel)
 
         // Then
-        assertThat(viewModel.uiState.value.gameOver).isEqualTo(final.toGameOverUiState(newRecord = false))
+        assertThat(viewModel.uiState.value.gameOver)
+            .isEqualTo(
+                final.toGameOverUiState(newBest = false, resultsKept = false, previousBest = 0, practice = false),
+            )
     }
 
     @Test
@@ -355,7 +410,10 @@ class GameViewModelTest {
             writing.complete(Unit)
 
             // Then the game over shows once, with the answer, and further frames publish nothing
-            assertThat(awaitItem().gameOver).isEqualTo(final.toGameOverUiState(newRecord = true))
+            assertThat(awaitItem().gameOver)
+                .isEqualTo(
+                    final.toGameOverUiState(newBest = true, resultsKept = true, previousBest = 100, practice = false),
+                )
             (61..120).forEach { frame -> viewModel.onFrame(lastFrame + frame * ONE_SIXTIETH_NANOS) }
             expectNoEvents()
         }
@@ -399,7 +457,7 @@ class GameViewModelTest {
 
         // Then the next I is drawn upright, its cells brought to the origin
         assertThat(viewModel.uiState.value.next).isEqualTo(
-            NextPieceCells(
+            PieceCells(
                 type = PieceType.I,
                 cells = (0..3).map { row -> Position(column = 0, row = row) }.toSet(),
                 columns = 1,
@@ -651,7 +709,7 @@ class GameViewModelTest {
         val even = playUntil(viewModel, "the score reaches the record") { viewModel.uiState.value.score.value == 100 }
 
         // Then the record is not beaten yet
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
 
         // When the score passes it
         playUntil(viewModel, "the score passes the record", firstFrame = even + ONE_SIXTIETH_NANOS) {
@@ -659,7 +717,7 @@ class GameViewModelTest {
         }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isTrue()
+        assertThat(viewModel.uiState.value.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -672,7 +730,7 @@ class GameViewModelTest {
         playUntil(viewModel, "the game scores 200 points") { viewModel.uiState.value.score.value >= 200 }
 
         // Then
-        assertThat(viewModel.uiState.value.recordBeaten).isFalse()
+        assertThat(viewModel.uiState.value.bestBeaten).isFalse()
     }
 
     @Test
@@ -686,7 +744,7 @@ class GameViewModelTest {
         // Then the record the screen shows is the score, still beaten: the top bar does not go back to « Record »
         val over = viewModel.uiState.value
         assertThat(over.record).isEqualTo(over.score.value)
-        assertThat(over.recordBeaten).isTrue()
+        assertThat(over.bestBeaten).isTrue()
     }
 
     @ParameterizedTest(name = "{0}")
@@ -858,7 +916,7 @@ class GameViewModelTest {
                         PieceType.L to flat(5),
                         PieceType.O to upright(9),
                     ),
-                    gravityTable = oneTickPerRow,
+                    dropTiming = oneRowPerTickDropTiming,
                 ),
                 // The pieces, plus the next one shown while the last one falls.
                 ScriptedRandomizer(
@@ -1330,6 +1388,72 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the clear the screen shows starts with the lock and lasts as long as the clear of the engine`() {
+        // Given a game whose first three pieces fill row 19, played until its rows are being cleared
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
+        val lockFrame = playUntil(viewModel, "rows are cleared") { viewModel.uiState.value.feedback.clear != null }
+        val clear = checkNotNull(viewModel.uiState.value.feedback.clear)
+        val scoreAtLock = viewModel.uiState.value.score.value
+
+        // When the game goes on until the row is gone from the board
+        val clearedFrame = playUntil(viewModel, "row 19 is cleared", firstFrame = lockFrame + ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.board[Position(column = 0, row = 19)] == Cell.Empty
+        }
+
+        // Then the clear started on the tick of the lock, with the rows of the engine, and lasted as many ticks as it
+        // said; the rows above slide down from then on, and the sticker shows the points
+        val feedback = viewModel.uiState.value.feedback
+        assertThat(clear.rows).containsExactly(19)
+        assertThat(clear.tick).isEqualTo(feedback.tick - clear.duration)
+        assertThat((clearedFrame - lockFrame) / ONE_SIXTIETH_NANOS).isEqualTo(clear.duration.toLong())
+        assertThat(feedback.clear).isNull()
+        assertThat(feedback.slide).isEqualTo(RowsSlide(rows = listOf(19), tick = feedback.tick))
+        assertThat(
+            feedback.sticker(reduced = false)?.points,
+        ).isEqualTo(viewModel.uiState.value.score.value - scoreAtLock)
+    }
+
+    @Test
+    fun `a rotation reaches the screen as the turn of its key, and a lock as its cells`() {
+        // Given a game whose first frame set the time reference
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onFrame(frameNanos = 0L)
+
+        // When B is pressed, then the next frame comes, and the game goes on until the piece locks
+        viewModel.onControl(ControlChange.Pressed(ControlButton.B))
+        viewModel.onFrame(frameNanos = ONE_SIXTIETH_NANOS)
+        val turned = viewModel.uiState.value.feedback
+        playUntil(viewModel, "a piece locks", firstFrame = 2 * ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.feedback.lock != null
+        }
+
+        // Then
+        assertThat(turned.turns).containsExactly(entry(ControlButton.B, 1))
+        assertThat(viewModel.uiState.value.feedback.lock?.cells).hasSize(4)
+    }
+
+    @Test
+    fun `a paused game freezes its effects`() {
+        // Given a game played until a piece locked, then paused
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val lockFrame = playUntil(viewModel, "a piece locks") { viewModel.uiState.value.feedback.lock != null }
+        viewModel.onPause()
+        val paused = viewModel.uiState.value.feedback
+
+        // When frames still come, then the game resumes and the frames start again
+        (1..10).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+        val afterFrames = viewModel.uiState.value.feedback
+        viewModel.onResume()
+        viewModel.onFramesStarted()
+        (11..13).forEach { viewModel.onFrame(lockFrame + it * ONE_SIXTIETH_NANOS) }
+
+        // Then the effects stood still while paused, and go on from where they stood once resumed
+        assertThat(afterFrames).isEqualTo(paused)
+        assertThat(viewModel.uiState.value.feedback.tick).isEqualTo(paused.tick + 2)
+        assertThat(viewModel.uiState.value.feedback.lock).isEqualTo(paused.lock)
+    }
+
+    @Test
     fun `clearing one line vibrates the short pulse`() {
         // Given a game whose first three pieces fill row 19
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L), oneLineGame)
@@ -1705,6 +1829,375 @@ class GameViewModelTest {
         assertThat(soundEffects.played).isEmpty()
     }
 
+    @Test
+    fun `a daily game draws the pieces of its seed`() {
+        // Given the daily game of the 26th of October 2026, with the engines of the application
+        val viewModel = createViewModel(dailyRoute, dailyEngines = StableClassicEngines)
+        val firstPiece = viewModel.uiState.value.piece?.type
+        val nextShown = mutableListOf(viewModel.uiState.value.next)
+
+        // When it is played until three more pieces showed as the next one
+        playUntil(viewModel, "three more next pieces") {
+            viewModel.uiState.value.next.let { if (it != nextShown.last()) nextShown += it }
+            nextShown.size == 4
+        }
+
+        // Then its first pieces are those of its seed, the contract of the daily game: Z, then T, I, Z and O
+        assertThat(firstPiece).isEqualTo(PieceType.Z)
+        assertThat(nextShown).containsExactly(
+            *listOf(PieceType.T, PieceType.I, PieceType.Z, PieceType.O)
+                .map { nextPieceCells(it, ClassicRotationSystem) }
+                .toTypedArray(),
+        )
+    }
+
+    @Test
+    fun `a daily game plays the live music whatever the music chosen`() {
+        // Given the minuet chosen on the home screen, and a music of the player chosen for the games
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.MINUET)
+        gameMusic = { personalScore }
+
+        // When a daily game starts
+        createViewModel(dailyRoute)
+
+        // Then it plays the calm music composed from its seed
+        assertThat(composedSeeds).containsExactly(dailyRoute.seed)
+        assertThat(music.playing).isEqualTo(LiveMusic.compose(dailyRoute.seed).calm.score.id)
+    }
+
+    @Test
+    fun `a daily try is counted as soon as the game starts`() {
+        // When a daily game starts
+        createViewModel(dailyRoute)
+
+        // Then its date counts one try, under way: its first try is worth 0 until it ends
+        assertThat(dailyResults.state.value).isEqualTo(DailyResults(OCTOBER_26, tries = 1))
+    }
+
+    @Test
+    fun `a daily game restored after the process died is the same try`() {
+        // Given a daily game under way, whose process dies: only its saved state is left
+        val savedState = SavedStateHandle()
+        createViewModel(dailyRoute, savedState = savedState)
+
+        // When the navigation restores its entry: a new view model, with what was saved
+        createViewModel(dailyRoute, savedState = savedState.restored())
+
+        // Then its try was counted once
+        assertThat(dailyResults.state.value?.tries).isEqualTo(1)
+    }
+
+    @Test
+    fun `a daily game never enters the Classic records`() {
+        // Given a daily game, whose score beats the record of the Classic
+        val final = finalStateOfTheTestGame()
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its score went to the results of its date, and the records got nothing
+        assertThat(highScores.submitted).isEmpty()
+        assertThat(dailyResults.state.value?.date).isEqualTo(OCTOBER_26)
+        assertThat(dailyResults.state.value?.best).isEqualTo(final.progress.score.value)
+    }
+
+    @Test
+    fun `a daily game over ends its try only after its start`() {
+        // Given a daily game whose start takes its time to be written
+        val starting = CompletableDeferred<Unit>()
+        dailyResults.startGate = starting
+        val points = finalStateOfTheTestGame().progress.score.value
+        val viewModel = createViewModel(dailyRoute)
+
+        // When the game is over before its start is written, then the start is written
+        playFor(viewModel, MAX_TICKS)
+        starting.complete(Unit)
+
+        // Then the try ended after it started: one try, the first, worth its points
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
+        )
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+    }
+
+    @Test
+    fun `a daily game left before its end counts as a try`() {
+        // Given a daily game under way, with points, in a view model store like the navigation entry's
+        val store = ViewModelStore()
+        val viewModel = createViewModelIn(store, route = dailyRoute)
+        playUntil(viewModel, "the game has points") { viewModel.uiState.value.score.value > 0 }
+        val points = viewModel.uiState.value.score.value
+
+        // When the player leaves it (Pause then Menu, Changer de jeu): its entry leaves the stack
+        store.clear()
+
+        // Then its try ended with the points of the moment
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
+        )
+    }
+
+    @Test
+    fun `a daily game left while its try is still being started ends it after its start`() {
+        // Given a first daily game whose start takes its time to be written, under way, with points
+        val starting = CompletableDeferred<Unit>()
+        dailyResults.startGate = starting
+        val store = ViewModelStore()
+        val viewModel = createViewModelIn(store, route = dailyRoute)
+        playUntil(viewModel, "the game has points") { viewModel.uiState.value.score.value > 0 }
+        val points = viewModel.uiState.value.score.value
+
+        // When the player leaves it before its start is written, then the start is written
+        store.clear()
+        starting.complete(Unit)
+
+        // Then the try ended after it started: one try, the first, worth the points of the moment (an end written
+        // before its start would count it as a whole try, and the start a second one)
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
+        )
+    }
+
+    @Test
+    fun `a try left then a new try started keeps the points of the first`() {
+        // Given a first daily game under way, with points, whose end takes its time to be written once it is left
+        val first = ViewModelStore()
+        val viewModel = createViewModelIn(first, route = dailyRoute)
+        playUntil(viewModel, "the game has points") { viewModel.uiState.value.score.value > 0 }
+        val points = viewModel.uiState.value.score.value
+        val ending = CompletableDeferred<Unit>()
+        dailyResults.endGate = ending
+        first.clear()
+
+        // When a second daily game starts before the end of the first is written, then it is written
+        createViewModel(dailyRoute.replayed(Random(7)))
+        ending.complete(Unit)
+
+        // Then the first try ended before the second started: it keeps its points
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 2, firstTry = points, best = points, firstTryOver = true),
+        )
+    }
+
+    @Test
+    fun `a daily game over shows only once its try is written, so that Copier reads it`() {
+        // Given a daily game whose end takes its time to be written
+        val ending = CompletableDeferred<Unit>()
+        dailyResults.endGate = ending
+        val points = finalStateOfTheTestGame().progress.score.value
+        val viewModel = createViewModel(dailyRoute)
+
+        // When the game is over, its end still being written
+        playUntil(viewModel, "the try is ending") { dailyResults.ends > 0 }
+
+        // Then no game over shows, so no Copier
+        assertThat(viewModel.uiState.value.gameOver).isNull()
+
+        // When the end is written
+        ending.complete(Unit)
+
+        // Then the game over shows, the results already holding the try
+        assertThat(viewModel.uiState.value.gameOver).isNotNull()
+        assertThat(dailyResults.state.value).isEqualTo(
+            DailyResults(OCTOBER_26, tries = 1, firstTry = points, best = points, firstTryOver = true),
+        )
+    }
+
+    @Test
+    fun `a daily game over whose try could not be written does not offer to copy its score`() {
+        // Given a daily game started, whose end cannot be written
+        val viewModel = createViewModel(dailyRoute)
+        dailyResults.failure = IOException("disk full")
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then the game over shows, without its results, which Copier would copy wrong
+        assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+    }
+
+    @Test
+    fun `a daily game over whose try could not be written is not told a practice game`() {
+        // Given a daily game started, whose end cannot be written
+        val viewModel = createViewModel(dailyRoute)
+        dailyResults.failure = IOException("disk full")
+
+        // When
+        playUntilGameOver(viewModel)
+
+        // Then its try may well count once written again: nothing says it was only practice
+        assertThat(viewModel.uiState.value.gameOver?.practice).isFalse()
+    }
+
+    @Test
+    fun `a daily game over not counted, its date already passed, does not offer to copy its score`() {
+        // Given a daily game of the 26th, replayed once the results moved on to a try of the 27th
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26.plusDays(1), tries = 1, firstTry = 300, best = 300, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When its game is over: its try is ignored, the results stay those of the 27th
+        playUntilGameOver(viewModel)
+
+        // Then the game over shows, without Copier, which would copy nothing of the 26th, nor the best of the 27th
+        assertThat(viewModel.uiState.value.gameOver?.resultsKept).isFalse()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isZero()
+    }
+
+    @Test
+    fun `a daily game over not counted, its date already passed, is told a practice game`() {
+        // Given a daily game of the 26th, replayed once the results moved on to a try of the 27th
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26.plusDays(1), tries = 1, firstTry = 300, best = 300, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When its game is over: its try is ignored
+        playUntilGameOver(viewModel)
+
+        // Then its game over tells the player it was a practice game
+        assertThat(viewModel.uiState.value.gameOver?.practice).isTrue()
+    }
+
+    @Test
+    fun `a daily game over then left ends its try once`() {
+        // Given a daily game over
+        val store = ViewModelStore()
+        playUntilGameOver(createViewModelIn(store, route = dailyRoute))
+
+        // When the player leaves it
+        store.clear()
+
+        // Then its try was ended once, at its game over
+        assertThat(dailyResults.ends).isEqualTo(1)
+    }
+
+    @Test
+    fun `a daily game shows the best of its date in place of the record, 0 for the results of another date`() {
+        // Given the results of the next day, which a try of an earlier date leaves as they are (the clock went back)
+        val nextDay = DailyResults(OCTOBER_26.plusDays(1), tries = 3, firstTry = 400, best = 700, firstTryOver = true)
+        dailyResults.state.value = nextDay
+
+        // When a daily game starts
+        val viewModel = createViewModel(dailyRoute)
+
+        // Then the best of its date is shown, 0 while it has none, then as it changes, never the record of the Classic
+        assertThat(viewModel.uiState.value.record).isZero()
+        dailyResults.state.value = DailyResults(OCTOBER_26, tries = 2, firstTry = 300, best = 800, firstTryOver = true)
+        assertThat(viewModel.uiState.value.record).isEqualTo(800)
+    }
+
+    @Test
+    fun `the screen gets the labels of the variant of its game`() {
+        // When a classic game and a daily game start
+        val classic = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        val daily = createViewModel(dailyRoute)
+
+        // Then each screen says what its variant says: the daily game its title, its best and Copier
+        assertThat(classic.labels).isEqualTo(GameLabels.Classic)
+        assertThat(daily.labels).isEqualTo(GameLabels.Daily)
+    }
+
+    @Test
+    fun `the first try of the day beats the best of the day at its game over`() {
+        // Given no result of the day: the best of the day is 0, never beaten during the game
+        val viewModel = createViewModel(dailyRoute)
+
+        // When the first try is played until it is over, with points
+        playUntilGameOver(viewModel)
+
+        // Then its game over shows a new best of the day
+        assertThat(viewModel.uiState.value.gameOver?.score?.value).isPositive()
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+    }
+
+    @Test
+    fun `a daily game over below the best of the day shows no new best`() {
+        // Given a best of the day that no game can beat
+        dailyResults.state.value =
+            DailyResults(OCTOBER_26, tries = 1, firstTry = Int.MAX_VALUE, best = Int.MAX_VALUE, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its game over shows no new best
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
+    }
+
+    @Test
+    fun `a daily game over gets the best of the day it had to beat`() {
+        // Given a best of the day of 1 point, that the game beats
+        dailyResults.state.value = DailyResults(OCTOBER_26, tries = 1, firstTry = 1, best = 1, firstTryOver = true)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When it is played until it is over
+        playUntilGameOver(viewModel)
+
+        // Then its game over gets the best before it, not the new one
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isTrue()
+        assertThat(viewModel.uiState.value.gameOver?.previousBest).isEqualTo(1)
+    }
+
+    @Test
+    fun `a classic game left before its end submits nothing`() {
+        // Given a classic game under way, with points
+        val store = ViewModelStore()
+        val viewModel = createViewModelIn(store)
+        playUntil(viewModel, "the game has points") { viewModel.uiState.value.score.value > 0 }
+
+        // When the player leaves it
+        store.clear()
+
+        // Then the records got nothing, nor did the results of the day
+        assertThat(highScores.submitted).isEmpty()
+        assertThat(dailyResults.state.value).isNull()
+    }
+
+    @Test
+    fun `when the results of the day cannot be written the game goes on, and its game over shows without a new best`() {
+        // Given results of the day that fail to write
+        dailyResults.failure = IOException("disk full")
+        val points = finalStateOfTheTestGame().progress.score.value
+        val store = ViewModelStore()
+        val viewModel = createViewModelIn(store, route = dailyRoute)
+
+        // When the daily game is played until it is over, then left
+        playUntilGameOver(viewModel)
+        store.clear()
+
+        // Then nothing failed, and the game over showed, without a new best
+        assertThat(appFailures).isEmpty()
+        assertThat(viewModel.uiState.value.gameOver?.score?.value).isEqualTo(points)
+        assertThat(viewModel.uiState.value.gameOver?.newBest).isFalse()
+    }
+
+    @Test
+    fun `when the results of the day cannot be written a game left before its end fails nothing`() {
+        // Given results of the day that fail to write, and a daily game under way
+        dailyResults.failure = IOException("disk full")
+        val store = ViewModelStore()
+        createViewModelIn(store, route = dailyRoute)
+
+        // When the player leaves it
+        store.clear()
+
+        // Then nothing failed
+        assertThat(appFailures).isEmpty()
+    }
+
+    @Test
+    fun `a programming error while a daily try starts is not swallowed`() {
+        // Given results of the day whose writing fails with a bug, not with a file that cannot be written
+        dailyResults.failure = IllegalStateException("a bug in the results")
+
+        // When a daily game starts
+        createViewModel(dailyRoute)
+
+        // Then the bug reaches the uncaught exceptions of the application, as it would crash it
+        assertThat(appFailures).singleElement().isInstanceOf(IllegalStateException::class.java)
+    }
+
     /** The settings of a player whose keys vibrate, the vibrations of the game off: only the keys may vibrate. */
     private fun vibrateKeysOnly() {
         preferences.state.value = UserPreferences.DEFAULT.copy(vibrations = false, keyVibration = true)
@@ -1714,7 +2207,9 @@ class GameViewModelTest {
      * A game view model built with test doubles, as the factory would, but without its creation extras: the
      * route and [savedState] (empty by default, as for a new navigation entry) are given directly. The factory
      * itself, which takes them from the creation extras, is covered only by the instrumented tests
-     * (`GameViewModelFactoryTest`, `GameEntryRestorationTest`).
+     * (`GameViewModelFactoryTest`, `GameEntryRestorationTest`). [factory] deals the pieces of a Classic game,
+     * [dailyEngines] those of a daily game, the test engines too by default. Every daily game of a test shares its
+     * [dailyWrites], as those of the factory of the application.
      */
     private fun createViewModel(
         route: GameRoute,
@@ -1722,18 +2217,18 @@ class GameViewModelTest {
         savedState: SavedStateHandle = SavedStateHandle(),
         records: FakeHighScoreRepository = highScores,
         userPreferences: FakeUserPreferencesRepository = preferences,
+        dailyEngines: GameEngineFactory = engineFactory,
     ): GameViewModel = GameViewModel(
-        factory,
+        GameVariants(factory, records, userPreferences, musicOf, gameMusic, dailyResults, dailyWrites, dailyEngines)
+            .setupOf(route.variant),
         route,
-        records,
         userPreferences,
         music,
         haptics,
         soundEffects,
-        musicOf,
-        gameMusic,
         composeLive,
         savedState,
+        appScope,
     )
 
     /** What the system gives back of [this] saved state once the process died: its values, in a new handle. */
@@ -1751,15 +2246,22 @@ class GameViewModelTest {
     private fun createViewModelIn(
         store: ViewModelStore,
         savedState: SavedStateHandle = SavedStateHandle(),
+        route: GameRoute = GameRoute(startLevel = 0, seed = 1L),
     ): GameViewModel = ViewModelProvider.create(
         store,
         viewModelFactory {
-            initializer { createViewModel(GameRoute(startLevel = 0, seed = 1L), savedState = savedState) }
+            initializer { createViewModel(route, savedState = savedState) }
         },
     )[GameViewModel::class]
 
     private companion object {
         const val ONE_SIXTIETH_NANOS = 16_666_667L
+
+        /** The date of the daily games of these tests. */
+        val OCTOBER_26: LocalDate = LocalDate.of(2026, 10, 26)
+
+        /** A daily game of [OCTOBER_26], with its seed. */
+        val dailyRoute: GameRoute = GameRoute.daily(OCTOBER_26, seed = 20261026L, id = 1L)
 
         /** The score each music choice plays, written out: not computed by the code under test. */
         @JvmStatic
@@ -1791,9 +2293,8 @@ class GameViewModelTest {
         /** The height at which the stack enters the danger, under the Classic rules (`ClassicStackDangerRule`). */
         const val DANGER_HEIGHT = 15
 
-        val oneTickPerRow = object : GravityTable {
-            override fun ticksPerRow(level: Level): Ticks = Ticks(1)
-        }
+        /** One row per tick, at every level. */
+        val oneRowPerTickDropTiming = OneRowPerTickDropTiming
 
         /**
          * The classic scoring, plus 100 points for each piece that locks. The engine calls
@@ -1819,7 +2320,7 @@ class GameViewModelTest {
             GameEngine(
                 ClassicRules.copy(
                     rotationSystem = rotationSystem,
-                    gravityTable = oneTickPerRow,
+                    dropTiming = oneRowPerTickDropTiming,
                     levelProgression = levelProgression,
                 ),
                 ScriptedRandomizer.cycling(*pieces),
@@ -1903,6 +2404,12 @@ class GameViewModelTest {
         }
         error("The test game did not end within $MAX_TICKS ticks")
     }
+
+    /** Gives [viewModel] one frame per tick for [ticks] ticks, whatever happens: the first frame only sets the time. */
+    private fun playFor(
+        viewModel: GameViewModel,
+        ticks: Int,
+    ) = generateSequence(0L) { it + ONE_SIXTIETH_NANOS }.take(ticks + 1).forEach(viewModel::onFrame)
 
     /** Gives [viewModel] one frame per tick until its screen shows the game over; the time of that last frame. */
     private fun playUntilGameOver(viewModel: GameViewModel): Long =

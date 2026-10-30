@@ -13,7 +13,7 @@ internal const val PLACE_TAG = "locksmith_place"
 
 /**
  * The tag of a cell of the padlock, by what it shows: the journey of `:benchmark` touches the first hole it finds,
- * without knowing the padlock, drawn from a random seed.
+ * without knowing the padlock.
  */
 internal fun cellTestTag(cell: LockCell): String = when (cell) {
     LockCell.Hole -> "locksmith_cell_hole"
@@ -28,3 +28,9 @@ internal fun tileTestTag(rank: Int): String = "locksmith_tile_$rank"
 
 /** The tag of a cell of the preview on the ring at [position], read by the tests alone: TalkBack does not read it. */
 internal fun rimCellTestTag(position: Position): String = "locksmith_rim_${position.column}_${position.row}"
+
+/**
+ * The tag of the pill of the chord of [rank] in the band, read by the tests of the pills alone: on the screen, TalkBack
+ * reads the band whole and no tag of a pill is left.
+ */
+internal fun chordPillTestTag(rank: Int): String = "locksmith_chord_$rank"

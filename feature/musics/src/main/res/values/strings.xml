@@ -3,8 +3,12 @@
     <!-- En-tête -->
     <string name="feature_musics_back">Retour à l\'accueil</string>
     <string name="feature_musics_title">Mes musiques</string>
+    <!-- La carte du haut : son étiquette en capitales, puis le nom de la musique ; TalkBack la lit en une phrase. -->
+    <string name="feature_musics_game_music_label">PENDANT LES PARTIES</string>
     <string name="feature_musics_game_music">Pendant les parties : %1$s</string>
-    <string name="feature_musics_game_music_home">la musique choisie à l\'accueil</string>
+    <string name="feature_musics_game_music_home">La musique choisie à l\'accueil</string>
+    <!-- La même, dans la phrase que lit TalkBack : « Pendant les parties : la musique choisie à l'accueil ». -->
+    <string name="feature_musics_game_music_home_spoken">la musique choisie à l\'accueil</string>
 
     <!-- Cartes -->
     <!-- Sous le nom, une ligne : le style, la tonalité et la durée des huit mesures (« Joyeux · sol majeur · 0:16 »),
@@ -20,25 +24,18 @@
     <string name="feature_musics_category_mysterious">Mystérieux</string>
     <string name="feature_musics_category_retro">Rétro</string>
     <string name="feature_musics_category_dance">Danse</string>
-    <string name="feature_musics_listen_description">Écouter %1$s</string>
-    <string name="feature_musics_stop_description">Arrêter %1$s</string>
-    <!-- Lu par TalkBack sur l'interrupteur Utiliser / En jeu (note, ou coche en jeu), avec son état (activé ou non). -->
+    <!-- La pastille après la ligne d'infos de la musique jouée pendant les parties, ignorée par TalkBack. -->
+    <string name="feature_musics_in_game">EN JEU</string>
+    <!-- Lu par TalkBack sur le disque Utiliser / En jeu (note, ou coche en jeu), « sélectionné » en jeu. -->
     <string name="feature_musics_use_description">%1$s pendant les parties</string>
-    <string name="feature_musics_empty">Aucune musique pour l\'instant. Compose la tienne, ou laisse le dé t\'en proposer une.</string>
+    <!-- La page sans musique : une phrase en titre, puis l'invitation. -->
+    <string name="feature_musics_empty_title">Aucune musique pour l\'instant.</string>
+    <string name="feature_musics_empty_hint">Compose la tienne, ou laisse le dé t\'en proposer une.</string>
 
-    <!-- Menu « … » d'une carte -->
-    <string name="feature_musics_menu_description">Plus d\'actions pour %1$s</string>
+    <!-- Menu « … » d'une carte : Renommer et Supprimer, et la fenêtre Renommer, sont dans core:designsystem (RowMenu, P10.36). -->
     <string name="feature_musics_menu_edit">Modifier</string>
-    <string name="feature_musics_menu_rename">Renommer</string>
     <string name="feature_musics_menu_use">La jouer pendant les parties</string>
     <string name="feature_musics_menu_stop_using">Ne plus la jouer pendant les parties</string>
-    <string name="feature_musics_menu_delete">Supprimer</string>
-
-    <!-- Renommer -->
-    <string name="feature_musics_rename_title">Renommer « %1$s »</string>
-    <string name="feature_musics_rename_confirm">Renommer</string>
-    <string name="feature_musics_name_blank">Donne-lui un nom.</string>
-    <string name="feature_musics_name_taken">Une autre musique porte déjà ce nom.</string>
 
     <!-- Supprimer -->
     <string name="feature_musics_delete_note">Elle disparaîtra de Mes musiques. Tu pourras annuler juste après.</string>
@@ -46,7 +43,6 @@
     <string name="feature_musics_delete_keep">Garder la musique</string>
     <string name="feature_musics_deleted">« %1$s » est supprimée.</string>
     <string name="feature_musics_undo">Annuler</string>
-    <string name="feature_musics_close_message">Fermer le message</string>
 
     <!-- Boutons du bas -->
     <string name="feature_musics_random">Au hasard</string>

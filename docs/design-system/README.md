@@ -85,7 +85,7 @@ d'ombre.
 
 ## Accueil
 
-L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 », V26 : une seule cartouche, Classique, aucune endormie) ; la cartouche
+L'application s'ouvre sur le **choix du jeu** (cartouches, « Choix des jeux 4 », V26 : Classique et Serrurier, chacune avec sa mascotte, au-dessus de la console) ; la cartouche
 Classique ouvre cet accueil, et son disque « Changer de jeu » y ramène.
 
 De haut en bas (téléphone debout ; en paysage, voir Mise en page) :
@@ -151,17 +151,25 @@ l'allume (le son ou la vibration joue une fois). Barre : disque Retour et « Par
 (56 px, 64 sur tablette) séparées par 1 px `panel-border`, pictogramme de 24 dans un emplacement
 de 40 à gauche ; toute la rangée est l'interrupteur.
 
-1. **Affichage** : Effets réduits (« Moins de mouvements et de particules » ; allumé et bloqué,
-   « Imposé par les réglages d'Android », quand Android supprime les animations, sans écraser le
-   choix du joueur), Gaucher (sous-ligne qui dit la disposition, schéma des touches qui
-   s'inverse), et la note « Le thème se choisit à l'accueil. ».
-2. **Sons et vibrations** : Effets sonores (activés par défaut), Volume des effets (grisé quand
-   les effets sont coupés), Volume de la musique, Vibrations (désactivées par défaut), Vibration
-   des touches (désactivée par défaut). Sans vibreur : les deux vibrations grisées, « Cet appareil
-   ne vibre pas ». Puis « Valable dès la partie suivante. », une seule fois.
-3. **Record** : « Record du Classique » et le bouton Effacer (cadre et texte `danger`), qui
-   demande confirmation (« Effacer le record ? », Effacer le record en `danger`, Garder le
-   record) puis affiche « Record effacé ».
+Deux parties, chacune sous un titre en `title` (ADR 0030) : **Réglages du Classique**, seulement
+quand la page est ouverte depuis l'accueil du Classique, puis **Tous les jeux**. Un réglage de
+« Tous les jeux » qui ne vaut pas pour tous nomme les jeux concernés en tête de sa sous-ligne
+(« Classique, Graine du jour : … »).
+
+1. **Réglages du Classique** — **Record** : « Record du Classique » et le bouton Effacer (cadre et
+   texte `danger`), qui demande confirmation (« Effacer le record ? », Effacer le record en
+   `danger`, Garder le record) puis affiche « Record effacé » sous la carte. Puis la note « Le
+   thème du Classique se choisit dans son accueil. », à 8 px sous la carte comme toute note.
+2. **Tous les jeux** — **Affichage** : Effets réduits (« Moins de mouvements et de particules » ;
+   allumé et bloqué, « Imposé par les réglages d'Android », quand Android supprime les
+   animations, sans écraser le choix du joueur), Gaucher (« Classique, Graine du jour : flèches à
+   gauche, B et A à droite », schéma des touches qui s'inverse) ; pas de note.
+3. **Tous les jeux** — **Sons et vibrations** : Effets sonores (activés par défaut), Volume des
+   effets (grisé quand les effets sont coupés), Volume de la musique, Vibrations (désactivées par
+   défaut, « Classique, Graine du jour : lignes effacées, fin de partie »), Vibration des touches
+   (désactivée par défaut, « Classique, Graine du jour : un léger toucher à chaque touche »). Sans
+   vibreur : les deux vibrations grisées, « Cet appareil ne vibre pas ». Puis « Volumes : tout de
+   suite. Le reste : dès le prochain jeu ouvert. », une seule fois.
 
 **Interrupteur** : piste de `switch-track` (52 × 32) en pilule, cadre de 2 px `button-outline`
 dans les deux états. Éteint : piste `button`, pouce de 20 `label` à gauche. Allumé : piste
@@ -198,14 +206,37 @@ de l'éditeur utilisent un italique imité.
 ## Formes et espacements
 
 - `radius-md` (16 px) : encarts, flèches, tuiles, plateau sur téléphone.
-- `radius-pill` : boutons d'écran, groupes de choix, puce Record, autocollants ; disques pour
+- `radius-pill` : boutons d'écran, groupes de choix, puce Record, autocollants, badges ; disques pour
   la pause, B, A, Écouter et Paramètres.
+- **Autocollant** (`Sticker`, `core:designsystem`, P7.45) : capitales `accent-ink` sur `accent`, `points-pop`, pilule
+  penchée de −4° (jamais en Original), cadrée de 2 dp dans la couleur de la page ; NOUVEAU RECORD (non cadré),
+  NOUVELLE (−6°, 11 sp) et NOUVEAU MEILLEUR / PARFAITE du Serrurier en sont des réglages. Détail et tests dans
+  [themes.md](../themes.md) : `StickerLookTest › a sticker is accent-ink on accent, framed in the colour of the page`,
+  `StickerLookTest › in Original a sticker never leans, whose pixels would blur`,
+  `StickerTest › a sticker shows its text in capitals`.
+- **Badge** (`PillBadge`, `core:designsystem`, P7.51) : libellé court sur une ligne, `accent-ink` sur `accent` dans tous
+  les thèmes, pilule droite sans cadre ; EN JEU de Mes musiques, NOUVEAU RECORD de fin de partie (sur plusieurs lignes
+  si la place manque) et « ouvert » de Mes jardins (avec sa coche) en sont des réglages. Détail et tests dans
+  [themes.md](../themes.md) : `BadgeLookTest › a badge is accent-ink on accent, in every theme`.
 - `radius-window` (24 px) : carte des réglages, plateau sur tablette ; `radius-card` (28 px) :
   cartes Pause et Fin, feuille Musique.
 - Espacements sur une grille de 4 : `space-1` (4), `space-2` (8), `space-3` (12), `space-4` (16) et `space-6` (24) ; pas de `space-5`.
   Marge des écrans : `space-4` sur téléphone. Seule exception : la case de l'aperçu du Serrurier posée sur
   l'anneau en colonne 0 ou 9 peut déborder jusqu'à `space-1` du bord, rognée là (P7.22), et jusqu'à 3 dp sur les
   écrans les plus étroits, pour que sa croix garde 10 dp (P7.23).
+- Mouvements des listes et des feuilles (P10.37) : une feuille du bas monte de `sheet-rise` (40 px) jusqu'à sa place
+  en `motion-card`, et redescend d'autant quand son écran la ferme (Mes jardins) ; distance de mouvement, elle ne
+  correspond à aucun espacement. Une rangée supprimée (Mes jardins) s'estompe puis se replie en `motion-row`
+  (200 ms) : même durée que `motion-curtain`, mais un jeton à elle, pour que le rideau de la pause et le repli d'une
+  rangée puissent changer l'un sans l'autre. Effets réduits : aucun déplacement (fondu de la feuille à l'entrée,
+  rangée qui disparaît d'un coup).
+- Mouvements du Jardin musical (P10.38) : le message « Gardé » monte de `message-rise` (16 px) en `motion-card`, en
+  fondu ; il empruntait `space-4`, mais une distance de mouvement doit pouvoir changer sans l'espacement. Une pièce
+  d'Au hasard (ou d'un jardin rouvert) tombe d'une case (`garden-cell`) en `motion-garden-fall` (133 ms), en
+  accélérant, `motion-garden-fall-step` après la précédente. Effets réduits : le message est à sa place d'emblée, les
+  pièces apparaissent ensemble en `motion-reduced-fade`. L'égaliseur (`EQUALIZER`) garde sa boucle sans jeton : elle
+  fait partie du dessin du pictogramme (35 % à 100 % en 0,5 s, 10 ticks d'avance d'une barre à l'autre), comme ses
+  barres de 3 × 14, et ne règle aucun autre mouvement.
 
 ## Pictogrammes
 
@@ -234,15 +265,19 @@ place du « o ». Dessiné dans la maquette (composant `LogoBloX`), pas encore e
 `panel-border` (1,4:1) reste décoratif : tout ce qui se touche est encadré en `button-outline`,
 et les choix le sont par le cadre de leur groupe. Repères autres que la couleur, là où un aplat ne
 suffit pas (P5.57) : le choix retenu porte une coche (3:1), l'interrupteur se lit à son cadre
-`button-outline` (l'encre en Original), à la position et à la taille de son pouce, la touche tenue à
-son décalage de 2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit aussi à l'épaisseur du
-cadre (4 px), pas à la seule couleur.
+`button-outline`, à la position et à la taille de son pouce, la touche tenue à son décalage de
+2 px, la partie tenue d'une note à son bord de 2 px de la couleur de la piste. Le danger se lit
+aussi à l'épaisseur du cadre (4 px), pas à la seule couleur.
 
 ## Correspondance avec le code
 
 Les jetons d'interface correspondent aux propriétés de `BloxPalette` (`core:designsystem`) par une table explicite (ADR 0019) : la plupart en kebab-case, avec des exceptions (`board` → `boardBackground`, `label-off` → `outOfScale`, pistes dans `TrackColors`). 1 px de ce système vaut 1 dp dans le code.
 Les pièces (`piece-*`) vont dans `core:board` (`CellStyles`, ADR 0023), comme les cases du Serrurier (`lock-*` :
-`lock-metal`, `lock-rivet`, `lock-hint`, `lock-hole-inset`, dans `LockColors`, Couleurs seulement, P7.10). À ajouter dans le
+`lock-metal`, `lock-rivet`, `lock-hint`, `lock-hole-inset`, dans `LockColors`, Couleurs seulement, P7.10) et celles du
+Jardin musical (`garden-*`, P10.8 : les couleurs dans `GardenColors`, `garden-cell` et `garden-chord-dot-size` dans
+`GardenSizes`, `GardenTokensTest` ; `garden-tile-width` et `radius-garden` codés par l’écran, P10.10, listés « non codés »
+avec cette raison ; les durées
+`motion-garden-*` dans `BloxMotion`, P10.15). À ajouter dans le
 code pour ces retours : les volumes de la musique et des effets (`core:audio`), la vibration des
 touches, la capacité « l'appareil vibre » (`Haptics`), l'effacement du record (`core:data`), l'événement `LevelUp(level)` dans le moteur, le record battu en jeu
 (`GameUiState`), l'ancien record en fin de partie, un effet sonore « niveau », les préférences

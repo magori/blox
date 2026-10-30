@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith.navigation
 
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -15,30 +16,34 @@ import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import kotlinx.serialization.Serializable
 
 /**
- * Clé de l'écran du Serrurier (vue V35, ADR 0025) : la serrure [level] (dès 1) de la graine [seed]. Une serrure = une
- * clé distincte, donc un ViewModel neuf ; « Serrure suivante » met une nouvelle clé à sa place, que `app` tire (le
- * ViewModel ne tire jamais lui-même la serrure suivante, ADR 0011 et 0025). Après la mort du processus, la clé restaurée
- * régénère la même serrure, sans pièce posée (ADR 0025).
+ * Clé de l'écran du Serrurier (vue V35, ADR 0025) : la serrure [level] (dès 1), la même pour tous (`Padlock.ofLevel`).
+ * Une serrure = une clé distincte, donc un ViewModel neuf ; « Serrure suivante » met la clé suivante à sa place, dans
+ * `app` (le ViewModel ne change jamais lui-même de serrure, ADR 0011 et 0025). Après la mort du processus, la clé
+ * restaurée redonne la même serrure, sans pièce posée (ADR 0025).
  */
 @Serializable
-data class LocksmithRoute(val level: Int, val seed: Long) : NavKey {
+data class LocksmithRoute(val level: Int) : NavKey {
     init {
         require(level >= 1) { "Padlocks are numbered from 1, got $level" }
     }
 
-    /** The next padlock: one level up, on [seed], which `app` draws. */
-    fun next(seed: Long): LocksmithRoute = LocksmithRoute(level + 1, seed)
+    /** The next padlock: one level up. */
+    fun next(): LocksmithRoute = LocksmithRoute(level + 1)
 }
 
 /**
  * Déclare l'entrée du Serrurier (ADR 0011, 0025). [onBack] est le bouton retour de la barre : `app` dépile.
- * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. `app` construit [viewModelFactory] ; la clé
- * lui parvient par les `CreationExtras` (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de
- * `NavDisplay` lie le ViewModel à la clé.
+ * [onNext] reçoit la serrure ouverte : `app` met la suivante à sa place. [onResume] reçoit la serrure ouverte et la
+ * frontière, après le rejeu d’une ancienne serrure : `app` met la frontière à sa place. [onPadlocks] reçoit la serrure
+ * ouverte, dont le disque « Toutes les serrures » a été touché : `app` ouvre l’écran « Serrures » par-dessus, la serrure
+ * restant dessous avec son ViewModel. `app` construit [viewModelFactory] ; la clé lui parvient par les `CreationExtras`
+ * (ADR 0013). Le décorateur `rememberViewModelStoreNavEntryDecorator` de `NavDisplay` lie le ViewModel à la clé.
  */
 fun EntryProviderScope<NavKey>.locksmithEntry(
     onBack: () -> Unit,
     onNext: (open: LocksmithRoute) -> Unit,
+    onResume: (open: LocksmithRoute, frontier: LocksmithRoute) -> Unit,
+    onPadlocks: (open: LocksmithRoute) -> Unit,
     viewModelFactory: LocksmithViewModel.Factory,
 ) {
     entry<LocksmithRoute> { route ->
@@ -47,9 +52,11 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
         val extras = CreationExtras(defaults) { set(LocksmithViewModel.RouteKey, route) }
         val viewModel: LocksmithViewModel = viewModel(factory = viewModelFactory, extras = extras)
         val state by viewModel.uiState.collectAsStateWithLifecycle()
+        // Once shown, so that TalkBack hears its message change: a progress just cleared, if this padlock is the first shown.
+        LaunchedEffect(viewModel) { viewModel.showClearedProgress() }
         LocksmithScreen(
             state = state,
-            actions = remember(viewModel, route, onBack, onNext) {
+            actions = remember(viewModel, route, onBack, onNext, onResume, onPadlocks) {
                 LocksmithActions(
                     onBack = onBack,
                     onTap = viewModel::tap,
@@ -60,6 +67,8 @@ fun EntryProviderScope<NavKey>.locksmithEntry(
                     onHint = viewModel::hint,
                     onRestart = viewModel::restart,
                     onNext = { onNext(route) },
+                    onResume = { frontier -> onResume(route, LocksmithRoute(frontier)) },
+                    onPadlocks = { onPadlocks(route) },
                 )
             },
         )

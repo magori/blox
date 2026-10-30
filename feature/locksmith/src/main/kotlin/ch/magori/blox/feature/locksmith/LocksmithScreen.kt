@@ -1,14 +1,13 @@
 package ch.magori.blox.feature.locksmith
 
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,22 +20,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -44,14 +41,18 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CollectionInfo
 import androidx.compose.ui.semantics.CollectionItemInfo
@@ -64,7 +65,6 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.semantics.testTag
@@ -78,22 +78,26 @@ import ch.magori.blox.core.board.lock.LockCellCut
 import ch.magori.blox.core.board.lock.LockCellLight
 import ch.magori.blox.core.board.lock.LockCellShown
 import ch.magori.blox.core.board.lock.lockMetal
-import ch.magori.blox.core.board.next.NextPieceCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.designsystem.component.BubbleButton
-import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.board.music.chordTellingOf
+import ch.magori.blox.core.board.piece.pieceCells
+import ch.magori.blox.core.board.tile.PieceTile
+import ch.magori.blox.core.designsystem.component.ChordPill
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
+import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.component.WindowPanel
-import ch.magori.blox.core.designsystem.frame.FrameTicks
+import ch.magori.blox.core.designsystem.component.WindowText
+import ch.magori.blox.core.designsystem.frame.rememberEffectTick
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.text.chordsText
 import ch.magori.blox.core.designsystem.theme.BloxBorders
-import ch.magori.blox.core.designsystem.theme.BloxEffects
+import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
-import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.ColorfulTheme
+import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
@@ -111,6 +115,8 @@ internal class LocksmithActions(
     val onHint: () -> Unit,
     val onRestart: () -> Unit,
     val onNext: () -> Unit,
+    val onResume: (frontier: Int) -> Unit,
+    val onPadlocks: () -> Unit,
 ) {
     companion object {
         /** Actions that do nothing, for the previews. */
@@ -124,6 +130,8 @@ internal class LocksmithActions(
             onHint = {},
             onRestart = {},
             onNext = {},
+            onResume = {},
+            onPadlocks = {},
         )
     }
 }
@@ -131,8 +139,8 @@ internal class LocksmithActions(
 /**
  * The screen of the Locksmith (V35), drawn from [state] alone, always in the Colorful theme, day or night as the
  * system says (decision of the developer, 2026-10-26: the Locksmith has no Original look). From the top, scrolling on
- * a small screen: the bar (back, title, moves, the padlock of its state), the chords of the padlock, the padlock, a
- * message, Hint and Restart, the given pieces. Anchored at the bottom, within reach of the thumb: turn left, Place,
+ * a small screen: the bar (back, title, moves, the disc « Toutes les serrures », the padlock of its state), the chords
+ * of the padlock, the padlock, a message, Hint and Restart, the given pieces. Anchored at the bottom, within reach of the thumb: turn left, Place,
  * turn right. Once the padlock is open, the card « Serrure ouverte ! » takes the place of the buttons, the tiles and the
  * controls, and the focus, once; the message stays, and takes the focus back when the padlock starts over from the
  * card. The feedback of the last action plays on the padlock ([Feedback]), from its tick 0 on the frames of the screen,
@@ -145,14 +153,27 @@ internal fun LocksmithScreen(
     modifier: Modifier = Modifier,
     feedbackTick: Int? = null,
 ) {
-    // The effects of the application kept: the theme imposed here would bring back the full ones.
-    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = BloxTheme.effects) {
+    // Drawn in the Colorful theme only (ADR 0025), the effects of the application kept.
+    ColorfulTheme {
         val card = openCardOf(state)
         val titleFocus = remember { FocusRequester() }
         val messageFocus = remember { FocusRequester() }
         OpeningFocus(state.game.isOpen, titleFocus, messageFocus)
         val feedback = remember(state) { feedbackOf(state) }
-        val tick = rememberFeedbackTick(feedback, state.move, feedbackTick)
+        // The feedback of the action shown first, as on coming back to the screen, is over already.
+        val tick = rememberEffectTick(
+            key = feedback,
+            move = feedback?.move,
+            frozen = feedbackTick,
+            length = feedback?.ticks(BloxTheme.effects) ?: 0,
+        )
+        // The sticker of the card bounces in once it shows, not on coming back to the screen.
+        val stickerTick = rememberEffectTick(
+            key = card?.sticker,
+            move = card?.sticker?.let { state.move },
+            frozen = null,
+            length = BloxMotion.sticker,
+        )
         BoxWithConstraints(
             modifier = modifier
                 .fillMaxSize()
@@ -170,7 +191,7 @@ internal fun LocksmithScreen(
                     verticalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    TopBar(state, actions.onBack)
+                    TopBar(state, actions.onBack, actions.onPadlocks)
                     ChordBand(state)
                     PadlockGrid(state, actions.onTap, feedback, tick)
                     Message(state, messageFocus)
@@ -187,7 +208,11 @@ internal fun LocksmithScreen(
                         .padding(BloxSpaces.space4),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (card == null) Controls(state, actions) else OpenPadlockCard(card, actions, titleFocus)
+                    if (card == null) {
+                        Controls(state, actions)
+                    } else {
+                        OpenPadlockCard(card, actions, titleFocus, stickerTick)
+                    }
                 }
             }
         }
@@ -217,43 +242,14 @@ private fun OpeningFocus(
 }
 
 /**
- * The tick of [feedback] the padlock shows: counted on the frames of the screen from its start, until it is over in
- * the effects of the theme; [frozen] at a tick for the previews. The feedback of the action [move] shown first, as on
- * coming back to the screen, is over already.
+ * Back, the title and the moves, then the disc « Toutes les serrures »: the padlock of the state of the game, closed,
+ * then open, which opens the screen of the padlocks.
  */
-@Composable
-private fun rememberFeedbackTick(
-    feedback: Feedback?,
-    move: Int,
-    frozen: Int?,
-): () -> Int {
-    val first = remember { move }
-    // Set as soon as the feedback changes, so that its first frame never shows the tick of the one before.
-    val ticks = remember(feedback, frozen) {
-        val start = when {
-            frozen != null -> frozen
-            feedback == null || feedback.move == first -> Int.MAX_VALUE
-            else -> 0
-        }
-        mutableIntStateOf(start)
-    }
-    val effects = BloxTheme.effects
-    LaunchedEffect(ticks, effects) {
-        if (frozen != null) return@LaunchedEffect
-        val length = feedback?.ticks(effects) ?: return@LaunchedEffect
-        val frames = FrameTicks()
-        while (ticks.intValue < length) {
-            withFrameNanos { ticks.intValue += frames.advance(it) }
-        }
-    }
-    return remember(ticks) { { ticks.intValue } }
-}
-
-/** Back, the title and the moves, then the padlock of the state of the game, closed, then open. */
 @Composable
 private fun TopBar(
     state: LocksmithUiState,
     onBack: () -> Unit,
+    onPadlocks: () -> Unit,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -267,7 +263,8 @@ private fun TopBar(
         )
         val title = stringResource(barTitleOf(state), state.level)
         Text(
-            text = stringResource(R.string.feature_locksmith_title, state.level),
+            // In capitals, as the titles of the other screens; TalkBack reads the description, in words.
+            text = stringResource(R.string.feature_locksmith_title, state.level).uppercase(),
             modifier = Modifier
                 .weight(1f)
                 // Its text kept, TalkBack reads the description in its place.
@@ -277,36 +274,31 @@ private fun TopBar(
                 },
             color = BloxTheme.palette.ink,
             style = BloxTheme.typography.gameTitle,
+            // Wider in capitals: with a large font on a narrow screen, it shrinks rather than cut SERRURE.
+            autoSize = shrinkToWholeWords(BloxTheme.typography.gameTitle.fontSize),
         )
         Text(
             text = stringResource(R.string.feature_locksmith_moves, state.game.moves),
             color = BloxTheme.palette.label,
             style = BloxTheme.typography.statLabel,
         )
-        PadlockStatus(open = state.game.isOpen)
+        // The title of the bar tells the state of the padlock, and the card alone says that it is open: the disc is read
+        // for what it opens.
+        val open = state.game.isOpen
+        GlyphButton(
+            description = stringResource(R.string.feature_locksmith_padlocks),
+            onClick = onPadlocks,
+            glyph = { ink -> drawPadlock(ink, open) },
+        )
     }
 }
 
 /**
- * A padlock of [STATUS_ICON], closed or [open], in ink; neither touched nor read: the title of the bar tells its state,
- * and the card alone says that the padlock is open.
+ * A padlock in [ink]: its body, a keyhole cut through it, and its shackle, down in the body, or lifted out of it on the
+ * right when [open].
  */
-@Composable
-private fun PadlockStatus(open: Boolean) {
-    val ink = BloxTheme.palette.ink
-    val page = BloxTheme.palette.page
-    Canvas(modifier = Modifier.size(STATUS_ICON)) {
-        drawPadlock(ink, page, open)
-    }
-}
-
-/**
- * A padlock in [ink]: its body, with a keyhole of the [page], and its shackle, down in the body, or lifted out of it on
- * the right when [open].
- */
-private fun DrawScope.drawPadlock(
+internal fun DrawScope.drawPadlock(
     ink: Color,
-    page: Color,
     open: Boolean,
 ) {
     val w = size.width
@@ -319,37 +311,63 @@ private fun DrawScope.drawPadlock(
         lineTo(w * 0.7f, if (open) h * 0.3f - lift else h * 0.46f)
     }
     drawPath(shackle, ink, style = Stroke(width = w * 0.12f))
-    drawRoundRect(
-        color = ink,
-        topLeft = Offset(w * 0.14f, h * 0.44f),
-        size = Size(w * 0.72f, h * 0.5f),
-        cornerRadius = CornerRadius(w * 0.08f),
+    // The keyhole is a hole: whatever bears the padlock, a tile or a button pressed, shows through it.
+    val body = Path().apply {
+        fillType = PathFillType.EvenOdd
+        addRoundRect(
+            RoundRect(
+                rect = Rect(offset = Offset(w * 0.14f, h * 0.44f), size = Size(w * 0.72f, h * 0.5f)),
+                cornerRadius = CornerRadius(w * 0.08f),
+            ),
+        )
+        addOval(Rect(center = Offset(w * 0.5f, h * 0.66f), radius = w * 0.08f))
+    }
+    drawPath(body, ink)
+}
+
+/** The band of the chords of the padlock of [state], read whole by TalkBack: those heard, then those to come. */
+@Composable
+private fun ChordBand(state: LocksmithUiState) {
+    val reading = chordBandReading(chordsOf(state))
+    ChordPills(
+        numerals = state.game.progression.numerals,
+        heard = state.game.chords.size,
+        modifier = Modifier.clearAndSetSemantics { contentDescription = reading },
     )
-    drawCircle(page, radius = w * 0.08f, center = Offset(w * 0.5f, h * 0.66f))
 }
 
 /**
- * One pill per chord of the padlock, filled once heard; the last two, V and I, joined under them by a bracket and the
- * word « cadence »: the pair that closes the phrase.
+ * One pill per chord of [numerals], the first [heard] filled; the last two, V and I, joined under them by a bracket and
+ * the word « cadence »: the pair that closes the phrase. Too wide for the screen (on 360 dp, from 7 chords in a font
+ * twice as large, at 8 in the usual font), the band goes on as many lines as it needs, centred, the cadence kept whole:
+ * no pill shrinks below its label, no word is cut.
  */
 @Composable
-private fun ChordBand(state: LocksmithUiState) {
-    val heard = state.game.chords.size
-    val numerals = state.game.progression.numerals
+internal fun ChordPills(
+    numerals: List<RomanNumeral>,
+    heard: Int,
+    modifier: Modifier = Modifier,
+) {
     val cadence = numerals.size - CADENCE
-    val reading = chordBandReading(chordsOf(state))
-    Row(
-        modifier = Modifier.clearAndSetSemantics { contentDescription = reading },
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
+    FlowRow(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1, Alignment.CenterHorizontally),
+        verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
-        numerals.take(cadence).forEachIndexed { index, numeral -> ChordPill(numeral, played = index < heard) }
+        numerals.take(cadence).forEachIndexed { index, numeral ->
+            ChordPill(numeral.name, played = index < heard, modifier = Modifier.testTag(chordPillTestTag(index)))
+        }
         Column(
             modifier = Modifier.width(IntrinsicSize.Max),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
                 numerals.drop(cadence).forEachIndexed { index, numeral ->
-                    ChordPill(numeral, played = cadence + index < heard)
+                    ChordPill(
+                        numeral.name,
+                        played = cadence + index < heard,
+                        modifier = Modifier.testTag(chordPillTestTag(cadence + index)),
+                    )
                 }
             }
             CadenceBracket(BloxTheme.palette.label)
@@ -375,36 +393,10 @@ private fun chordBandReading(chords: ChordsRead): String {
     }
 }
 
-/** How TalkBack reads [numerals], one after the other: « 5 majeur, 1 majeur ». */
+/** How TalkBack reads [numerals], one after the other, as every screen reads chords: « 5 majeur, 1 majeur ». */
 @Composable
 @ReadOnlyComposable
-private fun chordNames(numerals: List<RomanNumeral>): String {
-    val separator = stringResource(R.string.feature_locksmith_chords_separator)
-    return numerals.map { stringResource(chordNameOf(it), it.degree.toString()) }.joinToString(separator)
-}
-
-@Composable
-private fun ChordPill(
-    numeral: RomanNumeral,
-    played: Boolean,
-) {
-    val fill = if (played) BloxTheme.palette.accent else BloxTheme.palette.page
-    val frame = if (played) BloxTheme.palette.accent else BloxTheme.palette.buttonOutline
-    Box(
-        modifier = Modifier
-            .widthIn(min = CHORD_PILL)
-            .background(fill, BloxTheme.shapes.pill)
-            .border(BloxBorders.frame, frame, BloxTheme.shapes.pill)
-            .padding(horizontal = BloxSpaces.space2, vertical = BloxSpaces.space1),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = numeral.name,
-            color = if (played) BloxTheme.palette.accentInk else BloxTheme.palette.ink,
-            style = BloxTheme.typography.buttonLabel,
-        )
-    }
-}
+private fun chordNames(numerals: List<RomanNumeral>): String = chordsText(numerals.map(::chordTellingOf))
 
 /** A bracket opening upwards, as wide as the pills above it, in [color]. */
 @Composable
@@ -716,72 +708,53 @@ private fun HintAndRestart(
 
 /**
  * The given pieces, one tile each, in their orientation, read with it; a placed one is an empty slot, touched to take it
- * back. The chosen one bears a ring, which goes down with it when pressed.
+ * back. The chosen one bears a ring, which goes down with it when pressed. The tiles shrink to the width, never under a
+ * touch target, then go on two rows ([trayLayout]), the last one centred.
  */
 @Composable
 private fun Tray(
     state: LocksmithUiState,
     actions: LocksmithActions,
 ) {
-    val game = state.game
-    Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
-        game.given.forEachIndexed { rank, type ->
-            val placed = rank in game.placed
-            val chosen = rank == game.selected
-            val name = stringResource(
-                if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
-                type.name,
-            )
-            val orientation = if (placed) null else stringResource(orientationOf(game, rank))
-            val ring = if (chosen) {
-                Modifier.border(SELECTED_RING, BloxTheme.palette.accent, BloxTheme.shapes.md)
-            } else {
-                Modifier
-            }
-            BubbleButton(
-                family = ButtonFamily.SECONDARY,
-                onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
-                modifier = Modifier
-                    .testTag(tileTestTag(rank))
-                    .size(TILE)
-                    .then(ring)
-                    .semantics {
-                        contentDescription = name
-                        selected = chosen
-                        // Read on exploring it; a turn is told by the message, the one region announced.
-                        if (orientation != null) stateDescription = orientation
-                    },
-                shape = BloxTheme.shapes.md,
-            ) {
-                if (!placed) TilePiece(state, rank)
+    BoxWithConstraints(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        val layout = trayLayout(width = maxWidth, count = state.game.given.size, density = LocalDensity.current)
+        Column(
+            verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            state.game.given.indices.chunked(layout.perRow).forEach { ranks ->
+                Row(horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
+                    ranks.forEach { rank -> Tile(state, rank, layout.tile, actions) }
+                }
             }
         }
     }
 }
 
-/**
- * The given piece of [rank], in its orientation, brought to the top left corner, drawn as the next piece of the
- * Classic, centred in its tile; the tile itself tells TalkBack its name.
- */
+/** The tile of the given piece of [rank], [side] wide and high. */
 @Composable
-private fun TilePiece(
+private fun Tile(
     state: LocksmithUiState,
     rank: Int,
+    side: Dp,
+    actions: LocksmithActions,
 ) {
-    val cells = state.game.orientationOf(rank).broughtToOrigin().cells
-    val piece = NextPieceCells(
-        type = state.game.given[rank],
-        cells = cells,
-        columns = cells.maxOf { it.column } + 1,
-        rows = cells.maxOf { it.row } + 1,
-    )
-    NextPieceCanvas(
-        next = piece,
-        cellSize = with(LocalDensity.current) { TILE_CELL.toPx() },
+    val game = state.game
+    val type = game.given[rank]
+    val placed = rank in game.placed
+    PieceTile(
+        piece = if (placed) null else pieceCells(type, game.orientationOf(rank)),
+        description = stringResource(
+            if (placed) R.string.feature_locksmith_tile_placed else R.string.feature_locksmith_tile,
+            type.name,
+        ),
+        onClick = { if (placed) actions.onTakeBack(rank) else actions.onSelect(rank) },
         modifier = Modifier
-            .size(TILE)
-            .clearAndSetSemantics {},
-        background = BloxTheme.palette.button,
+            .size(side)
+            .testTag(tileTestTag(rank)),
+        chosen = rank == game.selected,
+        // Read on exploring it; a turn is told by the message, the one region announced.
+        stateDescription = if (placed) null else stringResource(orientationOf(game, rank)),
     )
 }
 
@@ -820,25 +793,43 @@ private fun Controls(
 
 /**
  * The card « Serrure ouverte ! »: its title, the one text that tells the opening, a heading that takes the focus from
- * [titleFocus]; the counters of [card], then Serrure suivante, the action of the screen, and Rejouer cette serrure. The
- * cadence that closed the phrase is told by the message, above it.
+ * [titleFocus]; the sticker of [card], if any, bouncing in at [stickerTick]; its counters; the best opening kept of the
+ * padlock; whether the opening could not be recorded; then Serrure suivante, the action of the screen, Reprendre à la
+ * serrure N after the replay of an old padlock, and Rejouer cette serrure. The cadence that closed the phrase is told
+ * by the message, above it.
  */
 @Composable
 private fun OpenPadlockCard(
     card: OpenCard,
     actions: LocksmithActions,
     titleFocus: FocusRequester,
+    stickerTick: () -> Int,
 ) {
     WindowPanel(
         title = stringResource(R.string.feature_locksmith_open_title),
+        // The title the card had before the windows took screen-title (P5.98): its design is the Serrurier's own.
+        titleStyle = BloxTheme.typography.title.merge(MaterialTheme.typography.titleSmall),
         titleModifier = Modifier
             .focusRequester(titleFocus)
             .focusable(),
     ) {
+        card.sticker?.let { sticker ->
+            OpenStickerLabel(sticker, stickerTick, Modifier.align(Alignment.CenterHorizontally))
+        }
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
             Counter(stringResource(R.string.feature_locksmith_open_moves), card.moves)
             Counter(stringResource(R.string.feature_locksmith_open_refusals), card.refusals)
             Counter(stringResource(R.string.feature_locksmith_open_hints), card.hints)
+        }
+        card.best?.let { best ->
+            val hints = pluralStringResource(R.plurals.feature_locksmith_open_best_hints, best.hints, best.hints)
+            WindowText(stringResource(R.string.feature_locksmith_open_best, best.moves, best.refusals, hints))
+        }
+        if (card.unrecorded) {
+            WindowText(
+                text = stringResource(R.string.feature_locksmith_unrecorded),
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+            )
         }
         PrimaryButton(
             text = stringResource(R.string.feature_locksmith_next),
@@ -846,6 +837,14 @@ private fun OpenPadlockCard(
             onClick = actions.onNext,
             modifier = Modifier.fillMaxWidth(),
         )
+        card.resumeAt?.let { frontier ->
+            SecondaryButton(
+                text = stringResource(R.string.feature_locksmith_resume, frontier),
+                icon = BloxIcon.PLAY,
+                onClick = { actions.onResume(frontier) },
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
         SecondaryButton(
             text = stringResource(R.string.feature_locksmith_replay),
             icon = BloxIcon.REPLAY,
@@ -853,6 +852,40 @@ private fun OpenPadlockCard(
             modifier = Modifier.fillMaxWidth(),
         )
     }
+}
+
+/**
+ * The sticker of the card, NOUVEAU MEILLEUR or PARFAITE ([Sticker]), as NOUVEAU RECORD of the game; it bounces in at
+ * [tick], fixed in reduced effects ([stickerScale]), drawn without recomposing. TalkBack reads its word in normal case,
+ * as a polite live region: the sticker of a new best comes once the opening is written, after the title of the card
+ * took the focus.
+ */
+@Composable
+private fun OpenStickerLabel(
+    sticker: OpenSticker,
+    tick: () -> Int,
+    modifier: Modifier = Modifier,
+) {
+    val word = stringResource(
+        when (sticker) {
+            OpenSticker.NEW_BEST -> R.string.feature_locksmith_sticker_new_best
+            OpenSticker.PERFECT -> R.string.feature_locksmith_sticker_perfect
+        },
+    )
+    val effects = BloxTheme.effects
+    Sticker(
+        text = word,
+        modifier = modifier
+            .clearAndSetSemantics {
+                contentDescription = word
+                liveRegion = LiveRegionMode.Polite
+            }
+            .graphicsLayer {
+                val scale = stickerScale(tick(), effects)
+                scaleX = scale
+                scaleY = scale
+            },
+    )
 }
 
 /** A counter of the card: its [value] over its [label], read by TalkBack as one « label : value ». */
@@ -877,26 +910,11 @@ private const val BOTTOM_SHARE = 0.5f
 /** The largest cell of the padlock; 8 cells and their rim fit the width of a phone of 390 dp, margins included. */
 internal val MAX_CELL = 42.dp
 
-/** The narrowest pill of a chord. */
-private val CHORD_PILL = 44.dp
-
 /** The height of the bracket under the cadence. */
 private val BRACKET = 6.dp
 
-/** The padlock of the state of the game, in the bar. */
-private val STATUS_ICON = 24.dp
-
 /** How far the shackle of an open padlock rises out of its body, in parts of its height. */
 private const val SHACKLE_LIFT = 0.14f
-
-/** A tile of a given piece, at the size of a touch target. */
-private val TILE = 52.dp
-
-/** A cell of a piece in its tile. */
-private val TILE_CELL = 10.dp
-
-/** The ring of the chosen tile: thicker than the frame of a tile, so that the choice does not rest on colour alone. */
-private val SELECTED_RING = 4.dp
 
 /** How far a refusal shakes the padlock aside, at most. */
 internal val SHAKE = 6.dp

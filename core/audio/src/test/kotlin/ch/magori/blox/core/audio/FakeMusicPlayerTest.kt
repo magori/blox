@@ -71,6 +71,20 @@ class FakeMusicPlayerTest : MusicPlayerContract() {
     }
 
     @Test
+    fun `the scores switched to are kept in order, even while nothing plays`() {
+        // Given
+        val fake = FakeMusicPlayer()
+
+        // When
+        fake.switchTo(Scores.minuet)
+        fake.play(Scores.korobeiniki)
+        fake.switchTo(Scores.korobeiniki)
+
+        // Then
+        assertThat(fake.switchedScores).containsExactly(Scores.minuet, Scores.korobeiniki)
+    }
+
+    @Test
     fun `a switch while a music file plays changes nothing`() {
         // Given
         val fake = FakeMusicPlayer()

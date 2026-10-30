@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer.grid
 
+import ch.magori.blox.core.designsystem.text.NoteStep
 import ch.magori.blox.feature.composer.model.EditMode
 import ch.magori.blox.feature.composer.model.EditorState
 import ch.magori.blox.feature.composer.model.ScoreDraft

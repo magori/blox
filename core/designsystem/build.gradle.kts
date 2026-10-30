@@ -28,6 +28,9 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.savedstate)
+    // L'écran qui n'est plus visible (ON_STOP), où les écrans qui écoutent de la musique l'arrêtent
+    // (ScreenHiddenEffect).
+    implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)

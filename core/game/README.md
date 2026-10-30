@@ -11,7 +11,7 @@ Règles de référence : [docs/regles-mode-classique.md](../../docs/regles-mode-
 | Paquet | Contenu |
 |---|---|
 | `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Rotation`, `Piece`, `Board` (grille immuable 10×20). |
-| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`. Une implémentation `Classic*` de chacune pour le mode Classique. |
+| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `DropTiming` (cadence de chute, ADR 0028), `ScoringRule`, `LevelProgression`. Une implémentation `Classic*` de chacune pour le mode Classique. |
 | `ch.magori.blox.core.game.engine` | Machine à états de la partie : `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements émis (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…). |
 
 ## Principes

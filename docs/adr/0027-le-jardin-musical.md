@@ -23,7 +23,7 @@ l'écran).
 - **`core:garden`**, Kotlin pur (`blox.jvm.library`, `explicitApi`), avec `api(core:game)` et
   `api(core:music)` : son API expose `Piece`, `PieceType`, `Position`, `Orientation`, `Score`,
   `Scale` et `Progression`. Les pièces posées sont des `Piece` de `core:game`, sans type parallèle.
-  Il porte le jardin immuable (`Garden` : poser, refuser, reprendre, effacer), les ambiances
+  Il porte le jardin immuable (`Garden` : poser, refuser, reprendre, effacer, changer d'ambiance — le jardin porte son ambiance, amendement P10.5), les ambiances
   (`GardenMood` : gamme, accords, tempo), la partition (`Garden.toScore`) et le dé
   (`GardenComposer`). Ni son joué, ni couleur, ni temps réel.
 - **Le dé est une fonction pure de la graine**, sur le générateur stable `StableRandom` (P1.20,
@@ -57,3 +57,31 @@ l'écran).
 - La cartouche attend le choix du jeu à cinq cartouches (ADR 0026).
 - L'export d'un jardin vers « Mes musiques » demandera de le traduire au format des musiques
   enregistrées (ADR 0017) : hors v1.
+
+## Amendement (P10.11, 2026-10-28) : le format du jardin gardé
+
+Le jardin gardé est un fichier binaire à lui, `garden.bin`, dans un format de BloX versionné
+(version 1), écrit sur Okio comme les musiques (ADR 0017) : « BLXG », la version, le nom de
+l'ambiance, le nombre de pièces (56 au plus), puis chaque pièce par le nom de son type, son pivot
+et ses 4 cases en décalages depuis le pivot, triées ligne par ligne. Les cases plutôt qu'un numéro
+d'orientation : le fichier ne dépend pas de l'ordre des orientations de `ClassicRotationSystem`, et
+une forme étrangère à son type se détecte au lieu de donner une autre forme en silence ; un test
+d'octets fige le format. À la lecture, chaque pièce est reposée par `Garden.place` ; tout ce
+qu'aucun jardin ne peut contenir rend le fichier corrompu, copié dans `garden.bin.corrupt` puis
+remplacé par un jardin vide et calme. Une version plus récente est gardée telle quelle, sans
+écriture, comme les musiques. `core:data` dépend de `core:garden` en `api` (le `Garden` est dans
+son API publique, sans type parallèle) ; le fichier entre dans la sauvegarde Android (décision du
+développeur).
+
+## Amendement (P10.24, 2026-10-28) : Mes jardins
+
+Le développeur demande de pouvoir garder ses jardins. Plusieurs jardins, d'abord hors v1, entrent donc dans le
+périmètre ; l'export vers « Mes musiques » reste écarté, l'éditeur ne sachant pas ouvrir la partition d'un jardin.
+
+- **Deux fichiers** : `garden.bin` reste le jardin en cours, gardé à chaque geste ; `gardens.bin` (format versionné v1, avec sa propre signature) garde jusqu'à **30** jardins nommés, chacun encodé comme le corps de `garden.bin`
+  (`GardenEncoding`, P10.26). Les deux entrent dans la sauvegarde Android.
+- **Jardin lié** : `garden.bin` passe en v2 pour porter l'identité du jardin gardé d'où vient le jardin en cours
+  (un fichier v1 se lit sans lien) ; « Enregistrer « X » » remplace X, « Garder une copie » en crée un autre.
+- **Noms** : les règles de Mes musiques, rendues communes (`TakenNames`, P10.25), sur une liste à part.
+- **Dépendances** : `feature:garden` lit `GardenLibrary` dans `core:data`, que `app` construit ; aucune feature ne
+  dépend d'une autre. La miniature (`GardenThumbnail`) va dans `core:board`, à côté de `GardenCellCanvas`.

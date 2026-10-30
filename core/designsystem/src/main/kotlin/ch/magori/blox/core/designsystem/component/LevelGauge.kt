@@ -66,7 +66,7 @@ fun LevelGauge(
     Row(
         modifier = modifier
             .stepSemantics(value, description, state = value.value.toString(), onValueChange = change)
-            .stepKeys(direction, BloxTheme.buttons.focus, BloxTheme.shapes.md, gesture, change) { latestValue },
+            .stepKeys(direction, BloxTheme.buttons, BloxTheme.shapes.md, gesture, change) { latestValue },
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
         verticalAlignment = Alignment.CenterVertically,
     ) {

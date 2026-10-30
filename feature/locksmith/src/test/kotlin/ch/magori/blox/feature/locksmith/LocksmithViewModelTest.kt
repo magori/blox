@@ -3,6 +3,7 @@ package ch.magori.blox.feature.locksmith
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.MutableCreationExtras
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
+import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.game.model.Orientation
@@ -15,6 +16,7 @@ import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.Refusal
 import ch.magori.blox.core.locksmith.turnedTo
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
+import kotlinx.coroutines.MainScope
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
@@ -22,14 +24,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(MainDispatcherExtension::class)
 class LocksmithViewModelTest {
-    private val start = PadlockGame.start(Padlock.generate(level = 2, seed = 7))
-    private val viewModel = locksmithViewModel(LocksmithRoute(level = 2, seed = 7))
+    private val start = PadlockGame.start(Padlock.ofLevel(2))
+    private val viewModel = locksmithViewModel(LocksmithRoute(level = 2))
 
     /** The first given piece, where the solution has it. */
     private val firstPiece = start.padlock.solution.first { it.type == start.given.first() }
 
     @Test
-    fun `the screen opens on padlock n of the seed of its route, nothing placed`() {
+    fun `the screen opens on padlock n of its route, the same for everyone, nothing placed`() {
         // Then
         val state = viewModel.uiState.value
         assertThat(state.level).isEqualTo(2)
@@ -155,18 +157,21 @@ class LocksmithViewModelTest {
     fun `the factory builds the padlock and the level of the route the entry hands it`() {
         // Given
         val extras = MutableCreationExtras().apply {
-            set(LocksmithViewModel.RouteKey, LocksmithRoute(level = 3, seed = 9))
+            set(LocksmithViewModel.RouteKey, LocksmithRoute(level = 3))
         }
 
         // When
         val built = LocksmithViewModel.Factory(
             FakeSoundEffectPlayer(),
             FakeUserPreferencesRepository(),
+            FakePadlockProgressRepository(),
+            MainScope(),
+            ClearedProgressRelay(),
         ).create(LocksmithViewModel::class, extras)
 
         // Then
         assertThat(built.uiState.value.level).isEqualTo(3)
-        assertThat(built.uiState.value.game).isEqualTo(PadlockGame.start(Padlock.generate(level = 3, seed = 9)))
+        assertThat(built.uiState.value.game).isEqualTo(PadlockGame.start(Padlock.ofLevel(3)))
     }
 
     @Test
@@ -175,7 +180,71 @@ class LocksmithViewModelTest {
             LocksmithViewModel.Factory(
                 FakeSoundEffectPlayer(),
                 FakeUserPreferencesRepository(),
+                FakePadlockProgressRepository(),
+                MainScope(),
+                ClearedProgressRelay(),
             ).create(LocksmithViewModel::class, CreationExtras.Empty)
         }
+    }
+
+    @Test
+    fun `the padlock shown after the progress is cleared tells it, once, until the first action`() {
+        // Given the progress cleared on the screen of the padlocks, padlock 1 shown next
+        val cleared = ClearedProgressRelay()
+        cleared.handOver()
+        val first = locksmithViewModel(LocksmithRoute(level = 1), cleared = cleared)
+
+        // When it is shown, then shown again (a rotation), and a second padlock is shown
+        first.showClearedProgress()
+        val told = first.uiState.value.cleared
+        first.showClearedProgress()
+        val second = locksmithViewModel(LocksmithRoute(level = 1), cleared = cleared)
+        second.showClearedProgress()
+
+        // Then the first tells it, the second not; the first action makes it give way to the game
+        assertThat(told).isTrue
+        assertThat(first.uiState.value.cleared).isTrue
+        assertThat(second.uiState.value.cleared).isFalse
+        first.select(1)
+        assertThat(first.uiState.value.cleared).isFalse
+    }
+
+    @Test
+    fun `a placement or a restart, as any first action, makes the cleared progress give way to the game`() {
+        // Given two padlocks 1, each shown after a clear
+        val tellingOf = {
+            val cleared = ClearedProgressRelay().apply { handOver() }
+            locksmithViewModel(LocksmithRoute(level = 1), cleared = cleared).apply { showClearedProgress() }
+        }
+        val placing = tellingOf()
+        val restarting = tellingOf()
+
+        // When a piece is placed on the first, the second is started over
+        placing.place(Position(1, 1))
+        restarting.restart()
+
+        // Then
+        assertThat(placing.uiState.value.cleared).isFalse
+        assertThat(restarting.uiState.value.cleared).isFalse
+    }
+
+    @Test
+    fun `padlock 1, open under the screen of the padlocks, starts over once the progress is cleared, and tells it`() {
+        // Given padlock 1 open, its view model kept under the screen of the padlocks
+        val cleared = ClearedProgressRelay()
+        val first = locksmithViewModel(LocksmithRoute(level = 1), cleared = cleared)
+        val one = PadlockGame.start(Padlock.ofLevel(1))
+        one.padlock.solution.forEach { first.placing(it) }
+        assertThat(first.uiState.value.game.isOpen).isTrue
+
+        // When the progress is cleared there, and padlock 1 shows again
+        cleared.handOver()
+        first.showClearedProgress()
+
+        // Then padlock 1 starts over, nothing placed, and tells the progress cleared
+        val state = first.uiState.value
+        assertThat(state.game).isEqualTo(one)
+        assertThat(state.outcome).isNull()
+        assertThat(state.cleared).isTrue
     }
 }

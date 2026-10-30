@@ -5,6 +5,7 @@ import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 import kotlin.random.Random
 
 class ReplayTest {
@@ -35,5 +36,23 @@ class ReplayTest {
 
         // Then the new game stays, the only one
         assertThat(backStack).isEqualTo(afterFirst)
+    }
+
+    @Test
+    fun `replaying a daily game keeps its seed, even after midnight`() {
+        // Given the daily game of the 26th of October, over, replayed once the phone is on the 27th: the route holds its
+        // date, which nothing reads again
+        val finished = GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = 1L)
+        val backStack = mutableListOf<NavKey>(HomeRoute, finished)
+
+        // When
+        replay(backStack, finished, random = Random(7))
+
+        // Then the new game is a daily game of the same date and seed, under a new key (ADR 0011)
+        val replayed = backStack.last()
+        assertThat(replayed).isEqualTo(
+            GameRoute.daily(LocalDate.of(2026, 10, 26), seed = 20261026L, id = Random(7).nextLong()),
+        )
+        assertThat(replayed).isNotEqualTo(finished)
     }
 }

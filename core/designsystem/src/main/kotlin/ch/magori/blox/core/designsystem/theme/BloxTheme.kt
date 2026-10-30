@@ -42,6 +42,19 @@ fun BloxTheme(
     }
 }
 
+/**
+ * [content] in the Colorful theme, in its variant for the mode of the system, [darkSystem], whatever the theme around
+ * it: the screens drawn in the Colorful theme only (ADR 0026, ADR 0027, ADR 0030). The effects around it are kept:
+ * imposing a theme does not bring back the full effects of a player who reduced them.
+ */
+@Composable
+fun ColorfulTheme(
+    darkSystem: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit,
+) {
+    BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = darkSystem, effects = BloxTheme.effects, content = content)
+}
+
 object BloxTheme {
     val palette: BloxPalette
         @Composable

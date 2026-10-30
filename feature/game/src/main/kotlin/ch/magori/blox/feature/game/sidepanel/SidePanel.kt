@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -24,9 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ch.magori.blox.core.board.next.NextPieceCanvas
-import ch.magori.blox.core.board.next.NextPieceCells
-import ch.magori.blox.core.board.next.nextPieceCells
 import ch.magori.blox.core.board.next.nextPieceName
+import ch.magori.blox.core.board.piece.PieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Level
@@ -61,15 +64,16 @@ internal fun SidePanel(
     score: Points,
     level: Level,
     lines: Lines,
-    next: NextPieceCells?,
+    next: PieceCells?,
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
+    shownScore: (() -> Points)? = null,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         NextPiecePanel(next = next, cellSize = cellSize, previewModifier = previewModifier)
-        ScorePanels(score = score, level = level, lines = lines, recordFill = recordFill)
+        ScorePanels(score = score, level = level, lines = lines, recordFill = recordFill, shownScore = shownScore)
     }
 }
 
@@ -81,9 +85,10 @@ internal fun ScorePanels(
     lines: Lines,
     recordFill: Float?,
     modifier: Modifier = Modifier,
+    shownScore: (() -> Points)? = null,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ScorePanel(score, recordFill)
+        ScorePanel(score, recordFill, shownScore = shownScore)
         LinesPanel(lines)
         LevelPanel(level)
     }
@@ -100,11 +105,12 @@ internal fun ScoreGrid(
     score: Points,
     level: Level,
     lines: Lines,
-    next: NextPieceCells?,
+    next: PieceCells?,
     recordFill: Float?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
+    shownScore: (() -> Points)? = null,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
@@ -114,7 +120,7 @@ internal fun ScoreGrid(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 previewModifier = previewModifier,
             )
-            ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight())
+            ScorePanel(score, recordFill, Modifier.weight(1f).fillMaxHeight(), shownScore)
         }
         PanelRow {
             LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
@@ -133,15 +139,29 @@ private fun PanelRow(content: @Composable RowScope.() -> Unit) {
     )
 }
 
-/** The score in its panel, the record bar under it filled by [recordFill] ([recordBar]); without a record, none. */
+/**
+ * The score in its panel, the record bar under it filled by [recordFill] ([recordBar]); without a record, none. The
+ * value shown is the one [shownScore] gives, the score itself without it: a score that counts up recomposes only its
+ * text ([ScoreValue], ADR 0024). TalkBack reads the score itself.
+ */
 @Composable
 private fun ScorePanel(
     score: Points,
     recordFill: Float?,
     modifier: Modifier = Modifier,
+    shownScore: (() -> Points)? = null,
 ) {
     val bar = if (recordFill == null) Modifier else Modifier.recordBar(recordFill)
-    ValuePanel(stringResource(R.string.feature_game_score), scoreText(score), score.value, modifier.then(bar))
+    ValuePanel(stringResource(R.string.feature_game_score), score.value, modifier.then(bar)) {
+        if (shownScore == null) ValueText(text = scoreText(score)) else ScoreValue(shownScore)
+    }
+}
+
+/** The score [shown] gives, followed on its own: it recomposes alone as the score counts. */
+@Composable
+private fun ScoreValue(shown: () -> Points) {
+    val score by remember(shown) { derivedStateOf(shown) }
+    ValueText(text = scoreText(score))
 }
 
 @Composable
@@ -166,7 +186,7 @@ private fun LinesPanel(
  */
 @Composable
 internal fun NextPiecePanel(
-    next: NextPieceCells?,
+    next: PieceCells?,
     cellSize: Float,
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
@@ -196,12 +216,23 @@ private fun ValuePanel(
     rawValue: Int,
     modifier: Modifier = Modifier,
 ) {
+    ValuePanel(label, rawValue, modifier) { ValueText(text = value) }
+}
+
+/** A panel of a value, its [label] above its [content]; TalkBack reads the label and [rawValue]. */
+@Composable
+private fun ValuePanel(
+    label: String,
+    rawValue: Int,
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit,
+) {
     LabelledPanel(
         label = label,
         description = valueDescription(label, rawValue.toString()),
         modifier = modifier,
     ) {
-        ValueText(text = value)
+        content()
     }
 }
 

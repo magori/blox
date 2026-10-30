@@ -34,11 +34,11 @@ internal class ConfirmWindowTest {
         val answers = mutableListOf<String>()
         showWindow(onConfirm = { answers += "confirm" }, onDismiss = { answers += "dismiss" })
 
-        // Then the question, then « Garder le record » before « Effacer le record », on the screen as for TalkBack
+        // Then the question, then « Garder le record » above « Effacer le record », on the screen as for TalkBack
         onNodeWithText("Effacer le record ?").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
         val keep = onNode(hasText("Garder le record") and hasClickAction()).getUnclippedBoundsInRoot()
         val clear = onNode(hasText("Effacer le record") and hasClickAction()).getUnclippedBoundsInRoot()
-        assertThat(keep.left < clear.left || keep.bottom <= clear.top).isTrue()
+        assertThat(keep.bottom).isLessThanOrEqualTo(clear.top)
 
         // When
         onNode(hasText("Garder le record") and hasClickAction()).performClick()
@@ -70,6 +70,27 @@ internal class ConfirmWindowTest {
         // Then
         onNode(hasText("Garder le record") and hasClickAction()).assertIsNotEnabled()
         onNode(hasText("Effacer le record") and hasClickAction()).assertIsNotEnabled()
+    }
+
+    @Test
+    @DisplayName("a deletion that waits for its answer to be written has both answers disabled")
+    fun aDeletionThatWaitsHasItsAnswersDisabled() = extension.use {
+        // Given
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                DeleteWindow(
+                    name = "Pluie douce",
+                    keep = "Garder le jardin",
+                    onConfirm = {},
+                    onDismiss = {},
+                    waiting = true,
+                )
+            }
+        }
+
+        // Then
+        onNode(hasText("Garder le jardin") and hasClickAction()).assertIsNotEnabled()
+        onNode(hasText("Supprimer") and hasClickAction()).assertIsNotEnabled()
     }
 
     /** The window that asks whether to clear the record, [failed] once or not, [waiting] for its answer or not. */

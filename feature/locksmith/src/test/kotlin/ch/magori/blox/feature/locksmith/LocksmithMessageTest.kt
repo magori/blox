@@ -12,11 +12,16 @@ import org.junit.jupiter.api.Test
 
 /** The message under the padlock: what the last action told, or how to play. */
 class LocksmithMessageTest {
-    private val start = LocksmithUiState(level = 1, game = PadlockGame.start(Padlock.generate(level = 1, seed = 7)))
+    private val start = LocksmithUiState(level = 1, game = PadlockGame.start(Padlock.ofLevel(1)))
 
     @Test
     fun `without a preview the message says to touch the hole`() {
         assertThat(messageOf(start)).isEqualTo(R.string.feature_locksmith_message_aim)
+    }
+
+    @Test
+    fun `once the progress is cleared, the message says so until the first action`() {
+        assertThat(messageOf(start.copy(cleared = true))).isEqualTo(R.string.feature_locksmith_message_cleared)
     }
 
     @Test
@@ -97,7 +102,7 @@ class LocksmithMessageTest {
     @Test
     fun `a hint names its piece, the one that fits or the placed one that blocks`() {
         // Given
-        val piece = start.game.padlock.solution.last()
+        val piece = start.game.padlock.solution.first { it.type == start.game.given.last() }
         val fit = start.copy(hint = Hint.Fit(start.game.given.lastIndex, piece))
         val blocking = start.copy(hint = Hint.Blocking(0))
 

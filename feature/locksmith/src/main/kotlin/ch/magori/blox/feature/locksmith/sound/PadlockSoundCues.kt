@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.locksmith.sound
 
+import ch.magori.blox.core.audio.SoundCue
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.PadlockUpdate
@@ -12,9 +13,6 @@ import ch.magori.blox.core.music.SoundEffect
  * all): it comes once the cadence has resolved, without a silence between them.
  */
 private const val FLOURISH_MARGIN_MILLIS = 10L
-
-/** A sound [effect] to play [afterMillis] after the action that gives it, at once by default. */
-internal data class SoundCue(val effect: SoundEffect, val afterMillis: Long = 0)
 
 /**
  * The sound cues of [update], in the order of its events: a placement plays the arpeggio and the bass of the chord it

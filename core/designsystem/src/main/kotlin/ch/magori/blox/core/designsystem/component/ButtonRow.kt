@@ -10,7 +10,7 @@ import kotlin.math.sign
 
 /*
  * Whether buttons framed as panels ([FramedBox]) hold side by side, their labels whole, or have to stand one above the
- * other: the answers of a window, the toolbar of the editor. Counted in whole pixels, as the layout counts them.
+ * other: the toolbar of the editor, the tiles of the home. Counted in whole pixels, as the layout counts them.
  */
 
 /**
@@ -21,9 +21,18 @@ import kotlin.math.sign
 fun TextMeasurer.widestWord(
     text: String,
     style: TextStyle,
-): Int = text.split(' ').maxOf { word ->
-    val layout = measure(word, style, softWrap = false, maxLines = 1)
-    ceil(layout.getLineRight(0) - layout.getLineLeft(0)).toInt()
+): Int = text.split(' ').maxOf { word -> lineWidth(word, style) }
+
+/**
+ * The width, in whole pixels, of [text] in [style] on a single line: a label kept on one line needs at least this room.
+ * The width of its line, as [widestWord] counts a word.
+ */
+fun TextMeasurer.lineWidth(
+    text: String,
+    style: TextStyle,
+): Int {
+    val layout = measure(text, style, softWrap = false, maxLines = 1)
+    return ceil(layout.getLineRight(0) - layout.getLineLeft(0)).toInt()
 }
 
 /**

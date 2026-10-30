@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="feature_daily_change_game">Changer de jeu</string>
+    <!-- Puce de la barre : l'étiquette, en capitales, au-dessus du meilleur score du jour (ou d'un tiret). -->
+    <string name="feature_daily_best_of_the_day">Meilleur du jour</string>
+    <!-- Lu par TalkBack sur la puce : la vraie valeur, non plafonnée. -->
+    <string name="feature_daily_best_of_the_day_description">Meilleur du jour %1$d</string>
+    <string name="feature_daily_best_of_the_day_none">Meilleur du jour : aucun essai</string>
+    <!-- Titre de l'écran : la date du jour en lettres (« 26 octobre »). -->
+    <string name="feature_daily_title">Graine du %1$s</string>
+    <!-- Encart des premières pièces de la graine, en capitales. -->
+    <string name="feature_daily_first_pieces">Les 7 premières</string>
+    <!-- Lu par TalkBack sur chaque pièce de l'encart : son rang, puis sa lettre. -->
+    <string name="feature_daily_piece">Pièce %1$d : %2$s</string>
+    <string name="feature_daily_tries">Essais</string>
+    <string name="feature_daily_first_try">Premier essai</string>
+    <string name="feature_daily_best">Meilleur</string>
+    <!-- Valeur d'une tuile avant le premier essai du jour. -->
+    <string name="feature_daily_no_value" translatable="false">—</string>
+    <!-- Lu par TalkBack sur une tuile : son étiquette, puis sa vraie valeur, ou « aucun essai ». -->
+    <string name="feature_daily_tile_description">%1$s : %2$d</string>
+    <string name="feature_daily_tile_description_none">%1$s : aucun essai</string>
+    <string name="feature_daily_play">Jouer</string>
+    <!-- Rappel sous Jouer : la partie du jour impose son niveau (sur deux chiffres) et sa musique ; le titre dit déjà « Graine du … ». -->
+    <string name="feature_daily_play_reminder">Niveau %1$02d · Vivante</string>
+    <!-- Lu par TalkBack sur Jouer : le rappel en mots, sans les points ni le zéro du niveau. -->
+    <string name="feature_daily_play_description">Jouer, niveau %1$d, Vivante</string>
+    <string name="feature_daily_copy_score">Copier mon score</string>
+    <!-- Sous « Copier mon score », tant qu'aucun essai du jour n'a commencé. -->
+    <string name="feature_daily_copy_score_later">Joue une partie pour copier ton score</string>
+    <string name="feature_daily_new_seed">Nouvelle graine à minuit</string>
+</resources>

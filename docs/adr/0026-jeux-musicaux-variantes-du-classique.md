@@ -40,7 +40,7 @@ La Graine du jour partage justement une graine entre joueurs.
   (`DailySeed`, dans `app`, horloge injectée), au niveau 5 et en musique Vivante imposés. Elle a
   **son propre dépôt**, `DailyChallengeRepository` (`core:data`, fichier à part) : essais, premier
   essai, meilleur du jour. Elle n'écrit jamais dans les records du Classique.
-- **Au tempo est une variante de `feature:game`** à règles propres (`TempoRules`, ADR 0028), avec
+- **Au tempo est une variante de `feature:game`** à règles propres (`tempoRules(meter)`, ADR 0028), avec
   **son propre fichier de records** (une seconde instance de `DataStoreHighScoreRepository`).
 - `GameRoute` porte la variante (`CLASSIC`, `DAILY`, `TEMPO`) ; la fabrique du ViewModel choisit
   les règles, la direction musicale et le dépôt d'après elle. Rejouer garde la variante et, pour
@@ -68,7 +68,9 @@ La Graine du jour partage justement une graine entre joueurs.
   la fabrique et des encarts propres à Au tempo. Autre différence admise : **le thème imposé et ses
   barres système**. Le Classique suit le thème choisi, alors que les parties Graine du jour et Au
   tempo sont toujours en Couleurs v2 ; `systemBarVariant`, dans `app`, devra donc connaître les
-  variantes de `GameRoute`.
+  variantes de `GameRoute`. **Amendement (P9.6, 2026-10-27)** : `app` lit aussi la date d'une partie
+  du jour (`dailyDateOf(GameRoute)`) pour copier son score en fin de partie ; c'est une lecture de
+  la route hors de l'écran et du ViewModel, comme `systemBarVariant`.
 - Un dépôt et un fichier de records de plus ; tous deux ont leur contrat et leur faux en
   testFixtures, et doivent être déclarés (ou exclus) dans les règles de sauvegarde.
 - Changer `StableRandom` ou `ClassicRandomizer` casse le test qui fige la graine 20261026 : c'est le

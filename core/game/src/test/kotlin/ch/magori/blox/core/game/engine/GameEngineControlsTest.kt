@@ -8,6 +8,7 @@ import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.model.tPointingDown
 import org.assertj.core.api.Assertions.assertThat
@@ -252,8 +253,20 @@ class GameEngineControlsTest {
 
         // Then
         assertThat(beforeLock.current?.pivot).isEqualTo(Position(5, 18))
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18))))
+        assertThat(lock.events).containsExactly(SOFT_DROPPED_ON_THE_FLOOR)
         assertThat(lock.state.progress.score).isEqualTo(Points(4))
+    }
+
+    @Test
+    fun `a piece locked by a refused step of the soft drop says so`() {
+        // Given a T on the floor, pivot on row 18, and down pressed: its first step is refused
+        val pressed = engine.press(gameState(phase = Phase.Falling(tPointingDown(at = Position(5, 18)))), Button.DOWN)
+
+        // When
+        val lock = generateSequence(engine.tick(pressed)) { engine.tick(it.state) }.first { it.events.isNotEmpty() }
+
+        // Then the soft drop brought the lock, though it dropped no row
+        assertThat(lock.events).containsExactly(SOFT_DROPPED_ON_THE_FLOOR)
     }
 
     @Test
@@ -271,7 +284,7 @@ class GameEngineControlsTest {
 
         // Then only the 2 rows of the second soft drop score
         assertThat(firstSteps.current?.pivot).isEqualTo(Position(5, 16))
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18))))
+        assertThat(lock.events).containsExactly(SOFT_DROPPED_ON_THE_FLOOR)
         assertThat(lock.state.progress.score).isEqualTo(Points(2))
     }
 
@@ -288,7 +301,7 @@ class GameEngineControlsTest {
         val clearEnd = engine.tick(engine.ticks(lock.state, 16))
 
         // Then the clear lasts 17 ticks (lock on tick 7), then comes the entry delay of a lock on row 18
-        assertThat(lock.events).containsExactly(GameEvent.PieceLocked(tPointingDown(at = Position(5, 18))))
+        assertThat(lock.events).containsExactly(SOFT_DROPPED_ON_THE_FLOOR)
         assertThat(lock.state.phase).isInstanceOfSatisfying(Phase.Clearing::class.java) { clearing ->
             assertThat(clearing.ticksLeft).isEqualTo(Ticks(17))
         }
@@ -491,7 +504,10 @@ class GameEngineControlsTest {
 
         // Then the J turned, then dropped, without locking
         assertThat(ticked.events).containsExactly(
-            GameEvent.PieceRotated(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 10))),
+            GameEvent.PieceRotated(
+                Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 10)),
+                Rotation.CLOCKWISE,
+            ),
         )
         assertThat(ticked.state.current).isEqualTo(Piece(PieceType.J, Orientation(cellsOf(J_LEFT)), Position(5, 11)))
     }
@@ -549,7 +565,22 @@ class GameEngineControlsTest {
 
         // Then
         val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 10))
-        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned))
+        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned, Rotation.CLOCKWISE))
+    }
+
+    @Test
+    fun `PieceRotated says which way the piece turned, clockwise with A, counterclockwise with B`() {
+        // Given a T pointing down, A pressed in one game and B in another
+        val withA = engine.press(gameState(phase = Phase.Falling(T_AT_5_10)), Button.A)
+        val withB = engine.press(gameState(phase = Phase.Falling(T_AT_5_10)), Button.B)
+
+        // When
+        val turnedByA = engine.tick(withA).events.filterIsInstance<GameEvent.PieceRotated>().single()
+        val turnedByB = engine.tick(withB).events.filterIsInstance<GameEvent.PieceRotated>().single()
+
+        // Then
+        assertThat(turnedByA.rotation).isEqualTo(Rotation.CLOCKWISE)
+        assertThat(turnedByB.rotation).isEqualTo(Rotation.COUNTERCLOCKWISE)
     }
 
     @Test
@@ -578,7 +609,10 @@ class GameEngineControlsTest {
 
         // Then
         val turned = Piece(PieceType.T, Orientation(cellsOf(T_LEFT)), Position(5, 18))
-        assertThat(ticked.events).containsExactly(GameEvent.PieceRotated(turned), GameEvent.PieceLocked(turned))
+        assertThat(ticked.events).containsExactly(
+            GameEvent.PieceRotated(turned, Rotation.CLOCKWISE),
+            GameEvent.PieceLocked(turned, bySoftDrop = false),
+        )
     }
 
     @Test
@@ -654,6 +688,9 @@ class GameEngineControlsTest {
 
     private companion object {
         val T_AT_5_10 = tPointingDown(at = Position(5, 10))
+
+        /** A T locked on the floor, its pivot on row 18, by a refused step of the soft drop. */
+        val SOFT_DROPPED_ON_THE_FLOOR = GameEvent.PieceLocked(tPointingDown(at = Position(5, 18)), bySoftDrop = true)
 
         const val T_LEFT = """
             .T

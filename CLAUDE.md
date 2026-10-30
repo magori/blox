@@ -41,8 +41,8 @@ TDD) et `/revue [branche|fichier]` (revue des changements selon ces conventions)
 
 ## TDD strict
 
-Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game`, `core:music` et `core:locksmith`,
-et pour toute logique testable ailleurs :
+Le développeur pratique le TDD de façon stricte. Pour tout code de `core:game`, `core:music`, `core:locksmith`
+et `core:garden`, et pour toute logique testable ailleurs :
 
 1. **Rouge** : écrire un seul test qui échoue, pour la plus petite règle suivante. Le lancer
    et montrer l'échec.
@@ -60,6 +60,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew :core:game:test       # domaine (JUnit 5, JVM, sans émulateur)
 ./gradlew :core:music:test      # partitions
 ./gradlew :core:locksmith:test  # le Serrurier
+./gradlew :core:garden:test     # le Jardin musical
 ./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
 ./gradlew ktlintCheck           # style Kotlin (ktlintFormat corrige)
 ./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
@@ -130,10 +131,10 @@ lui-même.
 
 | Type de module | Plugin(s) à appliquer | Tests fournis par le plugin |
 |---|---|---|
-| Kotlin pur (`core:game`, `core:music`, `core:locksmith`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
+| Kotlin pur (`core:game`, `core:music`, `core:locksmith`, `core:garden`) | `blox.jvm.library` | JUnit 5 + AssertJ (`useJUnitPlatform`) |
 | Bibliothèque Android (`core:audio`, `core:data`, `core:haptics`) | `blox.android.library` | JUnit 5 (plugin `android-junit`) + AssertJ + coroutines-test + Turbine ; tests instrumentés JUnit 5 |
 | Bibliothèque Compose (`core:designsystem`, `core:board`) | `blox.android.library` + `blox.android.library.compose` | idem |
-| Feature (`feature:cartridges`, `feature:home`, `feature:game`) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
+| Feature (`feature:cartridges`, `feature:home`, `feature:game`, `feature:daily`…) | `blox.android.feature` (inclut library + compose + serialization, dépend de `core:designsystem` et de Navigation 3 (`navigation3-runtime`) ; ViewModel et lifecycle arrivent en P2.2) | idem + Compose UI Test |
 | Application (`app`) | `blox.android.application` + `blox.android.application.compose` | idem + Compose UI Test (parcours entre features), `ui-test-manifest` en debug |
 | Mesures (`benchmark`, `com.android.test`) | `blox.android.benchmark` | JUnit 5 branché à la main, règles Macrobenchmark par l'adaptateur `RuleExtension` (amendement de l'ADR 0009) |
 
@@ -163,6 +164,8 @@ lui-même.
   dépendance demande un ADR.
 - `core:locksmith` : seulement `core:game` et `core:music`, en `api` (ADR 0025), ni
   Android ni coroutines. Il suit le TDD strict comme eux.
+- `core:garden` : seulement `core:game` et `core:music`, en `api` (ADR 0027), ni Android ni
+  coroutines. Il suit le TDD strict comme eux.
 - Une feature **ne dépend jamais** d'une autre feature. La navigation entre features est
   assemblée dans `app`, seul module qui les connaît toutes : une feature expose une clé `NavKey` et une
   extension d'`EntryProviderScope` ; `app` possède la pile et l'affiche avec `NavDisplay` (ADR 0011). La
@@ -170,7 +173,9 @@ lui-même.
   revient depuis l'accueil d'un jeu.
 - Aucune couleur ni son dans le domaine. `core:designsystem` ne dépend pas du domaine :
   l'association « `PieceType` → style de cellule » vit dans `core:board` (ADR 0023), qui dépend du
-  domaine et de `core:designsystem`, et que `feature:game` utilise.
+  domaine (`core:game`, `core:music`, `core:garden` pour les cases et la miniature du Jardin) et de `core:designsystem`, et que `feature:game` utilise ; de même, les noms de
+  notes et d’accords lus par TalkBack sont dans `core:designsystem` (`noteText`, `chordText`) et leur lien au domaine
+  (`chordTellingOf`) dans `core:board` (P10.19).
 - Toute configuration Gradle partagée va dans `build-logic`, toute version dans
   `gradle/libs.versions.toml`. Deux exceptions : les plugins de `settings.gradle.kts`, résolus
   avant le catalogue (ADR 0010), et le bloc `dependencyAnalysis {}` du `build.gradle.kts` racine, que
@@ -197,9 +202,10 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 
 | Paquet | Contenu |
 |---|---|
-| `ch.magori.blox.core.game.model` | Value objects : `Position`, `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) |
-| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune |
+| `ch.magori.blox.core.game.model` | Value objects : `Position` (`minus`, `neighbours()`, `firstInReadingOrder()`), `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) ; `AsciiGrid.parse(ascii)`, grille texte partagée par `Padlock.parse` et `Garden.parse` (P10.16) |
+| `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `DropTiming`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune (`ClassicDropTiming` délègue à `GravityTable`) ; `RotationSystem.pieceCovering(cells, types)`, la pièce qui couvre exactement des cases (Serrurier, Jardin) |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
+| `ch.magori.blox.core.game.tempo` | Au tempo ([règles](docs/regles-au-tempo.md), ADR 0028) : `Meter` (croche en ticks entiers, noire, mesure, phrase, temps et mesure d'un `tickCount`, `isOnBeat` dans une fenêtre passée en paramètre), `TempoDropTiming` (une ligne par croche, calée sur `tickCount`), `tempoRules(meter)` (`ClassicRules` sauf la cadence de chute) |
 
 Le mode Moderne (P6, règles dans [docs/regles-mode-moderne.md](docs/regles-mode-moderne.md))
 s'ajoute au même moteur, dont les capacités sont déclarées dans `Rules` (réserve, chute
@@ -219,7 +225,17 @@ du Classique, qui doit rester vert (ADR 0015).
   difficiles). Le Serrurier (`core:locksmith`) : `Padlock` (la serrure ; *lock* est le
   verrouillage du Classique), les pièces posées étant des `Piece`. La Graine du jour :
   `StableRandom` (générateur stable, SplitMix64, dont la suite est un contrat entre versions ;
-  `ClassicRandomizer.stable(seed)`). Garder ces noms.
+  `ClassicRandomizer.stable(seed)`). Le Jardin musical (`core:garden`) : `Garden` (la grille de
+  16 × 14 et les pièces qui y sont posées), `GardenMood` (une ambiance : gamme, accords, tempo).
+  Au tempo : `DropTiming` (la cadence de chute, dans `Rules` : si la pièce descend d'une ligne par
+  la gravité à ce tick ; `ClassicDropTiming` délègue à `GravityTable`, `TempoDropTiming` suit les croches d'un
+  `Meter`) ; `tempoRules(meter)` (`core:game`, paquet `tempo` : les `Rules` d'Au tempo, celles du Classique
+  sauf `dropTiming`) ; `Meter` (`core:game`, paquet `tempo` :
+  le découpage des ticks en croches, noires, mesures de 4 temps et phrases de 4 mesures, et la fenêtre « sur le
+  temps ») ; `TempoScore` (`core:game`, paquet `tempo` : les bonus d'Au tempo, hors du moteur, nourris de ses
+  événements ; émet `OnBeat`, une pose sur le temps par la descente rapide, et `CadenceCleared`, les lignes d'une
+  telle pose dans la 4ᵉ mesure) ; `Accompaniment` (`core:music`, la musique d'Au tempo : basse I–V–vi–IV et
+  métronome, écrits à 100 temps/min, `tempoFactor(ticksPerEighth)`). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
@@ -252,7 +268,7 @@ Une tâche de [SUIVI.md](SUIVI.md) n'est terminée qu'après ces étapes, **dans
 La commande `/fin-de-tache` les déroule.
 
 1. **Tests verts.**
-   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test testDebugUnitTest`,
+   `./gradlew ktlintCheck buildHealth :core:game:test :core:music:test :core:locksmith:test :core:garden:test testDebugUnitTest`,
    `./gradlew -p build-logic ktlintCheck`, plus
    `./gradlew lintDebug assembleDebug assembleRelease assembleDebugAndroidTest` si un module Android
    ou une dépendance a changé ; si une interface a
@@ -278,12 +294,16 @@ La commande `/fin-de-tache` les déroule.
    « Mettre à jour la maquette : … » dans SUIVI.md.
 5. **Décision consignée.** Un ADR dans `docs/adr/` si une décision structurante a été prise.
 6. **SUIVI.md et JOURNAL.md à jour** : dans `SUIVI.md`, cocher la tâche, ajouter les tâches
-   découvertes, avec un identifiant, dans la bonne phase, puis recalculer l'avancement avec
-   `scripts/avancement.sh` ; dans `JOURNAL.md`, ajouter une ligne (ce qui a été fait,
-   décisions, remarques de revue écartées, points ouverts).
+   découvertes, avec un identifiant, dans la bonne phase ; dans `JOURNAL.md`, ajouter une ligne (ce qui a été fait,
+   décisions, remarques de revue écartées, points ouverts). **Ne pas lancer `scripts/avancement.sh` dans une
+   branche** : deux branches en parallèle y écriraient deux chiffres en conflit. L’avancement se recalcule sur
+   `main`, dans un commit à lui, après chaque fusion (`📊 docs(suivi): avancement`). `JOURNAL.md` se fusionne en
+   « union » (`.gitattributes`) : les lignes ajoutées par deux branches sont gardées toutes les deux.
 7. **Commit, puis push.**
    - Branche de la tâche : `feat/P1.3-collisions`, `fix/…`, `docs/…`, `build/…`, créée depuis `main`.
    - Message au format **gitmoji + [Conventional Commits](https://www.conventionalcommits.org/fr/)**
      (`✨ feat(core-game): …`), corps qui **explique pourquoi**, référence de la tâche
      (`Tâche : P1.3`). Le skill `/commit` porte la table des gitmoji et rédige le message.
    - Push, attendre que la CI soit verte, puis fusionner dans `main`.
+   - Sur `main` fusionné : `scripts/avancement.sh`, puis un commit `📊 docs(suivi): avancement` s’il a changé
+     quelque chose (après plusieurs fusions d’affilée, une seule fois à la fin).

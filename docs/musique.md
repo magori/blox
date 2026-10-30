@@ -39,7 +39,7 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 `HomeViewModelTest › choosing the music being previewed lets it play on`,
 `HomeViewModelTest › playing stops the preview`,
 `HomeViewModelTest › the preview stops when the screen goes to the background, never the music of a game started since`,
-`HomeViewModelTest › the preview plays on while the screen is still visible`,
+`ScreenHiddenEffectTest › a pause alone, behind a dialog or in a split screen, hides nothing`,
 `HomeViewModelTest › leaving the home screen stops the preview`,
 `HomeViewModelTest › leaving the home screen with no music listened to lets the music of the game play, without any stop`,
 `ListenFaceTest › the listen button shows a triangle, and a square while playing, read Écouter or Arrêter with the name of the music`,
@@ -85,9 +85,43 @@ pause de focus).
 Vue : V1. À vérifier sur téléphone : casque Bluetooth débranché, podcast lancé, assistant vocal
 pendant l'aperçu.
 
+**Feuille Musique** (P5.76, `feature:home`, ADR 0029, V27) : dans la carte des réglages, la rangée Musique montre,
+après l'étiquette « Musique », Écouter (`ListenButton`) pour la musique retenue, la note barrée (`NOTE_OFF`, que
+TalkBack ne lit pas) pour *Aucune*, ou une place vide de 48 dp pour *Mon fichier* sans fichier ; puis le nom de la
+musique et un chevron, bouton lu « Musique : X. Choisir une autre musique », qui ouvre une feuille du bas (`BloxSheet`,
+ouverture gardée par l'écran). La feuille offre Korobeïniki, Menuet, Mon fichier, la musique du joueur pour les
+parties (s'il en a une) et Aucune, en `SheetChoiceRow` cochées, chacune avec sa ligne (*Mon fichier* : « Un fichier
+audio de l'appareil », ou « Choisir un fichier audio » sans fichier ; textes du développeur) et Écouter quand elle
+s'écoute. Choisir enregistre sans fermer ; *Mon fichier* sans fichier ouvre le sélecteur du système. *Changer*
+n'est que dans la feuille, sur la rangée *Mon fichier* qui a un fichier, entre le choix et Écouter, ou sous la
+rangée, au bout, quand la place manque (police agrandie, fenêtre étroite). Un seul aperçu à la fois ; fermer la
+feuille (retour ou voile) l'arrête. Écarts avec la maquette : *Changer* absent de la carte (trop étroit à 360 dp),
+pas de croix dans le titre de la feuille, pas de nom de fichier sous *Mon fichier*, lignes sur deux lignes au lieu
+d'être coupées. **Rappel sous Jouer** (décision du développeur) : il nomme la musique qui jouera ; *Mon fichier* sans
+fichier gardé joue Korobeïniki (`MusicChoice.MY_FILE_FALLBACK`, `core:data`, partagé avec `app`), et le rappel le dit,
+tandis que la rangée de la carte garde « Mon fichier », le réglage choisi. Un fichier gardé mais illisible n'est
+découvert qu'à la partie : le rappel dit alors encore « Mon fichier ».
+**Tests :** `HomeScreenTest › choosing a music saves it and keeps the sheet open`,
+`HomeScreenTest › listening to a music stops the one previewed`,
+`HomeScreenTest › closing the sheet stops the preview`,
+`HomeScreenTest › Aucune shows the note barred`,
+`HomeScreenTest › the sheet is read as a dialog by TalkBack`,
+`HomeScreenTest › with Mon fichier chosen without a file, the reminder under Jouer names Korobeïniki, played in its place`,
+`HomeScreenTest › with Mon fichier chosen without a file, the row Musique keeps its name, after an empty slot of 48 dp`,
+`HomeScreenTest › in the sheet, Mon fichier with a file offers Changer, which opens the picker, before its listen button`,
+`HomeScreenTest › in a normal font, Changer stands beside Écouter, before it, apart from the name Mon fichier`,
+`HomeScreenTest › in a font twice as large, the row Mon fichier keeps its words whole, Changer beside or under Écouter`,
+`HomeScreenTest › in a font twice as large, in a narrow window, Changer goes under Écouter, at the end of the row, apart`,
+`HomeScreenTest › in the sheet, a music of the player for the games is the only music selected, read with its sub-line`,
+`HomeViewModelTest › closing the sheet stops the preview`,
+`HomeUiStateTest › with Mon fichier chosen but no music file kept, the reminder names Korobeiniki, played in its place`,
+`HomeUiStateTest › with Mon fichier chosen and a file kept, the reminder names Mon fichier`,
+`MusicScoresTest › the fallback of my file is a music with a BloX score` ;
+captures `HomeMusicSheet*`.
+
 **Musique personnelle à l'accueil** (P4.22d) : la musique de « Mes musiques » retenue pour les
-parties apparaît parmi les choix de musique, sous son nom (sur deux lignes au besoin), comme le
-seul choix sélectionné ; TalkBack la lit « nom, en jeu ». Elle s'écoute (*Écouter*) comme les
+parties apparaît dans la feuille Musique (P5.76), sous son nom, avant *Aucune*, comme le seul choix
+sélectionné, avec la ligne « Ma musique · en jeu ». Elle s'écoute (*Écouter*) comme les
 autres. Elle n'a pas d'action : choisir une autre musique de l'accueil (Korobeïniki, Menuet,
 Aucune, Mon fichier) la retire des parties (la musique de l'accueil est enregistrée d'abord), et
 elle disparaît de l'accueil ; on la retrouvera dans « Mes musiques » (P4.22c). Son aperçu
@@ -108,7 +142,7 @@ ni grille de trois colonnes (P5.30).
 `HomeViewModelTest › choosing another music stops the music of the player listened to`,
 `HomeViewModelTest › a music of the player listened to stops once it is no longer played during the games`,
 `HomeViewModelTest › without a music of the player for the games, there is nothing of it to listen to`,
-`HomeScreenTest › a music of the player for the games is read as such, the only music selected, a 48 dp radio button`,
+`HomeScreenTest › in the sheet, a music of the player for the games is the only music selected, read with its sub-line`,
 `HomeScreenTest › listening to the music of the player for the games calls for it`,
 `HomeScreenTest › the music of the player being listened to offers to stop it`. Vue : V1.
 
@@ -445,9 +479,9 @@ réessaie à la reprise. La musique personnelle de « Mes musiques » garde la p
 `DataStoreMusicFileRepositoryTest › the music file survives a new repository on the same file`,
 `DataStoreMusicFileRepositoryTest › the uri is stored as text under a key that must not change`,
 `DataStoreMusicFileRepositoryTest › a blank uri in the file gives no music file`,
-`DataStoreMusicFileRepositoryTest › a corrupted file gives no music file, and a new one is kept`,
-`DataStoreMusicFileRepositoryTest › a file that cannot be read gives no music file`,
-`DataStoreMusicFileRepositoryTest › a failure other than an IOException while the music file is read is not absorbed`,
+`DataStoreFileContract › an unreadable file reads as an empty one, and what is written next is kept`,
+`DataStoreFileContract › a file that cannot be read reads as an empty one`,
+`DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`,
 `MusicSwitchTest › a score plays on the score player`,
 `MusicSwitchTest › a music file plays on the file player`,
 `MusicSwitchTest › a music file played while a score plays stops the score`,
@@ -680,3 +714,28 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 > resserrée chez Nikolaïevski (fin de m1 B4 1½ · G#4 ½ ; m2 A4 1½ · B4 ½ · C5 1 · B4 ½ · A4 ½).
 > La mention reste, par décision du développeur ; non trouvés : Prigojy (1898), Panina (vers
 > 1905), НЭБ inaccessible.
+
+### Accompagnement d'Au tempo — 100 temps/min, 4/4
+
+Arrangement maison, sans mélodie, écrit pour Au tempo ([règles](regles-au-tempo.md#accompagnement)) :
+`Accompaniment.score(metronome)` (`core:music`), 4 mesures jouées en boucle, au facteur de tempo
+`Accompaniment.tempoFactor(ticksPerEighth)` = 18 / `ticksPerEighth` (× 1,2 à 120 temps/min). Une
+seule identité (`ScoreId.Personal("tempo-accompaniment")`) avec ou sans métronome. Valeurs proposées
+en P11.9, **[à vérifier]** à l'oreille sur téléphone.
+
+- Basse, onde triangle, volume 0,16, I – V – vi – IV de Do majeur, la fondamentale sur chaque
+  croche, ramenée dans l'octave qui part de F2 (`Pitch.inOctaveFrom`, que partagent aussi la basse
+  générée et celle du Jardin) : C3 ×8 · G2 ×8 · A2 ×8 · F2 ×8.
+- Métronome (s'il est activé), onde carrée, un clic d'1/8 de temps par noire : C6 à 0,10 sur le
+  temps 1, G5 à 0,05 sur les temps 2 à 4. Les silences sont découpés par temps : chaque voix
+  commence une note ou un silence sur chaque temps, si bien que le tempo peut changer et la lecture
+  reprendre sur tous les temps (`switchBeats`, [Lecture en boucle](#lecture-en-boucle)).
+
+**Tests :** `AccompanimentTest › the bass plays I V vi IV, one bar each`,
+`PitchTest › a pitch is brought into the octave starting at a lower pitch`,
+`AccompanimentTest › the accompaniment clicks on every quarter, louder on beat 1`,
+`AccompanimentTest › every voice of the accompaniment starts a note or a rest on every beat`,
+`SwitchBeatsTest › the accompaniment of Au tempo with its metronome lets the tempo switch on every beat`,
+`AccompanimentTest › without the metronome the bass plays on`,
+`AccompanimentTest › the tempo factor is 18 over the ticks per eighth`,
+`AccompanimentTest › an eighth lasts a positive number of ticks`.

@@ -10,14 +10,12 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.Dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
+import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.grownOutline
 
 /** The ring of the keyboard focus around a button or a row: [width] wide in [color], [gap] off its edge. */
 @Immutable
 internal data class FocusRing(val color: Color, val width: Dp, val gap: Dp)
-
-/** The ring of the keyboard focus of a button, in [color]: [BloxBorders.focus] wide, [BloxBorders.focusGap] off. */
-internal fun buttonFocusRing(color: Color): FocusRing = FocusRing(color, BloxBorders.focus, BloxBorders.focusGap)
 
 /** Draws [ring], if any, around [shape], off its edge: drawn outside the bounds, it takes no room. Built once a size. */
 internal fun Modifier.focusRing(
@@ -40,3 +38,9 @@ internal fun Modifier.focusRing(
     val stroke = Stroke(width)
     onDrawBehind { drawPath(path, current.color, style = stroke) }
 }
+
+/** The ring of the buttons, in the `focus` of [colors], around what the keyboard [focused]; none otherwise. */
+internal fun buttonFocusRing(
+    focused: Boolean,
+    colors: BloxButtonColors,
+): FocusRing? = if (focused) FocusRing(colors.focus, BloxBorders.focus, BloxBorders.focusGap) else null

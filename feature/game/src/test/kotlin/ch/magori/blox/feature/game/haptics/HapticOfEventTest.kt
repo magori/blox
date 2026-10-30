@@ -5,6 +5,7 @@ import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.PieceType
+import ch.magori.blox.core.game.model.Rotation
 import ch.magori.blox.core.haptics.Haptic
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -43,7 +44,7 @@ class HapticOfEventTest {
     @Test
     fun `a rotation gives nothing`() {
         // When
-        val haptic = hapticFor(GameEvent.PieceRotated(spawned(PieceType.T)))
+        val haptic = hapticFor(GameEvent.PieceRotated(spawned(PieceType.T), Rotation.CLOCKWISE))
 
         // Then
         assertThat(haptic).isNull()
@@ -54,7 +55,7 @@ class HapticOfEventTest {
         // Given
         val events = listOf(
             GameEvent.LinesCleared(LineClear(0)),
-            GameEvent.PieceLocked(spawned(PieceType.O)),
+            GameEvent.PieceLocked(spawned(PieceType.O), bySoftDrop = false),
             GameEvent.StackDanger(on = true),
             GameEvent.StackDanger(on = false),
         )

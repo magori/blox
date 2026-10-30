@@ -31,6 +31,7 @@ import androidx.compose.ui.semantics.setProgress
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
+import ch.magori.blox.core.designsystem.theme.BloxButtonColors
 import ch.magori.blox.core.designsystem.theme.BloxPalette
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.coroutineScope
@@ -196,19 +197,20 @@ internal fun rememberStepChange(onChange: (Int) -> Unit): (SteppedValue) -> Unit
  * [layoutDirection], as a seek bar of Android: the step asked for is passed to [onValueChange], and the next arrow goes
  * on from it while the value has not come back ([StepGesture.fromKeys]). An arrow that would not move it (at the end
  * of its range), up and down, and the arrows of the buttons it holds (− and + of a gauge) are left to the focus, so
- * that a pad, which has no Tab, can always leave it. Focused, the slider bears the ring of the buttons, in [ringColor],
- * around [shape]; not [enabled], it takes no focus. [value] and [onValueChange] are read at each key, as for a touch.
+ * that a pad, which has no Tab, can always leave it. Focused, the slider bears the ring of the buttons
+ * ([buttonFocusRing] of [buttons]) around [shape]; not [enabled], it takes no focus. [value] and [onValueChange] are
+ * read at each key, as for a touch.
  */
 internal fun Modifier.stepKeys(
     layoutDirection: LayoutDirection,
-    ringColor: Color,
+    buttons: BloxButtonColors,
     shape: Shape,
     gesture: StepGesture,
     onValueChange: (SteppedValue) -> Unit,
     enabled: Boolean = true,
     value: () -> SteppedValue,
 ): Modifier = this
-    .focusRing(shape) { if (gesture.focused) buttonFocusRing(ringColor) else null }
+    .focusRing(shape) { buttonFocusRing(gesture.focused, buttons) }
     .onFocusChanged { gesture.focused = it.isFocused }
     .onKeyEvent { event ->
         val arrow = event.arrow()

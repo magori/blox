@@ -42,22 +42,20 @@ import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.EnumSource
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
+// In Colorful alone: a setting row is drawn only on the settings page, in Colorful whatever the theme chosen (P12.13).
 internal class SettingSwitchRowTest {
     @JvmField
     @RegisterExtension
     val extension = createComposeExtension()
 
-    @ParameterizedTest
-    @EnumSource(BloxThemeKind::class)
+    @Test
     @DisplayName("TalkBack reads one switch per row, its label, its sub-line and its state")
-    fun talkBackReadsOneSwitchPerRow(kind: BloxThemeKind) = extension.use {
+    fun talkBackReadsOneSwitchPerRow() = extension.use {
         // Given one row on, one off
-        showRows(kind)
+        showRows()
 
         // Then « Effets sonores, Rotation, lignes, fin de partie, interrupteur, activé »
         onAllNodes(isToggleable()).assertCountEquals(2)
@@ -110,14 +108,14 @@ internal class SettingSwitchRowTest {
             "and the track goes under it, on the right",
     )
     fun inALargeFontTheTrackGoesUnderTheLabelOnTheRight() = extension.use {
-        // Given « Vibrations » in Original, twice as large, on a phone of 360 dp: too long to stand beside the track
+        // Given « Personnalisations » twice as large, on a phone of 360 dp: a word too long to stand beside the track
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
-                BloxTheme(kind = BloxThemeKind.ORIGINAL) {
+                BloxTheme(kind = BloxThemeKind.COLORFUL) {
                     SettingSwitchRow(
                         icon = BloxIcon.VIBRATE,
-                        label = VIBRATIONS,
+                        label = LONG_WORD,
                         subLine = VIBRATIONS_SUB_LINE,
                         checked = false,
                         onCheckedChange = {},
@@ -130,7 +128,7 @@ internal class SettingSwitchRowTest {
         // Then the label stands on the first line, beside the slot of the pictogram, and the track under the
         // sub-line, at the right end of the row
         val row = onNode(isToggleable()).getUnclippedBoundsInRoot()
-        val label = onNodeWithText(VIBRATIONS, useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val label = onNodeWithText(LONG_WORD, useUnmergedTree = true).getUnclippedBoundsInRoot()
         val subLine = onNodeWithText(VIBRATIONS_SUB_LINE, useUnmergedTree = true).getUnclippedBoundsInRoot()
         val track = onNode(hasTestTag(SWITCH_TRACK_TAG), useUnmergedTree = true).getUnclippedBoundsInRoot()
         assertThat(label.left - row.left).isGreaterThanOrEqualTo(48.dp)
@@ -220,13 +218,12 @@ internal class SettingSwitchRowTest {
     private data class ThumbAndTrack(val thumb: DpRect, val track: DpRect)
 
     private fun ComposeContext.showRows(
-        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         vibrationsDisabledReason: String? = null,
         onSoundsChange: (Boolean) -> Unit = {},
         onVibrationsChange: (Boolean) -> Unit = {},
     ) {
         setContent {
-            BloxTheme(kind = kind) {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 Column {
                     SettingSwitchRow(
                         icon = BloxIcon.NOTE,
@@ -254,6 +251,13 @@ internal class SettingSwitchRowTest {
         const val VIBRATIONS = "Vibrations"
         const val VIBRATIONS_SUB_LINE = "Lignes effacées, fin de partie"
         const val NO_VIBRATOR = "Cet appareil ne vibre pas"
+
+        /**
+         * A label whose word, in a font twice as large, no longer fits beside the track on 360 dp. A word made up for
+         * the test: no label of today goes under the track in Colorful ×2, but the branch stays alive for a larger
+         * font or a narrower screen.
+         */
+        const val LONG_WORD = "Personnalisations"
 
         /** How far from an end of a row a tap falls: on its pictogram, or on its track. */
         val END_TAP = 20.dp

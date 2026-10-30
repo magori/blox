@@ -1,5 +1,6 @@
 package ch.magori.blox.feature.composer.model
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -12,5 +13,15 @@ class CellTest {
         eighth: Int,
     ) {
         assertThatIllegalArgumentException().isThrownBy { Cell(bar, eighth) }
+    }
+
+    @ParameterizedTest
+    @CsvSource("0, 0, 0", "7, 0, 7", "8, 1, 0", "11, 1, 3", "63, 7, 7")
+    fun `the eighth note of the music lies on a cell, the ninth on the first cell of the second bar`(
+        eighthOfMusic: Int,
+        bar: Int,
+        eighth: Int,
+    ) {
+        assertThat(cellAt(eighthOfMusic)).isEqualTo(Cell(bar, eighth))
     }
 }

@@ -4,6 +4,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
@@ -79,6 +80,45 @@ class GameOverTextsTest {
         assertThat(texts.spokenDuration).isEqualTo(DurationSpeech(minutes = 1, seconds = 5))
     }
 
+    @ParameterizedTest(name = "best before {0} -> {1}, read {2}")
+    @CsvSource("98760, 098760, 98760", "1234567, 999999, 1234567")
+    fun `the best before the game is shown as a score, capped at 999 999, and read at its real value`(
+        previousBest: Int,
+        shown: String,
+        spoken: String,
+    ) {
+        assertThat(textsFor(previousBest = previousBest).previousBest).isEqualTo(PreviousBestTexts(shown, spoken))
+    }
+
+    @Test
+    fun `without a best before the game no best is recalled`() {
+        assertThat(textsFor(previousBest = 0).previousBest).isNull()
+    }
+
+    @Test
+    fun `when the results kept do not hold the game no best is recalled`() {
+        assertThat(textsFor(previousBest = 98_760, resultsKept = false).previousBest).isNull()
+    }
+
+    @Test
+    fun `a practice game over cannot keep its results`() {
+        // Given / When a game over told practice, whose try was not counted, but said to keep its results
+        // Then it is refused: a try not counted is not kept, and Copier would copy results without it
+        assertThatThrownBy {
+            GameOverUiState(
+                score = Points(0),
+                lines = Lines(0),
+                level = Level(0),
+                fourLineClears = 0,
+                ticksPlayed = 0,
+                newBest = false,
+                resultsKept = true,
+                previousBest = 0,
+                practice = true,
+            )
+        }.isInstanceOf(IllegalArgumentException::class.java)
+    }
+
     /** When: the game over screen gets these values; other values do not matter to the test. */
     private fun textsFor(
         score: Int = 0,
@@ -86,6 +126,8 @@ class GameOverTextsTest {
         level: Int = 0,
         fourLineClears: Int = 0,
         ticksPlayed: Int = 0,
+        previousBest: Int = 0,
+        resultsKept: Boolean = true,
     ): GameOverTexts = gameOverTexts(
         GameOverUiState(
             score = Points(score),
@@ -93,7 +135,10 @@ class GameOverTextsTest {
             level = Level(level),
             fourLineClears = fourLineClears,
             ticksPlayed = ticksPlayed,
-            newRecord = false,
+            newBest = false,
+            resultsKept = resultsKept,
+            previousBest = previousBest,
+            practice = false,
         ),
     )
 }

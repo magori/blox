@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="feature_locksmith_title">Serrure %1$02d</string>
     <string name="feature_locksmith_moves">Coups : %1$d</string>
     <string name="feature_locksmith_hint">Indice</string>
@@ -36,21 +36,76 @@
     <string name="feature_locksmith_message_refusal">Refus %1$d : %2$s</string>
     <string name="feature_locksmith_message_cadence">La cadence V–I a fermé la phrase.</string>
     <string name="feature_locksmith_message_cadence_spoken">La cadence %1$s a fermé la phrase.</string>
+    <string name="feature_locksmith_message_cleared">Progression effacée.</string>
     <string name="feature_locksmith_back">Retour</string>
+    <string name="feature_locksmith_padlocks">Toutes les serrures</string>
     <string name="feature_locksmith_title_closed">Serrure %1$02d, fermée</string>
     <string name="feature_locksmith_title_open">Serrure %1$02d, ouverte</string>
     <string name="feature_locksmith_cadence">cadence</string>
     <string name="feature_locksmith_chords">Accords entendus : %1$s. À venir : %2$s.</string>
     <string name="feature_locksmith_chords_none_heard">Aucun accord entendu. À venir : %1$s.</string>
     <string name="feature_locksmith_chords_all_heard">Accords entendus : %1$s.</string>
-    <string name="feature_locksmith_chords_separator">", "</string>
-    <string name="feature_locksmith_chord_major">%1$s majeur</string>
-    <string name="feature_locksmith_chord_minor">%1$s mineur</string>
-    <string name="feature_locksmith_chord_diminished">%1$s diminué</string>
     <string name="feature_locksmith_open_title">Serrure ouverte !</string>
     <string name="feature_locksmith_open_moves">Coups</string>
     <string name="feature_locksmith_open_refusals">Refus</string>
     <string name="feature_locksmith_open_hints">Indices</string>
     <string name="feature_locksmith_open_counter">%1$s : %2$d</string>
     <string name="feature_locksmith_replay">Rejouer cette serrure</string>
+    <string name="feature_locksmith_resume">Reprendre à la serrure %1$d</string>
+    <!-- « coups » is always plural: a padlock has 3 pieces at least, opened in as many moves at least; « refus » does
+         not change in the plural; the hints have their plural. -->
+    <string name="feature_locksmith_open_best" tools:ignore="PluralsCandidate">Meilleure ouverture : %1$d coups, %2$d refus, %3$s</string>
+    <plurals name="feature_locksmith_open_best_hints">
+        <item quantity="one">%d indice</item>
+        <item quantity="many">%d indices</item>
+        <item quantity="other">%d indices</item>
+    </plurals>
+    <string name="feature_locksmith_sticker_new_best">Nouveau meilleur</string>
+    <string name="feature_locksmith_sticker_perfect">Parfaite</string>
+    <string name="feature_locksmith_unrecorded">Résultat non enregistré</string>
+
+    <!-- The screen « Serrures » (P7.35). -->
+    <string name="feature_locksmith_padlocks_title">Serrures</string>
+    <string name="feature_locksmith_padlocks_summary">%1$s · %2$s</string>
+    <plurals name="feature_locksmith_padlocks_open">
+        <item quantity="one">%d ouverte</item>
+        <item quantity="many">%d ouvertes</item>
+        <item quantity="other">%d ouvertes</item>
+    </plurals>
+    <plurals name="feature_locksmith_padlocks_perfect">
+        <item quantity="one">%d parfaite</item>
+        <item quantity="many">%d parfaites</item>
+        <item quantity="other">%d parfaites</item>
+    </plurals>
+    <string name="feature_locksmith_padlocks_empty">Ouvre la serrure 1 pour commencer.</string>
+    <string name="feature_locksmith_padlocks_resume">Reprendre · Serrure %1$d</string>
+    <string name="feature_locksmith_padlocks_tier">%1$s · %2$s</string>
+    <string name="feature_locksmith_padlocks_tier_apprentice">Apprenti</string>
+    <string name="feature_locksmith_padlocks_tier_journeyman">Compagnon</string>
+    <string name="feature_locksmith_padlocks_tier_craftsman">Artisan</string>
+    <string name="feature_locksmith_padlocks_tier_master">Maître</string>
+    <!-- A padlock holds 3 pieces at least: « pièces » is always plural. -->
+    <string name="feature_locksmith_padlocks_tier_pieces" tools:ignore="PluralsCandidate">%1$d pièces</string>
+    <string name="feature_locksmith_padlocks_tier_pieces_or" tools:ignore="PluralsCandidate">%1$d ou %2$d pièces</string>
+    <string name="feature_locksmith_padlocks_tier_pieces_range" tools:ignore="PluralsCandidate">%1$d à %2$d pièces</string>
+    <string name="feature_locksmith_padlocks_cell">Serrure %1$d</string>
+    <string name="feature_locksmith_padlocks_open">ouverte</string>
+    <string name="feature_locksmith_padlocks_perfect">parfaite</string>
+    <string name="feature_locksmith_padlocks_frontier">à ouvrir</string>
+    <string name="feature_locksmith_padlocks_locked">verrouillée</string>
+    <string name="feature_locksmith_padlocks_current">en cours</string>
+    <string name="feature_locksmith_padlocks_open_action">Ouvrir</string>
+    <!-- « coups » is always plural, « refus » does not change; the hints have their plural (feature_locksmith_open_best_hints). -->
+    <string name="feature_locksmith_padlocks_best" tools:ignore="PluralsCandidate">meilleure : %1$d coups, %2$d refus, %3$s</string>
+
+    <!-- Starting over from the beginning (P7.37). -->
+    <string name="feature_locksmith_padlocks_start_over">Recommencer depuis le début</string>
+    <string name="feature_locksmith_clear_title">Effacer la progression ?</string>
+    <plurals name="feature_locksmith_clear_note">
+        <item quantity="one">%d serrure ouverte sera oubliée.</item>
+        <item quantity="many">%d serrures ouvertes seront oubliées.</item>
+        <item quantity="other">%d serrures ouvertes seront oubliées.</item>
+    </plurals>
+    <string name="feature_locksmith_clear_keep">Garder</string>
+    <string name="feature_locksmith_clear_confirm">Effacer</string>
 </resources>

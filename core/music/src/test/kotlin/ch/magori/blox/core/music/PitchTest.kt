@@ -108,4 +108,18 @@ class PitchTest {
         // When / Then
         assertThat(Pitch.parse(pitch.toString())).isEqualTo(pitch)
     }
+
+    @ParameterizedTest(name = "{0} from {1} is {2}")
+    @CsvSource("C5, F2, C3", "G1, F2, G2", "A4, F2, A2", "F6, F2, F2", "B3, C2, B2", "C8, C2, C2")
+    fun `a pitch is brought into the octave starting at a lower pitch`(
+        pitch: String,
+        lowest: String,
+        expected: String,
+    ) {
+        // When
+        val brought = Pitch.parse(pitch).inOctaveFrom(Pitch.parse(lowest))
+
+        // Then: the same note, from the lowest pitch up to the semitone under its octave
+        assertThat(brought).isEqualTo(Pitch.parse(expected))
+    }
 }

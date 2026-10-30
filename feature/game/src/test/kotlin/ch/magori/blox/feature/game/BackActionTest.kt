@@ -1,6 +1,6 @@
 package ch.magori.blox.feature.game
 
-import ch.magori.blox.core.board.next.nextPieceCells
+import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
@@ -49,7 +49,10 @@ class BackActionTest {
             level = Level(0),
             fourLineClears = 0,
             ticksPlayed = 0,
-            newRecord = false,
+            newBest = false,
+            resultsKept = true,
+            previousBest = 0,
+            practice = false,
         )
 
         // When / Then

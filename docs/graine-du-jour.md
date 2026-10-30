@@ -28,34 +28,51 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
 
 - Les règles sont celles du Classique (`ClassicRules`), sans aucun changement : rotation,
   gravité, score, niveaux, danger ([règles du mode Classique](regles-mode-classique.md)).
+- La partie du jour est la variante `Daily(date, id)` de `GameRoute` (`feature:game`, ADR 0026) :
+  `GameRoute.daily(date, seed, id)` ; `newDailyGameRoute(date)` (`app`) reçoit la date affichée par l'écran d'entrée à
+  Jouer, et en tire la graine. La date est dans la route, sauvée en texte ISO ; l'`id` donne une clé
+  neuve à chaque partie et à Rejouer (ADR 0011). Seul `GameVariants.setupOf` (`feature:game`)
+  distingue les variantes : moteurs, résultats et musique ; Rejouer est porté par la variante
+  (`GameRoute.replayed`).
+  **Tests :** `GameRouteTest › the date of a daily route is saved as its ISO text`,
+  `GameRouteTest › replaying a classic game draws a new seed, at the same level`,
+  `GameRouteTest › replaying a daily game keeps its date and its seed, under a new id`,
+  `DailyGameRouteTest › two daily games of the same day are two games, with two keys`,
+  `DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
+  `GameRouteSavingTest › a daily route comes back from the saved state with its date, its seed and its id`,
+  `GameRouteSavingTest › a classic route comes back from the saved state as it was`.
 - **Niveau de départ imposé : 5**, quel que soit le niveau choisi à l'accueil (décision du
-  développeur).
+  développeur) ; la route d'une partie du jour refuse un autre niveau.
+  **Tests :** `GameRouteTest › a daily game starts at level 5 whatever the level chosen`.
 - **Musique imposée : Vivante** ([musique-vivante.md](musique-vivante.md)), composée sur la graine
   du jour, quelle que soit la musique choisie à l'accueil. Elle prime aussi sur la « musique en
   jeu » de « Mes musiques », dont la priorité sur le choix de l'accueil est décrite dans
   [musique.md](musique.md) : la Graine du jour joue toujours la Vivante. Le volume de la musique et le réglage
   des effets sonores restent ceux du joueur. La musique n'est **pas** un contrat : deux versions
   de l'application peuvent jouer deux musiques différentes pour une même date.
-- Thème, commandes, vibrations, Effets réduits : ceux du joueur.
+  **Tests :** `GameViewModelTest › a daily game plays the live music whatever the music chosen`.
+- Commandes, vibrations, Effets réduits : ceux du joueur. Le thème est imposé (Couleurs, voir
+  **Écran**).
 
 ## Graine
 
-- **Date** : la date **locale du téléphone** (fuseau du téléphone) au moment de Jouer, écrite
+- **Date** : la date **locale du téléphone** (fuseau du téléphone) affichée par l'écran d'entrée quand on appuie sur Jouer, écrite
   `AAAAMMJJ` : `DailySeed.of(LocalDate)` rend la graine `20261026` pour le 26 octobre 2026
   (`20270105` pour le 5 janvier 2027 : mois et jour toujours sur deux chiffres), du même type que la
   graine d'une partie (`Long`) ; un jour plus récent donne une graine plus grande.
-  L'horloge est injectée (`DailySeed.today(Clock)`), pour que les tests fixent la date. Le
-  branchement (P9.4) passe une horloge dans le fuseau du système, lue à chaque Jouer
+  L'horloge est injectée (`today(clock)`, seule source du jour dans `app`), pour que les tests fixent la date ;
+  par défaut une horloge dans le fuseau du système, lue à chaque affichage de l'écran d'entrée
   (`Clock.systemDefaultZone()`) : jamais l'horloge UTC de `AppContainer`, qui donnerait le mauvais
   jour autour de minuit, ni une horloge gardée pour la vie du processus, qui manquerait un
   changement de fuseau.
   **Tests :** `DailySeedTest › the seed of a day is its date written year month day`,
-  `DailySeedTest › the date is the local date of the phone`,
+  `DailyGameRouteTest › the date is the local date of the phone`,
   `DailySeedTest › two days give two seeds`,
   `DailySeedTest › a later day gives a greater seed, from one year to the next`.
 - **Une partie commencée un jour compte pour ce jour-là** : la date est dans la clé de la partie
-  (`GameRoute`, variante `DAILY`), pas relue à la fin. Rejouer garde la graine de la partie
+  (`GameRoute`, variante `Daily`), pas relue à la fin. Rejouer garde la graine de la partie
   terminée, même après minuit.
+  **Tests :** `ReplayTest › replaying a daily game keeps its seed, even after midnight`.
 - Deux joueurs dans deux fuseaux n'ont pas la même graine au même instant, mais ont la même
   graine pour la même date : c'est voulu (« la graine du 26 octobre »).
 
@@ -93,6 +110,9 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `StableRandomTest › a number drawn in an empty range is refused`,
   `StableRandomTest › a number drawn between two bounds is the lower bound plus a draw in the width`,
   `StableRandomTest › a number drawn between two bounds is refused when the range is empty or wider than the largest int`.
+- Une partie du jour tire ses pièces par `ClassicRandomizer.stable(seed)` (`StableClassicEngines`,
+  passé par la fabrique du jeu).
+  **Tests :** `GameViewModelTest › a daily game draws the pieces of its seed`.
 - Les parties Classiques ordinaires gardent leur graine tirée au hasard ; elles peuvent passer à
   `StableRandom` sans rien changer à leurs règles.
 
@@ -133,7 +153,15 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   points négatifs sont refusés avant toute écriture. Deux débuts simultanés comptent deux essais.
 - La date est gardée en `epochDay` ; à la lecture, des valeurs manquantes ou négatives donnent des
   valeurs sûres (au moins 1 essai quand une date est là, scores à 0 au moins). Un fichier illisible
-  donne « aucun résultat ».
+  donne « aucun résultat », et l'essai suivant est le premier. Un jour hors des bornes de
+  `LocalDate` n'est pas une date : le fichier se lit comme un fichier illisible, « aucun
+  résultat », et le prochain début ou la prochaine fin repart à sa date, comme sur un dépôt vide
+  (les essais gardés pour cette non-date sont perdus) ; la lecture n'échoue pas. Les bornes
+  elles-mêmes (`LocalDate.MIN`, `LocalDate.MAX`) se lisent normalement. Comme chaque dépôt sur
+  fichier, il passe `DataStoreFileContract` (P9.10).
+  **Tests :** `DataStoreDailyChallengeRepositoryTest › a date out of the range of LocalDate in the file gives no result of the day, and the next try is the first`,
+  `DataStoreDailyChallengeRepositoryTest › a date at a bound of the range of LocalDate in the file is read as it is`,
+  `DataStoreDailyChallengeRepositoryTest › a try that ends on a file whose date is out of range counts as a whole first try`.
 - Le dépôt ne garde pas d'historique ni de série de jours (hors périmètre).
 - Le dépôt a son contrat de test (`DailyChallengeRepositoryContract`, dans les tests de `core:data`,
   comme les autres contrats) et son faux (`FakeDailyChallengeRepository`, en testFixtures),
@@ -159,65 +187,247 @@ devient un contrat (amendement de l'[ADR 0014](adr/0014-tirage-seul-etat-modifia
   `DailyChallengeRepositoryContract › a start that cannot be written fails with an IOException and keeps the results`,
   `DailyChallengeRepositoryContract › an end that cannot be written fails with an IOException and keeps the results`,
   `DataStoreDailyChallengeRepositoryTest › the results survive a new repository on the same file`,
-  `DataStoreDailyChallengeRepositoryTest › an unreadable file gives no result of the day, and the next try is the first`,
-  `DataStoreDailyChallengeRepositoryTest › a file that cannot be read gives no result of the day`,
+  `DataStoreFileContract › an unreadable file reads as an empty one, and what is written next is kept`,
+  `DataStoreFileContract › a file that cannot be read reads as an empty one`,
   `DataStoreDailyChallengeRepositoryTest › a file with missing or negative values reads as safe values`,
-  `DataStoreDailyChallengeRepositoryTest › a failure other than an IOException while the results are read is not absorbed`.
+  `DataStoreFileContract › a failure other than an IOException while the file is read is not absorbed`.
 - Fichier exclu de la sauvegarde (décision du développeur, 2026-10-27), transfert d'appareil
   compris : restauré sur un autre appareil, un premier essai n'aurait plus de sens. Un joueur qui
   change de téléphone en cours de journée perd donc ses essais du jour.
   **Tests :** `BackupRulesTest › the file of the daily challenge never leaves the device`.
 
+**Côté partie** (P9.4). Le jeu passe par un port, `GameResults` (`feature:game`, interne : `best`,
+`start`, `end`, `leave`), et deux adaptateurs : le Classique (`best` = record, `end` = `submit`, rien
+au début ni en quittant) et le jour (`DailyGameResults`, lié à la date de la route : `startTry`,
+`endTry`, meilleur de cette date, 0 pour une autre).
+
+- L'essai commence avec la partie (`start`, dans une portée d'application, pour qu'un départ rapide
+  ne l'annule pas) ; une partie restaurée après la mort du processus ne le recommence pas (marque
+  dans le `SavedStateHandle`).
+- La fin de partie, et le départ avant la fin (Pause puis Menu, Changer de jeu : `leave`, lancé
+  depuis `onCleared`), attendent l'écriture du début avant d'écrire la fin ; une partie finie puis
+  quittée ne finit son essai qu'une fois. Les écritures du jour passent par un même verrou équitable,
+  demandé sur le fil principal dans l'ordre des parties : quitter un essai puis en lancer un autre
+  garde les points du premier. Cas limite : si le début de A s'écrit encore quand on quitte A et que B
+  démarre, la fin de A passe après le début de B.
+- Une partie du jour n'entre jamais dans les records ; une partie Classique quittée avant sa fin
+  n'envoie rien aux records.
+- Si les résultats du jour ne peuvent être écrits (`IOException`), la partie continue et sa fin
+  s'affiche sans nouveau meilleur ; toute autre erreur remonte.
+- En jeu, le meilleur du jour remplace le record (0 pour les résultats d'une autre date).
+
+**Tests :** `GameViewModelTest › a daily try is counted as soon as the game starts`,
+`GameViewModelTest › a daily game restored after the process died is the same try`,
+`GameViewModelTest › a daily game never enters the Classic records`,
+`GameViewModelTest › a daily game over ends its try only after its start`,
+`GameViewModelTest › a daily game left before its end counts as a try`,
+`GameViewModelTest › a daily game left while its try is still being started ends it after its start`,
+`GameViewModelTest › a try left then a new try started keeps the points of the first`,
+`GameViewModelTest › a daily game over then left ends its try once`,
+`GameViewModelTest › a daily game shows the best of its date in place of the record, 0 for the results of another date`,
+`GameViewModelTest › a classic game left before its end submits nothing`,
+`GameViewModelTest › when the results of the day cannot be written the game goes on, and its game over shows without a new best`,
+`GameViewModelTest › when the results of the day cannot be written a game left before its end fails nothing`,
+`GameViewModelTest › a programming error while a daily try starts is not swallowed`,
+`GameEntryRestorationTest › a daily game entry restored after the process died is the same try`.
+
 ## Copier mon score
 
-- Texte copié (presse-papiers du système), pour la date en cours :
-  « BloX · Graine du 26 octobre (20261026) · 1er essai 9 800 · meilleur 18 200 en 5 essais ».
-  La date `AAAAMMJJ` y est écrite (décision du développeur), pour qu'on compare des scores de la
-  même graine ; le jour en toutes lettres la rend lisible. Le libellé exact est **[à vérifier]**.
+- Texte copié dans le presse-papiers du système, **court** (décision du développeur,
+  2026-10-27) : « BloX 20261026 · 1er 9 800 · meilleur 18 200 (5 essais) ». On y trouve la date
+  des résultats en `AAAAMMJJ` (celle de la graine, pour comparer des scores de la même graine), le
+  score du premier essai, le meilleur du jour et le nombre d'essais, « (1 essai) » au singulier.
+  Le texte vient des ressources de `app` (`daily_score_text`, pluriel `daily_score_tries`).
 - Nombres groupés par trois avec U+202F (espace fine insécable), à leur **valeur réelle**, sans
   plafond ni zéros de tête (contrairement à l'écran de jeu, qui affiche 6 chiffres plafonnés,
-  `ScoreText.kt`) ; « en 1 essai » au singulier.
-- Désactivé avant le premier essai du jour.
-- Android 13 et plus montrent déjà une confirmation de copie ; en dessous, un message
-  « Score copié » s'affiche **[à vérifier]**.
+  `ScoreText.kt`). Un premier essai pas encore fini s'écrit « — », comme sur l'écran d'entrée ;
+  de même le meilleur tant qu'aucun essai n'est fini ni n'a rapporté de point.
+- `app` compose le texte à partir des résultats du jour, **lus au moment de l'appui** : sur
+  l'écran d'entrée, ceux de la date affichée (bouton désactivé avant le premier essai) ; en fin
+  de partie, ceux de la date de la partie (sa graine), même rejouée après minuit. La fin de
+  partie n'apparaît qu'une fois l'essai écrit : la copie le contient. Elle ne propose Copier que
+  si les résultats gardés contiennent cette partie, un essai écrit sous sa date : pas si
+  l'écriture a échoué (`IOException`), ni si l'essai a été ignoré parce que les résultats sont
+  déjà à une date plus récente (« Partie d’entraînement », P9.9). Sans résultats de la date demandée, rien n'est copié.
+- La copie ne prend pas le verrou des écritures du jour : quitter une partie puis copier aussitôt
+  depuis l'entrée peut lire les résultats d'avant cette fin, comme les tuiles affichées à cet
+  instant.
+- Android 13 et plus confirment eux-mêmes la copie ; en dessous, un message « Score copié »
+  (Toast parti d'`app`) l'annonce (décision du développeur, 2026-10-27).
+
+**Tests :** `DailyScoreTextTest › the copied text gives the date, the first try, the best and the tries`,
+`DailyScoreTextTest › one try is written in the singular`,
+`DailyScoreTextTest › numbers are grouped by three`,
+`DailyScoreTextTest › numbers are written whole, beyond the six digits the screen shows, without leading zeros`,
+`DailyScoreTextTest › a try worth nothing is written 0`,
+`DailyScoreTextTest › a first try not over is written with a dash, as the entry shows it`,
+`DailyScoreTextTest › a best given by a later try shows beside a first try not over`,
+`DailyScoreCopierTest › copying puts the text of the results of the date in the clipboard`,
+`DailyScoreCopierTest › the results of another date are never copied under the date asked for`,
+`DailyScoreCopierTest › without results nothing is copied`,
+`DailyScoreCopierTest › the copy reads the results when it is asked for, the try that just ended included`,
+`DailyScoreCopierTest › below Android 13 a message says the score is copied`,
+`DailyScoreCopierTest › from Android 13 the system says it, the app adds no message`,
+`DailyGameRouteTest › the score copied at the game over is the one of the date of the game, even replayed after midnight`,
+`DailyViewModelTest › copying is not offered before the first try`,
+`BloxNavDisplayTest › Copier mon score on the entry of the daily seed copies the score of the date shown`,
+`BloxNavDisplayTest › Copier at the game over of a daily game copies the score of the date of the game`,
+`BloxNavDisplayTest › the game over of a classic game offers no Copier, and asks for no copy`,
+`GameViewModelTest › a daily game over shows only once its try is written, so that Copier reads it`,
+`GameViewModelTest › a daily game over whose try could not be written does not offer to copy its score`,
+`GameViewModelTest › a daily game over not counted, its date already passed, does not offer to copy its score`,
+`GameScreenTest › the game over of a daily game whose results could not be written offers no Copier`.
 
 ## Écran
 
 **Thème : Couleurs v2 seulement** (jour et nuit selon le téléphone), comme le Serrurier
 (décision du développeur, 2026-10-26) : l'écran d'entrée et la partie de la Graine du jour sont
 toujours dessinés en Couleurs, quel que soit le thème choisi pour le Classique ; leurs barres
-système suivent cette variante (`systemBarVariant`, P7.18), qui doit donc connaître la variante
-`DAILY` de `GameRoute` : c'est une différence par variante admise par l'ADR 0026 (thème imposé et
-barres système).
+système suivent cette variante (`systemBarVariant`, P7.18), qui connaît la variante
+`Daily` de `GameRoute` : c'est une différence par variante admise par l'ADR 0026 (thème imposé et
+barres système). L'entrée du jeu dessine une partie du jour sous `ColorfulTheme`
+(`core:designsystem`, partagé avec le Serrurier), qui garde les Effets réduits du joueur.
+**Tests :** `GameRouteTest › a daily game is drawn in the colorful theme, a classic game in the theme chosen`,
+`GameThemeTest › a daily game is drawn in the colorful variant whatever the theme chosen, with the effects of the player`,
+`GameThemeTest › a classic game is drawn in the theme chosen`,
+`ColorfulThemeTest › the colorful theme draws in the colorful variant of the system mode, keeping the effects around it`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`.
 
-**Écran d'entrée** (vue **V38**, à dessiner), sur le modèle de l'accueil v2 (V27) :
+**Écran d'entrée** (vue **V38**, à dessiner ; `feature:daily`, clé `DailyRoute`, amendement de
+l'ADR 0002), sur le modèle de l'accueil v2 (V27), en Couleurs seulement, barres système comprises :
 
-- barre : Changer de jeu, puce « MEILLEUR DU JOUR » (le meilleur score du jour, ou « — »),
-  Paramètres ;
-- titre « Graine du 26 octobre » ;
-- encart « LES 7 PREMIÈRES » : les 7 premières pièces de la graine, numérotées de 1 à 7, tirées du
-  `ClassicRandomizer` de la partie (non touchables, lues par TalkBack « Pièce 1 : T… ») ;
-- trois tuiles : **Essais**, **Premier essai**, **Meilleur** ;
-- **Jouer** XL, avec le rappel « Graine du jour · Niveau 05 · Vivante » ;
-- « Copier mon score », désactivé avant le premier essai, avec la sous-ligne « Joue une partie
-  pour copier ton score » ;
+- barre : Changer de jeu (retour au choix du jeu), puce « MEILLEUR DU JOUR » (le meilleur du jour
+  sur 6 chiffres, ou « — » ; TalkBack lit la vraie valeur, ou « aucun essai »), Paramètres (la
+  page Paramètres, ouverte sans section de jeu : ni « Réglages du Classique » ni Record, P12.6). La puce et
+  le bouton Jouer sont ceux de l'accueil, partagés dans `core:designsystem` (`ScoreChip`, `PlayButton`) ;
+- titre « Graine du 26 octobre » : la date locale du téléphone en lettres, « 1er » le premier du
+  mois ;
+- encart « LES 7 PREMIÈRES » : les 7 premières pièces de `ClassicRandomizer.stable(DailySeed.of(date))`,
+  la suite même de la partie, numérotées de 1 à 7, non touchables, lues « Pièce 1 : Z » ;
+- trois tuiles : **Essais**, **Premier essai**, **Meilleur** : les résultats du dépôt si leur date
+  est aujourd'hui, sinon « — » ; un essai commencé mais pas fini laisse « — » au premier essai, et
+  au meilleur tant qu'il vaut 0 ; scores sur 6 chiffres, lus à leur vraie valeur ;
+- **Jouer** XL, avec le rappel « Niveau 05 · Vivante », lu « Jouer, niveau 5, Vivante » (le niveau imposé, donné
+  par `app`), ouvre une partie du jour neuve **à la date affichée** : les pièces vues sont celles
+  jouées, même si minuit est passé entre-temps. Le rappel est court (le titre dit déjà « Graine du … ») pour tenir en entier sur 360 dp (décision du développeur, 2026-10-27) ;
+- « Copier mon score », actif dès le premier essai du jour commencé ; désactivé avant, avec la
+  sous-ligne « Joue une partie pour copier ton score ». Il copie les résultats de la date affichée
+  (voir Copier mon score) ;
 - en bas : « Nouvelle graine à minuit ».
-- L'écran suit le changement de date : ouvert à 23 h 59, il passe à la graine du lendemain à
-  minuit **[à vérifier]** (sinon, à son prochain affichage).
+- Jouer, Changer de jeu et Paramètres ne comptent qu'écran actif (`dropUnlessResumed`, comme
+  l'accueil) : un double appui ne lance pas deux parties, donc pas deux essais.
+- La date est relue à chaque affichage de l'écran et à chaque retour au premier plan, sans
+  minuteur : ouvert à 23 h 59, l'écran passe à la graine du lendemain à son prochain affichage.
+  C'est la version retenue (décision du développeur, 2026-10-27) : pas de bascule en direct à minuit.
+
+**Tests :** `DailyViewModelTest › without a try today, no result is shown and the score cannot be copied`,
+`DailyViewModelTest › the results of today show the tries, the first try and the best, and the score can be copied`,
+`DailyViewModelTest › the results of another day are not those of today`,
+`DailyViewModelTest › a try started but not ended shows a dash for the first try and the best`,
+`DailyViewModelTest › a best of 0 is shown once the first try is over`,
+`DailyViewModelTest › the seven first are the first pieces of the daily game, drawn from the seed of the day`,
+`DailyViewModelTest › the date is read again each time the screen shows, with the pieces and results of that day`,
+`DailyViewModelTest › the reminder under Jouer gives the start level of the daily game, as app gives it`,
+`DailyViewModelTest › the factory builds the view model on the results, the date and the seeds given by app`,
+`DayInLettersTest › the day is written in letters, the day of the month then the month`,
+`DayInLettersTest › the first of the month is written 1er, as in French`,
+`DailyGameRouteTest › the daily game played is the game of the date shown, with its seed, even once the phone passed midnight`,
+`SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
+`DailyScreenTest › the title gives the day in letters`,
+`DailyScreenTest › TalkBack reads each of the seven first pieces with its rank, and none can be touched`,
+`DailyScreenTest › before the first try, the tiles and the best of the day show a dash, and copying is disabled`,
+`DailyScreenTest › after a try, the tiles read the results and Copier mon score hands the copy to app`,
+`DailyScreenTest › Jouer, read with the level received and its reminder in words, hands the date shown to app`,
+`DailyScreenTest › on 360 dp, in a normal font, the reminder under Jouer holds whole on one line, without an ellipsis`,
+`DailyScreenTest › Jouer, Changer de jeu and Paramètres count only while the entry is resumed`,
+`DailyScreenTest › the bar changes the game and opens the settings through app`,
+`BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`,
+`ScoreChipTest › a score chip is 48 dp high at least, as the discs beside it, even in a font twice as large`,
+`PlayButtonTest › a reminder too long for Jouer is cut by an ellipsis on one line, and TalkBack still reads it whole`,
+`BloxNavDisplayTest › the entry of the daily seed shows the day and its first pieces`,
+`BloxNavDisplayTest › Jouer on the entry of the daily seed opens the daily game, at level 5`,
+`BloxNavDisplayTest › changing the game from the entry of the daily seed goes back to the cartridges` ;
+captures `DailyBeforeAnyTryDay`, `DailyBeforeAnyTryNight`, `DailyAfterTriesDay`, `DailyAfterTriesNight`,
+`DailyLargeFontDay`.
 
 **En jeu** (vue **V39**, à dessiner) : l'écran de jeu v2 (V28), titre « GRAINE DU JOUR », le
-meilleur du jour à la place du record. Pause comme V29.
+meilleur du jour à la place du record, sous le libellé « MEILLEUR ». Une fois battu, l'autocollant
+« NOUVEAU MEILLEUR » et le score prennent sa place, comme « NOUVEAU RECORD » au Classique ; lu
+« Nouveau meilleur : 12 380 ». « MEILLEUR DU JOUR » reste l'étiquette de la valeur (V38) et
+l'annonce de fin de partie, pas l'autocollant en jeu. Un meilleur de 0 (premier essai du jour)
+n'est jamais battu en cours de partie, comme le record (P5.56). La barre tient sur une rangée
+avec ces libellés, police agrandie comprise. Pause comme V29. Ce qui change d'une variante à
+l'autre (titre, libellé du meilleur, ses annonces, Copier proposé) vient de `GameLabels`, donné
+par `GameVariants.setupOf` (ADR 0026) : l'écran ne connaît pas la variante.
+**Tests :** `GameVariantsTest › a daily game is titled Graine du jour, shows the best of the day and offers to copy the score`,
+`GameVariantsTest › a classic game is titled Mode classique, shows the record and offers no copy`,
+`GameViewModelTest › the screen gets the labels of the variant of its game`,
+`GameScreenTest › a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record`,
+`GameScreenTest › once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such`,
+`GameTopBarTest › on a phone of 360 dp the bar stays on one row once the record is beaten, font enlarged`
+et les autres cas de largeur de `GameTopBarTest`, joués aussi avec les libellés du jour ;
+captures `GameScreenDaily`, `GameScreenDailyNight`.
 
-**Fin de partie** (V39) : comme V30 ; « MEILLEUR DU JOUR » si le meilleur du jour est battu (au
-premier essai aussi), puis **Rejouer** (même graine) et **Copier**.
+**Fin de partie** (V39) : comme V30 ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
+battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis **Rejouer** (même
+graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
+qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
+(`gameEntry(onCopy)`), et `app` copie les résultats de la date de la partie (voir Copier mon
+score) ; il n'est pas proposé si l'essai n'a pas été gardé sous cette date. Sous le score, le
+meilleur du jour d'avant l'essai (P9.14) : « Ancien meilleur 098760 » s'il est battu, « Meilleur
+098760 » sinon, lu « Score : 123450, Ancien meilleur : 98760 » ; aucune ligne au premier essai du
+jour (meilleur d'avant : 0), ni si l'essai n'est pas gardé sous sa date (il ne dit alors aucun
+meilleur d'avant). Le libellé vient de `GameLabels.gameOverBest`.
+**Tests :** `GameResultsTest › a daily game over tells the best of its day before it, 0 at the first try`,
+`GameResultsTest › a daily try ignored, its date already passed, tells no best before it`,
+`GameViewModelTest › a daily game over gets the best of the day it had to beat`,
+`GameOverTextsTest › when the results kept do not hold the game no best is recalled`,
+`GameLabelsTest › the game over recalls the best of the day as Ancien meilleur once beaten, as Meilleur otherwise`,
+`GameScreenTest › the game over recalls the best before the game under the score, read with it; nothing without one` ;
+captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`, `GameOverDailyLargeFont`.
+**Tests :** `GameViewModelTest › the first try of the day beats the best of the day at its game over`,
+`GameViewModelTest › a daily game over below the best of the day shows no new best`,
+`GameScreenTest › the game over of a daily game announces MEILLEUR DU JOUR; Rejouer and Copier, read Copier mon score, act`,
+`GameScreenTest › the game over of a classic game offers no Copier`,
+`GameRouteTest › replaying a daily game keeps its date and its seed, under a new id` ;
+captures `GameOverDailyNewBest`, `GameOverDailyNewBestNight`.
 
-**Cartouche** « Graine du jour » sur le choix du jeu (V36) : elle porte l'autocollant
-« NOUVELLE » **jusqu'au premier essai du jour** ; elle ouvre l'écran d'entrée.
+**Partie d’entraînement** (P9.9, décision du développeur, 2026-10-27) : une partie du jour rejouée
+avec la graine d'hier, alors que les résultats sont déjà passés à aujourd'hui, n'est pas comptée ;
+sa fin de partie le dit par la ligne « Partie d’entraînement », sous le titre, à la place du badge
+(une ligne simple, couleur des libellés : ce n'est pas un exploit), sans Copier ni meilleur
+d'avant. Une fin d'essai qui n'a pu être écrite n'est pas une partie d'entraînement : l'essai
+pourra compter (`GameEnd.kept` faux mais rendu, contre aucun résultat).
+**Tests :** `GameViewModelTest › a daily game over not counted, its date already passed, is told a practice game`,
+`GameViewModelTest › a daily game over whose try could not be written is not told a practice game`,
+`GameScreenTest › the game over of a daily game not counted tells a practice game, and a counted one does not`,
+`GameOverTextsTest › a practice game over cannot keep its results` ;
+captures `GameOverDailyPractice`, `GameOverDailyPracticeNight`, `GameOverDailyPracticeLargeFont`.
+
+**Cartouche** « Graine du jour » sur le choix du jeu (V36, P9.7) : troisième cartouche, mascotte Z
+avec une pousse (corps `piece-z`, pousse `piece-s`) ; elle ouvre l'écran d'entrée (`DailyRoute`).
+Elle porte l'autocollant « NOUVELLE » **jusqu'au premier essai du jour** : il disparaît dès que les
+résultats gardés sont datés d'aujourd'hui (un essai compte dès son début), et revient le
+lendemain, la date étant relue chaque fois que le choix du jeu revient ou que l'application revient
+au premier plan (pas de bascule en direct à minuit, comme l'écran d'entrée). TalkBack lit « Graine
+du jour », puis « Nouvelle » ; l'autocollant lui-même est décoratif.
+**Tests :** `NewCartridgesTest › the Graine du jour is new before any try`,
+`NewCartridgesTest › the Graine du jour is no longer new once a try of today started`,
+`NewCartridgesTest › the Graine du jour is new again the next day, the date read anew at each reading of the results`,
+`NewCartridgesTest › once the results are read, the cartridges new today are known at once, without waiting for a collection`,
+`NewCartridgesTest › before the results are read, no cartridge is new, so no sticker shows that may have to go`,
+`BloxNavDisplayTest › back on the cartridges, the Graine du jour bears its sticker from the first frame`,
+`OpenCartridgeTest › the Graine du jour cartridge opens its entry over the cartridges`,
+`BloxNavDisplayTest › the Graine du jour cartridge, new before the first try of the day, opens its entry`,
+`CartridgesScreenTest › the Graine du jour, new, bears the sticker NOUVELLE, which TalkBack reads after its name`,
+`CartridgesScreenTest › a cartridge that is not new bears no sticker, and TalkBack reads its name alone`,
+`CartridgeTest › the tag of the Graine du jour cartridge is cartridge_daily, which the journey of benchmark copies as it is`,
+`MascotLookTest › the Graine du jour mascot is a Z, as it comes in`,
+`MascotLookTest › the Graine du jour mascot is a bubble of the Z, its sprout in the mint of the S`,
+`DailyTagsTest › the tag of Jouer stays daily_play, which the journey of benchmark copies as it is` ;
+captures `CartridgesDay`, `CartridgesNight`, `CartridgesLargeFont`, `Mascots*`.
 
 ## Points ouverts
 
 - L'essai compté à son début (ci-dessus) et la sauvegarde du fichier.
-- Rejouer après minuit : une partie rejouée avec la graine d'hier est ignorée si le dépôt est déjà
-  passé à aujourd'hui, sans que rien ne prévienne le joueur. Proposition : un message en fin de
-  partie, « Graine d'hier : non comptée ».
 - Une série de jours, un historique, un classement en ligne : hors périmètre.

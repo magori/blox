@@ -1,7 +1,12 @@
 package ch.magori.blox.di
 
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import android.widget.Toast
+import ch.magori.blox.R
 import ch.magori.blox.core.audio.AudioFilePlayer
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
@@ -15,15 +20,27 @@ import ch.magori.blox.core.audio.StaticAudioTrack
 import ch.magori.blox.core.audio.Synthesizer
 import ch.magori.blox.core.audio.SystemAudioFocus
 import ch.magori.blox.core.audio.effectSampleRate
+import ch.magori.blox.core.data.DAILY_CHALLENGE_FILE
+import ch.magori.blox.core.data.DailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreDailyChallengeRepository
+import ch.magori.blox.core.data.DataStoreGardenLibrary
+import ch.magori.blox.core.data.DataStoreGardenRepository
 import ch.magori.blox.core.data.DataStoreHighScoreRepository
 import ch.magori.blox.core.data.DataStoreMusicFileRepository
 import ch.magori.blox.core.data.DataStoreMusicLibrary
+import ch.magori.blox.core.data.DataStorePadlockProgressRepository
 import ch.magori.blox.core.data.DataStoreUserPreferencesRepository
+import ch.magori.blox.core.data.GARDENS_FILE
+import ch.magori.blox.core.data.GARDEN_FILE
+import ch.magori.blox.core.data.GardenLibrary
+import ch.magori.blox.core.data.GardenRepository
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.MUSICS_FILE
 import ch.magori.blox.core.data.MY_MUSIC_FILE
 import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.PADLOCKS_FILE
+import ch.magori.blox.core.data.PadlockProgressRepository
 import ch.magori.blox.core.data.RECORDS_FILE
 import ch.magori.blox.core.data.SETTINGS_FILE
 import ch.magori.blox.core.data.UserPreferencesRepository
@@ -32,13 +49,24 @@ import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
 import ch.magori.blox.core.game.engine.ClassicRules
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.haptics.SystemHaptics
+import ch.magori.blox.daily.DailyScoreCopier
+import ch.magori.blox.daily.DailyScoreTexts
+import ch.magori.blox.daily.DailySeed
+import ch.magori.blox.daily.NewCartridges
+import ch.magori.blox.daily.today
 import ch.magori.blox.feature.composer.ComposerViewModel
+import ch.magori.blox.feature.daily.DailyViewModel
 import ch.magori.blox.feature.game.GameViewModel
+import ch.magori.blox.feature.game.navigation.GameRoute
+import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
-import ch.magori.blox.feature.home.SettingsViewModel
+import ch.magori.blox.feature.locksmith.ClearedProgressRelay
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
+import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.feature.settings.SettingsViewModel
+import ch.magori.blox.locksmith.PadlockFrontier
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
@@ -70,14 +98,23 @@ class AppContainer(context: Context) {
     private val dataScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     /**
-     * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them. For the
-     * whole life of the process, as [dataScope] and the players: it is never cancelled.
+     * Where the work of the players on the main thread, their thread, lives: the volumes saved applied to them; and the
+     * writes of the daily games, of the garden and of the padlocks opened, asked for there at once, in their order. For
+     * the whole life of the process, as [dataScope] and the players: it is never cancelled.
      */
     private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     /** The record, in `files/datastore/records.preferences_pb`: the game and the home screen share it. */
     private val highScores: HighScoreRepository = DataStoreHighScoreRepository(
         preferencesDataStore(dataScope) { dataStoreFile(filesDir, RECORDS_FILE) },
+    )
+
+    /**
+     * The results of the daily game, in `files/datastore/daily_challenge.preferences_pb`, apart from the record: the
+     * backup rules leave it out, so that a first try never comes back on another device.
+     */
+    private val dailyChallenge: DailyChallengeRepository = DataStoreDailyChallengeRepository(
+        preferencesDataStore(dataScope) { dataStoreFile(filesDir, DAILY_CHALLENGE_FILE) },
     )
 
     /** The settings, in `files/datastore/settings.preferences_pb`, apart from the record. */
@@ -102,6 +139,30 @@ class AppContainer(context: Context) {
      */
     val musicLibrary: MusicLibrary =
         DataStoreMusicLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, MUSICS_FILE) }
+
+    /**
+     * The last garden of the Jardin musical, its pieces and its mood, in `files/datastore/garden.bin`: a creation of the
+     * player, which the backup rules keep, as the musics. Built here, once for the process; the screen of the garden
+     * (`feature:garden`) reads it when it opens and writes it at each change.
+     */
+    internal val keptGarden: GardenRepository =
+        DataStoreGardenRepository(dataScope) { dataStoreFile(filesDir, GARDEN_FILE) }
+
+    /**
+     * The gardens the player kept by name, « Mes jardins », in `files/datastore/gardens.bin`, which the backup rules keep
+     * too. Built here, once for the process; the sheet « Mes jardins » of the garden shows and changes them. Its changes
+     * are dated by the clock of the system, as the musics.
+     */
+    internal val gardenLibrary: GardenLibrary =
+        DataStoreGardenLibrary(dataScope, Clock.systemUTC()) { dataStoreFile(filesDir, GARDENS_FILE) }
+
+    /**
+     * The progress of the Serrurier, the best opening of each padlock opened, in `files/datastore/padlocks.bin`, which
+     * the backup rules keep: what the player earned. Built here, once for the process; the screen of a padlock writes
+     * its opening there.
+     */
+    private val padlockProgress: PadlockProgressRepository =
+        DataStorePadlockProgressRepository(dataScope) { dataStoreFile(filesDir, PADLOCKS_FILE) }
 
     /** The theme of the whole application, the one saved in the settings. */
     val appTheme: AppTheme = AppTheme(userPreferences, dataScope)
@@ -165,7 +226,10 @@ class AppContainer(context: Context) {
 
     /**
      * Classic mode: one engine per game, from the seed of the game route (ADR 0014); the music of the player chosen for
-     * the games, else the one chosen on the home screen; the vibrations; the sound effects.
+     * the games, else the one chosen on the home screen; the vibrations; the sound effects. The daily game: its results
+     * (ADR 0026), asked for on the main thread for the whole life of the process: a game left before its end still
+     * gives its points once its view model is cleared, and the writes of the games keep their order (the DataStore
+     * does its work on its own scope).
      */
     val gameViewModelFactory: GameViewModel.Factory = GameViewModel.Factory(
         ClassicGameEngineFactory,
@@ -176,6 +240,8 @@ class AppContainer(context: Context) {
         soundEffects,
         musicFiles::musicOf,
         musicLibrary::gameMusicScore,
+        dailyChallenge,
+        mainScope,
     )
 
     /**
@@ -216,9 +282,82 @@ class AppContainer(context: Context) {
     val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
         MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
 
-    /** Builds the view model of the Locksmith (ADR 0025). */
+    /**
+     * The progress of the Serrurier cleared on the screen « Serrures », handed over to padlock 1, which tells it: once for
+     * the process, like the screens it links.
+     */
+    private val clearedPadlocks: ClearedProgressRelay = ClearedProgressRelay()
+
+    /**
+     * Builds the view model of the Locksmith (ADR 0025): its sound effects, as the settings want them; the progress of
+     * the Serrurier, where each opening is written in [mainScope], so that leaving the padlock at once does not lose it;
+     * the progress cleared on the screen « Serrures », that padlock 1 tells.
+     */
     val locksmithViewModelFactory: LocksmithViewModel.Factory =
-        LocksmithViewModel.Factory(soundEffects, userPreferences)
+        LocksmithViewModel.Factory(soundEffects, userPreferences, padlockProgress, mainScope, clearedPadlocks)
+
+    /**
+     * Builds the view model of the screen « Serrures » (P7.35), on the progress of the Serrurier the padlocks write; a
+     * progress cleared there (P7.37), in [mainScope] so that leaving the screen at once does not lose it, is handed over
+     * to padlock 1 by [clearedPadlocks].
+     */
+    val padlocksViewModelFactory: PadlocksViewModel.Factory =
+        PadlocksViewModel.Factory(padlockProgress, clearedPadlocks, mainScope)
+
+    /**
+     * The entry of the Graine du jour (V38): its results; the level imposed on its game, for the reminder under Jouer;
+     * the local date of the phone, read anew at each showing ([today], as its game), and the seed of that date, the one
+     * its game is given (DailySeed), so that the seven first pieces shown are those of the game.
+     */
+    val dailyViewModelFactory: DailyViewModel.Factory =
+        DailyViewModel.Factory(dailyChallenge, GameRoute.DAILY_START_LEVEL, today = { today() }, DailySeed::of)
+
+    /**
+     * Builds the view model of the musical garden (ADR 0027), on the garden kept: written in [mainScope], at once and in
+     * the order of the changes, even when the garden is left just after one; its score played by the music player of the
+     * games and of the previews, one music at a time, its preview heard by the sound effects, as the settings want them;
+     * the gardens kept by name in [gardenLibrary].
+     */
+    val gardenViewModelFactory: GardenViewModel.Factory =
+        GardenViewModel.Factory(keptGarden, gardenLibrary, mainScope, music, soundEffects, userPreferences)
+
+    /**
+     * « Copier mon score » of the Graine du jour, on its entry and at the game over of its game: the text of the results
+     * of the day, in the texts of the application, put in the clipboard of the system; below Android 13, which shows
+     * nothing of a copy, a toast says it. On the main thread, for the whole life of the process.
+     */
+    internal val dailyScoreCopier: DailyScoreCopier = DailyScoreCopier(
+        results = dailyChallenge.results,
+        texts = DailyScoreTexts(
+            score = { seed, firstTry, best, tries ->
+                context.getString(R.string.daily_score_text, seed, firstTry, best, tries)
+            },
+            tries = { count, written ->
+                context.resources.getQuantityString(R.plurals.daily_score_tries, count, written)
+            },
+        ),
+        clipboard = { text ->
+            val clipboard = checkNotNull(context.getSystemService(ClipboardManager::class.java))
+            clipboard.setPrimaryClip(ClipData.newPlainText(context.getString(R.string.app_name), text))
+        },
+        confirm = { Toast.makeText(context, R.string.daily_score_copied, Toast.LENGTH_SHORT).show() },
+        sdkInt = Build.VERSION.SDK_INT,
+        scope = mainScope,
+    )
+
+    /**
+     * The cartridges that bear the sticker NOUVELLE on the choice of the game: the Graine du jour, until the first try of
+     * the local date of the phone ([today], read anew each time the cartridges show), from its results, read once and
+     * kept warm for the whole life of the process, as the DataStore.
+     */
+    val newCartridges: NewCartridges = NewCartridges(dailyChallenge.results, dataScope) { today() }
+
+    /**
+     * The frontier of the Serrurier, the first padlock not open: the one its cartridge opens and names. From the progress
+     * of the padlocks, read once and kept warm for the whole life of the process, as the DataStore: up to date with
+     * each padlock opened, which the screen of a padlock writes there.
+     */
+    val padlockFrontier: PadlockFrontier = PadlockFrontier(padlockProgress.progress, dataScope)
 }
 
 private const val TAG = "BloX"

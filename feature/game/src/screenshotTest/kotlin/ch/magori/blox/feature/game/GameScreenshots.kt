@@ -7,6 +7,8 @@ import ch.magori.blox.feature.game.controls.GameControlsHeldPreview
 import ch.magori.blox.feature.game.controls.GameControlsLeftHandedPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverColorfulPreview
+import ch.magori.blox.feature.game.gameover.GameOverDailyNewBestPreview
+import ch.magori.blox.feature.game.gameover.GameOverDailyPracticePreview
 import ch.magori.blox.feature.game.gameover.GameOverLargeFontPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalPreview
@@ -121,6 +123,50 @@ private fun GameScreenNewRecordNight() = GameScreenNewRecordPreview()
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 private fun GameScreenNewRecordOriginal() = GameScreenNewRecordOriginalPreview()
+
+// The feedback of the game (V28), at fixed ticks: rows being cleared 4 ticks after the lock (cells lit, A turning, the
+// middle cells gone, the next ones swelling), then cleared 4 ticks before (rows coming down, sticker « +600 », score
+// counting); day, night and large font, and in reduced effects.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearing() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenClearingNight() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun GameScreenClearingLargeFont() = GameScreenClearingPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearingReduced() = GameScreenClearingReducedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenCleared() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenClearedNight() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, fontScale = 2f)
+@Composable
+private fun GameScreenClearedLargeFont() = GameScreenClearedPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenClearedReduced() = GameScreenClearedReducedPreview()
 
 // Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
 
@@ -279,3 +325,49 @@ private fun GameOverColorfulNewRecordNight() = GameOverColorfulNewRecordPreview(
 @Preview(fontScale = 2f)
 @Composable
 private fun GameOverLargeFont() = GameOverLargeFontPreview()
+
+// A daily game (view V39), in the Colorful theme only, day and night: GRAINE DU JOUR and the best of the day in the
+// top bar; its game over, MEILLEUR DU JOUR, then Rejouer, Copier and Menu.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenDaily() = GameScreenDailyPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenDailyNight() = GameScreenDailyPreview()
+
+@PreviewTest
+@Preview
+@Composable
+private fun GameOverDailyNewBest() = GameOverDailyNewBestPreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameOverDailyNewBestNight() = GameOverDailyNewBestPreview()
+
+/** The game over of a daily game, font enlarged: « Ancien meilleur 098760 » under the score still fits. */
+@PreviewTest
+@Preview(fontScale = 2f)
+@Composable
+private fun GameOverDailyLargeFont() = GameOverDailyNewBestPreview()
+
+/** The game over of a daily game not counted (P9.9): « Partie d’entraînement », without Copier. */
+@PreviewTest
+@Preview
+@Composable
+private fun GameOverDailyPractice() = GameOverDailyPracticePreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameOverDailyPracticeNight() = GameOverDailyPracticePreview()
+
+/** The game over of a daily game not counted, font enlarged: « Partie d’entraînement » still fits. */
+@PreviewTest
+@Preview(fontScale = 2f)
+@Composable
+private fun GameOverDailyPracticeLargeFont() = GameOverDailyPracticePreview()

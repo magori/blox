@@ -1,10 +1,8 @@
 package ch.magori.blox.feature.composer.grid
 
+import ch.magori.blox.core.designsystem.text.NoteStep
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.PitchRange
-
-/** The seven notes, in French solfège: the name of a line of the grid, without its octave. */
-internal enum class NoteStep { DO, RE, MI, FA, SOL, LA, SI }
 
 /**
  * The octave of a line within the range of its track, which spans two octaves and the note above: TalkBack tells

@@ -174,19 +174,6 @@ class ScoresTest {
         beats: Double,
     ): Note = Note(Pitch.parse(pitch), beats)
 
-    /** Cuts [voice] into bars: a new bar starts once the current one holds [beatsPerBar] beats or more. */
-    private fun barsOf(
-        voice: Voice,
-        beatsPerBar: Int,
-    ): List<List<Note>> {
-        val bars = mutableListOf(mutableListOf<Note>())
-        voice.notes.forEach { note ->
-            if (bars.last().sumOf { it.beats } >= beatsPerBar) bars += mutableListOf<Note>()
-            bars.last() += note
-        }
-        return bars
-    }
-
     private companion object {
         @JvmStatic
         fun scores(): List<Arguments> = listOf(

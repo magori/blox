@@ -4,6 +4,9 @@ import android.view.KeyEvent
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
@@ -23,6 +26,7 @@ import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.click
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasSetTextAction
@@ -37,8 +41,8 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.SavedStateHandle
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
@@ -63,7 +67,6 @@ import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -73,7 +76,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
-import kotlin.random.Random
+import kotlin.math.hypot
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -139,35 +142,6 @@ internal class ComposerScreenTest {
     }
 
     @Test
-    @DisplayName("on a small phone with the largest font, the category chosen for the dice comes in sight, whole")
-    fun theCategoryChosenComesInSight() = extension.use {
-        // Given a phone 360 dp wide, the font twice as large: the categories do not all fit on their line
-        showEditorWithLargeFont()
-
-        // When the last category is chosen
-        runOnUiThread { viewModel.onCategoryChosen(Category.DANCE) }
-        waitForIdle()
-
-        // Then it shows whole, within the width of the phone
-        assertShowsWhole("Danse")
-    }
-
-    @Test
-    @DisplayName("on a small phone with the largest font, the longest category chosen for the dice shows whole")
-    fun theLongestCategoryChosenShowsWhole() = extension.use {
-        // Given a phone 360 dp wide, the font twice as large, in the pixel font
-        showEditorWithLargeFont()
-
-        // When the category of the longest name is chosen
-        runOnUiThread { viewModel.onCategoryChosen(Category.MELANCHOLIC) }
-        waitForIdle()
-
-        // Then it shows whole, within the width of the phone, its name too
-        assertShowsWhole("Mélancolique")
-        assertThat(textLayout("Mélancolique").hasVisualOverflow).isFalse()
-    }
-
-    @Test
     @DisplayName("on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo")
     fun theTempoButtonsShowWholeWithALargeFont() = extension.use {
         // Given a phone 360 dp wide, the font twice as large, in the pixel font
@@ -201,13 +175,49 @@ internal class ComposerScreenTest {
     @Test
     @DisplayName("on a small phone with the largest font, the line under the title holds on two lines at most, whole")
     fun theLineUnderTheTitleHoldsOnTwoLinesWithALargeFont() = extension.use {
-        // Given a new music, on a phone 360 dp wide, the font twice as large, in the pixel font
-        showEditorWithLargeFont()
+        // Given a new music, on a phone 360 dp wide, the font twice as large, in Couleurs
+        showEditorWithLargeFont(kind = BloxThemeKind.COLORFUL)
 
         // Then
         val line = textLayout("Libre · do majeur · non enregistrée")
         assertThat(line.lineCount).isLessThanOrEqualTo(2)
         assertThat(line.hasVisualOverflow).isFalse()
+    }
+
+    @Test
+    @DisplayName(
+        "in Couleurs on 360 dp, at either font size, the line under the name stays whole, clear of its button corners",
+    )
+    fun theLineUnderTheNameStaysWholeInCouleurs() = extension.use {
+        // Given a new music, on a phone 360 dp wide, in Couleurs, in the normal font
+        var fontScale by mutableStateOf(1f)
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
+                BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                    ComposerScreen(
+                        viewModel = viewModel,
+                        onBack = {},
+                        onDeleted = {},
+                        modifier = Modifier.size(NARROWEST_PHONE, 760.dp),
+                    )
+                }
+            }
+        }
+
+        listOf(1f, 2f).forEach { scale ->
+            // When the font is that large
+            runOnIdle { fontScale = scale }
+
+            // Then no word is cut, no glyph overflows, none is cut by a rounded corner of the button of the name
+            val info = "Libre · do majeur · non enregistrée"
+            val layout = textLayout(info)
+            assertThat(layout.hasVisualOverflow).describedAs("x$scale").isFalse()
+            assertWordsWhole(layout)
+            val button = onNodeWithContentDescription("Nouvelle musique, renommer").getUnclippedBoundsInRoot()
+            val line = onNode(hasText(info), useUnmergedTree = true).getUnclippedBoundsInRoot()
+            assertClearOfCorners(line, button, NAME_CORNER)
+        }
     }
 
     @Test
@@ -241,8 +251,8 @@ internal class ComposerScreenTest {
         "on a small phone with the largest font, the message of the dice holds on three lines, its words whole",
     )
     fun theMessageOfTheDiceHoldsOnThreeLinesWithALargeFont() = extension.use {
-        // Given a phone 360 dp wide, the font twice as large, in the pixel font, and a note in the grid
-        showEditorWithLargeFont()
+        // Given a phone 360 dp wide, the font twice as large, in Couleurs, and a note in the grid
+        showEditorWithLargeFont(kind = BloxThemeKind.COLORFUL)
         cell("Mi bas, temps 1").performScrollTo().performClick()
         waitForIdle()
         mainClock.autoAdvance = false
@@ -541,36 +551,6 @@ internal class ComposerScreenTest {
     }
 
     @Test
-    @DisplayName("Au hasard composes in the category chosen, read as a radio button, and a message tells Annuler")
-    fun auHasardComposesInTheCategoryChosen() = extension.use {
-        // Given a note in the grid, and Calme chosen among the categories
-        showEditor()
-        cell("Mi bas, temps 1").performClick()
-        onNodeWithText("Surprise").assertIsSelected()
-        onNodeWithText("Calme").performScrollTo().performClick()
-        onNodeWithText("Calme").assertIsSelected()
-        onNodeWithText("Surprise").assertIsNotSelected()
-        waitForIdle()
-        mainClock.autoAdvance = false
-
-        // When
-        onNodeWithText("Au hasard").performClick()
-        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
-
-        // Then the line under the title tells the style; its key is the one the dice drew
-        onNodeWithText("Calme · ", substring = true).assertExists()
-        onNodeWithText("Musique tirée au hasard. « Annuler » ramène l'ancienne.").assertExists()
-
-        // When
-        onNodeWithText("Annuler").performClick()
-        mainClock.advanceTimeBy(MESSAGE_SHOWN_MILLIS)
-
-        // Then the note is back, and the message gone with the undo
-        cell("Mi bas, temps 1").assertState("note")
-        onNodeWithText("Musique tirée au hasard", substring = true).assertDoesNotExist()
-    }
-
-    @Test
     @DisplayName("Save opens the window on the name proposed, which saves the music under the name typed")
     fun saveSavesTheMusicUnderTheNameTyped() = extension.use {
         // Given a new music with a note
@@ -713,23 +693,11 @@ internal class ComposerScreenTest {
         runOnIdle { assertThat(backs).isEqualTo(1) }
     }
 
-    /**
-     * An editor on the music of [musicKey] in [library], a new music when null; its dice draws its seeds from [SEED] and
-     * composes on the main thread, at once.
-     */
+    /** An editor on the music of [musicKey] in [library], a new music when null ([composerViewModel]). */
     private fun editor(
         library: MusicLibrary = this.library,
         musicKey: String? = null,
-    ) = ComposerViewModel(
-        music,
-        library,
-        musicKey,
-        SavedStateHandle(),
-        Random(SEED),
-        Random(SEED),
-        Dispatchers.Main.immediate,
-        rollDice = false,
-    )
+    ) = composerViewModel(music, library, musicKey)
 
     private fun ComposeContext.showEditor(
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
@@ -764,17 +732,6 @@ internal class ComposerScreenTest {
     }
 
     /**
-     * The button labelled [text] stands within the width of the phone
-     * (its position and size unclipped: the bounds of a node are cut by the line that scrolls).
-     */
-    private fun ComposeContext.assertShowsWhole(text: String) {
-        val node = onNode(hasText(text) and hasClickAction()).fetchSemanticsNode()
-        val width = with(density) { NARROWEST_PHONE.toPx() }
-        assertThat(node.positionInRoot.x).isGreaterThanOrEqualTo(0f)
-        assertThat(node.positionInRoot.x + node.size.width).isLessThanOrEqualTo(width)
-    }
-
-    /**
      * The top of each button of the toolbar, by its label, once checked that no label is clipped nor cut, and that each
      * button stands within the phone, 48 dp wide and high at least.
      */
@@ -794,9 +751,43 @@ internal class ComposerScreenTest {
         }
     }
 
+    /**
+     * [inner] stands within [outer], none of its corners in the part of [outer] that its rounded corners, of [radius],
+     * cut away.
+     */
+    private fun assertClearOfCorners(
+        inner: DpRect,
+        outer: DpRect,
+        radius: Dp,
+    ) {
+        assertThat(inner.left).isGreaterThanOrEqualTo(outer.left)
+        assertThat(inner.right).isLessThanOrEqualTo(outer.right)
+        assertThat(inner.top).isGreaterThanOrEqualTo(outer.top)
+        assertThat(inner.bottom).isLessThanOrEqualTo(outer.bottom)
+        val r = radius.value
+        val (left, top, right, bottom) = listOf(outer.left, outer.top, outer.right, outer.bottom).map { it.value }
+        listOf(
+            inner.left to inner.top,
+            inner.right to inner.top,
+            inner.left to inner.bottom,
+            inner.right to inner.bottom,
+        )
+            .map { (x, y) -> x.value to y.value }
+            .forEach { (x, y) ->
+                // The centre of the rounded corner nearest to this corner of [inner].
+                val cx = if (x - left < right - x) left + r else right - r
+                val cy = if (y - top < bottom - y) top + r else bottom - r
+                val outside = (x < left + r || x > right - r) && (y < top + r || y > bottom - r)
+                if (outside) {
+                    val distance = hypot(x - cx, y - cy)
+                    assertThat(distance).describedAs("corner ($x, $y)").isLessThanOrEqualTo(r + 0.5f)
+                }
+            }
+    }
+
     private fun ComposeContext.cell(name: String): SemanticsNodeInteraction = onNodeWithContentDescription(name)
 
-    /** The style [label] in the save window: the dice offers the categories too, under the window. */
+    /** The style [label] in the save window, not the style the line under the title tells. */
     private fun ComposeContext.styleButton(label: String): SemanticsNodeInteraction =
         onNode(hasText(label) and hasAnyAncestor(isDialog()))
 
@@ -812,12 +803,14 @@ internal class ComposerScreenTest {
 
     private companion object {
         const val SLIDE_STEPS = 10
-        const val SEED = 42L
         const val MESSAGE_SHOWN_MILLIS = 500L
         const val MESSAGE_LINES = 3
         const val BAR_TAG = "composer_bar"
         const val CELL_TAG = "composer_cell"
         val NARROWEST_PHONE = 360.dp
+
+        /** The corners of the button of the name, in Couleurs (`radius-md`). */
+        val NAME_CORNER = 16.dp
 
         /** The styles of the save window, in their order. */
         val STYLES = listOf("Joyeux", "Calme", "Épique", "Mélancolique", "Mystérieux", "Rétro", "Danse", "Libre")
