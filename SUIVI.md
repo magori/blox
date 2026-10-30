@@ -1099,7 +1099,7 @@ composants.
     `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
     « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
     on 360 dp, in a font twice as large` ; captures.
-  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+  - [x] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
     `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
     v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99. Menu en `BloxMenu`, `CardMenu` réduit à un `RowMenu`
@@ -1107,6 +1107,9 @@ composants.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+    Fait le 2026-10-30 : les quatre cas, verts d'emblée (le comportement venait des composants partagés de P5.97,
+    P5.98, P10.36) ; fenêtres Supprimer et Renommer capturées (`MyMusicsDeleting*`, `MyMusicsRenaming*`, jour, nuit,
+    ×2) ; `WindowOverPage` (`core:designsystem`) remplace les quatre copies du fond des aperçus de fenêtre.
   - [x] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
     feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
     cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après

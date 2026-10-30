@@ -684,11 +684,16 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   boutons de la musique, P5.93), qui dit ce que fait un appui : « La jouer pendant les parties » ou « Ne plus la
   jouer pendant les parties » (`onClickLabel`). Le toucher choisit la musique, ou rend celle de l'accueil si elle
   était en jeu.
-- **Menu « … »** : *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer*.
-  - *Renommer* : 40 caractères au plus ; nom vide, trop long ou pris (casse et espaces ignorés,
-    `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les espaces autour.
-  - *Supprimer* : confirmation (*Supprimer* ou *Garder la musique*), qui prévient si la musique est
-    en jeu que celle de l'accueil la remplacera. Puis « « X » est supprimée. » avec *Annuler* et une
+- **Menu « … »** (Couleurs v2 depuis P5.100, V32) : un `BloxMenu` par `RowMenu` (P10.36), dans cet ordre
+  *Modifier*, *Renommer*, *La jouer* / *Ne plus la jouer pendant les parties*, *Supprimer* en `danger`
+  (pictogramme et libellé).
+  - *Renommer* : une fenêtre v2 (`RenameWindow`, champ `NameField`, P5.98) ; 40 caractères au plus ; nom vide, trop
+    long ou pris (casse et espaces ignorés, `isNameTaken`) refusé, avec le motif sous le champ ; enregistré sans les
+    espaces autour.
+  - *Supprimer* : rien n'est supprimé sans confirmation, une fenêtre v2 (`DeleteWindow`, P5.98) : *Garder la
+    musique*, la réponse sûre, d'abord, puis *Supprimer*, rempli en `danger` avec la corbeille, l'une sous l'autre
+    et lues dans cet ordre ; elle prévient si la musique est en jeu que celle de l'accueil la remplacera. Puis
+    « « X » est supprimée. » (`SnackMessage`, région vive polie lue par TalkBack) avec *Annuler* et une
     croix, jusqu'à l'action suivante (une action faite pendant l'écriture empêche le message).
     *Annuler* remet la musique à sa place, en jeu si elle l'était, sous un nom libre (`freeName`)
     si le sien a été pris entre-temps. De même pour une suppression faite dans l'éditeur (P4.19e).
@@ -696,7 +701,7 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
     « L'opération a échoué. » (P5.45).
 - *Nouvelle* ouvre l'éditeur vierge ; *Au hasard* l'ouvre sur une musique tirée sur *Surprise*
   (`ComposerRoute(rollDice = true)`, P4.20) ; toucher le nom ou *Modifier* ouvre la musique (P4.19d).
-- Écarts avec V7 et V10 : menu déroulant comme celui de l'éditeur, pas de feuille en bas
+- Écarts avec V7 et V10 : menu « … » comme celui de l'éditeur, pas de feuille en bas
   d'écran ; pas de message après *Utiliser* ; *Renommer* dans le menu de la carte (P4.26,
   maquette). En thème Original (police pixel), la rangée ne laisse voir qu'une dizaine de
   caractères du nom et le début de la ligne d'info, moins encore en police ×2 ; TalkBack lit tout.
@@ -744,7 +749,15 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `MyMusicsScreenTest › Supprimer, in the confirmation, deletes the music`,
 `MyMusicsScreenTest › Garder la musique, in the confirmation, keeps it`,
 `MyMusicsScreenTest › a rename or a deletion that could not be written is told in its dialog, still open`,
-`MyMusicsScreenTest › after a deletion, Annuler puts the music back, and the cross closes the message`,
+`MyMusicsScreenTest › the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`
+(au niveau du composant : `MenuItemLookTest › a deleting item is in danger, icon and label`),
+`MyMusicsScreenTest › deleting asks first, Garder la musique first and Supprimer in danger`
+(`WindowAnswersTest › the answers of a window stand one above the other, the safe one first, as TalkBack reads them`,
+`WindowButtonLookTest › a deleting answer is filled in danger with its trash icon, its label standing out by 4,5 to 1`),
+`MyMusicsScreenTest › a confirmed deletion says « X est supprimée » with Annuler, read by TalkBack`
+(`SnackMessageTest › a message is read politely by TalkBack as it shows`),
+`MyMusicsScreenTest › Annuler puts the music back and the cross closes the message` (l'écran appelle Annuler et la
+croix ; la remise en place : `MyMusicsViewModelTest › Annuler puts the music deleted back at its place, played during the games again if it was`),
 `MyMusicsScreenTest › Au hasard and Nouvelle open the editor, and the back button goes back home`,
 `MyMusicsScreenTest › the back button and the title stay in place when the list scrolls`,
 `MyMusicsScreenTest › each category is named on its card as the specification names it, a music by hand Libre`,
@@ -760,7 +773,9 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
 `GlyphButtonTest › a button of an icon alone given what a touch does tells it to TalkBack, without one says nothing more`,
 `SideBySideOrStackedTest › items whose labels hold in their half stand side by side, as wide and as high as each other`,
 `SideBySideOrStackedTest › items whose labels do not hold in their half stand one above the other, each as wide as the line`.
-Le message de suppression passe par `SnackMessage` (P5.97) depuis P5.99. Vues : V1, V7, V10, V32.
+Le message de suppression passe par `SnackMessage` (P5.97) depuis P5.99 ; le menu, Renommer et Supprimer sont en
+Couleurs v2 depuis P5.100 (captures `MyMusicsDeleting*` et `MyMusicsRenaming*`, jour, nuit et police ×2). Vues : V1,
+V7, V10, V32.
 
 
 ### Mes musiques : stockage (implémenté, P4.22 tranche 1)

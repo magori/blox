@@ -1,12 +1,7 @@
 package ch.magori.blox.feature.garden
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import ch.magori.blox.core.data.DeletedGarden
 import ch.magori.blox.core.data.GardenId
@@ -14,7 +9,7 @@ import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.component.SettledSheet
-import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.component.WindowOverPage
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.ColorfulTheme
@@ -176,17 +171,7 @@ internal fun MyGardensDeletedPreview() = MyGardensPreview(
 @Composable
 private fun WindowPreview(window: @Composable () -> Unit) {
     BloxTheme(kind = BloxThemeKind.ORIGINAL) {
-        ColorfulTheme {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(BloxTheme.palette.page)
-                    .padding(horizontal = BloxSizes.windowMargin),
-            ) {
-                window()
-            }
-        }
+        ColorfulTheme { WindowOverPage(window = window) }
     }
 }
 
