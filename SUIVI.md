@@ -1552,7 +1552,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
-- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+- [x] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
 - [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
