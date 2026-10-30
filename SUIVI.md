@@ -1820,9 +1820,10 @@ pause (P11.9).
   tap on the Locksmith still waiting for its frontier`, `the gear stacks nothing once a game is on its way`. Retirer
   le test `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`.
   Après P12.3 et P12.11.
-- [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
+- [x] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
   « Record du Classique ») : `SettingsRoute()` au lieu de `SettingsRoute(SettingsSection.CLASSIC)` dans `BloxNavDisplay`
-  (`app`), avec son parcours dans `BloxNavDisplayTest`. Après P12.3.
+  (`app`), avec son parcours dans `BloxNavDisplayTest`. Après P12.3. Fait : vérification commune aux parcours du choix
+  du jeu et de la Graine extraite en aide.
 - [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
   concernés (Classique, Graine du jour, Au tempo) ; note « Volumes : tout de suite. Le reste : dès le prochain jeu
   ouvert. » (aujourd'hui « Valable dès la partie suivante », faux pour les volumes et les Effets réduits) ; « Le

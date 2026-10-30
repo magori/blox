@@ -126,13 +126,16 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
 
 - Un réglage commun se règle une fois pour tous les jeux, depuis le choix du jeu, sans passer par le Classique.
 - La Graine du jour cesse de montrer « Record du Classique » (P12.6), qui n'était pas le sien.
+  *P12.6 (2026-10-30)* : fait ; `BloxNavDisplay` empile `SettingsRoute()` depuis la Graine du jour, parcours
+  `BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`,
+  qui partage avec celui du choix du jeu (P12.5) l'aide `openTheSettingsByTheGearThenGoBackTo`.
 - `feature:home` perd la page, ses tests et sa dépendance à `core:haptics` ; `app`, `core:data` (`saveSettings`), le
   graphe des modules et `buildHealth` changent (P12.2). Le parcours `BloxNavDisplayTest` des Paramètres suit la clé
   paramétrée ; il lit la chaîne `feature_home_settings`, qui part avec la page.
   *P12.2 (2026-10-30)* : seul le titre de la page part, en `feature_settings_title` ; l'engrenage de l'accueil garde
   `feature_home_settings`, que le parcours touche toujours pour ouvrir la page.
   *P12.11 (2026-10-30)* : l’engrenage devient le `SettingsButton` de `core:designsystem`, partagé par l’accueil, la
-  Graine du jour et bientôt le choix du jeu ; le parcours lit sa chaîne, `core_designsystem_settings`.
+  Graine du jour et bientôt le choix du jeu (fait en P12.5) ; le parcours lit sa chaîne, `core_designsystem_settings`.
 - Le choix du jeu gagne un bouton qui n'est pas une cartouche : le test
   « les seuls boutons de l'écran sont les cartouches » de `CartridgesScreenTest` est retiré en P12.5.
   *P12.5 (2026-10-30)* : fait ; `CartridgeOpener.openSettings()` empile `SettingsRoute()` sous la même garde que les
