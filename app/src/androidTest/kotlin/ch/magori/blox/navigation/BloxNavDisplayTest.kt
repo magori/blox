@@ -71,7 +71,6 @@ import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.HomeViewModel
-import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.home.navigation.HomeRoute
 import ch.magori.blox.feature.locksmith.ClearedProgressRelay
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
@@ -80,6 +79,7 @@ import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.feature.settings.SettingsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.runBlocking
@@ -95,6 +95,7 @@ import ch.magori.blox.feature.game.R as GameR
 import ch.magori.blox.feature.garden.R as GardenR
 import ch.magori.blox.feature.home.R as HomeR
 import ch.magori.blox.feature.locksmith.R as LocksmithR
+import ch.magori.blox.feature.settings.R as SettingsR
 
 /**
  * The journeys that cross the features, on the navigation of the application ([BloxNavDisplay]) and the shared fakes:
@@ -747,19 +748,19 @@ internal class BloxNavDisplayTest {
             // When the player opens the settings and turns the vibrations on
             onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
             settle()
-            onNodeWithText(string(HomeR.string.feature_home_vibrations)).performClick()
+            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).performClick()
             settle()
 
             // Then they are saved, for the next game
             assertThat(preferences.state.value?.vibrations).isTrue()
 
             // When
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings_back)).performClick()
+            onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).performClick()
             settle()
 
             // Then
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
-            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
+            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).assertDoesNotExist()
         }
     }
 
@@ -777,7 +778,7 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
-            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
+            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).assertDoesNotExist()
         }
     }
 
@@ -793,10 +794,10 @@ internal class BloxNavDisplayTest {
             settle()
 
             // Then
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings_back)).assertExists()
-            onNodeWithText(string(HomeR.string.feature_home_settings)).assertExists()
-            onNodeWithText(string(HomeR.string.feature_home_vibrations)).assertDoesNotExist()
-            onNodeWithText(string(HomeR.string.feature_home_sound_effects)).assertDoesNotExist()
+            onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).assertExists()
+            onNodeWithText(string(SettingsR.string.feature_settings_title)).assertExists()
+            onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).assertDoesNotExist()
+            onNodeWithText(string(SettingsR.string.feature_settings_sound_effects)).assertDoesNotExist()
         }
     }
 

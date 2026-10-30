@@ -26,10 +26,7 @@ import ch.magori.blox.feature.game.navigation.gameEntry
 import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.garden.navigation.gardenEntry
 import ch.magori.blox.feature.home.HomeViewModel
-import ch.magori.blox.feature.home.SettingsViewModel
-import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.home.navigation.homeEntry
-import ch.magori.blox.feature.home.navigation.settingsEntry
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.locksmith.navigation.locksmithEntry
@@ -38,6 +35,9 @@ import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
 import ch.magori.blox.feature.musics.navigation.myMusicsEntry
+import ch.magori.blox.feature.settings.SettingsViewModel
+import ch.magori.blox.feature.settings.navigation.SettingsRoute
+import ch.magori.blox.feature.settings.navigation.settingsEntry
 import ch.magori.blox.locksmith.PadlockFrontier
 import java.time.LocalDate
 
