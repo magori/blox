@@ -12,18 +12,18 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 [ADR 0028](adr/0028-au-tempo-droptiming-et-horloge-audio.md) (politique `DropTiming`, horloge
 audio comme source des ticks).
 
-> Traçabilité : Aucune règle n'est encore implémentée (phase P11 de [SUIVI.md](../SUIVI.md),
-> qui commence par une mesure sur téléphone, P11.2). Chaque règle recevra sa ligne **Tests :**
-> `ClasseDeTest › nom du test` et, si elle se voit à l'écran, **Vues :** `V…`, à mesure qu'elle
-> sera codée.
+> Traçabilité : seul le découpage des ticks (`Meter`, P11.5) est implémenté ; les autres règles
+> (phase P11 de [SUIVI.md](../SUIVI.md)) recevront leur ligne **Tests :**
+> `ClasseDeTest › nom du test` et, si elles se voient à l'écran, **Vues :** `V…`, à mesure
+> qu'elles seront codées.
 
 ## Vocabulaire
 
 | Terme | Code prévu | Sens |
 |---|---|---|
-| Croche, noire, mesure | `Meter` (`core:game`, paquet `…core.game.tempo`) | Le découpage des ticks : une croche dure un nombre entier de ticks, une noire deux croches, une mesure 4 noires, une phrase 4 mesures. |
+| Croche, noire, mesure | `Meter` (`core:game`, paquet `…core.game.tempo`, P11.5) | Le découpage des ticks : une croche dure un nombre entier de ticks, une noire deux croches, une mesure 4 noires, une phrase 4 mesures. |
 | Cadence de chute | `DropTiming` (`Rules`) | Quand la pièce descend d'une ligne par la gravité. `ClassicDropTiming` délègue à `GravityTable`, `TempoDropTiming` suit les croches. |
-| Sur le temps | — | Une pose qui tombe à moins de *N* ticks d'une noire. |
+| Sur le temps | `Meter.isOnBeat` (fenêtre `onBeatWindow`) | Une pose qui tombe à *N* ticks d'une noire au plus. |
 | Cadence | `CadenceCleared` | Des lignes effacées par une pose dans la 4ᵉ mesure de la phrase. |
 | Bonus | `TempoScore` | Les points d'Au tempo, hors du moteur, ajoutés à ceux du moteur. |
 
@@ -33,7 +33,7 @@ audio comme source des ticks).
   le niveau viendra plus tard, par un ADR.
 - Le domaine ne connaît que les ticks (1 tick = 1/60 s, [ADR 0006](adr/0006-boucle-de-jeu-a-pas-fixe.md)) :
   **une croche dure un nombre entier de ticks**, `ticksPerEighth`. D'où les tempos possibles
-  (noires par minute = 1 800 / `ticksPerEighth`) :
+  (noires par minute = 1 800 / `ticksPerEighth`, `Meter.beatsPerMinute`) :
 
   | Ticks par croche | Tempo |
   |---|---|
@@ -43,13 +43,31 @@ audio comme source des ticks).
   | 12 | 150 temps/min |
   | 10 | 180 temps/min |
 
+  **Tests :** `MeterTest › an eighth lasts a whole number of ticks` (une croche commence tous les
+  `ticksPerEighth` ticks depuis le tick 0, `Meter.startsAnEighth`), `MeterTest › the tempo is 1800 over the ticks
+  per eighth`.
+
 - **Tempo de la v1 : 120 temps/min (15 ticks par croche)** **[à vérifier]** en jouant. Les autres
   tempos de la table sont **proposés** pour plus tard **[à vérifier]** : les offrir demandera un
   choix avant la partie et des records par tempo (point ouvert).
 - **Mesure à 4 temps** ; une **phrase** compte 4 mesures. `Meter` dit, pour un `tickCount` donné,
-  la croche, le temps (1 à 4) et la mesure (1 à 4) : le tick 0 est le premier temps de la
+  si une croche commence à ce tick (`startsAnEighth`), le temps (1 à 4) et la mesure (1 à 4) : le tick 0 est le premier temps de la
   première mesure. Une noire dure `2 × ticksPerEighth`, une mesure `8 × ticksPerEighth`, une
-  phrase `32 × ticksPerEighth`.
+  phrase `32 × ticksPerEighth` (`ticksPerQuarter`, `ticksPerBar`, `ticksPerPhrase`) ; `beatOf(tickCount)` et
+  `barOf(tickCount)` rendent le temps et la mesure de la phrase, de 1 à 4, et repartent à 1 à chaque phrase. Un
+  `tickCount` négatif est refusé.
+  **Tests :** `MeterTest › tick 0 is beat 1 of bar 1`, `MeterTest › a quarter note lasts 2 eighths`,
+  `MeterTest › a bar lasts 8 eighths and a phrase 4 bars`, `MeterTest › the divisions follow the ticks per eighth`,
+  `MeterTest › a negative tick count is refused`.
+- **Sur le temps** : un tick est sur le temps s'il tombe à `onBeatWindow` ticks au plus d'une noire, avant ou
+  après, bornes comprises, à n'importe quel temps de la mesure (`Meter.isOnBeat`). La fenêtre est un paramètre de
+  `Meter` ; sa valeur par défaut, `Meter.PROVISIONAL_ON_BEAT_WINDOW` = **5 ticks**, est provisoire
+  **[à vérifier]** (5 ou 6, fixée par la mesure sur téléphone de P11.2, voir *Bonus*). La fenêtre est plus
+  courte qu'une croche (`onBeatWindow < ticksPerEighth`, sinon `Meter` est refusé), pour que le contretemps,
+  entre deux noires, ne soit jamais sur le temps ; et comme toute durée en `Ticks`, elle vaut au moins 1 tick.
+  **Tests :** `MeterTest › a tick within N ticks of a quarter note is on the beat`,
+  `MeterTest › a wider window takes in more ticks`, `MeterTest › the window on the beat is 5 ticks until it is
+  measured`, `MeterTest › a window reaching the off-beat is refused`.
 - Le repère est `GameState.tickCount`, qui n'avance ni en pause ni après la fin de partie : la
   musique s'arrête et reprend avec lui.
 
@@ -85,8 +103,9 @@ les points du moteur plus les bonus** ; c'est lui qui entre dans les records d'A
   (n'importe quel temps de la mesure) et qui a été **amenée par la descente rapide tenue** (▼
   tenue jusqu'au verrouillage). Une pièce laissée tomber par la seule gravité ne compte pas : elle
   tomberait toujours sur une croche, sans effort.
-  - **N = 5 ticks** **[à vérifier]** (5 ou 6, environ 85 à 100 ms de chaque côté, à mesurer sur
-    téléphone en P11.2, latence audio comprise).
+  - **N = 5 ticks** **[à vérifier]** (5 ou 6, environ 83 à 100 ms de chaque côté, à mesurer sur
+    téléphone en P11.2, latence audio comprise). C'est la fenêtre de `Meter.isOnBeat`, passée en
+    paramètre, 5 par défaut en attendant la mesure.
   - **Bonus : + 80 points** par pose sur le temps **[à vérifier]**, quel que soit le niveau.
   - Événement `OnBeat(bonus)`. Le moteur doit dire qu'un verrouillage a été amené par la descente
     rapide : information à ajouter à `PieceLocked`, ou à lire dans l'état, à trancher en P11.7.
@@ -101,6 +120,10 @@ les points du moteur plus les bonus** ; c'est lui qui entre dans les records d'A
   **à condition que la pose soit aussi sur le temps** ; sinon, aucun bonus de cadence
   **[à vérifier]** en jouant (alternative : × 1,5 sans condition). Événement
   `CadenceCleared(bonus)`.
+  **Point ouvert (P11.7)** : une pose sur le temps juste avant le temps 1 (à 475 ticks, à 120 temps/min) est
+  sur le temps de la noire 480, premier temps de la mesure 1, alors que `Meter.barOf(475)` rend 4. La mesure
+  d'une pose sur le temps doit-elle être celle de la noire la plus proche ? Cas proposé : `a piece locked 5
+  ticks before bar 1 is not in bar 4`.
 - Compteur **sur le temps / pièces** : le nombre de poses sur le temps et le nombre de pièces
   verrouillées (« 12 / 40 »), montrés à l'écran et à la fin de partie.
 
