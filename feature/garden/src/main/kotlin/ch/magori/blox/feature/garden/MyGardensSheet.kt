@@ -13,13 +13,22 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.layout.layout
+import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -33,10 +42,12 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.garden.GardenThumbnail
+import ch.magori.blox.core.data.GardenId
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.designsystem.component.BloxSheet
 import ch.magori.blox.core.designsystem.component.DeleteWindow
+import ch.magori.blox.core.designsystem.component.FocusableBlock
 import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
 import ch.magori.blox.core.designsystem.component.PillBadge
@@ -143,6 +154,7 @@ internal fun MyGardensSheetContent(
                     actions = actions,
                     undoMillis = undoMillis,
                     windowOpen = state.sheet?.naming != null || state.sheet?.deleting != null,
+                    deleting = state.sheet?.deleting?.garden?.id,
                 )
             }
         }
@@ -222,9 +234,11 @@ private fun SheetText(
 
 /**
  * The count of the kept gardens out of 30, then their [rows], the [open] one marked; or, without any, « Aucun jardin
- * gardé. » and what to do. A row touched opens its garden, « Annuler » offered for [undoMillis]. Once the window a row
- * opened closes ([windowOpen]), the focus goes back to its menu « … ». The row of a garden deleted fades out, then
- * folds up ([deletedRow]), unread by TalkBack; in reduced effects, it is gone at once.
+ * gardé. » and what to do, read in one, which the keyboard may focus. A row touched opens its garden, « Annuler »
+ * offered for [undoMillis]. Once the window a row opened closes ([windowOpen]), the focus goes back to its menu « … »;
+ * for a row deleted ([deleting]), to the menu « … » of the row under it, else above it, else to the empty list. The row
+ * of a garden deleted fades out, then folds up ([deletedRow]), unread by TalkBack; in reduced effects, it is gone at
+ * once.
  */
 @Composable
 private fun ColumnScope.KeptGardens(
@@ -233,6 +247,7 @@ private fun ColumnScope.KeptGardens(
     actions: GardenActions,
     undoMillis: Long,
     windowOpen: Boolean,
+    deleting: GardenId?,
 ) {
     val listed = rows.count { it.listed }
     Text(
@@ -245,10 +260,14 @@ private fun ColumnScope.KeptGardens(
         color = BloxTheme.palette.label,
         style = MaterialTheme.typography.labelMedium.merge(BloxTheme.typography.small),
     )
+    val empty = remember { FocusRequester() }
     // One column, the texts of an empty list then the rows: the last garden deleted leaves where it stood.
     Column {
         if (listed == 0) {
-            Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1)) {
+            FocusableBlock(
+                modifier = Modifier.focusRequester(empty),
+                verticalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
+            ) {
                 Text(
                     text = stringResource(R.string.feature_garden_none_kept),
                     color = BloxTheme.palette.ink,
@@ -257,11 +276,15 @@ private fun ColumnScope.KeptGardens(
                 SheetText(stringResource(R.string.feature_garden_none_kept_hint))
             }
         }
-        GardenRows(rows, open, actions, undoMillis, windowOpen)
+        GardenRows(rows, open, actions, undoMillis, windowOpen, deleting, empty)
     }
 }
 
-/** The [rows] of [KeptGardens], each as [KeptGardenRow] draws it, or leaving the list. */
+/**
+ * The [rows] of [KeptGardens], each as [KeptGardenRow] draws it, or leaving the list. Once the window of the deletion of
+ * a row ([deleting]) closes and the row is no longer listed, in whichever order the two come, the keyboard focus goes
+ * to the menu « … » of the row under it, else of the row above it, else to the [empty] list.
+ */
 @Composable
 private fun GardenRows(
     rows: List<SheetRow>,
@@ -269,11 +292,17 @@ private fun GardenRows(
     actions: GardenActions,
     undoMillis: Long,
     windowOpen: Boolean,
+    deleting: GardenId?,
+    empty: FocusRequester,
 ) {
     val length = deletedRowTicks(BloxTheme.effects)
+    // Built anew at each composition: it holds the rows listed now, none gone.
+    val menus = HashMap<GardenId, FocusRequester>()
     Column {
         rows.forEach { row ->
             key(row.garden.id) {
+                val menu = remember { FocusRequester() }
+                if (row.listed) menus[row.garden.id] = menu
                 LeavingContent(open = row.garden.takeIf { row.listed }, length = length) { kept, leaving ->
                     KeptGardenRow(
                         kept = kept,
@@ -282,12 +311,86 @@ private fun GardenRows(
                         onRename = { actions.onRename(kept.id) },
                         onDelete = { actions.onDelete(kept.id) },
                         windowOpen = windowOpen,
+                        menuFocus = menu,
                         modifier = if (leaving == null) Modifier else Modifier.leaving(leaving),
                     )
                 }
             }
         }
     }
+    // A frame after the rows have run their effects, it has the last word over the menu of a row that leaves.
+    FocusAfterDeletion(rows, windowOpen, deleting, menuOf = { menus[it] }, empty)
+}
+
+/**
+ * Gives the keyboard focus, once the window of the deletion of a row ([deleting]) has closed and the row is no longer
+ * listed among [rows], to the menu of the row listed under it ([menuOf]), else above it, else to the [empty] list: in
+ * the order of the rows as the window was open, as the row may already be gone from them. A deletion not confirmed,
+ * the row still listed, waits for its row to leave until another window opens ([windowOpen]). The focus is asked a
+ * frame later, once the other effects of the closing, the menu of the row leaving among them, have run.
+ */
+@Composable
+private fun FocusAfterDeletion(
+    rows: List<SheetRow>,
+    windowOpen: Boolean,
+    deleting: GardenId?,
+    menuOf: (GardenId) -> FocusRequester?,
+    empty: FocusRequester,
+) {
+    val inputMode = LocalInputModeManager.current
+    val menus by rememberUpdatedState(menuOf)
+    val pending = remember { PendingDeletion() }
+    LaunchedEffect(rows, windowOpen, deleting) {
+        when {
+            deleting != null -> pending.waitFor(deleting, rows.map { it.garden.id })
+
+            windowOpen -> pending.waitFor(null, emptyList())
+
+            else -> pending.left(rows.filter { it.listed }.map { it.garden.id }.toSet())?.let { target ->
+                if (inputMode.inputMode != InputMode.Keyboard) return@let
+                withFrameNanos {}
+                when (target) {
+                    is FocusTarget.Menu -> menus(target.id)?.requestFocus()
+                    FocusTarget.EmptyList -> empty.requestFocus()
+                }
+            }
+        }
+    }
+}
+
+/** The row whose deletion the sheet waits to see, [id], and the [order] of the rows as its window was open. */
+private class PendingDeletion {
+    private var id: GardenId? = null
+    private var order: List<GardenId> = emptyList()
+
+    fun waitFor(
+        id: GardenId?,
+        order: List<GardenId>,
+    ) {
+        this.id = id
+        this.order = order
+    }
+
+    /**
+     * Once the row awaited is no longer [listed], where the focus goes: the menu of the row listed after it, else
+     * before it, else the empty list; null while nothing has left.
+     */
+    fun left(listed: Set<GardenId>): FocusTarget? {
+        val gone = id?.takeUnless { it in listed } ?: return null
+        id = null
+        val at = order.indexOf(gone)
+        val stays = order.drop(at + 1).firstOrNull { it in listed } ?: order.take(at).lastOrNull { it in listed }
+        return stays?.let { FocusTarget.Menu(it) } ?: FocusTarget.EmptyList
+    }
+}
+
+/** Where the focus goes after a deletion. */
+private sealed interface FocusTarget {
+    /** The menu « … » of the row of the garden [id]. */
+    data class Menu(val id: GardenId) : FocusTarget
+
+    /** The list left empty. */
+    data object EmptyList : FocusTarget
 }
 
 /**
@@ -311,8 +414,8 @@ private fun Modifier.leaving(ticks: () -> Int): Modifier = this
  * 2 lines at most, its mood and its count of pieces, then « ouvert » when it is the garden [open]; touched, it opens
  * the garden ([onOpen]). Then its menu « … »: Renommer ([onRename]), Supprimer ([onDelete]). Read in one by TalkBack,
  * « Pluie douce, Calme, 12 pièces, ouvert », with the action « Ouvrir », Renommer and Supprimer as actions of its own;
- * the thumbnail is decorative. Its menu takes the focus back once the window it opened closes ([windowOpen]). [modifier]
- * applies to the row.
+ * the thumbnail is decorative. Its menu, which [menuFocus] focuses, takes the focus back once the window it opened
+ * closes ([windowOpen]). [modifier] applies to the row.
  */
 @Composable
 private fun KeptGardenRow(
@@ -322,6 +425,7 @@ private fun KeptGardenRow(
     onRename: () -> Unit,
     onDelete: () -> Unit,
     windowOpen: Boolean,
+    menuFocus: FocusRequester,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -330,7 +434,11 @@ private fun KeptGardenRow(
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
     ) {
         KeptGardenSummary(kept, open, onOpen, onRename, onDelete, Modifier.weight(1f))
-        RowMenu(name = kept.name, windowOpen = windowOpen) {
+        RowMenu(
+            name = kept.name,
+            windowOpen = windowOpen,
+            modifier = Modifier.focusRequester(menuFocus),
+        ) {
             RenameItem(onRename = onRename)
             DeleteItem(onDelete = onDelete)
         }

@@ -330,6 +330,15 @@ un jardin), que `core:designsystem` ne voit pas.
 `RowMenuTest › a window that opens frames after its item still gives the focus back to « … » as it closes`,
 `RowMenuTest › from the keyboard, the menu closed by Back gives the focus back to « … »`,
 `NamingWindowTest › Renommer is titled after the name it renames and answered Renommer, which renames`.
+Quand la rangée part après une suppression confirmée, `RowMenu` ne choisit pas où va le focus : son « … » peut déjà
+être retiré (en Effets réduits, la rangée part d'un coup). C'est la liste qui le donne, une fois la fenêtre fermée
+**et** la rangée retirée de la liste, dans n'importe quel ordre (Mes jardins, P10.39 ; Mes musiques, P7.52) ; elle
+pose pour cela un `focusRequester` sur le `modifier` de chaque `RowMenu`.
+
+**Bloc focalisable** (P10.39, `core:designsystem`) : `FocusableBlock` est un bloc de texte qui ne fait rien mais que
+le clavier peut focaliser, où va le focus quand ce qui le tenait part (une liste laissée vide). TalkBack le lit d'un
+trait ; focalisé, il porte l'anneau des boutons (WCAG 2.4.7).
+**Test :** `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`.
 
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans
 (accueil, jeu, pause, fin de partie) : `MainActivity` enveloppe toute la navigation dans

@@ -55,7 +55,7 @@ fun SheetChoiceRow(
     val palette = BloxTheme.palette
     val bubble = BloxTheme.buttons.secondary
     val shape = BloxTheme.shapes.md
-    val ring = if (focused) FocusRing(BloxTheme.buttons.focus, BloxBorders.focus, BloxBorders.focusGap) else null
+    val ring = buttonFocusRing(focused, BloxTheme.buttons)
     Row(
         modifier = modifier
             .focusRing(ring, shape)
