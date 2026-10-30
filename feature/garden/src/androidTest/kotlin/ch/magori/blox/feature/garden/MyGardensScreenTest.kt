@@ -485,6 +485,45 @@ internal class MyGardensScreenTest {
     }
 
     @Test
+    @DisplayName(
+        "from the keyboard, the middle garden out of the list before its window closes gives the focus to the next row",
+    )
+    fun theMiddleGardenOutOfTheListBeforeItsWindowClosesGivesTheFocusToTheRowUnderIt() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Ciel clair » open, between « Soleil » above and
+        // « Pluie douce » under it
+        val sheet = SheetUnderTest(listOf(PLUIE, CIEL, SOLEIL))
+        showSheet({ sheet.state }, sheet.actions)
+        openDeletion(CIEL)
+
+        // When the list is read without it, the window still open, then the window closes
+        sheet.listWithout(CIEL)
+        waitForIdle()
+        sheet.confirm(CIEL)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie douce").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, the only garden out of the list before its window closes gives the focus to the empty list",
+    )
+    fun theOnlyGardenOutOfTheListBeforeItsWindowClosesGivesTheFocusToTheEmptyList() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Pluie douce », the only garden, open
+        val sheet = SheetUnderTest(listOf(PLUIE))
+        showSheet({ sheet.state }, sheet.actions)
+        openDeletion(PLUIE)
+
+        // When the list is read without it, the window still open, then the window closes
+        sheet.listWithout(PLUIE)
+        waitForIdle()
+        sheet.confirm(PLUIE)
+
+        // Then
+        onNode(hasText(string(R.string.feature_garden_none_kept))).assertIsFocused()
+    }
+
+    @Test
     @DisplayName("by touch, a garden deleted gives the focus to nothing, not even the empty list")
     fun byTouchAGardenDeletedGivesTheFocusToNothing() = extension.use {
         // Given, by touch, the window of the deletion of « Pluie douce », the only garden, open

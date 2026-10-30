@@ -29,4 +29,7 @@ dependencies {
     testImplementation(testFixtures(projects.core.audio))
     // La fausse bibliothèque des musiques et MainDispatcherExtension, partagées avec les autres features.
     testImplementation(testFixtures(projects.core.data))
+
+    // L'instrumentation, qui remet l'appareil en mode tactile avant un test au toucher.
+    androidTestImplementation(libs.androidx.test.monitor)
 }

@@ -29,6 +29,7 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertIsNotFocused
 import androidx.compose.ui.test.assertIsOff
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.assertIsSelected
@@ -57,6 +58,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
@@ -381,6 +383,164 @@ internal class MyMusicsScreenTest {
     }
 
     @Test
+    @DisplayName("from the keyboard, a music deleted from its menu gives the focus to the menu « … » of the next card")
+    fun aMusicDeletedGivesTheFocusToTheNextCard() = extension.use {
+        // Given / When, from the keyboard, « Ma marche » deleted, between « Thème du soir » and « Pluie »
+        deleteFromKeyboard(musics = listOf(SOIR, MARCHE, PLUIE), deleted = MARCHE)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, the last music deleted gives the focus to the menu « … » of the card above")
+    fun theLastMusicDeletedGivesTheFocusToTheCardAbove() = extension.use {
+        // Given / When, from the keyboard, « Pluie » deleted, the last card, under « Ma marche »
+        deleteFromKeyboard(musics = listOf(SOIR, MARCHE, PLUIE), deleted = PLUIE)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, the only music deleted gives the focus to the empty list")
+    fun theOnlyMusicDeletedGivesTheFocusToTheEmptyList() = extension.use {
+        // Given / When, from the keyboard, « Ma marche », the only music, deleted
+        deleteFromKeyboard(musics = listOf(MARCHE), deleted = MARCHE)
+
+        // Then the page without music, read in one, is focused
+        onNode(
+            hasText("Aucune musique pour l'instant.") and
+                hasText("Compose la tienne, ou laisse le dé t'en proposer une."),
+        ).assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its card")
+    fun aDeletionNotConfirmedGivesTheFocusBackToTheMenu() = extension.use {
+        // Given / When, from the keyboard, the deletion of « Thème du soir » not confirmed
+        deleteFromKeyboard(musics = listOf(SOIR, MARCHE), deleted = SOIR, confirmed = false)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Thème du soir").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, the middle music out of the list before its window closes gives the focus to the next card",
+    )
+    fun aMusicOutOfTheListBeforeItsWindowClosesGivesTheFocusOn() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Ma marche » open, between « Thème du soir » and
+        // « Pluie »
+        val list = ListUnderTest(listOf(SOIR, MARCHE, PLUIE))
+        showList(list)
+        openDeletion(list, MARCHE)
+
+        // When the list is read without it, the window still open, then the window closes
+        list.listWithout(MARCHE)
+        waitForIdle()
+        list.confirm(MARCHE)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Pluie").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, the only music out of the list before its window closes gives the focus to the empty list",
+    )
+    fun theOnlyMusicOutOfTheListBeforeItsWindowClosesGivesTheFocusToTheEmptyList() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Ma marche », the only music, open
+        val list = ListUnderTest(listOf(MARCHE))
+        showList(list)
+        openDeletion(list, MARCHE)
+
+        // When the list is read without it, the window still open, then the window closes
+        list.listWithout(MARCHE)
+        waitForIdle()
+        list.confirm(MARCHE)
+
+        // Then
+        onNode(hasText("Aucune musique pour l'instant.")).assertIsFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, a music deleted whose list is read after its window closed still gives the focus on",
+    )
+    fun aMusicListedLateStillGivesTheFocusOn() = extension.use {
+        // Given, from the keyboard, the window of the deletion of « Thème du soir » open, above « Ma marche »
+        val list = ListUnderTest(listOf(SOIR, MARCHE))
+        showList(list)
+        openDeletion(list, SOIR)
+
+        // When the window closes, then the list is read without it
+        list.cancel()
+        waitForIdle()
+        list.listWithout(SOIR)
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Ma marche").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed")
+    fun afterADeletionNotConfirmedTheFocusFollowsTheNext() = extension.use {
+        // Given, from the keyboard, the deletion of « Thème du soir » not confirmed, above « Ma marche »
+        val list = ListUnderTest(listOf(SOIR, MARCHE))
+        showList(list)
+        openDeletion(list, SOIR)
+        list.cancel()
+        waitForIdle()
+
+        // When « Ma marche » is deleted
+        openDeletion(list, MARCHE)
+        list.confirm(MARCHE)
+
+        // Then the focus goes to the card above it
+        onNodeWithContentDescription("Plus d'actions pour Thème du soir").assertIsFocused()
+    }
+
+    @Test
+    @DisplayName("by touch, a music deleted gives the focus to nothing, not even the empty list")
+    fun byTouchAMusicDeletedGivesTheFocusToNothing() = extension.use {
+        // Given, by touch, the window of the deletion of « Ma marche », the only music, open
+        // Touch mode is the device's: a test before may have left it for the keyboard.
+        InstrumentationRegistry.getInstrumentation().setInTouchMode(true)
+        val list = ListUnderTest(listOf(MARCHE))
+        showList(list, keyboard = false)
+        openDeletion(list, MARCHE, keyboard = false)
+
+        // When the deletion is confirmed
+        list.confirm(MARCHE)
+
+        // Then
+        onNode(hasText("Aucune musique pour l'instant.")).assertIsNotFocused()
+    }
+
+    @Test
+    @DisplayName(
+        "from the keyboard, a music deleted whose next card is out of sight gives it the focus, brought in sight",
+    )
+    fun aMusicDeletedWhoseNextCardIsOutOfSightGivesItTheFocus() = extension.use {
+        // Given, from the keyboard, thirty musics, the list scrolled to its end, then the window of the deletion of the
+        // first one open: neither it nor the card under it is composed
+        val musics = List(30) { aCard(ScoreId.Personal("m$it"), "Musique ${it + 1}", category = null) }
+        val list = ListUnderTest(musics)
+        showList(list)
+        onNode(hasScrollToNodeAction()).performScrollToNode(hasText("Musique 30"))
+        onNodeWithContentDescription("Plus d'actions pour Musique 2").assertDoesNotExist()
+        list.open(musics[0])
+        waitForIdle()
+
+        // When the deletion is confirmed
+        list.confirm(musics[0])
+
+        // Then
+        onNodeWithContentDescription("Plus d'actions pour Musique 2").assertIsDisplayed().assertIsFocused()
+    }
+
+    @Test
     @DisplayName("touching the name of a music, or Modifier in its menu, opens the music in the editor")
     fun theNameOrModifierOpensTheMusicInTheEditor() = extension.use {
         // Given
@@ -652,6 +812,74 @@ internal class MyMusicsScreenTest {
         }
     }
 
+    /**
+     * The keyboard in use, the list of [musics], in its order; [deleted] deleted from its menu « … »: its
+     * window opens, then closes as the deletion is [confirmed], and it leaves the list, or as it is not.
+     */
+    private fun ComposeContext.deleteFromKeyboard(
+        musics: List<MusicCard>,
+        deleted: MusicCard,
+        confirmed: Boolean = true,
+    ) {
+        val list = ListUnderTest(musics)
+        showList(list)
+        openDeletion(list, deleted)
+        if (confirmed) list.confirm(deleted) else list.cancel()
+    }
+
+    /** The list as [list] says, the [keyboard] in use, or touch. */
+    private fun ComposeContext.showList(
+        list: ListUnderTest,
+        keyboard: Boolean = true,
+    ) {
+        setContent {
+            val inputMode = LocalInputModeManager.current
+            LaunchedEffect(Unit) { inputMode.requestInputMode(if (keyboard) InputMode.Keyboard else InputMode.Touch) }
+            ThemedMyMusics(renameProblem = { null }, kind = BloxThemeKind.COLORFUL) { list.state }
+        }
+    }
+
+    /** The window of the deletion of [card] opened from its menu « … », from the [keyboard] or by touch. */
+    private fun ComposeContext.openDeletion(
+        list: ListUnderTest,
+        card: MusicCard,
+        keyboard: Boolean = true,
+    ) {
+        listOf(onNodeWithContentDescription("Plus d'actions pour ${card.name}"), onNodeWithText("Supprimer"))
+            .forEach { if (keyboard) it.performSemanticsAction(SemanticsActions.OnClick) else it.performClick() }
+        list.open(card)
+        // The window of the deletion opens: its state is seen before it closes.
+        waitForIdle()
+    }
+
+    /** The state of the list of [musics], in their order, as a test changes it. */
+    private class ListUnderTest(private val musics: List<MusicCard>) {
+        private val listed = MyMusicsUiState(musics = musics, gameMusic = null)
+
+        var state by mutableStateOf(listed)
+            private set
+
+        /** Supprimer chosen in the menu of [card]: the window of its deletion opens. */
+        fun open(card: MusicCard) {
+            state = state.copy(dialog = MyMusicsDialog.ConfirmDelete(card.id, card.name, inGame = false))
+        }
+
+        /** The deletion not confirmed: the window closes, the musics as they were. */
+        fun cancel() {
+            state = listed
+        }
+
+        /** The list read without [deleted], its window still open. */
+        fun listWithout(deleted: MusicCard) {
+            state = state.copy(musics = musics - deleted)
+        }
+
+        /** The deletion of [deleted] confirmed: the window closes, the music out of the list, Annuler offered. */
+        fun confirm(deleted: MusicCard) {
+            state = MyMusicsUiState(musics = musics - deleted, gameMusic = null, deleted = deleted.name)
+        }
+    }
+
     /** The icon of the button [button] matches, alone in it. */
     private fun ComposeContext.iconOf(button: SemanticsMatcher): SemanticsNodeInteraction =
         onNode(hasTestTag(MUSICS_ICON_TAG) and hasAnyAncestor(button), useUnmergedTree = true)
@@ -702,7 +930,7 @@ internal class MyMusicsScreenTest {
         setContent {
             val density = Density(LocalDensity.current.density, fontScale)
             CompositionLocalProvider(LocalDensity provides density) {
-                ThemedMyMusics(renameProblem, kind, Modifier.width(width).height(height), state)
+                ThemedMyMusics(renameProblem, kind, Modifier.width(width).height(height), state = state)
             }
         }
     }
@@ -776,6 +1004,18 @@ internal class MyMusicsScreenTest {
                 },
             )
         }
+    }
+
+    private companion object {
+        /** « Thème du soir », listed first. */
+        val SOIR =
+            MusicCard(ScoreId.Personal("soir"), "Thème du soir", Category.CALM, "fa majeur", "0:24", "24 s", false)
+
+        /** « Ma marche », listed second. */
+        val MARCHE = MusicCard(ScoreId.Personal("marche"), "Ma marche", null, "la mineur", "0:15", "15 s", false)
+
+        /** « Pluie », listed third. */
+        val PLUIE = MusicCard(ScoreId.Personal("pluie"), "Pluie", Category.CALM, "do majeur", "0:24", "24 s", false)
     }
 }
 
