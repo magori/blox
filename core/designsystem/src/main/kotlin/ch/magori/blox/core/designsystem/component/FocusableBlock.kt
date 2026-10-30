@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -16,13 +17,15 @@ import ch.magori.blox.core.designsystem.theme.BloxTheme
 /**
  * A block of text that acts on nothing, which the keyboard may still focus: where the focus goes when what held it
  * leaves (a list left empty, « Aucun jardin gardé. »). Read in one by TalkBack, its [content] one under the other as
- * [verticalArrangement] says; focused, it bears the ring of the buttons, in `buttons.focus` (WCAG 2.4.7), drawn for a
- * light ground, of a page or of a sheet, as theirs. [modifier] applies to the block, and may hold its `focusRequester`.
+ * [verticalArrangement] and [horizontalAlignment] say; focused, it bears the ring of the buttons, in `buttons.focus`
+ * (WCAG 2.4.7), drawn for a light ground, of a page or of a sheet, as theirs. [modifier] applies to the block, and may
+ * hold its `focusRequester`.
  */
 @Composable
 fun FocusableBlock(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
+    horizontalAlignment: Alignment.Horizontal = Alignment.Start,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -34,6 +37,7 @@ fun FocusableBlock(
             .semantics(mergeDescendants = true) {}
             .focusable(interactionSource = interactionSource),
         verticalArrangement = verticalArrangement,
+        horizontalAlignment = horizontalAlignment,
         content = content,
     )
 }

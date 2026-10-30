@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -14,14 +15,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
@@ -41,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.designsystem.component.ButtonEmphasis
 import ch.magori.blox.core.designsystem.component.Equalizer
+import ch.magori.blox.core.designsystem.component.FocusAfterDeletion
+import ch.magori.blox.core.designsystem.component.FocusableBlock
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.ListenButton
@@ -119,7 +126,8 @@ internal interface MyMusicsActions {
  * « Mes musiques » (V32): the bar, Retour and the title, and the card of the music played during the games, which stay
  * in place; a row per saved music, to listen to it, choose it for the games, rename or delete it from its menu « … »;
  * or, without music, a word to start; and, stuck at the bottom on a fade, the message that undoes a deletion, *Au
- * hasard* and *Nouvelle*, which open the editor.
+ * hasard* and *Nouvelle*, which open the editor. Once a music is deleted, the keyboard focus goes to the menu « … » of
+ * the card under it, else above it, else to the page without music ([FocusAfterDeletion]).
  */
 @Composable
 internal fun MyMusicsScreen(
@@ -127,6 +135,13 @@ internal fun MyMusicsScreen(
     actions: MyMusicsActions,
     modifier: Modifier = Modifier,
 ) {
+    val listState = rememberLazyListState()
+    val empty = remember { FocusRequester() }
+    // The menu « … » of each music, which a card composed later finds again. The table is written during the
+    // composition of the cards (`getOrPut`): harmless, as it is remembered and a key always gives the same requester,
+    // whichever composition asks first; it is purged of the musics gone after each composition (`SideEffect`).
+    val menus = remember { HashMap<ScoreId.Personal, FocusRequester>() }
+    val menuOf: (ScoreId.Personal) -> FocusRequester = remember { { id -> menus.getOrPut(id) { FocusRequester() } } }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -147,19 +162,39 @@ internal fun MyMusicsScreen(
             },
         ) { bottomRoom ->
             if (uiState.musics.isEmpty()) {
-                EmptyList(modifier = Modifier.padding(bottom = bottomRoom))
+                EmptyList(focus = empty, modifier = Modifier.padding(bottom = bottomRoom))
             } else {
                 LazyColumn(
+                    state = listState,
                     contentPadding = PaddingValues(bottom = bottomRoom),
                     verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
                 ) {
                     items(uiState.musics, key = { it.id.key }) { card ->
-                        MusicRow(card = card, actions = actions, windowOpen = uiState.dialog != null)
+                        MusicRow(
+                            card = card,
+                            actions = actions,
+                            windowOpen = uiState.dialog != null,
+                            menuFocus = menuOf(card.id),
+                        )
                     }
                 }
             }
         }
     }
+    val listed = uiState.musics.map { it.id }
+    // Its menus kept for the musics listed alone, those of the cards composed or not.
+    SideEffect { menus.keys.retainAll(listed.toSet()) }
+    FocusAfterDeletion(
+        listed = listed,
+        deleting = (uiState.dialog as? MyMusicsDialog.ConfirmDelete)?.id,
+        windowOpen = uiState.dialog != null,
+        focusOf = menuOf,
+        empty = empty,
+        // A card out of sight is not composed, its menu out of reach: the list jumps to it first.
+        reveal = { index ->
+            if (listState.layoutInfo.visibleItemsInfo.none { it.index == index }) listState.scrollToItem(index)
+        },
+    )
     when (val dialog = uiState.dialog) {
         is MyMusicsDialog.Rename -> RenameDialog(
             dialog = dialog,
@@ -255,29 +290,37 @@ private val TEXT_GAP = 2.dp
 /**
  * The page without music, in the middle of its room: « Aucune musique pour l'instant. », a heading for TalkBack, in
  * `stat-value` (Manrope bold at 17, as V32 draws it), then the invitation to compose one, or to let the die offer one,
- * in `label`.
+ * in `label`; read in one, which the keyboard may focus ([focus]), as the last music deleted leaves it.
  */
 @Composable
-private fun EmptyList(modifier: Modifier = Modifier) {
+private fun EmptyList(
+    focus: FocusRequester,
+    modifier: Modifier = Modifier,
+) {
     val palette = BloxTheme.palette
-    Column(
+    Box(
         modifier = modifier.fillMaxSize().padding(horizontal = BloxSpaces.space4),
-        verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2, Alignment.CenterVertically),
-        horizontalAlignment = Alignment.CenterHorizontally,
+        contentAlignment = Alignment.Center,
     ) {
-        Text(
-            text = stringResource(R.string.feature_musics_empty_title),
-            color = palette.ink,
-            style = MaterialTheme.typography.titleMedium.merge(BloxTheme.typography.statValue),
-            textAlign = TextAlign.Center,
-            modifier = Modifier.semantics { heading() },
-        )
-        Text(
-            text = stringResource(R.string.feature_musics_empty_hint),
-            color = palette.label,
-            style = MaterialTheme.typography.bodyMedium.merge(BloxTheme.typography.small),
-            textAlign = TextAlign.Center,
-        )
+        FocusableBlock(
+            modifier = Modifier.focusRequester(focus),
+            verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(
+                text = stringResource(R.string.feature_musics_empty_title),
+                color = palette.ink,
+                style = MaterialTheme.typography.titleMedium.merge(BloxTheme.typography.statValue),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.semantics { heading() },
+            )
+            Text(
+                text = stringResource(R.string.feature_musics_empty_hint),
+                color = palette.label,
+                style = MaterialTheme.typography.bodyMedium.merge(BloxTheme.typography.small),
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
@@ -285,13 +328,14 @@ private fun EmptyList(modifier: Modifier = Modifier) {
  * The row of a music, in a panel (V32): Écouter; its name and its info line, which open the music in the editor;
  * *Utiliser*, or *En jeu*, the choice made, each saying what a touch does; and its menu « … », a bare disc, whose focus
  * comes back once the window it opened closes ([windowOpen]). While it is listened to, the gauge of its bars stands
- * under its name, as wide as it; the buttons stay level with the name.
+ * under its name, as wide as it; the buttons stay level with the name. Its menu is focused by [menuFocus].
  */
 @Composable
 private fun MusicRow(
     card: MusicCard,
     actions: MyMusicsActions,
     windowOpen: Boolean,
+    menuFocus: FocusRequester,
 ) {
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.md
@@ -333,7 +377,12 @@ private fun MusicRow(
                 if (card.inGame) R.string.feature_musics_menu_stop_using else R.string.feature_musics_menu_use,
             ),
         )
-        CardMenu(card = card, actions = actions, windowOpen = windowOpen, modifier = levelWithName)
+        CardMenu(
+            card = card,
+            actions = actions,
+            windowOpen = windowOpen,
+            modifier = levelWithName.focusRequester(menuFocus),
+        )
     }
 }
 

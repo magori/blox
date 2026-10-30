@@ -664,7 +664,8 @@ l'en-tête de la section Musique de l'accueil, qui arrête l'aperçu.
   `panel-border` : 2,3:1 de jour seulement, admis car TalkBack l'ignore et le texte dit la mesure) s'aligne sous le
   nom. La musique des parties porte le badge « EN JEU » (`PillBadge`, badge commun, voir [themes.md](themes.md)),
   que TalkBack ne lit pas. Sans musique,
-  « Aucune musique pour l'instant. » (titre) et « Compose la tienne, ou laisse le dé t'en proposer une. ». En bas,
+  « Aucune musique pour l'instant. » (titre) et « Compose la tienne, ou laisse le dé t'en proposer une. », lus
+  d'un trait et focalisables au clavier (`FocusableBlock`, P7.52). En bas,
   *Au hasard* (Secondaire) et *Nouvelle* (Principal) collés sur un fondu de 24 dp, côte à côte si chaque libellé tient
   dans sa moitié, sinon l'un sous l'autre (`SideBySideOrStacked`, partagé avec les tuiles de l'accueil) ; la liste
   défile sous eux, et le pied défile à son tour s'il dépasse sa place. En police agrandie, la rangée grandit au
@@ -1501,6 +1502,26 @@ Vues : V7 à V18.
   `RowMenuTest › from the keyboard, « … » waits for the window an item opened to close, then takes the focus back`,
   `MyMusicsScreenTest › the menu of a card renames the music, chooses it for the games, or deletes it`,
   `MyMusicsScreenTest › from the keyboard, Renommer closed gives the focus back to the menu « … » of its card`.
+- **Focus après une suppression** (P7.52, `FocusAfterDeletion`, `core:designsystem`, `docs/themes.md`) : la carte
+  d'une musique supprimée quitte la liste aussitôt, avec son « … ». Au clavier, le focus va au « … » de la carte
+  suivante, sinon de la précédente, sinon à la page sans musique (« Aucune musique pour l'instant. » et son
+  invitation, `FocusableBlock`, avec l'anneau de focus) ; une suppression non confirmée le rend au « … » de sa carte.
+  C'est la liste qui donne le focus, une fois la fenêtre fermée **et** la musique retirée, dans n'importe quel ordre,
+  même forme que Mes jardins ([jardin-musical.md](jardin-musical.md), P10.39). La liste est paresseuse : une carte
+  hors de l'écran n'est pas composée, son « … » hors d'atteinte ; la liste saute d'abord jusqu'à elle
+  (`scrollToItem`, sans animation : le cas est rare, et le saut vaut pour les Effets réduits comme pour les autres),
+  puis lui donne le focus. Une carte en vue n'est pas déplacée. Au toucher, le focus ne va nulle part. Les Effets
+  réduits ne changent rien ici : la carte part sans animation dans tous les cas.
+  **Tests :** `MyMusicsScreenTest › from the keyboard, a music deleted from its menu gives the focus to the menu « … » of the next card`,
+  `MyMusicsScreenTest › from the keyboard, the last music deleted gives the focus to the menu « … » of the card above`,
+  `MyMusicsScreenTest › from the keyboard, the only music deleted gives the focus to the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a deletion not confirmed gives the focus back to the menu « … » of its card`,
+  `MyMusicsScreenTest › from the keyboard, the middle music out of the list before its window closes gives the focus to the next card`,
+  `MyMusicsScreenTest › from the keyboard, the only music out of the list before its window closes gives the focus to the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a music deleted whose list is read after its window closed still gives the focus on`,
+  `MyMusicsScreenTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
+  `MyMusicsScreenTest › by touch, a music deleted gives the focus to nothing, not even the empty list`,
+  `MyMusicsScreenTest › from the keyboard, a music deleted whose next card is out of sight gives it the focus, brought in sight`.
 - En police ×2, les réponses, toujours empilées, gardent leurs mots entiers (P5.48, P5.98, `docs/themes.md`, Polices). Captures : `NamingWindowTakenNameColorfulLargeFont`, `DeleteWindowFailedOriginalLargeFont`, `SaveWindowOriginalLargeFont`.
 
 **Tests :** `MusicNamesTest › a name is refused when blank, or taken by another music, the case and the spaces ignored`,

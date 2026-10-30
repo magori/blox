@@ -335,9 +335,46 @@ Quand la rangée part après une suppression confirmée, `RowMenu` ne choisit pa
 **et** la rangée retirée de la liste, dans n'importe quel ordre (Mes jardins, P10.39 ; Mes musiques, P7.52) ; elle
 pose pour cela un `focusRequester` sur le `modifier` de chaque `RowMenu`.
 
+**Focus après une suppression** (P7.52, `core:designsystem`) : `FocusAfterDeletion`, commun à Mes jardins et à Mes
+musiques (règle de 2), donne ce focus. Il ne connaît que des clés : les clés listées, dans leur ordre (`listed`),
+celle dont la fenêtre de suppression est ouverte (`deleting`), si une fenêtre est ouverte (`windowOpen`), le
+`FocusRequester` de chaque clé (`focusOf`) et celui de la liste vide (`empty`). Il retient l'ordre de la liste à
+l'ouverture de la fenêtre, ou à sa réouverture après une suppression non confirmée ; une liste relue sans l'élément,
+la fenêtre encore ouverte, ne le remplace pas (sans quoi l'élément du milieu enverrait le focus au précédent, et
+l'élément seul ferait planter l'application) ; une clé absente de cet ordre, par défense, envoie le focus au premier
+élément listé. Une fois la fenêtre fermée **et** la clé absente de la liste, dans n'importe quel ordre, il donne le
+focus à l'élément suivant, sinon au précédent, sinon à la liste vide ; au clavier seulement (`LocalInputModeManager`),
+une image plus tard (`withFrameNanos`), après les effets de l'élément qui part. La suppression reste attendue jusqu'à
+ce que le focus soit demandé : un effet annulé pendant cette image (la liste ou la fenêtre change) le redemande en
+reprenant. Une suppression non confirmée attend que l'élément parte jusqu'à l'ouverture d'une autre fenêtre.
+`reveal` reçoit d'abord l'indice, dans la liste, de l'élément qui prend le focus, même s'il est déjà en vue : à la
+liste de décider s'il faut l'y amener. Une liste paresseuse, dont l'élément voisin peut n'être pas composé, s'en sert
+(Mes musiques : `LazyListState.scrollToItem` s'il n'est pas visible) ; Mes jardins, en `Column`, n'en a pas besoin.
+**Tests :** `PendingDeletionTest › the element after the one deleted takes the focus`,
+`PendingDeletionTest › the last element deleted gives the focus to the one before it`,
+`PendingDeletionTest › the only element deleted gives the focus to the empty list`,
+`PendingDeletionTest › while the element awaited is still listed, nothing takes the focus, and it is still awaited`,
+`PendingDeletionTest › an element gone gives the focus once only, once it is given`,
+`PendingDeletionTest › an element gone still gives the focus while it has not been given`,
+`PendingDeletionTest › the window of the same element opened again after a deletion not confirmed takes the order anew`,
+`PendingDeletionTest › the element after the one deleted is the next one still listed, in the order as the window was open`,
+`PendingDeletionTest › a list read without the element while its window is open keeps the order as the window opened`,
+`PendingDeletionTest › the only element read out of the list while its window is open gives the focus to the empty list`,
+`PendingDeletionTest › an element awaited that was never in the order gives the focus to the first element listed`,
+`PendingDeletionTest › nothing awaited gives the focus to nothing`,
+`FocusAfterDeletionTest › from the keyboard, the element after the one deleted takes the focus, else before it, else the list`,
+`FocusAfterDeletionTest › from the keyboard, the element in the middle out of the list, then its window closed, gives the focus on`,
+`FocusAfterDeletionTest › from the keyboard, the window of the element in the middle closed, then it out of the list, gives the focus on`,
+`FocusAfterDeletionTest › from the keyboard, a deletion not confirmed moves the focus nowhere, until the element leaves after all`,
+`FocusAfterDeletionTest › from the keyboard, after a deletion not confirmed, the focus follows the next deletion confirmed`,
+`FocusAfterDeletionTest › by touch, an element deleted gives the focus to nothing`,
+`FocusAfterDeletionTest › in a lazy list, the element that takes the focus is revealed first, at its index in the list`.
+
 **Bloc focalisable** (P10.39, `core:designsystem`) : `FocusableBlock` est un bloc de texte qui ne fait rien mais que
-le clavier peut focaliser, où va le focus quand ce qui le tenait part (une liste laissée vide). TalkBack le lit d'un
-trait ; focalisé, il porte l'anneau des boutons (WCAG 2.4.7).
+le clavier peut focaliser, où va le focus quand ce qui le tenait part (une liste laissée vide : « Aucun jardin
+gardé. », « Aucune musique pour l'instant. »). TalkBack le lit d'un trait ; focalisé, il porte l'anneau des boutons
+(WCAG 2.4.7). Son contenu s'aligne comme celui d'une `Column` (`verticalArrangement`, `horizontalAlignment`, P7.52 :
+la page sans musique est centrée).
 **Test :** `FocusableBlockTest › from the keyboard, a focusable block takes the focus, read in one, and bears the ring of the buttons`.
 
 **Thème de l'application** (P3.5) : le thème choisi à l'accueil s'applique à tous les écrans

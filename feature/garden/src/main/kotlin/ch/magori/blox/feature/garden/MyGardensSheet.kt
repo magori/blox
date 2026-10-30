@@ -13,22 +13,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
@@ -47,6 +41,7 @@ import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.designsystem.component.BloxSheet
 import ch.magori.blox.core.designsystem.component.DeleteWindow
+import ch.magori.blox.core.designsystem.component.FocusAfterDeletion
 import ch.magori.blox.core.designsystem.component.FocusableBlock
 import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
@@ -319,78 +314,13 @@ private fun GardenRows(
         }
     }
     // A frame after the rows have run their effects, it has the last word over the menu of a row that leaves.
-    FocusAfterDeletion(rows, windowOpen, deleting, menuOf = { menus[it] }, empty)
-}
-
-/**
- * Gives the keyboard focus, once the window of the deletion of a row ([deleting]) has closed and the row is no longer
- * listed among [rows], to the menu of the row listed under it ([menuOf]), else above it, else to the [empty] list: in
- * the order of the rows as the window was open, as the row may already be gone from them. A deletion not confirmed,
- * the row still listed, waits for its row to leave until another window opens ([windowOpen]). The focus is asked a
- * frame later, once the other effects of the closing, the menu of the row leaving among them, have run.
- */
-@Composable
-private fun FocusAfterDeletion(
-    rows: List<SheetRow>,
-    windowOpen: Boolean,
-    deleting: GardenId?,
-    menuOf: (GardenId) -> FocusRequester?,
-    empty: FocusRequester,
-) {
-    val inputMode = LocalInputModeManager.current
-    val menus by rememberUpdatedState(menuOf)
-    val pending = remember { PendingDeletion() }
-    LaunchedEffect(rows, windowOpen, deleting) {
-        when {
-            deleting != null -> pending.waitFor(deleting, rows.map { it.garden.id })
-
-            windowOpen -> pending.waitFor(null, emptyList())
-
-            else -> pending.left(rows.filter { it.listed }.map { it.garden.id }.toSet())?.let { target ->
-                if (inputMode.inputMode != InputMode.Keyboard) return@let
-                withFrameNanos {}
-                when (target) {
-                    is FocusTarget.Menu -> menus(target.id)?.requestFocus()
-                    FocusTarget.EmptyList -> empty.requestFocus()
-                }
-            }
-        }
-    }
-}
-
-/** The row whose deletion the sheet waits to see, [id], and the [order] of the rows as its window was open. */
-private class PendingDeletion {
-    private var id: GardenId? = null
-    private var order: List<GardenId> = emptyList()
-
-    fun waitFor(
-        id: GardenId?,
-        order: List<GardenId>,
-    ) {
-        this.id = id
-        this.order = order
-    }
-
-    /**
-     * Once the row awaited is no longer [listed], where the focus goes: the menu of the row listed after it, else
-     * before it, else the empty list; null while nothing has left.
-     */
-    fun left(listed: Set<GardenId>): FocusTarget? {
-        val gone = id?.takeUnless { it in listed } ?: return null
-        id = null
-        val at = order.indexOf(gone)
-        val stays = order.drop(at + 1).firstOrNull { it in listed } ?: order.take(at).lastOrNull { it in listed }
-        return stays?.let { FocusTarget.Menu(it) } ?: FocusTarget.EmptyList
-    }
-}
-
-/** Where the focus goes after a deletion. */
-private sealed interface FocusTarget {
-    /** The menu « … » of the row of the garden [id]. */
-    data class Menu(val id: GardenId) : FocusTarget
-
-    /** The list left empty. */
-    data object EmptyList : FocusTarget
+    FocusAfterDeletion(
+        listed = rows.filter { it.listed }.map { it.garden.id },
+        deleting = deleting,
+        windowOpen = windowOpen,
+        focusOf = { menus[it] },
+        empty = empty,
+    )
 }
 
 /**
