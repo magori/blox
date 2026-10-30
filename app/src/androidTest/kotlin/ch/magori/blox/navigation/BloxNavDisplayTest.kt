@@ -746,7 +746,7 @@ internal class BloxNavDisplayTest {
             val preferences = showApp()
 
             // When the player opens the settings and turns the vibrations on
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
             settle()
             onNodeWithText(string(SettingsR.string.feature_settings_vibrations)).performClick()
             settle()
@@ -770,7 +770,7 @@ internal class BloxNavDisplayTest {
         runJourney {
             // Given the settings, opened from the home screen
             showApp()
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
             settle()
 
             // When
@@ -790,7 +790,7 @@ internal class BloxNavDisplayTest {
             showApp(settingsPreferences = FakeUserPreferencesRepository(initial = null))
 
             // When
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performClick()
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
             settle()
 
             // Then
@@ -812,7 +812,9 @@ internal class BloxNavDisplayTest {
             assertThat(music.playing).isNotNull()
 
             // When
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performScrollTo().performClick()
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings))
+                .performScrollTo()
+                .performClick()
             settle()
 
             // Then
@@ -840,7 +842,9 @@ internal class BloxNavDisplayTest {
             assertThat(music.playing).isNotNull()
 
             // When
-            onNodeWithContentDescription(string(HomeR.string.feature_home_settings)).performScrollTo().performClick()
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings))
+                .performScrollTo()
+                .performClick()
             settle()
 
             // Then

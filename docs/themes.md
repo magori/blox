@@ -148,7 +148,8 @@ captures `MyMusics*`, `GameOverColorfulNewRecord*`, `GameOverOriginalNewRecord`,
 Principal XL (72 dp de haut), Principal et Secondaire (56 dp), Icône (disque de 48 dp) — par
 `BubbleButton`, et ses raccourcis `PrimaryButton`, `SecondaryButton` et `GlyphButton` (famille Icône :
 retour, réglages, écoute, menu, fermeture). Ils remplacent les boutons de `feature:game`
-(Reprendre, Menu, Rejouer) et `SettingsButton`. Couleurs par variante (`BloxTheme.buttons`) ; en
+(Reprendre, Menu, Rejouer) et l'ancien `SettingsButton` de `feature:home` (le `SettingsButton` d'aujourd'hui,
+partagé, est décrit plus bas : **Paramètres**, P12.11). Couleurs par variante (`BloxTheme.buttons`) ; en
 Original, carrés et sans relief par le thème. Le Principal est en `accent`, le Secondaire et l'Icône
 en `button` cadré de `buttonOutline` ; en Original, Secondaire et Icône sont au repos sur la page,
 encre `ink` et cadre `buttonOutline` (l'encre du bouton sur son fond n'atteint que 4,0:1), et
@@ -262,6 +263,15 @@ réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des mus
 `EqualizerTest › in reduced effects or in Original the equalizer stands still`,
 `EqualizerTest › the equalizer is left out by TalkBack`,
 `EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
+
+**Paramètres** (P12.11, `core:designsystem`) : `SettingsButton` est la roue dentée au bout de la barre d’un accueil,
+à l’accueil du Classique (`HomeBar`) et à celui de la Graine du jour (`DailyScreen`), bientôt au choix du jeu (P12.5).
+C’est un `GlyphButton` de la famille Icône, pictogramme `GEAR`, disque de 48 dp, que TalkBack lit « Paramètres » une
+seule fois (chaîne `core_designsystem_settings`, qui remplace `feature_home_settings` et `feature_daily_settings`) ;
+un toucher ouvre la page Paramètres. Il se dessine comme le bouton de la roue qu’il remplace, dans les deux thèmes :
+l’accueil du Classique en Original ne change pas.
+**Tests :** `SettingsButtonTest › the settings button is a button of 48 dp, read Paramètres once, that opens the settings`,
+`SettingsButtonTest › the settings button is drawn as the button of the gear`.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et

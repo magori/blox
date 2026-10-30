@@ -34,6 +34,8 @@
     <string name="core_designsystem_stepper_increase">Plus</string>
     <!-- La valeur d’un curseur de volume, à droite de sa piste et lue par TalkBack : « 50 % », espace fine insécable. -->
     <string name="core_designsystem_volume_percent">%1$d %%</string>
+    <!-- La roue dentée qui ouvre les Paramètres (P12.11), lue « Paramètres » par TalkBack. -->
+    <string name="core_designsystem_settings">Paramètres</string>
     <!-- Écouter (P5.94), partagé par l’accueil et l’éditeur : lu avec le nom de la musique, le verbe seul pour une musique sans nom. -->
     <string name="core_designsystem_listen">Écouter</string>
     <string name="core_designsystem_listen_named">Écouter %1$s</string>
