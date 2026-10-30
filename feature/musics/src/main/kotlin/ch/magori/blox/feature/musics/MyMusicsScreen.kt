@@ -44,6 +44,7 @@ import ch.magori.blox.core.designsystem.component.Equalizer
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
 import ch.magori.blox.core.designsystem.component.ListenButton
+import ch.magori.blox.core.designsystem.component.PillBadge
 import ch.magori.blox.core.designsystem.component.RowMenu
 import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.icon.BloxIcon
@@ -392,17 +393,13 @@ private fun Modifier.markingItsMiddle(): Modifier = layout { measurable, constra
  */
 @Composable
 private fun InGameBadge() {
-    val palette = BloxTheme.palette
-    Text(
+    PillBadge(
         text = stringResource(R.string.feature_musics_in_game),
-        color = palette.accentInk,
         style = MaterialTheme.typography.labelSmall.merge(BloxTheme.typography.statLabel),
-        maxLines = 1,
+        padding = PaddingValues(horizontal = BloxSpaces.space2, vertical = TEXT_GAP),
         modifier = Modifier
             .testTag(MUSICS_IN_GAME_TAG)
-            .clearAndSetSemantics {}
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = BloxSpaces.space2, vertical = TEXT_GAP),
+            .clearAndSetSemantics {},
     )
 }
 

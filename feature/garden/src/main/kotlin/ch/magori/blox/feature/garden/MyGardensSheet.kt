@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.garden
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -37,10 +36,10 @@ import ch.magori.blox.core.board.garden.GardenThumbnail
 import ch.magori.blox.core.data.GardenLibrary
 import ch.magori.blox.core.data.KeptGarden
 import ch.magori.blox.core.designsystem.component.BloxSheet
-import ch.magori.blox.core.designsystem.component.CheckMark
 import ch.magori.blox.core.designsystem.component.DeleteWindow
 import ch.magori.blox.core.designsystem.component.MessageAction
 import ch.magori.blox.core.designsystem.component.NamingWindow
+import ch.magori.blox.core.designsystem.component.PillBadge
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.RenameWindow
 import ch.magori.blox.core.designsystem.component.RowMenu
@@ -415,21 +414,7 @@ private fun KeptGardenSummary(
 /** « ouvert », a pill in `accent` beside its check: the garden under way comes from this one. */
 @Composable
 private fun OpenBadge() {
-    val palette = BloxTheme.palette
-    Row(
-        modifier = Modifier
-            .background(palette.accent, BloxTheme.shapes.pill)
-            .padding(horizontal = BloxSpaces.space2, vertical = BloxSpaces.space1),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space1),
-    ) {
-        CheckMark(color = palette.accentInk, modifier = Modifier.size(CHECK))
-        Text(
-            text = stringResource(R.string.feature_garden_open),
-            color = palette.accentInk,
-            style = MaterialTheme.typography.labelMedium.merge(BloxTheme.typography.small),
-        )
-    }
+    PillBadge(text = stringResource(R.string.feature_garden_open), withCheck = true)
 }
 
 /**
@@ -510,6 +495,3 @@ private val ROW_HEIGHT = 72.dp
 
 /** The frame of a thumbnail, and the room it takes on each side. */
 private val THUMBNAIL_FRAME = 1.dp
-
-/** The check of « ouvert ». */
-private val CHECK = 12.dp

@@ -32,20 +32,23 @@ private val StickerPadding: PaddingValues = PaddingValues(horizontal = 10.dp, ve
 internal data class StickerLook(val fill: Color, val ink: Color, val frame: Color?, val tilt: Float)
 
 /**
- * A sticker in [palette]: `accent-ink` on `accent`, [framed] in the colour of the page, which cuts it out of what it
- * stands on; leaning by [tilt] degrees, except in Original ([kind]), whose pixels would blur.
+ * A sticker in [palette]: the colours of a badge ([badgeLook]), [framed] in the colour of the page, which cuts it out
+ * of what it stands on; leaning by [tilt] degrees, except in Original ([kind]), whose pixels would blur.
  */
 internal fun stickerLook(
     palette: BloxPalette,
     kind: BloxThemeKind,
     tilt: Float,
     framed: Boolean,
-): StickerLook = StickerLook(
-    fill = palette.accent,
-    ink = palette.accentInk,
-    frame = if (framed) palette.page else null,
-    tilt = if (kind == BloxThemeKind.ORIGINAL) 0f else tilt,
-)
+): StickerLook {
+    val badge = badgeLook(palette)
+    return StickerLook(
+        fill = badge.fill,
+        ink = badge.ink,
+        frame = if (framed) palette.page else null,
+        tilt = if (kind == BloxThemeKind.ORIGINAL) 0f else tilt,
+    )
+}
 
 /**
  * A sticker (NOUVEAU RECORD in the game, NOUVELLE on a cartridge, NOUVEAU MEILLEUR or PARFAITE on the Serrurier's
