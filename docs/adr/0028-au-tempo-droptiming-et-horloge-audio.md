@@ -53,7 +53,7 @@ par l'audio à côté de la boucle d'images (deux écrivains) ; le temps entendu
 ## Conséquences
 
 - Le moteur est modifié une fois de plus (lecture de la gravité par `DropTiming`) ; le Classique
-  doit rester identique, ce qu'une propriété vérifie sur des parties tirées au hasard.
+  doit rester identique, ce que vérifient cinq parties de référence, à graines fixes.
 - **Chevauchement avec P6.11** (gravité de plus d'une ligne par tick, gelée avec P6) : `DropTiming`
   ne rend pour l'instant qu'« une ligne ou rien ». Quand P6.11 reprendra, c'est `DropTiming` qui
   devra rendre un nombre de lignes, et non plus `GravityTable` seule.
@@ -64,3 +64,12 @@ par l'audio à côté de la boucle d'images (deux écrivains) ; le temps entendu
   mesure sur téléphone (P11.2) précède tout le reste, et fixe la fenêtre « sur le temps ».
 - Le domaine reste sans temps réel : `Meter`, `TempoDropTiming` et `TempoScore` se testent tick
   par tick, sur la JVM.
+
+## Note (2026-10-30, P11.4)
+
+`DropTiming` est extrait : `Rules.dropTiming` remplace `Rules.gravityTable`, et le moteur demande
+`dropsAfter(ticksSinceDrop: Ticks, tickCount: Int, level: Level)`. `tickCount` est passé dès
+maintenant, pour que `TempoDropTiming` (P11.6) ne modifie pas le moteur une seconde fois ;
+`ClassicDropTiming` l'ignore. La non-régression ne repose pas sur des parties tirées au hasard à
+chaque exécution, mais sur cinq parties de référence, à graines fixes, enregistrées tick par tick
+avant l'extraction (`ReferenceGamesTest`, `core/game/src/test/resources/reference-games`).

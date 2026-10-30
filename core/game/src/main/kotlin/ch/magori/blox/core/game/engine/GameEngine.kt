@@ -57,7 +57,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
      *   - Drop: at most one row per tick. A new press of down starts the soft drop ([Rules.inputRepeat]),
      *     which goes on while down is held alone and starts the gravity count again at each step. A held
      *     left or right, or a release of down, stops it and its points; it then needs a new press of down.
-     *     Otherwise the piece drops one row when the ticks per row of the level have passed.
+     *     Otherwise the piece drops one row when the drop timing of the rules says so ([Rules.dropTiming]).
      * - A piece that cannot drop locks on the board ([GameEvent.PieceLocked]), whether the soft drop or the
      *   gravity moved it; the rows it soft dropped in a row score. The stack danger is measured on the
      *   board once cleared.
@@ -171,7 +171,7 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         }
         if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
         val ticks = counted.ticksSinceDrop + 1
-        if (ticks < rules.gravityTable.ticksPerRow(state.progress.level).value) {
+        if (!rules.dropTiming.dropsAfter(Ticks(ticks), state.tickCount, state.progress.level)) {
             return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
         }
         return dropOneRow(state, counted) { it }

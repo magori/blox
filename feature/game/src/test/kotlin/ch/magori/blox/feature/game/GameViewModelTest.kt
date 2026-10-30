@@ -22,6 +22,7 @@ import ch.magori.blox.core.game.engine.GameEngine
 import ch.magori.blox.core.game.engine.GameEngineFactory
 import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.engine.GameState
+import ch.magori.blox.core.game.engine.OneRowPerTickDropTiming
 import ch.magori.blox.core.game.engine.ScriptedRandomizer
 import ch.magori.blox.core.game.engine.spawned
 import ch.magori.blox.core.game.model.Board
@@ -34,11 +35,9 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation
-import ch.magori.blox.core.game.model.Ticks
 import ch.magori.blox.core.game.rules.ClassicLevelProgression
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.core.game.rules.ClassicScoringRule
-import ch.magori.blox.core.game.rules.GravityTable
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.game.rules.RotationSystem
 import ch.magori.blox.core.game.rules.ScoringRule
@@ -148,7 +147,7 @@ class GameViewModelTest {
     private val engineFactory = GameEngineFactory { seed ->
         seeds += seed
         GameEngine(
-            ClassicRules.copy(gravityTable = oneTickPerRow, scoringRule = hundredPointsPerLock),
+            ClassicRules.copy(dropTiming = oneRowPerTickDropTiming, scoringRule = hundredPointsPerLock),
             ScriptedRandomizer.cycling(PieceType.T, PieceType.I, PieceType.O),
         )
     }
@@ -917,7 +916,7 @@ class GameViewModelTest {
                         PieceType.L to flat(5),
                         PieceType.O to upright(9),
                     ),
-                    gravityTable = oneTickPerRow,
+                    dropTiming = oneRowPerTickDropTiming,
                 ),
                 // The pieces, plus the next one shown while the last one falls.
                 ScriptedRandomizer(
@@ -2294,9 +2293,8 @@ class GameViewModelTest {
         /** The height at which the stack enters the danger, under the Classic rules (`ClassicStackDangerRule`). */
         const val DANGER_HEIGHT = 15
 
-        val oneTickPerRow = object : GravityTable {
-            override fun ticksPerRow(level: Level): Ticks = Ticks(1)
-        }
+        /** One row per tick, at every level. */
+        val oneRowPerTickDropTiming = OneRowPerTickDropTiming
 
         /**
          * The classic scoring, plus 100 points for each piece that locks. The engine calls
@@ -2322,7 +2320,7 @@ class GameViewModelTest {
             GameEngine(
                 ClassicRules.copy(
                     rotationSystem = rotationSystem,
-                    gravityTable = oneTickPerRow,
+                    dropTiming = oneRowPerTickDropTiming,
                     levelProgression = levelProgression,
                 ),
                 ScriptedRandomizer.cycling(*pieces),

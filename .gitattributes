@@ -12,3 +12,6 @@ app/src/main/generated/** linguist-generated=true -diff
 # Journal : chaque tâche ajoute sa ligne à la fin. En fusion « union », deux branches qui ajoutent chacune la leur
 # ne se contredisent plus ; les deux lignes sont gardées, dans l'ordre des fusions.
 JOURNAL.md merge=union
+
+# Parties de référence du Classique (P11.4) : figées, en LF partout, repliées dans les diffs.
+core/game/src/test/resources/reference-games/** text eol=lf -diff linguist-generated=true
