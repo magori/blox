@@ -5,7 +5,7 @@ import ch.magori.blox.core.designsystem.frame.TICKS_PER_SECOND
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
-import ch.magori.blox.feature.game.isRecord
+import ch.magori.blox.feature.game.isBest
 import ch.magori.blox.feature.game.sidepanel.levelText
 import ch.magori.blox.feature.game.sidepanel.linesText
 import ch.magori.blox.feature.game.sidepanel.scoreText
@@ -80,7 +80,7 @@ internal fun gameOverTexts(state: GameOverUiState): GameOverTexts = GameOverText
  * or the first try of the day), nor when the results kept do not hold the game, whose best would then be another's.
  */
 private fun previousBestTexts(state: GameOverUiState): PreviousBestTexts? = state.previousBest
-    .takeIf { state.resultsKept && it.isRecord() }
+    .takeIf { state.resultsKept && it.isBest() }
     ?.let { PreviousBestTexts(shown = scoreText(Points(it)), spoken = it.toString()) }
 
 /** A duration in whole [minutes] and the [seconds] left, 0 to 59. */
