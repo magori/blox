@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * (that of `BoxWithConstraints`, for instance), named as the compiler names them in its trace markers:
  * `ch.magori.blox.feature.game.Play (GameScreen.kt:233)`. Registered as an extension, it is the tracer
  * of the composer during each test. Shared by the instrumented tests of what draws without composing again (ADR
- * 0024): the equalizer and the grid of the editor.
+ * 0024): the equalizer, the grid of the editor, the board (core:board) and the screens that show it.
  *
  * A function skipped because its parameters did not change is not recorded, nor is a scope invalidated
  * by a derived state whose value did not change: the composer enters it only to read its states again,

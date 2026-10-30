@@ -1146,7 +1146,7 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
-- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+- [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
