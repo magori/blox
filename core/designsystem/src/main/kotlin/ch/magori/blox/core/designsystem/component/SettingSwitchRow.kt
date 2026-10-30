@@ -50,10 +50,11 @@ import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
 /**
  * A setting of the settings page (docs/design-system/components/Switch), on or off as [checked]: its [icon] in a slot
  * of 40 dp, its [label] and, under it, its [subLine], which says what it does, then its track, on the right. The whole
- * row is the switch, for the finger and for TalkBack, which reads it once: « Vibrations, Lignes effacées, fin de
- * partie, interrupteur, éteint ». Its state is read « allumé » or « éteint », not « activé » or « désactivé », which
- * TalkBack also says of what cannot be touched. Pressed, the row fills with `buttonPressed` and the thumb grows to
- * 28 dp, at once, and both come back in `motion-press`; focused by the keyboard, the row bears a ring of 3 dp in `ink`.
+ * row is the switch, for the finger and for TalkBack, which reads it once: « Vibrations, Classique, Graine du jour :
+ * lignes effacées, fin de partie, interrupteur, éteint ». Its state is read « allumé » or « éteint », not « activé »
+ * or « désactivé », which TalkBack also says of what cannot be touched. Pressed, the row fills with `buttonPressed`
+ * and the thumb grows to 28 dp, at once, and both come back in `motion-press`; focused by the keyboard, the row bears
+ * a ring of 3 dp in `ink`.
  * With a [disabledReason], the row is disabled, flat and greyed, and its sub-line says that reason instead: TalkBack
  * reads it as unavailable, and why. In a large font, no word is cut, and the label shrinks only for that: when its
  * longest word no longer fits beside the track, the track goes under the label and the sub-line, on the right, the

@@ -32,6 +32,7 @@ import androidx.compose.ui.test.isOff
 import androidx.compose.ui.test.isOn
 import androidx.compose.ui.test.isToggleable
 import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxTypographies
@@ -51,6 +53,7 @@ import ch.magori.blox.feature.settings.navigation.SettingsSection
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -157,17 +160,19 @@ internal class SettingsScreenTest {
     }
 
     @Test
-    @DisplayName("each setting says what it does under its label, read with it by TalkBack")
+    @DisplayName(
+        "each setting says under its label what it does, and for which games when not all, read with it",
+    )
     fun eachSettingSaysWhatItDoes() = extension.use {
         // Given
         showSettingsScreen()
 
         // Then
         mapOf(
-            "Gaucher" to "Flèches à gauche, B et A à droite",
+            "Gaucher" to "$GAMES_WITH_KEYS : flèches à gauche, B et A à droite",
             "Effets sonores" to "Rotation, lignes, fin de partie",
-            "Vibrations" to "Lignes effacées, fin de partie",
-            "Vibration des touches" to "Un léger toucher à chaque touche",
+            "Vibrations" to "$GAMES_WITH_KEYS : lignes effacées, fin de partie",
+            "Vibration des touches" to "$GAMES_WITH_KEYS : un léger toucher à chaque touche",
         ).forEach { (setting, subLine) ->
             onNode(isToggleable() and hasText(setting) and hasText(subLine)).assertExists()
         }
@@ -210,14 +215,13 @@ internal class SettingsScreenTest {
 
     @Test
     @DisplayName(
-        "the card Affichage holds Effets réduits, which says what it does, then Le thème se choisit à l'accueil, " +
-            "above Sons et vibrations",
+        "Affichage holds Effets réduits, which says what it does, then Gaucher, and no note, above Sons et vibrations",
     )
-    fun theCardAffichageHoldsReducedEffectsThenTheNoteOnTheTheme() = extension.use {
+    fun theCardAffichageHoldsReducedEffectsThenGaucher() = extension.use {
         // Given
         showSettingsScreen()
 
-        // Then
+        // Then the theme, chosen on the home of the Classic, is no longer told among the settings of all games
         val heading = onNodeWithText("Affichage")
             .assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
             .getUnclippedBoundsInRoot()
@@ -227,30 +231,44 @@ internal class SettingsScreenTest {
             .assertIsOff()
             .assertIsEnabled()
             .getUnclippedBoundsInRoot()
-        val note = onNodeWithText("Le thème se choisit à l'accueil.").getUnclippedBoundsInRoot()
+        val gaucher = onNode(isToggleable() and hasText("Gaucher")).getUnclippedBoundsInRoot()
         val sounds = onNodeWithText("Sons et vibrations").getUnclippedBoundsInRoot()
         assertThat(row.top).isGreaterThanOrEqualTo(heading.bottom)
-        assertThat(note.top).isGreaterThanOrEqualTo(row.bottom)
-        assertThat(sounds.top).isGreaterThanOrEqualTo(note.bottom)
+        assertThat(gaucher.top).isGreaterThanOrEqualTo(row.bottom)
+        assertThat(sounds.top).isGreaterThanOrEqualTo(gaucher.bottom)
+
+        // And no text between the card and the next heading: Affichage has no note
+        val card = onNodeWithTag(DISPLAY_CARD_TAG).fetchSemanticsNode().boundsInRoot
+        val nextHeading = onNodeWithText("Sons et vibrations").fetchSemanticsNode().boundsInRoot
+        val between = onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.Text), useUnmergedTree = true)
+            .fetchSemanticsNodes()
+            .filter { it.boundsInRoot.top >= card.bottom && it.boundsInRoot.bottom <= nextHeading.top }
+            .map { it.config[SemanticsProperties.Text] }
+        assertThat(between).isEmpty()
     }
 
     @ParameterizedTest(name = "left handed: {0}")
     @ValueSource(booleans = [false, true])
-    @DisplayName("Gaucher stands under Effets réduits in Affichage, and says where the keys are, for either hand")
+    @DisplayName(
+        "Gaucher stands under Effets réduits, and says for which games and where the keys stand, for either hand",
+    )
     fun gaucherSaysWhereTheKeysAre(leftHanded: Boolean) = extension.use {
         // Given a right handed player, or a left handed one
         showSettingsScreen(uiState.copy(leftHanded = leftHanded))
 
-        // Then one switch, on for the left handed, whose sub-line says the layout of the keys of the next game
-        val subLine = if (leftHanded) "B et A à gauche, flèches à droite" else "Flèches à gauche, B et A à droite"
+        // Then one switch, on for the left handed, whose sub-line, read with it, names the games that have keys and
+        // says where their keys stand in the next game
+        val subLine = if (leftHanded) {
+            "$GAMES_WITH_KEYS : B et A à gauche, flèches à droite"
+        } else {
+            "$GAMES_WITH_KEYS : flèches à gauche, B et A à droite"
+        }
         val reducedEffects = onNode(isToggleable() and hasText("Effets réduits")).getUnclippedBoundsInRoot()
         val gaucher = onNode(isToggleable() and hasText("Gaucher") and hasText(subLine))
             .assert(if (leftHanded) isOn() else isOff())
             .assertIsEnabled()
             .getUnclippedBoundsInRoot()
-        val note = onNodeWithText("Le thème se choisit à l'accueil.").getUnclippedBoundsInRoot()
         assertThat(gaucher.top).isGreaterThanOrEqualTo(reducedEffects.bottom)
-        assertThat(note.top).isGreaterThanOrEqualTo(gaucher.bottom)
     }
 
     @Test
@@ -341,9 +359,9 @@ internal class SettingsScreenTest {
 
     @Test
     @DisplayName(
-        "the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them",
+        "Sons et vibrations holds its settings, then says the volumes hold at once, the rest from the next game",
     )
-    fun theSettingsStandUnderTheirHeadingAndTheNoteUnderThem() = extension.use {
+    fun theSettingsStandUnderTheirHeadingThenTheNoteOnWhenTheyHold() = extension.use {
         // Given
         showSettingsScreen()
 
@@ -358,7 +376,8 @@ internal class SettingsScreenTest {
             onNodeWithText("Vibrations"),
             onNodeWithText("Vibration des touches"),
         ).map { it.getUnclippedBoundsInRoot() }
-        val note = onNodeWithText("Valable dès la partie suivante.").getUnclippedBoundsInRoot()
+        val note = onNodeWithText("Volumes : tout de suite. Le reste : dès le prochain jeu ouvert.")
+            .getUnclippedBoundsInRoot()
         assertThat(rows.first().top).isGreaterThanOrEqualTo(heading.bottom)
         rows.zipWithNext { above, below -> assertThat(below.top).isGreaterThanOrEqualTo(above.bottom) }
         assertThat(note.top).isGreaterThanOrEqualTo(rows.last().bottom)
@@ -433,7 +452,9 @@ internal class SettingsScreenTest {
     }
 
     @Test
-    @DisplayName("the page opened from the choice of the game shows no record")
+    @DisplayName(
+        "the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen",
+    )
     fun thePageOpenedFromTheChoiceOfTheGameShowsNoRecord() = extension.use {
         // Given the page opened without the section of a game
         showSettingsScreen(section = null)
@@ -445,6 +466,7 @@ internal class SettingsScreenTest {
         onNodeWithText("Record").assertDoesNotExist()
         onNode(hasText("Record du Classique"), useUnmergedTree = true).assertDoesNotExist()
         onNode(hasContentDescription("Effacer le record du Classique")).assertDoesNotExist()
+        onNodeWithText("Le thème du Classique se choisit dans son accueil.").assertDoesNotExist()
     }
 
     @Test
@@ -485,6 +507,23 @@ internal class SettingsScreenTest {
             onNodeWithText("Sons et vibrations"),
         ).map { it.getUnclippedBoundsInRoot().top }
         assertThat(tops).isSorted()
+    }
+
+    @Test
+    @DisplayName(
+        "opened from the Classic, its section says under the record where its theme is chosen, above Tous les jeux",
+    )
+    fun openedFromTheClassicItsSectionSaysWhereItsThemeIsChosen() = extension.use {
+        // Given the page opened from the Classic
+        showSettingsScreen(section = SettingsSection.CLASSIC)
+
+        // Then the note, last of the section of the Classic, as close under the card Record as the note of Sons et
+        // vibrations under its card: it belongs to the Classic, not to Tous les jeux
+        val record = onNodeWithTag(RECORD_CARD_TAG).getUnclippedBoundsInRoot()
+        val note = onNodeWithText("Le thème du Classique se choisit dans son accueil.").getUnclippedBoundsInRoot()
+        val allGames = onNodeWithText("Tous les jeux").getUnclippedBoundsInRoot()
+        assertThat((note.top - record.bottom).value).isCloseTo(BloxSpaces.space2.value, within(HALF_A_DP))
+        assertThat(allGames.top).isGreaterThanOrEqualTo(note.bottom)
     }
 
     @Test
@@ -624,13 +663,19 @@ private val SWITCHES = listOf("Effets réduits", "Gaucher", "Effets sonores", "V
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
 
+/** The games that have keys, which Gaucher and both vibrations name: not all games (ADR 0030). */
+private const val GAMES_WITH_KEYS = "Classique, Graine du jour"
+
 /** The least part of its size a label of a setting keeps in a large font, shrinking only so as not to cut a word. */
 private const val LEAST_PART_OF_THE_SIZE = 0.9f
 
+/** What a gap measured in the root may differ from its spacing, rounded to whole pixels. */
+private const val HALF_A_DP = 0.5f
+
 /** The sub-lines of the switches after Effets réduits, in the order of the page. */
 private val SUB_LINES = listOf(
-    "Flèches à gauche, B et A à droite",
+    "$GAMES_WITH_KEYS : flèches à gauche, B et A à droite",
     "Rotation, lignes, fin de partie",
-    "Lignes effacées, fin de partie",
-    "Un léger toucher à chaque touche",
+    "$GAMES_WITH_KEYS : lignes effacées, fin de partie",
+    "$GAMES_WITH_KEYS : un léger toucher à chaque touche",
 )

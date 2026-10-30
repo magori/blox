@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.contentDescription
@@ -48,16 +49,17 @@ import ch.magori.blox.feature.settings.navigation.SettingsSection
  * The settings page (V21, V31): the back arrow and the title, in `screen-title`, then the settings of the game of
  * [section], if any, under « Réglages du Classique » (ADR 0030), then those of all games, under « Tous les jeux », a
  * card per section.
- * « Affichage »: Effets réduits, imposed by Android when it removes the animations, Gaucher, and where the theme is
- * chosen.
+ * « Réglages du Classique »: « Record »: Effacer, which asks first, in a window whose safe answer comes first, then says
+ * « Record effacé »; then a note: the theme of the Classic is chosen on its home.
+ * « Affichage »: Effets réduits, imposed by Android when it removes the animations, and Gaucher, whose sub-line names
+ * the games that have keys.
  * « Sons et vibrations »: the sound effects and their volume, greyed while they are off, the volume of the music, the
- * vibrations and the vibration of the keys, both greyed on a device without a vibrator, which they say; then a note: a
- * game reads them when it is created, so a change holds from the next game on. « Record »: Effacer, which asks first,
- * in a window whose safe answer comes first, then says « Record effacé ». While the saved settings are not read
- * ([uiState] null), the page and its header show, without the settings: none flashes off, and the way back is there at
- * once. No logic here: each gesture goes to its callback of [actions]. Drawn in the Colorful theme whatever the theme
- * chosen for the Classic, with the effects of the player, as the choice of the game: the Original theme is frozen
- * (ADR 0030).
+ * vibrations and the vibration of the keys, both greyed on a device without a vibrator, which they say, else naming
+ * the games that have keys; then a note: the volumes hold at once, the rest from the next game opened, which reads
+ * them when it is created. While the saved settings are not read ([uiState] null), the page and its header show,
+ * without the settings: none flashes off, and the way back is there at once. No logic here: each gesture goes to its
+ * callback of [actions]. Drawn in the Colorful theme whatever the theme chosen for the Classic, with the effects of the
+ * player, as the choice of the game: the Original theme is frozen (ADR 0030).
  */
 @Composable
 internal fun SettingsScreen(
@@ -90,10 +92,7 @@ private fun SettingsPage(
         if (uiState != null) {
             if (section == SettingsSection.CLASSIC) {
                 PartTitle(stringResource(R.string.feature_settings_classic))
-                RecordSection(
-                    cleared = uiState.recordClearing == RecordClearing.CLEARED,
-                    onClear = actions.onClearRecord,
-                )
+                ClassicSection(uiState.recordClearing == RecordClearing.CLEARED, actions)
                 RecordWindow(uiState.recordClearing, actions)
             }
             PartTitle(stringResource(R.string.feature_settings_all_games))
@@ -127,8 +126,8 @@ private fun Header(onBack: () -> Unit) {
 /**
  * « Affichage »: Effets réduits, as the player chose, but on and disabled while Android removes the animations, which
  * it says (the effects of the theme, [BloxTheme.effects]): the choice is then neither shown nor touched, and comes back
- * once Android animates again. Gaucher, whose sub-line says where the keys of the next game stand, beside its sketch of
- * them, which turns over with it. Then the note: the theme is chosen on the home screen.
+ * once Android animates again. Gaucher, whose sub-line names the games that have keys and says where their keys stand in
+ * the next game, beside its sketch of them, which turns over with it.
  */
 @Composable
 private fun Display(
@@ -137,7 +136,7 @@ private fun Display(
 ) {
     val forced = BloxTheme.effects.forcedBySystem
     Section(title = stringResource(R.string.feature_settings_display)) {
-        Card {
+        Card(DISPLAY_CARD_TAG) {
             SettingSwitchRow(
                 icon = BloxIcon.REDUCED_EFFECTS,
                 label = stringResource(R.string.feature_settings_reduced_effects),
@@ -157,24 +156,25 @@ private fun Display(
                     } else {
                         R.string.feature_settings_left_handed_off
                     },
+                    stringResource(R.string.feature_settings_games_with_keys),
                 ),
                 checked = leftHanded,
                 onCheckedChange = actions.onLeftHandedChanged,
             )
         }
-        Note(stringResource(R.string.feature_settings_theme_note))
     }
 }
 
-/** « Sons et vibrations », in the order of the design system, then the note on the next game. */
+/** « Sons et vibrations », in the order of the design system, then the note on when they hold. */
 @Composable
 private fun SoundsAndVibrations(
     uiState: SettingsUiState,
     actions: SettingsActions,
 ) {
     val noVibrator = if (uiState.canVibrate) null else stringResource(R.string.feature_settings_no_vibrator)
+    val gamesWithKeys = stringResource(R.string.feature_settings_games_with_keys)
     Section(title = stringResource(R.string.feature_settings_sounds)) {
-        Card {
+        Card(SOUNDS_CARD_TAG) {
             SettingSwitchRow(
                 icon = BloxIcon.NOTE,
                 label = stringResource(R.string.feature_settings_sound_effects),
@@ -201,7 +201,7 @@ private fun SoundsAndVibrations(
             SettingSwitchRow(
                 icon = BloxIcon.VIBRATE,
                 label = stringResource(R.string.feature_settings_vibrations),
-                subLine = stringResource(R.string.feature_settings_vibrations_sub_line),
+                subLine = stringResource(R.string.feature_settings_vibrations_sub_line, gamesWithKeys),
                 checked = uiState.vibrations,
                 onCheckedChange = actions.onVibrationsChanged,
                 disabledReason = noVibrator,
@@ -210,20 +210,36 @@ private fun SoundsAndVibrations(
             SettingSwitchRow(
                 icon = BloxIcon.TOUCH,
                 label = stringResource(R.string.feature_settings_key_vibration),
-                subLine = stringResource(R.string.feature_settings_key_vibration_sub_line),
+                subLine = stringResource(R.string.feature_settings_key_vibration_sub_line, gamesWithKeys),
                 checked = uiState.keyVibration,
                 onCheckedChange = actions.onKeyVibrationChanged,
                 disabledReason = noVibrator,
             )
         }
-        Note(stringResource(R.string.feature_settings_next_game))
+        Note(stringResource(R.string.feature_settings_taking_effect))
+    }
+}
+
+/**
+ * The section of the Classic: « Record », then the note that says where its theme is chosen, last of the section,
+ * [BloxSpaces.space2] under the record, as a note under its card.
+ */
+@Composable
+private fun ClassicSection(
+    cleared: Boolean,
+    actions: SettingsActions,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(BloxSpaces.space2)) {
+        RecordSection(cleared = cleared, onClear = actions.onClearRecord)
+        Note(stringResource(R.string.feature_settings_classic_theme_note))
     }
 }
 
 /**
  * « Record »: the record of the Classic mode and Effacer, read once by TalkBack as « Effacer le record du Classique »;
- * under the card, a live region, silent until the record is [cleared], then « Record effacé »: there from the start, so
- * that TalkBack announces the change of its text, which the focus coming back from the window does not cover.
+ * right under the card, a live region, silent and empty until the record is [cleared], then « Record effacé »,
+ * [BloxSpaces.space2] under the card: there from the start, so that TalkBack announces the change of its text, which
+ * the focus coming back from the window does not cover. Empty, it adds no space under the card.
  */
 @Composable
 private fun RecordSection(
@@ -231,19 +247,29 @@ private fun RecordSection(
     onClear: () -> Unit,
 ) {
     Section(title = stringResource(R.string.feature_settings_record)) {
-        Card {
-            SettingActionRow(icon = BloxIcon.TROPHY, label = stringResource(R.string.feature_settings_classic_record)) {
-                val name = stringResource(R.string.feature_settings_clear_record_description)
-                DangerButton(
-                    text = stringResource(R.string.feature_settings_clear_record),
-                    icon = BloxIcon.TRASH,
-                    onClick = onClear,
-                    modifier = Modifier.semantics { contentDescription = name },
-                )
+        Column {
+            Card(RECORD_CARD_TAG) {
+                SettingActionRow(
+                    icon = BloxIcon.TROPHY,
+                    label = stringResource(R.string.feature_settings_classic_record),
+                ) {
+                    val name = stringResource(R.string.feature_settings_clear_record_description)
+                    DangerButton(
+                        text = stringResource(R.string.feature_settings_clear_record),
+                        icon = BloxIcon.TRASH,
+                        onClick = onClear,
+                        modifier = Modifier.semantics { contentDescription = name },
+                    )
+                }
             }
-        }
-        Box(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
-            if (cleared) Note(stringResource(R.string.feature_settings_record_cleared))
+            Box(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
+                if (cleared) {
+                    Note(
+                        stringResource(R.string.feature_settings_record_cleared),
+                        Modifier.padding(top = BloxSpaces.space2),
+                    )
+                }
+            }
         }
     }
 }
@@ -306,13 +332,20 @@ private fun Section(
     }
 }
 
-/** A card of settings: `panel` in `radius-window`, framed by `panel-border`, its rows [BloxSpaces.space1] within. */
+/**
+ * A card of settings: `panel` in `radius-window`, framed by `panel-border`, its rows [BloxSpaces.space1] within; found by
+ * the tests by its [tag].
+ */
 @Composable
-private fun Card(content: @Composable ColumnScope.() -> Unit) {
+private fun Card(
+    tag: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     val palette = BloxTheme.palette
     val shape = BloxTheme.shapes.window
     Column(
         modifier = Modifier
+            .testTag(tag)
             .fillMaxWidth()
             .background(palette.panel, shape)
             .border(BloxBorders.frame, palette.panelBorder, shape)
@@ -412,3 +445,8 @@ internal fun SettingsScreenGreyedPreview() {
         effects = BloxEffects(reduced = true, forcedBySystem = true),
     )
 }
+
+/** The tags of the cards of the page, for the tests. */
+internal const val RECORD_CARD_TAG = "settings_record_card"
+internal const val DISPLAY_CARD_TAG = "settings_display_card"
+internal const val SOUNDS_CARD_TAG = "settings_sounds_card"
