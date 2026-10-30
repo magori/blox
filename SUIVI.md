@@ -1774,20 +1774,34 @@ le choix du jeu (réglages généraux seuls) ou depuis un jeu (sa section en tê
 Couleurs. Le Serrurier, le Jardin et la Graine n'ont pas de réglage propre ; le Métronome d'Au tempo reste dans sa
 pause (P11.9).
 
-- [ ] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
-  par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0011 et 0022.
-- [ ] **P12.2** Créer `feature:settings` et y déplacer la page Paramètres de `feature:home` (`SettingsScreen`,
-  `SettingsViewModel`, `SettingsUiState`, `SettingsActions`, `KeysSketch`, la clé de route), sans changement de
-  comportement, tests déplacés et verts ; `app` et `buildHealth` à jour. Après P12.1.
-- [ ] **P12.3** Portée de la page, `SettingsRoute(game)` : la section « Classique » (Record, plus tard le Moderne)
-  seulement depuis le Classique, sous un titre lu « Réglages du Classique », puis « Tous les jeux ». Cas : `the page
-  opened from the choice of the game shows no record`, `the section of the Classic is read Réglages du Classique, a
-  heading`. Après P12.2.
+- [x] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
+  par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0002, 0011 et 0022. Fait :
+  [ADR 0030](docs/adr/0030-reglages-generaux-et-par-jeu.md).
+- [ ] **P12.2** Créer `feature:settings` (`blox.android.feature` et `blox.android.screenshot`) et y déplacer la page
+  Paramètres de `feature:home` (`SettingsScreen`, `SettingsViewModel`, `SettingsUiState`, `RecordClearing`,
+  `SettingsActions`, `KeysSketch`, la clé de route, captures comprises), sans changement de comportement, tests
+  déplacés et verts ; `saveSettings` (`SaveSettings.kt`, partagé avec `HomeViewModel`) devient une extension de
+  `UserPreferencesRepository` dans `core:data` ; `feature:home` perd `core:haptics` ; `app` et `buildHealth` à jour.
+  Après P12.1.
+- [ ] **P12.3** Portée de la page, `SettingsRoute(section: SettingsSection? = null)`, `SettingsSection { CLASSIC }` :
+  la section « Classique » (Record, plus tard le Moderne) seulement depuis le Classique, sous un titre lu « Réglages
+  du Classique », puis « Tous les jeux ». Cas : `the page opened from the choice of the game shows no record`, `the
+  section of the Classic is read Réglages du Classique, a heading` ; dans `SettingsRouteSavingTest`, `the key of the
+  page opened from the Classic is saved and restored with its section`. Après P12.2.
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
-  (l'aspect Original de V21 disparaît). Après P12.2.
-- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : disque de 48 dp à droite de la
-  barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les cartouches ; retirer le test
-  `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`. Après P12.3.
+  (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
+  `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
+- [ ] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
+  (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
+  fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings`, qui part avec la page en P12.2 :
+  le faire lire la chaîne du bouton commun. Après P12.2.
+- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : `SettingsButton` (P12.11) de
+  48 dp à droite de la barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les
+  cartouches. La roue passe par `CartridgeOpener` : elle annule un toucher sur le Serrurier qui attend sa frontière,
+  et n'empile la page que si `CartridgesRoute` est en haut de la pile (ADR 0030). Cas : `a tap on the gear cancels a
+  tap on the Locksmith still waiting for its frontier`, `the gear stacks nothing once a game is on its way`. Retirer
+  le test `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`.
+  Après P12.3 et P12.11.
 - [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
   « Record du Classique »). Après P12.3.
 - [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
@@ -1799,6 +1813,9 @@ pause (P11.9).
 - [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
   sur V38 ; V21 remplacée.
+- [ ] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
+  `feature:locksmith`, `featureHome --> haptics` tant que P12.2 n'est pas faite ;
+  vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
 
 ---
 
