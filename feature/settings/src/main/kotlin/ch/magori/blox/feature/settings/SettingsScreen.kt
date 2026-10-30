@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.feature.settings
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -87,12 +87,12 @@ private fun Header(onBack: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
     ) {
         GlyphButton(
-            description = stringResource(R.string.feature_home_settings_back),
+            description = stringResource(R.string.feature_settings_back),
             onClick = onBack,
             glyph = { Glyphs.back(this, it) },
         )
         SingleLineText(
-            text = stringResource(R.string.feature_home_settings),
+            text = stringResource(R.string.feature_settings_title),
             color = BloxTheme.palette.ink,
             style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle),
             modifier = Modifier.weight(1f).semantics { heading() },
@@ -112,29 +112,33 @@ private fun Display(
     actions: SettingsActions,
 ) {
     val forced = BloxTheme.effects.forcedBySystem
-    Section(title = stringResource(R.string.feature_home_settings_display)) {
+    Section(title = stringResource(R.string.feature_settings_display)) {
         Card {
             SettingSwitchRow(
                 icon = BloxIcon.REDUCED_EFFECTS,
-                label = stringResource(R.string.feature_home_reduced_effects),
-                subLine = stringResource(R.string.feature_home_reduced_effects_sub_line),
+                label = stringResource(R.string.feature_settings_reduced_effects),
+                subLine = stringResource(R.string.feature_settings_reduced_effects_sub_line),
                 checked = uiState.reducedEffects || forced,
                 onCheckedChange = actions.onReducedEffectsChanged,
-                disabledReason = if (forced) stringResource(R.string.feature_home_reduced_effects_forced) else null,
+                disabledReason = if (forced) stringResource(R.string.feature_settings_reduced_effects_forced) else null,
             )
             Separator()
             val leftHanded = uiState.leftHanded
             SettingSwitchRow(
                 pictogram = { tint -> KeysSketch(leftHanded, tint) },
-                label = stringResource(R.string.feature_home_left_handed),
+                label = stringResource(R.string.feature_settings_left_handed),
                 subLine = stringResource(
-                    if (leftHanded) R.string.feature_home_left_handed_on else R.string.feature_home_left_handed_off,
+                    if (leftHanded) {
+                        R.string.feature_settings_left_handed_on
+                    } else {
+                        R.string.feature_settings_left_handed_off
+                    },
                 ),
                 checked = leftHanded,
                 onCheckedChange = actions.onLeftHandedChanged,
             )
         }
-        Note(stringResource(R.string.feature_home_settings_theme_note))
+        Note(stringResource(R.string.feature_settings_theme_note))
     }
 }
 
@@ -144,20 +148,20 @@ private fun SoundsAndVibrations(
     uiState: SettingsUiState,
     actions: SettingsActions,
 ) {
-    val noVibrator = if (uiState.canVibrate) null else stringResource(R.string.feature_home_no_vibrator)
-    Section(title = stringResource(R.string.feature_home_settings_sounds)) {
+    val noVibrator = if (uiState.canVibrate) null else stringResource(R.string.feature_settings_no_vibrator)
+    Section(title = stringResource(R.string.feature_settings_sounds)) {
         Card {
             SettingSwitchRow(
                 icon = BloxIcon.NOTE,
-                label = stringResource(R.string.feature_home_sound_effects),
-                subLine = stringResource(R.string.feature_home_sound_effects_sub_line),
+                label = stringResource(R.string.feature_settings_sound_effects),
+                subLine = stringResource(R.string.feature_settings_sound_effects_sub_line),
                 checked = uiState.soundEffects,
                 onCheckedChange = actions.onSoundEffectsChanged,
             )
             Separator()
             SettingVolumeRow(
                 icon = BloxIcon.VOLUME,
-                label = stringResource(R.string.feature_home_effects_volume),
+                label = stringResource(R.string.feature_settings_effects_volume),
                 percent = uiState.effectsVolume,
                 onPercentChange = actions.onEffectsVolumeChanged,
                 enabled = uiState.soundEffects,
@@ -165,15 +169,15 @@ private fun SoundsAndVibrations(
             Separator()
             SettingVolumeRow(
                 icon = BloxIcon.VOLUME,
-                label = stringResource(R.string.feature_home_music_volume),
+                label = stringResource(R.string.feature_settings_music_volume),
                 percent = uiState.musicVolume,
                 onPercentChange = actions.onMusicVolumeChanged,
             )
             Separator()
             SettingSwitchRow(
                 icon = BloxIcon.VIBRATE,
-                label = stringResource(R.string.feature_home_vibrations),
-                subLine = stringResource(R.string.feature_home_vibrations_sub_line),
+                label = stringResource(R.string.feature_settings_vibrations),
+                subLine = stringResource(R.string.feature_settings_vibrations_sub_line),
                 checked = uiState.vibrations,
                 onCheckedChange = actions.onVibrationsChanged,
                 disabledReason = noVibrator,
@@ -181,14 +185,14 @@ private fun SoundsAndVibrations(
             Separator()
             SettingSwitchRow(
                 icon = BloxIcon.TOUCH,
-                label = stringResource(R.string.feature_home_key_vibration),
-                subLine = stringResource(R.string.feature_home_key_vibration_sub_line),
+                label = stringResource(R.string.feature_settings_key_vibration),
+                subLine = stringResource(R.string.feature_settings_key_vibration_sub_line),
                 checked = uiState.keyVibration,
                 onCheckedChange = actions.onKeyVibrationChanged,
                 disabledReason = noVibrator,
             )
         }
-        Note(stringResource(R.string.feature_home_settings_next_game))
+        Note(stringResource(R.string.feature_settings_next_game))
     }
 }
 
@@ -202,12 +206,12 @@ private fun RecordSection(
     cleared: Boolean,
     onClear: () -> Unit,
 ) {
-    Section(title = stringResource(R.string.feature_home_settings_record)) {
+    Section(title = stringResource(R.string.feature_settings_record)) {
         Card {
-            SettingActionRow(icon = BloxIcon.TROPHY, label = stringResource(R.string.feature_home_classic_record)) {
-                val name = stringResource(R.string.feature_home_clear_record_description)
+            SettingActionRow(icon = BloxIcon.TROPHY, label = stringResource(R.string.feature_settings_classic_record)) {
+                val name = stringResource(R.string.feature_settings_clear_record_description)
                 DangerButton(
-                    text = stringResource(R.string.feature_home_clear_record),
+                    text = stringResource(R.string.feature_settings_clear_record),
                     icon = BloxIcon.TRASH,
                     onClick = onClear,
                     modifier = Modifier.semantics { contentDescription = name },
@@ -215,7 +219,7 @@ private fun RecordSection(
             }
         }
         Box(Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }) {
-            if (cleared) Note(stringResource(R.string.feature_home_record_cleared))
+            if (cleared) Note(stringResource(R.string.feature_settings_record_cleared))
         }
     }
 }
@@ -235,9 +239,9 @@ private fun RecordWindow(
     val waiting = clearing == RecordClearing.CLEARING
     WindowDialog(onDismissRequest = if (waiting) ({}) else actions.onKeepRecord) {
         ConfirmWindow(
-            title = stringResource(R.string.feature_home_clear_record_title),
-            dismiss = stringResource(R.string.feature_home_keep_record),
-            confirm = stringResource(R.string.feature_home_clear_record_confirm),
+            title = stringResource(R.string.feature_settings_clear_record_title),
+            dismiss = stringResource(R.string.feature_settings_keep_record),
+            confirm = stringResource(R.string.feature_settings_clear_record_confirm),
             onConfirm = actions.onClearRecordConfirmed,
             onDismiss = actions.onKeepRecord,
             danger = true,

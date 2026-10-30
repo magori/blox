@@ -5,7 +5,7 @@ import androidx.navigation3.runtime.NavKey
 import ch.magori.blox.feature.cartridges.navigation.CartridgesRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
-import ch.magori.blox.feature.home.navigation.SettingsRoute
+import ch.magori.blox.feature.settings.navigation.SettingsRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest

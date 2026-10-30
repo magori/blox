@@ -1780,7 +1780,7 @@ pause (P11.9).
 - [x] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
   par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0002, 0011 et 0022. Fait :
   [ADR 0030](docs/adr/0030-reglages-generaux-et-par-jeu.md).
-- [ ] **P12.2** Créer `feature:settings` (`blox.android.feature` et `blox.android.screenshot`) et y déplacer la page
+- [x] **P12.2** Créer `feature:settings` (`blox.android.feature` et `blox.android.screenshot`) et y déplacer la page
   Paramètres de `feature:home` (`SettingsScreen`, `SettingsViewModel`, `SettingsUiState`, `RecordClearing`,
   `SettingsActions`, `KeysSketch`, la clé de route, captures comprises), sans changement de comportement, tests
   déplacés et verts ; `saveSettings` (`SaveSettings.kt`, partagé avec `HomeViewModel`) devient une extension de
@@ -1790,13 +1790,15 @@ pause (P11.9).
   la section « Classique » (Record, plus tard le Moderne) seulement depuis le Classique, sous un titre lu « Réglages
   du Classique », puis « Tous les jeux ». Cas : `the page opened from the choice of the game shows no record`, `the
   section of the Classic is read Réglages du Classique, a heading` ; dans `SettingsRouteSavingTest`, `the key of the
-  page opened from the Classic is saved and restored with its section`. Après P12.2.
+  page opened from the Classic is saved and restored with its section`. Renommer aussi
+  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen` (la page ne revient plus
+  seulement à l’accueil) et ses références dans les docs (`docs/maquette.md`, V21). Après P12.2.
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
   (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
   `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
 - [ ] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
   (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
-  fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings`, qui part avec la page en P12.2 :
+  fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings` de l’engrenage, restée dans `feature:home` en P12.2 :
   le faire lire la chaîne du bouton commun. Après P12.2.
 - [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : `SettingsButton` (P12.11) de
   48 dp à droite de la barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les
@@ -1817,7 +1819,7 @@ pause (P11.9).
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
   sur V38 ; V21 remplacée.
 - [ ] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
-  `feature:locksmith`, `featureHome --> haptics` tant que P12.2 n'est pas faite ;
+  `feature:locksmith` ;
   vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
 
 ---

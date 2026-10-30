@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.feature.settings
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.size

@@ -16,8 +16,6 @@ dependencies {
     // `api` : la fabrique reçoit de app la partition de chaque choix de musique, (MusicChoice) -> Score?.
     api(projects.core.music)
     api(projects.core.game)
-    // `api` : la fabrique des Paramètres reçoit le retour haptique (une vibration allumée se fait sentir une fois).
-    api(projects.core.haptics)
     api(libs.androidx.lifecycle.viewmodel)
 
     // Les couleurs du logo, celles des pièces (logoColors).
@@ -37,12 +35,8 @@ dependencies {
     testImplementation(testFixtures(projects.core.audio))
     // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.data))
-    // Le faux retour haptique, partagé avec feature:game.
-    testImplementation(testFixtures(projects.core.haptics))
     // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
     androidTestImplementation(testFixtures(projects.core.designsystem))
     // RecompositionRecorder : rien ne recompose pendant que l'aperçu joue (P5.77).
     androidTestImplementation(testFixtures(projects.core.board))
-    // Le contraste et les palettes nommées (schéma des touches de Gaucher).
-    testImplementation(testFixtures(projects.core.designsystem))
 }

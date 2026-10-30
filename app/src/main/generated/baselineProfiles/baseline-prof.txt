@@ -17745,7 +17745,7 @@ SPLch/magori/blox/di/AppContainer;->getGameViewModelFactory()Lch/magori/blox/fea
 SPLch/magori/blox/di/AppContainer;->getHomeViewModelFactory()Lch/magori/blox/feature/home/HomeViewModel$Factory;
 SPLch/magori/blox/di/AppContainer;->getLocksmithViewModelFactory()Lch/magori/blox/feature/locksmith/LocksmithViewModel$Factory;
 SPLch/magori/blox/di/AppContainer;->getMyMusicsViewModelFactory()Lch/magori/blox/feature/musics/MyMusicsViewModel$Factory;
-SPLch/magori/blox/di/AppContainer;->getSettingsViewModelFactory()Lch/magori/blox/feature/home/SettingsViewModel$Factory;
+SPLch/magori/blox/di/AppContainer;->getSettingsViewModelFactory()Lch/magori/blox/feature/settings/SettingsViewModel$Factory;
 SPLch/magori/blox/di/AppContainer;->getSystemAnimations()Lch/magori/blox/theme/SystemAnimations;
 SPLch/magori/blox/di/AppContainer;->highScores$lambda$0(Lch/magori/blox/di/AppContainer;)Lokio/Path;
 SPLch/magori/blox/di/AppContainer;->musicFiles$lambda$0(Lch/magori/blox/di/AppContainer;)Lokio/Path;
@@ -18808,9 +18808,9 @@ Lch/magori/blox/feature/home/PlayButtonKt$$ExternalSyntheticLambda2;
 SPLch/magori/blox/feature/home/PlayButtonKt$$ExternalSyntheticLambda2;-><init>(Ljava/lang/String;)V
 SPLch/magori/blox/feature/home/PlayButtonKt$$ExternalSyntheticLambda2;->invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
 Lch/magori/blox/feature/home/R$string;
-Lch/magori/blox/feature/home/SettingsViewModel$Factory;
-SPLch/magori/blox/feature/home/SettingsViewModel$Factory;-><clinit>()V
-SPLch/magori/blox/feature/home/SettingsViewModel$Factory;-><init>(Lch/magori/blox/core/data/UserPreferencesRepository;Lch/magori/blox/core/data/HighScoreRepository;Lch/magori/blox/core/audio/SoundEffectPlayer;Lch/magori/blox/core/haptics/Haptics;)V
+Lch/magori/blox/feature/settings/SettingsViewModel$Factory;
+SPLch/magori/blox/feature/settings/SettingsViewModel$Factory;-><clinit>()V
+SPLch/magori/blox/feature/settings/SettingsViewModel$Factory;-><init>(Lch/magori/blox/core/data/UserPreferencesRepository;Lch/magori/blox/core/data/HighScoreRepository;Lch/magori/blox/core/audio/SoundEffectPlayer;Lch/magori/blox/core/haptics/Haptics;)V
 Lch/magori/blox/feature/home/navigation/HomeNavigationKt;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->$r8$lambda$_rfRkkycPCsNtLpzm64uSduH6uY(Lch/magori/blox/feature/home/HomeViewModel;Lkotlin/jvm/functions/Function1;I)Lkotlin/Unit;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->$r8$lambda$cJR3fmmDwKpi56fCTftCCP4XDjw(Lch/magori/blox/feature/home/HomeViewModel;Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$Event;)V
@@ -18823,7 +18823,7 @@ SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->homeEntry$lambda$0$
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->homeEntry$lambda$0$5$6$0(Lch/magori/blox/feature/home/HomeViewModel;Lkotlin/jvm/functions/Function1;I)Lkotlin/Unit;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->homeEntry$lambda$0(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lch/magori/blox/feature/home/navigation/HomeRoute;Landroidx/compose/runtime/Composer;I)Lkotlin/Unit;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->homeEntry(Landroidx/navigation3/runtime/EntryProviderScope;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lch/magori/blox/feature/home/HomeViewModel$Factory;)V
-SPLch/magori/blox/feature/home/navigation/HomeNavigationKt;->settingsEntry(Landroidx/navigation3/runtime/EntryProviderScope;Lkotlin/jvm/functions/Function0;Lch/magori/blox/feature/home/SettingsViewModel$Factory;)V
+SPLch/magori/blox/feature/settings/navigation/SettingsNavigationKt;->settingsEntry(Landroidx/navigation3/runtime/EntryProviderScope;Lkotlin/jvm/functions/Function0;Lch/magori/blox/feature/settings/SettingsViewModel$Factory;)V
 Lch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda0;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda0;-><init>(Lch/magori/blox/feature/home/HomeViewModel;)V
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda0;->onStateChanged(Landroidx/lifecycle/LifecycleOwner;Landroidx/lifecycle/Lifecycle$Event;)V
@@ -18841,8 +18841,6 @@ Lch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambd
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda5;-><init>(Lch/magori/blox/feature/home/HomeViewModel;Lkotlin/jvm/functions/Function0;)V
 Lch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda6;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda6;-><init>(Lch/magori/blox/feature/home/HomeViewModel;Lkotlin/jvm/functions/Function0;)V
-Lch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda7;
-SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda7;-><init>(Lch/magori/blox/feature/home/SettingsViewModel$Factory;Lkotlin/jvm/functions/Function0;)V
 Lch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda9;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda9;-><init>(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;Lkotlin/jvm/functions/Function0;)V
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$$ExternalSyntheticLambda9;->invoke(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
@@ -18875,11 +18873,11 @@ SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$homeEntry$1$pickMusic
 Lch/magori/blox/feature/home/navigation/HomeNavigationKt$homeEntry$lambda$0$1$0$$inlined$onDispose$1;
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$homeEntry$lambda$0$1$0$$inlined$onDispose$1;-><init>(Landroidx/lifecycle/Lifecycle;Landroidx/lifecycle/LifecycleEventObserver;)V
 SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$homeEntry$lambda$0$1$0$$inlined$onDispose$1;->dispose()V
-Lch/magori/blox/feature/home/navigation/HomeNavigationKt$settingsEntry$$inlined$entry$default$1;
-SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$settingsEntry$$inlined$entry$default$1;-><clinit>()V
-SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$settingsEntry$$inlined$entry$default$1;-><init>()V
-Lch/magori/blox/feature/home/navigation/HomeNavigationKt$settingsEntry$$inlined$entry$default$2;
-SPLch/magori/blox/feature/home/navigation/HomeNavigationKt$settingsEntry$$inlined$entry$default$2;-><init>(Ljava/util/Map;)V
+Lch/magori/blox/feature/settings/navigation/SettingsNavigationKt$settingsEntry$$inlined$entry$default$1;
+SPLch/magori/blox/feature/settings/navigation/SettingsNavigationKt$settingsEntry$$inlined$entry$default$1;-><clinit>()V
+SPLch/magori/blox/feature/settings/navigation/SettingsNavigationKt$settingsEntry$$inlined$entry$default$1;-><init>()V
+Lch/magori/blox/feature/settings/navigation/SettingsNavigationKt$settingsEntry$$inlined$entry$default$2;
+SPLch/magori/blox/feature/settings/navigation/SettingsNavigationKt$settingsEntry$$inlined$entry$default$2;-><init>(Ljava/util/Map;)V
 Lch/magori/blox/feature/home/navigation/HomeRoute;
 SPLch/magori/blox/feature/home/navigation/HomeRoute;-><clinit>()V
 SPLch/magori/blox/feature/home/navigation/HomeRoute;-><init>()V
@@ -18888,7 +18886,7 @@ SPLch/magori/blox/feature/home/navigation/HomeRoute;->hashCode()I
 SPLch/magori/blox/feature/home/navigation/HomeRoute;->toString()Ljava/lang/String;
 Lch/magori/blox/feature/home/navigation/HomeRoute$$ExternalSyntheticLambda0;
 SPLch/magori/blox/feature/home/navigation/HomeRoute$$ExternalSyntheticLambda0;-><init>()V
-Lch/magori/blox/feature/home/navigation/SettingsRoute;
+Lch/magori/blox/feature/settings/navigation/SettingsRoute;
 Lch/magori/blox/feature/locksmith/LockCellsKt;
 SPLch/magori/blox/feature/locksmith/LockCellsKt;-><clinit>()V
 SPLch/magori/blox/feature/locksmith/LockCellsKt;->getINSIDE()Lkotlin/ranges/IntRange;
@@ -19254,7 +19252,7 @@ SPLch/magori/blox/navigation/BloxNavDisplayKt;->$r8$lambda$2RHcSl2hRxs9OqQfHp_cu
 SPLch/magori/blox/navigation/BloxNavDisplayKt;->$r8$lambda$YJed7raJmEMFQyC3CNmum6tgItk(Landroidx/navigation3/runtime/NavBackStack;Lch/magori/blox/feature/cartridges/Cartridge;)Lkotlin/Unit;
 SPLch/magori/blox/navigation/BloxNavDisplayKt;->BloxNavDisplay$lambda$1$0$0(Landroidx/navigation3/runtime/NavBackStack;Lch/magori/blox/feature/cartridges/Cartridge;)Lkotlin/Unit;
 SPLch/magori/blox/navigation/BloxNavDisplayKt;->BloxNavDisplay$lambda$1$1$0(Landroidx/navigation3/runtime/NavBackStack;I)Lkotlin/Unit;
-SPLch/magori/blox/navigation/BloxNavDisplayKt;->BloxNavDisplay(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lch/magori/blox/feature/game/GameViewModel$Factory;Lch/magori/blox/feature/composer/ComposerViewModel$Factory;Lch/magori/blox/feature/musics/MyMusicsViewModel$Factory;Lch/magori/blox/feature/home/SettingsViewModel$Factory;Lch/magori/blox/feature/musics/DeletedMusicRelay;Lch/magori/blox/feature/locksmith/LocksmithViewModel$Factory;Landroidx/compose/ui/Modifier;Landroidx/navigation3/runtime/NavBackStack;Landroidx/compose/runtime/Composer;II)V
+SPLch/magori/blox/navigation/BloxNavDisplayKt;->BloxNavDisplay(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lch/magori/blox/feature/game/GameViewModel$Factory;Lch/magori/blox/feature/composer/ComposerViewModel$Factory;Lch/magori/blox/feature/musics/MyMusicsViewModel$Factory;Lch/magori/blox/feature/settings/SettingsViewModel$Factory;Lch/magori/blox/feature/musics/DeletedMusicRelay;Lch/magori/blox/feature/locksmith/LocksmithViewModel$Factory;Landroidx/compose/ui/Modifier;Landroidx/navigation3/runtime/NavBackStack;Landroidx/compose/runtime/Composer;II)V
 Lch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda0;
 SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda0;-><init>(Landroidx/navigation3/runtime/NavBackStack;)V
 Lch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda1;
@@ -19281,7 +19279,7 @@ SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda6;-><init>
 Lch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda7;
 SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda7;-><init>(Landroidx/navigation3/runtime/NavBackStack;)V
 Lch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda8;
-SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda8;-><init>(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lch/magori/blox/feature/game/GameViewModel$Factory;Lch/magori/blox/feature/composer/ComposerViewModel$Factory;Lch/magori/blox/feature/musics/MyMusicsViewModel$Factory;Lch/magori/blox/feature/home/SettingsViewModel$Factory;Lch/magori/blox/feature/musics/DeletedMusicRelay;Lch/magori/blox/feature/locksmith/LocksmithViewModel$Factory;Landroidx/compose/ui/Modifier;Landroidx/navigation3/runtime/NavBackStack;II)V
+SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda8;-><init>(Lch/magori/blox/feature/home/HomeViewModel$Factory;Lch/magori/blox/feature/game/GameViewModel$Factory;Lch/magori/blox/feature/composer/ComposerViewModel$Factory;Lch/magori/blox/feature/musics/MyMusicsViewModel$Factory;Lch/magori/blox/feature/settings/SettingsViewModel$Factory;Lch/magori/blox/feature/musics/DeletedMusicRelay;Lch/magori/blox/feature/locksmith/LocksmithViewModel$Factory;Landroidx/compose/ui/Modifier;Landroidx/navigation3/runtime/NavBackStack;II)V
 Lch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda9;
 SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda9;-><init>(Landroidx/navigation3/runtime/NavBackStack;)V
 SPLch/magori/blox/navigation/BloxNavDisplayKt$$ExternalSyntheticLambda9;->invoke(Ljava/lang/Object;)Ljava/lang/Object;

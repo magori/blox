@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.feature.settings
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.data.HighScoreRepository
 import ch.magori.blox.core.data.UserPreferencesRepository
+import ch.magori.blox.core.data.saveSettings
 import ch.magori.blox.core.haptics.Haptic
 import ch.magori.blox.core.haptics.Haptics
 import ch.magori.blox.core.music.SoundEffects
@@ -117,7 +118,7 @@ class SettingsViewModel(
     private fun save(
         onSaved: () -> Unit = {},
         write: suspend UserPreferencesRepository.() -> Unit,
-    ) = viewModelScope.saveSettings(preferences, write, onSaved)
+    ) = preferences.saveSettings(viewModelScope, write, onSaved)
 
     /**
      * Builds the [SettingsViewModel] on the settings and the record of the application, its sound effects and its
