@@ -171,7 +171,8 @@ public class GameEngine(public val rules: Rules, private val randomizer: Randomi
         }
         if (softDrop?.step == true) return dropOneRow(state, counted) { it.copy(softDropRows = it.softDropRows + 1) }
         val ticks = counted.ticksSinceDrop + 1
-        if (!rules.dropTiming.dropsAfter(Ticks(ticks), state.tickCount, state.progress.level)) {
+        val softDropping = counted.softDrop != null
+        if (!rules.dropTiming.dropsAfter(Ticks(ticks), state.tickCount, state.progress.level, softDropping)) {
             return GameUpdate(state.copy(phase = counted.copy(ticksSinceDrop = ticks)), events = emptyList())
         }
         return dropOneRow(state, counted) { it }

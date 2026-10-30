@@ -205,7 +205,7 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 | `ch.magori.blox.core.game.model` | Value objects : `Position` (`minus`, `neighbours()`, `firstInReadingOrder()`), `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) ; `AsciiGrid.parse(ascii)`, grille texte partagée par `Padlock.parse` et `Garden.parse` (P10.16) |
 | `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `DropTiming`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune (`ClassicDropTiming` délègue à `GravityTable`) ; `RotationSystem.pieceCovering(cells, types)`, la pièce qui couvre exactement des cases (Serrurier, Jardin) |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
-| `ch.magori.blox.core.game.tempo` | Au tempo ([règles](docs/regles-au-tempo.md), ADR 0028) : `Meter` (croche en ticks entiers, noire, mesure, phrase, temps et mesure d'un `tickCount`, `isOnBeat` dans une fenêtre passée en paramètre) |
+| `ch.magori.blox.core.game.tempo` | Au tempo ([règles](docs/regles-au-tempo.md), ADR 0028) : `Meter` (croche en ticks entiers, noire, mesure, phrase, temps et mesure d'un `tickCount`, `isOnBeat` dans une fenêtre passée en paramètre), `TempoDropTiming` (une ligne par croche, calée sur `tickCount`) |
 
 Le mode Moderne (P6, règles dans [docs/regles-mode-moderne.md](docs/regles-mode-moderne.md))
 s'ajoute au même moteur, dont les capacités sont déclarées dans `Rules` (réserve, chute
@@ -228,7 +228,8 @@ du Classique, qui doit rester vert (ADR 0015).
   `ClassicRandomizer.stable(seed)`). Le Jardin musical (`core:garden`) : `Garden` (la grille de
   16 × 14 et les pièces qui y sont posées), `GardenMood` (une ambiance : gamme, accords, tempo).
   Au tempo : `DropTiming` (la cadence de chute, dans `Rules` : si la pièce descend d'une ligne par
-  la gravité à ce tick ; `ClassicDropTiming` délègue à `GravityTable`) ; `Meter` (`core:game`, paquet `tempo` :
+  la gravité à ce tick ; `ClassicDropTiming` délègue à `GravityTable`, `TempoDropTiming` suit les croches d'un
+  `Meter`) ; `Meter` (`core:game`, paquet `tempo` :
   le découpage des ticks en croches, noires, mesures de 4 temps et phrases de 4 mesures, et la fenêtre « sur le
   temps ») ; `Accompaniment` (`core:music`, la musique d'Au tempo : basse I–V–vi–IV et métronome, écrits à
   100 temps/min, `tempoFactor(ticksPerEighth)`). Garder ces noms.
