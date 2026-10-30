@@ -56,7 +56,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpRect
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.designsystem.component.GLYPH_BUTTON_ICON_TAG
@@ -64,6 +63,7 @@ import ch.magori.blox.core.designsystem.component.PLAY_BUTTON_ICON_TAG
 import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.component.isChoiceCheck
 import ch.magori.blox.core.designsystem.component.tapScrim
+import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes

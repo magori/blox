@@ -1149,7 +1149,7 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
-- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+- [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
@@ -1555,7 +1555,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
-- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+- [x] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
 - [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
@@ -1816,10 +1816,12 @@ seulement, jour et nuit.
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
   360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
   Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
-- [ ] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
+- [x] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
   musiques du joueur, alors que trois musiques de jeu l'utilisent sans être gardées (`LiveMusic.CALM_ID` et
   `TENSE_ID`, `GARDEN_SCORE_ID`, l'accompagnement d'Au tempo) ; élargir cette KDoc, ou leur donner une identité
-  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9.
+  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9. Fait : KDoc élargie,
+  sans identité dédiée, aucune collision ni confusion n'étant possible avec les musiques du joueur (`docs/musique.md`,
+  Identités).
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 

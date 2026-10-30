@@ -109,7 +109,7 @@ internal class ScoreGridTest {
                             level = Level(29),
                             lines = Lines(999),
                             next = nextPieceCells(PieceType.I, ClassicRotationSystem),
-                            recordFill = 1f,
+                            bestFill = 1f,
                             cellSize = layout.cellSize,
                             modifier = Modifier
                                 .requiredWidth(with(density) { layout.sidePanel.width.toDp() })

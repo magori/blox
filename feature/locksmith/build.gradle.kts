@@ -48,5 +48,5 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.audio))
     androidTestImplementation(testFixtures(projects.core.data))
     // RecompositionRecorder : le tremblement de la serrure ne recompose pas sa grille (P7.22).
-    androidTestImplementation(testFixtures(projects.core.board))
+    androidTestImplementation(testFixtures(projects.core.designsystem))
 }

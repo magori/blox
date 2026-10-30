@@ -699,8 +699,8 @@ Vues : V1, V2, V3, V4.
 `SidePanelTextTest › beyond 999 999 the score shown stays at 999 999`,
 `SidePanelTextTest › the level is shown on at least 2 digits, without a cap`,
 `SidePanelTextTest › the lines are shown on at least 3 digits, without a cap`,
-`TopBarTextsTest › the record is shown as the score in the game, capped at 999 999`,
-`TopBarTextsTest › TalkBack reads the real record, without padding zeros nor cap`. Vues : V2, V3.
+`TopBarTextsTest › the best is shown as the score in the game, capped at 999 999`,
+`TopBarTextsTest › TalkBack reads the real best, without padding zeros nor cap`. Vues : V2, V3.
 
 **Tests :** `ClassicScoringRuleTest › clearing no line scores no point`,
 `ClassicScoringRuleTest › at level 0 each number of lines cleared has its base value`,

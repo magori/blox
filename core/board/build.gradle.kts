@@ -1,8 +1,8 @@
 plugins {
     alias(libs.plugins.blox.android.library)
     alias(libs.plugins.blox.android.library.compose)
-    // Les outils des tests instrumentés du dessin (RecompositionRecorder, drawnContent, assertDrawnAsFresh), partagés
-    // avec l'écran de jeu.
+    // Les outils des tests instrumentés du dessin (drawnContent, movePiece, assertDrawnAsFresh), partagés avec l'écran
+    // de jeu.
     alias(libs.plugins.blox.test.fixtures)
     // Le plateau seul, rendu sur la JVM et comparé à sa référence.
     alias(libs.plugins.blox.android.screenshot)
@@ -30,11 +30,11 @@ dependencies {
     testImplementation(testFixtures(projects.core.designsystem))
 
     androidTestImplementation(libs.androidx.compose.ui.test.android)
+    // RecompositionRecorder, l'outil de mesure des recompositions partagé avec les features (P5.106).
+    androidTestImplementation(testFixtures(projects.core.designsystem))
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
 
     testFixturesApi(libs.androidx.compose.ui.test.android)
     testFixturesApi(libs.android.junit.test.compose)
     testFixturesImplementation(libs.assertj.core)
-    testFixturesApi(platform(libs.junit.bom))
-    testFixturesApi(libs.junit.jupiter.api)
 }
