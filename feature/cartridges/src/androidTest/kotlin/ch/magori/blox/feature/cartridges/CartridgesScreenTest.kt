@@ -8,14 +8,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertHeightIsAtLeast
+import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
+import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.hasClickAction
@@ -28,8 +31,10 @@ import androidx.compose.ui.test.isHeading
 import androidx.compose.ui.test.isNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.Density
@@ -39,6 +44,7 @@ import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxSizes
+import ch.magori.blox.core.designsystem.theme.BloxSpaces
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.ComposeContext
@@ -50,6 +56,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
+import ch.magori.blox.core.designsystem.R as DesignR
 
 @OptIn(ExperimentalTestApi::class)
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
@@ -153,6 +160,7 @@ internal class CartridgesScreenTest {
                     newCartridges = emptySet(),
                     padlockFrontier = frontier,
                     onOpen = {},
+                    onSettings = {},
                     modifier = Modifier.width(NARROW_PHONE),
                 )
             }
@@ -218,18 +226,69 @@ internal class CartridgesScreenTest {
         cartridge.performTouchInput { up() }
     }
 
+    @ParameterizedTest(name = "under {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("the gear at the end of the bar, above the title, is a button of 48 dp read « Paramètres »")
+    fun theGearAtTheEndOfTheBarIsReadParametres(kind: BloxThemeKind) = extension.use {
+        // Given
+        showCartridges(kind = kind, width = NARROW_PHONE)
+
+        // Then
+        val gear = onNode(hasContentDescription(string(DesignR.string.core_designsystem_settings)) and hasClickAction())
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
+            .assertWidthIsEqualTo(BloxSizes.minTouchTarget)
+            .assertHeightIsEqualTo(BloxSizes.minTouchTarget)
+            .getBoundsInRoot()
+        val title = onNode(isHeading()).getBoundsInRoot()
+        assertThat(gear.bottom).describedAs("in the bar, above the title").isLessThanOrEqualTo(title.top)
+        assertThat(
+            NARROW_PHONE - gear.right,
+        ).describedAs("at the end of the bar").isLessThanOrEqualTo(BloxSpaces.space4)
+    }
+
     @Test
-    @DisplayName("the only buttons, focusable or disabled nodes of the screen are the cartridges")
-    fun theOnlyButtonsAreTheCartridges() = extension.use {
+    @DisplayName("TalkBack reads the gear before the heading « Choix du jeu »")
+    fun talkBackReadsTheGearBeforeTheTitle() = extension.use {
+        // Given
+        showCartridges()
+
+        // Then, in the order TalkBack reads the tree
+        val settings = string(DesignR.string.core_designsystem_settings)
+        val title = string(R.string.feature_cartridges_title)
+        val read = readingOrder(onRoot().fetchSemanticsNode()).filter { it == settings || it == title }
+        assertThat(read).containsExactly(settings, title)
+    }
+
+    @Test
+    @DisplayName("the gear tapped calls for the settings")
+    fun theGearTappedCallsForTheSettings() = extension.use {
+        // Given
+        var settings = 0
+        showCartridges(onSettings = { settings++ })
+
+        // When
+        onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
+
+        // Then
+        runOnIdle { assertThat(settings).isEqualTo(1) }
+    }
+
+    @Test
+    @DisplayName("the only buttons, focusable or disabled nodes of the screen are the cartridges and the gear")
+    fun theOnlyButtonsAreTheCartridgesAndTheGear() = extension.use {
         // Given, the Graine du jour new: its sticker is no button
         showCartridges(newCartridges = setOf(Cartridge.DAILY))
 
         // Then, in the tree TalkBack reads
-        val names = Cartridge.entries.map(::nameOf)
+        val names = Cartridge.entries.map(::nameOf) + string(DesignR.string.core_designsystem_settings)
         val buttons = onAllNodes(SemanticsMatcher.expectValue(SemanticsProperties.Role, Role.Button))
             .fetchSemanticsNodes()
-        assertThat(buttons.map { it.config[SemanticsProperties.Text].joinToString() })
-            .containsExactlyInAnyOrderElementsOf(names)
+        assertThat(
+            buttons.map {
+                it.config.getOrNull(SemanticsProperties.Text)?.joinToString()
+                    ?: it.config[SemanticsProperties.ContentDescription].joinToString()
+            },
+        ).containsExactlyInAnyOrderElementsOf(names)
         assertThat(onAllNodes(isFocusable()).fetchSemanticsNodes()).hasSize(names.size)
         assertThat(onAllNodes(isNotEnabled()).fetchSemanticsNodes()).isEmpty()
     }
@@ -322,6 +381,7 @@ internal class CartridgesScreenTest {
 
     private fun ComposeContext.showCartridges(
         onOpen: (Cartridge) -> Unit = {},
+        onSettings: () -> Unit = {},
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
@@ -338,6 +398,7 @@ internal class CartridgesScreenTest {
                         newCartridges = newCartridges,
                         padlockFrontier = padlockFrontier,
                         onOpen = onOpen,
+                        onSettings = onSettings,
                         modifier = Modifier.width(width),
                     )
                 }
@@ -346,6 +407,17 @@ internal class CartridgesScreenTest {
     }
 
     private fun nameOf(cartridge: Cartridge): String = string(cartridge.label)
+
+    /**
+     * What TalkBack reads of [node] and of each node under it, in the order of the semantics tree, not in the order
+     * TalkBack really follows (by geometry and `traversalIndex`): it holds only while the tree and the screen are in
+     * the same order.
+     */
+    private fun readingOrder(node: SemanticsNode): List<String> {
+        val name = node.config.getOrNull(SemanticsProperties.ContentDescription)?.joinToString()
+            ?: node.config.getOrNull(SemanticsProperties.Text)?.joinToString()
+        return listOfNotNull(name) + node.children.flatMap(::readingOrder)
+    }
 
     /** The line of the Locksmith cartridge, its frontier [padlock]. */
     private fun padlockLine(padlock: Int): String = string(R.string.feature_cartridges_padlock, padlock)

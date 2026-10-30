@@ -1811,7 +1811,7 @@ pause (P11.9).
   (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
   fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings` de l’engrenage, restée dans `feature:home` en P12.2 :
   le faire lire la chaîne du bouton commun. Après P12.2.
-- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : `SettingsButton` (P12.11) de
+- [x] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : `SettingsButton` (P12.11) de
   48 dp à droite de la barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les
   cartouches. La roue passe par `CartridgeOpener` : elle annule un toucher sur le Serrurier qui attend sa frontière,
   et n'empile la page que si `CartridgesRoute` est en haut de la pile (ADR 0030). Cas : `a tap on the gear cancels a

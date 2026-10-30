@@ -51,6 +51,7 @@ import ch.magori.blox.core.board.logo.BloxLogo
 import ch.magori.blox.core.board.mascot.Mascot
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.designsystem.component.SettingsButton
 import ch.magori.blox.core.designsystem.component.Sticker
 import ch.magori.blox.core.designsystem.component.holdSideBySide
 import ch.magori.blox.core.designsystem.component.widestWord
@@ -66,13 +67,14 @@ import ch.magori.blox.core.designsystem.theme.shrinkToFewestLines
 import ch.magori.blox.core.designsystem.theme.shrinkToFit
 
 /**
- * The choice of the game (V36), the first screen of the application: the logo, then « Choix du jeu », its heading, then
- * the [cartridges] on two columns, the last one centred below when they are odd in number ([Cartridges]), each read by
- * TalkBack as a button of its name; those of [newCartridges] bear the sticker NOUVELLE, read after their name. The
- * Locksmith bears the line « Serrure N », its [padlockFrontier], the first padlock not open, which it opens; none
- * before the frontier is read (null), rather than a line that may change. Tapping a
- * cartridge hands it to [onOpen], which opens its game. Drawn in the Colorful theme whatever the theme chosen, as the
- * Serrurier and the Graine du jour: the Original theme is frozen (ADR 0026).
+ * The choice of the game (V36), the first screen of the application: the logo and the gear in the bar, then « Choix du
+ * jeu », its heading, then the [cartridges] on two columns, the last one centred below when they are odd in number
+ * ([Cartridges]), each read by TalkBack as a button of its name; those of [newCartridges] bear the sticker NOUVELLE,
+ * read after their name. The Locksmith bears the line « Serrure N », its [padlockFrontier], the first padlock not open,
+ * which it opens; none before the frontier is read (null), rather than a line that may change. Tapping a cartridge hands
+ * it to [onOpen], which opens its game; tapping the gear calls [onSettings], which opens the settings. Drawn in the
+ * Colorful theme whatever the theme chosen, as the Serrurier and the Graine du jour: the Original theme is frozen
+ * (ADR 0026).
  */
 @Composable
 internal fun CartridgesScreen(
@@ -80,9 +82,10 @@ internal fun CartridgesScreen(
     newCartridges: Set<Cartridge>,
     padlockFrontier: Int?,
     onOpen: (Cartridge) -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ColorfulTheme { CartridgesPage(cartridges, newCartridges, padlockFrontier, onOpen, modifier) }
+    ColorfulTheme { CartridgesPage(cartridges, newCartridges, padlockFrontier, onOpen, onSettings, modifier) }
 }
 
 /** The page of the choice of the game, in the theme around it. */
@@ -92,6 +95,7 @@ private fun CartridgesPage(
     newCartridges: Set<Cartridge>,
     padlockFrontier: Int?,
     onOpen: (Cartridge) -> Unit,
+    onSettings: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -104,7 +108,7 @@ private fun CartridgesPage(
             .padding(top = BloxSpaces.space2, bottom = BloxSpaces.space4),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Title()
+        Title(onSettings)
         Cartridges(cartridges, newCartridges, padlockFrontier, onOpen)
         Text(
             text = stringResource(R.string.feature_cartridges_hint),
@@ -117,17 +121,20 @@ private fun CartridgesPage(
 }
 
 /**
- * The title of the screen: the logo BloX in its bar, a decoration; then « Choix du jeu », centred, its heading for
- * TalkBack.
+ * The title of the screen: the bar, the logo BloX at its start, a decoration, and the gear at its end, which calls
+ * [onSettings]; then « Choix du jeu », centred, its heading for TalkBack, which reads the gear before it.
  */
 @Composable
-private fun Title() {
+private fun Title(onSettings: () -> Unit) {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-        Box(
+        Row(
             modifier = Modifier.fillMaxWidth().heightIn(min = TITLE_BAR_HEIGHT),
-            contentAlignment = Alignment.CenterStart,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            BloxLogo(height = LOGO_HEIGHT, modifier = Modifier.clearAndSetSemantics {})
+            Box(modifier = Modifier.weight(1f)) {
+                BloxLogo(height = LOGO_HEIGHT, modifier = Modifier.clearAndSetSemantics {})
+            }
+            SettingsButton(onClick = onSettings)
         }
         Text(
             text = stringResource(R.string.feature_cartridges_title),
@@ -448,6 +455,7 @@ private fun CartridgesPreview() {
             newCartridges = setOf(Cartridge.DAILY),
             padlockFrontier = 13,
             onOpen = {},
+            onSettings = {},
         )
     }
 }

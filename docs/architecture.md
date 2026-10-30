@@ -145,7 +145,8 @@ changent beaucoup.
    Les touchers des cartouches passent par `CartridgeOpener` (`app`, P7.34) : chaque cartouche empile son écran
    tout de suite, sauf le Serrurier, qui attend la frontière (première serrure non ouverte) lue par
    `PadlockFrontier` (`app`, lecture de l'avancement dès le démarrage, `current: StateFlow<Int?>` et `await()`) ;
-   un toucher sur une autre cartouche annule cette attente. `feature:cartridges` ne reçoit que
+   un toucher sur une autre cartouche, ou sur la roue dentée (P12.5, qui empile `SettingsRoute()`, ADR 0030), annule
+   cette attente ; rien n'est empilé si les cartouches ne sont plus en haut de la pile. `feature:cartridges` ne reçoit que
    `padlockFrontier: StateFlow<Int?>`, pour la sous-ligne « Serrure N ».
    `PadlockFrontier`, `NewCartridges` (l'autocollant NOUVELLE de la Graine du jour) et `AppTheme` (l'apparence de
    l'application) partagent une même brique de `app`, `WarmValue<T>` (P7.47) : une valeur lue une fois et gardée

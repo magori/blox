@@ -265,7 +265,8 @@ réduits et en Original, ignoré par TalkBack. Il est posé sur la liste des mus
 `EqualizerTest › nothing recomposes while the equalizer moves` ; captures `Listen*`.
 
 **Paramètres** (P12.11, `core:designsystem`) : `SettingsButton` est la roue dentée au bout de la barre d’un accueil,
-à l’accueil du Classique (`HomeBar`) et à celui de la Graine du jour (`DailyScreen`), bientôt au choix du jeu (P12.5).
+à l’accueil du Classique (`HomeBar`), à celui de la Graine du jour (`DailyScreen`) et au choix du jeu (`CartridgesScreen`,
+P12.5, V36).
 C’est un `GlyphButton` de la famille Icône, pictogramme `GEAR`, disque de 48 dp, que TalkBack lit « Paramètres » une
 seule fois (chaîne `core_designsystem_settings`, qui remplace `feature_home_settings` et `feature_daily_settings`) ;
 un toucher ouvre la page Paramètres. Il se dessine comme le bouton de la roue qu’il remplace, dans les deux thèmes :
@@ -728,7 +729,8 @@ Classique, la page montre sous sa barre le titre « Réglages du Classique » et
 les jeux » au-dessus d'Affichage et de Sons et vibrations ; ces deux titres de partie sont des titres pour TalkBack,
 en `ink` et dans le style `title`, plus grands que les titres de section. Ouverte sans section, elle ne montre que
 « Tous les jeux » : ni « Réglages du Classique », ni Record. La Graine du jour ouvre encore la section du Classique
-jusqu'à P12.6 ; le choix du jeu l'ouvrira sans section (P12.5).
+jusqu'à P12.6 ; le choix du jeu l'ouvre sans section (P12.5, parcours
+`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`).
 **Tests :** `SettingsRouteTest › a route restored after the death of the process keeps its section, or none`,
 `SettingsRouteSavingTest › the key of the page opened from the Classic is saved and restored with its section`,
 `SettingsScreenTest › the page opened from the choice of the game shows no record`,

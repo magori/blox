@@ -785,6 +785,33 @@ internal class BloxNavDisplayTest {
     }
 
     @Test
+    @DisplayName("the gear of the choice of the game opens the settings with no record, and Retour goes back to it")
+    fun theGearOfTheCartridgesOpensTheSettingsWithNoRecord() {
+        runJourney {
+            // Given the choice of the game
+            showApp(openClassic = false)
+
+            // When
+            onNodeWithContentDescription(string(DesignR.string.core_designsystem_settings)).performClick()
+            settle()
+
+            // Then the settings of all the games, and nothing of the Classic
+            onNodeWithText(string(SettingsR.string.feature_settings_title)).assertExists()
+            onNodeWithText(string(SettingsR.string.feature_settings_classic)).assertDoesNotExist()
+            onNodeWithContentDescription(string(SettingsR.string.feature_settings_clear_record_description))
+                .assertDoesNotExist()
+
+            // When
+            onNodeWithContentDescription(string(SettingsR.string.feature_settings_back)).performClick()
+            settle()
+
+            // Then
+            onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
+            onNodeWithText(string(SettingsR.string.feature_settings_title)).assertDoesNotExist()
+        }
+    }
+
+    @Test
     @DisplayName("on the settings, the system back goes back to the home screen")
     fun onTheSettingsTheSystemBackGoesHome() {
         runJourney {
