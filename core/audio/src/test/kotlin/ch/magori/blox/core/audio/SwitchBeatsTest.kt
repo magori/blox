@@ -1,5 +1,6 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Accompaniment
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
@@ -10,6 +11,15 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
 class SwitchBeatsTest {
+    @Test
+    fun `the accompaniment of Au tempo with its metronome lets the tempo switch on every beat`() {
+        // Given
+        val score = Accompaniment.score(metronome = true)
+
+        // When / Then
+        assertThat(switchBeats(score)).containsExactlyElementsOf(0 until 16)
+    }
+
     @Test
     fun `a whole note lets the tempo switch only on beat 0`() {
         // Given

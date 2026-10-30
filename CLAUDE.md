@@ -230,7 +230,8 @@ du Classique, qui doit rester vert (ADR 0015).
   Au tempo : `DropTiming` (la cadence de chute, dans `Rules` : si la pièce descend d'une ligne par
   la gravité à ce tick ; `ClassicDropTiming` délègue à `GravityTable`) ; `Meter` (`core:game`, paquet `tempo` :
   le découpage des ticks en croches, noires, mesures de 4 temps et phrases de 4 mesures, et la fenêtre « sur le
-  temps »). Garder ces noms.
+  temps ») ; `Accompaniment` (`core:music`, la musique d'Au tempo : basse I–V–vi–IV et métronome, écrits à
+  100 temps/min, `tempoFactor(ticksPerEighth)`). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent

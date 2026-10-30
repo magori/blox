@@ -714,3 +714,28 @@ Menuet et l'alternance fondamentale / quinte de la basse de *Korobeïniki*.
 > resserrée chez Nikolaïevski (fin de m1 B4 1½ · G#4 ½ ; m2 A4 1½ · B4 ½ · C5 1 · B4 ½ · A4 ½).
 > La mention reste, par décision du développeur ; non trouvés : Prigojy (1898), Panina (vers
 > 1905), НЭБ inaccessible.
+
+### Accompagnement d'Au tempo — 100 temps/min, 4/4
+
+Arrangement maison, sans mélodie, écrit pour Au tempo ([règles](regles-au-tempo.md#accompagnement)) :
+`Accompaniment.score(metronome)` (`core:music`), 4 mesures jouées en boucle, au facteur de tempo
+`Accompaniment.tempoFactor(ticksPerEighth)` = 18 / `ticksPerEighth` (× 1,2 à 120 temps/min). Une
+seule identité (`ScoreId.Personal("tempo-accompaniment")`) avec ou sans métronome. Valeurs proposées
+en P11.9, **[à vérifier]** à l'oreille sur téléphone.
+
+- Basse, onde triangle, volume 0,16, I – V – vi – IV de Do majeur, la fondamentale sur chaque
+  croche, ramenée dans l'octave qui part de F2 (`Pitch.inOctaveFrom`, que partagent aussi la basse
+  générée et celle du Jardin) : C3 ×8 · G2 ×8 · A2 ×8 · F2 ×8.
+- Métronome (s'il est activé), onde carrée, un clic d'1/8 de temps par noire : C6 à 0,10 sur le
+  temps 1, G5 à 0,05 sur les temps 2 à 4. Les silences sont découpés par temps : chaque voix
+  commence une note ou un silence sur chaque temps, si bien que le tempo peut changer et la lecture
+  reprendre sur tous les temps (`switchBeats`, [Lecture en boucle](#lecture-en-boucle)).
+
+**Tests :** `AccompanimentTest › the bass plays I V vi IV, one bar each`,
+`PitchTest › a pitch is brought into the octave starting at a lower pitch`,
+`AccompanimentTest › the accompaniment clicks on every quarter, louder on beat 1`,
+`AccompanimentTest › every voice of the accompaniment starts a note or a rest on every beat`,
+`SwitchBeatsTest › the accompaniment of Au tempo with its metronome lets the tempo switch on every beat`,
+`AccompanimentTest › without the metronome the bass plays on`,
+`AccompanimentTest › the tempo factor is 18 over the ticks per eighth`,
+`AccompanimentTest › an eighth lasts a positive number of ticks`.
