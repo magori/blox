@@ -1813,10 +1813,12 @@ seulement, jour et nuit.
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
   360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
   Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
-- [ ] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
+- [x] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
   musiques du joueur, alors que trois musiques de jeu l'utilisent sans être gardées (`LiveMusic.CALM_ID` et
   `TENSE_ID`, `GARDEN_SCORE_ID`, l'accompagnement d'Au tempo) ; élargir cette KDoc, ou leur donner une identité
-  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9.
+  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9. Fait : KDoc élargie,
+  sans identité dédiée, aucune collision ni confusion n'étant possible avec les musiques du joueur (`docs/musique.md`,
+  Identités).
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 
