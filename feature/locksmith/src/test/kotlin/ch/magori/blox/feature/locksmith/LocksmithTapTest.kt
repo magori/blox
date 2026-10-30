@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.locksmith
 
 import ch.magori.blox.core.data.MainDispatcherExtension
-import ch.magori.blox.core.game.model.Orientation
 import ch.magori.blox.core.game.model.Piece
 import ch.magori.blox.core.game.model.Position
 import ch.magori.blox.core.game.model.Rotation

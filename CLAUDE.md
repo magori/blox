@@ -62,7 +62,7 @@ Sous Windows, `./gradlew` fonctionne dans Git Bash ; dans PowerShell utiliser `.
 ./gradlew :core:locksmith:test  # le Serrurier
 ./gradlew :core:garden:test     # le Jardin musical
 ./gradlew testDebugUnitTest     # tous les tests unitaires (modules Android inclus)
-./gradlew ktlintCheck           # style Kotlin (ktlintFormat corrige)
+./gradlew ktlintCheck           # style Kotlin et imports inutilisés (ktlintFormat corrige)
 ./gradlew -p build-logic ktlintCheck   # idem pour les plugins de convention
 ./gradlew buildHealth           # dépendances déclarées sans usage ou mal déclarées
 ./gradlew lintDebug             # lint Android, règles Compose de Slack comprises

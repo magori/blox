@@ -1,6 +1,5 @@
 package ch.magori.blox.core.board.lock
 
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
@@ -10,7 +9,6 @@ import ch.magori.blox.core.board.CellCross
 import ch.magori.blox.core.board.CellJoint
 import ch.magori.blox.core.board.CellStyle
 import ch.magori.blox.core.board.cellStyle
-import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.designsystem.theme.GlossLayer

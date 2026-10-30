@@ -772,9 +772,12 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   - [x] **P5.54b** L'accueil (Jouer, MES MUSIQUES, Écouter, COMPOSER UNE MUSIQUE, engrenage) et
     « Mes musiques » (écoute, Au hasard, Nouvelle, menu « … »), après P5.50 à P5.52. Fait : `GlyphButton(icon)` pour les icônes seules, `IconSizes` complété ;
     tests instrumentés verts (`HomeScreenTest`, `MyMusicsScreenTest`, `GlyphButtonTest`).
-- [ ] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
+- [x] **P5.55** Imports inutilisés non détectés : la règle `no-unused-imports` de ktlint 1.8.0 est
   dépréciée et ne se déclenche pas, et Kotlin ne les signale pas (vu à la revue de P5.54a) ;
   ajouter une vérification (detekt `UnusedImports` ou équivalent) à `build-logic` et à la CI.
+  Fait : la règle n'était que désactivée (`Rule.OnlyWhenEnabledInEditorconfig`) ; activée dans
+  `.editorconfig`, elle fait échouer `ktlintCheck` (projet et `build-logic`, déjà en CI) ; 81 imports
+  inutilisés retirés dans 28 fichiers ; pas de detekt.
 
 Lot « Couleurs v2 » (conçu avec les agents `designer-jeu` et `architecte`, validé par le développeur le
 2026-10-25, phase P5 à sa demande) : thème Couleurs refait en piste C « Y2K irisé », jour et nuit selon le
