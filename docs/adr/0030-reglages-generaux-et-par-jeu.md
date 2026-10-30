@@ -135,6 +135,10 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
   Graine du jour et bientôt le choix du jeu ; le parcours lit sa chaîne, `core_designsystem_settings`.
 - Le choix du jeu gagne un bouton qui n'est pas une cartouche : le test
   « les seuls boutons de l'écran sont les cartouches » de `CartridgesScreenTest` est retiré en P12.5.
+  *P12.5 (2026-10-30)* : fait ; `CartridgeOpener.openSettings()` empile `SettingsRoute()` sous la même garde que les
+  cartouches (attente du Serrurier annulée, rien empilé hors des cartouches en haut de la pile). Le test retiré est
+  remplacé par
+  `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges and the gear`.
 - La mention « Valable dès la partie suivante » devient fausse pour les volumes et les Effets réduits, lus tout de
   suite : elle est réécrite (P12.7).
 - Les réglages du mode Moderne (P6.17, P6.21) vont dans la section du Classique (P12.9), pas dans « Tous les jeux ».
