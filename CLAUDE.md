@@ -205,6 +205,7 @@ de ticks dus ; le ViewModel les applique au moteur après les entrées.
 | `ch.magori.blox.core.game.model` | Value objects : `Position` (`minus`, `neighbours()`, `firstInReadingOrder()`), `PieceType`, `Orientation` (4 décalages autour du pivot), `Rotation`, `Piece`, `Board` (10×20 immuable, `Board.parse(ascii)` pour les tests) ; `AsciiGrid.parse(ascii)`, grille texte partagée par `Padlock.parse` et `Garden.parse` (P10.16) |
 | `ch.magori.blox.core.game.rules` | Politiques interchangeables : `RotationSystem`, `Randomizer`, `GravityTable`, `ScoringRule`, `LevelProgression`, avec une implémentation `Classic*` de chacune ; `RotationSystem.pieceCovering(cells, types)`, la pièce qui couvre exactement des cases (Serrurier, Jardin) |
 | `ch.magori.blox.core.game.engine` | `GameState`, `GameEngine` (`tick()`, `apply(Input)`), événements (`LinesCleared`, `PieceLocked`, `GameOver`, `StackDanger`…) |
+| `ch.magori.blox.core.game.tempo` | Au tempo ([règles](docs/regles-au-tempo.md), ADR 0028) : `Meter` (croche en ticks entiers, noire, mesure, phrase, temps et mesure d'un `tickCount`, `isOnBeat` dans une fenêtre passée en paramètre) |
 
 Le mode Moderne (P6, règles dans [docs/regles-mode-moderne.md](docs/regles-mode-moderne.md))
 s'ajoute au même moteur, dont les capacités sont déclarées dans `Rules` (réserve, chute
@@ -226,7 +227,8 @@ du Classique, qui doit rester vert (ADR 0015).
   `StableRandom` (générateur stable, SplitMix64, dont la suite est un contrat entre versions ;
   `ClassicRandomizer.stable(seed)`). Le Jardin musical (`core:garden`) : `Garden` (la grille de
   16 × 14 et les pièces qui y sont posées), `GardenMood` (une ambiance : gamme, accords, tempo).
-  Garder ces noms.
+  Au tempo (`core:game`, paquet `tempo`) : `Meter` (le découpage des ticks en croches, noires, mesures de
+  4 temps et phrases de 4 mesures, et la fenêtre « sur le temps »). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent
