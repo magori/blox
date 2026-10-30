@@ -47,6 +47,8 @@ targetSdk = "36"
 minSdk = "26"
 java = "17"
 
+# Moteur ktlint : sa règle `no-unused-imports`, dépréciée, est activée dans `.editorconfig` (P5.55). À chaque
+# montée, vérifier qu'un import inutile fait encore échouer `ktlintCheck` ; sinon, la remplacer (detekt `UnusedImports`).
 ktlint = "1.8.0"
 # Plugin ktlint-gradle : sa sortie en cache cite des chemins absolus (issues #532 et #1041), d'où la
 # parade `keepKtlintCacheInsideCheckout` (build-logic, KtlintConfiguration.kt, P5.31). À chaque

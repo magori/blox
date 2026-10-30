@@ -15,7 +15,6 @@ import ch.magori.blox.core.locksmith.Padlock
 import ch.magori.blox.core.locksmith.PadlockEvent
 import ch.magori.blox.core.locksmith.PadlockGame
 import ch.magori.blox.core.locksmith.PadlockResult
-import ch.magori.blox.core.locksmith.Refusal
 
 // `internal` rather than `private`: the screenshot tests (src/screenshotTest) render these previews.
 
