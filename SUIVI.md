@@ -1865,12 +1865,15 @@ pause (P11.11).
 - [x] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
   `feature:locksmith` ;
   vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
-- [ ] **P12.13** Décider du sort des branches Original des rangées de réglage, mortes en production depuis P12.4 (la
+- [x] **P12.13** Décider du sort des branches Original des rangées de réglage, mortes en production depuis P12.4 (la
   page Paramètres, seule à les montrer, est toujours en Couleurs) : `SettingSwitchRow.kt:268-275` (le libellé sans
   gras synthétisé de la police pixel) et `:312` (trois lignes de sous-ligne pour la police pixel en ×2), les aperçus
   `SwitchesOriginal*` de `SwitchPreviews.kt` et les cas Original de `SettingSwitchRowTest`. Deux options : les retirer,
   ou les garder pour que le design system reste générique (une rangée de réglage reste dessinable dans les deux
-  thèmes). Découverte à la revue de P12.4.
+  thèmes). Découverte à la revue de P12.4. Décision du développeur (2026-10-30) : **retirer** ce qui est prouvé mort
+  (pouce creux et cadre de piste à l'encre de `switchLook`, aperçus et captures `SwitchesOriginal*`, cas Original de
+  `SwitchLookTest` et `SettingSwitchRowTest`) ; `settingLabelStyle` garde sa branche Original (choix de la feuille
+  Musique de l'accueil, qui peut être en Original), la sous-ligne ses trois lignes (Couleurs ×2 en a besoin).
 
 ---
 
