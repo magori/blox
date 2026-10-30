@@ -1741,7 +1741,7 @@ seulement, jour et nuit.
   glossaire de `CLAUDE.md` (`DropTiming`). Cas
   : `the classic drop timing follows the gravity table of the level`. Fait le 2026-10-30 : `Rules.dropTiming`
   remplace `Rules.gravityTable` ; cinq parties de référence rejouées par `ReferenceGamesTest`.
-- [ ] **P11.5** `Meter` (`core:game`, paquet `tempo`) : croche en ticks entiers, noire, mesure, phrase, temps et
+- [x] **P11.5** `Meter` (`core:game`, paquet `tempo`) : croche en ticks entiers, noire, mesure, phrase, temps et
   mesure d'un `tickCount`, fenêtre « sur le temps » ; glossaire de `CLAUDE.md` (`Meter`). Cas : `an eighth lasts a whole number of ticks`, `tick 0 is
   beat 1 of bar 1`, `a bar lasts 8 eighths and a phrase 4 bars`, `a tick within N ticks of a quarter note is on the
   beat`, `the tempo is 1800 over the ticks per eighth`.
@@ -1756,7 +1756,9 @@ seulement, jour et nuit.
   locked by gravity alone earns no beat bonus`, `a piece locked out of the window earns nothing`, `lines cleared on
   the beat in bar 4 earn their points twice`, `lines cleared off the beat in bar 4 earn no cadence bonus`, `the
   total is the points of the engine plus the bonuses`, `the pieces on the beat are counted against every piece
-  locked`.
+  locked`. Point ouvert (revue de P11.5) : une pose à 475 ticks est sur le temps de la noire 480 (temps 1), mais
+  `Meter.barOf(475)` rend 4 ; la mesure d'une pose sur le temps doit-elle être celle de la noire la plus proche ?
+  Cas proposé : `a piece locked 5 ticks before bar 1 is not in bar 4`.
 - [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
   référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
   `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
@@ -1779,7 +1781,9 @@ seulement, jour et nuit.
   0024) ; TalkBack ; captures jour et nuit. Après P11.10.
 - [ ] **P11.12** Cartouche « Au tempo » (`feature:cartridges`, `app`) : ouvre une partie ; parcours Macrobenchmark.
   Après P11.10 et P9.7.
-- [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36.
+- [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36. « MESURE 2/4 » se lit
+  comme une signature rythmique : proposer « MESURE 2 SUR 4 » (TalkBack : « mesure 2 sur 4 »), à trancher avec le
+  designer (revue de P11.5).
 - [ ] **P11.14** Nommer Au tempo dans les sous-lignes de Gaucher, Vibrations et Vibration des touches de la page
   Paramètres (`feature_settings_games_with_keys`, « Classique, Graine du jour, Au tempo », ADR 0030) et dans
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
