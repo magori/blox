@@ -33,9 +33,9 @@ import ch.magori.blox.core.data.keyName
 import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.component.SnackMessage
+import ch.magori.blox.core.designsystem.component.WindowOverPage
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
 import ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect
-import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.music.Category
@@ -487,15 +487,7 @@ private fun WindowPreview(
     dialog: ComposerDialog,
 ) {
     BloxTheme(kind = kind) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(BloxTheme.palette.page)
-                .padding(horizontal = BloxSizes.windowMargin),
-        ) {
-            ComposerWindow(dialog = dialog, name = "Joyeux 1", actions = DialogActions.None)
-        }
+        WindowOverPage { ComposerWindow(dialog = dialog, name = "Joyeux 1", actions = DialogActions.None) }
     }
 }
 

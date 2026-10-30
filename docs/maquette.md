@@ -45,7 +45,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
 | V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties et les textes de P12.7 (P12.10) |
-| V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
+| V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » ; codée : liste (P5.99), menu (popup, non capturé), Supprimer, Renommer et message d'annulation (P5.100), jour, nuit et police ×2 |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
