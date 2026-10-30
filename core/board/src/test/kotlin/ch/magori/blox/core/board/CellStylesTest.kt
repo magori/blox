@@ -2,7 +2,6 @@ package ch.magori.blox.core.board
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.designsystem.theme.BloxGlossSets
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
 import ch.magori.blox.core.designsystem.theme.Gloss
 import ch.magori.blox.core.designsystem.theme.variantGlosses
