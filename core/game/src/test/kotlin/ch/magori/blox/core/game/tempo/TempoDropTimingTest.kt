@@ -23,7 +23,8 @@ import org.junit.jupiter.params.provider.ValueSource
 
 class TempoDropTimingTest {
     /** A meter of 15 ticks per eighth: 120 beats per minute. */
-    private val dropTiming: DropTiming = TempoDropTiming(Meter(ticksPerEighth = Ticks(15)))
+    private val meter = Meter(ticksPerEighth = Ticks(15))
+    private val dropTiming: DropTiming = TempoDropTiming(meter)
 
     @Test
     fun `the piece falls one row on every eighth`() {
@@ -160,9 +161,8 @@ class TempoDropTimingTest {
     /** The row of the piece falling in [state], null between two pieces: neither an appearance nor a lock is a drop. */
     private fun fallingRow(state: GameState): Int? = (state.phase as? Phase.Falling)?.piece?.pivot?.row
 
-    /** The engine of the Classic, the piece falling on the eighths: the rules of Au tempo, before `TempoRules`. */
-    private fun tempoEngine(vararg pieces: PieceType) =
-        GameEngine(ClassicRules.copy(dropTiming = dropTiming), ScriptedRandomizer(*pieces))
+    /** The engine of Au tempo: the rules of the Classic, the piece falling on the eighths of [meter]. */
+    private fun tempoEngine(vararg pieces: PieceType) = GameEngine(tempoRules(meter), ScriptedRandomizer(*pieces))
 
     private companion object {
         val T_AT_5_10 = tPointingDown(at = Position(5, 10))

@@ -106,3 +106,13 @@ Pour **P6** : `TempoScore` suppose que `PieceLocked` et `LinesCleared` ne tomben
 l'effacement dure au moins un tick (`LineClearDelay`). Les chemins de verrouillage du Moderne (chute instantanée,
 `LockDelay`) devront dire `bySoftDrop` ; si l'un d'eux effaçait des lignes dans le tick même du verrouillage,
 `TempoScore.after` serait à relire.
+
+## Note (2026-10-30, P11.8)
+
+`TempoRules` prend la forme d'une fabrique, `tempoRules(meter: Meter): Rules`
+(`ClassicRules.copy(dropTiming = TempoDropTiming(meter))`, paquet `tempo`), et non d'une valeur : le `Meter` est un
+paramètre de la partie (le tempo de la v1, 15 ticks par croche, reste **[à vérifier]** et sera choisi par la variante
+en P11.10), et ktlint refuse `TempoRules` comme nom d'une fonction qui rend `Rules`. La fenêtre « sur le temps » du
+`Meter` ne sert pas au moteur mais à `TempoScore` : une partie passe **le même `meter`** à `tempoRules` et à
+`TempoScore`. Les parties de référence, rejouées avec `tempoRules(meter).copy(dropTiming = ClassicRules.dropTiming)`,
+rendent les mêmes états (`ReferenceGamesTest`).

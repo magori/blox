@@ -13,8 +13,8 @@ Origine : cadrage « quatre modes musicaux » des agents `architecte` et `design
 audio comme source des ticks).
 
 > Traçabilité : seuls la non-régression du Classique (P11.4), le découpage des ticks (`Meter`, P11.5), la chute en
-> rythme (`TempoDropTiming`, P11.6), les bonus (`TempoScore`, P11.7) et la partition de l'accompagnement (P11.9,
-> `core:music`) sont codés ; les autres règles (phase P11 de
+> rythme (`TempoDropTiming`, P11.6), les bonus (`TempoScore`, P11.7), les règles d'Au tempo (`tempoRules`, P11.8)
+> et la partition de l'accompagnement (P11.9, `core:music`) sont codés ; les autres règles (phase P11 de
 > [SUIVI.md](../SUIVI.md)) recevront leur ligne **Tests :** `ClasseDeTest › nom du test` et, si elles se voient
 > à l'écran, **Vues :** `V…`, à mesure qu'elles seront codées.
 
@@ -111,21 +111,26 @@ audio comme source des ticks).
   `ClassicDropTimingTest › the classic drop timing does not depend on the soft drop`.
 - Le verrouillage, l'effacement, le délai d'apparition, la rotation, le déplacement et le danger
   sont ceux du Classique.
-- `TempoRules = ClassicRules.copy(dropTiming = TempoDropTiming(meter))`.
+- **Les règles d'Au tempo** sont celles du Classique, sauf la cadence de chute :
+  `tempoRules(meter) = ClassicRules.copy(dropTiming = TempoDropTiming(meter))` (`core:game`, paquet `tempo`). La
+  fabrique prend un `Meter`, qui porte le tempo et la fenêtre « sur le temps » : le tempo d'une partie (120 temps/min
+  en v1, 15 ticks par croche, **[à vérifier]**) est choisi par celui qui la lance (P11.10), pas dans le domaine.
+  **Tests :** `TempoRulesTest › tempo rules are the classic rules but for the drop timing`.
 - **Non-régression** : `ClassicDropTiming` délègue à `GravityTable` et rend exactement les mêmes
   parties que le moteur d'avant ; il est extrait d'abord, en pur refactoring, sous les tests du
   Classique (ADR 0015, ADR 0028). Cinq parties de référence, à graines fixes, le vérifient
   (P11.4) : graines par `ClassicRandomizer.stable`, entrées d'un joueur automatique, niveaux 0, 5, 9,
   19 et 29 ; enregistrées tick par tick avant l'extraction dans
   `core/game/src/test/resources/reference-games`, elles sont rejouées à l'identique. `ClassicDropTiming`
-  ignore `tickCount`, que le moteur lui passe pour `TempoDropTiming`. P11.8 les rejouera avec
-  `TempoRules.copy(dropTiming = ClassicRules.dropTiming)`, pour montrer que seule la cadence de chute
-  distingue les deux règles.
+  ignore `tickCount`, que le moteur lui passe pour `TempoDropTiming`. Elles sont aussi rejouées à l'identique avec
+  `tempoRules(meter).copy(dropTiming = ClassicRules.dropTiming)` (P11.8) : seule la cadence de chute distingue
+  les deux règles.
 
   **Tests :** `ClassicDropTimingTest › the classic drop timing follows the gravity table of the level`,
   `ClassicDropTimingTest › the classic drop timing does not depend on the tick count`,
   `RulesTest › rules built again with the classic drop timing are the classic rules`,
-  `ReferenceGamesTest › a reference game of the classic mode is played tick by tick as it was recorded`.
+  `ReferenceGamesTest › a reference game of the classic mode is played tick by tick as it was recorded`,
+  `ReferenceGamesTest › the reference games are played the same by the tempo rules with the classic drop timing`.
 
 ## Niveaux et points du moteur
 
