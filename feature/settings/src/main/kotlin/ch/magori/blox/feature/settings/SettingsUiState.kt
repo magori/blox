@@ -1,4 +1,4 @@
-package ch.magori.blox.feature.home
+package ch.magori.blox.feature.settings
 
 /**
  * What the settings page shows (V21, V31).

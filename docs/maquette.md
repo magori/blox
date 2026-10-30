@@ -382,7 +382,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 
 ### V21 — Paramètres
 - Demandée par le développeur (2026-10-20), codée en P5.50 : `SettingsScreen` et
-  `SettingsViewModel` dans `feature:home`, clé `SettingsRoute`, entrée `settingsEntry` assemblée
+  `SettingsViewModel` dans `feature:settings` (déplacés de `feature:home` en P12.2), clé `SettingsRoute`, entrée `settingsEntry` assemblée
   par `app`. On y arrive depuis l'accueil (V1) par le bouton engrenage ; la flèche Retour et le
   retour du système ramènent à l'accueil.
 - Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »

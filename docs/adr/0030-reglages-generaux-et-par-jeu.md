@@ -78,6 +78,8 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
 - `saveSettings` (aujourd'hui `SaveSettings.kt` de `feature:home`), qui sert à `HomeViewModel` et à
   `SettingsViewModel`, devient une extension de `UserPreferencesRepository` dans `core:data` (P12.2) : les deux
   features la partagent sans dépendre l'une de l'autre.
+  *P12.2 (2026-10-30)* : fait, `UserPreferencesRepository.saveSettings(scope, write, onSaved)` est dans `core:data`
+  (`SaveSettings.kt`).
 - `app` construit la fabrique (ADR 0013) et assemble l'entrée, comme aujourd'hui ; `feature:home` et
   `feature:daily` gardent leur rappel `onSettings`, et `feature:cartridges` en reçoit un (P12.5). Le bouton
   Paramètres, aujourd'hui copié dans `HomeBar` et `DailyScreen`, devient un `SettingsButton` commun de
@@ -127,6 +129,8 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
 - `feature:home` perd la page, ses tests et sa dépendance à `core:haptics` ; `app`, `core:data` (`saveSettings`), le
   graphe des modules et `buildHealth` changent (P12.2). Le parcours `BloxNavDisplayTest` des Paramètres suit la clé
   paramétrée ; il lit la chaîne `feature_home_settings`, qui part avec la page.
+  *P12.2 (2026-10-30)* : seul le titre de la page part, en `feature_settings_title` ; l'engrenage de l'accueil garde
+  `feature_home_settings`, que le parcours touche toujours pour ouvrir la page.
 - Le choix du jeu gagne un bouton qui n'est pas une cartouche : le test
   « les seuls boutons de l'écran sont les cartouches » de `CartridgesScreenTest` est retiré en P12.5.
 - La mention « Valable dès la partie suivante » devient fausse pour les volumes et les Effets réduits, lus tout de

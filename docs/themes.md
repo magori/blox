@@ -655,7 +655,7 @@ embarquée. Point ouvert : le flou de l'ombre (`BlurMaskFilter`) est net sous l'
 `HomeScreenTest › in reduced effects the preview and the halo stand still` ;
 captures `Logo*`, `HomeColorful*`. Vue : V27.
 
-**Paramètres v2** (P5.70, `feature:home`, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
+**Paramètres v2** (P5.70, `feature:home`, déplacée dans `feature:settings` en P12.2, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
 et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
 effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
 converti en `Volume`), Vibrations, Vibration des touches (« Un léger toucher à chaque touche ») ; sans vibreur, les

@@ -41,41 +41,7 @@
     <!-- Ouvre l'éditeur de musique sur une musique neuve. -->
     <string name="feature_home_compose">Composer une musique</string>
     <string name="feature_home_my_musics">Mes musiques</string>
-    <!-- Page Paramètres (V21), ouverte par l'engrenage de l'accueil, lu « Paramètres » par TalkBack. -->
+    <!-- L'engrenage de la barre, lu « Paramètres » par TalkBack : il ouvre la page Paramètres. -->
     <string name="feature_home_settings">Paramètres</string>
     <string name="feature_home_change_game">Changer de jeu</string>
-    <string name="feature_home_settings_back">Retour</string>
-    <!-- Carte Affichage (P5.71) : Effets réduits, imposé quand Android supprime les animations, sans écraser le choix. -->
-    <string name="feature_home_settings_display">Affichage</string>
-    <string name="feature_home_reduced_effects">Effets réduits</string>
-    <string name="feature_home_reduced_effects_sub_line">Moins de mouvements et de particules</string>
-    <string name="feature_home_reduced_effects_forced">Imposé par les réglages d\'Android</string>
-    <string name="feature_home_left_handed">Gaucher</string>
-    <string name="feature_home_left_handed_off">Flèches à gauche, B et A à droite</string>
-    <string name="feature_home_left_handed_on">B et A à gauche, flèches à droite</string>
-    <string name="feature_home_settings_theme_note">Le thème se choisit à l\'accueil.</string>
-    <!-- Réglages des parties, lus à la création de chaque partie : un changement vaut pour la suivante. -->
-    <string name="feature_home_settings_sounds">Sons et vibrations</string>
-    <string name="feature_home_vibrations">Vibrations</string>
-    <string name="feature_home_sound_effects">Effets sonores</string>
-    <string name="feature_home_vibrations_sub_line">Lignes effacées, fin de partie</string>
-    <string name="feature_home_sound_effects_sub_line">Rotation, lignes, fin de partie</string>
-    <string name="feature_home_settings_next_game">Valable dès la partie suivante.</string>
-    <!-- Paramètres v2 (V31) : la vibration de chaque touche du jeu, les volumes (curseurs de 0 à 100 % par pas de 10). -->
-    <string name="feature_home_key_vibration">Vibration des touches</string>
-    <string name="feature_home_key_vibration_sub_line">Un léger toucher à chaque touche</string>
-    <string name="feature_home_effects_volume">Volume des effets</string>
-    <string name="feature_home_music_volume">Volume de la musique</string>
-    <!-- À la place de la sous-ligne des deux vibrations, grisées, quand l'appareil n'a pas de vibreur. -->
-    <string name="feature_home_no_vibrator">Cet appareil ne vibre pas</string>
-    <!-- Carte Record : effacer le record, après confirmation (réponse sûre d'abord), puis le dire (lu par TalkBack). -->
-    <string name="feature_home_settings_record">Record</string>
-    <string name="feature_home_classic_record">Record du Classique</string>
-    <string name="feature_home_clear_record">Effacer</string>
-    <!-- Lu par TalkBack sur le bouton Effacer, seul : le libellé de la rangée est laissé de côté. -->
-    <string name="feature_home_clear_record_description">Effacer le record du Classique</string>
-    <string name="feature_home_clear_record_title">Effacer le record ?</string>
-    <string name="feature_home_clear_record_confirm">Effacer le record</string>
-    <string name="feature_home_keep_record">Garder le record</string>
-    <string name="feature_home_record_cleared">Record effacé</string>
 </resources>

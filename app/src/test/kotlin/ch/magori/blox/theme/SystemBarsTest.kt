@@ -7,9 +7,9 @@ import ch.magori.blox.feature.daily.navigation.DailyRoute
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.garden.navigation.GardenRoute
 import ch.magori.blox.feature.home.navigation.HomeRoute
-import ch.magori.blox.feature.home.navigation.SettingsRoute
 import ch.magori.blox.feature.locksmith.navigation.LocksmithRoute
 import ch.magori.blox.feature.locksmith.navigation.PadlocksRoute
+import ch.magori.blox.feature.settings.navigation.SettingsRoute
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments

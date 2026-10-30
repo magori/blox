@@ -60,12 +60,12 @@ import ch.magori.blox.feature.game.GameViewModel
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.garden.GardenViewModel
 import ch.magori.blox.feature.home.HomeViewModel
-import ch.magori.blox.feature.home.SettingsViewModel
 import ch.magori.blox.feature.locksmith.ClearedProgressRelay
 import ch.magori.blox.feature.locksmith.LocksmithViewModel
 import ch.magori.blox.feature.locksmith.PadlocksViewModel
 import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
+import ch.magori.blox.feature.settings.SettingsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.applySavedVolumes

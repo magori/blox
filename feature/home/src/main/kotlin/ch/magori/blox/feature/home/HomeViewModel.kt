@@ -14,6 +14,7 @@ import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.data.UserPreferencesRepository
+import ch.magori.blox.core.data.saveSettings
 import ch.magori.blox.core.game.rules.LevelProgression
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
@@ -234,7 +235,7 @@ class HomeViewModel(
      * settings, and the player may choose again.
      */
     private fun save(write: suspend UserPreferencesRepository.() -> Unit) =
-        viewModelScope.saveSettings(preferences, write)
+        preferences.saveSettings(viewModelScope, write)
 
     /**
      * Chooses [music] on the home screen, and leaves the music of the player chosen for the games: in the mockup (V1), it
