@@ -766,9 +766,10 @@ captures `Settings*`, `DangerButtons*`. Vues : V21, V31.
 Classique, la page montre sous sa barre le titre « Réglages du Classique » et la carte Record, puis le titre « Tous
 les jeux » au-dessus d'Affichage et de Sons et vibrations ; ces deux titres de partie sont des titres pour TalkBack,
 en `ink` et dans le style `title`, plus grands que les titres de section. Ouverte sans section, elle ne montre que
-« Tous les jeux » : ni « Réglages du Classique », ni Record. La Graine du jour ouvre encore la section du Classique
-jusqu'à P12.6 ; le choix du jeu l'ouvre sans section (P12.5, parcours
-`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`).
+« Tous les jeux » : ni « Réglages du Classique », ni Record. Le choix du jeu (P12.5) et la Graine du jour (P12.6)
+l'ouvrent sans section : le Record du Classique n'est pas le leur. Parcours
+`BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`,
+`BloxNavDisplayTest › the gear of the Graine du jour opens the settings with no record, and Retour goes back to it`.
 **Tests :** `SettingsRouteTest › a route restored after the death of the process keeps its section, or none`,
 `SettingsRouteSavingTest › the key of the page opened from the Classic is saved and restored with its section`,
 `SettingsScreenTest › the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen`,
