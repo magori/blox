@@ -44,7 +44,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
-| V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties (P12.10) |
+| V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties et les textes de P12.7 (P12.10) |
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
@@ -414,14 +414,21 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   droite (l'état se lit à la position). Toute la rangée est un interrupteur pour TalkBack
   (« Vibrations, interrupteur, désactivé »). En police agrandie, le libellé garde sa taille et
   passe à la ligne aux espaces ; s'il ne tient pas à côté de l'interrupteur, celui-ci passe
-  dessous, à droite. Puis la mention « Valable dès la partie suivante. » : les réglages sont lus
-  à la création de la partie. Une écriture qui échoue laisse les réglages enregistrés affichés.
+  dessous, à droite. Puis la mention « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. » (P12.7,
+  d'abord « Valable dès la partie suivante. ») : les volumes sont lus tout de suite, le reste à la création
+  de l'écran d'un jeu. Une écriture qui échoue laisse les réglages enregistrés affichés.
+- Depuis P12.7 (ADR 0030), les sous-lignes de Gaucher, Vibrations et Vibration des touches nomment les jeux
+  concernés (« Classique, Graine du jour : … ») ; la section du Classique finit par « Le thème du Classique se
+  choisit dans son accueil. », sous la carte Record (d'abord « Le thème se choisit à l'accueil. » sous Affichage).
+  Détail et tests : « Textes de la page » dans [themes.md](themes.md).
+  **Tests :** `SettingsScreenTest › opened from the Classic, its section says under the record where its theme is chosen, above Tous les jeux`,
+  `SettingsScreenTest › each setting says under its label what it does, and for which games when not all, read with it`.
 - Les réglages du mode Moderne (P6.17, P6.21) s'ajouteront à cette page.
   **Tests :** `SettingsScreenTest › TalkBack reads each setting as a switch, read off when off`,
   `SettingsScreenTest › TalkBack reads a setting turned on as on, the other staying off`,
   `SettingsScreenTest › tapping a setting off turns it on, tapping a setting on turns it off`,
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
-  `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
+  `SettingsScreenTest › Sons et vibrations holds its settings, then says the volumes hold at once, the rest from the next game`,
   `SettingsScreenTest › in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least`,
   `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back`,
   `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,

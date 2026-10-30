@@ -1777,6 +1777,11 @@ seulement, jour et nuit.
 - [ ] **P11.12** Cartouche « Au tempo » (`feature:cartridges`, `app`) : ouvre une partie ; parcours Macrobenchmark.
   Après P11.10 et P9.7.
 - [ ] **P11.13** Mettre à jour la maquette (depuis claude.ai) : V41, cartouche Au tempo sur V36.
+- [ ] **P11.14** Nommer Au tempo dans les sous-lignes de Gaucher, Vibrations et Vibration des touches de la page
+  Paramètres (`feature_settings_games_with_keys`, « Classique, Graine du jour, Au tempo », ADR 0030) et dans
+  `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
+  360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
+  Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 
@@ -1823,7 +1828,7 @@ pause (P11.9).
 - [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
   « Record du Classique ») : `SettingsRoute()` au lieu de `SettingsRoute(SettingsSection.CLASSIC)` dans `BloxNavDisplay`
   (`app`), avec son parcours dans `BloxNavDisplayTest`. Après P12.3.
-- [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
+- [x] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
   concernés (Classique, Graine du jour, Au tempo) ; note « Volumes : tout de suite. Le reste : dès le prochain jeu
   ouvert. » (aujourd'hui « Valable dès la partie suivante », faux pour les volumes et les Effets réduits) ; « Le
   thème du Classique se choisit dans son accueil. ». Après P12.3.
@@ -1831,7 +1836,7 @@ pause (P11.9).
 - [ ] **P12.9** Réorienter P6.17 et P6.21 vers la section « Classique » de la page. Après P12.3.
 - [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
-  sur V38 ; V21 remplacée.
+  sur V38 ; V21 remplacée ; textes de P12.7 (sous-lignes qui nomment les jeux, notes sur les volumes et le thème).
 - [x] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
   `feature:locksmith` ;
   vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).

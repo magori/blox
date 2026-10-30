@@ -736,8 +736,8 @@ captures `Logo*`, `HomeColorful*`. Vue : V27.
 **Paramètres v2** (P5.70, `feature:home`, déplacée dans `feature:settings` en P12.2, V31) : barre avec Retour et « Paramètres » ; titres « Sons et vibrations »
 et « Record » au-dessus de leurs cartes (`panel`, rayon `window`, cadre `panelBorder`). Effets sonores, Volume des
 effets (grisé tant que les effets sont coupés), Volume de la musique (`SettingVolumeRow`, `VolumeSlider` en %
-converti en `Volume`), Vibrations, Vibration des touches (« Un léger toucher à chaque touche ») ; sans vibreur, les
-deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Valable dès la partie suivante. ». Un
+converti en `Volume`), Vibrations, Vibration des touches (« Classique, Graine du jour : un léger toucher à chaque touche », P12.7) ; sans vibreur, les
+deux vibrations sont grisées et disent « Cet appareil ne vibre pas » ; « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. » (P12.7). Un
 réglage allumé se fait sentir une fois, après un enregistrement réussi : la rotation pour les effets, la
 vibration des lignes ou d'une touche pour les vibrations. Record : `SettingActionRow`, Effacer en bout de ligne
 (dessous en grande police), lu « Effacer le record du Classique » ; il ouvre une `ConfirmWindow` (générique,
@@ -771,7 +771,7 @@ jusqu'à P12.6 ; le choix du jeu l'ouvre sans section (P12.5, parcours
 `BloxNavDisplayTest › the gear of the choice of the game opens the settings with no record, and Retour goes back to it`).
 **Tests :** `SettingsRouteTest › a route restored after the death of the process keeps its section, or none`,
 `SettingsRouteSavingTest › the key of the page opened from the Classic is saved and restored with its section`,
-`SettingsScreenTest › the page opened from the choice of the game shows no record`,
+`SettingsScreenTest › the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen`,
 `SettingsScreenTest › the section of the Classic is read Réglages du Classique, a heading`,
 `SettingsScreenTest › the title of a part, Tous les jeux, is larger than the title of a section, Affichage`,
 `SettingsScreenTest › opened from the Classic, its section comes first, then Tous les jeux, a heading, above Affichage`,
@@ -789,13 +789,36 @@ rendraient la même page que leurs jumelles Couleurs.
 `SystemBarsTest › the bars of a screen drawn in colorful only follow its colorful variant, whatever the theme chosen`,
 `SystemBarsTest › the bars of every other screen follow the theme chosen` ; captures `Settings*`. Vues : V21, V31.
 
+**Textes de la page** (P12.7, [ADR 0030](adr/0030-reglages-generaux-et-par-jeu.md)) : un réglage « Tous les jeux » qui
+ne vaut pas pour tous nomme les jeux concernés en tête de sa sous-ligne, suivis de « : ». Gaucher, Vibrations et
+Vibration des touches ne valent que pour les jeux à touches : « Classique, Graine du jour : flèches à gauche, B et A à
+droite » (ou « B et A à gauche, flèches à droite »), « Classique, Graine du jour : lignes effacées, fin de partie »,
+« Classique, Graine du jour : un léger toucher à chaque touche ». La liste des jeux est une seule chaîne
+(`feature_settings_games_with_keys`) ; Au tempo, qui n'existe pas encore, s'y ajoutera avec P11 (P11.14). TalkBack lit
+la sous-ligne avec son interrupteur ; sans vibreur, « Cet appareil ne vibre pas » la remplace toujours. Sous Sons et
+vibrations, la note dit quand les réglages valent : « Volumes : tout de suite. Le reste : dès le prochain jeu ouvert. »
+(les volumes sont lus aussitôt par les lecteurs de l'application, les effets sonores et les vibrations à la création de
+l'écran d'un jeu ; Effets réduits, lu aussitôt, est dans Affichage, sans note). La section du Classique finit par
+« Le thème du Classique se choisit dans son accueil. », à `space2` sous la carte Record comme toute note sous sa carte
+(« Record effacé », région vive vide jusque-là, s'intercale à `space2` sans place réservée) ; ouverte sans section, la page ne le dit
+pas. En police ×2 sur 360 dp, les sous-lignes restent entières (elles rétrécissent, mot entier, sur trois lignes au
+plus).
+**Tests :** `SettingsScreenTest › each setting says under its label what it does, and for which games when not all, read with it`,
+`SettingsScreenTest › Gaucher stands under Effets réduits, and says for which games and where the keys stand, for either hand`,
+`SettingsScreenTest › Sons et vibrations holds its settings, then says the volumes hold at once, the rest from the next game`,
+`SettingsScreenTest › opened from the Classic, its section says under the record where its theme is chosen, above Tous les jeux`,
+`SettingsScreenTest › the page opened from the choice of the game shows no record, nor where the theme of the Classic is chosen`,
+`SettingsScreenTest › Affichage holds Effets réduits, which says what it does, then Gaucher, and no note, above Sons et vibrations`,
+`SettingsScreenTest › in a font twice as large, on 360 dp, every sub-line shows whole, its words whole` ;
+captures `Settings*`. Vues : V21, V31.
+
 **Effets réduits** (P5.71, ADR 0024) : `BloxEffects(reduced, forcedBySystem)`, porté par `BloxTheme` et lu par
 `BloxTheme.effects`, résolu par une fonction pure (`BloxEffects.resolve`) depuis le choix du joueur et les
 animations d'Android, observées en continu (`SystemAnimations`, réglage `ANIMATOR_DURATION_SCALE`, écran partagé
 compris) ; le thème et le choix d'effets sont lus ensemble avant la première image (`AppTheme.appearance`). Carte
 Affichage en tête des Paramètres : Effets réduits (« Moins de mouvements et de particules ») ; quand Android
 retire les animations, l'interrupteur est allumé, bloqué et dit « Imposé par les réglages d'Android », sans
-écrire le choix enregistré ; sous la carte, « Le thème se choisit à l'accueil. ». En Effets réduits, un bouton
+écrire le choix enregistré (la note sur le thème, d'abord sous cette carte, est passée dans la section du Classique en P12.7). En Effets réduits, un bouton
 pressé ne change que de couleur et revient aussitôt ; une touche de jeu tenue garde sa descente de 2 dp (seul
 repère de A tenue de jour). Un sous-titre de rangée de réglage peut prendre trois lignes.
 **Tests :** `BloxEffectsTest › effects are reduced when the player asks for it`,

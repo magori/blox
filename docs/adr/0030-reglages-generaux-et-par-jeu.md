@@ -141,6 +141,8 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
   `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges and the gear`.
 - La mention « Valable dès la partie suivante » devient fausse pour les volumes et les Effets réduits, lus tout de
   suite : elle est réécrite (P12.7).
+  *P12.7 (2026-10-30)* : fait ; Au tempo, pas encore jouable, n'est pas nommé : `feature_settings_games_with_keys` le
+  recevra en P11.14.
 - Les réglages du mode Moderne (P6.17, P6.21) vont dans la section du Classique (P12.9), pas dans « Tous les jeux ».
 - La maquette doit suivre : V36 avec sa roue dentée, une vue des Paramètres ouverts depuis le choix du jeu, V31 avec
   ses deux sections, une note sur V38, V21 remplacée (P12.10).

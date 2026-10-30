@@ -151,17 +151,25 @@ l'allume (le son ou la vibration joue une fois). Barre : disque Retour et « Par
 (56 px, 64 sur tablette) séparées par 1 px `panel-border`, pictogramme de 24 dans un emplacement
 de 40 à gauche ; toute la rangée est l'interrupteur.
 
-1. **Affichage** : Effets réduits (« Moins de mouvements et de particules » ; allumé et bloqué,
-   « Imposé par les réglages d'Android », quand Android supprime les animations, sans écraser le
-   choix du joueur), Gaucher (sous-ligne qui dit la disposition, schéma des touches qui
-   s'inverse), et la note « Le thème se choisit à l'accueil. ».
-2. **Sons et vibrations** : Effets sonores (activés par défaut), Volume des effets (grisé quand
-   les effets sont coupés), Volume de la musique, Vibrations (désactivées par défaut), Vibration
-   des touches (désactivée par défaut). Sans vibreur : les deux vibrations grisées, « Cet appareil
-   ne vibre pas ». Puis « Valable dès la partie suivante. », une seule fois.
-3. **Record** : « Record du Classique » et le bouton Effacer (cadre et texte `danger`), qui
-   demande confirmation (« Effacer le record ? », Effacer le record en `danger`, Garder le
-   record) puis affiche « Record effacé ».
+Deux parties, chacune sous un titre en `title` (ADR 0030) : **Réglages du Classique**, seulement
+quand la page est ouverte depuis l'accueil du Classique, puis **Tous les jeux**. Un réglage de
+« Tous les jeux » qui ne vaut pas pour tous nomme les jeux concernés en tête de sa sous-ligne
+(« Classique, Graine du jour : … »).
+
+1. **Réglages du Classique** — **Record** : « Record du Classique » et le bouton Effacer (cadre et
+   texte `danger`), qui demande confirmation (« Effacer le record ? », Effacer le record en
+   `danger`, Garder le record) puis affiche « Record effacé » sous la carte. Puis la note « Le
+   thème du Classique se choisit dans son accueil. », à 8 px sous la carte comme toute note.
+2. **Tous les jeux** — **Affichage** : Effets réduits (« Moins de mouvements et de particules » ;
+   allumé et bloqué, « Imposé par les réglages d'Android », quand Android supprime les
+   animations, sans écraser le choix du joueur), Gaucher (« Classique, Graine du jour : flèches à
+   gauche, B et A à droite », schéma des touches qui s'inverse) ; pas de note.
+3. **Tous les jeux** — **Sons et vibrations** : Effets sonores (activés par défaut), Volume des
+   effets (grisé quand les effets sont coupés), Volume de la musique, Vibrations (désactivées par
+   défaut, « Classique, Graine du jour : lignes effacées, fin de partie »), Vibration des touches
+   (désactivée par défaut, « Classique, Graine du jour : un léger toucher à chaque touche »). Sans
+   vibreur : les deux vibrations grisées, « Cet appareil ne vibre pas ». Puis « Volumes : tout de
+   suite. Le reste : dès le prochain jeu ouvert. », une seule fois.
 
 **Interrupteur** : piste de `switch-track` (52 × 32) en pilule, cadre de 2 px `button-outline`
 dans les deux états. Éteint : piste `button`, pouce de 20 `label` à gauche. Allumé : piste
