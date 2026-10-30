@@ -1786,13 +1786,15 @@ pause (P11.9).
   déplacés et verts ; `saveSettings` (`SaveSettings.kt`, partagé avec `HomeViewModel`) devient une extension de
   `UserPreferencesRepository` dans `core:data` ; `feature:home` perd `core:haptics` ; `app` et `buildHealth` à jour.
   Après P12.1.
-- [ ] **P12.3** Portée de la page, `SettingsRoute(section: SettingsSection? = null)`, `SettingsSection { CLASSIC }` :
+- [x] **P12.3** Portée de la page, `SettingsRoute(section: SettingsSection? = null)`, `SettingsSection { CLASSIC }` :
   la section « Classique » (Record, plus tard le Moderne) seulement depuis le Classique, sous un titre lu « Réglages
   du Classique », puis « Tous les jeux ». Cas : `the page opened from the choice of the game shows no record`, `the
   section of the Classic is read Réglages du Classique, a heading` ; dans `SettingsRouteSavingTest`, `the key of the
   page opened from the Classic is saved and restored with its section`. Renommer aussi
   `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen` (la page ne revient plus
-  seulement à l’accueil) et ses références dans les docs (`docs/maquette.md`, V21). Après P12.2.
+  seulement à l’accueil) et ses références dans les docs (`docs/maquette.md`, V21). Après P12.2. Fait : titres
+  « Réglages du Classique » et « Tous les jeux », capture `SettingsAllGames` ; la Graine du jour ouvre encore
+  `SettingsRoute(SettingsSection.CLASSIC)` (P12.6).
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
   (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
   `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
@@ -1808,7 +1810,8 @@ pause (P11.9).
   le test `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`.
   Après P12.3 et P12.11.
 - [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
-  « Record du Classique »). Après P12.3.
+  « Record du Classique ») : `SettingsRoute()` au lieu de `SettingsRoute(SettingsSection.CLASSIC)` dans `BloxNavDisplay`
+  (`app`), avec son parcours dans `BloxNavDisplayTest`. Après P12.3.
 - [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
   concernés (Classique, Graine du jour, Au tempo) ; note « Volumes : tout de suite. Le reste : dès le prochain jeu
   ouvert. » (aujourd'hui « Valable dès la partie suivante », faux pour les volumes et les Effets réduits) ; « Le

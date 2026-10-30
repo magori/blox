@@ -102,7 +102,7 @@ class ChangeGameTest {
         @JvmStatic
         fun stacksWithScreensAboveTheHome(): List<List<NavKey>> = listOf(
             // Restored without cartridges, the settings above the home
-            listOf(HomeRoute, SettingsRoute),
+            listOf(HomeRoute, SettingsRoute()),
             // A game above the home
             listOf(CartridgesRoute, HomeRoute, GameRoute(startLevel = 0, seed = 1L)),
         )

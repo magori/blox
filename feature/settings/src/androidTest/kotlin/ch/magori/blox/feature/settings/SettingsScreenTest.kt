@@ -46,6 +46,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.feature.settings.navigation.SettingsSection
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -81,7 +82,7 @@ internal class SettingsScreenTest {
     private var shown by mutableStateOf<SettingsUiState?>(null)
 
     @Test
-    @DisplayName("the back arrow, 48 dp, read Retour, goes back to the home screen")
+    @DisplayName("the back arrow, 48 dp, read Retour, goes back")
     fun theBackArrowGoesBack() = extension.use {
         // Given
         showSettingsScreen()
@@ -423,6 +424,61 @@ internal class SettingsScreenTest {
     }
 
     @Test
+    @DisplayName("the page opened from the choice of the game shows no record")
+    fun thePageOpenedFromTheChoiceOfTheGameShowsNoRecord() = extension.use {
+        // Given the page opened without the section of a game
+        showSettingsScreen(section = null)
+
+        // Then the settings of all games, under their heading, and nothing of the Classic
+        onNodeWithText("Tous les jeux").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+        onNodeWithText("Sons et vibrations").assertExists()
+        onNodeWithText("Réglages du Classique").assertDoesNotExist()
+        onNodeWithText("Record").assertDoesNotExist()
+        onNode(hasText("Record du Classique"), useUnmergedTree = true).assertDoesNotExist()
+        onNode(hasContentDescription("Effacer le record du Classique")).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("the title of a part, Tous les jeux, is larger than the title of a section, Affichage")
+    fun theTitleOfAPartIsLargerThanTheTitleOfASection() = extension.use {
+        // Given
+        showSettingsScreen(section = null)
+
+        // Then
+        val part = textLayout("Tous les jeux").layoutInput.style.fontSize
+        val section = textLayout("Affichage").layoutInput.style.fontSize
+        assertThat(part.value).isGreaterThan(section.value)
+    }
+
+    @Test
+    @DisplayName("the section of the Classic is read Réglages du Classique, a heading")
+    fun theSectionOfTheClassicIsReadReglagesDuClassiqueAHeading() = extension.use {
+        // Given the page opened from the Classic
+        showSettingsScreen(section = SettingsSection.CLASSIC)
+
+        // Then
+        onNodeWithText("Réglages du Classique").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading))
+    }
+
+    @Test
+    @DisplayName("opened from the Classic, its section comes first, then Tous les jeux, a heading, above Affichage")
+    fun openedFromTheClassicThePageShowsItsSectionFirstThenTousLesJeux() = extension.use {
+        // Given the page opened from the Classic
+        showSettingsScreen(section = SettingsSection.CLASSIC)
+
+        // Then, from the top: the title of the page, the section of the Classic, then the settings of all games
+        val tops = listOf(
+            onNodeWithText("Paramètres"),
+            onNodeWithText("Réglages du Classique"),
+            onNode(hasContentDescription("Effacer le record du Classique") and hasClickAction()),
+            onNodeWithText("Tous les jeux").assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.Heading)),
+            onNodeWithText("Affichage"),
+            onNodeWithText("Sons et vibrations"),
+        ).map { it.getUnclippedBoundsInRoot().top }
+        assertThat(tops).isSorted()
+    }
+
+    @Test
     @DisplayName("in a font twice as large, on 360 dp, Effacer goes under Record du Classique, its words whole")
     fun inALargeFontEffacerGoesUnderItsLabel() = extension.use {
         // Given
@@ -518,6 +574,7 @@ internal class SettingsScreenTest {
 
     private fun ComposeContext.showSettingsScreen(
         state: SettingsUiState? = uiState,
+        section: SettingsSection? = SettingsSection.CLASSIC,
         width: Dp = Dp.Unspecified,
         fontScale: Float = 1f,
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
@@ -541,7 +598,12 @@ internal class SettingsScreenTest {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
                 BloxTheme(kind = kind, effects = effects) {
-                    SettingsScreen(modifier = Modifier.width(width), uiState = shown, actions = actions)
+                    SettingsScreen(
+                        modifier = Modifier.width(width),
+                        uiState = shown,
+                        section = section,
+                        actions = actions,
+                    )
                 }
             }
         }

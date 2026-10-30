@@ -26,6 +26,10 @@
     <string name="feature_settings_music_volume">Volume de la musique</string>
     <!-- À la place de la sous-ligne des deux vibrations, grisées, quand l'appareil n'a pas de vibreur. -->
     <string name="feature_settings_no_vibrator">Cet appareil ne vibre pas</string>
+    <!-- Titre de la section du Classique (ADR 0030), ouverte depuis son accueil, en tête de la page ; lu comme titre. -->
+    <string name="feature_settings_classic">Réglages du Classique</string>
+    <!-- Titre des réglages communs à tous les jeux, sous la section du jeu qui a ouvert la page, s'il en a une. -->
+    <string name="feature_settings_all_games">Tous les jeux</string>
     <!-- Carte Record : effacer le record, après confirmation (réponse sûre d'abord), puis le dire (lu par TalkBack). -->
     <string name="feature_settings_record">Record</string>
     <string name="feature_settings_classic_record">Record du Classique</string>
