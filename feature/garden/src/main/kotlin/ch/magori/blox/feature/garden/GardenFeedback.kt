@@ -26,7 +26,7 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
     fun ticks(effects: BloxEffects): Int = when {
         change == GardenChange.Opened && effects.reduced -> 0
         falls && effects.reduced -> BloxMotion.reducedFade
-        falls -> fallDelay + BloxMotion.gardenFallStep * (rank.values.maxOrNull() ?: 0) + FALL_TICKS
+        falls -> fallDelay + BloxMotion.gardenFallStep * (rank.values.maxOrNull() ?: 0) + BloxMotion.gardenFall
         else -> BloxMotion.gardenGlow
     }
 
@@ -38,8 +38,8 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
     ): Float = if (!falls && cell in rank) fadeOut(tick, ticks(effects)) else 0f
 
     /**
-     * How far above its place the note on [cell] is drawn at [tick] in [effects], in cells: a piece of Au hasard falls
-     * there, never in reduced effects.
+     * How far above its place the note on [cell] is drawn at [tick] in [effects], in cells: a piece of Au hasard, or of
+     * a kept garden opened, falls there, never in reduced effects.
      */
     fun lift(
         cell: Position,
@@ -48,9 +48,9 @@ internal data class GardenFeedback(val change: GardenChange, val rank: Map<Posit
     ): Float {
         if (effects.reduced) return 0f
         val falling = tick - (fallStart(cell) ?: return 0f)
-        if (falling >= FALL_TICKS) return 0f
+        if (falling >= BloxMotion.gardenFall) return 0f
         // As it falls, faster and faster: the height left goes down with the square of the time.
-        val progress = falling.coerceAtLeast(0).toFloat() / FALL_TICKS
+        val progress = falling.coerceAtLeast(0).toFloat() / BloxMotion.gardenFall
         return FALL_CELLS * (1f - progress * progress)
     }
 
@@ -93,10 +93,11 @@ internal fun gardenFeedbackOf(state: GardenUiState): GardenFeedback? = when (val
     null -> null
 }
 
-/** How long a piece of Au hasard takes to fall to its place. */
-private const val FALL_TICKS = 8
-
-/** How high above its place a piece of Au hasard starts to fall, in cells. */
+/**
+ * How high above its place a piece of Au hasard, or of a kept garden opened, starts to fall, in cells: one
+ * `garden-cell`, which the drawing scales it by, so no size token of its own; see `motion-garden-fall`, whose usage
+ * says why.
+ */
 private const val FALL_CELLS = 1f
 
 /**

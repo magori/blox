@@ -222,6 +222,13 @@ de l'éditeur utilisent un italique imité.
   (200 ms) : même durée que `motion-curtain`, mais un jeton à elle, pour que le rideau de la pause et le repli d'une
   rangée puissent changer l'un sans l'autre. Effets réduits : aucun déplacement (fondu de la feuille à l'entrée,
   rangée qui disparaît d'un coup).
+- Mouvements du Jardin musical (P10.38) : le message « Gardé » monte de `message-rise` (16 px) en `motion-card`, en
+  fondu ; il empruntait `space-4`, mais une distance de mouvement doit pouvoir changer sans l'espacement. Une pièce
+  d'Au hasard (ou d'un jardin rouvert) tombe d'une case (`garden-cell`) en `motion-garden-fall` (133 ms), en
+  accélérant, `motion-garden-fall-step` après la précédente. Effets réduits : le message est à sa place d'emblée, les
+  pièces apparaissent ensemble en `motion-reduced-fade`. L'égaliseur (`EQUALIZER`) garde sa boucle sans jeton : elle
+  fait partie du dessin du pictogramme (35 % à 100 % en 0,5 s, 10 ticks d'avance d'une barre à l'autre), comme ses
+  barres de 3 × 14, et ne règle aucun autre mouvement.
 
 ## Pictogrammes
 

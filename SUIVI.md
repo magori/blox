@@ -1636,7 +1636,8 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
 - [x] **P10.32** Retours animés de Mes jardins, chacun en « Effets réduits » (ADR 0024), avec P10.15.
 - [ ] **P10.33** Mettre à jour la maquette (depuis claude.ai) : V40 avec le disque Mes jardins à 390 et 360 dp, la
   feuille Mes jardins (vide, liste, jardin ouvert et modifié, limite), les fenêtres Garder, Renommer, Supprimer ;
-  pictogramme « herbier » et jetons `garden-thumb-cell`, `sheet-rise` et `motion-row` (P10.37) dans le design system.
+  pictogramme « herbier » et jetons `garden-thumb-cell`, `sheet-rise` et `motion-row` (P10.37), `message-rise` et
+  `motion-garden-fall` (P10.38) dans le design system.
 - [x] **P10.5** `GardenMood` : Joyeux, Calme, Mystère, Épique ; gamme, 4 accords, tempo (132, 84, 100, 120 ; tonique Do 4, Do 3 pour Calme : décision du développeur, 2026-10-27), 14
   lignes depuis la tonique. Cas : `each mood has 14 rows of its scale, the tonic on the bottom row`, `each mood
   plays 4 chords, one per group of 4 eighths`, `a cell is a note of the chord when its note belongs to the chord
@@ -1697,10 +1698,12 @@ remplace X, « Garder une copie ») ; 30 au plus ; pas d'export vers Mes musique
   `motion-curtain`) : à publier dans le design system avec P10.33. Fait le 2026-10-29 : `sheet-rise`
   (`BloxSizes.sheetRise`) et `motion-row` (`BloxMotion.row`) dans `tokens.json` et le code ; la publication dans le
   design system de claude.ai reste à faire avec P10.33.
-- [ ] **P10.38** Les autres valeurs de mouvement sans jeton (revue de P10.37) : la chute d'une pièce d'Au hasard
+- [x] **P10.38** Les autres valeurs de mouvement sans jeton (revue de P10.37) : la chute d'une pièce d'Au hasard
   (`FALL_TICKS` = 8, `FALL_CELLS`, `GardenFeedback.kt`), la montée du message « Gardé » qui emprunte un espacement
   (`MESSAGE_RISE` = `BloxSpaces.space4`, `GardenKeptFeedback.kt`, à aligner sur `sheet-rise`) et, à juger, la boucle
-  de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`).
+  de l'égaliseur (`RISE_TICKS`, `BAR_LEAD_TICKS`, `Equalizer.kt`). Fait le 2026-10-30 : `motion-garden-fall`
+  (`BloxMotion.gardenFall`) et `message-rise` (`BloxSizes.messageRise`) ; `FALL_CELLS` (une case) et la boucle de
+  l'égaliseur restent sans jeton. Publication dans le design system de claude.ai avec P10.33.
 - [ ] **P10.39** Après la suppression d'un jardin depuis Mes jardins, le focus revient au « … » d'une rangée qui part
   (repliée puis retirée) : le rendre à un élément qui reste (la rangée suivante, la liste ou le titre de la feuille).
   Revue de P10.36, hors périmètre.
@@ -1774,20 +1777,34 @@ le choix du jeu (réglages généraux seuls) ou depuis un jeu (sa section en tê
 Couleurs. Le Serrurier, le Jardin et la Graine n'ont pas de réglage propre ; le Métronome d'Au tempo reste dans sa
 pause (P11.9).
 
-- [ ] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
-  par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0011 et 0022.
-- [ ] **P12.2** Créer `feature:settings` et y déplacer la page Paramètres de `feature:home` (`SettingsScreen`,
-  `SettingsViewModel`, `SettingsUiState`, `SettingsActions`, `KeysSketch`, la clé de route), sans changement de
-  comportement, tests déplacés et verts ; `app` et `buildHealth` à jour. Après P12.1.
-- [ ] **P12.3** Portée de la page, `SettingsRoute(game)` : la section « Classique » (Record, plus tard le Moderne)
-  seulement depuis le Classique, sous un titre lu « Réglages du Classique », puis « Tous les jeux ». Cas : `the page
-  opened from the choice of the game shows no record`, `the section of the Classic is read Réglages du Classique, a
-  heading`. Après P12.2.
+- [x] **P12.1** ADR : réglages généraux et réglages par jeu (portée de chaque réglage, page unique avec une section
+  par jeu, page toujours en Couleurs, module `feature:settings`) ; amende les ADR 0002, 0011 et 0022. Fait :
+  [ADR 0030](docs/adr/0030-reglages-generaux-et-par-jeu.md).
+- [ ] **P12.2** Créer `feature:settings` (`blox.android.feature` et `blox.android.screenshot`) et y déplacer la page
+  Paramètres de `feature:home` (`SettingsScreen`, `SettingsViewModel`, `SettingsUiState`, `RecordClearing`,
+  `SettingsActions`, `KeysSketch`, la clé de route, captures comprises), sans changement de comportement, tests
+  déplacés et verts ; `saveSettings` (`SaveSettings.kt`, partagé avec `HomeViewModel`) devient une extension de
+  `UserPreferencesRepository` dans `core:data` ; `feature:home` perd `core:haptics` ; `app` et `buildHealth` à jour.
+  Après P12.1.
+- [ ] **P12.3** Portée de la page, `SettingsRoute(section: SettingsSection? = null)`, `SettingsSection { CLASSIC }` :
+  la section « Classique » (Record, plus tard le Moderne) seulement depuis le Classique, sous un titre lu « Réglages
+  du Classique », puis « Tous les jeux ». Cas : `the page opened from the choice of the game shows no record`, `the
+  section of the Classic is read Réglages du Classique, a heading` ; dans `SettingsRouteSavingTest`, `the key of the
+  page opened from the Classic is saved and restored with its section`. Après P12.2.
 - [ ] **P12.4** Page Paramètres toujours en Couleurs, barres système comprises, quel que soit le thème du Classique
-  (l'aspect Original de V21 disparaît). Après P12.2.
-- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : disque de 48 dp à droite de la
-  barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les cartouches ; retirer le test
-  `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`. Après P12.3.
+  (l'aspect Original de V21 disparaît) : `SettingsRoute` entre dans `isColorfulOnly` (`SystemBars.kt`), et
+  `SystemBarsTest` fait passer « the settings » de `otherScreens` à `colorfulOnlyScreens`. Après P12.2.
+- [ ] **P12.11** Bouton Paramètres commun : un `SettingsButton` dans `core:designsystem`, avec sa chaîne
+  (« Paramètres »), remplace les copies de `HomeBar` (`feature:home`) et de `DailyScreen` (`feature:daily`) avant que P12.5 n'en
+  fasse une troisième. `BloxNavDisplayTest` lit la chaîne `feature_home_settings`, qui part avec la page en P12.2 :
+  le faire lire la chaîne du bouton commun. Après P12.2.
+- [ ] **P12.5** Roue dentée sur le choix du jeu (V36, `feature:cartridges`, `app`) : `SettingsButton` (P12.11) de
+  48 dp à droite de la barre, lu « Paramètres », avant le titre dans l'ordre de TalkBack ; retour vers les
+  cartouches. La roue passe par `CartridgeOpener` : elle annule un toucher sur le Serrurier qui attend sa frontière,
+  et n'empile la page que si `CartridgesRoute` est en haut de la pile (ADR 0030). Cas : `a tap on the gear cancels a
+  tap on the Locksmith still waiting for its frontier`, `the gear stacks nothing once a game is on its way`. Retirer
+  le test `CartridgesScreenTest › the only buttons, focusable or disabled nodes of the screen are the cartridges`.
+  Après P12.3 et P12.11.
 - [ ] **P12.6** La roue dentée de la Graine du jour ouvre la page sans section de jeu (aujourd'hui elle montre
   « Record du Classique »). Après P12.3.
 - [ ] **P12.7** Textes de la page : sous-lignes de Gaucher, Vibrations et Vibration des touches qui nomment les jeux
@@ -1799,6 +1816,9 @@ pause (P11.9).
 - [ ] **P12.10** Mettre à jour la maquette (depuis claude.ai) : V36 avec sa roue dentée ; nouvelle vue des Paramètres
   ouverts depuis le choix du jeu (jour, nuit, police ×2) ; V31 avec la section Classique et « Tous les jeux » ; note
   sur V38 ; V21 remplacée.
+- [ ] **P12.12** Compléter le graphe mermaid de `docs/architecture.md`, incomplet avant P12.1 : `feature:cartridges`,
+  `feature:locksmith`, `featureHome --> haptics` tant que P12.2 n'est pas faite ;
+  vérifier chaque flèche contre les `build.gradle.kts` (documentation seule).
 
 ---
 

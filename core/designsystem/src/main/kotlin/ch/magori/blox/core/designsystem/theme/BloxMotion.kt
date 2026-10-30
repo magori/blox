@@ -39,6 +39,15 @@ object BloxMotion {
      */
     val gardenGlow: Int = 8
 
-    /** Au hasard, in the musical garden: the pieces fall one by one, this far apart (`motion-garden-fall-step`, 33 ms). */
+    /**
+     * Au hasard, in the musical garden, or a kept garden opened: each piece falls to its place, one cell high, faster and
+     * faster (`motion-garden-fall`, 133 ms).
+     */
+    val gardenFall: Int = 8
+
+    /**
+     * Au hasard, in the musical garden, or a kept garden opened: the pieces fall one by one, this far apart
+     * (`motion-garden-fall-step`, 33 ms).
+     */
     val gardenFallStep: Int = 2
 }

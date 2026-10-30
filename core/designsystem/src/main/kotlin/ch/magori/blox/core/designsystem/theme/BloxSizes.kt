@@ -58,6 +58,12 @@ object BloxSizes {
      * (`sheet-rise`): a distance of a move, which no space matches.
      */
     val sheetRise = 40.dp
+
+    /**
+     * How far below its place the message « Gardé » of the musical garden starts to rise (`message-rise`): a distance
+     * of a move, as [sheetRise], no longer [BloxSpaces.space4], so that one can change without the other.
+     */
+    val messageRise = 16.dp
 }
 
 /** The spaces, on a grid of 4: the `spacing` tokens of docs/design-system/tokens.json. There is no `space-5`. */
