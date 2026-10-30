@@ -43,11 +43,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeSoundEffectPlayer
-import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.lock.LockCell
 import ch.magori.blox.core.data.FakePadlockProgressRepository
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.OpeningOutcome
+import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxEffects

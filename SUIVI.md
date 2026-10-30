@@ -11,7 +11,7 @@ confirmer sur une source avant d'écrire le test.
 <!-- avancement:debut -->
 | Avancement | Tâches | % |
 |---|---|---|
-| **Général** | 314 / 387 | `████████████████░░░░` **81 %** |
+| **Général** | 320 / 389 | `████████████████░░░░` **82 %** |
 | **MVP audio** | 28 / 28 | `████████████████████` **100 %** |
 <!-- avancement:fin -->
 
@@ -1099,7 +1099,7 @@ composants.
     `the music played during the games bears EN JEU and its switch is selected`, `without music the page says
     « Aucune musique pour l'instant. » and keeps Au hasard and Nouvelle`, `every target of the page is 48 dp at least
     on 360 dp, in a font twice as large` ; captures.
-  - [ ] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
+  - [x] **P5.100** Mes musiques v2, menu, suppression et annulation (`feature:musics`, V32) : menu « … » en
     `BloxMenu` (Modifier, Renommer, La jouer ou Ne plus la jouer pendant les parties, Supprimer en `danger`) ;
     `DeleteWindow` v2 ; Renommer en fenêtre (« « X » est supprimée. » en `SnackMessage`, `UndoMessage` retiré : faits en P5.99) ;
     v2. `CardMenu`, `MenuItem` retirés. Après P5.97, P5.98, P5.99. Menu en `BloxMenu`, `CardMenu` réduit à un `RowMenu`
@@ -1107,6 +1107,9 @@ composants.
     Cas : `the menu of a row offers Modifier, Renommer, the games and Supprimer in danger`, `deleting asks first,
     Garder la musique first and Supprimer in danger`, `a confirmed deletion says « X est supprimée » with Annuler,
     read by TalkBack`, `Annuler puts the music back and the cross closes the message` ; captures.
+    Fait le 2026-10-30 : les quatre cas, verts d'emblée (le comportement venait des composants partagés de P5.97,
+    P5.98, P10.36) ; fenêtres Supprimer et Renommer capturées (`MyMusicsDeleting*`, `MyMusicsRenaming*`, jour, nuit,
+    ×2) ; `WindowOverPage` (`core:designsystem`) remplace les quatre copies du fond des aperçus de fenêtre.
   - [x] **P5.101** Éditeur v2, dé en feuille (`feature:composer`, V33) : disque dé dans la barre qui ouvre la
     feuille « Au hasard » ; Surprise et les sept catégories en `SheetChoiceRow` avec leur sous-ligne, la retenue
     cochée ; « Tirer une musique » tire et ferme ; choisir garde la feuille ouverte. `DicePanel` retiré. Après
@@ -1146,7 +1149,7 @@ composants.
   - [ ] **P5.105** Mettre à jour la maquette (depuis claude.ai) : V32 à V34 de nuit ; Renommer et Quitter en
     fenêtres v2 ; écarts retenus au codage (hauteurs compactes, coche des outils, cibles de 48 dp du tempo) ; valeurs
     de la planche alignées sur `tokens.json` (`button-pressed`, `label-off`, `grid-line` de nuit).
-- [ ] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
+- [x] **P5.106** Outil de mesure des recompositions partagé (`core:board`) : remplacer la copie de
   `RecompositionRecorder` des doublures de `core:board` (`ComposeTestTools.kt`) par celle de `core:designsystem`
   (P5.94), règle de 2. Découverte à la revue de P5.94.
 - [ ] **P5.107** Barre d'écran partagée (`core:designsystem`) : `ScreenBar(title, backDescription, onBack)` (disque
@@ -1185,10 +1188,21 @@ composants.
   `the down arrow stands half a key below the left and right arrows`.
 - [ ] **P5.109** Mettre à jour la maquette (depuis claude.ai) : touches de direction de 64 dp, ▼ une demi-touche plus
   bas (V2, V3, planche GameKey du design system). Après P5.108.
-- [ ] **P5.110** Geste retour de l’éditeur en échec sur emulator-5556 (API 37), aussi sur main au 2026-10-28 :
+- [x] **P5.110** Geste retour de l’éditeur en échec sur emulator-5556 (API 37), aussi sur main au 2026-10-28 :
   `ComposerScreenTest › before its music is read, the back gesture leaves the editor, as the navigation would` et
   `ComposerScreenTest › the back gesture on a changed music asks first: Continue stays, Leave without saving leaves`.
   Trouver si c'est le test (geste retour simulé) ou l'éditeur, et corriger test d'abord.
+  Cause : le test. Le retour était injecté comme une touche (`sendKeyDownUpSync(KEYCODE_BACK)`), livrée par
+  `system_server` à la fenêtre qui a le focus : perdue quand une autre fenêtre le prend ou que `system_server`
+  flanche (service UWB de l'émulateur, P5.94). L'éditeur, lui, répond bien. Le retour passe désormais par le
+  `OnBackPressedDispatcher` de l'activité (`pressSystemBack`), comme `BloxNavDisplayTest` et `feature:game`.
+- [ ] **P5.111** Retours système encore injectés par touche (`sendKeyDownUpSync(KEYCODE_BACK)`), fragiles comme
+  ceux de P5.110 : `BloxSheetTest` (l. 92, 115, 335, 363, 367), `RowMenuTest` (l. 145) et `ComposerDiceSheetTest`
+  (l. 112). Ils ferment une feuille ou un menu dans sa propre fenêtre, dont le dispatcher n'est pas celui de
+  l'activité : trouver le dispatcher de la fenêtre du dialogue, ou consigner pourquoi la touche reste.
+- [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
+  `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
+  seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1554,7 +1568,7 @@ Règles : [docs/graine-du-jour.md](docs/graine-du-jour.md). Architecture : ADR 0
 - [x] **P9.12** Renommer ce qui, dans `feature:game`, sert désormais au record et au meilleur du jour :
   `GameOverUiState.newRecord`, `NewRecordBadge`, `GameUiState.recordBeaten` (vers `newBest`, `bestBeaten`), en
   accord avec `GameLabels.newBest` (revue de P9.11).
-- [ ] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
+- [x] **P9.13** Poursuivre le vocabulaire « meilleur » dans `feature:game` : `GameUiState.record` (le meilleur à battre,
   générique), `isRecord()`, `ShownRecord`, `Record`, `RecordBar`, `recordBarFill` ; touche des noms de tests cités par la
   spécification (traçabilité à reprendre). Revue de P9.12.
 - [x] **P9.14** Ligne « Ancien record » / « Ancien meilleur » en fin de partie, écart relevé par la maquette V30 et V39
@@ -1815,10 +1829,12 @@ seulement, jour et nuit.
   `SettingsScreenTest` ; regarder les captures `Settings*` en police ×2. Ajouter un test de plancher en police ×2 sur
   360 dp : chaque sous-ligne garde au moins 1,25 fois sa taille en police normale ; si le plancher ne tient pas avec
   Au tempo, passer la sous-ligne sur deux lignes (les jeux, puis le texte). Découverte en P12.7. Après P11.12.
-- [ ] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
+- [x] **P11.15** Identité des musiques de jeu (`core:music`) : la KDoc de `ScoreId.Personal` ne parle que des
   musiques du joueur, alors que trois musiques de jeu l'utilisent sans être gardées (`LiveMusic.CALM_ID` et
   `TENSE_ID`, `GARDEN_SCORE_ID`, l'accompagnement d'Au tempo) ; élargir cette KDoc, ou leur donner une identité
-  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9.
+  dédiée (`ScoreId` scellée : vérifier les `when` exhaustifs). Découverte à la revue de P11.9. Fait : KDoc élargie,
+  sans identité dédiée, aucune collision ni confusion n'étant possible avec les musiques du joueur (`docs/musique.md`,
+  Identités).
 
 ## P12 — Réglages généraux et réglages par jeu (`feature:settings`, `app`)
 

@@ -40,13 +40,13 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import ch.magori.blox.core.board.RecompositionRecorder
 import ch.magori.blox.core.board.assertDrawnAsFresh
 import ch.magori.blox.core.board.drawnContent
 import ch.magori.blox.core.board.movePiece
 import ch.magori.blox.core.board.next.pieceName
 import ch.magori.blox.core.board.piece.PieceCells
 import ch.magori.blox.core.board.piece.nextPieceCells
+import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -157,18 +157,18 @@ internal class GameScreenTest {
         recompositions.start()
     }
 
-    /** The record of the game, as the records give it, and whether the score beats it. */
-    internal enum class RecordShown(val change: (GameUiState) -> GameUiState) {
-        UNKNOWN({ it.copy(record = null) }),
-        SHOWN({ it.copy(record = 98_760) }),
-        BEATEN({ it.copy(record = 12_000, bestBeaten = true) }),
+    /** The best of the game, as the results give it, and whether the score beats it. */
+    internal enum class BestShown(val change: (GameUiState) -> GameUiState) {
+        UNKNOWN({ it.copy(best = null) }),
+        SHOWN({ it.copy(best = 98_760) }),
+        BEATEN({ it.copy(best = 12_000, bestBeaten = true) }),
     }
 
     @ParameterizedTest
-    @EnumSource(RecordShown::class)
+    @EnumSource(BestShown::class)
     @DisplayName("nothing on the screen recomposes when only the piece moves")
-    fun nothingOnTheScreenRecomposesWhenOnlyThePieceMoves(record: RecordShown) = extension.use {
-        uiState = record.change(uiState)
+    fun nothingOnTheScreenRecomposesWhenOnlyThePieceMoves(best: BestShown) = extension.use {
+        uiState = best.change(uiState)
         showGameScreen()
 
         movePiece(times = 10, moveDown)
@@ -298,7 +298,7 @@ internal class GameScreenTest {
     @DisplayName("once the record is beaten, the top bar shows NOUVEAU RECORD and the score, read as the new record")
     fun onceTheRecordIsBeatenTheTopBarShowsTheNewRecord() = extension.use {
         // Given a game whose score of 12 340 is under the record
-        uiState = uiState.copy(record = 12_360)
+        uiState = uiState.copy(best = 12_360)
         showGameScreen()
         onNodeWithContentDescription("Record : 12360").assertIsDisplayed()
 
@@ -314,7 +314,7 @@ internal class GameScreenTest {
     @DisplayName("a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record")
     fun aDailyGameIsTitledGraineDuJourAndShowsTheBestOfTheDay() = extension.use {
         // Given a daily game, whose best of the day is 12 360
-        uiState = uiState.copy(record = 12_360)
+        uiState = uiState.copy(best = 12_360)
 
         // When its screen shows
         showGameScreen(labels = GameLabels.Daily)
@@ -330,7 +330,7 @@ internal class GameScreenTest {
     @DisplayName("once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such")
     fun onceTheBestOfTheDayIsBeatenTheTopBarShowsTheNewBest() = extension.use {
         // Given a daily game whose score of 12 340 is under the best of the day
-        uiState = uiState.copy(record = 12_360)
+        uiState = uiState.copy(best = 12_360)
         showGameScreen(labels = GameLabels.Daily)
 
         // When the score beats it
@@ -507,10 +507,10 @@ internal class GameScreenTest {
         NEXT(R.string.feature_game_next, { it.copy(next = nextPieceCells(PieceType.O, ClassicRotationSystem)) }),
 
         /** Read from the records once the game has started: null at first. */
-        RECORD(R.string.feature_game_top_record, { it.copy(record = 98_760) }),
+        RECORD(R.string.feature_game_top_record, { it.copy(best = 98_760) }),
 
         /** The best of the day, in place of the record of a daily game. */
-        DAILY_BEST(R.string.feature_game_daily_best, { it.copy(record = 98_760) }, GameLabels.Daily),
+        DAILY_BEST(R.string.feature_game_daily_best, { it.copy(best = 98_760) }, GameLabels.Daily),
         ;
 
         /** The new value as TalkBack reads it, once [change] is made. */

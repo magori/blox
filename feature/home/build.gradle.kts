@@ -35,8 +35,7 @@ dependencies {
     testImplementation(testFixtures(projects.core.audio))
     // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec l'autre feature.
     testImplementation(testFixtures(projects.core.data))
-    // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features.
-    androidTestImplementation(testFixtures(projects.core.designsystem))
+    // Les lignes d'un texte affiché (mots entiers en police agrandie), partagées avec les autres features, et
     // RecompositionRecorder : rien ne recompose pendant que l'aperçu joue (P5.77).
-    androidTestImplementation(testFixtures(projects.core.board))
+    androidTestImplementation(testFixtures(projects.core.designsystem))
 }

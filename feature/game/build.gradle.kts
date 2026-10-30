@@ -49,8 +49,10 @@ dependencies {
     testImplementation(testFixtures(projects.core.designsystem))
     // La clé d'une partie, encodée comme la navigation la sauve : sa date en texte ISO (P9.4).
     testImplementation(libs.kotlinx.serialization.json)
-    // Les outils des tests instrumentés du dessin (RecompositionRecorder, drawnContent, assertDrawnAsFresh).
+    // Les outils des tests instrumentés du dessin (drawnContent, movePiece, assertDrawnAsFresh) et la mesure des
+    // recompositions (RecompositionRecorder).
     androidTestImplementation(testFixtures(projects.core.board))
+    androidTestImplementation(testFixtures(projects.core.designsystem))
     // Les tests instrumentés emploient ses annotations (ce que buildHealth demande de déclarer).
     androidTestImplementation(libs.androidx.annotation)
     // Le test de la fabrique sauve puis restaure l'état d'une entrée, comme après la mort du processus.

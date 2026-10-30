@@ -1,14 +1,7 @@
 package ch.magori.blox.core.designsystem.component
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 
@@ -18,17 +11,7 @@ private fun WindowPreview(
     kind: BloxThemeKind,
     window: @Composable () -> Unit,
 ) {
-    BloxTheme(kind = kind) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(BloxTheme.palette.page)
-                .padding(horizontal = BloxSizes.windowMargin),
-        ) {
-            window()
-        }
-    }
+    BloxTheme(kind = kind) { WindowOverPage(window = window) }
 }
 
 /** A name taken: its problem told under the field, the free name offered, the confirmation disabled. */
