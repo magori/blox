@@ -1769,11 +1769,12 @@ seulement, jour et nuit.
   décision du développeur) ; + 80 et × 2 gardés, **[à vérifier]** en jouant. Après revue : `bySoftDrop` sans
   valeur par défaut, cas `an on-beat lock without lines is forgotten by the next lock` et caractérisation avec le
   vrai moteur `a soft drop timed on beat 4 of bar 4 earns the beat bonus and a cadence in a real game`.
-- [ ] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
+- [x] **P11.8** `TempoRules = ClassicRules.copy(dropTiming = …)` et sa fabrique ; non-régression : les parties de
   référence de P11.4 (déjà rejouées avec `ClassicRules` par `ReferenceGamesTest`) rejouées avec
   `TempoRules.copy(dropTiming = ClassicRules.dropTiming)` rendent les mêmes états. Après P11.6. Cas : `tempo rules
   are the classic rules but for the drop timing`, `the reference games are played the same by the tempo rules with
-  the classic drop timing`.
+  the classic drop timing`. Fait le 2026-10-30 : fabrique `tempoRules(meter: Meter): Rules` (paquet `tempo`), sans
+  tempo par défaut : le `Meter` de la v1 (15 ticks par croche, **[à vérifier]**) sera choisi en P11.10.
 - [x] **P11.9** Accompagnement (`core:music`) : métronome (temps 1 marqué) et basse I–V–vi–IV, écrits à 100
   temps/min, joués au facteur `18 / ticksPerEighth`. Cas : `the accompaniment clicks on every quarter, louder on
   beat 1`, `the bass plays I V vi IV, one bar each`, `the tempo factor is 18 over the ticks per eighth`, `without the
@@ -1781,7 +1782,8 @@ seulement, jour et nuit.
   `Accompaniment.tempoFactor(ticksPerEighth)` (entier, `core:music` ne voyant pas `Meter`) ; basse en croches
   Do3/Sol2/La2/Fa2, clics C6 à 0,10 et G5 à 0,05 **[à vérifier]** à l'oreille. La préférence Métronome est
   reportée en P11.10, son interrupteur en P11.11.
-- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `TempoRules`, horloge audio, accompagnement
+- [ ] **P11.10** Variante `TEMPO` de `GameRoute` : `tempoRules(meter)`, le `Meter` choisi par la variante (15 ticks
+  par croche **[à vérifier]**, le même passé à `TempoScore`), horloge audio, accompagnement
   (`Accompaniment.score(metronome)` au facteur `Accompaniment.tempoFactor(meter.ticksPerEighth)`), préférence
   **Métronome** (champ de `UserPreferences` dans `settings.preferences_pb`, `core:data`, activée par défaut
   **[à vérifier]**, reportée de P11.9 ; la reprise recule aujourd'hui au dernier temps de `switchBeats` (même

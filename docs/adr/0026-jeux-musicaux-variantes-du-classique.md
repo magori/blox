@@ -40,7 +40,7 @@ La Graine du jour partage justement une graine entre joueurs.
   (`DailySeed`, dans `app`, horloge injectée), au niveau 5 et en musique Vivante imposés. Elle a
   **son propre dépôt**, `DailyChallengeRepository` (`core:data`, fichier à part) : essais, premier
   essai, meilleur du jour. Elle n'écrit jamais dans les records du Classique.
-- **Au tempo est une variante de `feature:game`** à règles propres (`TempoRules`, ADR 0028), avec
+- **Au tempo est une variante de `feature:game`** à règles propres (`tempoRules(meter)`, ADR 0028), avec
   **son propre fichier de records** (une seconde instance de `DataStoreHighScoreRepository`).
 - `GameRoute` porte la variante (`CLASSIC`, `DAILY`, `TEMPO`) ; la fabrique du ViewModel choisit
   les règles, la direction musicale et le dépôt d'après elle. Rejouer garde la variante et, pour
