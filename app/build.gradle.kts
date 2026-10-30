@@ -79,6 +79,8 @@ dependencies {
     androidTestImplementation(libs.androidx.annotation)
     // `WindowInsetsControllerCompat` : l'apparence réelle des barres système (SystemBarsAppearanceTest).
     androidTestImplementation(libs.androidx.core)
+    // Le contexte de l'application, dont DocumentMusicFileNamesTest demande les noms de documents (P5.38).
+    androidTestImplementation(libs.androidx.test.monitor)
 
     // Le module qui produit le profil de référence (blox.android.benchmark, P5.17).
     baselineProfile(projects.benchmark)

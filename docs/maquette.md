@@ -171,7 +171,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   *Aucune*, en rangées qui passent à la ligne, sans rien dessous. Une seule ligne d'actions, sous
   tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, un disque
   de 48 dp à son seul pictogramme, triangle ou carré, lu « Écouter Menuet » (P5.94) ; pour *Mon fichier*,
-  *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Un
+  *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Dans la
+  feuille Musique, sous *Mon fichier*, le nom du fichier retenu (« orage-d-ete.ogg », P5.38), sur une
+  ligne, coupé au milieu s'il est trop long, lu en entier par TalkBack ; *Changer* passe alors sous
+  la rangée, au bout, sous *Écouter* (écart avec la planche, qui le met à côté du nom : P5.116) ;
+  « Un fichier audio de l'appareil » si le nom n'est pas connu (voir `docs/musique.md`, feuille
+  Musique). Un
   seul aperçu à la fois (P4.7), arrêté en changeant de choix, en ouvrant les Paramètres ou
   « Mes musiques ».
 - **Musiques personnelles** (P4.22, maquette mise au code le 2026-10-20) :
@@ -505,7 +510,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
 
 ## Pas encore codé
 
-- **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
+- Rien pour V1 : le nom du fichier sous « Mon fichier » est codé (P5.38).
 
 ## Points ouverts
 

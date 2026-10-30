@@ -25,7 +25,7 @@ class DataStoreMusicFileRepositoryTest :
     @Test
     fun `the music file survives a new repository on the same file`() = runTest {
         // Given a file chosen by a repository whose DataStore is then closed
-        inScopeClosedAfter { scope -> repositoryIn(scope).setMusicFile(chosen) }
+        inScopeClosedAfter { scope -> repositoryIn(scope).setMusicFile(chosen, name = null) }
 
         // When
         val reopened = repositoryIn(backgroundScope)
@@ -44,6 +44,30 @@ class DataStoreMusicFileRepositoryTest :
 
         // When / Then
         assertThat(repositoryIn(backgroundScope).musicFile.first()).isEqualTo(chosen)
+    }
+
+    @Test
+    fun `a music file kept by an earlier version, without a name, is read back without one`() = runTest {
+        // Given a file written before the names were kept (P5.38): its uri only
+        inScopeClosedAfter { scope ->
+            preferencesDataStore(scope) { file.absolutePath.toPath() }
+                .edit { it[stringPreferencesKey("uri")] = chosen.uri }
+        }
+
+        // When / Then
+        assertThat(repositoryIn(backgroundScope).namedMusicFile.first()).isEqualTo(NamedMusicFile(chosen, name = null))
+    }
+
+    @Test
+    fun `the name is stored as text under a key that must not change`() = runTest {
+        // Given a file chosen with its name by a repository whose DataStore is then closed
+        inScopeClosedAfter { scope -> repositoryIn(scope).setMusicFile(chosen, name = "orage-d-ete.ogg") }
+
+        // When the file is read as it is stored
+        val stored = preferencesDataStore(backgroundScope) { file.absolutePath.toPath() }.data.first()
+
+        // Then
+        assertThat(stored[stringPreferencesKey("name")]).isEqualTo("orage-d-ete.ogg")
     }
 
     @Test
@@ -70,13 +94,14 @@ class DataStoreMusicFileRepositoryTest :
     override fun repositoryFailingWith(failure: Exception): MusicFileRepository =
         DataStoreMusicFileRepository(FailingDataStore(failure))
 
-    override fun readsOf(repository: MusicFileRepository): List<Flow<Any?>> = listOf(repository.musicFile)
+    override fun readsOf(repository: MusicFileRepository): List<Flow<Any?>> =
+        listOf(repository.musicFile, repository.namedMusicFile)
 
-    /** No music file. */
-    override val emptyReads: List<Any?> = listOf(null)
+    /** No music file, nor any name. */
+    override val emptyReads: List<Any?> = listOf(null, null)
 
     /** A music file chosen, which is kept. */
-    override suspend fun write(repository: MusicFileRepository) = repository.setMusicFile(chosen)
+    override suspend fun write(repository: MusicFileRepository) = repository.setMusicFile(chosen, name = null)
 
-    override val readsAfterWrite: List<Any?> get() = listOf(chosen)
+    override val readsAfterWrite: List<Any?> get() = listOf(chosen, NamedMusicFile(chosen, name = null))
 }
