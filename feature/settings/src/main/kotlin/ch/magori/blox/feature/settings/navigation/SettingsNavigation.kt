@@ -12,9 +12,18 @@ import ch.magori.blox.feature.settings.SettingsScreen
 import ch.magori.blox.feature.settings.SettingsViewModel
 import kotlinx.serialization.Serializable
 
-/** Clé de la page Paramètres (vue V21). */
+/**
+ * Key of the settings page (V21, V31), opened with the [section] of a game on top, or without one: the settings of all
+ * games alone (ADR 0030). `app` chooses the section from the screen that opens the page.
+ */
 @Serializable
-data object SettingsRoute : NavKey
+data class SettingsRoute(val section: SettingsSection? = null) : NavKey
+
+/** A section of a game on the settings page: there is one only for a game with settings of its own (ADR 0030). */
+enum class SettingsSection {
+    /** The Classic: its record, later the settings of the Modern mode. */
+    CLASSIC,
+}
 
 /**
  * Déclare l'entrée Paramètres (ADR 0011). `app` construit [viewModelFactory] (ADR 0013) ; [onBack] revient à
@@ -24,7 +33,7 @@ fun EntryProviderScope<NavKey>.settingsEntry(
     onBack: () -> Unit,
     viewModelFactory: SettingsViewModel.Factory,
 ) {
-    entry<SettingsRoute> {
+    entry<SettingsRoute> { route ->
         val viewModel: SettingsViewModel = viewModel(factory = viewModelFactory)
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
         // A second tap on the way back does nothing.
@@ -45,6 +54,6 @@ fun EntryProviderScope<NavKey>.settingsEntry(
             )
         }
         // The page and its header show at once; its settings, once the saved settings are read (no switch flashes off).
-        SettingsScreen(uiState = uiState, actions = actions)
+        SettingsScreen(uiState = uiState, section = route.section, actions = actions)
     }
 }

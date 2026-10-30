@@ -24,6 +24,8 @@ dependencies {
     implementation(libs.androidx.lifecycle.common)
     implementation(libs.kotlinx.coroutines.core)
 
+    // Le test de restauration encode et relit la clé, comme la navigation après la mort du processus.
+    testImplementation(libs.kotlinx.serialization.json)
     // Le faux lecteur d'effets sonores, partagé avec les autres features.
     testImplementation(testFixtures(projects.core.audio))
     // Les faux dépôts de core:data et MainDispatcherExtension, partagés avec les autres features.

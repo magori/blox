@@ -72,7 +72,7 @@ class SystemBarsTest {
         @JvmStatic
         fun otherScreens(): List<Arguments> = listOf(
             argumentSet("the home", HomeRoute),
-            argumentSet("the settings", SettingsRoute),
+            argumentSet("the settings", SettingsRoute()),
             argumentSet("a classic game", GameRoute(startLevel = 0, seed = 1L)),
             argumentSet("an empty stack", null),
         )

@@ -37,6 +37,7 @@ import ch.magori.blox.feature.musics.navigation.MyMusicsRoute
 import ch.magori.blox.feature.musics.navigation.myMusicsEntry
 import ch.magori.blox.feature.settings.SettingsViewModel
 import ch.magori.blox.feature.settings.navigation.SettingsRoute
+import ch.magori.blox.feature.settings.navigation.SettingsSection
 import ch.magori.blox.feature.settings.navigation.settingsEntry
 import ch.magori.blox.locksmith.PadlockFrontier
 import java.time.LocalDate
@@ -99,7 +100,7 @@ fun BloxNavDisplay(
                 // Points d'entrée de l'éditeur, une musique neuve, et de « Mes musiques » (V1).
                 onCompose = { backStack.add(ComposerRoute()) },
                 onMyMusics = { backStack.add(MyMusicsRoute) },
-                onSettings = { backStack.add(SettingsRoute) },
+                onSettings = { backStack.add(SettingsRoute(SettingsSection.CLASSIC)) },
                 onChangeGame = { changeGame(backStack) },
                 viewModelFactory = homeViewModelFactory,
             )
@@ -144,7 +145,8 @@ fun BloxNavDisplay(
             dailyEntry(
                 // The game of the date shown, whose pieces the entry shows, even once the phone passed midnight.
                 onPlay = { date -> backStack.add(newDailyGameRoute(date)) },
-                onSettings = { backStack.add(SettingsRoute) },
+                // The section of the Classic, its record within, as before P12.3: P12.6 opens the page without it.
+                onSettings = { backStack.add(SettingsRoute(SettingsSection.CLASSIC)) },
                 onChangeGame = { changeGame(backStack) },
                 onCopyScore = onCopyDailyScore,
                 viewModelFactory = dailyViewModelFactory,

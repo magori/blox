@@ -44,7 +44,7 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V28 | Jeu v2, avec ses retours (effacement, points, 4 lignes, danger, niveau, record battu) | rangées « Couleurs v2 — Jeu… » et « Retours de jeu » |
 | V29 | Pause v2 (rideau et carte) | « Pause · téléphone » |
 | V30 | Fin de partie v2 | « Fin de partie · téléphone », « … paysage » |
-| V31 | Paramètres v2 (Affichage, Sons et vibrations, Record) | rangée « Ouverture… puis Paramètres » |
+| V31 | Paramètres v2 : Réglages du Classique (Record), Tous les jeux (Affichage, Sons et vibrations) | rangée « Ouverture… puis Paramètres » ; à redessiner avec ses deux parties (P12.10) |
 | V32 | Mes musiques v2, jour (écoute, menu, supprimer, vide) | rangée « Couleurs v2 — Musique (jour) » |
 | V33 | Éditeur de musique v2, jour (écoute, dé en feuille) | même rangée |
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
@@ -384,7 +384,13 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
 - Demandée par le développeur (2026-10-20), codée en P5.50 : `SettingsScreen` et
   `SettingsViewModel` dans `feature:settings` (déplacés de `feature:home` en P12.2), clé `SettingsRoute`, entrée `settingsEntry` assemblée
   par `app`. On y arrive depuis l'accueil (V1) par le bouton engrenage ; la flèche Retour et le
-  retour du système ramènent à l'accueil.
+  retour du système ramènent à l'écran qui l'a ouverte (l'accueil, ou la Graine du jour, V38).
+- Depuis P12.3 (ADR 0030), la clé porte la section du jeu qui ouvre la page,
+  `SettingsRoute(section: SettingsSection? = null)` : depuis l'accueil du Classique (et, jusqu'à P12.6, la Graine
+  du jour), `SettingsRoute(SettingsSection.CLASSIC)` ; la page montre alors en tête « Réglages du Classique » (titre
+  pour TalkBack) et sa carte Record, puis « Tous les jeux » (titre) au-dessus d'Affichage et de Sons et vibrations.
+  Sans section (le choix du jeu, à venir en P12.5), ni « Réglages du Classique » ni Record. Voir V31 dans
+  [themes.md](themes.md).
 - Barre du haut comme « Mes musiques » : flèche **Retour** (48 dp) et titre « Paramètres »
   (titre pour TalkBack), affichés dès l'ouverture, avant même la lecture des réglages. Section
   **Sons et vibrations**, marges de 16 dp : les interrupteurs **Vibrations** et **Effets
@@ -403,7 +409,7 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SettingsScreenTest › each setting is a row as wide as the screen within its margins, 48 dp high at least`,
   `SettingsScreenTest › the settings stand under their heading Sons et vibrations, and Valable dès la partie suivante under them`,
   `SettingsScreenTest › in a font twice as large, on 360 dp, a setting label keeps its words whole and 90 % of its size at least`,
-  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back to the home screen`,
+  `SettingsScreenTest › the back arrow, 48 dp, read Retour, goes back`,
   `SettingsScreenTest › the title Paramètres is a heading, beside the back arrow`,
   `SettingsScreenTest › while the saved settings are not read, the page shows its back arrow and its title, and no switch`,
   `BloxNavDisplayTest › while the saved settings are not read, the settings show their back arrow and title, and no switch`,
