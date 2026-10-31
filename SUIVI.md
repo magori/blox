@@ -2102,13 +2102,13 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   mais aucun écart de phase : Arcade garde le calcul de phase `(index × fréquence / taux) mod 1`, ni
   `index × (fréquence / taux)` ni phase accumulée. Après P14.3 et P14.4. Fait le 2026-10-31 (`SynthesizerTest`,
   `ScoreRenderTest`, `SoundFingerprintTest`) ; le gain de l'instrument n'est pas encore appliqué (voir P14.17).
-- [ ] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
+- [x] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
   tone at the cutoff comes out about 3 dB lower`, `a tone far above the cutoff is attenuated`, `an instrument without
-  filter is not changed`. Après P14.5.
-- [ ] **P14.7** Écho circulaire, au mixage (`core:audio`). Cas : `a click comes back after the delay of the echo at its
+  filter is not changed`. Après P14.5. Fait le 2026-10-31 (`LowPassTest`).
+- [x] **P14.7** Écho circulaire, au mixage (`core:audio`). Cas : `a click comes back after the delay of the echo at its
   feedback`, `the delay of the echo follows the tempo, in beats`, `the echo of the end of the loop sounds at its
   start, so that the loop has no seam`, `the rendering keeps the length of the score`, `the echo never takes the mix
-  beyond -1 and 1`. Après P14.5.
+  beyond -1 and 1`. Après P14.5. Fait le 2026-10-31 (`EchoMixTest`).
 - [x] **P14.8** `SoundStyleControl.setSoundStyle(style)` (`ChiptuneSequencer`, `MusicSwitch`, `FocusedMusicPlayer`,
   `FakeMusicPlayer`, `MusicPlayerContract`), cache des tampons par style. Cas : `a style set while nothing plays
   applies to the next play`, `a style set while a score plays applies from the next play or resume`, `a score
@@ -2145,13 +2145,14 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   chosen for a ringtone is not saved as the setting`, `in the Arcade style the ringtone renders as before`, `in a
   font twice as large the instruments of the sheet stand one above the other`. Après P13.11 (P13.12 pour le
   parcours complet) et P14.9.
-- [ ] **P14.14** Les effets du Classique, du Serrurier et du Jardin suivent l'instrument (`core:audio`, JVM) :
+- [x] **P14.14** Les effets du Classique, du Serrurier et du Jardin suivent l'instrument (`core:audio`, JVM) :
   `Synthesizer.render(effect, style)` prend le ton et le filtre de l'instrument de leur `Waveform` (`SoundEffects`,
   `LocksmithSounds`, `GardenSounds`), garde leur `Envelope`, sans écho. Cas : `in the Arcade style the effects render
   the fingerprints of P14.2`, `in the Velvet style the lines cleared play on the tone of the velvet melody`, `an
   effect keeps its own envelope, starting within 5 milliseconds, whatever the style`, `an effect has no echo, so
   that it lasts its milliseconds`, `in every style the effects of the locksmith and of the garden take the tone of
-  their waveform`. Après P14.6 et P14.7.
+  their waveform`. Après P14.6 et P14.7. Fait le 2026-10-31 (`SoundFingerprintTest`, `SoundEffectStyleTest`, plus
+  `in the Neon style an effect passes the low-pass of its instrument`) ; les effets se jouent en Arcade jusqu'à P14.15.
 - [ ] **P14.15** Branchement des effets (`core:audio`, `app`) : `SoundEffectTracks` reçoit le style
   (`SoundStyleControl`) ; il le prend **à la prochaine musique jouée**, en même temps que la musique, oublie alors les
   pistes rendues dans l'ancien instrument et les rend de nouveau ; `app` l'applique avec la musique
