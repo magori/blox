@@ -44,7 +44,7 @@ périmètre, modifier la liste ci-dessous.
 | P11 | Au tempo, la pièce tombe en rythme | Spécification faite ; à faire en dernier, après une mesure sur téléphone |
 | P12 | Réglages généraux et réglages par jeu | Proposition du designer validée (2026-10-28) ; à faire après P10 |
 | P13 | Sonnerie ou réveil, une musique du joueur dans le téléphone | Spécification faite (2026-10-31) ; à faire |
-| P14 | Instruments, Arcade, Velours ou Néon pour toutes les musiques | Spécification faite (2026-10-31) ; à faire |
+| P14 | Instruments, Arcade, Velours ou Néon pour toutes les musiques | Spécification et empreintes faites (2026-10-31) ; en cours |
 
 ---
 
@@ -1179,8 +1179,8 @@ composants.
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
-- [ ] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (et
-  haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
+- [x] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (haut
+  et bas laissés au focus, pour qu'une manette puisse quitter le curseur) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
   l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
   `a focused slider bears the focus ring`.
 - [x] **P5.91** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
@@ -1226,6 +1226,10 @@ composants.
   captures.
 - [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
   est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
+- [ ] **P5.117** Vérifier à la manette que descendre vers la jauge du niveau la prend, et non son bouton −
+  (`feature:home`, découvert en revue de P5.90) : la jauge et ses − et + prennent tous le focus ; la flèche bas
+  venue de la ligne au-dessus doit poser le focus sur la jauge. À vérifier sur un appareil avec une manette, puis un
+  test instrumenté s'il le faut.
 
 ## P6 — Mode Moderne (plus tard)
 
@@ -1942,8 +1946,8 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
   numérotée (à dessiner) et vues à modifier notées dans `docs/maquette.md` ; documentation seule. Fait le 2026-10-31,
   avec P14.1.
 - [ ] **P13.2** `MUSIC_SAMPLE_RATE` (44 100) public dans `core:audio`, un seul `Synthesizer` de musique partagé par le
-  séquenceur et l'export dans `AppContainer` ; pur refactoring, tests existants et empreintes de P14.2 verts.
-  Après P14.2.
+  séquenceur et l'export dans `AppContainer` ; pur refactoring, tests existants et empreintes de P14.2 verts ;
+  `SoundFingerprintTest` lit alors cette constante au lieu de sa copie `MUSIC_SAMPLE_RATE`. Après P14.2.
 - [x] **P13.3** `WavEncoder` (`core:audio`, pur, JVM). Cas : `the header is RIFF WAVE with a fmt chunk of PCM, mono,
   16 bits, at the sample rate given`, `the RIFF and data sizes match the number of samples`, `a sample of 1 is
   written as 32767 and a sample of -1 as -32767, little endian`, `a sample beyond -1 or 1 is clipped`, `zero is
@@ -2046,14 +2050,14 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
 - [x] **P14.1** Spécification et décision : ADR 0032, section « Instruments » de `docs/musique.md` (valeurs
   **[à vérifier]**), vue V43 numérotée (à dessiner), notes des ADR 0008 et 0030, glossaire de `CLAUDE.md` ;
   documentation seule. Fait le 2026-10-31, avec P13.1.
-- [ ] **P14.2** Empreintes de référence du son actuel (`core:audio`, JVM), **avant P13.2 et avant tout changement du
+- [x] **P14.2** Empreintes de référence du son actuel (`core:audio`, JVM), **avant P13.2 et avant tout changement du
   synthétiseur** : seulement l'API d'aujourd'hui (`Synthesizer.render(score, tempoFactor)`,
   `Synthesizer.render(effect)`), une empreinte (somme de contrôle des échantillons) par rendu. Cas : `Korobeiniki
   renders the samples of its fingerprint, at tempo 1 and 1,25`, `the Minuet renders the samples of its fingerprint,
   at tempo 1 and 1,25`, `a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`, `every
   effect of the Classic renders the samples of its fingerprint`, `every effect of the Locksmith renders the samples
   of its fingerprint`, `every effect of the garden renders the samples of its fingerprint`. Ces tests restent verts
-  jusqu'au bout de P13 et P14 : Arcade les garde (P14.5, P14.13).
+  jusqu'au bout de P13 et P14 : Arcade les garde (P14.5, P14.13). Fait le 2026-10-31 (`SoundFingerprintTest`).
 - [ ] **P14.3** `SoundStyle`, `Instrument`, `Tone`, `NoteShape` (`Gate`, `Adsr`), `Echo` (`core:music`, pur). Cas :
   `the names of the sound styles are frozen`, `in the Arcade style the square plays a square gated as today and the
   triangle a triangle`, `every style has an instrument for every waveform`, `every instrument of every style starts
@@ -2065,7 +2069,9 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
 - [ ] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
   fingerprints of P14.2`, `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the
   end of the note`, `a release never runs into the next note of the voice`, `a note still lasts its beats times 60
-  over the tempo, whatever the style`. Après P14.3 et P14.4.
+  over the tempo, whatever the style`. L'empreinte tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits,
+  mais aucun écart de phase : Arcade garde le calcul de phase `(index × fréquence / taux) mod 1`, ni
+  `index × (fréquence / taux)` ni phase accumulée. Après P14.3 et P14.4.
 - [ ] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
   tone at the cutoff comes out about 3 dB lower`, `a tone far above the cutoff is attenuated`, `an instrument without
   filter is not changed`. Après P14.5.
