@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -89,7 +91,13 @@ import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.feedback.PointsSticker
 import ch.magori.blox.feature.game.feedback.lineClearFeedback
 import ch.magori.blox.feature.game.feedback.rememberFeedbackEffects
+import ch.magori.blox.feature.game.gameover.DeadStack
+import ch.magori.blox.feature.game.gameover.GameOverPlay
+import ch.magori.blox.feature.game.gameover.GameOverPlayEffect
+import ch.magori.blox.feature.game.gameover.GameOverPlayState
 import ch.magori.blox.feature.game.gameover.GameOverScreen
+import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.gameover.rememberGameOverPlayState
 import ch.magori.blox.feature.game.pause.CurtainPhase
 import ch.magori.blox.feature.game.pause.PauseCard
 import ch.magori.blox.feature.game.pause.PauseCurtain
@@ -107,6 +115,7 @@ import ch.magori.blox.feature.game.sidepanel.bestBarFill
 import ch.magori.blox.feature.game.topbar.GameTopBar
 import ch.magori.blox.feature.game.topbar.shownBest
 import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.keepingTouches
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -216,8 +225,10 @@ private fun <T> rememberPart(
  * side column and the controls, whose changes go to [onControl]. Paused, the curtain of [pauseCurtain], of empty
  * cells, comes down over the board and the next piece, then the card of the pause shows over the game: Reprendre
  * opens the curtain, and only once it is open does the game go on, by [onResume]; Menu is [onBack]. The curtain moves
- * on the frame clock of Compose, the loop of the game stopped (ADR 0024). Once the game is over, the game over
- * screen, which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. No logic here.
+ * on the frame clock of Compose, the loop of the game stopped (ADR 0024). Once the game is over, the game over,
+ * which has priority (ADR 0011): Menu is [onBack], Rejouer is [onReplay]. In Original, its screen in place of the game;
+ * in Colorful, as [gameOverPlay] plays it on the frame clock of Compose, the loop still stopped: the stack goes out row
+ * by row, from the bottom, then its card shows over the game. No logic here.
  *
  * In a window too small to play ([tooSmallToPlay], measured inside the system bars whatever shows), the message
  * « Agrandissez la fenêtre » in place of the board and of the card of the pause, under the top bar, its pause button
@@ -244,6 +255,7 @@ internal fun GameScreen(
     modifier: Modifier = Modifier,
     onTooSmallToPlayChange: (Boolean) -> Unit = {},
     pauseCurtain: PauseCurtainState = rememberPauseCurtainState { uiState().paused },
+    gameOverPlay: GameOverPlayState = rememberGameOverPlayState { uiState().gameOver != null },
 ) {
     BoxWithConstraints(modifier = modifier) {
         val density = LocalDensity.current
@@ -274,6 +286,7 @@ internal fun GameScreen(
             onPause = pause,
             onResume = onResume,
             pauseCurtain = pauseCurtain,
+            gameOverPlay = gameOverPlay,
             labels = labels,
             onCopy = onCopy,
         )
@@ -291,6 +304,7 @@ private fun Screens(
     onPause: () -> Unit,
     onResume: () -> Unit,
     pauseCurtain: PauseCurtainState,
+    gameOverPlay: GameOverPlayState,
     labels: GameLabels,
     onCopy: () -> Unit,
 ) {
@@ -300,11 +314,17 @@ private fun Screens(
     val curtainShut by remember(pauseCurtain) {
         derivedStateOf { pauseCurtain.curtain?.phase == CurtainPhase.CLOSED }
     }
+    // In Couleurs, the game over plays over the game (ADR 0024): its stack goes out, then its card shows. Original,
+    // frozen, shows its game over at once, in place of the game.
+    val gameOverOverGame = BloxTheme.kind != BloxThemeKind.ORIGINAL
+    if (gameOverOverGame) GameOverPlayEffect(state = gameOverPlay, gameOver = gameOver)
+    val gameOverCard by remember(gameOverPlay) { derivedStateOf { gameOverPlay.play?.cardShown == true } }
+    val play = remember(gameOverPlay) { { gameOverPlay.play } }
     // The game and each menu take the focus as they show, so that the keys of a keyboard or a pad reach them.
     val gameFocus = remember { FocusRequester() }
     val menuFocus = remember { FocusRequester() }
     val menu = when {
-        gameOver != null -> Menu.GAME_OVER
+        gameOver != null -> if (gameOverOverGame && !gameOverCard) null else Menu.GAME_OVER
         curtainShut && !tooSmallToPlay -> Menu.PAUSE
         else -> null
     }
@@ -322,15 +342,19 @@ private fun Screens(
                 }
             }
     }
-    if (gameOver != null) {
+    val gameOverScreen = @Composable { shown: GameOverUiState ->
         GameOverScreen(
-            state = gameOver,
+            state = shown,
             onReplay = onReplay,
             onMenu = onBack,
             modifier = menuModifier(Menu.GAME_OVER),
             labels = labels,
             onCopy = onCopy,
+            play = play,
         )
+    }
+    if (gameOver != null && !gameOverOverGame) {
+        gameOverScreen(gameOver)
     } else {
         Game(
             uiState = uiState,
@@ -339,9 +363,13 @@ private fun Screens(
             onPause = onPause,
             focus = gameFocus,
             curtain = { pauseCurtain.curtain },
-            underCard = menu == Menu.PAUSE,
+            underCard = menu == Menu.PAUSE || gameOver != null,
             labels = labels,
+            gameOverPlay = play,
         )
+        // Over the game while its stack goes out, nothing to see, but its touches kept from it: then the card.
+        if (gameOver != null && menu == null) Spacer(Modifier.fillMaxSize().keepingTouches())
+        if (gameOver != null && menu == Menu.GAME_OVER) gameOverScreen(gameOver)
         // Over the game, once the curtain hides the board.
         if (menu == Menu.PAUSE) {
             PausedCard(
@@ -391,8 +419,9 @@ private fun Modifier.takingKeys(
  * the controls, the pause button disabled: the game is already paused. The keys still reach the controls, which the
  * paused game ignores, rather than the system, where B and Escape would leave the game.
  *
- * The [curtain] of the pause covers the board and the next piece; [underCard], under the card of the pause, TalkBack
- * reads nothing of the game, and neither the focus nor a key of the system goes into it.
+ * The [curtain] of the pause covers the board and the next piece; [underCard], under the card of the pause or of the
+ * game over, TalkBack reads nothing of the game, and neither the focus nor a key of the system goes into it. Once the
+ * game is over, its stack goes out as [gameOverPlay] says.
  */
 @Composable
 private fun Game(
@@ -404,6 +433,7 @@ private fun Game(
     curtain: () -> PauseCurtain?,
     underCard: Boolean,
     labels: GameLabels,
+    gameOverPlay: () -> GameOverPlay?,
     modifier: Modifier = Modifier,
 ) {
     // Before it is beaten, the best changes once, when the results give it; then it follows the score.
@@ -463,6 +493,7 @@ private fun Game(
                     controls = controls,
                     keysShown = known != null,
                     curtain = curtain,
+                    gameOverPlay = gameOverPlay,
                     modifier = Modifier.fillMaxSize(),
                 )
             }
@@ -508,7 +539,9 @@ private fun GameUiState.sideColumn(): SideColumn =
  * over the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
  * cells, that covers the board and the next piece. In Couleurs, the [effects] of the game (ADR 0024) are read while
  * drawing too: on the board, its frame (danger, four lines), its rows in danger and its sticker « +points »; the icons of
- * B and A; the panel of the level. Only the score that counts up recomposes, its text alone.
+ * B and A; the panel of the level. Only the score that counts up recomposes, its text alone. Once the game is over, in
+ * Couleurs, its effects stop, and its stack goes out row by row as [gameOverPlay] says ([DeadStack]), read while drawing
+ * as well.
  */
 @Composable
 private fun Play(
@@ -518,28 +551,41 @@ private fun Play(
     controls: HeldControls,
     keysShown: Boolean,
     curtain: () -> PauseCurtain?,
+    gameOverPlay: () -> GameOverPlay?,
     modifier: Modifier = Modifier,
 ) {
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
-    val shownScore = remember(effects, uiState) { effects?.let { shown -> { shown.shownScore(uiState().score) } } }
-    val levelLook = effects?.let { it::levelLook }
+    // Once the game is over, in Couleurs, its stack goes out, and the effects of the game stop (ADR 0024).
+    val over by rememberPart(uiState) { it.gameOver != null }
+    val deadStack = remember(over, effects) {
+        if (over && effects != null) {
+            Snapshot.withoutReadObservation { DeadStack(uiState().board, uiState().piece, gameOverPlay) }
+        } else {
+            null
+        }
+    }
+    val live = effects.takeIf { deadStack == null }
+    val shownScore = remember(live, uiState) { live?.let { shown -> { shown.shownScore(uiState().score) } } }
+    val levelLook = live?.let { it::levelLook }
     // The bar of the best turns iridescent in Couleurs only: Original stays as it was.
     val bestBeaten = effects != null && side.bestBeaten
     PlacedParts(modifier = modifier) {
         // First, under the board: its background and frame, around its cells.
-        BoardFrame(modifier = Modifier.layoutId(layout.boardFrame), effects = effects)
+        BoardFrame(modifier = Modifier.layoutId(layout.boardFrame), effects = live)
+        // The cells of a stack gone out, lit whole in `cell-dead`.
         BoardCanvas(
             board = { uiState().board },
             piece = { uiState().piece },
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
-            effects = effects?.board,
+            effects = deadStack ?: live?.board,
+            glow = if (deadStack != null) BloxTheme.palette.cellDead else BloxTheme.palette.clearGlow,
         )
         // Over the board, its rows in danger and its sticker « +points », under the curtain of the pause, which hides them
         // with the board.
-        if (effects != null) {
-            DangerRows(tint = effects::dangerTint, modifier = Modifier.layoutId(layout.board))
-            PointsSticker(sticker = effects::sticker, modifier = Modifier.layoutId(layout.board))
+        if (live != null) {
+            DangerRows(tint = live::dangerTint, modifier = Modifier.layoutId(layout.board))
+            PointsSticker(sticker = live::sticker, modifier = Modifier.layoutId(layout.board))
         }
         // Over the board, the curtain: a board of empty cells, of which only the rows it covers are drawn.
         BoardCanvas(
@@ -612,7 +658,7 @@ private fun Play(
                 modifier = Modifier.placedAt(layout.rotations, ReadingOrder.ROTATIONS),
                 keys = layout.keys,
                 leftHanded = layout.leftHanded,
-                keyAngle = effects?.let { it::keyAngle } ?: NoKeyAngle,
+                keyAngle = live?.let { it::keyAngle } ?: NoKeyAngle,
             )
         }
     }
@@ -774,6 +820,97 @@ internal fun GameScreenCurtainPreview() {
 @Composable
 internal fun GameScreenCurtainReducedPreview() {
     CurtainPreview(BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+// The game over of Couleurs (V30): the stack halfway out, then the card over the stack gone out.
+
+/** A game over: a stack up to the top, the piece that could not come in over it, a new record. */
+private val gameOverState = previewState.copy(
+    board = Board.parse(
+        """
+        ....I.....
+        ....I.....
+        ...ZIZ....
+        ..ZZIZZ...
+        .LZOOTTT.J
+        LLLOO.TJJJ
+        IIII.SSTTO
+        JJJ.SS.TOO
+        J.TT.ZZ.OO
+        IITLLLZZ.I
+        IITL.OO..I
+        IIT.LOOSSI
+        IJJJLSSZZI
+        IOOJLLSSZZ
+        IOO.IIIIJJ
+        SSTTTOO.LJ
+        """,
+    ),
+    piece = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(column = 5, row = 0)),
+    level = Level(8),
+    lines = Lines(87),
+    score = Points(123_450),
+    bestBeaten = true,
+    running = false,
+    gameOver = GameOverUiState(
+        score = Points(123_450),
+        lines = Lines(87),
+        level = Level(8),
+        fourLineClears = 3,
+        ticksPlayed = 45_300,
+        newBest = true,
+        resultsKept = true,
+        previousBest = 98_760,
+        practice = false,
+    ),
+)
+
+/** The game over of [gameOverState] [ticks] ticks after it started to play, with [effects]. */
+@Composable
+private fun GameOverPreview(
+    ticks: Int,
+    effects: BloxEffects = BloxEffects.Full,
+) {
+    BloxTheme(kind = BloxThemeKind.COLORFUL, effects = effects) {
+        val play = remember {
+            GameOverPlayState(over = false).apply {
+                follow(gameOverState.gameOver, effects)
+                advance(ticks)
+            }
+        }
+        GameScreen(
+            uiState = { gameOverState },
+            onBack = {},
+            onReplay = {},
+            onControl = {},
+            onPause = {},
+            onResume = {},
+            labels = GameLabels.Classic,
+            onCopy = {},
+            gameOverPlay = play,
+        )
+    }
+}
+
+/** The stack halfway out: its 10 bottom rows in `cell-dead`, 20 ticks after the game over. */
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenGameOverPreview() {
+    GameOverPreview(ticks = 20)
+}
+
+/** The card over the stack gone out, its score counted up, the confetti of the new record halfway down. */
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenGameOverCardPreview() {
+    GameOverPreview(ticks = 85)
+}
+
+/** In reduced effects, the stack out at once, the card shown, no confetti. */
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenGameOverReducedPreview() {
+    GameOverPreview(ticks = 0, effects = BloxEffects(reduced = true, forcedBySystem = false))
 }
 
 @Preview(widthDp = 360, heightDp = 760, fontScale = 2f)

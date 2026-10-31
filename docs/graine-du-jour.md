@@ -368,8 +368,10 @@ par `GameVariants.setupOf` (ADR 0026) : l'écran ne connaît pas la variante.
 et les autres cas de largeur de `GameTopBarTest`, joués aussi avec les libellés du jour ;
 captures `GameScreenDaily`, `GameScreenDailyNight`.
 
-**Fin de partie** (V39) : comme V30 ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
-battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis **Rejouer** (même
+**Fin de partie** (V39) : comme V30, même écran (P5.83 : pile qui s'éteint, carte, score qui compte ; voir
+themes.md, Fin de partie v2) ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
+battu, au premier essai aussi (meilleur d'avant : 0), avec les confettis d'un nouveau record, aucun badge ni confetti
+sinon (ni pour une partie d'entraînement, qui n'en bat aucun) ; puis **Rejouer** (même
 graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
 qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
 (`gameEntry(onCopy)`), et `app` copie les résultats de la date de la partie (voir Copier mon
