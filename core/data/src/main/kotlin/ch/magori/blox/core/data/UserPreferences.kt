@@ -55,8 +55,8 @@ data class UserPreferences(
         /**
          * The settings until the player changes them: the Original theme, Korobeiniki, level 0, vibrations off,
          * sound effects on, effects not reduced, the controls for the right hand, keys that do not vibrate, both
-         * volumes full, the Arcade instruments. The vibrations are off until the player turns them on; the sound effects are on until the
-         * player turns them off: the choices of the developer.
+         * volumes full, the Arcade instruments. The vibrations are off until the player turns them on; the sound
+         * effects are on until the player turns them off: the choices of the developer.
          */
         val DEFAULT: UserPreferences = UserPreferences(
             ThemeChoice.ORIGINAL,

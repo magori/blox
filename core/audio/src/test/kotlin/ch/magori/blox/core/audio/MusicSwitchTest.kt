@@ -251,7 +251,8 @@ class MusicSwitchTest {
         // When another style is chosen, from the settings
         switch.setSoundStyle(SoundStyle.NEON)
 
-        // Then the file goes on as it was: only the scores take the style
+        // Then the file goes on as it was: only the scores take the style (a file player has no style to take,
+        // which its type already ensures; the test tells the rule)
         assertThat(scores.soundStyle).isEqualTo(SoundStyle.NEON)
         assertThat(fileLog).containsExactly("play file ${myFile.uri}")
     }

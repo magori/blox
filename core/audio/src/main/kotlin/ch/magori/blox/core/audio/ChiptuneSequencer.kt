@@ -151,6 +151,11 @@ public class ChiptuneSequencer internal constructor(
         gain = volume.gain
     }
 
+    /**
+     * Plays the scores in [style] from the next [play], resume or [switchTo]: the score playing goes on as it was
+     * rendered, and the buffers rendered in another style are dropped once a loop starts in [style]. It may be called
+     * from any thread: the style is a `@Volatile` field, read as a loop starts and as a [switchTo] is taken up.
+     */
     override fun setSoundStyle(style: SoundStyle) {
         soundStyle = style
     }
@@ -293,6 +298,7 @@ public class ChiptuneSequencer internal constructor(
                 if (target !== switchTarget) {
                     switchTarget = target
                     // The scores switched to long ago let go: a garden switches at each change (P10.12).
+                    // The buffers playing keep their style until the bar line, their tempos with them.
                     keepOnly(playback.scores + score + target, buffers.style)
                     switchBuffers = if (target != score) buffersFor(target, soundStyle) else null
                 }

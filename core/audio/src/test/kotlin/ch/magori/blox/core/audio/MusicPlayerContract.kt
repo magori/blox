@@ -615,6 +615,25 @@ abstract class MusicPlayerContract {
         assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0, style = SoundStyle.VELVET))
     }
 
+    @Test
+    fun `a score switched to again is rendered in the style set, though it was ready in the other one`() = runTest {
+        // Given two scores played in turn, as the live music turns tense and calm again
+        val subject = playerUnderTest(this)
+        subject.player.play(korobeiniki)
+        subject.heard()
+        subject.player.switchTo(minuet)
+        subject.heard()
+        subject.player.switchTo(korobeiniki)
+        subject.heard()
+
+        // When another style is chosen, then the music turns tense again
+        subject.player.setSoundStyle(SoundStyle.VELVET)
+        subject.player.switchTo(minuet)
+
+        // Then the score switched to plays in the style set
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0, style = SoundStyle.VELVET))
+    }
+
     @ParameterizedTest(name = "a tempo factor of {0} is refused")
     @ValueSource(doubles = [0.0, -1.0, Double.NaN, Double.POSITIVE_INFINITY])
     fun `the tempo factor must be positive and finite`(factor: Double) = runTest {

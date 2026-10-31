@@ -864,9 +864,14 @@ d'une boucle (`play`, `resume`) et quand il prend une partition passée par `swi
 donné. Le cache des tampons (`TempoBuffers`) est tenu par style : au démarrage d'une boucle, les tampons rendus dans
 un autre style sont abandonnés, et une partition retrouvée dans le cache sous un autre style est rendue de nouveau ;
 redonner le style en cours ne rend rien. `MusicSwitch` passe le style aux partitions seulement : « Mon fichier » est
-joué tel quel. **Tests :** `MusicPlayerContract › a style set while nothing plays applies to the next play`,
+joué tel quel. Un style changé entre la prise d'un `switchTo` et la barre de mesure où il joue ne vaut pas pour
+cette partition, déjà demandée dans l'ancien style : il vaut au changement de musique suivant. Les tampons qui
+jouent gardent leur style, et leurs tempos préparés, jusqu'à cette barre.
+**Tests :** `MusicPlayerContract › a style set while nothing plays applies to the next play`,
 `MusicPlayerContract › a style set while a score plays applies from the next play or resume`,
 `MusicPlayerContract › a score switched to is rendered in the style set`,
+`MusicPlayerContract › a score switched to again is rendered in the style set, though it was ready in the other one`,
+`ChiptuneSequencerSwitchTest › a style set while a score plays keeps its tempos ready until the switch`,
 `ChiptuneSequencerTest › changing the style drops the buffers rendered in the other style`,
 `ChiptuneSequencerTest › setting the style it plays renders nothing`,
 `MusicSwitchTest › a music file is not changed by the style`.

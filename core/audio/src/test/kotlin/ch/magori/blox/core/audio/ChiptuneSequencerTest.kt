@@ -554,7 +554,8 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
         nextSlice(sink = 0)
         playback.stop()
 
-        // When the same style is set again, as the settings read once more, and the score resumes
+        // When another style is chosen, then the Arcade one again before the score resumes
+        sequencer.setSoundStyle(SoundStyle.VELVET)
         sequencer.setSoundStyle(SoundStyle.ARCADE)
         playback.resume()
 
