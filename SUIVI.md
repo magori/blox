@@ -1179,8 +1179,8 @@ composants.
   mode sombre, la page reste claire alors que les icônes des barres système prennent le style sombre. Régler
   `enableEdgeToEdge` (`SystemBarStyle`) selon `BloxTheme.variant.isDark`, pas selon le mode du système.
   Cas : icônes sombres sur une variante claire, claires sur une variante sombre (test instrumenté).
-- [ ] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (et
-  haut, bas) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
+- [x] **P5.90** Curseurs au clavier (`core:designsystem`, découvert en P5.62) : flèches gauche et droite (haut
+  et bas laissés au focus, pour qu'une manette puisse quitter le curseur) sur `VolumeSlider` et `LevelGauge` quand ils ont le focus, d'un pas, sans sortir des bornes, avec
   l'anneau de focus des boutons. Cas : `an arrow key moves the slider one step, never out of its range`,
   `a focused slider bears the focus ring`.
 - [x] **P5.91** (abandonnée le 2026-10-26 : le thème Original est figé, décision du développeur) Bouton Icône désactivé en Original (`core:designsystem`, découvert en P5.62) : fond
@@ -1226,6 +1226,10 @@ composants.
   captures.
 - [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
   est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
+- [ ] **P5.117** Vérifier à la manette que descendre vers la jauge du niveau la prend, et non son bouton −
+  (`feature:home`, découvert en revue de P5.90) : la jauge et ses − et + prennent tous le focus ; la flèche bas
+  venue de la ligne au-dessus doit poser le focus sur la jauge. À vérifier sur un appareil avec une manette, puis un
+  test instrumenté s'il le faut.
 - [ ] **P5.118** Juger sur téléphone les confettis de la fin de partie (P5.83, V30) : ils passent 1,5 s sur le texte
   de la carte (score qui compte, Rejouer). S'ils gênent la lecture, les faire tomber derrière la carte, sur le voile
   seulement, ou les écarter de son centre ; sinon, cocher sans changement.

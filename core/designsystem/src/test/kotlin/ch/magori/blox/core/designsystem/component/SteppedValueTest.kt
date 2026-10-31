@@ -1,5 +1,6 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.ui.unit.LayoutDirection
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
@@ -51,6 +52,30 @@ class SteppedValueTest {
         assertThat(SteppedValue(50, steps).decreased().value).isEqualTo(40)
         assertThat(SteppedValue(100, steps).increased().value).isEqualTo(100)
         assertThat(SteppedValue(0, steps).decreased().value).isEqualTo(0)
+    }
+
+    @Test
+    fun `an arrow key moves the value one step, right raising it, never out of its range`() {
+        // Given a level from 0 to 9, read from left to right
+        val steps = 0..9
+        val ltr = LayoutDirection.Ltr
+
+        // Then right raises it a step, left lowers it; the first and the last steps stay
+        assertThat(SteppedValue(5, steps).afterArrow(Arrow.RIGHT, ltr).value).isEqualTo(6)
+        assertThat(SteppedValue(5, steps).afterArrow(Arrow.LEFT, ltr).value).isEqualTo(4)
+        assertThat(SteppedValue(9, steps).afterArrow(Arrow.RIGHT, ltr).value).isEqualTo(9)
+        assertThat(SteppedValue(0, steps).afterArrow(Arrow.LEFT, ltr).value).isEqualTo(0)
+    }
+
+    @Test
+    fun `read from right to left, the left arrow raises the value and the right arrow lowers it, as the track goes`() {
+        // Given a level from 0 to 9, read from right to left: its track starts on the right
+        val level = SteppedValue(5, 0..9)
+        val rtl = LayoutDirection.Rtl
+
+        // Then the arrows move it the way they point
+        assertThat(level.afterArrow(Arrow.LEFT, rtl).value).isEqualTo(6)
+        assertThat(level.afterArrow(Arrow.RIGHT, rtl).value).isEqualTo(4)
     }
 
     @Test
