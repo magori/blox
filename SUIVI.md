@@ -2058,7 +2058,7 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   effect of the Classic renders the samples of its fingerprint`, `every effect of the Locksmith renders the samples
   of its fingerprint`, `every effect of the garden renders the samples of its fingerprint`. Ces tests restent verts
   jusqu'au bout de P13 et P14 : Arcade les garde (P14.5, P14.13). Fait le 2026-10-31 (`SoundFingerprintTest`).
-- [ ] **P14.3** `SoundStyle`, `Instrument`, `Tone`, `NoteShape` (`Gate`, `Adsr`), `Echo` (`core:music`, pur). Cas :
+- [x] **P14.3** `SoundStyle`, `Instrument`, `Tone`, `NoteShape` (`Gate`, `Adsr`), `Echo` (`core:music`, pur). Cas :
   `the names of the sound styles are frozen`, `in the Arcade style the square plays a square gated as today and the
   triangle a triangle`, `every style has an instrument for every waveform`, `every instrument of every style starts
   within 5 milliseconds`, `the Arcade style has no echo and no filter`, `an ADSR refuses a negative time and a
@@ -2069,7 +2069,9 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
 - [ ] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
   fingerprints of P14.2`, `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the
   end of the note`, `a release never runs into the next note of the voice`, `a note still lasts its beats times 60
-  over the tempo, whatever the style`. L'empreinte tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits,
+  over the tempo, whatever the style`. `Synthesizer` lit `Gate.heldUntil` et `Gate.silentFrom` (`core:music`, P14.3)
+  et ses constantes `SUSTAIN_END` et `FADE_END`, qui les dupliquent, sont retirées (règle de 2) ; les empreintes de
+  P14.2 en sont la non-régression. L'empreinte tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits,
   mais aucun écart de phase : Arcade garde le calcul de phase `(index × fréquence / taux) mod 1`, ni
   `index × (fréquence / taux)` ni phase accumulée. Après P14.3 et P14.4.
 - [ ] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
