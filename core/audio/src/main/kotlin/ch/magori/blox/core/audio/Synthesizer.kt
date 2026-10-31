@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Adsr
+import ch.magori.blox.core.music.Echo
 import ch.magori.blox.core.music.Gate
 import ch.magori.blox.core.music.Instrument
 import ch.magori.blox.core.music.Pitch
@@ -9,7 +10,6 @@ import ch.magori.blox.core.music.SoundEffect
 import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Tone
 import ch.magori.blox.core.music.Voice
-import ch.magori.blox.core.music.Waveform
 import kotlin.math.roundToInt
 
 /**
@@ -23,7 +23,8 @@ public class Synthesizer(public val sampleRate: Int) {
 
     /**
      * Renders [score]: its voices, mixed, at its tempo times [tempoFactor], each on the instrument [style] gives to
-     * its waveform. The only entry point of the rendering of the scores: the sequencer plays what it returns.
+     * its waveform, then the echo of [style], if it has one, on the mix, wrapped around the start of the loop. The
+     * only entry point of the rendering of the scores: the sequencer plays what it returns.
      */
     public fun render(
         score: Score,
@@ -33,14 +34,31 @@ public class Synthesizer(public val sampleRate: Int) {
         require(tempoFactor > 0 && tempoFactor.isFinite()) {
             "The tempo factor is positive and finite, was $tempoFactor"
         }
-        return mix(score.voices.map { renderVoice(it, score.bpm * tempoFactor, style.instrumentFor(it.waveform)) })
+        val bpm = score.bpm * tempoFactor
+        val mixed = mix(score.voices.map { renderVoice(it, bpm, style.instrumentFor(it.waveform)) })
+        return style.echo?.let { withEcho(mixed, it, bpm) } ?: mixed
     }
 
     /**
      * Renders [effect]: its blips one after the other, each starting at the sample of its cumulated milliseconds,
-     * so that rounding never adds up along the effect, and each shaped by the envelope of the effect.
+     * so that rounding never adds up along the effect, and each shaped by the envelope of the effect. [style] gives
+     * the tone and the low-pass of the instrument it gives to the waveform of [effect], the melody or the bass; the
+     * effect keeps its own envelope, not the shape of the notes of that instrument, and has no echo, so that it
+     * lasts its milliseconds. By default the style is Arcade: the effect sounds as before the instruments.
      */
-    public fun render(effect: SoundEffect): FloatArray {
+    public fun render(
+        effect: SoundEffect,
+        style: SoundStyle = SoundStyle.ARCADE,
+    ): FloatArray = render(effect, style.instrumentFor(effect.waveform))
+
+    /**
+     * Renders [effect] on the tone of [instrument], then through its low-pass if it has one; the blips keep the
+     * envelope of the effect, not the shape of the notes of [instrument].
+     */
+    internal fun render(
+        effect: SoundEffect,
+        instrument: Instrument,
+    ): FloatArray {
         val boundaries = effect.blips.runningFold(0) { millis, blip -> millis + blip.millis }.map(::sampleAtMillis)
         val samples = FloatArray(boundaries.last())
         val attack = sampleAtMillis(effect.envelope.attackMillis)
@@ -48,18 +66,24 @@ public class Synthesizer(public val sampleRate: Int) {
         effect.blips.forEachIndexed { index, blip ->
             val start = boundaries[index]
             val gain = { sample: Int, count: Int -> blipGain(sample, count, attack, release) }
-            val tone = arcadeTone(effect.waveform)
-            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, tone, effect.volume, gain)
+            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, instrument.tone, effect.volume, gain)
         }
-        return samples
+        return filtered(samples, instrument)
     }
+
+    /** [samples] through the low-pass of [instrument], or themselves if it has none. */
+    private fun filtered(
+        samples: FloatArray,
+        instrument: Instrument,
+    ): FloatArray = instrument.lowPass?.let { lowPass(samples, it, sampleRate) } ?: samples
 
     /** The sample at which [millis] milliseconds have passed. */
     private fun sampleAtMillis(millis: Int): Int = (millis.toDouble() * sampleRate / MILLIS_PER_SECOND).roundToInt()
 
     /**
      * Renders [voice] at [bpm] on [instrument], by default the one of the Arcade style. Each note starts at the
-     * sample of its cumulated beats, so that rounding never adds up along the voice.
+     * sample of its cumulated beats, so that rounding never adds up along the voice. The whole voice then passes the
+     * low-pass of [instrument], if it has one.
      */
     internal fun renderVoice(
         voice: Voice,
@@ -81,7 +105,7 @@ public class Synthesizer(public val sampleRate: Int) {
                 writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, adsr::at)
             }
         }
-        return samples
+        return filtered(samples, instrument)
     }
 
     /**
@@ -115,6 +139,13 @@ public class Synthesizer(public val sampleRate: Int) {
             else -> adsr.sustain
         }
     }
+
+    /** [samples] of a music at [bpm] with [echo], its delay counted in beats so that it follows the tempo. */
+    internal fun withEcho(
+        samples: FloatArray,
+        echo: Echo,
+        bpm: Double,
+    ): FloatArray = echoOver(samples, echo, sampleAt(echo.delayBeats, bpm))
 
     /** The sample at which [beats] beats have passed at [bpm]. */
     private fun sampleAt(
@@ -158,9 +189,6 @@ public class Synthesizer(public val sampleRate: Int) {
         val fall = if (sampleCount - index < release) (sampleCount - index).toDouble() / release else 1.0
         return minOf(rise, fall)
     }
-
-    /** The tone of [waveform] in the Arcade style, the sound of BloX before the instruments. */
-    private fun arcadeTone(waveform: Waveform): Tone = SoundStyle.ARCADE.instrumentFor(waveform).tone
 
     /** The phase, from 0 to 1, of a wave of [frequency] at sample [index] of a note. */
     private fun phaseAt(
