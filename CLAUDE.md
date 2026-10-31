@@ -235,7 +235,14 @@ du Classique, qui doit rester vert (ADR 0015).
   temps ») ; `TempoScore` (`core:game`, paquet `tempo` : les bonus d'Au tempo, hors du moteur, nourris de ses
   événements ; émet `OnBeat`, une pose sur le temps par la descente rapide, et `CadenceCleared`, les lignes d'une
   telle pose dans la 4ᵉ mesure) ; `Accompaniment` (`core:music`, la musique d'Au tempo : basse I–V–vi–IV et
-  métronome, écrits à 100 temps/min, `tempoFactor(ticksPerEighth)`). Garder ces noms.
+  métronome, écrits à 100 temps/min, `tempoFactor(ticksPerEighth)`). Instruments (ADR 0032) : `SoundStyle`
+  (`core:music`, le réglage « Instruments » : `ARCADE`, le son d'origine, `VELVET` pour Velours, `NEON` pour Néon ;
+  noms figés, enregistrés par nom), `Instrument` (le timbre que le style donne à une voix selon sa `Waveform`, qui
+  dit son rôle : ton, forme de note, passe-bas, gain), `Tone` (l'onde d'un instrument : carrée, triangle, impulsion
+  d'un quart, sinus, dent de scie), `NoteShape` (la forme d'une note : `Gate`, l'enveloppe d'origine, ou `Adsr` ;
+  `Envelope` reste celle des effets), `Echo` (l'écho d'un style : délai en temps, retour, part). Sonnerie ou réveil
+  (ADR 0031) : `RingtoneExporter` (`core:audio`, écrit une musique du joueur en WAV comme sonnerie ou réveil, par
+  `MediaStore`, Android 10 et plus). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent

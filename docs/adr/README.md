@@ -35,6 +35,8 @@ remplace et l'ancien passe au statut « Remplacé par … ».
 | [0027](0027-le-jardin-musical.md) | Le Jardin musical : `core:garden` et `feature:garden` | Acceptée ; amende 0002 et 0022 ; amendée (format du jardin gardé, P10.11 ; Mes jardins, P10.24) |
 | [0028](0028-au-tempo-droptiming-et-horloge-audio.md) | Au tempo : politique `DropTiming` et horloge audio comme source des ticks | Acceptée ; amende 0012 et 0015 |
 | [0029](0029-feuilles-du-bas.md) | Feuilles du bas maison dans une fenêtre, ouvertes par l'état de l'écran | Acceptée ; complète 0012 et 0024 |
-| [0030](0030-reglages-generaux-et-par-jeu.md) | Réglages généraux et réglages par jeu : une page Paramètres dans `feature:settings` | Acceptée ; amende 0002, 0011 et 0022 |
+| [0030](0030-reglages-generaux-et-par-jeu.md) | Réglages généraux et réglages par jeu : une page Paramètres dans `feature:settings` | Acceptée ; amende 0002, 0011 et 0022 ; amendée par 0032 |
+| [0031](0031-sonnerie-et-reveil.md) | Sonnerie ou réveil : une musique du joueur rendue en WAV, écrite par MediaStore | Acceptée ; amende 0008 |
+| [0032](0032-instruments.md) | Instruments : un jeu de timbres choisi pour toute l'application | Acceptée ; amende 0008 et 0030 |
 
 Modèle pour un nouvel ADR : copier [0000-modele.md](0000-modele.md).

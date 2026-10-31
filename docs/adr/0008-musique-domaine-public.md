@@ -1,6 +1,6 @@
 # 0008 — Musique : domaine public et séquenceur maison
 
-- **Statut** : Acceptée
+- **Statut** : Acceptée ; amendée par [0031](0031-sonnerie-et-reveil.md) et [0032](0032-instruments.md)
 - **Date** : 2026-10-18
 
 ## Contexte
@@ -25,3 +25,10 @@ que ce qu'on a le droit d'y mettre.
 - Le tempo est un paramètre : l'accélération quand la pile monte est triviale.
 - Il faut écrire et tester un petit synthétiseur (génération d'échantillons, enveloppe,
   mixage de deux voix).
+
+## Note (2026-10-31, P13.1 et P14.1)
+
+- Amendée par [0031](0031-sonnerie-et-reveil.md) : BloX écrit aussi des fichiers audio, à la demande du joueur, une
+  de ses musiques rendue en WAV comme sonnerie ou réveil, hors de l'APK et du dépôt.
+- Amendée par [0032](0032-instruments.md) : le « caractère 8 bits » devient celui d'Arcade, l'instrument par
+  défaut ; Velours et Néon sont d'autres timbres, toujours synthétisés.
