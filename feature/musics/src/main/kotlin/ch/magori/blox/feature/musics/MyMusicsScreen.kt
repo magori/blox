@@ -53,6 +53,7 @@ import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.PillBadge
 import ch.magori.blox.core.designsystem.component.RowMenu
 import ch.magori.blox.core.designsystem.component.ScreenBar
+import ch.magori.blox.core.designsystem.component.rowMenuDescription
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.icon.IconSizes
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -495,7 +496,7 @@ private fun CardMenu(
     windowOpen: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    RowMenu(name = card.name, modifier = modifier, windowOpen = windowOpen) {
+    RowMenu(description = rowMenuDescription(card.name), modifier = modifier, windowOpen = windowOpen) {
         Item(stringResource(R.string.feature_musics_menu_edit), BloxIcon.EDIT, onClick = { actions.onEdit(card.id) })
         RenameItem(onRename = { actions.onRename(card.id) })
         Item(

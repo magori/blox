@@ -145,6 +145,8 @@ internal class ComposerScreenTest {
     fun theTempoButtonsShowWholeWithALargeFont() = extension.use {
         // Given a phone 360 dp wide, the font twice as large, in the pixel font
         showEditorWithLargeFont()
+        // The page scrolls, its parts too high for the phone: the tempo brought into sight.
+        onNodeWithContentDescription("Accélérer").performScrollTo()
 
         // Then « − », the tempo and « + » stand in this order, within the width of the phone, « + » 48 dp wide
         val slower = onNodeWithContentDescription("Ralentir").fetchSemanticsNode().boundsInRoot
@@ -159,14 +161,14 @@ internal class ComposerScreenTest {
     }
 
     @Test
-    @DisplayName("on a small phone with the largest font, the tempo holds on two lines at most, its words whole")
+    @DisplayName("on a small phone with the largest font, the tempo holds on one line, its words whole")
     fun theTempoKeepsItsWordsWholeWithALargeFont() = extension.use {
         // Given a phone 360 dp wide, the font twice as large, in the pixel font
         showEditorWithLargeFont()
 
-        // Then « temps/min » is not cut at its slash
+        // Then « temps/min » is not cut at its slash: the tempo stands on one line, Écouter under it if need be
         val tempo = textLayout("120 temps/min")
-        assertThat(tempo.lineCount).isLessThanOrEqualTo(2)
+        assertThat(tempo.lineCount).isEqualTo(1)
         assertThat(tempo.hasVisualOverflow).isFalse()
         assertWordsWhole(tempo)
     }
@@ -217,32 +219,6 @@ internal class ComposerScreenTest {
             val line = onNode(hasText(info), useUnmergedTree = true).getUnclippedBoundsInRoot()
             assertClearOfCorners(line, button, NAME_CORNER)
         }
-    }
-
-    @Test
-    @DisplayName(
-        "on a small phone with the largest font, the modes stand above the tools, each label whole, 48 dp at least",
-    )
-    fun theLabelsOfTheToolbarShowWholeWithALargeFont() = extension.use {
-        // Given a phone 360 dp wide, the font twice as large, in the pixel font
-        showEditorWithLargeFont()
-
-        // Then « Poser » and « Allonger » on a line, « Annuler », « Copier » and « Effacer » on the next, none clipped
-        val tops = toolbarTopsWithLabelsWhole()
-        assertThat(tops.getValue("Allonger")).isEqualTo(tops.getValue("Poser"))
-        assertThat(listOf("Copier", "Effacer").map(tops::getValue)).containsOnly(tops.getValue("Annuler"))
-        val modesBottom = onNode(hasText("Poser") and hasClickAction()).fetchSemanticsNode().boundsInRoot.bottom
-        assertThat(tops.getValue("Annuler")).isGreaterThanOrEqualTo(modesBottom)
-    }
-
-    @Test
-    @DisplayName("on a small phone with the normal font, in Original, the toolbar holds on one line, each label whole")
-    fun theToolbarHoldsOnOneLineWithTheNormalFont() = extension.use {
-        // Given a phone 360 dp wide, the normal font, in the pixel font
-        showEditor(kind = BloxThemeKind.ORIGINAL, modifier = Modifier.size(NARROWEST_PHONE, 760.dp))
-
-        // Then the five buttons on one line, none clipped
-        assertThat(toolbarTopsWithLabelsWhole().values.distinct()).hasSize(1)
     }
 
     @Test
@@ -323,30 +299,6 @@ internal class ComposerScreenTest {
         cell("Do haut, temps 1").assertState("vide")
         onNodeWithContentDescription("Plus d'options").performClick()
         onNodeWithText("Montrer l'autre piste en filigrane").assertIsOff()
-    }
-
-    @Test
-    @DisplayName("a toolbar button without effect is disabled")
-    fun aToolbarButtonWithoutEffectIsDisabled() = extension.use {
-        // Given a new music: nothing to undo nor to clear
-        showEditor()
-        onNodeWithText("Annuler").assertIsNotEnabled()
-        onNodeWithContentDescription("Effacer la mesure").assertIsNotEnabled()
-        onNodeWithContentDescription("Copier la mesure").assertIsEnabled()
-
-        // When a note is placed, then the bar cleared
-        cell("Mi bas, temps 1").performClick()
-        onNodeWithContentDescription("Effacer la mesure").assertIsEnabled().performClick()
-
-        // Then it can be undone
-        onNodeWithText("Annuler").assertIsEnabled()
-
-        // When the last bar is shown
-        onNodeWithContentDescription("Mesure 8").performClick()
-
-        // Then it has no bar after it to copy it over
-        onNodeWithContentDescription("Mesure 8").assertIsSelected()
-        onNodeWithContentDescription("Copier la mesure").assertIsNotEnabled()
     }
 
     @Test
@@ -440,23 +392,21 @@ internal class ComposerScreenTest {
     }
 
     @Test
-    @DisplayName("every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars")
+    @DisplayName("every button is 48 dp wide and high at least, the bars on two rows of four included, but the cells")
     fun everyTargetIsLargeEnough() = extension.use {
         // Given the narrowest phone, in the pixel font, the widest
         showEditor(BloxThemeKind.ORIGINAL, Modifier.width(NARROWEST_PHONE))
 
-        // Then: 48 dp visible, a rule of BloX. Eight bars do not fit 48 dp wide on 360 dp, nor 8 cells and 15 lines
-        val targets = onAllNodes(hasClickAction() and !hasTestTag(BAR_TAG) and !hasTestTag(CELL_TAG))
+        // Then: 48 dp visible, a rule of BloX. Eight cells and 15 lines do not fit 48 dp on 360 dp
+        val targets = onAllNodes(hasClickAction() and !hasTestTag(CELL_TAG))
         val count = targets.fetchSemanticsNodes().size
-        assertThat(count).isGreaterThan(1)
+        assertThat(onAllNodes(hasTestTag(BAR_TAG)).fetchSemanticsNodes()).hasSize(8)
+        assertThat(count).isGreaterThan(8)
         repeat(count) { index ->
             targets[index].assertWidthIsAtLeast(
                 BloxSizes.minTouchTarget,
             ).assertHeightIsAtLeast(BloxSizes.minTouchTarget)
         }
-        val bars = onAllNodes(hasTestTag(BAR_TAG))
-        assertThat(bars.fetchSemanticsNodes()).hasSize(8)
-        repeat(8) { index -> bars[index].assertHeightIsAtLeast(BloxSizes.minTouchTarget) }
     }
 
     @Test
@@ -512,7 +462,7 @@ internal class ComposerScreenTest {
         mainClock.autoAdvance = false
         onNodeWithContentDescription("Écouter").performClick()
         mainClock.advanceTimeByFrame()
-        onNodeWithContentDescription("Mesure 1").assertState("en lecture").assertIsSelected()
+        onNodeWithContentDescription("Mesure 1").assertState("sélectionnée, en lecture").assertIsSelected()
 
         // When
         onNodeWithContentDescription("Mesure 3").performClick()
@@ -561,7 +511,7 @@ internal class ComposerScreenTest {
         assertThat(nameField()).isIn("Envolée en do", "Galop en do", "Cavalcade en do")
         onNode(hasSetTextAction()).performTextReplacement("Thème du soir")
         onNodeWithText("Jouer cette musique pendant les parties").performClick()
-        onNodeWithText("Enregistrer").performClick()
+        saveAnswer().performClick()
         waitForIdle()
 
         // Then
@@ -585,7 +535,7 @@ internal class ComposerScreenTest {
         // When a note is placed, and the music saved
         cell("Mi bas, temps 1").performClick()
         onNodeWithContentDescription("Enregistrer les changements").performClick()
-        onNodeWithText("Enregistrer").performClick()
+        saveAnswer().performClick()
         waitForIdle()
 
         // Then
@@ -627,7 +577,7 @@ internal class ComposerScreenTest {
             .isIn("Pluie de novembre en do", "Quai désert en do", "Dernier train en do", "Lettre perdue en do")
 
         // When
-        onNode(hasText("Enregistrer") and hasAnyAncestor(isDialog())).performClick()
+        saveAnswer().performClick()
         waitForIdle()
 
         // Then
@@ -711,53 +661,13 @@ internal class ComposerScreenTest {
         kind: BloxThemeKind = BloxThemeKind.COLORFUL,
         modifier: Modifier = Modifier,
         onBack: () -> Unit = {},
-    ) {
-        setContent {
-            BloxTheme(kind = kind) {
-                ComposerScreen(viewModel = viewModel, onBack = onBack, onDeleted = {}, modifier = modifier)
-            }
-        }
-    }
+    ) = showComposer(viewModel, kind, modifier, onBack = onBack)
 
     /** The editor on a phone [NARROWEST_PHONE] wide and [height] high, the font twice as large, in [kind]. */
     private fun ComposeContext.showEditorWithLargeFont(
         height: Dp = 760.dp,
         kind: BloxThemeKind = BloxThemeKind.ORIGINAL,
-    ) {
-        setContent {
-            val density = LocalDensity.current
-            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
-                BloxTheme(kind = kind) {
-                    ComposerScreen(
-                        viewModel = viewModel,
-                        onBack = {},
-                        onDeleted = {},
-                        modifier = Modifier.size(NARROWEST_PHONE, height),
-                    )
-                }
-            }
-        }
-    }
-
-    /**
-     * The top of each button of the toolbar, by its label, once checked that no label is clipped nor cut, and that each
-     * button stands within the phone, 48 dp wide and high at least.
-     */
-    private fun ComposeContext.toolbarTopsWithLabelsWhole(): Map<String, Float> {
-        val width = with(density) { NARROWEST_PHONE.toPx() }
-        return listOf("Poser", "Allonger", "Annuler", "Copier", "Effacer").associateWith { label ->
-            val layout = textLayout(label)
-            assertThat(layout.hasVisualOverflow).describedAs(label).isFalse()
-            assertWordsWhole(layout)
-            val button = onNode(hasText(label) and hasClickAction())
-                .assertWidthIsAtLeast(BloxSizes.minTouchTarget)
-                .assertHeightIsAtLeast(BloxSizes.minTouchTarget)
-                .fetchSemanticsNode()
-            assertThat(button.positionInRoot.x).isGreaterThanOrEqualTo(0f)
-            assertThat(button.positionInRoot.x + button.size.width).isLessThanOrEqualTo(width)
-            button.positionInRoot.y
-        }
-    }
+    ) = showComposer(viewModel, kind, Modifier.size(NARROWEST_PHONE, height), fontScale = 2f)
 
     /**
      * [inner] stands within [outer], none of its corners in the part of [outer] that its rounded corners, of [radius],
@@ -795,6 +705,10 @@ internal class ComposerScreenTest {
 
     private fun ComposeContext.cell(name: String): SemanticsNodeInteraction = onNodeWithContentDescription(name)
 
+    /** *Enregistrer*, the answer of the save window, not the button of the editor under it. */
+    private fun ComposeContext.saveAnswer(): SemanticsNodeInteraction =
+        onNode(hasText("Enregistrer") and hasAnyAncestor(isDialog()))
+
     /** The style [label] in the save window, not the style the line under the title tells. */
     private fun ComposeContext.styleButton(label: String): SemanticsNodeInteraction =
         onNode(hasText(label) and hasAnyAncestor(isDialog()))
@@ -813,9 +727,6 @@ internal class ComposerScreenTest {
         const val SLIDE_STEPS = 10
         const val MESSAGE_SHOWN_MILLIS = 500L
         const val MESSAGE_LINES = 3
-        const val BAR_TAG = "composer_bar"
-        const val CELL_TAG = "composer_cell"
-        val NARROWEST_PHONE = 360.dp
 
         /** The corners of the button of the name, in Couleurs (`radius-md`). */
         val NAME_CORNER = 16.dp

@@ -1118,7 +1118,7 @@ composants.
     categories, each with what it sounds like, the chosen one checked`, `choosing a category keeps the sheet open and
     the choice`, `Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler` ;
     captures.
-  - [ ] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
+  - [x] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
     dé, « … » en `BloxMenu`) ; pistes et Poser / Allonger en `ChoiceSegments` (coche sur le retenu) ; Annuler,
     Copier, Effacer compacts ; mesures en 2 × 4, mesure jouée lue « en lecture » ; tempo en pilule (disques nus de
     48 dp) et Écouter de 56 dp ; Enregistrer seul en `accent`, toujours en accent, point devant tant que la musique a
@@ -1209,6 +1209,17 @@ composants.
 - [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
   `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
   seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
+- [ ] **P5.113** `textLayout(…).hasVisualOverflow` vrai pour le libellé d'un `BubbleButton` qui tient pourtant dans
+  son bouton (découvert en P5.102, « Annuler » en police ×2 : paragraphe de 754 px pour un nœud de 481) : trouver
+  pourquoi la mise en page lue par la sémantique n'est pas celle du nœud, puis rendre la vérification à
+  `ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp…` (qui compare les
+  bornes en attendant). Écouter aussi l'éditeur V33 avec TalkBack sur appareil (groupes « Piste » et « Outil »,
+  mesures lues comme boutons radio, P5.95 ; mesure jouée lue « en lecture » ou « sélectionnée, en lecture »).
+- [ ] **P5.115** Fusionner les mises en page « à côté ou dessous » (`core:designsystem`, règle de 2, revue de P5.102) :
+  `FixedBesideRest` de l'éditeur refait `SettingRowLayout` (une part fixe, le reste de la ligne, dessous quand elle
+  ne tient pas), et `ColumnOrRow` refait `SideBySideOrStacked`. Une seule mise en page partagée pour chacune, ses
+  décisions en fonctions pures (comme `fitsBesideFixed`, `sideBySide`), sans changer les rangées de réglage ni leurs
+  captures.
 
 ## P6 — Mode Moderne (plus tard)
 
