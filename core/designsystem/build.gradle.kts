@@ -34,7 +34,7 @@ dependencies {
 
     // Les fenêtres partagées, éprouvées seules sur un appareil (comme les écrans des features).
     androidTestImplementation(libs.androidx.compose.ui.test.android)
-    // L'instrumentation, qui envoie le retour du système aux feuilles (BloxSheetTest).
+    // L'instrumentation, qui met l'appareil en mode tactile (FocusAfterDeletionTest).
     androidTestImplementation(libs.androidx.test.monitor)
     debugRuntimeOnly(libs.androidx.compose.ui.test.manifest)
 
@@ -46,6 +46,10 @@ dependencies {
     // (ADR 0024) : l'égaliseur, la grille de l'éditeur.
     testFixturesApi(platform(libs.junit.bom))
     testFixturesApi(libs.junit.jupiter.api)
+    // pressSystemBack : le retour du système, remis au dispatcher de l'activité ou de la fenêtre d'une feuille, sur le
+    // fil principal, par les tests instrumentés de ce module, des features et de l'application.
+    testFixturesApi(libs.androidx.activity)
+    testFixturesImplementation(libs.androidx.test.monitor)
     // DesignTokens, le lecteur de docs/design-system/tokens.json, partagé avec core:board (jetons des pièces).
     testFixturesImplementation(libs.kotlinx.serialization.json)
 }

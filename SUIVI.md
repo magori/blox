@@ -1206,13 +1206,17 @@ composants.
   `system_server` à la fenêtre qui a le focus : perdue quand une autre fenêtre le prend ou que `system_server`
   flanche (service UWB de l'émulateur, P5.94). L'éditeur, lui, répond bien. Le retour passe désormais par le
   `OnBackPressedDispatcher` de l'activité (`pressSystemBack`), comme `BloxNavDisplayTest` et `feature:game`.
-- [ ] **P5.111** Retours système encore injectés par touche (`sendKeyDownUpSync(KEYCODE_BACK)`), fragiles comme
+- [x] **P5.111** Retours système encore injectés par touche (`sendKeyDownUpSync(KEYCODE_BACK)`), fragiles comme
   ceux de P5.110 : `BloxSheetTest` (l. 92, 115, 335, 363, 367), `RowMenuTest` (l. 145) et `ComposerDiceSheetTest`
   (l. 112). Ils ferment une feuille ou un menu dans sa propre fenêtre, dont le dispatcher n'est pas celui de
   l'activité : trouver le dispatcher de la fenêtre du dialogue, ou consigner pourquoi la touche reste.
-- [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
+  Fait : une feuille (`Dialog`) a le dispatcher de son `ComponentDialog`, trouvé par la vue de sa fenêtre
+  (`onNode(isDialog()).pressSystemBack()`). Le menu (`Popup`) n'en a pas : il prend Back comme une touche, remise
+  dans le processus à la vue racine de sa fenêtre (`pressBackKey()`), plus par `system_server` (docs/architecture.md).
+- [x] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
   `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
   seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
+  Fait : `OnBackPressedDispatcherOwner.pressSystemBack()`, dans `SystemBack.kt` (testFixtures de `core:designsystem`).
 - [ ] **P5.113** `textLayout(…).hasVisualOverflow` vrai pour le libellé d'un `BubbleButton` qui tient pourtant dans
   son bouton (découvert en P5.102, « Annuler » en police ×2 : paragraphe de 754 px pour un nœud de 481) : trouver
   pourquoi la mise en page lue par la sémantique n'est pas celle du nœud, puis rendre la vérification à

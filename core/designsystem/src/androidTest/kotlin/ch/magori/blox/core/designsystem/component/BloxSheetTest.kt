@@ -1,6 +1,5 @@
 package ch.magori.blox.core.designsystem.component
 
-import android.view.KeyEvent
 import android.view.WindowManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -39,8 +38,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogWindowProvider
-import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.designsystem.state.SwappableRegistry
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -89,7 +88,7 @@ internal class BloxSheetTest {
         }
 
         // When the system goes back
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
 
         // Then
         runOnIdle { assertThat(closings).isEqualTo(1) }
@@ -112,7 +111,7 @@ internal class BloxSheetTest {
         showSheet(onDismissRequest = { closings++ })
 
         // When the system goes back, then the scrim is touched twice
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
         repeat(2) { onNode(isDialog()).tapScrim() }
 
         // Then
@@ -332,7 +331,7 @@ internal class BloxSheetTest {
         mainClock.advanceTimeByFrame()
 
         // When, as it goes down, the system goes back and its scrim is touched
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
         onNode(isDialog()).tapScrim()
         mainClock.advanceTimeByFrame()
 
@@ -360,11 +359,11 @@ internal class BloxSheetTest {
         mainClock.advanceTimeBy(SETTLE_MS)
 
         // When it is sent back, then opened again before it has gone down, then sent back again
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
         mainClock.advanceTimeByFrame()
         runOnIdle { open = TITLE }
         mainClock.advanceTimeBy(SETTLE_MS)
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
         mainClock.advanceTimeByFrame()
 
         // Then

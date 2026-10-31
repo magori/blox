@@ -1,6 +1,5 @@
 package ch.magori.blox.core.designsystem.component
 
-import android.view.KeyEvent
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,8 +29,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.unit.dp
-import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.designsystem.icon.BloxIcon
+import ch.magori.blox.core.designsystem.test.pressBackKey
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -172,7 +171,7 @@ internal class RowMenuTest {
         onNodeWithTag(MENU_PANEL_TAG).assertExists()
 
         // When
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNodeWithTag(MENU_PANEL_TAG).pressBackKey()
 
         // Then
         onNodeWithTag(MENU_PANEL_TAG).assertDoesNotExist()

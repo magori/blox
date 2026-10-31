@@ -1,6 +1,5 @@
 package ch.magori.blox.feature.composer
 
-import android.view.KeyEvent
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -30,10 +29,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
-import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.audio.FakeMusicPlayer
 import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.designsystem.state.SwappableRegistry
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -109,7 +108,7 @@ internal class ComposerDiceSheetTest {
         choice("Surprise").assertIsNotSelected()
 
         // When the sheet is closed by the system back, then opened again
-        InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_BACK)
+        onNode(isDialog()).pressSystemBack()
         onNode(isDialog()).assertDoesNotExist()
         onNodeWithContentDescription("Au hasard").performClick()
 
