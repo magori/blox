@@ -8,8 +8,6 @@
     <string name="feature_composer_menu">Plus d\'options</string>
     <string name="feature_composer_menu_other_track">Montrer l\'autre piste en filigrane</string>
     <string name="feature_composer_menu_follow">Suivre la lecture</string>
-    <string name="feature_composer_menu_rename">Renommer</string>
-    <string name="feature_composer_menu_delete">Supprimer</string>
     <!-- Lu par TalkBack sur le titre, qui renomme la musique. -->
     <string name="feature_composer_title_rename">%1$s, renommer</string>
     <!-- Ligne d'info : le style · la tonalité (« Libre · do majeur »), puis · « modifiée » ou « non enregistrée ». -->
@@ -28,8 +26,7 @@
 
     <!-- Fenêtres : enregistrer, renommer -->
     <string name="feature_composer_save">Enregistrer</string>
-    <!-- Le bouton Enregistrer quand il y a des changements : précédé d'un point. -->
-    <string name="feature_composer_save_changed">• Enregistrer</string>
+    <!-- Lu par TalkBack sur Enregistrer quand il y a des changements (le point devant n'est pas lu). -->
     <string name="feature_composer_save_changed_description">Enregistrer les changements</string>
     <string name="feature_composer_save_title">Enregistrer la musique</string>
     <string name="feature_composer_rename_title">Renommer la musique</string>
@@ -49,11 +46,13 @@
     <string name="feature_composer_delete_game_music">Elle est jouée pendant les parties : la musique choisie à l\'accueil la remplacera.</string>
     <string name="feature_composer_keep">Garder la musique</string>
 
-    <!-- Onglets -->
+    <!-- Pistes : lu par TalkBack, le nom du groupe des deux pistes. -->
+    <string name="feature_composer_tracks">Piste</string>
     <string name="feature_composer_tab_melody">Mélodie</string>
     <string name="feature_composer_tab_bass">Basse</string>
 
-    <!-- Barre d'outils : libellé court affiché, action complète lue par TalkBack. -->
+    <!-- Outils : libellé court affiché, action complète lue par TalkBack ; « Outil », le nom du groupe Poser / Allonger. -->
+    <string name="feature_composer_tools">Outil</string>
     <string name="feature_composer_tool_place">Poser</string>
     <string name="feature_composer_tool_lengthen">Allonger</string>
     <string name="feature_composer_tool_undo">Annuler</string>
@@ -97,6 +96,8 @@
     <string name="feature_composer_bar">Mesure %1$d</string>
     <!-- Lu par TalkBack : la mesure jouée pendant l'écoute. -->
     <string name="feature_composer_bar_played">en lecture</string>
+    <!-- Lu par TalkBack : la mesure choisie, quand c'est aussi la mesure jouée (l'état dit seul aurait caché « sélectionnée »). -->
+    <string name="feature_composer_bar_selected_played">sélectionnée, en lecture</string>
     <!-- Message : toucher une autre mesure que la mesure jouée pendant l'écoute. -->
     <string name="feature_composer_follow_stopped">La grille ne suit plus la lecture. Menu « … » pour la suivre à nouveau.</string>
     <!-- Message : l'écriture des musiques sur l'appareil a échoué. -->

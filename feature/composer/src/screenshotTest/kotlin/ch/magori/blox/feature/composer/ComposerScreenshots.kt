@@ -34,6 +34,11 @@ private fun ComposerColorfulNight() = ComposerColorfulPreview()
 private fun ComposerColorfulLargeFont() = ComposerColorfulLargeFontPreview()
 
 @PreviewTest
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
+@Composable
+private fun ComposerOriginalLargeFont() = ComposerOriginalLargeFontPreview()
+
+@PreviewTest
 @Preview(widthDp = 360, heightDp = 760)
 @Composable
 private fun ComposerEmpty() = ComposerEmptyPreview()

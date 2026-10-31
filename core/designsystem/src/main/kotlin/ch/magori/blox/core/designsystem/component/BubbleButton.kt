@@ -57,8 +57,10 @@ import ch.magori.blox.core.designsystem.theme.gloss
  * drawn in its ink and the label style of its family, centred, [IconSizes.gap] apart; TalkBack reads it as one
  * button. A tile (Mes musiques, Composer) gives its [shape], `radius-md`, in place of the pill. Its [emphasis] says how
  * it stands out ([ButtonEmphasis]); [active], at work (Écouter while it plays), it keeps its pressed fill without
- * going down; its [size] may be compact, 48 dp high, for a main or a secondary button. TalkBack says what a touch does,
- * [onClickLabel], when its label alone does not (« La jouer pendant les parties »).
+ * going down; its [size] may be compact, 48 dp high, for a main or a secondary button, and a narrow tile (the tools of
+ * the editor) may keep less room on each side of its content, [sidePadding], than its family. TalkBack says what a touch
+ * does, [onClickLabel], when its label alone does not (« La jouer pendant les parties »), and reads it with its [role]:
+ * a button, or a radio button among others (the bars of the editor), selected when it is in [ButtonEmphasis.SELECTED].
  */
 @Composable
 fun BubbleButton(
@@ -70,6 +72,8 @@ fun BubbleButton(
     emphasis: ButtonEmphasis = ButtonEmphasis.PLAIN,
     active: Boolean = false,
     size: ButtonSize = ButtonSize.REGULAR,
+    sidePadding: Dp = family.sidePadding,
+    role: Role = Role.Button,
     onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -83,6 +87,8 @@ fun BubbleButton(
         size = size,
         onInk = false,
         modifier = modifier,
+        sidePadding = sidePadding,
+        role = role,
         onClickLabel = onClickLabel,
         content = content,
     )
@@ -126,6 +132,8 @@ private fun PressableBubbleButton(
     size: ButtonSize,
     onInk: Boolean,
     modifier: Modifier = Modifier,
+    sidePadding: Dp = family.sidePadding,
+    role: Role = Role.Button,
     onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -146,6 +154,8 @@ private fun PressableBubbleButton(
         size = size,
         shape = shape,
         onInk = onInk,
+        sidePadding = sidePadding,
+        role = role,
         onClickLabel = onClickLabel,
         content = content,
     )
@@ -155,9 +165,9 @@ private fun PressableBubbleButton(
  * A bubble button of [family], [enabled], [focused] and [active] or not, standing out as [emphasis] says, as far down
  * as [depth] says, whatever its [interactionSource] says: the previews draw each state so, [BubbleButton] reads it from
  * its interactions. The depth is read only where the button is placed, so that its way back up moves it without
- * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads a
- * selected one as selected, and what a touch does, [onClickLabel], if given. [onInk], it stands on the ink of a
- * message.
+ * composing it again; its colours and relief change twice, when it goes down and when it is back. TalkBack reads it
+ * with its [role], a selected one as selected, and what a touch does, [onClickLabel], if given. [onInk], it stands on
+ * the ink of a message. Its content keeps [sidePadding] on each side.
  */
 @Composable
 internal fun BubbleButtonDrawing(
@@ -173,6 +183,8 @@ internal fun BubbleButtonDrawing(
     size: ButtonSize = ButtonSize.REGULAR,
     shape: Shape = BloxTheme.shapes.pill,
     onInk: Boolean = false,
+    sidePadding: Dp = family.sidePadding,
+    role: Role = Role.Button,
     onClickLabel: String? = null,
     content: @Composable RowScope.() -> Unit,
 ) {
@@ -192,16 +204,16 @@ internal fun BubbleButtonDrawing(
             .background(look.fill, shape)
             .gloss(look.gloss, shape, frameWidth)
             .then(if (frame == null) Modifier else Modifier.border(frameWidth, frame, shape))
-            .then(if (emphasis == ButtonEmphasis.SELECTED) Modifier.semantics { selected = true } else Modifier)
+            .selection(role, emphasis)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 enabled = enabled,
                 onClickLabel = onClickLabel,
-                role = Role.Button,
+                role = role,
                 onClick = onClick,
             )
-            .padding(horizontal = family.sidePadding),
+            .padding(horizontal = sidePadding),
         horizontalArrangement = Arrangement.spacedBy(IconSizes.gap, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -212,6 +224,19 @@ internal fun BubbleButtonDrawing(
             content()
         }
     }
+}
+
+/**
+ * What TalkBack reads of the selection of a button of [role] in [emphasis]: a choice among others (a radio button, a
+ * tab) is selected or not; any other button is selected in the selected emphasis only, and says nothing otherwise.
+ */
+private fun Modifier.selection(
+    role: Role,
+    emphasis: ButtonEmphasis,
+): Modifier {
+    val chosen = emphasis == ButtonEmphasis.SELECTED
+    val choice = role == Role.RadioButton || role == Role.Tab
+    return if (chosen || choice) semantics { selected = chosen } else this
 }
 
 /** The main action of a screen (Reprendre, Rejouer): [icon], decorative, then [text]. */

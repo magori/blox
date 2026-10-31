@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +16,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -30,12 +28,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.ConfirmWindow
 import ch.magori.blox.core.designsystem.component.DangerButton
-import ch.magori.blox.core.designsystem.component.GlyphButton
-import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.ScreenBar
 import ch.magori.blox.core.designsystem.component.SettingActionRow
 import ch.magori.blox.core.designsystem.component.SettingSwitchRow
 import ch.magori.blox.core.designsystem.component.SettingVolumeRow
-import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.component.WindowDialog
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -88,7 +84,11 @@ private fun SettingsPage(
             .padding(BloxSpaces.space4),
         verticalArrangement = Arrangement.spacedBy(BloxSpaces.space4),
     ) {
-        Header(onBack = actions.onBack)
+        ScreenBar(
+            title = stringResource(R.string.feature_settings_title),
+            backDescription = stringResource(R.string.feature_settings_back),
+            onBack = actions.onBack,
+        )
         if (uiState != null) {
             if (section == SettingsSection.CLASSIC) {
                 PartTitle(stringResource(R.string.feature_settings_classic))
@@ -99,27 +99,6 @@ private fun SettingsPage(
             Display(uiState, actions)
             SoundsAndVibrations(uiState, actions)
         }
-    }
-}
-
-/** The back arrow and the title of the page, a heading for TalkBack. */
-@Composable
-private fun Header(onBack: () -> Unit) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space2),
-    ) {
-        GlyphButton(
-            description = stringResource(R.string.feature_settings_back),
-            onClick = onBack,
-            glyph = { Glyphs.back(this, it) },
-        )
-        SingleLineText(
-            text = stringResource(R.string.feature_settings_title),
-            color = BloxTheme.palette.ink,
-            style = MaterialTheme.typography.titleLarge.merge(BloxTheme.typography.screenTitle),
-            modifier = Modifier.weight(1f).semantics { heading() },
-        )
     }
 }
 
