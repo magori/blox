@@ -17,6 +17,10 @@ dependencies {
     // Le faux lecteur reçoit et note des musiques de core:music.
     testFixturesApi(projects.core.music)
 
+    // Les empreintes de P14.2 confrontent leurs listes figées (accords d'un cadenas, hauteurs du Jardin) au domaine.
+    testImplementation(projects.core.garden)
+    testImplementation(projects.core.locksmith)
+
     // Le test instrumenté de MediaPlayer lit le contexte de l'application testée (InstrumentationRegistry).
     androidTestImplementation(libs.androidx.test.monitor)
 }
