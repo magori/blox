@@ -156,7 +156,7 @@ internal data class GameFeedback(
 
     /**
      * The score shown for the [score] of the game: once rows are cleared, it counts up from the score before to its new
-     * value in [COUNT_TICKS]; [score] as it is otherwise, as when it changed again since.
+     * value in [SCORE_COUNT_TICKS]; [score] as it is otherwise, as when it changed again since.
      */
     fun shownScore(
         score: Points,
@@ -164,8 +164,7 @@ internal data class GameFeedback(
     ): Points {
         val gained = points?.takeUnless { reduced } ?: return score
         val elapsed = tick - gained.tick
-        if (score != gained.to || elapsed >= COUNT_TICKS) return score
-        return Points(gained.from.value + gained.points * elapsed / COUNT_TICKS)
+        return if (score != gained.to) score else countingUp(gained.from, score, elapsed)
     }
 
     /**
@@ -241,9 +240,6 @@ internal data class GameFeedback(
         /** How far the level tilts at most, in degrees. */
         const val LEVEL_TILT = 8f
 
-        /** How long the score takes to count up to its new value. */
-        const val COUNT_TICKS = 30
-
         /** How many cells the sticker of the points rises. */
         const val STICKER_RISE = 1.5f
 
@@ -272,6 +268,20 @@ internal data class GameFeedback(
  */
 private fun wobble(progress: Float): Float =
     if (progress >= 1f) 0f else sin(2 * PI.toFloat() * progress) * (1f - progress)
+
+/** How long a score takes to count up to its new value. */
+internal const val SCORE_COUNT_TICKS = 30
+
+/** A score that counts up from [from] to [to], [elapsed] ticks after it started: [to] once [SCORE_COUNT_TICKS] passed. */
+internal fun countingUp(
+    from: Points,
+    to: Points,
+    elapsed: Int,
+): Points = if (elapsed >= SCORE_COUNT_TICKS) {
+    to
+} else {
+    Points(from.value + (to.value - from.value) * elapsed / SCORE_COUNT_TICKS)
+}
 
 /** The rows at the top of the board tinted while the stack is in danger. */
 internal const val DANGER_ROWS = 5
