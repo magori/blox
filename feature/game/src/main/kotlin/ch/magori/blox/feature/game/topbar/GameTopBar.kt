@@ -17,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -77,7 +78,7 @@ private object TopBarSizes {
  * of its label, the score its value, in the same place of the same size. The pause button does nothing unless
  * [pauseEnabled]: under « Agrandissez la fenêtre », the game is already paused. The title, the label of the best and
  * its sticker are those of the variant of the game ([labels]): for a daily game (V39), GRAINE DU JOUR, MEILLEUR,
- * NOUVEAU MEILLEUR.
+ * NOUVEAU MEILLEUR. In Couleurs, the sticker bounces in as [bestBounce] says, read only while drawing (ADR 0024).
  */
 @Composable
 internal fun GameTopBar(
@@ -86,6 +87,7 @@ internal fun GameTopBar(
     labels: GameLabels,
     modifier: Modifier = Modifier,
     pauseEnabled: Boolean = true,
+    bestBounce: (() -> Float)? = null,
 ) {
     val texts = topBarTexts(best.value ?: 0)
     val title = stringResource(labels.title).uppercase()
@@ -106,7 +108,7 @@ internal fun GameTopBar(
                 // where CLASSIQUE fits whole, rather than cut.
                 ModeTitle(text = title, autoSize = shrinkToFit(titleSize), modifier = Modifier.weight(1f))
                 // At most as wide as the title: with an enlarged font, the best shrinks rather than the title.
-                Best(best, texts, bestLabels, modifier = Modifier.weight(1f, fill = false))
+                Best(best, texts, bestLabels, modifier = Modifier.weight(1f, fill = false), bounce = bestBounce)
             }
 
             // The title on the whole width, on one line if it holds there at its smallest size, on two otherwise:
@@ -133,6 +135,7 @@ internal fun GameTopBar(
                         labels = bestLabels,
                         capToNormalFont = true,
                         modifier = Modifier.padding(start = TopBarSizes.gap),
+                        bounce = bestBounce,
                     )
                 }
             }
@@ -213,7 +216,7 @@ private fun ModeTitle(
  * value. Its label is RECORD (MEILLEUR for a daily game), or once beaten the sticker NOUVEAU RECORD (NOUVEAU MEILLEUR),
  * both of [labels]: the two are laid out one over the other, the one not shown invisible, so that the best keeps its
  * size when it is beaten. A best whose value is unknown keeps the place of its value, hidden. With [capToNormalFont],
- * it is never larger than with the normal font.
+ * it is never larger than with the normal font. The sticker is drawn as large as [bounce] says, around its centre.
  */
 @Composable
 private fun Best(
@@ -222,6 +225,7 @@ private fun Best(
     labels: BestLabels,
     modifier: Modifier = Modifier,
     capToNormalFont: Boolean = false,
+    bounce: (() -> Float)? = null,
 ) {
     val label = if (best.beaten) labels.newBest else labels.best
     val description = if (best.value == null) {
@@ -242,7 +246,18 @@ private fun Best(
             NewBestSticker(
                 text = labels.newBest,
                 capToNormalFont = capToNormalFont,
-                modifier = Modifier.alpha(if (best.beaten) 1f else 0f),
+                modifier = Modifier
+                    .alpha(if (best.beaten) 1f else 0f)
+                    .then(
+                        if (bounce == null) {
+                            Modifier
+                        } else {
+                            Modifier.graphicsLayer {
+                                scaleX = bounce()
+                                scaleY = scaleX
+                            }
+                        },
+                    ),
             )
         }
         ValueText(

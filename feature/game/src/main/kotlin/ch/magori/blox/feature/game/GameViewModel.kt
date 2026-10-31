@@ -347,15 +347,17 @@ class GameViewModel internal constructor(
 
     /**
      * The screen state of the game state, with what the engine does not know kept: the best, whether it is beaten,
-     * the game over.
+     * the game over. The effects learn the best beaten on the tick the screen does (its sticker bounces then).
      */
     private fun publish() {
-        state.update {
-            gameState.toUiState(nextPieces::getValue)
-                .copy(best = it.best, gameOver = it.gameOver, feedback = feedback)
-                .withLeftHanded(it.leftHanded, gameState.isUnderWay)
-                .withBestBeaten(it.bestBeaten)
-        }
+        // Computed apart from the state, which only the main thread writes: no side effect in a block that may run again.
+        val before = state.value
+        val shown = gameState.toUiState(nextPieces::getValue)
+            .copy(best = before.best, gameOver = before.gameOver)
+            .withLeftHanded(before.leftHanded, gameState.isUnderWay)
+            .withBestBeaten(before.bestBeaten)
+        if (shown.bestBeaten) feedback = feedback.withBestBeaten()
+        state.value = shown.copy(feedback = feedback)
     }
 
     /**
