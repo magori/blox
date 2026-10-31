@@ -17,8 +17,8 @@ internal class RingtoneWriter<Entry>(private val synthesizer: Synthesizer, priva
         kind: RingtoneKind,
     ): Entry {
         val sampleRate = synthesizer.sampleRate
-        val samplesPerBar = score.beatsPerBar * SECONDS_PER_MINUTE / score.bpm * sampleRate
-        val wav = WavEncoder.encode(ringtoneSamples(synthesizer.render(score), sampleRate, samplesPerBar), sampleRate)
+        val samples = ringtoneSamples(synthesizer.render(score), sampleRate, samplesPerBar(score, sampleRate))
+        val wav = WavEncoder.encode(samples, sampleRate)
         val entry = try {
             store.insert(ringtoneFileName(name), kind)
         } catch (failure: Exception) {
@@ -39,5 +39,3 @@ internal class RingtoneWriter<Entry>(private val synthesizer: Synthesizer, priva
 /** This failure of the store as the [IOException] the exporter promises. */
 private fun Exception.asIOException(): IOException =
     this as? IOException ?: IOException("The ringtone could not be written", this)
-
-private const val SECONDS_PER_MINUTE = 60.0

@@ -33,12 +33,16 @@ internal fun ringtoneSamples(
  * rendering by the synthesizer of the music: whole loops, at least 20 s; at most 60 s, cut at a whole bar.
  */
 public fun ringtoneSeconds(score: Score): Int {
-    val secondsPerBeat = SECONDS_PER_MINUTE / score.bpm
-    val loopSamples = (score.voices.first().beats * secondsPerBeat * MUSIC_SAMPLE_RATE).roundToInt()
-    val samplesPerBar = score.beatsPerBar * secondsPerBeat * MUSIC_SAMPLE_RATE
-    val samples = ringtoneLength(loopSamples, MUSIC_SAMPLE_RATE, samplesPerBar)
+    val loopSamples = (score.voices.first().beats * SECONDS_PER_MINUTE / score.bpm * MUSIC_SAMPLE_RATE).roundToInt()
+    val samples = ringtoneLength(loopSamples, MUSIC_SAMPLE_RATE, samplesPerBar(score, MUSIC_SAMPLE_RATE))
     return (samples.toDouble() / MUSIC_SAMPLE_RATE).roundToInt()
 }
+
+/** The samples a bar of [score] lasts at its tempo, at [sampleRate] samples per second: where a ringtone may end. */
+internal fun samplesPerBar(
+    score: Score,
+    sampleRate: Int,
+): Double = score.beatsPerBar * SECONDS_PER_MINUTE / score.bpm * sampleRate
 
 private fun loopsOf(
     rendering: FloatArray,
@@ -73,5 +77,3 @@ private const val MAXIMUM_SECONDS = 60
 
 /** −1 dBFS, 10^(−1/20): the loudest sample of a ringtone, which the musics, near −13 dBFS, are far from. */
 private const val PEAK = 0.8912509f
-
-private const val SECONDS_PER_MINUTE = 60.0

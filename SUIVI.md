@@ -2004,16 +2004,18 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
   its choices, and offers to try again`, `the export runs off the main thread`. Après P13.6. Fait le 2026-10-31,
   sans interface : état dans `MyMusicsUiState` (`ringtoneOffered`, `ringtone: RingtoneSheetState?`, phases
   `RingtonePhase` `Choosing`, `Saving`, `Saved(kind)`, `Failed`) ; la fabrique reçoit aussi les réglages (volume de la
-  musique) et le dispatcher d'export ; `app` lui donne `null` jusqu'à P13.12. Le cas du volume s'écrit `with the volume
-  of the music at 0 percent the sheet says it` : Kotlin refuse `%` dans un nom de fonction (avertissement, donc
-  erreur). Durée : `ringtoneSeconds(score)`, public dans `core:audio`, qui partage la règle de longueur de
+  musique) et le dispatcher d'export ; `app` lui donne `null` jusqu'à P13.12. Le cas du volume garde son nom exact en
+  `@DisplayName`, sa fonction s'écrivant `… at 0 percent …` : Kotlin refuse `%` dans un nom de fonction
+  (avertissement, donc erreur). Durée : `ringtoneSeconds(score)`, public dans `core:audio`, qui partage la règle de longueur de
   `ringtoneSamples` (`RingtoneLengthTest`). Écouter joue la partition sur le lecteur de musique (même synthétiseur,
   boucles entières, sans la normalisation du fichier) : en P14.13, l'écoute devra prendre l'instrument choisi dans la
   feuille, que `MusicPlayer.play` ne reçoit pas. Cas de plus : `Écouter touched again, Arrêter, stops the music of the
   sheet`, `the sheet no longer listens once its music stops by itself`, `the music of the sheet stops when the list is
   no longer visible`, `the music of the sheet stops when the screen leaves the stack`, `a sheet closed while its music
   is written lets it be written, and the sheet opened since stays as it is`, et `RINGTONE` dans `the next action, or
-  the message closed, ends the chance to undo the deletion`.
+  the message closed, ends the chance to undo the deletion` ; après la revue, `a sheet reopened and saved again ends
+  on its own write`, `the sheet no longer listens once another music replaces its own` et, dans `core:audio`,
+  `RingtoneLengthTest › the length told is that of the samples written`.
 - [ ] **P13.8** Mettre à jour la maquette (depuis claude.ai), **avant les tâches d'interface** (P13.9 à P13.11) : V42
   (repos, en cours, réussi en sonnerie et en réveil, échec, volume à 0 % ; jour, nuit, ×2) ; V32 (rangée du menu,
   phrase de la fenêtre Supprimer) ; V33 (rangée du menu, deux fenêtres) ; pictogramme cloche.

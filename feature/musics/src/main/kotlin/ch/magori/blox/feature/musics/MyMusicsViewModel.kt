@@ -89,6 +89,9 @@ class MyMusicsViewModel(
     /** Follows the [ringtonePlayback]: its stop by itself, or by another music played in its place. */
     private var ringtoneListenJob: Job? = null
 
+    /** The writes of a ringtone started so far: only the sheet waiting for the last one takes its end. */
+    private var ringtoneSaveCount = 0
+
     /** Whether the volume of the music is at 0 %, as the settings say; not until they are read. */
     private val musicMuted: StateFlow<Boolean> =
         preferences.preferences.map { it.musicVolume == Volume.SILENT }
@@ -179,7 +182,10 @@ class MyMusicsViewModel(
         )
     }
 
-    /** *Écouter*, in the sheet « Sonnerie ou réveil »: its music plays, as the file will sound. */
+    /**
+     * *Écouter*, in the sheet « Sonnerie ou réveil »: its score plays on the music player, whose synthesizer renders
+     * the file too (without its normalization, at the volume of the music).
+     */
     internal fun onRingtoneListen() {
         val sheet = ringtone.value ?: return
         if (sheet.listening) return stopRingtoneListening()
@@ -200,14 +206,18 @@ class MyMusicsViewModel(
 
     /**
      * *Enregistrer comme sonnerie* or *comme réveil*, or *Réessayer* after a failure: the music of the sheet is written
-     * as a file of the use chosen. The sheet takes no choice until it is written; closed meanwhile, it does not cancel
-     * the writing, which would leave a file whose URI is lost (RingtoneExporter).
+     * as a file of the use chosen, on [exportDispatcher]: the main thread is spared here, whatever the exporter does
+     * (MediaStoreRingtoneExporter switches to its own dispatcher too). The sheet takes no choice until it is written;
+     * closed meanwhile, it does not cancel the writing, which would leave a file whose URI is lost (RingtoneExporter).
+     * The screen leaving the stack does cancel it, with [viewModelScope]: that orphan is accepted, a whole ringtone
+     * of the phone whose URI is never used.
      */
     internal fun onRingtoneSave() {
         val exporter = ringtoneExporter ?: return
         val sheet = ringtone.value?.takeIf { it.phase != RingtonePhase.Saving } ?: return
         val saved = savedMusic(sheet.id) ?: return
         ringtone.value = sheet.copy(phase = RingtonePhase.Saving)
+        val save = ++ringtoneSaveCount
         viewModelScope.launch {
             val phase = try {
                 withContext(exportDispatcher) { exporter.export(saved.score, saved.name, sheet.kind) }
@@ -216,9 +226,11 @@ class MyMusicsViewModel(
                 // Nothing is left behind (RingtoneExporter): the player may try again.
                 RingtonePhase.Failed
             }
-            // The sheet may have been closed meanwhile, and another one opened: only the one waiting for this file ends.
+            // The sheet may have been closed meanwhile, and another one opened, even of the same music and saved again:
+            // only the one waiting for this very write ends.
+            val waiting = save == ringtoneSaveCount
             ringtone.update { shown ->
-                if (shown?.id == sheet.id && shown.phase == RingtonePhase.Saving) shown.copy(phase = phase) else shown
+                if (waiting && shown?.phase == RingtonePhase.Saving) shown.copy(phase = phase) else shown
             }
         }
     }

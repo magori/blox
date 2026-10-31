@@ -32,6 +32,7 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 import org.junit.jupiter.params.ParameterizedTest
@@ -924,6 +925,26 @@ internal class MyMusicsViewModelTest {
     }
 
     @Test
+    fun `the sheet no longer listens once another music replaces its own`() = runMyMusicsTest {
+        // Given
+        val evening = aSavedMusic("Thème du soir")
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneListen()
+
+            // When: another music is played on the same player
+            viewModel.onListen(evening.id)
+            runCurrent()
+
+            // Then
+            assertThat(music.playedScores.last()).isEqualTo(evening.score)
+            assertThat(expectMostRecentItem()?.ringtone?.listening).isFalse()
+        }
+    }
+
+    @Test
     fun `the music of the sheet stops when the list is no longer visible`() = runMyMusicsTest {
         // Given
         val march = aSavedMusic("Ma marche")
@@ -957,6 +978,7 @@ internal class MyMusicsViewModelTest {
     }
 
     @Test
+    @DisplayName("with the volume of the music at 0 % the sheet says it") // Kotlin warns of a % in a function name
     fun `with the volume of the music at 0 percent the sheet says it`() = runMyMusicsTest {
         // Given
         val march = aSavedMusic("Ma marche")
@@ -1163,6 +1185,40 @@ internal class MyMusicsViewModelTest {
                 assertThat(sheet?.phase).isEqualTo(RingtonePhase.Choosing)
             }
         }
+
+    @Test
+    fun `a sheet reopened and saved again ends on its own write`() = runMyMusicsTest {
+        // Given an exporter whose writes end when the test says so
+        val march = aSavedMusic("Ma marche")
+        val writes = mutableListOf<CompletableDeferred<String>>()
+        val held = object : RingtoneExporter {
+            override suspend fun export(
+                score: Score,
+                name: String,
+                kind: RingtoneKind,
+            ): String = CompletableDeferred<String>().also { writes += it }.await()
+        }
+        val viewModel = myMusics(exporter = held)
+        viewModel.uiState.test {
+            // A first write, whose sheet is closed, then the same music saved again from its sheet reopened
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneSave()
+            runCurrent()
+            viewModel.onRingtoneClosed()
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneSave()
+            runCurrent()
+
+            // When the first write fails, then the second one succeeds
+            writes[0].completeExceptionally(IOException("Disk full"))
+            runCurrent()
+            writes[1].complete("content://media/external_primary/audio/media/1")
+            runCurrent()
+
+            // Then: the sheet ends on its own write
+            assertThat(expectMostRecentItem()?.ringtone?.phase).isEqualTo(RingtonePhase.Saved(RingtoneKind.RINGTONE))
+        }
+    }
 
     /** The actions that end the chance to undo a deletion: any action of the list, and the message closed. */
     enum class NextAction(val act: (MyMusicsViewModel, ScoreId.Personal) -> Unit) {

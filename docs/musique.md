@@ -752,7 +752,9 @@ dans `MyMusicsViewModel` (P13.7, sans interface) ; **pas encore** l'interface ni
   dernière mesure entière, comme le synthétiseur place le début de chaque note. `ringtoneSamples` refuse un rendu
   vide, et une mesure nulle, négative ou de plus de 60 s (aucune mesure entière n'y tiendrait). La feuille annonce
   cette durée en secondes entières, arrondie (« ≈ 29 s ») : `ringtoneSeconds(score)` (`core:audio`, public) la tire de
-  la partition sans la rendre, par la même règle que `ringtoneSamples` (un seul calcul de la longueur, partagé).
+  la partition sans la rendre, par la même règle que `ringtoneSamples` (un seul calcul de la longueur, partagé, et
+  une seule mesure en échantillons, `samplesPerBar(score, sampleRate)`, que l'écriture prend aussi) ; la durée
+  annoncée est celle des échantillons écrits.
 - **Niveau** : la crête est normalisée à **−1 dBFS** (0,891) ; les musiques culminent vers 0,23 (environ −13 dBFS)
   dans le jeu. Tous les échantillons sont multipliés par le même gain. Un rendu silencieux reste silencieux.
 
@@ -768,7 +770,7 @@ dans `MyMusicsViewModel` (P13.7, sans interface) ; **pas encore** l'interface ni
   `RingtoneSamplesTest › a bar longer than 60 seconds is refused`,
   `RingtoneLengthTest › the length of a ringtone is that of its whole loops, in whole seconds`,
   `RingtoneLengthTest › the ringtone of a music longer than 60 seconds lasts up to its last whole bar before 60
-  seconds`.
+  seconds`, `RingtoneLengthTest › the length told is that of the samples written`.
 - **Format** : WAV PCM 16 bits, mono, 44 100 Hz (en-tête RIFF `WAVE`, morceau `fmt ` PCM, morceau `data`, petit
   boutiste) ; un échantillon de 1 s'écrit 32 767, de −1 −32 767, au-delà de [−1, 1] il est écrêté. De 1,8 à 5,3 Mo.
   `WavEncoder` refuse lui aussi un rendu vide (un fichier sans échantillon).
@@ -846,12 +848,17 @@ dans `AppContainer`), plus les réglages, pour le volume de la musique. Tant que
   d'elle-même, ou qu'une autre remplace, ne laisse pas la feuille en écoute. Fermer la feuille, cacher la liste (appli
   en arrière-plan) ou la quitter arrête son écoute. Volume de la musique à 0 % : l'état le dit (`musicMuted`).
 - **Enregistrer** exporte la partition et le nom de la musique, comme sonnerie ou réveil selon le choix, sur le
-  dispatcher donné, jamais sur le fil principal. Pendant l'écriture (`Saving`), la feuille ne prend aucun autre choix
+  dispatcher donné, jamais sur le fil principal (garanti par le ViewModel, quel que soit l'exportateur, même si
+  `MediaStoreRingtoneExporter` change aussi de dispatcher). Pendant l'écriture (`Saving`), la feuille ne prend aucun autre choix
   (ni usage, ni second enregistrement). Réussi (`Saved`, avec l'usage) : en sonnerie, le panneau dit qu'elle est dans
   les sonneries et propose les réglages du son ; en réveil, il renvoie à l'Horloge (les textes et boutons en P13.9).
   Échec (`IOException`, `Failed`) : la feuille reste ouverte, ses choix gardés, et propose de réessayer (le même
   enregistrement). Fermée pendant l'écriture, la feuille n'annule pas l'export (il laisserait un fichier sans son URI,
-  voir Écriture) ; sa fin ne change pas une feuille ouverte depuis.
+  voir Écriture) ; sa fin ne change pas une feuille ouverte depuis, même celle de la même musique enregistrée de
+  nouveau : chaque enregistrement porte un numéro, et seule la feuille qui attend le dernier en prend la fin.
+  **L'écran quitté** (« Mes musiques » sort de la pile) annule l'export avec le ViewModel : le fichier, s'il était en
+  cours d'écriture, est publié sans que son URI soit reçue. Cet orphelin est accepté : c'est une sonnerie entière et
+  valide du téléphone, et BloX n'utilise pas l'URI.
 
   **Tests :** `MyMusicsViewModelTest › without an exporter the menu offers no ringtone`,
   `MyMusicsViewModelTest › choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie chosen`,
@@ -859,9 +866,10 @@ dans `AppContainer`), plus les réglages, pour le volume de la musique. Tant que
   `MyMusicsViewModelTest › listening plays the samples that will be written`,
   `MyMusicsViewModelTest › Écouter touched again, Arrêter, stops the music of the sheet`,
   `MyMusicsViewModelTest › the sheet no longer listens once its music stops by itself`,
+  `MyMusicsViewModelTest › the sheet no longer listens once another music replaces its own`,
   `MyMusicsViewModelTest › the music of the sheet stops when the list is no longer visible`,
   `MyMusicsViewModelTest › the music of the sheet stops when the screen leaves the stack`,
-  `MyMusicsViewModelTest › with the volume of the music at 0 percent the sheet says it`,
+  `MyMusicsViewModelTest › with the volume of the music at 0 % the sheet says it`,
   `MyMusicsViewModelTest › closing the sheet stops the listening`,
   `MyMusicsViewModelTest › saving as a ringtone exports the score and the name of that music as a ringtone`,
   `MyMusicsViewModelTest › saving as an alarm exports it as an alarm`,
@@ -870,7 +878,8 @@ dans `AppContainer`), plus les réglages, pour le volume de la musique. Tant que
   settings`, `MyMusicsViewModelTest › once written as an alarm the sheet points to the clock`,
   `MyMusicsViewModelTest › a write that fails says it, keeps the sheet open with its choices, and offers to try
   again`, `MyMusicsViewModelTest › a sheet closed while its music is written lets it be written, and the sheet opened
-  since stays as it is`, `MyMusicsViewModelTest › the export runs off the main thread`,
+  since stays as it is`, `MyMusicsViewModelTest › a sheet reopened and saved again ends on its own write`,
+  `MyMusicsViewModelTest › the export runs off the main thread`,
   `MyMusicsViewModelTest › the next action, or the message closed, ends the chance to undo the deletion`.
 
 **Ce que BloX ne fait pas** : il ne règle jamais la sonnerie ni un réveil lui-même (ni `WRITE_SETTINGS`, ni aucune
