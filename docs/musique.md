@@ -684,6 +684,131 @@ qui s'arrête sur `GameOver`.
 `ClassicStackDangerRuleTest › the same height gives a different answer depending on whether the stack was in danger`,
 `ClassicStackDangerRuleTest › a stack height outside 0 to 20 is refused`.
 
+## Sonnerie ou réveil
+
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore codée** (P13.2 à P13.14). Vues : V42
+(feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
+
+**Périmètre**
+
+- Seules les musiques de « Mes musiques » deviennent une sonnerie ou un réveil. Ni *Korobeïniki* (confirmation des
+  droits encore ouverte, P4.10, et associée au jeu de 1989), ni le *Menuet* (on n'exporte que ce que le joueur a
+  créé), ni les musiques composées par un jeu (Musique vivante, Jardin, accompagnement d'Au tempo), ni « Mon
+  fichier ».
+- Deux usages : **Sonnerie** (appels entrants) et **Réveil** (pour l'application Horloge). Pas de notification :
+  un son de notification dure moins de 3 s et ne boucle pas.
+- **Android 10 (API 29) et plus** seulement : avant l'API 29, la ligne « Sonnerie ou réveil » n'apparaît dans aucun
+  menu.
+- Points d'entrée : le menu « … » d'une musique de Mes musiques et celui de l'éditeur. L'éditeur exporte la
+  version **enregistrée** de la musique.
+
+**Le fichier**
+
+- Rendu par le synthétiseur de la musique (`Synthesizer`, `MUSIC_SAMPLE_RATE`, 44 100 Hz), au tempo de la musique,
+  dans l'instrument choisi dans la feuille (Instruments, ci-dessous ; présélectionné sur le réglage).
+- **Longueur** : des boucles entières de la musique, le plus petit nombre qui dure **au moins 20 s**. Une boucle de
+  20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
+  boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
+  (5,3 Mo), et le système le reprend au début d'une mesure. **Sans fondu** : le système rejoue le fichier en
+  boucle ; fait de boucles entières, il se raccorde sans couture.
+- **Niveau** : la crête est normalisée à **−1 dBFS** (0,891) ; les musiques culminent vers 0,23 (environ −13 dBFS)
+  dans le jeu. Un rendu silencieux reste silencieux.
+- **Format** : WAV PCM 16 bits, mono, 44 100 Hz (en-tête RIFF `WAVE`, morceau `fmt ` PCM, morceau `data`, petit
+  boutiste) ; un échantillon de 1 s'écrit 32 767, de −1 −32 767, au-delà de [−1, 1] il est écrêté. De 1,8 à 5,3 Mo.
+- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier sont remplacés ;
+  un nom fait seulement d'espaces ou de symboles donne « BloX ». Le titre lu par le sélecteur du système est le nom de
+  la musique.
+- **Où** : `Ringtones/BloX/` (Sonnerie) ou `Alarms/BloX/` (Réveil), écrit par `MediaStore`, marqué comme sonnerie ou
+  réveil, sans aucune permission. Chaque export crée un nouveau fichier ; si le nom est pris, le fichier devient
+  « Nom (1).wav » et son titre « Nom (1) », pour que le sélecteur du système distingue les deux. Les
+  fichiers restent dans le téléphone après la désinstallation de BloX, et quand la musique est supprimée.
+
+**Ce que BloX ne fait pas** : il ne règle jamais la sonnerie ni un réveil lui-même (ni `WRITE_SETTINGS`, ni aucune
+permission de stockage). Après l'écriture, la feuille propose d'ouvrir les réglages du son (Sonnerie) ou l'Horloge
+(Réveil), seulement si une application du téléphone y répond.
+
+**[à vérifier] sur téléphone** (P13.13) : la boucle se raccorde sans claquement dans le sélecteur du système ; le
+niveau à côté des sonneries du système ; l'Horloge (Pixel, Samsung si possible) liste bien `Alarms/BloX/` ; ce que
+devient un réveil réglé sur un fichier supprimé (Android 10 et plus).
+
+**Écarts** : une boucle de plus de 60 s est coupée, donc ne se raccorde qu'au début d'une mesure, pas à celui de sa
+phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première version (tâche facultative P13.14).
+
+## Instruments
+
+Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.2 à P14.20). Vues : V43 (feuille
+Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
+« Mon fichier »).
+
+**Le réglage**
+
+- « Instruments », un réglage **général** (« Tous les jeux », carte Sons et vibrations, ADR 0030), trois choix :
+  **Arcade** (le son d'aujourd'hui, par défaut), **Velours** (doux, apaisant : boîte à musique, lo-fi du soir),
+  **Néon** (dynamique, tendance : synthpop, en écho aux néons du thème nuit). Dans le code,
+  `enum class SoundStyle { ARCADE, VELVET, NEON }`, enregistré par nom ; un nom inconnu se lit Arcade.
+- Pas de choix par musique : `musics.bin` ne change pas. La feuille Sonnerie peut choisir un autre instrument pour
+  le fichier seul, sans changer le réglage.
+- Un changement vaut **dès la prochaine musique jouée** (prochain lancement, reprise ou changement de musique), effets
+  sonores compris : les effets prennent le nouvel instrument en même temps que la musique.
+
+**Ce que l'instrument habille** : toutes les partitions jouées par BloX (Korobeïniki, Menuet, ma musique, Musique
+vivante, Graine du jour, Écouter de l'accueil, Mes musiques, éditeur, Jardin, accompagnement d'Au tempo), le fichier
+d'une sonnerie, et les effets sonores (Classique, Serrurier, Jardin). **Pas « Mon fichier »**, un fichier audio
+joué tel quel.
+
+**Comment** : une voix garde sa `Waveform`, qui dit désormais son **rôle** (`SQUARE` la mélodie, `TRIANGLE` la
+basse) ; l'instrument lui donne un **ton** (`Tone` : carrée, triangle, impulsion d'un quart, sinus, dent de scie), une
+**forme de note** (`NoteShape` : `Gate`, l'enveloppe d'aujourd'hui, ou `Adsr`, en millisecondes), un passe-bas à un
+pôle facultatif et un gain ; le style ajoute un écho facultatif (`Echo` : délai en temps, retour, part), appliqué
+au mixage et enroulé sur le début du tampon, si bien que la boucle reste sans raccord.
+
+Règles communes :
+
+- **Arcade rend exactement les échantillons d'avant les instruments**, musiques et effets : des empreintes sont
+  figées par des tests sur l'API d'aujourd'hui (P14.2), avant tout changement du synthétiseur, P13.2 compris :
+  Korobeïniki, le Menuet et une musique générée, à × 1 et × 1,25, et chaque effet du Classique, du Serrurier et du
+  Jardin.
+- Chaque instrument **attaque en 5 ms au plus** : le temps reste net dans Au tempo et les retours en jeu restent
+  lisibles ; la douceur vient de l'onde, du filtre, de l'extinction et de l'écho.
+- Une note dure toujours `temps × 60 / bpm` ; l'extinction d'une `Adsr` tient dans la note, sans déborder sur la
+  suivante de la voix.
+- Scie et impulsion sont limitées en bande (pas de repliement audible dans les aigus).
+- Les trois instruments ont le **même niveau à ±1 dB RMS** (Korobeïniki et les musiques générées de chaque
+  catégorie) ; le mixage reste dans [−1, 1].
+- L'écho suit le tempo (délai en temps) : il reste sur la mesure quand la musique accélère de × 1,25.
+
+Valeurs de départ, **[à vérifier] à l'oreille** sur un téléphone (P14.16) ; les gains se règlent ensuite par la
+mesure du niveau (P14.17), une fois les timbres arrêtés à l'oreille :
+
+- **Arcade** : mélodie (voix `SQUARE`) carrée, basse (voix `TRIANGLE`) triangle, toutes deux en `Gate` (80 % de la
+  note tenus, fondu jusqu'à 95 %) ; ni filtre, ni écho.
+- **Velours** : mélodie en sinus, `Adsr` 4 / 250 / 0,6 / 200 ms, sans filtre ; basse triangle, passe-bas 600 Hz,
+  `Adsr` 5 / 300 / 0,7 / 150 ms ; écho de ¾ de temps, retour 0,3, part 0,25.
+- **Néon** : mélodie en dent de scie, passe-bas 2 500 Hz, `Adsr` 2 / 120 / 0,7 / 60 ms ; basse en impulsion d'un
+  quart, passe-bas 900 Hz, `Adsr` 2 / 80 / 0,5 / 40 ms ; écho d'un demi-temps, retour 0,2, part 0,2.
+
+(`Adsr` : attaque / déclin / maintien / extinction.)
+
+**Effets sonores** : un effet prend le **ton** et le filtre de l'instrument de sa `Waveform` (`SQUARE` celui de la
+mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir
+Effets sonores) et **aucun écho** : un retour reste court et lisible. Exemple : en Velours, les lignes effacées
+montent l'accord de do sur le sinus de la mélodie. À la prochaine musique jouée, les effets rendus dans l'ancien
+instrument sont oubliés et rendus de nouveau. Leur niveau suit la même règle de ±1 dB RMS.
+
+**[à vérifier] à l'oreille** (P14.16) : Velours pâteux et Néon saturé à × 1,25 (pile en danger, niveaux 18 et
+19) ; le métronome d'Au tempo dans chaque instrument ; le raccord de la boucle avec l'écho ; les effets du
+Classique, du Serrurier et du Jardin dans chaque instrument ; la sonie d'une sonnerie en Néon, qui, normalisée en
+crête, peut sonner plus fort que les autres. **[à vérifier] par la mesure** (P14.18) : le rendu
+d'une musique de 8 mesures en moins de 150 ms sur un téléphone d'entrée de gamme, dans chaque instrument.
+
+**Écarts** :
+
+- Néon sans batterie dans cette phase (la proposition du designer en avait une : grosse caisse sur les temps,
+  claquement sur 2 et 4, charleston en croches) ; tâche facultative P14.19, jamais dans Au tempo.
+- Néon à un seul oscillateur par voix : les dents de scie désaccordées du designer demanderaient deux oscillateurs
+  par note ; à reprendre si l'écoute le demande.
+- Velours sans réverbération : l'écho en tient lieu (une réverbération coûterait plus au rendu).
+
 ## Partitions (prototype de la maquette)
 
 Durées en temps (1 = noire, 0,5 = croche). Notation anglo-saxonne (A4 = la 440 Hz).

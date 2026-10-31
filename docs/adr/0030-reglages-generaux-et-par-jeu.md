@@ -1,6 +1,6 @@
 # 0030 — Réglages généraux et réglages par jeu : une page Paramètres dans `feature:settings`
 
-- **Statut** : Acceptée ; amende [0002](0002-modularisation.md), [0011](0011-navigation-3.md) et [0022](0022-choix-du-jeu-a-la-racine.md)
+- **Statut** : Acceptée ; amende [0002](0002-modularisation.md), [0011](0011-navigation-3.md) et [0022](0022-choix-du-jeu-a-la-racine.md) ; amendée par [0032](0032-instruments.md)
 - **Date** : 2026-10-30
 
 ## Contexte
@@ -167,3 +167,16 @@ Mode, un choix qui n'est pas enregistré (Classique seul, Moderne « BIENTÔT »
   dépendrait d'une liste qu'il ne connaît pas ; seule une section existante a sa valeur.
 - **Suivre le thème du Classique** : la page s'ouvre aussi depuis des écrans toujours en Couleurs, et l'Original est
   figé.
+
+## Note (2026-10-31, P14.1)
+
+Amendée par [0032](0032-instruments.md) : un réglage de plus, « Instruments » (Arcade, Velours, Néon), au tableau
+des portées.
+
+| Réglage | Portée | Section de la page | Jeux concernés |
+|---|---|---|---|
+| Instruments | Tous les jeux | « Tous les jeux » (Sons et vibrations) | Tous, sauf « Mon fichier » (joué tel quel) |
+
+La rangée se place au-dessus de « Volume de la musique » et ouvre la feuille Instruments (V43). La note du bas de la
+carte devient « Volumes : tout de suite. Instruments : dès la prochaine musique jouée. Le reste : dès le prochain jeu
+ouvert. » (P14.11).

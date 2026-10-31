@@ -55,6 +55,8 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
 | V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | dessinée (P10.14), codée (P10.10, sans le son ni les retours animés : P10.12, P10.15 ; rangée « Couleurs v2 — V40 Jardin musical », composant `V2Jardin`, ses jetons `garden-*` publiés dans le design system et reportés dans `tokens.json` avec leur code, P10.8) ; [jardin-musical.md](jardin-musical.md) |
 | V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
+| V42 | Feuille « Sonnerie ou réveil », depuis V32 ou V33 (voir Écrans) | à dessiner (P13.8) ; ADR 0031 |
+| V43 | Feuille « Instruments » des Paramètres, depuis V31 (voir Écrans) | à dessiner (P14.10) ; ADR 0032 |
 
 V3 et V10 à V12 montrent désormais le thème Couleurs v2 de jour, V22 à V25 de nuit (piste C,
 2026-10-25). V26 à V31 sont les écrans refondus du lot « Couleurs v2 » (P5.56 à P5.86), dessinés
@@ -472,6 +474,85 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   `SwitchLookTest › the label and the sub-line stand out from their row by 4,5 to 1, at rest on the page and pressed`,
   `SwitchLookTest › the thumb stands out from its track by 3 to 1, on and off, and the check from the thumb`,
   `SwitchLookTest › the track is framed in button outline at rest and in the ink of its row pressed, by 3 to 1, on and off`.
+
+### V42 — Sonnerie ou réveil (à dessiner, pas encore codée)
+
+Proposition de `designer-jeu` du 2026-10-31, adaptée aux décisions du développeur du même jour
+([ADR 0031](adr/0031-sonnerie-et-reveil.md), règles dans [musique.md](musique.md), Sonnerie ou réveil). Couleurs v2,
+jour, nuit et police ×2. Absente avant Android 10 (API 29) : aucune ligne de menu.
+
+- **Ouverture** : la rangée **« Sonnerie ou réveil »** (pictogramme cloche, `BELL`, nouveau, traits de 2,25 sur 24)
+  du menu « … » d'une musique de Mes musiques (V32), entre « La jouer pendant les parties » (ou « Ne plus la jouer
+  pendant les parties ») et « Supprimer » : Modifier, Renommer, La jouer…, Sonnerie ou réveil, Supprimer ; et du
+  menu « … » de l'éditeur (V33), après « Renommer ». Pas de bouton sur la carte.
+- **Feuille** (`BloxSheet`, ADR 0029) : titre « Sonnerie ou réveil » (`screen-title`, lu comme titre), puis le nom
+  de la musique (`small`, `label`) et, à sa droite, un seul `ListenButton` lu « Écouter *Nom* », qui joue exactement
+  le fichier qui sera écrit (boucles entières, instrument choisi), au volume de la musique. Volume de la musique à
+  0 % : la feuille le dit, « Le volume de la musique est à 0 %. », comme V43 (sinon Écouter semblerait en panne).
+- **« Pour »** : deux `SheetChoiceRow` de 56 dp, boutons radio d'un même groupe, Sonnerie choisie par défaut :
+  - **Sonnerie** — « Appels entrants · ≈ *N* s » ;
+  - **Réveil** — « Pour l'application Horloge · ≈ *N* s ».
+  *N* est la durée du fichier, en secondes entières (boucles entières, au moins 20 s).
+- **« Instruments »** : groupe de choix en pilule (segments de 44 dp, groupe de 48 dp) **Arcade**, **Velours**,
+  **Néon**, prérempli avec le réglage des Paramètres ; il vaut pour ce fichier seul et ne change pas le réglage. En
+  police ×2, les segments s'empilent. (Ajouté en P14.13. Avant, le fichier est en Arcade : le réglage n'existe qu'à
+  partir de P14.9, et l'exportateur ne prend un instrument qu'en P14.13.)
+- **Action** fixe en bas (Principal, 56 dp) : « Enregistrer comme sonnerie » ou « Enregistrer comme réveil », selon le
+  choix.
+- **En cours** : bouton désactivé ; au-delà de 18 ticks (300 ms), libellé « Enregistrement… » ; la feuille ne prend
+  plus aucun choix ; région vive « Enregistrement en cours ».
+- **Réussi, Sonnerie** (panneau à la place du contenu) : coche dans un disque `accent` et autocollant « C'EST FAIT »
+  (`Sticker`) ; « « *Nom* » est dans tes sonneries. » ; « Choisis-la dans les réglages Son du téléphone, à
+  Sonnerie. » ; **Ouvrir les réglages du son** (Principal), **Terminé**.
+- **Réussi, Réveil** : « « *Nom* » est dans tes sons de réveil. » ; « Dans l'Horloge, touche un réveil, puis son son :
+  elle est dans la liste. » ; **Ouvrir l'Horloge** (Principal, absent si aucune application ne répond), **Terminé**.
+  « Ouvrir les réglages du son » est de même absent si aucune application ne répond.
+- **Échec** : `danger` et pictogramme `ALERT`, région vive polie : « Le téléphone n'a pas pu l'enregistrer.
+  Réessaie. » ; la feuille reste ouverte, les choix gardés ; l'action devient **Réessayer**.
+- **Éditeur, musique jamais enregistrée ou grille vide** : fenêtre v2 « Enregistre d'abord ta musique », note « Elle a
+  besoin d'un nom pour arriver dans le téléphone. » ; réponses empilées : **Continuer**, puis **Enregistrer**
+  (Principal), qui ouvre Enregistrer (V34) ; une fois la musique enregistrée, la feuille s'ouvre.
+- **Éditeur, changements non enregistrés** : fenêtre « Des changements ne sont pas enregistrés », note « Le téléphone
+  recevra la musique telle qu'elle est enregistrée. » ; réponses : **Utiliser la version enregistrée**, puis
+  **Enregistrer d'abord** (Principal).
+- **Supprimer** (fenêtre de V32, Android 10 et plus) : une phrase de plus, « Si tu en as fait une sonnerie ou un
+  réveil, il reste dans le téléphone. » (BloX ne garde pas trace des fichiers écrits : la phrase vaut pour toutes les
+  musiques).
+- **Retours** (hors partie, aucune vibration) : ouverture de la feuille en `sheet-rise` et `motion-card` (18 ticks ;
+  fondu de 8 ticks en Effets réduits) ; Écouter en cours, `Equalizer` (immobile en Effets réduits) ; Enregistrer
+  pressé, appui de 2 dp ; réussite, l'autocollant rebondit (`motion-sticker`, 30 ticks ; fixe et fondu de 8 ticks en
+  Effets réduits) et l'arpège des lignes effacées sonne si les Effets sonores sont activés et qu'aucune écoute ne
+  joue. Fermer la feuille arrête l'écoute.
+- Écarté de cette première version : « Déjà dans le téléphone » et « Mettre à jour la sonnerie » (fichier remplacé sur
+  place), qui demandent de garder trace des fichiers écrits (P13.14, facultative) ; l'usage Notification.
+
+### V43 — Instruments (à dessiner, pas encore codée)
+
+Proposition de `designer-jeu` du 2026-10-31, adaptée ([ADR 0032](adr/0032-instruments.md), règles dans
+[musique.md](musique.md), Instruments). Couleurs v2, jour, nuit et police ×2.
+
+- **Ouverture** : rangée **« Instruments »** de la carte Sons et vibrations de « Tous les jeux » (V31), au-dessus de
+  « Volume de la musique », sous-ligne « *Arcade* · le son de toutes les musiques de BloX » (le nom de l'instrument
+  choisi). Elle ouvre la feuille.
+- **Feuille** (`BloxSheet`) : titre « Instruments », trois `SheetChoiceRow`, boutons radio d'un même groupe, chacune
+  avec son pictogramme (manette pour **Arcade**, lune pour **Velours**, éclair pour **Néon** ; nouveaux, décoratifs)
+  et son `ListenButton`, lu « Écouter *Velours* ».
+- **Écouter** joue le morceau d'essai dans cet instrument : la musique des parties du Classique (Korobeïniki si elle
+  n'est pas une partition, « Mon fichier » ou « Aucune »), ses 4 premières mesures en boucle. Fermer la feuille
+  arrête l'écoute.
+- **Choisir** enregistre le réglage sans fermer la feuille ; le choix se fait entendre une fois (1 mesure dans le
+  nouvel instrument), coche à l'appui.
+- Volume de la musique à 0 % : la feuille le dit, « Le volume de la musique est à 0 %. ».
+
+### Vues à modifier (P13 et P14)
+
+- **V31** (Paramètres) : rangée « Instruments » (V43) ; note du bas de la carte Sons et vibrations : « Volumes : tout
+  de suite. Instruments : dès la prochaine musique jouée. Le reste : dès le prochain jeu ouvert. ».
+- **V32** (Mes musiques) : rangée « Sonnerie ou réveil » du menu « … », phrase de plus dans la fenêtre Supprimer.
+- **V33** (éditeur) : rangée « Sonnerie ou réveil » du menu « … », fenêtres « Enregistre d'abord ta musique » et
+  « Des changements ne sont pas enregistrés ».
+- **V27** (accueil du Classique) : sous-ligne de « Mon fichier » dans la feuille Musique, « Un fichier audio de
+  l'appareil · joué tel quel » (l'instrument ne s'y applique pas).
 
 ## Icônes
 
