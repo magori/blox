@@ -1955,9 +1955,10 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
 - [x] **P13.1** Spécification et décision : ADR 0031, section « Sonnerie ou réveil » de `docs/musique.md`, vue V42
   numérotée (à dessiner) et vues à modifier notées dans `docs/maquette.md` ; documentation seule. Fait le 2026-10-31,
   avec P14.1.
-- [ ] **P13.2** `MUSIC_SAMPLE_RATE` (44 100) public dans `core:audio`, un seul `Synthesizer` de musique partagé par le
+- [x] **P13.2** `MUSIC_SAMPLE_RATE` (44 100) public dans `core:audio`, un seul `Synthesizer` de musique partagé par le
   séquenceur et l'export dans `AppContainer` ; pur refactoring, tests existants et empreintes de P14.2 verts ;
-  `SoundFingerprintTest` lit alors cette constante au lieu de sa copie `MUSIC_SAMPLE_RATE`. Après P14.2.
+  `SoundFingerprintTest` lit alors cette constante au lieu de sa copie `MUSIC_SAMPLE_RATE`. Après P14.2. Fait le
+  2026-10-31 (l'export y prend le même synthétiseur en P13.6).
 - [x] **P13.3** `WavEncoder` (`core:audio`, pur, JVM). Cas : `the header is RIFF WAVE with a fmt chunk of PCM, mono,
   16 bits, at the sample rate given`, `the RIFF and data sizes match the number of samples`, `a sample of 1 is
   written as 32767 and a sample of -1 as -32767, little endian`, `a sample beyond -1 or 1 is clipped`, `zero is

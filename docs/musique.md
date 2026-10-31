@@ -687,9 +687,10 @@ qui s'arrête sur `GameOver`.
 
 ## Sonnerie ou réveil
 
-Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : la longueur, le niveau, le format et le
-nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`) ; **pas encore** le rendu partagé, l'écriture ni
-l'interface (P13.2, P13.6 à P13.14). Vues : V42
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : le synthétiseur de la musique, un seul
+dans `AppContainer` à `MUSIC_SAMPLE_RATE` (public dans `core:audio`, P13.2), la longueur, le niveau, le format et le
+nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`) ; **pas encore** l'écriture ni l'interface (P13.6 à
+P13.14). Vues : V42
 (feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
 
 **Périmètre**

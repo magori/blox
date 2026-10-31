@@ -11,6 +11,7 @@ import ch.magori.blox.core.audio.AudioFilePlayer
 import ch.magori.blox.core.audio.AudioTrackSink
 import ch.magori.blox.core.audio.ChiptuneSequencer
 import ch.magori.blox.core.audio.FocusedMusicPlayer
+import ch.magori.blox.core.audio.MUSIC_SAMPLE_RATE
 import ch.magori.blox.core.audio.MediaPlayerTracks
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.MusicSwitch
@@ -174,6 +175,12 @@ class AppContainer(context: Context) {
     val systemAnimations: SystemAnimations = SystemAnimations(AndroidAnimationSetting(context), dataScope)
 
     /**
+     * The synthesizer of the music, at [MUSIC_SAMPLE_RATE]: the only one, so that a ringtone sounds exactly as the
+     * music in BloX (ADR 0031). It holds no state; the sequencer and the export of a ringtone render with it.
+     */
+    private val musicSynthesizer: Synthesizer = Synthesizer(MUSIC_SAMPLE_RATE)
+
+    /**
      * The music of the games and of the preview on the home screen: a single sequencer for the whole life
      * of the process, rendering on [Dispatchers.Default] and writing to an [AudioTrackSink] on
      * [Dispatchers.IO], and a single player of the music file of the player, on `MediaPlayer`, one of them
@@ -185,7 +192,7 @@ class AppContainer(context: Context) {
     private val music: MusicPlayer = FocusedMusicPlayer(
         player = MusicSwitch(
             scores = ChiptuneSequencer(
-                synthesizer = Synthesizer(MUSIC_SAMPLE_RATE),
+                synthesizer = musicSynthesizer,
                 openSink = ::AudioTrackSink,
                 scope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
                 onFailure = { failure -> Log.w(TAG, "The music stopped", failure) },
@@ -367,9 +374,6 @@ class AppContainer(context: Context) {
 }
 
 private const val TAG = "BloX"
-
-/** Samples per second of the music: 44 100 Hz, the rate of a CD, which every Android device plays. */
-private const val MUSIC_SAMPLE_RATE = 44_100
 
 /**
  * The DataStore file [name] in [filesDir], the private files of the application: `files/datastore/<name>`.
