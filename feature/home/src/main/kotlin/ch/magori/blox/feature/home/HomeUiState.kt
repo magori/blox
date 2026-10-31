@@ -15,6 +15,8 @@ import ch.magori.blox.core.data.ThemeChoice
  *   fichier » once a music file is picked.
  * @property previewing the music being listened to, one of [listenable]; null when none is.
  * @property hasMusicFile whether a music file is picked for « Mon fichier »: it may then be changed.
+ * @property musicFileName the name of the music file picked, shown under « Mon fichier »; null when there is none, or
+ *   when it is not known (a file picked before the names were kept, a name that could not be read).
  * @property gameMusic the music of the player played during the games (« Mes musiques »), instead of [music]; null
  *   when there is none.
  */
@@ -27,6 +29,7 @@ internal data class HomeUiState(
     val listenable: List<MusicChoice>,
     val previewing: MusicChoice?,
     val hasMusicFile: Boolean = false,
+    val musicFileName: String? = null,
     val gameMusic: GameMusicUi? = null,
 ) {
     /**

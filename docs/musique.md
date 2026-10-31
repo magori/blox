@@ -105,14 +105,50 @@ après l'étiquette « Musique », Écouter (`ListenButton`) pour la musique ret
 TalkBack ne lit pas) pour *Aucune*, ou une place vide de 48 dp pour *Mon fichier* sans fichier ; puis le nom de la
 musique et un chevron, bouton lu « Musique : X. Choisir une autre musique », qui ouvre une feuille du bas (`BloxSheet`,
 ouverture gardée par l'écran). La feuille offre Korobeïniki, Menuet, Mon fichier, la musique du joueur pour les
-parties (s'il en a une) et Aucune, en `SheetChoiceRow` cochées, chacune avec sa ligne (*Mon fichier* : « Un fichier
-audio de l'appareil », ou « Choisir un fichier audio » sans fichier ; textes du développeur) et Écouter quand elle
+parties (s'il en a une) et Aucune, en `SheetChoiceRow` cochées, chacune avec sa ligne (*Mon fichier* : le nom du
+fichier gardé, « Un fichier audio de l'appareil » si ce nom n'est pas connu, ou « Choisir un fichier audio » sans
+fichier ; textes du développeur) et Écouter quand elle
 s'écoute. Choisir enregistre sans fermer ; *Mon fichier* sans fichier ouvre le sélecteur du système. *Changer*
 n'est que dans la feuille, sur la rangée *Mon fichier* qui a un fichier, entre le choix et Écouter, ou sous la
 rangée, au bout, quand la place manque (police agrandie, fenêtre étroite). Un seul aperçu à la fois ; fermer la
 feuille (retour ou voile) l'arrête. Écarts avec la maquette : *Changer* absent de la carte (trop étroit à 360 dp),
-pas de croix dans le titre de la feuille, pas de nom de fichier sous *Mon fichier*, lignes sur deux lignes au lieu
-d'être coupées. **Rappel sous Jouer** (décision du développeur) : il nomme la musique qui jouera ; *Mon fichier* sans
+pas de croix dans le titre de la feuille, lignes sur deux lignes au lieu d'être coupées (sauf le nom du fichier),
+*Changer* sous la rangée *Mon fichier*, au bout, dès que le nom du fichier est affiché (à 360 dp en police normale
+aussi ; la maquette le met à côté du nom, qui serait alors coupé : P5.116).
+**Nom du fichier** (P5.38) : sous *Mon fichier*, le nom que montre le sélecteur du système (« orage-d-ete.ogg »,
+`OpenableColumns.DISPLAY_NAME`), sur une ligne, à la taille de la police (×2 compris), coupé au milieu par une ellipse
+s'il est trop long, pour garder son début et son extension ; *Changer* passe sous la rangée plutôt que de couper un
+nom qui tiendrait seul (`SheetChoiceRow`, `oneLineSubLine` : la ligne demande sa largeur entière) ; TalkBack le lit en entier, avec le choix (« Mon fichier,
+orage-d-ete.ogg, case d'option »). Il est lu **une fois, au choix du fichier** (`MusicFileNames`, `core:data` ;
+implémentation `DocumentMusicFileNames` dans `app`, requête du `ContentResolver` hors du fil principal, attendue 2 s
+au plus : le choix attend le nom, et un fournisseur muet ne doit pas le retenir ; passé ce délai, pas de nom), puis gardé
+avec l'URI dans `music_file.preferences_pb` (clé `name`) : l'accueil ne redemande jamais le document, et le nom reste
+même si la permission se perd ou si le fichier est supprimé (le repli sur Korobeïniki, lui, ne se découvre qu'à la
+partie). Un nom illisible (document hors d'atteinte, sans fournisseur, sans nom ou nom vide) n'empêche pas le choix :
+le fichier est gardé sans nom. Sans nom connu (fichier choisi avant P5.38, ancien fichier de préférences sans la clé
+`name`, relu tel quel), la ligne reste « Un fichier audio de l'appareil ». Le nom, comme l'URI, ne quitte pas
+l'appareil : le fichier est déjà hors des règles de sauvegarde (`BackupRulesTest` inchangé).
+**Tests :** `MusicFileRepositoryContract › the name of the music file chosen is read back with it`,
+`MusicFileRepositoryContract › a music file chosen without a name has none, even when it was kept with one before`,
+`MusicFileRepositoryContract › another music file chosen with its name replaces the name of the one before`,
+`MusicFileRepositoryContract › the named music file flow emits each change once, and nothing when the same file is chosen again`,
+`ReadWithinTest › a read that answers in time gives its answer`,
+`ReadWithinTest › a read that does not answer in time gives nothing, without waiting for it any longer`,
+`DataStoreMusicFileRepositoryTest › a music file kept by an earlier version, without a name, is read back without one`,
+`DataStoreMusicFileRepositoryTest › the name is stored as text under a key that must not change`,
+`HomeViewModelTest › choosing a music file keeps the name the picker shows, shown under my file`,
+`HomeViewModelTest › choosing a music file whose name cannot be read keeps it without a name, shown without one`,
+`DocumentMusicFileNamesTest › the name of an audio file of the device is its display name, and it has none once deleted`,
+`DocumentMusicFileNamesTest › a document out of reach, its permission lost or never given, has no name`,
+`DocumentMusicFileNamesTest › a document of no provider, or no document at all, has no name`,
+`DocumentMusicFileNamesTest › the name is the display name of the first row; none without a row, a column, or with a blank one`,
+`SheetChoiceRowTest › a sub-line kept on one line, too long for it, is cut in its middle, and read whole by TalkBack`,
+`HomeScreenTest › in the sheet, Mon fichier with a file shows its name under it, read by TalkBack with the choice`,
+`HomeScreenTest › in the sheet, Mon fichier with a file of unknown name says it is an audio file of the device`,
+`HomeScreenTest › in a normal font, on 360 dp, a name of a file stands whole under Mon fichier, Changer under the row`,
+`HomeScreenTest › in a font twice as large, a long name of a file holds one line under Mon fichier, cut in its middle, apart` ;
+captures `HomeMusicSheet*`. Vue : V1.
+**Rappel sous Jouer** (décision du développeur) : il nomme la musique qui jouera ; *Mon fichier* sans
 fichier gardé joue Korobeïniki (`MusicChoice.MY_FILE_FALLBACK`, `core:data`, partagé avec `app`), et le rappel le dit,
 tandis que la rangée de la carte garde « Mon fichier », le réglage choisi. Un fichier gardé mais illisible n'est
 découvert qu'à la partie : le rappel dit alors encore « Mon fichier ».
@@ -647,6 +683,131 @@ qui s'arrête sur `GameOver`.
 `ClassicStackDangerRuleTest › in danger the stack leaves danger only when its height falls to 12 or less`,
 `ClassicStackDangerRuleTest › the same height gives a different answer depending on whether the stack was in danger`,
 `ClassicStackDangerRuleTest › a stack height outside 0 to 20 is refused`.
+
+## Sonnerie ou réveil
+
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore codée** (P13.2 à P13.14). Vues : V42
+(feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
+
+**Périmètre**
+
+- Seules les musiques de « Mes musiques » deviennent une sonnerie ou un réveil. Ni *Korobeïniki* (confirmation des
+  droits encore ouverte, P4.10, et associée au jeu de 1989), ni le *Menuet* (on n'exporte que ce que le joueur a
+  créé), ni les musiques composées par un jeu (Musique vivante, Jardin, accompagnement d'Au tempo), ni « Mon
+  fichier ».
+- Deux usages : **Sonnerie** (appels entrants) et **Réveil** (pour l'application Horloge). Pas de notification :
+  un son de notification dure moins de 3 s et ne boucle pas.
+- **Android 10 (API 29) et plus** seulement : avant l'API 29, la ligne « Sonnerie ou réveil » n'apparaît dans aucun
+  menu.
+- Points d'entrée : le menu « … » d'une musique de Mes musiques et celui de l'éditeur. L'éditeur exporte la
+  version **enregistrée** de la musique.
+
+**Le fichier**
+
+- Rendu par le synthétiseur de la musique (`Synthesizer`, `MUSIC_SAMPLE_RATE`, 44 100 Hz), au tempo de la musique,
+  dans l'instrument choisi dans la feuille (Instruments, ci-dessous ; présélectionné sur le réglage).
+- **Longueur** : des boucles entières de la musique, le plus petit nombre qui dure **au moins 20 s**. Une boucle de
+  20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
+  boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
+  (5,3 Mo), et le système le reprend au début d'une mesure. **Sans fondu** : le système rejoue le fichier en
+  boucle ; fait de boucles entières, il se raccorde sans couture.
+- **Niveau** : la crête est normalisée à **−1 dBFS** (0,891) ; les musiques culminent vers 0,23 (environ −13 dBFS)
+  dans le jeu. Un rendu silencieux reste silencieux.
+- **Format** : WAV PCM 16 bits, mono, 44 100 Hz (en-tête RIFF `WAVE`, morceau `fmt ` PCM, morceau `data`, petit
+  boutiste) ; un échantillon de 1 s'écrit 32 767, de −1 −32 767, au-delà de [−1, 1] il est écrêté. De 1,8 à 5,3 Mo.
+- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier sont remplacés ;
+  un nom fait seulement d'espaces ou de symboles donne « BloX ». Le titre lu par le sélecteur du système est le nom de
+  la musique.
+- **Où** : `Ringtones/BloX/` (Sonnerie) ou `Alarms/BloX/` (Réveil), écrit par `MediaStore`, marqué comme sonnerie ou
+  réveil, sans aucune permission. Chaque export crée un nouveau fichier ; si le nom est pris, le fichier devient
+  « Nom (1).wav » et son titre « Nom (1) », pour que le sélecteur du système distingue les deux. Les
+  fichiers restent dans le téléphone après la désinstallation de BloX, et quand la musique est supprimée.
+
+**Ce que BloX ne fait pas** : il ne règle jamais la sonnerie ni un réveil lui-même (ni `WRITE_SETTINGS`, ni aucune
+permission de stockage). Après l'écriture, la feuille propose d'ouvrir les réglages du son (Sonnerie) ou l'Horloge
+(Réveil), seulement si une application du téléphone y répond.
+
+**[à vérifier] sur téléphone** (P13.13) : la boucle se raccorde sans claquement dans le sélecteur du système ; le
+niveau à côté des sonneries du système ; l'Horloge (Pixel, Samsung si possible) liste bien `Alarms/BloX/` ; ce que
+devient un réveil réglé sur un fichier supprimé (Android 10 et plus).
+
+**Écarts** : une boucle de plus de 60 s est coupée, donc ne se raccorde qu'au début d'une mesure, pas à celui de sa
+phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première version (tâche facultative P13.14).
+
+## Instruments
+
+Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.2 à P14.20). Vues : V43 (feuille
+Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
+« Mon fichier »).
+
+**Le réglage**
+
+- « Instruments », un réglage **général** (« Tous les jeux », carte Sons et vibrations, ADR 0030), trois choix :
+  **Arcade** (le son d'aujourd'hui, par défaut), **Velours** (doux, apaisant : boîte à musique, lo-fi du soir),
+  **Néon** (dynamique, tendance : synthpop, en écho aux néons du thème nuit). Dans le code,
+  `enum class SoundStyle { ARCADE, VELVET, NEON }`, enregistré par nom ; un nom inconnu se lit Arcade.
+- Pas de choix par musique : `musics.bin` ne change pas. La feuille Sonnerie peut choisir un autre instrument pour
+  le fichier seul, sans changer le réglage.
+- Un changement vaut **dès la prochaine musique jouée** (prochain lancement, reprise ou changement de musique), effets
+  sonores compris : les effets prennent le nouvel instrument en même temps que la musique.
+
+**Ce que l'instrument habille** : toutes les partitions jouées par BloX (Korobeïniki, Menuet, ma musique, Musique
+vivante, Graine du jour, Écouter de l'accueil, Mes musiques, éditeur, Jardin, accompagnement d'Au tempo), le fichier
+d'une sonnerie, et les effets sonores (Classique, Serrurier, Jardin). **Pas « Mon fichier »**, un fichier audio
+joué tel quel.
+
+**Comment** : une voix garde sa `Waveform`, qui dit désormais son **rôle** (`SQUARE` la mélodie, `TRIANGLE` la
+basse) ; l'instrument lui donne un **ton** (`Tone` : carrée, triangle, impulsion d'un quart, sinus, dent de scie), une
+**forme de note** (`NoteShape` : `Gate`, l'enveloppe d'aujourd'hui, ou `Adsr`, en millisecondes), un passe-bas à un
+pôle facultatif et un gain ; le style ajoute un écho facultatif (`Echo` : délai en temps, retour, part), appliqué
+au mixage et enroulé sur le début du tampon, si bien que la boucle reste sans raccord.
+
+Règles communes :
+
+- **Arcade rend exactement les échantillons d'avant les instruments**, musiques et effets : des empreintes sont
+  figées par des tests sur l'API d'aujourd'hui (P14.2), avant tout changement du synthétiseur, P13.2 compris :
+  Korobeïniki, le Menuet et une musique générée, à × 1 et × 1,25, et chaque effet du Classique, du Serrurier et du
+  Jardin.
+- Chaque instrument **attaque en 5 ms au plus** : le temps reste net dans Au tempo et les retours en jeu restent
+  lisibles ; la douceur vient de l'onde, du filtre, de l'extinction et de l'écho.
+- Une note dure toujours `temps × 60 / bpm` ; l'extinction d'une `Adsr` tient dans la note, sans déborder sur la
+  suivante de la voix.
+- Scie et impulsion sont limitées en bande (pas de repliement audible dans les aigus).
+- Les trois instruments ont le **même niveau à ±1 dB RMS** (Korobeïniki et les musiques générées de chaque
+  catégorie) ; le mixage reste dans [−1, 1].
+- L'écho suit le tempo (délai en temps) : il reste sur la mesure quand la musique accélère de × 1,25.
+
+Valeurs de départ, **[à vérifier] à l'oreille** sur un téléphone (P14.16) ; les gains se règlent ensuite par la
+mesure du niveau (P14.17), une fois les timbres arrêtés à l'oreille :
+
+- **Arcade** : mélodie (voix `SQUARE`) carrée, basse (voix `TRIANGLE`) triangle, toutes deux en `Gate` (80 % de la
+  note tenus, fondu jusqu'à 95 %) ; ni filtre, ni écho.
+- **Velours** : mélodie en sinus, `Adsr` 4 / 250 / 0,6 / 200 ms, sans filtre ; basse triangle, passe-bas 600 Hz,
+  `Adsr` 5 / 300 / 0,7 / 150 ms ; écho de ¾ de temps, retour 0,3, part 0,25.
+- **Néon** : mélodie en dent de scie, passe-bas 2 500 Hz, `Adsr` 2 / 120 / 0,7 / 60 ms ; basse en impulsion d'un
+  quart, passe-bas 900 Hz, `Adsr` 2 / 80 / 0,5 / 40 ms ; écho d'un demi-temps, retour 0,2, part 0,2.
+
+(`Adsr` : attaque / déclin / maintien / extinction.)
+
+**Effets sonores** : un effet prend le **ton** et le filtre de l'instrument de sa `Waveform` (`SQUARE` celui de la
+mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir
+Effets sonores) et **aucun écho** : un retour reste court et lisible. Exemple : en Velours, les lignes effacées
+montent l'accord de do sur le sinus de la mélodie. À la prochaine musique jouée, les effets rendus dans l'ancien
+instrument sont oubliés et rendus de nouveau. Leur niveau suit la même règle de ±1 dB RMS.
+
+**[à vérifier] à l'oreille** (P14.16) : Velours pâteux et Néon saturé à × 1,25 (pile en danger, niveaux 18 et
+19) ; le métronome d'Au tempo dans chaque instrument ; le raccord de la boucle avec l'écho ; les effets du
+Classique, du Serrurier et du Jardin dans chaque instrument ; la sonie d'une sonnerie en Néon, qui, normalisée en
+crête, peut sonner plus fort que les autres. **[à vérifier] par la mesure** (P14.18) : le rendu
+d'une musique de 8 mesures en moins de 150 ms sur un téléphone d'entrée de gamme, dans chaque instrument.
+
+**Écarts** :
+
+- Néon sans batterie dans cette phase (la proposition du designer en avait une : grosse caisse sur les temps,
+  claquement sur 2 et 4, charleston en croches) ; tâche facultative P14.19, jamais dans Au tempo.
+- Néon à un seul oscillateur par voix : les dents de scie désaccordées du designer demanderaient deux oscillateurs
+  par note ; à reprendre si l'écoute le demande.
+- Velours sans réverbération : l'écho en tient lieu (une réverbération coûterait plus au rendu).
 
 ## Partitions (prototype de la maquette)
 

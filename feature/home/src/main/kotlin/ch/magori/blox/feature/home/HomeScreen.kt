@@ -154,6 +154,7 @@ private fun HomeScreenPreview(
     theme: ThemeChoice,
     gameMusic: GameMusicUi? = null,
     sheet: Boolean = false,
+    musicFileName: String = "orage-d-ete.ogg",
 ) {
     val kind = when (theme) {
         ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
@@ -169,6 +170,7 @@ private fun HomeScreenPreview(
         listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
         previewing = if (sheet) MusicChoice.MINUET else null,
         hasMusicFile = true,
+        musicFileName = musicFileName,
         gameMusic = gameMusic,
     )
     BloxTheme(kind = kind) {
@@ -255,6 +257,17 @@ internal fun HomeMusicSheetOriginalPreview() {
 @Composable
 internal fun HomeMusicSheetColorfulLargeFontPreview() {
     HomeScreenPreview(ThemeChoice.COLORFUL, sheet = true)
+}
+
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+internal fun HomeMusicSheetLongFileNameLargeFontPreview() {
+    // A name of a music file far too long for its line: cut in its middle, its extension kept.
+    HomeScreenPreview(
+        ThemeChoice.COLORFUL,
+        sheet = true,
+        musicFileName = "enregistrement-de-l-orage-du-soir-sur-le-lac-en-aout-version-longue.ogg",
+    )
 }
 
 @Preview(widthDp = 360, heightDp = 1000)

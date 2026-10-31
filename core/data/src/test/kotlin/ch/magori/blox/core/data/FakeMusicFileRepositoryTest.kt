@@ -19,7 +19,8 @@ class FakeMusicFileRepositoryTest : MusicFileRepositoryContract() {
         val repository = FakeMusicFileRepository(initial = kept, failWrites = true)
 
         // When
-        val failure = runCatching { repository.setMusicFile(MusicFile("content://music/2")) }.exceptionOrNull()
+        val other = MusicFile("content://music/2")
+        val failure = runCatching { repository.setMusicFile(other, name = null) }.exceptionOrNull()
 
         // Then
         assertThat(failure).isInstanceOf(IOException::class.java)
