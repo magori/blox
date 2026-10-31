@@ -265,13 +265,27 @@ basses.
   `attackMillis`, descend linéairement jusqu'à `sustain` en `decayMillis`, le tient, puis s'éteint linéairement
   vers le silence sur les `releaseMillis` **qui finissent la note** (temps arrondis à l'échantillon) : l'extinction
   se termine sur le dernier échantillon de la note et ne déborde jamais sur la suivante. Dans une note plus courte
-  que l'extinction, celle-ci est raccourcie et part du niveau atteint, une fois l'attaque finie. Le filtre (P14.6),
-  l'écho (P14.7) et le gain de l'instrument (tous à 1, P14.17) ne sont pas encore appliqués.
+  que l'extinction, celle-ci est raccourcie et part du niveau atteint, une fois l'attaque finie. Le gain de
+  l'instrument (tous à 1, P14.17) n'est pas encore appliqué.
+- **Filtre de l'instrument** (P14.6) : un instrument qui a un `lowPass` fait passer **toute sa voix**, une fois
+  rendue, par un passe-bas à un pôle de cette fréquence de coupure : chaque échantillon de sortie s'approche du
+  précédent vers l'entrée d'une fraction `1 − e^(−2π × coupure / taux)`, en partant du silence. Une constante passe
+  inchangée, un ton à la fréquence de coupure sort environ 3 dB plus bas, et l'atténuation croît d'environ 6 dB par
+  octave au-dessus. Un instrument sans filtre (`lowPass` nul, Arcade) n'est pas touché.
 - **Durée** : une note dure `temps × 60 / bpm × fréquence` échantillons ; les bornes de chaque
   note se calculent depuis le temps cumulé, si bien qu'une voix entière dure exactement sa
   durée totale, sans dérive d'arrondi.
 - **Mixage** : `mix` additionne les voix, échantillon par échantillon, puis écrête à [−1, 1].
   Les voix doivent avoir la même longueur (garanti par `Score`).
+- **Écho du style** (P14.7) : un style qui a un `Echo` l'applique **au mixage**, une fois les voix additionnées. Le
+  son revient après `delayBeats` temps, compté au tempo joué (`sampleAt(delayBeats, bpm × facteur)`) : à × 1,25,
+  l'écho reste sur la mesure. Chaque retour vaut `feedback` fois le précédent, et la somme des retours s'ajoute au son
+  à la part `wet`. L'écho est **circulaire** : ce qui revient au-delà de la fin du tampon résonne sur son début, comme
+  à la reprise de la boucle, si bien que la boucle reste sans raccord et garde la longueur de la partition. Le calcul
+  rejoue le tampon assez de fois pour que les retours venus d'avant son début tombent sous 10⁻⁶ de leur niveau. La
+  somme est écrêtée à [−1, 1] ; avec les volumes des partitions et les échos des styles (retour au plus 0,3, part au
+  plus 0,25), elle n'a jamais à l'être. Arcade n'a pas d'écho. Le délai compte au moins un échantillon (un délai
+  nul est refusé) ; un tampon vide reste vide.
 - La fréquence d'échantillonnage et le tempo doivent être positifs.
 
 **Tests :** `SynthesizerTest › a square wave at 440 Hz alternates plus and minus the volume with a period of about 100 point 2 samples`,
@@ -292,7 +306,19 @@ basses.
 `SynthesizerTest › an ADSR rises over its attack, falls to its sustain over its decay, and releases at the end of the note`,
 `SynthesizerTest › a release never runs into the next note of the voice`,
 `SynthesizerTest › a release longer than the note starts once the attack is over`,
-`ScoreRenderTest › a note still lasts its beats times 60 over the tempo, whatever the style`.
+`ScoreRenderTest › a note still lasts its beats times 60 over the tempo, whatever the style`,
+`LowPassTest › a constant signal passes the low-pass unchanged`,
+`LowPassTest › a tone at the cutoff comes out about 3 dB lower`,
+`LowPassTest › a tone far above the cutoff is attenuated`,
+`LowPassTest › an instrument without filter is not changed`,
+`EchoMixTest › a click comes back after the delay of the echo at its feedback`,
+`EchoMixTest › the delay of the echo follows the tempo, in beats`,
+`EchoMixTest › in the rendering the echo follows the tempo factor`,
+`EchoMixTest › an echo comes back after one sample at least`,
+`EchoMixTest › an empty loop stays empty`,
+`EchoMixTest › the echo of the end of the loop sounds at its start, so that the loop has no seam`,
+`EchoMixTest › the rendering keeps the length of the score`,
+`EchoMixTest › the echo never takes the mix beyond -1 and 1`.
 
 ## Lecture en boucle
 
@@ -839,8 +865,9 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
 (P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
-dans un style, ton et forme de note (P14.5, voir Synthèse) ; filtre, écho, effets, réglage et interface **pas
-encore codés** (P14.6 à P14.20). Vues : V43 (feuille
+dans un style, ton et forme de note (P14.5, voir Synthèse), le filtre de l'instrument (P14.6) et l'écho du style
+(P14.7, voir Synthèse), le rendu des effets dans un style (P14.14, voir Effets sonores ci-dessous) ; réglage,
+branchement des effets et interface **pas encore codés** (P14.8 à P14.13, P14.15 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -940,7 +967,21 @@ ici et dans le code ensemble.
 mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir
 Effets sonores) et **aucun écho** : un retour reste court et lisible. Exemple : en Velours, les lignes effacées
 montent l'accord de do sur le sinus de la mélodie. À la prochaine musique jouée, les effets rendus dans l'ancien
-instrument sont oubliés et rendus de nouveau. Leur niveau suit la même règle de ±1 dB RMS.
+instrument sont oubliés et rendus de nouveau (branchement : P14.15, **pas encore codé** ; d'ici là, les effets se
+jouent en Arcade). Leur niveau suit la même règle de ±1 dB RMS.
+
+Codé en P14.14 : `Synthesizer.render(effect, style = SoundStyle.ARCADE)` rend chaque blip sur le ton de
+`style.instrumentFor(effect.waveform)`, avec l'enveloppe de l'effet (pas la forme de note de l'instrument), puis fait
+passer l'effet entier par le passe-bas de l'instrument s'il en a un (même filtre que les voix, voir Synthèse) ;
+aucun écho, si bien qu'un effet dure exactement ses millisecondes. En Arcade, les effets rendent les empreintes de
+P14.2.
+
+**Tests :** `SoundFingerprintTest › in the Arcade style the effects render the fingerprints of P14.2`,
+`SoundEffectStyleTest › in the Velvet style the lines cleared play on the tone of the velvet melody`,
+`SoundEffectStyleTest › in the Neon style an effect passes the low-pass of its instrument`,
+`SoundEffectStyleTest › an effect keeps its own envelope, starting within 5 milliseconds, whatever the style`,
+`SoundEffectStyleTest › an effect has no echo, so that it lasts its milliseconds`,
+`SoundEffectStyleTest › in every style the effects of the locksmith and of the garden take the tone of their waveform`.
 
 **[à vérifier] à l'oreille** (P14.16) : Velours pâteux et Néon saturé à × 1,25 (pile en danger, niveaux 18 et
 19) ; le métronome d'Au tempo dans chaque instrument ; le raccord de la boucle avec l'écho ; les effets du
