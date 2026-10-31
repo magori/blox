@@ -686,7 +686,9 @@ qui s'arrête sur `GameOver`.
 
 ## Sonnerie ou réveil
 
-Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore codée** (P13.2 à P13.14). Vues : V42
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : la longueur, le niveau, le format et le
+nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`) ; **pas encore** le rendu partagé, l'écriture ni
+l'interface (P13.2, P13.6 à P13.14). Vues : V42
 (feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
 
 **Périmètre**
@@ -710,14 +712,41 @@ Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore 
   20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
   boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
   (5,3 Mo), et le système le reprend au début d'une mesure. **Sans fondu** : le système rejoue le fichier en
-  boucle ; fait de boucles entières, il se raccorde sans couture.
+  boucle ; fait de boucles entières, il se raccorde sans couture. Une mesure dure rarement un nombre entier
+  d'échantillons (`samplesPerBar` est un `Double`) : la coupe tombe sur l'échantillon le plus proche de la fin de la
+  dernière mesure entière, comme le synthétiseur place le début de chaque note. `ringtoneSamples` refuse un rendu
+  vide, et une mesure nulle, négative ou de plus de 60 s (aucune mesure entière n'y tiendrait).
 - **Niveau** : la crête est normalisée à **−1 dBFS** (0,891) ; les musiques culminent vers 0,23 (environ −13 dBFS)
-  dans le jeu. Un rendu silencieux reste silencieux.
+  dans le jeu. Tous les échantillons sont multipliés par le même gain. Un rendu silencieux reste silencieux.
+
+  **Tests :** `RingtoneSamplesTest › a loop shorter than 20 seconds is repeated until the ringtone lasts at least
+  20 seconds`, `RingtoneSamplesTest › the ringtone holds only whole loops, so that it loops without a seam`,
+  `RingtoneSamplesTest › a loop of 20 to 60 seconds is kept once`,
+  `RingtoneSamplesTest › a loop longer than 60 seconds is cut at its last whole bar before 60 seconds`,
+  `RingtoneSamplesTest › the ringtone never lasts more than 60 seconds`,
+  `RingtoneSamplesTest › the loudest sample is brought to minus 1 dBFS`,
+  `RingtoneSamplesTest › a silent rendering stays silent, without dividing by zero`,
+  `RingtoneSamplesTest › an empty rendering is refused`,
+  `RingtoneSamplesTest › a bar of no length or less is refused`,
+  `RingtoneSamplesTest › a bar longer than 60 seconds is refused`.
 - **Format** : WAV PCM 16 bits, mono, 44 100 Hz (en-tête RIFF `WAVE`, morceau `fmt ` PCM, morceau `data`, petit
   boutiste) ; un échantillon de 1 s'écrit 32 767, de −1 −32 767, au-delà de [−1, 1] il est écrêté. De 1,8 à 5,3 Mo.
-- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier sont remplacés ;
-  un nom fait seulement d'espaces ou de symboles donne « BloX ». Le titre lu par le sélecteur du système est le nom de
-  la musique.
+  `WavEncoder` refuse lui aussi un rendu vide (un fichier sans échantillon).
+
+  **Tests :** `WavEncoderTest › the header is RIFF WAVE with a fmt chunk of PCM, mono, 16 bits, at the sample rate
+  given`, `WavEncoderTest › the RIFF and data sizes match the number of samples`,
+  `WavEncoderTest › a sample of 1 is written as 32767 and a sample of -1 as -32767, little endian`,
+  `WavEncoderTest › a sample beyond -1 or 1 is clipped`, `WavEncoderTest › zero is written as zero`,
+  `WavEncoderTest › an empty rendering is refused`.
+- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier
+  (`/ \ : * ? " < > |`, ceux de FAT, et les caractères de contrôle) sont remplacés par `_` ; un nom sans lettre ni
+  chiffre (vide, fait seulement d'espaces ou de symboles) donne « BloX ». Le titre lu par le sélecteur du système est
+  le nom de la musique. Le nom n'est pas tronqué : un nom de Mes musiques tient en 40 caractères au plus
+  (`SavedMusic.MAX_NAME_LENGTH`), soit 160 octets en UTF-8, loin des 255 octets d'un nom de fichier.
+
+  **Tests :** `RingtoneFileNameTest › the file is named after the music, with the wav extension`,
+  `RingtoneFileNameTest › the characters a file name may not hold are replaced`,
+  `RingtoneFileNameTest › a name of spaces or symbols only gives BloX`.
 - **Où** : `Ringtones/BloX/` (Sonnerie) ou `Alarms/BloX/` (Réveil), écrit par `MediaStore`, marqué comme sonnerie ou
   réveil, sans aucune permission. Chaque export crée un nouveau fichier ; si le nom est pris, le fichier devient
   « Nom (1).wav » et son titre « Nom (1) », pour que le sélecteur du système distingue les deux. Les
