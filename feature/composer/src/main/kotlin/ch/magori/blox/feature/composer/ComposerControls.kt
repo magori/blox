@@ -21,13 +21,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.IntrinsicMeasurable
-import androidx.compose.ui.layout.IntrinsicMeasureScope
-import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.Measurable
-import androidx.compose.ui.layout.MeasurePolicy
-import androidx.compose.ui.layout.MeasureResult
-import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
@@ -40,8 +33,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonEmphasis
@@ -50,8 +41,10 @@ import ch.magori.blox.core.designsystem.component.ButtonSize
 import ch.magori.blox.core.designsystem.component.ChoiceColors
 import ch.magori.blox.core.designsystem.component.ChoiceItem
 import ch.magori.blox.core.designsystem.component.ChoiceSegments
+import ch.magori.blox.core.designsystem.component.FixedBesideRest
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.SideBySideOrStacked
 import ch.magori.blox.core.designsystem.component.lineWidth
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxBorders
@@ -104,7 +97,12 @@ internal fun ModesAndUndo(
     onUndo: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    FixedBesideRest(fixedFirst = true, restMin = BloxSizes.minTouchTarget, modifier = modifier) {
+    FixedBesideRest(
+        fixedFirst = true,
+        gap = ComposerSizes.gap,
+        restMin = BloxSizes.minTouchTarget,
+        modifier = modifier,
+    ) {
         ChoiceSegments(
             name = stringResource(R.string.feature_composer_tools),
             choices = EditMode.entries.map { ChoiceItem(stringResource(it.label), icon = it.icon) },
@@ -124,7 +122,8 @@ internal fun ModesAndUndo(
 /**
  * The eight bar buttons, on two rows of four, the selected [bar], counted from 0, in `accent`; then *Copier la mesure*
  * and *Effacer la mesure*, one above the other, each disabled when it has no effect ([canCopyBar], [canClearBar]), or
- * under the bars, side by side, when the line is too narrow for the bars beside them ([FixedBesideRest]).
+ * under the bars, side by side if they hold there ([SideBySideOrStacked]), when the line is too narrow for the bars
+ * beside them ([FixedBesideRest]).
  */
 @Composable
 internal fun BarsAndTools(
@@ -138,9 +137,10 @@ internal fun BarsAndTools(
     modifier: Modifier = Modifier,
 ) {
     val barsMin = BloxSizes.minTouchTarget * BARS_PER_ROW + ComposerSizes.gap * (BARS_PER_ROW - 1)
-    FixedBesideRest(fixedFirst = false, restMin = barsMin, modifier = modifier) {
+    FixedBesideRest(fixedFirst = false, gap = ComposerSizes.gap, restMin = barsMin, modifier = modifier) {
         BarButtons(bar = bar, playedBar = playedBar, onBarChosen = onBarChosen)
-        ColumnOrRow {
+        // One above the other beside the bars (given only the width they ask); side by side under them, if they hold.
+        SideBySideOrStacked(gap = ComposerSizes.gap) {
             ToolTile(
                 text = stringResource(R.string.feature_composer_tool_copy),
                 description = stringResource(R.string.feature_composer_tool_copy_description),
@@ -257,100 +257,6 @@ private fun ToolTile(
         BloxIcon(icon)
         Text(text = text)
     }
-}
-
-/**
- * Two parts on one line, [ComposerSizes.gap] apart, the first at the start, the second at the end: the fixed one, first
- * when [fixedFirst], as wide as it asks, and up to the rest of the line to the other, while that rest is [restMin] wide
- * at least and holds what it shows at its size; otherwise one above the other, in their order, each up to the width of
- * the line, at its end, rather than cut a word of a font made larger. A part that fills its room says so itself
- * (`fillMaxWidth`).
- */
-@Composable
-internal fun FixedBesideRest(
-    fixedFirst: Boolean,
-    restMin: Dp,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit,
-) {
-    Layout(content = content, modifier = modifier.fillMaxWidth()) { measurables, constraints ->
-        require(measurables.size == 2) { "Two parts stand beside each other, not ${measurables.size}." }
-        val (first, second) = measurables
-        val fixed = if (fixedFirst) first else second
-        val rest = if (fixedFirst) second else first
-        val width = constraints.maxWidth
-        val gap = ComposerSizes.gap.roundToPx()
-        val fixedWidth = fixed.maxIntrinsicWidth(Constraints.Infinity).coerceAtMost(width)
-        val restWidth = width - fixedWidth - gap
-        val restNeeds = maxOf(restMin.roundToPx(), rest.minIntrinsicWidth(Constraints.Infinity))
-        if (fitsBesideFixed(width, gap, fixedWidth, restNeeds)) {
-            val fixedPlaced = fixed.measure(Constraints(maxWidth = fixedWidth))
-            val restPlaced = rest.measure(Constraints(maxWidth = restWidth))
-            val (start, end) = if (fixedFirst) fixedPlaced to restPlaced else restPlaced to fixedPlaced
-            val height = maxOf(start.height, end.height)
-            layout(width, height) {
-                start.placeRelative(0, Alignment.CenterVertically.align(start.height, height))
-                end.placeRelative(width - end.width, Alignment.CenterVertically.align(end.height, height))
-            }
-        } else {
-            val placed = listOf(first, second).map { it.measure(Constraints(maxWidth = width)) }
-            layout(width, placed.sumOf { it.height } + gap) {
-                var y = 0
-                placed.forEach {
-                    it.placeRelative(width - it.width, y)
-                    y += it.height + gap
-                }
-            }
-        }
-    }
-}
-
-/**
- * Its parts one above the other, as wide as the widest asks, or as the line when they do not hold side by side; side by
- * side, as wide as each other, once given a line wide enough for them all: the tools beside the bars, or under them.
- */
-@Composable
-private fun ColumnOrRow(content: @Composable () -> Unit) {
-    val gap = with(LocalDensity.current) { ComposerSizes.gap.roundToPx() }
-    val policy = remember(gap) { ColumnOrRowPolicy(gap) }
-    Layout(content = content, measurePolicy = policy)
-}
-
-/** How [ColumnOrRow] lays its parts out, [gap] pixels apart, as wide as it is given, or as the widest asks. */
-private data class ColumnOrRowPolicy(private val gap: Int) : MeasurePolicy {
-    override fun MeasureScope.measure(
-        measurables: List<Measurable>,
-        constraints: Constraints,
-    ): MeasureResult {
-        val widest = measurables.maxOf { it.maxIntrinsicWidth(Constraints.Infinity) }
-        val width = if (constraints.hasBoundedWidth) constraints.maxWidth else widest
-        val share = (width - gap * (measurables.size - 1)) / measurables.size
-        return if (sideBySide(width, gap, measurables.size, widest)) {
-            val placed = measurables.map { it.measure(Constraints.fixedWidth(share)) }
-            layout(width, placed.maxOf { it.height }) {
-                placed.forEachIndexed { index, it -> it.placeRelative(index * (share + gap), 0) }
-            }
-        } else {
-            val placed = measurables.map { it.measure(Constraints.fixedWidth(width)) }
-            layout(placed.maxOf { it.width }, placed.sumOf { it.height } + gap * (placed.size - 1)) {
-                var y = 0
-                placed.forEach {
-                    it.placeRelative(0, y)
-                    y += it.height + gap
-                }
-            }
-        }
-    }
-
-    override fun IntrinsicMeasureScope.maxIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
-        height: Int,
-    ): Int = measurables.maxOf { it.maxIntrinsicWidth(height) }
-
-    override fun IntrinsicMeasureScope.minIntrinsicWidth(
-        measurables: List<IntrinsicMeasurable>,
-        height: Int,
-    ): Int = measurables.maxOf { it.minIntrinsicWidth(height) }
 }
 
 /**

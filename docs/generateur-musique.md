@@ -1126,13 +1126,18 @@ ne reste, sauf `ChoiceButton` des styles de la fenêtre Enregistrer, jusqu'à P5
   200 dp au moins (trois lignes en vue, la ligne des temps et l'indication comprises) ; en dessous, la page
   entière défile plutôt que d'écraser une partie (`GridBetween`). En Original, police normale, à 360 × 760 dp,
   *Annuler* passe déjà sur sa propre ligne et la grille tombe à son minimum de 200 dp.
-- **Décisions des mises en page** en fonctions pures, en pixels entiers (`ComposerLayoutRules.kt`) : à côté ou
-  dessous (`fitsBesideFixed`), en colonne ou en rangée (`sideBySide`), hauteur de la grille (`gridHeight`).
+- **Mises en page partagées** (P5.115, `core:designsystem`) : *Annuler* après les outils, *Copier* / *Effacer* à
+  droite des mesures et *Écouter* au bout du tempo passent par `FixedBesideRest`, la mise en page des rangées de
+  Paramètres ; *Copier* et *Effacer*, l'une sous l'autre ou côte à côte, par `SideBySideOrStacked`, celle des
+  tuiles de l'accueil et du pied de Mes musiques, qui demande alors à chaque tuile sa largeur (sans largeurs de
+  libellés données). Détail et tests dans [themes.md](themes.md), « Côte à côte ou dessous ».
+- **Décisions des mises en page** en fonctions pures, en pixels entiers : à côté ou dessous (`fitsBesideFixed`), côte
+  à côte ou l'une sous l'autre (`holdSideBySide`), toutes deux dans `core:designsystem` ; hauteur de la grille
+  (`gridHeight`, `ComposerLayoutRules.kt`), propre à l'éditeur.
 
 **Tests :**
-`ComposerLayoutRulesTest › a part stands beside the fixed one while the rest of the line holds what it needs, to the pixel`,
-`ComposerLayoutRulesTest › a fixed part wider than the line leaves nothing beside it`,
-`ComposerLayoutRulesTest › parts stand side by side when the widest holds in its share of the line less the gaps`,
+`FixedBesideRestTest › a part stands beside the fixed one while the rest of the line holds what it needs, to the pixel`,
+`FixedBesideRestTest › a fixed part wider than the line leaves nothing beside it`,
 `ComposerLayoutRulesTest › the grid takes the room the parts leave on the page, its least height at least`,
 `ComposerLayoutRulesTest › on a page of no bounded height the grid keeps its least height`,
 `ComposerControlsTest › from the keyboard, « … » takes the focus back once the window Renommer opened closes`,

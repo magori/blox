@@ -116,10 +116,12 @@ private fun EditorButtons(
         labels.zip(styles) { label, style -> beside + measurer.lineWidth(label, style) }
     }
     SideBySideOrStacked(
+        gap = BloxSpaces.space2,
         labelWidths = widths,
         padding = ButtonFamily.SECONDARY.sidePadding,
-        gap = BloxSpaces.space2,
-    ) { index, sizing -> FootButton(buttons[index], sizing) }
+    ) {
+        buttons.forEach { FootButton(it) }
+    }
 }
 
 /** A button of the foot: its [family], its [icon], its [label], and what touching it does, [onClick]. */

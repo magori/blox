@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -184,8 +183,9 @@ internal fun SettingSwitchRow(
 
 /**
  * The [labels] of a setting (its pictogram, its label and its sub-line) and its [track]: on one line, the track on the
- * right, while the longest word of the labels fits beside it; else the labels take the whole line and the track goes
- * under them, on the right. Each line is centred in the height of the row.
+ * right, [BloxSpaces.space3] after them, while the longest word of the labels fits beside it; else the labels take the
+ * whole line and the track goes under them, [BloxSpaces.space1] below, on the right ([FixedBesideRest]). Each line is
+ * centred in the height of the row, an odd pixel left below ([CentredRoundingDown]), as the rows have always been.
  */
 @Composable
 internal fun SettingRowLayout(
@@ -193,35 +193,23 @@ internal fun SettingRowLayout(
     track: @Composable () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Layout(contents = listOf(labels, track), modifier = modifier) {
-            (labelsMeasurables, trackMeasurables),
-            constraints,
-        ->
-        val width = constraints.maxWidth
-        val gap = BloxSpaces.space3.roundToPx()
-        val trackPlaceable = trackMeasurables.single().measure(Constraints())
-        val labelsMeasurable = labelsMeasurables.single()
-        val besideRoom = width - gap - trackPlaceable.width
-        val beside = labelsMeasurable.minIntrinsicWidth(Constraints.Infinity) <= besideRoom
-        val labelsPlaceable = labelsMeasurable.measure(Constraints(maxWidth = if (beside) besideRoom else width))
-        val content = if (beside) {
-            maxOf(labelsPlaceable.height, trackPlaceable.height)
-        } else {
-            labelsPlaceable.height + BloxSpaces.space1.roundToPx() + trackPlaceable.height
-        }
-        val height = maxOf(content, constraints.minHeight)
-        layout(width, height) {
-            val top = (height - content) / 2
-            if (beside) {
-                labelsPlaceable.place(0, top + (content - labelsPlaceable.height) / 2)
-                trackPlaceable.place(width - trackPlaceable.width, top + (content - trackPlaceable.height) / 2)
-            } else {
-                labelsPlaceable.place(0, top)
-                trackPlaceable.place(width - trackPlaceable.width, top + content - trackPlaceable.height)
-            }
-        }
+    FixedBesideRest(
+        fixedFirst = false,
+        gap = BloxSpaces.space3,
+        stackedGap = BloxSpaces.space1,
+        verticalAlignment = CentredRoundingDown,
+        modifier = modifier,
+    ) {
+        labels()
+        track()
     }
 }
+
+/**
+ * Centred, the odd pixel left below: `Alignment.CenterVertically` rounds it the other way, and would move the track of
+ * a row a pixel down from where the rows of the settings have always drawn it.
+ */
+private val CentredRoundingDown = Alignment.Vertical { size, space -> (space - size) / 2 }
 
 /** The track of a switch drawn as [look] says, its thumb as large as [thumbSize] says when it is placed. */
 @Composable

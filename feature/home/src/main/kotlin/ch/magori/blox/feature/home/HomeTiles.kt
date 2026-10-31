@@ -46,16 +46,13 @@ internal fun HomeTiles(
         listOf(myMusics, compose).map { measurer.widestWord(it, style) }
     }
     SideBySideOrStacked(
+        gap = BloxSpaces.space3,
         labelWidths = widest,
         padding = ButtonFamily.SECONDARY.sidePadding,
-        gap = BloxSpaces.space3,
         modifier = modifier,
-    ) { index, sizing ->
-        if (index == 0) {
-            Tile(BloxIcon.LIST, myMusics, onMyMusics, sizing)
-        } else {
-            Tile(BloxIcon.COMPOSE, compose, onCompose, sizing)
-        }
+    ) {
+        Tile(BloxIcon.LIST, myMusics, onMyMusics)
+        Tile(BloxIcon.COMPOSE, compose, onCompose)
     }
 }
 

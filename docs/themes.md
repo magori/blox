@@ -313,10 +313,54 @@ réduction s'arrête au plancher des textes (`shrinkFloor`, 8 sp)  : sur 300 dp 
 et prend 4 dp de plus. Elle remplace les deux copies (règle de 2). Le choix du jeu (V36) n'en a pas : sa barre porte
 le logo et la roue, sans Retour, et son titre est centré dessous. Les barres des écrans de jeu (Serrurier, Serrures,
 Jardin) ont un titre de jeu (`game-title`, en capitales) et d'autres disques ; celles des accueils (Classique, Graine
-du jour) une puce au milieu : elles restent à elles. La barre de l'éditeur (`ComposerHeader`) est refaite par P5.102 ;
-son passage à `ScreenBar` est P5.114.
+du jour) une puce au milieu : elles restent à elles. La barre de l'éditeur (`ComposerHeader`, V33) reste aussi à elle
+(P5.114, tranché après sa refonte par P5.102) : son titre n'est pas un `screen-title` mais un bouton « Renommer X »,
+le nom en `title` à la taille `titleSmall` sur une ligne, la ligne d'infos (style, tonalité, état) sur deux lignes en
+dessous, puis le crayon ; ce bouton touche le disque Retour (sa marge intérieure de 6 dp écarte le texte de ses coins
+arrondis) là où `ScreenBar` met 12 dp, et il est suivi du dé et de « … ». Donner à `ScreenBar` un titre à composer et un
+emplacement de fin ne lui laisserait en commun avec l'éditeur que le disque Retour (déjà le `GlyphButton` et la flèche
+`Glyphs.back` partagés) et une rangée : plus aucune règle à partager, et le nom de l'éditeur décalé de 12 dp dans ses
+26 captures. Paramètres et Mes musiques gardent `ScreenBar` tel quel.
 **Tests :** `ScreenBarTest › the bar of a screen reads its title as a heading after its back disc of 48 dp`,
-`ScreenBarTest › a long title stays on one line, shrunk, beside the back disc`.
+`ScreenBarTest › a long title stays on one line, shrunk, beside the back disc` ; barre de l'éditeur :
+`ComposerControlsTest › the bar of the editor reads Retour, the name to rename, Au hasard and the menu, in this order`.
+
+**Côte à côte ou dessous** (P5.115, `core:designsystem`) : deux mises en page partagées, chacune pour un besoin, leurs
+décisions en fonctions pures, en pixels entiers, testées sur la JVM.
+- `FixedBesideRest(fixedFirst, gap, stackedGap, restMin, verticalAlignment)` : une part fixe, aussi large qu'elle le
+  demande, et l'autre sur le reste de la ligne, tant que ce reste fait `restMin` au moins et tient le plus long mot de
+  la part (`fitsBesideFixed`) ; sinon l'une sous l'autre, dans leur ordre, chacune au bout de la ligne. La part fixe
+  ne dépasse jamais la ligne : une action de `SettingActionRow` plus large que sa rangée, qui débordait à gauche avant
+  P5.115 (mesurée sans borne), passe dessous, contenue dans la rangée, son texte à la ligne. Les parts sont placées
+  selon le sens de lecture (`placeRelative`) : en langue de droite à gauche, l'interrupteur passe à gauche. Les rangées
+  de Paramètres (`SettingSwitchRow`, `SettingActionRow` : l'interrupteur ou l'action à droite des libellés, `space3`,
+  ou dessous à `space1`) et l'éditeur (*Annuler* après les outils, *Copier* / *Effacer* à droite des mesures,
+  *Écouter* au bout du tempo, `ComposerSizes.gap`) l'emploient ; elle remplace la mise en page des rangées de réglage
+  et la copie de l'éditeur (règle de 2). Les rangées de réglage centrent en laissant le pixel impair en bas
+  (`CentredRoundingDown`), l'éditeur avec `Alignment.CenterVertically`, qui le laisse en haut : chacun garde l'arrondi
+  qu'il avait, au pixel près de ses captures.
+- `SideBySideOrStacked(gap, stackedGap, labelWidths, padding)` : des éléments côte à côte, aussi larges et aussi hauts
+  les uns que les autres (parts d'une rangée, `rowShares`), tant que chacun tient dans sa part moins `padding` de chaque
+  côté (`holdSideBySide`) ; sinon les uns sous les autres, sur toute la ligne. La largeur dont un élément a besoin est
+  celle que l'appelant mesure (`labelWidths` : le plus long mot des tuiles de l'accueil, la ligne du pied de Mes
+  musiques), ou à défaut celle que l'élément demande (*Copier* et *Effacer* de l'éditeur). Placée à côté d'une autre
+  part, qui ne lui donne que la largeur qu'elle demande (celle du plus large élément), elle les empile : c'est
+  *Copier* / *Effacer* l'une sous l'autre à droite des mesures. C'est désormais une mise en page à elle, sans
+  `BoxWithConstraints`, qui refusait cette mesure ; elle remplace la copie de l'éditeur (`ColumnOrRow`). La règle de
+  `ColumnOrRow` (le plus large élément dans la part arrondie par défaut) laisse place à celle des tuiles (chaque élément
+  dans sa part de `rowShares`) : un pixel d'écart possible au bord. Côte à côte, *Copier* et *Effacer* ont désormais
+  la même hauteur, la plus grande qu'ils demandent (`ColumnOrRow` mesurait chacun à sa hauteur, alignés en haut) ;
+  leur contenu étant de même forme, rien ne change à l'écran.
+Toutes les captures (éditeur, Paramètres, interrupteurs, accueil, Mes musiques) sont restées identiques.
+**Tests :** `FixedBesideRestTest › a part stands beside the fixed one while the rest of the line holds what it needs, to the pixel`,
+`FixedBesideRestTest › a fixed part wider than the line leaves nothing beside it`,
+`SettingActionRowTest › an action wider than its row goes under the label and stays within the row`,
+`ButtonRowTest › labels hold side by side when each holds in its share less the padding on each side`,
+`ButtonRowTest › labels do not hold side by side when one is a pixel wider than its share less its padding`,
+`SideBySideOrStackedTest › items whose labels hold in their half stand side by side, as wide and as high as each other`,
+`SideBySideOrStackedTest › items whose labels do not hold in their half stand one above the other, each as wide as the line`,
+`SideBySideOrStackedTest › with no label widths, items stand side by side while each holds in its share as wide as it asks`,
+`SideBySideOrStackedTest › given only the width it asks, as beside another part, the items stand one above the other, as wide`.
 
 **Coût du dessin** (P5.11, constats A2 et A7 de la revue qualité) : la géométrie et les
 peintres, avec leurs `Path`, sont construits une fois par taille, thème et fond ; le plateau et
