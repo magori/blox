@@ -50,6 +50,7 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.music.LiveMood
 import ch.magori.blox.feature.game.sidepanel.levelText
 import ch.magori.blox.feature.game.sidepanel.linesText
 import ch.magori.blox.feature.game.sidepanel.scoreText
@@ -74,7 +75,8 @@ private const val CARD_RISE_FRACTION = 4
 
 /**
  * The card of the pause (view V29), shown once the curtain hides the board: « Pause », the [score], [level] and
- * [lines], Reprendre ([onResume]) and Menu ([onMenu]), on the `scrim` that veils the game and keeps its touches from
+ * [lines], the mood of the live music when the game plays it ([liveMood]: « Vivante · calme » or « Vivante · tendue »,
+ * V37), Reprendre ([onResume]) and Menu ([onMenu]), on the `scrim` that veils the game and keeps its touches from
  * it. It comes in as `motion-card` says, by a fade of `motion-reduced-fade` in reduced effects; TalkBack announces it
  * by its pane title as it shows. In Colorful, the Classic mascot sleeps above « Pause », a decoration; Original, frozen,
  * has none. No logic here: the curtain and the resume belong to the game screen.
@@ -84,6 +86,7 @@ internal fun PauseCard(
     score: Points,
     level: Level,
     lines: Lines,
+    liveMood: LiveMood?,
     onResume: () -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
@@ -135,6 +138,7 @@ internal fun PauseCard(
                 CardStatistic(R.string.feature_game_score, scoreText(score), score.value)
                 CardStatistic(R.string.feature_game_level, levelText(level), level.value)
                 CardStatistic(R.string.feature_game_lines, linesText(lines), lines.value)
+                if (liveMood != null) LiveMoodStatistic(liveMood)
                 // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
                 PrimaryButton(
                     text = stringResource(R.string.feature_game_pause_resume),
@@ -168,6 +172,25 @@ private fun CardStatistic(
     )
 }
 
+/**
+ * The live music of the game in [mood], beside « Musique », as a value of the card: « Vivante · calme »; TalkBack reads
+ * « Musique : Vivante, calme », without the dot.
+ */
+@Composable
+private fun LiveMoodStatistic(mood: LiveMood) {
+    val label = stringResource(R.string.feature_game_pause_music)
+    val (text, description) = when (mood) {
+        LiveMood.CALM -> R.string.feature_game_pause_live_calm to R.string.feature_game_pause_live_calm_description
+        LiveMood.TENSE -> R.string.feature_game_pause_live_tense to R.string.feature_game_pause_live_tense_description
+    }
+    Statistic(
+        label = label,
+        value = stringResource(text),
+        description = valueDescription(label, stringResource(description)),
+        valueGivesWay = true,
+    )
+}
+
 /** How the card comes in, with [effects]: it rises as it fades in (`motion-card`), or only fades when reduced. */
 private fun cardEnter(effects: BloxEffects): EnterTransition = if (effects.reduced) {
     fadeIn(tween(millisOf(BloxMotion.reducedFade)))
@@ -176,11 +199,22 @@ private fun cardEnter(effects: BloxEffects): EnterTransition = if (effects.reduc
         slideInVertically(tween(millisOf(BloxMotion.card))) { it / CARD_RISE_FRACTION }
 }
 
+/** The card in [kind], of a game of the live music in [liveMood], if any. */
 @Composable
-private fun PausePreview(kind: BloxThemeKind) {
+private fun PausePreview(
+    kind: BloxThemeKind,
+    liveMood: LiveMood? = null,
+) {
     BloxTheme(kind = kind) {
         Box(modifier = Modifier.background(BloxTheme.palette.page)) {
-            PauseCard(score = Points(12_340), level = Level(5), lines = Lines(52), onResume = {}, onMenu = {})
+            PauseCard(
+                score = Points(12_340),
+                level = Level(5),
+                lines = Lines(52),
+                liveMood = liveMood,
+                onResume = {},
+                onMenu = {},
+            )
         }
     }
 }
@@ -203,4 +237,22 @@ internal fun PauseColorfulPreview() {
 @Composable
 internal fun PauseLargeFontPreview() {
     PausePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview
+@Composable
+internal fun PauseLiveCalmPreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.CALM)
+}
+
+@Preview
+@Composable
+internal fun PauseLiveTensePreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.TENSE)
+}
+
+@Preview(fontScale = 2f)
+@Composable
+internal fun PauseLiveLargeFontPreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.TENSE)
 }

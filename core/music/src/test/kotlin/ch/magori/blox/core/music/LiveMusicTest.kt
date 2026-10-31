@@ -93,6 +93,16 @@ class LiveMusicTest {
         assertThat(music.tense.seed).isNotEqualTo(first)
     }
 
+    @ParameterizedTest(name = "seed {0}")
+    @MethodSource("seeds")
+    fun `the calm music of a seed composed alone is the calm music of its live music`(seed: Long) {
+        // When
+        val calm = LiveMusic.composeCalm(seed)
+
+        // Then: what Écouter plays on the home screen, without composing the tense one, which it never plays
+        assertThat(calm).isEqualTo(LiveMusic.compose(seed).calm)
+    }
+
     private companion object {
         /** Enough seeds for the rules that hold whatever the draw. */
         @JvmStatic

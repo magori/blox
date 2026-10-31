@@ -354,7 +354,10 @@ private fun Screens(
     }
 }
 
-/** The card of the pause, with the score, level and lines of the game given by [uiState]. */
+/**
+ * The card of the pause, with the score, level and lines of the game given by [uiState], and the mood of its live
+ * music, if it plays it.
+ */
 @Composable
 private fun PausedCard(
     uiState: () -> GameUiState,
@@ -363,10 +366,12 @@ private fun PausedCard(
     modifier: Modifier = Modifier,
 ) {
     val side by rememberPart(uiState, GameUiState::sideColumn)
+    val liveMood by rememberPart(uiState) { it.liveMood }
     PauseCard(
         score = side.score,
         level = side.level,
         lines = side.lines,
+        liveMood = liveMood,
         onResume = onResume,
         onMenu = onMenu,
         modifier = modifier,

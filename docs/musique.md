@@ -30,7 +30,7 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 (voir Focus audio).
 
 **Tests :** `MusicScoresTest › each music choice plays its score, or none`,
-`HomeViewModelTest › only the musics with a score can be listened to`,
+`HomeViewModelTest › only the musics with a score, and the live music, can be listened to`,
 `HomeViewModelTest › listening to a music plays its score and shows it as previewed`,
 `HomeViewModelTest › listening again to the music being previewed stops it`,
 `HomeViewModelTest › listening to another music stops the preview and plays the other`,
@@ -200,9 +200,10 @@ ni grille de trois colonnes (P5.30).
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 
-Prévu (P8) : un sixième choix, *Vivante*, une musique composée pour chaque partie, calme puis
-tendue quand la pile monte, qui accélère avec les niveaux. Spécification :
-[musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
+Un sixième choix, *Vivante* (P8, proposé dans la feuille depuis P8.7, entre *Menuet* et *Mon fichier*),
+une musique composée pour chaque partie, calme puis tendue quand la pile monte, qui accélère avec les
+niveaux ; *Écouter* y joue la musique calme d'une graine tirée au hasard **[à vérifier]**, et la carte
+Pause nomme son ambiance. Spécification et tests : [musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
 ([graine-du-jour.md](graine-du-jour.md)). Les jeux musicaux Au tempo et Jardin musical ont leur
 propre son : [regles-au-tempo.md](regles-au-tempo.md), [jardin-musical.md](jardin-musical.md).
 

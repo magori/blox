@@ -146,8 +146,9 @@ private val LOGO_CELL_SIZE = 16.dp
 private val HEADER_SPACING = 12.dp
 
 /**
- * The home in [theme], Korobeïniki chosen, a music file kept, [gameMusic] if any; with [sheet], the sheet Musique open
- * over it, come in, the minuet listened to in it (a preview draws no window: the sheet is drawn over the screen).
+ * The home in [theme], [music] chosen (Korobeïniki by default), a music file kept, [gameMusic] if any; with [sheet],
+ * the sheet Musique open over it, come in, the minuet listened to in it (a preview draws no window: the sheet is drawn
+ * over the screen).
  */
 @Composable
 private fun HomeScreenPreview(
@@ -155,6 +156,7 @@ private fun HomeScreenPreview(
     gameMusic: GameMusicUi? = null,
     sheet: Boolean = false,
     musicFileName: String = "orage-d-ete.ogg",
+    music: MusicChoice = MusicChoice.KOROBEINIKI,
 ) {
     val kind = when (theme) {
         ThemeChoice.ORIGINAL -> BloxThemeKind.ORIGINAL
@@ -162,12 +164,12 @@ private fun HomeScreenPreview(
     }
     val uiState = HomeUiState(
         theme = theme,
-        music = MusicChoice.KOROBEINIKI,
+        music = music,
         startLevel = 5,
         startLevels = 0..9,
         record = 12_340,
-        // A music file kept: « Mon fichier » may be listened to, and changed in the sheet.
-        listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE),
+        // A music file kept: « Mon fichier » may be listened to, and changed in the sheet; « Vivante » always may be.
+        listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.LIVE, MusicChoice.MY_FILE),
         previewing = if (sheet) MusicChoice.MINUET else null,
         hasMusicFile = true,
         musicFileName = musicFileName,
@@ -268,6 +270,19 @@ internal fun HomeMusicSheetLongFileNameLargeFontPreview() {
         sheet = true,
         musicFileName = "enregistrement-de-l-orage-du-soir-sur-le-lac-en-aout-version-longue.ogg",
     )
+}
+
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+internal fun HomeLiveColorfulPreview() {
+    // « Vivante » chosen: named on the row Musique and in the reminder under Jouer (V37).
+    HomeScreenPreview(ThemeChoice.COLORFUL, music = MusicChoice.LIVE)
+}
+
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+internal fun HomeMusicSheetLiveColorfulPreview() {
+    HomeScreenPreview(ThemeChoice.COLORFUL, sheet = true, music = MusicChoice.LIVE)
 }
 
 @Preview(widthDp = 360, heightDp = 1000)

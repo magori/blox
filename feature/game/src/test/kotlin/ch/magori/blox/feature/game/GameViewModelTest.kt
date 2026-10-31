@@ -54,6 +54,7 @@ import ch.magori.blox.feature.game.controls.ControlChange
 import ch.magori.blox.feature.game.feedback.RowsSlide
 import ch.magori.blox.feature.game.gameover.GameOverUiState
 import ch.magori.blox.feature.game.music.GameMusic
+import ch.magori.blox.feature.game.music.LiveMood
 import ch.magori.blox.feature.game.navigation.GameRoute
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -1247,6 +1248,61 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `a live game paused on its calm music names the calm mood`() {
+        // Given a live game, its stack low
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When
+        viewModel.onPause()
+
+        // Then the card of the pause names it « Vivante · calme »
+        assertThat(viewModel.uiState.value.liveMood).isEqualTo(LiveMood.CALM)
+    }
+
+    @Test
+    fun `a live game paused while its stack is in danger names the tense mood`() {
+        // Given a live game, its stack in danger
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilInDanger(viewModel)
+
+        // When
+        viewModel.onPause()
+
+        // Then
+        assertThat(viewModel.uiState.value.liveMood).isEqualTo(LiveMood.TENSE)
+    }
+
+    @Test
+    fun `a game of another music names no mood`() {
+        // Given a game of Korobeiniki, its stack in danger
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        playUntilInDanger(viewModel)
+
+        // When
+        viewModel.onPause()
+
+        // Then
+        assertThat(viewModel.uiState.value.liveMood).isNull()
+    }
+
+    @Test
+    fun `a live game paused before its music was read names its mood once it is`() {
+        // Given a live game paused before the settings answered
+        preferences.state.value = null
+        musicOf = { GameMusic.Live }
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+        viewModel.onPause()
+
+        // When they answer
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.LIVE)
+
+        // Then
+        assertThat(viewModel.uiState.value.liveMood).isEqualTo(LiveMood.CALM)
+    }
+
+    @Test
     fun `a live music chosen once the game is over is not composed`() {
         // Given a live game over before the settings answered
         preferences.state.value = null
@@ -1879,6 +1935,19 @@ class GameViewModelTest {
         // Then it plays the calm music composed from its seed
         assertThat(composedSeeds).containsExactly(dailyRoute.seed)
         assertThat(music.playing).isEqualTo(LiveMusic.compose(dailyRoute.seed).calm.score.id)
+    }
+
+    @Test
+    fun `a daily game paused names the mood of its live music`() {
+        // Given a daily game, Korobeiniki chosen on the home screen: its live music comes from the daily game alone
+        preferences.state.value = UserPreferences.DEFAULT.copy(music = MusicChoice.KOROBEINIKI)
+        val viewModel = createViewModel(dailyRoute)
+
+        // When
+        viewModel.onPause()
+
+        // Then the card of the pause names it « Vivante · calme »
+        assertThat(viewModel.uiState.value.liveMood).isEqualTo(LiveMood.CALM)
     }
 
     @Test

@@ -3,11 +3,13 @@ package ch.magori.blox.music
 import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.music.LiveMusic
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
 import ch.magori.blox.feature.game.music.GameMusic
 import kotlinx.coroutines.flow.first
+import kotlin.random.Random
 
 /**
  * The score of [MusicChoice.MY_FILE_FALLBACK], which plays in place of « Mon fichier » when it has no file to play: no
@@ -43,6 +45,12 @@ internal fun musicOf(
     MusicChoice.LIVE -> GameMusic.Live
     MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.NONE -> scoreOf(choice)?.let(GameMusic::Fixed)
 }
+
+/**
+ * What Écouter plays under « Vivante » on the home screen: the calm music of a seed drawn from [random], a new one at
+ * each listening (docs/musique-vivante.md, [à vérifier]). It composes a music: make it off the main thread.
+ */
+internal fun liveListening(random: Random = Random.Default): Score = LiveMusic.composeCalm(random.nextLong()).score
 
 /** What a [choice] plays, with the music file kept in [this] repository. Read at the start of each game. */
 internal suspend fun MusicFileRepository.musicOf(choice: MusicChoice): GameMusic? = musicOf(choice, musicFile.first())

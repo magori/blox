@@ -219,7 +219,7 @@ internal class HomeScreenTest {
         // Then a dialog, its title first, then its musics in their order, each a radio button, the minuet chosen
         val read = readingOrder(onNode(isDialog()).fetchSemanticsNode()).map { it.first }
         assertThat(read.first()).isEqualTo("Musique")
-        val musics = listOf("Korobeïniki", "Menuet", "Mon fichier", "Aucune")
+        val musics = listOf("Korobeïniki", "Menuet", "Vivante", "Mon fichier", "Aucune")
         assertThat(musics.map { music -> read.indexOfFirst { it.startsWith(music) } }).isSorted().doesNotContain(-1)
         musics.forEach { music ->
             onNode(inSheet(hasText(music)))
@@ -337,6 +337,44 @@ internal class HomeScreenTest {
         // Then the name stands in place of « Un fichier audio de l'appareil », read with Mon fichier
         onNode(inSheet(isSelectable() and hasText("Mon fichier") and hasText(FILE_NAME))).assertExists()
         onAllNodes(inSheet(hasText("Un fichier audio de l'appareil"))).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("in the sheet, Vivante is read by TalkBack with its sub-line, and may be listened to")
+    fun inTheSheetVivanteIsReadWithItsSubLineAndMayBeListenedTo() = extension.use {
+        // Given the sheet open, the live music listenable
+        val listened = mutableListOf<MusicChoice>()
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.LIVE)),
+            music = MusicActions.None.copy(onListen = { listened += it }),
+        )
+        openMusicSheet("Menuet")
+        // ...its row read by TalkBack with its sub-line, not chosen
+        onNode(inSheet(isSelectable() and hasText("Vivante") and hasText(LIVE_SUB_LINE))).assertIsNotSelected()
+
+        // When
+        onNode(inSheet(hasContentDescription("Écouter Vivante"))).performClick()
+
+        // Then the live music is asked for (HomeViewModel has a music composed for the listening)
+        runOnIdle { assertThat(listened).containsExactly(MusicChoice.LIVE) }
+    }
+
+    @Test
+    @DisplayName("with Vivante chosen, the reminder under Jouer names it, and the row Musique offers to listen to it")
+    fun withVivanteChosenTheReminderNamesIt() = extension.use {
+        // Given Vivante chosen, at level 5
+        showHomeScreen(uiState.copy(music = MusicChoice.LIVE, listenable = listOf(MusicChoice.LIVE)))
+
+        // Then
+        onNode(hasText("Classique · Niveau 05 · Vivante"), useUnmergedTree = true).assertExists()
+        onNode(hasTestTag(PLAY_TAG)).assert(
+            SemanticsMatcher.expectValue(
+                SemanticsProperties.ContentDescription,
+                listOf("Jouer, Classique, niveau 5, Vivante"),
+            ),
+        )
+        onNodeWithContentDescription("Musique : Vivante. Choisir une autre musique").assertExists()
+        onNode(hasContentDescription("Écouter Vivante")).assertExists()
     }
 
     @Test
@@ -1093,6 +1131,9 @@ private const val LONG_FILE_NAME = "enregistrement-de-l-orage-du-soir-sur-le-lac
 
 /** The rounding of an edge to the pixel, in dp: far below a pixel. */
 private const val PIXEL_ROUNDING = 0.01f
+
+/** What « Vivante » is, under its name in the sheet. */
+private const val LIVE_SUB_LINE = "Calme, puis tendue quand la pile monte"
 
 /** The reminder under Jouer, at level 5 with the minuet. */
 private const val REMINDER = "Classique · Niveau 05 · Menuet"

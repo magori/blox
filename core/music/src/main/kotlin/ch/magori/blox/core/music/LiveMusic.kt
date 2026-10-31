@@ -25,10 +25,20 @@ public data class LiveMusic(public val calm: GeneratedMusic, public val tense: G
          */
         public fun compose(seed: Long): LiveMusic {
             val seeds = Random(seed)
-            val calm = MusicGenerator.generate(Category.CALM, seeds.nextLong(), CALM_ID)
+            val calm = composeCalm(seeds)
             val tense = MusicGenerator.generate(Category.EPIC, seeds.nextLong(), TENSE_ID, calm.scale.tonic)
             return LiveMusic(calm, tense)
         }
+
+        /**
+         * The calm music of the live music of [seed], composed alone: the one [compose] gives, at the cost of one music
+         * only. What the home screen plays to listen to the live music. Make it off the main thread, as [compose].
+         */
+        public fun composeCalm(seed: Long): GeneratedMusic = composeCalm(Random(seed))
+
+        /** The calm music, from the first seed drawn from [seeds]. */
+        private fun composeCalm(seeds: Random): GeneratedMusic =
+            MusicGenerator.generate(Category.CALM, seeds.nextLong(), CALM_ID)
 
         /**
          * The identity of the calm music, the same from one game to the next, by which the music played is known. It

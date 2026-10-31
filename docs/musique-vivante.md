@@ -210,14 +210,33 @@ Nouvelle capacité du lecteur, `Player.switchTo(score)`, partagée avec le
   `MusicScoresTest › the live choice asks for a live music rather than a score`,
   `MusicScoresTest › each music choice plays its score, or none`,
   `MusicScoresTest › the music of a choice is read with the music file kept`.
-- Tant que la feuille Musique n'a pas sa rangée « Vivante » (P8.7), le choix n'est pas proposé ; la
-  partie, elle, joue la musique vivante depuis P8.6.
-  **Tests :** `HomeViewModelTest › the live choice is not offered before its sheet row`.
+- La feuille Musique propose « Vivante » depuis P8.7, après les deux mélodies du domaine public et avant
+  *Mon fichier* (ordre de la maquette, V37) : Korobeïniki, Menuet, Vivante, Mon fichier, la musique en jeu
+  s'il y en a une, Aucune (`OFFERED_MUSICS`).
+  **Tests :** `HomeViewModelTest › the live choice is offered after the public domain melodies, before my file`,
+  `HomeScreenTest › the sheet is read as a dialog by TalkBack`. Vue : V37.
 - « Vivante » prime comme les autres choix de l'accueil : la musique en jeu de « Mes musiques »
   garde sa priorité ([musique.md](musique.md)), et choisir Vivante la retire des parties, comme
   choisir Korobeïniki.
-- **Écouter** sous Vivante joue la musique calme d'une graine tirée au hasard **[à vérifier]**
-  (alternative : ne rien proposer à l'écoute).
+- **Écouter** sous Vivante joue la musique calme d'une graine tirée au hasard, une nouvelle graine à
+  chaque écoute **[à vérifier]** (alternative écartée pour l'instant : ne rien proposer à l'écoute ;
+  à juger à l'oreille : une écoute ne fait entendre qu'une ambiance calme parmi d'autres, jamais la
+  tendue ni l'accélération). Vivante n'a pas de partition fixe (`scoreOf` rend `null`) mais s'écoute
+  toujours : le ViewModel de l'accueil reçoit de `app` une fonction qui compose la musique de l'écoute,
+  `liveListening`, soit `LiveMusic.composeCalm(Random.nextLong())`, hors du fil principal
+  (`Dispatchers.Default`). `LiveMusic.composeCalm(seed)` rend la calme de `LiveMusic.compose(seed)` sans
+  composer la tendue, qu'on n'écouterait pas. Le bouton passe à « Arrêter » dès l'appui ; une écoute
+  arrêtée (ou la feuille fermée) avant que la musique soit composée ne joue rien ; une composition qui
+  échoue ne joue rien non plus, et le bouton repasse à « Écouter ».
+  **Tests :** `LiveMusicTest › the calm music of a seed composed alone is the calm music of its live music`,
+  `MusicScoresTest › listening to the live music plays the calm music of a seed drawn at random`,
+  `HomeViewModelTest › the live music may be listened to, though it has no score of its own`,
+  `HomeViewModelTest › only the musics with a score, and the live music, can be listened to`,
+  `HomeViewModelTest › listening to the live music plays a music composed for the listening and shows it as previewed`,
+  `HomeViewModelTest › each listening to the live music plays a new music`,
+  `HomeViewModelTest › a live music stopped while it is being composed is never played`,
+  `HomeViewModelTest › a live listening that fails to be composed offers to listen again`,
+  `HomeScreenTest › in the sheet, Vivante is read by TalkBack with its sub-line, and may be listened to`.
 - Le réglage des effets sonores, le volume de la musique et les Effets réduits ne changent pas.
 
 ## Écran
@@ -226,12 +245,35 @@ Pas d'écran à part ; thème : celui que le joueur a choisi pour le Classique (
 propre au mode).
 
 - **Feuille Musique** (V27, P5.76) : un sixième choix, « Vivante », avec sa coche et Écouter,
-  sous-ligne « Calme, puis tendue quand la pile monte ». Vue **V37** (à dessiner).
-- **Rappel sous Jouer** : « Classique · Niveau 05 · Vivante ».
+  sous-ligne « Calme, puis tendue quand la pile monte », sur la rangée commune `SheetChoiceRow` ;
+  TalkBack lit le choix avec sa sous-ligne, « Écouter Vivante » pour son bouton. Vue **V37**.
+  Captures : `HomeMusicSheetLiveColorful`, `HomeMusicSheetLiveColorfulNight`.
+- **Rappel sous Jouer** : « Classique · Niveau 05 · Vivante », lu « Jouer, Classique, niveau 5, Vivante » ;
+  la rangée Musique de la carte nomme Vivante et offre de l'écouter.
+  **Tests :** `HomeScreenTest › with Vivante chosen, the reminder under Jouer names it, and the row Musique offers to listen to it`.
+  Captures : `HomeLiveColorful`, `HomeLiveColorfulNight`.
 - **En jeu** (V28) : rien ne change. On retire du prototype les étiquettes Calme / Tendu et la
   jauge « Pile » : le danger se voit déjà sur le plateau et s'entend.
 - **Carte Pause** (V29) : la musique y est nommée « Vivante · calme » ou « Vivante · tendue »,
-  selon l'ambiance au moment de la pause. Vue **V37**.
+  selon l'ambiance au moment de la pause, sur une ligne « MUSIQUE » sous les lignes, avant Reprendre,
+  comme les autres valeurs de la carte (`Statistic`), lue « Musique : Vivante, calme » (sans le point
+  médian). L'ambiance est celle de la pile (`GameState.stackInDanger`), la même que suit
+  `LiveMusicDirection` ; elle est connue dès que la musique choisie est lue, même avant d'être composée
+  (une partie mise en pause avant la lecture des réglages la nomme dès qu'ils répondent). Une autre
+  musique, ou aucune, n'ajoute pas de ligne, comme dans la maquette ; écart de forme : la maquette la
+  montre dans un encart à note, la carte du code la donne comme ses autres valeurs. En police ×2,
+  le mot « MUSIQUE » reste entier et la valeur se réduit (`Statistic(valueGivesWay = true)`). La partie
+  du jour, qui joue toujours la musique vivante, la nomme aussi. Vue **V37**.
+  **Tests :** `GameViewModelTest › a live game paused on its calm music names the calm mood`,
+  `GameViewModelTest › a live game paused while its stack is in danger names the tense mood`,
+  `GameViewModelTest › a game of another music names no mood`,
+  `GameViewModelTest › a live game paused before its music was read names its mood once it is`,
+  `GameViewModelTest › a daily game paused names the mood of its live music`,
+  `PauseCardTest › the card of a live game on its calm music names it « Vivante · calme », read whole by TalkBack`,
+  `PauseCardTest › the card of a live game in danger names it « Vivante · tendue »`,
+  `PauseCardTest › the card of a game of another music names none`,
+  `GameScreenPauseTest › the card of a live game names the mood of its music`.
+  Captures : `PauseLiveCalm`, `PauseLiveTense`, `PauseLiveTenseNight`, `PauseLiveLargeFont`.
 
 Événements utilisés, tous déjà émis par le moteur : `StackDanger`, `LevelUp`, `LinesCleared`,
 `GameOver`.
