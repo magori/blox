@@ -84,8 +84,19 @@ niveau et creuses au-delà (le niveau ne se lit pas qu'à la couleur : atteint e
 jour), et des boutons − et +, − désactivé au plus bas, + au plus haut. TalkBack ne lit qu'un curseur, qui
 avance d'un pas à la fois (− et + exclus). En Original, dont le `panel-border` est l'accent, les barres
 au-delà, la piste et le curseur désactivé sont en `button`. Désactivé : piste au-delà en `panel-inset` cadrée
-de `panel-border`. Les deux suivent le sens de lecture. Ils seront branchés sur les Paramètres (P5.70) et
-l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
+de `panel-border`. Les deux suivent le sens de lecture. Ils sont branchés sur les Paramètres (P5.70) et
+l'accueil (P5.75).
+
+**Au clavier** (P5.90), un curseur ou une jauge prend le focus (pas un curseur désactivé) et porte alors l'anneau
+de focus des boutons (`buttonFocusRing`, en `buttons.focus`, autour de `radius-md`) ; les flèches gauche et droite
+le déplacent d'un pas dans le sens où elles pointent le long de la piste (en droite à gauche, la flèche gauche
+monte), sans jamais sortir des bornes ; deux flèches pressées avant que la valeur revienne avancent de deux pas,
+et une flèche pressée pendant que la valeur revient en retard repart du dernier pas demandé (le pas demandé est
+gardé tant que la valeur montrée est sur le chemin, du point de départ des flèches à ce pas, puis oublié).
+Haut et bas, comme une flèche qui buterait à une borne ou les flèches posées sur − et + de la jauge, sont laissés au
+focus, comme pour la barre de défilement d'Android : une manette, qui n'a pas de Tab, peut toujours quitter le
+curseur. Une flèche maintenue s'arrête pourtant à la borne (ses répétitions sont prises) : seul un nouvel appui
+fait partir le focus. Le relâchement d'une flèche dont l'appui a été pris l'est aussi.
 
 **Tests :** `SteppedValueTest`, `GaugeBarsTest`, `StepColorsTest`, `VolumeSliderTest`, `LevelGaugeTest`, dont
 `GaugeBarsTest › the bars up to the value are filled and those beyond it hollow, so the value does not read by colour alone`,
@@ -96,7 +107,24 @@ l'accueil (P5.75) ; pas de flèches au clavier pour l'instant (P5.90).
 `VolumeSliderTest › in a language read from right to left, the track starts on its right`,
 `LevelGaugeTest › minus is disabled at the lowest step and plus at the highest`,
 `LevelGaugeTest › TalkBack reads one slider with its value and moves it one step at a time`,
-`LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level` ;
+`LevelGaugeTest › in a language read from right to left, the leftmost bar is the highest level`,
+`SteppedValueTest › an arrow key moves the value one step, right raising it, never out of its range`,
+`SteppedValueTest › read from right to left, the left arrow raises the value and the right arrow lowers it, as the track goes`,
+`StepGestureTest › while the value comes back late, the next arrow goes on from the last step asked`,
+`StepGestureTest › once the value reaches the step asked, or leaves the way to it, the step asked is forgotten`,
+`VolumeSliderTest › an arrow pressed while the value comes back late goes on from the last step asked`,
+`VolumeSliderTest › a held arrow stops at the end of the range and a new press leaves it`,
+`LevelGaugeTest › an arrow pressed while the level comes back late goes on from the last level asked`,
+`VolumeSliderTest › an arrow key moves the slider one step, never out of its range`,
+`VolumeSliderTest › two arrows pressed before the value comes back move the slider two steps`,
+`VolumeSliderTest › in a language read from right to left, the left arrow raises the slider`,
+`VolumeSliderTest › a disabled slider cannot take the focus, and its arrows ask for nothing`,
+`VolumeSliderTest › an arrow at the end of the range leaves the slider to the focus`,
+`VolumeSliderTest › a focused slider bears the focus ring`,
+`LevelGaugeTest › an arrow key moves the gauge one step, never out of its range`,
+`LevelGaugeTest › up and down leave a focused gauge to the focus`,
+`LevelGaugeTest › an arrow key on minus or plus does not move the gauge`,
+`LevelGaugeTest › a focused gauge bears the focus ring` ;
 captures `Stepper*`. Vues : V27, V31.
 
 **Autocollant** (P7.45, `Sticker` dans `core:designsystem`) : un mot en capitales, `accent-ink` sur `accent`, dans
