@@ -356,20 +356,25 @@ meilleur du jour à la place du record, sous le libellé « MEILLEUR ». Une foi
 « Nouveau meilleur : 12 380 ». « MEILLEUR DU JOUR » reste l'étiquette de la valeur (V38) et
 l'annonce de fin de partie, pas l'autocollant en jeu. Un meilleur de 0 (premier essai du jour)
 n'est jamais battu en cours de partie, comme le record (P5.56). La barre tient sur une rangée
-avec ces libellés, police agrandie comprise. Pause comme V29. Ce qui change d'une variante à
+avec ces libellés, police agrandie comprise. Pause comme V29, avec la ligne « MUSIQUE · Vivante ·
+calme » ou « … tendue » (V37) : la partie du jour joue toujours la musique vivante, quel que soit le
+choix de l'accueil. Ce qui change d'une variante à
 l'autre (titre, libellé du meilleur, ses annonces, Copier proposé) vient de `GameLabels`, donné
 par `GameVariants.setupOf` (ADR 0026) : l'écran ne connaît pas la variante.
 **Tests :** `GameVariantsTest › a daily game is titled Graine du jour, shows the best of the day and offers to copy the score`,
 `GameVariantsTest › a classic game is titled Mode classique, shows the record and offers no copy`,
 `GameViewModelTest › the screen gets the labels of the variant of its game`,
+`GameViewModelTest › a daily game paused names the mood of its live music`,
 `GameScreenTest › a daily game is titled GRAINE DU JOUR and shows the best of the day in place of the record`,
 `GameScreenTest › once the best of the day is beaten, the top bar shows NOUVEAU MEILLEUR and the score, read as such`,
 `GameTopBarTest › on a phone of 360 dp the bar stays on one row once the best is beaten, font enlarged`
 et les autres cas de largeur de `GameTopBarTest`, joués aussi avec les libellés du jour ;
 captures `GameScreenDaily`, `GameScreenDailyNight`.
 
-**Fin de partie** (V39) : comme V30 ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
-battu, au premier essai aussi (meilleur d'avant : 0), aucun badge sinon ; puis **Rejouer** (même
+**Fin de partie** (V39) : comme V30, même écran (P5.83 : pile qui s'éteint, carte, score qui compte ; voir
+themes.md, Fin de partie v2) ; le badge « MEILLEUR DU JOUR » si le meilleur du jour est
+battu, au premier essai aussi (meilleur d'avant : 0), avec les confettis d'un nouveau record, aucun badge ni confetti
+sinon (ni pour une partie d'entraînement, qui n'en bat aucun) ; puis **Rejouer** (même
 graine, `GameRoute.replayed`), **Copier** (lu « Copier mon score ») et Menu. Copier n'est proposé
 qu'à la partie du jour ; il remonte la partie terminée à l'entrée de navigation
 (`gameEntry(onCopy)`), et `app` copie les résultats de la date de la partie (voir Copier mon

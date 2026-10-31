@@ -22,6 +22,7 @@ import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -44,7 +45,8 @@ import kotlin.reflect.KClass
  * fichier » plays the music file the player picked in the picker of the system, kept in [musicFiles]; it
  * may be listened to once there is one; its name is read by [musicFileNames] when it is picked. A music of the
  * player chosen for the games in [library] (« Mes musiques ») is shown as the music selected, the games playing it;
- * choosing another music leaves it.
+ * choosing another music leaves it. « Vivante », composed for each game, has no score of its own: listening to it plays
+ * the music [liveListening] composes for that listening (`app`: the calm music of a seed drawn at random).
  */
 class HomeViewModel(
     private val preferences: UserPreferencesRepository,
@@ -55,6 +57,7 @@ class HomeViewModel(
     private val musicFiles: MusicFileRepository,
     private val library: MusicLibrary,
     private val musicFileNames: MusicFileNames,
+    private val liveListening: suspend () -> Score,
 ) : ViewModel() {
     private val startLevels: IntRange = levelProgression.startLevels.map { it.value }.let { levels ->
         require(levels.isNotEmpty()) { "A mode offers at least one start level" }
@@ -160,30 +163,48 @@ class HomeViewModel(
         pickerRequested.value = false
     }
 
-    /** The player listens to [listened], before playing. */
+    /** The player listens to [listened], before playing: « Vivante », a music composed for this listening. */
     internal fun onListen(listened: MusicChoice) {
+        if (listened == MusicChoice.LIVE) {
+            listen(Previewed.Choice(listened), liveListening)
+            return
+        }
         val listenedMusic = listenedMusicOf(listened, musicFile) ?: return
-        listen(Previewed.Choice(listened), listenedMusic)
+        listen(Previewed.Choice(listened)) { listenedMusic }
     }
 
     /** The player listens to the music of the player chosen for the games, its score, before playing; if there is one. */
     internal fun onListenGameMusic() {
         val gameMusic = sources.value?.gameMusic ?: return
-        listen(Previewed.Personal(gameMusic.id), gameMusic.score)
+        listen(Previewed.Personal(gameMusic.id)) { gameMusic.score }
     }
 
-    /** Plays [listenedMusic], known on the screen as [listened]; or stops it, if it is being listened to already. */
+    /**
+     * Plays the music [listenedMusic] gives, known on the screen as [listened], shown as listened to at once; or stops
+     * it, if it is being listened to already. A music still being made ([liveListening]) when the listening stops is
+     * never played; one that fails to be made plays nothing, and the button offers to listen again.
+     */
     private fun listen(
         listened: Previewed,
-        listenedMusic: Music,
+        listenedMusic: suspend () -> Music,
     ) {
         val again = previewing.value == listened
         stopPreview()
         if (!again) {
-            val playback = music.play(listenedMusic)
-            preview = playback
             previewing.value = listened
-            previewWatch = viewModelScope.launch { watch(playback) }
+            previewWatch = viewModelScope.launch {
+                val made = try {
+                    listenedMusic()
+                } catch (stopped: CancellationException) {
+                    throw stopped
+                } catch (_: Exception) {
+                    stopPreview()
+                    return@launch
+                }
+                val playback = music.play(made)
+                preview = playback
+                watch(playback)
+            }
         }
     }
 
@@ -264,7 +285,7 @@ class HomeViewModel(
         startLevel = saved.startLevel.coerceIn(startLevels),
         startLevels = startLevels,
         record = record,
-        listenable = MusicChoice.entries.filter { listenedMusicOf(it, sources.file) != null },
+        listenable = OFFERED_MUSICS.filter { it == MusicChoice.LIVE || listenedMusicOf(it, sources.file) != null },
         previewing = (previewed as? Previewed.Choice)?.choice,
         hasMusicFile = sources.file != null,
         musicFileName = sources.named?.name,
@@ -293,6 +314,7 @@ class HomeViewModel(
         private val musicFiles: MusicFileRepository,
         private val library: MusicLibrary,
         private val musicFileNames: MusicFileNames,
+        private val liveListening: suspend () -> Score,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
@@ -308,6 +330,7 @@ class HomeViewModel(
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             ) as T
         }
     }

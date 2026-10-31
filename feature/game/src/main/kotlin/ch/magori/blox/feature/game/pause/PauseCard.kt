@@ -1,48 +1,21 @@
 package ch.magori.blox.feature.game.pause
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.paneTitle
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.mascot.Mascot
 import ch.magori.blox.core.board.mascot.MascotCharacter
 import ch.magori.blox.core.designsystem.component.PrimaryButton
 import ch.magori.blox.core.designsystem.component.SecondaryButton
-import ch.magori.blox.core.designsystem.frame.millisOf
 import ch.magori.blox.core.designsystem.icon.BloxIcon
-import ch.magori.blox.core.designsystem.theme.BloxBorders
-import ch.magori.blox.core.designsystem.theme.BloxEffects
-import ch.magori.blox.core.designsystem.theme.BloxMotion
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
@@ -50,10 +23,12 @@ import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.music.LiveMood
 import ch.magori.blox.feature.game.sidepanel.levelText
 import ch.magori.blox.feature.game.sidepanel.linesText
 import ch.magori.blox.feature.game.sidepanel.scoreText
-import ch.magori.blox.feature.game.ui.ScreenSizes
+import ch.magori.blox.feature.game.ui.CardOverGame
+import ch.magori.blox.feature.game.ui.CardTitle
 import ch.magori.blox.feature.game.ui.Statistic
 import ch.magori.blox.feature.game.ui.valueDescription
 
@@ -66,90 +41,51 @@ private val MascotCell = 16.dp
 /** Room above the mascot for its « z », which rise over its top. */
 private val MascotRoom = 12.dp
 
-/** The card keeps the width of a phone on a larger screen. */
-private val CardMaxWidth = 360.dp
-
-/** The card rises from a quarter of its height under its place. */
-private const val CARD_RISE_FRACTION = 4
-
 /**
  * The card of the pause (view V29), shown once the curtain hides the board: « Pause », the [score], [level] and
- * [lines], Reprendre ([onResume]) and Menu ([onMenu]), on the `scrim` that veils the game and keeps its touches from
- * it. It comes in as `motion-card` says, by a fade of `motion-reduced-fade` in reduced effects; TalkBack announces it
- * by its pane title as it shows. In Colorful, the Classic mascot sleeps above « Pause », a decoration; Original, frozen,
- * has none. No logic here: the curtain and the resume belong to the game screen.
+ * [lines], the mood of the live music when the game plays it ([liveMood]: « Vivante · calme » or « Vivante · tendue »,
+ * V37), Reprendre ([onResume]) and Menu ([onMenu]), a [CardOverGame]. In Colorful, the Classic mascot sleeps above
+ * « Pause », a decoration; Original, frozen, has none. No logic here: the curtain and the resume belong to the game
+ * screen.
  */
 @Composable
 internal fun PauseCard(
     score: Points,
     level: Level,
     lines: Lines,
+    liveMood: LiveMood?,
     onResume: () -> Unit,
     onMenu: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val palette = BloxTheme.palette
-    val shape = BloxTheme.shapes.card
     val title = stringResource(R.string.feature_game_pause_title)
-    // A preview draws the card in place, its way in done.
-    val still = LocalInspectionMode.current
-    val shown = remember { MutableTransitionState(still).apply { targetState = true } }
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(palette.scrim)
-            .pointerInput(Unit) { awaitPointerEventScope { while (true) awaitPointerEvent() } }
-            .safeDrawingPadding()
-            .padding(ScreenSizes.padding),
-        contentAlignment = Alignment.Center,
-    ) {
-        AnimatedVisibility(visibleState = shown, enter = cardEnter(BloxTheme.effects)) {
-            Column(
-                modifier = Modifier
-                    .widthIn(max = CardMaxWidth)
-                    .fillMaxWidth()
-                    .semantics { paneTitle = title }
-                    .background(palette.panel, shape)
-                    .border(BloxBorders.frame, palette.panelBorder, shape)
-                    .verticalScroll(rememberScrollState())
-                    .padding(ScreenSizes.padding),
-                verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                if (BloxTheme.variant != BloxThemeVariant.ORIGINAL) {
-                    Mascot(
-                        character = MascotCharacter.CLASSIC,
-                        cellSize = MascotCell,
-                        asleep = true,
-                        modifier = Modifier.padding(top = MascotRoom).testTag(PAUSE_MASCOT_TAG),
-                    )
-                }
-                Text(
-                    text = title,
-                    color = palette.ink,
-                    fontSize = ScreenSizes.title,
-                    style = BloxTheme.typography.title,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.semantics { heading() },
-                )
-                CardStatistic(R.string.feature_game_score, scoreText(score), score.value)
-                CardStatistic(R.string.feature_game_level, levelText(level), level.value)
-                CardStatistic(R.string.feature_game_lines, linesText(lines), lines.value)
-                // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
-                PrimaryButton(
-                    text = stringResource(R.string.feature_game_pause_resume),
-                    icon = BloxIcon.PLAY,
-                    onClick = onResume,
-                    modifier = Modifier.fillMaxWidth().testTag("pause_resume"),
-                )
-                SecondaryButton(
-                    text = stringResource(R.string.feature_game_pause_menu),
-                    icon = BloxIcon.HOME,
-                    onClick = onMenu,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+    CardOverGame(title = title, modifier = modifier) {
+        if (BloxTheme.variant != BloxThemeVariant.ORIGINAL) {
+            Mascot(
+                character = MascotCharacter.CLASSIC,
+                cellSize = MascotCell,
+                asleep = true,
+                modifier = Modifier.padding(top = MascotRoom).testTag(PAUSE_MASCOT_TAG),
+            )
         }
+        CardTitle(title)
+        CardStatistic(R.string.feature_game_score, scoreText(score), score.value)
+        CardStatistic(R.string.feature_game_level, levelText(level), level.value)
+        CardStatistic(R.string.feature_game_lines, linesText(lines), lines.value)
+        if (liveMood != null) LiveMoodStatistic(liveMood)
+        // The tag is read by the measured journey of `:benchmark` (`By.res`), whatever the language.
+        PrimaryButton(
+            text = stringResource(R.string.feature_game_pause_resume),
+            icon = BloxIcon.PLAY,
+            onClick = onResume,
+            modifier = Modifier.fillMaxWidth().testTag("pause_resume"),
+        )
+        SecondaryButton(
+            text = stringResource(R.string.feature_game_pause_menu),
+            icon = BloxIcon.HOME,
+            onClick = onMenu,
+            modifier = Modifier.fillMaxWidth(),
+        )
     }
 }
 
@@ -168,19 +104,41 @@ private fun CardStatistic(
     )
 }
 
-/** How the card comes in, with [effects]: it rises as it fades in (`motion-card`), or only fades when reduced. */
-private fun cardEnter(effects: BloxEffects): EnterTransition = if (effects.reduced) {
-    fadeIn(tween(millisOf(BloxMotion.reducedFade)))
-} else {
-    fadeIn(tween(millisOf(BloxMotion.card))) +
-        slideInVertically(tween(millisOf(BloxMotion.card))) { it / CARD_RISE_FRACTION }
+/**
+ * The live music of the game in [mood], beside « Musique », as a value of the card: « Vivante · calme »; TalkBack reads
+ * « Musique : Vivante, calme », without the dot.
+ */
+@Composable
+private fun LiveMoodStatistic(mood: LiveMood) {
+    val label = stringResource(R.string.feature_game_pause_music)
+    val (text, description) = when (mood) {
+        LiveMood.CALM -> R.string.feature_game_pause_live_calm to R.string.feature_game_pause_live_calm_description
+        LiveMood.TENSE -> R.string.feature_game_pause_live_tense to R.string.feature_game_pause_live_tense_description
+    }
+    Statistic(
+        label = label,
+        value = stringResource(text),
+        description = valueDescription(label, stringResource(description)),
+        valueGivesWay = true,
+    )
 }
 
+/** The card in [kind], of a game of the live music in [liveMood], if any. */
 @Composable
-private fun PausePreview(kind: BloxThemeKind) {
+private fun PausePreview(
+    kind: BloxThemeKind,
+    liveMood: LiveMood? = null,
+) {
     BloxTheme(kind = kind) {
         Box(modifier = Modifier.background(BloxTheme.palette.page)) {
-            PauseCard(score = Points(12_340), level = Level(5), lines = Lines(52), onResume = {}, onMenu = {})
+            PauseCard(
+                score = Points(12_340),
+                level = Level(5),
+                lines = Lines(52),
+                liveMood = liveMood,
+                onResume = {},
+                onMenu = {},
+            )
         }
     }
 }
@@ -203,4 +161,22 @@ internal fun PauseColorfulPreview() {
 @Composable
 internal fun PauseLargeFontPreview() {
     PausePreview(BloxThemeKind.ORIGINAL)
+}
+
+@Preview
+@Composable
+internal fun PauseLiveCalmPreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.CALM)
+}
+
+@Preview
+@Composable
+internal fun PauseLiveTensePreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.TENSE)
+}
+
+@Preview(fontScale = 2f)
+@Composable
+internal fun PauseLiveLargeFontPreview() {
+    PausePreview(BloxThemeKind.COLORFUL, LiveMood.TENSE)
 }

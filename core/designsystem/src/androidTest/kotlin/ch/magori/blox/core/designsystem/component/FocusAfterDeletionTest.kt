@@ -10,7 +10,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,8 +17,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
@@ -173,7 +170,7 @@ internal class FocusAfterDeletionTest {
         val focus = HashMap<String, FocusRequester>()
         val focusOf = { key: String -> focus.getOrPut(key) { FocusRequester() } }
         setContent {
-            Keyboard(true)
+            KeyboardInUse()
             val state = rememberLazyListState(initialFirstVisibleItemIndex = 36)
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 LazyColumn(state = state, modifier = Modifier.height(ELEMENT * 4)) {
@@ -215,7 +212,7 @@ internal class FocusAfterDeletionTest {
     /** The [listed] elements in a column, then the empty list, from the [keyboard] or by touch. */
     private fun ComposeContext.showList(keyboard: Boolean = true) {
         setContent {
-            Keyboard(keyboard)
+            KeyboardInUse(keyboard)
             val focus = HashMap<String, FocusRequester>()
             val empty = remember { FocusRequester() }
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
@@ -228,13 +225,6 @@ internal class FocusAfterDeletionTest {
                 FocusAfterDeletion(listed, deleting, deleting != null, focusOf = { focus[it] }, empty = empty)
             }
         }
-    }
-
-    /** Asks for the keyboard, or for touch. */
-    @Composable
-    private fun Keyboard(keyboard: Boolean) {
-        val inputMode = LocalInputModeManager.current
-        LaunchedEffect(Unit) { inputMode.requestInputMode(if (keyboard) InputMode.Keyboard else InputMode.Touch) }
     }
 
     /** An element of [key], which [focus] focuses. */

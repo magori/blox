@@ -2,6 +2,7 @@ package ch.magori.blox.music
 
 import ch.magori.blox.core.data.FakeMusicFileRepository
 import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.music.LiveMusic
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.Scores
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.argumentSet
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.MethodSource
+import kotlin.random.Random
 
 class MusicScoresTest {
     private val myFile = MusicFile("content://com.android.providers.media.documents/document/audio%3A42")
@@ -79,7 +81,26 @@ class MusicScoresTest {
         assertThat(files.musicOf(MusicChoice.LIVE)).isEqualTo(GameMusic.Live)
     }
 
+    @Test
+    fun `listening to the live music plays the calm music of a seed drawn at random`() {
+        // Given the draws of the listenings
+        val draws = Random(SEED)
+
+        // When
+        val first = liveListening(draws)
+        val second = liveListening(draws)
+
+        // Then each listening plays the calm music of the next seed drawn
+        val seeds = Random(SEED)
+        assertThat(first).isEqualTo(LiveMusic.composeCalm(seeds.nextLong()).score)
+        assertThat(second).isEqualTo(LiveMusic.composeCalm(seeds.nextLong()).score)
+        assertThat(second).isNotEqualTo(first)
+    }
+
     private companion object {
+        /** The seed of the draws of the listenings, any. */
+        const val SEED = 42L
+
         @JvmStatic
         fun choices(): List<Arguments> = listOf(
             argumentSet("Korobeiniki", MusicChoice.KOROBEINIKI, Scores.korobeiniki),

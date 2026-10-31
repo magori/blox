@@ -71,6 +71,7 @@ import ch.magori.blox.music.DocumentMusicFileNames
 import ch.magori.blox.music.FALLBACK_SCORE
 import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
+import ch.magori.blox.music.liveListening
 import ch.magori.blox.music.musicOf
 import ch.magori.blox.music.scoreOf
 import ch.magori.blox.theme.AndroidAnimationSetting
@@ -79,6 +80,7 @@ import ch.magori.blox.theme.SystemAnimations
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -248,7 +250,8 @@ class AppContainer(context: Context) {
     /**
      * The settings and the record kept on the device; the start levels of the Classic mode; the music
      * player of the games and the scores of the music choices, for the preview; the music file of « Mon fichier »;
-     * the musics of the player, for the one chosen for the games; the names of the documents, for the file picked.
+     * the musics of the player, for the one chosen for the games; the names of the documents, for the file picked; the
+     * music of a listening to « Vivante », composed off the main thread.
      */
     val homeViewModelFactory: HomeViewModel.Factory = HomeViewModel.Factory(
         userPreferences,
@@ -259,6 +262,7 @@ class AppContainer(context: Context) {
         musicFiles,
         musicLibrary,
         DocumentMusicFileNames(context.contentResolver),
+        liveListening = { withContext(Dispatchers.Default) { liveListening() } },
     )
 
     /**

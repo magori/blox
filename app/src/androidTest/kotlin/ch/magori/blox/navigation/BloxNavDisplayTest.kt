@@ -955,6 +955,7 @@ internal class BloxNavDisplayTest {
             musicFiles = FakeMusicFileRepository(),
             library = library,
             musicFileNames = { null },
+            liveListening = { Scores.minuet },
         )
         val gameFactory = GameViewModel.Factory(
             engineFactory,

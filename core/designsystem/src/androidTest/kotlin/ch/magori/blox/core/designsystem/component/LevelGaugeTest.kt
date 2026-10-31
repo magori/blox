@@ -1,10 +1,14 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.ProgressBarRangeInfo
 import androidx.compose.ui.semantics.SemanticsActions
@@ -14,18 +18,24 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performKeyInput
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.pressKey
+import androidx.compose.ui.test.requestFocus
 import androidx.compose.ui.test.swipe
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.designsystem.theme.BloxThemeVariant
+import ch.magori.blox.core.designsystem.theme.buttonColorsOf
 import de.mannodermaus.junit5.compose.ComposeContext
 import de.mannodermaus.junit5.compose.createComposeExtension
 import org.assertj.core.api.Assertions.assertThat
@@ -171,16 +181,128 @@ internal class LevelGaugeTest {
         assertThat(asked).containsExactly(9)
     }
 
-    /** Shows a gauge of the levels 0 to 9 at [level], in Couleurs, that keeps the levels it is asked for. */
+    @Test
+    @DisplayName("an arrow key moves the gauge one step, never out of its range")
+    fun anArrowKeyMovesTheGaugeOneStepNeverOutOfItsRange() = extension.use {
+        // Given the gauge at its highest level, focused by the keyboard
+        val asked = mutableListOf<Int>()
+        var level by mutableIntStateOf(9)
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { level }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        gauge.requestFocus()
+
+        // When right asks for more at the top, and left for less
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+        gauge.requestFocus()
+        gauge.performKeyInput { pressKey(Key.DirectionLeft) }
+        // And at the level 0, left asks for less, then right for more
+        level = 0
+        waitForIdle()
+        gauge.performKeyInput { pressKey(Key.DirectionLeft) }
+        gauge.requestFocus()
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // Then nothing out of the range, and a level for each of the others
+        assertThat(asked).containsExactly(8, 1)
+    }
+
+    @Test
+    @DisplayName("an arrow pressed while the level comes back late goes on from the last level asked")
+    fun anArrowPressedWhileTheLevelComesBackLateGoesOnFromTheLastLevelAsked() = extension.use {
+        // Given the gauge at the level 5, focused, right pressed twice before the level comes back
+        val asked = mutableListOf<Int>()
+        var level by mutableIntStateOf(5)
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { level }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        gauge.requestFocus()
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // When the first level asked for comes back, late, then right is pressed again
+        level = 6
+        waitForIdle()
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // Then the third press goes on from the last level asked for
+        assertThat(asked).containsExactly(6, 7, 8)
+    }
+
+    @Test
+    @DisplayName("up and down leave a focused gauge to the focus")
+    fun upAndDownLeaveAFocusedGaugeToTheFocus() = extension.use {
+        // Given the gauge at the level 5, focused, in a column between two targets of the focus, as with a pad
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { 5 }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        gauge.requestFocus()
+
+        // When down is pressed
+        gauge.performKeyInput { pressKey(Key.DirectionDown) }
+
+        // Then the focus goes to the target below, and no level is asked for
+        onNodeWithTag(BELOW).assertIsFocused()
+        assertThat(asked).isEmpty()
+    }
+
+    @Test
+    @DisplayName("an arrow key on minus or plus does not move the gauge")
+    fun anArrowKeyOnMinusOrPlusDoesNotMoveTheGauge() = extension.use {
+        // Given the gauge at the level 5, its plus focused by the keyboard
+        val asked = mutableListOf<Int>()
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { 5 }
+        val plus = onNodeWithContentDescription(PLUS)
+        plus.requestFocus()
+
+        // When an arrow is pressed
+        plus.performKeyInput { pressKey(Key.DirectionLeft) }
+
+        // Then it is the focus that may move, not the level
+        assertThat(asked).isEmpty()
+    }
+
+    @Test
+    @DisplayName("a focused gauge bears the focus ring")
+    fun aFocusedGaugeBearsTheFocusRing() = extension.use {
+        // Given the gauge, the keyboard in use, the focus on the target above it
+        setGauge(keyboard = true) { 5 }
+        onNodeWithTag(ABOVE).requestFocus()
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        val unfocused = colorOnFocusRingOf(gauge)
+
+        // When it takes the focus
+        gauge.requestFocus()
+
+        // Then the ring of the buttons shows around it, where nothing was drawn before
+        assertThat(colorOnFocusRingOf(gauge))
+            .isEqualTo(buttonColorsOf(BloxThemeVariant.COLORFUL_LIGHT).focus)
+            .isNotEqualTo(unfocused)
+    }
+
+    /**
+     * Shows a gauge of the levels 0 to 9 at [level], in Couleurs by day, off the edges of the screen, between two
+     * targets of the focus, [ABOVE] and [BELOW], that keeps the levels it is asked for.
+     */
     private fun ComposeContext.setGauge(
         onLevelChange: (Int) -> Unit = {},
         layoutDirection: LayoutDirection = LayoutDirection.Ltr,
+        keyboard: Boolean = false,
         level: () -> Int,
     ) {
         setContent {
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+            if (keyboard) KeyboardInUse()
+            BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = false) {
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
-                    LevelGauge(level = level(), levels = 0..9, onLevelChange = onLevelChange, description = DESCRIPTION)
+                    Column {
+                        FocusStop(ABOVE)
+                        LevelGauge(
+                            level = level(),
+                            levels = 0..9,
+                            onLevelChange = onLevelChange,
+                            description = DESCRIPTION,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                        FocusStop(BELOW)
+                    }
                 }
             }
         }
@@ -190,5 +312,7 @@ internal class LevelGaugeTest {
         const val DESCRIPTION = "Niveau de départ"
         const val MINUS = "Moins"
         const val PLUS = "Plus"
+        const val ABOVE = "above"
+        const val BELOW = "below"
     }
 }

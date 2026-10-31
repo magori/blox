@@ -30,7 +30,7 @@ un identifiant (`ScoreId`), plus par un titre. L'aperçu demande le focus audio 
 (voir Focus audio).
 
 **Tests :** `MusicScoresTest › each music choice plays its score, or none`,
-`HomeViewModelTest › only the musics with a score can be listened to`,
+`HomeViewModelTest › only the musics with a score, and the live music, can be listened to`,
 `HomeViewModelTest › listening to a music plays its score and shows it as previewed`,
 `HomeViewModelTest › listening again to the music being previewed stops it`,
 `HomeViewModelTest › listening to another music stops the preview and plays the other`,
@@ -200,9 +200,10 @@ ni grille de trois colonnes (P5.30).
 Prévu : des musiques composées dans l'application, à la main ou par le générateur
 (bouton *Au hasard*, par catégorie). Spécification : [generateur-musique.md](generateur-musique.md).
 
-Prévu (P8) : un sixième choix, *Vivante*, une musique composée pour chaque partie, calme puis
-tendue quand la pile monte, qui accélère avec les niveaux. Spécification :
-[musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
+Un sixième choix, *Vivante* (P8, proposé dans la feuille depuis P8.7, entre *Menuet* et *Mon fichier*),
+une musique composée pour chaque partie, calme puis tendue quand la pile monte, qui accélère avec les
+niveaux ; *Écouter* y joue la musique calme d'une graine tirée au hasard **[à vérifier]**, et la carte
+Pause nomme son ambiance. Spécification et tests : [musique-vivante.md](musique-vivante.md) ; la Graine du jour l'impose
 ([graine-du-jour.md](graine-du-jour.md)). Les jeux musicaux Au tempo et Jardin musical ont leur
 propre son : [regles-au-tempo.md](regles-au-tempo.md), [jardin-musical.md](jardin-musical.md).
 
@@ -686,7 +687,9 @@ qui s'arrête sur `GameOver`.
 
 ## Sonnerie ou réveil
 
-Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore codée** (P13.2 à P13.14). Vues : V42
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : la longueur, le niveau, le format et le
+nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`) ; **pas encore** le rendu partagé, l'écriture ni
+l'interface (P13.2, P13.6 à P13.14). Vues : V42
 (feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
 
 **Périmètre**
@@ -710,14 +713,41 @@ Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)), **pas encore 
   20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
   boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
   (5,3 Mo), et le système le reprend au début d'une mesure. **Sans fondu** : le système rejoue le fichier en
-  boucle ; fait de boucles entières, il se raccorde sans couture.
+  boucle ; fait de boucles entières, il se raccorde sans couture. Une mesure dure rarement un nombre entier
+  d'échantillons (`samplesPerBar` est un `Double`) : la coupe tombe sur l'échantillon le plus proche de la fin de la
+  dernière mesure entière, comme le synthétiseur place le début de chaque note. `ringtoneSamples` refuse un rendu
+  vide, et une mesure nulle, négative ou de plus de 60 s (aucune mesure entière n'y tiendrait).
 - **Niveau** : la crête est normalisée à **−1 dBFS** (0,891) ; les musiques culminent vers 0,23 (environ −13 dBFS)
-  dans le jeu. Un rendu silencieux reste silencieux.
+  dans le jeu. Tous les échantillons sont multipliés par le même gain. Un rendu silencieux reste silencieux.
+
+  **Tests :** `RingtoneSamplesTest › a loop shorter than 20 seconds is repeated until the ringtone lasts at least
+  20 seconds`, `RingtoneSamplesTest › the ringtone holds only whole loops, so that it loops without a seam`,
+  `RingtoneSamplesTest › a loop of 20 to 60 seconds is kept once`,
+  `RingtoneSamplesTest › a loop longer than 60 seconds is cut at its last whole bar before 60 seconds`,
+  `RingtoneSamplesTest › the ringtone never lasts more than 60 seconds`,
+  `RingtoneSamplesTest › the loudest sample is brought to minus 1 dBFS`,
+  `RingtoneSamplesTest › a silent rendering stays silent, without dividing by zero`,
+  `RingtoneSamplesTest › an empty rendering is refused`,
+  `RingtoneSamplesTest › a bar of no length or less is refused`,
+  `RingtoneSamplesTest › a bar longer than 60 seconds is refused`.
 - **Format** : WAV PCM 16 bits, mono, 44 100 Hz (en-tête RIFF `WAVE`, morceau `fmt ` PCM, morceau `data`, petit
   boutiste) ; un échantillon de 1 s'écrit 32 767, de −1 −32 767, au-delà de [−1, 1] il est écrêté. De 1,8 à 5,3 Mo.
-- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier sont remplacés ;
-  un nom fait seulement d'espaces ou de symboles donne « BloX ». Le titre lu par le sélecteur du système est le nom de
-  la musique.
+  `WavEncoder` refuse lui aussi un rendu vide (un fichier sans échantillon).
+
+  **Tests :** `WavEncoderTest › the header is RIFF WAVE with a fmt chunk of PCM, mono, 16 bits, at the sample rate
+  given`, `WavEncoderTest › the RIFF and data sizes match the number of samples`,
+  `WavEncoderTest › a sample of 1 is written as 32767 and a sample of -1 as -32767, little endian`,
+  `WavEncoderTest › a sample beyond -1 or 1 is clipped`, `WavEncoderTest › zero is written as zero`,
+  `WavEncoderTest › an empty rendering is refused`.
+- **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier
+  (`/ \ : * ? " < > |`, ceux de FAT, et les caractères de contrôle) sont remplacés par `_` ; un nom sans lettre ni
+  chiffre (vide, fait seulement d'espaces ou de symboles) donne « BloX ». Le titre lu par le sélecteur du système est
+  le nom de la musique. Le nom n'est pas tronqué : un nom de Mes musiques tient en 40 caractères au plus
+  (`SavedMusic.MAX_NAME_LENGTH`), soit 160 octets en UTF-8, loin des 255 octets d'un nom de fichier.
+
+  **Tests :** `RingtoneFileNameTest › the file is named after the music, with the wav extension`,
+  `RingtoneFileNameTest › the characters a file name may not hold are replaced`,
+  `RingtoneFileNameTest › a name of spaces or symbols only gives BloX`.
 - **Où** : `Ringtones/BloX/` (Sonnerie) ou `Alarms/BloX/` (Réveil), écrit par `MediaStore`, marqué comme sonnerie ou
   réveil, sans aucune permission. Chaque export crée un nouveau fichier ; si le nom est pris, le fichier devient
   « Nom (1).wav » et son titre « Nom (1) », pour que le sélecteur du système distingue les deux. Les
@@ -736,7 +766,9 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 ## Instruments
 
-Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.2 à P14.20). Vues : V43 (feuille
+Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
+(P14.2) et la description des instruments (P14.3, `core:music`) ; synthèse, réglage et interface **pas encore
+codés** (P14.4 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -767,7 +799,26 @@ Règles communes :
 - **Arcade rend exactement les échantillons d'avant les instruments**, musiques et effets : des empreintes sont
   figées par des tests sur l'API d'aujourd'hui (P14.2), avant tout changement du synthétiseur, P13.2 compris :
   Korobeïniki, le Menuet et une musique générée, à × 1 et × 1,25, et chaque effet du Classique, du Serrurier et du
-  Jardin.
+  Jardin. Une empreinte est le nombre d'échantillons et la somme de contrôle CRC-32 des échantillons quantifiés en
+  16 bits (petit-boutiste) : elle tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits (un calcul
+  différent de `volume × onde × gain`), mais **aucun écart de phase** : un échantillon du carré posé sur une
+  frontière de sa période bascule de +v à −v (A4 à 48 kHz tombe exactement à la moitié de sa période à
+  l'échantillon 600). Arcade garde donc le calcul de phase `(index × fréquence / taux) mod 1`, sans le réécrire en
+  `index × (fréquence / taux)` ni accumuler la phase d'un échantillon à l'autre.
+  La musique est rendue à 44 100 Hz, les effets à 48 000 Hz (le taux par défaut des effets). Sont couverts : les
+  5 effets du Classique (`SoundEffects.all`) ; pour le Serrurier, l'arpège et la basse de chaque accord d'un cadenas
+  (degrés I à vi de do majeur sur C4, confrontés aux progressions de `PadlockChords`), l'ouverture et le refus ; pour
+  le Jardin, la note de chacune des 25 hauteurs de ses 4 ambiances (confrontées à `GardenMood.allPitches`). La
+  musique générée est joyeuse, de graine 2026 : son empreinte suit aussi le générateur et l'algorithme de
+  `kotlin.random.Random` (ADR 0014) ; un changement de `MusicGenerator` ou une montée de Kotlin peut obliger à la
+  refaire (Arcade n'y est pour rien), ce que
+  `FormTest › the seed 42 on joyful gives this form, which pins the order of the draws` signalerait en même temps.
+  **Tests :** `SoundFingerprintTest › Korobeiniki renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › the Minuet renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › every effect of the Classic renders the samples of its fingerprint`,
+  `SoundFingerprintTest › every effect of the Locksmith renders the samples of its fingerprint`,
+  `SoundFingerprintTest › every effect of the garden renders the samples of its fingerprint`.
 - Chaque instrument **attaque en 5 ms au plus** : le temps reste net dans Au tempo et les retours en jeu restent
   lisibles ; la douceur vient de l'onde, du filtre, de l'extinction et de l'écho.
 - Une note dure toujours `temps × 60 / bpm` ; l'extinction d'une `Adsr` tient dans la note, sans déborder sur la
@@ -788,6 +839,28 @@ mesure du niveau (P14.17), une fois les timbres arrêtés à l'oreille :
   quart, passe-bas 900 Hz, `Adsr` 2 / 80 / 0,5 / 40 ms ; écho d'un demi-temps, retour 0,2, part 0,2.
 
 (`Adsr` : attaque / déclin / maintien / extinction.)
+
+**Description codée** (`core:music`, P14.3) : `SoundStyle.instrumentFor(waveform)` donne l'`Instrument(tone, shape,
+lowPass, gain)` de la voix (`lowPass` : fréquence de coupure en Hz, ou `null` sans filtre) ; `SoundStyle.echo`,
+l'écho du style ou `null`. `Gate` tient la note de son début jusqu'à `heldUntil` (0,80) et s'éteint jusqu'à
+`silentFrom` (0,95), sans attaque ; `Adsr(attackMillis, decayMillis, sustain, releaseMillis)` refuse un temps négatif
+et un maintien hors de [0, 1] ; `Echo(delayBeats, feedback, wet)` refuse un délai qui n'est pas positif, un retour
+de 1 ou plus (il ne s'éteindrait jamais) ou négatif, et une part hors de [0, 1] (bornes qui aident l'écho à ne
+jamais mener le mixage au-delà de −1 et 1, P14.7). Les gains valent tous 1 en attendant la mesure du niveau (P14.17). Les
+valeurs de Velours et de Néon sont celles ci-dessus, figées par un test pour qu'un réglage à l'oreille les change
+ici et dans le code ensemble.
+
+**Tests :** `SoundStyleTest › the names of the sound styles are frozen`,
+`SoundStyleTest › in the Arcade style the square plays a square gated as today and the triangle a triangle`,
+`SoundStyleTest › every style has an instrument for every waveform`,
+`SoundStyleTest › every instrument of every style starts within 5 milliseconds`,
+`SoundStyleTest › the Arcade style has no echo and no filter`,
+`SoundStyleTest › the Velvet style takes the starting values of the specification`,
+`SoundStyleTest › the Neon style takes the starting values of the specification`,
+`AdsrTest › an ADSR refuses a negative time and a sustain outside 0 and 1`,
+`AdsrTest › an ADSR accepts times of 0 and a sustain of 0 or 1`,
+`EchoTest › an echo refuses a feedback of 1 or more`, `EchoTest › an echo refuses a negative feedback`,
+`EchoTest › an echo refuses a part outside 0 and 1`, `EchoTest › an echo refuses a delay of no beat`.
 
 **Effets sonores** : un effet prend le **ton** et le filtre de l'instrument de sa `Waveform` (`SQUARE` celui de la
 mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir

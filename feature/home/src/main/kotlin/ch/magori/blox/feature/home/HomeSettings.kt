@@ -208,10 +208,16 @@ private fun MusicSheetOpener(
 }
 
 /**
- * The music choices the sheet offers, in their order. « Vivante » waits for its row of the sheet (P8.7): until the game
- * composes its live music (P8.6), a live game would play nothing.
+ * The music choices the sheet offers, in their order (V37): the public domain melodies, « Vivante », « Mon fichier »,
+ * then « Aucune ».
  */
-internal val OFFERED_MUSICS: List<MusicChoice> = MusicChoice.entries - MusicChoice.LIVE
+internal val OFFERED_MUSICS: List<MusicChoice> = listOf(
+    MusicChoice.KOROBEINIKI,
+    MusicChoice.MINUET,
+    MusicChoice.LIVE,
+    MusicChoice.MY_FILE,
+    MusicChoice.NONE,
+)
 
 @get:StringRes
 private val ThemeChoice.label: Int

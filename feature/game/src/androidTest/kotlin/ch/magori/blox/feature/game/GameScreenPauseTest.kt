@@ -10,6 +10,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getUnclippedBoundsInRoot
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
@@ -22,6 +23,7 @@ import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.OneRowPerTickGameEngineFactory
+import ch.magori.blox.feature.game.music.GameMusic
 import ch.magori.blox.feature.game.navigation.GameRoute
 import ch.magori.blox.feature.game.pause.PAUSE_MASCOT_TAG
 import org.assertj.core.api.Assertions.assertThat
@@ -149,15 +151,31 @@ internal class GameScreenPauseTest {
         }
     }
 
-    /** A game under way, shown by a real view model whose pieces fall one row per tick, in [effects]. */
+    @Test
+    @DisplayName("the card of a live game names the mood of its music")
+    fun theCardOfALiveGameNamesTheMoodOfItsMusic() {
+        runAndroidComposeUiTest<ComponentActivity> {
+            // Given / When a live game paused, its stack low
+            showPausedGame(music = GameMusic.Live)
+
+            // Then
+            onNode(hasContentDescription("Musique : Vivante, calme")).assertIsDisplayed()
+        }
+    }
+
+    /**
+     * A game under way, shown by a real view model whose pieces fall one row per tick, in [effects], playing [music]
+     * (none by default).
+     */
     private fun AndroidComposeUiTest<ComponentActivity>.showGame(
         effects: BloxEffects = BloxEffects.Full,
+        music: GameMusic? = null,
     ): GameViewModel {
         val activity = checkNotNull(activity)
         val extras = MutableCreationExtras(activity.defaultViewModelCreationExtras).apply {
             set(GameViewModel.RouteKey, GameRoute(startLevel = 0, seed = 1L))
         }
-        val factory = silentGameViewModelFactory(OneRowPerTickGameEngineFactory)
+        val factory = silentGameViewModelFactory(OneRowPerTickGameEngineFactory, music = music)
         val game =
             runOnUiThread { ViewModelProvider.create(activity.viewModelStore, factory, extras)[GameViewModel::class] }
         mainClock.autoAdvance = false
@@ -169,9 +187,9 @@ internal class GameScreenPauseTest {
         return game
     }
 
-    /** A game paused once under way, the curtain down, the card shown. */
-    private fun AndroidComposeUiTest<ComponentActivity>.showPausedGame(): GameViewModel {
-        val game = showGame()
+    /** A game paused once under way, playing [music] (none by default), the curtain down, the card shown. */
+    private fun AndroidComposeUiTest<ComponentActivity>.showPausedGame(music: GameMusic? = null): GameViewModel {
+        val game = showGame(music = music)
         mainClock.advanceTimeBy(FRAME_MILLIS * 5)
         runOnUiThread { game.onPause() }
         mainClock.advanceTimeBy(CURTAIN_MILLIS * 2)

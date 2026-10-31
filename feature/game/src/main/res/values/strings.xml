@@ -44,6 +44,13 @@
     <string name="feature_game_pause_resume">Reprendre</string>
     <!-- Quitte la partie en cours. -->
     <string name="feature_game_pause_menu">Menu</string>
+    <!-- La musique vivante sur la carte Pause (P8.7, V37) : son ambiance au moment de la pause. -->
+    <string name="feature_game_pause_music">Musique</string>
+    <string name="feature_game_pause_live_calm">Vivante · calme</string>
+    <string name="feature_game_pause_live_tense">Vivante · tendue</string>
+    <!-- Ce que TalkBack lit de l'ambiance, sans le point médian. -->
+    <string name="feature_game_pause_live_calm_description">Vivante, calme</string>
+    <string name="feature_game_pause_live_tense_description">Vivante, tendue</string>
     <string name="feature_game_top_title">Mode classique</string>
     <string name="feature_game_top_pause">Mettre en pause</string>
     <string name="feature_game_top_record">Record</string>

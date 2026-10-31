@@ -36,6 +36,7 @@ import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.haptics.hapticFor
 import ch.magori.blox.feature.game.music.ClassicMusicDirection
 import ch.magori.blox.feature.game.music.GameMusic
+import ch.magori.blox.feature.game.music.LiveMood
 import ch.magori.blox.feature.game.music.LiveMusicDirection
 import ch.magori.blox.feature.game.music.MusicDirection
 import ch.magori.blox.feature.game.navigation.GameRoute
@@ -142,6 +143,9 @@ class GameViewModel internal constructor(
      */
     private var musicDirection: MusicDirection? = null
 
+    /** Whether this game plays the live music, once its music is known ([directMusic]). */
+    private var playsLive = false
+
     /**
      * The music of this game, playing or stopped: stopping it leaves the music of another game alone. Kept
      * once stopped, so that the resume goes on where it stopped. Its [Playback.isPlaying] is followed
@@ -232,6 +236,9 @@ class GameViewModel internal constructor(
             }
 
             GameMusic.Live -> {
+                playsLive = true
+                // A game paused before its music was read names its mood at once.
+                state.update { it.copy(liveMood = liveMood()) }
                 if (gameState.phase is Phase.GameOver) return
                 val live = composeLive(seed)
                 gameSong = live.calm.score
@@ -353,12 +360,18 @@ class GameViewModel internal constructor(
         // Computed apart from the state, which only the main thread writes: no side effect in a block that may run again.
         val before = state.value
         val shown = gameState.toUiState(nextPieces::getValue)
-            .copy(best = before.best, gameOver = before.gameOver)
+            .copy(best = before.best, gameOver = before.gameOver, liveMood = liveMood())
             .withLeftHanded(before.leftHanded, gameState.isUnderWay)
             .withBestBeaten(before.bestBeaten)
         if (shown.bestBeaten) feedback = feedback.withBestBeaten()
         state.value = shown.copy(feedback = feedback)
     }
+
+    /**
+     * The mood of the live music of this game, as its stack stands: the one its direction plays; null when the game
+     * plays another music, or none.
+     */
+    private fun liveMood(): LiveMood? = LiveMood.of(gameState.stackInDanger).takeIf { playsLive }
 
     /**
      * The game is over in [finalState]: its score is given to its [results] at once (the records, or the results of
