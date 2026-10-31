@@ -642,7 +642,8 @@ respiration du danger est d'une fois en 2 s). Le cadre `danger` lui-même ne peu
 le moteur a une hystérésis (entrée dans le danger à 15 rangées, sortie à 12 ou moins, `docs/musique.md`), si bien
 qu'en sortir demande un effacement, puis y revenir une nouvelle pièce posée ; un cycle danger → calme → danger prend
 au moins 30 ticks ; 40 particules au plus, c'est-à-dire 40 cases qui éclatent à la fois
-(un effacement de 4 lignes), seules « particules » du jeu tant que les confettis (P5.83) n'existent pas. Point ouvert :
+(un effacement de 4 lignes) ; les confettis de la fin de partie (P5.83) sont 40 aussi, et ne tombent jamais en même
+temps que des cases éclatent (la partie est finie). Point ouvert :
 le reflet irisé est pâle de jour sur le cadre clair, à juger sur téléphone.
 
 **Tests :** `GameFeedbackTest › four lines run the iridescent border once`,
@@ -664,6 +665,56 @@ le reflet irisé est pâle de jour sur le cadre clair, à juger sur téléphone.
 `GameScreenTest › nothing recomposes while the iridescent border and the sticker of four lines play` ;
 captures `GameScreenFourLines*` et `GameScreenDanger*` (jour, nuit, Effets réduits), `GameScreenNewRecord*` (barre
 irisée). Vue : V28.
+
+**Fin de partie v2** (P5.83, `feature:game`, ADR 0024, V30) : Couleurs seulement ; Original, figé, garde son écran de
+fin de partie à la place du jeu, tout de suite (captures Original identiques). La partie finie, sa boucle reste arrêtée
+(`GameUiState.running` faux) : la fin de partie joue sur l'horloge de Compose (`GameOverPlay`, pur et compté en ticks,
+tenu par `GameOverPlayState`, avancé par `withFrameNanos` et `FrameTicks`, comme le rideau de la pause, plutôt que
+l'`Animatable` dont parle l'ADR 0024 : la même horloge de Compose, mais un seul état compté en ticks pour la pile, le
+score et les confettis), et l'écran ne demande plus aucune image une fois qu'elle a joué. Elle commence quand l'écran
+reçoit la fin de partie (`GameUiState.gameOver`, une fois les résultats écrits). **Pile qui s'éteint** : le jeu reste
+affiché, inerte pour TalkBack et le focus ; une couche invisible lui garde les doigts (ni bouton pause ni touche à
+l'écran ne répond, ni ne paraît pressé), puis le voile de la carte. Ses effets s'arrêtent (cadre, rangées en danger,
+autocollant), et sa pile s'éteint rangée par rangée de bas en haut, 2 ticks par rangée (40 ticks pour les 20 rangées
+du plateau, `Board.rows`) : chaque case remplie, pile ou pièce qui n'a pu entrer, est couverte de
+`cell-dead` dans sa forme (`DeadStack`, dessiné au seul dessin comme lumière du plateau, sans recomposer) ; les cases
+vides restent vides. **Carte** : une fois la pile éteinte, la carte monte sur le voile (`motion-card`, carte partagée
+avec la pause, `CardOverGame`) : « Partie terminée », NOUVEAU RECORD (MEILLEUR DU JOUR en Graine du jour) s'il y a
+lieu, le score final, qui compte de 0 à sa valeur en 30 ticks (seul son texte recompose, une fois par valeur, par un
+état dérivé ; TalkBack lit la valeur finale), « Ancien record » ou « Record » dessous (P9.14), centré, sur deux lignes
+en grande police sur un téléphone étroit, lignes, niveau, 4 lignes, durée, Rejouer, (Copier,) Menu.
+**Confettis** d'un nouveau record ou meilleur du jour : 40 au plus, aux couleurs des sept pièces (`pieceColor`),
+lâchés quand la carte paraît, qui tombent du haut de l'écran par-dessus la carte et le voile en 90 ticks au plus, en
+tournant, et s'effacent sur le dernier cinquième de leur chute ; TalkBack ne les lit pas. Comme en partie (P5.56 contre
+P5.78), un premier score positif reste un nouveau record en fin de partie, sans ligne « Ancien record » (il valait 0).
+**Effets réduits** : pile éteinte d'un coup, carte en fondu (`motion-reduced-fade`), score affiché d'un coup, aucun
+confetti, aucune image demandée. Une fin de partie déjà affichée (recréation de l'activité) revient jouée jusqu'au
+bout : carte et score entier, sans confettis. Point ouvert (P5.118) : les confettis passent sur le texte de la carte
+pendant 1,5 s, à juger sur téléphone.
+
+**Tests :** `GameOverPlayTest › the stack goes out from the bottom, 2 ticks a row`,
+`GameOverPlayTest › the card shows once the whole stack is out`,
+`GameOverPlayTest › the stack goes out over the rows of its board, as many as it has`,
+`GameOverPlayTest › the final score counts up from 0 in 30 ticks once the card shows`,
+`GameOverPlayTest › in reduced effects the stack goes out at once and the score shows at once`,
+`GameOverPlayTest › the game over needs frames until its score has counted up, none in reduced effects`,
+`GameOverPlayTest › a new best throws 40 confetti in the colours of the pieces once the card shows, for 90 ticks`,
+`GameOverPlayTest › without a new best, or in reduced effects, no confetti`,
+`GameOverPlayStateTest › a game that ends starts its game over, from its whole stack`,
+`GameOverPlayStateTest › a game shown already over shows its card and its whole score at once, without confetti, and plays nothing`,
+`DeadStackTest › the cells of the stack and of the piece go out with their row, the empty cells never`,
+`GameScreenGameOverTest › the card of the game over shows once the stack has gone out, 2 ticks a row`,
+`GameScreenGameOverTest › the game loop stays stopped while the game over plays`,
+`GameScreenGameOverTest › in reduced effects the card shows as soon as the game is over`,
+`GameScreenTest › nothing but the counting score recomposes while the stack goes out and the confetti fall`,
+`GameScreenTest › while the stack goes out, the game takes no touch: neither its pause button nor its keys`,
+`GameOverScreenTest › in Couleurs, on a phone of 360 dp in a font twice as large, the best before the game shows whole, centred`,
+`GameOverScreenTest › a new record shows the old record as « Ancien record »`,
+`GameOverScreenTest › a first positive score is shown as a new record, without an old record`,
+`GameOverScreenTest › without a new record the record is shown as « Record »` ;
+captures `GameScreenGameOver*` (pile à moitié éteinte, jour et nuit), `GameScreenGameOverCard*` (carte et confettis,
+jour et nuit), `GameScreenGameOverReduced`, et les cartes `GameOverColorful*` et `GameOverDaily*` régénérées.
+Vues : V30, V39.
 
 ## Choix de l'accueil
 

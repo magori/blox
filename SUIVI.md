@@ -1009,7 +1009,7 @@ composants.
   Cas : `the curtain hides the board and the next piece before the card shows`, `the game resumes only once the
   curtain is open`, `in reduced effects the curtain fades in 8 ticks at most`, `the system back resumes as
   Reprendre does` ; captures.
-- [ ] **P5.83** Fin de partie v2 : pile qui s'éteint rangée par rangée de bas en haut (`cell-dead`, 2 ticks par
+- [x] **P5.83** Fin de partie v2 : pile qui s'éteint rangée par rangée de bas en haut (`cell-dead`, 2 ticks par
   rangée, sur l'horloge de Compose), carte, NOUVEAU RECORD avec confettis, score qui compte, « Record » ou «
   Ancien record » (`GameOverUiState.previousBest`, P9.14, de `RecordResult.previous`), lignes, niveau, 4 lignes, durée,
   Rejouer, Menu. Après P5.81, P5.82.
@@ -1226,6 +1226,9 @@ composants.
   captures.
 - [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
   est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
+- [ ] **P5.118** Juger sur téléphone les confettis de la fin de partie (P5.83, V30) : ils passent 1,5 s sur le texte
+  de la carte (score qui compte, Rejouer). S'ils gênent la lecture, les faire tomber derrière la carte, sur le voile
+  seulement, ou les écarter de son centre ; sinon, cocher sans changement.
 
 ## P6 — Mode Moderne (plus tard)
 

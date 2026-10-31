@@ -204,6 +204,34 @@ private fun GameScreenDangerNight() = GameScreenDangerPreview()
 @Composable
 private fun GameScreenDangerReduced() = GameScreenDangerReducedPreview()
 
+// The game over (V30): the stack halfway out in `cell-dead`, then the card over the stack gone out, the confetti of the
+// new record falling; day, night, and in reduced effects (the stack out at once, no confetti).
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenGameOver() = GameScreenGameOverPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenGameOverNight() = GameScreenGameOverPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenGameOverCard() = GameScreenGameOverCardPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenGameOverCardNight() = GameScreenGameOverCardPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenGameOverReduced() = GameScreenGameOverReducedPreview()
+
 // Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
 
 @PreviewTest
@@ -385,7 +413,10 @@ private fun GameOverDailyNewBest() = GameOverDailyNewBestPreview()
 @Composable
 private fun GameOverDailyNewBestNight() = GameOverDailyNewBestPreview()
 
-/** The game over of a daily game, font enlarged: « Ancien meilleur 098760 » under the score still fits. */
+/**
+ * The game over of a daily game, font enlarged: « Ancien meilleur 098760 » under the score goes on two lines, centred,
+ * the card being narrower than the screen.
+ */
 @PreviewTest
 @Preview(fontScale = 2f)
 @Composable

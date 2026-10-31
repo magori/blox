@@ -388,6 +388,20 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   contour (`panelBorder`, encre `ink`) ; lignes et niveau avec leurs zéros, comme en jeu. L'écran
   défile si la police est agrandie. TalkBack annonce l'écran et lit la durée « 1 minute et
   5 secondes ».
+- **Fin de partie v2** (P5.83, V30, Couleurs ; Original garde V4) : la pile s'éteint rangée par rangée de bas en haut
+  (`cell-dead`, 2 ticks par rangée), le jeu restant affiché, inerte ; puis la carte monte sur le voile (`motion-card`,
+  la carte de la pause) : « Partie terminée », NOUVEAU RECORD avec des confettis aux couleurs des pièces, score qui
+  compte jusqu'à sa valeur, « Ancien record » ou « Record », lignes, niveau, 4 lignes, durée, Rejouer, Menu. La boucle
+  de jeu reste arrêtée ; tout joue sur l'horloge de Compose. Effets réduits : pile éteinte d'un coup, carte en fondu,
+  score d'un coup, pas de confettis. Détail et tests dans [themes.md](themes.md) (Fin de partie v2).
+  **Tests :** `GameOverPlayTest › the stack goes out from the bottom, 2 ticks a row`,
+  `GameOverPlayTest › in reduced effects the stack goes out at once and the score shows at once`,
+  `GameScreenGameOverTest › the card of the game over shows once the stack has gone out, 2 ticks a row`,
+  `GameScreenGameOverTest › the game loop stays stopped while the game over plays`,
+  `GameOverScreenTest › a new record shows the old record as « Ancien record »`,
+  `GameOverScreenTest › a first positive score is shown as a new record, without an old record`,
+  `GameOverScreenTest › without a new record the record is shown as « Record »` ;
+  captures `GameScreenGameOver*`, `GameScreenGameOverCard*`, `GameScreenGameOverReduced`.
 
 ### V19 — Pause
 - Le plateau est masqué : fond `page` opaque qui remplace tout l'écran de jeu, titre « Pause » en

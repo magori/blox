@@ -27,6 +27,8 @@ import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertWidthIsAtLeast
 import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.click
+import androidx.compose.ui.test.hasAnyAncestor
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasTestTag
@@ -37,8 +39,10 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.assertDrawnAsFresh
@@ -113,6 +117,7 @@ internal class GameScreenTest {
     /** Texts read from the resources by [showGameScreen], with [shownField] for the side column test. */
     private lateinit var resume: String
     private lateinit var replay: String
+    private lateinit var gameOverTitle: String
     private lateinit var fieldDescription: String
     private var shownField: ShownField = ShownField.SCORE
 
@@ -121,6 +126,10 @@ internal class GameScreenTest {
     /** The times Rejouer and Copier were pressed. */
     private var replays = 0
     private var copies = 0
+
+    /** The times the pause button was pressed, and the changes of the controls. */
+    private var pauses = 0
+    private var controlChanges = 0
 
     /**
      * The game screen for [uiState], drawn once, the size of the device or of [size], even larger than the device, with
@@ -134,6 +143,7 @@ internal class GameScreenTest {
         setContent {
             resume = stringResource(R.string.feature_game_pause_resume)
             replay = stringResource(R.string.feature_game_over_replay)
+            gameOverTitle = stringResource(R.string.feature_game_over_title)
             fieldDescription = stringResource(
                 R.string.feature_game_value_description,
                 stringResource(shownField.label),
@@ -146,8 +156,8 @@ internal class GameScreenTest {
                             uiState = { uiState },
                             onBack = {},
                             onReplay = { replays++ },
-                            onControl = {},
-                            onPause = {},
+                            onControl = { controlChanges++ },
+                            onPause = { pauses++ },
                             onResume = {},
                             labels = labels,
                             onCopy = { copies++ },
@@ -245,6 +255,61 @@ internal class GameScreenTest {
             .eachCount()
         assertThat(counts.keys).containsExactlyInAnyOrder("ScoreValue", "ValueText", "shrinkingFrom")
         assertThat(counts.getValue("ValueText")).isEqualTo(counts.getValue("ScoreValue"))
+    }
+
+    @Test
+    @DisplayName("nothing but the counting score recomposes while the stack goes out and the confetti fall")
+    fun nothingButTheCountingScoreRecomposesDuringTheGameOver() = extension.use {
+        // Given a game that ends with a new record, its frames handed by hand
+        showGameScreen()
+        mainClock.autoAdvance = false
+        val over = ShownScreen.GAME_OVER.change(uiState)
+        runOnIdle { uiState = over.copy(gameOver = over.gameOver?.copy(newBest = true)) }
+        mainClock.advanceTimeByFrame()
+        mainClock.advanceTimeByFrame()
+
+        // When its stack goes out, for 30 of its 40 ticks
+        recompositions.start()
+        mainClock.advanceTimeBy(FRAME_MILLIS * 30)
+
+        // Then it is only drawn again
+        assertThat(recompositions.recomposed.filter { "feature.game" in it }).isEmpty()
+
+        // And once the card has shown, while its score counts up (30 ticks) and the confetti fall (90), to their end
+        mainClock.advanceTimeBy(FRAME_MILLIS * 16)
+        onNodeWithText(replay).assertExists()
+        recompositions.start()
+        mainClock.advanceTimeBy(FRAME_MILLIS * 100)
+
+        // Only the score was composed again, as it counted: its text, once for each value it took, 30 at most
+        val counts = recompositions.recomposed
+            .filter { "feature.game" in it }
+            .groupingBy { it.substringBefore(" (").substringAfterLast(".") }
+            .eachCount()
+        assertThat(counts.keys).isSubsetOf("CountingScore", "ValueText", "shrinkingFrom")
+        assertThat(counts.getValue("CountingScore")).isBetween(1, 30)
+    }
+
+    @Test
+    @DisplayName("while the stack goes out, the game takes no touch: neither its pause button nor its keys")
+    fun whileTheStackGoesOutTheGameTakesNoTouch() = extension.use {
+        // Given a game under way, where its pause button and its left key stand
+        showGameScreen()
+        val pauseButton = onNodeWithTag("game_pause").fetchSemanticsNode().boundsInRoot.center
+        val leftKey = onNode(LEFT).fetchSemanticsNode().boundsInRoot.center
+
+        // When it ends, and the player touches them while its stack goes out
+        mainClock.autoAdvance = false
+        runOnIdle { uiState = ShownScreen.GAME_OVER.change(uiState) }
+        mainClock.advanceTimeBy(FRAME_MILLIS * 4)
+        onRoot().performTouchInput { click(pauseButton) }
+        onRoot().performTouchInput { click(leftKey) }
+        mainClock.advanceTimeBy(FRAME_MILLIS * 4)
+
+        // Then neither the pause nor a control was asked for, the card not shown yet
+        onNodeWithText(replay).assertDoesNotExist()
+        assertThat(pauses).isZero()
+        assertThat(controlChanges).isZero()
     }
 
     @Test
@@ -516,12 +581,14 @@ internal class GameScreenTest {
 
         // Then TalkBack reads the score, then the best: the one beaten, or the one still to beat
         onNodeWithContentDescription(listOfNotNull("Score : 12340", case.spoken).joinToString()).assertIsDisplayed()
-        // And the line shows under the score; without a best before, no line, neither label nor zeros
+        // And the line shows under the score; without a best before, no line, neither label nor zeros, on the card of
+        // the game over (the game under it, which TalkBack does not read, keeps its own values)
+        val onCard = hasAnyAncestor(SemanticsMatcher.expectValue(SemanticsProperties.PaneTitle, gameOverTitle))
         if (case.shown != null) {
             onNodeWithText(case.shown, useUnmergedTree = true).assertIsDisplayed()
         } else {
             listOf("Ancien", "Record", "Meilleur", "000000").forEach {
-                onNodeWithText(it, substring = true, useUnmergedTree = true).assertDoesNotExist()
+                onNode(hasText(it, substring = true) and onCard, useUnmergedTree = true).assertDoesNotExist()
             }
         }
     }
