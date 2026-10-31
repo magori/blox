@@ -54,8 +54,10 @@ private val TrackFrame = 1.dp
 /**
  * A volume slider (docs/design-system/README.md, Paramètres): a track of 6 dp in `panel-border`, filled in `accent`
  * up to a knob of 28 dp in `button`, by steps of 10 % ([VolumeSteps]), its value in percent on its right. TalkBack
- * reads one slider, [description] and the value, and moves it 10 % at a time. [onPercentChange] is given the volume
- * asked for, always one of [VolumeSteps]; [enabled] false, the slider is flat, in `panel-inset`, and cannot be moved.
+ * reads one slider, [description] and the value, and moves it 10 % at a time. Focused by the keyboard, it bears the
+ * ring of the buttons, and its arrows move it 10 %, left and right the way they point along the track.
+ * [onPercentChange] is given the volume asked for, always one of [VolumeSteps]; [enabled] false, the slider is flat,
+ * in `panel-inset`, and cannot be moved nor focused.
  *
  * @throws IllegalArgumentException if [percent] is not a multiple of 10 from 0 to 100.
  */
@@ -73,12 +75,16 @@ fun VolumeSlider(
     val text = stringResource(R.string.core_designsystem_volume_percent, value.value)
     val latestValue by rememberUpdatedState(given)
     val change = rememberStepChange(onPercentChange)
+    val direction = LocalLayoutDirection.current
     Row(
-        modifier = modifier.stepSemantics(value, description, state = text, enabled = enabled, onValueChange = change),
+        modifier = modifier
+            .stepSemantics(value, description, state = text, enabled = enabled, onValueChange = change)
+            .stepKeys(direction, BloxTheme.buttons, BloxTheme.shapes.md, gesture, change, enabled) {
+                latestValue
+            },
         horizontalArrangement = Arrangement.spacedBy(BloxSpaces.space3),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        val direction = LocalLayoutDirection.current
         val touch = if (enabled) {
             Modifier.stepTouch(KnobSize / 2, direction, {
                 latestValue
