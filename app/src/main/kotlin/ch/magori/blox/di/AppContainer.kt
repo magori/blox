@@ -13,8 +13,10 @@ import ch.magori.blox.core.audio.ChiptuneSequencer
 import ch.magori.blox.core.audio.FocusedMusicPlayer
 import ch.magori.blox.core.audio.MUSIC_SAMPLE_RATE
 import ch.magori.blox.core.audio.MediaPlayerTracks
+import ch.magori.blox.core.audio.MediaStoreRingtoneExporter
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.MusicSwitch
+import ch.magori.blox.core.audio.RingtoneExporter
 import ch.magori.blox.core.audio.SoundEffectPlayer
 import ch.magori.blox.core.audio.SoundEffectTracks
 import ch.magori.blox.core.audio.StaticAudioTrack
@@ -227,6 +229,17 @@ class AppContainer(context: Context) {
         scope = CoroutineScope(SupervisorJob() + Dispatchers.Default.limitedParallelism(1)),
         onFailure = { failure -> Log.w(TAG, "A sound effect could not play", failure) },
     )
+
+    /**
+     * The export of a music of Mes musiques as a ringtone or an alarm (ADR 0031): rendered by the synthesizer of the
+     * music, so that it sounds as in BloX, then written by `MediaStore`, off the main thread. None before Android 10:
+     * the row « Sonnerie ou réveil » then shows in no menu. Not handed to any screen yet (P13.7).
+     */
+    val ringtoneExporter: RingtoneExporter? = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        MediaStoreRingtoneExporter(musicSynthesizer, context.contentResolver, Dispatchers.IO)
+    } else {
+        null
+    }
 
     init {
         // The volumes saved, applied to the music and to the effects shared by every screen, from the start and at each

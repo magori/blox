@@ -27,6 +27,18 @@ class RingtoneFileNameTest {
         assertThat(fileName).isEqualTo("a_b_c_d_e_f_g_h_i_j_k.wav")
     }
 
+    @Test
+    fun `a name starting with a dot does not make a hidden file`() {
+        // Given: a hidden file, which MediaStore does not show, nor the picker of the system (seen on Android 17)
+        val name = ".xyz"
+
+        // When
+        val fileName = ringtoneFileName(name)
+
+        // Then
+        assertThat(fileName).isEqualTo("_xyz.wav")
+    }
+
     @ParameterizedTest
     @ValueSource(strings = ["", "   ", "?!*", " - / . "])
     fun `a name of spaces or symbols only gives BloX`(name: String) {

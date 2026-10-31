@@ -90,6 +90,13 @@ Contraintes et options :
 - Notification écartée : un son de notification dure moins de 3 s et ne boucle pas ; une boucle de musique coupée
   au milieu d'une phrase n'y convient pas. Elle pourrait revenir avec un extrait écrit pour cela (une phrase, une
   cadence), ce qui serait un amendement.
+- **Amendement (P13.6, 2026-10-31).** Deux points du 6 changent à l'écriture. `export` rend l'URI `content://` du
+  fichier **en texte** (`String`, comme `MusicFile.uri`), non un `android.net.Uri` : celui-ci ne se construit pas dans
+  les tests sur la JVM, où `FakeRingtoneExporter` doit en rendre un. Et `TITLE` ne se règle pas : `MediaStore` le tire
+  du nom du fichier à la publication, et refuse qu'une application le change ensuite (la mise à jour ne change aucune
+  ligne ; vu sur Android 17). Le titre est donc le nom du fichier sans l'extension : le nom de la musique, ses
+  caractères interdits remplacés par `_`, et « Nom (1) » au second export du même nom, comme voulu. Un nom qui
+  commence par un point donnerait un fichier caché, que `MediaStore` ne montre pas : ce point est remplacé par `_`.
 
 ## Options écartées
 

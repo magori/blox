@@ -14,6 +14,9 @@ dependencies {
     api(projects.core.music)
     api(libs.kotlinx.coroutines.core)
 
+    // @RequiresApi : l'écriture des sonneries par MediaStore demande Android 10 (ADR 0031).
+    implementation(libs.androidx.annotation)
+
     // Le faux lecteur reçoit et note des musiques de core:music.
     testFixturesApi(projects.core.music)
 
