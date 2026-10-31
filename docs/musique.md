@@ -265,8 +265,8 @@ basses.
   `attackMillis`, descend linéairement jusqu'à `sustain` en `decayMillis`, le tient, puis s'éteint linéairement
   vers le silence sur les `releaseMillis` **qui finissent la note** (temps arrondis à l'échantillon) : l'extinction
   se termine sur le dernier échantillon de la note et ne déborde jamais sur la suivante. Dans une note plus courte
-  que l'extinction, celle-ci est raccourcie et part du niveau atteint, une fois l'attaque finie. L'écho (P14.7) et le
-  gain de l'instrument (tous à 1, P14.17) ne sont pas encore appliqués.
+  que l'extinction, celle-ci est raccourcie et part du niveau atteint, une fois l'attaque finie. Le gain de
+  l'instrument (tous à 1, P14.17) n'est pas encore appliqué.
 - **Filtre de l'instrument** (P14.6) : un instrument qui a un `lowPass` fait passer **toute sa voix**, une fois
   rendue, par un passe-bas à un pôle de cette fréquence de coupure : chaque échantillon de sortie s'approche du
   précédent vers l'entrée d'une fraction `1 − e^(−2π × coupure / taux)`, en partant du silence. Une constante passe
@@ -277,6 +277,14 @@ basses.
   durée totale, sans dérive d'arrondi.
 - **Mixage** : `mix` additionne les voix, échantillon par échantillon, puis écrête à [−1, 1].
   Les voix doivent avoir la même longueur (garanti par `Score`).
+- **Écho du style** (P14.7) : un style qui a un `Echo` l'applique **au mixage**, une fois les voix additionnées. Le
+  son revient après `delayBeats` temps, compté au tempo joué (`sampleAt(delayBeats, bpm × facteur)`) : à × 1,25,
+  l'écho reste sur la mesure. Chaque retour vaut `feedback` fois le précédent, et la somme des retours s'ajoute au son
+  à la part `wet`. L'écho est **circulaire** : ce qui revient au-delà de la fin du tampon résonne sur son début, comme
+  à la reprise de la boucle, si bien que la boucle reste sans raccord et garde la longueur de la partition. Le calcul
+  rejoue le tampon assez de fois pour que les retours venus d'avant son début tombent sous 10⁻⁶ de leur niveau. La
+  somme est écrêtée à [−1, 1] ; avec les volumes des partitions et les échos des styles (retour au plus 0,3, part au
+  plus 0,25), elle n'a jamais à l'être. Arcade n'a pas d'écho.
 - La fréquence d'échantillonnage et le tempo doivent être positifs.
 
 **Tests :** `SynthesizerTest › a square wave at 440 Hz alternates plus and minus the volume with a period of about 100 point 2 samples`,
@@ -301,7 +309,12 @@ basses.
 `LowPassTest › a constant signal passes the low-pass unchanged`,
 `LowPassTest › a tone at the cutoff comes out about 3 dB lower`,
 `LowPassTest › a tone far above the cutoff is attenuated`,
-`LowPassTest › an instrument without filter is not changed`.
+`LowPassTest › an instrument without filter is not changed`,
+`EchoMixTest › a click comes back after the delay of the echo at its feedback`,
+`EchoMixTest › the delay of the echo follows the tempo, in beats`,
+`EchoMixTest › the echo of the end of the loop sounds at its start, so that the loop has no seam`,
+`EchoMixTest › the rendering keeps the length of the score`,
+`EchoMixTest › the echo never takes the mix beyond -1 and 1`.
 
 ## Lecture en boucle
 
@@ -848,8 +861,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
 (P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
-dans un style, ton et forme de note (P14.5, voir Synthèse), le filtre de l'instrument (P14.6, voir Synthèse) ; écho,
-effets, réglage et interface **pas encore codés** (P14.7 à P14.20). Vues : V43 (feuille
+dans un style, ton et forme de note (P14.5, voir Synthèse), le filtre de l'instrument (P14.6) et l'écho du style
+(P14.7, voir Synthèse) ; effets, réglage et interface **pas encore codés** (P14.8 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 

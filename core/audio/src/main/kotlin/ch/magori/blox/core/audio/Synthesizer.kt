@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Adsr
+import ch.magori.blox.core.music.Echo
 import ch.magori.blox.core.music.Gate
 import ch.magori.blox.core.music.Instrument
 import ch.magori.blox.core.music.Pitch
@@ -23,7 +24,8 @@ public class Synthesizer(public val sampleRate: Int) {
 
     /**
      * Renders [score]: its voices, mixed, at its tempo times [tempoFactor], each on the instrument [style] gives to
-     * its waveform. The only entry point of the rendering of the scores: the sequencer plays what it returns.
+     * its waveform, then the echo of [style], if it has one, on the mix, wrapped around the start of the loop. The
+     * only entry point of the rendering of the scores: the sequencer plays what it returns.
      */
     public fun render(
         score: Score,
@@ -33,7 +35,9 @@ public class Synthesizer(public val sampleRate: Int) {
         require(tempoFactor > 0 && tempoFactor.isFinite()) {
             "The tempo factor is positive and finite, was $tempoFactor"
         }
-        return mix(score.voices.map { renderVoice(it, score.bpm * tempoFactor, style.instrumentFor(it.waveform)) })
+        val bpm = score.bpm * tempoFactor
+        val mixed = mix(score.voices.map { renderVoice(it, bpm, style.instrumentFor(it.waveform)) })
+        return style.echo?.let { withEcho(mixed, it, bpm) } ?: mixed
     }
 
     /**
@@ -116,6 +120,13 @@ public class Synthesizer(public val sampleRate: Int) {
             else -> adsr.sustain
         }
     }
+
+    /** [samples] of a music at [bpm] with [echo], its delay counted in beats so that it follows the tempo. */
+    internal fun withEcho(
+        samples: FloatArray,
+        echo: Echo,
+        bpm: Double,
+    ): FloatArray = withEcho(samples, echo, sampleAt(echo.delayBeats, bpm))
 
     /** The sample at which [beats] beats have passed at [bpm]. */
     private fun sampleAt(

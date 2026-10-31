@@ -2095,10 +2095,10 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
 - [x] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
   tone at the cutoff comes out about 3 dB lower`, `a tone far above the cutoff is attenuated`, `an instrument without
   filter is not changed`. Après P14.5. Fait le 2026-10-31 (`LowPassTest`).
-- [ ] **P14.7** Écho circulaire, au mixage (`core:audio`). Cas : `a click comes back after the delay of the echo at its
+- [x] **P14.7** Écho circulaire, au mixage (`core:audio`). Cas : `a click comes back after the delay of the echo at its
   feedback`, `the delay of the echo follows the tempo, in beats`, `the echo of the end of the loop sounds at its
   start, so that the loop has no seam`, `the rendering keeps the length of the score`, `the echo never takes the mix
-  beyond -1 and 1`. Après P14.5.
+  beyond -1 and 1`. Après P14.5. Fait le 2026-10-31 (`EchoMixTest`).
 - [ ] **P14.8** `SoundStyleControl.setSoundStyle(style)` (`ChiptuneSequencer`, `MusicSwitch`, `FocusedMusicPlayer`,
   `FakeMusicPlayer`, `MusicPlayerContract`), cache des tampons par style. Cas : `a style set while nothing plays
   applies to the next play`, `a style set while a score plays applies from the next play or resume`, `a score
