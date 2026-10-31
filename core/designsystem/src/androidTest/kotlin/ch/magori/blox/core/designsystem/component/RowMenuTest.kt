@@ -15,8 +15,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.input.InputMode
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -188,8 +186,7 @@ internal class RowMenuTest {
         windowOpen: Boolean,
         onRename: () -> Unit,
     ) {
-        val inputMode = LocalInputModeManager.current
-        LaunchedEffect(Unit) { inputMode.requestInputMode(InputMode.Keyboard) }
+        KeyboardInUse()
         BloxTheme(kind = BloxThemeKind.COLORFUL) {
             Column {
                 // Focusable before « … »: a focus lost would land on it, not on « … ».

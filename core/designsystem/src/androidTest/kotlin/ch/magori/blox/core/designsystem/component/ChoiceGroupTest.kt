@@ -3,12 +3,9 @@ package ch.magori.blox.core.designsystem.component
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.InputMode
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalInputModeManager
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
@@ -293,11 +290,7 @@ internal class ChoiceGroupTest {
                 LocalDensity provides Density(density.density, fontScale),
                 LocalLayoutDirection provides direction,
             ) {
-                if (keyboard) {
-                    // As with a keyboard plugged in: a touch screen gives the focus to text fields only.
-                    val inputModes = LocalInputModeManager.current
-                    LaunchedEffect(inputModes) { inputModes.requestInputMode(InputMode.Keyboard) }
-                }
+                if (keyboard) KeyboardInUse()
                 BloxTheme(kind = kind) {
                     ChoiceGroup(
                         label = "Thème",
