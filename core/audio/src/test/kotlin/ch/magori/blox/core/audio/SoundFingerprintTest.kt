@@ -218,9 +218,6 @@ class SoundFingerprintTest {
     }
 
     private companion object {
-        /** The sample rate of the music (AppContainer). */
-        const val MUSIC_SAMPLE_RATE = 44_100
-
         /** The sample rate of the effects on most devices, the default of [effectSampleRateOf]: 48 000 Hz. */
         val EFFECT_SAMPLE_RATE = effectSampleRateOf(outputSampleRate = null)
 

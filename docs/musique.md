@@ -712,9 +712,11 @@ qui s'arrête sur `GameOver`.
 
 ## Sonnerie ou réveil
 
-Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : la longueur, le niveau, le format et le
-nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`) ; **pas encore** le rendu partagé, l'écriture ni
-l'interface (P13.2, P13.6 à P13.14). Vues : V42
+Spécifiée en P13.1 ([ADR 0031](adr/0031-sonnerie-et-reveil.md)). Codés : le synthétiseur de la musique, un seul
+dans `AppContainer` à `MUSIC_SAMPLE_RATE` (public dans `core:audio`, P13.2), la longueur, le niveau, le format et le
+nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`), l'écriture par `MediaStore` (P13.6,
+`RingtoneExporter`, que `AppContainer` construit sans encore le donner à un écran) ; **pas encore** l'interface
+(P13.7 à P13.14). Vues : V42
 (feuille « Sonnerie ou réveil »), V32 et V33 (menus « … »), dans [maquette.md](maquette.md).
 
 **Périmètre**
@@ -733,7 +735,13 @@ l'interface (P13.2, P13.6 à P13.14). Vues : V42
 **Le fichier**
 
 - Rendu par le synthétiseur de la musique (`Synthesizer`, `MUSIC_SAMPLE_RATE`, 44 100 Hz), au tempo de la musique,
-  dans l'instrument choisi dans la feuille (Instruments, ci-dessous ; présélectionné sur le réglage).
+  dans l'instrument choisi dans la feuille (Instruments, ci-dessous ; présélectionné sur le réglage). Un seul
+  synthétiseur de musique, dans `AppContainer`, sert le séquenceur et l'export : le fichier sonne comme le jeu. Le
+  fichier est rendu, découpé et encodé avant toute écriture.
+
+  **Tests :** `RingtoneWriterTest › the exporter renders the score with the synthesizer of the music, at its tempo`,
+  `RingtoneWriterTest › the file holds the ringtone samples of the rendering, encoded as WAV`,
+  `RingtoneWriterTest › a music longer than 60 s is cut at its last whole bar, at the tempo of the score`.
 - **Longueur** : des boucles entières de la musique, le plus petit nombre qui dure **au moins 20 s**. Une boucle de
   20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
   boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
@@ -766,17 +774,55 @@ l'interface (P13.2, P13.6 à P13.14). Vues : V42
   `WavEncoderTest › an empty rendering is refused`.
 - **Nom** : le nom de la musique, extension `.wav` ; les caractères interdits dans un nom de fichier
   (`/ \ : * ? " < > |`, ceux de FAT, et les caractères de contrôle) sont remplacés par `_` ; un nom sans lettre ni
-  chiffre (vide, fait seulement d'espaces ou de symboles) donne « BloX ». Le titre lu par le sélecteur du système est
-  le nom de la musique. Le nom n'est pas tronqué : un nom de Mes musiques tient en 40 caractères au plus
+  chiffre (vide, fait seulement d'espaces ou de symboles) donne « BloX ». Un point en tête est remplacé lui aussi par
+  `_` (« .xyz » donne « _xyz.wav ») : un fichier caché, `MediaStore` ne le montre pas, ni le sélecteur du système (vu
+  sur Android 17). Le nom n'est pas tronqué : un nom de Mes musiques tient en 40 caractères au plus
   (`SavedMusic.MAX_NAME_LENGTH`), soit 160 octets en UTF-8, loin des 255 octets d'un nom de fichier.
+- **Titre** : celui que lit le sélecteur du système, que `MediaStore` tire du nom du fichier, sans l'extension. Une
+  application ne peut pas le changer (une mise à jour de `TITLE` ne change aucune ligne, et celui donné à l'insertion
+  est remplacé à la publication ; vu sur Android 17) : le titre est donc le nom de la musique, ses caractères
+  interdits remplacés par `_` comme dans le nom du fichier (« Pluie: matin » s'intitule « Pluie_ matin »).
 
   **Tests :** `RingtoneFileNameTest › the file is named after the music, with the wav extension`,
   `RingtoneFileNameTest › the characters a file name may not hold are replaced`,
-  `RingtoneFileNameTest › a name of spaces or symbols only gives BloX`.
+  `RingtoneFileNameTest › a name starting with a dot does not make a hidden file`,
+  `RingtoneFileNameTest › a name of spaces or symbols only gives BloX`,
+  `MediaStoreRingtoneExporterTest › the title of the file is the name of the music`.
 - **Où** : `Ringtones/BloX/` (Sonnerie) ou `Alarms/BloX/` (Réveil), écrit par `MediaStore`, marqué comme sonnerie ou
   réveil, sans aucune permission. Chaque export crée un nouveau fichier ; si le nom est pris, le fichier devient
   « Nom (1).wav » et son titre « Nom (1) », pour que le sélecteur du système distingue les deux. Les
   fichiers restent dans le téléphone après la désinstallation de BloX, et quand la musique est supprimée.
+- **Écriture** (`MediaStoreRingtoneExporter`, Android 10 et plus) : collection `Audio.Media` du volume principal,
+  type `audio/x-wav`, `RELATIVE_PATH` `Ringtones/BloX/` et `IS_RINGTONE`, ou `Alarms/BloX/` et `IS_ALARM` ;
+  l'entrée naît en attente (`IS_PENDING`), invisible des autres applications, et n'est publiée qu'une fois son
+  fichier écrit en entier et fermé ; une publication qui ne change pas exactement une ligne est un échec. Tout échec
+  de `MediaStore` sort en `IOException`, même une `IllegalStateException` ou une `SecurityException`, enveloppée :
+  c'est la promesse de `RingtoneExporter`. Une écriture ou une publication qui échoue supprime d'abord l'entrée ; si
+  la suppression échoue aussi, son exception est jointe à la première (`addSuppressed`), qui reste celle rendue. Une
+  partition dont la mesure dépasse 60 s est refusée (`IllegalArgumentException`) avant toute écriture ; aucune
+  musique du joueur n'en approche. Le rendu et l'écriture se font sur le dispatcher donné (`Dispatchers.IO` dans
+  `AppContainer`), jamais sur le fil principal : le rendu, quelques secondes de calcul au plus, n'a pas de dispatcher
+  à lui. **Annulation** : l'écriture, bloquante, ne s'interrompt pas ; une coroutine annulée pendant qu'elle écrit
+  laisse un fichier publié dont l'appelant ne reçoit pas l'URI (`CancellationException`). La feuille (P13.7) ne
+  doit donc pas annuler un export en cours, ou accepter ce fichier orphelin.
+  `export` rend l'URI `content://` du fichier écrit, en texte (comme `MusicFile.uri`) : un `android.net.Uri` ne se
+  construit pas dans les tests sur la JVM, où `FakeRingtoneExporter` (doublures de test de `core:audio`) note les
+  exports et peut échouer. Les appels à `MediaStore` passent par `RingtoneStore` (insertion, flux, publication,
+  suppression ; `ContentResolverRingtoneStore` en production), si bien que l'échec et le nettoyage se testent sur la
+  JVM.
+
+  **Tests :** `RingtoneWriterTest › an entry is published only once its file is whole`,
+  `RingtoneWriterTest › a write that fails leaves no entry behind`,
+  `RingtoneWriterTest › a write that fails otherwise than on input or output leaves no entry behind, and fails as
+  one`, `RingtoneWriterTest › a publication that fails leaves no entry behind`,
+  `RingtoneWriterTest › an entry that cannot be made fails as input or output`,
+  `RingtoneWriterTest › a removal that fails too keeps the failure of the write`,
+  `FakeRingtoneExporterTest › each export of the fake gets a URI of its own`,
+  `FakeRingtoneExporterTest › the fake fails while its failure is set, and notes the export asked for`,
+  `MediaStoreRingtoneExporterTest › a ringtone is written in Ringtones BloX, marked as a ringtone and no longer
+  pending`, `MediaStoreRingtoneExporterTest › an alarm is written in Alarms BloX, marked as an alarm`,
+  `MediaStoreRingtoneExporterTest › the file written reads back as the WAV encoded`,
+  `MediaStoreRingtoneExporterTest › two exports of the same name give two files, the second titled Nom (1)`.
 
 **Ce que BloX ne fait pas** : il ne règle jamais la sonnerie ni un réveil lui-même (ni `WRITE_SETTINGS`, ni aucune
 permission de stockage). Après l'écriture, la feuille propose d'ouvrir les réglages du son (Sonnerie) ou l'Horloge

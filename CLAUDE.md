@@ -242,7 +242,9 @@ du Classique, qui doit rester vert (ADR 0015).
   d'un quart, sinus, dent de scie), `NoteShape` (la forme d'une note : `Gate`, l'enveloppe d'origine, ou `Adsr` ;
   `Envelope` reste celle des effets), `Echo` (l'écho d'un style : délai en temps, retour, part). Sonnerie ou réveil
   (ADR 0031) : `RingtoneExporter` (`core:audio`, écrit une musique du joueur en WAV comme sonnerie ou réveil, par
-  `MediaStore`, Android 10 et plus). Garder ces noms.
+  `MediaStore`, Android 10 et plus ; `MediaStoreRingtoneExporter` en production, `FakeRingtoneExporter` en doublure),
+  `RingtoneKind` (`RINGTONE` ou `ALARM`), `MUSIC_SAMPLE_RATE` (44 100 Hz, le taux du synthétiseur de la musique,
+  partagé par le séquenceur et l'export). Garder ces noms.
 - **Immuabilité** dans le domaine : `data class` et `val`, opérations qui renvoient un nouvel
   état. Pas de `var` public.
 - Préférer les types dédiés aux primitives (`Level`, `Lines` plutôt que `Int`) quand ils portent

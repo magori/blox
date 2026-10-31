@@ -14,5 +14,7 @@ audio personnel.
 - `AudioFilePlayer` : lecture d'un fichier choisi par l'utilisateur (sélecteur de documents
   du système), via `MediaPlayer` ou Media3.
 - `SoundEffects` : effets courts (rotation, ligne complète, fin de partie), plus tard.
+- `RingtoneExporter` : écrit une musique du joueur en WAV comme sonnerie ou réveil (ADR 0031) ;
+  `MediaStoreRingtoneExporter` par `MediaStore` (Android 10 et plus), `FakeRingtoneExporter` en doublure.
 
 Voir [docs/musique.md](../../docs/musique.md) pour les choix et les limites de droits.
