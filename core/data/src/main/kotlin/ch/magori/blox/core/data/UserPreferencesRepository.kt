@@ -1,5 +1,6 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 
@@ -77,4 +78,11 @@ interface UserPreferencesRepository {
      * @throws java.io.IOException if the settings cannot be written.
      */
     suspend fun setEffectsVolume(effectsVolume: Volume)
+
+    /**
+     * Saves the instruments of the scores, « Instruments ».
+     *
+     * @throws java.io.IOException if the settings cannot be written.
+     */
+    suspend fun setSoundStyle(soundStyle: SoundStyle)
 }

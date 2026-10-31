@@ -2105,11 +2105,12 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   switched to is rendered in the style set`, `changing the style drops the buffers rendered in the other style`,
   `setting the style it plays renders nothing`, `a music file is not changed by the style`. Après P14.5. Fait le
   2026-10-31 (`Player` étend `SoundStyleControl` ; le dernier cas dans `MusicSwitchTest`).
-- [ ] **P14.9** `UserPreferences.soundStyle` (`core:data`, clé `sound_style` par nom, Arcade si absente ou inconnue),
+- [x] **P14.9** `UserPreferences.soundStyle` (`core:data`, clé `sound_style` par nom, Arcade si absente ou inconnue),
   contrat, faux ; `applySavedSoundStyle` dans `app`. Cas : `the sound style is Arcade until the player chooses one`,
   `the sound style chosen reads back`, `an unknown style read from the file gives the Arcade`, `the saved style is
   applied to the music as soon as it is read, then at each change`, `a change of another setting does not set the
-  style again`. Après P14.8.
+  style again`. Après P14.8. Fait le 2026-10-31 (`SavedSoundStyleTest` ; cas ajouté : `the sound style is stored by
+  its name, which must not change`) ; aucune interface.
 - [ ] **P14.10** Mettre à jour la maquette (depuis claude.ai), **avant les tâches d'interface** (P14.11 à P14.13,
   P14.20) : V43 (Écouter en cours, volume à 0 % ; jour, nuit, ×2) ; V31 (rangée Instruments, note de la carte) ; V42
   (groupe Instruments) ; V27 (sous-ligne de « Mon fichier ») ; pictogrammes manette, lune, éclair.

@@ -1,5 +1,6 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -46,6 +47,8 @@ class FakeUserPreferencesRepository(
     override suspend fun setMusicVolume(musicVolume: Volume) = write { it.copy(musicVolume = musicVolume) }
 
     override suspend fun setEffectsVolume(effectsVolume: Volume) = write { it.copy(effectsVolume = effectsVolume) }
+
+    override suspend fun setSoundStyle(soundStyle: SoundStyle) = write { it.copy(soundStyle = soundStyle) }
 
     /** As DataStore does, a write applies to the settings kept, or to the default ones if there are none. */
     private fun write(change: (UserPreferences) -> UserPreferences) {

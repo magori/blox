@@ -44,9 +44,11 @@ class FakeMusicPlayer : MusicPlayer {
     /** Every volume set, in order, the same one set again included. */
     val volumesSet = mutableListOf<Volume>()
 
-    /** The sound style set, for the next music played. */
-    var soundStyle: SoundStyle = SoundStyle.ARCADE
-        private set
+    /** Every sound style set, in order, the same one set again included. */
+    val soundStylesSet = mutableListOf<SoundStyle>()
+
+    /** The sound style set last, for the next music played. */
+    val soundStyle: SoundStyle get() = soundStylesSet.lastOrNull() ?: SoundStyle.ARCADE
 
     /** The sound style the score playing was started in: the one set when it was played, resumed or switched to. */
     var playingStyle: SoundStyle = SoundStyle.ARCADE
@@ -90,7 +92,7 @@ class FakeMusicPlayer : MusicPlayer {
     }
 
     override fun setSoundStyle(style: SoundStyle) {
-        soundStyle = style
+        soundStylesSet += style
     }
 
     /**
