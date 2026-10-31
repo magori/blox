@@ -19,7 +19,8 @@ import ch.magori.blox.core.designsystem.theme.BloxSpaces
  * [OFFERED_MUSICS], the music of the player for the games, if any, before « Aucune ». Each row is a choice, the one
  * selected checked; choosing one saves it ([MusicActions.onMusicChosen]) and leaves the sheet open. Each music that may
  * be listened to bears its listen button at the end of its row, one only playing at a time (the view model stops the
- * other); « Mon fichier » with a file kept bears Changer before it, which opens the picker. The system back or a touch
+ * other); « Mon fichier » with a file kept bears Changer before it, which opens the picker, and the name of its file
+ * under it, on one line, when it is known ([HomeUiState.musicFileName]). The system back or a touch
  * on the scrim calls [onDismissRequest].
  */
 @Composable
@@ -76,13 +77,15 @@ private fun ChoiceRow(
     music: MusicActions,
 ) {
     val name = stringResource(choice.label)
+    val fileName = uiState.musicFileName.takeIf { choice == MusicChoice.MY_FILE && uiState.hasMusicFile }
     MusicSheetRow(
         choice = {
             SheetChoiceRow(
                 label = name,
-                subLine = stringResource(choice.subLine(uiState.hasMusicFile)),
+                subLine = fileName ?: stringResource(choice.subLine(uiState.hasMusicFile)),
                 selected = choice == uiState.selectedMusic,
                 onClick = { music.onMusicChosen(choice) },
+                oneLineSubLine = fileName != null,
             )
         },
         extra = {

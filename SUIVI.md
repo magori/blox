@@ -683,9 +683,11 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   2026-10-20, section Réglages) : les brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
   leur valeur par défaut : désactivés (décisions du développeur, 2026-10-19 et 2026-10-20 ; P5.2,
   P4.8). Fait : section Réglages, `settingColors`, désactivés par défaut.
-- [ ] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
+- [x] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
   déjà codé), à afficher
-  (`OpenableColumns.DISPLAY_NAME`) (P4.6).
+  (`OpenableColumns.DISPLAY_NAME`) (P4.6). Fait : nom lu une fois au choix (`MusicFileNames`,
+  `DocumentMusicFileNames` dans `app`), gardé avec l'URI (clé `name` de `music_file.preferences_pb`), affiché
+  dans la feuille Musique sur une ligne, coupé au milieu ; sans nom connu, « Un fichier audio de l'appareil ».
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 - [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
@@ -1220,6 +1222,8 @@ composants.
   ne tient pas), et `ColumnOrRow` refait `SideBySideOrStacked`. Une seule mise en page partagée pour chacune, ses
   décisions en fonctions pures (comme `fitsBesideFixed`, `sideBySide`), sans changer les rangées de réglage ni leurs
   captures.
+- [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
+  est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -72,6 +72,11 @@ private fun HomeMusicSheetOriginal() = HomeMusicSheetOriginalPreview()
 private fun HomeMusicSheetColorfulLargeFont() = HomeMusicSheetColorfulLargeFontPreview()
 
 @PreviewTest
+@Preview(widthDp = 360, heightDp = 1000, fontScale = 2f)
+@Composable
+private fun HomeMusicSheetLongFileNameLargeFont() = HomeMusicSheetLongFileNameLargeFontPreview()
+
+@PreviewTest
 @Preview(widthDp = 360, heightDp = 1000)
 @Composable
 private fun HomeMusicSheetGameMusic() = HomeMusicSheetGameMusicPreview()
