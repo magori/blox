@@ -80,3 +80,23 @@ private fun HomeMusicSheetLongFileNameLargeFont() = HomeMusicSheetLongFileNameLa
 @Preview(widthDp = 360, heightDp = 1000)
 @Composable
 private fun HomeMusicSheetGameMusic() = HomeMusicSheetGameMusicPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun HomeLiveColorful() = HomeLiveColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun HomeLiveColorfulNight() = HomeLiveColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000)
+@Composable
+private fun HomeMusicSheetLiveColorful() = HomeMusicSheetLiveColorfulPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 1000, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun HomeMusicSheetLiveColorfulNight() = HomeMusicSheetLiveColorfulPreview()

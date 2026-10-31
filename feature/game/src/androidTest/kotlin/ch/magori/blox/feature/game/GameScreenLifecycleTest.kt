@@ -34,6 +34,7 @@ import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
 import androidx.navigationevent.compose.rememberNavigationEventState
 import androidx.test.platform.app.InstrumentationRegistry
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.OneRowPerTickGameEngineFactory
@@ -296,7 +297,7 @@ internal class GameScreenLifecycleTest {
             mainClock.advanceTimeBy(FRAME_MILLIS * 5)
 
             // When the player goes back
-            runOnUiThread { checkNotNull(activity).onBackPressedDispatcher.onBackPressed() }
+            checkNotNull(activity).pressSystemBack()
 
             // Then the back reaches the navigation, behind the screen, rather than resume the game
             runOnIdle {

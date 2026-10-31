@@ -12,6 +12,7 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.gameover.GameOverUiState
+import ch.magori.blox.feature.game.music.LiveMood
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.contract
 
@@ -23,7 +24,8 @@ import kotlin.contracts.contract
  * on the pause or the game over screen; it turns false as soon as the engine ends the game, before the records
  * answer. [leftHanded] lays the keys out for the left hand: B and A on the left, the arrows on the right; null while the
  * settings have not answered, when the screen shows no key and the game does not run. [feedback] is what happened in the
- * game and on which tick, which the screen draws over the game (ADR 0024).
+ * game and on which tick, which the screen draws over the game (ADR 0024). [liveMood] is the mood of the live music of
+ * the game, which the card of the pause names; null when the game plays another music, or none.
  */
 @Immutable
 internal data class GameUiState(
@@ -40,6 +42,7 @@ internal data class GameUiState(
     val gameOver: GameOverUiState? = null,
     val leftHanded: Boolean? = false,
     val feedback: GameFeedback = GameFeedback(),
+    val liveMood: LiveMood? = null,
 )
 
 /**

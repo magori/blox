@@ -41,6 +41,7 @@ import ch.magori.blox.core.data.MusicChoice
 import ch.magori.blox.core.data.PadlockOpening
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.component.tapScrim
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.engine.ClassicGameEngineFactory
@@ -194,7 +195,7 @@ internal class BloxNavDisplayTest {
             tapLocksmithCartridge()
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
@@ -247,7 +248,7 @@ internal class BloxNavDisplayTest {
             onNodeWithText(string(LocksmithR.string.feature_locksmith_padlocks_empty)).assertIsDisplayed()
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then
             onNodeWithText(padlockTitle(2)).assertIsDisplayed()
@@ -266,7 +267,7 @@ internal class BloxNavDisplayTest {
             // When the disc of the bar opens the padlocks, then back
             tapPadlocksDisc()
             onNodeWithText(padlockTitle(1)).assertDoesNotExist()
-            pressSystemBack()
+            backAndSettle()
 
             // Then the same padlock, its piece placed
             onNodeWithText(padlockTitle(1)).assertIsDisplayed()
@@ -289,7 +290,7 @@ internal class BloxNavDisplayTest {
 
             // Then padlock 1, and back goes to the cartridges: padlock 3 is no longer under it
             onNodeWithText(padlockTitle(1)).assertIsDisplayed()
-            pressSystemBack()
+            backAndSettle()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
         }
     }
@@ -335,7 +336,7 @@ internal class BloxNavDisplayTest {
                 .assertIsDisplayed()
                 .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
             // And back goes to the cartridges, which name padlock 1 again
-            pressSystemBack()
+            backAndSettle()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_padlock, 1)).assertIsDisplayed()
         }
     }
@@ -402,8 +403,7 @@ internal class BloxNavDisplayTest {
             showApp()
 
             // When the system back brings the cartridges back, up to the first frame that shows them
-            val activity = checkNotNull(activity)
-            runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
+            checkNotNull(activity).pressSystemBack()
             repeat(FIRST_FRAMES) {
                 if (onAllNodes(hasTestTag(DAILY_CARTRIDGE_TAG)).fetchSemanticsNodes().isEmpty()) {
                     mainClock.advanceTimeByFrame()
@@ -521,7 +521,7 @@ internal class BloxNavDisplayTest {
 
             // Then
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertDoesNotExist()
-            pressSystemBack()
+            backAndSettle()
             onNodeWithText(string(CartridgesR.string.feature_cartridges_title)).assertIsDisplayed()
         }
     }
@@ -624,7 +624,7 @@ internal class BloxNavDisplayTest {
             play()
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then, the transition over, the pause screen shows, and the home screen did not come back
             onNodeWithText(string(GameR.string.feature_game_pause_title)).assertIsDisplayed()
@@ -645,7 +645,7 @@ internal class BloxNavDisplayTest {
             onNodeWithText(string(GameR.string.feature_game_pause_resume)).assertIsDisplayed()
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then the game goes on
             onNodeWithText(string(GameR.string.feature_game_pause_resume)).assertDoesNotExist()
@@ -663,7 +663,7 @@ internal class BloxNavDisplayTest {
             advanceUntilShown(string(GameR.string.feature_game_over_replay))
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
@@ -691,7 +691,7 @@ internal class BloxNavDisplayTest {
             onNodeWithContentDescription(levelDescription(3)).assertIsDisplayed()
 
             // And it took the place of the finished game: its Menu, from the pause, goes back home, not to the game over
-            pressSystemBack()
+            backAndSettle()
             onNodeWithText(string(GameR.string.feature_game_pause_menu)).performClick()
             settle()
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
@@ -814,7 +814,7 @@ internal class BloxNavDisplayTest {
             settle()
 
             // When
-            pressSystemBack()
+            backAndSettle()
 
             // Then
             onNodeWithText(string(HomeR.string.feature_home_play)).assertExists()
@@ -955,6 +955,7 @@ internal class BloxNavDisplayTest {
             musicFiles = FakeMusicFileRepository(),
             library = library,
             musicFileNames = { null },
+            liveListening = { Scores.minuet },
         )
         val gameFactory = GameViewModel.Factory(
             engineFactory,
@@ -1132,10 +1133,12 @@ internal class BloxNavDisplayTest {
         settle()
     }
 
-    /** The system back, as the back gesture or button gives it to the activity, which hands it to the navigation. */
-    private fun AndroidComposeUiTest<ComponentActivity>.pressSystemBack() {
-        val activity = checkNotNull(activity)
-        runOnUiThread { activity.onBackPressedDispatcher.onBackPressed() }
+    /**
+     * The system back, as the back gesture or button gives it to the activity, which hands it to the navigation; then
+     * the screen it shows settles.
+     */
+    private fun AndroidComposeUiTest<ComponentActivity>.backAndSettle() {
+        checkNotNull(activity).pressSystemBack()
         settle()
     }
 
@@ -1147,7 +1150,7 @@ internal class BloxNavDisplayTest {
      */
     private fun AndroidComposeUiTest<ComponentActivity>.assertTheSystemBackLeavesTheApplication() {
         val before = backsToTheSystem
-        pressSystemBack()
+        backAndSettle()
         assertThat(backsToTheSystem).isEqualTo(before + 1)
     }
 

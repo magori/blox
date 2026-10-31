@@ -28,6 +28,7 @@ import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.drop
@@ -65,6 +66,12 @@ class HomeViewModelTest {
     private val testScores: (MusicChoice) -> Score? =
         mapOf(MusicChoice.KOROBEINIKI to Scores.korobeiniki, MusicChoice.MINUET to Scores.minuet)::get
 
+    /** The musics composed to listen to the live music, one per listening, as `app` composes them. */
+    private val liveListenings = ArrayDeque(List(LISTENINGS) { listeningOf(it) })
+
+    /** What a listening to the live music plays: the next music composed for it. */
+    private var liveListening: suspend () -> Score = { liveListenings.removeFirst() }
+
     @Test
     fun `the home screen is loading until the saved settings are read, then shows them and the record`() = runTest {
         // Given settings not read yet
@@ -79,6 +86,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -102,7 +110,7 @@ class HomeViewModelTest {
                     startLevel = 5,
                     startLevels = 0..9,
                     record = 12_345,
-                    listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET),
+                    listenable = listOf(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.LIVE),
                     previewing = null,
                 ),
             )
@@ -123,6 +131,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -157,6 +166,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -188,6 +198,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -221,6 +232,7 @@ class HomeViewModelTest {
                     musicFiles,
                     library,
                     musicFileNames,
+                    liveListening,
                 )
                 viewModel.uiState.test { cancelAndIgnoreRemainingEvents() }
             }
@@ -244,6 +256,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         // When
@@ -271,6 +284,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         // When / Then
@@ -294,6 +308,7 @@ class HomeViewModelTest {
                     musicFiles,
                     library,
                     musicFileNames,
+                    liveListening,
                 )
             }
     }
@@ -311,13 +326,14 @@ class HomeViewModelTest {
                     musicFiles,
                     library,
                     musicFileNames,
+                    liveListening,
                 )
             }
             .withMessageContaining("start level")
     }
 
     @Test
-    fun `only the musics with a score can be listened to`() = runTest {
+    fun `only the musics with a score, and the live music, can be listened to`() = runTest {
         // Given scores for the minuet and for no music, none for the others
         val viewModel = homeViewModel(
             scoreOf = mapOf(
@@ -328,7 +344,8 @@ class HomeViewModelTest {
 
         // When / Then
         viewModel.uiState.test {
-            assertThat(expectMostRecentItem()?.listenable).containsExactly(MusicChoice.MINUET, MusicChoice.NONE)
+            assertThat(expectMostRecentItem()?.listenable)
+                .containsExactly(MusicChoice.MINUET, MusicChoice.LIVE, MusicChoice.NONE)
         }
     }
 
@@ -431,10 +448,93 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `the live choice is not offered before its sheet row`() {
-        // Given / When / Then: a live game plays nothing until the game composes its music (P8.6, P8.7)
-        assertThat(OFFERED_MUSICS)
-            .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE, MusicChoice.NONE)
+    fun `the live choice is offered after the public domain melodies, before my file`() {
+        // Given / When / Then: the order of the sheet in the mockup (V37)
+        assertThat(OFFERED_MUSICS).containsExactly(
+            MusicChoice.KOROBEINIKI,
+            MusicChoice.MINUET,
+            MusicChoice.LIVE,
+            MusicChoice.MY_FILE,
+            MusicChoice.NONE,
+        )
+    }
+
+    @Test
+    fun `the live music may be listened to, though it has no score of its own`() = runTest {
+        // Given scores for Korobeiniki and the minuet, none for the live music, composed for each game
+        val viewModel = homeViewModel()
+
+        // When / Then
+        viewModel.uiState.test {
+            assertThat(expectMostRecentItem()?.listenable)
+                .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.LIVE)
+        }
+    }
+
+    @Test
+    fun `listening to the live music plays a music composed for the listening and shows it as previewed`() = runTest {
+        // Given
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onListen(MusicChoice.LIVE)
+
+            // Then
+            assertThat(music.playedScores).containsExactly(listeningOf(0))
+            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.LIVE)
+        }
+    }
+
+    @Test
+    fun `each listening to the live music plays a new music`() = runTest {
+        // Given the live music listened to, then stopped
+        val viewModel = homeViewModel()
+        viewModel.onListen(MusicChoice.LIVE)
+        viewModel.onListen(MusicChoice.LIVE)
+
+        // When
+        viewModel.onListen(MusicChoice.LIVE)
+
+        // Then
+        assertThat(music.playedScores).containsExactly(listeningOf(0), listeningOf(1))
+    }
+
+    @Test
+    fun `a live music stopped while it is being composed is never played`() = runTest {
+        // Given a listening whose music takes its time to be composed
+        val composed = CompletableDeferred<Score>()
+        liveListening = { composed.await() }
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            viewModel.onListen(MusicChoice.LIVE)
+            assertThat(expectMostRecentItem()?.previewing).isEqualTo(MusicChoice.LIVE)
+
+            // When the listening stops, then the music is composed
+            viewModel.onListen(MusicChoice.LIVE)
+            composed.complete(listeningOf(0))
+
+            // Then
+            assertThat(music.calls).isEmpty()
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
+    }
+
+    @Test
+    fun `a live listening that fails to be composed offers to listen again`() = runTest {
+        // Given a listening whose music cannot be composed
+        liveListening = { error("The live music could not be composed") }
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onListen(MusicChoice.LIVE)
+
+            // Then nothing plays, and the button offers to listen again
+            assertThat(music.calls).isEmpty()
+            assertThat(expectMostRecentItem()?.previewing).isNull()
+        }
     }
 
     @ParameterizedTest(name = "{0}")
@@ -667,6 +767,7 @@ class HomeViewModelTest {
                 unread,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
             viewModel.uiState.test {
@@ -687,14 +788,15 @@ class HomeViewModelTest {
         val viewModel = homeViewModel()
 
         viewModel.uiState.test {
-            assertThat(expectMostRecentItem()?.listenable).containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET)
+            assertThat(expectMostRecentItem()?.listenable)
+                .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.LIVE)
 
             // When a music file is chosen
             musicFiles.state.value = myFile
 
             // Then
             assertThat(awaitItem()?.listenable)
-                .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.MY_FILE)
+                .containsExactly(MusicChoice.KOROBEINIKI, MusicChoice.MINUET, MusicChoice.LIVE, MusicChoice.MY_FILE)
         }
     }
 
@@ -729,6 +831,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -756,6 +859,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -831,6 +935,7 @@ class HomeViewModelTest {
                 musicFiles,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -911,6 +1016,7 @@ class HomeViewModelTest {
                 files,
                 library,
                 musicFileNames,
+                liveListening,
             )
 
         viewModel.uiState.test {
@@ -1246,12 +1352,16 @@ class HomeViewModelTest {
             musicFiles,
             library,
             musicFileNames,
+            liveListening,
         )
         return ViewModelProvider.create(store, factory)[HomeViewModel::class]
     }
 
     private fun homeViewModel(scoreOf: (MusicChoice) -> Score? = testScores): HomeViewModel =
         homeViewModelWith(scoreOf = scoreOf)
+
+    /** The music composed for the listening [index] of the live music: a score of its own, known by its index. */
+    private fun listeningOf(index: Int): Score = Scores.minuet.copy(id = ScoreId.Personal("listening-$index"))
 
     private fun homeViewModelWith(
         preferences: FakeUserPreferencesRepository = FakeUserPreferencesRepository(),
@@ -1266,11 +1376,15 @@ class HomeViewModelTest {
         musicFiles,
         musics,
         musicFileNames,
+        liveListening,
     )
 
     private companion object {
         /** The name of my file, as the picker shows it. */
         const val MY_FILE_NAME = "orage-d-ete.ogg"
+
+        /** How many listenings of the live music a test may ask for. */
+        const val LISTENINGS = 3
     }
 
     /** A mode whose games may start at [levels] only. */

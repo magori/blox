@@ -50,9 +50,9 @@ de la planche, de gauche à droite. Toute renumérotation doit être reportée p
 | V34 | Enregistrer la musique v2, jour (nom pris, grille vide) | même rangée |
 | V35 | Le Serrurier, Couleurs v2 (en cours, aperçu refusé, indice, serrure ouverte) | dessinée (P7.16, rangée « Le Serrurier ») ; prototype d'origine « Idée · Le Serrurier » |
 | V36 | Choix du jeu à cinq cartouches, deux colonnes (Classique, Serrurier, Jardin musical, Au tempo, Graine du jour avec l'autocollant « NOUVELLE »), Couleurs v2 jour et nuit ; succède à V26 | dessinée (P9.8), codée à trois cartouches (P9.7) puis à quatre (P10.13) ; variante à quatre cartouches avec le Jardin musical dessinée en P10.14 (composant `V2Choix4`, ordre Classique, Serrurier, Jardin musical, Graine du jour), complétée en P11.13 ; [ADR 0026](adr/0026-jeux-musicaux-variantes-du-classique.md) |
-| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8) ; [musique-vivante.md](musique-vivante.md) |
+| V37 | Musique vivante : choix « Vivante » dans la feuille Musique (V27), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme » ou « … tendue » | dessinée (P8.8), codée (P8.7 ; carte Pause : la musique en ligne « MUSIQUE » comme les autres valeurs, sans l'encart à note de la maquette) ; [musique-vivante.md](musique-vivante.md) |
 | V38 | Graine du jour, écran d'entrée (les 7 premières, Essais, Premier essai, Meilleur, Jouer, Copier mon score), Couleurs v2 jour et nuit | dessinée (P9.8), codée (P9.5) ; [graine-du-jour.md](graine-du-jour.md) |
-| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11) |
+| V39 | Graine du jour, en jeu et fin de partie (« GRAINE DU JOUR », meilleur du jour, « MEILLEUR DU JOUR », Rejouer, Copier) | dessinée (P9.8), codée (P9.11 ; carte Pause : la ligne « MUSIQUE · Vivante » de V37, la partie du jour jouant la musique vivante) |
 | V40 | Jardin musical, Couleurs v2 jour et nuit (jardin vide, en écoute avec la tête de lecture, aperçu refusé, barre « Jardin effacé · Annuler ») | dessinée (P10.14), codée (P10.10, sans le son ni les retours animés : P10.12, P10.15 ; rangée « Couleurs v2 — V40 Jardin musical », composant `V2Jardin`, ses jetons `garden-*` publiés dans le design system et reportés dans `tokens.json` avec leur code, P10.8) ; [jardin-musical.md](jardin-musical.md) |
 | V41 | Au tempo, en jeu (encarts TEMPO et SUR LE TEMPS, autocollants « SUR LE TEMPS +80 » et « CADENCE × 2 ») et carte Pause avec l'interrupteur Métronome, Couleurs v2 jour et nuit | à dessiner (P11.13) ; [regles-au-tempo.md](regles-au-tempo.md) |
 | V42 | Feuille « Sonnerie ou réveil », depuis V32 ou V33 (voir Écrans) | à dessiner (P13.8) ; ADR 0031 |
@@ -388,6 +388,20 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   contour (`panelBorder`, encre `ink`) ; lignes et niveau avec leurs zéros, comme en jeu. L'écran
   défile si la police est agrandie. TalkBack annonce l'écran et lit la durée « 1 minute et
   5 secondes ».
+- **Fin de partie v2** (P5.83, V30, Couleurs ; Original garde V4) : la pile s'éteint rangée par rangée de bas en haut
+  (`cell-dead`, 2 ticks par rangée), le jeu restant affiché, inerte ; puis la carte monte sur le voile (`motion-card`,
+  la carte de la pause) : « Partie terminée », NOUVEAU RECORD avec des confettis aux couleurs des pièces, score qui
+  compte jusqu'à sa valeur, « Ancien record » ou « Record », lignes, niveau, 4 lignes, durée, Rejouer, Menu. La boucle
+  de jeu reste arrêtée ; tout joue sur l'horloge de Compose. Effets réduits : pile éteinte d'un coup, carte en fondu,
+  score d'un coup, pas de confettis. Détail et tests dans [themes.md](themes.md) (Fin de partie v2).
+  **Tests :** `GameOverPlayTest › the stack goes out from the bottom, 2 ticks a row`,
+  `GameOverPlayTest › in reduced effects the stack goes out at once and the score shows at once`,
+  `GameScreenGameOverTest › the card of the game over shows once the stack has gone out, 2 ticks a row`,
+  `GameScreenGameOverTest › the game loop stays stopped while the game over plays`,
+  `GameOverScreenTest › a new record shows the old record as « Ancien record »`,
+  `GameOverScreenTest › a first positive score is shown as a new record, without an old record`,
+  `GameOverScreenTest › without a new record the record is shown as « Record »` ;
+  captures `GameScreenGameOver*`, `GameScreenGameOverCard*`, `GameScreenGameOverReduced`.
 
 ### V19 — Pause
 - Le plateau est masqué : fond `page` opaque qui remplace tout l'écran de jeu, titre « Pause » en

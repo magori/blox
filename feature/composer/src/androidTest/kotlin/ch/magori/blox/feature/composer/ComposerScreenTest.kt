@@ -51,6 +51,7 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.designsystem.test.RecompositionRecorder
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.text.assertWordsWhole
 import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -593,7 +594,7 @@ internal class ComposerScreenTest {
         cell("Mi bas, temps 1").performClick()
 
         // When the system goes back
-        pressSystemBack()
+        extension.activity.pressSystemBack()
 
         // Then
         onNodeWithText("Quitter sans enregistrer ?").assertExists()
@@ -636,19 +637,10 @@ internal class ComposerScreenTest {
         waitForIdle()
 
         // When
-        pressSystemBack()
+        extension.activity.pressSystemBack()
 
         // Then
         runOnIdle { assertThat(backs).isEqualTo(1) }
-    }
-
-    /**
-     * The system back, handed to the activity's dispatcher as the platform does, rather than injected as a key: an
-     * injected key goes to whichever window holds the focus, and is lost when the system server stalls.
-     */
-    private fun ComposeContext.pressSystemBack() {
-        runOnUiThread { extension.activity.onBackPressedDispatcher.onBackPressed() }
-        waitForIdle()
     }
 
     /** An editor on the music of [musicKey] in [library], a new music when null ([composerViewModel]). */

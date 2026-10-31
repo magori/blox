@@ -307,6 +307,31 @@ dépendances en paramètres, et `app` la construit puis la passe à l'entrée de
 | `src/androidTest` (`feature:*`, `core:designsystem`, `core:board`, `app`) | JUnit 5 (extensions `android-junit`), Compose UI Test (`createComposeExtension` ou `runAndroidComposeUiTest`) | Tests de composants sur appareil : recompositions et reconstructions de cache (`BoardCanvasTest`, `GameScreenTest`), rendu au pixel près, état des choix de l'accueil lu par TalkBack (`HomeScreenTest`), cycle de vie de l'écran de jeu (`GameScreenLifecycleTest`). Dans `app`, les parcours entre features sur le vrai `BloxNavDisplay` avec les faux partagés (`BloxNavDisplayTest` : Jouer, retour système, Rejouer, Menu), horloge pilotée à la main (une partie en cours demande une image à chaque image) et fins de partie rapides par la doublure `OneRowPerTickGameEngineFactory` (testFixtures de `core:game`) ; `ui-test-manifest` n'entre que dans l'APK debug de `app`, ni en release ni en `benchmarkRelease` (P5.5). Noms de méthodes sans espaces, la phrase dans `@DisplayName` (D8 refuse les espaces sous l'API 30). `./gradlew connectedDebugAndroidTest`, sur un émulateur ou un téléphone ; compilés en CI (`assembleDebugAndroidTest`), pas exécutés. |
 | `src/screenshotTest` (`feature:*`, `core:designsystem`, `core:board`) | Compose Preview Screenshot Testing (plugin `blox.android.screenshot`, moteur JUnit Platform) | Captures des previews : écrans dans les deux thèmes, police ×2, états particuliers. `./gradlew validateDebugScreenshotTest` ; `updateDebugScreenshotTest` régénère les références (`src/screenshotTestDebug/reference/`, versionnées ; supprimer à la main celles des captures retirées). Validé en CI (P5.8) : le rendu est identique au pixel près sous Windows, où les références sont générées, et sous Linux (42 captures à 0 % d'écart) ; la tolérance de 0,05 % est une marge, pas une nécessité observée. |
 
+**Le retour du système dans les tests instrumentés** (P5.110 à P5.112) : il n'est jamais injecté comme une touche
+(`sendKeyDownUpSync(KEYCODE_BACK)`). Une touche injectée passe par `system_server`, qui la livre à la fenêtre qui a
+le focus : elle se perd quand une autre fenêtre le prend (volet des notifications) ou quand `system_server` flanche
+(service UWB de l'émulateur, P5.94). Les tests passent par les aides de `SystemBack.kt`, doublures de test de
+`core:designsystem`, qui remettent le retour dans le processus, sur le fil principal :
+
+- `activity.pressSystemBack()` : au `OnBackPressedDispatcher` de l'activité, qui le passe à la navigation
+  (`BloxNavDisplayTest`, `ComposerScreenTest › the back gesture on a changed music asks first: Continue stays, Leave
+  without saving leaves`, `GameScreenPauseTest › the system back resumes as Reprendre does`,
+  `GameScreenLifecycleTest › while the window is too small to play, the system back leaves the game`) ;
+- `onNode(isDialog()).pressSystemBack()` : au dispatcher de la fenêtre qui montre le nœud, celui du `ComponentDialog`
+  d'un `Dialog` (feuille), que la plateforme sert avant l'activité ; il est trouvé par la vue de la fenêtre
+  (`ViewTreeOnBackPressedDispatcherOwner`) (`BloxSheetTest › the system back and a touch on the scrim close the
+  sheet`, `BloxSheetTest › a sheet sent back, then opened again as it goes down, asks to close once more`,
+  `ComposerDiceSheetTest › choosing a category keeps the sheet open and the choice`) ;
+- `onNodeWithTag(…).pressBackKey()` : pour un `Popup` (menu), qui n'a pas de dispatcher dans ses vues et reçoit Back
+  comme une touche (et, dès Android 13, comme un rappel de sa fenêtre, hors de portée d'un test) ; la touche est remise
+  à la vue racine de sa fenêtre, dans le processus, sans passer par `system_server` (`RowMenuTest › from the keyboard,
+  the menu closed by Back gives the focus back to « … »`). L'aide vérifie d'abord que cette fenêtre peut recevoir les
+  touches (pas de `FLAG_NOT_FOCUSABLE`, comme un `Popup` non `focusable`, dont le vrai Back irait à l'activité) : elle
+  le lit sur la fenêtre elle-même, pas sur le focus du moment, qu'une autre fenêtre peut tenir.
+
+Preuve de la fragilité : avec le volet des notifications ouvert juste avant le retour, la touche injectée est perdue
+(feuille et menu restent ouverts), et les mêmes tests passent avec ces aides (P5.111).
+
 JUnit 5 partout, y compris dans les modules Android grâce au plugin
 `de.mannodermaus.android-junit` appliqué par les plugins de convention. Voir les
 [ADR 0003](adr/0003-domaine-en-kotlin-pur.md) et [0009](adr/0009-junit5-partout.md).
