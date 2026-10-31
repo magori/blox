@@ -1078,14 +1078,80 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
 `ComposerScreenTest › sliding along a line places a note held up to the cell where the finger is lifted`,
 `ComposerScreenTest › the tabs open the grid of the bass or of the melody, with the notes of the other track in watermark`,
 `ComposerScreenTest › the menu hides the watermark of the other track`,
-`ComposerScreenTest › a toolbar button without effect is disabled`,
+`ComposerControlsTest › Annuler, Copier and Effacer are disabled when they have no effect`,
 `ComposerScreenTest › TalkBack names each cell by its note, its octave and its beat, and says what touching it does`,
 `ComposerScreenTest › TalkBack says a line out of the scale, and two sixteenth notes in a cell`,
 `ComposerScreenTest › touching a cell recomposes its line only, not the whole grid`,
 `ComposerScreenTest › the tempo buttons change the tempo shown`,
-`ComposerScreenTest › every button is 48 dp wide and high at least, but the bars and the cells, 48 dp high for the bars`,
+`ComposerScreenTest › every button is 48 dp wide and high at least, the bars on two rows of four included, but the cells`,
 `HomeViewModelTest › opening the music editor stops the preview`,
 `HomeScreenTest › the tile Composer une musique, read as written, opens the music editor`.
+
+### Éditeur v2 : barre et commandes (implémenté, P5.102)
+
+De haut en bas, comme V33, avec les composants partagés de `core:designsystem` (aucun composant local de l'éditeur
+ne reste, sauf `ChoiceButton` des styles de la fenêtre Enregistrer, jusqu'à P5.104) :
+
+- **Barre** : disque Retour, nom à toucher pour renommer (crayon, ligne d'infos), disque dé « Au hasard » (P5.101),
+  « … » lu « Plus d'options » : le `RowMenu` de Mes musiques et Mes jardins (`core:designsystem`, sa description
+  donnée, `CheckItem` ajouté), qui ouvre un `BloxMenu` : *Renommer*, *Suivre la lecture* et *Montrer l'autre piste en
+  filigrane* (cases cochées, lues comme des cases à cocher), *Supprimer* en `danger` pour une musique enregistrée
+  seulement. Toucher une entrée ferme le menu, puis fait ce qu'elle dit ; le focus revient à « … », après la
+  fenêtre quand l'entrée en ouvre une (Renommer, Supprimer : `windowOpen`). TalkBack lit Retour, le nom, Au hasard
+  et le menu dans cet ordre, sur une même ligne.
+- **Pistes** : `ChoiceSegments` « Piste » (deux boutons radio), la piste ouverte remplie de sa couleur
+  (`TrackColors.tab`, encre `tabInk`) et cochée.
+- **Outils** : `ChoiceSegments` « Outil » (*Poser* / *Allonger*, chacun après son pictogramme, la coche à sa
+  place sur le retenu), puis *Annuler* sur le reste de la ligne ; *Annuler* passe dessous, sur toute la ligne,
+  quand la ligne ne tient pas les deux (police agrandie, Original). *Annuler*, *Copier* et *Effacer* sont des
+  tuiles compactes (Secondaire, 48 dp, `radius-md`, 12 dp de chaque côté), désactivées quand elles n'ont pas
+  d'effet.
+- **Mesures** : huit boutons bulles en deux rangées de quatre, lus comme des boutons radio « Mesure N », la
+  mesure choisie retenue (`accent`) ; la mesure jouée porte un trait de 20 × 3 dp sous son numéro, dans l'encre
+  du bouton, et TalkBack la lit « en lecture », ou « sélectionnée, en lecture » quand c'est aussi la mesure choisie
+  (un état donné remplace l'annonce de la sélection). *Copier* et *Effacer*, l'une sous l'autre, se tiennent à droite
+  des mesures tant que les quatre colonnes gardent 48 dp ; sinon elles passent sous les mesures, côte à côte,
+  ou l'une sous l'autre sur toute la ligne.
+- **Tempo** : pilule remplie et cadrée comme un bouton Secondaire, « − » et « + » en disques nus de 48 dp
+  (désactivés aux bornes), le tempo sur une ligne, réduit au besoin jusqu'au plancher ; *Écouter* (56 dp) au
+  bout de la ligne, ou dessous quand le tempo, sur une ligne au plancher, ne tient pas à côté (« 120 temps/ »
+  irait sinon avant « min »).
+- **Enregistrer** : le seul bouton Principal de l'écran, toujours en `accent` (compact, 48 dp, toute la
+  largeur), précédé d'un point (8 dp, encre du bouton) et lu « Enregistrer les changements » tant que la
+  musique a changé ; son libellé reste sur une ligne, réduit au besoin (en Original ×2, le point devant le coupait).
+  Les choix retenus (piste, outil, mesure) ont aussi un fond de couleur, mais ce sont des
+  boutons radio, pas des actions.
+- **Messages** : `SnackMessage` en bas de la grille (depuis P5.101).
+- **Petit téléphone, grande police** : les parties gardent leur hauteur et la grille la place qui reste, mais
+  200 dp au moins (trois lignes en vue, la ligne des temps et l'indication comprises) ; en dessous, la page
+  entière défile plutôt que d'écraser une partie (`GridBetween`). En Original, police normale, à 360 × 760 dp,
+  *Annuler* passe déjà sur sa propre ligne et la grille tombe à son minimum de 200 dp.
+- **Décisions des mises en page** en fonctions pures, en pixels entiers (`ComposerLayoutRules.kt`) : à côté ou
+  dessous (`fitsBesideFixed`), en colonne ou en rangée (`sideBySide`), hauteur de la grille (`gridHeight`).
+
+**Tests :**
+`ComposerLayoutRulesTest › a part stands beside the fixed one while the rest of the line holds what it needs, to the pixel`,
+`ComposerLayoutRulesTest › a fixed part wider than the line leaves nothing beside it`,
+`ComposerLayoutRulesTest › parts stand side by side when the widest holds in its share of the line less the gaps`,
+`ComposerLayoutRulesTest › the grid takes the room the parts leave on the page, its least height at least`,
+`ComposerLayoutRulesTest › on a page of no bounded height the grid keeps its least height`,
+`ComposerControlsTest › from the keyboard, « … » takes the focus back once the window Renommer opened closes`,
+`ComposerControlsTest › the menu of a saved music offers Supprimer in danger; Renommer opens the window of the name`,
+`ComposerControlsTest › no Supprimer for a new music`,
+`RowMenuTest › a menu read by the description given offers an item to check, which closes the menu once touched`,
+`BubbleButtonTest › a button read as a radio button is selected in the selected emphasis, and not selected otherwise`,
+`BubbleButtonTest › a button keeps the side padding given on each side of its content, rather than its family's`,
+`ComposerControlsTest › the bar of the editor reads Retour, the name to rename, Au hasard and the menu, in this order`,
+`ComposerControlsTest › the open track is filled in its colour and checked`,
+`ComposerControlsTest › the bars stand on two rows of four, the bar played marked and read en lecture`,
+`ComposerControlsTest › Annuler, Copier and Effacer are disabled when they have no effect`,
+`ComposerControlsTest › Enregistrer is the only button in accent on the editor, its dot shown while the music has changed`,
+`ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp and the grid keeps rows of 26 dp, scrolling`,
+`ComposerScreenTest › every button is 48 dp wide and high at least, the bars on two rows of four included, but the cells`,
+`ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
+`ComposerScreenTest › on a small phone with the largest font, the tempo holds on one line, its words whole`.
+Captures : `ComposerColorful`, `ComposerColorfulNight`, `ComposerColorfulLargeFont`, `ComposerOriginal`,
+`ComposerOriginalLargeFont`, `ComposerEmpty`. Vue : V33.
 
 ### Éditeur : dé (implémenté, P4.20)
 
@@ -1116,36 +1182,24 @@ P4.20). Maquette à mettre à jour (P5.40). À essayer sur un téléphone.
   *Surprise*, sans annulation ; une entrée restaurée après la mort du processus garde sa musique et ne
   relance pas. `rollDice` avec une musique enregistrée est refusé.
 - Police ×2 (P5.47) : chaque choix de la feuille montre son libellé et sa ligne en mots entiers. Le
-  tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur deux lignes au plus, sans
-  couper « temps/min » ; en Couleurs, le message d'annulation tient sur trois lignes au plus (en
+  tempo est mesuré après ses deux boutons (« + » reste visible) et tient sur une ligne depuis P5.102 (Écouter
+  passe dessous s'il le faut), sans couper « temps/min » ; en Couleurs, le message d'annulation tient sur trois lignes au plus (en
   Original, figé, il peut en prendre davantage, `SnackMessage` n'ayant pas de plafond). **Tests :**
   `ComposerScreenTest › on a small phone with the largest font, the tempo buttons show whole, on either side of the tempo`,
-  `ComposerScreenTest › on a small phone with the largest font, the tempo holds on two lines at most, its words whole`,
+  `ComposerScreenTest › on a small phone with the largest font, the tempo holds on one line, its words whole`,
   `ComposerScreenTest › on a small phone with the largest font, the message of the dice holds on three lines, its words whole`,
   `ComposerDiceSheetTest › on a small phone with the largest font, each choice of the sheet shows its words whole`.
   Captures : `DiceSheetColorful`, `DiceSheetColorfulNight`, `DiceSheetColorfulLargeFont`,
   `MessageOriginalLargeFont`.
-- **Barre d'outils** (P5.49) : une rangée si chaque libellé tient entier au plancher dans sa part ;
-  sinon les modes (Poser, Allonger) au-dessus des outils (Annuler, Copier, Effacer), et, si les
-  outils ne tiennent pas côte à côte non plus, chaque outil sur toute la largeur (Original ×2 à
-  320 dp). Sur plusieurs rangées, chaque libellé garde 4 dp de marge. La décision compte en pixels
-  entiers, comme la rangée les distribue, sur la largeur de la ligne mesurée (`ButtonRow.kt` dans
-  `core:designsystem`, partagé avec les réponses des fenêtres) : en police normale, la barre garde
-  sa rangée (« Allonger » tient au pixel près). **Tests :**
+- **Barre d'outils** (P5.49) : une rangée de cinq boutons, ou les modes au-dessus des outils en police agrandie.
+  Remplacée en P5.102 par les commandes de V33 (section « Éditeur v2 : barre et commandes » ci-dessus) ;
+  `ToolbarLines` et ses tests sont retirés. `ButtonRow.kt` (`core:designsystem`) reste pour les tuiles de
+  l'accueil, les cartouches et `SideBySideOrStacked`. **Tests :**
   `ButtonRowTest › a row shares its width less its gaps in proportion to the weights, in whole pixels`,
   `ButtonRowTest › the pixel a rounding takes too many is given back by the first buttons`,
   `ButtonRowTest › the pixel a rounding leaves out is given to the first buttons`,
   `ButtonRowTest › labels hold side by side when each holds in its share less the padding on each side`,
-  `ButtonRowTest › labels do not hold side by side when one is a pixel wider than its share less its padding`,
-  `ToolbarLinesTest › labels that hold in their share of the line at their smallest size keep the toolbar on one line`,
-  `ToolbarLinesTest › a label wider than its share of the line at its smallest size puts the modes above the tools`,
-  `ToolbarLinesTest › a label as wide as its share of the line, to the pixel, keeps the toolbar on one line`,
-  `ToolbarLinesTest › the gap between the two modes comes out of their share of the line`,
-  `ToolbarLinesTest › a share is counted in the whole pixels the line gives it, not in fractions`,
-  `ToolbarLinesTest › tools that do not hold side by side on the whole width at their smallest size stand one above the other`,
-  `ToolbarLinesTest › the margin of the labels counts once the modes stand above the tools`,
-  `ComposerScreenTest › on a small phone with the largest font, the modes stand above the tools, each label whole, 48 dp at least`,
-  `ComposerScreenTest › on a small phone with the normal font, in Original, the toolbar holds on one line, each label whole`.
+  `ButtonRowTest › labels do not hold side by side when one is a pixel wider than its share less its padding`.
 
 **Tests :** `ComposerDiceTest › the dice is ready for Surprise at first, and a category touched is chosen in its place`,
 `ComposerDiceTest › the dice opens the music the generator composes in the category chosen, from a seed drawn at each roll`,
@@ -1175,8 +1229,8 @@ Vues : V8, V11, V7, V10, V33.
 ### Éditeur : écoute (implémentée, P4.19c)
 
 - **Écouter / Arrêter** : bouton rond à droite du tempo, le `ListenButton` partagé avec l'accueil (P5.94) :
-  disque de la famille Icône, triangle ou carré, 48 dp (56 avec P5.102, quand le tempo sera une pilule : à
-  56 dp, « 120 temps/min » coupait ses mots en Original ×2), à l'aspect pressé pendant l'écoute ; lu
+  disque de la famille Icône, triangle ou carré, de 56 dp dans l'éditeur depuis P5.102 (au bout de la ligne du
+  tempo, ou dessous quand le tempo prend toute la ligne), à l'aspect pressé pendant l'écoute ; lu
   « Écouter » ou « Arrêter » suivis du nom de la musique, le verbe seul pour une musique sans nom. Il joue la musique en cours par `MusicPlayer`, depuis la première case ; un seul
   aperçu à la fois, comme à l'accueil (P4.7). Désactivé tant qu'aucune piste n'a de note. Une
   musique qui s'arrête d'elle-même (focus refusé ou perdu, sortie audio en échec), même aussitôt

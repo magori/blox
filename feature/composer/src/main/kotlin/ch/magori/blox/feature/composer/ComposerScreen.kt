@@ -2,14 +2,15 @@ package ch.magori.blox.feature.composer
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -21,8 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigationevent.NavigationEventInfo
 import androidx.navigationevent.compose.NavigationBackHandler
@@ -30,8 +36,12 @@ import androidx.navigationevent.compose.rememberNavigationEventState
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.keyName
+import ch.magori.blox.core.designsystem.component.BubbleButton
+import ch.magori.blox.core.designsystem.component.ButtonFamily
+import ch.magori.blox.core.designsystem.component.ButtonSize
 import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.SettledSheet
+import ch.magori.blox.core.designsystem.component.SingleLineText
 import ch.magori.blox.core.designsystem.component.SnackMessage
 import ch.magori.blox.core.designsystem.component.WindowOverPage
 import ch.magori.blox.core.designsystem.component.messageTimeoutMillis
@@ -54,11 +64,10 @@ import ch.magori.blox.feature.composer.model.ScoreDraft
 import ch.magori.blox.feature.composer.model.Track
 import ch.magori.blox.feature.composer.model.TrackGrid
 import ch.magori.blox.feature.composer.ui.ComposerSizes
-import ch.magori.blox.feature.composer.ui.ToolButton
 import kotlinx.coroutines.delay
 
 /**
- * The music editor (V8, V11) of [viewModel]; [onBack] leaves it, and [onDeleted] once its music is deleted, with what
+ * The music editor (V8, V33) of [viewModel]; [onBack] leaves it, and [onDeleted] once its music is deleted, with what
  * was deleted. While the music is listened to, the screen hands each frame to the view model, which moves the play head
  * on (ADR 0012); the music stops once the editor is no longer visible. Retour, the button or the gesture of the system,
  * asks the view model, which leaves at once or asks first.
@@ -142,8 +151,9 @@ internal fun ComposerScreen(
 }
 
 /**
- * The editor as [uiState] shows it, from top to bottom: the header, the tabs, the toolbar, the grid of one bar, the bar
- * buttons, the tempo, *Écouter* and *Enregistrer*; the message of the editor, if any, over the bottom of the grid until
+ * The editor as [uiState] shows it (V33), from top to bottom ([GridBetween]): the header, the tracks, the modes and
+ * *Annuler*, the grid of one bar, the bars with *Copier* and *Effacer*, the tempo with *Écouter*, and *Enregistrer*;
+ * the message of the editor, if any, over the bottom of the grid until
  * [onMessageShown]; its window, if any, answered through [dialogActions]; the sheet « Au hasard » once the dice of the
  * header is touched, open until a music is rolled ([onDice]) or it is closed. Whether the sheet is open is the screen's
  * (ADR 0029): it has no rule. No other logic here: every touch goes to its callback.
@@ -179,74 +189,78 @@ internal fun ComposerContent(
     val played = uiState.played
     var diceOpen by rememberSaveable { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxSize().background(BloxTheme.palette.page).safeDrawingPadding()) {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(ComposerSizes.padding),
-            verticalArrangement = Arrangement.spacedBy(ComposerSizes.gap),
-        ) {
-            ComposerHeader(
-                name = uiState.name,
-                style = stringResource(editor.draft.category?.label ?: R.string.feature_composer_style_free),
-                key = editor.draft.scale.keyName(),
-                status = editor.status,
-                canDelete = editor.saved != null,
-                showOtherTrack = uiState.showOtherTrack,
-                followPlayback = uiState.followPlayback,
-                onBack = onBack,
-                onRename = onRename,
-                onDice = { diceOpen = true },
-                onDelete = onDelete,
-                onOtherTrackShown = onOtherTrackShown,
-                onFollowPlayback = onFollowPlayback,
-            )
-            TrackTabs(track = editor.track, onTrackChosen = onTrackChosen)
-            ComposerToolbar(
-                mode = editor.mode,
-                canUndo = editor.canUndo,
-                canCopyBar = editor.canCopyBar,
-                canClearBar = editor.canClearBar,
-                onModeChosen = onModeChosen,
-                onUndo = onUndo,
-                onCopyBar = onCopyBar,
-                onClearBar = onClearBar,
-            )
-            // The message shows over the bottom of the grid, never over the bar buttons nor *Arrêter*.
-            Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
-                NoteGrid(
-                    lines = lines,
-                    track = editor.track,
-                    empty = uiState.isTrackEmpty,
-                    playedEighth = played?.takeIf { it.bar == editor.bar }?.eighth,
-                    onTouch = onCellTouched,
-                    onSlide = onCellSlid,
-                    modifier = Modifier.fillMaxSize(),
+        GridBetween(
+            modifier = Modifier.fillMaxSize(),
+            above = {
+                ComposerHeader(
+                    name = uiState.name,
+                    style = stringResource(editor.draft.category?.label ?: R.string.feature_composer_style_free),
+                    key = editor.draft.scale.keyName(),
+                    status = editor.status,
+                    canDelete = editor.saved != null,
+                    showOtherTrack = uiState.showOtherTrack,
+                    followPlayback = uiState.followPlayback,
+                    windowOpen = uiState.dialog != null,
+                    onBack = onBack,
+                    onRename = onRename,
+                    onDice = { diceOpen = true },
+                    onDelete = onDelete,
+                    onOtherTrackShown = onOtherTrackShown,
+                    onFollowPlayback = onFollowPlayback,
                 )
-                ComposerMessageHost(
-                    message = uiState.message,
-                    onMessageShown = onMessageShown,
-                    modifier = Modifier.align(Alignment.BottomCenter),
+                TrackTabs(track = editor.track, onTrackChosen = onTrackChosen)
+                ModesAndUndo(mode = editor.mode, canUndo = editor.canUndo, onModeChosen = onModeChosen, onUndo = onUndo)
+            },
+            grid = {
+                // The message shows over the bottom of the grid, never over the bar buttons nor *Arrêter*.
+                Box {
+                    NoteGrid(
+                        lines = lines,
+                        track = editor.track,
+                        empty = uiState.isTrackEmpty,
+                        playedEighth = played?.takeIf { it.bar == editor.bar }?.eighth,
+                        onTouch = onCellTouched,
+                        onSlide = onCellSlid,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                    ComposerMessageHost(
+                        message = uiState.message,
+                        onMessageShown = onMessageShown,
+                        modifier = Modifier.align(Alignment.BottomCenter),
+                    )
+                }
+            },
+            below = {
+                BarsAndTools(
+                    bar = editor.bar,
+                    playedBar = played?.bar,
+                    canCopyBar = editor.canCopyBar,
+                    canClearBar = editor.canClearBar,
+                    onBarChosen = onBarChosen,
+                    onCopyBar = onCopyBar,
+                    onClearBar = onClearBar,
                 )
-            }
-            BarButtons(bar = editor.bar, playedBar = played?.bar, onBarChosen = onBarChosen)
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                TempoPanel(
-                    bpm = editor.draft.tempo.bpm,
-                    canSlowDown = uiState.canSlowDown,
-                    canSpeedUp = uiState.canSpeedUp,
-                    onSlower = onSlower,
-                    onFaster = onFaster,
-                    modifier = Modifier.weight(1f),
-                )
-                // 48 dp until the tempo becomes a pill (P5.102): at 56, « 120 temps/min » breaks at its slash in Original ×2.
-                ListenButton(
-                    playing = played != null,
-                    musicName = uiState.name,
-                    onClick = onListen,
-                    enabled = uiState.canListen,
-                )
-            }
-            // A line of its own: beside the tempo and *Écouter*, it leaves the tempo buttons no room on 360 dp.
-            SaveButton(changed = editor.asksBeforeLeaving, onClick = onSave, modifier = Modifier.fillMaxWidth())
-        }
+                // Écouter at the end of the line of the tempo, or under it when the tempo needs the whole line.
+                FixedBesideRest(fixedFirst = false, restMin = 0.dp) {
+                    TempoPanel(
+                        bpm = editor.draft.tempo.bpm,
+                        canSlowDown = uiState.canSlowDown,
+                        canSpeedUp = uiState.canSpeedUp,
+                        onSlower = onSlower,
+                        onFaster = onFaster,
+                    )
+                    ListenButton(
+                        playing = played != null,
+                        musicName = uiState.name,
+                        onClick = onListen,
+                        enabled = uiState.canListen,
+                        size = ListenSize,
+                    )
+                }
+                // A line of its own: beside the tempo and *Écouter*, it leaves the tempo buttons no room on 360 dp.
+                SaveButton(changed = editor.asksBeforeLeaving, onClick = onSave, modifier = Modifier.fillMaxWidth())
+            },
+        )
     }
     ComposerDialogHost(dialog = uiState.dialog, name = uiState.name, actions = dialogActions)
     if (diceOpen) {
@@ -263,8 +277,8 @@ internal fun ComposerContent(
 }
 
 /**
- * *Enregistrer*: filled in `accent` and preceded by a dot while the music has [changed] (changes that leaving would
- * lose), framed otherwise.
+ * *Enregistrer*, the one main button of the editor, always in `accent`, compact; preceded by a dot, and read
+ * « Enregistrer les changements », while the music has [changed] (changes that leaving would lose).
  */
 @Composable
 private fun SaveButton(
@@ -272,14 +286,40 @@ private fun SaveButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ToolButton(
-        text = stringResource(if (changed) R.string.feature_composer_save_changed else R.string.feature_composer_save),
-        description = if (changed) stringResource(R.string.feature_composer_save_changed_description) else null,
+    val description = stringResource(R.string.feature_composer_save_changed_description)
+    BubbleButton(
+        family = ButtonFamily.PRIMARY,
         onClick = onClick,
-        primary = changed,
-        modifier = modifier,
-    )
+        modifier = if (changed) modifier.semantics { contentDescription = description } else modifier,
+        size = ButtonSize.COMPACT,
+    ) {
+        if (changed) {
+            val ink = LocalContentColor.current
+            Spacer(
+                modifier = Modifier
+                    .testTag(SAVE_DOT_TAG)
+                    .size(SaveDotSize)
+                    .drawBehind { drawCircle(ink) },
+            )
+        }
+        // On one line, shrunk if need be: in Original twice as large, « Enregistrer » beside its dot would be cut.
+        SingleLineText(
+            text = stringResource(R.string.feature_composer_save),
+            style = LocalTextStyle.current,
+            color = LocalContentColor.current,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+    }
 }
+
+/** The dot before *Enregistrer* while the music has changed. */
+private val SaveDotSize = 8.dp
+
+/** The tag of the dot before *Enregistrer*, read by the tests. */
+internal const val SAVE_DOT_TAG = "composer_save_dot"
+
+/** Écouter, larger in the editor than in a list: the main way to hear what is written. */
+private val ListenSize = 56.dp
 
 /** The name of a category. */
 @get:StringRes
@@ -414,6 +454,16 @@ internal fun ComposerColorfulPreview() {
 @Composable
 internal fun ComposerColorfulLargeFontPreview() {
     ComposerPreview(BloxThemeKind.COLORFUL, previewEditor(), played = Cell(bar = 0, eighth = 2))
+}
+
+/**
+ * Original, figé, stays usable in a font twice as large: on a phone, the page scrolls rather than squash its parts; a
+ * page as high as all of them shows each, down to the tempo, Écouter and Enregistrer.
+ */
+@Preview(widthDp = 360, heightDp = 1300, fontScale = 2f)
+@Composable
+internal fun ComposerOriginalLargeFontPreview() {
+    ComposerPreview(BloxThemeKind.ORIGINAL, previewEditor(), played = Cell(bar = 0, eighth = 2))
 }
 
 @Preview(widthDp = 360, heightDp = 760)
