@@ -41,6 +41,21 @@ internal class FeedbackEffects(private val feedback: () -> GameFeedback, private
 
     /** The score shown for the [score] of the game, which counts up once rows are cleared. */
     fun shownScore(score: Points): Points = feedback().shownScore(score, reduced)
+
+    /** The iridescent border of four lines, null when none shows. */
+    fun irisBorder(): IrisBorder? = feedback().irisBorder(reduced)
+
+    /** Whether the stack is in danger: the frame of the board in `danger`. */
+    fun inDanger(): Boolean = feedback().inDanger
+
+    /** How much `danger-soft` covers the [DANGER_ROWS] top rows of the board, all alike, from 0 to 1. */
+    fun dangerTint(): Float = feedback().dangerTint(row = 0, reduced)
+
+    /** How the panel of the level looks: framed and tilted once a level is gained. */
+    fun levelLook(): LevelLook = feedback().levelLook(reduced)
+
+    /** How large the sticker of a new best is drawn, which bounces once the best is beaten. */
+    fun bestBounce(): Float = feedback().bestBounce(reduced)
 }
 
 /**

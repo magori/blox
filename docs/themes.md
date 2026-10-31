@@ -8,8 +8,8 @@ sont codées aujourd'hui. Le thème Original prend les
 mêmes mises en page v2 avec ses propres jetons (ADR 0020). Valeurs Original retenues pour les
 rôles nouveaux (P5.56, à confirmer sur la maquette en P5.85) : `emptyCell` `#DCEBD5` (le fond du
 plateau), `panelInset` `#DCEBD5`, `scrim` `rgba(207,227,200,0.85)`, `clearGlow` `#EEF5EA`,
-`dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger se lit au cadre de
-4 dp), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo
+`dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger devait s'y lire au cadre de
+4 dp, mais Original, figé, n'a pas reçu les retours de P5.81), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo
 (`OriginalPaletteTest › the roles new in v2 have in the Original theme the values of docs themes md`).
 Points tranchés en P5.56 : pendant la partie (P5.78), NOUVEAU RECORD n'apparaît que si un record supérieur à 0 existait (sinon il s'afficherait dès le premier point) ; en fin de partie, la règle reste celle d'aujourd'hui (un premier score positif est un nouveau record, `HighScoreRepositoryContract › a first positive score is a new record against 0`) ;
 un volume à 0 joue en silence (la musique ne s'arrête pas) ; pas de fondu au changement de thème.
@@ -619,6 +619,51 @@ l'autocollant s'efface en 8 ticks au plus.
 `GameScreenTest › the points sticker is not read by TalkBack`,
 `GameScreenTest › the effects are drawn over the game, and gone once over` ;
 captures `GameScreenClearing*` et `GameScreenCleared*` (jour, nuit, grande police, Effets réduits). Vue : V28.
+
+**Retours de jeu, seconde tranche** (P5.81, `feature:game`, ADR 0024) : même architecture que la première tranche,
+`GameFeedback` pur et compté en ticks, lu au seul dessin. Couleurs seulement : Original, figé, n'a aucun de ces
+retours (cadre, encarts et barre de record inchangés, captures Original identiques), sauf l'annonce TalkBack du
+niveau, qui n'est pas un effet visuel. **4 lignes** : un reflet irisé (`iris-1` → `iris-3`, dégradé circulaire), d'un
+quart du tour et de 4 dp, fait une fois le tour du cadre du plateau en 45 ticks (`motion-pop`) à partir de
+l'effacement ; l'autocollant devient « 4 LIGNES » au-dessus des points, en `four-lines-pop` centré sur deux lignes.
+**Niveau** (`LevelUp`) : l'encart NIVEAU s'encadre d'`accent` (2 dp, sur son cadre) pendant 60 ticks (1 s) et bascule
+d'un côté puis de l'autre, ±8° au plus, amorti, en 30 ticks ; l'encart est une zone dynamique (`liveRegion` polie) :
+TalkBack lit « Niveau : 6 » quand il change, sans déplacer le focus, dans les deux thèmes. **Danger**
+(`StackDanger`) : du début à la fin du danger, le cadre du plateau passe à 4 dp de `danger` (au lieu de 2 dp de
+`panel-border`), et les 5 rangées du haut se couvrent de `danger-soft`, par-dessus leurs cases, qui respire
+(opacité de 1 à 0,5 et retour en 120 ticks, entière à l'entrée dans le danger). **Record battu** (Classique et Graine
+du jour, même écran) : l'autocollant NOUVEAU RECORD (NOUVEAU MEILLEUR) rebondit autour de son centre en 30 ticks
+(`motion-sticker`, ×1,15 au plus, oscillation amortie commune avec la bascule du niveau) au tick où l'écran apprend
+que le meilleur est battu ; la barre de record, alors pleine, passe au dégradé irisé (plus de partie vide à
+distinguer, le contraste 3:1 du remplissage ne s'applique plus). **Effets réduits** : cadre irisé entier et fixe 45
+ticks, effacé pendant ses 8 derniers ; NIVEAU encadré sans bascule ; rangées en danger couvertes en entier, fixes ;
+NOUVEAU RECORD sans rebond. **Limites** (vérifiées par des tests) : rien ne s'éclaire plus de 3 fois par seconde (la
+respiration du danger est d'une fois en 2 s). Le cadre `danger` lui-même ne peut s'allumer plus de 2 fois par seconde :
+le moteur a une hystérésis (entrée dans le danger à 15 rangées, sortie à 12 ou moins, `docs/musique.md`), si bien
+qu'en sortir demande un effacement, puis y revenir une nouvelle pièce posée ; un cycle danger → calme → danger prend
+au moins 30 ticks ; 40 particules au plus, c'est-à-dire 40 cases qui éclatent à la fois
+(un effacement de 4 lignes), seules « particules » du jeu tant que les confettis (P5.83) n'existent pas. Point ouvert :
+le reflet irisé est pâle de jour sur le cadre clair, à juger sur téléphone.
+
+**Tests :** `GameFeedbackTest › four lines run the iridescent border once`,
+`GameFeedbackTest › in reduced effects four lines frame the board in iridescence, still`,
+`GameFeedbackTest › four lines show the sticker « 4 LIGNES » with their points`,
+`GameFeedbackTest › a level up frames the level for 1 second and tilts it`,
+`GameFeedbackTest › in reduced effects a level up frames the level without tilting it`,
+`GameFeedbackTest › the danger frame is 4 dp and stays until the danger ends`,
+`GameFeedbackTest › in danger the 5 top rows breathe in danger-soft`,
+`GameFeedbackTest › in reduced effects the 5 top rows in danger are tinted, still`,
+`GameFeedbackTest › nothing flashes more than 3 times a second`,
+`GameFeedbackTest › there are 40 particles at most`,
+`GameFeedbackTest › a beaten best bounces its sticker once in 30 ticks`,
+`GameFeedbackTest › in reduced effects a beaten best shows without bouncing`,
+`BestBarTest › once the best is beaten the best bar is iridescent`,
+`GameViewModelTest › the best beaten reaches the effects on the tick it is beaten, once`,
+`GameScreenTest › a level up announces the new level to TalkBack`,
+`GameScreenTest › nothing recomposes while the level, the danger and the beaten record play`,
+`GameScreenTest › nothing recomposes while the iridescent border and the sticker of four lines play` ;
+captures `GameScreenFourLines*` et `GameScreenDanger*` (jour, nuit, Effets réduits), `GameScreenNewRecord*` (barre
+irisée). Vue : V28.
 
 ## Choix de l'accueil
 

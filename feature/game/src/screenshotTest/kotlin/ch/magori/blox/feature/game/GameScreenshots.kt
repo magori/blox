@@ -168,6 +168,42 @@ private fun GameScreenClearedLargeFont() = GameScreenClearedPreview()
 @Composable
 private fun GameScreenClearedReduced() = GameScreenClearedReducedPreview()
 
+// Four lines (V28), 5 ticks after the clear: the iridescent reflection around the frame, the sticker « 4 LIGNES », the
+// level gained framed and tilted, the record beaten bouncing, its bar iridescent; day, night, and in reduced effects
+// (the whole frame iridescent, nothing tilted nor bouncing).
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenFourLines() = GameScreenFourLinesPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenFourLinesNight() = GameScreenFourLinesPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenFourLinesReduced() = GameScreenFourLinesReducedPreview()
+
+// The stack in danger (V28): the frame of the board in danger, its 5 top rows tinted; day, night, and in reduced effects.
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenDanger() = GameScreenDangerPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760, uiMode = UI_MODE_NIGHT)
+@Composable
+private fun GameScreenDangerNight() = GameScreenDangerPreview()
+
+@PreviewTest
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+private fun GameScreenDangerReduced() = GameScreenDangerReducedPreview()
+
 // Landscape on a phone of 360 dp, with a large font: the next piece apart, on the right of the board.
 
 @PreviewTest

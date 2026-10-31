@@ -16,14 +16,20 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.board.next.NextPieceCanvas
 import ch.magori.blox.core.board.next.nextPieceName
 import ch.magori.blox.core.board.piece.PieceCells
 import ch.magori.blox.core.board.piece.nextPieceCells
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import ch.magori.blox.core.game.model.Level
@@ -32,6 +38,8 @@ import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
 import ch.magori.blox.core.game.rules.ClassicRotationSystem
 import ch.magori.blox.feature.game.R
+import ch.magori.blox.feature.game.feedback.InsetStroke
+import ch.magori.blox.feature.game.feedback.LevelLook
 import ch.magori.blox.feature.game.ui.LabelledPanel
 import ch.magori.blox.feature.game.ui.ValueText
 import ch.magori.blox.feature.game.ui.valueDescription
@@ -51,7 +59,9 @@ internal object SidePanelSizes {
  * lines and level, each in a panel. No logic here: the texts come from [scoreText], [levelText] and [linesText], the
  * fill of the best bar under the score, [bestFill], from [bestBarFill], the preview from [NextPieceCanvas], with
  * cells of [cellSize] pixels, those of the board, and [previewModifier] (the curtain of the pause). [next] is null
- * when the next piece is hidden (pause, option).
+ * when the next piece is hidden (pause, option). In Couleurs, the effects of the game (ADR 0024): the score counts up
+ * as [shownScore] says, the level is framed and tilted as [levelLook] says, the best bar is iridescent once the best
+ * is beaten ([bestBeaten]).
  */
 @Composable
 internal fun SidePanel(
@@ -64,14 +74,27 @@ internal fun SidePanel(
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
+    levelLook: (() -> LevelLook)? = null,
+    bestBeaten: Boolean = false,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         NextPiecePanel(next = next, cellSize = cellSize, previewModifier = previewModifier)
-        ScorePanels(score = score, level = level, lines = lines, bestFill = bestFill, shownScore = shownScore)
+        ScorePanels(
+            score = score,
+            level = level,
+            lines = lines,
+            bestFill = bestFill,
+            shownScore = shownScore,
+            levelLook = levelLook,
+            bestBeaten = bestBeaten,
+        )
     }
 }
 
-/** Score, its best bar filled by [bestFill], then lines and level, each in a panel, one under the other. */
+/**
+ * Score, its best bar filled by [bestFill], then lines and level, each in a panel, one under the other; with the
+ * effects of [SidePanel].
+ */
 @Composable
 internal fun ScorePanels(
     score: Points,
@@ -80,11 +103,13 @@ internal fun ScorePanels(
     bestFill: Float?,
     modifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
+    levelLook: (() -> LevelLook)? = null,
+    bestBeaten: Boolean = false,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
-        ScorePanel(score, bestFill, shownScore = shownScore)
+        ScorePanel(score, bestFill, shownScore = shownScore, bestBeaten = bestBeaten)
         LinesPanel(lines)
-        LevelPanel(level)
+        LevelPanel(level, look = levelLook)
     }
 }
 
@@ -92,7 +117,7 @@ internal fun ScorePanels(
  * The side column laid across, above the board of a very narrow window: next piece and score, then lines and level,
  * in the order of the side column; the next piece with cells of [cellSize] pixels, those of the board, its preview
  * with [previewModifier], the score with its best bar filled by [bestFill]. The two panels of a row are as wide
- * and as high as each other. [next] is null when the next piece is hidden.
+ * and as high as each other. [next] is null when the next piece is hidden. With the effects of [SidePanel].
  */
 @Composable
 internal fun ScoreGrid(
@@ -105,6 +130,8 @@ internal fun ScoreGrid(
     modifier: Modifier = Modifier,
     previewModifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
+    levelLook: (() -> LevelLook)? = null,
+    bestBeaten: Boolean = false,
 ) {
     Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(SidePanelSizes.gap)) {
         PanelRow {
@@ -114,11 +141,11 @@ internal fun ScoreGrid(
                 modifier = Modifier.weight(1f).fillMaxHeight(),
                 previewModifier = previewModifier,
             )
-            ScorePanel(score, bestFill, Modifier.weight(1f).fillMaxHeight(), shownScore)
+            ScorePanel(score, bestFill, Modifier.weight(1f).fillMaxHeight(), shownScore, bestBeaten)
         }
         PanelRow {
             LinesPanel(lines, Modifier.weight(1f).fillMaxHeight())
-            LevelPanel(level, Modifier.weight(1f).fillMaxHeight())
+            LevelPanel(level, Modifier.weight(1f).fillMaxHeight(), levelLook)
         }
     }
 }
@@ -136,7 +163,8 @@ private fun PanelRow(content: @Composable RowScope.() -> Unit) {
 /**
  * The score in its panel, the best bar under it filled by [bestFill] ([bestBar]); without a best, none. The
  * value shown is the one [shownScore] gives, the score itself without it: a score that counts up recomposes only its
- * text ([ScoreValue], ADR 0024). TalkBack reads the score itself.
+ * text ([ScoreValue], ADR 0024). TalkBack reads the score itself. Once the best is [beaten][bestBeaten], the bar is
+ * iridescent.
  */
 @Composable
 private fun ScorePanel(
@@ -144,8 +172,9 @@ private fun ScorePanel(
     bestFill: Float?,
     modifier: Modifier = Modifier,
     shownScore: (() -> Points)? = null,
+    bestBeaten: Boolean = false,
 ) {
-    val bar = if (bestFill == null) Modifier else Modifier.bestBar(bestFill)
+    val bar = if (bestFill == null) Modifier else Modifier.bestBar(bestFill, bestBeaten)
     ValuePanel(stringResource(R.string.feature_game_score), score.value, modifier.then(bar)) {
         if (shownScore == null) ValueText(text = scoreText(score)) else ScoreValue(shownScore)
     }
@@ -158,12 +187,34 @@ private fun ScoreValue(shown: () -> Points) {
     ValueText(text = scoreText(score))
 }
 
+/**
+ * The level in its panel. TalkBack says each new level as it comes (a live region), without the focus moving. In
+ * Couleurs, it is framed and tilted as [look] says, read only while drawing (ADR 0024).
+ */
 @Composable
 private fun LevelPanel(
     level: Level,
     modifier: Modifier = Modifier,
+    look: (() -> LevelLook)? = null,
 ) {
-    ValuePanel(stringResource(R.string.feature_game_level), levelText(level), level.value, modifier)
+    val announced = modifier.semantics { liveRegion = LiveRegionMode.Polite }
+    val shown = if (look == null) announced else announced.levelEffects(look)
+    ValuePanel(stringResource(R.string.feature_game_level), levelText(level), level.value, shown)
+}
+
+/** The level framed in `accent` and tilted as [look] says on each frame, over its panel. */
+@Composable
+private fun Modifier.levelEffects(look: () -> LevelLook): Modifier {
+    val accent = BloxTheme.palette.accent
+    val shape = BloxTheme.shapes.md
+    return graphicsLayer { rotationZ = look().tilt }
+        .drawWithCache {
+            val stroke = InsetStroke(shape, BloxBorders.frame.toPx(), this)
+            onDrawWithContent {
+                drawContent()
+                if (look().framed) stroke.inside(this) { drawPath(stroke.path, accent, style = stroke.style) }
+            }
+        }
 }
 
 @Composable

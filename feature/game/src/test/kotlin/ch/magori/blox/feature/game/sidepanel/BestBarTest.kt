@@ -51,6 +51,20 @@ class BestBarTest {
         assertThat(contrast(colors.fill, colors.track)).isGreaterThanOrEqualTo(3.0)
     }
 
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("palettes")
+    fun `once the best is beaten the best bar is iridescent`(
+        theme: String,
+        palette: BloxPalette,
+    ) {
+        // When
+        val colors = bestBarColors(palette)
+
+        // Then the bar, full, goes through the iris of the theme, on the same track
+        assertThat(colors.beaten).containsExactly(palette.iris.start, palette.iris.middle, palette.iris.end)
+        assertThat(colors.track).isEqualTo(palette.panelInset)
+    }
+
     companion object {
         @JvmStatic
         fun palettes(): List<Arguments> = namedPalettes.map { (theme, palette) -> Arguments.of(theme, palette) }

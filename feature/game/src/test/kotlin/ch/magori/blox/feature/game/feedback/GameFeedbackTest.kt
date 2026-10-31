@@ -1,8 +1,12 @@
 package ch.magori.blox.feature.game.feedback
 
+import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxMotion
+import ch.magori.blox.core.designsystem.theme.BloxPalettes
 import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.engine.spawned
+import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.LineClear
 import ch.magori.blox.core.game.model.PieceType
 import ch.magori.blox.core.game.model.Points
@@ -195,6 +199,231 @@ class GameFeedbackTest {
             assertThat(it).isLessThan(1f).isPositive()
         }
     }
+
+    @Test
+    fun `four lines run the iridescent border once`() {
+        // Given rows 16 to 19 full on tick 100, cleared on tick 118, and two rows cleared alike
+        val fourLines = clearOfFourRows(lockTick = 100, clearDelay = 18)
+        val twoLines = clearOfRows18And19(lockTick = 100, clearDelay = 18)
+
+        // When the ticks go on
+        val borders = (118..163).map { tick -> fourLines(tick).irisBorder(reduced = false) }
+
+        // Then a reflection goes once around the frame, from its start towards its end, then is gone; none before the
+        // rows are cleared, none for two rows
+        val heads = borders.take(BloxMotion.pop).map { checkNotNull(it).head }
+        assertThat(heads.first()).isZero()
+        assertThat(heads).doesNotHaveDuplicates().isSorted()
+        assertThat(heads.last()).isLessThan(1f)
+        assertThat(borders.last()).isNull()
+        assertThat(fourLines(117).irisBorder(reduced = false)).isNull()
+        assertThat((118..163).map { twoLines(it).irisBorder(reduced = false) }).containsOnlyNulls()
+    }
+
+    @Test
+    fun `in reduced effects four lines frame the board in iridescence, still`() {
+        // Given rows 16 to 19 full on tick 100, cleared on tick 118
+        val fourLines = clearOfFourRows(lockTick = 100, clearDelay = 18)
+
+        // When the ticks go on, in reduced effects
+        val borders = (118..163).map { tick -> fourLines(tick).irisBorder(reduced = true) }
+
+        // Then the whole frame is iridescent, still, as long as the border would go around, and fades in its last 8 ticks
+        val shown = borders.take(BloxMotion.pop).map { checkNotNull(it) }
+        assertThat(shown).allSatisfy { assertThat(it.whole).isTrue() }
+        assertThat(shown.dropLast(BloxMotion.reducedFade).map { it.alpha }).containsOnly(1f)
+        assertThat(shown.takeLast(BloxMotion.reducedFade).map { it.alpha }).isSortedAccordingTo(reverseOrder())
+            .allSatisfy { assertThat(it).isLessThan(1f).isPositive() }
+        assertThat(borders.last()).isNull()
+    }
+
+    @Test
+    fun `four lines show the sticker « 4 LIGNES » with their points`() {
+        // Given rows 16 to 19 cleared on tick 118 for 1 200 points, and two rows cleared alike
+        val fourLines = clearOfFourRows(lockTick = 100, clearDelay = 18)
+        val twoLines = clearOfRows18And19(lockTick = 100, clearDelay = 18)
+
+        // When the rows are cleared
+        val sticker = fourLines(118).sticker(reduced = false)
+
+        // Then the sticker says four lines and their points, in the middle of the rows, in reduced effects as well;
+        // the sticker of two rows says their points alone
+        assertThat(sticker?.fourLines).isTrue()
+        assertThat(sticker?.points).isEqualTo(1_200)
+        assertThat(sticker?.row).isEqualTo(18f)
+        assertThat(fourLines(118).sticker(reduced = true)?.fourLines).isTrue()
+        assertThat(twoLines(118).sticker(reduced = false)?.fourLines).isFalse()
+    }
+
+    @Test
+    fun `a level up frames the level for 1 second and tilts it`() {
+        // Given a line clear that reached level 5 on tick 100
+        val levelledUp = GameFeedback().after(
+            100,
+            listOf(GameEvent.LinesCleared(LineClear(1)), GameEvent.LevelUp(Level(5))),
+        )
+
+        // When the ticks go on
+        val looks = (100..160).map { tick -> levelledUp.ticked(tick).levelLook(reduced = false) }
+
+        // Then the level is framed for 60 ticks, then no more; it tilts one way then the other, and comes back straight
+        assertThat(looks.take(60)).allSatisfy { assertThat(it.framed).isTrue() }
+        assertThat(looks.last().framed).isFalse()
+        val tilts = looks.map { it.tilt }
+        assertThat(tilts.first()).isZero()
+        assertThat(tilts).anySatisfy { assertThat(it).isPositive() }.anySatisfy { assertThat(it).isNegative() }
+        assertThat(tilts.takeLast(10)).containsOnly(0f)
+        assertThat(GameFeedback().levelLook(reduced = false)).isEqualTo(LevelLook(framed = false, tilt = 0f))
+    }
+
+    @Test
+    fun `in reduced effects a level up frames the level without tilting it`() {
+        // Given a line clear that reached level 5 on tick 100
+        val levelledUp = GameFeedback().after(
+            100,
+            listOf(GameEvent.LinesCleared(LineClear(1)), GameEvent.LevelUp(Level(5))),
+        )
+
+        // When the ticks go on, in reduced effects
+        val looks = (100..160).map { tick -> levelledUp.ticked(tick).levelLook(reduced = true) }
+
+        // Then the level is framed for 60 ticks, as in full effects, and never tilts
+        assertThat(looks.take(60)).allSatisfy { assertThat(it.framed).isTrue() }
+        assertThat(looks.last().framed).isFalse()
+        assertThat(looks.map { it.tilt }).containsOnly(0f)
+    }
+
+    @Test
+    fun `the danger frame is 4 dp and stays until the danger ends`() {
+        // Given the stack entered the danger on tick 100, then left it on tick 400
+        val palette = BloxPalettes.ColorfulLight
+        val entered = GameFeedback().after(100, listOf(GameEvent.StackDanger(on = true)))
+        val left = entered.after(400, listOf(GameEvent.StackDanger(on = false)))
+
+        // When the ticks go on
+        val borders = (100..399).map { tick -> boardFrameBorder(palette, entered.ticked(tick).inDanger) }
+
+        // Then the frame of the board is 4 dp of danger all along, and back to 2 dp of panel border once the danger ends
+        assertThat(borders).containsOnly(FrameBorder(4.dp, palette.danger))
+        assertThat(
+            boardFrameBorder(palette, left.inDanger),
+        ).isEqualTo(FrameBorder(BloxBorders.frame, palette.panelBorder))
+        assertThat(boardFrameBorder(palette, GameFeedback().inDanger)).isEqualTo(FrameBorder(2.dp, palette.panelBorder))
+    }
+
+    @Test
+    fun `in danger the 5 top rows breathe in danger-soft`() {
+        // Given the stack entered the danger on tick 100
+        val entered = GameFeedback().after(100, listOf(GameEvent.StackDanger(on = true)))
+
+        // When the ticks go on
+        val tints = (100..400).map { tick -> entered.ticked(tick).dangerTint(row = 4, reduced = false) }
+
+        // Then the 5 top rows are tinted all along, more and less, and not the rows under them, nor without danger
+        assertThat(tints).allSatisfy { assertThat(it).isPositive().isLessThanOrEqualTo(1f) }
+        assertThat(tints.max() - tints.min()).isGreaterThan(0.3f)
+        assertThat(entered.dangerTint(row = 5, reduced = false)).isZero()
+        assertThat(GameFeedback().dangerTint(row = 0, reduced = false)).isZero()
+    }
+
+    @Test
+    fun `in reduced effects the 5 top rows in danger are tinted, still`() {
+        // Given the stack entered the danger on tick 100
+        val entered = GameFeedback().after(100, listOf(GameEvent.StackDanger(on = true)))
+
+        // When the ticks go on, in reduced effects
+        val tints = (100..400).map { tick -> (0..5).map { entered.ticked(tick).dangerTint(it, reduced = true) } }
+
+        // Then the 5 top rows are wholly tinted all along, the others not at all
+        assertThat(tints).containsOnly(listOf(1f, 1f, 1f, 1f, 1f, 0f))
+    }
+
+    @Test
+    fun `nothing flashes more than 3 times a second`() {
+        // Given four lines cleared on tick 118, which reach the next level and leave the stack in danger
+        val fourLines = clearOfFourRows(lockTick = 100, clearDelay = 18)
+        val cleared = fourLines(118).after(
+            118,
+            listOf(GameEvent.LevelUp(Level(5)), GameEvent.StackDanger(on = true)),
+        )
+        val feedbacks = (100..117).map(fourLines) + (118..700).map { cleared.ticked(it) }
+
+        // When the effects play, in full and in reduced effects
+        val lights = listOf(false, true).flatMap { reduced ->
+            listOf<(GameFeedback) -> Float>(
+                { it.lockLight(lockedT.cells.first(), reduced) },
+                { if (it.rowGlows(16)) 1f else 0f },
+                { it.irisBorder(reduced)?.alpha ?: 0f },
+                { it.sticker(reduced)?.alpha ?: 0f },
+                { if (it.levelLook(reduced).framed) 1f else 0f },
+                { it.dangerTint(row = 0, reduced) },
+            ).map { light -> feedbacks.map(light) }
+        }
+
+        // Then no light grows brighter more than 3 times in any second
+        assertThat(lights).allSatisfy { light ->
+            assertThat(light.windowed(60).maxOf { brightenings(it) }).isLessThanOrEqualTo(3)
+        }
+    }
+
+    @Test
+    fun `there are 40 particles at most`() {
+        // Given four lines full on tick 100, the most a clear bursts, cleared 20 ticks later
+        val fourLines = clearOfFourRows(lockTick = 100, clearDelay = 20)
+
+        // When the clear goes on, counting the cells that burst: drawn, but not at their size
+        val bursting = (100..140).map { tick ->
+            (0..19).sumOf { row ->
+                (0..9).count { column ->
+                    val scale = fourLines(tick).cellScale(Position(column, row), reduced = false)
+                    scale > 0f && scale != 1f
+                }
+            }
+        }
+
+        // Then no more than 40 cells burst at once
+        assertThat(bursting.max()).isPositive().isLessThanOrEqualTo(40)
+    }
+
+    @Test
+    fun `a beaten best bounces its sticker once in 30 ticks`() {
+        // Given the best beaten on tick 100
+        val beaten = GameFeedback().ticked(100).withBestBeaten()
+
+        // When the ticks go on, and the score goes on above the best
+        val scales = (100..140).map { tick -> beaten.ticked(tick).bestBounce(reduced = false) }
+        val beatenAgain = beaten.ticked(120).withBestBeaten()
+
+        // Then the sticker swells and comes back to its size in 30 ticks, once only
+        assertThat(scales.take(BloxMotion.sticker)).anySatisfy { assertThat(it).isGreaterThan(1f) }
+        assertThat(scales.drop(BloxMotion.sticker)).containsOnly(1f)
+        assertThat(beatenAgain.bestBounce(reduced = false)).isEqualTo(scales[20])
+        assertThat(GameFeedback().bestBounce(reduced = false)).isEqualTo(1f)
+    }
+
+    @Test
+    fun `in reduced effects a beaten best shows without bouncing`() {
+        // Given the best beaten on tick 100
+        val beaten = GameFeedback().ticked(100).withBestBeaten()
+
+        // When the ticks go on, in reduced effects
+        val scales = (100..140).map { tick -> beaten.ticked(tick).bestBounce(reduced = true) }
+
+        // Then the sticker takes the place of the best at its size
+        assertThat(scales).containsOnly(1f)
+    }
+
+    /** How many times [light] starts growing brighter: a tick brighter than the one before, which was not. */
+    private fun brightenings(light: List<Float>): Int = light.indices.drop(1).count { i ->
+        light[i] > light[i - 1] && (i == 1 || light[i - 1] <= light[i - 2])
+    }
+
+    /** The feedback, on each tick, of a game whose rows 16 to 19 filled on [lockTick], cleared [clearDelay] ticks later. */
+    private fun clearOfFourRows(
+        lockTick: Int,
+        clearDelay: Int,
+    ): (Int) -> GameFeedback =
+        lineClearFeedback(lockedT, listOf(16, 17, 18, 19), lockTick, clearDelay, Points(1_000), Points(2_200))
 
     /** The feedback, on each tick, of a game whose rows 18 and 19 filled on [lockTick], cleared [clearDelay] ticks later. */
     private fun clearOfRows18And19(

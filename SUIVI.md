@@ -994,7 +994,7 @@ composants.
   ticks`, `the clear pops the cells by pairs from the centre within the clear delay`, `the points sticker rises
   and fades in 45 ticks`, `in reduced effects nothing moves and the score shows at once`, `a paused game freezes
   its effects`, `nothing recomposes while an effect plays`, `the painters are built once while effects play`.
-- [ ] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
+- [x] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
   LIGNES »), `LevelUp` (encart NIVEAU qui bascule et s'encadre d'`accent` 1 s, annonce TalkBack), `StackDanger`
   (cadre `danger` de 4 dp, 5 rangées du haut en `danger-soft` qui respirent), record battu (rebond, barre
   irisée). Après P5.64, P5.80.

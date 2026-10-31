@@ -5,6 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawOutline
 import androidx.compose.ui.graphics.drawscope.translate
@@ -38,11 +39,15 @@ internal fun bestBarFill(
 
 /**
  * The best bar drawn at the bottom of a panel, in its padding, as wide as its content: a track, filled from the start
- * of the line up to [fill], of 0 to 1, in the colours of [bestBarColors], in pills (square in Original). Drawn over
- * the panel, it changes neither its size nor the place of its value.
+ * of the line up to [fill], of 0 to 1, in the colours of [bestBarColors], in pills (square in Original); once the best
+ * is [beaten], wholly in the iris of the theme. Drawn over the panel, it changes neither its size nor the place of its
+ * value.
  */
 @Composable
-internal fun Modifier.bestBar(fill: Float): Modifier {
+internal fun Modifier.bestBar(
+    fill: Float,
+    beaten: Boolean = false,
+): Modifier {
     val colors = bestBarColors(BloxTheme.palette)
     val shape = BloxTheme.shapes.pill
     return drawWithCache {
@@ -54,22 +59,32 @@ internal fun Modifier.bestBar(fill: Float): Modifier {
         val trackOutline = shape.createOutline(track, layoutDirection, this)
         val filledOutline = shape.createOutline(filled, layoutDirection, this)
         val filledLeft = if (layoutDirection == LayoutDirection.Rtl) inset + track.width - filled.width else inset
+        val iris = Brush.horizontalGradient(colors.beaten, startX = 0f, endX = track.width)
         onDrawWithContent {
             drawContent()
-            translate(inset, top) { drawOutline(trackOutline, colors.track) }
-            if (filled.width > 0f) translate(filledLeft, top) { drawOutline(filledOutline, colors.fill) }
+            translate(inset, top) {
+                if (beaten) drawOutline(trackOutline, iris) else drawOutline(trackOutline, colors.track)
+            }
+            if (!beaten && filled.width > 0f) translate(filledLeft, top) { drawOutline(filledOutline, colors.fill) }
         }
     }
 }
 
-/** The colours of the best bar: its [track], and its [fill] up to the score. */
+/**
+ * The colours of the best bar: its [track], its [fill] up to the score, and the stops of the gradient that fills it
+ * once the best is [beaten].
+ */
 @Immutable
-internal data class BestBarColors(val track: Color, val fill: Color)
+internal data class BestBarColors(val track: Color, val fill: Color, val beaten: List<Color>)
 
 /**
  * The colours of the best bar in [palette]: a track of `panel-inset`, filled in `accent-pressed`, which stands out
  * from it by 3:1 at least in every theme (WCAG 2.1, 1.4.11). The design system gives `panel-border` and `accent`: the
- * same green in Original, 1.6:1 in Couleurs by day, the progress would not show.
+ * same green in Original, 1.6:1 in Couleurs by day, the progress would not show. Once the best is beaten, the bar is
+ * full, and goes through the iris of the theme: no part of the track is left to stand out from.
  */
-internal fun bestBarColors(palette: BloxPalette): BestBarColors =
-    BestBarColors(track = palette.panelInset, fill = palette.accentPressed)
+internal fun bestBarColors(palette: BloxPalette): BestBarColors = BestBarColors(
+    track = palette.panelInset,
+    fill = palette.accentPressed,
+    beaten = palette.iris.let { listOf(it.start, it.middle, it.end) },
+)

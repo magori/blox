@@ -253,7 +253,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
   entre les trois éléments. Une fois le record battu (un score au-dessus d'un record supérieur à 0, P5.56),
   « RECORD » devient l'autocollant NOUVEAU RECORD (`accent`, sur deux lignes s'il le faut, sans inclinaison en
-  Original) et la valeur suit le score ; rien ne bouge dans la barre (P5.78).
+  Original) et la valeur suit le score ; rien ne bouge dans la barre (P5.78), sinon, en Couleurs, le rebond de
+  l'autocollant au moment où le record est battu (P5.81, sans rebond en Effets réduits).
 - Plateau 10 × 20 (cellules de 21 points à 390 dp, comme le code, un peu moins depuis le cadre du plateau de P5.78 ; 24 sur l'ancienne maquette, P2.19) et colonne latérale : pièce suivante, score (avec sa barre de record de 4 dp, P5.78), lignes,
   niveau ; lue dans cet ordre par TalkBack dans toutes les mises en page. Le plateau est cadré (`BoardFrame` :
   2 dp de `panelBorder` et 6 dp du fond du plateau, dessinés dans les marges, sans changer la taille des cases

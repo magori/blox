@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.semantics.getOrNull
@@ -50,6 +51,7 @@ import ch.magori.blox.core.designsystem.test.RecompositionRecorder
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Direction
 import ch.magori.blox.core.game.model.Level
@@ -127,6 +129,7 @@ internal class GameScreenTest {
     private fun ComposeContext.showGameScreen(
         size: DpSize? = null,
         labels: GameLabels = GameLabels.Classic,
+        kind: BloxThemeKind = BloxThemeKind.COLORFUL,
     ) {
         setContent {
             resume = stringResource(R.string.feature_game_pause_resume)
@@ -136,7 +139,7 @@ internal class GameScreenTest {
                 stringResource(shownField.label),
                 shownField.spokenValue(),
             )
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+            BloxTheme(kind = kind) {
                 Box(modifier = if (size == null) Modifier else Modifier.requiredSize(size)) {
                     key(generation) {
                         GameScreen(
@@ -259,6 +262,73 @@ internal class GameScreenTest {
         // Then
         assertThat(keyImage(ControlButton.A).sameAs(aOnTheTurn)).isFalse()
         assertThat(keyImage(ControlButton.B).sameAs(bOnTheTurn)).isTrue()
+    }
+
+    @ParameterizedTest
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName("a level up announces the new level to TalkBack")
+    fun aLevelUpAnnouncesTheNewLevelToTalkBack(kind: BloxThemeKind) = extension.use {
+        // Given a game at level 5
+        showGameScreen(kind = kind)
+
+        // When it reaches level 6
+        runOnIdle {
+            uiState = uiState.copy(
+                level = Level(6),
+                feedback = GameFeedback().after(100, listOf(GameEvent.LevelUp(Level(6))), null, Points(0), Points(0)),
+            )
+        }
+
+        // Then the level is a live region, which TalkBack reads as it changes, now at level 6; the only one of the screen:
+        // neither the score nor the lines, which change at each clear, are announced
+        onNodeWithContentDescription("Niveau : 6")
+            .assert(SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite))
+        onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsProperties.LiveRegion)).assertCountEquals(1)
+    }
+
+    @Test
+    @DisplayName("nothing recomposes while the level, the danger and the beaten record play")
+    fun nothingRecomposesWhileTheLevelTheDangerAndTheBeatenRecordPlay() = extension.use {
+        // Given a game that gained a level, entered the danger and beat the record on tick 100
+        val events = listOf(GameEvent.LevelUp(Level(6)), GameEvent.StackDanger(on = true))
+        val started = GameFeedback().after(100, events, null, Points(0), Points(0)).withBestBeaten()
+        uiState = uiState.copy(level = Level(6), best = 12_000, bestBeaten = true, feedback = started)
+        showGameScreen()
+
+        // When the level tilts and is framed, the rows in danger breathe and the record bounces, for 2 seconds
+        (101..220).forEach { tick ->
+            val playing = started.after(tick, emptyList(), null, Points(0), Points(0))
+            runOnIdle { uiState = uiState.copy(feedback = playing) }
+            drawnContent()
+        }
+
+        // Then they are only drawn again
+        assertThat(recompositions.recomposed).isEmpty()
+    }
+
+    @Test
+    @DisplayName("nothing recomposes while the iridescent border and the sticker of four lines play")
+    fun nothingRecomposesWhileFourLinesPlay() = extension.use {
+        // Given four lines cleared on tick 118, at the same score so that it does not count up
+        val fourLines = lineClearFeedback(
+            checkNotNull(uiState.piece),
+            listOf(16, 17, 18, 19),
+            100,
+            18,
+            uiState.score,
+            uiState.score,
+        )
+        uiState = uiState.copy(feedback = fourLines(118))
+        showGameScreen()
+
+        // When the reflection goes around the frame and the sticker « 4 LIGNES » rises, until they are over
+        (119..170).forEach { tick ->
+            runOnIdle { uiState = uiState.copy(feedback = fourLines(tick)) }
+            drawnContent()
+        }
+
+        // Then they are only drawn again
+        assertThat(recompositions.recomposed).isEmpty()
     }
 
     @Test
