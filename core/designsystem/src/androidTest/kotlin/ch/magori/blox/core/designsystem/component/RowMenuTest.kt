@@ -22,6 +22,7 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.assertIsNotFocused
+import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.hasClickAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -54,7 +55,7 @@ internal class RowMenuTest {
         setContent {
             BloxTheme(kind = BloxThemeKind.COLORFUL) {
                 Box {
-                    RowMenu(name = "Pluie douce", windowOpen = false) {
+                    RowMenu(description = rowMenuDescription("Pluie douce"), windowOpen = false) {
                         Item(text = "Modifier", icon = BloxIcon.EDIT, onClick = { calls += "edit" })
                         RenameItem(onRename = { calls += "rename" })
                         DeleteItem(onDelete = { calls += "delete" })
@@ -82,6 +83,35 @@ internal class RowMenuTest {
 
         // Then each did what it says, and closed the menu
         runOnIdle { assertThat(calls).containsExactly("rename", "delete", "edit") }
+        onNodeWithTag(MENU_PANEL_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    @DisplayName("a menu read by the description given offers an item to check, which closes the menu once touched")
+    fun aMenuOffersAnItemToCheck() = extension.use {
+        // Given the menu of the bar of the editor, « Suivre la lecture » checked
+        var following by mutableStateOf(true)
+        setContent {
+            BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                Box {
+                    RowMenu(description = "Plus d'options", windowOpen = false) {
+                        CheckItem(text = "Suivre la lecture", checked = following, onCheckedChange = { following = it })
+                    }
+                }
+            }
+        }
+
+        // When
+        onNodeWithContentDescription("Plus d'options").performClick()
+
+        // Then
+        onNode(hasText("Suivre la lecture") and hasClickAction()).assertIsOn()
+
+        // When
+        onNode(hasText("Suivre la lecture") and hasClickAction()).performClick()
+
+        // Then
+        runOnIdle { assertThat(following).isFalse() }
         onNodeWithTag(MENU_PANEL_TAG).assertDoesNotExist()
     }
 
@@ -165,7 +195,9 @@ internal class RowMenuTest {
                 // Focusable before « … »: a focus lost would land on it, not on « … ».
                 Box(Modifier.size(48.dp).focusable())
                 Box {
-                    RowMenu(name = "Pluie douce", windowOpen = windowOpen) { RenameItem(onRename = onRename) }
+                    RowMenu(description = rowMenuDescription("Pluie douce"), windowOpen = windowOpen) {
+                        RenameItem(onRename = onRename)
+                    }
                 }
                 if (windowOpen) {
                     val focus = remember { FocusRequester() }

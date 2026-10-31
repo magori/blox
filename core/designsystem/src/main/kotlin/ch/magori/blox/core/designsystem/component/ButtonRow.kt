@@ -2,15 +2,13 @@ package ch.magori.blox.core.designsystem.component
 
 import androidx.compose.ui.text.TextMeasurer
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.Dp
 import kotlin.math.ceil
 import kotlin.math.roundToInt
 import kotlin.math.sign
 
 /*
- * Whether buttons framed as panels ([FramedBox]) hold side by side, their labels whole, or have to stand one above the
- * other: the toolbar of the editor, the tiles of the home. Counted in whole pixels, as the layout counts them.
+ * Whether buttons hold side by side, their labels whole, or have to stand one above the other: the tiles of the home,
+ * the cartridges, Au hasard and Nouvelle. Counted in whole pixels, as the layout counts them.
  */
 
 /**
@@ -73,6 +71,3 @@ fun labelsHold(
     labels: List<Int>,
     padding: Int,
 ): Boolean = shares.zip(labels).all { (share, label) -> label <= share - 2 * padding }
-
-/** Between each side of a [FramedBox] and its label, given its [labelPadding], in pixels as the layout rounds it. */
-fun Density.framedBoxPaddingPx(labelPadding: Dp): Int = framedBoxPadding(labelPadding).roundToPx()

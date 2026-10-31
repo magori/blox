@@ -234,13 +234,7 @@ internal class ComposerDiceSheetTest {
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "note"))
     }
 
-    private fun ComposeContext.showEditor() {
-        setContent {
-            BloxTheme(kind = BloxThemeKind.COLORFUL) {
-                ComposerScreen(viewModel = viewModel, onBack = {}, onDeleted = {})
-            }
-        }
-    }
+    private fun ComposeContext.showEditor() = showComposer(viewModel)
 
     /** *Tirer une musique*, in the sheet. */
     private fun ComposeContext.rollButton(): SemanticsNodeInteraction =

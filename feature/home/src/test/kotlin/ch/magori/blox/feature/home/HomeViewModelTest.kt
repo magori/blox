@@ -10,8 +10,10 @@ import ch.magori.blox.core.data.FakeMusicLibrary
 import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicChoice
+import ch.magori.blox.core.data.MusicFileNames
 import ch.magori.blox.core.data.MusicFileRepository
 import ch.magori.blox.core.data.MusicLibrary
+import ch.magori.blox.core.data.NamedMusicFile
 import ch.magori.blox.core.data.SavedMusic
 import ch.magori.blox.core.data.ThemeChoice
 import ch.magori.blox.core.data.UserPreferences
@@ -32,6 +34,7 @@ import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
@@ -53,6 +56,9 @@ class HomeViewModelTest {
 
     private val myFile = MusicFile("content://com.android.providers.media.documents/document/audio%3A42")
 
+    /** The names of the documents, as the picker shows them: my file has one, any other none. */
+    private val musicFileNames = MusicFileNames { file -> if (file == myFile) MY_FILE_NAME else null }
+
     private val music = FakeMusicPlayer()
 
     /** The scores of the music choices, as `app` gives them: Korobeiniki and the minuet, nothing else. */
@@ -72,6 +78,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -115,6 +122,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -148,6 +156,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -170,7 +179,16 @@ class HomeViewModelTest {
         val preferences = FakeUserPreferencesRepository()
         val highScores = FakeHighScoreRepository(initial = 12_345).apply { highScoreFlow = flowOf(0) }
         val viewModel =
-            HomeViewModel(preferences, highScores, ClassicLevelProgression, music, testScores, musicFiles, library)
+            HomeViewModel(
+                preferences,
+                highScores,
+                ClassicLevelProgression,
+                music,
+                testScores,
+                musicFiles,
+                library,
+                musicFileNames,
+            )
 
         viewModel.uiState.test {
             assertThat(expectMostRecentItem()?.record).isEqualTo(0)
@@ -202,6 +220,7 @@ class HomeViewModelTest {
                     testScores,
                     musicFiles,
                     library,
+                    musicFileNames,
                 )
                 viewModel.uiState.test { cancelAndIgnoreRemainingEvents() }
             }
@@ -224,6 +243,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         // When
@@ -250,6 +270,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         // When / Then
@@ -272,6 +293,7 @@ class HomeViewModelTest {
                     testScores,
                     musicFiles,
                     library,
+                    musicFileNames,
                 )
             }
     }
@@ -288,6 +310,7 @@ class HomeViewModelTest {
                     testScores,
                     musicFiles,
                     library,
+                    musicFileNames,
                 )
             }
             .withMessageContaining("start level")
@@ -627,7 +650,13 @@ class HomeViewModelTest {
             val unread = object : MusicFileRepository {
                 override val musicFile: Flow<MusicFile?> = reading.drop(1)
 
-                override suspend fun setMusicFile(file: MusicFile) = Unit
+                override val namedMusicFile: Flow<NamedMusicFile?> =
+                    musicFile.map { file -> file?.let { NamedMusicFile(it, name = null) } }
+
+                override suspend fun setMusicFile(
+                    file: MusicFile,
+                    name: String?,
+                ) = Unit
             }
             val viewModel = HomeViewModel(
                 FakeUserPreferencesRepository(),
@@ -637,6 +666,7 @@ class HomeViewModelTest {
                 testScores,
                 unread,
                 library,
+                musicFileNames,
             )
 
             viewModel.uiState.test {
@@ -698,6 +728,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -724,6 +755,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -798,6 +830,7 @@ class HomeViewModelTest {
                 testScores,
                 musicFiles,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -808,6 +841,40 @@ class HomeViewModelTest {
             assertThat(musicFiles.state.value).isEqualTo(myFile)
             assertThat(preferences.state.value?.music).isEqualTo(MusicChoice.MY_FILE)
             assertThat(expectMostRecentItem()?.music).isEqualTo(MusicChoice.MY_FILE)
+        }
+    }
+
+    @Test
+    fun `choosing a music file keeps the name the picker shows, shown under my file`() = runTest {
+        // Given no music file
+        val viewModel = homeViewModel()
+
+        viewModel.uiState.test {
+            // When the player picks a file whose name can be read
+            viewModel.onMusicFileChosen(myFile.uri)
+
+            // Then the name is kept with the file, and shown
+            assertThat(musicFiles.namedMusicFile.first()).isEqualTo(NamedMusicFile(myFile, MY_FILE_NAME))
+            assertThat(expectMostRecentItem()?.musicFileName).isEqualTo(MY_FILE_NAME)
+        }
+    }
+
+    @Test
+    fun `choosing a music file whose name cannot be read keeps it without a name, shown without one`() = runTest {
+        // Given my file kept with its name
+        val viewModel = homeViewModel()
+        viewModel.onMusicFileChosen(myFile.uri)
+
+        viewModel.uiState.test {
+            // When the player picks another file, whose name cannot be read (no permission, no such document)
+            val other = MusicFile("content://music/other")
+            viewModel.onMusicFileChosen(other.uri)
+
+            // Then it is kept, and no name is shown: not the one of the file before
+            assertThat(musicFiles.namedMusicFile.first()).isEqualTo(NamedMusicFile(other, name = null))
+            val shown = expectMostRecentItem()
+            assertThat(shown?.hasMusicFile).isTrue()
+            assertThat(shown?.musicFileName).isNull()
         }
     }
 
@@ -843,6 +910,7 @@ class HomeViewModelTest {
                 testScores,
                 files,
                 library,
+                musicFileNames,
             )
 
         viewModel.uiState.test {
@@ -1177,6 +1245,7 @@ class HomeViewModelTest {
             testScores,
             musicFiles,
             library,
+            musicFileNames,
         )
         return ViewModelProvider.create(store, factory)[HomeViewModel::class]
     }
@@ -1196,7 +1265,13 @@ class HomeViewModelTest {
         scoreOf,
         musicFiles,
         musics,
+        musicFileNames,
     )
+
+    private companion object {
+        /** The name of my file, as the picker shows it. */
+        const val MY_FILE_NAME = "orage-d-ete.ogg"
+    }
 
     /** A mode whose games may start at [levels] only. */
     private fun startingAt(vararg levels: Int): LevelProgression = object : LevelProgression {

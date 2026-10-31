@@ -15,16 +15,20 @@ import androidx.compose.ui.res.stringResource
 import ch.magori.blox.core.designsystem.R
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 
+/** What TalkBack reads of the menu « … » of the row of [name]: « Plus d'actions pour [name] ». */
+@Composable
+fun rowMenuDescription(name: String): String = stringResource(R.string.core_designsystem_row_menu, name)
+
 /**
- * The menu « … » at the end of a row of a list (Mes musiques, Mes jardins): a bare disc of 48 dp read « Plus d'actions
- * pour [name] », which opens a [BloxMenu] of its [items], in their order. Touching an item closes the menu, then does
- * what it says. The focus goes back to « … » as the menu closes without a choice, or, after an item that opens a window
- * (Renommer, Supprimer), once that window has opened ([windowOpen], even a few frames later) then closed, as
- * [BloxMenu] asks.
+ * The menu « … » at the end of a row of a list (Mes musiques, Mes jardins, [rowMenuDescription]) or of the bar of a
+ * screen (the editor, « Plus d'options »): a bare disc of 48 dp read [description], which opens a [BloxMenu] of its
+ * [items], in their order. Touching an item closes the menu, then does what it says. The focus goes back to « … » as
+ * the menu closes without a choice, or, after an item that opens a window (Renommer, Supprimer), once that window has
+ * opened ([windowOpen], even a few frames later) then closed, as [BloxMenu] asks.
  */
 @Composable
 fun RowMenu(
-    name: String,
+    description: String,
     windowOpen: Boolean,
     modifier: Modifier = Modifier,
     items: @Composable RowMenuScope.() -> Unit,
@@ -57,7 +61,7 @@ fun RowMenu(
             }
         }
         GlyphButton(
-            description = stringResource(R.string.core_designsystem_row_menu, name),
+            description = description,
             onClick = { expanded = true },
             modifier = Modifier.focusRequester(focus),
             emphasis = ButtonEmphasis.BARE,
@@ -87,6 +91,22 @@ class RowMenuScope internal constructor(private val choose: (opensWindow: Boolea
         modifier: Modifier = Modifier,
     ) {
         MenuItem(text, icon, onClick, danger = false, opensWindow = false, modifier = modifier)
+    }
+
+    /** An item [checked] or not (Suivre la lecture), which opens no window; touching it calls [onCheckedChange]. */
+    @Composable
+    fun CheckItem(
+        text: String,
+        checked: Boolean,
+        onCheckedChange: (Boolean) -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        BloxMenuItem(
+            text = text,
+            checked = checked,
+            onCheckedChange = { choose(false) { onCheckedChange(it) } },
+            modifier = modifier,
+        )
     }
 
     /** « Renommer », which opens the window of the name ([RenameWindow]). */
