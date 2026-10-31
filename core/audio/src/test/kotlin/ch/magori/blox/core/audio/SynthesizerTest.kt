@@ -1,7 +1,10 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Adsr
+import ch.magori.blox.core.music.Instrument
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
+import ch.magori.blox.core.music.Tone
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import org.assertj.core.api.Assertions.assertThat
@@ -71,6 +74,71 @@ class SynthesizerTest {
         }
         assertThat(levels.subList(800, 950).zipWithNext { a, b -> a - b }).allSatisfy { step ->
             assertThat(step).isCloseTo(0.5 / 150, within(1e-6))
+        }
+    }
+
+    @Test
+    fun `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the end of the note`() {
+        // Given a square of 1 000 samples at 1 000 Hz, so that a millisecond is a sample: its absolute value is the
+        // volume, 0.5, times the shape
+        val shape = Adsr(attackMillis = 10, decayMillis = 20, sustain = 0.5, releaseMillis = 30)
+        val instrument = Instrument(Tone.SQUARE, shape, lowPass = null, gain = 1.0)
+        val voice = oneNote(Pitch.parse("A4"), Waveform.SQUARE, beats = 1.0)
+
+        // When
+        val levels = Synthesizer(sampleRate = 1_000).renderVoice(voice, bpm = 60.0, instrument).map { abs(it) }
+
+        // Then: up over 10 samples, down to half over 20, held, then down to silence over the last 30
+        val expected = mapOf(
+            0 to 0.0,
+            5 to 0.25,
+            10 to 0.5,
+            20 to 0.375,
+            30 to 0.25,
+            500 to 0.25,
+            970 to 0.25,
+            985 to 0.125,
+            999 to 0.25 / 30,
+        )
+        expected.forEach { (index, level) ->
+            assertThat(levels[index].toDouble()).describedAs("level of sample $index").isCloseTo(level, within(1e-6))
+        }
+    }
+
+    @Test
+    fun `a release never runs into the next note of the voice`() {
+        // Given two squares of 100 samples at 1 000 Hz, at volume 0.5, on a release of 300 ms, three times the note
+        val shape = Adsr(attackMillis = 0, decayMillis = 0, sustain = 1.0, releaseMillis = 300)
+        val instrument = Instrument(Tone.SQUARE, shape, lowPass = null, gain = 1.0)
+        val a4 = Pitch.parse("A4")
+        val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = listOf(Note(a4, beats = 1.0), Note(a4, beats = 1.0)))
+
+        // When
+        val levels = Synthesizer(sampleRate = 1_000).renderVoice(voice, bpm = 600.0, instrument).map { abs(it) }
+
+        // Then: the release, shortened to the note, starts from its full level and ends on its last sample, and the
+        // next note starts on its own full level
+        assertThat(levels).hasSize(200)
+        assertThat(levels[0].toDouble()).isCloseTo(0.5, within(1e-6))
+        assertThat(levels[50].toDouble()).isCloseTo(0.25, within(1e-6))
+        assertThat(levels[99].toDouble()).isCloseTo(0.005, within(1e-6))
+        assertThat(levels[100].toDouble()).isCloseTo(0.5, within(1e-6))
+    }
+
+    @Test
+    fun `a release longer than the note starts once the attack is over`() {
+        // Given a square of 100 samples at 1 000 Hz, at volume 0.5, on an attack of 10 ms and a release of 300 ms
+        val shape = Adsr(attackMillis = 10, decayMillis = 0, sustain = 1.0, releaseMillis = 300)
+        val instrument = Instrument(Tone.SQUARE, shape, lowPass = null, gain = 1.0)
+        val voice = oneNote(Pitch.parse("A4"), Waveform.SQUARE, beats = 1.0)
+
+        // When
+        val levels = Synthesizer(sampleRate = 1_000).renderVoice(voice, bpm = 600.0, instrument).map { abs(it) }
+
+        // Then: up over 10 samples, then down from the level reached to its last sample
+        val expected = mapOf(0 to 0.0, 5 to 0.25, 10 to 0.5, 55 to 0.25, 99 to 0.5 / 90)
+        expected.forEach { (index, level) ->
+            assertThat(levels[index].toDouble()).describedAs("level of sample $index").isCloseTo(level, within(1e-6))
         }
     }
 
