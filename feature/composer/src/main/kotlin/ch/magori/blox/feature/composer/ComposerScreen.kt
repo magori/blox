@@ -39,6 +39,7 @@ import ch.magori.blox.core.data.keyName
 import ch.magori.blox.core.designsystem.component.BubbleButton
 import ch.magori.blox.core.designsystem.component.ButtonFamily
 import ch.magori.blox.core.designsystem.component.ButtonSize
+import ch.magori.blox.core.designsystem.component.FixedBesideRest
 import ch.magori.blox.core.designsystem.component.ListenButton
 import ch.magori.blox.core.designsystem.component.SettledSheet
 import ch.magori.blox.core.designsystem.component.SingleLineText
@@ -241,7 +242,7 @@ internal fun ComposerContent(
                     onClearBar = onClearBar,
                 )
                 // Écouter at the end of the line of the tempo, or under it when the tempo needs the whole line.
-                FixedBesideRest(fixedFirst = false, restMin = 0.dp) {
+                FixedBesideRest(fixedFirst = false, gap = ComposerSizes.gap) {
                     TempoPanel(
                         bpm = editor.draft.tempo.bpm,
                         canSlowDown = uiState.canSlowDown,

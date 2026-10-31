@@ -1162,10 +1162,10 @@ composants.
   P5.76, P5.92. Cas : `the bar of a screen reads its title as a heading after its back disc of 48 dp`. Fait :
   Paramètres et Mes musiques, à `space3` (V21, V32) ; le choix du jeu n'a plus de Retour depuis P12.5, il garde sa
   barre (logo et roue).
-- [ ] **P5.114** Barre de l'éditeur sur `ScreenBar` (`feature:composer`, après P5.102) : si la barre refaite de
+- [x] **P5.114** Barre de l'éditeur sur `ScreenBar` (`feature:composer`, après P5.102) : si la barre refaite de
   `ComposerHeader` garde le disque Retour suivi d'un titre en `screen-title`, la faire passer par `ScreenBar` (avec,
   s'il le faut, un emplacement de fin pour ses disques), sinon consigner pourquoi elle reste à elle. Découverte en
-  P5.107.
+  P5.107. Tranché : elle reste à elle (titre-bouton en `title` sur deux lignes, collé au disque, `themes.md`).
 - [x] **P5.87** Exporter de la maquette (depuis claude.ai, comme P5.85) : pictogrammes cartouche, moins, étoile,
   note barrée, égaliseur, effets réduits, schéma des touches, vibreur, vibration au toucher, volume, trophée, en
   pixels 8 × 8 (Original) et en traits (Couleurs, Brume), logo BloX v2 (`LogoBloX`) et mascotte (`Mascotte`), en
@@ -1219,11 +1219,11 @@ composants.
   `ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp…` (qui compare les
   bornes en attendant). Écouter aussi l'éditeur V33 avec TalkBack sur appareil (groupes « Piste » et « Outil »,
   mesures lues comme boutons radio, P5.95 ; mesure jouée lue « en lecture » ou « sélectionnée, en lecture »).
-- [ ] **P5.115** Fusionner les mises en page « à côté ou dessous » (`core:designsystem`, règle de 2, revue de P5.102) :
+- [x] **P5.115** Fusionner les mises en page « à côté ou dessous » (`core:designsystem`, règle de 2, revue de P5.102) :
   `FixedBesideRest` de l'éditeur refait `SettingRowLayout` (une part fixe, le reste de la ligne, dessous quand elle
   ne tient pas), et `ColumnOrRow` refait `SideBySideOrStacked`. Une seule mise en page partagée pour chacune, ses
   décisions en fonctions pures (comme `fitsBesideFixed`, `sideBySide`), sans changer les rangées de réglage ni leurs
-  captures.
+  captures. Fait : `FixedBesideRest` et `SideBySideOrStacked` dans `core:designsystem`, captures identiques.
 - [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
   est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
 - [ ] **P5.117** Vérifier à la manette que descendre vers la jauge du niveau la prend, et non son bouton −
