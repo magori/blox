@@ -736,7 +736,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 ## Instruments
 
-Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.2 à P14.20). Vues : V43 (feuille
+Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Description codée en P14.3 (`core:music`) ; synthèse,
+réglage et interface **pas encore codés** (P14.2, P14.4 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -788,6 +789,28 @@ mesure du niveau (P14.17), une fois les timbres arrêtés à l'oreille :
   quart, passe-bas 900 Hz, `Adsr` 2 / 80 / 0,5 / 40 ms ; écho d'un demi-temps, retour 0,2, part 0,2.
 
 (`Adsr` : attaque / déclin / maintien / extinction.)
+
+**Description codée** (`core:music`, P14.3) : `SoundStyle.instrumentFor(waveform)` donne l'`Instrument(tone, shape,
+lowPass, gain)` de la voix (`lowPass` : fréquence de coupure en Hz, ou `null` sans filtre) ; `SoundStyle.echo`,
+l'écho du style ou `null`. `Gate` tient la note de son début jusqu'à `heldUntil` (0,80) et s'éteint jusqu'à
+`silentFrom` (0,95), sans attaque ; `Adsr(attackMillis, decayMillis, sustain, releaseMillis)` refuse un temps négatif
+et un maintien hors de [0, 1] ; `Echo(delayBeats, feedback, wet)` refuse un délai qui n'est pas positif, un retour
+de 1 ou plus (il ne s'éteindrait jamais) ou négatif, et une part hors de [0, 1] (bornes qui aident l'écho à ne
+jamais mener le mixage au-delà de −1 et 1, P14.7). Les gains valent tous 1 en attendant la mesure du niveau (P14.17). Les
+valeurs de Velours et de Néon sont celles ci-dessus, figées par un test pour qu'un réglage à l'oreille les change
+ici et dans le code ensemble.
+
+**Tests :** `SoundStyleTest › the names of the sound styles are frozen`,
+`SoundStyleTest › in the Arcade style the square plays a square gated as today and the triangle a triangle`,
+`SoundStyleTest › every style has an instrument for every waveform`,
+`SoundStyleTest › every instrument of every style starts within 5 milliseconds`,
+`SoundStyleTest › the Arcade style has no echo and no filter`,
+`SoundStyleTest › the Velvet style takes the starting values of the specification`,
+`SoundStyleTest › the Neon style takes the starting values of the specification`,
+`AdsrTest › an ADSR refuses a negative time and a sustain outside 0 and 1`,
+`AdsrTest › an ADSR accepts times of 0 and a sustain of 0 or 1`,
+`EchoTest › an echo refuses a feedback of 1 or more`, `EchoTest › an echo refuses a negative feedback`,
+`EchoTest › an echo refuses a part outside 0 and 1`, `EchoTest › an echo refuses a delay of no beat`.
 
 **Effets sonores** : un effet prend le **ton** et le filtre de l'instrument de sa `Waveform` (`SQUARE` celui de la
 mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir
