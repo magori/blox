@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -43,9 +44,14 @@ import kotlinx.coroutines.sync.withLock
  * normal tempo and the tempos prepared are rendered too. The score it replaces stays in the cache, with the tempos it
  * kept when it was left: switching back to it at the tempo it played at renders nothing. A score switched to while stopped resumes on the first beat of its bar of the same rank
  * as the bar the music stopped in.
+ *
+ * The scores are rendered in the sound style set ([setSoundStyle]), read as a loop starts (a play, a resume) and as
+ * it reads a score switched to: the music playing goes on in the style it was rendered in. The buffers are kept per
+ * style: those rendered in another style than the one starting are dropped, so that the cache never holds more than
+ * the style playing and the one coming; setting the style playing again renders nothing.
  */
 public class ChiptuneSequencer internal constructor(
-    private val render: (Score, Double) -> FloatArray,
+    private val render: (Score, Double, SoundStyle) -> FloatArray,
     private val sampleRate: Int,
     private val openSink: (sampleRate: Int) -> AudioSink,
     private val scope: CoroutineScope,
@@ -100,6 +106,10 @@ public class ChiptuneSequencer internal constructor(
     @Volatile
     private var gain = Volume.FULL.gain
 
+    /** The sound style set, read by a loop as it starts, and as it reads a score switched to. */
+    @Volatile
+    private var soundStyle = SoundStyle.ARCADE
+
     /**
      * Plays [music] in a loop at the normal tempo, in place of the score playing, if any: the tempo asked
      * for before is forgotten, and so are the tempos prepared. Call it from the main thread.
@@ -139,6 +149,10 @@ public class ChiptuneSequencer internal constructor(
      */
     override fun setVolume(volume: Volume) {
         gain = volume.gain
+    }
+
+    override fun setSoundStyle(style: SoundStyle) {
+        soundStyle = style
     }
 
     /**
@@ -230,8 +244,9 @@ public class ChiptuneSequencer internal constructor(
         var beats = score.beatCount
         // The beats where no note is cut, then the end of the buffer, where the loop starts again.
         var switches = switchBeats(score) + beats
-        keepOnly(playback.scores)
-        var buffers = buffersFor(score)
+        val style = soundStyle
+        keepOnly(playback.scores, style)
+        var buffers = buffersFor(score, style)
         var tempo = requestedTempo
         var buffer = buffers.bufferOf(tempo)
         // An output that dies (a restart of the audio server, an output gone) is reopened.
@@ -278,8 +293,8 @@ public class ChiptuneSequencer internal constructor(
                 if (target !== switchTarget) {
                     switchTarget = target
                     // The scores switched to long ago let go: a garden switches at each change (P10.12).
-                    keepOnly(playback.scores + score + target)
-                    switchBuffers = if (target != score) buffersFor(target) else null
+                    keepOnly(playback.scores + score + target, buffers.style)
+                    switchBuffers = if (target != score) buffersFor(target, soundStyle) else null
                 }
                 val targetBuffers = switchBuffers
                 val wantedSwitch = targetBuffers?.let { it to asked }
@@ -358,13 +373,25 @@ public class ChiptuneSequencer internal constructor(
         return BeatGrid(length, beats).startOf(firstBeatOfBar(beat / place.score.beatsPerBar, score))
     }
 
-    /** The buffers of [score], from the cache, or new ones. */
-    private fun buffersFor(score: Score): TempoBuffers =
-        cache.getOrPut(score) { TempoBuffers(score, render, renderDispatcher, parent = scope.coroutineContext[Job]) }
+    /** The buffers of [score] in [style], from the cache, or new ones in place of those in another style. */
+    private fun buffersFor(
+        score: Score,
+        style: SoundStyle,
+    ): TempoBuffers {
+        cache[score]?.let { cached ->
+            if (cached.style == style) return cached
+            cached.abandon()
+        }
+        return TempoBuffers(score, style, render, renderDispatcher, parent = scope.coroutineContext[Job])
+            .also { cache[score] = it }
+    }
 
-    /** Abandons the buffers of the scores other than [scores]. */
-    private fun keepOnly(scores: Set<Score>) {
-        val others = cache.filterKeys { it !in scores }
+    /** Abandons the buffers of the scores other than [scores], and those rendered in another style than [style]. */
+    private fun keepOnly(
+        scores: Set<Score>,
+        style: SoundStyle,
+    ) {
+        val others = cache.filter { (score, buffers) -> score !in scores || buffers.style != style }
         others.values.forEach(TempoBuffers::abandon)
         cache -= others.keys
     }

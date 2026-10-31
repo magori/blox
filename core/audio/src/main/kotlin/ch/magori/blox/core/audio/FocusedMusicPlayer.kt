@@ -2,6 +2,7 @@ package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -59,6 +60,8 @@ public class FocusedMusicPlayer(private val player: MusicPlayer, private val foc
     }
 
     override fun setVolume(volume: Volume): Unit = player.setVolume(volume)
+
+    override fun setSoundStyle(style: SoundStyle): Unit = player.setSoundStyle(style)
 
     override fun prepareTempo(factor: Double) {
         prepared = prepared + factor

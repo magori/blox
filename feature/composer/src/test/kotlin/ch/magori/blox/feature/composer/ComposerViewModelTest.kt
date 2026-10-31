@@ -13,6 +13,7 @@ import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import ch.magori.blox.feature.composer.model.Cell
 import ch.magori.blox.feature.composer.model.EditMode
@@ -447,6 +448,8 @@ class ComposerViewModelTest {
             override fun switchTo(score: Score) = Unit
 
             override fun setVolume(volume: Volume) = Unit
+
+            override fun setSoundStyle(style: SoundStyle) = Unit
         }
         val editor = editor(refusing)
         editor.onCellTouched(pitch("E4"), eighth = 0)

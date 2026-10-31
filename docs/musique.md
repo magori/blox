@@ -839,8 +839,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
 (P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
-dans un style, ton et forme de note (P14.5, voir Synthèse) ; filtre, écho, effets, réglage et interface **pas
-encore codés** (P14.6 à P14.20). Vues : V43 (feuille
+dans un style, ton et forme de note (P14.5, voir Synthèse), le style passé aux lecteurs (P14.8) ; filtre, écho,
+effets, réglage enregistré et interface **pas encore codés** (P14.6, P14.7, P14.9 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -854,6 +854,21 @@ Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fich
   le fichier seul, sans changer le réglage.
 - Un changement vaut **dès la prochaine musique jouée** (prochain lancement, reprise ou changement de musique), effets
   sonores compris : les effets prennent le nouvel instrument en même temps que la musique.
+
+**Les lecteurs** (P14.8, `core:audio`) : chaque lecteur de musique (`Player`, donc `ChiptuneSequencer`,
+`MusicSwitch`, `FocusedMusicPlayer` et la doublure `FakeMusicPlayer`) est un `SoundStyleControl` :
+`setSoundStyle(style)`, sur le modèle de `setVolume`. Le style vaut Arcade tant qu'aucun n'est donné. Il ne touche
+jamais la musique en cours, qui continue dans le style où elle a été rendue : le séquenceur le lit au démarrage
+d'une boucle (`play`, `resume`) et quand il prend une partition passée par `switchTo`, rendue alors dans le style
+donné. Le cache des tampons (`TempoBuffers`) est tenu par style : au démarrage d'une boucle, les tampons rendus dans
+un autre style sont abandonnés, et une partition retrouvée dans le cache sous un autre style est rendue de nouveau ;
+redonner le style en cours ne rend rien. `MusicSwitch` passe le style aux partitions seulement : « Mon fichier » est
+joué tel quel. **Tests :** `MusicPlayerContract › a style set while nothing plays applies to the next play`,
+`MusicPlayerContract › a style set while a score plays applies from the next play or resume`,
+`MusicPlayerContract › a score switched to is rendered in the style set`,
+`ChiptuneSequencerTest › changing the style drops the buffers rendered in the other style`,
+`ChiptuneSequencerTest › setting the style it plays renders nothing`,
+`MusicSwitchTest › a music file is not changed by the style`.
 
 **Ce que l'instrument habille** : toutes les partitions jouées par BloX (Korobeïniki, Menuet, ma musique, Musique
 vivante, Graine du jour, Écouter de l'accueil, Mes musiques, éditeur, Jardin, accompagnement d'Au tempo), le fichier

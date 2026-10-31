@@ -240,7 +240,9 @@ du Classique, qui doit rester vert (ADR 0015).
   noms figés, enregistrés par nom), `Instrument` (le timbre que le style donne à une voix selon sa `Waveform`, qui
   dit son rôle : ton, forme de note, passe-bas, gain), `Tone` (l'onde d'un instrument : carrée, triangle, impulsion
   d'un quart, sinus, dent de scie), `NoteShape` (la forme d'une note : `Gate`, l'enveloppe d'origine, ou `Adsr` ;
-  `Envelope` reste celle des effets), `Echo` (l'écho d'un style : délai en temps, retour, part). Sonnerie ou réveil
+  `Envelope` reste celle des effets), `Echo` (l'écho d'un style : délai en temps, retour, part), `SoundStyleControl`
+  (`core:audio`, ce qui joue les partitions dans un style : les lecteurs de musique, dès la prochaine musique
+  jouée). Sonnerie ou réveil
   (ADR 0031) : `RingtoneExporter` (`core:audio`, écrit une musique du joueur en WAV comme sonnerie ou réveil, par
   `MediaStore`, Android 10 et plus ; `MediaStoreRingtoneExporter` en production, `FakeRingtoneExporter` en doublure),
   `RingtoneKind` (`RINGTONE` ou `ALARM`), `MUSIC_SAMPLE_RATE` (44 100 Hz, le taux du synthétiseur de la musique,

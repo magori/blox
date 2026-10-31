@@ -275,7 +275,7 @@ class ChiptuneSequencerSwitchTest {
     }
 
     private fun TestScope.sequencer(): ChiptuneSequencer = ChiptuneSequencer(
-        render = { score, tempoFactor ->
+        render = { score, tempoFactor, _ ->
             rendered += score.id to tempoFactor
             buffers[score.id to tempoFactor] ?: FloatArray(OTHER_LENGTH) { 900f + it }
         },

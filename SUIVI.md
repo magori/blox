@@ -2099,11 +2099,12 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   feedback`, `the delay of the echo follows the tempo, in beats`, `the echo of the end of the loop sounds at its
   start, so that the loop has no seam`, `the rendering keeps the length of the score`, `the echo never takes the mix
   beyond -1 and 1`. Après P14.5.
-- [ ] **P14.8** `SoundStyleControl.setSoundStyle(style)` (`ChiptuneSequencer`, `MusicSwitch`, `FocusedMusicPlayer`,
+- [x] **P14.8** `SoundStyleControl.setSoundStyle(style)` (`ChiptuneSequencer`, `MusicSwitch`, `FocusedMusicPlayer`,
   `FakeMusicPlayer`, `MusicPlayerContract`), cache des tampons par style. Cas : `a style set while nothing plays
   applies to the next play`, `a style set while a score plays applies from the next play or resume`, `a score
   switched to is rendered in the style set`, `changing the style drops the buffers rendered in the other style`,
-  `setting the style it plays renders nothing`, `a music file is not changed by the style`. Après P14.5.
+  `setting the style it plays renders nothing`, `a music file is not changed by the style`. Après P14.5. Fait le
+  2026-10-31 (`Player` étend `SoundStyleControl` ; le dernier cas dans `MusicSwitchTest`).
 - [ ] **P14.9** `UserPreferences.soundStyle` (`core:data`, clé `sound_style` par nom, Arcade si absente ou inconnue),
   contrat, faux ; `applySavedSoundStyle` dans `app`. Cas : `the sound style is Arcade until the player chooses one`,
   `the sound style chosen reads back`, `an unknown style read from the file gives the Arcade`, `the saved style is
