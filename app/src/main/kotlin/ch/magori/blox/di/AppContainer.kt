@@ -307,10 +307,19 @@ class AppContainer(context: Context) {
 
     /**
      * « Mes musiques »: the musics of the player, and the music player of the games and of the home screen, to listen to
-     * them from the list; the musics deleted in the editor, to undo their deletion.
+     * them from the list; the musics deleted in the editor, to undo their deletion; the settings, whose volume of the
+     * music the sheet « Sonnerie ou réveil » tells. No exporter yet: the menu offers no ringtone until the sheet is
+     * drawn and plugged in (P13.12); its files are written on Dispatchers.IO.
      */
     val myMusicsViewModelFactory: MyMusicsViewModel.Factory =
-        MyMusicsViewModel.Factory(musicLibrary, music, deletedMusics)
+        MyMusicsViewModel.Factory(
+            library = musicLibrary,
+            music = music,
+            deletedElsewhere = deletedMusics,
+            preferences = userPreferences,
+            ringtoneExporter = null,
+            exportDispatcher = Dispatchers.IO,
+        )
 
     /**
      * The progress of the Serrurier cleared on the screen « Serrures », handed over to padlock 1, which tells it: once for

@@ -2002,7 +2002,7 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
   donc le nom du fichier sans l'extension ; le point en tête, qui cachait le fichier à `MediaStore`, devient `_` (cas
   ajouté). Les tests JVM portent sur `RingtoneWriter<Entry>` (`RingtoneWriterTest`), le cœur de l'exportateur ;
   `AppContainer` construit l'exportateur (`null` avant Android 10) sans le donner à un écran.
-- [ ] **P13.7** `MyMusicsViewModel` exporte (`feature:musics`) : la fabrique reçoit un `RingtoneExporter?`, le
+- [x] **P13.7** `MyMusicsViewModel` exporte (`feature:musics`) : la fabrique reçoit un `RingtoneExporter?`, le
   dispatcher est injecté ; état de la feuille (usage choisi, écoute, en cours, réussi, échec). Cas : `without an
   exporter the menu offers no ringtone`, `choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie
   chosen`, `the sheet tells the length of the file, in whole seconds`, `listening plays the samples that will be
@@ -2011,7 +2011,21 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
   music as a ringtone`, `saving as an alarm exports it as an alarm`, `while the music is exported the sheet takes no
   second choice`, `once written as a ringtone the sheet says it is in the ringtones and offers the sound settings`,
   `once written as an alarm the sheet points to the clock`, `a write that fails says it, keeps the sheet open with
-  its choices, and offers to try again`, `the export runs off the main thread`. Après P13.6.
+  its choices, and offers to try again`, `the export runs off the main thread`. Après P13.6. Fait le 2026-10-31,
+  sans interface : état dans `MyMusicsUiState` (`ringtoneOffered`, `ringtone: RingtoneSheetState?`, phases
+  `RingtonePhase` `Choosing`, `Saving`, `Saved(kind)`, `Failed`) ; la fabrique reçoit aussi les réglages (volume de la
+  musique) et le dispatcher d'export ; `app` lui donne `null` jusqu'à P13.12. Le cas du volume garde son nom exact en
+  `@DisplayName`, sa fonction s'écrivant `… at 0 percent …` : Kotlin refuse `%` dans un nom de fonction
+  (avertissement, donc erreur). Durée : `ringtoneSeconds(score)`, public dans `core:audio`, qui partage la règle de longueur de
+  `ringtoneSamples` (`RingtoneLengthTest`). Écouter joue la partition sur le lecteur de musique (même synthétiseur,
+  boucles entières, sans la normalisation du fichier) : en P14.13, l'écoute devra prendre l'instrument choisi dans la
+  feuille, que `MusicPlayer.play` ne reçoit pas. Cas de plus : `Écouter touched again, Arrêter, stops the music of the
+  sheet`, `the sheet no longer listens once its music stops by itself`, `the music of the sheet stops when the list is
+  no longer visible`, `the music of the sheet stops when the screen leaves the stack`, `a sheet closed while its music
+  is written lets it be written, and the sheet opened since stays as it is`, et `RINGTONE` dans `the next action, or
+  the message closed, ends the chance to undo the deletion` ; après la revue, `a sheet reopened and saved again ends
+  on its own write`, `the sheet no longer listens once another music replaces its own` et, dans `core:audio`,
+  `RingtoneLengthTest › the length told is that of the samples written`.
 - [ ] **P13.8** Mettre à jour la maquette (depuis claude.ai), **avant les tâches d'interface** (P13.9 à P13.11) : V42
   (repos, en cours, réussi en sonnerie et en réveil, échec, volume à 0 % ; jour, nuit, ×2) ; V32 (rangée du menu,
   phrase de la fenêtre Supprimer) ; V33 (rangée du menu, deux fenêtres) ; pictogramme cloche.

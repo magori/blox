@@ -214,7 +214,9 @@ public class Synthesizer(public val sampleRate: Int) {
     }
 
     private companion object {
-        const val SECONDS_PER_MINUTE = 60.0
         const val MILLIS_PER_SECOND = 1_000.0
     }
 }
+
+/** A tempo in beats a minute: the seconds of a beat are this over it. */
+internal const val SECONDS_PER_MINUTE = 60.0

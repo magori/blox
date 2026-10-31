@@ -78,6 +78,7 @@ import ch.magori.blox.feature.musics.DeletedMusicRelay
 import ch.magori.blox.feature.musics.MyMusicsViewModel
 import ch.magori.blox.feature.settings.SettingsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -982,7 +983,14 @@ internal class BloxNavDisplayTest {
         }
         mainClock.autoAdvance = false
         val composerFactory = ComposerViewModel.Factory(music, library)
-        val myMusicsFactory = MyMusicsViewModel.Factory(library, music, deletedMusics)
+        val myMusicsFactory = MyMusicsViewModel.Factory(
+            library,
+            music,
+            deletedMusics,
+            preferences,
+            ringtoneExporter = null,
+            exportDispatcher = Dispatchers.IO,
+        )
         // Padlocks 1 to [openPadlocks] open, as a player who went that far: the frontier is the one after.
         val padlockProgress = FakePadlockProgressRepository()
         runBlocking { (1..openPadlocks).forEach { padlockProgress.record(it, PADLOCK_OPENING) } }

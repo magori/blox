@@ -1,5 +1,6 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Score
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -27,19 +28,45 @@ internal fun ringtoneSamples(
     return FloatArray(samples.size) { samples[it] * gain }
 }
 
+/**
+ * The length, in whole seconds, of the ringtone made of [score] (ADR 0031), as [ringtoneSamples] makes it of its
+ * rendering by the synthesizer of the music: whole loops, at least 20 s; at most 60 s, cut at a whole bar.
+ */
+public fun ringtoneSeconds(score: Score): Int {
+    val loopSamples = (score.voices.first().beats * SECONDS_PER_MINUTE / score.bpm * MUSIC_SAMPLE_RATE).roundToInt()
+    val samples = ringtoneLength(loopSamples, MUSIC_SAMPLE_RATE, samplesPerBar(score, MUSIC_SAMPLE_RATE))
+    return (samples.toDouble() / MUSIC_SAMPLE_RATE).roundToInt()
+}
+
+/** The samples a bar of [score] lasts at its tempo, at [sampleRate] samples per second: where a ringtone may end. */
+internal fun samplesPerBar(
+    score: Score,
+    sampleRate: Int,
+): Double = score.beatsPerBar * SECONDS_PER_MINUTE / score.bpm * sampleRate
+
 private fun loopsOf(
     rendering: FloatArray,
     sampleRate: Int,
     samplesPerBar: Double,
 ): FloatArray {
+    val length = ringtoneLength(rendering.size, sampleRate, samplesPerBar)
+    return FloatArray(length) { rendering[it % rendering.size] }
+}
+
+/**
+ * The number of samples of a ringtone made of a loop of [loopSamples] samples: the fewest whole loops that last at
+ * least 20 s or, for a loop longer than 60 s, its last whole bar before 60 s, ending on the nearest sample.
+ */
+private fun ringtoneLength(
+    loopSamples: Int,
+    sampleRate: Int,
+    samplesPerBar: Double,
+): Int {
     val maximum = MAXIMUM_SECONDS * sampleRate
-    if (rendering.size > maximum) {
-        val wholeBars = floor(maximum / samplesPerBar)
-        return rendering.copyOf((wholeBars * samplesPerBar).roundToInt())
-    }
+    if (loopSamples > maximum) return (floor(maximum / samplesPerBar) * samplesPerBar).roundToInt()
     val minimum = MINIMUM_SECONDS * sampleRate
-    val loops = (minimum + rendering.size - 1) / rendering.size
-    return FloatArray(loops * rendering.size) { rendering[it % rendering.size] }
+    val loops = (minimum + loopSamples - 1) / loopSamples
+    return loops * loopSamples
 }
 
 /** A ringtone lasts at least 20 s, so that its loop does not come back too often. */
