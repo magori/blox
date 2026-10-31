@@ -69,47 +69,50 @@ public class Synthesizer(public val sampleRate: Int) {
         require(bpm > 0) { "The tempo is a positive number of beats per minute, was $bpm" }
         val boundaries = voice.notes.runningFold(0.0) { beats, note -> beats + note.beats }.map { sampleAt(it, bpm) }
         val samples = FloatArray(boundaries.last())
-        val gain = when (val shape = instrument.shape) {
-            Gate -> ::gateGain
-            is Adsr -> adsrGain(shape)
-        }
+        val shape = instrument.shape
+        val adsr = if (shape is Adsr) AdsrGain(shape) else null
         voice.notes.forEachIndexed { index, note ->
             val start = boundaries[index]
-            writeNote(
-                samples,
-                start,
-                boundaries[index + 1] - start,
-                note.pitch,
-                instrument.tone,
-                voice.volume,
-                gain,
-            )
+            val sampleCount = boundaries[index + 1] - start
+            // One call of the inline writeNote per shape, so that the gain is inlined too, without boxing a sample
+            if (adsr == null) {
+                writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, ::gateGain)
+            } else {
+                writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, adsr::at)
+            }
         }
         return samples
     }
 
     /**
-     * The gain from 0 to 1 at a sample of a note shaped by [adsr]: a linear rise from silence over its attack, a
-     * linear fall to its sustain over its decay, the sustain held, then, over the last samples of the note, a linear
-     * release from the level reached down towards silence. The release ends on the last sample of the note, so that it
-     * never runs into the next one: in a note shorter than it, it is shortened, and starts once the attack is over.
+     * The gain from 0 to 1 at a sample of a note shaped by [adsr], its durations counted once in samples: a linear
+     * rise from silence over its attack, a linear fall to its sustain over its decay, the sustain held, then, over the
+     * last samples of the note, a linear release from the level reached down towards silence. The release ends on the
+     * last sample of the note, so that it never runs into the next one: in a note shorter than it, it is shortened,
+     * and starts once the attack is over.
      */
-    private fun adsrGain(adsr: Adsr): (index: Int, sampleCount: Int) -> Double {
-        val attack = sampleAtMillis(adsr.attackMillis)
-        val decay = sampleAtMillis(adsr.decayMillis)
-        val release = sampleAtMillis(adsr.releaseMillis)
-        fun level(index: Int): Double = when {
-            index < attack -> index.toDouble() / attack
-            index < attack + decay -> 1 - (1 - adsr.sustain) * (index - attack) / decay
-            else -> adsr.sustain
-        }
-        return { index, sampleCount ->
+    private inner class AdsrGain(private val adsr: Adsr) {
+        private val attack = sampleAtMillis(adsr.attackMillis)
+        private val decay = sampleAtMillis(adsr.decayMillis)
+        private val release = sampleAtMillis(adsr.releaseMillis)
+
+        /** The gain at sample [index] of a note of [sampleCount] samples. */
+        fun at(
+            index: Int,
+            sampleCount: Int,
+        ): Double {
             val releaseStart = maxOf(sampleCount - release, minOf(attack, sampleCount))
-            if (index < releaseStart) {
+            return if (index < releaseStart) {
                 level(index)
             } else {
                 level(releaseStart) * (sampleCount - index) / (sampleCount - releaseStart)
             }
+        }
+
+        private fun level(index: Int): Double = when {
+            index < attack -> index.toDouble() / attack
+            index < attack + decay -> 1 - (1 - adsr.sustain) * (index - attack) / decay
+            else -> adsr.sustain
         }
     }
 

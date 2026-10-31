@@ -56,6 +56,25 @@ class ToneTest {
     }
 
     @Test
+    fun `a band-limited pulse of a quarter loses its aliasing above the Nyquist frequency`() {
+        // Given one second of a pulse of a quarter at 1 000 Hz, whose harmonics above 22 050 Hz fold back at 100 or
+        // 900 Hz from a multiple of 1 000 Hz, and the same pulse without band limit
+        val pulse = Tone.PULSE_QUARTER.samples(frequency = 1_000.0, count = SAMPLE_RATE)
+        val naivePulse = DoubleArray(SAMPLE_RATE) { index ->
+            if ((index * 1_000.0 / SAMPLE_RATE) % 1.0 < 0.25) 1.0 else -1.0
+        }
+        val aliases = (0 until 22).flatMap { listOf(it * 1_000 + 100, it * 1_000 + 900) }
+
+        // When
+        val aliasing = aliases.sumOf { amplitudeAt(pulse, it).pow(2) }
+        val naiveAliasing = aliases.sumOf { amplitudeAt(naivePulse, it).pow(2) }
+
+        // Then: the fundamental stays, 4 sin(π / 4) / π, and the aliasing falls by more than 10 dB
+        assertThat(amplitudeAt(pulse, 1_000)).isCloseTo(4 * sin(PI / 4) / PI, within(0.01))
+        assertThat(aliasing).isLessThan(naiveAliasing / 10)
+    }
+
+    @Test
     fun `the square and the triangle render as before`() {
         // Given phases next to the edges of the square, for a wave whose phase moves by a hundredth a sample: a
         // band limit would round them

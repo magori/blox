@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
+import kotlin.math.abs
 
 class ScoreRenderTest {
     private val synthesizer = Synthesizer(sampleRate = 44_100)
@@ -59,8 +60,9 @@ class ScoreRenderTest {
         // When
         val samples = synthesizer.render(score, tempoFactor = 1.0, style)
 
-        // Then: 4 beats at 150 bpm are 1.6 s, 70 560 samples
+        // Then: 4 beats at 150 bpm are 1.6 s, 70 560 samples, and the style is heard
         assertThat(samples).hasSize(70_560)
+        assertThat(samples.maxOf { abs(it) }).isGreaterThan(0f)
     }
 
     @ParameterizedTest(name = "a tempo factor of {0} is refused")

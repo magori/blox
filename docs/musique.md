@@ -287,17 +287,18 @@ basses.
 `ToneTest › a sine at 440 Hz crosses zero rising every 100 point 2 samples`,
 `ToneTest › a pulse of a quarter is high for a quarter of its period`,
 `ToneTest › a band-limited saw stays within -1 and 1 and loses its aliasing above the Nyquist frequency`,
+`ToneTest › a band-limited pulse of a quarter loses its aliasing above the Nyquist frequency`,
 `ToneTest › the square and the triangle render as before`,
 `SynthesizerTest › an ADSR rises over its attack, falls to its sustain over its decay, and releases at the end of the note`,
 `SynthesizerTest › a release never runs into the next note of the voice`,
+`SynthesizerTest › a release longer than the note starts once the attack is over`,
 `ScoreRenderTest › a note still lasts its beats times 60 over the tempo, whatever the style`.
 
 ## Lecture en boucle
 
 - **Rendu** : `Synthesizer.render(score, tempoFactor = 1.0, style = SoundStyle.ARCADE)` est la seule entrée
-  publique ; il
-  mixe toutes les voix et dure exactement la partition. Le tempo est un `Double`
-  (150 × 1,25 = 187,5 accepté) ; le facteur doit être positif et fini. Les durées restent en
+  publique ; il mixe toutes les voix et dure exactement la partition. Le tempo est un `Double` (150 × 1,25 = 187,5
+  accepté) ; le facteur doit être positif et fini. Les durées restent en
   `Double` : le tampon est rendu une fois puis rejoué, rien ne se cumule sur la boucle.
 - **Séquenceur** : `ChiptuneSequencer(synthesizer, openSink, scope)`, `play(score)` et `stop()`,
   appelés depuis le fil principal. Le rendu se fait hors du fil audio (`Dispatchers.Default`) ;

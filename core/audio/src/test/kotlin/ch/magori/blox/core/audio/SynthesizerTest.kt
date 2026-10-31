@@ -126,6 +126,23 @@ class SynthesizerTest {
     }
 
     @Test
+    fun `a release longer than the note starts once the attack is over`() {
+        // Given a square of 100 samples at 1 000 Hz, at volume 0.5, on an attack of 10 ms and a release of 300 ms
+        val shape = Adsr(attackMillis = 10, decayMillis = 0, sustain = 1.0, releaseMillis = 300)
+        val instrument = Instrument(Tone.SQUARE, shape, lowPass = null, gain = 1.0)
+        val voice = oneNote(Pitch.parse("A4"), Waveform.SQUARE, beats = 1.0)
+
+        // When
+        val levels = Synthesizer(sampleRate = 1_000).renderVoice(voice, bpm = 600.0, instrument).map { abs(it) }
+
+        // Then: up over 10 samples, then down from the level reached to its last sample
+        val expected = mapOf(0 to 0.0, 5 to 0.25, 10 to 0.5, 55 to 0.25, 99 to 0.5 / 90)
+        expected.forEach { (index, level) ->
+            assertThat(levels[index].toDouble()).describedAs("level of sample $index").isCloseTo(level, within(1e-6))
+        }
+    }
+
+    @Test
     fun `a note lasts its beats times 60 over the tempo times the sample rate`() {
         // Given one beat at 150 bpm: 0.4 s
         val voice = Voice(Waveform.SQUARE, volume = 0.5, notes = listOf(Note(Pitch.parse("A4"), beats = 1.0)))

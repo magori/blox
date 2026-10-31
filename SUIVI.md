@@ -2143,7 +2143,8 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   P14.9.
 - [ ] **P14.16** Réglage à l'oreille sur téléphone (Au tempo et son métronome compris, accélération × 1,25 aux
   niveaux 18 et 19, raccord de la boucle avec l'écho, effets du Classique, du Serrurier et du Jardin) ; noter aussi
-  qu'une sonnerie en Néon, normalisée en crête, peut sonner plus fort que les autres ; retrait des **[à vérifier]**
+  qu'une sonnerie en Néon, normalisée en crête, peut sonner plus fort que les autres, et écouter les aigus de Néon
+  (scie et impulsion : le PolyBLEP retire environ 15 dB de repliement, P14.4) ; retrait des **[à vérifier]**
   de timbre de `docs/musique.md`, valeurs retenues dans le code et la doc. Après P14.15.
 - [ ] **P14.17** Niveau des styles, musiques et effets : gains réglés par la mesure, sur les timbres arrêtés à
   l'oreille. Cas : `every style renders Korobeiniki within 1 dB of the Arcade in RMS`, `every style renders the
