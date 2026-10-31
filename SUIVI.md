@@ -1941,6 +1941,16 @@ pause (P11.11).
   (pouce creux et cadre de piste à l'encre de `switchLook`, aperçus et captures `SwitchesOriginal*`, cas Original de
   `SwitchLookTest` et `SettingSwitchRowTest`) ; `settingLabelStyle` garde sa branche Original (choix de la feuille
   Musique de l'accueil, qui peut être en Original), la sous-ligne ses trois lignes (Couleurs ×2 en a besoin).
+- [ ] **P12.14** Page « À propos de BloX » (demande du développeur, 2026-10-31) : concevoir avec `designer-jeu` son
+  contenu et son entrée (par exemple une rangée en bas de « Tous les jeux » de la page Paramètres, ADR 0030) :
+  version de l'application ; licences (polices embarquées OFL, ADR 0016, et bibliothèques) ; musiques du domaine
+  public et leurs sources (`docs/musique.md`, ADR 0008) ; mention que BloX n'est lié à aucune marque, **sans nommer**
+  le jeu d'origine (CLAUDE.md, Droits). Numéroter la vue (V44) dans `docs/maquette.md` ; ADR seulement si la
+  décision est structurante (nouvelle feature ou clé de navigation).
+- [ ] **P12.15** Mettre à jour la maquette (depuis claude.ai) : V44, page « À propos de BloX » (jour, nuit, police ×2),
+  et son entrée dans les Paramètres. Après P12.14, **avant P12.16**.
+- [ ] **P12.16** Coder la page « À propos de BloX » (Couleurs, TalkBack, police ×2, captures) et son entrée, en TDD ;
+  la version lue de la configuration de build, jamais écrite en dur. Après P12.15.
 
 ## P13 — Sonnerie ou réveil (`core:audio`, `core:designsystem`, `feature:musics`, `feature:composer`, `app`)
 
