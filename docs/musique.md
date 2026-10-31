@@ -862,7 +862,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
 (P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
 dans un style, ton et forme de note (P14.5, voir Synthèse), le filtre de l'instrument (P14.6) et l'écho du style
-(P14.7, voir Synthèse) ; effets, réglage et interface **pas encore codés** (P14.8 à P14.20). Vues : V43 (feuille
+(P14.7, voir Synthèse), le rendu des effets dans un style (P14.14, voir Effets sonores ci-dessous) ; réglage,
+branchement des effets et interface **pas encore codés** (P14.8 à P14.13, P14.15 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -962,7 +963,21 @@ ici et dans le code ensemble.
 mélodie, `TRIANGLE` celui de la basse), mais garde **sa propre enveloppe** (`Envelope`, 1 à 2 ms de montée, voir
 Effets sonores) et **aucun écho** : un retour reste court et lisible. Exemple : en Velours, les lignes effacées
 montent l'accord de do sur le sinus de la mélodie. À la prochaine musique jouée, les effets rendus dans l'ancien
-instrument sont oubliés et rendus de nouveau. Leur niveau suit la même règle de ±1 dB RMS.
+instrument sont oubliés et rendus de nouveau (branchement : P14.15, **pas encore codé** ; d'ici là, les effets se
+jouent en Arcade). Leur niveau suit la même règle de ±1 dB RMS.
+
+Codé en P14.14 : `Synthesizer.render(effect, style = SoundStyle.ARCADE)` rend chaque blip sur le ton de
+`style.instrumentFor(effect.waveform)`, avec l'enveloppe de l'effet (pas la forme de note de l'instrument), puis fait
+passer l'effet entier par le passe-bas de l'instrument s'il en a un (même filtre que les voix, voir Synthèse) ;
+aucun écho, si bien qu'un effet dure exactement ses millisecondes. En Arcade, les effets rendent les empreintes de
+P14.2.
+
+**Tests :** `SoundFingerprintTest › in the Arcade style the effects render the fingerprints of P14.2`,
+`SoundEffectStyleTest › in the Velvet style the lines cleared play on the tone of the velvet melody`,
+`SoundEffectStyleTest › in the Neon style an effect passes the low-pass of its instrument`,
+`SoundEffectStyleTest › an effect keeps its own envelope, starting within 5 milliseconds, whatever the style`,
+`SoundEffectStyleTest › an effect has no echo, so that it lasts its milliseconds`,
+`SoundEffectStyleTest › in every style the effects of the locksmith and of the garden take the tone of their waveform`.
 
 **[à vérifier] à l'oreille** (P14.16) : Velours pâteux et Néon saturé à × 1,25 (pile en danger, niveaux 18 et
 19) ; le métronome d'Au tempo dans chaque instrument ; le raccord de la boucle avec l'écho ; les effets du

@@ -10,7 +10,6 @@ import ch.magori.blox.core.music.SoundEffect
 import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Tone
 import ch.magori.blox.core.music.Voice
-import ch.magori.blox.core.music.Waveform
 import kotlin.math.roundToInt
 
 /**
@@ -44,7 +43,19 @@ public class Synthesizer(public val sampleRate: Int) {
      * Renders [effect]: its blips one after the other, each starting at the sample of its cumulated milliseconds,
      * so that rounding never adds up along the effect, and each shaped by the envelope of the effect.
      */
-    public fun render(effect: SoundEffect): FloatArray {
+    public fun render(
+        effect: SoundEffect,
+        style: SoundStyle = SoundStyle.ARCADE,
+    ): FloatArray = render(effect, style.instrumentFor(effect.waveform))
+
+    /**
+     * Renders [effect] on the tone of [instrument], then through its low-pass if it has one; the blips keep the
+     * envelope of the effect, not the shape of the notes of [instrument].
+     */
+    internal fun render(
+        effect: SoundEffect,
+        instrument: Instrument,
+    ): FloatArray {
         val boundaries = effect.blips.runningFold(0) { millis, blip -> millis + blip.millis }.map(::sampleAtMillis)
         val samples = FloatArray(boundaries.last())
         val attack = sampleAtMillis(effect.envelope.attackMillis)
@@ -52,11 +63,16 @@ public class Synthesizer(public val sampleRate: Int) {
         effect.blips.forEachIndexed { index, blip ->
             val start = boundaries[index]
             val gain = { sample: Int, count: Int -> blipGain(sample, count, attack, release) }
-            val tone = arcadeTone(effect.waveform)
-            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, tone, effect.volume, gain)
+            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, instrument.tone, effect.volume, gain)
         }
-        return samples
+        return filtered(samples, instrument)
     }
+
+    /** [samples] through the low-pass of [instrument], or themselves if it has none. */
+    private fun filtered(
+        samples: FloatArray,
+        instrument: Instrument,
+    ): FloatArray = instrument.lowPass?.let { lowPass(samples, it, sampleRate) } ?: samples
 
     /** The sample at which [millis] milliseconds have passed. */
     private fun sampleAtMillis(millis: Int): Int = (millis.toDouble() * sampleRate / MILLIS_PER_SECOND).roundToInt()
@@ -86,7 +102,7 @@ public class Synthesizer(public val sampleRate: Int) {
                 writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, adsr::at)
             }
         }
-        return instrument.lowPass?.let { lowPass(samples, it, sampleRate) } ?: samples
+        return filtered(samples, instrument)
     }
 
     /**
@@ -170,9 +186,6 @@ public class Synthesizer(public val sampleRate: Int) {
         val fall = if (sampleCount - index < release) (sampleCount - index).toDouble() / release else 1.0
         return minOf(rise, fall)
     }
-
-    /** The tone of [waveform] in the Arcade style, the sound of BloX before the instruments. */
-    private fun arcadeTone(waveform: Waveform): Tone = SoundStyle.ARCADE.instrumentFor(waveform).tone
 
     /** The phase, from 0 to 1, of a wave of [frequency] at sample [index] of a note. */
     private fun phaseAt(
