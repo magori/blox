@@ -18,6 +18,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.v2.runAndroidComposeUiTest
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.MutableCreationExtras
+import ch.magori.blox.core.designsystem.test.pressSystemBack
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
@@ -108,7 +109,7 @@ internal class GameScreenPauseTest {
             val game = showPausedGame()
 
             // When the player goes back
-            runOnUiThread { checkNotNull(activity).onBackPressedDispatcher.onBackPressed() }
+            checkNotNull(activity).pressSystemBack()
             mainClock.advanceTimeBy(HALF_CURTAIN_MILLIS)
 
             // Then the curtain opens: the card is gone, the game still waits

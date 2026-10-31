@@ -47,7 +47,7 @@ dependencies {
     androidTestImplementation(testFixtures(projects.core.designsystem))
     // Le test de la fabrique sauve puis restaure l'état d'une entrée, comme après la mort du processus.
     androidTestImplementation(libs.androidx.savedstate)
-    // L'instrumentation, qui envoie le retour du système (et fait tourner la fabrique sur le fil principal).
+    // L'instrumentation, qui fait tourner la fabrique sur le fil principal (ComposerViewModelFactoryTest).
     androidTestImplementation(libs.androidx.test.monitor)
     // L'activité des tests à la version de l'application : elle fournit le répartiteur du retour (NavigationBackHandler).
     androidTestRuntimeOnly(libs.androidx.activity)
