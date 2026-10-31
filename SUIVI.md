@@ -2073,9 +2073,10 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   triangle a triangle`, `every style has an instrument for every waveform`, `every instrument of every style starts
   within 5 milliseconds`, `the Arcade style has no echo and no filter`, `an ADSR refuses a negative time and a
   sustain outside 0 and 1`, `an echo refuses a feedback of 1 or more`, `an echo refuses a delay of no beat`.
-- [ ] **P14.4** Nouvelles ondes (`core:audio`, pur). Cas : `a sine at 440 Hz crosses zero rising every 100 point 2
+- [x] **P14.4** Nouvelles ondes (`core:audio`, pur). Cas : `a sine at 440 Hz crosses zero rising every 100 point 2
   samples`, `a pulse of a quarter is high for a quarter of its period`, `a band-limited saw stays within -1 and 1 and
   loses its aliasing above the Nyquist frequency`, `the square and the triangle render as before`. Après P14.2.
+  Fait le 2026-10-31 (`ToneTest`, `Tone.amplitudeAt` remplace `Waveform.amplitudeAt`).
 - [ ] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
   fingerprints of P14.2`, `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the
   end of the note`, `a release never runs into the next note of the voice`, `a note still lasts its beats times 60

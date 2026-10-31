@@ -249,6 +249,13 @@ basses.
 - **Ondes** : carrée (+volume sur la première moitié de la période, −volume sur la seconde) et
   triangle (part de 0, +volume au quart de la période, linéaire). La phase se calcule depuis
   l'indice de l'échantillon, sans accumulation, et repart de 0 à chaque note.
+- **Ondes des instruments** (P14.4, `Tone`, voir Instruments) : sinus (`sin 2π·phase`) ; impulsion d'un quart
+  (+1 sur le premier quart de la période, −1 ensuite) et dent de scie (de −1 à 1 sur la période), **limitées en
+  bande par PolyBLEP** : chaque saut est arrondi sur l'échantillon qui le précède et celui qui le suit, ce qui
+  retire environ 15 dB du repliement (les harmoniques au-delà de la fréquence de Nyquist, qui reviendraient en
+  fréquences parasites). La carrée et la triangle restent **sans** correction : elles rendent exactement les
+  échantillons d'avant (empreintes de P14.2). L'impulsion garde sa composante continue (moyenne −0,5) ; à revoir à
+  l'écoute (P14.16) si la basse de Néon le demande.
 - **Enveloppe** : chaque note joue à volume constant pendant 80 % de sa durée, puis s'éteint en
   fondu linéaire jusqu'à 95 %, pour séparer les notes répétées ; elle est muette ensuite.
 - **Durée** : une note dure `temps × 60 / bpm × fréquence` échantillons ; les bornes de chaque
@@ -267,7 +274,11 @@ basses.
 `SynthesizerTest › each note starts at the sample of its cumulated beats`,
 `SynthesizerTest › the sample rate must be positive`, `SynthesizerTest › rendering a voice needs a positive tempo`,
 `MixTest › mixing adds the voices sample by sample`, `MixTest › the mix is clipped to -1 and 1`,
-`MixTest › mixing no track is refused`, `MixTest › mixing tracks of different lengths is refused`.
+`MixTest › mixing no track is refused`, `MixTest › mixing tracks of different lengths is refused`,
+`ToneTest › a sine at 440 Hz crosses zero rising every 100 point 2 samples`,
+`ToneTest › a pulse of a quarter is high for a quarter of its period`,
+`ToneTest › a band-limited saw stays within -1 and 1 and loses its aliasing above the Nyquist frequency`,
+`ToneTest › the square and the triangle render as before`.
 
 ## Lecture en boucle
 
@@ -767,8 +778,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 ## Instruments
 
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
-(P14.2) et la description des instruments (P14.3, `core:music`) ; synthèse, réglage et interface **pas encore
-codés** (P14.4 à P14.20). Vues : V43 (feuille
+(P14.2), la description des instruments (P14.3, `core:music`) et leurs ondes (P14.4, voir Synthèse) ; forme des
+notes, filtre, écho, réglage et interface **pas encore codés** (P14.5 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 

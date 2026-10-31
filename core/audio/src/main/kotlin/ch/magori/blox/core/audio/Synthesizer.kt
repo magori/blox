@@ -3,6 +3,8 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.SoundEffect
+import ch.magori.blox.core.music.SoundStyle
+import ch.magori.blox.core.music.Tone
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlin.math.roundToInt
@@ -42,7 +44,8 @@ public class Synthesizer(public val sampleRate: Int) {
         effect.blips.forEachIndexed { index, blip ->
             val start = boundaries[index]
             val gain = { sample: Int, count: Int -> blipGain(sample, count, attack, release) }
-            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, effect.waveform, effect.volume, gain)
+            val tone = arcadeTone(effect.waveform)
+            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, tone, effect.volume, gain)
         }
         return samples
     }
@@ -68,7 +71,7 @@ public class Synthesizer(public val sampleRate: Int) {
                 start,
                 boundaries[index + 1] - start,
                 note.pitch,
-                voice.waveform,
+                arcadeTone(voice.waveform),
                 voice.volume,
                 ::noteGain,
             )
@@ -83,7 +86,7 @@ public class Synthesizer(public val sampleRate: Int) {
     ): Int = (beats * SECONDS_PER_MINUTE / bpm * sampleRate).roundToInt()
 
     /**
-     * Writes one note of [sampleCount] samples into [target] from [offset]: volume × wave, the phase
+     * Writes one note of [sampleCount] samples into [target] from [offset]: volume × wave of [tone], the phase
      * at 0 on its first sample, shaped by [gain] of the sample and of [sampleCount]. Nothing for a rest
      * (a `null` [pitch]), since [target] starts silent. No array is allocated for the note.
      */
@@ -92,13 +95,14 @@ public class Synthesizer(public val sampleRate: Int) {
         offset: Int,
         sampleCount: Int,
         pitch: Pitch?,
-        waveform: Waveform,
+        tone: Tone,
         volume: Double,
         gain: (index: Int, sampleCount: Int) -> Double,
     ) {
         if (pitch == null) return
+        val phaseStep = pitch.frequency / sampleRate
         for (index in 0 until sampleCount) {
-            val wave = volume * waveform.amplitudeAt(phaseAt(index, pitch.frequency))
+            val wave = volume * tone.amplitudeAt(phaseAt(index, pitch.frequency), phaseStep)
             target[offset + index] = (wave * gain(index, sampleCount)).toFloat()
         }
     }
@@ -117,6 +121,9 @@ public class Synthesizer(public val sampleRate: Int) {
         val fall = if (sampleCount - index < release) (sampleCount - index).toDouble() / release else 1.0
         return minOf(rise, fall)
     }
+
+    /** The tone of [waveform] in the Arcade style, the sound of BloX before the instruments. */
+    private fun arcadeTone(waveform: Waveform): Tone = SoundStyle.ARCADE.instrumentFor(waveform).tone
 
     /** The phase, from 0 to 1, of a wave of [frequency] at sample [index] of a note. */
     private fun phaseAt(
