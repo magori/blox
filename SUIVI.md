@@ -1948,18 +1948,21 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
 - [ ] **P13.2** `MUSIC_SAMPLE_RATE` (44 100) public dans `core:audio`, un seul `Synthesizer` de musique partagé par le
   séquenceur et l'export dans `AppContainer` ; pur refactoring, tests existants et empreintes de P14.2 verts ;
   `SoundFingerprintTest` lit alors cette constante au lieu de sa copie `MUSIC_SAMPLE_RATE`. Après P14.2.
-- [ ] **P13.3** `WavEncoder` (`core:audio`, pur, JVM). Cas : `the header is RIFF WAVE with a fmt chunk of PCM, mono,
+- [x] **P13.3** `WavEncoder` (`core:audio`, pur, JVM). Cas : `the header is RIFF WAVE with a fmt chunk of PCM, mono,
   16 bits, at the sample rate given`, `the RIFF and data sizes match the number of samples`, `a sample of 1 is
   written as 32767 and a sample of -1 as -32767, little endian`, `a sample beyond -1 or 1 is clipped`, `zero is
-  written as zero`, `an empty rendering is refused`.
-- [ ] **P13.4** `ringtoneSamples(rendering, sampleRate, samplesPerBar)` (`core:audio`, pur) : boucles entières, au
+  written as zero`, `an empty rendering is refused`. Fait le 2026-10-31.
+- [x] **P13.4** `ringtoneSamples(rendering, sampleRate, samplesPerBar)` (`core:audio`, pur) : boucles entières, au
   moins 20 s, jamais plus de 60 s, crête à −1 dBFS. Cas : `a loop shorter than 20 seconds is repeated until the
   ringtone lasts at least 20 seconds`, `the ringtone holds only whole loops, so that it loops without a seam`, `a
   loop of 20 to 60 seconds is kept once`, `a loop longer than 60 seconds is cut at its last whole bar before 60
   seconds`, `the ringtone never lasts more than 60 seconds`, `the loudest sample is brought to minus 1 dBFS`, `a
-  silent rendering stays silent, without dividing by zero`.
-- [ ] **P13.5** `ringtoneFileName(name)` (`core:audio`, pur). Cas : `the file is named after the music, with the wav
+  silent rendering stays silent, without dividing by zero`. Fait le 2026-10-31 (`samplesPerBar` en `Double` ; cas de
+  plus : `an empty rendering is refused`, `a bar of no length or less is refused`, `a bar longer than 60 seconds is
+  refused`).
+- [x] **P13.5** `ringtoneFileName(name)` (`core:audio`, pur). Cas : `the file is named after the music, with the wav
   extension`, `the characters a file name may not hold are replaced`, `a name of spaces or symbols only gives BloX`.
+  Fait le 2026-10-31.
 - [ ] **P13.6** `RingtoneExporter` (`suspend fun export(score: Score, name: String, kind: RingtoneKind): Uri`,
   `IOException` en cas d'échec), `RingtoneKind { RINGTONE, ALARM }`, `FakeRingtoneExporter` (doublures de test de
   `core:audio`), `MediaStoreRingtoneExporter` (API 29+ : `Ringtones/BloX/` ou `Alarms/BloX/`, `IS_RINGTONE` ou
@@ -1970,7 +1973,9 @@ P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine a
   published only once its file is whole`. Cas instrumentés (Android 10 et plus) : `a ringtone is written in Ringtones
   BloX, marked as a ringtone and no longer pending`, `an alarm is written in Alarms BloX, marked as an alarm`, `the
   title of the file is the name of the music`, `the file written reads back as the WAV encoded`, `two exports of the
-  same name give two files, the second titled Nom (1)`. Après P13.2 à P13.5.
+  same name give two files, the second titled Nom (1)`. Après P13.2 à P13.5. À trancher (revue de P13.5) : un nom
+  qui commence par un point (« .xyz ») donnerait un fichier caché ; voir ce que `MediaStore` fait du nom passé et,
+  s'il le faut, le cas `a name starting with a dot does not make a hidden file` dans `RingtoneFileNameTest`.
 - [ ] **P13.7** `MyMusicsViewModel` exporte (`feature:musics`) : la fabrique reçoit un `RingtoneExporter?`, le
   dispatcher est injecté ; état de la feuille (usage choisi, écoute, en cours, réussi, échec). Cas : `without an
   exporter the menu offers no ringtone`, `choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie
