@@ -4,12 +4,14 @@ import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
 
 class ScoreRenderTest {
@@ -49,6 +51,16 @@ class ScoreRenderTest {
 
         // Then: 4 beats at 187.5 bpm are 1.28 s
         assertThat(samples).hasSize(56_448)
+    }
+
+    @ParameterizedTest(name = "in the style {0}")
+    @EnumSource(SoundStyle::class)
+    fun `a note still lasts its beats times 60 over the tempo, whatever the style`(style: SoundStyle) {
+        // When
+        val samples = synthesizer.render(score, tempoFactor = 1.0, style)
+
+        // Then: 4 beats at 150 bpm are 1.6 s, 70 560 samples
+        assertThat(samples).hasSize(70_560)
     }
 
     @ParameterizedTest(name = "a tempo factor of {0} is refused")

@@ -257,7 +257,16 @@ basses.
   échantillons d'avant (empreintes de P14.2). L'impulsion garde sa composante continue (moyenne −0,5) ; à revoir à
   l'écoute (P14.16) si la basse de Néon le demande.
 - **Enveloppe** : chaque note joue à volume constant pendant 80 % de sa durée, puis s'éteint en
-  fondu linéaire jusqu'à 95 %, pour séparer les notes répétées ; elle est muette ensuite.
+  fondu linéaire jusqu'à 95 %, pour séparer les notes répétées ; elle est muette ensuite. C'est la forme `Gate`
+  d'Arcade, dont `Synthesizer` lit les bornes (`Gate.heldUntil`, `Gate.silentFrom`, `core:music`).
+- **Forme de note des instruments** (P14.5) : `Synthesizer.render(score, tempoFactor, style)` joue chaque voix sur
+  l'instrument que `style` donne à sa `Waveform` (par défaut `SoundStyle.ARCADE` : aucun appelant ne change) ;
+  ton de l'instrument et forme de ses notes, `Gate` ou `Adsr`. Une `Adsr` monte linéairement du silence en
+  `attackMillis`, descend linéairement jusqu'à `sustain` en `decayMillis`, le tient, puis s'éteint linéairement
+  vers le silence sur les `releaseMillis` **qui finissent la note** (temps arrondis à l'échantillon) : l'extinction
+  se termine sur le dernier échantillon de la note et ne déborde jamais sur la suivante. Dans une note plus courte
+  que l'extinction, celle-ci est raccourcie et part du niveau atteint, une fois l'attaque finie. Le filtre (P14.6),
+  l'écho (P14.7) et le gain de l'instrument (tous à 1, P14.17) ne sont pas encore appliqués.
 - **Durée** : une note dure `temps × 60 / bpm × fréquence` échantillons ; les bornes de chaque
   note se calculent depuis le temps cumulé, si bien qu'une voix entière dure exactement sa
   durée totale, sans dérive d'arrondi.
@@ -278,11 +287,15 @@ basses.
 `ToneTest › a sine at 440 Hz crosses zero rising every 100 point 2 samples`,
 `ToneTest › a pulse of a quarter is high for a quarter of its period`,
 `ToneTest › a band-limited saw stays within -1 and 1 and loses its aliasing above the Nyquist frequency`,
-`ToneTest › the square and the triangle render as before`.
+`ToneTest › the square and the triangle render as before`,
+`SynthesizerTest › an ADSR rises over its attack, falls to its sustain over its decay, and releases at the end of the note`,
+`SynthesizerTest › a release never runs into the next note of the voice`,
+`ScoreRenderTest › a note still lasts its beats times 60 over the tempo, whatever the style`.
 
 ## Lecture en boucle
 
-- **Rendu** : `Synthesizer.render(score, tempoFactor = 1.0)` est la seule entrée publique ; il
+- **Rendu** : `Synthesizer.render(score, tempoFactor = 1.0, style = SoundStyle.ARCADE)` est la seule entrée
+  publique ; il
   mixe toutes les voix et dure exactement la partition. Le tempo est un `Double`
   (150 × 1,25 = 187,5 accepté) ; le facteur doit être positif et fini. Les durées restent en
   `Double` : le tampon est rendu une fois puis rejoué, rien ne se cumule sur la boucle.
@@ -778,8 +791,9 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 ## Instruments
 
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
-(P14.2), la description des instruments (P14.3, `core:music`) et leurs ondes (P14.4, voir Synthèse) ; forme des
-notes, filtre, écho, réglage et interface **pas encore codés** (P14.5 à P14.20). Vues : V43 (feuille
+(P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
+dans un style, ton et forme de note (P14.5, voir Synthèse) ; filtre, écho, effets, réglage et interface **pas
+encore codés** (P14.6 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -829,7 +843,9 @@ Règles communes :
   `SoundFingerprintTest › a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`,
   `SoundFingerprintTest › every effect of the Classic renders the samples of its fingerprint`,
   `SoundFingerprintTest › every effect of the Locksmith renders the samples of its fingerprint`,
-  `SoundFingerprintTest › every effect of the garden renders the samples of its fingerprint`.
+  `SoundFingerprintTest › every effect of the garden renders the samples of its fingerprint`. Rendues dans le style
+  Arcade, nommé (P14.5), les trois musiques gardent leurs empreintes :
+  `SoundFingerprintTest › the Arcade style renders the fingerprints of P14.2`.
 - Chaque instrument **attaque en 5 ms au plus** : le temps reste net dans Au tempo et les retours en jeu restent
   lisibles ; la douceur vient de l'onde, du filtre, de l'extinction et de l'écho.
 - Une note dure toujours `temps × 60 / bpm` ; l'extinction d'une `Adsr` tient dans la note, sans déborder sur la
