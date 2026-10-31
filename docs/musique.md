@@ -736,7 +736,8 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 
 ## Instruments
 
-Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.2 à P14.20). Vues : V43 (feuille
+Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)), **pas encore codés** (P14.3 à P14.20) ; seules les
+empreintes de référence du son d'aujourd'hui le sont (P14.2). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -767,7 +768,26 @@ Règles communes :
 - **Arcade rend exactement les échantillons d'avant les instruments**, musiques et effets : des empreintes sont
   figées par des tests sur l'API d'aujourd'hui (P14.2), avant tout changement du synthétiseur, P13.2 compris :
   Korobeïniki, le Menuet et une musique générée, à × 1 et × 1,25, et chaque effet du Classique, du Serrurier et du
-  Jardin.
+  Jardin. Une empreinte est le nombre d'échantillons et la somme de contrôle CRC-32 des échantillons quantifiés en
+  16 bits (petit-boutiste) : elle tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits (un calcul
+  différent de `volume × onde × gain`), mais **aucun écart de phase** : un échantillon du carré posé sur une
+  frontière de sa période bascule de +v à −v (A4 à 48 kHz tombe exactement à la moitié de sa période à
+  l'échantillon 600). Arcade garde donc le calcul de phase `(index × fréquence / taux) mod 1`, sans le réécrire en
+  `index × (fréquence / taux)` ni accumuler la phase d'un échantillon à l'autre.
+  La musique est rendue à 44 100 Hz, les effets à 48 000 Hz (le taux par défaut des effets). Sont couverts : les
+  5 effets du Classique (`SoundEffects.all`) ; pour le Serrurier, l'arpège et la basse de chaque accord d'un cadenas
+  (degrés I à vi de do majeur sur C4, confrontés aux progressions de `PadlockChords`), l'ouverture et le refus ; pour
+  le Jardin, la note de chacune des 25 hauteurs de ses 4 ambiances (confrontées à `GardenMood.allPitches`). La
+  musique générée est joyeuse, de graine 2026 : son empreinte suit aussi le générateur et l'algorithme de
+  `kotlin.random.Random` (ADR 0014) ; un changement de `MusicGenerator` ou une montée de Kotlin peut obliger à la
+  refaire (Arcade n'y est pour rien), ce que
+  `FormTest › the seed 42 on joyful gives this form, which pins the order of the draws` signalerait en même temps.
+  **Tests :** `SoundFingerprintTest › Korobeiniki renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › the Minuet renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`,
+  `SoundFingerprintTest › every effect of the Classic renders the samples of its fingerprint`,
+  `SoundFingerprintTest › every effect of the Locksmith renders the samples of its fingerprint`,
+  `SoundFingerprintTest › every effect of the garden renders the samples of its fingerprint`.
 - Chaque instrument **attaque en 5 ms au plus** : le temps reste net dans Au tempo et les retours en jeu restent
   lisibles ; la douceur vient de l'onde, du filtre, de l'extinction et de l'écho.
 - Une note dure toujours `temps × 60 / bpm` ; l'extinction d'une `Adsr` tient dans la note, sans déborder sur la
