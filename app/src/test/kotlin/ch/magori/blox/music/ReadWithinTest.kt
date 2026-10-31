@@ -1,6 +1,7 @@
 package ch.magori.blox.music
 
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -14,8 +15,12 @@ import kotlin.time.Duration.Companion.seconds
 class ReadWithinTest {
     @Test
     fun `a read that answers in time gives its answer`() = runTest {
-        // When / Then
-        assertThat(readWithinOrNull(2.seconds, Dispatchers.IO) { "orage-d-ete.ogg" }).isEqualTo("orage-d-ete.ogg")
+        // When the read runs on the clock of the test: on Dispatchers.IO, a real thread, the virtual clock could reach
+        // the timeout before the read answers
+        val read = readWithinOrNull(2.seconds, StandardTestDispatcher(testScheduler)) { "orage-d-ete.ogg" }
+
+        // Then
+        assertThat(read).isEqualTo("orage-d-ete.ogg")
     }
 
     @Test
