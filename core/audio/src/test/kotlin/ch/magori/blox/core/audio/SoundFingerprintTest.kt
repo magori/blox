@@ -15,7 +15,9 @@ import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Scores
 import ch.magori.blox.core.music.SoundEffect
 import ch.magori.blox.core.music.SoundEffects
+import ch.magori.blox.core.music.SoundStyle
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -30,13 +32,21 @@ class SoundFingerprintTest {
     private val musicSynthesizer = Synthesizer(sampleRate = MUSIC_SAMPLE_RATE)
     private val effectSynthesizer = Synthesizer(sampleRate = EFFECT_SAMPLE_RATE)
 
+    /**
+     * A joyful music of a fixed seed; its fingerprint also follows MusicGenerator and the algorithm of
+     * kotlin.random.Random (ADR 0014): a new version of Kotlin may oblige to redo it, which FormTest › the seed 42 on
+     * joyful gives this form, which pins the order of the draws, would tell at the same time.
+     */
+    private val generatedMusic =
+        MusicGenerator.generate(Category.JOYFUL, seed = 2026, ScoreId.Personal("fingerprint")).score
+
     @Test
     fun `Korobeiniki renders the samples of its fingerprint, at tempo 1 and 1,25`() {
         // When
         val fingerprints = fingerprintsAtBothTempos(Scores.korobeiniki)
 
         // Then
-        assertThat(fingerprints).isEqualTo(mapOf("× 1" to "564480:2a2b40c9", "× 1,25" to "451584:a8ea48df"))
+        assertThat(fingerprints).isEqualTo(KOROBEINIKI_FINGERPRINTS)
     }
 
     @Test
@@ -45,21 +55,33 @@ class SoundFingerprintTest {
         val fingerprints = fingerprintsAtBothTempos(Scores.minuet)
 
         // Then
-        assertThat(fingerprints).isEqualTo(mapOf("× 1" to "481091:90f4126c", "× 1,25" to "384873:4c3ec088"))
+        assertThat(fingerprints).isEqualTo(MINUET_FINGERPRINTS)
     }
 
     @Test
     fun `a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`() {
-        // Given a joyful music of a fixed seed; its fingerprint also follows MusicGenerator and the algorithm of
-        // kotlin.random.Random (ADR 0014): a new version of Kotlin may oblige to redo it, which FormTest › the seed 42
-        // on joyful gives this form, which pins the order of the draws, would tell at the same time
-        val score = MusicGenerator.generate(Category.JOYFUL, seed = 2026, ScoreId.Personal("fingerprint")).score
-
         // When
-        val fingerprints = fingerprintsAtBothTempos(score)
+        val fingerprints = fingerprintsAtBothTempos(generatedMusic)
 
         // Then
-        assertThat(fingerprints).isEqualTo(mapOf("× 1" to "618044:b9b14471", "× 1,25" to "494435:553daa9e"))
+        assertThat(fingerprints).isEqualTo(GENERATED_MUSIC_FINGERPRINTS)
+    }
+
+    @Test
+    @DisplayName("the Arcade style renders the fingerprints of P14.2") // a dot is refused in the name of a method
+    fun `the Arcade style renders the fingerprints of P14 point 2`() {
+        // Given the musics of P14.2, rendered by name in the Arcade style (P14.5)
+        val musics = listOf(Scores.korobeiniki, Scores.minuet, generatedMusic)
+
+        // When
+        val fingerprints = musics.map { fingerprintsAtBothTempos(it, SoundStyle.ARCADE) }
+
+        // Then
+        assertThat(fingerprints).containsExactly(
+            KOROBEINIKI_FINGERPRINTS,
+            MINUET_FINGERPRINTS,
+            GENERATED_MUSIC_FINGERPRINTS,
+        )
     }
 
     @Test
@@ -179,9 +201,21 @@ class SoundFingerprintTest {
     private fun fingerprintsOf(effects: Map<String, SoundEffect>): Map<String, String> =
         effects.mapValues { (_, effect) -> fingerprintOf(effectSynthesizer.render(effect)) }
 
-    /** The fingerprint of [score] at each of [TEMPO_FACTORS], rendered at the sample rate of the music. */
-    private fun fingerprintsAtBothTempos(score: Score): Map<String, String> =
-        TEMPO_FACTORS.mapValues { (_, factor) -> fingerprintOf(musicSynthesizer.render(score, factor)) }
+    /**
+     * The fingerprint of [score] at each of [TEMPO_FACTORS], rendered at the sample rate of the music: on the API of
+     * P14.2, without a style, or in [style].
+     */
+    private fun fingerprintsAtBothTempos(
+        score: Score,
+        style: SoundStyle? = null,
+    ): Map<String, String> = TEMPO_FACTORS.mapValues { (_, factor) ->
+        val samples = if (style == null) {
+            musicSynthesizer.render(score, factor)
+        } else {
+            musicSynthesizer.render(score, factor, style)
+        }
+        fingerprintOf(samples)
+    }
 
     private companion object {
         /** The sample rate of the effects on most devices, the default of [effectSampleRateOf]: 48 000 Hz. */
@@ -191,6 +225,10 @@ class SoundFingerprintTest {
         val PADLOCK_PIECE_COUNTS = 3..8
 
         val TEMPO_FACTORS = mapOf("× 1" to 1.0, "× 1,25" to 1.25)
+
+        val KOROBEINIKI_FINGERPRINTS = mapOf("× 1" to "564480:2a2b40c9", "× 1,25" to "451584:a8ea48df")
+        val MINUET_FINGERPRINTS = mapOf("× 1" to "481091:90f4126c", "× 1,25" to "384873:4c3ec088")
+        val GENERATED_MUSIC_FINGERPRINTS = mapOf("× 1" to "618044:b9b14471", "× 1,25" to "494435:553daa9e")
 
         /** The largest sample of 16 bits, that 1 is quantized to. */
         const val FULL_SCALE = 32_767

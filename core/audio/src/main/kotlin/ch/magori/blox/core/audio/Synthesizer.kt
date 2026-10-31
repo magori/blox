@@ -1,8 +1,13 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Adsr
+import ch.magori.blox.core.music.Gate
+import ch.magori.blox.core.music.Instrument
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.SoundEffect
+import ch.magori.blox.core.music.SoundStyle
+import ch.magori.blox.core.music.Tone
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlin.math.roundToInt
@@ -17,17 +22,18 @@ public class Synthesizer(public val sampleRate: Int) {
     }
 
     /**
-     * Renders [score]: its voices, mixed, at its tempo times [tempoFactor]. The only entry point of the rendering of
-     * the scores: the sequencer plays what it returns.
+     * Renders [score]: its voices, mixed, at its tempo times [tempoFactor], each on the instrument [style] gives to
+     * its waveform. The only entry point of the rendering of the scores: the sequencer plays what it returns.
      */
     public fun render(
         score: Score,
         tempoFactor: Double = 1.0,
+        style: SoundStyle = SoundStyle.ARCADE,
     ): FloatArray {
         require(tempoFactor > 0 && tempoFactor.isFinite()) {
             "The tempo factor is positive and finite, was $tempoFactor"
         }
-        return mix(score.voices.map { renderVoice(it, score.bpm * tempoFactor) })
+        return mix(score.voices.map { renderVoice(it, score.bpm * tempoFactor, style.instrumentFor(it.waveform)) })
     }
 
     /**
@@ -42,7 +48,8 @@ public class Synthesizer(public val sampleRate: Int) {
         effect.blips.forEachIndexed { index, blip ->
             val start = boundaries[index]
             val gain = { sample: Int, count: Int -> blipGain(sample, count, attack, release) }
-            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, effect.waveform, effect.volume, gain)
+            val tone = arcadeTone(effect.waveform)
+            writeNote(samples, start, boundaries[index + 1] - start, blip.pitch, tone, effect.volume, gain)
         }
         return samples
     }
@@ -51,29 +58,62 @@ public class Synthesizer(public val sampleRate: Int) {
     private fun sampleAtMillis(millis: Int): Int = (millis.toDouble() * sampleRate / MILLIS_PER_SECOND).roundToInt()
 
     /**
-     * Renders [voice] at [bpm]. Each note starts at the sample of its cumulated beats, so that rounding
-     * never adds up along the voice.
+     * Renders [voice] at [bpm] on [instrument], by default the one of the Arcade style. Each note starts at the
+     * sample of its cumulated beats, so that rounding never adds up along the voice.
      */
     internal fun renderVoice(
         voice: Voice,
         bpm: Double,
+        instrument: Instrument = SoundStyle.ARCADE.instrumentFor(voice.waveform),
     ): FloatArray {
         require(bpm > 0) { "The tempo is a positive number of beats per minute, was $bpm" }
         val boundaries = voice.notes.runningFold(0.0) { beats, note -> beats + note.beats }.map { sampleAt(it, bpm) }
         val samples = FloatArray(boundaries.last())
+        val shape = instrument.shape
+        val adsr = if (shape is Adsr) AdsrGain(shape) else null
         voice.notes.forEachIndexed { index, note ->
             val start = boundaries[index]
-            writeNote(
-                samples,
-                start,
-                boundaries[index + 1] - start,
-                note.pitch,
-                voice.waveform,
-                voice.volume,
-                ::noteGain,
-            )
+            val sampleCount = boundaries[index + 1] - start
+            // One call of the inline writeNote per shape, so that the gain is inlined too, without boxing a sample
+            if (adsr == null) {
+                writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, ::gateGain)
+            } else {
+                writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, adsr::at)
+            }
         }
         return samples
+    }
+
+    /**
+     * The gain from 0 to 1 at a sample of a note shaped by [adsr], its durations counted once in samples: a linear
+     * rise from silence over its attack, a linear fall to its sustain over its decay, the sustain held, then, over the
+     * last samples of the note, a linear release from the level reached down towards silence. The release ends on the
+     * last sample of the note, so that it never runs into the next one: in a note shorter than it, it is shortened,
+     * and starts once the attack is over.
+     */
+    private inner class AdsrGain(private val adsr: Adsr) {
+        private val attack = sampleAtMillis(adsr.attackMillis)
+        private val decay = sampleAtMillis(adsr.decayMillis)
+        private val release = sampleAtMillis(adsr.releaseMillis)
+
+        /** The gain at sample [index] of a note of [sampleCount] samples. */
+        fun at(
+            index: Int,
+            sampleCount: Int,
+        ): Double {
+            val releaseStart = maxOf(sampleCount - release, minOf(attack, sampleCount))
+            return if (index < releaseStart) {
+                level(index)
+            } else {
+                level(releaseStart) * (sampleCount - index) / (sampleCount - releaseStart)
+            }
+        }
+
+        private fun level(index: Int): Double = when {
+            index < attack -> index.toDouble() / attack
+            index < attack + decay -> 1 - (1 - adsr.sustain) * (index - attack) / decay
+            else -> adsr.sustain
+        }
     }
 
     /** The sample at which [beats] beats have passed at [bpm]. */
@@ -83,7 +123,7 @@ public class Synthesizer(public val sampleRate: Int) {
     ): Int = (beats * SECONDS_PER_MINUTE / bpm * sampleRate).roundToInt()
 
     /**
-     * Writes one note of [sampleCount] samples into [target] from [offset]: volume × wave, the phase
+     * Writes one note of [sampleCount] samples into [target] from [offset]: volume × wave of [tone], the phase
      * at 0 on its first sample, shaped by [gain] of the sample and of [sampleCount]. Nothing for a rest
      * (a `null` [pitch]), since [target] starts silent. No array is allocated for the note.
      */
@@ -92,13 +132,14 @@ public class Synthesizer(public val sampleRate: Int) {
         offset: Int,
         sampleCount: Int,
         pitch: Pitch?,
-        waveform: Waveform,
+        tone: Tone,
         volume: Double,
         gain: (index: Int, sampleCount: Int) -> Double,
     ) {
         if (pitch == null) return
+        val phaseStep = pitch.frequency / sampleRate
         for (index in 0 until sampleCount) {
-            val wave = volume * waveform.amplitudeAt(phaseAt(index, pitch.frequency))
+            val wave = volume * tone.amplitudeAt(phaseAt(index, pitch.frequency), phaseStep)
             target[offset + index] = (wave * gain(index, sampleCount)).toFloat()
         }
     }
@@ -118,6 +159,9 @@ public class Synthesizer(public val sampleRate: Int) {
         return minOf(rise, fall)
     }
 
+    /** The tone of [waveform] in the Arcade style, the sound of BloX before the instruments. */
+    private fun arcadeTone(waveform: Waveform): Tone = SoundStyle.ARCADE.instrumentFor(waveform).tone
+
     /** The phase, from 0 to 1, of a wave of [frequency] at sample [index] of a note. */
     private fun phaseAt(
         index: Int,
@@ -125,24 +169,23 @@ public class Synthesizer(public val sampleRate: Int) {
     ): Double = (index * frequency / sampleRate) % 1.0
 
     /**
-     * Gain from 0 to 1 at sample [index] of a note of [sampleCount] samples: full up to 80 % of the
-     * note, a linear fade out up to 95 %, then silence, so that repeated notes stay distinct.
+     * Gain from 0 to 1 at sample [index] of a note of [sampleCount] samples shaped by the [Gate]: full up to
+     * [Gate.heldUntil] of the note, a linear fade out up to [Gate.silentFrom], then silence, so that repeated notes
+     * stay distinct.
      */
-    private fun noteGain(
+    private fun gateGain(
         index: Int,
         sampleCount: Int,
     ): Double {
         val position = index.toDouble() / sampleCount
         return when {
-            position < SUSTAIN_END -> 1.0
-            position < FADE_END -> (FADE_END - position) / (FADE_END - SUSTAIN_END)
+            position < Gate.heldUntil -> 1.0
+            position < Gate.silentFrom -> (Gate.silentFrom - position) / (Gate.silentFrom - Gate.heldUntil)
             else -> 0.0
         }
     }
 
     private companion object {
-        const val SUSTAIN_END = 0.80
-        const val FADE_END = 0.95
         const val SECONDS_PER_MINUTE = 60.0
         const val MILLIS_PER_SECOND = 1_000.0
     }

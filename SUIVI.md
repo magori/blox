@@ -2079,17 +2079,19 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   triangle a triangle`, `every style has an instrument for every waveform`, `every instrument of every style starts
   within 5 milliseconds`, `the Arcade style has no echo and no filter`, `an ADSR refuses a negative time and a
   sustain outside 0 and 1`, `an echo refuses a feedback of 1 or more`, `an echo refuses a delay of no beat`.
-- [ ] **P14.4** Nouvelles ondes (`core:audio`, pur). Cas : `a sine at 440 Hz crosses zero rising every 100 point 2
+- [x] **P14.4** Nouvelles ondes (`core:audio`, pur). Cas : `a sine at 440 Hz crosses zero rising every 100 point 2
   samples`, `a pulse of a quarter is high for a quarter of its period`, `a band-limited saw stays within -1 and 1 and
   loses its aliasing above the Nyquist frequency`, `the square and the triangle render as before`. Après P14.2.
-- [ ] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
+  Fait le 2026-10-31 (`ToneTest`, `Tone.amplitudeAt` remplace `Waveform.amplitudeAt`).
+- [x] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
   fingerprints of P14.2`, `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the
   end of the note`, `a release never runs into the next note of the voice`, `a note still lasts its beats times 60
   over the tempo, whatever the style`. `Synthesizer` lit `Gate.heldUntil` et `Gate.silentFrom` (`core:music`, P14.3)
   et ses constantes `SUSTAIN_END` et `FADE_END`, qui les dupliquent, sont retirées (règle de 2) ; les empreintes de
   P14.2 en sont la non-régression. L'empreinte tolère un écart d'amplitude bien au-dessous d'un pas de 16 bits,
   mais aucun écart de phase : Arcade garde le calcul de phase `(index × fréquence / taux) mod 1`, ni
-  `index × (fréquence / taux)` ni phase accumulée. Après P14.3 et P14.4.
+  `index × (fréquence / taux)` ni phase accumulée. Après P14.3 et P14.4. Fait le 2026-10-31 (`SynthesizerTest`,
+  `ScoreRenderTest`, `SoundFingerprintTest`) ; le gain de l'instrument n'est pas encore appliqué (voir P14.17).
 - [ ] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
   tone at the cutoff comes out about 3 dB lower`, `a tone far above the cutoff is attenuated`, `an instrument without
   filter is not changed`. Après P14.5.
@@ -2147,12 +2149,15 @@ synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches 
   P14.9.
 - [ ] **P14.16** Réglage à l'oreille sur téléphone (Au tempo et son métronome compris, accélération × 1,25 aux
   niveaux 18 et 19, raccord de la boucle avec l'écho, effets du Classique, du Serrurier et du Jardin) ; noter aussi
-  qu'une sonnerie en Néon, normalisée en crête, peut sonner plus fort que les autres ; retrait des **[à vérifier]**
+  qu'une sonnerie en Néon, normalisée en crête, peut sonner plus fort que les autres, et écouter les aigus de Néon
+  (scie et impulsion : le PolyBLEP retire environ 15 dB de repliement, P14.4) ; retrait des **[à vérifier]**
   de timbre de `docs/musique.md`, valeurs retenues dans le code et la doc. Après P14.15.
 - [ ] **P14.17** Niveau des styles, musiques et effets : gains réglés par la mesure, sur les timbres arrêtés à
   l'oreille. Cas : `every style renders Korobeiniki within 1 dB of the Arcade in RMS`, `every style renders the
   generated musics of every category within 1 dB of the Arcade`, `every effect of every style stays within 1 dB of
-  the Arcade in RMS`. Après P14.16.
+  the Arcade in RMS`. `Synthesizer` n'applique pas encore `Instrument.gain` (tous à 1 depuis P14.3, rien ne
+  l'exigeait en P14.5) : l'appliquer d'abord, test d'abord (`a voice plays at the gain of its instrument`). Après
+  P14.16.
 - [ ] **P14.18** Mesure du temps de rendu par instrument sur un téléphone d'entrée de gamme : seuil 150 ms pour 8
   mesures ; au-delà, simplifier l'écho ou le filtre ; résultat dans `docs/musique.md` et `JOURNAL.md`. Après P14.17.
 - [ ] **P14.19** (facultative) Rythmique de Néon, tirée de la mesure (grosse caisse sur les temps, claquement sur 2
