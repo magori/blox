@@ -9,13 +9,16 @@ import kotlin.math.ln
  * and the echoes are added at the part of the echo. The echo is circular: what comes back past the end of the loop
  * sounds on its start, as when the loop plays again, so that the loop has no seam and keeps its length. The sum is
  * clipped to [−1, 1], like the mix; with the volumes of the scores and the echoes of the styles, it never needs to be.
+ * [delaySamples] is at least one sample; an empty loop stays empty.
  */
-internal fun withEcho(
+internal fun echoOver(
     samples: FloatArray,
     echo: Echo,
     delaySamples: Int,
 ): FloatArray {
+    require(delaySamples > 0) { "An echo comes back after one sample at least, was $delaySamples" }
     val size = samples.size
+    if (size == 0) return samples
     val echoes = DoubleArray(size)
     // Each pass plays the loop once more: enough of them for the echoes from before the start to die out
     repeat(passesToDieOut(echo, delaySamples, size)) {

@@ -41,7 +41,10 @@ public class Synthesizer(public val sampleRate: Int) {
 
     /**
      * Renders [effect]: its blips one after the other, each starting at the sample of its cumulated milliseconds,
-     * so that rounding never adds up along the effect, and each shaped by the envelope of the effect.
+     * so that rounding never adds up along the effect, and each shaped by the envelope of the effect. [style] gives
+     * the tone and the low-pass of the instrument it gives to the waveform of [effect], the melody or the bass; the
+     * effect keeps its own envelope, not the shape of the notes of that instrument, and has no echo, so that it
+     * lasts its milliseconds. By default the style is Arcade: the effect sounds as before the instruments.
      */
     public fun render(
         effect: SoundEffect,
@@ -142,7 +145,7 @@ public class Synthesizer(public val sampleRate: Int) {
         samples: FloatArray,
         echo: Echo,
         bpm: Double,
-    ): FloatArray = withEcho(samples, echo, sampleAt(echo.delayBeats, bpm))
+    ): FloatArray = echoOver(samples, echo, sampleAt(echo.delayBeats, bpm))
 
     /** The sample at which [beats] beats have passed at [bpm]. */
     private fun sampleAt(

@@ -8,6 +8,7 @@ import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.melodyVoice
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -22,7 +23,7 @@ class EchoMixTest {
         val echo = Echo(delayBeats = 1.0, feedback = 0.5, wet = 0.4)
 
         // When
-        val echoed = withEcho(click, echo, delaySamples = 100)
+        val echoed = echoOver(click, echo, delaySamples = 100)
 
         // Then the click comes back every 100 samples, at the part of the echo, then each time at half its level
         assertThat(echoed[0].toDouble()).isCloseTo(0.5, within(1e-6))
@@ -47,6 +48,23 @@ class EchoMixTest {
         // Then the click comes back after half a beat: 250 ms at 120 bpm, 200 ms at 150 bpm
         assertThat(firstEchoOf(atTempo)).isEqualTo(250)
         assertThat(firstEchoOf(faster)).isEqualTo(200)
+    }
+
+    @Test
+    fun `in the rendering the echo follows the tempo factor`() {
+        // Given a bar of 4 beats at 150 bpm whose only note is a quarter of a beat on the first one, played 1.25 times
+        // faster, at 187.5 bpm, in Velvet, whose echo comes back after 3/4 of a beat
+        val synthesizer = Synthesizer(sampleRate = 44_100)
+        val echoDelay = 10_584 // 3/4 of a beat of 0.32 s at 187.5 bpm; at 150 bpm, it would be 13 230
+
+        // When
+        val velvet = synthesizer.render(firstQuarterBeatOnly(), tempoFactor = 1.25, style = SoundStyle.VELVET)
+
+        // Then the note, over after 0.08 s, comes back after 3/4 of a beat at 187.5 bpm, not at 150 bpm
+        val beforeTheEcho = velvet.copyOfRange(4_000, echoDelay)
+        val atTheEcho = velvet.copyOfRange(echoDelay, echoDelay + 2_000)
+        assertThat(beforeTheEcho.maxOf { abs(it) }).isLessThan(0.005f)
+        assertThat(atTheEcho.maxOf { abs(it) }).isGreaterThan(0.01f)
     }
 
     @Test
@@ -87,10 +105,32 @@ class EchoMixTest {
         val echo = Echo(delayBeats = 1.0, feedback = 0.9, wet = 1.0)
 
         // When
-        val echoed = withEcho(square, echo, delaySamples = 100)
+        val echoed = echoOver(square, echo, delaySamples = 100)
 
         // Then
         assertThat(echoed.maxOf { abs(it) }).isLessThanOrEqualTo(1f)
+    }
+
+    @Test
+    fun `an echo comes back after one sample at least`() {
+        // Given an echo, and a delay rounded down to no sample
+        val echo = Echo(delayBeats = 1.0, feedback = 0.5, wet = 0.4)
+
+        // When / Then
+        assertThatThrownBy { echoOver(FloatArray(100), echo, delaySamples = 0) }
+            .isInstanceOf(IllegalArgumentException::class.java)
+    }
+
+    @Test
+    fun `an empty loop stays empty`() {
+        // Given an echo
+        val echo = Echo(delayBeats = 1.0, feedback = 0.5, wet = 0.4)
+
+        // When
+        val echoed = echoOver(FloatArray(0), echo, delaySamples = 100)
+
+        // Then
+        assertThat(echoed).isEmpty()
     }
 
     /** A score of one bar of 4 beats at 150 bpm, a melody silent but for its last beat, an E5. */
@@ -99,6 +139,14 @@ class EchoMixTest {
         bpm = 150,
         beatsPerBar = 4,
         voices = listOf(melodyVoice(listOf(Note(pitch = null, beats = 3.0), Note(Pitch.parse("E5"), beats = 1.0)))),
+    )
+
+    /** A score of one bar of 4 beats at 150 bpm, a melody whose only sound is an E5 of a quarter of a beat, first. */
+    private fun firstQuarterBeatOnly(): Score = Score(
+        ScoreId.KOROBEINIKI, // a synthetic score: its identifier plays no part here
+        bpm = 150,
+        beatsPerBar = 4,
+        voices = listOf(melodyVoice(listOf(Note(Pitch.parse("E5"), beats = 0.25), Note(pitch = null, beats = 3.75)))),
     )
 
     /** The index of the first sound after the click on the first sample. */

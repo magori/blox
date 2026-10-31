@@ -94,9 +94,11 @@ class SoundEffectStyleTest {
         // When
         val samples = synthesizer.render(effect, style)
 
-        // Then it lasts 160 ms at 48 000 Hz, and nothing comes back over its last note: it ends in silence
+        // Then it lasts 160 ms at 48 000 Hz, and nothing comes back over its last note: it ends in silence. It is
+        // exactly the effect on the tone and through the filter of the instrument, nothing added
         assertThat(samples).hasSize(7_680)
         assertThat(abs(samples.last())).isLessThan(0.001f)
+        assertThat(samples).isEqualTo(synthesizer.render(effect, style.instrumentFor(effect.waveform)))
     }
 
     @ParameterizedTest(name = "in the style {0}")

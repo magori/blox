@@ -284,7 +284,8 @@ basses.
   à la reprise de la boucle, si bien que la boucle reste sans raccord et garde la longueur de la partition. Le calcul
   rejoue le tampon assez de fois pour que les retours venus d'avant son début tombent sous 10⁻⁶ de leur niveau. La
   somme est écrêtée à [−1, 1] ; avec les volumes des partitions et les échos des styles (retour au plus 0,3, part au
-  plus 0,25), elle n'a jamais à l'être. Arcade n'a pas d'écho.
+  plus 0,25), elle n'a jamais à l'être. Arcade n'a pas d'écho. Le délai compte au moins un échantillon (un délai
+  nul est refusé) ; un tampon vide reste vide.
 - La fréquence d'échantillonnage et le tempo doivent être positifs.
 
 **Tests :** `SynthesizerTest › a square wave at 440 Hz alternates plus and minus the volume with a period of about 100 point 2 samples`,
@@ -312,6 +313,9 @@ basses.
 `LowPassTest › an instrument without filter is not changed`,
 `EchoMixTest › a click comes back after the delay of the echo at its feedback`,
 `EchoMixTest › the delay of the echo follows the tempo, in beats`,
+`EchoMixTest › in the rendering the echo follows the tempo factor`,
+`EchoMixTest › an echo comes back after one sample at least`,
+`EchoMixTest › an empty loop stays empty`,
 `EchoMixTest › the echo of the end of the loop sounds at its start, so that the loop has no seam`,
 `EchoMixTest › the rendering keeps the length of the score`,
 `EchoMixTest › the echo never takes the mix beyond -1 and 1`.
