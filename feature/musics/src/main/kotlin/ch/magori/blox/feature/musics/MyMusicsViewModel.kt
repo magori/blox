@@ -6,10 +6,14 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
 import ch.magori.blox.core.audio.MusicPlayer
 import ch.magori.blox.core.audio.Playback
+import ch.magori.blox.core.audio.RingtoneExporter
+import ch.magori.blox.core.audio.RingtoneKind
+import ch.magori.blox.core.audio.ringtoneSeconds
 import ch.magori.blox.core.data.DeletedMusic
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.data.UserPreferencesRepository
 import ch.magori.blox.core.data.freeName
 import ch.magori.blox.core.data.keyName
 import ch.magori.blox.core.data.lengthText
@@ -17,6 +21,8 @@ import ch.magori.blox.core.data.nameProblem
 import ch.magori.blox.core.data.spokenLength
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.Volume
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,8 +31,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import kotlin.math.roundToLong
 import kotlin.reflect.KClass
@@ -35,12 +44,18 @@ import kotlin.reflect.KClass
  * « Mes musiques » (V7, V10): the musics of the player saved in [library], and the one played during the games. Each
  * one may be listened to on the [music] player, the one the games play on, its card telling the bar it plays; chosen
  * for the games, renamed, or deleted after a confirmation, the deletion offered to be undone until the next action; a
- * deletion made in the editor, handed over by [deletedElsewhere], too.
+ * deletion made in the editor, handed over by [deletedElsewhere], too. With a [ringtoneExporter] (Android 10 and
+ * later), a music may become a ringtone or an alarm of the phone, in the sheet « Sonnerie ou réveil » (V42, ADR 0031),
+ * written on [exportDispatcher], never on the main thread; its sheet tells the volume of the music at 0 %, read in
+ * [preferences].
  */
 class MyMusicsViewModel(
     private val library: MusicLibrary,
     private val music: MusicPlayer,
     private val deletedElsewhere: DeletedMusicRelay,
+    preferences: UserPreferencesRepository,
+    private val ringtoneExporter: RingtoneExporter?,
+    private val exportDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     /** The saved musics and the one played during the games, the only reading of [library]; null until read. */
     private val content: StateFlow<Content?> =
@@ -65,9 +80,26 @@ class MyMusicsViewModel(
     /** The actions of the player so far, which end the chance to undo a deletion: one made while it is written, too. */
     private var actionCount = 0
 
+    /** The sheet « Sonnerie ou réveil » open, if any. */
+    private val ringtone = MutableStateFlow<RingtoneSheetState?>(null)
+
+    /** The playback of the music listened to in the sheet: stopping it never stops a music started since. */
+    private var ringtonePlayback: Playback? = null
+
+    /** Follows the [ringtonePlayback]: its stop by itself, or by another music played in its place. */
+    private var ringtoneListenJob: Job? = null
+
+    /** Whether the volume of the music is at 0 %, as the settings say; not until they are read. */
+    private val musicMuted: StateFlow<Boolean> =
+        preferences.preferences.map { it.musicVolume == Volume.SILENT }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = false)
+
+    /** The sheet « Sonnerie ou réveil » as it is shown, telling the volume of the music at 0 %. */
+    private val ringtoneShown = combine(ringtone, musicMuted) { sheet, muted -> sheet?.copy(musicMuted = muted) }
+
     /** What the screen shows; null while the musics are not read yet. */
     internal val uiState: StateFlow<MyMusicsUiState?> =
-        combine(content.filterNotNull(), listened, dialog, deleted, ::toUiState)
+        combine(content.filterNotNull(), listened, dialog, deleted, ringtoneShown, ::toUiState)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MILLIS), initialValue = null)
 
     init {
@@ -130,6 +162,82 @@ class MyMusicsViewModel(
         }
     }
 
+    /**
+     * *Sonnerie ou réveil*, in the menu of the music of [id]: its sheet opens, Sonnerie chosen; never without an
+     * exporter, the menu offering none then.
+     */
+    internal fun onRingtone(id: ScoreId.Personal) {
+        if (ringtoneExporter == null) return
+        endUndo()
+        val saved = savedMusic(id) ?: return
+        ringtone.value = RingtoneSheetState(
+            id = id,
+            name = saved.name,
+            seconds = ringtoneSeconds(saved.score),
+            kind = RingtoneKind.RINGTONE,
+            phase = RingtonePhase.Choosing,
+        )
+    }
+
+    /** *Écouter*, in the sheet « Sonnerie ou réveil »: its music plays, as the file will sound. */
+    internal fun onRingtoneListen() {
+        val sheet = ringtone.value ?: return
+        if (sheet.listening) return stopRingtoneListening()
+        val score = savedMusic(sheet.id)?.score ?: return
+        val started = music.play(score)
+        ringtonePlayback = started
+        ringtone.value = sheet.copy(listening = true)
+        ringtoneListenJob = viewModelScope.launch {
+            started.isPlaying.first { !it }
+            stopRingtoneListening()
+        }
+    }
+
+    /** *Sonnerie* or *Réveil*, in the group « Pour » of the sheet: the use of the file, unless it is being written. */
+    internal fun onRingtoneKindChosen(kind: RingtoneKind) {
+        ringtone.update { sheet -> sheet?.takeIf { it.phase != RingtonePhase.Saving }?.copy(kind = kind) ?: sheet }
+    }
+
+    /**
+     * *Enregistrer comme sonnerie* or *comme réveil*, or *Réessayer* after a failure: the music of the sheet is written
+     * as a file of the use chosen. The sheet takes no choice until it is written; closed meanwhile, it does not cancel
+     * the writing, which would leave a file whose URI is lost (RingtoneExporter).
+     */
+    internal fun onRingtoneSave() {
+        val exporter = ringtoneExporter ?: return
+        val sheet = ringtone.value?.takeIf { it.phase != RingtonePhase.Saving } ?: return
+        val saved = savedMusic(sheet.id) ?: return
+        ringtone.value = sheet.copy(phase = RingtonePhase.Saving)
+        viewModelScope.launch {
+            val phase = try {
+                withContext(exportDispatcher) { exporter.export(saved.score, saved.name, sheet.kind) }
+                RingtonePhase.Saved(sheet.kind)
+            } catch (_: IOException) {
+                // Nothing is left behind (RingtoneExporter): the player may try again.
+                RingtonePhase.Failed
+            }
+            // The sheet may have been closed meanwhile, and another one opened: only the one waiting for this file ends.
+            ringtone.update { shown ->
+                if (shown?.id == sheet.id && shown.phase == RingtonePhase.Saving) shown.copy(phase = phase) else shown
+            }
+        }
+    }
+
+    /** The sheet « Sonnerie ou réveil » closed (*Terminé*, Back, swiped down): its music stops. */
+    internal fun onRingtoneClosed() {
+        stopRingtoneListening()
+        ringtone.value = null
+    }
+
+    /** Stops the music listened to in the sheet, if any, and only it: a music started since keeps playing. */
+    private fun stopRingtoneListening() {
+        ringtoneListenJob?.cancel()
+        ringtoneListenJob = null
+        ringtonePlayback?.stop()
+        ringtonePlayback = null
+        ringtone.update { it?.copy(listening = false) }
+    }
+
     /** *Supprimer*, in the menu of the music of [id]: a confirmation opens, telling whether the games play it. */
     internal fun onDelete(id: ScoreId.Personal) {
         endUndo()
@@ -186,13 +294,19 @@ class MyMusicsViewModel(
     }
 
     /**
-     * The list is no longer visible (the application in the background): the music being listened to stops
-     * ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
+     * The list is no longer visible (the application in the background): the music being listened to stops, on the
+     * list or in the sheet, which stays open ([ch.magori.blox.core.designsystem.lifecycle.ScreenHiddenEffect]).
      */
-    internal fun onHidden() = stopListening()
+    internal fun onHidden() = stopEveryListening()
 
-    /** The screen leaves the stack: the music being listened to stops with it. */
-    override fun onCleared() = stopListening()
+    /** The screen leaves the stack: the music being listened to, on the list or in the sheet, stops with it. */
+    override fun onCleared() = stopEveryListening()
+
+    /** Stops the music listened to on the list and the one listened to in the sheet. */
+    private fun stopEveryListening() {
+        stopListening()
+        stopRingtoneListening()
+    }
 
     /**
      * Tells the bar of [score] being played, from the first, at its tempo, back to the first after the last: as the
@@ -273,6 +387,7 @@ class MyMusicsViewModel(
         listened: Listened?,
         dialog: MyMusicsDialog?,
         deleted: DeletedMusic?,
+        ringtone: RingtoneSheetState?,
     ): MyMusicsUiState = MyMusicsUiState(
         musics = content.musics.map { saved ->
             MusicCard(
@@ -289,6 +404,8 @@ class MyMusicsViewModel(
         gameMusic = content.gameMusic?.name,
         dialog = dialog,
         deleted = deleted?.music?.name,
+        ringtoneOffered = ringtoneExporter != null,
+        ringtone = ringtone,
     )
 
     /**
@@ -299,13 +416,23 @@ class MyMusicsViewModel(
         private val library: MusicLibrary,
         private val music: MusicPlayer,
         private val deletedElsewhere: DeletedMusicRelay,
+        private val preferences: UserPreferencesRepository,
+        private val ringtoneExporter: RingtoneExporter?,
+        private val exportDispatcher: CoroutineDispatcher,
     ) : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(
             modelClass: KClass<T>,
             extras: CreationExtras,
         ): T {
             @Suppress("UNCHECKED_CAST")
-            return MyMusicsViewModel(library, music, deletedElsewhere) as T
+            return MyMusicsViewModel(
+                library,
+                music,
+                deletedElsewhere,
+                preferences,
+                ringtoneExporter,
+                exportDispatcher,
+            ) as T
         }
     }
 

@@ -1,5 +1,6 @@
 package ch.magori.blox.core.audio
 
+import ch.magori.blox.core.music.Score
 import kotlin.math.abs
 import kotlin.math.floor
 import kotlin.math.roundToInt
@@ -27,19 +28,41 @@ internal fun ringtoneSamples(
     return FloatArray(samples.size) { samples[it] * gain }
 }
 
+/**
+ * The length, in whole seconds, of the ringtone made of [score] (ADR 0031), as [ringtoneSamples] makes it of its
+ * rendering by the synthesizer of the music: whole loops, at least 20 s; at most 60 s, cut at a whole bar.
+ */
+public fun ringtoneSeconds(score: Score): Int {
+    val secondsPerBeat = SECONDS_PER_MINUTE / score.bpm
+    val loopSamples = (score.voices.first().beats * secondsPerBeat * MUSIC_SAMPLE_RATE).roundToInt()
+    val samplesPerBar = score.beatsPerBar * secondsPerBeat * MUSIC_SAMPLE_RATE
+    val samples = ringtoneLength(loopSamples, MUSIC_SAMPLE_RATE, samplesPerBar)
+    return (samples.toDouble() / MUSIC_SAMPLE_RATE).roundToInt()
+}
+
 private fun loopsOf(
     rendering: FloatArray,
     sampleRate: Int,
     samplesPerBar: Double,
 ): FloatArray {
+    val length = ringtoneLength(rendering.size, sampleRate, samplesPerBar)
+    return FloatArray(length) { rendering[it % rendering.size] }
+}
+
+/**
+ * The number of samples of a ringtone made of a loop of [loopSamples] samples: the fewest whole loops that last at
+ * least 20 s or, for a loop longer than 60 s, its last whole bar before 60 s, ending on the nearest sample.
+ */
+private fun ringtoneLength(
+    loopSamples: Int,
+    sampleRate: Int,
+    samplesPerBar: Double,
+): Int {
     val maximum = MAXIMUM_SECONDS * sampleRate
-    if (rendering.size > maximum) {
-        val wholeBars = floor(maximum / samplesPerBar)
-        return rendering.copyOf((wholeBars * samplesPerBar).roundToInt())
-    }
+    if (loopSamples > maximum) return (floor(maximum / samplesPerBar) * samplesPerBar).roundToInt()
     val minimum = MINIMUM_SECONDS * sampleRate
-    val loops = (minimum + rendering.size - 1) / rendering.size
-    return FloatArray(loops * rendering.size) { rendering[it % rendering.size] }
+    val loops = (minimum + loopSamples - 1) / loopSamples
+    return loops * loopSamples
 }
 
 /** A ringtone lasts at least 20 s, so that its loop does not come back too often. */
@@ -50,3 +73,5 @@ private const val MAXIMUM_SECONDS = 60
 
 /** −1 dBFS, 10^(−1/20): the loudest sample of a ringtone, which the musics, near −13 dBFS, are far from. */
 private const val PEAK = 0.8912509f
+
+private const val SECONDS_PER_MINUTE = 60.0

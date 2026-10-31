@@ -4,10 +4,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelStore
 import app.cash.turbine.test
 import ch.magori.blox.core.audio.FakeMusicPlayer
+import ch.magori.blox.core.audio.FakeRingtoneExporter
+import ch.magori.blox.core.audio.RingtoneExporter
+import ch.magori.blox.core.audio.RingtoneKind
+import ch.magori.blox.core.data.FakeUserPreferencesRepository
 import ch.magori.blox.core.data.MainDispatcherExtension
 import ch.magori.blox.core.data.MusicLibrary
 import ch.magori.blox.core.data.NameProblem
 import ch.magori.blox.core.data.SavedMusic
+import ch.magori.blox.core.data.UserPreferences
 import ch.magori.blox.core.music.Category
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
@@ -16,9 +21,12 @@ import ch.magori.blox.core.music.ScaleType
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
+import ch.magori.blox.core.music.Volume
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
@@ -30,6 +38,8 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
 import org.junit.jupiter.params.provider.EnumSource
 import org.junit.jupiter.params.provider.ValueSource
+import java.io.IOException
+import kotlin.coroutines.ContinuationInterceptor
 
 internal class MyMusicsViewModelTest {
     @JvmField
@@ -42,6 +52,15 @@ internal class MyMusicsViewModelTest {
 
     /** The deletions made in the editor, as `app` hands them over to the list. */
     private val deletedInEditor = DeletedMusicRelay()
+
+    /** Writes the ringtones and the alarms, as `app` gives it from Android 10. */
+    private val exporter = FakeRingtoneExporter()
+
+    /** The settings, which hold the volume of the music. */
+    private val preferences = FakeUserPreferencesRepository()
+
+    /** Where the files are written, in place of Dispatchers.IO: on the clock of the test, run by `runCurrent`. */
+    private val exportDispatcher = StandardTestDispatcher(mainDispatcher.scheduler, name = "export")
 
     @Test
     fun `the list shows the saved musics in their order, by their name, category and tempo`() = runMyMusicsTest {
@@ -799,12 +818,359 @@ internal class MyMusicsViewModelTest {
         }
     }
 
+    @Test
+    fun `without an exporter the menu offers no ringtone`() = runMyMusicsTest {
+        // Given
+        val evening = aSavedMusic("Thème du soir")
+
+        // When
+        val withExporter = myMusics()
+        val without = myMusics(exporter = null)
+
+        // Then: nor does a sheet open, if asked for all the same
+        withExporter.uiState.test { assertThat(expectMostRecentItem()?.ringtoneOffered).isTrue() }
+        without.uiState.test {
+            assertThat(expectMostRecentItem()?.ringtoneOffered).isFalse()
+            without.onRingtone(evening.id)
+            assertThat(without.uiState.value?.ringtone).isNull()
+        }
+    }
+
+    @Test
+    fun `choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie chosen`() = runMyMusicsTest {
+        // Given
+        aSavedMusic("Thème du soir")
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onRingtone(march.id)
+
+            // Then
+            val sheet = expectMostRecentItem()?.ringtone
+            assertThat(sheet?.id).isEqualTo(march.id)
+            assertThat(sheet?.name).isEqualTo("Ma marche")
+            assertThat(sheet?.kind).isEqualTo(RingtoneKind.RINGTONE)
+            assertThat(sheet?.phase).isEqualTo(RingtonePhase.Choosing)
+        }
+    }
+
+    @Test
+    fun `the sheet tells the length of the file, in whole seconds`() = runMyMusicsTest {
+        // Given a music of eight bars at 132 beats a minute, a loop of 14.5 s
+        val march = aSavedMusic("Ma marche", bpm = 132)
+        val viewModel = myMusics()
+
+        viewModel.uiState.test {
+            // When
+            viewModel.onRingtone(march.id)
+
+            // Then: two whole loops, 29.1 s
+            assertThat(expectMostRecentItem()?.ringtone?.seconds).isEqualTo(29)
+        }
+    }
+
+    @Test
+    fun `listening plays the samples that will be written`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+
+            // When
+            viewModel.onRingtoneListen()
+
+            // Then: the score of the music, which the synthesizer of the music renders for the file too, in a loop
+            assertThat(music.playedScores).containsExactly(march.score)
+            assertThat(expectMostRecentItem()?.ringtone?.listening).isTrue()
+        }
+    }
+
+    @Test
+    fun `Écouter touched again, Arrêter, stops the music of the sheet`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneListen()
+
+            // When
+            viewModel.onRingtoneListen()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(expectMostRecentItem()?.ringtone?.listening).isFalse()
+        }
+    }
+
+    @Test
+    fun `the sheet no longer listens once its music stops by itself`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneListen()
+
+            // When: the sequencer fails, as without an audio output
+            music.fail()
+
+            // Then
+            assertThat(expectMostRecentItem()?.ringtone?.listening).isFalse()
+        }
+    }
+
+    @Test
+    fun `the music of the sheet stops when the list is no longer visible`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneListen()
+
+            // When: the application goes into the background
+            viewModel.onHidden()
+
+            // Then: the sheet stays open, silent
+            assertThat(music.playing).isNull()
+            assertThat(expectMostRecentItem()?.ringtone?.listening).isFalse()
+        }
+    }
+
+    @Test
+    fun `the music of the sheet stops when the screen leaves the stack`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.onRingtone(march.id)
+        viewModel.onRingtoneListen()
+
+        // When
+        stores.last().clear()
+
+        // Then
+        assertThat(music.playing).isNull()
+    }
+
+    @Test
+    fun `with the volume of the music at 0 percent the sheet says it`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            assertThat(expectMostRecentItem()?.ringtone?.musicMuted).isFalse()
+
+            // When
+            preferences.state.value = UserPreferences.DEFAULT.copy(musicVolume = Volume.SILENT)
+
+            // Then
+            assertThat(expectMostRecentItem()?.ringtone?.musicMuted).isTrue()
+        }
+    }
+
+    @Test
+    fun `closing the sheet stops the listening`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneListen()
+
+            // When
+            viewModel.onRingtoneClosed()
+
+            // Then
+            assertThat(music.playing).isNull()
+            assertThat(expectMostRecentItem()?.ringtone).isNull()
+        }
+    }
+
+    @Test
+    fun `saving as a ringtone exports the score and the name of that music as a ringtone`() = runMyMusicsTest {
+        // Given
+        aSavedMusic("Thème du soir")
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.onRingtone(march.id)
+
+        // When
+        viewModel.onRingtoneSave()
+        runCurrent()
+
+        // Then
+        assertThat(exporter.exports).containsExactly(
+            FakeRingtoneExporter.Export(march.score, "Ma marche", RingtoneKind.RINGTONE),
+        )
+    }
+
+    @Test
+    fun `saving as an alarm exports it as an alarm`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.onRingtone(march.id)
+
+        // When
+        viewModel.onRingtoneKindChosen(RingtoneKind.ALARM)
+        viewModel.onRingtoneSave()
+        runCurrent()
+
+        // Then
+        assertThat(exporter.exports.map { it.kind }).containsExactly(RingtoneKind.ALARM)
+        viewModel.uiState.test { assertThat(expectMostRecentItem()?.ringtone?.kind).isEqualTo(RingtoneKind.ALARM) }
+    }
+
+    @Test
+    fun `the export runs off the main thread`() = runMyMusicsTest {
+        // Given an exporter that notes the dispatcher it is called on
+        val march = aSavedMusic("Ma marche")
+        val noting = object : RingtoneExporter {
+            var dispatcher: ContinuationInterceptor? = null
+
+            override suspend fun export(
+                score: Score,
+                name: String,
+                kind: RingtoneKind,
+            ): String {
+                dispatcher = currentCoroutineContext()[ContinuationInterceptor]
+                return "content://media/external_primary/audio/media/1"
+            }
+        }
+        val viewModel = myMusics(exporter = noting)
+        viewModel.onRingtone(march.id)
+
+        // When
+        viewModel.onRingtoneSave()
+        runCurrent()
+
+        // Then: on the dispatcher given by `app`, Dispatchers.IO
+        assertThat(noting.dispatcher).isSameAs(exportDispatcher)
+    }
+
+    @Test
+    fun `while the music is exported the sheet takes no second choice`() = runMyMusicsTest {
+        // Given a music being written as a ringtone
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneSave()
+
+            // When
+            viewModel.onRingtoneKindChosen(RingtoneKind.ALARM)
+            viewModel.onRingtoneSave()
+
+            // Then
+            val sheet = expectMostRecentItem()?.ringtone
+            assertThat(sheet?.phase).isEqualTo(RingtonePhase.Saving)
+            assertThat(sheet?.kind).isEqualTo(RingtoneKind.RINGTONE)
+        }
+        runCurrent()
+        assertThat(exporter.exports.map { it.kind }).containsExactly(RingtoneKind.RINGTONE)
+    }
+
+    @Test
+    fun `once written as a ringtone the sheet says it is in the ringtones and offers the sound settings`() =
+        runMyMusicsTest {
+            // Given
+            val march = aSavedMusic("Ma marche")
+            val viewModel = myMusics()
+            viewModel.uiState.test {
+                viewModel.onRingtone(march.id)
+
+                // When
+                viewModel.onRingtoneSave()
+                runCurrent()
+
+                // Then: a success of a ringtone, whose panel tells the ringtones and offers the sound settings
+                val phase = expectMostRecentItem()?.ringtone?.phase
+                assertThat(phase).isEqualTo(RingtonePhase.Saved(RingtoneKind.RINGTONE))
+            }
+        }
+
+    @Test
+    fun `once written as an alarm the sheet points to the clock`() = runMyMusicsTest {
+        // Given
+        val march = aSavedMusic("Ma marche")
+        val viewModel = myMusics()
+        viewModel.uiState.test {
+            viewModel.onRingtone(march.id)
+            viewModel.onRingtoneKindChosen(RingtoneKind.ALARM)
+
+            // When
+            viewModel.onRingtoneSave()
+            runCurrent()
+
+            // Then: a success of an alarm, whose panel points to the Clock
+            assertThat(expectMostRecentItem()?.ringtone?.phase).isEqualTo(RingtonePhase.Saved(RingtoneKind.ALARM))
+        }
+    }
+
+    @Test
+    fun `a write that fails says it, keeps the sheet open with its choices, and offers to try again`() =
+        runMyMusicsTest {
+            // Given a phone that cannot write the file
+            val march = aSavedMusic("Ma marche")
+            val viewModel = myMusics()
+            exporter.failure = IOException("Disk full")
+            viewModel.uiState.test {
+                viewModel.onRingtone(march.id)
+                viewModel.onRingtoneKindChosen(RingtoneKind.ALARM)
+
+                // When
+                viewModel.onRingtoneSave()
+                runCurrent()
+
+                // Then
+                val failed = expectMostRecentItem()?.ringtone
+                assertThat(failed?.phase).isEqualTo(RingtonePhase.Failed)
+                assertThat(failed?.kind).isEqualTo(RingtoneKind.ALARM)
+
+                // And when it is tried again, once the phone can write it
+                exporter.failure = null
+                viewModel.onRingtoneSave()
+                runCurrent()
+                assertThat(expectMostRecentItem()?.ringtone?.phase).isEqualTo(RingtonePhase.Saved(RingtoneKind.ALARM))
+            }
+        }
+
+    @Test
+    fun `a sheet closed while its music is written lets it be written, and the sheet opened since stays as it is`() =
+        runMyMusicsTest {
+            // Given a music being written, whose sheet is closed, and the sheet of another music opened
+            val evening = aSavedMusic("Thème du soir")
+            val march = aSavedMusic("Ma marche")
+            val viewModel = myMusics()
+            viewModel.uiState.test {
+                viewModel.onRingtone(march.id)
+                viewModel.onRingtoneSave()
+                viewModel.onRingtoneClosed()
+                viewModel.onRingtone(evening.id)
+
+                // When the file is written
+                runCurrent()
+
+                // Then: the export is not cancelled, which would leave a file without its URI (RingtoneExporter)
+                assertThat(exporter.exports.map { it.name }).containsExactly("Ma marche")
+                val sheet = expectMostRecentItem()?.ringtone
+                assertThat(sheet?.name).isEqualTo("Thème du soir")
+                assertThat(sheet?.phase).isEqualTo(RingtonePhase.Choosing)
+            }
+        }
+
     /** The actions that end the chance to undo a deletion: any action of the list, and the message closed. */
     enum class NextAction(val act: (MyMusicsViewModel, ScoreId.Personal) -> Unit) {
         LISTEN({ viewModel, other -> viewModel.onListen(other) }),
         USE({ viewModel, other -> viewModel.onUse(other) }),
         RENAME({ viewModel, other -> viewModel.onRename(other) }),
         DELETE({ viewModel, other -> viewModel.onDelete(other) }),
+        RINGTONE({ viewModel, other -> viewModel.onRingtone(other) }),
         EDITOR_OPENED({ viewModel, _ -> viewModel.onEditorOpened() }),
         MESSAGE_CLOSED({ viewModel, _ -> viewModel.onUndoDismissed() }),
     }
@@ -825,11 +1191,14 @@ internal class MyMusicsViewModelTest {
     }
 
     /** « Mes musiques » in a view model store like the navigation entry's, built by the factory as `app` builds it. */
-    private fun myMusics(library: MusicLibrary = this.library): MyMusicsViewModel {
+    private fun myMusics(
+        library: MusicLibrary = this.library,
+        exporter: RingtoneExporter? = this.exporter,
+    ): MyMusicsViewModel {
         val store = ViewModelStore().also { stores += it }
         return ViewModelProvider.create(
             store,
-            MyMusicsViewModel.Factory(library, music, deletedInEditor),
+            MyMusicsViewModel.Factory(library, music, deletedInEditor, preferences, exporter, exportDispatcher),
         )[MyMusicsViewModel::class]
     }
 
