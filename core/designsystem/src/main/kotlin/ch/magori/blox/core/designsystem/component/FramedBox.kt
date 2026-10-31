@@ -72,7 +72,7 @@ fun WrappingLabel(
 
 /**
  * Between each side of a [FramedBox] and its content, given its [labelPadding]: its frame, one more dp, then the
- * padding; in pixels, [framedBoxPaddingPx].
+ * padding.
  */
 internal fun framedBoxPadding(labelPadding: Dp): Dp = BloxBorders.frame + 1.dp + labelPadding
 

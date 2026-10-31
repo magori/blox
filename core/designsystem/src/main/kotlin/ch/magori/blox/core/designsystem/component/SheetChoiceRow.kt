@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.theme.BloxBorders
 import ch.magori.blox.core.designsystem.theme.BloxSizes
@@ -39,7 +42,9 @@ import ch.magori.blox.core.designsystem.theme.shrinkToWholeWords
  * under it, its [subLine], which says what it is. The whole row, [BloxSizes.settingRow] high at least, is the choice,
  * for the finger and for TalkBack, which reads it once as a radio button: « Surprise, Un peu de tout, case d'option,
  * sélectionnée ». Touched, it calls [onClick]: the caller holds the choice. Pressed, it fills with `button-pressed`;
- * focused by the keyboard, it bears the ring of the buttons.
+ * focused by the keyboard, it bears the ring of the buttons. With [oneLineSubLine], the sub-line, a name rather than
+ * words (a file: « orage-d-ete.ogg »), holds one line at the size of the font, cut in its middle when too long, so that
+ * its start and its end stay: TalkBack reads it whole. Its least width (intrinsic) is then its whole width.
  */
 @Composable
 fun SheetChoiceRow(
@@ -48,6 +53,7 @@ fun SheetChoiceRow(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    oneLineSubLine: Boolean = false,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val pressed by interactionSource.collectIsPressedAsState()
@@ -79,12 +85,26 @@ fun SheetChoiceRow(
             val labelStyle = settingLabelStyle()
             Text(text = label, color = ink, style = labelStyle, autoSize = shrinkToWholeWords(labelStyle.fontSize))
             val subLineStyle = MaterialTheme.typography.bodyMedium.merge(BloxTheme.typography.small)
-            Text(
-                text = subLine,
-                color = if (pressed) bubble.pressedInk else palette.label,
-                style = subLineStyle,
-                autoSize = shrinkToWholeWords(subLineStyle.fontSize),
-            )
+            val subLineInk = if (pressed) bubble.pressedInk else palette.label
+            if (oneLineSubLine) {
+                Text(
+                    text = subLine,
+                    color = subLineInk,
+                    style = subLineStyle,
+                    // Its least width is its whole width, never that of a piece between hyphens: a row which places its
+                    // actions by the least width of its choice leaves the name room when it can; it is cut when not.
+                    modifier = Modifier.width(IntrinsicSize.Max),
+                    maxLines = 1,
+                    overflow = TextOverflow.MiddleEllipsis,
+                )
+            } else {
+                Text(
+                    text = subLine,
+                    color = subLineInk,
+                    style = subLineStyle,
+                    autoSize = shrinkToWholeWords(subLineStyle.fontSize),
+                )
+            }
         }
     }
 }

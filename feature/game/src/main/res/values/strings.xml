@@ -10,6 +10,8 @@
     <string name="feature_game_level">Niveau</string>
     <string name="feature_game_lines">Lignes</string>
     <string name="feature_game_next">Suivante</string>
+    <!-- L’autocollant d’un effacement de 4 lignes sur le plateau, au-dessus des points (P5.81), écrit en capitales. -->
+    <string name="feature_game_four_lines_sticker">4 lignes</string>
     <string name="feature_game_value_description">%1$s : %2$s</string>
     <string name="feature_game_over_title">Partie terminée</string>
     <string name="feature_game_over_new_record">Nouveau record</string>

@@ -1,7 +1,6 @@
 package ch.magori.blox.feature.composer
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -9,17 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,14 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
-import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.toggleableState
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ch.magori.blox.core.designsystem.component.GlyphButton
 import ch.magori.blox.core.designsystem.component.Glyphs
+import ch.magori.blox.core.designsystem.component.RowMenu
 import ch.magori.blox.core.designsystem.icon.BloxIcon
 import ch.magori.blox.core.designsystem.theme.BloxSizes
 import ch.magori.blox.core.designsystem.theme.BloxTheme
@@ -53,8 +42,10 @@ private const val GLYPH_STROKE = 0.12f
 /**
  * The header of the editor: the back button, the title, the [name] of the music (« Nouvelle musique » until it is
  * named), to touch to rename it, with its pencil, and its info line on two lines at most, its [style], its [key]
- * and its [status]; the dice, *Au hasard*, which opens its sheet ([onDice]); and the menu « … »: *Renommer*,
- * *Suivre la lecture*, *Montrer l'autre piste en filigrane* and, for a saved music ([canDelete]), *Supprimer*.
+ * and its [status]; the dice, *Au hasard*, which opens its sheet ([onDice]); and the menu « … » ([RowMenu]):
+ * *Renommer*, *Suivre la lecture* and *Montrer l'autre piste en filigrane*, checked or not, and, for a saved music
+ * ([canDelete]), *Supprimer* in `danger`. While a window is open ([windowOpen]), « … » waits for it to close to take the
+ * focus back.
  */
 @Composable
 internal fun ComposerHeader(
@@ -65,6 +56,7 @@ internal fun ComposerHeader(
     canDelete: Boolean,
     showOtherTrack: Boolean,
     followPlayback: Boolean,
+    windowOpen: Boolean,
     onBack: () -> Unit,
     onRename: () -> Unit,
     onDice: () -> Unit,
@@ -118,79 +110,22 @@ internal fun ComposerHeader(
             description = stringResource(R.string.feature_composer_dice),
             onClick = onDice,
         )
-        Box {
-            var expanded by remember { mutableStateOf(false) }
-            GlyphButton(description = stringResource(R.string.feature_composer_menu), onClick = { expanded = true }) {
-                Glyphs.more(this, it)
-            }
-            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.feature_composer_menu_rename)) },
-                    leadingIcon = { BloxIcon(BloxIcon.RENAME, tint = palette.ink) },
-                    onClick = {
-                        expanded = false
-                        onRename()
-                    },
-                )
-                CheckItem(
-                    text = stringResource(R.string.feature_composer_menu_follow),
-                    checked = followPlayback,
-                    onChecked = {
-                        onFollowPlayback(it)
-                        expanded = false
-                    },
-                )
-                CheckItem(
-                    text = stringResource(R.string.feature_composer_menu_other_track),
-                    checked = showOtherTrack,
-                    onChecked = {
-                        onOtherTrackShown(it)
-                        expanded = false
-                    },
-                )
-                if (canDelete) {
-                    DropdownMenuItem(
-                        text = { Text(stringResource(R.string.feature_composer_menu_delete), color = palette.danger) },
-                        leadingIcon = { BloxIcon(BloxIcon.TRASH, tint = palette.danger) },
-                        onClick = {
-                            expanded = false
-                            onDelete()
-                        },
-                    )
-                }
-            }
+        // Renommer and Supprimer open a window ([windowOpen]): « … » takes the focus back once it closes.
+        RowMenu(description = stringResource(R.string.feature_composer_menu), windowOpen = windowOpen) {
+            RenameItem(onRename = onRename)
+            CheckItem(
+                text = stringResource(R.string.feature_composer_menu_follow),
+                checked = followPlayback,
+                onCheckedChange = onFollowPlayback,
+            )
+            CheckItem(
+                text = stringResource(R.string.feature_composer_menu_other_track),
+                checked = showOtherTrack,
+                onCheckedChange = onOtherTrackShown,
+            )
+            if (canDelete) DeleteItem(onDelete = onDelete)
         }
     }
-}
-
-/** An item of the menu « … » that is [checked] or not, with its check box; touching it calls [onChecked] with the other. */
-@Composable
-private fun CheckItem(
-    text: String,
-    checked: Boolean,
-    onChecked: (Boolean) -> Unit,
-) {
-    val palette = BloxTheme.palette
-    DropdownMenuItem(
-        text = { Text(text) },
-        trailingIcon = {
-            Checkbox(
-                checked = checked,
-                onCheckedChange = null,
-                colors = CheckboxDefaults.colors(
-                    checkedColor = palette.accent,
-                    checkmarkColor = palette.accentInk,
-                    uncheckedColor = palette.ink,
-                ),
-            )
-        },
-        onClick = { onChecked(!checked) },
-        // Read by TalkBack as the check box it shows, ticked or not.
-        modifier = Modifier.semantics {
-            role = Role.Checkbox
-            toggleableState = ToggleableState(checked)
-        },
-    )
 }
 
 /**

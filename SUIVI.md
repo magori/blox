@@ -43,6 +43,8 @@ périmètre, modifier la liste ci-dessous.
 | P10 | Le Jardin musical, troisième jeu | Spécification faite ; à faire, en parallèle de P9 |
 | P11 | Au tempo, la pièce tombe en rythme | Spécification faite ; à faire en dernier, après une mesure sur téléphone |
 | P12 | Réglages généraux et réglages par jeu | Proposition du designer validée (2026-10-28) ; à faire après P10 |
+| P13 | Sonnerie ou réveil, une musique du joueur dans le téléphone | Spécification faite (2026-10-31) ; à faire |
+| P14 | Instruments, Arcade, Velours ou Néon pour toutes les musiques | Spécification faite (2026-10-31) ; à faire |
 
 ---
 
@@ -683,9 +685,11 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   2026-10-20, section Réglages) : les brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
   leur valeur par défaut : désactivés (décisions du développeur, 2026-10-19 et 2026-10-20 ; P5.2,
   P4.8). Fait : section Réglages, `settingColors`, désactivés par défaut.
-- [ ] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
+- [x] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
   déjà codé), à afficher
-  (`OpenableColumns.DISPLAY_NAME`) (P4.6).
+  (`OpenableColumns.DISPLAY_NAME`) (P4.6). Fait : nom lu une fois au choix (`MusicFileNames`,
+  `DocumentMusicFileNames` dans `app`), gardé avec l'URI (clé `name` de `music_file.preferences_pb`), affiché
+  dans la feuille Musique sur une ligne, coupé au milieu ; sans nom connu, « Un fichier audio de l'appareil ».
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 - [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
@@ -992,7 +996,7 @@ composants.
   ticks`, `the clear pops the cells by pairs from the centre within the clear delay`, `the points sticker rises
   and fades in 45 ticks`, `in reduced effects nothing moves and the score shows at once`, `a paused game freezes
   its effects`, `nothing recomposes while an effect plays`, `the painters are built once while effects play`.
-- [ ] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
+- [x] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
   LIGNES »), `LevelUp` (encart NIVEAU qui bascule et s'encadre d'`accent` 1 s, annonce TalkBack), `StackDanger`
   (cadre `danger` de 4 dp, 5 rangées du haut en `danger-soft` qui respirent), record battu (rebond, barre
   irisée). Après P5.64, P5.80.
@@ -1118,7 +1122,7 @@ composants.
     categories, each with what it sounds like, the chosen one checked`, `choosing a category keeps the sheet open and
     the choice`, `Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler` ;
     captures.
-  - [ ] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
+  - [x] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
     dé, « … » en `BloxMenu`) ; pistes et Poser / Allonger en `ChoiceSegments` (coche sur le retenu) ; Annuler,
     Copier, Effacer compacts ; mesures en 2 × 4, mesure jouée lue « en lecture » ; tempo en pilule (disques nus de
     48 dp) et Écouter de 56 dp ; Enregistrer seul en `accent`, toujours en accent, point devant tant que la musique a
@@ -1209,6 +1213,19 @@ composants.
 - [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
   `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
   seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
+- [ ] **P5.113** `textLayout(…).hasVisualOverflow` vrai pour le libellé d'un `BubbleButton` qui tient pourtant dans
+  son bouton (découvert en P5.102, « Annuler » en police ×2 : paragraphe de 754 px pour un nœud de 481) : trouver
+  pourquoi la mise en page lue par la sémantique n'est pas celle du nœud, puis rendre la vérification à
+  `ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp…` (qui compare les
+  bornes en attendant). Écouter aussi l'éditeur V33 avec TalkBack sur appareil (groupes « Piste » et « Outil »,
+  mesures lues comme boutons radio, P5.95 ; mesure jouée lue « en lecture » ou « sélectionnée, en lecture »).
+- [ ] **P5.115** Fusionner les mises en page « à côté ou dessous » (`core:designsystem`, règle de 2, revue de P5.102) :
+  `FixedBesideRest` de l'éditeur refait `SettingRowLayout` (une part fixe, le reste de la ligne, dessous quand elle
+  ne tient pas), et `ColumnOrRow` refait `SideBySideOrStacked`. Une seule mise en page partagée pour chacune, ses
+  décisions en fonctions pures (comme `fitsBesideFixed`, `sideBySide`), sans changer les rangées de réglage ni leurs
+  captures.
+- [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
+  est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
 - [ ] **P5.117** Vérifier à la manette que descendre vers la jauge du niveau la prend, et non son bouton −
   (`feature:home`, découvert en revue de P5.90) : la jauge et ses − et + prennent tous le focus ; la flèche bas
   venue de la ligne au-dessus doit poser le focus sur la jauge. À vérifier sur un appareil avec une manette, puis un
@@ -1914,6 +1931,212 @@ pause (P11.11).
   (pouce creux et cadre de piste à l'encre de `switchLook`, aperçus et captures `SwitchesOriginal*`, cas Original de
   `SwitchLookTest` et `SettingSwitchRowTest`) ; `settingLabelStyle` garde sa branche Original (choix de la feuille
   Musique de l'accueil, qui peut être en Original), la sous-ligne ses trois lignes (Couleurs ×2 en a besoin).
+
+## P13 — Sonnerie ou réveil (`core:audio`, `core:designsystem`, `feature:musics`, `feature:composer`, `app`)
+
+Demande du développeur (2026-10-31) : faire d'une musique composée dans BloX la sonnerie ou le son de réveil du
+téléphone. Propositions de `architecte` et de `designer-jeu` (2026-10-31), tranchées par le développeur. Règles :
+[docs/musique.md](docs/musique.md), Sonnerie ou réveil. Architecture : [ADR 0031](docs/adr/0031-sonnerie-et-reveil.md)
+(amende 0008). Vue : V42. Seulement les musiques de « Mes musiques », Android 10 et plus, aucune permission ; WAV
+PCM 16 bits mono 44,1 kHz, boucles entières de 20 à 60 s, crête à −1 dBFS ; chaque export crée un nouveau fichier.
+P13.2 attend les empreintes de référence d'Arcade (P14.2), écrites avant tout changement du synthétiseur ; ensuite,
+P13 et P14 sont indépendantes jusqu'à P14.13. La maquette (P13.8) se dessine avant les tâches d'interface.
+
+- [x] **P13.1** Spécification et décision : ADR 0031, section « Sonnerie ou réveil » de `docs/musique.md`, vue V42
+  numérotée (à dessiner) et vues à modifier notées dans `docs/maquette.md` ; documentation seule. Fait le 2026-10-31,
+  avec P14.1.
+- [ ] **P13.2** `MUSIC_SAMPLE_RATE` (44 100) public dans `core:audio`, un seul `Synthesizer` de musique partagé par le
+  séquenceur et l'export dans `AppContainer` ; pur refactoring, tests existants et empreintes de P14.2 verts.
+  Après P14.2.
+- [ ] **P13.3** `WavEncoder` (`core:audio`, pur, JVM). Cas : `the header is RIFF WAVE with a fmt chunk of PCM, mono,
+  16 bits, at the sample rate given`, `the RIFF and data sizes match the number of samples`, `a sample of 1 is
+  written as 32767 and a sample of -1 as -32767, little endian`, `a sample beyond -1 or 1 is clipped`, `zero is
+  written as zero`, `an empty rendering is refused`.
+- [ ] **P13.4** `ringtoneSamples(rendering, sampleRate, samplesPerBar)` (`core:audio`, pur) : boucles entières, au
+  moins 20 s, jamais plus de 60 s, crête à −1 dBFS. Cas : `a loop shorter than 20 seconds is repeated until the
+  ringtone lasts at least 20 seconds`, `the ringtone holds only whole loops, so that it loops without a seam`, `a
+  loop of 20 to 60 seconds is kept once`, `a loop longer than 60 seconds is cut at its last whole bar before 60
+  seconds`, `the ringtone never lasts more than 60 seconds`, `the loudest sample is brought to minus 1 dBFS`, `a
+  silent rendering stays silent, without dividing by zero`.
+- [ ] **P13.5** `ringtoneFileName(name)` (`core:audio`, pur). Cas : `the file is named after the music, with the wav
+  extension`, `the characters a file name may not hold are replaced`, `a name of spaces or symbols only gives BloX`.
+- [ ] **P13.6** `RingtoneExporter` (`suspend fun export(score: Score, name: String, kind: RingtoneKind): Uri`,
+  `IOException` en cas d'échec), `RingtoneKind { RINGTONE, ALARM }`, `FakeRingtoneExporter` (doublures de test de
+  `core:audio`), `MediaStoreRingtoneExporter` (API 29+ : `Ringtones/BloX/` ou `Alarms/BloX/`, `IS_RINGTONE` ou
+  `IS_ALARM`, `TITLE` au nom retenu, `IS_PENDING`), qui passe par une interface d'écriture (`RingtoneStore` :
+  insertion, flux, publication, suppression ; `ContentResolverRingtoneStore` en production, un faux sur la JVM). Cas
+  JVM : `the exporter renders the score with the synthesizer of the music, at its tempo`, `the file holds the
+  ringtone samples of the rendering, encoded as WAV`, `a write that fails leaves no entry behind`, `an entry is
+  published only once its file is whole`. Cas instrumentés (Android 10 et plus) : `a ringtone is written in Ringtones
+  BloX, marked as a ringtone and no longer pending`, `an alarm is written in Alarms BloX, marked as an alarm`, `the
+  title of the file is the name of the music`, `the file written reads back as the WAV encoded`, `two exports of the
+  same name give two files, the second titled Nom (1)`. Après P13.2 à P13.5.
+- [ ] **P13.7** `MyMusicsViewModel` exporte (`feature:musics`) : la fabrique reçoit un `RingtoneExporter?`, le
+  dispatcher est injecté ; état de la feuille (usage choisi, écoute, en cours, réussi, échec). Cas : `without an
+  exporter the menu offers no ringtone`, `choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie
+  chosen`, `the sheet tells the length of the file, in whole seconds`, `listening plays the samples that will be
+  written`, `with the volume of the music at 0 % the sheet says it`, `closing the sheet stops the listening`, `saving
+  as a ringtone exports the score and the name of that
+  music as a ringtone`, `saving as an alarm exports it as an alarm`, `while the music is exported the sheet takes no
+  second choice`, `once written as a ringtone the sheet says it is in the ringtones and offers the sound settings`,
+  `once written as an alarm the sheet points to the clock`, `a write that fails says it, keeps the sheet open with
+  its choices, and offers to try again`, `the export runs off the main thread`. Après P13.6.
+- [ ] **P13.8** Mettre à jour la maquette (depuis claude.ai), **avant les tâches d'interface** (P13.9 à P13.11) : V42
+  (repos, en cours, réussi en sonnerie et en réveil, échec, volume à 0 % ; jour, nuit, ×2) ; V32 (rangée du menu,
+  phrase de la fenêtre Supprimer) ; V33 (rangée du menu, deux fenêtres) ; pictogramme cloche.
+- [ ] **P13.9** Composant `RingtoneSheet` (`core:designsystem`), sans état, et pictogramme `BELL` (pixels et
+  traits) : titre, nom de la musique et Écouter, groupe « Pour », action, panneaux en cours, réussi et échec ;
+  paramètres simples (textes, durée, phase de la feuille, `RingtoneSheetPhase` propre au composant) et rappels ;
+  captures Couleurs jour, nuit, ×2 (repos, en cours, réussi par usage, échec). Cas : `the sheet reads its title as a
+  heading, then the name of the music`, `each use of the sheet is a radio button read by TalkBack with its name and
+  its length`, `the action says Enregistrer comme sonnerie or Enregistrer comme réveil, after the use chosen`, `past
+  300 ms of writing the action reads Enregistrement…`, `the writing is announced in a live region`, `a success shows
+  C'EST FAIT and the sentences of its use`, `Ouvrir les réglages du son calls back to open the sound settings`, `a
+  button to open an app is absent when no app answers`, `a failure is announced politely and offers Réessayer`,
+  `with the volume of the music at 0 % the sheet says it`, `in reduced effects the sticker does not bounce`. Après
+  P13.8.
+- [ ] **P13.10** Câblage de Mes musiques (`feature:musics`, V32) : rangée « Sonnerie ou réveil » du menu « … »
+  entre « La jouer… » et « Supprimer », absente sans exportateur ; `RingtoneSheet` branchée sur l'état de
+  `MyMusicsViewModel` (P13.7) ; phrase de plus dans la fenêtre Supprimer (Android 10 et plus) ; arpège des lignes
+  effacées à la réussite. Cas : `the menu of a row offers Modifier, Renommer, the games, Sonnerie ou réveil and
+  Supprimer, in this order`, `the deletion window says the ringtone stays in the phone`, `a success plays the
+  arpeggio of the lines cleared when the sound effects are on and nothing is listened to`. Après P13.9.
+- [ ] **P13.11** Éditeur (`feature:composer`, V33) : rangée « Sonnerie ou réveil » du menu « … » après « Renommer » ;
+  fenêtres « Enregistre d'abord ta musique » et « Des changements ne sont pas enregistrés » ; la même feuille
+  (`RingtoneSheet`). Mise en commun (règle de 2) : l'état de la feuille et l'export, écrits en P13.7 dans
+  `MyMusicsViewModel`, passent dans **`RingtoneExport`** (`core:audio`) — détenteur d'état sans Android (usage choisi,
+  durée, écoute, en cours, réussi, échec ; `choose`, `listen`, `save`, `retry`, `close`), construit sur le
+  `RingtoneExporter`, le lecteur de musique, la portée et le dispatcher du ViewModel, et exposé en `StateFlow` ; les
+  deux ViewModels le tiennent et traduisent son état en paramètres de `RingtoneSheet`. Non-régression : les cas de
+  P13.7 passent dans `RingtoneExportTest`, verts ; `MyMusicsViewModelTest` garde `without an exporter the menu offers
+  no ringtone` et `choosing Sonnerie ou réveil opens the sheet of that music, Sonnerie chosen`, verts, et le
+  parcours de P13.10 reste vert. Cas de l'éditeur : `the menu of the editor offers Sonnerie ou réveil after
+  Renommer`, `a music never saved asks to save it first, Continuer then Enregistrer`, `an empty grid asks to save it
+  first`, `Enregistrer opens the save window, then the sheet once saved`, `a music changed since saved asks which
+  version to use`, `Utiliser la version enregistrée exports the saved score, not the one edited`, `Enregistrer
+  d'abord saves, then opens the sheet`. Après P13.10.
+- [ ] **P13.12** Branchement dans `app` : `MediaStoreRingtoneExporter` à partir de l'API 29, sinon `null` ;
+  `onOpenSoundSettings` (`Settings.ACTION_SOUND_SETTINGS`) et `onOpenClock` (`AlarmClock.ACTION_SHOW_ALARMS`),
+  offerts seulement si une application répond (`<queries>` du manifeste). Cas : `before API 29 no exporter is given`,
+  `the manifest declares no storage or settings permission`, `the sound settings are offered only when an app
+  answers them`, `the clock is offered only when an app answers it`. Après P13.11.
+- [ ] **P13.13** Mesure sur téléphone (sans code de production) : le fichier dans le sélecteur de sonneries et dans
+  l'Horloge (Pixel, Samsung si possible), boucle sans claquement, niveau à côté des sonneries du système, un réveil
+  réglé sur un fichier supprimé ; résultats dans `docs/musique.md` (retrait des **[à vérifier]**) et `JOURNAL.md`.
+  Après P13.12.
+- [ ] **P13.14** (facultative) Mettre à jour une sonnerie déjà exportée : garder l'adresse du fichier écrit par
+  musique et par usage ; sous-ligne « Déjà dans le téléphone », action « Mettre à jour la sonnerie », fichier
+  remplacé sur place, « Sonnerie mise à jour. » (proposition du designer, reportée). Cas : `a music already exported
+  as a ringtone says it is already in the phone`, `updating replaces the file in place, at the same address`, `a
+  file removed from the phone is written anew`. Amendement de l'ADR 0031. Après P13.12.
+
+## P14 — Instruments (`core:music`, `core:audio`, `core:data`, `feature:settings`, `feature:musics`, `app`)
+
+Demande du développeur (2026-10-31) : changer le son de toutes les musiques, garder l'actuel et en proposer un doux
+et un dynamique. Réglage « Instruments », trois choix : **Arcade** (le son actuel, inchangé, par défaut),
+**Velours** (doux, apaisant), **Néon** (dynamique, tendance) ; `enum class SoundStyle { ARCADE, VELVET, NEON }`.
+Réglage général (« Tous les jeux », Sons et vibrations), avec écoute d'essai ; les effets sonores suivent aussi
+l'instrument, ceux du Jardin compris. Règles : [docs/musique.md](docs/musique.md), Instruments. Architecture :
+[ADR 0032](docs/adr/0032-instruments.md) (amende 0008 et 0030). Vues : V43, V31, V42, V27. Arcade rend exactement les
+échantillons d'aujourd'hui, effets compris : les empreintes de référence (P14.2) s'écrivent avant tout changement du
+synthétiseur, P13.2 compris. La maquette (P14.10) se dessine avant les tâches d'interface ; le réglage à l'oreille
+(P14.16) vient après les effets, et la mesure du niveau (P14.17) après lui.
+
+- [x] **P14.1** Spécification et décision : ADR 0032, section « Instruments » de `docs/musique.md` (valeurs
+  **[à vérifier]**), vue V43 numérotée (à dessiner), notes des ADR 0008 et 0030, glossaire de `CLAUDE.md` ;
+  documentation seule. Fait le 2026-10-31, avec P13.1.
+- [ ] **P14.2** Empreintes de référence du son actuel (`core:audio`, JVM), **avant P13.2 et avant tout changement du
+  synthétiseur** : seulement l'API d'aujourd'hui (`Synthesizer.render(score, tempoFactor)`,
+  `Synthesizer.render(effect)`), une empreinte (somme de contrôle des échantillons) par rendu. Cas : `Korobeiniki
+  renders the samples of its fingerprint, at tempo 1 and 1,25`, `the Minuet renders the samples of its fingerprint,
+  at tempo 1 and 1,25`, `a generated music renders the samples of its fingerprint, at tempo 1 and 1,25`, `every
+  effect of the Classic renders the samples of its fingerprint`, `every effect of the Locksmith renders the samples
+  of its fingerprint`, `every effect of the garden renders the samples of its fingerprint`. Ces tests restent verts
+  jusqu'au bout de P13 et P14 : Arcade les garde (P14.5, P14.13).
+- [ ] **P14.3** `SoundStyle`, `Instrument`, `Tone`, `NoteShape` (`Gate`, `Adsr`), `Echo` (`core:music`, pur). Cas :
+  `the names of the sound styles are frozen`, `in the Arcade style the square plays a square gated as today and the
+  triangle a triangle`, `every style has an instrument for every waveform`, `every instrument of every style starts
+  within 5 milliseconds`, `the Arcade style has no echo and no filter`, `an ADSR refuses a negative time and a
+  sustain outside 0 and 1`, `an echo refuses a feedback of 1 or more`, `an echo refuses a delay of no beat`.
+- [ ] **P14.4** Nouvelles ondes (`core:audio`, pur). Cas : `a sine at 440 Hz crosses zero rising every 100 point 2
+  samples`, `a pulse of a quarter is high for a quarter of its period`, `a band-limited saw stays within -1 and 1 and
+  loses its aliasing above the Nyquist frequency`, `the square and the triangle render as before`. Après P14.2.
+- [ ] **P14.5** `Synthesizer.render(score, tempoFactor, style)` et forme de note. Cas : `the Arcade style renders the
+  fingerprints of P14.2`, `an ADSR rises over its attack, falls to its sustain over its decay, and releases at the
+  end of the note`, `a release never runs into the next note of the voice`, `a note still lasts its beats times 60
+  over the tempo, whatever the style`. Après P14.3 et P14.4.
+- [ ] **P14.6** Filtre passe-bas à un pôle (`core:audio`). Cas : `a constant signal passes the low-pass unchanged`, `a
+  tone at the cutoff comes out about 3 dB lower`, `a tone far above the cutoff is attenuated`, `an instrument without
+  filter is not changed`. Après P14.5.
+- [ ] **P14.7** Écho circulaire, au mixage (`core:audio`). Cas : `a click comes back after the delay of the echo at its
+  feedback`, `the delay of the echo follows the tempo, in beats`, `the echo of the end of the loop sounds at its
+  start, so that the loop has no seam`, `the rendering keeps the length of the score`, `the echo never takes the mix
+  beyond -1 and 1`. Après P14.5.
+- [ ] **P14.8** `SoundStyleControl.setSoundStyle(style)` (`ChiptuneSequencer`, `MusicSwitch`, `FocusedMusicPlayer`,
+  `FakeMusicPlayer`, `MusicPlayerContract`), cache des tampons par style. Cas : `a style set while nothing plays
+  applies to the next play`, `a style set while a score plays applies from the next play or resume`, `a score
+  switched to is rendered in the style set`, `changing the style drops the buffers rendered in the other style`,
+  `setting the style it plays renders nothing`, `a music file is not changed by the style`. Après P14.5.
+- [ ] **P14.9** `UserPreferences.soundStyle` (`core:data`, clé `sound_style` par nom, Arcade si absente ou inconnue),
+  contrat, faux ; `applySavedSoundStyle` dans `app`. Cas : `the sound style is Arcade until the player chooses one`,
+  `the sound style chosen reads back`, `an unknown style read from the file gives the Arcade`, `the saved style is
+  applied to the music as soon as it is read, then at each change`, `a change of another setting does not set the
+  style again`. Après P14.8.
+- [ ] **P14.10** Mettre à jour la maquette (depuis claude.ai), **avant les tâches d'interface** (P14.11 à P14.13,
+  P14.20) : V43 (Écouter en cours, volume à 0 % ; jour, nuit, ×2) ; V31 (rangée Instruments, note de la carte) ; V42
+  (groupe Instruments) ; V27 (sous-ligne de « Mon fichier ») ; pictogrammes manette, lune, éclair.
+- [ ] **P14.11** Rangée « Instruments » (`feature:settings`, V31) : au-dessus de « Volume de la musique », sous-ligne
+  « *Arcade* · le son de toutes les musiques de BloX », qui ouvre la feuille ; note du bas de la carte ; captures
+  jour, nuit, ×2. Cas : `the row Instruments stands above the volume of the music and names the instrument chosen`,
+  `tapping the row Instruments opens its sheet`, `the card says the instruments hold from the next music played`.
+  Après P14.9 et P14.10.
+- [ ] **P14.12** Feuille Instruments (V43, `feature:settings`) : trois choix, chacun avec son pictogramme (manette,
+  lune, éclair, nouveaux dans `core:designsystem`) et son `ListenButton` ; morceau d'essai (musique des parties,
+  sinon Korobeïniki, 4 premières mesures en boucle) ; captures jour, nuit, ×2. Cas : `the three instruments are
+  offered, the one saved selected`, `choosing an instrument saves it and keeps the sheet open`, `the instrument
+  chosen is heard for one bar`, `listening plays the game music in the instrument of its row`, `without a score for
+  the games, listening plays Korobeiniki`, `closing the sheet stops the listening`, `leaving the page stops the
+  listening`, `each choice is read by TalkBack with its name and its state`, `with the volume of the music at 0 % the
+  sheet says it`. Après P14.11.
+- [ ] **P14.13** L'export prend un instrument : la signature de P13.6 change, `export(score, name, kind)` devient
+  `export(score, name, kind, style)` (`RingtoneExporter`, `MediaStoreRingtoneExporter`, `FakeRingtoneExporter`,
+  `RingtoneExport` et leurs tests) ; la feuille V42 gagne le groupe « Instruments », présélectionné. Avant cette
+  tâche, le fichier est rendu en Arcade. Cas : `the sheet preselects the sound style saved`, `the ringtone is
+  rendered in the style chosen in the sheet`, `listening in the sheet plays the style chosen in it`, `the style
+  chosen for a ringtone is not saved as the setting`, `in the Arcade style the ringtone renders as before`, `in a
+  font twice as large the instruments of the sheet stand one above the other`. Après P13.11 (P13.12 pour le
+  parcours complet) et P14.9.
+- [ ] **P14.14** Les effets du Classique, du Serrurier et du Jardin suivent l'instrument (`core:audio`, JVM) :
+  `Synthesizer.render(effect, style)` prend le ton et le filtre de l'instrument de leur `Waveform` (`SoundEffects`,
+  `LocksmithSounds`, `GardenSounds`), garde leur `Envelope`, sans écho. Cas : `in the Arcade style the effects render
+  the fingerprints of P14.2`, `in the Velvet style the lines cleared play on the tone of the velvet melody`, `an
+  effect keeps its own envelope, starting within 5 milliseconds, whatever the style`, `an effect has no echo, so
+  that it lasts its milliseconds`, `in every style the effects of the locksmith and of the garden take the tone of
+  their waveform`. Après P14.6 et P14.7.
+- [ ] **P14.15** Branchement des effets (`core:audio`, `app`) : `SoundEffectTracks` reçoit le style
+  (`SoundStyleControl`) ; il le prend **à la prochaine musique jouée**, en même temps que la musique, oublie alors les
+  pistes rendues dans l'ancien instrument et les rend de nouveau ; `app` l'applique avec la musique
+  (`applySavedSoundStyle`). Cas : `the effects take the new instrument from the next music played`, `changing the
+  style drops the tracks rendered in the other style and renders them again at their next play`, `setting the style
+  the effects play renders nothing`, `the saved style reaches the effects as it reaches the music`. Après P14.14 et
+  P14.9.
+- [ ] **P14.16** Réglage à l'oreille sur téléphone (Au tempo et son métronome compris, accélération × 1,25 aux
+  niveaux 18 et 19, raccord de la boucle avec l'écho, effets du Classique, du Serrurier et du Jardin) ; noter aussi
+  qu'une sonnerie en Néon, normalisée en crête, peut sonner plus fort que les autres ; retrait des **[à vérifier]**
+  de timbre de `docs/musique.md`, valeurs retenues dans le code et la doc. Après P14.15.
+- [ ] **P14.17** Niveau des styles, musiques et effets : gains réglés par la mesure, sur les timbres arrêtés à
+  l'oreille. Cas : `every style renders Korobeiniki within 1 dB of the Arcade in RMS`, `every style renders the
+  generated musics of every category within 1 dB of the Arcade`, `every effect of every style stays within 1 dB of
+  the Arcade in RMS`. Après P14.16.
+- [ ] **P14.18** Mesure du temps de rendu par instrument sur un téléphone d'entrée de gamme : seuil 150 ms pour 8
+  mesures ; au-delà, simplifier l'écho ou le filtre ; résultat dans `docs/musique.md` et `JOURNAL.md`. Après P14.17.
+- [ ] **P14.19** (facultative) Rythmique de Néon, tirée de la mesure (grosse caisse sur les temps, claquement sur 2
+  et 4, charleston en croches, onde de bruit), jamais écrite dans `musics.bin`, jamais dans Au tempo. Cas : `in the
+  Neon style a kick sounds on every beat of the bar`, `the drums follow the meter of the score, 3/4 included`, `Au
+  tempo plays no drums, whatever the style`, `the drums stay within the level of the style`. Après P14.17.
+- [ ] **P14.20** Sous-ligne de « Mon fichier » dans la feuille Musique de l'accueil du Classique (`feature:home`,
+  V27) : « Un fichier audio de l'appareil · joué tel quel ». Cas : `Mon fichier says under its name that the file
+  plays as it is`. N'attend aucune autre tâche de P14 (après la maquette P14.10, de préférence).
 
 ---
 

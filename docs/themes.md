@@ -8,8 +8,8 @@ sont codées aujourd'hui. Le thème Original prend les
 mêmes mises en page v2 avec ses propres jetons (ADR 0020). Valeurs Original retenues pour les
 rôles nouveaux (P5.56, à confirmer sur la maquette en P5.85) : `emptyCell` `#DCEBD5` (le fond du
 plateau), `panelInset` `#DCEBD5`, `scrim` `rgba(207,227,200,0.85)`, `clearGlow` `#EEF5EA`,
-`dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger se lit au cadre de
-4 dp), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo
+`dangerSoft` `rgba(52,80,58,0.14)` (Original n'a pas de rouge ; le danger devait s'y lire au cadre de
+4 dp, mais Original, figé, n'a pas reçu les retours de P5.81), `cellDead` `#BFD6B6`, `iris` remplacé par l'aplat `#34503A`, `accentRing` sans halo
 (`OriginalPaletteTest › the roles new in v2 have in the Original theme the values of docs themes md`).
 Points tranchés en P5.56 : pendant la partie (P5.78), NOUVEAU RECORD n'apparaît que si un record supérieur à 0 existait (sinon il s'afficherait dès le premier point) ; en fin de partie, la règle reste celle d'aujourd'hui (un premier score positif est un nouveau record, `HighScoreRepositoryContract › a first positive score is a new record against 0`) ;
 un volume à 0 joue en silence (la musique ne s'arrête pas) ; pas de fondu au changement de thème.
@@ -648,6 +648,51 @@ l'autocollant s'efface en 8 ticks au plus.
 `GameScreenTest › the effects are drawn over the game, and gone once over` ;
 captures `GameScreenClearing*` et `GameScreenCleared*` (jour, nuit, grande police, Effets réduits). Vue : V28.
 
+**Retours de jeu, seconde tranche** (P5.81, `feature:game`, ADR 0024) : même architecture que la première tranche,
+`GameFeedback` pur et compté en ticks, lu au seul dessin. Couleurs seulement : Original, figé, n'a aucun de ces
+retours (cadre, encarts et barre de record inchangés, captures Original identiques), sauf l'annonce TalkBack du
+niveau, qui n'est pas un effet visuel. **4 lignes** : un reflet irisé (`iris-1` → `iris-3`, dégradé circulaire), d'un
+quart du tour et de 4 dp, fait une fois le tour du cadre du plateau en 45 ticks (`motion-pop`) à partir de
+l'effacement ; l'autocollant devient « 4 LIGNES » au-dessus des points, en `four-lines-pop` centré sur deux lignes.
+**Niveau** (`LevelUp`) : l'encart NIVEAU s'encadre d'`accent` (2 dp, sur son cadre) pendant 60 ticks (1 s) et bascule
+d'un côté puis de l'autre, ±8° au plus, amorti, en 30 ticks ; l'encart est une zone dynamique (`liveRegion` polie) :
+TalkBack lit « Niveau : 6 » quand il change, sans déplacer le focus, dans les deux thèmes. **Danger**
+(`StackDanger`) : du début à la fin du danger, le cadre du plateau passe à 4 dp de `danger` (au lieu de 2 dp de
+`panel-border`), et les 5 rangées du haut se couvrent de `danger-soft`, par-dessus leurs cases, qui respire
+(opacité de 1 à 0,5 et retour en 120 ticks, entière à l'entrée dans le danger). **Record battu** (Classique et Graine
+du jour, même écran) : l'autocollant NOUVEAU RECORD (NOUVEAU MEILLEUR) rebondit autour de son centre en 30 ticks
+(`motion-sticker`, ×1,15 au plus, oscillation amortie commune avec la bascule du niveau) au tick où l'écran apprend
+que le meilleur est battu ; la barre de record, alors pleine, passe au dégradé irisé (plus de partie vide à
+distinguer, le contraste 3:1 du remplissage ne s'applique plus). **Effets réduits** : cadre irisé entier et fixe 45
+ticks, effacé pendant ses 8 derniers ; NIVEAU encadré sans bascule ; rangées en danger couvertes en entier, fixes ;
+NOUVEAU RECORD sans rebond. **Limites** (vérifiées par des tests) : rien ne s'éclaire plus de 3 fois par seconde (la
+respiration du danger est d'une fois en 2 s). Le cadre `danger` lui-même ne peut s'allumer plus de 2 fois par seconde :
+le moteur a une hystérésis (entrée dans le danger à 15 rangées, sortie à 12 ou moins, `docs/musique.md`), si bien
+qu'en sortir demande un effacement, puis y revenir une nouvelle pièce posée ; un cycle danger → calme → danger prend
+au moins 30 ticks ; 40 particules au plus, c'est-à-dire 40 cases qui éclatent à la fois
+(un effacement de 4 lignes), seules « particules » du jeu tant que les confettis (P5.83) n'existent pas. Point ouvert :
+le reflet irisé est pâle de jour sur le cadre clair, à juger sur téléphone.
+
+**Tests :** `GameFeedbackTest › four lines run the iridescent border once`,
+`GameFeedbackTest › in reduced effects four lines frame the board in iridescence, still`,
+`GameFeedbackTest › four lines show the sticker « 4 LIGNES » with their points`,
+`GameFeedbackTest › a level up frames the level for 1 second and tilts it`,
+`GameFeedbackTest › in reduced effects a level up frames the level without tilting it`,
+`GameFeedbackTest › the danger frame is 4 dp and stays until the danger ends`,
+`GameFeedbackTest › in danger the 5 top rows breathe in danger-soft`,
+`GameFeedbackTest › in reduced effects the 5 top rows in danger are tinted, still`,
+`GameFeedbackTest › nothing flashes more than 3 times a second`,
+`GameFeedbackTest › there are 40 particles at most`,
+`GameFeedbackTest › a beaten best bounces its sticker once in 30 ticks`,
+`GameFeedbackTest › in reduced effects a beaten best shows without bouncing`,
+`BestBarTest › once the best is beaten the best bar is iridescent`,
+`GameViewModelTest › the best beaten reaches the effects on the tick it is beaten, once`,
+`GameScreenTest › a level up announces the new level to TalkBack`,
+`GameScreenTest › nothing recomposes while the level, the danger and the beaten record play`,
+`GameScreenTest › nothing recomposes while the iridescent border and the sticker of four lines play` ;
+captures `GameScreenFourLines*` et `GameScreenDanger*` (jour, nuit, Effets réduits), `GameScreenNewRecord*` (barre
+irisée). Vue : V28.
+
 ## Choix de l'accueil
 
 **Groupe de choix v2** (P5.63, `ChoiceGroup` dans `core:designsystem`, composant Choice) : il remplace les
@@ -688,7 +733,23 @@ pour TalkBack par la description du groupe (« Piste », « Outil »), pour les 
 retenu ; sa place est réservée, le libellé ne bouge pas. Les couleurs du segment retenu peuvent être données
 (`ChoiceItem.selectedColors`, `ChoiceColors(fill, ink)`, ici les couleurs de la piste) ; l'appelant garantit alors
 4,5:1 entre l'encre et le fond. Les pictogrammes ne vont que dans un groupe d'une rangée. TalkBack lit le nom du
-groupe comme un arrêt à part : à vérifier sur appareil avec P5.102.
+groupe comme un arrêt à part : à vérifier sur appareil avec TalkBack (posés dans l'éditeur en P5.102, le parcours
+TalkBack réel n'y a pas été écouté).
+
+**Éditeur v2** (P5.102, V33, `feature:composer`) : l'éditeur n'a plus de bouton à lui. Pistes (« Piste ») et
+outils (« Outil ») en `ChoiceSegments`, la piste ouverte dans sa couleur ; *Annuler*, *Copier* et *Effacer* en
+tuiles compactes de la famille Secondaire ; les huit mesures en boutons bulles compacts lus comme des boutons radio,
+la retenue en `accent` (`ButtonEmphasis.SELECTED`), la jouée marquée d'un trait dans l'encre du bouton ; « … », − et
++ en disques nus ; *Écouter* de 56 dp ; *Enregistrer* seul bouton Principal, toujours en `accent`. Pour cela,
+`BubbleButton` reçoit deux paramètres, sans rien changer à ses autres usages : `sidePadding` (12 dp au lieu des 24 de
+la famille pour les tuiles étroites des outils, qui tiennent ainsi à droite des mesures sur 360 dp) et `role`
+(`Role.RadioButton` pour les mesures). Le tempo est dans une pilule `button` cadrée de `button-outline`, comme un groupe de
+choix. Original, figé, reste seulement utilisable (captures `ComposerOriginal`, `ComposerOriginalLargeFont`).
+**Tests :** `ComposerControlsTest › the open track is filled in its colour and checked`,
+`ComposerControlsTest › the bars stand on two rows of four, the bar played marked and read en lecture`,
+`ComposerControlsTest › Enregistrer is the only button in accent on the editor, its dot shown while the music has changed`,
+`ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp and the grid keeps rows of 26 dp, scrolling`.
+Vue : V33.
 **Tests :** `ChoiceSegmentsTest › segments without a visible label are one group of radio buttons, read under the name given to TalkBack`,
 `ChoiceSegmentsTest › a segment bears its icon before its label, and the selected one its check in its place`,
 `ChoiceSegmentsTest › a selected segment is filled in the colours given to its choice`,
@@ -1068,8 +1129,8 @@ lignes au plus ; libellés des réponses des fenêtres). `shrinkingLineHeight` g
 texte qui réduit en proportion de sa taille. Les réponses d'une fenêtre (`WindowAnswers`) sont
 toujours empilées depuis P5.98 (section « Fenêtres v2 »), chacune sur toute la largeur, en grande
 police plutôt que réduite ; un mot trop long pour la largeur entière réduit. `ButtonRow.kt` (côte à
-côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour la barre d'outils de l'éditeur
-(P5.49) et les tuiles de l'accueil. Le texte d'une fenêtre (`WindowText`) garde ses mots
+côte si chaque mot tient dans sa moitié, en pixels entiers) reste pour les tuiles de l'accueil, les cartouches et
+`SideBySideOrStacked` (la barre d'outils de l'éditeur, P5.49, l'a quitté en P5.102). Le texte d'une fenêtre (`WindowText`) garde ses mots
 entiers (`shrinkToWholeWords`) : quand un mot et son point final ne tiennent pas sur la ligne, le
 moteur coupait dans le mot et laissait le point seul ; la phrase réduit un peu à la place (ce n'est
 pas la césure, désactivée pour le corps du texte). **Tests :**
