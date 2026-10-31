@@ -924,8 +924,9 @@ phrase ; pas de mise à jour d'un fichier déjà exporté dans cette première v
 Spécifiés en P14.1 ([ADR 0032](adr/0032-instruments.md)). Codés : les empreintes de référence du son d'aujourd'hui
 (P14.2), la description des instruments (P14.3, `core:music`), leurs ondes (P14.4) et le rendu d'une partition
 dans un style, ton et forme de note (P14.5, voir Synthèse), le filtre de l'instrument (P14.6) et l'écho du style
-(P14.7, voir Synthèse), le rendu des effets dans un style (P14.14, voir Effets sonores ci-dessous) ; réglage,
-branchement des effets et interface **pas encore codés** (P14.8 à P14.13, P14.15 à P14.20). Vues : V43 (feuille
+(P14.7, voir Synthèse), le style passé aux lecteurs (P14.8), le réglage enregistré et appliqué à la musique (P14.9),
+le rendu des effets dans un style (P14.14, voir Effets sonores ci-dessous) ; branchement des effets et interface
+**pas encore codés** (P14.10 à P14.13, P14.15 à P14.20). Vues : V43 (feuille
 Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fichier de sonnerie), V27 (sous-ligne de
 « Mon fichier »).
 
@@ -939,6 +940,41 @@ Instruments), V31 (rangée Instruments des Paramètres), V42 (choix pour un fich
   le fichier seul, sans changer le réglage.
 - Un changement vaut **dès la prochaine musique jouée** (prochain lancement, reprise ou changement de musique), effets
   sonores compris : les effets prennent le nouvel instrument en même temps que la musique.
+
+**Les lecteurs** (P14.8, `core:audio`) : chaque lecteur de musique (`Player`, donc `ChiptuneSequencer`,
+`MusicSwitch`, `FocusedMusicPlayer` et la doublure `FakeMusicPlayer`) est un `SoundStyleControl` :
+`setSoundStyle(style)`, sur le modèle de `setVolume`. Le style vaut Arcade tant qu'aucun n'est donné. Il ne touche
+jamais la musique en cours, qui continue dans le style où elle a été rendue : le séquenceur le lit au démarrage
+d'une boucle (`play`, `resume`) et quand il prend une partition passée par `switchTo`, rendue alors dans le style
+donné. Le cache des tampons (`TempoBuffers`) est tenu par style : au démarrage d'une boucle, les tampons rendus dans
+un autre style sont abandonnés, et une partition retrouvée dans le cache sous un autre style est rendue de nouveau ;
+redonner le style en cours ne rend rien. `MusicSwitch` passe le style aux partitions seulement : « Mon fichier » est
+joué tel quel. Un style changé entre la prise d'un `switchTo` et la barre de mesure où il joue ne vaut pas pour
+cette partition, déjà demandée dans l'ancien style : il vaut au changement de musique suivant. Les tampons qui
+jouent gardent leur style, et leurs tempos préparés, jusqu'à cette barre.
+**Tests :** `MusicPlayerContract › a style set while nothing plays applies to the next play`,
+`MusicPlayerContract › a style set while a score plays applies from the next play or resume`,
+`MusicPlayerContract › a score switched to is rendered in the style set`,
+`MusicPlayerContract › a score switched to again is rendered in the style set, though it was ready in the other one`,
+`ChiptuneSequencerSwitchTest › a style set while a score plays keeps its tempos ready until the switch`,
+`ChiptuneSequencerTest › changing the style drops the buffers rendered in the other style`,
+`ChiptuneSequencerTest › setting the style it plays renders nothing`,
+`MusicSwitchTest › a music file is not changed by the style`.
+
+**Le réglage enregistré** (P14.9, `core:data`, `app`) : `UserPreferences.soundStyle`, Arcade sans fichier ;
+`UserPreferencesRepository.setSoundStyle(style)` l'enregistre sous la clé figée `sound_style`, par le **nom** du
+style (`ARCADE`, `VELVET`, `NEON`) ; un nom absent ou inconnu (écrit par une autre version) se lit Arcade. La
+doublure `FakeUserPreferencesRepository` passe le même contrat. Dans `app`, `applySavedSoundStyle` (sur le modèle de
+`applySavedVolumes`) donne le style enregistré au lecteur de musique de l'application dès sa lecture, puis à chaque
+changement, et seulement quand il change : un autre réglage changé ne le redonne pas. Au démarrage, la musique est en
+Arcade jusqu'à la première lecture des réglages. Aucune interface encore : la rangée et la feuille Instruments
+attendent la maquette (P14.10 à P14.12). **Tests :**
+`UserPreferencesRepositoryContract › the sound style is Arcade until the player chooses one`,
+`UserPreferencesRepositoryContract › the sound style chosen reads back`,
+`DataStoreUserPreferencesRepositoryTest › an unknown style read from the file gives the Arcade`,
+`DataStoreUserPreferencesRepositoryTest › the sound style is stored by its name, which must not change`,
+`SavedSoundStyleTest › the saved style is applied to the music as soon as it is read, then at each change`,
+`SavedSoundStyleTest › a change of another setting does not set the style again`.
 
 **Ce que l'instrument habille** : toutes les partitions jouées par BloX (Korobeïniki, Menuet, ma musique, Musique
 vivante, Graine du jour, Écouter de l'accueil, Mes musiques, éditeur, Jardin, accompagnement d'Au tempo), le fichier

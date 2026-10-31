@@ -4,6 +4,7 @@ import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,7 +17,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
  * that was replaced leaves the new one playing; a new play starts at the normal tempo and forgets the tempos prepared,
  * a resume goes on at the tempo asked for, with the tempos prepared; a switch goes on at once with the score switched
  * to, under the same playback, at the same tempo, or keeps it for the resume of a playback stopped, and changes
- * nothing while a music file plays; the volume stays as it was set; a tempo factor that is not positive and finite is
+ * nothing while a music file plays; the volume stays as it was set; the sound style set ([soundStyle]) is the one a
+ * score played, resumed or switched to plays in ([playingStyle]); a tempo factor that is not positive and finite is
  * refused. The music may stop by itself ([fail]), as when the real one fails. It keeps the contract of the real one
  * (`MusicPlayerContract`).
  */
@@ -41,6 +43,16 @@ class FakeMusicPlayer : MusicPlayer {
 
     /** Every volume set, in order, the same one set again included. */
     val volumesSet = mutableListOf<Volume>()
+
+    /** Every sound style set, in order, the same one set again included. */
+    val soundStylesSet = mutableListOf<SoundStyle>()
+
+    /** The sound style set last, for the next music played. */
+    val soundStyle: SoundStyle get() = soundStylesSet.lastOrNull() ?: SoundStyle.ARCADE
+
+    /** The sound style the score playing was started in: the one set when it was played, resumed or switched to. */
+    var playingStyle: SoundStyle = SoundStyle.ARCADE
+        private set
 
     private var current: FakePlayback? = null
 
@@ -68,12 +80,19 @@ class FakeMusicPlayer : MusicPlayer {
         switchedScores += score
         val playback = current?.takeIf { it.music is Score } ?: return
         playback.music = score
-        if (playing != null) playing = score.id
+        if (playing != null) {
+            playing = score.id
+            playingStyle = soundStyle
+        }
     }
 
     override fun setVolume(volume: Volume) {
         this.volume = volume
         volumesSet += volume
+    }
+
+    override fun setSoundStyle(style: SoundStyle) {
+        soundStylesSet += style
     }
 
     /**
@@ -89,6 +108,7 @@ class FakeMusicPlayer : MusicPlayer {
     private fun start(music: Music): Playback {
         current?.end()
         silence()
+        playingStyle = soundStyle
         when (music) {
             is Score -> playing = music.id
             is MusicFile -> playingFile = music

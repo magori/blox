@@ -4,6 +4,7 @@ import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.CoroutineDispatcher
@@ -519,6 +520,51 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
     }
 
     @Test
+    fun `changing the style drops the buffers rendered in the other style`() = runTest {
+        // Given a score played, then another one switched to, as a live game, both rendered in the Arcade style
+        val sequencer = sequencer()
+        val playback = sequencer.play(korobeiniki)
+        repeat(3) { nextSlice(sink = 0) }
+        sequencer.switchTo(minuet)
+        repeat(3) { nextSlice(sink = 0) }
+
+        // When the music resumes in another style, then the Arcade style comes back as the first score is switched to
+        sequencer.setSoundStyle(SoundStyle.VELVET)
+        playback.stop()
+        playback.resume()
+        nextSlice(sink = 1)
+        sequencer.setSoundStyle(SoundStyle.ARCADE)
+        sequencer.switchTo(korobeiniki)
+        repeat(3) { nextSlice(sink = 1) }
+
+        // Then the first score is rendered anew: its buffers in the Arcade style left with that style
+        assertThat(rendered.map { it.score to it.style }).containsExactly(
+            korobeiniki to SoundStyle.ARCADE,
+            minuet to SoundStyle.ARCADE,
+            minuet to SoundStyle.VELVET,
+            korobeiniki to SoundStyle.ARCADE,
+        )
+    }
+
+    @Test
+    fun `setting the style it plays renders nothing`() = runTest {
+        // Given a score played in the Arcade style, then stopped, as a game paused
+        val sequencer = sequencer()
+        val playback = sequencer.play(korobeiniki)
+        nextSlice(sink = 0)
+        playback.stop()
+
+        // When another style is chosen, then the Arcade one again before the score resumes
+        sequencer.setSoundStyle(SoundStyle.VELVET)
+        sequencer.setSoundStyle(SoundStyle.ARCADE)
+        playback.resume()
+
+        // Then it plays from the cache
+        nextSlice(sink = 1)
+        assertThat(rendered).containsExactly(Rendering(korobeiniki, tempoFactor = 1.0, onRenderingDispatcher = true))
+    }
+
+    @Test
     fun `a stop during the rendering opens no sink`() = runTest {
         // Given a sequencer stopped while it renders
         lateinit var sequencer: ChiptuneSequencer
@@ -546,9 +592,11 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
     ): ChiptuneSequencer {
         val renderDispatcher = WatchedDispatcher(StandardTestDispatcher(testScheduler))
         return ChiptuneSequencer(
-            render = { score, tempoFactor ->
+            render = { score, tempoFactor, style ->
                 onRender()
-                buffers.getValue(score).also { rendered += Rendering(score, tempoFactor, renderDispatcher.running) }
+                buffers.getValue(score).also {
+                    rendered += Rendering(score, tempoFactor, renderDispatcher.running, style)
+                }
             },
             sampleRate = SAMPLE_RATE,
             openSink = openSink,
@@ -652,9 +700,9 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
         private val rendered = mutableListOf<Pair<ScoreId, Double>>()
 
         override val player = ChiptuneSequencer(
-            render = { score, tempoFactor ->
+            render = { score, tempoFactor, style ->
                 rendered += score.id to tempoFactor
-                FloatArray(BUFFER_SIZE) { codeOf(score.id, tempoFactor) }
+                FloatArray(BUFFER_SIZE) { codeOf(score.id, tempoFactor, style) }
             },
             sampleRate = SAMPLE_RATE,
             openSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
@@ -671,7 +719,12 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
         override suspend fun heard(): Heard? {
             val code = listen()?.roundToInt() ?: return null
             val gain = sinks.single { !it.released }.gain
-            return Heard(CODED[code / SCORE_CODE - 1], tempo = (code % SCORE_CODE) / 100.0, gain = gain)
+            return Heard(
+                CODED[code % STYLE_CODE / SCORE_CODE - 1],
+                tempo = (code % SCORE_CODE) / 100.0,
+                gain = gain,
+                style = SoundStyle.entries[code / STYLE_CODE],
+            )
         }
 
         /** The only open sink refuses its next write, as a track in an error state: the music stops. */
@@ -714,18 +767,30 @@ class ChiptuneSequencerTest : MusicPlayerContract() {
             const val BUFFER_SIZE = 8
             const val SLICES_HEARD = 6
             const val SCORE_CODE = 1_000
+            const val STYLE_CODE = 10_000
 
             /** The scores the samples may tell, coded by their place in this list. */
             val CODED: List<ScoreId> = listOf(ScoreId.KOROBEINIKI, ScoreId.MINUET, THIRD)
 
+            /** A code of the score, the tempo factor and the style, which a sample of 32 bits holds exactly. */
             fun codeOf(
                 score: ScoreId,
                 tempoFactor: Double,
-            ): Float = ((CODED.indexOf(score) + 1) * SCORE_CODE + (tempoFactor * 100).roundToInt()).toFloat()
+                style: SoundStyle,
+            ): Float = (
+                style.ordinal * STYLE_CODE +
+                    (CODED.indexOf(score) + 1) * SCORE_CODE +
+                    (tempoFactor * 100).roundToInt()
+                ).toFloat()
         }
     }
 
-    private data class Rendering(val score: Score, val tempoFactor: Double, val onRenderingDispatcher: Boolean)
+    private data class Rendering(
+        val score: Score,
+        val tempoFactor: Double,
+        val onRenderingDispatcher: Boolean,
+        val style: SoundStyle = SoundStyle.ARCADE,
+    )
 
     private companion object {
         const val SAMPLE_RATE = 22_050

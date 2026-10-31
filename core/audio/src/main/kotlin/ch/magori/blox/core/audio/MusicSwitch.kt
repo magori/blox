@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import ch.magori.blox.core.music.Music
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -18,9 +19,9 @@ import kotlinx.coroutines.flow.flatMapLatest
  * a play as at a resume, and a file that opens but fails before it starts (a format the device cannot decode). The
  * playback of the file then plays the fallback, without telling it stopped, and resumes the fallback.
  *
- * The tempo goes to the scores only: a file plays at its own speed, the tempo of the danger belonging to the scores
- * written for it; the volume goes to both, so that a music plays at the volume set whatever its kind. Call it from the
- * main thread, as the players it switches between.
+ * The tempo and the sound style go to the scores only: a file plays at its own speed and as it is, the tempo of the
+ * danger and the instruments belonging to the scores; the volume goes to both, so that a music plays at the volume
+ * set whatever its kind. Call it from the main thread, as the players it switches between.
  */
 public class MusicSwitch(
     private val scores: Player<Score>,
@@ -54,6 +55,8 @@ public class MusicSwitch(
         scores.setVolume(volume)
         files.setVolume(volume)
     }
+
+    override fun setSoundStyle(style: SoundStyle): Unit = scores.setSoundStyle(style)
 
     /** Plays the score [begin] starts, once the file playing, if any, is stopped. */
     private fun playScore(begin: () -> Playback): Playback {

@@ -3,6 +3,7 @@ package ch.magori.blox.core.audio
 import app.cash.turbine.test
 import ch.magori.blox.core.music.MusicFile
 import ch.magori.blox.core.music.Scores
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
@@ -240,6 +241,20 @@ class MusicSwitchTest {
         // Then the scores, and the files, play at that volume
         assertThat(scores.volume).isEqualTo(Volume(30))
         assertThat(files.volume).isEqualTo(Volume(30))
+    }
+
+    @Test
+    fun `a music file is not changed by the style`() {
+        // Given a music file playing
+        switch.play(myFile)
+
+        // When another style is chosen, from the settings
+        switch.setSoundStyle(SoundStyle.NEON)
+
+        // Then the file goes on as it was: only the scores take the style (a file player has no style to take,
+        // which its type already ensures; the test tells the rule)
+        assertThat(scores.soundStyle).isEqualTo(SoundStyle.NEON)
+        assertThat(fileLog).containsExactly("play file ${myFile.uri}")
     }
 
     @Test

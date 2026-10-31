@@ -1,6 +1,7 @@
 package ch.magori.blox.core.data
 
 import app.cash.turbine.test
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.first
@@ -42,6 +43,7 @@ abstract class UserPreferencesRepositoryContract {
                     keyVibration = false,
                     musicVolume = Volume.FULL,
                     effectsVolume = Volume.FULL,
+                    soundStyle = SoundStyle.ARCADE,
                 ),
             )
         }
@@ -129,6 +131,32 @@ abstract class UserPreferencesRepositoryContract {
         }
 
     @Test
+    fun `the sound style is Arcade until the player chooses one`() = runTest {
+        // Given
+        val repository = emptyRepository(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences.soundStyle).isEqualTo(SoundStyle.ARCADE)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @EnumSource(SoundStyle::class)
+    fun `the sound style chosen reads back`(style: SoundStyle) = runTest {
+        // Given another style chosen first, so that the style read back is not there by chance
+        val repository = emptyRepository(backgroundScope)
+        repository.setSoundStyle(SoundStyle.entries.first { it != style })
+
+        // When
+        repository.setSoundStyle(style)
+
+        // Then
+        assertThat(repository.preferences.first().soundStyle).isEqualTo(style)
+    }
+
+    @Test
     fun `each new setting saved is read back`() = runTest {
         // Given
         val repository = emptyRepository(backgroundScope)
@@ -180,6 +208,7 @@ abstract class UserPreferencesRepositoryContract {
         repository.setKeyVibration(true)
         repository.setMusicVolume(Volume(40))
         repository.setEffectsVolume(Volume.SILENT)
+        repository.setSoundStyle(SoundStyle.NEON)
 
         // When the theme changes
         repository.setTheme(ThemeChoice.ORIGINAL)
@@ -197,6 +226,7 @@ abstract class UserPreferencesRepositoryContract {
                 keyVibration = true,
                 musicVolume = Volume(40),
                 effectsVolume = Volume.SILENT,
+                soundStyle = SoundStyle.NEON,
             ),
         )
     }

@@ -741,7 +741,7 @@ class ChiptuneSequencerTempoTest {
             buffers.getValue(tempoFactor).also { rendered += tempoFactor to renderDispatcher.running }
         },
     ): ChiptuneSequencer = ChiptuneSequencer(
-        render = { _, tempoFactor -> render(tempoFactor) },
+        render = { _, tempoFactor, _ -> render(tempoFactor) },
         sampleRate = 22_050,
         openSink = { sampleRate -> FakeSink(sampleRate).also { sinks += it } },
         scope = scope,

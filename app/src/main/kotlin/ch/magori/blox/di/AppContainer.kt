@@ -72,6 +72,7 @@ import ch.magori.blox.feature.settings.SettingsViewModel
 import ch.magori.blox.locksmith.PadlockFrontier
 import ch.magori.blox.music.DocumentMusicFileNames
 import ch.magori.blox.music.FALLBACK_SCORE
+import ch.magori.blox.music.applySavedSoundStyle
 import ch.magori.blox.music.applySavedVolumes
 import ch.magori.blox.music.gameMusicScore
 import ch.magori.blox.music.liveListening
@@ -245,6 +246,9 @@ class AppContainer(context: Context) {
         // The volumes saved, applied to the music and to the effects shared by every screen, from the start and at each
         // change: a preview, a game, hear the slider of the settings at once.
         mainScope.applySavedVolumes(userPreferences, music = music, effects = soundEffects)
+        // The instruments saved, applied to the music from the start and at each change: the next music played
+        // takes them (ADR 0032).
+        mainScope.applySavedSoundStyle(userPreferences, music = music)
     }
 
     /**

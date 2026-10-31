@@ -4,6 +4,7 @@ import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -166,6 +167,22 @@ class ChiptuneSequencerSwitchTest {
         }
 
     @Test
+    fun `a style set while a score plays keeps its tempos ready until the switch`() = runTest {
+        // Given the calm score playing, its danger tempo prepared, not rendered yet
+        val sequencer = playing(calm)
+        sequencer.prepareTempo(1.25)
+
+        // When another style is chosen, then the tense score switched to, in that style
+        sequencer.setSoundStyle(SoundStyle.VELVET)
+        sequencer.switchTo(tense)
+        nextSlice()
+        renderNow()
+
+        // Then the calm score, which plays until the bar line, still renders its danger tempo
+        assertThat(rendered).contains(ScoreId.KOROBEINIKI to 1.25)
+    }
+
+    @Test
     fun `a playback resumed keeps the score switched from ready`() = runTest {
         // Given the tense score switched to from the calm one, stopped at sample 13, as a game paused
         val sequencer = sequencer()
@@ -275,7 +292,7 @@ class ChiptuneSequencerSwitchTest {
     }
 
     private fun TestScope.sequencer(): ChiptuneSequencer = ChiptuneSequencer(
-        render = { score, tempoFactor ->
+        render = { score, tempoFactor, _ ->
             rendered += score.id to tempoFactor
             buffers[score.id to tempoFactor] ?: FloatArray(OTHER_LENGTH) { 900f + it }
         },

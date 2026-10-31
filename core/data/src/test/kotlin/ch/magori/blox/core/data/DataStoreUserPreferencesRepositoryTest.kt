@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import app.cash.turbine.test
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -47,6 +48,19 @@ class DataStoreUserPreferencesRepositoryTest :
 
         // Then
         assertThat(preferences).isEqualTo(UserPreferences.DEFAULT)
+    }
+
+    @Test
+    fun `an unknown style read from the file gives the Arcade`() = runTest {
+        // Given a file written by another version, with a style this one does not know
+        writeSettingsFile { it[stringPreferencesKey("sound_style")] = "JAZZ_CLUB" }
+        val repository = repositoryIn(backgroundScope)
+
+        // When
+        val preferences = repository.preferences.first()
+
+        // Then
+        assertThat(preferences.soundStyle).isEqualTo(SoundStyle.ARCADE)
     }
 
     @Test
@@ -204,6 +218,7 @@ class DataStoreUserPreferencesRepositoryTest :
                 setKeyVibration(true)
                 setMusicVolume(Volume(80))
                 setEffectsVolume(Volume(10))
+                setSoundStyle(SoundStyle.VELVET)
             }
         }
 
@@ -223,6 +238,7 @@ class DataStoreUserPreferencesRepositoryTest :
                 keyVibration = true,
                 musicVolume = Volume(80),
                 effectsVolume = Volume(10),
+                soundStyle = SoundStyle.VELVET,
             ),
         )
     }
@@ -251,6 +267,19 @@ class DataStoreUserPreferencesRepositoryTest :
 
         // When / Then
         assertThat(repositoryIn(backgroundScope).preferences.first().music).isEqualTo(music)
+    }
+
+    @ParameterizedTest(name = "{argumentSetName}")
+    @MethodSource("storedSoundStyles")
+    fun `the sound style is stored by its name, which must not change`(
+        stored: String,
+        style: SoundStyle,
+    ) = runTest {
+        // Given
+        writeSettingsFile { it[stringPreferencesKey("sound_style")] = stored }
+
+        // When / Then
+        assertThat(repositoryIn(backgroundScope).preferences.first().soundStyle).isEqualTo(style)
     }
 
     override fun emptyRepository(scope: CoroutineScope): UserPreferencesRepository = repositoryIn(scope)
@@ -294,6 +323,13 @@ class DataStoreUserPreferencesRepositoryTest :
             argumentSet("MY_FILE", "MY_FILE", MusicChoice.MY_FILE),
             argumentSet("LIVE", "LIVE", MusicChoice.LIVE),
             argumentSet("NONE", "NONE", MusicChoice.NONE),
+        )
+
+        @JvmStatic
+        fun storedSoundStyles(): List<Arguments> = listOf(
+            argumentSet("ARCADE", "ARCADE", SoundStyle.ARCADE),
+            argumentSet("VELVET", "VELVET", SoundStyle.VELVET),
+            argumentSet("NEON", "NEON", SoundStyle.NEON),
         )
     }
 }

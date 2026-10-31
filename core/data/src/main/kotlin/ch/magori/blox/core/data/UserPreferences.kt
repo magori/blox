@@ -1,5 +1,6 @@
 package ch.magori.blox.core.data
 
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 
 /** The theme chosen on the home screen (V1). The feature maps it to its theme. */
@@ -35,7 +36,7 @@ enum class MusicChoice {
  * [soundEffects] whether it plays its short sound effects (a rotation, lines cleared, the game over).
  * [reducedEffects] asks for fewer visual effects; [leftHanded] for the controls laid out for the left hand;
  * [keyVibration] for a short vibration on each key pressed. [musicVolume] and [effectsVolume] are the volumes
- * of the music and of the sound effects.
+ * of the music and of the sound effects; [soundStyle] the instruments of every score of BloX.
  */
 data class UserPreferences(
     val theme: ThemeChoice,
@@ -48,13 +49,14 @@ data class UserPreferences(
     val keyVibration: Boolean,
     val musicVolume: Volume,
     val effectsVolume: Volume,
+    val soundStyle: SoundStyle,
 ) {
     companion object {
         /**
          * The settings until the player changes them: the Original theme, Korobeiniki, level 0, vibrations off,
          * sound effects on, effects not reduced, the controls for the right hand, keys that do not vibrate, both
-         * volumes full. The vibrations are off until the player turns them on; the sound effects are on until the
-         * player turns them off: the choices of the developer.
+         * volumes full, the Arcade instruments. The vibrations are off until the player turns them on; the sound
+         * effects are on until the player turns them off: the choices of the developer.
          */
         val DEFAULT: UserPreferences = UserPreferences(
             ThemeChoice.ORIGINAL,
@@ -67,6 +69,7 @@ data class UserPreferences(
             keyVibration = false,
             musicVolume = Volume.FULL,
             effectsVolume = Volume.FULL,
+            soundStyle = SoundStyle.ARCADE,
         )
     }
 }

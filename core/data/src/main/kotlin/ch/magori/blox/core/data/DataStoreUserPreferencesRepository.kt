@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Volume
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -36,6 +37,7 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
             keyVibration = stored[KEY_VIBRATION] ?: default.keyVibration,
             musicVolume = stored[MUSIC_VOLUME]?.let(Volume::ofPercentOrNull) ?: default.musicVolume,
             effectsVolume = stored[EFFECTS_VOLUME]?.let(Volume::ofPercentOrNull) ?: default.effectsVolume,
+            soundStyle = SoundStyle.entries.firstOrNull { it.name == stored[SOUND_STYLE] } ?: default.soundStyle,
         )
     }.distinctUntilChanged()
 
@@ -80,6 +82,10 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
         dataStore.edit { it[EFFECTS_VOLUME] = effectsVolume.percent }
     }
 
+    override suspend fun setSoundStyle(soundStyle: SoundStyle) {
+        dataStore.edit { it[SOUND_STYLE] = soundStyle.name }
+    }
+
     private companion object {
         val START_LEVEL = intPreferencesKey("start_level")
         val THEME = stringPreferencesKey("theme")
@@ -91,5 +97,6 @@ class DataStoreUserPreferencesRepository(private val dataStore: DataStore<Prefer
         val KEY_VIBRATION = booleanPreferencesKey("key_vibration")
         val MUSIC_VOLUME = intPreferencesKey("music_volume")
         val EFFECTS_VOLUME = intPreferencesKey("effects_volume")
+        val SOUND_STYLE = stringPreferencesKey("sound_style")
     }
 }

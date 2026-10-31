@@ -1,6 +1,7 @@
 package ch.magori.blox.core.audio
 
 import ch.magori.blox.core.music.Score
+import ch.magori.blox.core.music.SoundStyle
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
@@ -10,7 +11,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 
 /**
- * The buffers of one [score], one mixed buffer per tempo factor, and its renderings under way, on
+ * The buffers of one [score] in one [style], one mixed buffer per tempo factor, and its renderings under way, on
  * [renderDispatcher]. It lives as long as its score is one the playback played last played or was switched to:
  * its renderings survive a stop, so that a resume finds them done, and a switch, so that switching back finds
  * them ready; [abandon] cancels them once another score plays. Used by one loop at a
@@ -23,7 +24,8 @@ import kotlinx.coroutines.cancel
  */
 internal class TempoBuffers(
     val score: Score,
-    private val render: (Score, Double) -> FloatArray,
+    val style: SoundStyle,
+    private val render: (Score, Double, SoundStyle) -> FloatArray,
     renderDispatcher: CoroutineDispatcher,
     parent: Job?,
 ) {
@@ -103,5 +105,5 @@ internal class TempoBuffers(
     }
 
     private fun start(factor: Double): Deferred<FloatArray> =
-        scope.async { render(score, factor) }.also { renderings[factor] = it }
+        scope.async { render(score, factor, style) }.also { renderings[factor] = it }
 }

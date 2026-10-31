@@ -5,6 +5,7 @@ import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
 import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
+import ch.magori.blox.core.music.SoundStyle
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Volume
 import ch.magori.blox.core.music.Waveform
@@ -25,8 +26,13 @@ import org.junit.jupiter.params.provider.ValueSource
  * renderings, the place it resumes from) is tested in the subclass.
  */
 abstract class MusicPlayerContract {
-    /** What is heard of a player: the score playing, its tempo factor, and the gain of its volume. */
-    protected data class Heard(val score: ScoreId, val tempo: Double, val gain: Float = Volume.FULL.gain)
+    /** What is heard of a player: the score playing, its tempo factor, the gain of its volume, and its sound style. */
+    protected data class Heard(
+        val score: ScoreId,
+        val tempo: Double,
+        val gain: Float = Volume.FULL.gain,
+        val style: SoundStyle = SoundStyle.ARCADE,
+    )
 
     /** A player under test, and what is heard of it. */
     protected interface PlayerUnderTest {
@@ -61,7 +67,8 @@ abstract class MusicPlayerContract {
     ): PlayerUnderTest = object : PlayerUnderTest {
         override val player: Player<Score> = player
 
-        override suspend fun heard(): Heard? = fake.playing?.let { Heard(it, fake.tempo, fake.volume.gain) }
+        override suspend fun heard(): Heard? =
+            fake.playing?.let { Heard(it, fake.tempo, fake.volume.gain, fake.playingStyle) }
 
         override fun prepared(score: ScoreId): Set<Double> = if (fake.playing == score) fake.prepared else emptySet()
 
@@ -561,6 +568,70 @@ abstract class MusicPlayerContract {
         // Then it plays on, in silence
         assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0, gain = 0f))
         assertThat(playback.isPlaying.first()).isTrue()
+    }
+
+    @Test
+    fun `a style set while nothing plays applies to the next play`() = runTest {
+        // Given the instruments of the settings, applied as the application starts
+        val subject = playerUnderTest(this)
+        subject.player.setSoundStyle(SoundStyle.VELVET)
+
+        // When a score plays
+        subject.player.play(korobeiniki)
+
+        // Then
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0, style = SoundStyle.VELVET))
+    }
+
+    @Test
+    fun `a style set while a score plays applies from the next play or resume`() = runTest {
+        // Given a score playing, as a game
+        val subject = playerUnderTest(this)
+        val playback = subject.player.play(korobeiniki)
+        subject.heard()
+
+        // When another style is chosen, from the settings
+        subject.player.setSoundStyle(SoundStyle.NEON)
+
+        // Then the score goes on as it was rendered, and takes the style once resumed
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0))
+        playback.stop()
+        playback.resume()
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.KOROBEINIKI, tempo = 1.0, style = SoundStyle.NEON))
+    }
+
+    @Test
+    fun `a score switched to is rendered in the style set`() = runTest {
+        // Given a score playing, then another style chosen
+        val subject = playerUnderTest(this)
+        subject.player.play(korobeiniki)
+        subject.heard()
+        subject.player.setSoundStyle(SoundStyle.VELVET)
+
+        // When another score is switched to, as the live music turns tense
+        subject.player.switchTo(minuet)
+
+        // Then it plays in the style set
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0, style = SoundStyle.VELVET))
+    }
+
+    @Test
+    fun `a score switched to again is rendered in the style set, though it was ready in the other one`() = runTest {
+        // Given two scores played in turn, as the live music turns tense and calm again
+        val subject = playerUnderTest(this)
+        subject.player.play(korobeiniki)
+        subject.heard()
+        subject.player.switchTo(minuet)
+        subject.heard()
+        subject.player.switchTo(korobeiniki)
+        subject.heard()
+
+        // When another style is chosen, then the music turns tense again
+        subject.player.setSoundStyle(SoundStyle.VELVET)
+        subject.player.switchTo(minuet)
+
+        // Then the score switched to plays in the style set
+        assertThat(subject.heard()).isEqualTo(Heard(ScoreId.MINUET, tempo = 1.0, style = SoundStyle.VELVET))
     }
 
     @ParameterizedTest(name = "a tempo factor of {0} is refused")
