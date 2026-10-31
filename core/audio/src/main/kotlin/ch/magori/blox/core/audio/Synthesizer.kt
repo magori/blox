@@ -59,7 +59,8 @@ public class Synthesizer(public val sampleRate: Int) {
 
     /**
      * Renders [voice] at [bpm] on [instrument], by default the one of the Arcade style. Each note starts at the
-     * sample of its cumulated beats, so that rounding never adds up along the voice.
+     * sample of its cumulated beats, so that rounding never adds up along the voice. The whole voice then passes the
+     * low-pass of [instrument], if it has one.
      */
     internal fun renderVoice(
         voice: Voice,
@@ -81,7 +82,7 @@ public class Synthesizer(public val sampleRate: Int) {
                 writeNote(samples, start, sampleCount, note.pitch, instrument.tone, voice.volume, adsr::at)
             }
         }
-        return samples
+        return instrument.lowPass?.let { lowPass(samples, it, sampleRate) } ?: samples
     }
 
     /**
