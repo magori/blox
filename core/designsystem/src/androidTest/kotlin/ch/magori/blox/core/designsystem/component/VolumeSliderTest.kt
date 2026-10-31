@@ -238,6 +238,62 @@ internal class VolumeSliderTest {
     }
 
     @Test
+    @DisplayName("an arrow pressed while the value comes back late goes on from the last step asked")
+    fun anArrowPressedWhileTheValueComesBackLateGoesOnFromTheLastStepAsked() = extension.use {
+        // Given the slider at 50 %, focused, right pressed twice before the value comes back
+        val asked = mutableListOf<Int>()
+        var percent by mutableIntStateOf(50)
+        setSlider(onPercentChange = { asked += it }, percent = { percent }, keyboard = true)
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        slider.requestFocus()
+        slider.performKeyInput { pressKey(Key.DirectionRight) }
+        slider.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // When the first step asked for comes back, late, then right is pressed again
+        percent = 60
+        waitForIdle()
+        slider.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // Then the third press goes on from the last step asked for, not from the value come back
+        assertThat(asked).containsExactly(60, 70, 80)
+    }
+
+    @Test
+    @DisplayName("a held arrow stops at the end of the range and a new press leaves it")
+    fun aHeldArrowStopsAtTheEndOfTheRangeAndANewPressLeavesIt() = extension.use {
+        // Given the slider at 90 %, whose value comes back, focused, a target of the focus after it on its line
+        val asked = mutableListOf<Int>()
+        var percent by mutableIntStateOf(90)
+        setSlider(
+            onPercentChange = {
+                asked += it
+                percent = it
+            },
+            percent = { percent },
+            keyboard = true,
+            neighbour = true,
+        )
+        val slider = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        slider.requestFocus()
+
+        // When right is held long enough to repeat, past the end of the range
+        slider.performKeyInput {
+            keyDown(Key.DirectionRight)
+            advanceEventTime(1_000)
+            keyUp(Key.DirectionRight)
+        }
+
+        // Then the slider stops at 100 %, and keeps the focus
+        slider.assertIsFocused()
+        assertThat(asked).containsExactly(100)
+
+        // And when right is pressed again, the focus goes on to the target
+        slider.performKeyInput { pressKey(Key.DirectionRight) }
+        onNodeWithTag(NEXT).assertIsFocused()
+        assertThat(asked).containsExactly(100)
+    }
+
+    @Test
     @DisplayName("in a language read from right to left, the left arrow raises the slider")
     fun inALanguageReadFromRightToLeftTheLeftArrowRaisesTheSlider() = extension.use {
         // Given the slider at 50 %, read from right to left, focused: its track starts on the right
@@ -348,7 +404,7 @@ internal class VolumeSliderTest {
                             modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
                             enabled = enabled,
                         )
-                        if (neighbour) FocusTarget(NEXT)
+                        if (neighbour) FocusStop(NEXT)
                     }
                 }
             }

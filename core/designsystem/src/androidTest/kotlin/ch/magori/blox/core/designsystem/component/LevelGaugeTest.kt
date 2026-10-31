@@ -207,6 +207,27 @@ internal class LevelGaugeTest {
     }
 
     @Test
+    @DisplayName("an arrow pressed while the level comes back late goes on from the last level asked")
+    fun anArrowPressedWhileTheLevelComesBackLateGoesOnFromTheLastLevelAsked() = extension.use {
+        // Given the gauge at the level 5, focused, right pressed twice before the level comes back
+        val asked = mutableListOf<Int>()
+        var level by mutableIntStateOf(5)
+        setGauge(onLevelChange = { asked += it }, keyboard = true) { level }
+        val gauge = onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.ProgressBarRangeInfo))
+        gauge.requestFocus()
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // When the first level asked for comes back, late, then right is pressed again
+        level = 6
+        waitForIdle()
+        gauge.performKeyInput { pressKey(Key.DirectionRight) }
+
+        // Then the third press goes on from the last level asked for
+        assertThat(asked).containsExactly(6, 7, 8)
+    }
+
+    @Test
     @DisplayName("up and down leave a focused gauge to the focus")
     fun upAndDownLeaveAFocusedGaugeToTheFocus() = extension.use {
         // Given the gauge at the level 5, focused, in a column between two targets of the focus, as with a pad
@@ -272,7 +293,7 @@ internal class LevelGaugeTest {
             BloxTheme(kind = BloxThemeKind.COLORFUL, darkSystem = false) {
                 CompositionLocalProvider(LocalLayoutDirection provides layoutDirection) {
                     Column {
-                        FocusTarget(ABOVE)
+                        FocusStop(ABOVE)
                         LevelGauge(
                             level = level(),
                             levels = 0..9,
@@ -280,7 +301,7 @@ internal class LevelGaugeTest {
                             description = DESCRIPTION,
                             modifier = Modifier.padding(horizontal = 16.dp),
                         )
-                        FocusTarget(BELOW)
+                        FocusStop(BELOW)
                     }
                 }
             }
