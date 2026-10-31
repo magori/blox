@@ -1529,9 +1529,12 @@ la Graine du jour l'impose.
   danger when its music starts plays the tense music, a quarter faster` (`onStart` après des `onEvents`, revue de P8.5).
   Fait avec le branchement de P8.4 : `GameMusic` (`feature:game`) remplace `ChosenMusic`, l'adaptateur provisoire
   est retiré ; le lecteur libère les rendus des tempos quittés (revue de P8.6).
-- [ ] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
+- [x] **P8.7** Choix « Vivante » dans la feuille Musique (`feature:home`) : rangée, Écouter (musique calme d'une
   graine au hasard **[à vérifier]**), rappel « Classique · Niveau 05 · Vivante », carte Pause « Vivante · calme »
   ou « Vivante · tendue » ; TalkBack ; captures. Après P5.76, P8.4, P8.6.
+- [ ] **P8.11** Juger à l'oreille, sur téléphone, l'écoute de « Vivante » à l'accueil (P8.7 : calme d'une graine
+  au hasard, nouvelle à chaque écoute) et la garder, la fixer à une graine, ou ne rien proposer ; retirer alors le
+  marqueur **[à vérifier]** de [musique-vivante.md](docs/musique-vivante.md).
 - [x] **P8.8** Mettre à jour la maquette (depuis claude.ai) : V37, choix Vivante, rappel et carte Pause.
 - [x] **P8.9** Capacité de `MusicGenerator` (`core:music`) : **tonique imposée**, pour que la musique tendue de la
   Vivante soit dans la tonalité de la calme ([musique-vivante.md](docs/musique-vivante.md)). Avant P8.3. Cas : `a

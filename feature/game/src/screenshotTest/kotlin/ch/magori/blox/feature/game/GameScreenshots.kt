@@ -14,6 +14,9 @@ import ch.magori.blox.feature.game.gameover.GameOverOriginalNewRecordPreview
 import ch.magori.blox.feature.game.gameover.GameOverOriginalPreview
 import ch.magori.blox.feature.game.pause.PauseColorfulPreview
 import ch.magori.blox.feature.game.pause.PauseLargeFontPreview
+import ch.magori.blox.feature.game.pause.PauseLiveCalmPreview
+import ch.magori.blox.feature.game.pause.PauseLiveLargeFontPreview
+import ch.magori.blox.feature.game.pause.PauseLiveTensePreview
 import ch.magori.blox.feature.game.pause.PauseOriginalPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelColorfulPreview
 import ch.magori.blox.feature.game.sidepanel.SidePanelLargeFontPreview
@@ -352,6 +355,28 @@ private fun PauseColorfulNight() = PauseColorfulPreview()
 @Preview(fontScale = 2f)
 @Composable
 private fun PauseLargeFont() = PauseLargeFontPreview()
+
+// The card of the pause of a game of the live music, which names its mood (view V37).
+
+@PreviewTest
+@Preview
+@Composable
+private fun PauseLiveCalm() = PauseLiveCalmPreview()
+
+@PreviewTest
+@Preview
+@Composable
+private fun PauseLiveTense() = PauseLiveTensePreview()
+
+@PreviewTest
+@Preview(uiMode = UI_MODE_NIGHT)
+@Composable
+private fun PauseLiveTenseNight() = PauseLiveTensePreview()
+
+@PreviewTest
+@Preview(fontScale = 2f)
+@Composable
+private fun PauseLiveLargeFont() = PauseLiveLargeFontPreview()
 
 // The game over screen (view V4).
 
