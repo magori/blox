@@ -8,7 +8,9 @@ public interface RingtoneExporter {
     /**
      * Writes [score], the music named [name], as a new file of [kind], and returns the `content://` URI of that file,
      * as text. Each export makes a new file. Throws an [IOException] when it could not be written; nothing is then left
-     * behind.
+     * behind. Throws an [IllegalArgumentException], before anything is written, for a score whose bar lasts more than
+     * 60 s, which no music of the player reaches. Cancelled while the file is written, the export may still finish it:
+     * the file is then left without its URI being returned.
      */
     @Throws(IOException::class)
     public suspend fun export(

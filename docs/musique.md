@@ -715,7 +715,8 @@ nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`), l'écriture pa
   fichier est rendu, découpé et encodé avant toute écriture.
 
   **Tests :** `RingtoneWriterTest › the exporter renders the score with the synthesizer of the music, at its tempo`,
-  `RingtoneWriterTest › the file holds the ringtone samples of the rendering, encoded as WAV`.
+  `RingtoneWriterTest › the file holds the ringtone samples of the rendering, encoded as WAV`,
+  `RingtoneWriterTest › a music longer than 60 s is cut at its last whole bar, at the tempo of the score`.
 - **Longueur** : des boucles entières de la musique, le plus petit nombre qui dure **au moins 20 s**. Une boucle de
   20 à 60 s est gardée une fois ; une boucle de moins de 20 s est répétée (le fichier dure alors moins de 40 s) ; une
   boucle de plus de 60 s est **coupée à sa dernière mesure entière avant 60 s** : le fichier ne dépasse jamais 60 s
@@ -769,8 +770,16 @@ nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`), l'écriture pa
 - **Écriture** (`MediaStoreRingtoneExporter`, Android 10 et plus) : collection `Audio.Media` du volume principal,
   type `audio/x-wav`, `RELATIVE_PATH` `Ringtones/BloX/` et `IS_RINGTONE`, ou `Alarms/BloX/` et `IS_ALARM` ;
   l'entrée naît en attente (`IS_PENDING`), invisible des autres applications, et n'est publiée qu'une fois son
-  fichier écrit en entier et fermé. Une écriture qui échoue supprime l'entrée et rend l'`IOException`. Le rendu et
-  l'écriture se font sur le dispatcher donné (`Dispatchers.IO` dans `AppContainer`), jamais sur le fil principal.
+  fichier écrit en entier et fermé ; une publication qui ne change pas exactement une ligne est un échec. Tout échec
+  de `MediaStore` sort en `IOException`, même une `IllegalStateException` ou une `SecurityException`, enveloppée :
+  c'est la promesse de `RingtoneExporter`. Une écriture ou une publication qui échoue supprime d'abord l'entrée ; si
+  la suppression échoue aussi, son exception est jointe à la première (`addSuppressed`), qui reste celle rendue. Une
+  partition dont la mesure dépasse 60 s est refusée (`IllegalArgumentException`) avant toute écriture ; aucune
+  musique du joueur n'en approche. Le rendu et l'écriture se font sur le dispatcher donné (`Dispatchers.IO` dans
+  `AppContainer`), jamais sur le fil principal : le rendu, quelques secondes de calcul au plus, n'a pas de dispatcher
+  à lui. **Annulation** : l'écriture, bloquante, ne s'interrompt pas ; une coroutine annulée pendant qu'elle écrit
+  laisse un fichier publié dont l'appelant ne reçoit pas l'URI (`CancellationException`). La feuille (P13.7) ne
+  doit donc pas annuler un export en cours, ou accepter ce fichier orphelin.
   `export` rend l'URI `content://` du fichier écrit, en texte (comme `MusicFile.uri`) : un `android.net.Uri` ne se
   construit pas dans les tests sur la JVM, où `FakeRingtoneExporter` (doublures de test de `core:audio`) note les
   exports et peut échouer. Les appels à `MediaStore` passent par `RingtoneStore` (insertion, flux, publication,
@@ -779,6 +788,12 @@ nom du fichier (P13.3 à P13.5, fonctions pures de `core:audio`), l'écriture pa
 
   **Tests :** `RingtoneWriterTest › an entry is published only once its file is whole`,
   `RingtoneWriterTest › a write that fails leaves no entry behind`,
+  `RingtoneWriterTest › a write that fails otherwise than on input or output leaves no entry behind, and fails as
+  one`, `RingtoneWriterTest › a publication that fails leaves no entry behind`,
+  `RingtoneWriterTest › an entry that cannot be made fails as input or output`,
+  `RingtoneWriterTest › a removal that fails too keeps the failure of the write`,
+  `FakeRingtoneExporterTest › each export of the fake gets a URI of its own`,
+  `FakeRingtoneExporterTest › the fake fails while its failure is set, and notes the export asked for`,
   `MediaStoreRingtoneExporterTest › a ringtone is written in Ringtones BloX, marked as a ringtone and no longer
   pending`, `MediaStoreRingtoneExporterTest › an alarm is written in Alarms BloX, marked as an alarm`,
   `MediaStoreRingtoneExporterTest › the file written reads back as the WAV encoded`,

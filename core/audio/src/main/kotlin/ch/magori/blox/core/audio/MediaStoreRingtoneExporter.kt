@@ -10,7 +10,9 @@ import kotlinx.coroutines.withContext
 
 /**
  * Writes the ringtones through `MediaStore`, without any permission, from Android 10 on (ADR 0031): rendered by
- * [synthesizer], the synthesizer of the music, then written by [contentResolver], all of it on [dispatcher].
+ * [synthesizer], the synthesizer of the music, then written by [contentResolver], all of it on [dispatcher]. One
+ * dispatcher, the one of input and output, for the rendering too: a few seconds of work at most, off the main thread,
+ * which the export of a single file does not need to split.
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 public class MediaStoreRingtoneExporter(

@@ -45,7 +45,9 @@ internal class ContentResolverRingtoneStore(private val resolver: ContentResolve
         resolver.openOutputStream(entry) ?: throw IOException("MediaStore opened no stream for $entry")
 
     override fun publish(entry: Uri) {
-        resolver.update(entry, ContentValues().apply { put(MediaStore.Audio.Media.IS_PENDING, 0) }, null, null)
+        val updated =
+            resolver.update(entry, ContentValues().apply { put(MediaStore.Audio.Media.IS_PENDING, 0) }, null, null)
+        if (updated != 1) throw IOException("MediaStore published $updated entries for $entry")
     }
 
     override fun delete(entry: Uri) {

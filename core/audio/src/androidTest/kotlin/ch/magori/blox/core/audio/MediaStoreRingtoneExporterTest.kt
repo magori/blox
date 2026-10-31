@@ -2,7 +2,9 @@ package ch.magori.blox.core.audio
 
 import android.content.ContentResolver
 import android.net.Uri
+import android.os.Build
 import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry
 import ch.magori.blox.core.music.Note
 import ch.magori.blox.core.music.Pitch
@@ -10,6 +12,7 @@ import ch.magori.blox.core.music.Score
 import ch.magori.blox.core.music.ScoreId
 import ch.magori.blox.core.music.Voice
 import ch.magori.blox.core.music.Waveform
+import de.mannodermaus.junit5.condition.EnabledOnSdkVersion
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
@@ -18,11 +21,13 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
 /**
- * `MediaStore` really writes a ringtone or an alarm in the shared storage, from Android 10 on (the device of the test
- * is); the rendering and the cleaning after a failure are tested on the JVM (`RingtoneWriterTest`). Every file written
+ * `MediaStore` really writes a ringtone or an alarm in the shared storage, from Android 10 on (skipped below); the
+ * rendering and the cleaning after a failure are tested on the JVM (`RingtoneWriterTest`). Every file written
  * is removed after each test.
  */
 // Sentences in @DisplayName: below DEX 040 (minSdk 26), a method name may not hold a space.
+@RequiresApi(Build.VERSION_CODES.Q)
+@EnabledOnSdkVersion(from = Build.VERSION_CODES.Q)
 class MediaStoreRingtoneExporterTest {
     private val resolver: ContentResolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
 
