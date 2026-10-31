@@ -685,9 +685,11 @@ accessibilité, build et CI) : constats et raisons des écarts dans
   2026-10-20, section Réglages) : les brancher (`HomeViewModel`, `HomeUiState`, `HomeScreen`, captures) et fixer
   leur valeur par défaut : désactivés (décisions du développeur, 2026-10-19 et 2026-10-20 ; P5.2,
   P4.8). Fait : section Réglages, `settingColors`, désactivés par défaut.
-- [ ] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
+- [x] **P5.38** Nom du fichier retenu sous « Mon fichier » (maquette V1 faite le 2026-10-20, « Changer »
   déjà codé), à afficher
-  (`OpenableColumns.DISPLAY_NAME`) (P4.6).
+  (`OpenableColumns.DISPLAY_NAME`) (P4.6). Fait : nom lu une fois au choix (`MusicFileNames`,
+  `DocumentMusicFileNames` dans `app`), gardé avec l'URI (clé `name` de `music_file.preferences_pb`), affiché
+  dans la feuille Musique sur une ligne, coupé au milieu ; sans nom connu, « Un fichier audio de l'appareil ».
 - [x] **P5.36** Retirer le soulignement des choix sélectionnés de l'accueil (demande du
   développeur) : le choix sélectionné reste plein, à 3:1 au moins en luminance des choix cadrés.
 - [x] **P5.39** En police agrandie (×2), l'action « Changer » sous « Mon fichier » est coupée sur
@@ -994,7 +996,7 @@ composants.
   ticks`, `the clear pops the cells by pairs from the centre within the clear delay`, `the points sticker rises
   and fades in 45 ticks`, `in reduced effects nothing moves and the score shows at once`, `a paused game freezes
   its effects`, `nothing recomposes while an effect plays`, `the painters are built once while effects play`.
-- [ ] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
+- [x] **P5.81** Retours de jeu, seconde tranche : 4 lignes (reflet irisé autour du cadre, autocollant « 4
   LIGNES »), `LevelUp` (encart NIVEAU qui bascule et s'encadre d'`accent` 1 s, annonce TalkBack), `StackDanger`
   (cadre `danger` de 4 dp, 5 rangées du haut en `danger-soft` qui respirent), record battu (rebond, barre
   irisée). Après P5.64, P5.80.
@@ -1120,7 +1122,7 @@ composants.
     categories, each with what it sounds like, the chosen one checked`, `choosing a category keeps the sheet open and
     the choice`, `Tirer une musique rolls in the category chosen and closes the sheet, and a message tells Annuler` ;
     captures.
-  - [ ] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
+  - [x] **P5.102** Éditeur v2, barre et commandes (`feature:composer`, V33) : barre (Retour, titre-bouton Renommer,
     dé, « … » en `BloxMenu`) ; pistes et Poser / Allonger en `ChoiceSegments` (coche sur le retenu) ; Annuler,
     Copier, Effacer compacts ; mesures en 2 × 4, mesure jouée lue « en lecture » ; tempo en pilule (disques nus de
     48 dp) et Écouter de 56 dp ; Enregistrer seul en `accent`, toujours en accent, point devant tant que la musique a
@@ -1211,6 +1213,19 @@ composants.
 - [ ] **P5.112** Factoriser `pressSystemBack` (règle de 2), écrit trois fois : `BloxNavDisplayTest` (l. 1135),
   `ComposerScreenTest`, et en ligne dans `GameScreenLifecycleTest` (l. 299) et `GameScreenPauseTest` (l. 109). Une
   seule aide, par exemple `ComponentActivity.pressSystemBack()`, dans une doublure de test instrumenté partagée.
+- [ ] **P5.113** `textLayout(…).hasVisualOverflow` vrai pour le libellé d'un `BubbleButton` qui tient pourtant dans
+  son bouton (découvert en P5.102, « Annuler » en police ×2 : paragraphe de 754 px pour un nœud de 481) : trouver
+  pourquoi la mise en page lue par la sémantique n'est pas celle du nœud, puis rendre la vérification à
+  `ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp…` (qui compare les
+  bornes en attendant). Écouter aussi l'éditeur V33 avec TalkBack sur appareil (groupes « Piste » et « Outil »,
+  mesures lues comme boutons radio, P5.95 ; mesure jouée lue « en lecture » ou « sélectionnée, en lecture »).
+- [ ] **P5.115** Fusionner les mises en page « à côté ou dessous » (`core:designsystem`, règle de 2, revue de P5.102) :
+  `FixedBesideRest` de l'éditeur refait `SettingRowLayout` (une part fixe, le reste de la ligne, dessous quand elle
+  ne tient pas), et `ColumnOrRow` refait `SideBySideOrStacked`. Une seule mise en page partagée pour chacune, ses
+  décisions en fonctions pures (comme `fitsBesideFixed`, `sideBySide`), sans changer les rangées de réglage ni leurs
+  captures.
+- [ ] **P5.116** Mettre à jour la maquette (depuis claude.ai) : *Changer* sous *Mon fichier* quand le nom du fichier
+  est affiché (feuille Musique, V1 ; à côté, le nom serait coupé à 360 dp, revue de P5.38).
 
 ## P6 — Mode Moderne (plus tard)
 

@@ -65,6 +65,7 @@ import ch.magori.blox.core.board.piece.nextPieceCells
 import ch.magori.blox.core.designsystem.theme.BloxEffects
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
+import ch.magori.blox.core.game.engine.GameEvent
 import ch.magori.blox.core.game.model.Board
 import ch.magori.blox.core.game.model.Level
 import ch.magori.blox.core.game.model.Lines
@@ -82,7 +83,9 @@ import ch.magori.blox.feature.game.controls.RotationPad
 import ch.magori.blox.feature.game.controls.keySourceOf
 import ch.magori.blox.feature.game.controls.menuKey
 import ch.magori.blox.feature.game.controls.rememberHeldControls
+import ch.magori.blox.feature.game.feedback.DangerRows
 import ch.magori.blox.feature.game.feedback.FeedbackEffects
+import ch.magori.blox.feature.game.feedback.GameFeedback
 import ch.magori.blox.feature.game.feedback.PointsSticker
 import ch.magori.blox.feature.game.feedback.lineClearFeedback
 import ch.magori.blox.feature.game.feedback.rememberFeedbackEffects
@@ -406,6 +409,7 @@ private fun Game(
     // Before it is beaten, the best changes once, when the results give it; then it follows the score.
     val best by rememberPart(uiState) { it.shownBest() }
     val leftHanded by rememberPart(uiState) { it.leftHanded }
+    val effects = rememberFeedbackEffects(remember(uiState) { { uiState().feedback } })
     val controls = rememberHeldControls(onControl)
     // The buttons still held are let go as the game pauses: it stays on screen, under the curtain.
     LaunchedEffect(controls) {
@@ -424,7 +428,13 @@ private fun Game(
             .padding(ScreenMargin),
         verticalArrangement = Arrangement.spacedBy(ScreenSizes.gap),
     ) {
-        GameTopBar(best = best, onPause = onPause, pauseEnabled = !tooSmallToPlay, labels = labels)
+        GameTopBar(
+            best = best,
+            onPause = onPause,
+            pauseEnabled = !tooSmallToPlay,
+            labels = labels,
+            bestBounce = effects?.let { it::bestBounce },
+        )
         if (tooSmallToPlay) {
             TooSmallMessage(
                 modifier = Modifier
@@ -448,6 +458,7 @@ private fun Game(
                 }
                 Play(
                     uiState = uiState,
+                    effects = effects,
                     layout = layout,
                     controls = controls,
                     keysShown = known != null,
@@ -485,21 +496,24 @@ private data class SideColumn(
     val lines: Lines,
     val next: PieceCells,
     val bestFill: Float?,
+    val bestBeaten: Boolean,
 )
 
-private fun GameUiState.sideColumn(): SideColumn = SideColumn(score, level, lines, next, bestBarFill(score, best))
+private fun GameUiState.sideColumn(): SideColumn =
+    SideColumn(score, level, lines, next, bestBarFill(score, best), bestBeaten)
 
 /**
  * The board, the side column and, when [keysShown], the touch controls of [controls], each where [layout] puts it.
  * The score column scrolls when its panels do not fit, as with an enlarged font, rather than pass under the screen or
  * over the controls. The board reads the board and the piece only while drawing, as the [curtain] of the pause, of empty
- * cells, that covers the board and the next piece. In Couleurs, the effects of the game ([FeedbackEffects], ADR 0024)
- * are read while drawing too: on the board, its sticker « +points » and the icons of B and A; only the score that counts
- * up recomposes, its text alone.
+ * cells, that covers the board and the next piece. In Couleurs, the [effects] of the game (ADR 0024) are read while
+ * drawing too: on the board, its frame (danger, four lines), its rows in danger and its sticker « +points »; the icons of
+ * B and A; the panel of the level. Only the score that counts up recomposes, its text alone.
  */
 @Composable
 private fun Play(
     uiState: () -> GameUiState,
+    effects: FeedbackEffects?,
     layout: GameLayout,
     controls: HeldControls,
     keysShown: Boolean,
@@ -508,19 +522,25 @@ private fun Play(
 ) {
     val scoreScroll = rememberScrollState()
     val side by rememberPart(uiState, GameUiState::sideColumn)
-    val effects = rememberFeedbackEffects(remember(uiState) { { uiState().feedback } })
     val shownScore = remember(effects, uiState) { effects?.let { shown -> { shown.shownScore(uiState().score) } } }
+    val levelLook = effects?.let { it::levelLook }
+    // The bar of the best turns iridescent in Couleurs only: Original stays as it was.
+    val bestBeaten = effects != null && side.bestBeaten
     PlacedParts(modifier = modifier) {
         // First, under the board: its background and frame, around its cells.
-        BoardFrame(modifier = Modifier.layoutId(layout.boardFrame))
+        BoardFrame(modifier = Modifier.layoutId(layout.boardFrame), effects = effects)
         BoardCanvas(
             board = { uiState().board },
             piece = { uiState().piece },
             modifier = Modifier.placedAt(layout.board, ReadingOrder.BOARD),
             effects = effects?.board,
         )
-        // Over the board, its sticker « +points », under the curtain of the pause, which hides it with the board.
-        if (effects != null) PointsSticker(sticker = effects::sticker, modifier = Modifier.layoutId(layout.board))
+        // Over the board, its rows in danger and its sticker « +points », under the curtain of the pause, which hides them
+        // with the board.
+        if (effects != null) {
+            DangerRows(tint = effects::dangerTint, modifier = Modifier.layoutId(layout.board))
+            PointsSticker(sticker = effects::sticker, modifier = Modifier.layoutId(layout.board))
+        }
         // Over the board, the curtain: a board of empty cells, of which only the rows it covers are drawn.
         BoardCanvas(
             board = EmptyBoard,
@@ -542,6 +562,8 @@ private fun Play(
                 modifier = scores,
                 previewModifier = nextCurtain,
                 shownScore = shownScore,
+                levelLook = levelLook,
+                bestBeaten = bestBeaten,
             )
 
             nextPiece == null -> SidePanel(
@@ -554,6 +576,8 @@ private fun Play(
                 modifier = scores,
                 previewModifier = nextCurtain,
                 shownScore = shownScore,
+                levelLook = levelLook,
+                bestBeaten = bestBeaten,
             )
 
             else -> {
@@ -564,6 +588,8 @@ private fun Play(
                     bestFill = side.bestFill,
                     modifier = scores,
                     shownScore = shownScore,
+                    levelLook = levelLook,
+                    bestBeaten = bestBeaten,
                 )
                 NextPiecePanel(
                     next = side.next,
@@ -922,6 +948,93 @@ internal fun GameScreenClearedPreview() {
 @Composable
 internal fun GameScreenClearedReducedPreview() {
     FeedbackPreview(clearedState, BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+// The feedback of four lines (V28), 5 ticks after rows 16 to 19 were cleared on tick 118, for 1 200 points: the
+// iridescent reflection setting off around the frame, the sticker « 4 LIGNES +1200 », the level 6 gained, framed and
+// tilted, and the record beaten on the same tick, its sticker bouncing and its bar iridescent.
+
+/** The I that fills rows 16 to 19, locked on tick 100. */
+private val previewUpright = Piece(PieceType.I, ClassicRotationSystem.orientations(PieceType.I)[1], Position(9, 18))
+
+/** The feedback of four lines cleared on tick 118, which reached level 6 and beat the record, 5 ticks later. */
+private val fourLinesFeedback = lineClearFeedback(
+    previewUpright,
+    listOf(16, 17, 18, 19),
+    lockTick = 100,
+    clearDelay = 18,
+    Points(98_000),
+    Points(99_200),
+)(118).after(118, listOf(GameEvent.LevelUp(Level(6))), null, Points(99_200), Points(99_200))
+    .withBestBeaten()
+    .after(123, emptyList(), null, Points(99_200), Points(99_200))
+
+private val fourLinesState = previewState.copy(
+    board = Board.parse(
+        """
+        J.........
+        JJJ..OO..L
+        """,
+    ),
+    piece = null,
+    level = Level(6),
+    lines = Lines(60),
+    score = Points(99_200),
+    bestBeaten = true,
+    feedback = fourLinesFeedback,
+)
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenFourLinesPreview() {
+    FeedbackPreview(fourLinesState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenFourLinesReducedPreview() {
+    FeedbackPreview(fourLinesState, BloxEffects(reduced = true, forcedBySystem = false))
+}
+
+// The stack in danger (V28), 60 ticks after it entered it: the frame of the board in danger, the 5 top rows tinted, at the
+// bottom of their breath (whole in reduced effects).
+
+private val dangerState = previewState.copy(
+    board = Board.parse(
+        """
+        ......J...
+        ...OO.JJJ.
+        LLLOO.ZZ..
+        L.TTT..ZZ.
+        L..T..SS..
+        IIII.SS..J
+        ..OO..L..J
+        ..OOLLL.JJ
+        TTT.ZZ..II
+        .T...ZZ.II
+        SS..IIII.I
+        .SS.JJJ..I
+        OO..ZZJ.LL
+        OO...ZZ..L
+        IIII.SS..L
+        """,
+    ),
+    piece = Piece(PieceType.T, ClassicRotationSystem.spawnOrientation(PieceType.T), Position(column = 4, row = 1)),
+    feedback = GameFeedback()
+        .after(100, listOf(GameEvent.StackDanger(on = true)), null, Points(0), Points(0))
+        .after(160, emptyList(), null, Points(0), Points(0)),
+)
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenDangerPreview() {
+    FeedbackPreview(dangerState)
+}
+
+@Preview(widthDp = 360, heightDp = 760)
+@Composable
+internal fun GameScreenDangerReducedPreview() {
+    FeedbackPreview(dangerState, BloxEffects(reduced = true, forcedBySystem = false))
 }
 
 // A daily game (V39): GRAINE DU JOUR and the best of the day in the top bar, in the Colorful theme only (ADR 0026).

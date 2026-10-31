@@ -240,7 +240,7 @@ graph LR
   listes blanches, si bien que tout autre fichier reste sur l'appareil. Un fichier qui garde des
   URI de contenu ne doit jamais y figurer : la permission persistante ne suit pas l'appareil, et
   l'identifiant du document révélerait le nom d'un fichier de l'utilisateur : c'est le cas de
-  `music_file.preferences_pb`, l'URI de « Mon fichier » (P4.6, ADR 0018,
+  `music_file.preferences_pb`, l'URI de « Mon fichier » et le nom du fichier (P4.6, P5.38, ADR 0018,
   `BackupRulesTest › the music file of my file never leaves the device`). Les résultats de la
   Graine du jour (`daily_challenge.preferences_pb`, P9.3) ne la suivent pas non plus : un premier
   essai n'a de sens que sur l'appareil où il a été joué

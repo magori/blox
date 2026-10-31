@@ -105,14 +105,50 @@ après l'étiquette « Musique », Écouter (`ListenButton`) pour la musique ret
 TalkBack ne lit pas) pour *Aucune*, ou une place vide de 48 dp pour *Mon fichier* sans fichier ; puis le nom de la
 musique et un chevron, bouton lu « Musique : X. Choisir une autre musique », qui ouvre une feuille du bas (`BloxSheet`,
 ouverture gardée par l'écran). La feuille offre Korobeïniki, Menuet, Mon fichier, la musique du joueur pour les
-parties (s'il en a une) et Aucune, en `SheetChoiceRow` cochées, chacune avec sa ligne (*Mon fichier* : « Un fichier
-audio de l'appareil », ou « Choisir un fichier audio » sans fichier ; textes du développeur) et Écouter quand elle
+parties (s'il en a une) et Aucune, en `SheetChoiceRow` cochées, chacune avec sa ligne (*Mon fichier* : le nom du
+fichier gardé, « Un fichier audio de l'appareil » si ce nom n'est pas connu, ou « Choisir un fichier audio » sans
+fichier ; textes du développeur) et Écouter quand elle
 s'écoute. Choisir enregistre sans fermer ; *Mon fichier* sans fichier ouvre le sélecteur du système. *Changer*
 n'est que dans la feuille, sur la rangée *Mon fichier* qui a un fichier, entre le choix et Écouter, ou sous la
 rangée, au bout, quand la place manque (police agrandie, fenêtre étroite). Un seul aperçu à la fois ; fermer la
 feuille (retour ou voile) l'arrête. Écarts avec la maquette : *Changer* absent de la carte (trop étroit à 360 dp),
-pas de croix dans le titre de la feuille, pas de nom de fichier sous *Mon fichier*, lignes sur deux lignes au lieu
-d'être coupées. **Rappel sous Jouer** (décision du développeur) : il nomme la musique qui jouera ; *Mon fichier* sans
+pas de croix dans le titre de la feuille, lignes sur deux lignes au lieu d'être coupées (sauf le nom du fichier),
+*Changer* sous la rangée *Mon fichier*, au bout, dès que le nom du fichier est affiché (à 360 dp en police normale
+aussi ; la maquette le met à côté du nom, qui serait alors coupé : P5.116).
+**Nom du fichier** (P5.38) : sous *Mon fichier*, le nom que montre le sélecteur du système (« orage-d-ete.ogg »,
+`OpenableColumns.DISPLAY_NAME`), sur une ligne, à la taille de la police (×2 compris), coupé au milieu par une ellipse
+s'il est trop long, pour garder son début et son extension ; *Changer* passe sous la rangée plutôt que de couper un
+nom qui tiendrait seul (`SheetChoiceRow`, `oneLineSubLine` : la ligne demande sa largeur entière) ; TalkBack le lit en entier, avec le choix (« Mon fichier,
+orage-d-ete.ogg, case d'option »). Il est lu **une fois, au choix du fichier** (`MusicFileNames`, `core:data` ;
+implémentation `DocumentMusicFileNames` dans `app`, requête du `ContentResolver` hors du fil principal, attendue 2 s
+au plus : le choix attend le nom, et un fournisseur muet ne doit pas le retenir ; passé ce délai, pas de nom), puis gardé
+avec l'URI dans `music_file.preferences_pb` (clé `name`) : l'accueil ne redemande jamais le document, et le nom reste
+même si la permission se perd ou si le fichier est supprimé (le repli sur Korobeïniki, lui, ne se découvre qu'à la
+partie). Un nom illisible (document hors d'atteinte, sans fournisseur, sans nom ou nom vide) n'empêche pas le choix :
+le fichier est gardé sans nom. Sans nom connu (fichier choisi avant P5.38, ancien fichier de préférences sans la clé
+`name`, relu tel quel), la ligne reste « Un fichier audio de l'appareil ». Le nom, comme l'URI, ne quitte pas
+l'appareil : le fichier est déjà hors des règles de sauvegarde (`BackupRulesTest` inchangé).
+**Tests :** `MusicFileRepositoryContract › the name of the music file chosen is read back with it`,
+`MusicFileRepositoryContract › a music file chosen without a name has none, even when it was kept with one before`,
+`MusicFileRepositoryContract › another music file chosen with its name replaces the name of the one before`,
+`MusicFileRepositoryContract › the named music file flow emits each change once, and nothing when the same file is chosen again`,
+`ReadWithinTest › a read that answers in time gives its answer`,
+`ReadWithinTest › a read that does not answer in time gives nothing, without waiting for it any longer`,
+`DataStoreMusicFileRepositoryTest › a music file kept by an earlier version, without a name, is read back without one`,
+`DataStoreMusicFileRepositoryTest › the name is stored as text under a key that must not change`,
+`HomeViewModelTest › choosing a music file keeps the name the picker shows, shown under my file`,
+`HomeViewModelTest › choosing a music file whose name cannot be read keeps it without a name, shown without one`,
+`DocumentMusicFileNamesTest › the name of an audio file of the device is its display name, and it has none once deleted`,
+`DocumentMusicFileNamesTest › a document out of reach, its permission lost or never given, has no name`,
+`DocumentMusicFileNamesTest › a document of no provider, or no document at all, has no name`,
+`DocumentMusicFileNamesTest › the name is the display name of the first row; none without a row, a column, or with a blank one`,
+`SheetChoiceRowTest › a sub-line kept on one line, too long for it, is cut in its middle, and read whole by TalkBack`,
+`HomeScreenTest › in the sheet, Mon fichier with a file shows its name under it, read by TalkBack with the choice`,
+`HomeScreenTest › in the sheet, Mon fichier with a file of unknown name says it is an audio file of the device`,
+`HomeScreenTest › in a normal font, on 360 dp, a name of a file stands whole under Mon fichier, Changer under the row`,
+`HomeScreenTest › in a font twice as large, a long name of a file holds one line under Mon fichier, cut in its middle, apart` ;
+captures `HomeMusicSheet*`. Vue : V1.
+**Rappel sous Jouer** (décision du développeur) : il nomme la musique qui jouera ; *Mon fichier* sans
 fichier gardé joue Korobeïniki (`MusicChoice.MY_FILE_FALLBACK`, `core:data`, partagé avec `app`), et le rappel le dit,
 tandis que la rangée de la carte garde « Mon fichier », le réglage choisi. Un fichier gardé mais illisible n'est
 découvert qu'à la partie : le rappel dit alors encore « Mon fichier ».

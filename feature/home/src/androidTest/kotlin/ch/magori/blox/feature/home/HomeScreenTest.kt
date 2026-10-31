@@ -43,6 +43,7 @@ import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.isDialog
 import androidx.compose.ui.test.isHeading
+import androidx.compose.ui.test.isSelectable
 import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
@@ -324,16 +325,88 @@ internal class HomeScreenTest {
         assertWithinSheet(change, listen)
     }
 
+    @Test
+    @DisplayName("in the sheet, Mon fichier with a file shows its name under it, read by TalkBack with the choice")
+    fun inTheSheetMyFileShowsTheNameOfItsFile() = extension.use {
+        // Given a music file kept, with its name
+        showHomeScreen(
+            uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true, musicFileName = FILE_NAME),
+        )
+        openMusicSheet("Menuet")
+
+        // Then the name stands in place of « Un fichier audio de l'appareil », read with Mon fichier
+        onNode(inSheet(isSelectable() and hasText("Mon fichier") and hasText(FILE_NAME))).assertExists()
+        onAllNodes(inSheet(hasText("Un fichier audio de l'appareil"))).assertCountEquals(0)
+    }
+
+    @Test
+    @DisplayName("in the sheet, Mon fichier with a file of unknown name says it is an audio file of the device")
+    fun inTheSheetMyFileOfUnknownNameSaysItIsAFileOfTheDevice() = extension.use {
+        // Given a music file kept without a name (kept before the names were, or whose name could not be read)
+        showHomeScreen(uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true))
+        openMusicSheet("Menuet")
+
+        // Then
+        onNode(inSheet(isSelectable() and hasText("Mon fichier") and hasText("Un fichier audio de l'appareil")))
+            .assertExists()
+    }
+
+    @Test
+    @DisplayName(
+        "in a normal font, on 360 dp, a name of a file stands whole under Mon fichier, Changer under the row",
+    )
+    fun inANormalFontANameOfAFileStandsWhole() = extension.use {
+        // Given the sheet, a music file of a usual name kept, on 360 dp
+        showSettledMusicSheet(NARROW_PHONE, fontScale = 1f, kind = BloxThemeKind.COLORFUL, fileName = FILE_NAME)
+
+        // Then the name is not cut: Changer leaves it room, under Écouter, at the end of the row
+        val layout = textLayout(FILE_NAME)
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.isLineEllipsized(0)).isFalse()
+        val (change, listen, _) = myFileRow()
+        assertThat(change.top).isGreaterThanOrEqualTo(listen.bottom)
+        assertThat(change.right.value).isCloseTo(listen.right.value, within(PIXEL_ROUNDING))
+        val name = onNode(hasText(FILE_NAME), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertApart(change, listen, name)
+        assertWithinSheet(change, listen, name)
+    }
+
+    @ParameterizedTest(name = "in {0}")
+    @EnumSource(BloxThemeKind::class)
+    @DisplayName(
+        "in a font twice as large, a long name of a file holds one line under Mon fichier, cut in its middle, apart",
+    )
+    fun inALargeFontALongNameOfAFileHoldsOneLine(kind: BloxThemeKind) = extension.use {
+        // Given the sheet, a music file of a long name kept, in a font twice as large, on 360 dp
+        showSettledMusicSheet(NARROW_PHONE, fontScale = 2f, kind = kind, fileName = LONG_FILE_NAME)
+
+        // Then the name holds one line, its end kept, read whole
+        val layout = textLayout(LONG_FILE_NAME)
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.getLineEnd(0, visibleEnd = true)).isEqualTo(LONG_FILE_NAME.length)
+        onNode(isSelectable() and hasText(LONG_FILE_NAME)).assertExists()
+        // And it stands apart from Changer and Écouter, within the sheet
+        val (change, listen, _) = myFileRow()
+        val name = onNode(hasText(LONG_FILE_NAME), useUnmergedTree = true).getUnclippedBoundsInRoot()
+        assertApart(change, listen, name)
+        assertWithinSheet(change, listen, name)
+    }
+
     /**
      * The sheet Musique come in, without its window, [width] wide, in a font [fontScale] times as large, in [kind]: its
-     * window would take the density of the device, not the one given to the test. A music file is kept.
+     * window would take the density of the device, not the one given to the test. A music file is kept, of [fileName].
      */
     private fun ComposeContext.showSettledMusicSheet(
         width: Dp,
         fontScale: Float,
         kind: BloxThemeKind,
+        fileName: String? = null,
     ) {
-        val state = uiState.copy(listenable = listOf(MusicChoice.MY_FILE), hasMusicFile = true)
+        val state = uiState.copy(
+            listenable = listOf(MusicChoice.MY_FILE),
+            hasMusicFile = true,
+            musicFileName = fileName,
+        )
         setContent {
             val density = LocalDensity.current
             CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale)) {
@@ -1011,6 +1084,12 @@ internal class HomeScreenTest {
 
 /** A phone of 360 dp wide, as on the mockup: the narrowest of those BloX is drawn for. */
 private val NARROW_PHONE = 360.dp
+
+/** The name of a music file, as the picker shows it. */
+private const val FILE_NAME = "orage-d-ete.ogg"
+
+/** A name of a music file far too long for a line of the sheet. */
+private const val LONG_FILE_NAME = "enregistrement-de-l-orage-du-soir-sur-le-lac-en-aout-version-longue.ogg"
 
 /** The rounding of an edge to the pixel, in dp: far below a pixel. */
 private const val PIXEL_ROUNDING = 0.01f

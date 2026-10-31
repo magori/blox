@@ -1432,6 +1432,23 @@ class GameViewModelTest {
     }
 
     @Test
+    fun `the best beaten reaches the effects on the tick it is beaten, once`() {
+        // Given a record of 100, and a game that scores 100 points per piece locked
+        val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))
+
+        // When the score passes the record, then the game goes on
+        val beatenFrame = playUntil(viewModel, "the record is beaten") { viewModel.uiState.value.bestBeaten }
+        val beaten = viewModel.uiState.value.feedback
+        playUntil(viewModel, "the score goes on", firstFrame = beatenFrame + ONE_SIXTIETH_NANOS) {
+            viewModel.uiState.value.score.value > 200
+        }
+
+        // Then the effects know the best beaten on the tick the screen learns it, and not again
+        assertThat(beaten.bestBeaten).isEqualTo(beaten.tick)
+        assertThat(viewModel.uiState.value.feedback.bestBeaten).isEqualTo(beaten.tick)
+    }
+
+    @Test
     fun `a paused game freezes its effects`() {
         // Given a game played until a piece locked, then paused
         val viewModel = createViewModel(GameRoute(startLevel = 0, seed = 1L))

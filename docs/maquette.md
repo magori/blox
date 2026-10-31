@@ -136,6 +136,24 @@ et Composer une musique, côte à côte, empilées quand un mot ne tiendrait pas
 `HomeScreenTest › in a font twice as large, on 360 dp, the tiles stand one above the other, each as wide as the line`,
 `LabelledControlTest › in a font twice as large, the label goes above and the gauge under it, centred on the line`.
 
+**V33 codé** (P5.101 dé en feuille, P5.103 grille, P5.102 barre et commandes, `feature:composer`) : barre (disque
+Retour, nom à toucher pour renommer, disque dé, « … » nu qui ouvre un `BloxMenu`) ; pistes et outils en
+`ChoiceSegments` (piste ouverte dans sa couleur, coche sur le retenu) et *Annuler* au bout de la ligne des outils ;
+mesures en 2 × 4 (retenue en `accent`, trait sous la mesure jouée, lue « en lecture »), *Copier* et *Effacer*
+compactes à leur droite ; tempo en pilule (disques nus de 48 dp) et *Écouter* de 56 dp ; *Enregistrer* seul bouton
+Principal, toujours en `accent`, point devant tant que la musique a changé. Écarts retenus au codage : disques du
+tempo de 48 dp (44 sur la planche), tuiles des outils en `buttonLabel` 15 sp (13 sur la planche), 4 dp entre les
+mesures et les outils (8 sur la planche) ; en police agrandie, *Annuler*, *Copier* / *Effacer* et *Écouter* passent
+sous ce qu'ils suivent, et la page défile quand la grille aurait moins de 200 dp. Détail et tests dans
+[generateur-musique.md](generateur-musique.md), « Éditeur v2 : barre et commandes ».
+**Tests :** `ComposerControlsTest › the bar of the editor reads Retour, the name to rename, Au hasard and the menu, in this order`,
+`ComposerControlsTest › the open track is filled in its colour and checked`,
+`ComposerControlsTest › the bars stand on two rows of four, the bar played marked and read en lecture`,
+`ComposerControlsTest › Annuler, Copier and Effacer are disabled when they have no effect`,
+`ComposerControlsTest › Enregistrer is the only button in accent on the editor, its dot shown while the music has changed`,
+`ComposerControlsTest › on 360 by 640 dp in a font twice as large every control is 48 dp and the grid keeps rows of 26 dp, scrolling` ;
+captures `Composer*`.
+
 Mise à jour du 2026-10-20 : la planche suit désormais le code (captures de référence du dépôt)
 pour V1 à V18 ; V19 et V20 sont nouvelles. V1 fait 1360 px de haut (l'accueil défile sur un
 téléphone). Seule la police normale est dessinée : les variantes en police ×2 (barre d'outils de
@@ -173,7 +191,12 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   *Aucune*, en rangées qui passent à la ligne, sans rien dessous. Une seule ligne d'actions, sous
   tous les choix, vaut pour la musique sélectionnée (P5.51) : *Écouter* / *Arrêter*, un disque
   de 48 dp à son seul pictogramme, triangle ou carré, lu « Écouter Menuet » (P5.94) ; pour *Mon fichier*,
-  *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Un
+  *Écouter* et *Changer* côte à côte, empilés s'ils ne tiennent pas ; rien pour *Aucune*. Dans la
+  feuille Musique, sous *Mon fichier*, le nom du fichier retenu (« orage-d-ete.ogg », P5.38), sur une
+  ligne, coupé au milieu s'il est trop long, lu en entier par TalkBack ; *Changer* passe alors sous
+  la rangée, au bout, sous *Écouter* (écart avec la planche, qui le met à côté du nom : P5.116) ;
+  « Un fichier audio de l'appareil » si le nom n'est pas connu (voir `docs/musique.md`, feuille
+  Musique). Un
   seul aperçu à la fois (P4.7), arrêté en changeant de choix, en ouvrant les Paramètres ou
   « Mes musiques ».
 - **Musiques personnelles** (P4.22, maquette mise au code le 2026-10-20) :
@@ -232,7 +255,8 @@ spécification est dans [generateur-musique.md](generateur-musique.md), section 
   vraie valeur ; tant que le record n'est pas lu, sa place reste vide, sans « 000000 ») ; 8 dp
   entre les trois éléments. Une fois le record battu (un score au-dessus d'un record supérieur à 0, P5.56),
   « RECORD » devient l'autocollant NOUVEAU RECORD (`accent`, sur deux lignes s'il le faut, sans inclinaison en
-  Original) et la valeur suit le score ; rien ne bouge dans la barre (P5.78).
+  Original) et la valeur suit le score ; rien ne bouge dans la barre (P5.78), sinon, en Couleurs, le rebond de
+  l'autocollant au moment où le record est battu (P5.81, sans rebond en Effets réduits).
 - Plateau 10 × 20 (cellules de 21 points à 390 dp, comme le code, un peu moins depuis le cadre du plateau de P5.78 ; 24 sur l'ancienne maquette, P2.19) et colonne latérale : pièce suivante, score (avec sa barre de record de 4 dp, P5.78), lignes,
   niveau ; lue dans cet ordre par TalkBack dans toutes les mises en page. Le plateau est cadré (`BoardFrame` :
   2 dp de `panelBorder` et 6 dp du fond du plateau, dessinés dans les marges, sans changer la taille des cases
@@ -586,7 +610,7 @@ cartes, qui ont leur nom pour TalkBack ; les autres sont décoratives (pas lues)
 
 ## Pas encore codé
 
-- **Nom du fichier** sous « Mon fichier » (maquette : « orage-d-ete.ogg ») : P5.38.
+- Rien pour V1 : le nom du fichier sous « Mon fichier » est codé (P5.38).
 
 ## Points ouverts
 

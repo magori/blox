@@ -1,8 +1,12 @@
 package ch.magori.blox.core.designsystem.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -21,7 +25,9 @@ import androidx.compose.ui.test.isSelected
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import ch.magori.blox.core.designsystem.text.textLayout
 import ch.magori.blox.core.designsystem.theme.BloxTheme
 import ch.magori.blox.core.designsystem.theme.BloxThemeKind
 import de.mannodermaus.junit5.compose.createComposeExtension
@@ -102,7 +108,38 @@ internal class SheetChoiceRowTest {
             .assertCountEquals(3)
     }
 
+    @Test
+    @DisplayName("a sub-line kept on one line, too long for it, is cut in its middle, and read whole by TalkBack")
+    fun aSubLineKeptOnOneLineIsCutInItsMiddle() = extension.use {
+        // Given a row of 240 dp whose sub-line, a name of a file, is far too long for it, in a font twice as large
+        setContent {
+            val density = LocalDensity.current
+            CompositionLocalProvider(LocalDensity provides Density(density.density, fontScale = 2f)) {
+                BloxTheme(kind = BloxThemeKind.COLORFUL) {
+                    Box(Modifier.width(240.dp)) {
+                        SheetChoiceRow(
+                            label = CHOSEN,
+                            subLine = LONG_SUB_LINE,
+                            selected = true,
+                            onClick = {},
+                            oneLineSubLine = true,
+                        )
+                    }
+                }
+            }
+        }
+
+        // Then it holds one line, its middle cut, its end kept (the extension of the file)
+        val layout = textLayout(LONG_SUB_LINE)
+        assertThat(layout.lineCount).isEqualTo(1)
+        assertThat(layout.isLineEllipsized(0)).isTrue()
+        assertThat(layout.getLineEnd(0, visibleEnd = true)).isEqualTo(LONG_SUB_LINE.length)
+        // And TalkBack reads it whole, with the choice
+        onNode(isSelectable() and hasText(CHOSEN) and hasText(LONG_SUB_LINE)).assertExists()
+    }
+
     private companion object {
+        const val LONG_SUB_LINE = "enregistrement-de-l-orage-du-soir-sur-le-lac-en-aout-version-longue.ogg"
         const val THIRD = "Berceuse"
         const val CHOSEN = "Surprise"
         const val CHOSEN_SUB_LINE = "Un peu de tout"
